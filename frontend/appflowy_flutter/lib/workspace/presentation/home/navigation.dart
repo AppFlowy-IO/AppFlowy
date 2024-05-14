@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -63,7 +64,7 @@ class FlowyNavigation extends StatelessWidget {
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
       buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
       builder: (context, state) {
-        if (state.isMenuCollapsed) {
+        if (!PlatformExtension.isWindows && state.isMenuCollapsed) {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
             child: FlowyTooltip(

@@ -11,8 +11,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
+import 'package:go_router/go_router.dart';
 
-class PageStyleIcon extends StatelessWidget {
+class PageStyleIcon extends StatefulWidget {
   const PageStyleIcon({
     super.key,
     required this.view,
@@ -21,9 +22,14 @@ class PageStyleIcon extends StatelessWidget {
   final ViewPB view;
 
   @override
+  State<PageStyleIcon> createState() => _PageStyleIconState();
+}
+
+class _PageStyleIconState extends State<PageStyleIcon> {
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => PageStyleIconBloc(view: view)
+      create: (_) => PageStyleIconBloc(view: widget.view)
         ..add(const PageStyleIconEvent.initial()),
       child: BlocBuilder<PageStyleIconBloc, PageStyleIconState>(
         builder: (context, state) {
@@ -60,6 +66,10 @@ class PageStyleIcon extends StatelessWidget {
   }
 
   void _showIconSelector(BuildContext context, String selectedIcon) {
+    context.pop();
+
+    final pageStyleIconBloc = PageStyleIconBloc(view: widget.view)
+      ..add(const PageStyleIconEvent.initial());
     showMobileBottomSheet(
       context,
       showDragHandle: true,
@@ -75,13 +85,13 @@ class PageStyleIcon extends StatelessWidget {
       initialChildSize: 0.61,
       showRemoveButton: true,
       onRemove: () {
-        context.read<PageStyleIconBloc>().add(
-              const PageStyleIconEvent.updateIcon('', true),
-            );
+        pageStyleIconBloc.add(
+          const PageStyleIconEvent.updateIcon('', true),
+        );
       },
       scrollableWidgetBuilder: (_, controller) {
         return BlocProvider.value(
-          value: context.read<PageStyleIconBloc>(),
+          value: pageStyleIconBloc,
           child: Expanded(
             child: Scrollbar(
               controller: controller,
@@ -112,6 +122,8 @@ class _IconSelectorState extends State<_IconSelector> {
   EmojiData? emojiData;
   List<String> availableEmojis = [];
 
+  PageStyleIconBloc? pageStyleIconBloc;
+
   @override
   void initState() {
     super.initState();
@@ -131,6 +143,14 @@ class _IconSelectorState extends State<_IconSelector> {
         },
       );
     }
+
+    pageStyleIconBloc = context.read<PageStyleIconBloc>();
+  }
+
+  @override
+  void dispose() {
+    pageStyleIconBloc?.close();
+    super.dispose();
   }
 
   @override
@@ -146,7 +166,7 @@ class _IconSelectorState extends State<_IconSelector> {
             _buildSearchBar(context),
             Expanded(
               child: GridView.count(
-                crossAxisCount: _getEmojiPerLine(context),
+                crossAxisCount: 7,
                 controller: widget.scrollController,
                 children: [
                   for (final emoji in availableEmojis)
@@ -165,27 +185,33 @@ class _IconSelectorState extends State<_IconSelector> {
     String emoji,
     String? selectedEmoji,
   ) {
-    Widget child = Center(
-      child: FlowyText.emoji(
-        emoji,
-        fontSize: 24,
+    Widget child = SizedBox.square(
+      dimension: 24.0,
+      child: Center(
+        child: FlowyText.emoji(
+          emoji,
+          fontSize: 24,
+        ),
       ),
     );
 
     if (emoji == selectedEmoji) {
-      child = Container(
-        margin: const EdgeInsets.all(8.0),
-        decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(
-              width: 1.50,
-              strokeAlign: BorderSide.strokeAlignOutside,
-              color: Color(0xFF00BCF0),
+      child = Center(
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: ShapeDecoration(
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(
+                width: 1.40,
+                strokeAlign: BorderSide.strokeAlignOutside,
+                color: Color(0xFF00BCF0),
+              ),
+              borderRadius: BorderRadius.circular(10),
             ),
-            borderRadius: BorderRadius.circular(9),
           ),
+          child: child,
         ),
-        child: child,
       );
     }
 
@@ -206,11 +232,6 @@ class _IconSelectorState extends State<_IconSelector> {
         .expand((e) => e)
         .toList();
     return availableEmojis;
-  }
-
-  int _getEmojiPerLine(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    return width ~/ 48.0; // the size of the emoji
   }
 
   Widget _buildSearchBar(BuildContext context) {

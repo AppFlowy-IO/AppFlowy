@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/font_colors.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -48,9 +49,9 @@ class EditorStyleCustomizer {
     return EditorStyle.desktop(
       padding: padding,
       cursorColor: appearance.cursorColor ??
-          DefaultAppearanceSettings.getDefaultDocumentCursorColor(context),
+          DefaultAppearanceSettings.getDefaultCursorColor(context),
       selectionColor: appearance.selectionColor ??
-          DefaultAppearanceSettings.getDefaultDocumentSelectionColor(context),
+          DefaultAppearanceSettings.getDefaultSelectionColor(context),
       defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
@@ -240,6 +241,21 @@ class EditorStyleCustomizer {
     final attributes = text.attributes;
     if (attributes == null) {
       return before;
+    }
+
+    if (attributes.backgroundColor != null) {
+      final color = EditorFontColors.fromBuiltInColors(
+        context,
+        attributes.backgroundColor!,
+      );
+      if (color != null) {
+        return TextSpan(
+          text: before.text,
+          style: after.style?.merge(
+            TextStyle(backgroundColor: color),
+          ),
+        );
+      }
     }
 
     // try to refresh font here.

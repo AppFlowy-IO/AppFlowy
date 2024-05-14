@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.5.6
+version: 0.5.7
 
 environment:
   flutter: ">=3.19.0"
@@ -44,7 +44,7 @@ dependencies:
     # path: ../../../appflowy-board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 404262fca4369bc35ff305316e4d59341a732f56
+      ref: 8a6434ae3d02624b614a010af80f775db11bf22e
   appflowy_result:
     path: packages/appflowy_result
   appflowy_editor_plugins: ^0.0.2
@@ -135,6 +135,7 @@ dependencies:
   numerus: ^2.1.2
   flutter_animate: ^4.5.0
   permission_handler: ^11.3.1
+  scaled_app: ^2.2.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -239,6 +240,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/appearance/
     - assets/images/built_in_cover_images/
     - assets/flowy_icons/
     - assets/flowy_icons/16x/

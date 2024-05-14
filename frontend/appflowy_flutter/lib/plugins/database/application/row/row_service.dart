@@ -96,15 +96,15 @@ class RowBackendService {
     return DatabaseEventUpdateRowMeta(payload).send();
   }
 
-  static Future<FlowyResult<void, FlowyError>> deleteRow(
+  static Future<FlowyResult<void, FlowyError>> deleteRows(
     String viewId,
-    RowId rowId,
+    List<RowId> rowIds,
   ) {
-    final payload = RowIdPB.create()
+    final payload = RepeatedRowIdPB.create()
       ..viewId = viewId
-      ..rowId = rowId;
+      ..rowIds.addAll(rowIds);
 
-    return DatabaseEventDeleteRow(payload).send();
+    return DatabaseEventDeleteRows(payload).send();
   }
 
   static Future<FlowyResult<void, FlowyError>> duplicateRow(
