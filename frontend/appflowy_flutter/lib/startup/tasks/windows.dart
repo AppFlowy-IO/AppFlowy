@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:appflowy/core/helpers/helpers.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:scaled_app/scaled_app.dart';
@@ -46,6 +47,11 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
       await windowManager.show();
       await windowManager.focus();
 
+      if (PlatformExtension.isWindows) {
+        // Hide title bar on Windows, we implement a custom solution elsewhere
+        await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+      }
+
       final position = await windowsManager.getPosition();
       if (position != null) {
         await windowManager.setPosition(position);
@@ -54,8 +60,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
 
     unawaited(
       windowsManager.getScaleFactor().then(
-            (value) =>
-                ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => value,
+            (v) => ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => v,
           ),
     );
   }

@@ -131,12 +131,16 @@ class _UnsplashImages extends StatelessWidget {
     };
     final mainAxisSpacing = switch (type) {
       UnsplashImageType.halfScreen => 16.0,
-      UnsplashImageType.fullScreen => 8.0,
+      UnsplashImageType.fullScreen => 16.0,
+    };
+    final crossAxisSpacing = switch (type) {
+      UnsplashImageType.halfScreen => 10.0,
+      UnsplashImageType.fullScreen => 16.0,
     };
     return GridView.count(
       crossAxisCount: crossAxisCount,
       mainAxisSpacing: mainAxisSpacing,
-      crossAxisSpacing: 10.0,
+      crossAxisSpacing: crossAxisSpacing,
       childAspectRatio: 4 / 3,
       children: photos
           .map(
@@ -197,28 +201,31 @@ class _UnsplashImage extends StatelessWidget {
   }
 
   Widget _buildFullScreenImage(BuildContext context) {
-    return Stack(
-      children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return Image.network(
-              photo.urls.thumb.toString(),
-              fit: BoxFit.cover,
-              width: constraints.maxWidth,
-              height: constraints.maxHeight,
-            );
-          },
-        ),
-        Positioned(
-          bottom: 6,
-          left: 6,
-          child: FlowyText.medium(
-            photo.name,
-            fontSize: 10.0,
-            color: Colors.white,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8.0),
+      child: Stack(
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Image.network(
+                photo.urls.thumb.toString(),
+                fit: BoxFit.cover,
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
+              );
+            },
           ),
-        ),
-      ],
+          Positioned(
+            bottom: 9,
+            left: 10,
+            child: FlowyText.medium(
+              photo.name,
+              fontSize: 13.0,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

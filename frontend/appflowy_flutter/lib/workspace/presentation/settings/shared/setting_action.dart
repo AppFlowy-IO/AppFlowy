@@ -21,11 +21,7 @@ class SettingAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconWidget = tooltip != null && tooltip!.isNotEmpty
-        ? FlowyTooltip(message: tooltip, child: icon)
-        : icon;
-
-    return GestureDetector(
+    final child = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onPressed,
       child: SizedBox(
@@ -36,7 +32,7 @@ class SettingAction extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             child: Row(
               children: [
-                iconWidget,
+                icon,
                 if (label != null) ...[
                   const HSpace(4),
                   FlowyText.regular(label!),
@@ -47,5 +43,14 @@ class SettingAction extends StatelessWidget {
         ),
       ),
     );
+
+    if (tooltip != null) {
+      return FlowyTooltip(
+        message: tooltip!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 }
