@@ -1,11 +1,9 @@
 import 'dart:math';
 
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/font_colors.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -17,6 +15,8 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -241,6 +241,21 @@ class EditorStyleCustomizer {
     final attributes = text.attributes;
     if (attributes == null) {
       return before;
+    }
+
+    if (attributes.backgroundColor != null) {
+      final color = EditorFontColors.fromBuiltInColors(
+        context,
+        attributes.backgroundColor!,
+      );
+      if (color != null) {
+        return TextSpan(
+          text: before.text,
+          style: after.style?.merge(
+            TextStyle(backgroundColor: color),
+          ),
+        );
+      }
     }
 
     // try to refresh font here.
