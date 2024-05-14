@@ -274,14 +274,12 @@ class HomeTopBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.onSecondaryContainer,
-        border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor),
-        ),
       ),
       height: HomeSizes.topBarHeight,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: HomeInsets.topBarTitlePadding,
+          horizontal: HomeInsets.topBarTitleHorizontalPadding,
+          vertical: HomeInsets.topBarTitleVerticalPadding,
         ),
         child: Row(
           children: [

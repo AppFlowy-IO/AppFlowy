@@ -279,7 +279,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
                 ]
               : [],
           DatabaseShareButton(key: ValueKey(view.id), view: view),
-          const HSpace(4),
+          const HSpace(10),
           ViewFavoriteButton(view: view),
           const HSpace(4),
           MoreViewActions(view: view, isDocument: false),

@@ -12,19 +12,21 @@ TextStyle getGoogleFontSafely(
   double? letterSpacing,
   double? lineHeight,
 }) {
-  try {
-    return GoogleFonts.getFont(
-      fontFamily,
-      fontWeight: fontWeight,
-      fontSize: fontSize,
-      color: fontColor,
-      letterSpacing: letterSpacing,
-      height: lineHeight,
-    );
-  } catch (e) {
-    Log.error(
-      'Font family $fontFamily is not available, using default font family instead',
-    );
+  if (fontFamily.isNotEmpty) {
+    try {
+      return GoogleFonts.getFont(
+        fontFamily,
+        fontWeight: fontWeight,
+        fontSize: fontSize,
+        color: fontColor,
+        letterSpacing: letterSpacing,
+        height: lineHeight,
+      );
+    } catch (e) {
+      Log.error(
+        'Font family $fontFamily is not available, using default font family instead',
+      );
+    }
   }
 
   return TextStyle(

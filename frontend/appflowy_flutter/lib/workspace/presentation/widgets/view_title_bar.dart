@@ -46,6 +46,9 @@ class ViewTitleBar extends StatelessWidget {
     // for example:
     // if the views are [root, view1, view2, view3, view4, view5], only show [root, view1, ..., view4, view5]
     // if the views are [root, view1, view2, view3], show [root, view1, view2, view3]
+    const lowerBound = 2;
+    final upperBound = views.length - 2;
+    bool hasAddedEllipsis = false;
     final children = <Widget>[];
 
     if (views.length <= 1) {
@@ -56,6 +59,17 @@ class ViewTitleBar extends StatelessWidget {
     // skip the workspace view
     for (var i = 1; i < views.length; i++) {
       final view = views[i];
+
+      if (i >= lowerBound && i < upperBound) {
+        if (!hasAddedEllipsis) {
+          hasAddedEllipsis = true;
+          children.addAll([
+            const FlowyText.regular(' ... '),
+            const FlowySvg(FlowySvgs.title_bar_divider_s),
+          ]);
+        }
+        continue;
+      }
 
       final child = FlowyTooltip(
         message: view.name,

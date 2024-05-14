@@ -161,7 +161,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
             key: ValueKey('share_button_${view.id}'),
             view: view,
           ),
-          const HSpace(4),
+          const HSpace(10),
           ViewFavoriteButton(
             key: ValueKey('favorite_button_${view.id}'),
             view: view,
