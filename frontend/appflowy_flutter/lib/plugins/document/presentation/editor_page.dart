@@ -1,8 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
@@ -10,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/align_tool
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/format_arrow_character.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/page_reference_commands.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_shortcuts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -29,6 +27,8 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final codeBlockLocalization = CodeBlockLocalizations(
@@ -147,6 +147,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   List<CharacterShortcutEvent> get characterShortcutEvents => [
         // code block
         ...codeBlockCharacterEvents,
+
+        // callout block
+        insertNewLineInCalloutBlock,
 
         // toggle list
         formatGreaterToToggleList,

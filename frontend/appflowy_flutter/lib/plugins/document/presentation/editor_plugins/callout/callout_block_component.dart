@@ -56,7 +56,7 @@ SelectionMenuItem calloutItem = SelectionMenuItem.node(
   iconData: Icons.note,
   keywords: [CalloutBlockKeys.type],
   nodeBuilder: (editorState, context) =>
-      calloutNode(defaultColor: AFThemeExtension.of(context).calloutBGColor),
+      calloutNode(defaultColor: Colors.transparent),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   updateSelection: (_, path, __, ___) {
     return Selection.single(path: path, startOffset: 0);
