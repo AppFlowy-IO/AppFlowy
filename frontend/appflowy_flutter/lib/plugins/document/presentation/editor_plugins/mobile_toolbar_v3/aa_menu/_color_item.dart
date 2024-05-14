@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/font_colors.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_get_selection_color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_color_list.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
@@ -25,7 +26,10 @@ class ColorItem extends StatelessWidget {
         editorState.getSelectionColor(AppFlowyRichTextKeys.textColor);
     final String? selectedBackgroundColor =
         editorState.getSelectionColor(AppFlowyRichTextKeys.backgroundColor);
-
+    final backgroundColor = EditorFontColors.fromBuiltInColors(
+      context,
+      selectedBackgroundColor?.tryToColor(),
+    );
     return MobileToolbarMenuItemWrapper(
       size: const Size(82, 52),
       onTap: () async {
@@ -48,10 +52,12 @@ class ColorItem extends StatelessWidget {
         );
       },
       icon: FlowySvgs.m_aa_font_color_m,
-      iconColor: selectedTextColor?.tryToColor(),
-      backgroundColor: selectedBackgroundColor?.tryToColor() ??
-          theme.toolbarMenuItemBackgroundColor,
-      selectedBackgroundColor: selectedBackgroundColor?.tryToColor(),
+      iconColor: EditorFontColors.fromBuiltInColors(
+        context,
+        selectedTextColor?.tryToColor(),
+      ),
+      backgroundColor: backgroundColor ?? theme.toolbarMenuItemBackgroundColor,
+      selectedBackgroundColor: backgroundColor,
       isSelected: selectedBackgroundColor != null,
       showRightArrow: true,
       iconPadding: const EdgeInsets.only(
