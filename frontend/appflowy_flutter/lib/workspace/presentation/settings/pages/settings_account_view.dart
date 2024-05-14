@@ -10,8 +10,6 @@ import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_input_field.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_third_party_login.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -58,11 +56,9 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
       child: BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
         builder: (context, state) {
           return SettingsBody(
+            title: LocaleKeys.settings_accountPage_title.tr(),
+            description: LocaleKeys.settings_accountPage_description.tr(),
             children: [
-              SettingsHeader(
-                title: LocaleKeys.settings_accountPage_title.tr(),
-                description: LocaleKeys.settings_accountPage_description.tr(),
-              ),
               SettingsCategory(
                 title: LocaleKeys.settings_accountPage_general_title.tr(),
                 children: [
@@ -140,7 +136,6 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               //     ),
               //   ],
               // ),
-              const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_accountPage_keys_title.tr(),
                 children: [
@@ -174,7 +169,6 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                   ),
                 ],
               ),
-              const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_accountPage_login_title.tr(),
                 children: [
@@ -409,10 +403,10 @@ class _UserProfileSettingState extends State<UserProfileSetting> {
             width: 360,
             margin: const EdgeInsets.symmetric(horizontal: 12),
             child: FlowyIconPicker(
-              onSelected: (result) {
-                context.read<SettingsUserViewBloc>().add(
-                      SettingsUserEvent.updateUserIcon(iconUrl: result.emoji),
-                    );
+              onSelected: (r) {
+                context
+                    .read<SettingsUserViewBloc>()
+                    .add(SettingsUserEvent.updateUserIcon(iconUrl: r.emoji));
                 Navigator.of(dialogContext).pop();
               },
             ),

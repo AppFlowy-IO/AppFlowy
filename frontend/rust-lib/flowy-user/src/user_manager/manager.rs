@@ -39,10 +39,12 @@ use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
 
 use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
 use crate::user_manager::manager_user_encryption::validate_encryption_sign;
-use crate::user_manager::manager_user_workspace::save_user_workspaces;
+use crate::user_manager::manager_user_workspace::save_all_user_workspaces;
 use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
 use flowy_user_pub::session::Session;
+
+use super::manager_user_workspace::save_user_workspace;
 
 pub struct UserManager {
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
@@ -708,7 +710,7 @@ impl UserManager {
       self.set_anon_user(session.clone());
     }
 
-    save_user_workspaces(uid, self.db_connection(uid)?, response.user_workspaces())?;
+    save_all_user_workspaces(uid, self.db_connection(uid)?, response.user_workspaces())?;
     info!(
       "Save new user profile to disk, authenticator: {:?}",
       authenticator
@@ -779,13 +781,13 @@ impl UserManager {
     }
 
     // Save the old user workspace setting.
-    save_user_workspaces(
+    save_user_workspace(
       old_user.session.user_id,
       self
         .authenticate_user
         .database
         .get_connection(old_user.session.user_id)?,
-      &[old_user.session.user_workspace.clone()],
+      &old_user.session.user_workspace.clone(),
     )?;
     Ok(())
   }

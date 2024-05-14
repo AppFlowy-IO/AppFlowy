@@ -11,11 +11,9 @@ part 'settings_dialog_bloc.freezed.dart';
 enum SettingsPage {
   // NEW
   account,
+  workspace,
+  manageData,
   // OLD
-  appearance,
-  language,
-  files,
-  // user,
   notifications,
   cloud,
   shortcuts,

@@ -149,22 +149,22 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         fontSize: 28.0,
         fontWeight: FontWeight.w700,
         fontFamily: fontFamily,
-        color: state.cover.type == PageStyleCoverImageType.none
-            ? null
-            : Colors.white,
+        color:
+            state.cover.isNone || state.cover.isPresets ? null : Colors.white,
       ),
-      onSubmitted: (value) {
-        scrollController.position.jumpTo(0);
-        context.read<ViewBloc>().add(ViewEvent.rename(value));
-      },
+      onChanged: _rename,
+      onSubmitted: _rename,
     );
   }
 
   Widget _buildIcon(BuildContext context, String icon) {
     return GestureDetector(
-      child: EmojiIconWidget(
-        emoji: icon,
-        emojiSize: 26,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints.tightFor(width: 34.0),
+        child: EmojiIconWidget(
+          emoji: icon,
+          emojiSize: 26,
+        ),
       ),
       onTap: () async {
         final result = await context.push<EmojiPickerResult>(
@@ -246,5 +246,10 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
     if (selection != null) {
       focusNode.unfocus(disposition: UnfocusDisposition.previouslyFocusedChild);
     }
+  }
+
+  void _rename(String name) {
+    scrollController.position.jumpTo(0);
+    context.read<ViewBloc>().add(ViewEvent.rename(name));
   }
 }

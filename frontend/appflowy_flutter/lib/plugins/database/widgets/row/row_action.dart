@@ -53,7 +53,7 @@ class RowDetailPageDeleteButton extends StatelessWidget {
         text: FlowyText.regular(LocaleKeys.grid_row_delete.tr()),
         leftIcon: const FlowySvg(FlowySvgs.trash_m),
         onTap: () {
-          RowBackendService.deleteRow(viewId, rowId);
+          RowBackendService.deleteRows(viewId, [rowId]);
           FlowyOverlay.pop(context);
         },
       ),

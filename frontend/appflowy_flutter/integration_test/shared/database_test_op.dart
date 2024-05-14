@@ -1463,7 +1463,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   void assertCurrentDatabaseTagIs(DatabaseLayoutPB layout) => switch (layout) {
         DatabaseLayoutPB.Board =>
-          expect(find.byType(BoardPage), findsOneWidget),
+          expect(find.byType(DesktopBoardPage), findsOneWidget),
         DatabaseLayoutPB.Calendar =>
           expect(find.byType(CalendarPage), findsOneWidget),
         DatabaseLayoutPB.Grid => expect(find.byType(GridPage), findsOneWidget),
@@ -1521,7 +1521,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 }
 
 Finder finderForDatabaseLayoutType(DatabaseLayoutPB layout) => switch (layout) {
-      DatabaseLayoutPB.Board => find.byType(BoardPage),
+      DatabaseLayoutPB.Board => find.byType(DesktopBoardPage),
       DatabaseLayoutPB.Calendar => find.byType(CalendarPage),
       DatabaseLayoutPB.Grid => find.byType(GridPage),
       _ => throw Exception('Unknown database layout type: $layout'),

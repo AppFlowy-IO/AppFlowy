@@ -162,7 +162,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
     }
 
     deleteRow
-        ? RowBackendService.deleteRow(viewId, rowId)
+        ? RowBackendService.deleteRows(viewId, [rowId])
         : RowBackendService.duplicateRow(viewId, rowId);
 
     context

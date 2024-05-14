@@ -220,9 +220,10 @@ class PageManager {
       ],
       child: Selector<PageNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
-        builder: (context, widget, child) {
-          return MoveWindowDetector(child: HomeTopBar(layout: layout));
-        },
+        builder: (_, __, child) => MoveWindowDetector(
+          showTitleBar: true,
+          child: HomeTopBar(layout: layout),
+        ),
       ),
     );
   }

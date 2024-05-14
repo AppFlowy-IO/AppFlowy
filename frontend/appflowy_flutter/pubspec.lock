@@ -44,8 +44,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "404262fca4369bc35ff305316e4d59341a732f56"
-      resolved-ref: "404262fca4369bc35ff305316e4d59341a732f56"
+      ref: "8a6434ae3d02624b614a010af80f775db11bf22e"
+      resolved-ref: "8a6434ae3d02624b614a010af80f775db11bf22e"
       url: "https://github.com/AppFlowy-IO/appflowy-board.git"
     source: git
     version: "0.1.2"
@@ -1521,6 +1521,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
+  scaled_app:
+    dependency: "direct main"
+    description:
+      name: scaled_app
+      sha256: "3415fad16d1cf283112988985ccd14c4cd28bf48cbe6432d59e158f3b632d58d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   screen_retriever:
     dependency: transitive
     description:

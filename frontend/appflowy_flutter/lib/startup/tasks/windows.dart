@@ -1,18 +1,23 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:appflowy/core/helpers/helpers.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:scaled_app/scaled_app.dart';
 import 'package:window_manager/window_manager.dart';
 
 class InitAppWindowTask extends LaunchTask with WindowListener {
-  const InitAppWindowTask({
+  InitAppWindowTask({
     this.title = 'AppFlowy',
   });
 
   final String title;
+
+  final windowsManager = WindowSizeManager();
 
   @override
   Future<void> initialize(LaunchContext context) async {
@@ -24,7 +29,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     await windowManager.ensureInitialized();
     windowManager.addListener(this);
 
-    final windowSize = await WindowSizeManager().getSize();
+    final windowSize = await windowsManager.getSize();
     final windowOptions = WindowOptions(
       size: windowSize,
       minimumSize: const Size(
@@ -42,11 +47,22 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
       await windowManager.show();
       await windowManager.focus();
 
-      final position = await WindowSizeManager().getPosition();
+      if (PlatformExtension.isWindows) {
+        // Hide title bar on Windows, we implement a custom solution elsewhere
+        await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+      }
+
+      final position = await windowsManager.getPosition();
       if (position != null) {
         await windowManager.setPosition(position);
       }
     });
+
+    unawaited(
+      windowsManager.getScaleFactor().then(
+            (v) => ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => v,
+          ),
+    );
   }
 
   @override
@@ -54,7 +70,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     super.onWindowResize();
 
     final currentWindowSize = await windowManager.getSize();
-    return WindowSizeManager().setSize(currentWindowSize);
+    return windowsManager.setSize(currentWindowSize);
   }
 
   @override
@@ -62,7 +78,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     super.onWindowMaximize();
 
     final currentWindowSize = await windowManager.getSize();
-    return WindowSizeManager().setSize(currentWindowSize);
+    return windowsManager.setSize(currentWindowSize);
   }
 
   @override
@@ -70,7 +86,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     super.onWindowMoved();
 
     final position = await windowManager.getPosition();
-    return WindowSizeManager().setPosition(position);
+    return windowsManager.setPosition(position);
   }
 
   @override

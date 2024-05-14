@@ -6,6 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -25,20 +26,18 @@ class SidebarTopMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SidebarSectionsBloc, SidebarSectionsState>(
-      builder: (context, state) {
-        return SizedBox(
-          height: HomeSizes.topBarHeight,
-          child: MoveWindowDetector(
-            child: Row(
-              children: [
-                _buildLogoIcon(context),
-                const Spacer(),
-                _buildCollapseMenuButton(context),
-              ],
-            ),
+      builder: (context, _) => SizedBox(
+        height: !PlatformExtension.isWindows ? HomeSizes.topBarHeight : 45,
+        child: MoveWindowDetector(
+          child: Row(
+            children: [
+              _buildLogoIcon(context),
+              const Spacer(),
+              _buildCollapseMenuButton(context),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -72,15 +71,13 @@ class SidebarTopMenu extends StatelessWidget {
     return FlowyTooltip(
       richMessage: textSpan,
       child: FlowyIconButton(
-        width: 28,
+        width: PlatformExtension.isWindows ? 30 : 28,
         hoverColor: Colors.transparent,
         onPressed: () => context
             .read<HomeSettingBloc>()
             .add(const HomeSettingEvent.collapseMenu()),
         iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-        icon: const FlowySvg(
-          FlowySvgs.hide_menu_m,
-        ),
+        icon: const FlowySvg(FlowySvgs.hide_menu_m),
       ),
     );
   }

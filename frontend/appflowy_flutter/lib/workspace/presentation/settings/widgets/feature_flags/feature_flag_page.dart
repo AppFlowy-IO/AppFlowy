@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
 class FeatureFlagsPage extends StatelessWidget {
@@ -15,15 +13,14 @@ class FeatureFlagsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsBody(
+      title: 'Feature flags',
       children: [
-        const SettingsHeader(title: 'Feature flags'),
         SeparatedColumn(
           children: FeatureFlag.data.entries
               .where((e) => e.key != FeatureFlag.unknown)
               .map((e) => _FeatureFlagItem(featureFlag: e.key))
               .toList(),
         ),
-        const SettingsCategorySpacer(),
         FlowyTextButton(
           'Restart the app to apply changes',
           fontSize: 16.0,

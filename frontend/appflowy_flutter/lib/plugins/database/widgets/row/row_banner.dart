@@ -288,7 +288,6 @@ class _TitleSkin extends IEditableTextCellSkin {
     return TextField(
       controller: textEditingController,
       focusNode: focusNode,
-      maxLines: null,
       autofocus: true,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 28),
       decoration: InputDecoration(
