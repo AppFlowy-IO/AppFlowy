@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 part 'timer_cell_bloc.freezed.dart';
 
@@ -34,8 +35,8 @@ class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
     on<TimerCellEvent>(
       (event, emit) async {
         await event.when(
-          didReceiveCellUpdate: (cellData) {
-            emit(state.copyWith(content: cellData ?? ""));
+          didReceiveCellUpdate: (content) {
+            emit(state.copyWith(content: content?.timer ?? ""));
           },
           didUpdateField: (fieldInfo) {
             final wrap = fieldInfo.wrapCellContent;
@@ -48,7 +49,8 @@ class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
               emit(state.copyWith(content: text));
               await cellController.saveCellData(text);
 
-              // If the input content is "abc" that can't parsered as number then the data stored in the backend will be an empty string.
+              // If the input content is "abc" that can't parsered as number
+              // then the data stored in the backend will be an empty string.
               // So for every cell data that will be formatted in the backend.
               // It needs to get the formatted data after saving.
               add(
@@ -83,7 +85,7 @@ class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
 
 @freezed
 class TimerCellEvent with _$TimerCellEvent {
-  const factory TimerCellEvent.didReceiveCellUpdate(String? cellContent) =
+  const factory TimerCellEvent.didReceiveCellUpdate(TimerCellDataPB? cell) =
       _DidReceiveCellUpdate;
   const factory TimerCellEvent.didUpdateField(FieldInfo fieldInfo) =
       _DidUpdateField;
@@ -97,10 +99,10 @@ class TimerCellState with _$TimerCellState {
     required bool wrap,
   }) = _TimerCellState;
 
-  factory TimerCellState.initial(TextCellController cellController) {
+  factory TimerCellState.initial(TimerCellController cellController) {
     final wrap = cellController.fieldInfo.wrapCellContent;
     return TimerCellState(
-      content: cellController.getCellData() ?? "",
+      content: cellController.getCellData()?.timer ?? "",
       wrap: wrap ?? true,
     );
   }

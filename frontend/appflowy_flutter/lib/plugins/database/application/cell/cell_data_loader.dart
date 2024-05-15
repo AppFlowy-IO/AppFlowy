@@ -185,6 +185,14 @@ class RelationCellDataParser implements CellDataParser<RelationCellDataPB> {
 class TimerCellDataParser implements CellDataParser<TimerCellDataPB> {
   @override
   TimerCellDataPB? parserData(List<int> data) {
-    return data.isEmpty ? null : TimerCellDataPB.fromBuffer(data);
+    if (data.isEmpty) {
+      return null;
+    }
+    try {
+      return TimerCellDataPB.fromBuffer(data);
+    } catch (e) {
+      Log.error("Failed to parse timer data: $e");
+      return null;
+    }
   }
 }

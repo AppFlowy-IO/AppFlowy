@@ -77,10 +77,7 @@ impl TypeOptionTransform for TimerTypeOption {}
 
 impl CellDataDecoder for TimerTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    let timer_cell_data = self.parse_cell(cell)?;
-    Ok(TimerCellData::from(
-      TimerTypeOption::format_cell_data(timer_cell_data.0.unwrap()).to_string(),
-    ))
+    self.parse_cell(cell)
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {

@@ -119,6 +119,7 @@ class FieldOptionValues {
       case FieldType.RichText:
       case FieldType.URL:
       case FieldType.Checkbox:
+      case FieldType.Timer:
         return null;
       case FieldType.Number:
         return NumberTypeOptionPB(
@@ -146,8 +147,6 @@ class FieldOptionValues {
           timeFormat: timeFormat,
           includeTime: includeTime,
         ).writeToBuffer();
-      case FieldType.Timer:
-        return TimerTypeOptionPB().writeToBuffer();
       default:
         throw UnimplementedError();
     }

@@ -452,7 +452,7 @@ impl<'a> TypeOptionCellExt<'a> {
       FieldType::Timer => self
         .field
         .get_type_option::<TimerTypeOption>(field_type)
-.map(|type_option| {
+        .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,
             field_type,
