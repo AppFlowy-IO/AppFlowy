@@ -33,7 +33,7 @@ class SettingsNotificationsView extends StatelessWidget {
                 ),
               ],
             ),
-            FlowySettingListTile(
+            SettingListTile(
               label: LocaleKeys
                   .settings_notifications_showNotificationsIcon_label
                   .tr(),
@@ -44,9 +44,9 @@ class SettingsNotificationsView extends StatelessWidget {
                   value: state.isShowNotificationsIconEnabled,
                   splashRadius: 0,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (_) =>
-                      context.read<NotificationSettingsCubit>()
-                        .toogleShowNotificationIconEnabled(),
+                  onChanged: (_) => context
+                      .read<NotificationSettingsCubit>()
+                      .toogleShowNotificationIconEnabled(),
                 ),
               ],
             ),
