@@ -463,6 +463,54 @@
         }
       }
     },
+    "planPage": {
+      "menuLabel": "Plan",
+      "title": "Pricing plan",
+      "planUsage": {
+        "title": "Plan usage summary",
+        "storageLabel": "Storage",
+        "storageUsage": "{} of {} GB",
+        "aiResponseLabel": "AI Responses",
+        "aiResponseUsage": "{} of {}",
+        "proBadge": "Pro",
+        "memberProToggle": "Unlimited members",
+        "guestCollabToggle": "10 guest collaborators",
+        "aiCredit": {
+          "title": "Add AppFlowy AI Credit",
+          "price": "5$",
+          "priceDescription": "for 1,000 credits",
+          "purchase": "Purchase AI",
+          "info": "Add 1,000 Ai credits per workspace and seamlessly integrate customizable AI into your workflow for smarter, faster results with up to:",
+          "infoItemOne": "10,000 responses per database",
+          "infoItemTwo": "1,000 responses per workspace"
+        },
+        "currentPlan": {
+          "bannerLabel": "Current plan",
+          "freeTitle": "Free",
+          "proTitle": "Pro",
+          "freeInfo": "Perfect for individuals or small teams up to 3.",
+          "upgrade": "Compare &\n Upgrade",
+          "freeProOne": "Collaborative workspace",
+          "freeProTwo": "Up to 3 members (incl. owner)",
+          "freeProThree": "Unlimited guests (view-only)",
+          "freeProFour": "Storage 5gb",
+          "freeConOne": "30 day revision history",
+          "freeConTwo": "Guest collaborators (edit access)",
+          "freeConThree": "unlimited storage",
+          "freeConFour": "6 month revision history"
+        },
+        "deal": {
+          "bannerLabel": "New year deal!",
+          "title": "Grow your team!",
+          "info": "Upgrade and save 10% off Pro and Team plans! Boost your workspace productivity with powerful new features including Appflowy Ai.",
+          "viewPlans": "View plans"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "Billing",
+      "title": "Billing"
+    },
     "common": {
       "reset": "Reset"
     },

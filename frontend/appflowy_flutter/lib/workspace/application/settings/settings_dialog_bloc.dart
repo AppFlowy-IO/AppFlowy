@@ -13,6 +13,8 @@ enum SettingsPage {
   account,
   workspace,
   manageData,
+  plan,
+  billing,
   // OLD
   notifications,
   cloud,
