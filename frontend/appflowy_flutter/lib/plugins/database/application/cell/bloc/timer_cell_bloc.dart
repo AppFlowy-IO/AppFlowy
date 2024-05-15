@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/util/timer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -45,6 +46,8 @@ class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
             }
           },
           updateCell: (text) async {
+            text = parseTimer(text)?.toString() ?? "";
+            print(text);
             if (state.content != text) {
               emit(state.copyWith(content: text));
               await cellController.saveCellData(text);
