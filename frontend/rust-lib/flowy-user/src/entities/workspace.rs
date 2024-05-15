@@ -318,3 +318,9 @@ pub struct WorkspaceUsagePB {
   #[pb(index = 4)]
   pub total_blob_bytes_limit: u64,
 }
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct BillingPortalPB {
+  #[pb(index = 1)]
+  pub url: String,
+}

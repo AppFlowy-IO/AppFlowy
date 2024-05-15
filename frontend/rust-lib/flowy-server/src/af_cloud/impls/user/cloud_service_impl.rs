@@ -541,6 +541,15 @@ where
       })
     })
   }
+
+  fn get_billing_portal_url(&self) -> FutureResult<String, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let url = client.get_portal_session_link().await?;
+      Ok(url)
+    })
+  }
 }
 
 async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {

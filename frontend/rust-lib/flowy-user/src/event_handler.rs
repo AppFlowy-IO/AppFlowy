@@ -826,3 +826,12 @@ pub async fn get_workspace_usage_handler(
     total_blob_bytes_limit: workspace_usage.total_blob_bytes_limit as u64,
   })
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_billing_portal_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<BillingPortalPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let url = manager.get_billing_portal_url().await?;
+  data_result_ok(BillingPortalPB { url })
+}

@@ -289,6 +289,10 @@ pub trait UserCloudService: Send + Sync + 'static {
   fn get_workspace_usage(&self, workspace_id: String) -> FutureResult<WorkspaceUsage, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
+
+  fn get_billing_portal_url(&self) -> FutureResult<String, FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
 }
 
 pub type UserUpdateReceiver = tokio::sync::mpsc::Receiver<UserUpdate>;

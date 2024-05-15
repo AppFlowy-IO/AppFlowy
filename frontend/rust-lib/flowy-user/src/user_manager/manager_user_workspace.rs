@@ -460,6 +460,16 @@ impl UserManager {
       .await?;
     Ok(workspace_usage)
   }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn get_billing_portal_url(&self) -> FlowyResult<String> {
+    let url = self
+      .cloud_services
+      .get_user_service()?
+      .get_billing_portal_url()
+      .await?;
+    Ok(url)
+  }
 }
 
 /// This method is used to save one user workspace to the SQLite database
