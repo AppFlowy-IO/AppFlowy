@@ -294,7 +294,8 @@
     "back": "Back",
     "signInGoogle": "Sign in with Google",
     "signInGithub": "Sign in with Github",
-    "signInDiscord": "Sign in with Discord"
+    "signInDiscord": "Sign in with Discord",
+    "more": "More"
   },
   "label": {
     "welcome": "Welcome!",

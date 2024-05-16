@@ -45,6 +45,8 @@ class ViewItem extends StatelessWidget {
     this.isHoverEnabled = true,
     this.isPlaceholder = false,
     this.isHovered,
+    this.shouldRenderChildren = true,
+    this.showExpandIcon = true,
   });
 
   final ViewPB view;
@@ -87,6 +89,12 @@ class ViewItem extends StatelessWidget {
   // used for control the expand/collapse icon
   final ValueNotifier<bool>? isHovered;
 
+  // render the child views of the view
+  final bool shouldRenderChildren;
+
+  // show expand icon
+  final bool showExpandIcon;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -116,6 +124,8 @@ class ViewItem extends StatelessWidget {
             isHoverEnabled: isHoverEnabled,
             isPlaceholder: isPlaceholder,
             isHovered: isHovered,
+            shouldRenderChildren: shouldRenderChildren,
+            showExpandIcon: showExpandIcon,
           );
         },
       ),
@@ -145,6 +155,8 @@ class InnerViewItem extends StatelessWidget {
     this.isHoverEnabled = true,
     this.isPlaceholder = false,
     this.isHovered,
+    this.shouldRenderChildren = true,
+    required this.showExpandIcon,
   });
 
   final ViewPB view;
@@ -169,6 +181,8 @@ class InnerViewItem extends StatelessWidget {
   final bool isHoverEnabled;
   final bool isPlaceholder;
   final ValueNotifier<bool>? isHovered;
+  final bool shouldRenderChildren;
+  final bool showExpandIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -187,10 +201,11 @@ class InnerViewItem extends StatelessWidget {
       height: height,
       isPlaceholder: isPlaceholder,
       isHovered: isHovered,
+      showExpandIcon: showExpandIcon,
     );
 
     // if the view is expanded and has child views, render its child views
-    if (isExpanded) {
+    if (isExpanded && shouldRenderChildren) {
       if (childViews.isNotEmpty) {
         final children = childViews.map((childView) {
           return ViewItem(
@@ -207,6 +222,7 @@ class InnerViewItem extends StatelessWidget {
             isFeedback: isFeedback,
             isPlaceholder: isPlaceholder,
             isHovered: isHovered,
+            showExpandIcon: showExpandIcon,
           );
         }).toList();
 
@@ -263,6 +279,7 @@ class InnerViewItem extends StatelessWidget {
             isDraggable: false,
             leftPadding: leftPadding,
             isFeedback: true,
+            showExpandIcon: showExpandIcon,
           );
         },
         child: child,
@@ -328,6 +345,7 @@ class SingleInnerViewItem extends StatefulWidget {
     this.isHoverEnabled = true,
     this.isPlaceholder = false,
     this.isHovered,
+    required this.showExpandIcon,
   });
 
   final ViewPB view;
@@ -349,6 +367,7 @@ class SingleInnerViewItem extends StatefulWidget {
   final bool isHoverEnabled;
   final bool isPlaceholder;
   final ValueNotifier<bool>? isHovered;
+  final bool showExpandIcon;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -391,8 +410,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final children = [
-      // expand icon
-      _buildLeftIcon(),
+      // expand icon or placeholder
+      widget.showExpandIcon ? _buildLeftIcon() : const HSpace(6),
       // icon
       _buildViewIconButton(),
       const HSpace(6),

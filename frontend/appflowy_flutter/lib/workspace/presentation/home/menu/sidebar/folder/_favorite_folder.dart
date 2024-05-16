@@ -2,10 +2,12 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,7 +54,10 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
                       .read<FolderBloc>()
                       .add(const FolderEvent.expandOrUnExpand()),
                 ),
+                // pages
                 ..._buildViews(context, state),
+                // more button
+                const FavoriteMoreButton(),
               ],
             ),
           );
@@ -112,6 +117,37 @@ class FavoriteHeader extends StatelessWidget {
       ),
       iconPadding: 10.0,
       text: FlowyText.regular(LocaleKeys.sideBar_favorites.tr()),
+    );
+  }
+}
+
+class FavoriteMoreButton extends StatelessWidget {
+  const FavoriteMoreButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const minWidth = 260.0;
+    return AppFlowyPopover(
+      constraints: const BoxConstraints(
+        minWidth: minWidth,
+      ),
+      decoration: FlowyDecoration.decoration(
+        Theme.of(context).cardColor,
+        Theme.of(context).colorScheme.shadow,
+        borderRadius: 10.0,
+      ),
+      popupBuilder: (context) {
+        return const FavoriteMenu(minWidth: minWidth);
+      },
+      child: FlowyButton(
+        onTap: () {},
+        margin: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 7.0),
+        leftIcon: const FlowySvg(
+          FlowySvgs.workspace_three_dots_s,
+          blendMode: null,
+        ),
+        text: FlowyText.regular(LocaleKeys.button_more.tr()),
+      ),
     );
   }
 }
