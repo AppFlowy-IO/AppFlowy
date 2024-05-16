@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
@@ -454,15 +453,15 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   }
 
   Widget _buildViewIconButton() {
-    final icon = widget.view.icon.value.isNotEmpty
-        ? EmojiText(
-            emoji: widget.view.icon.value,
-            fontSize: 18.0,
-          )
-        : SizedBox.square(
-            dimension: 20.0,
-            child: widget.view.defaultIcon(),
-          );
+    final icon = SizedBox.square(
+      dimension: 16.0,
+      child: widget.view.icon.value.isNotEmpty
+          ? FlowyText.emoji(
+              widget.view.icon.value,
+              fontSize: 16.0,
+            )
+          : widget.view.defaultIcon(),
+    );
     return icon;
     /*
     return AppFlowyPopover(
