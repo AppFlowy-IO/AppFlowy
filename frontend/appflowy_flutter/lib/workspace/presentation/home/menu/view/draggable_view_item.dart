@@ -15,6 +15,8 @@ enum DraggableHoverPosition {
   bottom,
 }
 
+const kDraggableViewItemDividerHeight = 3.0;
+
 class DraggableViewItem extends StatefulWidget {
   const DraggableViewItem({
     super.key,
@@ -45,8 +47,6 @@ class DraggableViewItem extends StatefulWidget {
 
 class _DraggableViewItemState extends State<DraggableViewItem> {
   DraggableHoverPosition position = DraggableHoverPosition.none;
-
-  final _dividerHeight = 2.0;
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +100,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
         // only show the top border when the draggable item is the first child
         if (widget.isFirstChild)
           Divider(
-            height: _dividerHeight,
-            thickness: _dividerHeight,
+            height: kDraggableViewItemDividerHeight,
+            thickness: kDraggableViewItemDividerHeight,
             color: position == DraggableHoverPosition.top
                 ? widget.topHighlightColor ??
                     Theme.of(context).colorScheme.secondary
@@ -118,8 +118,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
           child: widget.child,
         ),
         Divider(
-          height: _dividerHeight,
-          thickness: _dividerHeight,
+          height: kDraggableViewItemDividerHeight,
+          thickness: kDraggableViewItemDividerHeight,
           color: position == DraggableHoverPosition.bottom
               ? widget.bottomHighlightColor ??
                   Theme.of(context).colorScheme.secondary
@@ -137,10 +137,10 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
             top: 0,
             left: 0,
             right: 0,
-            height: _dividerHeight,
+            height: kDraggableViewItemDividerHeight,
             child: Divider(
-              height: _dividerHeight,
-              thickness: _dividerHeight,
+              height: kDraggableViewItemDividerHeight,
+              thickness: kDraggableViewItemDividerHeight,
               color: position == DraggableHoverPosition.top
                   ? widget.topHighlightColor ??
                       Theme.of(context).colorScheme.secondary
@@ -161,10 +161,10 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
           bottom: 0,
           left: 0,
           right: 0,
-          height: _dividerHeight,
+          height: kDraggableViewItemDividerHeight,
           child: Divider(
-            height: _dividerHeight,
-            thickness: _dividerHeight,
+            height: kDraggableViewItemDividerHeight,
+            thickness: kDraggableViewItemDividerHeight,
             color: position == DraggableHoverPosition.bottom
                 ? widget.bottomHighlightColor ??
                     Theme.of(context).colorScheme.secondary

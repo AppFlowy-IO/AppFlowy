@@ -1,9 +1,6 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
@@ -26,6 +23,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef ViewItemOnSelected = void Function(ViewPB, BuildContext);
@@ -46,6 +44,7 @@ class ViewItem extends StatelessWidget {
     this.height = 28.0,
     this.isHoverEnabled = true,
     this.isPlaceholder = false,
+    this.isHovered,
   });
 
   final ViewPB view;
@@ -85,6 +84,9 @@ class ViewItem extends StatelessWidget {
   // placeholder widget to receive the drop event when moving view across sections.
   final bool isPlaceholder;
 
+  // used for control the expand/collapse icon
+  final ValueNotifier<bool>? isHovered;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -113,6 +115,7 @@ class ViewItem extends StatelessWidget {
             height: height,
             isHoverEnabled: isHoverEnabled,
             isPlaceholder: isPlaceholder,
+            isHovered: isHovered,
           );
         },
       ),
@@ -141,6 +144,7 @@ class InnerViewItem extends StatelessWidget {
     required this.height,
     this.isHoverEnabled = true,
     this.isPlaceholder = false,
+    this.isHovered,
   });
 
   final ViewPB view;
@@ -164,6 +168,7 @@ class InnerViewItem extends StatelessWidget {
 
   final bool isHoverEnabled;
   final bool isPlaceholder;
+  final ValueNotifier<bool>? isHovered;
 
   @override
   Widget build(BuildContext context) {
@@ -181,6 +186,7 @@ class InnerViewItem extends StatelessWidget {
       isFeedback: isFeedback,
       height: height,
       isPlaceholder: isPlaceholder,
+      isHovered: isHovered,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -200,6 +206,7 @@ class InnerViewItem extends StatelessWidget {
             leftPadding: leftPadding,
             isFeedback: isFeedback,
             isPlaceholder: isPlaceholder,
+            isHovered: isHovered,
           );
         }).toList();
 
@@ -263,7 +270,7 @@ class InnerViewItem extends StatelessWidget {
     } else {
       // keep the same height of the DraggableItem
       child = Padding(
-        padding: const EdgeInsets.only(top: 2.0),
+        padding: const EdgeInsets.only(top: kDraggableViewItemDividerHeight),
         child: child,
       );
     }
@@ -320,6 +327,7 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.height,
     this.isHoverEnabled = true,
     this.isPlaceholder = false,
+    this.isHovered,
   });
 
   final ViewPB view;
@@ -340,6 +348,7 @@ class SingleInnerViewItem extends StatefulWidget {
 
   final bool isHoverEnabled;
   final bool isPlaceholder;
+  final ValueNotifier<bool>? isHovered;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -386,7 +395,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       _buildLeftIcon(),
       // icon
       _buildViewIconButton(),
-      const HSpace(5),
+      const HSpace(6),
       // title
       Expanded(
         child: FlowyText.regular(
@@ -454,6 +463,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             dimension: 20.0,
             child: widget.view.defaultIcon(),
           );
+    return icon;
+    /*
     return AppFlowyPopover(
       offset: const Offset(20, 0),
       controller: controller,
@@ -482,6 +493,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         );
       },
     );
+    */
   }
 
   // > button or · button
@@ -492,18 +504,24 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       return const _DotIconWidget();
     }
 
-    final svg = widget.isExpanded
-        ? FlowySvgs.drop_menu_show_m
-        : FlowySvgs.drop_menu_hide_m;
-    return GestureDetector(
-      child: FlowySvg(
-        svg,
-        size: const Size.square(16.0),
-      ),
-      onTap: () => context
-          .read<ViewBloc>()
-          .add(ViewEvent.setIsExpanded(!widget.isExpanded)),
+    final child = FlowySvg(
+      widget.isExpanded
+          ? FlowySvgs.view_item_expand_s
+          : FlowySvgs.view_item_unexpand_s,
+      size: const Size.square(16.0),
     );
+
+    if (widget.isHovered != null) {
+      return ValueListenableBuilder<bool>(
+        valueListenable: widget.isHovered!,
+        builder: (_, isHovered, child) {
+          return Opacity(opacity: isHovered ? 1.0 : 0.0, child: child);
+        },
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   // + button

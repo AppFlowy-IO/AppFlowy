@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class FavoriteFolder extends StatelessWidget {
+class FavoriteFolder extends StatefulWidget {
   const FavoriteFolder({
     super.key,
     required this.views,
@@ -19,51 +19,75 @@ class FavoriteFolder extends StatelessWidget {
   final List<ViewPB> views;
 
   @override
+  State<FavoriteFolder> createState() => _FavoriteFolderState();
+}
+
+class _FavoriteFolderState extends State<FavoriteFolder> {
+  final ValueNotifier<bool> isHovered = ValueNotifier(true);
+
+  @override
+  void dispose() {
+    isHovered.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (views.isEmpty) {
+    if (widget.views.isEmpty) {
       return const SizedBox.shrink();
     }
 
     return BlocProvider<FolderBloc>(
       create: (context) => FolderBloc(type: FolderCategoryType.favorite)
-        ..add(
-          const FolderEvent.initial(),
-        ),
+        ..add(const FolderEvent.initial()),
       child: BlocBuilder<FolderBloc, FolderState>(
         builder: (context, state) {
-          return Column(
-            children: [
-              FavoriteHeader(
-                onPressed: () => context
-                    .read<FolderBloc>()
-                    .add(const FolderEvent.expandOrUnExpand()),
-              ),
-              if (state.isExpanded)
-                ...views.map(
-                  (view) => ViewItem(
-                    key: ValueKey(
-                      '${FolderCategoryType.favorite.name} ${view.id}',
-                    ),
-                    categoryType: FolderCategoryType.favorite,
-                    isDraggable: false,
-                    isFirstChild: view.id == views.first.id,
-                    isFeedback: false,
-                    view: view,
-                    level: 0,
-                    onSelected: (view, _) {
-                      if (HardwareKeyboard.instance.isControlPressed) {
-                        context.read<TabsBloc>().openTab(view);
-                      }
-
-                      context.read<TabsBloc>().openPlugin(view);
-                    },
-                    onTertiarySelected: (view, _) =>
-                        context.read<TabsBloc>().openTab(view),
-                  ),
+          return MouseRegion(
+            onEnter: (_) => isHovered.value = true,
+            onExit: (_) => isHovered.value = false,
+            child: Column(
+              children: [
+                FavoriteHeader(
+                  onPressed: () => context
+                      .read<FolderBloc>()
+                      .add(const FolderEvent.expandOrUnExpand()),
                 ),
-            ],
+                ..._buildViews(context, state),
+              ],
+            ),
           );
         },
+      ),
+    );
+  }
+
+  Iterable<Widget> _buildViews(BuildContext context, FolderState state) {
+    if (!state.isExpanded) {
+      return [];
+    }
+
+    return widget.views.map(
+      (view) => ViewItem(
+        key: ValueKey(
+          '${FolderCategoryType.favorite.name} ${view.id}',
+        ),
+        categoryType: FolderCategoryType.favorite,
+        isDraggable: false,
+        isFirstChild: view.id == widget.views.first.id,
+        isFeedback: false,
+        view: view,
+        height: 30.0,
+        leftPadding: 16.0,
+        level: 0,
+        isHovered: isHovered,
+        onSelected: (view, _) {
+          if (HardwareKeyboard.instance.isControlPressed) {
+            context.read<TabsBloc>().openTab(view);
+          }
+
+          context.read<TabsBloc>().openPlugin(view);
+        },
+        onTertiarySelected: (view, _) => context.read<TabsBloc>().openTab(view),
       ),
     );
   }

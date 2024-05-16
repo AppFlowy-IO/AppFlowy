@@ -36,7 +36,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         ? Container(
             width: widget.iconSize,
             alignment: Alignment.center,
-            child: FlowyText(
+            child: FlowyText.emoji(
               widget.workspace.icon,
               fontSize: widget.iconSize,
             ),
