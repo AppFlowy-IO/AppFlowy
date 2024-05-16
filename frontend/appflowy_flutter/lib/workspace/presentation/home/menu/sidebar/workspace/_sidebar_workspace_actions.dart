@@ -45,15 +45,17 @@ class WorkspaceMoreActionList extends StatelessWidget {
           .map((e) => _WorkspaceMoreActionWrapper(e, workspace))
           .toList(),
       buildChild: (controller) {
-        return FlowyButton(
-          margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-          useIntrinsicWidth: true,
-          text: const FlowySvg(
-            FlowySvgs.three_dots_vertical_s,
+        return SizedBox.square(
+          dimension: 24.0,
+          child: FlowyButton(
+            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+            text: const FlowySvg(
+              FlowySvgs.three_dots_s,
+            ),
+            onTap: () {
+              controller.show();
+            },
           ),
-          onTap: () {
-            controller.show();
-          },
         );
       },
       onSelected: (action, controller) {},

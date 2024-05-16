@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -13,6 +11,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 @visibleForTesting
@@ -38,7 +37,7 @@ class WorkspacesMenu extends StatelessWidget {
       children: [
         // user email
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
             children: [
               Expanded(
@@ -53,7 +52,11 @@ class WorkspacesMenu extends StatelessWidget {
               FlowyButton(
                 key: createWorkspaceButtonKey,
                 useIntrinsicWidth: true,
-                text: const FlowySvg(FlowySvgs.add_m),
+                text: FlowySvg(
+                  FlowySvgs.three_dots_s,
+                  size: const Size.square(16.0),
+                  color: Theme.of(context).hintColor,
+                ),
                 onTap: () {
                   _showCreateWorkspaceDialog(context);
                   PopoverContainer.of(context).closeAll();
@@ -62,6 +65,10 @@ class WorkspacesMenu extends StatelessWidget {
             ],
           ),
         ),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: Divider(height: 1.0),
+        ),
         for (final workspace in workspaces) ...[
           WorkspaceMenuItem(
             key: ValueKey(workspace.workspaceId),
@@ -69,7 +76,7 @@ class WorkspacesMenu extends StatelessWidget {
             userProfile: userProfile,
             isSelected: workspace.workspaceId == currentWorkspace.workspaceId,
           ),
-          const VSpace(4.0),
+          const VSpace(6.0),
         ],
       ],
     );
@@ -123,7 +130,7 @@ class WorkspaceMenuItem extends StatelessWidget {
           //  cause the popover dismiss intermediately when click the right icon.
           // so using the stack to put the right icon on the flowy button.
           return SizedBox(
-            height: 52,
+            height: 40,
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -131,9 +138,9 @@ class WorkspaceMenuItem extends StatelessWidget {
                   isSelected: isSelected,
                   workspace: workspace,
                 ),
-                Positioned(left: 8, child: _buildLeftIcon(context)),
+                Positioned(left: 4, child: _buildLeftIcon(context)),
                 Positioned(
-                  right: 12.0,
+                  right: 4.0,
                   child: Align(child: _buildRightIcon(context)),
                 ),
               ],
@@ -145,13 +152,22 @@ class WorkspaceMenuItem extends StatelessWidget {
   }
 
   Widget _buildLeftIcon(BuildContext context) {
-    return SizedBox.square(
-      dimension: 32,
+    return Container(
+      width: 32.0,
+      height: 32.0,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color(0x01717171).withOpacity(0.12),
+          width: 0.8,
+        ),
+      ),
       child: FlowyTooltip(
         message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
         child: WorkspaceIcon(
           workspace: workspace,
-          iconSize: 26,
+          iconSize: 22,
+          fontSize: 16,
           enableEdit: true,
           onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                 UserWorkspaceEvent.updateWorkspaceIcon(
@@ -174,8 +190,13 @@ class WorkspaceMenuItem extends StatelessWidget {
     return Row(
       children: [
         WorkspaceMoreActionList(workspace: workspace),
-        const FlowySvg(
-          FlowySvgs.blue_check_s,
+        const Padding(
+          padding: EdgeInsets.all(5.0),
+          child: FlowySvg(
+            FlowySvgs.m_blue_check_s,
+            blendMode: null,
+            size: Size.square(14.0),
+          ),
         ),
       ],
     );
@@ -198,11 +219,9 @@ class _WorkspaceInfo extends StatelessWidget {
         final members = state.members;
         return FlowyButton(
           onTap: () => _openWorkspace(context),
-          iconPadding: 10.0,
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
           leftIconSize: const Size.square(32),
           leftIcon: const SizedBox.square(dimension: 32),
-          rightIcon: const HSpace(42.0),
+          rightIcon: const HSpace(32.0),
           text: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -214,7 +233,7 @@ class _WorkspaceInfo extends StatelessWidget {
                 withTooltip: true,
               ),
               // workspace members count
-              FlowyText(
+              FlowyText.regular(
                 state.isLoading
                     ? ''
                     : LocaleKeys.settings_appearance_members_membersCount

@@ -13,12 +13,14 @@ class WorkspaceIcon extends StatefulWidget {
     required this.workspace,
     required this.enableEdit,
     required this.iconSize,
+    required this.fontSize,
     required this.onSelected,
   });
 
   final UserWorkspacePB workspace;
   final double iconSize;
   final bool enableEdit;
+  final double fontSize;
   final void Function(EmojiPickerResult) onSelected;
 
   @override
@@ -34,7 +36,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         ? Container(
             width: widget.iconSize,
             alignment: Alignment.center,
-            child: FlowyText.emoji(
+            child: FlowyText(
               widget.workspace.icon,
               fontSize: widget.iconSize,
             ),
@@ -45,13 +47,13 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
             height: max(widget.iconSize, 26),
             decoration: BoxDecoration(
               color: ColorGenerator(widget.workspace.name).toColor(),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(4),
             ),
             child: FlowyText(
               widget.workspace.name.isEmpty
                   ? ''
                   : widget.workspace.name.substring(0, 1),
-              fontSize: 10,
+              fontSize: widget.fontSize,
               color: Colors.black,
             ),
           );

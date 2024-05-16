@@ -209,6 +209,7 @@ class _SidebarSwitchWorkspaceButtonState
               child: WorkspaceIcon(
                 workspace: widget.currentWorkspace,
                 iconSize: 16,
+                fontSize: 10,
                 enableEdit: false,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
