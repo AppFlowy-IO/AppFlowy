@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -31,6 +29,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Home Sidebar is the left side bar of the home page.
@@ -231,12 +230,15 @@ class _SidebarState extends State<_Sidebar> {
                     : SidebarUser(userProfile: widget.userProfile),
           ),
           if (FeatureFlag.search.isOn) ...[
-            const VSpace(8),
-            const Padding(
+            const VSpace(6),
+            Container(
               padding: menuHorizontalInset,
-              child: _SidebarSearchButton(),
+              height: 30,
+              child: const _SidebarSearchButton(),
             ),
           ],
+          // new page button
+          const SidebarNewPageButton(),
           // scrollable document list
           Expanded(
             child: Padding(
@@ -259,8 +261,6 @@ class _SidebarState extends State<_Sidebar> {
             child: SidebarTrashButton(),
           ),
           const VSpace(10),
-          // new page button
-          const SidebarNewPageButton(),
         ],
       ),
     );
@@ -289,6 +289,7 @@ class _SidebarSearchButton extends StatelessWidget {
     return FlowyButton(
       onTap: () => CommandPalette.of(context).toggle(),
       leftIcon: const FlowySvg(FlowySvgs.search_s),
+      iconPadding: 10.0,
       text: FlowyText(LocaleKeys.search_label.tr()),
     );
   }
