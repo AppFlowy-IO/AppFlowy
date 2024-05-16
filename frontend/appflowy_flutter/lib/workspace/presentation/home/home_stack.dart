@@ -277,9 +277,10 @@ class HomeTopBar extends StatelessWidget {
       ),
       height: HomeSizes.topBarHeight,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: HomeInsets.topBarTitleHorizontalPadding,
-          vertical: HomeInsets.topBarTitleVerticalPadding,
+        padding: const EdgeInsets.only(
+          left: HomeInsets.topBarTitleHorizontalPadding,
+          right: HomeInsets.topBarTitleHorizontalPadding,
+          top: HomeInsets.topBarTitleVerticalPadding,
         ),
         child: Row(
           children: [

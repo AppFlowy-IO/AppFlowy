@@ -53,7 +53,7 @@ class WorkspacesMenu extends StatelessWidget {
                 key: createWorkspaceButtonKey,
                 useIntrinsicWidth: true,
                 text: const FlowySvg(
-                  FlowySvgs.three_dots_s,
+                  FlowySvgs.workspace_three_dots_s,
                   size: Size.square(16.0),
                 ),
                 onTap: () {
