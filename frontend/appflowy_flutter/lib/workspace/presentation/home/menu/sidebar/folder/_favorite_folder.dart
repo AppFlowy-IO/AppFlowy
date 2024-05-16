@@ -23,7 +23,7 @@ class FavoriteFolder extends StatefulWidget {
 }
 
 class _FavoriteFolderState extends State<FavoriteFolder> {
-  final ValueNotifier<bool> isHovered = ValueNotifier(true);
+  final ValueNotifier<bool> isHovered = ValueNotifier(false);
 
   @override
   void dispose() {
@@ -38,7 +38,7 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
     }
 
     return BlocProvider<FolderBloc>(
-      create: (context) => FolderBloc(type: FolderCategoryType.favorite)
+      create: (context) => FolderBloc(type: FolderSpaceType.favorite)
         ..add(const FolderEvent.initial()),
       child: BlocBuilder<FolderBloc, FolderState>(
         builder: (context, state) {
@@ -69,9 +69,9 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
     return widget.views.map(
       (view) => ViewItem(
         key: ValueKey(
-          '${FolderCategoryType.favorite.name} ${view.id}',
+          '${FolderSpaceType.favorite.name} ${view.id}',
         ),
-        categoryType: FolderCategoryType.favorite,
+        spaceType: FolderSpaceType.favorite,
         isDraggable: false,
         isFirstChild: view.id == widget.views.first.id,
         isFeedback: false,

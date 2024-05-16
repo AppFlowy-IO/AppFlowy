@@ -120,7 +120,7 @@ void main() {
             (widget) =>
                 widget is SingleInnerViewItem &&
                 widget.view.isFavorite &&
-                widget.categoryType == FolderCategoryType.favorite,
+                widget.spaceType == FolderSpaceType.favorite,
           ),
           findsNWidgets(6),
         );

@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
@@ -32,7 +33,7 @@ class ViewItem extends StatelessWidget {
     super.key,
     required this.view,
     this.parentView,
-    required this.categoryType,
+    required this.spaceType,
     required this.level,
     this.leftPadding = 10,
     required this.onSelected,
@@ -49,7 +50,7 @@ class ViewItem extends StatelessWidget {
   final ViewPB view;
   final ViewPB? parentView;
 
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
 
   // indicate the level of the view item
   // used to calculate the left padding
@@ -101,7 +102,7 @@ class ViewItem extends StatelessWidget {
             view: state.view,
             parentView: parentView,
             childViews: state.view.childViews,
-            categoryType: categoryType,
+            spaceType: spaceType,
             level: level,
             leftPadding: leftPadding,
             showActions: state.isEditing,
@@ -130,7 +131,7 @@ class InnerViewItem extends StatelessWidget {
     required this.view,
     required this.parentView,
     required this.childViews,
-    required this.categoryType,
+    required this.spaceType,
     this.isDraggable = true,
     this.isExpanded = true,
     required this.level,
@@ -149,7 +150,7 @@ class InnerViewItem extends StatelessWidget {
   final ViewPB view;
   final ViewPB? parentView;
   final List<ViewPB> childViews;
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
 
   final bool isDraggable;
   final bool isExpanded;
@@ -176,7 +177,7 @@ class InnerViewItem extends StatelessWidget {
       parentView: parentView,
       level: level,
       showActions: showActions,
-      categoryType: categoryType,
+      spaceType: spaceType,
       onSelected: onSelected,
       onTertiarySelected: onTertiarySelected,
       isExpanded: isExpanded,
@@ -193,9 +194,9 @@ class InnerViewItem extends StatelessWidget {
       if (childViews.isNotEmpty) {
         final children = childViews.map((childView) {
           return ViewItem(
-            key: ValueKey('${categoryType.name} ${childView.id}'),
+            key: ValueKey('${spaceType.name} ${childView.id}'),
             parentView: view,
-            categoryType: categoryType,
+            spaceType: spaceType,
             isFirstChild: childView.id == childViews.first.id,
             view: childView,
             level: level + 1,
@@ -255,7 +256,7 @@ class InnerViewItem extends StatelessWidget {
           return ViewItem(
             view: view,
             parentView: parentView,
-            categoryType: categoryType,
+            spaceType: spaceType,
             level: level,
             onSelected: onSelected,
             onTertiarySelected: onTertiarySelected,
@@ -285,10 +286,10 @@ class InnerViewItem extends StatelessWidget {
     if (isReferencedDatabaseView(view, parentView)) {
       return;
     }
-    final fromSection = categoryType == FolderCategoryType.public
+    final fromSection = spaceType == FolderSpaceType.public
         ? ViewSectionPB.Private
         : ViewSectionPB.Public;
-    final toSection = categoryType == FolderCategoryType.public
+    final toSection = spaceType == FolderSpaceType.public
         ? ViewSectionPB.Public
         : ViewSectionPB.Private;
     context.read<ViewBloc>().add(
@@ -303,7 +304,7 @@ class InnerViewItem extends StatelessWidget {
     context.read<ViewBloc>().add(
           ViewEvent.updateViewVisibility(
             from,
-            categoryType == FolderCategoryType.public,
+            spaceType == FolderSpaceType.public,
           ),
         );
   }
@@ -318,7 +319,7 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.level,
     required this.leftPadding,
     this.isDraggable = true,
-    required this.categoryType,
+    required this.spaceType,
     required this.showActions,
     required this.onSelected,
     this.onTertiarySelected,
@@ -342,7 +343,7 @@ class SingleInnerViewItem extends StatefulWidget {
   final bool showActions;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
   final double height;
 
   final bool isHoverEnabled;
@@ -397,9 +398,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       const HSpace(6),
       // title
       Expanded(
-        child: FlowyText.regular(
-          widget.view.name,
-          overflow: TextOverflow.ellipsis,
+        child: SizedBox(
+          height: 18.0,
+          child: FlowyText.regular(
+            widget.view.name,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
     ];
@@ -425,6 +429,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         child: Padding(
           padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: children,
           ),
         ),
@@ -462,8 +467,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             )
           : widget.view.defaultIcon(),
     );
-    return icon;
-    /*
+
     return AppFlowyPopover(
       offset: const Offset(20, 0),
       controller: controller,
@@ -492,7 +496,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         );
       },
     );
-    */
   }
 
   // > button or · button
@@ -503,11 +506,16 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       return const _DotIconWidget();
     }
 
-    final child = FlowySvg(
-      widget.isExpanded
-          ? FlowySvgs.view_item_expand_s
-          : FlowySvgs.view_item_unexpand_s,
-      size: const Size.square(16.0),
+    final child = GestureDetector(
+      child: FlowySvg(
+        widget.isExpanded
+            ? FlowySvgs.view_item_expand_s
+            : FlowySvgs.view_item_unexpand_s,
+        size: const Size.square(16.0),
+      ),
+      onTap: () => context
+          .read<ViewBloc>()
+          .add(ViewEvent.setIsExpanded(!widget.isExpanded)),
     );
 
     if (widget.isHovered != null) {
@@ -550,7 +558,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                       viewName,
                       pluginBuilder.layoutType!,
                       openAfterCreated: openAfterCreated,
-                      section: widget.categoryType.toViewSectionPB,
+                      section: widget.spaceType.toViewSectionPB,
                     ),
                   );
                 }
@@ -571,6 +579,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
         view: widget.view,
+        spaceType: widget.spaceType,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         onAction: (action) {

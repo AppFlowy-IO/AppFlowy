@@ -16,7 +16,7 @@ class SectionFolder extends StatelessWidget {
   const SectionFolder({
     super.key,
     required this.title,
-    required this.categoryType,
+    required this.spaceType,
     required this.views,
     this.isHoverEnabled = true,
     required this.expandButtonTooltip,
@@ -24,7 +24,7 @@ class SectionFolder extends StatelessWidget {
   });
 
   final String title;
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
   final List<ViewPB> views;
   final bool isHoverEnabled;
   final String expandButtonTooltip;
@@ -33,7 +33,7 @@ class SectionFolder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<FolderBloc>(
-      create: (context) => FolderBloc(type: categoryType)
+      create: (context) => FolderBloc(type: spaceType)
         ..add(
           const FolderEvent.initial(),
         ),
@@ -58,7 +58,7 @@ class SectionFolder extends StatelessWidget {
                               SidebarSectionsEvent.createRootViewInSection(
                                 name: viewName,
                                 index: 0,
-                                viewSection: categoryType.toViewSectionPB,
+                                viewSection: spaceType.toViewSectionPB,
                               ),
                             );
 
@@ -76,9 +76,9 @@ class SectionFolder extends StatelessWidget {
                 ...views.map(
                   (view) => ViewItem(
                     key: ValueKey(
-                      '${categoryType.name} ${view.id}',
+                      '${spaceType.name} ${view.id}',
                     ),
-                    categoryType: categoryType,
+                    spaceType: spaceType,
                     isFirstChild: view.id == views.first.id,
                     view: view,
                     level: 0,
@@ -98,7 +98,7 @@ class SectionFolder extends StatelessWidget {
                 ),
               if (views.isEmpty)
                 ViewItem(
-                  categoryType: categoryType,
+                  spaceType: spaceType,
                   view: ViewPB(
                     parentViewId: context
                             .read<UserWorkspaceBloc>()

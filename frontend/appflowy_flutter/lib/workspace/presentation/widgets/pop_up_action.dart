@@ -83,7 +83,7 @@ class _PopoverActionListState<T extends PopoverAction>
             );
           } else {
             final custom = action as CustomActionCell;
-            return custom.buildWithContext(context);
+            return custom.buildWithContext(context, popoverController);
           }
         }).toList();
 
@@ -121,7 +121,7 @@ abstract class PopoverActionCell extends PopoverAction {
 }
 
 abstract class CustomActionCell extends PopoverAction {
-  Widget buildWithContext(BuildContext context);
+  Widget buildWithContext(BuildContext context, PopoverController controller);
 }
 
 abstract class PopoverAction {}

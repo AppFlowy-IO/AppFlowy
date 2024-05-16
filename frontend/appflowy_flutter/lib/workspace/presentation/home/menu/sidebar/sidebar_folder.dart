@@ -84,7 +84,7 @@ class PrivateSectionFolder extends SectionFolder {
   PrivateSectionFolder({super.key, required super.views})
       : super(
           title: LocaleKeys.sideBar_private.tr(),
-          categoryType: FolderCategoryType.private,
+          spaceType: FolderSpaceType.private,
           expandButtonTooltip: LocaleKeys.sideBar_clickToHidePrivate.tr(),
           addButtonTooltip: LocaleKeys.sideBar_addAPageToPrivate.tr(),
         );
@@ -94,7 +94,7 @@ class PublicSectionFolder extends SectionFolder {
   PublicSectionFolder({super.key, required super.views})
       : super(
           title: LocaleKeys.sideBar_workspace.tr(),
-          categoryType: FolderCategoryType.public,
+          spaceType: FolderSpaceType.public,
           expandButtonTooltip: LocaleKeys.sideBar_clickToHideWorkspace.tr(),
           addButtonTooltip: LocaleKeys.sideBar_addAPageToWorkspace.tr(),
         );
@@ -104,7 +104,7 @@ class PersonalSectionFolder extends SectionFolder {
   PersonalSectionFolder({super.key, required super.views})
       : super(
           title: LocaleKeys.sideBar_personal.tr(),
-          categoryType: FolderCategoryType.public,
+          spaceType: FolderSpaceType.public,
           expandButtonTooltip: LocaleKeys.sideBar_clickToHidePersonal.tr(),
           addButtonTooltip: LocaleKeys.sideBar_addAPage.tr(),
         );

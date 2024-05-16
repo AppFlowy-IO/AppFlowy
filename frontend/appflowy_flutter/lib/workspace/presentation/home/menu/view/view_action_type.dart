@@ -12,6 +12,7 @@ enum ViewMoreActionType {
   rename,
   moveTo, // not supported yet.
   openInNewTab,
+  divider,
 }
 
 extension ViewMoreActionTypeExtension on ViewMoreActionType {
@@ -33,27 +34,31 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return LocaleKeys.disclosureAction_moveTo.tr();
       case ViewMoreActionType.openInNewTab:
         return LocaleKeys.disclosureAction_openNewTab.tr();
+      case ViewMoreActionType.divider:
+        return '';
     }
   }
 
   Widget icon(Color iconColor) {
     switch (this) {
       case ViewMoreActionType.delete:
-        return const FlowySvg(FlowySvgs.delete_s);
+        return const FlowySvg(FlowySvgs.trash_s, blendMode: null);
       case ViewMoreActionType.favorite:
-        return const FlowySvg(FlowySvgs.unfavorite_s);
-      case ViewMoreActionType.unFavorite:
         return const FlowySvg(FlowySvgs.favorite_s);
+      case ViewMoreActionType.unFavorite:
+        return const FlowySvg(FlowySvgs.unfavorite_s);
       case ViewMoreActionType.duplicate:
-        return const FlowySvg(FlowySvgs.copy_s);
+        return const FlowySvg(FlowySvgs.duplicate_s);
       case ViewMoreActionType.copyLink:
         return const Icon(Icons.copy);
       case ViewMoreActionType.rename:
-        return const FlowySvg(FlowySvgs.edit_s);
+        return const FlowySvg(FlowySvgs.view_item_rename_s);
       case ViewMoreActionType.moveTo:
-        return const Icon(Icons.move_to_inbox);
+        return const FlowySvg(FlowySvgs.move_to_s);
       case ViewMoreActionType.openInNewTab:
-        return const FlowySvg(FlowySvgs.full_view_s);
+        return const FlowySvg(FlowySvgs.view_item_open_in_new_tab_s);
+      case ViewMoreActionType.divider:
+        return const SizedBox.shrink();
     }
   }
 }

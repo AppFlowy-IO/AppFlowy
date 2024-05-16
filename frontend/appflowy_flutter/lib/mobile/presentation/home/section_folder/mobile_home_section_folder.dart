@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/default_mobile_action_pane.dart';
@@ -11,6 +9,7 @@ import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileSectionFolder extends StatelessWidget {
@@ -18,17 +17,17 @@ class MobileSectionFolder extends StatelessWidget {
     super.key,
     required this.title,
     required this.views,
-    required this.categoryType,
+    required this.spaceType,
   });
 
   final String title;
   final List<ViewPB> views;
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<FolderBloc>(
-      create: (context) => FolderBloc(type: categoryType)
+      create: (context) => FolderBloc(type: spaceType)
         ..add(
           const FolderEvent.initial(),
         ),
@@ -48,7 +47,7 @@ class MobileSectionFolder extends StatelessWidget {
                           name:
                               LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                           index: 0,
-                          viewSection: categoryType.toViewSectionPB,
+                          viewSection: spaceType.toViewSectionPB,
                         ),
                       );
                   context.read<FolderBloc>().add(
@@ -64,9 +63,9 @@ class MobileSectionFolder extends StatelessWidget {
                 ...views.map(
                   (view) => MobileViewItem(
                     key: ValueKey(
-                      '${FolderCategoryType.private.name} ${view.id}',
+                      '${FolderSpaceType.private.name} ${view.id}',
                     ),
-                    categoryType: categoryType,
+                    spaceType: spaceType,
                     isFirstChild: view.id == views.first.id,
                     view: view,
                     level: 0,

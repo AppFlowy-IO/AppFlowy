@@ -70,7 +70,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
   final UserWorkspacePB workspace;
 
   @override
-  Widget buildWithContext(BuildContext context) {
+  Widget buildWithContext(BuildContext context, PopoverController controller) {
     return FlowyButton(
       text: FlowyText(
         name,

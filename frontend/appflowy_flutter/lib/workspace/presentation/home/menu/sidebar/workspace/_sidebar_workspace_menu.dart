@@ -332,7 +332,7 @@ class _CreateWorkspaceButton extends StatelessWidget {
           children: [
             _buildLeftIcon(context),
             const HSpace(10.0),
-            FlowyText.regular(LocaleKeys.workspace_create.tr(), fontSize: 14.0),
+            FlowyText.regular(LocaleKeys.workspace_create.tr()),
           ],
         ),
       ),
