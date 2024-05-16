@@ -69,6 +69,7 @@ class WorkspacesMenu extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 8.0),
           child: Divider(height: 1.0),
         ),
+        // workspace list
         for (final workspace in workspaces) ...[
           WorkspaceMenuItem(
             key: ValueKey(workspace.workspaceId),
@@ -78,6 +79,8 @@ class WorkspacesMenu extends StatelessWidget {
           ),
           const VSpace(6.0),
         ],
+        // add new workspace
+        const _CreateWorkspaceButton(),
       ],
     );
   }
@@ -219,6 +222,7 @@ class _WorkspaceInfo extends StatelessWidget {
         final members = state.members;
         return FlowyButton(
           onTap: () => _openWorkspace(context),
+          iconPadding: 10.0,
           leftIconSize: const Size.square(32),
           leftIcon: const SizedBox.square(dimension: 32),
           rightIcon: const HSpace(32.0),
@@ -280,5 +284,57 @@ class CreateWorkspaceDialog extends StatelessWidget {
       autoSelectAllText: true,
       onConfirm: (name, _) => onConfirm(name),
     );
+  }
+}
+
+class _CreateWorkspaceButton extends StatelessWidget {
+  const _CreateWorkspaceButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      child: FlowyButton(
+        onTap: () {
+          _showCreateWorkspaceDialog(context);
+          PopoverContainer.of(context).closeAll();
+        },
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+        text: Row(
+          children: [
+            _buildLeftIcon(context),
+            const HSpace(10.0),
+            FlowyText.regular(LocaleKeys.workspace_create.tr()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeftIcon(BuildContext context) {
+    return Container(
+      width: 32.0,
+      height: 32.0,
+      padding: const EdgeInsets.all(7.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color(0x01717171).withOpacity(0.12),
+          width: 0.8,
+        ),
+      ),
+      child: const FlowySvg(FlowySvgs.add_workspace_s),
+    );
+  }
+
+  Future<void> _showCreateWorkspaceDialog(BuildContext context) async {
+    if (context.mounted) {
+      final workspaceBloc = context.read<UserWorkspaceBloc>();
+      await CreateWorkspaceDialog(
+        onConfirm: (name) {
+          workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name));
+        },
+      ).show(context);
+    }
   }
 }

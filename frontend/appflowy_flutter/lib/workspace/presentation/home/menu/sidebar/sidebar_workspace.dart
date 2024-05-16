@@ -168,7 +168,7 @@ class _SidebarSwitchWorkspaceButtonState
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 5),
-      constraints: const BoxConstraints(maxWidth: 260, maxHeight: 600),
+      constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
       onOpen: () {
         _isWorkSpaceMenuExpanded.value = true;
         context
