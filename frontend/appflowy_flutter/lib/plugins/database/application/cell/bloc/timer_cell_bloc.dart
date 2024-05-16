@@ -46,8 +46,7 @@ class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
             }
           },
           updateCell: (text) async {
-            text = parseTimer(text)?.toString() ?? "";
-            print(text);
+            text = parseTimer(text)?.toString() ?? text;
             if (state.content != text) {
               emit(state.copyWith(content: text));
               await cellController.saveCellData(text);
