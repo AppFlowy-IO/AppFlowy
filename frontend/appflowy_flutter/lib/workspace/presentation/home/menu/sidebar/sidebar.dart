@@ -136,9 +136,9 @@ class HomeSideBar extends StatelessWidget {
                                 workspaceSetting.workspaceId,
                           ),
                         );
-                    context.read<FavoriteBloc>().add(
-                          const FavoriteEvent.fetchFavorites(),
-                        );
+                    context
+                        .read<FavoriteBloc>()
+                        .add(const FavoriteEvent.fetchFavorites());
                   }
                 },
               ),

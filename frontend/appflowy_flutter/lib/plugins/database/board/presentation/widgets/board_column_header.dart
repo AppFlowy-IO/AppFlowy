@@ -4,8 +4,7 @@ import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -65,72 +64,83 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
 
     return BlocBuilder<BoardBloc, BoardState>(
       builder: (context, state) {
-        if (state.isEditingHeader) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _focusNode.requestFocus();
-          });
-        }
+        return state.maybeMap(
+          orElse: () => const SizedBox.shrink(),
+          ready: (state) {
+            if (state.editingHeaderId != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _focusNode.requestFocus();
+              });
+            }
 
-        Widget title = Expanded(
-          child: FlowyText.medium(
-            widget.groupData.headerData.groupName,
-            overflow: TextOverflow.ellipsis,
-          ),
-        );
+            Widget title = Expanded(
+              child: FlowyText.medium(
+                widget.groupData.headerData.groupName,
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
 
-        if (!boardCustomData.group.isDefault &&
-            boardCustomData.fieldType.canEditHeader) {
-          title = Flexible(
-            fit: FlexFit.tight,
-            child: FlowyTooltip(
-              message: LocaleKeys.board_column_renameGroupTooltip.tr(),
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () => context
-                      .read<BoardBloc>()
-                      .add(BoardEvent.startEditingHeader(widget.groupData.id)),
-                  child: FlowyText.medium(
-                    widget.groupData.headerData.groupName,
-                    overflow: TextOverflow.ellipsis,
+            if (!boardCustomData.group.isDefault &&
+                boardCustomData.fieldType.canEditHeader) {
+              title = Flexible(
+                fit: FlexFit.tight,
+                child: FlowyTooltip(
+                  message: LocaleKeys.board_column_renameGroupTooltip.tr(),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => context.read<BoardBloc>().add(
+                            BoardEvent.startEditingHeader(widget.groupData.id),
+                          ),
+                      child: FlowyText.medium(
+                        widget.groupData.headerData.groupName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ),
+                ),
+              );
+            }
+
+            if (state.editingHeaderId == widget.groupData.id) {
+              title = _buildTextField(context);
+            }
+
+            return Padding(
+              padding: widget.margin,
+              child: SizedBox(
+                height: 50,
+                child: Row(
+                  children: [
+                    _buildHeaderIcon(boardCustomData),
+                    title,
+                    const HSpace(6),
+                    _groupOptionsButton(context),
+                    const HSpace(4),
+                    FlowyTooltip(
+                      message:
+                          LocaleKeys.board_column_addToColumnTopTooltip.tr(),
+                      preferBelow: false,
+                      child: FlowyIconButton(
+                        width: 20,
+                        icon: const FlowySvg(FlowySvgs.add_s),
+                        iconColorOnHover:
+                            Theme.of(context).colorScheme.onSurface,
+                        onPressed: () => context.read<BoardBloc>().add(
+                              BoardEvent.createRow(
+                                widget.groupData.id,
+                                OrderObjectPositionTypePB.Start,
+                                null,
+                                null,
+                              ),
+                            ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          );
-        }
-
-        if (state.isEditingHeader &&
-            state.editingHeaderId == widget.groupData.id) {
-          title = _buildTextField(context);
-        }
-
-        return Padding(
-          padding: widget.margin,
-          child: SizedBox(
-            height: 50,
-            child: Row(
-              children: [
-                _buildHeaderIcon(boardCustomData),
-                title,
-                const HSpace(6),
-                _groupOptionsButton(context),
-                const HSpace(4),
-                FlowyTooltip(
-                  message: LocaleKeys.board_column_addToColumnTopTooltip.tr(),
-                  preferBelow: false,
-                  child: FlowyIconButton(
-                    width: 20,
-                    icon: const FlowySvg(FlowySvgs.add_s),
-                    iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-                    onPressed: () => context
-                        .read<BoardBloc>()
-                        .add(BoardEvent.createHeaderRow(widget.groupData.id)),
-                  ),
-                ),
-              ],
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -257,7 +267,7 @@ enum GroupOptions {
       case hide:
         context
             .read<BoardBloc>()
-            .add(BoardEvent.toggleGroupVisibility(group, false));
+            .add(BoardEvent.setGroupVisibility(group, false));
         break;
       case delete:
         NavigatorAlertDialog(

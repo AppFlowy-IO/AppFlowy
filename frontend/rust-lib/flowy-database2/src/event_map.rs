@@ -37,7 +37,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetRow, get_row_handler)
         .event(DatabaseEvent::GetRowMeta, get_row_meta_handler)
         .event(DatabaseEvent::UpdateRowMeta, update_row_meta_handler)
-        .event(DatabaseEvent::DeleteRow, delete_row_handler)
+        .event(DatabaseEvent::DeleteRows, delete_rows_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
         .event(DatabaseEvent::MoveRow, move_row_handler)
         // Cell
@@ -223,8 +223,8 @@ pub enum DatabaseEvent {
   #[event(input = "RowIdPB", output = "OptionalRowPB")]
   GetRow = 51,
 
-  #[event(input = "RowIdPB")]
-  DeleteRow = 52,
+  #[event(input = "RepeatedRowIdPB")]
+  DeleteRows = 52,
 
   #[event(input = "RowIdPB")]
   DuplicateRow = 53,
@@ -364,7 +364,7 @@ pub enum DatabaseEvent {
   UpdateRelationCell = 171,
 
   /// Get the names of the linked rows in a relation cell.
-  #[event(input = "RepeatedRowIdPB", output = "RepeatedRelatedRowDataPB")]
+  #[event(input = "GetRelatedRowDataPB", output = "RepeatedRelatedRowDataPB")]
   GetRelatedRowDatas = 172,
 
   /// Get the names of all the rows in a related database.

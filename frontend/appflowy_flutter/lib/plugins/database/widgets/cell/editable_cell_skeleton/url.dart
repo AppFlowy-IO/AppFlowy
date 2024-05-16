@@ -112,8 +112,10 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
       child: BlocListener<URLCellBloc, URLCellState>(
         listenWhen: (previous, current) => previous.content != current.content,
         listener: (context, state) {
-          _textEditingController.value =
-              _textEditingController.value.copyWith(text: state.content);
+          if (!focusNode.hasFocus) {
+            _textEditingController.value =
+                _textEditingController.value.copyWith(text: state.content);
+          }
           widget._cellDataNotifier.value = state.content;
         },
         child: widget.skin.build(

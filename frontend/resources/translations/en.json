@@ -347,6 +347,125 @@
         "logoutLabel": "Log out"
       }
     },
+    "workspacePage": {
+      "menuLabel": "Workspace",
+      "title": "Workspace",
+      "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
+      "workspaceName": {
+        "title": "Workspace name",
+        "savedMessage": "Saved workspace name"
+      },
+      "workspaceIcon": {
+        "title": "Workspace icon",
+        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language."
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+        "options": {
+          "system": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        }
+      },
+      "theme": {
+        "title": "Theme",
+        "description": "Select a preset theme, or upload your own custom theme."
+      },
+      "workspaceFont": {
+        "title": "Workspace font"
+      },
+      "textDirection": {
+        "title": "Text direction",
+        "leftToRight": "Left to right",
+        "rightToLeft": "Right to left",
+        "auto": "Auto",
+        "enableRTLItems": "Enable RTL toolbar items"
+      },
+      "layoutDirection": {
+        "title": "Layout direction",
+        "leftToRight": "Left to right",
+        "rightToLeft": "Right to left"
+      },
+      "dateTime": {
+        "title": "Date & time",
+        "example": "{} at {} ({})",
+        "24HourTime": "24-hour time",
+        "dateFormat": {
+          "label": "Date format",
+          "local": "Local",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Friendly",
+          "dmy": "D/M/Y"
+        }
+      },
+      "language": {
+        "title": "Language"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Delete workspace",
+        "content": "Are you sure you want to delete this workspace? This action cannot be undone."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Leave workspace",
+        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it."
+      },
+      "manageWorkspace": {
+        "title": "Manage workspace",
+        "leaveWorkspace": "Leave workspace",
+        "deleteWorkspace": "Delete workspace"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Manage data",
+      "title": "Manage data",
+      "description": "Manage data local storage or Import your existing data into AppFlowy. You can secure your data with end to end encryption.",
+      "dataStorage": {
+        "title": "File storage location",
+        "tooltip": "The location where your files are stored",
+        "actions": {
+          "change": "Change path",
+          "open": "Open folder",
+          "openTooltip": "Open current data folder location",
+          "copy": "Copy path",
+          "copiedHint": "Link copied!"
+        },
+        "resetDialog": {
+          "title": "Are you sure?",
+          "description": "Resetting the path to the default data location will not delete your data. If you want to re-import your current data, you should copy the path of your current location first."
+        }
+      },
+      "importData": {
+        "title": "Import data",
+        "tooltip": "Import data from AppFlowy backups/data folders",
+        "description": "Copy data from an external AppFlowy data folder and import it into the current AppFlowy data folder",
+        "action": "Browse folder"
+      },
+      "encryption": {
+        "title": "Encryption",
+        "tooltip": "Manage how your data is stored and encrypted",
+        "descriptionNoEncryption": "Turning on encryption will encrypt all data. This can not be undone.",
+        "descriptionEncrypted": "Your data is encrypted.",
+        "action": "Encrypt data",
+        "dialog": {
+          "title": "Encrypt all your data?",
+          "description": "Encrypting all your data will keep your data safe and secure. This action can NOT be undone. Are you sure you want to continue?"
+        }
+      },
+      "cache": {
+        "title": "Clear cache",
+        "description": "If you encounter issues with images not loading or fonts not displaying correctly, try clearing your cache. This action will not remove your user data.",
+        "dialog": {
+          "title": "Are you sure?",
+          "description": "Clearing the cache will cause images and fonts to be re-downloaded on load. This action will not remove or modify your data.",
+          "successHint": "Cache cleared!"
+        }
+      }
+    },
+    "common": {
+      "reset": "Reset"
+    },
     "menu": {
       "appearance": "Appearance",
       "language": "Language",
@@ -1538,7 +1657,8 @@
     "photoPermissionDescription": "Allow access to the photo library for uploading images.",
     "openSettings": "Open Settings",
     "photoPermissionTitle": "AppFlowy Would Like to Access Your Photo Library",
-    "doNotAllow": "Don't Allow"
+    "doNotAllow": "Don't Allow",
+    "image": "Image"
   },
   "commandPalette": {
     "placeholder": "Type to search for views...",

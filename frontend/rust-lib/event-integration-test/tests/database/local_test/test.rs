@@ -314,9 +314,12 @@ async fn delete_row_event_with_invalid_row_id_test() {
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
     .await;
 
-  // delete the row with empty row_id. It should return an error.
+  // delete the row with empty row_id. It should do nothing
   let error = test.delete_row(&grid_view.id, "").await;
-  assert!(error.is_some());
+  assert!(error.is_none());
+
+  let database = test.get_database(&grid_view.id).await;
+  assert_eq!(database.rows.len(), 3);
 }
 
 #[tokio::test]

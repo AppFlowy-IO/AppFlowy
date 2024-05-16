@@ -1,16 +1,18 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:scaled_app/scaled_app.dart';
 
 typedef KeyDownHandler = void Function(HotKey hotKey);
 
@@ -49,6 +51,8 @@ class HomeHotKeys extends StatefulWidget {
 }
 
 class _HomeHotKeysState extends State<HomeHotKeys> {
+  final windowSizeManager = WindowSizeManager();
+
   late final items = [
     // Collapse sidebar menu
     HotKeyItem(
@@ -118,6 +122,25 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
           getIt<RenameViewBloc>().add(const RenameViewEvent.open()),
     ),
 
+    // Scale up/down the app
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.equal,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => _scaleWithStep(0.1),
+    ),
+
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.minus,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => _scaleWithStep(-0.1),
+    ),
+
     // Open settings dialog
     openSettingsHotKey(context, widget.userProfile),
   ];
@@ -148,5 +171,18 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
   void _selectTab(BuildContext context, int change) {
     final bloc = context.read<TabsBloc>();
     bloc.add(TabsEvent.selectTab(bloc.state.currentIndex + change));
+  }
+
+  Future<void> _scaleWithStep(double step) async {
+    final currentScaleFactor = await windowSizeManager.getScaleFactor();
+    final textScale = (currentScaleFactor + step).clamp(
+      WindowSizeManager.minScaleFactor,
+      WindowSizeManager.maxScaleFactor,
+    );
+
+    Log.info('scale the app from $currentScaleFactor to $textScale');
+
+    ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => textScale;
+    await windowSizeManager.setScaleFactor(textScale);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/font_colors.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_color_list.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -122,11 +123,17 @@ final colorToolbarItem = AppFlowyMobileToolbarItem(
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(9),
-            color: backgroundColor?.tryToColor(),
+            color: EditorFontColors.fromBuiltInColors(
+              context,
+              backgroundColor?.tryToColor(),
+            ),
           ),
           child: FlowySvg(
             FlowySvgs.m_aa_font_color_m,
-            color: textColor?.tryToColor(),
+            color: EditorFontColors.fromBuiltInColors(
+              context,
+              textColor?.tryToColor(),
+            ),
           ),
         );
       },

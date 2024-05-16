@@ -226,6 +226,7 @@
     "viewDataBase": "Datenbank ansehen",
     "referencePage": "Auf diesen {Name} wird verwiesen",
     "addBlockBelow": "Einen Block hinzufügen",
+    "genSummary": "Zusammenfassung generieren",
     "urlLaunchAccessory": "Im Browser öffnen",
     "urlCopyAccessory": "Webadresse kopieren."
   },
@@ -353,6 +354,125 @@
         "loginLabel": "Anmeldung",
         "logoutLabel": "Ausloggen"
       }
+    },
+    "workspacePage": {
+      "menuLabel": "Arbeitsbereich",
+      "title": "Arbeitsbereich",
+      "description": "Passe das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datums-/Zeitformat und die Sprache deines Arbeitsbereichs an.",
+      "workspaceName": {
+        "title": "Name des Arbeitsbereichs",
+        "savedMessage": "Name des Arbeitsbereichs gespeichert"
+      },
+      "workspaceIcon": {
+        "title": "Arbeitsbereich-Symbol",
+        "description": "Passe das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datum, die Uhrzeit und die Sprache deines Arbeitsbereichs an."
+      },
+      "appearance": {
+        "title": "Aussehen",
+        "description": "Passe das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datums-/Zeitformat und die Sprache deines Arbeitsbereichs an.",
+        "options": {
+          "system": "Auto",
+          "light": "Hell",
+          "dark": "Dunkel"
+        }
+      },
+      "theme": {
+        "title": "Design",
+        "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch."
+      },
+      "workspaceFont": {
+        "title": "Schriftart Arbeitsbereich"
+      },
+      "textDirection": {
+        "title": "Textrichtung",
+        "leftToRight": "Links nach rechts",
+        "rightToLeft": "Rechts nach links",
+        "auto": "Auto",
+        "enableRTLItems": "RTL-Symbolleistenelemente aktivieren"
+      },
+      "layoutDirection": {
+        "title": "Layoutrichtung",
+        "leftToRight": "Links nach rechts",
+        "rightToLeft": "Rechts nach links"
+      },
+      "dateTime": {
+        "title": "Datum & Zeit",
+        "example": "{} um {} ({})",
+        "24HourTime": "24-Stunden-Zeit",
+        "dateFormat": {
+          "label": "Datumsformat",
+          "local": "Lokal",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "leserlich",
+          "dmy": "T/M/J"
+        }
+      },
+      "language": {
+        "title": "Sprache"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Arbeitsbereich löschen",
+        "content": "Möchtest du diesen Arbeitsbereich wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Arbeitsbereich verlassen",
+        "content": "Möchtest du diesen Arbeitsbereich wirklich verlassen? Du verlierst den Zugriff auf alle darin enthaltenen Seiten und Daten."
+      },
+      "manageWorkspace": {
+        "title": "Arbeitsbereich verwalten",
+        "leaveWorkspace": "Arbeitsbereich verlassen",
+        "deleteWorkspace": "Arbeitsbereich löschen"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Daten verwalten",
+      "title": "Daten verwalten",
+      "description": "Verwalte den lokalen Datenspeicher oder importiere deine vorhandenen Daten in AppFlowy. Du kannst deine Daten mit End-to-End-Verschlüsselung absichern.",
+      "dataStorage": {
+        "title": "Speicherort",
+        "tooltip": "Das Verzeichnis, in dem deine Dateien gespeichert sind",
+        "actions": {
+          "change": "Pfad ändern",
+          "open": "Ordner öffnen",
+          "openTooltip": "Aktuellen Speicherort des Datenordners öffnen",
+          "copy": "Pfad kopieren",
+          "copiedHint": "Link kopiert!"
+        },
+        "resetDialog": {
+          "title": "Bist du sicher?",
+          "description": "Durch das Zurücksetzen des Pfads auf das Standardverzeichnis werden deine Daten nicht gelöscht. Wenn du deine aktuellen Daten erneut importieren möchtest, solltest du zuerst den Pfad deines aktuellen Speicherorts kopieren."
+        }
+      },
+      "importData": {
+        "title": "Daten importieren",
+        "tooltip": "Daten aus AppFlowy-Backups/Datenordnern importieren",
+        "description": "Daten aus einem externen AppFlowy-Datenordner kopieren und in den aktuellen AppFlowy-Datenordner importieren",
+        "action": "Ordner durchsuchen"
+      },
+      "encryption": {
+        "title": "Verschlüsselung",
+        "tooltip": "Verwalte, wie deine Daten gespeichert und verschlüsselt werden",
+        "descriptionNoEncryption": "Durch das Einschalten der Verschlüsselung werden alle Daten verschlüsselt. Dieser Vorgang kann nicht rückgängig gemacht werden.",
+        "descriptionEncrypted": "Deine Daten sind verschlüsselt.",
+        "action": "Daten verschlüsseln",
+        "dialog": {
+          "title": "Alle deine Daten verschlüsseln?",
+          "description": "Durch die Verschlüsselung all deiner Daten bleiben diese sicher und geschützt. Diese Aktion kann NICHT rückgängig gemacht werden. Möchtest du wirklich fortfahren?"
+        }
+      },
+      "cache": {
+        "title": "Cache leeren",
+        "description": "Wenn Bilder nicht geladen werden oder Schriftarten nicht richtig angezeigt werden, versuche den Cache zu leeren. Deine Benutzerdaten werden dadurch nicht gelöscht.",
+        "dialog": {
+          "title": "Bist du sicher?",
+          "description": "Durch das Leeren des Caches werden Bilder und Schriftarten beim Laden erneut heruntergeladen. Deine Daten werden durch diese Aktion weder entfernt noch geändert.",
+          "successHint": "Cache geleert!"
+        }
+      }
+    },
+    "common": {
+      "reset": "Zurücksetzen"
     },
     "menu": {
       "appearance": "Oberfläche",
@@ -622,14 +742,14 @@
       "typeAValue": "Einen Wert eingeben...",
       "layout": "Layout",
       "databaseLayout": "Layout",
+      "viewList": "Datenbank-Ansichten",
       "editView": "Ansicht editieren",
       "boardSettings": "Board-Einstellungen",
       "calendarSettings": "Kalender-Einstellungen",
       "createView": "New Ansicht",
       "duplicateView": "Ansicht duplizieren",
       "deleteView": "Anslicht löschen",
-      "numberOfVisibleFields": "{} angezeigt",
-      "viewList": "Datenbank-Ansichten"
+      "numberOfVisibleFields": "{} angezeigt"
     },
     "textFilter": {
       "contains": "Enthält",
@@ -715,6 +835,7 @@
       "urlFieldName": "URL",
       "checklistFieldName": "Checkliste",
       "relationFieldName": "Beziehung",
+      "summaryFieldName": "KI-Zusammenfassung",
       "numberFormat": "Zahlenformat",
       "dateFormat": "Datumsformat",
       "includeTime": "Zeitangabe",
@@ -762,7 +883,9 @@
         "one": "Blende {count} verstecktes Feld aus",
         "many": "Blende {count} versteckte Felder aus",
         "other": "Blende {count} versteckte Felder aus"
-      }
+      },
+      "openAsFullPage": "Als ganze Seite öffnen",
+      "moreRowActions": "Weitere Zeilenaktionen"
     },
     "sort": {
       "ascending": "Aufsteigend",
@@ -788,7 +911,8 @@
       "drag": "Ziehen, um zu verschieben",
       "dragAndClick": "Ziehen, um zu verschieben. Klicke, um das Menü zu öffnen",
       "insertRecordAbove": "Füge Datensatz oben ein",
-      "insertRecordBelow": "Füge Datensatz unten ein"
+      "insertRecordBelow": "Füge Datensatz unten ein",
+      "noContent": "Kein Inhalt"
     },
     "selectOption": {
       "create": "Erstellen",
@@ -1087,6 +1211,11 @@
     "errorBlock": {
       "theBlockIsNotSupported": "Die aktuelle Version unterstützt diesen Block nicht.",
       "blockContentHasBeenCopied": "Der Blockinhalt wurde kopiert."
+    },
+    "mobilePageSelector": {
+      "title": "Seite auswählen",
+      "failedToLoad": "Seitenliste konnte nicht geladen werden",
+      "noPagesFound": "Keine Seiten gefunden"
     }
   },
   "board": {
@@ -1334,6 +1463,7 @@
     "color": "Farbe",
     "image": "Bild",
     "date": "Datum",
+    "page": "Seite",
     "italic": "Kursiv",
     "link": "Link",
     "numberedList": "Nummerierte Liste",
@@ -1529,7 +1659,12 @@
     "photo": "Foto",
     "unsplash": "Unsplash",
     "pageCover": "Deckblatt",
-    "none": "Keines"
+    "none": "Keines",
+    "photoPermissionDescription": "Erlaube den Zugriff auf die Fotobibliothek zum Hochladen von Bildern.",
+    "openSettings": "Einstellungen öffnen",
+    "photoPermissionTitle": "AppFlowy möchte auf deine Fotobibliothek zugreifen",
+    "doNotAllow": "Nicht zulassen",
+    "image": "Bild"
   },
   "commandPalette": {
     "placeholder": "Tippe, um nach Ansichten zu suchen...",

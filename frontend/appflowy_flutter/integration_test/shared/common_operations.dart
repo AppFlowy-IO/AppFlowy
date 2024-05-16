@@ -22,7 +22,6 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/flowy_tab.
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -511,8 +510,9 @@ extension CommonOperations on WidgetTester {
 
     final workspace = find.byType(SidebarWorkspace);
     expect(workspace, findsOneWidget);
-    // click it
-    await tapButton(workspace, milliseconds: 2000);
+
+    await tapButton(workspace, pumpAndSettle: false);
+    await pump(const Duration(seconds: 5));
   }
 
   Future<void> createCollaborativeWorkspace(String name) async {
@@ -527,7 +527,8 @@ extension CommonOperations on WidgetTester {
     // click the create button
     final createButton = find.byKey(createWorkspaceButtonKey);
     expect(createButton, findsOneWidget);
-    await tapButton(createButton);
+    await tapButton(createButton, pumpAndSettle: false);
+    await pump(const Duration(seconds: 5));
 
     // see the create workspace dialog
     final createWorkspaceDialog = find.byType(CreateWorkspaceDialog);
@@ -536,7 +537,8 @@ extension CommonOperations on WidgetTester {
     // input the workspace name
     await enterText(find.byType(TextField), name);
 
-    await tapButtonWithName(LocaleKeys.button_ok.tr());
+    await tapButtonWithName(LocaleKeys.button_ok.tr(), pumpAndSettle: false);
+    await pump(const Duration(seconds: 5));
   }
 
   // For mobile platform to launch the app in anonymous mode

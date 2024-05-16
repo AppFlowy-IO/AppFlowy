@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/base/mobile_view_page_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
@@ -103,19 +104,21 @@ class _MobileViewPageState extends State<MobileViewPage> {
     ViewPB? view,
     Widget child,
   ) {
-    final isImmersiveMode = view?.layout.isDocumentView ?? false;
+    final isDocument = view?.layout.isDocumentView ?? false;
     final title = _buildTitle(context, view);
-    final appBar = MobileViewPageImmersiveAppBar(
-      preferredSize: Size(
-        double.infinity,
-        AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight,
-      ),
-      title: title,
-      isImmersiveMode: isImmersiveMode,
-      appBarOpacity: _appBarOpacity,
-      actions: _buildAppBarActions(context, view),
-    );
-    final body = isImmersiveMode
+    final actions = _buildAppBarActions(context, view);
+    final appBar = isDocument
+        ? MobileViewPageImmersiveAppBar(
+            preferredSize: Size(
+              double.infinity,
+              AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight,
+            ),
+            title: title,
+            appBarOpacity: _appBarOpacity,
+            actions: actions,
+          )
+        : FlowyAppBar(title: title, actions: actions);
+    final body = isDocument
         ? Builder(
             builder: (context) {
               _rebuildScrollNotificationObserver(context);
@@ -124,7 +127,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           )
         : child;
     return Scaffold(
-      extendBodyBehindAppBar: isImmersiveMode,
+      extendBodyBehindAppBar: isDocument,
       appBar: appBar,
       body: body,
     );
@@ -190,12 +193,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
           ),
           const HSpace(16.0),
           DocumentSyncIndicator(view: view),
-          const HSpace(8.0),
+          const HSpace(12.0),
         ]);
       } else {
         actions.addAll([
           DatabaseSyncIndicator(view: view),
-          const HSpace(8.0),
+          const HSpace(12.0),
         ]);
       }
     }

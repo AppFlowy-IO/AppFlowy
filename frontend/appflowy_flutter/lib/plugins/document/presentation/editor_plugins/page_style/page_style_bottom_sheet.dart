@@ -25,7 +25,7 @@ class PageStyleBottomSheet extends StatelessWidget {
         children: [
           // cover image
           FlowyText(
-            LocaleKeys.pageStyle_backgroundImage.tr(),
+            LocaleKeys.pageStyle_coverImage.tr(),
             color: context.pageStyleTextColor,
             fontSize: 14.0,
           ),
