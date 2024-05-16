@@ -49,7 +49,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
               ),
             ),
             UserSettingButton(userProfile: widget.userProfile),
-            const HSpace(4),
+            const HSpace(8),
             const NotificationButton(),
             const HSpace(4),
           ],

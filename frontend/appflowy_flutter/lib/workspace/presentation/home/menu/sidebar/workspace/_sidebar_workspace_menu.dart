@@ -52,10 +52,9 @@ class WorkspacesMenu extends StatelessWidget {
               FlowyButton(
                 key: createWorkspaceButtonKey,
                 useIntrinsicWidth: true,
-                text: FlowySvg(
+                text: const FlowySvg(
                   FlowySvgs.three_dots_s,
-                  size: const Size.square(16.0),
-                  color: Theme.of(context).hintColor,
+                  size: Size.square(16.0),
                 ),
                 onTap: () {
                   _showCreateWorkspaceDialog(context);
@@ -81,6 +80,7 @@ class WorkspacesMenu extends StatelessWidget {
         ],
         // add new workspace
         const _CreateWorkspaceButton(),
+        const VSpace(6.0),
       ],
     );
   }
@@ -109,7 +109,7 @@ class WorkspacesMenu extends StatelessWidget {
   }
 }
 
-class WorkspaceMenuItem extends StatelessWidget {
+class WorkspaceMenuItem extends StatefulWidget {
   const WorkspaceMenuItem({
     super.key,
     required this.workspace,
@@ -122,31 +122,49 @@ class WorkspaceMenuItem extends StatelessWidget {
   final bool isSelected;
 
   @override
+  State<WorkspaceMenuItem> createState() => _WorkspaceMenuItemState();
+}
+
+class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
+  final ValueNotifier<bool> _isHover = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _isHover.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          WorkspaceMemberBloc(userProfile: userProfile, workspace: workspace)
-            ..add(const WorkspaceMemberEvent.initial()),
+      create: (_) => WorkspaceMemberBloc(
+        userProfile: widget.userProfile,
+        workspace: widget.workspace,
+      )..add(const WorkspaceMemberEvent.initial()),
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
           // settings right icon inside the flowy button will
           //  cause the popover dismiss intermediately when click the right icon.
           // so using the stack to put the right icon on the flowy button.
-          return SizedBox(
-            height: 40,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                _WorkspaceInfo(
-                  isSelected: isSelected,
-                  workspace: workspace,
-                ),
-                Positioned(left: 4, child: _buildLeftIcon(context)),
-                Positioned(
-                  right: 4.0,
-                  child: Align(child: _buildRightIcon(context)),
-                ),
-              ],
+          return MouseRegion(
+            onEnter: (_) => _isHover.value = true,
+            onExit: (_) => _isHover.value = false,
+            child: SizedBox(
+              height: 40,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  _WorkspaceInfo(
+                    isSelected: widget.isSelected,
+                    workspace: widget.workspace,
+                  ),
+                  Positioned(left: 4, child: _buildLeftIcon(context)),
+                  Positioned(
+                    right: 4.0,
+                    child: Align(child: _buildRightIcon(context)),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -168,13 +186,13 @@ class WorkspaceMenuItem extends StatelessWidget {
       child: FlowyTooltip(
         message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
         child: WorkspaceIcon(
-          workspace: workspace,
+          workspace: widget.workspace,
           iconSize: 22,
           fontSize: 16,
           enableEdit: true,
           onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                 UserWorkspaceEvent.updateWorkspaceIcon(
-                  workspace.workspaceId,
+                  widget.workspace.workspaceId,
                   result.emoji,
                 ),
               ),
@@ -185,22 +203,31 @@ class WorkspaceMenuItem extends StatelessWidget {
 
   Widget _buildRightIcon(BuildContext context) {
     // only the owner can update or delete workspace.
-    // only show the more action button when the workspace is selected.
-    if (!isSelected || context.read<WorkspaceMemberBloc>().state.isLoading) {
+    if (context.read<WorkspaceMemberBloc>().state.isLoading) {
       return const SizedBox.shrink();
     }
 
     return Row(
       children: [
-        WorkspaceMoreActionList(workspace: workspace),
-        const Padding(
-          padding: EdgeInsets.all(5.0),
-          child: FlowySvg(
-            FlowySvgs.m_blue_check_s,
-            blendMode: null,
-            size: Size.square(14.0),
-          ),
+        ValueListenableBuilder(
+          valueListenable: _isHover,
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: value ? 1.0 : 0.0,
+              child: child,
+            );
+          },
+          child: WorkspaceMoreActionList(workspace: widget.workspace),
         ),
+        if (widget.isSelected)
+          const Padding(
+            padding: EdgeInsets.all(5.0),
+            child: FlowySvg(
+              FlowySvgs.m_blue_check_s,
+              blendMode: null,
+              size: Size.square(14.0),
+            ),
+          ),
       ],
     );
   }
@@ -236,6 +263,7 @@ class _WorkspaceInfo extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 withTooltip: true,
               ),
+              const VSpace(2.0),
               // workspace members count
               FlowyText.regular(
                 state.isLoading
@@ -304,7 +332,7 @@ class _CreateWorkspaceButton extends StatelessWidget {
           children: [
             _buildLeftIcon(context),
             const HSpace(10.0),
-            FlowyText.regular(LocaleKeys.workspace_create.tr()),
+            FlowyText.regular(LocaleKeys.workspace_create.tr(), fontSize: 14.0),
           ],
         ),
       ),
