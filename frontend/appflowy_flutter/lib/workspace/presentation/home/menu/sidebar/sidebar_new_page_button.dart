@@ -27,7 +27,7 @@ class SidebarNewPageButton extends StatelessWidget {
           color: Theme.of(context).colorScheme.primary,
         ),
         iconPadding: 10.0,
-        text: FlowyText(LocaleKeys.newPageText.tr()),
+        text: FlowyText.regular(LocaleKeys.newPageText.tr()),
       ),
     );
   }

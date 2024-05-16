@@ -292,7 +292,7 @@ class _SidebarSearchButton extends StatelessWidget {
       onTap: () => CommandPalette.of(context).toggle(),
       leftIcon: const FlowySvg(FlowySvgs.search_s),
       iconPadding: 10.0,
-      text: FlowyText(LocaleKeys.search_label.tr()),
+      text: FlowyText.regular(LocaleKeys.search_label.tr()),
     );
   }
 }
