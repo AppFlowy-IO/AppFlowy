@@ -1,5 +1,5 @@
 # Release Notes
-## Version 0.5.8 - 05/16/2024
+## Version 0.5.8 - 05/20/2024
 ### Bug Fixes
 - Resolved and refined the UI on Mobile
 - Resolved issue with text editing in database
