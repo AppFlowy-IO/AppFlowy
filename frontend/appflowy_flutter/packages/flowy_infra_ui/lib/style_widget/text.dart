@@ -16,6 +16,7 @@ class FlowyText extends StatelessWidget {
   final List<String>? fallbackFontFamily;
   final double? lineHeight;
   final bool withTooltip;
+  final StrutStyle? strutStyle;
 
   const FlowyText(
     this.text, {
@@ -32,6 +33,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle,
   });
 
   FlowyText.small(
@@ -47,6 +49,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle,
   })  : fontWeight = FontWeight.w400,
         fontSize = (Platform.isIOS || Platform.isAndroid) ? 14 : 12;
 
@@ -64,6 +67,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle,
   }) : fontWeight = FontWeight.w400;
 
   const FlowyText.medium(
@@ -80,6 +84,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle,
   }) : fontWeight = FontWeight.w500;
 
   const FlowyText.semibold(
@@ -96,6 +101,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle,
   }) : fontWeight = FontWeight.w600;
 
   // Some emojis are not supported on Linux and Android, fallback to noto color emoji
@@ -111,6 +117,7 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle = const StrutStyle(forceStrutHeight: true),
   })  : fontWeight = FontWeight.w400,
         fontFamily = 'noto color emoji',
         fallbackFontFamily = null;
@@ -124,6 +131,7 @@ class FlowyText extends StatelessWidget {
         text,
         maxLines: maxLines,
         textAlign: textAlign,
+        strutStyle: strutStyle,
         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: fontSize,
               fontWeight: fontWeight,
@@ -140,6 +148,7 @@ class FlowyText extends StatelessWidget {
         maxLines: maxLines,
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
+        strutStyle: strutStyle,
         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: fontSize,
               fontWeight: fontWeight,
