@@ -420,7 +420,7 @@
     "manageDataPage": {
       "menuLabel": "Manage data",
       "title": "Manage data",
-      "description": "Manage data local storage or Import your existing data into Appflowy. You can secure your data with end to end encryption.",
+      "description": "Manage data local storage or Import your existing data into AppFlowy. You can secure your data with end to end encryption.",
       "dataStorage": {
         "title": "File storage location",
         "tooltip": "The location where your files are stored",
