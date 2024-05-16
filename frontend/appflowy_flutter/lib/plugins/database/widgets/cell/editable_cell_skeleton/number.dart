@@ -79,8 +79,11 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
     return BlocProvider.value(
       value: cellBloc,
       child: BlocListener<NumberCellBloc, NumberCellState>(
-        listener: (context, state) =>
-            _textEditingController.text = state.content,
+        listener: (context, state) {
+          if (!focusNode.hasFocus) {
+            _textEditingController.text = state.content;
+          }
+        },
         child: Builder(
           builder: (context) {
             return widget.skin.build(

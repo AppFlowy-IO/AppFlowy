@@ -16,10 +16,7 @@ import 'package:go_router/go_router.dart';
 
 class SplashScreen extends StatelessWidget {
   /// Root Page of the app.
-  const SplashScreen({
-    super.key,
-    required this.isAnon,
-  });
+  const SplashScreen({super.key, required this.isAnon});
 
   final bool isAnon;
 

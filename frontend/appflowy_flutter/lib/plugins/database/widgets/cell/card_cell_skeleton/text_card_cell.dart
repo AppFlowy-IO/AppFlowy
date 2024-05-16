@@ -163,19 +163,18 @@ class _TextCellState extends State<TextCardCell> {
     return BlocBuilder<TextCellBloc, TextCellState>(
       builder: (context, state) {
         final content = state.content;
-        final text = content.isEmpty
-            ? LocaleKeys.grid_row_textPlaceholder.tr()
-            : content;
-        final color = content.isEmpty ? Theme.of(context).hintColor : null;
 
-        return Padding(
-          padding: widget.style.padding,
-          child: Text(
-            text,
-            style: widget.style.textStyle.copyWith(color: color),
-            maxLines: widget.style.maxLines,
-          ),
-        );
+        return content.isEmpty
+            ? const SizedBox.shrink()
+            : Container(
+                padding: widget.style.padding,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  content,
+                  style: widget.style.textStyle,
+                  maxLines: widget.style.maxLines,
+                ),
+              );
       },
     );
   }

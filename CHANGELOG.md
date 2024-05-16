@@ -1,4 +1,22 @@
 # Release Notes
+## Version 0.5.7 - 05/10/2024
+### Bug Fixes
+- Resolved page opening issue on Android.
+- Fixed text input inconsistency on Kanban board cards.
+
+## Version 0.5.6 - 05/07/2024
+### New Features
+- Team collaboration is live! Add members to your workspace to edit and collaborate on pages together.
+- Collaborate in real time on the same page with other members. Edits made by others will appear instantly.
+- Create multiple workspaces for different kinds of content.
+- Customize your entire page on mobile through the Page Style menu with options for layout, font, font size, emoji, and cover image.
+- Open a row record as a full page.
+### Bug Fixes
+- Resolved issue with setting background color for the Simple Table block.
+- Adjusted toolbar for various screen sizes.
+- Added a request for photo permission before uploading images on mobile.
+- Exported creation and last modification timestamps to CSV.
+
 ## Version 0.5.5 - 04/24/2024
 ### New Features
 - Improved the display of code blocks with line numbers
