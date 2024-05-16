@@ -47,6 +47,7 @@ class SidebarNewPageButton extends StatelessWidget {
                 SidebarSectionsEvent.createRootViewInSection(
                   name: viewName,
                   viewSection: section,
+                  index: 0,
                 ),
               );
         }
