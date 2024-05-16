@@ -12,8 +12,8 @@ enum SettingsPage {
   // NEW
   account,
   workspace,
+  manageData,
   // OLD
-  files,
   notifications,
   cloud,
   shortcuts,

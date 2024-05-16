@@ -1,8 +1,10 @@
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -21,6 +23,9 @@ class MobileViewPageBloc
           initial: () async {
             _registerListeners();
 
+            final userProfilePB =
+                await UserBackendService.getCurrentUserProfile()
+                    .fold((s) => s, (f) => null);
             final result = await ViewBackendService.getView(viewId);
             final isImmersiveMode =
                 _isImmersiveMode(result.fold((s) => s, (f) => null));
@@ -29,6 +34,7 @@ class MobileViewPageBloc
                 isLoading: false,
                 result: result,
                 isImmersiveMode: isImmersiveMode,
+                userProfilePB: userProfilePB,
               ),
             );
           },
@@ -71,7 +77,7 @@ class MobileViewPageBloc
     final cover = view.cover;
     if (cover == null || cover.type == PageStyleCoverImageType.none) {
       return false;
-    } else if (view.layout == ViewLayoutPB.Document) {
+    } else if (view.layout == ViewLayoutPB.Document && !cover.isPresets) {
       // only support immersive mode for document layout
       return true;
     }
@@ -93,6 +99,7 @@ class MobileViewPageState with _$MobileViewPageState {
     @Default(true) bool isLoading,
     @Default(null) FlowyResult<ViewPB, FlowyError>? result,
     @Default(false) bool isImmersiveMode,
+    @Default(null) UserProfilePB? userProfilePB,
   }) = _MobileViewPageState;
 
   factory MobileViewPageState.initial() => const MobileViewPageState();

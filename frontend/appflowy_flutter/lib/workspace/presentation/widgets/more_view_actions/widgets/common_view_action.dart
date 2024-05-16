@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -10,6 +9,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum ViewActionType {
   delete,
@@ -47,7 +47,7 @@ class ViewAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyButton(
       onTap: () {
-        getIt<ViewBloc>(param1: view).add(type.actionEvent);
+        context.read<ViewBloc>().add(type.actionEvent);
         mutex?.close();
       },
       text: FlowyText.regular(
