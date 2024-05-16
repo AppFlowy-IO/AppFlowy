@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
@@ -221,7 +222,8 @@ class _SidebarState extends State<_Sidebar> {
           // top menu
           const Padding(padding: menuHorizontalInset, child: SidebarTopMenu()),
           // user or workspace, setting
-          Padding(
+          Container(
+            height: HomeSizes.workspaceSectionHeight,
             padding: menuHorizontalInset,
             child:
                 // if the workspaces are empty, show the user profile instead
@@ -233,7 +235,7 @@ class _SidebarState extends State<_Sidebar> {
             const VSpace(6),
             Container(
               padding: menuHorizontalInset,
-              height: 30,
+              height: HomeSizes.searchSectionHeight,
               child: const _SidebarSearchButton(),
             ),
           ],

@@ -71,13 +71,13 @@ class SidebarTopMenu extends StatelessWidget {
     return FlowyTooltip(
       richMessage: textSpan,
       child: FlowyIconButton(
-        width: PlatformExtension.isWindows ? 30 : 28,
+        width: 24,
         hoverColor: Colors.transparent,
         onPressed: () => context
             .read<HomeSettingBloc>()
             .add(const HomeSettingEvent.collapseMenu()),
-        iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-        icon: const FlowySvg(FlowySvgs.hide_menu_m),
+        iconPadding: const EdgeInsets.all(2),
+        icon: const FlowySvg(FlowySvgs.hide_menu_s),
       ),
     );
   }

@@ -5,6 +5,9 @@ class HomeSizes {
   static const double editPanelWidth = 400;
   static const double tabBarHeigth = 40;
   static const double tabBarWidth = 200;
+  static const double workspaceSectionHeight = 32;
+  static const double searchSectionHeight = 30;
+  static const double newPageSectionHeight = 30;
 }
 
 class HomeInsets {
