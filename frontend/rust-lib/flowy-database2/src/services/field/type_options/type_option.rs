@@ -11,7 +11,8 @@ use flowy_error::FlowyResult;
 use crate::entities::{
   CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType,
   MultiSelectTypeOptionPB, NumberTypeOptionPB, RelationTypeOptionPB, RichTextTypeOptionPB,
-  SingleSelectTypeOptionPB, SummarizationTypeOptionPB, TimestampTypeOptionPB, URLTypeOptionPB, TimerTypeOptionPB
+  SingleSelectTypeOptionPB, SummarizationTypeOptionPB, TimerTypeOptionPB, TimestampTypeOptionPB,
+  URLTypeOptionPB,
 };
 use crate::services::cell::CellDataDecoder;
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
