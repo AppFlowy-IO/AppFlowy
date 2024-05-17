@@ -9,7 +9,7 @@ describe('<Welcome />', () => {
 
   it('renders', () => {
     const AppWrapper = withAppWrapper(Welcome);
-    
+
     cy.mount(<AppWrapper />);
   });
 
@@ -29,6 +29,7 @@ describe('<Welcome />', () => {
     cy.wait('@loginSuccess');
     cy.wait('@verifyToken');
     cy.wait('@getUserProfile');
+    cy.wait('@getUserWorkspace');
     cy.get('@dialog').should('not.exist');
   });
 });

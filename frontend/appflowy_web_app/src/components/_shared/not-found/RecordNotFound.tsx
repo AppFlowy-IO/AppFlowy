@@ -10,7 +10,7 @@ export function RecordNotFound({ open, workspaceId }: { workspaceId: string; ope
       <DialogTitle>Oops.. something went wrong</DialogTitle>
       <DialogContent>
         <DialogContentText id='alert-dialog-description'>
-          Sorry, the document you are looking for does not exist.
+          Sorry, the page you are looking for does not exist.
         </DialogContentText>
       </DialogContent>
       <DialogActions className={'flex w-full items-center justify-center'}>

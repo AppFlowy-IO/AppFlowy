@@ -1,10 +1,10 @@
 import { ViewLayout, YjsFolderKey, YView } from '@/application/collab.type';
 import { useViewSelector } from '@/application/folder-yjs';
 import React, { useMemo } from 'react';
-import { ReactComponent as DocumentSvg } from '@/assets/document.svg';
-import { ReactComponent as GridSvg } from '@/assets/grid.svg';
-import { ReactComponent as BoardSvg } from '@/assets/board.svg';
-import { ReactComponent as CalendarSvg } from '@/assets/date.svg';
+import { ReactComponent as DocumentSvg } from '$icons/16x/document.svg';
+import { ReactComponent as GridSvg } from '$icons/16x/grid.svg';
+import { ReactComponent as BoardSvg } from '$icons/16x/board.svg';
+import { ReactComponent as CalendarSvg } from '$icons/16x/date.svg';
 import { useTranslation } from 'react-i18next';
 
 export function usePageInfo(id: string) {

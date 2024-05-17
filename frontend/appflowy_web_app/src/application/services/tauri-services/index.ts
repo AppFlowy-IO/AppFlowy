@@ -2,11 +2,13 @@ import {
   AFService,
   AFServiceConfig,
   AuthService,
+  DatabaseService,
   DocumentService,
   FolderService,
   UserService,
 } from '@/application/services/services.type';
 import { TauriAuthService } from '@/application/services/tauri-services/auth.service';
+import { TauriDatabaseService } from '@/application/services/tauri-services/database.service';
 import { TauriFolderService } from '@/application/services/tauri-services/folder.service';
 import { TauriUserService } from '@/application/services/tauri-services/user.service';
 import { TauriDocumentService } from '@/application/services/tauri-services/document.service';
@@ -20,6 +22,8 @@ export class AFClientService implements AFService {
   documentService: DocumentService;
 
   folderService: FolderService;
+
+  databaseService: DatabaseService;
 
   private deviceId: string = nanoid(8);
 
@@ -41,5 +45,6 @@ export class AFClientService implements AFService {
     this.userService = new TauriUserService();
     this.documentService = new TauriDocumentService();
     this.folderService = new TauriFolderService();
+    this.databaseService = new TauriDatabaseService();
   }
 }

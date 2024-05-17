@@ -1,6 +1,6 @@
 /**
 * Do not edit directly
-* Generated on Mon, 25 Mar 2024 05:19:13 GMT
+* Generated on Thu, 09 May 2024 03:26:45 GMT
 * Generated from $pnpm css:variables 
 */
 
