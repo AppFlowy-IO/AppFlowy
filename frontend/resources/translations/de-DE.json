@@ -246,7 +246,7 @@
     "addAPageToWorkspace": "Eine Seite zum Arbeitsbereich hinzufügen",
     "recent": "Zuletzt",
     "public": "Öffentlich",
-    "clickToHidePublic": "Hier klicken, um den öffentlichen Raum auszublenden.\nVon dir hier erstellte Seiten sind für jedes Mitglied sichtbar.",
+    "clickToHidePublic": "Hier klicken, um den öffentlichen Bereich auszublenden.\nHier erstellte Seiten sind für jedes Mitglied sichtbar.",
     "addAPageToPublic": "Eine Seite zum öffentlichen Bereich hinzufügen."
   },
   "notifications": {
@@ -332,7 +332,7 @@
       "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an.",
       "general": {
         "title": "Kontoname und Profilbild",
-        "changeProfilePicture": "Ändern"
+        "changeProfilePicture": "Profilbild ändern"
       },
       "email": {
         "title": "E-Mail",
@@ -583,7 +583,7 @@
         "deletionFailure": "Das Theme konnte nicht gelöscht werden. Versuche, es manuell zu löschen.",
         "filePickerDialogTitle": "Wähle eine .flowy_plugin-Datei",
         "urlUploadFailure": "URL konnte nicht geöffnet werden: {}",
-        "failure": "Das hochgeladene Theme hatte ein ungültiges Format."
+        "failure": "Das hochgeladene Theme hat ein ungültiges Format."
       },
       "theme": "Theme",
       "builtInsLabel": "Integrierte Theme",
