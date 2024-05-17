@@ -404,7 +404,7 @@
           "local": "Lokal",
           "us": "US",
           "iso": "ISO",
-          "friendly": "leserlich",
+          "friendly": "Leserlich",
           "dmy": "T/M/J"
         }
       },
@@ -593,7 +593,7 @@
         "local": "Lokal",
         "us": "US",
         "iso": "ISO",
-        "friendly": "Freundlich",
+        "friendly": "Leserlich",
         "dmy": "TT/MM/JJJJ"
       },
       "timeFormat": {
