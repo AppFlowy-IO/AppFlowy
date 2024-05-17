@@ -15,6 +15,7 @@ enum ViewMoreActionType {
   changeIcon,
   collapseAllPages, // including sub pages
   divider,
+  lastModified,
 }
 
 extension ViewMoreActionTypeExtension on ViewMoreActionType {
@@ -41,6 +42,7 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
       case ViewMoreActionType.collapseAllPages:
         return LocaleKeys.disclosureAction_collapseAllPages.tr();
       case ViewMoreActionType.divider:
+      case ViewMoreActionType.lastModified:
         return '';
     }
   }
@@ -68,6 +70,7 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
       case ViewMoreActionType.collapseAllPages:
         return const FlowySvg(FlowySvgs.collapse_all_page_s);
       case ViewMoreActionType.divider:
+      case ViewMoreActionType.lastModified:
         return const SizedBox.shrink();
     }
   }
@@ -86,6 +89,7 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
       case ViewMoreActionType.collapseAllPages:
       case ViewMoreActionType.divider:
       case ViewMoreActionType.delete:
+      case ViewMoreActionType.lastModified:
         return const SizedBox.shrink();
     }
   }

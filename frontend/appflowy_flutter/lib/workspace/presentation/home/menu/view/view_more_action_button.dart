@@ -85,6 +85,8 @@ class ViewMoreActionButton extends StatelessWidget {
           ViewMoreActionType.collapseAllPages,
           ViewMoreActionType.divider,
           ViewMoreActionType.openInNewTab,
+          ViewMoreActionType.divider,
+          ViewMoreActionType.lastModified,
         ]);
     }
     return actionTypes;
@@ -100,12 +102,18 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
   @override
   Widget buildWithContext(BuildContext context, PopoverController controller) {
     if (inner == ViewMoreActionType.divider) {
-      return const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Divider(height: 1.0),
-      );
+      return _buildDivider();
+    } else if (inner == ViewMoreActionType.lastModified) {
+      return _buildLastModified(context);
+    } else {
+      return _buildActionButton(context, controller);
     }
+  }
 
+  Widget _buildActionButton(
+    BuildContext context,
+    PopoverController controller,
+  ) {
     return Container(
       height: 34,
       padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -124,6 +132,38 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
           ),
         ),
         onTap: () => onTap(controller),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Divider(height: 1.0),
+    );
+  }
+
+  Widget _buildLastModified(BuildContext context) {
+    return Container(
+      height: 40,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // FIXME: use real data
+          FlowyText.regular(
+            'Last edited by Lucas',
+            fontSize: 13.0,
+            color: Theme.of(context).hintColor,
+          ),
+          const VSpace(4.0),
+          FlowyText.regular(
+            '2021-09-09 09:09:09',
+            fontSize: 13.0,
+            color: Theme.of(context).hintColor,
+          ),
+        ],
       ),
     );
   }
