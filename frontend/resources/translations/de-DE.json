@@ -329,7 +329,7 @@
     "accountPage": {
       "menuLabel": "Mein Konto",
       "title": "Mein Konto",
-      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und AI-API-Schlüssel oder melde dich bei deinem Konto an.",
+      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an.",
       "general": {
         "title": "Kontoname und Profilbild",
         "changeProfilePicture": "Ändern"
