@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu.dart';
@@ -144,8 +145,11 @@ class FavoriteMoreButton extends StatelessWidget {
         Theme.of(context).colorScheme.shadow,
         borderRadius: 10.0,
       ),
-      popupBuilder: (context) {
-        return const FavoriteMenu(minWidth: minWidth);
+      popupBuilder: (_) {
+        return BlocProvider.value(
+          value: context.read<FavoriteBloc>(),
+          child: const FavoriteMenu(minWidth: minWidth),
+        );
       },
       child: FlowyButton(
         onTap: () {},

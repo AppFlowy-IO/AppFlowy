@@ -1573,7 +1573,8 @@
   },
   "favorite": {
     "noFavorite": "No favorite page",
-    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites"
+    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites",
+    "removeFromSidebar": "Remove from sidebar"
   },
   "cardDetails": {
     "notesPlaceholder": "Enter a / to insert a block, or start typing"

@@ -1,8 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_more_actions.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_pin_action.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -19,6 +21,7 @@ class FavoriteMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final favoriteBloc = context.read<FavoriteBloc>();
     return Padding(
       padding: const EdgeInsets.only(
         left: _kHorizontalPadding,
@@ -72,6 +75,9 @@ class FavoriteMenu extends StatelessWidget {
                       leftIconBuilder: (_, __) => const HSpace(4.0),
                       rightIconsBuilder: (_, view) => [
                         FavoriteMoreActions(view: view),
+                        const HSpace(8.0),
+                        FavoritePinAction(view: view),
+                        const HSpace(4.0),
                       ],
                       height: 30.0,
                     ),
