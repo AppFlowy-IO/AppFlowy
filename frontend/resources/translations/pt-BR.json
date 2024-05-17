@@ -58,7 +58,7 @@
     "resetWorkspacePrompt": "A redefinição do espaço de trabalho excluirá todas as páginas e dados contidos nele. Tem certeza de que deseja redefinir o espaço de trabalho? Alternativamente, você pode entrar em contato com a equipe de suporte para restaurar o espaço de trabalho",
     "hint": "Espaço de trabalho",
     "notFoundError": "Espaço de trabalho não encontrado",
-    "failedToLoad": "Algo deu errado! Falha ao carregar o espaço de trabalho. Tente fechar qualquer instância aberta do AppFlowy e tente novamente.",
+    "failedToLoad": "Algo deu errado! Falha ao carregar o espaço de trabalho. Tente fechar qualquer instância aberta do @:appName e tente novamente.",
     "errorActions": {
       "reportIssue": "Reporte um problema",
       "reachOut": "Entre em contato no Discord"
@@ -280,7 +280,7 @@
       "cloudSupabaseUrl": "URL da Supabase",
       "cloudSupabaseAnonKey": "Chave anônima Supabase",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "A chave anon não pode estar vazia se o URL da supabase não estiver vazio",
-      "cloudAppFlowy": "AppFlowy Cloud",
+      "cloudAppFlowy": "@:appName Cloud Beta",
       "clickToCopy": "Clique para copiar",
       "selfHostStart": "Se você não possui um servidor, consulte o",
       "selfHostContent": "documento",
@@ -299,11 +299,11 @@
       "historicalUserList": "Histórico de login do usuário",
       "historicalUserListTooltip": "Esta lista exibe suas contas anônimas. Você pode clicar em uma conta para ver seus detalhes. Contas anônimas são criadas clicando no botão ‘Começar’",
       "openHistoricalUser": "Clique para abrir a conta anônima",
-      "customPathPrompt": "Armazenar a pasta de dados do AppFlowy em uma pasta sincronizada na nuvem, como o Google Drive, pode representar riscos. Se o banco de dados nesta pasta for acessado ou modificado de vários locais ao mesmo tempo, isso poderá resultar em conflitos de sincronização e possível corrupção de dados",
-      "importAppFlowyData": "Importar dados da pasta AppFlowy externa",
-      "importAppFlowyDataDescription": "Copie dados de uma pasta de dados externa do AppFlowy e importe-os para a pasta de dados atual do AppFlowy",
-      "importSuccess": "Importou com sucesso a pasta de dados do AppFlowy",
-      "importFailed": "Falha ao importar a pasta de dados do AppFlowy",
+      "customPathPrompt": "Armazenar a pasta de dados do @:appName em uma pasta sincronizada na nuvem, como o Google Drive, pode representar riscos. Se o banco de dados nesta pasta for acessado ou modificado de vários locais ao mesmo tempo, isso poderá resultar em conflitos de sincronização e possível corrupção de dados",
+      "importAppFlowyData": "Importar dados da pasta @:appName externa",
+      "importAppFlowyDataDescription": "Copie dados de uma pasta de dados externa do @:appName e importe-os para a pasta de dados atual do @:appName",
+      "importSuccess": "Importou com sucesso a pasta de dados do @:appName",
+      "importFailed": "Falha ao importar a pasta de dados do @:appName",
       "importGuide": "Para mais detalhes, consulte o documento referenciado",
       "supabaseSetting": "Configuração de Supabase"
     },
@@ -354,7 +354,7 @@
       "themeUpload": {
         "button": "Carregar",
         "uploadTheme": "Carregar tema",
-        "description": "Carregue seu próprio tema AppFlowy usando o botão abaixo.",
+        "description": "Carregue seu próprio tema @:appName usando o botão abaixo.",
         "loading": "Aguarde enquanto validamos e carregamos seu tema...",
         "uploadSuccess": "Seu tema foi carregado com sucesso",
         "deletionFailure": "Falha ao excluir o tema. Tente excluí-lo manualmente.",
@@ -385,7 +385,7 @@
       "defaultLocation": "Onde os seus dados ficam armazenados",
       "exportData": "Exporte seus dados",
       "doubleTapToCopy": "Clique duas vezes para copiar o caminho",
-      "restoreLocation": "Restaurar para o caminho padrão do AppFlowy",
+      "restoreLocation": "Restaurar para o caminho padrão do @:appName",
       "customizeLocation": "Abrir outra pasta",
       "restartApp": "Reinicie o aplicativo para que as alterações entrem em vigor.",
       "exportDatabase": "Exportar banco de dados",
@@ -397,10 +397,10 @@
       "defineWhereYourDataIsStored": "Defina onde seus dados são armazenados",
       "open": "Abrir",
       "openFolder": "Abra uma pasta existente",
-      "openFolderDesc": "Gravar na pasta AppFlowy existente ...",
+      "openFolderDesc": "Gravar na pasta @:appName existente ...",
       "folderHintText": "nome da pasta",
       "location": "Criando nova pasta",
-      "locationDesc": "Escolha um nome para sua pasta de dados do AppFlowy",
+      "locationDesc": "Escolha um nome para sua pasta de dados do @:appName",
       "browser": "Navegar",
       "create": "Criar",
       "set": "Definir",
@@ -411,7 +411,7 @@
       "change": "Mudar",
       "openLocationTooltips": "Abra outro diretório de dados",
       "openCurrentDataFolder": "Abra o diretório de dados atual",
-      "recoverLocationTooltips": "Redefinir para o diretório de dados padrão do AppFlowy",
+      "recoverLocationTooltips": "Redefinir para o diretório de dados padrão do @:appName",
       "exportFileSuccess": "Exportar arquivo com sucesso!",
       "exportFileFail": "Falha na exportação do arquivo!",
       "export": "Exportar"
@@ -945,7 +945,7 @@
     "quickJumpYear": "Ir para"
   },
   "errorDialog": {
-    "title": "Erro do AppFlowy",
+    "title": "Erro do @:appName",
     "howToFixFallback": "Lamentamos o inconveniente! Envie um problema em nossa página do GitHub que descreva seu erro.",
     "github": "Ver no GitHub"
   },

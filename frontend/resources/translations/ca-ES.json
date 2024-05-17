@@ -270,7 +270,7 @@
       "invalidCloudURLScheme": "Esquema no vàlid",
       "cloudServerType": "Servidor al núvol",
       "cloudLocal": "Local",
-      "cloudAppFlowy": "AppFlowy Cloud Beta",
+      "cloudAppFlowy": "@:appName Cloud Beta",
       "clickToCopy": "Feu clic per copiar",
       "selfHostContent": "document",
       "cloudURLHint": "Introduïu l'URL base del vostre servidor",
@@ -278,7 +278,7 @@
       "inputEncryptPrompt": "Introduïu el vostre secret de xifratge per a",
       "clickToCopySecret": "Feu clic per copiar el secret",
       "inputTextFieldHint": "El teu secret",
-      "importSuccess": "S'ha importat correctament la carpeta de dades d'AppFlowy",
+      "importSuccess": "S'ha importat correctament la carpeta de dades d'@:appName",
       "supabaseSetting": "Configuració Supabase"
     },
     "notifications": {
@@ -319,7 +319,7 @@
       "themeUpload": {
         "button": "Carrega",
         "uploadTheme": "Carrega el tema",
-        "description": "Carregueu el vostre propi tema AppFlowy amb el botó següent.",
+        "description": "Carregueu el vostre propi tema @:appName amb el botó següent.",
         "loading": "Si us plau, espereu mentre validem i carreguem el vostre tema...",
         "uploadSuccess": "El teu tema s'ha penjat correctament",
         "deletionFailure": "No s'ha pogut suprimir el tema. Intenta esborrar-lo manualment.",
@@ -347,7 +347,7 @@
       "defaultLocation": "Llegir fitxers i ubicació d'emmagatzematge de dades",
       "exportData": "Exporteu les vostres dades",
       "doubleTapToCopy": "Fes doble toc per copiar el camí",
-      "restoreLocation": "Restaura al camí predeterminat d'AppFlowy",
+      "restoreLocation": "Restaura al camí predeterminat d'@:appName",
       "customizeLocation": "Obriu una altra carpeta",
       "restartApp": "Si us plau, reinicieu l'aplicació perquè els canvis tinguin efecte.",
       "exportDatabase": "Exportar la base de dades",
@@ -359,10 +359,10 @@
       "defineWhereYourDataIsStored": "Definiu on s'emmagatzemen les vostres dades",
       "open": "Obert",
       "openFolder": "Obre una carpeta existent",
-      "openFolderDesc": "Llegiu-lo i escriviu-lo a la vostra carpeta AppFlowy existent",
+      "openFolderDesc": "Llegiu-lo i escriviu-lo a la vostra carpeta @:appName existent",
       "folderHintText": "nom de la carpeta",
       "location": "Creació d'una carpeta nova",
-      "locationDesc": "Trieu un nom per a la vostra carpeta de dades d'AppFlowy",
+      "locationDesc": "Trieu un nom per a la vostra carpeta de dades d'@:appName",
       "browser": "Navega",
       "create": "Crear",
       "set": "Conjunt",
@@ -373,7 +373,7 @@
       "change": "Canviar",
       "openLocationTooltips": "Obriu un altre directori de dades",
       "openCurrentDataFolder": "Obre el directori de dades actual",
-      "recoverLocationTooltips": "Restableix al directori de dades predeterminat d'AppFlowy",
+      "recoverLocationTooltips": "Restableix al directori de dades predeterminat d'@:appName",
       "exportFileSuccess": "Exporta el fitxer correctament!",
       "exportFileFail": "Ha fallat l'exportació del fitxer!",
       "export": "Exporta"
@@ -791,7 +791,7 @@
     "referencedCalendarPrefix": "Vista de"
   },
   "errorDialog": {
-    "title": "Error d'AppFlowy",
+    "title": "Error d'@:appName",
     "howToFixFallback": "Lamentem les molèsties! Envieu un problema a la nostra pàgina de GitHub que descrigui el vostre error.",
     "github": "Veure a GitHub"
   },

@@ -498,7 +498,7 @@
       "cloudSupabaseUrlCanNotBeEmpty": "Die Supabase-URL darf nicht leer sein",
       "cloudSupabaseAnonKey": "Supabase anonymer Schlüssel",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "Der anonyme Schlüssel darf nicht leer sein",
-      "cloudAppFlowy": "@:appName Cloud [BETA]",
+      "cloudAppFlowy": "@:appName Cloud Beta",
       "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "Die Cloud-URL darf nicht leer sein",
       "clickToCopy": "Klicken, um zu kopieren",
@@ -636,7 +636,7 @@
     },
     "files": {
       "copy": "Kopieren",
-      "defaultLocation": "Dateien und Speicherort",
+      "defaultLocation": "@:appName Datenverzeichnis",
       "exportData": "Daten exportieren",
       "doubleTapToCopy": "Zweimal tippen, um den Pfad zu kopieren",
       "restoreLocation": "@:appName-Standardpfad wiederherstellen",
@@ -1662,7 +1662,7 @@
     "none": "Keines",
     "photoPermissionDescription": "Erlaube den Zugriff auf die Fotobibliothek zum Hochladen von Bildern.",
     "openSettings": "Einstellungen öffnen",
-    "photoPermissionTitle": "AppFlowy möchte auf deine Fotobibliothek zugreifen",
+    "photoPermissionTitle": "@:appName möchte auf deine Fotobibliothek zugreifen",
     "doNotAllow": "Nicht zulassen",
     "image": "Bild"
   },
