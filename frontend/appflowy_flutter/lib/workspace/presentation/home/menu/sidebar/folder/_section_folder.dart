@@ -4,7 +4,7 @@ import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_folder_header.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';

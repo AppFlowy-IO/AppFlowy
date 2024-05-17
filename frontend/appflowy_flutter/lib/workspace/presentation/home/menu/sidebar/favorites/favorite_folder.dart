@@ -60,6 +60,7 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
                 // pages
                 ..._buildViews(context, state),
                 // more button
+                const VSpace(2),
                 const FavoriteMoreButton(),
               ],
             ),

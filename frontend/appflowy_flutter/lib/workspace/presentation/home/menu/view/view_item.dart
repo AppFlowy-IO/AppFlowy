@@ -9,7 +9,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
