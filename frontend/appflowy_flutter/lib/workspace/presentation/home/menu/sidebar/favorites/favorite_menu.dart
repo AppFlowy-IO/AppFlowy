@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_more_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -68,7 +69,10 @@ class FavoriteMenu extends StatelessWidget {
                       isFeedback: false,
                       isDraggable: false,
                       shouldRenderChildren: false,
-                      showExpandIcon: false,
+                      leftIconBuilder: (_, __) => const HSpace(4.0),
+                      rightIconsBuilder: (_, view) => [
+                        FavoriteMoreActions(view: view),
+                      ],
                       height: 30.0,
                     ),
                   )
@@ -83,7 +87,6 @@ class FavoriteMenu extends StatelessWidget {
 
 class _FavoriteSearchField extends StatelessWidget {
   const _FavoriteSearchField({
-    super.key,
     required this.width,
     required this.onSearch,
   });

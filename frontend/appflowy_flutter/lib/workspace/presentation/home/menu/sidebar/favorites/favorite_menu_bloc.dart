@@ -1,4 +1,4 @@
-import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,16 +8,12 @@ part 'favorite_menu_bloc.freezed.dart';
 
 class FavoriteMenuBloc extends Bloc<FavoriteMenuEvent, FavoriteMenuState> {
   FavoriteMenuBloc() : super(FavoriteMenuState.initial()) {
-    _dispatch();
-  }
-
-  void _dispatch() {
     on<FavoriteMenuEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
-            final List<ViewPB> views = await ViewBackendService.getAllViews()
-                .fold((s) => s.items, (f) => []);
+            final List<ViewPB> views =
+                await _service.readFavorites().fold((s) => s.items, (f) => []);
             emit(state.copyWith(views: views, queriedViews: views));
           },
           search: (query) async {
@@ -25,16 +21,21 @@ class FavoriteMenuBloc extends Bloc<FavoriteMenuEvent, FavoriteMenuState> {
               emit(state.copyWith(queriedViews: state.views));
               return;
             }
-            final queriedViews = state.views.where((view) {
-              return view.name.toLowerCase().contains(query.toLowerCase());
-            }).toList();
-            print(queriedViews.map((e) => e.name));
+
+            final queriedViews = state.views
+                .where(
+                  (view) =>
+                      view.name.toLowerCase().contains(query.toLowerCase()),
+                )
+                .toList();
             emit(state.copyWith(queriedViews: queriedViews));
           },
         );
       },
     );
   }
+
+  final FavoriteService _service = FavoriteService();
 }
 
 @freezed

@@ -84,14 +84,14 @@ class SectionFolder extends StatelessWidget {
                     level: 0,
                     leftPadding: 16,
                     isFeedback: false,
-                    onSelected: (view, viewContext) {
+                    onSelected: (viewContext, view) {
                       if (HardwareKeyboard.instance.isControlPressed) {
                         context.read<TabsBloc>().openTab(view);
                       }
 
                       context.read<TabsBloc>().openPlugin(view);
                     },
-                    onTertiarySelected: (view, viewContext) =>
+                    onTertiarySelected: (viewContext, view) =>
                         context.read<TabsBloc>().openTab(view),
                     isHoverEnabled: isHoverEnabled,
                   ),

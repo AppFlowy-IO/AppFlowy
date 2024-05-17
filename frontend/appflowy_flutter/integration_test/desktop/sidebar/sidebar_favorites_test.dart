@@ -1,5 +1,5 @@
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_favorite_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';

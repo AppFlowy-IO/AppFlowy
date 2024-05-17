@@ -3,6 +3,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_more_actions.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_pin_action.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -85,14 +87,20 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
         leftPadding: 16.0,
         level: 0,
         isHovered: isHovered,
-        onSelected: (view, _) {
+        rightIconsBuilder: (context, view) => [
+          FavoriteMoreActions(view: view),
+          const HSpace(8.0),
+          FavoritePinAction(view: view),
+          const HSpace(4.0),
+        ],
+        onTertiarySelected: (_, view) => context.read<TabsBloc>().openTab(view),
+        onSelected: (_, view) {
           if (HardwareKeyboard.instance.isControlPressed) {
             context.read<TabsBloc>().openTab(view);
           }
 
           context.read<TabsBloc>().openPlugin(view);
         },
-        onTertiarySelected: (view, _) => context.read<TabsBloc>().openTab(view),
       ),
     );
   }
@@ -141,7 +149,7 @@ class FavoriteMoreButton extends StatelessWidget {
       },
       child: FlowyButton(
         onTap: () {},
-        margin: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 7.0),
+        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
         leftIcon: const FlowySvg(
           FlowySvgs.workspace_three_dots_s,
           blendMode: null,

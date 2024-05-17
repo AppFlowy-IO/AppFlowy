@@ -26,7 +26,15 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef ViewItemOnSelected = void Function(ViewPB, BuildContext);
+typedef ViewItemOnSelected = void Function(BuildContext context, ViewPB view);
+typedef ViewItemLeftIconBuilder = Widget Function(
+  BuildContext context,
+  ViewPB view,
+);
+typedef ViewItemRightIconsBuilder = List<Widget> Function(
+  BuildContext context,
+  ViewPB view,
+);
 
 class ViewItem extends StatelessWidget {
   const ViewItem({
@@ -46,7 +54,8 @@ class ViewItem extends StatelessWidget {
     this.isPlaceholder = false,
     this.isHovered,
     this.shouldRenderChildren = true,
-    this.showExpandIcon = true,
+    this.leftIconBuilder,
+    this.rightIconsBuilder,
   });
 
   final ViewPB view;
@@ -92,8 +101,10 @@ class ViewItem extends StatelessWidget {
   // render the child views of the view
   final bool shouldRenderChildren;
 
-  // show expand icon
-  final bool showExpandIcon;
+  // custom the left icon widget, if it's null, the default expand/collapse icon will be used
+  final ViewItemLeftIconBuilder? leftIconBuilder;
+  // custom the right icon widget, if it's null, the default ... and + button will be used
+  final ViewItemRightIconsBuilder? rightIconsBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +136,8 @@ class ViewItem extends StatelessWidget {
             isPlaceholder: isPlaceholder,
             isHovered: isHovered,
             shouldRenderChildren: shouldRenderChildren,
-            showExpandIcon: showExpandIcon,
+            leftIconBuilder: leftIconBuilder,
+            rightIconsBuilder: rightIconsBuilder,
           );
         },
       ),
@@ -156,7 +168,8 @@ class InnerViewItem extends StatelessWidget {
     this.isPlaceholder = false,
     this.isHovered,
     this.shouldRenderChildren = true,
-    required this.showExpandIcon,
+    required this.leftIconBuilder,
+    required this.rightIconsBuilder,
   });
 
   final ViewPB view;
@@ -182,7 +195,8 @@ class InnerViewItem extends StatelessWidget {
   final bool isPlaceholder;
   final ValueNotifier<bool>? isHovered;
   final bool shouldRenderChildren;
-  final bool showExpandIcon;
+  final ViewItemLeftIconBuilder? leftIconBuilder;
+  final ViewItemRightIconsBuilder? rightIconsBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +215,8 @@ class InnerViewItem extends StatelessWidget {
       height: height,
       isPlaceholder: isPlaceholder,
       isHovered: isHovered,
-      showExpandIcon: showExpandIcon,
+      leftIconBuilder: leftIconBuilder,
+      rightIconsBuilder: rightIconsBuilder,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -222,7 +237,8 @@ class InnerViewItem extends StatelessWidget {
             isFeedback: isFeedback,
             isPlaceholder: isPlaceholder,
             isHovered: isHovered,
-            showExpandIcon: showExpandIcon,
+            leftIconBuilder: leftIconBuilder,
+            rightIconsBuilder: rightIconsBuilder,
           );
         }).toList();
 
@@ -279,7 +295,8 @@ class InnerViewItem extends StatelessWidget {
             isDraggable: false,
             leftPadding: leftPadding,
             isFeedback: true,
-            showExpandIcon: showExpandIcon,
+            leftIconBuilder: leftIconBuilder,
+            rightIconsBuilder: rightIconsBuilder,
           );
         },
         child: child,
@@ -345,7 +362,8 @@ class SingleInnerViewItem extends StatefulWidget {
     this.isHoverEnabled = true,
     this.isPlaceholder = false,
     this.isHovered,
-    required this.showExpandIcon,
+    required this.leftIconBuilder,
+    required this.rightIconsBuilder,
   });
 
   final ViewPB view;
@@ -367,7 +385,8 @@ class SingleInnerViewItem extends StatefulWidget {
   final bool isHoverEnabled;
   final bool isPlaceholder;
   final ValueNotifier<bool>? isHovered;
-  final bool showExpandIcon;
+  final ViewItemLeftIconBuilder? leftIconBuilder;
+  final ViewItemRightIconsBuilder? rightIconsBuilder;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -411,7 +430,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final children = [
       // expand icon or placeholder
-      widget.showExpandIcon ? _buildLeftIcon() : const HSpace(6),
+      widget.leftIconBuilder?.call(context, widget.view) ?? _buildLeftIcon(),
       // icon
       _buildViewIconButton(),
       const HSpace(6),
@@ -429,20 +448,24 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
     // hover action
     if (widget.showActions || onHover) {
-      // ··· more action button
-      children.add(_buildViewMoreActionButton(context));
-      // only support add button for document layout
-      if (widget.view.layout == ViewLayoutPB.Document) {
-        // + button
-        children.add(_buildViewAddButton(context));
+      if (widget.rightIconsBuilder != null) {
+        children.addAll(widget.rightIconsBuilder!(context, widget.view));
+      } else {
+        // ··· more action button
+        children.add(_buildViewMoreActionButton(context));
+        // only support add button for document layout
+        if (widget.view.layout == ViewLayoutPB.Document) {
+          // + button
+          children.add(_buildViewAddButton(context));
+        }
       }
     }
 
     final child = GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => widget.onSelected(widget.view, context),
+      onTap: () => widget.onSelected(context, widget.view),
       onTertiaryTapDown: (_) =>
-          widget.onTertiarySelected?.call(widget.view, context),
+          widget.onTertiarySelected?.call(context, widget.view),
       child: SizedBox(
         height: widget.height,
         child: Padding(
