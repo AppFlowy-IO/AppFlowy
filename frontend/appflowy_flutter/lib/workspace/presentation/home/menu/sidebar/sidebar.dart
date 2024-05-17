@@ -17,9 +17,9 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_footer.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
@@ -260,7 +260,12 @@ class _SidebarState extends State<_Sidebar> {
           // trash
           const Padding(
             padding: menuHorizontalInset,
-            child: SidebarTrashButton(),
+            child: Divider(height: 1.0, color: Color(0x141F2329)),
+          ),
+          const VSpace(14),
+          const Padding(
+            padding: menuHorizontalInset,
+            child: SidebarFooter(),
           ),
           const VSpace(10),
         ],
