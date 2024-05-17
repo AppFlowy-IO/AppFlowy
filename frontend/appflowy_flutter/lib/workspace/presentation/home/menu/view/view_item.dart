@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_b
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
@@ -49,7 +50,7 @@ class ViewItem extends StatelessWidget {
     this.isFirstChild = false,
     this.isDraggable = true,
     required this.isFeedback,
-    this.height = 28.0,
+    this.height = HomeSpaceViewSizes.viewHeight,
     this.isHoverEnabled = true,
     this.isPlaceholder = false,
     this.isHovered,
@@ -453,11 +454,13 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       } else {
         // ··· more action button
         children.add(_buildViewMoreActionButton(context));
+        children.add(const HSpace(8.0));
         // only support add button for document layout
         if (widget.view.layout == ViewLayoutPB.Document) {
           // + button
           children.add(_buildViewAddButton(context));
         }
+        children.add(const HSpace(4.0));
       }
     }
 

@@ -14,3 +14,8 @@ class HomeInsets {
   static const double topBarTitleHorizontalPadding = 12;
   static const double topBarTitleVerticalPadding = 12;
 }
+
+class HomeSpaceViewSizes {
+  static const double leftPadding = 16.0;
+  static const double viewHeight = 30.0;
+}

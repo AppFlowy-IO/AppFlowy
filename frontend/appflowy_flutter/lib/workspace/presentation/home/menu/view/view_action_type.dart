@@ -10,8 +10,10 @@ enum ViewMoreActionType {
   duplicate,
   copyLink, // not supported yet.
   rename,
-  moveTo, // not supported yet.
+  moveTo,
   openInNewTab,
+  changeIcon,
+  collapseAllPages, // including sub pages
   divider,
 }
 
@@ -34,12 +36,16 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return LocaleKeys.disclosureAction_moveTo.tr();
       case ViewMoreActionType.openInNewTab:
         return LocaleKeys.disclosureAction_openNewTab.tr();
+      case ViewMoreActionType.changeIcon:
+        return LocaleKeys.disclosureAction_changeIcon.tr();
+      case ViewMoreActionType.collapseAllPages:
+        return LocaleKeys.disclosureAction_collapseAllPages.tr();
       case ViewMoreActionType.divider:
         return '';
     }
   }
 
-  Widget icon(Color iconColor) {
+  Widget get leftIcon {
     switch (this) {
       case ViewMoreActionType.delete:
         return const FlowySvg(FlowySvgs.trash_s, blendMode: null);
@@ -57,7 +63,29 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return const FlowySvg(FlowySvgs.move_to_s);
       case ViewMoreActionType.openInNewTab:
         return const FlowySvg(FlowySvgs.view_item_open_in_new_tab_s);
+      case ViewMoreActionType.changeIcon:
+        return const FlowySvg(FlowySvgs.change_icon_s);
+      case ViewMoreActionType.collapseAllPages:
+        return const FlowySvg(FlowySvgs.collapse_all_page_s);
       case ViewMoreActionType.divider:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget get rightIcon {
+    switch (this) {
+      case ViewMoreActionType.changeIcon:
+      case ViewMoreActionType.moveTo:
+        return const FlowySvg(FlowySvgs.view_item_right_arrow_s);
+      case ViewMoreActionType.favorite:
+      case ViewMoreActionType.unFavorite:
+      case ViewMoreActionType.duplicate:
+      case ViewMoreActionType.copyLink:
+      case ViewMoreActionType.rename:
+      case ViewMoreActionType.openInNewTab:
+      case ViewMoreActionType.collapseAllPages:
+      case ViewMoreActionType.divider:
+      case ViewMoreActionType.delete:
         return const SizedBox.shrink();
     }
   }

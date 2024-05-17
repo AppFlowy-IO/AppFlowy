@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:flowy_infra/theme_extension.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/hover_builder.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-class FolderHeader extends StatefulWidget {
+class FolderHeader extends StatelessWidget {
   const FolderHeader({
     super.key,
     required this.title,
@@ -21,47 +21,26 @@ class FolderHeader extends StatefulWidget {
   final VoidCallback onAdded;
 
   @override
-  State<FolderHeader> createState() => _FolderHeaderState();
-}
-
-class _FolderHeaderState extends State<FolderHeader> {
-  bool onHover = false;
-
-  @override
   Widget build(BuildContext context) {
-    const iconSize = 26.0;
-    const textPadding = 4.0;
-    return MouseRegion(
-      onEnter: (event) => setState(() => onHover = true),
-      onExit: (event) => setState(() => onHover = false),
-      child: Row(
-        children: [
-          FlowyTextButton(
-            widget.title,
-            tooltip: widget.expandButtonTooltip,
-            constraints: const BoxConstraints(
-              minHeight: iconSize + textPadding * 2,
-            ),
-            fontColor: AFThemeExtension.of(context).textColor,
-            fontHoverColor: Theme.of(context).colorScheme.onSurface,
-            padding: const EdgeInsets.all(textPadding),
-            fillColor: Colors.transparent,
-            onPressed: widget.onPressed,
-          ),
-          if (onHover) ...[
-            const Spacer(),
-            FlowyIconButton(
-              tooltipText: widget.addButtonTooltip,
-              hoverColor: Theme.of(context).colorScheme.secondaryContainer,
-              iconPadding: const EdgeInsets.all(2),
-              height: iconSize,
-              width: iconSize,
+    return HoverBuilder(
+      builder: (context, isHovered) {
+        return FlowyButton(
+          onTap: onPressed,
+          margin: const EdgeInsets.symmetric(horizontal: 6.0),
+          rightIcon: ValueListenableBuilder(
+            valueListenable: isHovered,
+            builder: (context, onHover, child) =>
+                Opacity(opacity: onHover ? 1 : 0, child: child),
+            child: FlowyIconButton(
+              tooltipText: addButtonTooltip,
               icon: const FlowySvg(FlowySvgs.add_s),
-              onPressed: widget.onAdded,
+              onPressed: onAdded,
             ),
-          ],
-        ],
-      ),
+          ),
+          iconPadding: 10.0,
+          text: FlowyText(title),
+        );
+      },
     );
   }
 }

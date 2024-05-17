@@ -76,9 +76,14 @@ class ViewMoreActionButton extends StatelessWidget {
           view.isFavorite
               ? ViewMoreActionType.unFavorite
               : ViewMoreActionType.favorite,
+          ViewMoreActionType.divider,
           ViewMoreActionType.rename,
-          ViewMoreActionType.delete,
+          ViewMoreActionType.changeIcon,
           ViewMoreActionType.duplicate,
+          ViewMoreActionType.delete,
+          ViewMoreActionType.divider,
+          ViewMoreActionType.collapseAllPages,
+          ViewMoreActionType.divider,
           ViewMoreActionType.openInNewTab,
         ]);
     }
@@ -100,16 +105,23 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
         child: Divider(height: 1.0),
       );
     }
+
     return Container(
       height: 34,
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 6),
-        leftIcon: inner.icon(Colors.transparent),
+        leftIcon: inner.leftIcon,
+        rightIcon: inner.rightIcon,
         iconPadding: 10.0,
         text: SizedBox(
           height: 18.0,
-          child: FlowyText.regular(inner.name),
+          child: FlowyText.regular(
+            inner.name,
+            color: inner == ViewMoreActionType.delete
+                ? Theme.of(context).colorScheme.error
+                : null,
+          ),
         ),
         onTap: () => onTap(controller),
       ),

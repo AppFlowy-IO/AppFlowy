@@ -3,9 +3,11 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_more_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_pin_action.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/hover_builder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -15,7 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class FavoriteFolder extends StatefulWidget {
+class FavoriteFolder extends StatelessWidget {
   const FavoriteFolder({
     super.key,
     required this.views,
@@ -24,21 +26,8 @@ class FavoriteFolder extends StatefulWidget {
   final List<ViewPB> views;
 
   @override
-  State<FavoriteFolder> createState() => _FavoriteFolderState();
-}
-
-class _FavoriteFolderState extends State<FavoriteFolder> {
-  final ValueNotifier<bool> isHovered = ValueNotifier(false);
-
-  @override
-  void dispose() {
-    isHovered.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (widget.views.isEmpty) {
+    if (views.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -47,10 +36,8 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
         ..add(const FolderEvent.initial()),
       child: BlocBuilder<FolderBloc, FolderState>(
         builder: (context, state) {
-          return MouseRegion(
-            onEnter: (_) => isHovered.value = true,
-            onExit: (_) => isHovered.value = false,
-            child: Column(
+          return HoverBuilder(
+            builder: (_, isHovered) => Column(
               children: [
                 FavoriteHeader(
                   onPressed: () => context
@@ -58,7 +45,7 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
                       .add(const FolderEvent.expandOrUnExpand()),
                 ),
                 // pages
-                ..._buildViews(context, state),
+                ..._buildViews(context, state, isHovered),
                 // more button
                 const VSpace(2),
                 const FavoriteMoreButton(),
@@ -70,7 +57,11 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
     );
   }
 
-  Iterable<Widget> _buildViews(BuildContext context, FolderState state) {
+  Iterable<Widget> _buildViews(
+    BuildContext context,
+    FolderState state,
+    ValueNotifier<bool> isHovered,
+  ) {
     if (!state.isExpanded) {
       return [];
     }
@@ -82,11 +73,10 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
             ),
             spaceType: FolderSpaceType.favorite,
             isDraggable: false,
-            isFirstChild: view.id == widget.views.first.id,
+            isFirstChild: view.id == views.first.id,
             isFeedback: false,
             view: view,
-            height: 30.0,
-            leftPadding: 16.0,
+            leftPadding: HomeSpaceViewSizes.leftPadding,
             level: 0,
             isHovered: isHovered,
             rightIconsBuilder: (context, view) => [

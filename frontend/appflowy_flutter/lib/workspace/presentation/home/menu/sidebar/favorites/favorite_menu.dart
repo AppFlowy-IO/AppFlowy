@@ -77,7 +77,6 @@ class FavoriteMenu extends StatelessWidget {
                         FavoritePinAction(view: view),
                         const HSpace(4.0),
                       ],
-                      height: 30.0,
                     ),
                   )
                   .toList(),

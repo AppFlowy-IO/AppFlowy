@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/hover_builder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
@@ -109,7 +110,7 @@ class WorkspacesMenu extends StatelessWidget {
   }
 }
 
-class WorkspaceMenuItem extends StatefulWidget {
+class WorkspaceMenuItem extends StatelessWidget {
   const WorkspaceMenuItem({
     super.key,
     required this.workspace,
@@ -122,46 +123,31 @@ class WorkspaceMenuItem extends StatefulWidget {
   final bool isSelected;
 
   @override
-  State<WorkspaceMenuItem> createState() => _WorkspaceMenuItemState();
-}
-
-class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
-  final ValueNotifier<bool> _isHover = ValueNotifier(false);
-
-  @override
-  void dispose() {
-    _isHover.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => WorkspaceMemberBloc(
-        userProfile: widget.userProfile,
-        workspace: widget.workspace,
+        userProfile: userProfile,
+        workspace: workspace,
       )..add(const WorkspaceMemberEvent.initial()),
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
           // settings right icon inside the flowy button will
           //  cause the popover dismiss intermediately when click the right icon.
           // so using the stack to put the right icon on the flowy button.
-          return MouseRegion(
-            onEnter: (_) => _isHover.value = true,
-            onExit: (_) => _isHover.value = false,
-            child: SizedBox(
+          return HoverBuilder(
+            builder: (_, isHovered) => SizedBox(
               height: 40,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   _WorkspaceInfo(
-                    isSelected: widget.isSelected,
-                    workspace: widget.workspace,
+                    isSelected: isSelected,
+                    workspace: workspace,
                   ),
                   Positioned(left: 4, child: _buildLeftIcon(context)),
                   Positioned(
                     right: 4.0,
-                    child: Align(child: _buildRightIcon(context)),
+                    child: Align(child: _buildRightIcon(context, isHovered)),
                   ),
                 ],
               ),
@@ -186,13 +172,13 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
       child: FlowyTooltip(
         message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
         child: WorkspaceIcon(
-          workspace: widget.workspace,
+          workspace: workspace,
           iconSize: 22,
           fontSize: 16,
           enableEdit: true,
           onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                 UserWorkspaceEvent.updateWorkspaceIcon(
-                  widget.workspace.workspaceId,
+                  workspace.workspaceId,
                   result.emoji,
                 ),
               ),
@@ -201,7 +187,7 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
     );
   }
 
-  Widget _buildRightIcon(BuildContext context) {
+  Widget _buildRightIcon(BuildContext context, ValueNotifier<bool> isHovered) {
     // only the owner can update or delete workspace.
     if (context.read<WorkspaceMemberBloc>().state.isLoading) {
       return const SizedBox.shrink();
@@ -210,16 +196,16 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
     return Row(
       children: [
         ValueListenableBuilder(
-          valueListenable: _isHover,
+          valueListenable: isHovered,
           builder: (context, value, child) {
             return Opacity(
               opacity: value ? 1.0 : 0.0,
               child: child,
             );
           },
-          child: WorkspaceMoreActionList(workspace: widget.workspace),
+          child: WorkspaceMoreActionList(workspace: workspace),
         ),
-        if (widget.isSelected)
+        if (isSelected)
           const Padding(
             padding: EdgeInsets.all(5.0),
             child: FlowySvg(

@@ -136,7 +136,9 @@
     "openNewTab": "Open in a new tab",
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy Link",
+    "changeIcon":"Change icon",
+    "collapseAllPages": "Collapse all pages"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
