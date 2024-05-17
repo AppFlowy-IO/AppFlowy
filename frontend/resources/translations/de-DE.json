@@ -742,14 +742,14 @@
       "typeAValue": "Einen Wert eingeben...",
       "layout": "Layout",
       "databaseLayout": "Layout",
+      "viewList": "Datenbank-Ansichten",
       "editView": "Ansicht editieren",
       "boardSettings": "Board-Einstellungen",
       "calendarSettings": "Kalender-Einstellungen",
       "createView": "New Ansicht",
       "duplicateView": "Ansicht duplizieren",
       "deleteView": "Anslicht löschen",
-      "numberOfVisibleFields": "{} angezeigt",
-      "viewList": "Datenbank-Ansichten"
+      "numberOfVisibleFields": "{} angezeigt"
     },
     "textFilter": {
       "contains": "Enthält",
