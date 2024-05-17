@@ -74,36 +74,37 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
       return [];
     }
 
-    return widget.views.map(
-      (view) => ViewItem(
-        key: ValueKey(
-          '${FolderSpaceType.favorite.name} ${view.id}',
-        ),
-        spaceType: FolderSpaceType.favorite,
-        isDraggable: false,
-        isFirstChild: view.id == widget.views.first.id,
-        isFeedback: false,
-        view: view,
-        height: 30.0,
-        leftPadding: 16.0,
-        level: 0,
-        isHovered: isHovered,
-        rightIconsBuilder: (context, view) => [
-          FavoriteMoreActions(view: view),
-          const HSpace(8.0),
-          FavoritePinAction(view: view),
-          const HSpace(4.0),
-        ],
-        onTertiarySelected: (_, view) => context.read<TabsBloc>().openTab(view),
-        onSelected: (_, view) {
-          if (HardwareKeyboard.instance.isControlPressed) {
-            context.read<TabsBloc>().openTab(view);
-          }
+    return context.read<FavoriteBloc>().state.pinnedViews.map(
+          (view) => ViewItem(
+            key: ValueKey(
+              '${FolderSpaceType.favorite.name} ${view.id}',
+            ),
+            spaceType: FolderSpaceType.favorite,
+            isDraggable: false,
+            isFirstChild: view.id == widget.views.first.id,
+            isFeedback: false,
+            view: view,
+            height: 30.0,
+            leftPadding: 16.0,
+            level: 0,
+            isHovered: isHovered,
+            rightIconsBuilder: (context, view) => [
+              FavoriteMoreActions(view: view),
+              const HSpace(8.0),
+              FavoritePinAction(view: view),
+              const HSpace(4.0),
+            ],
+            onTertiarySelected: (_, view) =>
+                context.read<TabsBloc>().openTab(view),
+            onSelected: (_, view) {
+              if (HardwareKeyboard.instance.isControlPressed) {
+                context.read<TabsBloc>().openTab(view);
+              }
 
-          context.read<TabsBloc>().openPlugin(view);
-        },
-      ),
-    );
+              context.read<TabsBloc>().openPlugin(view);
+            },
+          ),
+        );
   }
 }
 
@@ -135,6 +136,13 @@ class FavoriteMoreButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final favoriteBloc = context.watch<FavoriteBloc>();
+    final unpinnedViews = favoriteBloc.state.unpinnedViews;
+    // only show the more button if there are unpinned views
+    if (unpinnedViews.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     const minWidth = 260.0;
     return AppFlowyPopover(
       constraints: const BoxConstraints(
@@ -147,7 +155,7 @@ class FavoriteMoreButton extends StatelessWidget {
       ),
       popupBuilder: (_) {
         return BlocProvider.value(
-          value: context.read<FavoriteBloc>(),
+          value: favoriteBloc,
           child: const FavoriteMenu(minWidth: minWidth),
         );
       },

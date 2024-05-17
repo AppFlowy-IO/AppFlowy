@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -32,17 +33,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
             _listener.start(
               favoritesUpdated: _onFavoritesUpdated,
             );
-            final result = await _service.readFavorites();
-            emit(
-              result.fold(
-                (view) => state.copyWith(
-                  views: view.items,
-                ),
-                (error) => state.copyWith(
-                  views: [],
-                ),
-              ),
-            );
+            add(const FavoriteEvent.fetchFavorites());
           },
           fetchFavorites: () async {
             final result = await _service.readFavorites();
@@ -50,6 +41,8 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
               result.fold(
                 (view) => state.copyWith(
                   views: view.items,
+                  pinnedViews: view.items.where((v) => v.isPinned).toList(),
+                  unpinnedViews: view.items.where((v) => !v.isPinned).toList(),
                 ),
                 (error) => state.copyWith(
                   views: [],
@@ -62,6 +55,14 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
               view.id,
               !view.isFavorite,
             );
+          },
+          pin: (view) async {
+            await _service.pinFavorite(view);
+            add(const FavoriteEvent.fetchFavorites());
+          },
+          unpin: (view) async {
+            await _service.unpinFavorite(view);
+            add(const FavoriteEvent.fetchFavorites());
           },
         );
       },
@@ -84,12 +85,16 @@ class FavoriteEvent with _$FavoriteEvent {
   const factory FavoriteEvent.initial() = Initial;
   const factory FavoriteEvent.toggle(ViewPB view) = ToggleFavorite;
   const factory FavoriteEvent.fetchFavorites() = FetchFavorites;
+  const factory FavoriteEvent.pin(ViewPB view) = PinFavorite;
+  const factory FavoriteEvent.unpin(ViewPB view) = UnpinFavorite;
 }
 
 @freezed
 class FavoriteState with _$FavoriteState {
   const factory FavoriteState({
     required List<ViewPB> views,
+    @Default([]) List<ViewPB> pinnedViews,
+    @Default([]) List<ViewPB> unpinnedViews,
   }) = _FavoriteState;
 
   factory FavoriteState.initial() => const FavoriteState(
