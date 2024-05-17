@@ -20,7 +20,7 @@ const List<FieldType> _supportedFieldTypes = [
   FieldType.LastEditedTime,
   FieldType.CreatedTime,
   FieldType.Relation,
-  // FieldType.Summary,
+  FieldType.Summary,
   FieldType.Timer,
 ];
 
