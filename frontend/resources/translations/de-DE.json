@@ -76,7 +76,7 @@
     "resetWorkspacePrompt": "Das Zurücksetzen des Workspace löscht alle enthaltenen Seiten und Daten. Bist du sicher, dass du den Arbeitsbereich zurücksetzen möchstest? ",
     "hint": "Workspace",
     "notFoundError": "Workspace nicht gefunden",
-    "failedToLoad": "Etwas ist schief gelaufen! Der Workspace konnte nicht geladen werden. Versuche, alle AppFlowy-Instanzen zu schließen & versuche es erneut.",
+    "failedToLoad": "Etwas ist schief gelaufen! Der Workspace konnte nicht geladen werden. Versuche, alle @:appName-Instanzen zu schließen & versuche es erneut.",
     "errorActions": {
       "reportIssue": "Problem melden",
       "reportIssueOnGithub": "Melde ein Problem auf Github",
@@ -428,7 +428,7 @@
     "manageDataPage": {
       "menuLabel": "Daten verwalten",
       "title": "Daten verwalten",
-      "description": "Verwalte den lokalen Datenspeicher oder importiere deine vorhandenen Daten in AppFlowy. Du kannst deine Daten mit End-to-End-Verschlüsselung absichern.",
+      "description": "Verwalte den lokalen Datenspeicher oder importiere deine vorhandenen Daten in @:appName. Du kannst deine Daten mit End-to-End-Verschlüsselung absichern.",
       "dataStorage": {
         "title": "Speicherort",
         "tooltip": "Das Verzeichnis, in dem deine Dateien gespeichert sind",
@@ -446,8 +446,8 @@
       },
       "importData": {
         "title": "Daten importieren",
-        "tooltip": "Daten aus AppFlowy-Backups/Datenordnern importieren",
-        "description": "Daten aus einem externen AppFlowy-Datenordner kopieren und in den aktuellen AppFlowy-Datenordner importieren",
+        "tooltip": "Daten aus @:appName-Backups/Datenordnern importieren",
+        "description": "Daten aus einem externen @:appName-Datenordner kopieren und in den aktuellen @:appName-Datenordner importieren",
         "action": "Ordner durchsuchen"
       },
       "encryption": {
@@ -498,8 +498,8 @@
       "cloudSupabaseUrlCanNotBeEmpty": "Die Supabase-URL darf nicht leer sein",
       "cloudSupabaseAnonKey": "Supabase anonymer Schlüssel",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "Der anonyme Schlüssel darf nicht leer sein",
-      "cloudAppFlowy": "AppFlowy Cloud [BETA]",
-      "cloudAppFlowySelfHost": "AppFlowy Cloud Self-hosted",
+      "cloudAppFlowy": "@:appName Cloud [BETA]",
+      "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "Die Cloud-URL darf nicht leer sein",
       "clickToCopy": "Klicken, um zu kopieren",
       "selfHostStart": "Falls du keinen Server hast, nehme lieber folgende",
@@ -520,12 +520,12 @@
       "historicalUserList": "Anmeldeverlauf",
       "historicalUserListTooltip": "Diese Liste zeigt deine anonymen Accounts. Du kannst einen Account anklicken, um mehr Informationen zu sehen.\nAnonyme Accounts werden über den 'Erste Schritte' Button erstellt.",
       "openHistoricalUser": "Klicken, um einen anonymen Account zu öffnen",
-      "customPathPrompt": "Den AppFlowy Daten-Ordner in einem mit der Cloud synchronisierten Ordner (z.B. Google Drive) zu speichern, könnte Risiken bergen. Falls die Datenbank innerhalb dieses Ordners gleichzeitig von mehreren Orten zugegriffen oder verändert wird könnte es zu Synchronisationskonflikten und potentiellen Daten-Beschädigung führen",
-      "importAppFlowyData": "Daten von einem externen AppFlowy Ordner importieren.",
+      "customPathPrompt": "Den @:appName Daten-Ordner in einem mit der Cloud synchronisierten Ordner (z.B. Google Drive) zu speichern, könnte Risiken bergen. Falls die Datenbank innerhalb dieses Ordners gleichzeitig von mehreren Orten zugegriffen oder verändert wird könnte dies zu Synchronisationskonflikten und potentiellen Daten-Beschädigungen führen",
+      "importAppFlowyData": "Daten von einem externen @:appName Ordner importieren.",
       "importingAppFlowyDataTip": "Der Datenimport läuft. Bitte die App nicht schließen oder in den Hintergrund setzten",
-      "importAppFlowyDataDescription": "Daten von einem externen AppFlowy Ordner kopieren und in den aktuellen AppFlowy Datenordner importieren.",
-      "importSuccess": "Der AppFlowy Dateienordner wurde erfolgreich importiert",
-      "importFailed": "Der AppFlowy Dateienordner-Import ist fehlgeschlagen",
+      "importAppFlowyDataDescription": "Daten von einem externen @:appName Ordner kopieren und in den aktuellen @:appName Datenordner importieren.",
+      "importSuccess": "Der @:appName Dateienordner wurde erfolgreich importiert",
+      "importFailed": "Der @:appName Dateienordner-Import ist fehlgeschlagen",
       "importGuide": "Für weitere Details, bitte das verlinkte Dokument prüfen"
     },
     "notifications": {
@@ -577,7 +577,7 @@
       "themeUpload": {
         "button": "Hochladen",
         "uploadTheme": "Theme hochladen",
-        "description": "Lade eigenes AppFlowy-Theme über die Schaltfläche unten hoch.",
+        "description": "Lade eigenes @:appName-Theme über die untere Schaltfläche hoch.",
         "loading": "Bitte warte einen Moment . . .\nWir validieren gerade dein Theme und laden es hoch.",
         "uploadSuccess": "Das Theme wurde erfolgreich hochgeladen",
         "deletionFailure": "Das Theme konnte nicht gelöscht werden. Versuche, es manuell zu löschen.",
@@ -639,7 +639,7 @@
       "defaultLocation": "Dateien und Speicherort",
       "exportData": "Daten exportieren",
       "doubleTapToCopy": "Zweimal tippen, um den Pfad zu kopieren",
-      "restoreLocation": "AppFlowy-Standardpfad wiederherstellen",
+      "restoreLocation": "@:appName-Standardpfad wiederherstellen",
       "customizeLocation": "Einen anderen Ordner öffnen",
       "restartApp": "Bitte starten Sie die App neu, damit die Änderungen wirksam werden.",
       "exportDatabase": "Datenbank exportieren",
@@ -651,10 +651,10 @@
       "defineWhereYourDataIsStored": "Wo sind die Daten gespeichert?",
       "open": "Offen",
       "openFolder": "Einen vorhandenen Ordner öffnen",
-      "openFolderDesc": "Öffnen und speichern im vorhandenen AppFlowy-Ordner",
+      "openFolderDesc": "Öffnen und speichern im vorhandenen @:appName-Ordner",
       "folderHintText": "Ordnernamen",
       "location": "Ein neuen Ordner erstellen",
-      "locationDesc": "Einen Namen für den AppFlowy-Datenordner festlegen",
+      "locationDesc": "Einen Namen für den @:appName-Datenordner festlegen",
       "browser": "Durchsuchen",
       "create": "Erstellen",
       "set": "Festlegen",
@@ -665,7 +665,7 @@
       "change": "Ändern",
       "openLocationTooltips": "Win anderes Datenverzeichnis öffnen",
       "openCurrentDataFolder": "Aktuelles Datenverzeichnis öffnen",
-      "recoverLocationTooltips": "Zurücksetzen auf das Standarddatenverzeichnis von AppFlowy",
+      "recoverLocationTooltips": "Zurücksetzen auf das Standarddatenverzeichnis von @:appName",
       "exportFileSuccess": "Datei erfolgreich exportiert!",
       "exportFileFail": "Datei-Export fehlgeschlagen!",
       "export": "Export",
@@ -742,14 +742,14 @@
       "typeAValue": "Einen Wert eingeben...",
       "layout": "Layout",
       "databaseLayout": "Layout",
-      "viewList": "Datenbank-Ansichten",
       "editView": "Ansicht editieren",
       "boardSettings": "Board-Einstellungen",
       "calendarSettings": "Kalender-Einstellungen",
       "createView": "New Ansicht",
       "duplicateView": "Ansicht duplizieren",
       "deleteView": "Anslicht löschen",
-      "numberOfVisibleFields": "{} angezeigt"
+      "numberOfVisibleFields": "{} angezeigt",
+      "viewList": "Datenbank-Ansichten"
     },
     "textFilter": {
       "contains": "Enthält",
@@ -1294,7 +1294,7 @@
     "duplicateEvent": "Doppeltes Ereignis"
   },
   "errorDialog": {
-    "title": "AppFlowy-Fehler",
+    "title": "@:appName-Fehler",
     "howToFixFallback": "Wir entschuldigen uns für die Unannehmlichkeiten! Reiche auf unserer GitHub-Seite ein Problem ein, das Ihren Fehler beschreibt.",
     "github": "Auf GitHub ansehen"
   },
