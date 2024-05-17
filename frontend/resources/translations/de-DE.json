@@ -602,7 +602,7 @@
         "twentyFourHour": "24 Stunden"
       },
       "showNamingDialogWhenCreatingPage": "Zeige Bennenungsfenster, wenn eine neue Seite erstellt wird",
-      "enableRTLToolbarItems": "Aktivieren Sie RTL-Symbolleiste",
+      "enableRTLToolbarItems": "RTL-Symbolleistenelemente aktivieren",
       "members": {
         "title": "Mitglieder-Einstellungen",
         "inviteMembers": "Mitglieder einladen",
@@ -1535,7 +1535,7 @@
     "opacity": "Transparenz",
     "resetToDefaultColor": "Auf Standardfarben zurücksetzen",
     "ltr": "LTR (Links nach rechts)",
-    "rtl": "RTL (Rechts nach lins)",
+    "rtl": "RTL (Rechts nach links)",
     "auto": "Auto",
     "cut": "Ausschneiden",
     "copy": "Kopieren",
