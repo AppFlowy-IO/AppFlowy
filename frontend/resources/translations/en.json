@@ -509,7 +509,21 @@
     },
     "billingPage": {
       "menuLabel": "Billing",
-      "title": "Billing"
+      "title": "Billing",
+      "description": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "plan": {
+        "title": "Plan",
+        "freeLabel": "Free",
+        "proLabel": "Pro",
+        "planButtonLabel": "Change plan",
+        "billingPeriod": "Billing period",
+        "periodButtonLabel": "Edit period"
+      },
+      "paymentDetails": {
+        "title": "Payment details",
+        "methodLabel": "Payment method",
+        "methodButtonLabel": "Edit method"
+      }
     },
     "common": {
       "reset": "Reset"

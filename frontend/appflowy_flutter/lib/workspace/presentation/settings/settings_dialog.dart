@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/presentation/settings/pages/settings_billing_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/startup/startup.dart';
@@ -94,6 +95,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.plan:
         return const SettingsPlanView();
       case SettingsPage.billing:
+        return const SettingsBillingView();
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
       default:
