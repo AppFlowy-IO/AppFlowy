@@ -661,10 +661,13 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> changeFieldTypeOfFieldWithName(
     String name,
-    FieldType type,
-  ) async {
+    FieldType type, {
+    ViewLayoutPB layout = ViewLayoutPB.Grid,
+  }) async {
     await tapGridFieldWithName(name);
-    await tapEditFieldButton();
+    if (layout == ViewLayoutPB.Grid) {
+      await tapEditFieldButton();
+    }
 
     await tapSwitchFieldTypeButton();
     await selectFieldType(type);
@@ -881,8 +884,14 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButtonWithName(LocaleKeys.grid_row_delete.tr());
   }
 
-  Future<void> createField(FieldType fieldType, String name) async {
-    await scrollToRight(find.byType(GridPage));
+  Future<void> createField(
+    FieldType fieldType,
+    String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Grid,
+  }) async {
+    if (layout == ViewLayoutPB.Grid) {
+      await scrollToRight(find.byType(GridPage));
+    }
     await tapNewPropertyButton();
     await renameField(name);
     await tapSwitchFieldTypeButton();

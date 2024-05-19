@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
@@ -7,7 +9,6 @@ import 'package:appflowy/plugins/database/application/field/field_controller.dar
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/domain/row_listener.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -104,7 +105,7 @@ class CardBloc extends Bloc<CardEvent, CardState> {
   }
 }
 
-List<CellContext> _makeCells(
+List<CellMeta> _makeCells(
   FieldController fieldController,
   String? groupFieldId,
   List<CellContext> cellContexts,
@@ -116,7 +117,15 @@ List<CellContext> _makeCells(
         !(fieldInfo.visibility?.isVisibleState() ?? false) ||
         (groupFieldId != null && cellContext.fieldId == groupFieldId);
   });
-  return cellContexts.toList();
+  return cellContexts
+      .map(
+        (cellCtx) => CellMeta(
+          fieldId: cellCtx.fieldId,
+          rowId: cellCtx.rowId,
+          fieldType: fieldController.getField(cellCtx.fieldId)!.fieldType,
+        ),
+      )
+      .toList();
 }
 
 @freezed
@@ -124,7 +133,7 @@ class CardEvent with _$CardEvent {
   const factory CardEvent.initial() = _InitialRow;
   const factory CardEvent.setIsEditing(bool isEditing) = _IsEditing;
   const factory CardEvent.didReceiveCells(
-    List<CellContext> cells,
+    List<CellMeta> cells,
     ChangedReason reason,
   ) = _DidReceiveCells;
   const factory CardEvent.didUpdateRowMeta(RowMetaPB rowMeta) =
@@ -132,9 +141,22 @@ class CardEvent with _$CardEvent {
 }
 
 @freezed
+class CellMeta with _$CellMeta {
+  const CellMeta._();
+
+  const factory CellMeta({
+    required String fieldId,
+    required RowId rowId,
+    required FieldType fieldType,
+  }) = _DatabaseCellMeta;
+
+  CellContext cellContext() => CellContext(fieldId: fieldId, rowId: rowId);
+}
+
+@freezed
 class CardState with _$CardState {
   const factory CardState({
-    required List<CellContext> cells,
+    required List<CellMeta> cells,
     required RowMetaPB rowMeta,
     required bool isEditing,
     ChangedReason? changeReason,
@@ -142,7 +164,7 @@ class CardState with _$CardState {
 
   factory CardState.initial(
     RowMetaPB rowMeta,
-    List<CellContext> cells,
+    List<CellMeta> cells,
     bool isEditing,
   ) =>
       CardState(
