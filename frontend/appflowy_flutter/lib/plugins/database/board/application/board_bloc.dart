@@ -19,6 +19,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:calendar_view/calendar_view.dart';
 
 import '../../application/database_controller.dart';
 import '../../application/field/field_controller.dart';
@@ -575,7 +576,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
                   ? "MMM dd y"
                   : "dd y";
 
-              return 'Week of ${DateFormat(beginningOfWeekFormat).format(beginningOfWeek)} - ${DateFormat(endOfWeekFormat).format(endOfWeek)}';
+              return LocaleKeys.board_dateCondition_weekOf.tr(
+                args: [
+                  DateFormat(beginningOfWeekFormat).format(beginningOfWeek),
+                  DateFormat(endOfWeekFormat).format(endOfWeek),
+                ],
+              );
             case DateConditionPB.Month:
               return DateFormat("MMM y").format(targetDateTime);
             case DateConditionPB.Year:
@@ -586,12 +592,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
                 targetDateTime.month,
                 targetDateTime.day,
               );
-              final now = DateTime.now();
-              final nowDay = DateTime(
-                now.year,
-                now.month,
-                now.day,
-              );
+              final nowDay = DateTime.now().withoutTime;
               final diff = targetDateTimeDay.difference(nowDay).inDays;
               return switch (diff) {
                 0 => LocaleKeys.board_dateCondition_today.tr(),

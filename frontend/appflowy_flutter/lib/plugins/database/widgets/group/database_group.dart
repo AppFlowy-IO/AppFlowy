@@ -47,6 +47,16 @@ class DatabaseGroupList extends StatelessWidget {
           );
           final showHideUngroupedToggle =
               field?.fieldType != FieldType.Checkbox;
+
+          DateGroupConfigurationPB? config;
+          if (field != null) {
+            final gs = state.groupSettings
+                .firstWhereOrNull((gs) => gs.fieldId == field.id);
+            config = gs != null
+                ? DateGroupConfigurationPB.fromBuffer(gs.content)
+                : null;
+          }
+
           final children = [
             if (showHideUngroupedToggle) ...[
               SizedBox(
@@ -116,16 +126,7 @@ class DatabaseGroupList extends StatelessWidget {
                   name: condition.name,
                   condition: condition.value,
                   onSelected: onDismissed,
-                  checked: () {
-                    final gs = state.groupSettings
-                        .firstWhereOrNull((gs) => gs.fieldId == field.id);
-                    if (gs == null) {
-                      return false;
-                    }
-                    final config =
-                        DateGroupConfigurationPB.fromBuffer(gs.content);
-                    return config.condition == condition;
-                  }(),
+                  checked: config?.condition == condition,
                 ),
               ),
             ],

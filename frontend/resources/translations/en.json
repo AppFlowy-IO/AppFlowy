@@ -1254,6 +1254,7 @@
       "failedToLoad": "Failed to load board view"
     },
     "dateCondition": {
+      "weekOf": "Week of {} - {}",
       "today": "Today",
       "yesterday": "Yesterday",
       "tomorrow": "Tomorrow",
