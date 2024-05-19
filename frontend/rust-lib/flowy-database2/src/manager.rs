@@ -424,8 +424,11 @@ impl DatabaseManager {
     if let Some(row) = database.get_row(&view_id, &row_id) {
       let fields = database.get_fields(&view_id, None);
       for field in fields {
-        if let Some(cell) = row.cells.get(&field.id) {
-          summary_row_content.insert(field.name.clone(), stringify_cell(cell, &field));
+        // when summarizing row, we don't need to summarize the cell of the field that we want to summarize.
+        if field.id != field_id {
+          if let Some(cell) = row.cells.get(&field.id) {
+            summary_row_content.insert(field.name.clone(), stringify_cell(cell, &field));
+          }
         }
       }
     }
