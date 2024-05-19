@@ -55,6 +55,9 @@ class SettingsManageDataView extends StatelessWidget {
                 actions: [
                   if (state.mapOrNull(didReceivedPath: (_) => true) == true)
                     SettingAction(
+                      tooltip: LocaleKeys
+                          .settings_manageDataPage_dataStorage_actions_resetTooltip
+                          .tr(),
                       icon: const FlowySvg(FlowySvgs.restore_s),
                       label: LocaleKeys.settings_common_reset.tr(),
                       onPressed: () => SettingsAlertDialog(
@@ -375,6 +378,8 @@ class _CurrentPathState extends State<_CurrentPath> {
 
   @override
   Widget build(BuildContext context) {
+    final isLM = Brightness.light == Theme.of(context).brightness;
+
     return Column(
       children: [
         Row(
@@ -392,7 +397,9 @@ class _CurrentPathState extends State<_CurrentPath> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     decoration: isHovering ? TextDecoration.underline : null,
-                    color: const Color(0xFF005483),
+                    color: isLM
+                        ? const Color(0xFF005483)
+                        : Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),

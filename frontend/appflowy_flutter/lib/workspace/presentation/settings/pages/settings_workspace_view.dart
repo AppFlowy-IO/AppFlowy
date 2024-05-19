@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -18,12 +19,12 @@ import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu
 import 'package:appflowy/workspace/presentation/settings/shared/document_color_setting_button.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_list_tile.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_actionable_input.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dashed_divider.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_input_field.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_select.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
@@ -41,6 +42,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -54,15 +56,6 @@ class SettingsWorkspaceView extends StatefulWidget {
 }
 
 class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
-  final TextEditingController _workspaceNameController =
-      TextEditingController();
-
-  @override
-  void dispose() {
-    _workspaceNameController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<WorkspaceSettingsBloc>(
@@ -70,10 +63,6 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
         ..add(WorkspaceSettingsEvent.initial(userProfile: widget.userProfile)),
       child: BlocConsumer<WorkspaceSettingsBloc, WorkspaceSettingsState>(
         listener: (context, state) {
-          if ((state.workspace?.name ?? '') != _workspaceNameController.text) {
-            _workspaceNameController.text = state.workspace?.name ?? '';
-          }
-
           if (state.deleteWorkspace) {
             context.read<UserWorkspaceBloc>().add(
                   UserWorkspaceEvent.deleteWorkspace(
@@ -97,44 +86,12 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
             description: LocaleKeys.settings_workspacePage_description.tr(),
             children: [
               // We don't allow changing workspace name/icon for local/offline
-              if (state.workspace != null &&
-                  widget.userProfile.authenticator !=
-                      AuthenticatorPB.Local) ...[
+              if (widget.userProfile.authenticator !=
+                  AuthenticatorPB.Local) ...[
                 SettingsCategory(
                   title: LocaleKeys.settings_workspacePage_workspaceName_title
                       .tr(),
-                  children: [
-                    SettingsActionableInput(
-                      controller: _workspaceNameController,
-                      onSave: (value) => _saveWorkspaceName(
-                        context,
-                        current: state.workspace!.name,
-                        name: value,
-                      ),
-                      actions: [
-                        SizedBox(
-                          height: 48,
-                          child: FlowyTextButton(
-                            LocaleKeys.button_save.tr(),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            fontWeight: FontWeight.w600,
-                            radius: BorderRadius.circular(12),
-                            fillColor: Theme.of(context).colorScheme.primary,
-                            hoverColor: const Color(0xFF005483),
-                            fontHoverColor: Colors.white,
-                            onPressed: () => _saveWorkspaceName(
-                              context,
-                              current: state.workspace!.name,
-                              name: _workspaceNameController.text,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  children: const [_WorkspaceNameSetting()],
                 ),
                 SettingsCategory(
                   title: LocaleKeys.settings_workspacePage_workspaceIcon_title
@@ -143,7 +100,10 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                       .settings_workspacePage_workspaceIcon_description
                       .tr(),
                   children: [
-                    _WorkspaceIconSetting(workspace: state.workspace!),
+                    _WorkspaceIconSetting(
+                      enableEdit: state.myRole.isOwner,
+                      workspace: state.workspace,
+                    ),
                   ],
                 ),
               ],
@@ -195,9 +155,8 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                 title: LocaleKeys.settings_workspacePage_language_title.tr(),
                 children: const [LanguageDropdown()],
               ),
-              if (state.workspace != null &&
-                  widget.userProfile.authenticator !=
-                      AuthenticatorPB.Local) ...[
+              if (widget.userProfile.authenticator !=
+                  AuthenticatorPB.Local) ...[
                 SingleSettingAction(
                   label: LocaleKeys.settings_workspacePage_manageWorkspace_title
                       .tr(),
@@ -244,17 +203,112 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
       ),
     );
   }
+}
 
-  void _saveWorkspaceName(
-    BuildContext context, {
-    required String current,
+class _WorkspaceNameSetting extends StatefulWidget {
+  const _WorkspaceNameSetting();
+
+  @override
+  State<_WorkspaceNameSetting> createState() => _WorkspaceNameSettingState();
+}
+
+class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
+  final TextEditingController workspaceNameController = TextEditingController();
+  late final FocusNode focusNode;
+  bool isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    focusNode = FocusNode(
+      onKeyEvent: (_, event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.escape &&
+            isEditing &&
+            mounted) {
+          setState(() => isEditing = false);
+          return KeyEventResult.handled;
+        }
+
+        return KeyEventResult.ignored;
+      },
+    )..addListener(() {
+        if (!focusNode.hasFocus && isEditing && mounted) {
+          _saveWorkspaceName(name: workspaceNameController.text);
+          setState(() => isEditing = false);
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    workspaceNameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<WorkspaceSettingsBloc, WorkspaceSettingsState>(
+      listener: (_, state) {
+        if ((state.workspace?.name ?? '') != workspaceNameController.text) {
+          workspaceNameController.text = state.workspace?.name ?? '';
+        }
+      },
+      builder: (_, state) {
+        if (isEditing) {
+          return Flexible(
+            child: SettingsInputField(
+              textController: workspaceNameController,
+              value: workspaceNameController.text,
+              focusNode: focusNode..requestFocus(),
+              onCancel: () => setState(() => isEditing = false),
+              onSave: (_) {
+                _saveWorkspaceName(name: workspaceNameController.text);
+                setState(() => isEditing = false);
+              },
+            ),
+          );
+        }
+
+        return Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2.5),
+              child: FlowyText.regular(
+                workspaceNameController.text,
+                fontSize: 14,
+              ),
+            ),
+            if (state.myRole.isOwner) ...[
+              const HSpace(4),
+              FlowyTooltip(
+                message: 'Edit workspace name',
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => setState(() => isEditing = true),
+                  child: const FlowyHover(
+                    resetHoverOnRebuild: false,
+                    child: Padding(
+                      padding: EdgeInsets.all(4),
+                      child: FlowySvg(FlowySvgs.edit_s),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  void _saveWorkspaceName({
     required String name,
   }) {
-    if (name.isNotEmpty && name != current) {
+    if (name.isNotEmpty) {
       context.read<WorkspaceSettingsBloc>().add(
-            WorkspaceSettingsEvent.updateWorkspaceName(
-              _workspaceNameController.text,
-            ),
+            WorkspaceSettingsEvent.updateWorkspaceName(name),
           );
 
       if (context.mounted) {
@@ -300,12 +354,21 @@ class LanguageDropdown extends StatelessWidget {
 }
 
 class _WorkspaceIconSetting extends StatelessWidget {
-  const _WorkspaceIconSetting({required this.workspace});
+  const _WorkspaceIconSetting({required this.enableEdit, this.workspace});
 
-  final UserWorkspacePB workspace;
+  final bool enableEdit;
+  final UserWorkspacePB? workspace;
 
   @override
   Widget build(BuildContext context) {
+    if (workspace == null) {
+      return const SizedBox(
+        height: 64,
+        width: 64,
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return Container(
       height: 64,
       width: 64,
@@ -316,9 +379,9 @@ class _WorkspaceIconSetting extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(1),
         child: WorkspaceIcon(
-          workspace: workspace,
-          iconSize: workspace.icon.isNotEmpty == true ? 46 : 20,
-          enableEdit: true,
+          workspace: workspace!,
+          iconSize: workspace!.icon.isNotEmpty == true ? 46 : 20,
+          enableEdit: enableEdit,
           onSelected: (r) => context
               .read<WorkspaceSettingsBloc>()
               .add(WorkspaceSettingsEvent.updateWorkspaceIcon(r.emoji)),
@@ -508,6 +571,7 @@ class _DateTimeFormatLabel extends StatelessWidget {
               now.timeZoneName,
             ],
           ),
+          maxLines: 2,
           fontSize: 16,
           color: AFThemeExtension.of(context).secondaryTextColor,
         );
@@ -712,6 +776,32 @@ class AppearanceSelector extends StatelessWidget {
                           ),
                         ),
                       ),
+                      child: t != themeMode
+                          ? null
+                          : Stack(
+                              children: [
+                                Positioned(
+                                  top: 4,
+                                  left: 4,
+                                  child: Material(
+                                    shape: const CircleBorder(),
+                                    elevation: 2,
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                      ),
+                                      height: 16,
+                                      width: 16,
+                                      child: const FlowySvg(
+                                        FlowySvgs.settings_selected_theme_m,
+                                        size: Size.square(16),
+                                        blendMode: BlendMode.dstIn,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                     const VSpace(6),
                     FlowyText.regular(getLabel(t), textAlign: TextAlign.center),
@@ -777,6 +867,7 @@ class _FontSelectorDropdown extends StatelessWidget {
               selectedValue: appearance.font,
               value: font,
               label: font.fontFamilyDisplayName,
+              fontFamily: font,
             ),
           )
           .toList(),

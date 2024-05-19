@@ -56,7 +56,13 @@ class WorkspaceSettingsBloc
                       ?.role ??
                   AFRolePB.Guest;
 
-              emit(state.copyWith(members: members, myRole: role));
+              emit(
+                state.copyWith(
+                  workspace: currentWorkspaceInList,
+                  members: members,
+                  myRole: role,
+                ),
+              );
             } catch (e) {
               Log.error('Failed to get or create current workspace');
             }

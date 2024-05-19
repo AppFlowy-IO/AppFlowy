@@ -429,7 +429,8 @@
           "open": "Open folder",
           "openTooltip": "Open current data folder location",
           "copy": "Copy path",
-          "copiedHint": "Link copied!"
+          "copiedHint": "Path copied!",
+          "resetTooltip": "Reset to default location"
         },
         "resetDialog": {
           "title": "Are you sure?",

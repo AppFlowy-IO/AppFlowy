@@ -1,3 +1,5 @@
+import 'package:appflowy/shared/google_fonts_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -10,7 +12,12 @@ DropdownMenuEntry<T> buildDropdownMenuEntry<T>(
   T? selectedValue,
   Widget? leadingWidget,
   Widget? trailingWidget,
+  String? fontFamily,
 }) {
+  final fontFamilyUsed = fontFamily != null
+      ? getGoogleFontSafely(fontFamily).fontFamily ?? defaultFontFamily
+      : defaultFontFamily;
+
   return DropdownMenuEntry<T>(
     style: ButtonStyle(
       foregroundColor:
@@ -26,7 +33,12 @@ DropdownMenuEntry<T> buildDropdownMenuEntry<T>(
     leadingIcon: leadingWidget,
     labelWidget: Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: FlowyText.medium(label, fontSize: 14, textAlign: TextAlign.start),
+      child: FlowyText.medium(
+        label,
+        fontSize: 14,
+        textAlign: TextAlign.start,
+        fontFamily: fontFamilyUsed,
+      ),
     ),
     trailingIcon: Row(
       children: [
