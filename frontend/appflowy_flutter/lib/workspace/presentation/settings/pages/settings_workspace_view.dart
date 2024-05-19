@@ -283,7 +283,9 @@ class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
             if (state.myRole.isOwner) ...[
               const HSpace(4),
               FlowyTooltip(
-                message: 'Edit workspace name',
+                message: LocaleKeys
+                    .settings_workspacePage_workspaceName_editTooltip
+                    .tr(),
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => setState(() => isEditing = true),
