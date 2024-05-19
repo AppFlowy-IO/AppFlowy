@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_comparison_dialog.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -166,6 +167,7 @@ class _CurrentPlanBox extends StatelessWidget {
                       label: LocaleKeys
                           .settings_planPage_planUsage_currentPlan_upgrade
                           .tr(),
+                      onPressed: () => _openPricingDialog(context),
                     ),
                   ],
                 ),
@@ -246,6 +248,11 @@ class _CurrentPlanBox extends StatelessWidget {
       ],
     );
   }
+
+  void _openPricingDialog(BuildContext context) => showDialog(
+        context: context,
+        builder: (_) => const SettingsPlanComparisonDialog(),
+      );
 }
 
 class _ProConItem extends StatelessWidget {
