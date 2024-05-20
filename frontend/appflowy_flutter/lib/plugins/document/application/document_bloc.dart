@@ -76,6 +76,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   StreamSubscription? _transactionSubscription;
 
+  bool isClosing = false;
+
   final _updateSelectionDebounce = Debounce();
   final _syncThrottle = Throttler(duration: const Duration(milliseconds: 500));
 
@@ -92,6 +94,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   @override
   Future<void> close() async {
+    isClosing = true;
+    _updateSelectionDebounce.dispose();
+    _syncThrottle.dispose();
+    await _documentService.syncAwarenessStates(documentId: documentId);
     await _documentListener.stop();
     await _syncStateListener.stop();
     await _viewListener?.stop();
@@ -354,6 +360,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> _onSelectionUpdate() async {
+    if (isClosing) {
+      return;
+    }
     final user = state.userProfilePB;
     final deviceId = ApplicationInfo.deviceId;
     if (!FeatureFlag.syncDocument.isOn || user == null) {
