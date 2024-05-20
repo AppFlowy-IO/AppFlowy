@@ -1251,7 +1251,9 @@
       "showGroup": "Show group",
       "showGroupContent": "Are you sure you want to show this group on the board?",
       "failedToLoad": "Failed to load board view"
-    }
+    },
+    "noGroup": "No group by property",
+    "noGroupDesc": "Board views require a property to group by in order to display"
   },
   "calendar": {
     "menuName": "Calendar",

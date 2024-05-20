@@ -1,16 +1,15 @@
-import { GridRowsContext, useDatabase, useGridRowOrders, useViewId } from '@/application/database-yjs';
-import { useRenderColumns } from '@/components/database/components/grid-column';
+import { RowsContext, useDatabase, useRowOrdersSelector, useViewId } from '@/application/database-yjs';
+import { useRenderFields, GridHeader, GridTable } from '@/components/database/components/grid';
 import { CircularProgress } from '@mui/material';
 import React, { useState } from 'react';
-import { GridHeader } from 'src/components/database/components/grid-header';
-import { GridTable } from 'src/components/database/components/grid-table';
 
 export function Grid() {
   const database = useDatabase();
-  const [scrollLeft, setScrollLeft] = useState(0);
   const viewId = useViewId() || '';
-  const { columns, columnWidth } = useRenderColumns(viewId);
-  const rowOrders = useGridRowOrders();
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const { fields, columnWidth } = useRenderFields();
+  const rowOrders = useRowOrdersSelector();
 
   if (!database || !rowOrders) {
     return (
@@ -21,24 +20,24 @@ export function Grid() {
   }
 
   return (
-    <GridRowsContext.Provider
+    <RowsContext.Provider
       value={{
         rowOrders,
       }}
     >
       <div className={'flex w-full flex-1 flex-col'}>
-        <GridHeader scrollLeft={scrollLeft} columnWidth={columnWidth} columns={columns} onScrollLeft={setScrollLeft} />
+        <GridHeader scrollLeft={scrollLeft} columnWidth={columnWidth} columns={fields} onScrollLeft={setScrollLeft} />
         <div className={'grid-scroll-table w-full flex-1'}>
           <GridTable
             viewId={viewId}
             scrollLeft={scrollLeft}
             columnWidth={columnWidth}
-            columns={columns}
+            columns={fields}
             onScrollLeft={setScrollLeft}
           />
         </div>
       </div>
-    </GridRowsContext.Provider>
+    </RowsContext.Provider>
   );
 }
 

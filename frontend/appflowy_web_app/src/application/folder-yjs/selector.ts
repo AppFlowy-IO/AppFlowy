@@ -12,11 +12,14 @@ export function useViewsIdSelector() {
     const views = folder.get(YjsFolderKey.views);
     const trash = folder.get(YjsFolderKey.section)?.get(YjsFolderKey.trash);
     const meta = folder.get(YjsFolderKey.meta);
+    const trashUid = Array.from(trash?.keys())[0];
+    const userTrash = trash?.get(trashUid);
 
-    console.log('folder', folder.toJSON());
     const collectIds = () => {
+      const trashIds = userTrash?.toJSON()?.map((item) => item.id) || [];
+
       return Array.from(views.keys()).filter(
-        (id) => !trash?.has(id) && id !== meta?.get(YjsFolderKey.current_workspace)
+        (id) => !trashIds.includes(id) && id !== meta?.get(YjsFolderKey.current_workspace)
       );
     };
 
@@ -24,9 +27,11 @@ export function useViewsIdSelector() {
     const observerEvent = () => setViewsId(collectIds());
 
     folder.observe(observerEvent);
+    userTrash.observe(observerEvent);
 
     return () => {
       folder.unobserve(observerEvent);
+      userTrash.unobserve(observerEvent);
     };
   }, [folder]);
 
