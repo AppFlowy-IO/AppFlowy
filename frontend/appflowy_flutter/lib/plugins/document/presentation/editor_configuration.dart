@@ -92,8 +92,9 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
             final factor = pageStyle.fontLayout.factor;
             final headingPaddings = pageStyle.lineHeightLayout.headingPaddings
                 .map((e) => e * factor);
-            final level = node.attributes[HeadingBlockKeys.level] ?? 6;
-            return EdgeInsets.only(top: headingPaddings.elementAt(level));
+            int level = node.attributes[HeadingBlockKeys.level] ?? 6;
+            level = level.clamp(1, 6);
+            return EdgeInsets.only(top: headingPaddings.elementAt(level - 1));
           }
 
           return const EdgeInsets.only(top: 12.0, bottom: 4.0);
