@@ -150,6 +150,7 @@ class FavoriteMoreButton extends StatelessWidget {
           child: const FavoriteMenu(minWidth: minWidth),
         );
       },
+      margin: EdgeInsets.zero,
       child: FlowyButton(
         onTap: () {},
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),

@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 const double _kHorizontalPadding = 10.0;
+const double _kVerticalPadding = 10.0;
 
 class FavoriteMenu extends StatelessWidget {
   const FavoriteMenu({super.key, required this.minWidth});
@@ -24,7 +25,8 @@ class FavoriteMenu extends StatelessWidget {
       padding: const EdgeInsets.only(
         left: _kHorizontalPadding,
         right: _kHorizontalPadding,
-        top: 12.0,
+        top: _kVerticalPadding,
+        bottom: _kVerticalPadding,
       ),
       child: BlocProvider(
         create: (context) =>
