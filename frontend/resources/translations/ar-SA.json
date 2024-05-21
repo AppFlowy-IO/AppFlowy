@@ -56,7 +56,7 @@
     "resetWorkspacePrompt": "ستؤدي إعادة تعيين مساحة العمل إلى حذف جميع الصفحات والبيانات الموجودة بداخلها. هل أنت متأكد أنك تريد إعادة تعيين مساحة العمل؟ وبدلاً من ذلك، يمكنك الاتصال بفريق الدعم لاستعادة مساحة العمل",
     "hint": "مساحة العمل",
     "notFoundError": "مساحة العمل غير موجودة",
-    "failedToLoad": "هناك خطأ ما! فشل تحميل مساحة العمل. حاول إغلاق أي مثيل مفتوح لـ AppFlowy وحاول مرة أخرى.",
+    "failedToLoad": "هناك خطأ ما! فشل تحميل مساحة العمل. حاول إغلاق أي مثيل مفتوح لـ @:appName وحاول مرة أخرى.",
     "errorActions": {
       "reportIssue": "بلغ عن خطأ",
       "reachOut": "تواصل مع ديسكورد"
@@ -279,7 +279,7 @@
       "cloudSupabaseUrl": "رابط Supabase",
       "cloudSupabaseAnonKey": "مفتاح Supabase الخفي",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "لا يمكن أن يكون المفتاح المجهول فارغًا إذا لم يكن عنوان URL الخاص بـ Supabase فارغًا",
-      "cloudAppFlowy": "سحابة AppFlowy",
+      "cloudAppFlowy": "سحابة @:appName",
       "clickToCopy": "انقر للنسخ",
       "selfHostStart": "إذا لم يكن لديك خادم، يرجى الرجوع إلى",
       "selfHostContent": "مستند",
@@ -298,7 +298,7 @@
       "historicalUserList": "سجل تسجيل دخول المستخدم",
       "historicalUserListTooltip": "تعرض هذه القائمة حساباتك المجهولة. يمكنك النقر على الحساب لعرض تفاصيله. يتم إنشاء الحسابات المجهولة بالنقر فوق الزر \"البدء\".",
       "openHistoricalUser": "انقر لفتح الحساب الخفي",
-      "customPathPrompt": "قد يؤدي تخزين مجلد بيانات AppFlowy في مجلد متزامن على السحابة مثل Google Drive إلى مخاطر. إذا تم الوصول إلى قاعدة البيانات الموجودة في هذا المجلد أو تعديلها من مواقع متعددة في نفس الوقت، فقد يؤدي ذلك إلى حدوث تعارضات في المزامنة وتلف محتمل للبيانات",
+      "customPathPrompt": "قد يؤدي تخزين مجلد بيانات @:appName في مجلد متزامن على السحابة مثل Google Drive إلى مخاطر. إذا تم الوصول إلى قاعدة البيانات الموجودة في هذا المجلد أو تعديلها من مواقع متعددة في نفس الوقت، فقد يؤدي ذلك إلى حدوث تعارضات في المزامنة وتلف محتمل للبيانات",
       "supabaseSetting": "إعداد Supabase",
       "cloudSetting": "إعداد السحابة"
     },
@@ -337,7 +337,7 @@
       "themeUpload": {
         "button": "رفع",
         "uploadTheme": "تحميل الموضوع",
-        "description": "قم بتحميل قالب AppFlowy الخاص بك باستخدام الزر أدناه.",
+        "description": "قم بتحميل قالب @:appName الخاص بك باستخدام الزر أدناه.",
         "loading": "يرجى الانتظار بينما نقوم بالتحقق من صحة السمة الخاصة بك وتحميلها ...",
         "uploadSuccess": "تم تحميل موضوعك بنجاح",
         "deletionFailure": "فشل حذف الموضوع. حاول حذفه يدويًا.",
@@ -370,7 +370,7 @@
       "defaultLocation": "أين يتم تخزين بياناتك الآن",
       "exportData": "قم بتصدير بياناتك",
       "doubleTapToCopy": "انقر نقرًا مزدوجًا لنسخ المسار",
-      "restoreLocation": "استعادة المسار الافتراضي AppFlowy",
+      "restoreLocation": "استعادة المسار الافتراضي @:appName",
       "customizeLocation": "افتح مجلدًا آخر",
       "restartApp": "يرجى إعادة تشغيل التطبيق لتصبح التغييرات سارية المفعول.",
       "exportDatabase": "تصدير قاعدة البيانات",
@@ -382,10 +382,10 @@
       "defineWhereYourDataIsStored": "حدد مكان تخزين بياناتك",
       "open": "يفتح",
       "openFolder": "افتح مجلدًا موجودًا",
-      "openFolderDesc": "اقرأها واكتبها في مجلد AppFlowy الموجود لديك",
+      "openFolderDesc": "اقرأها واكتبها في مجلد @:appName الموجود لديك",
       "folderHintText": "إسم الملف",
       "location": "إنشاء مجلد جديد",
-      "locationDesc": "اختر اسمًا لمجلد بيانات AppFlowy",
+      "locationDesc": "اختر اسمًا لمجلد بيانات @:appName",
       "browser": "تصفح",
       "create": "يخلق",
       "set": "تعيين",
@@ -396,7 +396,7 @@
       "change": "يتغير",
       "openLocationTooltips": "افتح دليل بيانات آخر",
       "openCurrentDataFolder": "افتح دليل البيانات الحالي",
-      "recoverLocationTooltips": "إعادة التعيين إلى دليل البيانات الافتراضي لـ AppFlowy",
+      "recoverLocationTooltips": "إعادة التعيين إلى دليل البيانات الافتراضي لـ @:appName",
       "exportFileSuccess": "تم تصدير الملف بنجاح!",
       "exportFileFail": "فشل تصدير الملف!",
       "export": "يصدّر"
@@ -904,7 +904,7 @@
     "quickJumpYear": "انتقل إلى"
   },
   "errorDialog": {
-    "title": "خطأ AppFlowy",
+    "title": "خطأ @:appName",
     "howToFixFallback": "نأسف للإزعاج! قم بإرسال مشكلة على صفحة GitHub الخاصة بنا والتي تصف الخطأ الخاص بك.",
     "github": "عرض على جيثب"
   },

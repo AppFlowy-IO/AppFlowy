@@ -42,6 +42,7 @@
     "emailHint": "Courriel",
     "passwordHint": "Mot de passe",
     "dontHaveAnAccount": "Vous n'avez pas encore de compte ?",
+    "createAccount": "Créer un compte",
     "repeatPasswordEmptyError": "Vous n'avez pas ressaisi votre mot de passe",
     "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques",
     "syncPromptMessage": "La synchronisation des données peut prendre un certain temps. Merci de ne pas fermer pas cette page.",
@@ -51,6 +52,7 @@
     "pleaseInputYourEmail": "Veuillez entrer votre adresse e-mail",
     "magicLinkSent": "Lien magique envoyé à votre email, veuillez vérifier votre boîte de réception",
     "invalidEmail": "S'il vous plaît, mettez une adresse email valide",
+    "logIn": "Connexion",
     "LogInWithGoogle": "Se connecter avec Google",
     "LogInWithGithub": "Se connecter avec Github",
     "LogInWithDiscord": "Se connecter avec Discord",
@@ -64,7 +66,7 @@
     "resetWorkspacePrompt": "La réinitialisation de l'espace de travail supprimera toutes les pages et données qu'elles contiennent. Êtes-vous sûr de vouloir réinitialiser l'espace de travail ? Alternativement, vous pouvez contacter l'équipe d'assistance pour restaurer l'espace de travail",
     "hint": "Espace de travail",
     "notFoundError": "Espace de travail introuvable",
-    "failedToLoad": "Quelque chose s'est mal passé ! Échec du chargement de l'espace de travail. Essayez de fermer toute instance ouverte d'AppFlowy et réessayez.",
+    "failedToLoad": "Quelque chose s'est mal passé ! Échec du chargement de l'espace de travail. Essayez de fermer toute instance ouverte d'@:appName et réessayez.",
     "errorActions": {
       "reportIssue": "Signaler un problème",
       "reportIssueOnGithub": "Signaler un bug sur Github",
@@ -93,6 +95,7 @@
     "buttonText": "Partager",
     "workInProgress": "Bientôt disponible",
     "markdown": "Markdown",
+    "html": "HTML",
     "clipboard": "Copier dans le presse-papier",
     "csv": "CSV",
     "copyLink": "Copier le lien"
@@ -170,7 +173,7 @@
     "shortcuts": "Raccourcis",
     "whatsNew": "Nouveautés",
     "help": "Aide et Support",
-    "markdown": "Réduction",
+    "markdown": "Rédaction",
     "debug": {
       "name": "Informations de Débogage",
       "success": "Informations de débogage copiées dans le presse-papiers !",
@@ -310,6 +313,108 @@
   },
   "settings": {
     "title": "Paramètres",
+    "accountPage": {
+      "menuLabel": "Mon compte",
+      "title": "Mon compte",
+      "email": {
+        "title": "Email",
+        "actions": {
+          "change": "Modifier l'email"
+        }
+      },
+      "login": {
+        "loginLabel": "Connexion",
+        "logoutLabel": "Déconnexion"
+      }
+    },
+    "workspacePage": {
+      "menuLabel": "Espace de travail",
+      "title": "Espace de travail",
+      "description": "Personnalisez l'apparence, le thème, la police, la disposition du texte, le format de la date/heure et la langue de votre espace de travail.",
+      "workspaceName": {
+        "title": "Nom de l'espace de travail",
+        "savedMessage": "Nom de l'espace de travail enregistré"
+      },
+      "workspaceIcon": {
+        "title": "Icône de l'espace de travail",
+        "description": "Personnalisez l'apparence, le thème, la police, la disposition du texte, la date, l'heure et la langue de votre espace de travail."
+      },
+      "appearance": {
+        "title": "Apparence",
+        "description": "Personnalisez l'apparence, le thème, la police, la disposition du texte, la date, l'heure et la langue de votre espace de travail.",
+        "options": {
+          "system": "Auto",
+          "light": "Clair",
+          "dark": "Foncé"
+        }
+      },
+      "theme": {
+        "title": "Thème",
+        "description": "Sélectionnez un thème prédéfini ou téléchargez votre propre thème personnalisé."
+      },
+      "workspaceFont": {
+        "title": "Police de caractère de l'espace de travail"
+      },
+      "textDirection": {
+        "title": "Sens du texte",
+        "leftToRight": "De gauche à droite",
+        "rightToLeft": "De droite à gauche",
+        "auto": "Auto"
+      },
+      "layoutDirection": {
+        "leftToRight": "De gauche à droite",
+        "rightToLeft": "De droite à gauche"
+      },
+      "dateTime": {
+        "title": "Date et heure",
+        "24HourTime": "Heure sur 24 heures",
+        "dateFormat": {
+          "label": "Format de date",
+          "local": "Locale",
+          "us": "US",
+          "iso": "ISO",
+          "dmy": "J/M/A"
+        }
+      },
+      "language": {
+        "title": "Langue"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Supprimer l'espace de travail",
+        "content": "Êtes-vous sûr de vouloir supprimer cet espace de travail ? Cette action ne peut pas être annulée."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Quitter l'espace de travail",
+        "content": "Êtes-vous sûr de vouloir quitter cet espace de travail ? Vous allez perdre l’accès à toutes les pages et données qu’il contient."
+      },
+      "manageWorkspace": {
+        "title": "Gérer l'espace de travail",
+        "leaveWorkspace": "Quitter l'espace de travail",
+        "deleteWorkspace": "Supprimer l'espace de travail"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Gérer les données",
+      "title": "Gérer les données",
+      "dataStorage": {
+        "actions": {
+          "change": "Changer de chemin",
+          "open": "Ouvrir le répertoire",
+          "copy": "Copier le chemin",
+          "copiedHint": "Lien copié !"
+        },
+        "resetDialog": {
+          "title": "Êtes-vous sûr ?"
+        }
+      },
+      "importData": {
+        "title": "Importer des données",
+        "action": "Parcourir le dossier"
+      },
+      "encryption": {
+        "title": "Chiffrement"
+      }
+    },
     "menu": {
       "appearance": "Apparence",
       "language": "Langue",
@@ -334,8 +439,8 @@
       "cloudSupabaseUrlCanNotBeEmpty": "L'URL Supabase ne peut pas être vide",
       "cloudSupabaseAnonKey": "Clé anonyme Supabase",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "La clé anonyme ne peut pas être vide si l'URL de Supabase n'est pas vide",
-      "cloudAppFlowy": "AppFlowy Cloud Bêta",
-      "cloudAppFlowySelfHost": "AppFlowy Cloud auto-hébergé",
+      "cloudAppFlowy": "@:appName Cloud Bêta",
+      "cloudAppFlowySelfHost": "@:appName Cloud auto-hébergé",
       "appFlowyCloudUrlCanNotBeEmpty": "L'URL cloud ne peut pas être vide",
       "clickToCopy": "Cliquez pour copier",
       "selfHostStart": "Si vous n'avez pas de serveur, veuillez vous référer au",
@@ -356,12 +461,12 @@
       "historicalUserList": "Historique de connexion d'utilisateurs",
       "historicalUserListTooltip": "Cette liste affiche vos comptes anonymes. Vous pouvez cliquer sur un compte pour afficher ses détails. Les comptes anonymes sont créés en cliquant sur le bouton « Commencer »",
       "openHistoricalUser": "Cliquez pour ouvrir le compte anonyme",
-      "customPathPrompt": "Le stockage du dossier de données AppFlowy dans un dossier synchronisé avec le cloud tel que Google Drive peut présenter des risques. Si la base de données de ce dossier est consultée ou modifiée à partir de plusieurs emplacements en même temps, cela peut entraîner des conflits de synchronisation et une corruption potentielle des données.",
-      "importAppFlowyData": "Importer des données à partir du dossier AppFlowy externe",
+      "customPathPrompt": "Le stockage du dossier de données @:appName dans un dossier synchronisé avec le cloud tel que Google Drive peut présenter des risques. Si la base de données de ce dossier est consultée ou modifiée à partir de plusieurs emplacements en même temps, cela peut entraîner des conflits de synchronisation et une corruption potentielle des données.",
+      "importAppFlowyData": "Importer des données à partir du dossier @:appName externe",
       "importingAppFlowyDataTip": "L'importation des données est en cours. Veuillez ne pas fermer l'application",
-      "importAppFlowyDataDescription": "Copiez les données d'un dossier de données AppFlowy externe et importez-les dans le dossier de données AppFlowy actuel",
-      "importSuccess": "Importation réussie du dossier de données AppFlowy",
-      "importFailed": "L'importation du dossier de données AppFlowy a échoué",
+      "importAppFlowyDataDescription": "Copiez les données d'un dossier de données @:appName externe et importez-les dans le dossier de données @:appName actuel",
+      "importSuccess": "Importation réussie du dossier de données @:appName",
+      "importFailed": "L'importation du dossier de données @:appName a échoué",
       "importGuide": "Pour plus de détails, veuillez consulter le document référencé",
       "supabaseSetting": "Paramètre Supabase"
     },
@@ -413,7 +518,7 @@
       "themeUpload": {
         "button": "Téléverser",
         "uploadTheme": "Téléverser le thème",
-        "description": "Téléversez votre propre thème AppFlowy en utilisant le bouton ci-dessous.",
+        "description": "Téléversez votre propre thème @:appName en utilisant le bouton ci-dessous.",
         "loading": "Veuillez patienter pendant que nous validons et téléchargeons votre thème...",
         "uploadSuccess": "Votre thème a été téléversé avec succès",
         "deletionFailure": "Échec de la suppression du thème. Essayez de le supprimer manuellement.",
@@ -473,7 +578,7 @@
       "defaultLocation": "Lire les fichiers et l'emplacement de stockage des données",
       "exportData": "Exportez vos données",
       "doubleTapToCopy": "Appuyez deux fois pour copier le chemin",
-      "restoreLocation": "Restaurer le chemin par défaut d'AppFlowy",
+      "restoreLocation": "Restaurer le chemin par défaut d'@:appName",
       "customizeLocation": "Ouvrir un autre dossier",
       "restartApp": "Veuillez redémarrer l'application pour que les modifications prennent effet.",
       "exportDatabase": "Exporter la base de données",
@@ -485,10 +590,10 @@
       "defineWhereYourDataIsStored": "Définissez où vos données sont stockées",
       "open": "Ouvrir",
       "openFolder": "Ouvrir un dossier existant",
-      "openFolderDesc": "Lisez-le et écrivez-le dans votre dossier AppFlowy existant",
+      "openFolderDesc": "Lisez-le et écrivez-le dans votre dossier @:appName existant",
       "folderHintText": "Nom de dossier",
       "location": "Création d'un nouveau dossier",
-      "locationDesc": "Choisissez un nom pour votre dossier de données AppFlowy",
+      "locationDesc": "Choisissez un nom pour votre dossier de données @:appName",
       "browser": "Parcourir",
       "create": "Créer",
       "set": "Définir",
@@ -499,7 +604,7 @@
       "change": "Changer",
       "openLocationTooltips": "Ouvrir un autre répertoire de données",
       "openCurrentDataFolder": "Ouvrir le répertoire de données actuel",
-      "recoverLocationTooltips": "Réinitialiser au répertoire de données par défaut d'AppFlowy",
+      "recoverLocationTooltips": "Réinitialiser au répertoire de données par défaut d'@:appName",
       "exportFileSuccess": "Exporter le fichier avec succès !",
       "exportFileFail": "Échec de l'export  du fichier !",
       "export": "Exporter",
@@ -1113,7 +1218,7 @@
     "duplicateEvent": "Événement en double"
   },
   "errorDialog": {
-    "title": "Erreur AppFlowy",
+    "title": "Erreur @:appName",
     "howToFixFallback": "Nous sommes désolés pour le désagrément ! Soumettez un problème sur notre page GitHub qui décrit votre erreur.",
     "github": "Afficher sur GitHub"
   },

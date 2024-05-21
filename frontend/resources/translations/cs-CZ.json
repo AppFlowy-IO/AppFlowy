@@ -55,7 +55,7 @@
     "resetWorkspacePrompt": "Obnovením pracovního prostoru smažete všechny stránky a data v nich. Opravdu chcete obnovit pracovní prostor? Pro obnovení pracovního prostoru můžete kontaktovat podporu.",
     "hint": "pracovní plocha",
     "notFoundError": "Pracovní prostor nenalezen",
-    "failedToLoad": "Něco se pokazilo! Nepodařilo se načíst pracovní prostor. Zkuste zavřít a znovu otevřít AppFlowy a zkuste to znovu.",
+    "failedToLoad": "Něco se pokazilo! Nepodařilo se načíst pracovní prostor. Zkuste zavřít a znovu otevřít @:appName a zkuste to znovu.",
     "errorActions": {
       "reportIssue": "Nahlásit problém",
       "reachOut": "Ozvat se na Discordu"
@@ -265,7 +265,7 @@
       "enableSync": "Zapnout synchronizaci",
       "enableEncrypt": "Šifrovat data",
       "cloudURL": "URL adresa serveru",
-      "cloudAppFlowy": "AppFlowy Cloud Beta",
+      "cloudAppFlowy": "@:appName Cloud Beta",
       "enableEncryptPrompt": "Zapněte šifrování a zabezpečte svá ",
       "inputEncryptPrompt": "Vložte prosím Váš šifrovací klíč k",
       "clickToCopySecret": "Kliknutím zkopírujete šifrovací klíč",
@@ -273,7 +273,7 @@
       "historicalUserList": "Historie přihlášení uživatele",
       "historicalUserListTooltip": "V tomto seznamu vidíte anonymní účty. Kliknutím na účet zobrazíte jeho detaily. Anonymní účty vznikají kliknutím na tlačítko \"Začínáme\"",
       "openHistoricalUser": "Kliknutím založíte anonymní účet",
-      "customPathPrompt": "Uložením složky s daty AppFlowy ve složce synchronizovanéí jako např. Google Drive může nést rizika. Pokud se databáze v  složce navštíví nebo změní ",
+      "customPathPrompt": "Uložením složky s daty @:appName ve složce synchronizovanéí jako např. Google Drive může nést rizika. Pokud se databáze v  složce navštíví nebo změní ",
       "cloudSetting": "Nastavení cloudu"
     },
     "notifications": {
@@ -311,7 +311,7 @@
       "themeUpload": {
         "button": "Nahrát",
         "uploadTheme": "Nahrát motiv vzhledu",
-        "description": "Nahrajte vlastní motiv vzhledu pro AppFlowy stisknutím tlačítka níže.",
+        "description": "Nahrajte vlastní motiv vzhledu pro @:appName stisknutím tlačítka níže.",
         "loading": "Prosím počkejte dokud nedokončíme kontrolu a nahrávání vašeho motivu vzhledu...",
         "uploadSuccess": "Váš motiv vzhledu byl úspěšně nahrán",
         "deletionFailure": "Nepodařilo se smazat motiv vzhledu. Zkuste ho smazat ručně.",
@@ -342,7 +342,7 @@
       "defaultLocation": "Umístění pro čtení a ukládání dat",
       "exportData": "Exportovat data",
       "doubleTapToCopy": "Dvojitým klepnutím zkopírujete cestu",
-      "restoreLocation": "Obnovit výchozí AppFlowy cestu",
+      "restoreLocation": "Obnovit výchozí @:appName cestu",
       "customizeLocation": "OtevřítProsím tre další složku",
       "restartApp": "Aby se projevily změny, restartujte prosím aplikaci.",
       "exportDatabase": "Exportovat databázi",
@@ -354,10 +354,10 @@
       "defineWhereYourDataIsStored": "Vyberte kde jsou ukládána Vaše data",
       "open": "Otevřít",
       "openFolder": "Otevřít existující složku",
-      "openFolderDesc": "Číst a zapisovat do existující AppFlowy složky",
+      "openFolderDesc": "Číst a zapisovat do existující @:appName složky",
       "folderHintText": "název složky",
       "location": "Vytváření nové složky",
-      "locationDesc": "Vyberte název pro složku, kam bude AppFlowy ukládat Vaše data",
+      "locationDesc": "Vyberte název pro složku, kam bude @:appName ukládat Vaše data",
       "browser": "Procházet",
       "create": "Vytvořit",
       "set": "Nastavit",
@@ -836,7 +836,7 @@
     "referencedCalendarPrefix": "Pohled na"
   },
   "errorDialog": {
-    "title": "Chyba AppFlowy",
+    "title": "Chyba @:appName",
     "howToFixFallback": "Omlouváme se za nepříjemnost! Pošlete hlášení na náš GitHub, kde popíšete chybu na kterou jste narazili.",
     "github": "Zobrazit na GitHubu"
   },

@@ -56,6 +56,7 @@ export const useAuth = () => {
         throw new Error('Failed to check user');
       }
 
+      console.log('userProfile', userProfile);
       await setUser(userProfile);
 
       return userProfile;

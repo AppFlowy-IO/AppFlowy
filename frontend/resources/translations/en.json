@@ -73,7 +73,7 @@
     "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
     "hint": "workspace",
     "notFoundError": "Workspace not found",
-    "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of AppFlowy and try again.",
+    "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of @:appName and try again.",
     "errorActions": {
       "reportIssue": "Report an issue",
       "reportIssueOnGithub": "Report an issue on Github",
@@ -423,7 +423,7 @@
     "manageDataPage": {
       "menuLabel": "Manage data",
       "title": "Manage data",
-      "description": "Manage data local storage or Import your existing data into Appflowy. You can secure your data with end to end encryption.",
+      "description": "Manage data local storage or Import your existing data into @:appName. You can secure your data with end to end encryption.",
       "dataStorage": {
         "title": "File storage location",
         "tooltip": "The location where your files are stored",
@@ -441,8 +441,8 @@
       },
       "importData": {
         "title": "Import data",
-        "tooltip": "Import data from AppFlowy backups/data folders",
-        "description": "Copy data from an external AppFlowy data folder and import it into the current AppFlowy data folder",
+        "tooltip": "Import data from @:appName backups/data folders",
+        "description": "Copy data from an external @:appName data folder and import it into the current @:appName data folder",
         "action": "Browse folder"
       },
       "encryption": {
@@ -493,8 +493,8 @@
       "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
-      "cloudAppFlowy": "AppFlowy Cloud Beta",
-      "cloudAppFlowySelfHost": "AppFlowy Cloud Self-hosted",
+      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
       "clickToCopy": "Click to copy",
       "selfHostStart": "If you don't have a server, please refer to the",
@@ -515,12 +515,12 @@
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account",
-      "customPathPrompt": "Storing the AppFlowy data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
-      "importAppFlowyData": "Import Data from External AppFlowy Folder",
+      "customPathPrompt": "Storing the @:appName data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
+      "importAppFlowyData": "Import Data from External @:appName Folder",
       "importingAppFlowyDataTip": "Data import is in progress. Please do not close the app",
-      "importAppFlowyDataDescription": "Copy data from an external AppFlowy data folder and import it into the current AppFlowy data folder",
-      "importSuccess": "Successfully imported the AppFlowy data folder",
-      "importFailed": "Importing the AppFlowy data folder failed",
+      "importAppFlowyDataDescription": "Copy data from an external @:appName data folder and import it into the current AppFlowy data folder",
+      "importSuccess": "Successfully imported the @:appName data folder",
+      "importFailed": "Importing the @:appName data folder failed",
       "importGuide": "For further details, please check the referenced document"
     },
     "notifications": {
@@ -572,7 +572,7 @@
       "themeUpload": {
         "button": "Upload",
         "uploadTheme": "Upload theme",
-        "description": "Upload your own AppFlowy theme using the button below.",
+        "description": "Upload your own @:appName theme using the button below.",
         "loading": "Please wait while we validate and upload your theme...",
         "uploadSuccess": "Your theme was uploaded successfully",
         "deletionFailure": "Failed to delete the theme. Try to delete it manually.",
@@ -633,7 +633,7 @@
       "defaultLocation": "Read files and data storage location",
       "exportData": "Export your data",
       "doubleTapToCopy": "Double tap to copy the path",
-      "restoreLocation": "Restore to AppFlowy default path",
+      "restoreLocation": "Restore to @:appName default path",
       "customizeLocation": "Open another folder",
       "restartApp": "Please restart app for the changes to take effect.",
       "exportDatabase": "Export database",
@@ -645,10 +645,10 @@
       "defineWhereYourDataIsStored": "Define where your data is stored",
       "open": "Open",
       "openFolder": "Open an existing folder",
-      "openFolderDesc": "Read and write it to your existing AppFlowy folder",
+      "openFolderDesc": "Read and write it to your existing @:appName folder",
       "folderHintText": "folder name",
       "location": "Creating a new folder",
-      "locationDesc": "Pick a name for your AppFlowy data folder",
+      "locationDesc": "Pick a name for your @:appName data folder",
       "browser": "Browse",
       "create": "Create",
       "set": "Set",
@@ -659,7 +659,7 @@
       "change": "Change",
       "openLocationTooltips": "Open another data directory",
       "openCurrentDataFolder": "Open current data directory",
-      "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
+      "recoverLocationTooltips": "Reset to @:appName's default data directory",
       "exportFileSuccess": "Export file successfully!",
       "exportFileFail": "Export file failed!",
       "export": "Export",
@@ -1207,7 +1207,8 @@
       "resetToDefaultFont": "Reset to default"
     },
     "errorBlock": {
-      "theBlockIsNotSupported": "The current version does not support this block.",
+      "theBlockIsNotSupported": "Unable to parse the block content",
+      "clickToCopyTheBlockContent": "Click to copy the block content",
       "blockContentHasBeenCopied": "The block content has been copied."
     },
     "mobilePageSelector": {
@@ -1291,7 +1292,7 @@
     "duplicateEvent": "Duplicate event"
   },
   "errorDialog": {
-    "title": "AppFlowy Error",
+    "title": "@:appName Error",
     "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
     "github": "View on GitHub"
   },
@@ -1661,7 +1662,7 @@
     "none": "None",
     "photoPermissionDescription": "Allow access to the photo library for uploading images.",
     "openSettings": "Open Settings",
-    "photoPermissionTitle": "AppFlowy Would Like to Access Your Photo Library",
+    "photoPermissionTitle": "@:appName would like to access your photo library",
     "doNotAllow": "Don't Allow",
     "image": "Image"
   },

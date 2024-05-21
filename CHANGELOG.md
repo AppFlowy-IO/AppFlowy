@@ -1,4 +1,21 @@
 # Release Notes
+## Version 0.5.8 - 05/20/2024
+### New Features
+- Improvement to the Callout block to insert new lines
+- New settings page "Manage data" replaced the "Files" page
+- New settings page "Workspace" replaced the "Appearance" and "Language" pages
+- A custom implementation of a title bar for Windows users
+- Added support for selecting Cards in kanban and performing grouped keyboard shortcuts
+- Added support for default system font family
+- Support for scaling the application up/down using a keyboard shortcut (CMD/CTRL + PLUS/MINUS)
+
+### Bug Fixes
+- Resolved and refined the UI on Mobile
+- Resolved issue with text editing in database
+- Improved appearance of empty text cells in kanban/calendar
+- Resolved an issue where a page's more actions (delete, duplicate) did not work properly
+- Resolved and inconsistency in padding on get started screen on Desktop
+
 ## Version 0.5.7 - 05/10/2024
 ### Bug Fixes
 - Resolved page opening issue on Android.

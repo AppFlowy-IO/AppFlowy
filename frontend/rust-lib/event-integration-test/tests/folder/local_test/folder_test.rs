@@ -1,6 +1,8 @@
 use collab_folder::ViewLayout;
 
+use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::icon::{ViewIconPB, ViewIconTypePB};
+use flowy_folder::entities::ViewLayoutPB;
 
 use crate::folder::local_test::script::FolderScript::*;
 use crate::folder::local_test::script::FolderTest;
@@ -330,4 +332,18 @@ async fn move_view_event_test() {
     .collect::<Vec<String>>();
   assert_eq!(after_view_ids[0], view_ids[1]);
   assert_eq!(after_view_ids[1], view_ids[0]);
+}
+
+#[tokio::test]
+async fn create_orphan_child_view_and_get_its_ancestors_test() {
+  let test = EventIntegrationTest::new_anon().await;
+  let name = "Orphan View";
+  let view_id = "20240521";
+  test
+    .create_orphan_view(name, view_id, ViewLayoutPB::Grid)
+    .await;
+  let ancestors = test.get_view_ancestors(view_id).await;
+  assert_eq!(ancestors.len(), 1);
+  assert_eq!(ancestors[0].name, "Orphan View");
+  assert_eq!(ancestors[0].id, view_id);
 }

@@ -1,6 +1,6 @@
 import { ToggleListNode } from '@/components/editor/editor.type';
 import React from 'react';
-import { ReactComponent as RightSvg } from '@/assets/more.svg';
+import { ReactComponent as RightSvg } from '$icons/16x/more.svg';
 
 function ToggleIcon({ block, className }: { block: ToggleListNode; className: string }) {
   const { collapsed } = block.data;
