@@ -282,6 +282,6 @@ pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionDa
     FieldType::Checklist => ChecklistTypeOption.into(),
     FieldType::Relation => RelationTypeOption::default().into(),
     FieldType::Summary => SummarizationTypeOption::default().into(),
-    FieldType::Timer => TimerTypeOption::default().into(),
+    FieldType::Timer => TimerTypeOption.into(),
   }
 }

@@ -57,7 +57,7 @@ impl TypeOptionCellDataSerde for TimerTypeOption {
 
 impl TimerTypeOption {
   pub fn new() -> Self {
-    Self::default()
+    Self
   }
 
   pub(crate) fn format_cell_data(minutes: i64) -> String {

@@ -24,7 +24,7 @@ impl TimerFilterPB {
     }
 
     let minutes = cell_minutes.unwrap();
-    let content_minutes = i64::from_str_radix(&self.content, 10).unwrap_or_default();
+    let content_minutes = self.content.parse::<i64>().unwrap_or_default();
     match self.condition {
       NumberFilterConditionPB::Equal => minutes == content_minutes,
       NumberFilterConditionPB::NotEqual => minutes != content_minutes,

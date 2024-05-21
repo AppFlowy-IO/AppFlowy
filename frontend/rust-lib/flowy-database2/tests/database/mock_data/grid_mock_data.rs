@@ -133,8 +133,8 @@ pub fn make_test_grid() -> DatabaseData {
         fields.push(relation_field);
       },
       FieldType::Timer => {
-        let type_option = TimerTypeOption::default();
-        let timer_field = FieldBuilder::new(field_type.clone(), type_option)
+        let type_option = TimerTypeOption;
+        let timer_field = FieldBuilder::new(field_type, type_option)
           .name("Estimated time")
           .build();
         fields.push(timer_field);

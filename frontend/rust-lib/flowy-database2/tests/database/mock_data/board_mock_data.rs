@@ -135,7 +135,7 @@ pub fn make_test_board() -> DatabaseData {
         fields.push(relation_field);
       },
       FieldType::Timer => {
-        let timer_field = FieldBuilder::from_field_type(field_type.clone())
+        let timer_field = FieldBuilder::from_field_type(field_type)
           .name("Estimated time")
           .build();
         fields.push(timer_field);
