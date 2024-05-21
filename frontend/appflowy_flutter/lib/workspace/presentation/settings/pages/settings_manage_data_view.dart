@@ -9,6 +9,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/setting_file_importer_bloc.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -378,7 +379,7 @@ class _CurrentPathState extends State<_CurrentPath> {
 
   @override
   Widget build(BuildContext context) {
-    final isLM = Brightness.light == Theme.of(context).brightness;
+    final isLM = Theme.of(context).isLightMode;
 
     return Column(
       children: [

@@ -46,21 +46,16 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class SettingsWorkspaceView extends StatefulWidget {
+class SettingsWorkspaceView extends StatelessWidget {
   const SettingsWorkspaceView({super.key, required this.userProfile});
 
   final UserProfilePB userProfile;
 
   @override
-  State<SettingsWorkspaceView> createState() => _SettingsWorkspaceViewState();
-}
-
-class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
-  @override
   Widget build(BuildContext context) {
     return BlocProvider<WorkspaceSettingsBloc>(
       create: (context) => WorkspaceSettingsBloc()
-        ..add(WorkspaceSettingsEvent.initial(userProfile: widget.userProfile)),
+        ..add(WorkspaceSettingsEvent.initial(userProfile: userProfile)),
       child: BlocConsumer<WorkspaceSettingsBloc, WorkspaceSettingsState>(
         listener: (context, state) {
           if (state.deleteWorkspace) {
@@ -86,8 +81,7 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
             description: LocaleKeys.settings_workspacePage_description.tr(),
             children: [
               // We don't allow changing workspace name/icon for local/offline
-              if (widget.userProfile.authenticator !=
-                  AuthenticatorPB.Local) ...[
+              if (userProfile.authenticator != AuthenticatorPB.Local) ...[
                 SettingsCategory(
                   title: LocaleKeys.settings_workspacePage_workspaceName_title
                       .tr(),
@@ -155,8 +149,7 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                 title: LocaleKeys.settings_workspacePage_language_title.tr(),
                 children: const [LanguageDropdown()],
               ),
-              if (widget.userProfile.authenticator !=
-                  AuthenticatorPB.Local) ...[
+              if (userProfile.authenticator != AuthenticatorPB.Local) ...[
                 SingleSettingAction(
                   label: LocaleKeys.settings_workspacePage_manageWorkspace_title
                       .tr(),
@@ -251,8 +244,9 @@ class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
   Widget build(BuildContext context) {
     return BlocConsumer<WorkspaceSettingsBloc, WorkspaceSettingsState>(
       listener: (_, state) {
-        if ((state.workspace?.name ?? '') != workspaceNameController.text) {
-          workspaceNameController.text = state.workspace?.name ?? '';
+        final newName = state.workspace?.name;
+        if (newName != null && newName != workspaceNameController.text) {
+          workspaceNameController.text = newName;
         }
       },
       builder: (_, state) {
@@ -780,30 +774,7 @@ class AppearanceSelector extends StatelessWidget {
                       ),
                       child: t != themeMode
                           ? null
-                          : Stack(
-                              children: [
-                                Positioned(
-                                  top: 4,
-                                  left: 4,
-                                  child: Material(
-                                    shape: const CircleBorder(),
-                                    elevation: 2,
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                      ),
-                                      height: 16,
-                                      width: 16,
-                                      child: const FlowySvg(
-                                        FlowySvgs.settings_selected_theme_m,
-                                        size: Size.square(16),
-                                        blendMode: BlendMode.dstIn,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          : const _SelectedModeIndicator(),
                     ),
                     const VSpace(6),
                     FlowyText.regular(getLabel(t), textAlign: TextAlign.center),
@@ -825,6 +796,38 @@ class AppearanceSelector extends StatelessWidget {
         ThemeMode.dark =>
           LocaleKeys.settings_workspacePage_appearance_options_dark.tr(),
       };
+}
+
+class _SelectedModeIndicator extends StatelessWidget {
+  const _SelectedModeIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned(
+          top: 4,
+          left: 4,
+          child: Material(
+            shape: const CircleBorder(),
+            elevation: 2,
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              height: 16,
+              width: 16,
+              child: const FlowySvg(
+                FlowySvgs.settings_selected_theme_m,
+                size: Size.square(16),
+                blendMode: BlendMode.dstIn,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _FontSelectorDropdown extends StatelessWidget {
