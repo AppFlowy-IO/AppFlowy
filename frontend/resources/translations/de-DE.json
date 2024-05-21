@@ -1210,6 +1210,7 @@
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Die aktuelle Version unterstützt diesen Block nicht.",
+      "clickToCopyTheBlockContent": "Hier klicken, um den Blockinhalt zu kopieren",
       "blockContentHasBeenCopied": "Der Blockinhalt wurde kopiert."
     },
     "mobilePageSelector": {
