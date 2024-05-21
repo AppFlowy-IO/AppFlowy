@@ -56,7 +56,7 @@
     "resetWorkspacePrompt": "Zresetowanie przestrzeni roboczej spowoduje usunięcie wszystkich znajdujących się w niej stron i danych. Czy na pewno chcesz zresetować przestrzeń roboczą? Alternatywnie możesz skontaktować się z zespołem pomocy technicznej, aby przywrócić przestrzeń roboczą",
     "hint": "przestrzeń robocza",
     "notFoundError": "Przestrzeni nie znaleziono",
-    "failedToLoad": "Coś poszło nie tak! Wczytywanie przestrzeni roboczej nie powiodło się. Spróbuj wyłączyć wszystkie otwarte instancje AppFlowy i spróbuj ponownie.",
+    "failedToLoad": "Coś poszło nie tak! Wczytywanie przestrzeni roboczej nie powiodło się. Spróbuj wyłączyć wszystkie otwarte instancje @:appName i spróbuj ponownie.",
     "errorActions": {
       "reportIssue": "Zgłoś problem",
       "reachOut": "Skontaktuj się na Discord"
@@ -310,7 +310,7 @@
       },
       "themeUpload": {
         "button": "Prześlij",
-        "description": "Prześlij własny motyw AppFlowy za pomocą przycisku poniżej.",
+        "description": "Prześlij własny motyw @:appName za pomocą przycisku poniżej.",
         "loading": "Poczekaj, aż zweryfikujemy i prześlemy Twój motyw...",
         "uploadSuccess": "Twój motyw został przesłany pomyślnie",
         "deletionFailure": "Nie udało się usunąć motywu. Spróbuj usunąć go ręcznie.",
@@ -341,7 +341,7 @@
       "defaultLocation": "Ścieżka katalogu z plikami",
       "exportData": "Eksportuj swoje dane",
       "doubleTapToCopy": "Kliknij dwukrotnie, aby skopiować ścieżkę",
-      "restoreLocation": "Przywróć domyślną ścieżkę AppFlowy",
+      "restoreLocation": "Przywróć domyślną ścieżkę @:appName",
       "customizeLocation": "Otwórz inny folder",
       "restartApp": "Uruchom ponownie aplikację, aby zmiany zaczęły obowiązywać.",
       "exportDatabase": "Eksportuj bazę danych",
@@ -353,10 +353,10 @@
       "defineWhereYourDataIsStored": "Zdefiniuj miejsce przechowywania Twoich danych",
       "open": "Otwórz",
       "openFolder": "Otwórz istniejący folder",
-      "openFolderDesc": "Przeczytaj i zapisz go w istniejącym folderze AppFlowy",
+      "openFolderDesc": "Przeczytaj i zapisz go w istniejącym folderze @:appName",
       "folderHintText": "Nazwa folderu",
       "location": "Tworzenie nowego folderu",
-      "locationDesc": "Wybierz nazwę folderu danych AppFlowy",
+      "locationDesc": "Wybierz nazwę folderu danych @:appName",
       "browser": "Przeglądaj",
       "create": "Stwórz",
       "set": "Ustaw",
@@ -367,7 +367,7 @@
       "change": "Zmień",
       "openLocationTooltips": "Otwórz inny katalog danych",
       "openCurrentDataFolder": "Otwórz bieżący katalog danych",
-      "recoverLocationTooltips": "Zresetuj do domyślnego katalogu danych AppFlowy",
+      "recoverLocationTooltips": "Zresetuj do domyślnego katalogu danych @:appName",
       "exportFileSuccess": "Eksportowanie pliku zakończono pomyślnie!",
       "exportFileFail": "Eksport pliku nie powiódł się!",
       "export": "Eksport"
@@ -821,7 +821,7 @@
     "referencedCalendarPrefix": "Widok"
   },
   "errorDialog": {
-    "title": "Błąd AppFlowy",
+    "title": "Błąd @:appName",
     "howToFixFallback": "Przepraszamy za niedogodności! Zgłoś problem na naszej stronie GitHub, który opisuje Twój błąd.",
     "github": "Zobacz na GitHubie"
   },

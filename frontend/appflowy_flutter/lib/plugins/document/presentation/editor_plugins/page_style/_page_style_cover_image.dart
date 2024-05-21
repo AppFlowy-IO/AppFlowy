@@ -188,7 +188,6 @@ class PageStyleCoverImage extends StatelessWidget {
         );
       },
       title: LocaleKeys.pageStyle_presets.tr(),
-      barrierColor: Colors.transparent,
       backgroundColor: Theme.of(context).colorScheme.background,
       builder: (_) {
         return BlocProvider.value(
@@ -267,7 +266,6 @@ class PageStyleCoverImage extends StatelessWidget {
       showHeader: true,
       showRemoveButton: true,
       title: LocaleKeys.pageStyle_unsplash.tr(),
-      barrierColor: Colors.transparent,
       backgroundColor: Theme.of(context).colorScheme.background,
       onRemove: () {
         pageStyleBloc.add(

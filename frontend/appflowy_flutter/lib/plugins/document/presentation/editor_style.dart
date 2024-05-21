@@ -42,9 +42,13 @@ class EditorStyleCustomizer {
 
   EditorStyle desktop() {
     final theme = Theme.of(context);
+    final appearanceFont = context.read<AppearanceSettingsCubit>().state.font;
     final appearance = context.read<DocumentAppearanceCubit>().state;
     final fontSize = appearance.fontSize;
-    final fontFamily = appearance.fontFamily;
+    String fontFamily = appearance.fontFamily;
+    if (fontFamily.isEmpty && appearanceFont.isNotEmpty) {
+      fontFamily = appearanceFont;
+    }
 
     return EditorStyle.desktop(
       padding: padding,

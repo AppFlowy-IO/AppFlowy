@@ -347,6 +347,12 @@ impl DatabaseManager {
     })
     .await
     .map_err(internal_error)??;
+
+    // Currently, we only support importing up to 500 rows. We can support more rows in the future.
+    if !cfg!(debug_assertions) && params.rows.len() > 500 {
+      return Err(FlowyError::internal().with_context("The number of rows exceeds the limit"));
+    }
+
     let result = ImportResult {
       database_id: params.database_id.clone(),
       view_id: params.inline_view_id.clone(),
@@ -424,15 +430,19 @@ impl DatabaseManager {
     if let Some(row) = database.get_row(&view_id, &row_id) {
       let fields = database.get_fields(&view_id, None);
       for field in fields {
-        if let Some(cell) = row.cells.get(&field.id) {
-          summary_row_content.insert(field.name.clone(), stringify_cell(cell, &field));
+        // When summarizing a row, skip the content in the "AI summary" cell; it does not need to
+        // be summarized.
+        if field.id != field_id {
+          if let Some(cell) = row.cells.get(&field.id) {
+            summary_row_content.insert(field.name.clone(), stringify_cell(cell, &field));
+          }
         }
       }
     }
 
     // Call the cloud service to summarize the row.
     trace!(
-      "[AI]: summarize row:{}, content:{:?}",
+      "[AI]:summarize row:{}, content:{:?}",
       row_id,
       summary_row_content
     );

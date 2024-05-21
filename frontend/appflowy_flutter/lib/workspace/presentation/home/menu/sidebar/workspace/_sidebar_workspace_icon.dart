@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 
 class WorkspaceIcon extends StatefulWidget {
   const WorkspaceIcon({
@@ -35,8 +35,8 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         ? Container(
             width: widget.iconSize,
             alignment: Alignment.center,
-            child: FlowyText(
-              widget.workspace.icon,
+            child: EmojiText(
+              emoji: widget.workspace.icon,
               fontSize: widget.iconSize,
             ),
           )

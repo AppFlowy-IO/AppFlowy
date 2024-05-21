@@ -77,7 +77,6 @@ class _PageStyleIconState extends State<PageStyleIcon> {
       showDoneButton: true,
       showHeader: true,
       title: LocaleKeys.titleBar_pageIcon.tr(),
-      barrierColor: Colors.transparent,
       backgroundColor: Theme.of(context).colorScheme.background,
       isScrollControlled: true,
       enableDraggableScrollable: true,
