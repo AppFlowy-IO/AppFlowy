@@ -15,7 +15,7 @@ enum DraggableHoverPosition {
   bottom,
 }
 
-const kDraggableViewItemDividerHeight = 3.0;
+const kDraggableViewItemDividerHeight = 2.0;
 
 class DraggableViewItem extends StatefulWidget {
   const DraggableViewItem({
@@ -47,6 +47,7 @@ class DraggableViewItem extends StatefulWidget {
 
 class _DraggableViewItemState extends State<DraggableViewItem> {
   DraggableHoverPosition position = DraggableHoverPosition.none;
+  final hoverColor = const Color(0xFF00C8FF);
 
   @override
   Widget build(BuildContext context) {
@@ -103,16 +104,14 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
             height: kDraggableViewItemDividerHeight,
             thickness: kDraggableViewItemDividerHeight,
             color: position == DraggableHoverPosition.top
-                ? widget.topHighlightColor ??
-                    Theme.of(context).colorScheme.secondary
+                ? widget.topHighlightColor ?? hoverColor
                 : Colors.transparent,
           ),
         DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6.0),
             color: position == DraggableHoverPosition.center
-                ? widget.centerHighlightColor ??
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.5)
+                ? widget.centerHighlightColor ?? hoverColor.withOpacity(0.5)
                 : Colors.transparent,
           ),
           child: widget.child,
@@ -121,8 +120,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
           height: kDraggableViewItemDividerHeight,
           thickness: kDraggableViewItemDividerHeight,
           color: position == DraggableHoverPosition.bottom
-              ? widget.bottomHighlightColor ??
-                  Theme.of(context).colorScheme.secondary
+              ? widget.bottomHighlightColor ?? hoverColor
               : Colors.transparent,
         ),
       ],

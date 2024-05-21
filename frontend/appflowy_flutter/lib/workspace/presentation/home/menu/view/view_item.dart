@@ -286,18 +286,27 @@ class InnerViewItem extends StatelessWidget {
             ? (from, to) => _moveViewCrossSection(context, from, to)
             : null,
         feedback: (context) {
-          return ViewItem(
-            view: view,
-            parentView: parentView,
-            spaceType: spaceType,
-            level: level,
-            onSelected: onSelected,
-            onTertiarySelected: onTertiarySelected,
-            isDraggable: false,
-            leftPadding: leftPadding,
-            isFeedback: true,
-            leftIconBuilder: leftIconBuilder,
-            rightIconsBuilder: rightIconsBuilder,
+          return Container(
+            width: 250,
+            decoration: BoxDecoration(
+              color: Brightness.light == Theme.of(context).brightness
+                  ? Colors.white
+                  : Colors.black54,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ViewItem(
+              view: view,
+              parentView: parentView,
+              spaceType: spaceType,
+              level: level,
+              onSelected: onSelected,
+              onTertiarySelected: onTertiarySelected,
+              isDraggable: false,
+              leftPadding: leftPadding,
+              isFeedback: true,
+              leftIconBuilder: leftIconBuilder,
+              rightIconsBuilder: rightIconsBuilder,
+            ),
           );
         },
         child: child,
