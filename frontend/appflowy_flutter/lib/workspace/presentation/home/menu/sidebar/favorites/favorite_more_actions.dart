@@ -28,7 +28,7 @@ class FavoriteMoreActions extends StatelessWidget {
         spaceType: FolderSpaceType.favorite,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-        onAction: (action) {
+        onAction: (action, _) {
           switch (action) {
             case ViewMoreActionType.favorite:
             case ViewMoreActionType.unFavorite:

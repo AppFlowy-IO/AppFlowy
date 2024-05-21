@@ -635,7 +635,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         spaceType: widget.spaceType,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-        onAction: (action) {
+        onAction: (action, data) {
           switch (action) {
             case ViewMoreActionType.favorite:
             case ViewMoreActionType.unFavorite:
@@ -665,6 +665,17 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               break;
             case ViewMoreActionType.collapseAllPages:
               context.read<ViewBloc>().add(const ViewEvent.collapseAllPages());
+              break;
+            case ViewMoreActionType.changeIcon:
+              if (data is! EmojiPickerResult) {
+                return;
+              }
+              final result = data;
+              ViewBackendService.updateViewIcon(
+                viewId: widget.view.id,
+                viewIcon: result.emoji,
+                iconType: result.type.toProto(),
+              );
               break;
             default:
               throw UnsupportedError('$action is not supported');

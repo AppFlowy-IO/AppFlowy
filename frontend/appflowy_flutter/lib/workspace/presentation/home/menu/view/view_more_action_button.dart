@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -19,7 +20,7 @@ class ViewMoreActionButton extends StatelessWidget {
 
   final ViewPB view;
   final void Function(bool value) onEditing;
-  final void Function(ViewMoreActionType) onAction;
+  final void Function(ViewMoreActionType type, dynamic data) onAction;
   final FolderSpaceType spaceType;
 
   @override
@@ -51,9 +52,9 @@ class ViewMoreActionButton extends StatelessWidget {
     final actionTypes = _buildActionTypes();
     return actionTypes
         .map(
-          (e) => ViewMoreActionTypeWrapper(e, (controller) {
+          (e) => ViewMoreActionTypeWrapper(e, (controller, data) {
             onEditing(false);
-            onAction(e);
+            onAction(e, data);
             controller.close();
           }),
         )
@@ -97,7 +98,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
   ViewMoreActionTypeWrapper(this.inner, this.onTap);
 
   final ViewMoreActionType inner;
-  final void Function(PopoverController controller) onTap;
+  final void Function(PopoverController controller, dynamic data) onTap;
 
   @override
   Widget buildWithContext(BuildContext context, PopoverController controller) {
@@ -105,34 +106,33 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
       return _buildDivider();
     } else if (inner == ViewMoreActionType.lastModified) {
       return _buildLastModified(context);
+    } else if (inner == ViewMoreActionType.changeIcon) {
+      return _buildEmojiActionButton(context, controller);
     } else {
-      return _buildActionButton(context, controller);
+      return _buildNormalActionButton(context, controller);
     }
   }
 
-  Widget _buildActionButton(
+  Widget _buildNormalActionButton(
     BuildContext context,
     PopoverController controller,
   ) {
-    return Container(
-      height: 34,
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: FlowyButton(
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        leftIcon: inner.leftIcon,
-        rightIcon: inner.rightIcon,
-        iconPadding: 10.0,
-        text: SizedBox(
-          height: 18.0,
-          child: FlowyText.regular(
-            inner.name,
-            color: inner == ViewMoreActionType.delete
-                ? Theme.of(context).colorScheme.error
-                : null,
-          ),
-        ),
-        onTap: () => onTap(controller),
+    return _buildActionButton(context, () => onTap(controller, null));
+  }
+
+  Widget _buildEmojiActionButton(
+    BuildContext context,
+    PopoverController controller,
+  ) {
+    final child = _buildActionButton(context, null);
+
+    return AppFlowyPopover(
+      constraints: BoxConstraints.loose(const Size(364, 356)),
+      clickHandler: PopoverClickHandler.gestureDetector,
+      popupBuilder: (_) => FlowyIconPicker(
+        onSelected: (result) => onTap(controller, result),
       ),
+      child: child,
     );
   }
 
@@ -164,6 +164,32 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
             color: Theme.of(context).hintColor,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(
+    BuildContext context,
+    VoidCallback? onTap,
+  ) {
+    return Container(
+      height: 34,
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: FlowyButton(
+        margin: const EdgeInsets.symmetric(horizontal: 6),
+        leftIcon: inner.leftIcon,
+        rightIcon: inner.rightIcon,
+        iconPadding: 10.0,
+        text: SizedBox(
+          height: 18.0,
+          child: FlowyText.regular(
+            inner.name,
+            color: inner == ViewMoreActionType.delete
+                ? Theme.of(context).colorScheme.error
+                : null,
+          ),
+        ),
+        onTap: onTap,
       ),
     );
   }
