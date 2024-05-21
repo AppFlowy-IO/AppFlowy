@@ -58,7 +58,7 @@
     "resetWorkspacePrompt": "Mengatur ulang area kerja akan menghapus semua halaman dan data di dalamnya. Apakah anda yakin ingin Mengatur ulang area kerja? Selain itu, anda bisa menghubungi tim dukungan untuk mengembalikan area kerja",
     "hint": "Area kerja",
     "notFoundError": "Area kerja tidak ditemukan",
-    "failedToLoad": "Ada yang tidak beres! Gagal memuat area kerja. Coba tutup AppFlowy yang terbuka dan coba lagi.",
+    "failedToLoad": "Ada yang tidak beres! Gagal memuat area kerja. Coba tutup @:appName yang terbuka dan coba lagi.",
     "errorActions": {
       "reportIssue": "Melaporkan isu",
       "reachOut": "Hubungi di Discord"
@@ -309,7 +309,7 @@
       "themeUpload": {
         "button": "Mengunggah",
         "uploadTheme": "Unggah tema",
-        "description": "Unggah tema AppFlowy Anda sendiri menggunakan tombol di bawah ini.",
+        "description": "Unggah tema @:appName Anda sendiri menggunakan tombol di bawah ini.",
         "loading": "Harap tunggu sementara kami memvalidasi dan mengunggah tema Anda...",
         "uploadSuccess": "Tema Anda berhasil diunggah",
         "deletionFailure": "Gagal menghapus tema. Cobalah untuk menghapusnya secara manual.",
@@ -340,7 +340,7 @@
       "defaultLocation": "Baca file dan lokasi penyimpanan data",
       "exportData": "Ekspor data Anda",
       "doubleTapToCopy": "Ketuk dua kali untuk menyalin jalur",
-      "restoreLocation": "Pulihkan ke jalur default AppFlowy",
+      "restoreLocation": "Pulihkan ke jalur default @:appName",
       "customizeLocation": "Buka folder lain",
       "restartApp": "Harap mulai ulang aplikasi agar perubahan diterapkan.",
       "exportDatabase": "Ekspor basis data",
@@ -352,10 +352,10 @@
       "defineWhereYourDataIsStored": "Tentukan di mana data Anda disimpan",
       "open": "Membuka",
       "openFolder": "Buka folder yang ada",
-      "openFolderDesc": "Baca dan tulis ke folder AppFlowy Anda yang sudah ada",
+      "openFolderDesc": "Baca dan tulis ke folder @:appName Anda yang sudah ada",
       "folderHintText": "nama folder",
       "location": "Membuat folder baru",
-      "locationDesc": "Pilih nama untuk folder data AppFlowy Anda",
+      "locationDesc": "Pilih nama untuk folder data @:appName Anda",
       "browser": "Jelajahi",
       "create": "Membuat",
       "set": "Mengatur",
@@ -366,7 +366,7 @@
       "change": "Mengubah",
       "openLocationTooltips": "Buka direktori data lain",
       "openCurrentDataFolder": "Buka direktori data saat ini",
-      "recoverLocationTooltips": "Setel ulang ke direktori data default AppFlowy",
+      "recoverLocationTooltips": "Setel ulang ke direktori data default @:appName",
       "exportFileSuccess": "Ekspor file berhasil!",
       "exportFileFail": "File ekspor gagal!",
       "export": "Ekspor"
@@ -788,7 +788,7 @@
     "referencedCalendarPrefix": "Pemandangan dari"
   },
   "errorDialog": {
-    "title": "Kesalahan AppFlowy",
+    "title": "Kesalahan @:appName",
     "howToFixFallback": "Kami mohon maaf atas ketidaknyamanan ini! Kirimkan masalah di halaman GitHub kami yang menjelaskan kesalahan Anda.",
     "github": "Lihat di GitHub"
   },

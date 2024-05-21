@@ -76,7 +76,7 @@
     "resetWorkspacePrompt": "Das Zurücksetzen des Workspace löscht alle enthaltenen Seiten und Daten. Bist du sicher, dass du den Arbeitsbereich zurücksetzen möchstest? ",
     "hint": "Workspace",
     "notFoundError": "Workspace nicht gefunden",
-    "failedToLoad": "Etwas ist schief gelaufen! Der Workspace konnte nicht geladen werden. Versuche, alle AppFlowy-Instanzen zu schließen & versuche es erneut.",
+    "failedToLoad": "Etwas ist schief gelaufen! Der Workspace konnte nicht geladen werden. Versuche, alle @:appName-Instanzen zu schließen & versuche es erneut.",
     "errorActions": {
       "reportIssue": "Problem melden",
       "reportIssueOnGithub": "Melde ein Problem auf Github",
@@ -246,7 +246,7 @@
     "addAPageToWorkspace": "Eine Seite zum Arbeitsbereich hinzufügen",
     "recent": "Zuletzt",
     "public": "Öffentlich",
-    "clickToHidePublic": "Hier klicken, um den öffentlichen Raum auszublenden.\nVon dir hier erstellte Seiten sind für jedes Mitglied sichtbar.",
+    "clickToHidePublic": "Hier klicken, um den öffentlichen Bereich auszublenden.\nHier erstellte Seiten sind für jedes Mitglied sichtbar.",
     "addAPageToPublic": "Eine Seite zum öffentlichen Bereich hinzufügen."
   },
   "notifications": {
@@ -329,10 +329,10 @@
     "accountPage": {
       "menuLabel": "Mein Konto",
       "title": "Mein Konto",
-      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und AI-API-Schlüssel oder melde dich bei deinem Konto an.",
+      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an.",
       "general": {
         "title": "Kontoname und Profilbild",
-        "changeProfilePicture": "Ändern"
+        "changeProfilePicture": "Profilbild ändern"
       },
       "email": {
         "title": "E-Mail",
@@ -404,7 +404,7 @@
           "local": "Lokal",
           "us": "US",
           "iso": "ISO",
-          "friendly": "leserlich",
+          "friendly": "Leserlich",
           "dmy": "T/M/J"
         }
       },
@@ -428,7 +428,7 @@
     "manageDataPage": {
       "menuLabel": "Daten verwalten",
       "title": "Daten verwalten",
-      "description": "Verwalte den lokalen Datenspeicher oder importiere deine vorhandenen Daten in AppFlowy. Du kannst deine Daten mit End-to-End-Verschlüsselung absichern.",
+      "description": "Verwalte den lokalen Datenspeicher oder importiere deine vorhandenen Daten in @:appName. Du kannst deine Daten mit End-to-End-Verschlüsselung absichern.",
       "dataStorage": {
         "title": "Speicherort",
         "tooltip": "Das Verzeichnis, in dem deine Dateien gespeichert sind",
@@ -446,8 +446,8 @@
       },
       "importData": {
         "title": "Daten importieren",
-        "tooltip": "Daten aus AppFlowy-Backups/Datenordnern importieren",
-        "description": "Daten aus einem externen AppFlowy-Datenordner kopieren und in den aktuellen AppFlowy-Datenordner importieren",
+        "tooltip": "Daten aus @:appName-Backups/Datenordnern importieren",
+        "description": "Daten aus einem externen @:appName-Datenordner kopieren und in den aktuellen @:appName-Datenordner importieren",
         "action": "Ordner durchsuchen"
       },
       "encryption": {
@@ -498,18 +498,18 @@
       "cloudSupabaseUrlCanNotBeEmpty": "Die Supabase-URL darf nicht leer sein",
       "cloudSupabaseAnonKey": "Supabase anonymer Schlüssel",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "Der anonyme Schlüssel darf nicht leer sein",
-      "cloudAppFlowy": "AppFlowy Cloud [BETA]",
-      "cloudAppFlowySelfHost": "AppFlowy Cloud Self-hosted",
+      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "Die Cloud-URL darf nicht leer sein",
       "clickToCopy": "Klicken, um zu kopieren",
-      "selfHostStart": "Falls du keinen Server hast, nehme lieber folgende",
+      "selfHostStart": "Falls du keinen Server hast, konsultiere bitte",
       "selfHostContent": "Dokument",
-      "selfHostEnd": "für Hilfe, um einen einen eigenen Server aufzusetzen",
+      "selfHostEnd": "um einen einen eigenen Server aufzusetzen",
       "cloudURLHint": "Eingabe der Basis- URL Ihres Servers",
       "cloudWSURL": "Websocket URL",
       "cloudWSURLHint": "Eingbe der Websocket Adresse Ihres Servers",
       "restartApp": "Neustart",
-      "restartAppTip": "Programm neustarten, um die Änderungen zu übernehmen. Bitte bachten, dass der aktuelle Account eventuell ausgeloggt wird.",
+      "restartAppTip": "Programm neustarten, um die Änderungen zu übernehmen. Bitte beachten, dass der aktuelle Account eventuell ausgeloggt wird.",
       "changeServerTip": "Nach dem Wechsel des Servers muss auf die Schaltfläche „Neustart“ geklickt werden, damit die Änderungen wirksam werden",
       "enableEncryptPrompt": "Verschlüsselung aktivieren, um deine Daten mit dem Secret Key zu verschlüsseln. Verwahre den Schlüssel sicher! \nEinmal aktiviert kann es nicht mehr rückgängig gemacht werden.\nFalls der Schlüssel verloren geht sind die Daten unwiderbringlich verloren.\nKlicken, um zu kopieren.",
       "inputEncryptPrompt": "Bitte den Encryption Secret Code eingeben",
@@ -520,12 +520,12 @@
       "historicalUserList": "Anmeldeverlauf",
       "historicalUserListTooltip": "Diese Liste zeigt deine anonymen Accounts. Du kannst einen Account anklicken, um mehr Informationen zu sehen.\nAnonyme Accounts werden über den 'Erste Schritte' Button erstellt.",
       "openHistoricalUser": "Klicken, um einen anonymen Account zu öffnen",
-      "customPathPrompt": "Den AppFlowy Daten-Ordner in einem mit der Cloud synchronisierten Ordner (z.B. Google Drive) zu speichern, könnte Risiken bergen. Falls die Datenbank innerhalb dieses Ordners gleichzeitig von mehreren Orten zugegriffen oder verändert wird könnte es zu Synchronisationskonflikten und potentiellen Daten-Beschädigung führen",
-      "importAppFlowyData": "Daten von einem externen AppFlowy Ordner importieren.",
+      "customPathPrompt": "Den @:appName Daten-Ordner in einem mit der Cloud synchronisierten Ordner (z.B. Google Drive) zu speichern, könnte Risiken bergen. Falls die Datenbank innerhalb dieses Ordners gleichzeitig von mehreren Orten zugegriffen oder verändert wird könnte dies zu Synchronisationskonflikten und potentiellen Daten-Beschädigungen führen",
+      "importAppFlowyData": "Daten von einem externen @:appName Ordner importieren.",
       "importingAppFlowyDataTip": "Der Datenimport läuft. Bitte die App nicht schließen oder in den Hintergrund setzten",
-      "importAppFlowyDataDescription": "Daten von einem externen AppFlowy Ordner kopieren und in den aktuellen AppFlowy Datenordner importieren.",
-      "importSuccess": "Der AppFlowy Dateienordner wurde erfolgreich importiert",
-      "importFailed": "Der AppFlowy Dateienordner-Import ist fehlgeschlagen",
+      "importAppFlowyDataDescription": "Daten von einem externen @:appName Ordner kopieren und in den aktuellen @:appName Datenordner importieren.",
+      "importSuccess": "Der @:appName Dateienordner wurde erfolgreich importiert",
+      "importFailed": "Der @:appName Dateienordner-Import ist fehlgeschlagen",
       "importGuide": "Für weitere Details, bitte das verlinkte Dokument prüfen"
     },
     "notifications": {
@@ -577,13 +577,13 @@
       "themeUpload": {
         "button": "Hochladen",
         "uploadTheme": "Theme hochladen",
-        "description": "Lade eigenes AppFlowy-Theme über die Schaltfläche unten hoch.",
+        "description": "Lade eigenes @:appName-Theme über die untere Schaltfläche hoch.",
         "loading": "Bitte warte einen Moment . . .\nWir validieren gerade dein Theme und laden es hoch.",
         "uploadSuccess": "Das Theme wurde erfolgreich hochgeladen",
         "deletionFailure": "Das Theme konnte nicht gelöscht werden. Versuche, es manuell zu löschen.",
         "filePickerDialogTitle": "Wähle eine .flowy_plugin-Datei",
         "urlUploadFailure": "URL konnte nicht geöffnet werden: {}",
-        "failure": "Das hochgeladene Theme hatte ein ungültiges Format."
+        "failure": "Das hochgeladene Theme hat ein ungültiges Format."
       },
       "theme": "Theme",
       "builtInsLabel": "Integrierte Theme",
@@ -593,7 +593,7 @@
         "local": "Lokal",
         "us": "US",
         "iso": "ISO",
-        "friendly": "Freundlich",
+        "friendly": "Leserlich",
         "dmy": "TT/MM/JJJJ"
       },
       "timeFormat": {
@@ -602,7 +602,7 @@
         "twentyFourHour": "24 Stunden"
       },
       "showNamingDialogWhenCreatingPage": "Zeige Bennenungsfenster, wenn eine neue Seite erstellt wird",
-      "enableRTLToolbarItems": "Aktivieren Sie RTL-Symbolleiste",
+      "enableRTLToolbarItems": "RTL-Symbolleistenelemente aktivieren",
       "members": {
         "title": "Mitglieder-Einstellungen",
         "inviteMembers": "Mitglieder einladen",
@@ -636,10 +636,10 @@
     },
     "files": {
       "copy": "Kopieren",
-      "defaultLocation": "Dateien und Speicherort",
+      "defaultLocation": "@:appName Datenverzeichnis",
       "exportData": "Daten exportieren",
       "doubleTapToCopy": "Zweimal tippen, um den Pfad zu kopieren",
-      "restoreLocation": "AppFlowy-Standardpfad wiederherstellen",
+      "restoreLocation": "@:appName-Standardpfad wiederherstellen",
       "customizeLocation": "Einen anderen Ordner öffnen",
       "restartApp": "Bitte starten Sie die App neu, damit die Änderungen wirksam werden.",
       "exportDatabase": "Datenbank exportieren",
@@ -651,10 +651,10 @@
       "defineWhereYourDataIsStored": "Wo sind die Daten gespeichert?",
       "open": "Offen",
       "openFolder": "Einen vorhandenen Ordner öffnen",
-      "openFolderDesc": "Öffnen und speichern im vorhandenen AppFlowy-Ordner",
+      "openFolderDesc": "Öffnen und speichern im vorhandenen @:appName-Ordner",
       "folderHintText": "Ordnernamen",
       "location": "Ein neuen Ordner erstellen",
-      "locationDesc": "Einen Namen für den AppFlowy-Datenordner festlegen",
+      "locationDesc": "Einen Namen für den @:appName-Datenordner festlegen",
       "browser": "Durchsuchen",
       "create": "Erstellen",
       "set": "Festlegen",
@@ -665,7 +665,7 @@
       "change": "Ändern",
       "openLocationTooltips": "Win anderes Datenverzeichnis öffnen",
       "openCurrentDataFolder": "Aktuelles Datenverzeichnis öffnen",
-      "recoverLocationTooltips": "Zurücksetzen auf das Standarddatenverzeichnis von AppFlowy",
+      "recoverLocationTooltips": "Zurücksetzen auf das Standarddatenverzeichnis von @:appName",
       "exportFileSuccess": "Datei erfolgreich exportiert!",
       "exportFileFail": "Datei-Export fehlgeschlagen!",
       "export": "Export",
@@ -1294,7 +1294,7 @@
     "duplicateEvent": "Doppeltes Ereignis"
   },
   "errorDialog": {
-    "title": "AppFlowy-Fehler",
+    "title": "@:appName-Fehler",
     "howToFixFallback": "Wir entschuldigen uns für die Unannehmlichkeiten! Reiche auf unserer GitHub-Seite ein Problem ein, das Ihren Fehler beschreibt.",
     "github": "Auf GitHub ansehen"
   },
@@ -1535,7 +1535,7 @@
     "opacity": "Transparenz",
     "resetToDefaultColor": "Auf Standardfarben zurücksetzen",
     "ltr": "LTR (Links nach rechts)",
-    "rtl": "RTL (Rechts nach lins)",
+    "rtl": "RTL (rechts nach links)",
     "auto": "Auto",
     "cut": "Ausschneiden",
     "copy": "Kopieren",
@@ -1662,7 +1662,7 @@
     "none": "Keines",
     "photoPermissionDescription": "Erlaube den Zugriff auf die Fotobibliothek zum Hochladen von Bildern.",
     "openSettings": "Einstellungen öffnen",
-    "photoPermissionTitle": "AppFlowy möchte auf deine Fotobibliothek zugreifen",
+    "photoPermissionTitle": "@:appName möchte auf deine Fotobibliothek zugreifen",
     "doNotAllow": "Nicht zulassen",
     "image": "Bild"
   },

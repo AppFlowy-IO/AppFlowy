@@ -54,7 +54,11 @@ export const YjsEditor = {
   },
 };
 
-export function withYjs<T extends Editor>(editor: T, doc: Y.Doc): T & YjsEditor {
+export function withYjs<T extends Editor>(
+  editor: T,
+  doc: Y.Doc,
+  localOrigin: CollabOrigin = CollabOrigin.Local
+): T & YjsEditor {
   const e = editor as T & YjsEditor;
   const { apply, onChange } = e;
 
@@ -73,11 +77,9 @@ export function withYjs<T extends Editor>(editor: T, doc: Y.Doc): T & YjsEditor 
   };
 
   const handleYEvents = (events: Array<YEvent<YSharedRoot>>, transaction: Transaction) => {
-    if (transaction.origin === CollabOrigin.Local) {
-      return;
+    if (transaction.origin === CollabOrigin.Remote) {
+      YjsEditor.applyRemoteEvents(e, events, transaction);
     }
-
-    YjsEditor.applyRemoteEvents(e, events, transaction);
   };
 
   e.connect = () => {
@@ -123,7 +125,7 @@ export function withYjs<T extends Editor>(editor: T, doc: Y.Doc): T & YjsEditor 
       changes.forEach((change) => {
         applySlateOp(doc, { children: change.slateContent }, change.op);
       });
-    }, CollabOrigin.Local);
+    }, localOrigin);
   };
 
   e.apply = (op) => {

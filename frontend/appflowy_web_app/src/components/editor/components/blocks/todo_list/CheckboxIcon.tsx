@@ -1,7 +1,7 @@
 import { TodoListNode } from '@/components/editor/editor.type';
 import React from 'react';
-import { ReactComponent as CheckboxCheckSvg } from '@/assets/database/checkbox-check.svg';
-import { ReactComponent as CheckboxUncheckSvg } from '@/assets/database/checkbox-uncheck.svg';
+import { ReactComponent as CheckboxCheckSvg } from '$icons/16x/check_filled.svg';
+import { ReactComponent as CheckboxUncheckSvg } from '$icons/16x/uncheck.svg';
 
 function CheckboxIcon({ block, className }: { block: TodoListNode; className: string }) {
   const { checked } = block.data;

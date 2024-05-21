@@ -1,12 +1,12 @@
 /**
 * Do not edit directly
-* Generated on Mon, 25 Mar 2024 05:19:13 GMT
+* Generated on Thu, 09 May 2024 03:26:45 GMT
 * Generated from $pnpm css:variables 
 */
 
 :root[data-dark-mode=true] {
   --base-light-neutral-50: #f9fafd;
-  --base-light-neutral-100: #edeef2;
+  --base-light-neutral-100: #e5e5e5;
   --base-light-neutral-200: #e2e4eb;
   --base-light-neutral-300: #f2f2f2;
   --base-light-neutral-400: #e0e0e0;
