@@ -742,7 +742,11 @@
       "typeAValue": "Einen Wert eingeben...",
       "layout": "Layout",
       "databaseLayout": "Layout",
-      "viewList": "Datenbank-Ansichten",
+      "viewList": {
+        "zero": "0 Aufrufe",
+        "one": "{count} Aufruf",
+        "other": "{count} Aufrufe"
+      },
       "editView": "Ansicht editieren",
       "boardSettings": "Board-Einstellungen",
       "calendarSettings": "Kalender-Einstellungen",
