@@ -10,6 +10,7 @@ use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
 use client_api::{Client, ClientConfiguration};
+use flowy_chat_pub::cloud::ChatCloudService;
 use flowy_storage::ObjectStorageService;
 use rand::Rng;
 use tokio::select;
@@ -30,9 +31,10 @@ use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::af_cloud::impls::{
-  AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
-  AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
+  AFCloudChatCloudServiceImpl, AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl,
+  AFCloudFileStorageServiceImpl, AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
 };
+use crate::default_impl::DefaultChatCloudServiceImpl;
 use crate::AppFlowyServer;
 
 pub(crate) type AFCloudClient = Client;
@@ -211,6 +213,13 @@ impl AppFlowyServer for AppFlowyCloudServer {
       inner: server,
       user: self.user.clone(),
     })
+  }
+
+  fn chat_service(&self) -> Arc<dyn ChatCloudService> {
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
+    Arc::new(AFCloudChatCloudServiceImpl { inner: server })
   }
 
   fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {

@@ -166,6 +166,7 @@ impl AppFlowyCore {
         Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
+      let chat_manager = ChatDepsResolver::resolve();
       let folder_indexer = Arc::new(FolderIndexManagerImpl::new(None));
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
@@ -174,6 +175,7 @@ impl AppFlowyCore {
         collab_builder.clone(),
         server_provider.clone(),
         folder_indexer.clone(),
+        &chat_manager,
       )
       .await;
 

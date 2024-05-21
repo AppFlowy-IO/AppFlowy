@@ -23,7 +23,7 @@ class AIChatPluginBuilder extends PluginBuilder {
   PluginType get pluginType => PluginType.aiChat;
 
   @override
-  ViewLayoutPB get layoutType => ViewLayoutPB.Document;
+  ViewLayoutPB get layoutType => ViewLayoutPB.Chat;
 }
 
 class AIChatPluginConfig implements PluginConfig {

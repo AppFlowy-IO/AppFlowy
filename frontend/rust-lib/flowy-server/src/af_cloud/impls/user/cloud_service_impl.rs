@@ -377,12 +377,12 @@ where
     let collab_object = collab_object.clone();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let params = CreateCollabParams::new(
-        collab_object.workspace_id,
-        collab_object.object_id,
-        collab_object.collab_type.into(),
-        data,
-      );
+      let params = CreateCollabParams {
+        workspace_id: collab_object.workspace_id,
+        object_id: collab_object.object_id,
+        collab_type: collab_object.collab_type.into(),
+        encoded_collab_v1: data,
+      };
       client.create_collab(params).await?;
       Ok(())
     })
