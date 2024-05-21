@@ -63,7 +63,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         offset: const Offset(0, 8),
         controller: controller,
         direction: PopoverDirection.bottomWithLeftAligned,
-        constraints: BoxConstraints.loose(const Size(360, 380)),
+        constraints: BoxConstraints.loose(const Size(364, 356)),
         clickHandler: PopoverClickHandler.gestureDetector,
         popupBuilder: (_) => FlowyIconPicker(
           onSelected: (result) {

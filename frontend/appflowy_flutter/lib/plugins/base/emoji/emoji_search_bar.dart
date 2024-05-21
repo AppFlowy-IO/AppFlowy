@@ -42,7 +42,7 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: 8.0,
+        vertical: 12.0,
         horizontal: PlatformExtension.isDesktopOrWeb ? 0.0 : 8.0,
       ),
       child: Row(
@@ -52,16 +52,15 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
               onKeywordChanged: widget.onKeywordChanged,
             ),
           ),
-          const HSpace(6.0),
+          const HSpace(8.0),
           _RandomEmojiButton(
             emojiData: widget.emojiData,
             onRandomEmojiSelected: widget.onRandomEmojiSelected,
           ),
-          const HSpace(6.0),
+          const HSpace(8.0),
           FlowyEmojiSkinToneSelector(
             onEmojiSkinToneChanged: widget.onSkinToneChanged,
           ),
-          const HSpace(6.0),
         ],
       ),
     );
@@ -79,20 +78,30 @@ class _RandomEmojiButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyTooltip(
-      message: LocaleKeys.emoji_random.tr(),
-      child: FlowyButton(
-        useIntrinsicWidth: true,
-        text: const Icon(
-          Icons.shuffle_rounded,
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Color(0x1E171717)),
+          borderRadius: BorderRadius.circular(8),
         ),
-        onTap: () {
-          final random = emojiData.random;
-          onRandomEmojiSelected(
-            random.$1,
-            random.$2,
-          );
-        },
+      ),
+      child: FlowyTooltip(
+        message: LocaleKeys.emoji_random.tr(),
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          text: const FlowySvg(
+            FlowySvgs.icon_shuffle_s,
+          ),
+          onTap: () {
+            final random = emojiData.random;
+            onRandomEmojiSelected(
+              random.$1,
+              random.$2,
+            );
+          },
+        ),
       ),
     );
   }
@@ -123,32 +132,35 @@ class _SearchTextFieldState extends State<_SearchTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxHeight: 32.0,
-      ),
+    return SizedBox(
+      height: 36.0,
       child: FlowyTextField(
         focusNode: focusNode,
-        hintText: LocaleKeys.emoji_search.tr(),
+        hintText: LocaleKeys.search_label.tr(),
+        hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: 14.0,
+              fontWeight: FontWeight.w400,
+              color: Theme.of(context).hintColor,
+            ),
         controller: controller,
         onChanged: widget.onKeywordChanged,
         prefixIcon: const Padding(
           padding: EdgeInsets.only(
-            left: 8.0,
-            right: 4.0,
+            left: 14.0,
+            right: 8.0,
           ),
           child: FlowySvg(
             FlowySvgs.search_s,
           ),
         ),
         prefixIconConstraints: const BoxConstraints(
-          maxHeight: 18.0,
+          maxHeight: 20.0,
         ),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(4.0),
           child: FlowyButton(
             text: const FlowySvg(
-              FlowySvgs.close_lg,
+              FlowySvgs.m_app_bar_close_s,
             ),
             margin: EdgeInsets.zero,
             useIntrinsicWidth: true,

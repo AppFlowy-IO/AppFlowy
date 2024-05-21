@@ -1631,6 +1631,7 @@
       "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications",
       "renameError": "Failed to rename workplace",
       "updateIconError": "Failed to update icon",
+      "chooseAnIcon": "Choose an icon",
       "appearance": {
         "name": "Appearance",
         "themeMode": {

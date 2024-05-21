@@ -16,9 +16,12 @@ class FlowyEmojiHeader extends StatelessWidget {
     if (PlatformExtension.isDesktopOrWeb) {
       return Container(
         height: 22,
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
         color: Theme.of(context).cardColor,
-        child: FlowyText.regular(category.id),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: FlowyText.regular(category.id,
+              color: Theme.of(context).hintColor),
+        ),
       );
     } else {
       return Column(

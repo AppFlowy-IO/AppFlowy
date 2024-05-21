@@ -517,7 +517,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       offset: const Offset(20, 0),
       controller: controller,
       direction: PopoverDirection.rightWithCenterAligned,
-      constraints: BoxConstraints.loose(const Size(360, 380)),
+      constraints: BoxConstraints.loose(const Size(364, 356)),
       onClose: () => setState(() => isIconPickerOpened = false),
       child: GestureDetector(
         // prevent the tap event from being passed to the parent widget
