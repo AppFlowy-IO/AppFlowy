@@ -222,6 +222,12 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               viewIcon: value.icon ?? '',
             );
           },
+          collapseAllPages: (value) async {
+            for (final childView in view.childViews) {
+              await _setViewIsExpanded(childView, false);
+            }
+            add(const ViewEvent.setIsExpanded(false));
+          },
         );
       },
     );
@@ -388,6 +394,7 @@ class ViewEvent with _$ViewEvent {
     bool isPublic,
   ) = UpdateViewVisibility;
   const factory ViewEvent.updateIcon(String? icon) = UpdateIcon;
+  const factory ViewEvent.collapseAllPages() = CollapseAllPages;
 }
 
 @freezed

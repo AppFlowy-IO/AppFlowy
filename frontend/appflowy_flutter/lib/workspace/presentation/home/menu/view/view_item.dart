@@ -260,9 +260,8 @@ class InnerViewItem extends StatelessWidget {
               height: height,
               alignment: Alignment.centerLeft,
               child: Padding(
-                // add 2px to make the text align with the view item
-                padding: EdgeInsets.only(left: (level + 1) * leftPadding + 2),
-                child: FlowyText.medium(
+                padding: EdgeInsets.only(left: (level + 2) * leftPadding),
+                child: FlowyText.regular(
                   LocaleKeys.noPagesInside.tr(),
                   color: Theme.of(context).hintColor,
                 ),
@@ -663,6 +662,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               break;
             case ViewMoreActionType.openInNewTab:
               context.read<TabsBloc>().openTab(widget.view);
+              break;
+            case ViewMoreActionType.collapseAllPages:
+              context.read<ViewBloc>().add(const ViewEvent.collapseAllPages());
               break;
             default:
               throw UnsupportedError('$action is not supported');
