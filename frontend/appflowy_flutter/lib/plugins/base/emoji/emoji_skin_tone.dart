@@ -74,9 +74,7 @@ class _FlowyEmojiSkinToneSelectorState
       ),
       child: FlowyButton(
         key: emojiSkinToneKey(icon),
-        expandText: false,
-        // ensure the emoji is centered
-        margin: const EdgeInsets.only(top: 6),
+        margin: EdgeInsets.zero,
         text: FlowyText.emoji(
           icon,
           fontSize: 24.0,

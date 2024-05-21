@@ -76,14 +76,11 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
           width: 36,
           height: 36,
           child: FlowyButton(
-            margin: const EdgeInsets.all(0.0),
+            margin: EdgeInsets.zero,
             radius: Corners.s8Border,
-            text: Padding(
-              padding: const EdgeInsets.only(top: 6.0, left: 6.0),
-              child: FlowyText.emoji(
-                emoji,
-                fontSize: 24.0,
-              ),
+            text: FlowyText.emoji(
+              emoji,
+              fontSize: 24.0,
             ),
             onTap: () => callback(emojiId, emoji),
           ),

@@ -111,7 +111,7 @@ class FlowyText extends StatelessWidget {
     this.fontSize,
     this.overflow,
     this.color,
-    this.textAlign,
+    this.textAlign = TextAlign.center,
     this.maxLines = 1,
     this.decoration,
     this.selectable = false,
@@ -126,21 +126,25 @@ class FlowyText extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget child;
 
+    final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          decoration: decoration,
+          fontFamily: fontFamily,
+          fontFamilyFallback: fallbackFontFamily,
+          height: lineHeight,
+        );
+    final strutStyle = StrutStyle.fromTextStyle(textStyle,
+        forceStrutHeight: this.strutStyle?.forceStrutHeight);
+
     if (selectable) {
       child = SelectableText(
         text,
         maxLines: maxLines,
         textAlign: textAlign,
         strutStyle: strutStyle,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: color,
-              decoration: decoration,
-              fontFamily: fontFamily,
-              fontFamilyFallback: fallbackFontFamily,
-              height: lineHeight,
-            ),
+        style: textStyle,
       );
     } else {
       child = Text(
@@ -149,15 +153,7 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         strutStyle: strutStyle,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: color,
-              decoration: decoration,
-              fontFamily: fontFamily,
-              fontFamilyFallback: fallbackFontFamily,
-              height: lineHeight,
-            ),
+        style: textStyle,
       );
     }
 
