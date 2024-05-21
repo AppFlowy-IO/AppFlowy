@@ -1,9 +1,22 @@
 import { FieldId, SortId, YDatabaseField, YjsDatabaseKey } from '@/application/collab.type';
 import { MIN_COLUMN_WIDTH } from '@/application/database-yjs/const';
-import { useDatabase, useGridRows, useViewId } from '@/application/database-yjs/context';
-import { parseFilter } from '@/application/database-yjs/filter';
+import {
+  DatabaseContext,
+  useDatabase,
+  useDatabaseFields,
+  useDatabaseView,
+  useRowMeta,
+  useRows,
+  useViewId,
+} from '@/application/database-yjs/context';
+import { filterBy, parseFilter } from '@/application/database-yjs/filter';
+import { groupByField } from '@/application/database-yjs/group';
+import { sortBy } from '@/application/database-yjs/sort';
+import { useViewsIdSelector } from '@/application/folder-yjs';
+import { parseYDatabaseCellToCell } from '@/components/database/components/cell/cell.parse';
+import debounce from 'lodash-es/debounce';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { FieldType, FieldVisibility, Filter, SortCondition } from './database.type';
-import { useEffect, useMemo, useState } from 'react';
 
 export interface Column {
   fieldId: string;
@@ -19,11 +32,43 @@ export interface Row {
 
 const defaultVisible = [FieldVisibility.AlwaysShown, FieldVisibility.HideWhenEmpty];
 
-export function useGridColumnsSelector(viewId: string, visibilitys: FieldVisibility[] = defaultVisible) {
+export function useDatabaseViewsSelector() {
+  const database = useDatabase();
+  const { viewsId: visibleViewsId } = useViewsIdSelector();
+  const views = database?.get(YjsDatabaseKey.views);
+  const [viewIds, setViewIds] = useState<string[]>([]);
+  const childViews = useMemo(() => {
+    return viewIds.map((viewId) => views?.get(viewId));
+  }, [viewIds, views]);
+
+  useEffect(() => {
+    if (!views) return;
+
+    const observerEvent = () => {
+      setViewIds(Array.from(views.keys()).filter((id) => visibleViewsId.includes(id)));
+    };
+
+    observerEvent();
+    views.observe(observerEvent);
+
+    return () => {
+      views.unobserve(observerEvent);
+    };
+  }, [visibleViewsId, views]);
+
+  return {
+    childViews,
+    viewIds,
+  };
+}
+
+export function useFieldsSelector(visibilitys: FieldVisibility[] = defaultVisible) {
+  const viewId = useViewId();
   const database = useDatabase();
   const [columns, setColumns] = useState<Column[]>([]);
 
   useEffect(() => {
+    if (!viewId) return;
     const view = database?.get(YjsDatabaseKey.views)?.get(viewId);
     const fields = database?.get(YjsDatabaseKey.fields);
     const fieldsOrder = view?.get(YjsDatabaseKey.field_orders);
@@ -39,11 +84,15 @@ export function useGridColumnsSelector(viewId: string, visibilitys: FieldVisibil
           return {
             fieldId,
             width: parseInt(setting?.get(YjsDatabaseKey.width)) || MIN_COLUMN_WIDTH,
-            visibility: parseInt(setting?.get(YjsDatabaseKey.visibility)) as FieldVisibility,
+            visibility: Number(
+              setting?.get(YjsDatabaseKey.visibility) || FieldVisibility.AlwaysShown
+            ) as FieldVisibility,
             wrap: setting?.get(YjsDatabaseKey.wrap),
           };
         })
-        .filter((column) => visibilitys.includes(column.visibility));
+        .filter((column) => {
+          return visibilitys.includes(column.visibility);
+        });
     };
 
     const observerEvent = () => setColumns(getColumns());
@@ -62,8 +111,8 @@ export function useGridColumnsSelector(viewId: string, visibilitys: FieldVisibil
   return columns;
 }
 
-export function useGridRowsSelector() {
-  const rowOrders = useGridRows();
+export function useRowsSelector() {
+  const rowOrders = useRows();
 
   return useMemo(() => rowOrders ?? [], [rowOrders]);
 }
@@ -81,10 +130,10 @@ export function useFieldSelector(fieldId: string) {
     setField(field || null);
     const observerEvent = () => setClock((prev) => prev + 1);
 
-    field.observe(observerEvent);
+    field?.observe(observerEvent);
 
     return () => {
-      field.unobserve(observerEvent);
+      field?.unobserve(observerEvent);
     };
   }, [database, fieldId]);
 
@@ -224,4 +273,208 @@ export function useSortSelector(sortId: SortId) {
   }, [viewId, sortId, views]);
 
   return sortValue;
+}
+
+export function useGroupsSelector() {
+  const database = useDatabase();
+  const viewId = useViewId();
+  const [groups, setGroups] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!viewId) return;
+    const view = database?.get(YjsDatabaseKey.views)?.get(viewId);
+    const groupOrders = view?.get(YjsDatabaseKey.groups);
+
+    if (!groupOrders) return;
+
+    const getGroups = () => {
+      return groupOrders.toJSON().map((item) => item.id);
+    };
+
+    const observerEvent = () => setGroups(getGroups());
+
+    setGroups(getGroups());
+
+    groupOrders.observe(observerEvent);
+
+    return () => {
+      groupOrders.unobserve(observerEvent);
+    };
+  }, [database, viewId]);
+
+  return groups;
+}
+
+export interface GroupColumn {
+  id: string;
+  visible: boolean;
+}
+
+export function useGroup(groupId: string) {
+  const database = useDatabase();
+  const viewId = useViewId() as string;
+  const view = database?.get(YjsDatabaseKey.views)?.get(viewId);
+  const group = view
+    ?.get(YjsDatabaseKey.groups)
+    ?.toArray()
+    .find((group) => group.get(YjsDatabaseKey.id) === groupId);
+  const groupColumns = group?.get(YjsDatabaseKey.groups);
+  const [fieldId, setFieldId] = useState<string | null>(null);
+  const [columns, setColumns] = useState<GroupColumn[]>([]);
+
+  useEffect(() => {
+    if (!viewId) return;
+
+    const observerEvent = () => {
+      setFieldId(group?.get(YjsDatabaseKey.field_id) as string);
+    };
+
+    observerEvent();
+    group?.observe(observerEvent);
+
+    const observerColumns = () => {
+      if (!groupColumns) return;
+      setColumns(groupColumns.toJSON());
+    };
+
+    observerColumns();
+    groupColumns?.observe(observerColumns);
+
+    return () => {
+      group?.unobserve(observerEvent);
+      groupColumns?.unobserve(observerColumns);
+    };
+  }, [database, viewId, groupId, group, groupColumns]);
+
+  return {
+    columns,
+    fieldId,
+  };
+}
+
+export function useRowsByGroup(groupId: string) {
+  const { columns, fieldId } = useGroup(groupId);
+  const rows = useContext(DatabaseContext)?.rowDocMap;
+  const rowOrders = useRowOrdersSelector();
+  const fields = useDatabaseFields();
+  const [notFound, setNotFound] = useState(false);
+  const [groupResult, setGroupResult] = useState<Map<string, Row[]>>(new Map());
+
+  useEffect(() => {
+    if (!fieldId || !rowOrders || !rows) return;
+
+    const onConditionsChange = () => {
+      const newResult = new Map<string, Row[]>();
+
+      const field = fields.get(fieldId);
+
+      if (!field) {
+        setNotFound(true);
+        setGroupResult(newResult);
+        return;
+      }
+
+      const groupResult = groupByField(rowOrders, rows, field);
+
+      if (!groupResult) {
+        setGroupResult(newResult);
+        return;
+      }
+
+      setGroupResult(groupResult);
+    };
+
+    onConditionsChange();
+
+    const debounceConditionsChange = debounce(onConditionsChange, 200);
+
+    fields.observeDeep(debounceConditionsChange);
+    return () => {
+      fields.unobserveDeep(debounceConditionsChange);
+    };
+  }, [fieldId, fields, rowOrders, rows]);
+
+  const visibleColumns = columns.filter((column) => column.visible);
+
+  return {
+    fieldId,
+    groupResult,
+    columns: visibleColumns,
+    notFound,
+  };
+}
+
+export function useRowOrdersSelector() {
+  const rows = useContext(DatabaseContext)?.rowDocMap;
+  const [rowOrders, setRowOrders] = useState<Row[]>();
+  const view = useDatabaseView();
+  const sorts = view?.get(YjsDatabaseKey.sorts);
+  const fields = useDatabaseFields();
+  const filters = view?.get(YjsDatabaseKey.filters);
+
+  useEffect(() => {
+    const onConditionsChange = () => {
+      const originalRowOrders = view?.get(YjsDatabaseKey.row_orders).toJSON();
+
+      if (!originalRowOrders || !rows) return;
+
+      if (sorts?.length === 0 && filters?.length === 0) {
+        setRowOrders(originalRowOrders);
+        return;
+      }
+
+      let rowOrders: Row[] | undefined;
+
+      if (sorts?.length) {
+        rowOrders = sortBy(originalRowOrders, sorts, fields, rows);
+      }
+
+      if (filters?.length) {
+        rowOrders = filterBy(rowOrders ?? originalRowOrders, filters, fields, rows);
+      }
+
+      if (rowOrders) {
+        setRowOrders(rowOrders);
+      } else {
+        setRowOrders(originalRowOrders);
+      }
+    };
+
+    const debounceConditionsChange = debounce(onConditionsChange, 200);
+
+    onConditionsChange();
+    sorts?.observeDeep(debounceConditionsChange);
+    filters?.observeDeep(debounceConditionsChange);
+    fields?.observeDeep(debounceConditionsChange);
+    rows?.observeDeep(debounceConditionsChange);
+
+    return () => {
+      sorts?.unobserveDeep(debounceConditionsChange);
+      filters?.unobserveDeep(debounceConditionsChange);
+      fields?.unobserveDeep(debounceConditionsChange);
+      rows?.observeDeep(debounceConditionsChange);
+    };
+  }, [fields, rows, sorts, filters, view]);
+
+  return rowOrders;
+}
+
+export function useCellSelector({ rowId, fieldId }: { rowId: string; fieldId: string }) {
+  const row = useRowMeta(rowId);
+  const cell = row?.get(YjsDatabaseKey.cells)?.get(fieldId);
+  const [cellValue, setCellValue] = useState(() => (cell ? parseYDatabaseCellToCell(cell) : undefined));
+
+  useEffect(() => {
+    if (!cell) return;
+    setCellValue(parseYDatabaseCellToCell(cell));
+    const observerEvent = () => setCellValue(parseYDatabaseCellToCell(cell));
+
+    cell.observe(observerEvent);
+
+    return () => {
+      cell.unobserve(observerEvent);
+    };
+  }, [cell]);
+
+  return cellValue;
 }

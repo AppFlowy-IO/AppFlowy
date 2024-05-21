@@ -256,6 +256,9 @@ devDependencies:
   '@types/react-beautiful-dnd':
     specifier: ^13.1.3
     version: 13.1.3
+  '@types/react-big-calendar':
+    specifier: ^1.8.9
+    version: 1.8.9
   '@types/react-color':
     specifier: ^3.0.6
     version: 3.0.6
@@ -2618,6 +2621,10 @@ packages:
     dependencies:
       '@babel/types': 7.24.0
 
+  /@types/date-arithmetic@4.1.4:
+    resolution: {integrity: sha512-p9eZ2X9B80iKiTW4ukVj8B4K6q9/+xFtQ5MGYA5HWToY9nL4EkhV9+6ftT2VHpVMEZb5Tv00Iel516bVdO+yRw==}
+    dev: true
+
   /@types/estree@1.0.5:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
 
@@ -2720,6 +2727,14 @@ packages:
   /@types/react-beautiful-dnd@13.1.3:
     resolution: {integrity: sha512-BNdmvONKtsrZq3AGrujECQrIn8cDT+fZsxBLXuX3YWY/nHfZinUFx4W88eS0rkcXzuLbXpKOsu/1WCMPMLEpPg==}
     dependencies:
+      '@types/react': 18.2.66
+    dev: true
+
+  /@types/react-big-calendar@1.8.9:
+    resolution: {integrity: sha512-HIHLUxR3PzWHrFdZ00VnCMvDjAh5uzlL0vMC2b7tL3bKaAJsqq9T8h+x0GVeDbZfMfHAd1cs5tZBhVvourNJXQ==}
+    dependencies:
+      '@types/date-arithmetic': 4.1.4
+      '@types/prop-types': 15.7.12
       '@types/react': 18.2.66
     dev: true
 

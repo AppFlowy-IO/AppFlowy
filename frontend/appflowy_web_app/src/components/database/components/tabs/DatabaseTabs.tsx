@@ -52,7 +52,10 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
 
     if (viewIds.length === 0) return null;
     return (
-      <div ref={ref} className='mx-24 flex items-center overflow-hidden text-text-title max-md:mx-4'>
+      <div
+        ref={ref}
+        className='mx-24 -mb-[0.5px] flex items-center overflow-hidden border-b border-line-divider text-text-title max-md:mx-4'
+      >
         <div
           style={{
             width: 'calc(100% - 120px)',
