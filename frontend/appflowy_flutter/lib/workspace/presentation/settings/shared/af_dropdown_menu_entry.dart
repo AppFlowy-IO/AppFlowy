@@ -21,12 +21,12 @@ DropdownMenuEntry<T> buildDropdownMenuEntry<T>(
   return DropdownMenuEntry<T>(
     style: ButtonStyle(
       foregroundColor:
-          MaterialStatePropertyAll(Theme.of(context).colorScheme.primary),
-      padding: MaterialStateProperty.all(
+          WidgetStatePropertyAll(Theme.of(context).colorScheme.primary),
+      padding: WidgetStateProperty.all(
         const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       ),
-      minimumSize: const MaterialStatePropertyAll(Size(double.infinity, 29)),
-      maximumSize: const MaterialStatePropertyAll(Size(double.infinity, 29)),
+      minimumSize: const WidgetStatePropertyAll(Size(double.infinity, 29)),
+      maximumSize: const WidgetStatePropertyAll(Size(double.infinity, 29)),
     ),
     value: value,
     label: label,

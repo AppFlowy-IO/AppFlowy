@@ -81,30 +81,30 @@ class _ToggleUnreadsButtonState extends State<_ToggleUnreadsButton> {
       showSelectedIcon: false,
       style: ButtonStyle(
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        side: MaterialStatePropertyAll(
+        side: WidgetStatePropertyAll(
           BorderSide(color: Theme.of(context).dividerColor),
         ),
-        shape: const MaterialStatePropertyAll(
+        shape: const WidgetStatePropertyAll(
           RoundedRectangleBorder(
             borderRadius: Corners.s6Border,
           ),
         ),
-        foregroundColor: MaterialStateProperty.resolveWith<Color>(
+        foregroundColor: WidgetStateProperty.resolveWith<Color>(
           (state) {
-            if (state.contains(MaterialState.selected)) {
+            if (state.contains(WidgetState.selected)) {
               return Theme.of(context).colorScheme.onPrimary;
             }
 
             return AFThemeExtension.of(context).textColor;
           },
         ),
-        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+        backgroundColor: WidgetStateProperty.resolveWith<Color>(
           (state) {
-            if (state.contains(MaterialState.selected)) {
+            if (state.contains(WidgetState.selected)) {
               return Theme.of(context).colorScheme.primary;
             }
 
-            if (state.contains(MaterialState.hovered)) {
+            if (state.contains(WidgetState.hovered)) {
               return AFThemeExtension.of(context).lightGreyHover;
             }
 

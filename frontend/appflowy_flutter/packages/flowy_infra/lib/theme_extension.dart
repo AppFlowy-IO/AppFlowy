@@ -32,6 +32,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.progressBarBGColor,
     required this.toggleButtonBGColor,
     required this.gridRowCountColor,
+    required this.background,
+    required this.onBackground,
   });
 
   final Color? warning;
@@ -64,6 +66,9 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final TextStyle callout;
   final TextStyle caption;
 
+  final Color background;
+  final Color onBackground;
+
   @override
   AFThemeExtension copyWith({
     Color? warning,
@@ -92,6 +97,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     TextStyle? code,
     TextStyle? callout,
     TextStyle? caption,
+    Color? background,
+    Color? onBackground,
   }) =>
       AFThemeExtension(
         warning: warning ?? this.warning,
@@ -121,6 +128,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
         code: code ?? this.code,
         callout: callout ?? this.callout,
         caption: caption ?? this.caption,
+        onBackground: onBackground ?? this.onBackground,
+        background: background ?? this.background,
       );
 
   @override
@@ -165,6 +174,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       code: other.code,
       callout: other.callout,
       caption: other.caption,
+      onBackground: Color.lerp(onBackground, other.onBackground, t)!,
+      background: Color.lerp(background, other.background, t)!,
     );
   }
 }

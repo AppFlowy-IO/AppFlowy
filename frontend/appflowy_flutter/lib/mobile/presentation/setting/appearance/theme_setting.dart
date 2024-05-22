@@ -38,7 +38,6 @@ class ThemeSetting extends StatelessWidget {
           showHeader: true,
           showDragHandle: true,
           showDivider: false,
-          showCloseButton: false,
           title: LocaleKeys.settings_appearance_themeMode_label.tr(),
           builder: (context) {
             final themeMode =
