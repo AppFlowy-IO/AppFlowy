@@ -81,4 +81,6 @@ export interface CellProps<T extends Cell> {
   fieldId: FieldId;
   style?: React.CSSProperties;
   readOnly?: boolean;
+  placeholder?: string;
+  className?: string;
 }

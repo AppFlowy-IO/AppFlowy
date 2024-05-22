@@ -181,10 +181,10 @@ export function checklistFilterCheck(data: string, content: string, condition: n
   const percentage = parseChecklistData(data)?.percentage ?? 0;
 
   if (condition === ChecklistFilterCondition.IsComplete) {
-    return percentage === 100;
+    return percentage === 1;
   }
 
-  return percentage !== 100;
+  return percentage !== 1;
 }
 
 export function selectOptionFilterCheck(data: string, content: string, condition: number) {

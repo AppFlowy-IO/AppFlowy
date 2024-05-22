@@ -1266,7 +1266,13 @@
       "today": "Today",
       "jumpToday": "Jump to Today",
       "previousMonth": "Previous Month",
-      "nextMonth": "Next Month"
+      "nextMonth": "Next Month",
+      "views": {
+        "day": "Day",
+        "week": "Week",
+        "month": "Month",
+        "year": "Year"
+      }
     },
     "mobileEventScreen": {
       "emptyTitle": "No events yet",
@@ -1286,7 +1292,8 @@
       },
       "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Click to add to the calendar",
-      "name": "Calendar settings"
+      "name": "Calendar settings",
+      "clickToOpen": "Click to open the record"
     },
     "referencedCalendarPrefix": "View of",
     "quickJumpYear": "Jump to",

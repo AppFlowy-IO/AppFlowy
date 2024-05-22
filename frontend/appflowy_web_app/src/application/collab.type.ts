@@ -244,6 +244,10 @@ export enum YjsDatabaseKey {
   visible = 'visible',
   hide_ungrouped_column = 'hide_ungrouped_column',
   collapse_hidden_groups = 'collapse_hidden_groups',
+  first_day_of_week = 'first_day_of_week',
+  show_week_numbers = 'show_week_numbers',
+  show_weekends = 'show_weekends',
+  layout_ty = 'layout_ty',
 }
 
 export interface YDoc extends Y.Doc {
@@ -434,21 +438,28 @@ export type YDatabaseFilters = Y.Array<YDatabaseFilter>;
 
 export type YDatabaseSorts = Y.Array<YDatabaseSort>;
 
-export type YDatabaseLayoutSettings = Y.Map<YDatabaseLayoutSetting>;
-
 export type YDatabaseCalculations = Y.Array<YDatabaseCalculation>;
 
 export type SortId = string;
 
 export type GroupId = string;
 
-export interface YDatabaseLayoutSetting extends Y.Map<unknown> {
+export interface YDatabaseLayoutSettings extends Y.Map<unknown> {
   // DatabaseViewLayout.Board
-  get(key: '2'): YDatabaseBoardLayoutSetting;
+  get(key: '1'): YDatabaseBoardLayoutSetting;
+
+  // DatabaseViewLayout.Calendar
+  get(key: '2'): YDatabaseCalendarLayoutSetting;
 }
 
 export interface YDatabaseBoardLayoutSetting extends Y.Map<unknown> {
   get(key: YjsDatabaseKey.hide_ungrouped_column | YjsDatabaseKey.collapse_hidden_groups): boolean;
+}
+
+export interface YDatabaseCalendarLayoutSetting extends Y.Map<unknown> {
+  get(key: YjsDatabaseKey.first_day_of_week | YjsDatabaseKey.field_id | YjsDatabaseKey.layout_ty): string;
+
+  get(key: YjsDatabaseKey.show_week_numbers | YjsDatabaseKey.show_weekends): boolean;
 }
 
 export interface YDatabaseGroup extends Y.Map<unknown> {

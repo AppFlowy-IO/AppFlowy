@@ -1,5 +1,5 @@
 import { useFieldsSelector } from '@/application/database-yjs';
-import CardField from '@/components/database/components/board/card/CardField';
+import CardField from '@/components/database/components/field/CardField';
 import React, { useEffect, useMemo } from 'react';
 
 export interface CardProps {

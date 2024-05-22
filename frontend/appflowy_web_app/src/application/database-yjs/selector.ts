@@ -1,5 +1,5 @@
-import { FieldId, SortId, YDatabaseField, YjsDatabaseKey } from '@/application/collab.type';
-import { MIN_COLUMN_WIDTH } from '@/application/database-yjs/const';
+import { FieldId, SortId, YDatabaseField, YjsDatabaseKey, YjsFolderKey } from '@/application/collab.type';
+import { getCell, MIN_COLUMN_WIDTH } from '@/application/database-yjs/const';
 import {
   DatabaseContext,
   useDatabase,
@@ -13,10 +13,13 @@ import { filterBy, parseFilter } from '@/application/database-yjs/filter';
 import { groupByField } from '@/application/database-yjs/group';
 import { sortBy } from '@/application/database-yjs/sort';
 import { useViewsIdSelector } from '@/application/folder-yjs';
+import { useId } from '@/components/_shared/context-provider/IdProvider';
 import { parseYDatabaseCellToCell } from '@/components/database/components/cell/cell.parse';
+import { DateTimeCell } from '@/components/database/components/cell/cell.type';
+import dayjs from 'dayjs';
 import debounce from 'lodash-es/debounce';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { FieldType, FieldVisibility, Filter, SortCondition } from './database.type';
+import { CalendarLayoutSetting, FieldType, FieldVisibility, Filter, SortCondition } from './database.type';
 
 export interface Column {
   fieldId: string;
@@ -34,7 +37,8 @@ const defaultVisible = [FieldVisibility.AlwaysShown, FieldVisibility.HideWhenEmp
 
 export function useDatabaseViewsSelector() {
   const database = useDatabase();
-  const { viewsId: visibleViewsId } = useViewsIdSelector();
+  const { objectId: currentViewId } = useId();
+  const { viewsId: visibleViewsId, views: folderViews } = useViewsIdSelector();
   const views = database?.get(YjsDatabaseKey.views);
   const [viewIds, setViewIds] = useState<string[]>([]);
   const childViews = useMemo(() => {
@@ -45,7 +49,16 @@ export function useDatabaseViewsSelector() {
     if (!views) return;
 
     const observerEvent = () => {
-      setViewIds(Array.from(views.keys()).filter((id) => visibleViewsId.includes(id)));
+      setViewIds(
+        Array.from(views.keys()).filter((id) => {
+          const view = folderViews?.get(id);
+
+          return (
+            visibleViewsId.includes(id) &&
+            (view?.get(YjsFolderKey.bid) === currentViewId || view?.get(YjsFolderKey.id) === currentViewId)
+          );
+        })
+      );
     };
 
     observerEvent();
@@ -54,7 +67,7 @@ export function useDatabaseViewsSelector() {
     return () => {
       views.unobserve(observerEvent);
     };
-  }, [visibleViewsId, views]);
+  }, [visibleViewsId, views, folderViews, currentViewId]);
 
   return {
     childViews,
@@ -477,4 +490,98 @@ export function useCellSelector({ rowId, fieldId }: { rowId: string; fieldId: st
   }, [cell]);
 
   return cellValue;
+}
+
+export interface CalendarEvent {
+  start?: Date;
+  end?: Date;
+  id: string;
+}
+
+export function useCalendarEventsSelector() {
+  const setting = useCalendarLayoutSetting();
+  const filedId = setting.fieldId;
+  const { field } = useFieldSelector(filedId);
+  const rowOrders = useRowOrdersSelector();
+  const rows = useContext(DatabaseContext)?.rowDocMap;
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [emptyEvents, setEmptyEvents] = useState<CalendarEvent[]>([]);
+
+  useEffect(() => {
+    if (!field || !rowOrders || !rows) return;
+    const fieldType = Number(field?.get(YjsDatabaseKey.type)) as FieldType;
+
+    if (fieldType !== FieldType.DateTime) return;
+    const newEvents: CalendarEvent[] = [];
+    const emptyEvents: CalendarEvent[] = [];
+
+    rowOrders?.forEach((row) => {
+      const cell = getCell(row.id, filedId, rows);
+
+      if (!cell) {
+        emptyEvents.push({
+          id: `${row.id}:${filedId}`,
+        });
+        return;
+      }
+
+      const value = parseYDatabaseCellToCell(cell) as DateTimeCell;
+
+      if (!value || !value.data) {
+        emptyEvents.push({
+          id: `${row.id}:${filedId}`,
+        });
+        return;
+      }
+
+      const getDate = (timestamp: string) => {
+        const dayjsResult = timestamp.length === 10 ? dayjs.unix(Number(timestamp)) : dayjs(timestamp);
+
+        return dayjsResult.toDate();
+      };
+
+      newEvents.push({
+        id: `${row.id}:${filedId}`,
+        start: getDate(value.data),
+        end: value.endTimestamp && value.isRange ? getDate(value.endTimestamp) : getDate(value.data),
+      });
+    });
+
+    setEvents(newEvents);
+    setEmptyEvents(emptyEvents);
+  }, [field, rowOrders, rows, filedId]);
+
+  return { events, emptyEvents };
+}
+
+export function useCalendarLayoutSetting() {
+  const view = useDatabaseView();
+  const layoutSetting = view?.get(YjsDatabaseKey.layout_settings)?.get('2');
+  const [setting, setSetting] = useState<CalendarLayoutSetting>({
+    fieldId: '',
+    firstDayOfWeek: 0,
+    showWeekNumbers: true,
+    showWeekends: true,
+    layout: 0,
+  });
+
+  useEffect(() => {
+    const observerHandler = () => {
+      setSetting({
+        fieldId: layoutSetting?.get(YjsDatabaseKey.field_id) as string,
+        firstDayOfWeek: Number(layoutSetting?.get(YjsDatabaseKey.first_day_of_week)),
+        showWeekNumbers: Boolean(layoutSetting?.get(YjsDatabaseKey.show_week_numbers)),
+        showWeekends: Boolean(layoutSetting?.get(YjsDatabaseKey.show_weekends)),
+        layout: Number(layoutSetting?.get(YjsDatabaseKey.layout_ty)),
+      });
+    };
+
+    observerHandler();
+    layoutSetting?.observe(observerHandler);
+    return () => {
+      layoutSetting?.unobserve(observerHandler);
+    };
+  }, [layoutSetting]);
+
+  return setting;
 }

@@ -1,4 +1,5 @@
-import { YDatabaseField, YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { YDatabaseField, YDoc, YjsDatabaseKey } from '@/application/collab.type';
+import { getCellData } from '@/application/database-yjs/const';
 import { FieldType } from '@/application/database-yjs/database.type';
 import { parseSelectOptionTypeOptions } from '@/application/database-yjs/fields';
 import { Row } from '@/application/database-yjs/selector';
@@ -10,13 +11,6 @@ export function groupByField(rows: Row[], rowMetas: Y.Map<YDoc>, field: YDatabas
 
   if (!isSelectOptionField) return;
   return groupBySelectOption(rows, rowMetas, field);
-}
-
-function getCellData(rowId: string, fieldId: string, rowMetas: Y.Map<YDoc>) {
-  const rowMeta = rowMetas.get(rowId);
-  const meta = rowMeta?.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database_row) as YDatabaseRow;
-
-  return meta?.get(YjsDatabaseKey.cells)?.get(fieldId)?.get(YjsDatabaseKey.data);
 }
 
 export function groupBySelectOption(rows: Row[], rowMetas: Y.Map<YDoc>, field: YDatabaseField) {

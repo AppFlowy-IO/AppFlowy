@@ -9,7 +9,7 @@ export interface ChecklistCellData {
 export function parseChecklistData(data: string): ChecklistCellData | null {
   try {
     const { options, selected_option_ids } = JSON.parse(data);
-    const percentage = (selected_option_ids.length / options.length) * 100;
+    const percentage = selected_option_ids.length / options.length;
 
     return {
       percentage,

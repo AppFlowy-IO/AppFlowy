@@ -26,18 +26,7 @@ export const Group = ({ groupId }: GroupProps) => {
   if (columns.length === 0 || !fieldId) return null;
   return (
     <AFScroller overflowYHidden className={'relative px-24 max-md:px-4'}>
-      <Droppable
-        droppableId={`group-${groupId}`}
-        direction='horizontal'
-        type='column'
-        renderClone={(provided, snapshot, rubric) => {
-          // we have a transform: * on one of the parents of a <Draggable /> then the positioning logic will be incorrect while dragging
-          // https://github.com/atlassian/react-beautiful-dnd/blob/master/docs/guides/reparenting.md
-          const id = columns[rubric.source.index].id;
-
-          return <Column key={id} rows={groupResult.get(id)} provided={provided} id={id} fieldId={fieldId} />;
-        }}
-      >
+      <Droppable droppableId={`group-${groupId}`} direction='horizontal' type='column'>
         {(provided) => {
           return (
             <div
@@ -60,6 +49,7 @@ export const Group = ({ groupId }: GroupProps) => {
                   }}
                 </Draggable>
               ))}
+              {provided.placeholder}
             </div>
           );
         }}
