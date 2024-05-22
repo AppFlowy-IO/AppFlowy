@@ -4,7 +4,7 @@ description: Demonstrates how to use the flowy_infra_ui plugin.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  flutter: ">=3.19.0"
+  flutter: ">=3.22.0"
   sdk: ">=3.1.5 <4.0.0"
 
 dependencies:
