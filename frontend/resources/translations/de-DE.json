@@ -438,7 +438,8 @@
           "open": "Ordner öffnen",
           "openTooltip": "Aktuellen Speicherort des Datenordners öffnen",
           "copy": "Pfad kopieren",
-          "copiedHint": "Link kopiert!"
+          "copiedHint": "Link kopiert!",
+          "resetTooltip": "Auf Standardspeicherort zurücksetzen"
         },
         "resetDialog": {
           "title": "Bist du sicher?",
@@ -1263,7 +1264,9 @@
       "showGroup": "Zeige die Gruppe",
       "showGroupContent": "Sicher, dass diese Gruppe auf dem Board angezeigt werden soll?",
       "failedToLoad": "Boardansicht konnte nicht geladen werden"
-    }
+    },
+    "noGroup": "Keine Gruppierung nach Eigenschaft",
+    "noGroupDesc": "Board-Ansichten benötigen eine Eigenschaft zum Gruppieren, um angezeigt zu werden"
   },
   "calendar": {
     "menuName": "Kalender",
