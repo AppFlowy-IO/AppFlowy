@@ -12,6 +12,7 @@ use client_api::ws::{
 use client_api::{Client, ClientConfiguration};
 use flowy_storage::ObjectStorageService;
 use rand::Rng;
+use semver::Version;
 use tokio::select;
 use tokio::sync::{watch, Mutex};
 use tokio_stream::wrappers::WatchStream;
@@ -53,7 +54,7 @@ impl AppFlowyCloudServer {
     config: AFCloudConfiguration,
     enable_sync: bool,
     mut device_id: String,
-    client_version: &str,
+    client_version: Version,
     user: Arc<dyn ServerUser>,
   ) -> Self {
     // The device id can't be empty, so we generate a new one if it is.
@@ -70,7 +71,7 @@ impl AppFlowyCloudServer {
       ClientConfiguration::default()
         .with_compression_buffer_size(10240)
         .with_compression_quality(8),
-      client_version,
+      &client_version.to_string(),
     );
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
