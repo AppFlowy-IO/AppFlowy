@@ -3,13 +3,13 @@ import { CellProps, UrlCell as UrlCellType } from '@/components/database/compone
 import { openUrl, processUrl } from '@/utils/url';
 import React, { useMemo } from 'react';
 
-export function UrlCell({ cell, style }: CellProps<UrlCellType>) {
+export function UrlCell({ cell, style, placeholder }: CellProps<UrlCellType>) {
   const readOnly = useReadOnly();
 
   const isUrl = useMemo(() => (cell ? processUrl(cell.data) : false), [cell]);
 
   const className = useMemo(() => {
-    const classList = ['select-text'];
+    const classList = ['select-text', 'w-fit'];
 
     if (isUrl) {
       classList.push('text-content-blue-400', 'underline', 'cursor-pointer');
@@ -20,7 +20,12 @@ export function UrlCell({ cell, style }: CellProps<UrlCellType>) {
     return classList.join(' ');
   }, [isUrl]);
 
-  if (!cell?.data) return null;
+  if (!cell?.data)
+    return placeholder ? (
+      <div style={style} className={'text-text-placeholder'}>
+        {placeholder}
+      </div>
+    ) : null;
 
   return (
     <div

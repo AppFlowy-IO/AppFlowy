@@ -13,7 +13,7 @@ export function ChecklistCell({ cell, style }: CellProps<ChecklistCellType>) {
 
   if (!data || !options || !selectedOptions) return null;
   return (
-    <div style={style} className={'cursor-pointer'}>
+    <div style={style} className={'w-full cursor-pointer'}>
       <LinearProgressWithLabel value={data?.percentage} count={options.length} selectedCount={selectedOptions.length} />
     </div>
   );
