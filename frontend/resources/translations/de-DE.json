@@ -428,7 +428,7 @@
     "manageDataPage": {
       "menuLabel": "Daten verwalten",
       "title": "Daten verwalten",
-      "description": "Verwalte den lokalen Datenspeicher oder importiere deine vorhandenen Daten in @:appName. Du kannst deine Daten mit End-to-End-Verschlüsselung absichern.",
+      "description": "Verwalte den lokalen Datenspeicher oder importiere deine vorhandenen Daten in @:appName. Du kannst deine Daten mit Ende-zu-Ende-Verschlüsselung absichern.",
       "dataStorage": {
         "title": "Speicherort",
         "tooltip": "Das Verzeichnis, in dem deine Dateien gespeichert sind",
@@ -446,8 +446,8 @@
       },
       "importData": {
         "title": "Daten importieren",
-        "tooltip": "Daten aus @:appName-Backups/Datenordnern importieren",
-        "description": "Daten aus einem externen @:appName-Datenordner kopieren und in den aktuellen @:appName-Datenordner importieren",
+        "tooltip": "Daten aus @:appName Backups-/Datenordnern importieren",
+        "description": "Daten aus einem externen @:appName Datenordner kopieren und in den aktuellen @:appName Datenordner importieren",
         "action": "Ordner durchsuchen"
       },
       "encryption": {
@@ -549,8 +549,8 @@
       },
       "fontScaleFactor": "Schriftgröße",
       "documentSettings": {
-        "cursorColor": "Dokument Cursor-Farbe",
-        "selectionColor": "Dokument Auswahl-Farbe",
+        "cursorColor": "Cursor-Farbe",
+        "selectionColor": "Auswahl-Farbe",
         "hexEmptyError": "Hex-Farbe darf nicht leer sein",
         "hexLengthError": "Hex-Wert muss 6 Zeichen lang sein",
         "hexInvalidError": "Ungültiger Hex-Wert",
@@ -654,7 +654,7 @@
       "openFolderDesc": "Öffnen und speichern im vorhandenen @:appName-Ordner",
       "folderHintText": "Ordnernamen",
       "location": "Ein neuen Ordner erstellen",
-      "locationDesc": "Einen Namen für den @:appName-Datenordner festlegen",
+      "locationDesc": "Einen Namen für den @:appName Datenordner festlegen",
       "browser": "Durchsuchen",
       "create": "Erstellen",
       "set": "Festlegen",
