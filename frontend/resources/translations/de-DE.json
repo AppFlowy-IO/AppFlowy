@@ -362,10 +362,10 @@
       "workspaceName": {
         "title": "Name des Arbeitsbereiches",
         "savedMessage": "Name des Arbeitsbereiches gespeichert",
-        "editTooltip": "Name des Arbeitsbereiches bearbeiten"
+        "editTooltip": "Name des Arbeitsbereiches ändern"
       },
       "workspaceIcon": {
-        "title": "Symbol des Arbeitsbereiches",
+        "title": "Symbol",
         "description": "Lade ein Bild hoch oder verwende ein Emoji für deinen Arbeitsbereich. Das Symbol wird in deiner Seitenleiste und in deinen Benachrichtigungen angezeigt."
       },
       "appearance": {
@@ -382,7 +382,7 @@
         "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch."
       },
       "workspaceFont": {
-        "title": "Schriftart des Arbeitsbereiches"
+        "title": "Schriftart"
       },
       "textDirection": {
         "title": "Textrichtung",
@@ -1636,7 +1636,7 @@
       "subtitle": "Passe das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datum, die Uhrzeit und die Sprache deines Arbeitsbereiches an.",
       "workplaceName": "Name des Arbeitsbereiches",
       "workplaceNamePlaceholder": "Gib den Namen des Arbeitsbereiches ein",
-      "workplaceIcon": "Symbol für den Arbeitsbereich",
+      "workplaceIcon": "Symbol",
       "workplaceIconSubtitle": "Lade ein Bild hoch oder verwende ein Emoji für deinen Arbeitsbereich. Das Symbol wird in deiner Seitenleiste und in deinen Benachrichtigungen angezeigt.",
       "renameError": "Umbenennen des Arbeitsbereiches fehlgeschlagen",
       "updateIconError": "Symbol konnte nicht aktualisiert werden",
