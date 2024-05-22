@@ -511,15 +511,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   }
 
   Widget _buildViewIconButton() {
-    final icon = SizedBox.square(
-      dimension: 16.0,
-      child: widget.view.icon.value.isNotEmpty
-          ? FlowyText.emoji(
-              widget.view.icon.value,
-              fontSize: 16.0,
-            )
-          : widget.view.defaultIcon(),
-    );
+    final icon = widget.view.icon.value.isNotEmpty
+        ? FlowyText.emoji(
+            widget.view.icon.value,
+            fontSize: 16.0,
+          )
+        : widget.view.defaultIcon();
 
     return AppFlowyPopover(
       offset: const Offset(20, 0),

@@ -35,7 +35,6 @@ class ViewFavoriteButton extends StatelessWidget {
                 child: FlowySvg(
                   isFavorite ? FlowySvgs.unfavorite_s : FlowySvgs.favorite_s,
                   size: const Size.square(18),
-                  blendMode: isFavorite ? BlendMode.srcIn : null,
                 ),
               ),
             ),

@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
@@ -202,16 +201,13 @@ class _ViewTitleState extends State<_ViewTitle> {
     return SingleChildScrollView(
       child: Row(
         children: [
-          SizedBox(
-            width: 14.0,
-            child: Center(
-              child: EmojiText(
-                emoji: state.icon,
-                fontSize: 14.0,
-              ),
+          if (state.icon.isNotEmpty) ...[
+            FlowyText.emoji(
+              state.icon,
+              fontSize: 14.0,
             ),
-          ),
-          const HSpace(6.0),
+            const HSpace(6.0),
+          ],
           ConstrainedBox(
             constraints: const BoxConstraints(),
             child: FlowyText.regular(

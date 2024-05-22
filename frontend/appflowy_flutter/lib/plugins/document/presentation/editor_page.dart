@@ -392,12 +392,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     if (widget.editorState.document.isEmpty) {
       return (true, Selection.collapsed(Position(path: [0])));
     }
-    final nodes =
-        widget.editorState.document.root.children.where((e) => e.delta != null);
-    final isAllEmpty = nodes.isNotEmpty && nodes.every((e) => e.delta!.isEmpty);
-    if (isAllEmpty) {
-      return (true, Selection.collapsed(Position(path: nodes.first.path)));
-    }
     return const (false, null);
   }
 
