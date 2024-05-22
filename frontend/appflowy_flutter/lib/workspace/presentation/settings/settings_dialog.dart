@@ -1,9 +1,9 @@
-import 'package:appflowy/workspace/presentation/settings/pages/settings_billing_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_billing_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_data_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
@@ -24,12 +24,14 @@ class SettingsDialog extends StatelessWidget {
     required this.dismissDialog,
     required this.didLogout,
     required this.restartApp,
+    required this.workspaceId,
   }) : super(key: ValueKey(user.id));
 
   final VoidCallback dismissDialog;
   final VoidCallback didLogout;
   final VoidCallback restartApp;
   final UserProfilePB user;
+  final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +95,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.member:
         return WorkspaceMembersPage(userProfile: user);
       case SettingsPage.plan:
-        return const SettingsPlanView();
+        return SettingsPlanView(workspaceId: workspaceId);
       case SettingsPage.billing:
         return const SettingsBillingView();
       case SettingsPage.featureFlags:

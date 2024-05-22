@@ -1,134 +1,77 @@
-import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_comparison_dialog.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
+import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
+import 'package:appflowy/workspace/application/settings/plan/workspace_usage_ext.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_comparison_dialog.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/flowy_gradient_button.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsPlanView extends StatelessWidget {
-  const SettingsPlanView({super.key});
+  const SettingsPlanView({super.key, required this.workspaceId});
+
+  final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
-    return SettingsBody(
-      autoSeparate: false,
-      title: LocaleKeys.settings_planPage_title.tr(),
-      children: const [
-        _PlanUsageSummary(),
-        _AddAICreditBox(),
-        _CurrentPlanBox(),
-        _DealBox(),
-      ],
-    );
-  }
-}
-
-class _DealBox extends StatelessWidget {
-  const _DealBox();
-
-  @override
-  Widget build(BuildContext context) {
-    final isLM = Theme.of(context).brightness == Brightness.light;
-
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          stops: isLM ? null : [.2, .3, .6],
-          transform: isLM ? null : const GradientRotation(-.9),
-          begin: isLM ? Alignment.centerLeft : Alignment.topRight,
-          end: isLM ? Alignment.centerRight : Alignment.bottomLeft,
-          colors: [
-            isLM
-                ? const Color(0xFF7547C0).withAlpha(60)
-                : const Color(0xFF7547C0),
-            if (!isLM) const Color.fromARGB(255, 94, 57, 153),
-            isLM
-                ? const Color(0xFF251D37).withAlpha(60)
-                : const Color(0xFF251D37),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const VSpace(18),
-                      FlowyText.semibold(
-                        LocaleKeys.settings_planPage_planUsage_deal_title.tr(),
-                        fontSize: 24,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                      const VSpace(8),
-                      FlowyText.medium(
-                        LocaleKeys.settings_planPage_planUsage_deal_info.tr(),
-                        maxLines: 6,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                      const VSpace(8),
-                      FlowyGradientButton(
-                        label: LocaleKeys
-                            .settings_planPage_planUsage_deal_viewPlans
-                            .tr(),
-                        fontWeight: FontWeight.w500,
-                        backgroundColor: isLM ? null : Colors.white,
-                        textColor: isLM
-                            ? Colors.white
-                            : Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    ],
+    return BlocProvider<SettingsPlanBloc>(
+      create: (context) => SettingsPlanBloc(workspaceId: workspaceId)
+        ..add(const SettingsPlanEvent.started()),
+      child: BlocBuilder<SettingsPlanBloc, SettingsPlanState>(
+        builder: (context, state) {
+          return state.map(
+            initial: (_) => const SizedBox.shrink(),
+            loading: (_) => const Center(
+              child: SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator.adaptive(strokeWidth: 3),
+              ),
+            ),
+            error: (state) {
+              if (state.error != null) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: FlowyErrorPage.message(
+                    state.error!.msg,
+                    howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            right: 0,
-            top: 9,
-            child: Container(
-              height: 32,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  transform: const GradientRotation(.7),
-                  colors: [
-                    if (isLM) const Color(0xFF7156DF),
-                    isLM
-                        ? const Color(0xFF3B2E8A)
-                        : const Color(0xFFCE006F).withAlpha(150),
-                    isLM ? const Color(0xFF261A48) : const Color(0xFF431459),
-                  ],
-                ),
-              ),
-              child: Center(
-                child: FlowyText.semibold(
-                  LocaleKeys.settings_planPage_planUsage_deal_bannerLabel.tr(),
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ],
+                );
+              }
+
+              return ErrorWidget.withDetails(message: 'Something went wrong!');
+            },
+            ready: (state) {
+              return SettingsBody(
+                autoSeparate: false,
+                title: LocaleKeys.settings_planPage_title.tr(),
+                children: [
+                  _PlanUsageSummary(usage: state.workspaceUsage),
+                  _CurrentPlanBox(subscription: state.subscription),
+                ],
+              );
+            },
+          );
+        },
       ),
     );
   }
 }
 
 class _CurrentPlanBox extends StatelessWidget {
-  const _CurrentPlanBox();
+  const _CurrentPlanBox({required this.subscription});
+
+  final WorkspaceSubscriptionPB subscription;
 
   @override
   Widget build(BuildContext context) {
@@ -149,9 +92,7 @@ class _CurrentPlanBox extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     FlowyText.semibold(
-                      LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeTitle
-                          .tr(),
+                      subscription.label,
                       fontSize: 24,
                     ),
                     const VSpace(4),
@@ -289,206 +230,10 @@ class _ProConItem extends StatelessWidget {
   }
 }
 
-class FlowyGradientButton extends StatefulWidget {
-  const FlowyGradientButton({
-    super.key,
-    required this.label,
-    this.onPressed,
-    this.fontWeight = FontWeight.w600,
-    this.textColor = Colors.white,
-    this.backgroundColor,
-  });
-
-  final String label;
-  final VoidCallback? onPressed;
-  final FontWeight fontWeight;
-
-  /// Used to provide a custom foreground color for the button, used in cases
-  /// where a custom [backgroundColor] is provided and the default text color
-  /// does not have enough contrast.
-  ///
-  final Color textColor;
-
-  /// Used to provide a custom background color for the button, this will
-  /// override the gradient behavior, and is mostly used in rare cases
-  /// where the gradient doesn't have contrast with the background.
-  ///
-  final Color? backgroundColor;
-
-  @override
-  State<FlowyGradientButton> createState() => _FlowyGradientButtonState();
-}
-
-class _FlowyGradientButtonState extends State<FlowyGradientButton> {
-  bool isHovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: (_) => widget.onPressed?.call(),
-      child: MouseRegion(
-        onEnter: (_) => setState(() => isHovering = true),
-        onExit: (_) => setState(() => isHovering = false),
-        cursor: SystemMouseCursors.click,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 4,
-                color: Colors.black.withOpacity(0.25),
-                offset: const Offset(0, 2),
-              ),
-            ],
-            borderRadius: BorderRadius.circular(16),
-            color: widget.backgroundColor,
-            gradient: widget.backgroundColor != null
-                ? null
-                : LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      isHovering
-                          ? const Color.fromARGB(255, 57, 40, 92)
-                          : const Color(0xFF44326B),
-                      isHovering
-                          ? const Color.fromARGB(255, 96, 53, 164)
-                          : const Color(0xFF7547C0),
-                    ],
-                  ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: FlowyText(
-              widget.label,
-              fontSize: 16,
-              fontWeight: widget.fontWeight,
-              color: widget.textColor,
-              maxLines: 2,
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AddAICreditBox extends StatelessWidget {
-  const _AddAICreditBox();
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFBDBDBD)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FlowyText.semibold(
-              LocaleKeys.settings_planPage_planUsage_aiCredit_title.tr(),
-              fontSize: 18,
-              color: AFThemeExtension.of(context).secondaryTextColor,
-            ),
-            const VSpace(8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  flex: 5,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 180),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FlowyText.semibold(
-                          LocaleKeys.settings_planPage_planUsage_aiCredit_price
-                              .tr(),
-                          fontSize: 24,
-                        ),
-                        FlowyText.medium(
-                          LocaleKeys
-                              .settings_planPage_planUsage_aiCredit_priceDescription
-                              .tr(),
-                          fontSize: 14,
-                          color:
-                              AFThemeExtension.of(context).secondaryTextColor,
-                        ),
-                        const VSpace(8),
-                        FlowyGradientButton(
-                          label: LocaleKeys
-                              .settings_planPage_planUsage_aiCredit_purchase
-                              .tr(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const HSpace(16),
-                Flexible(
-                  flex: 6,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FlowyText.regular(
-                        LocaleKeys.settings_planPage_planUsage_aiCredit_info
-                            .tr(),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 5,
-                      ),
-                      const VSpace(8),
-                      SeparatedColumn(
-                        separatorBuilder: () => const VSpace(4),
-                        children: [
-                          _AIStarItem(
-                            label: LocaleKeys
-                                .settings_planPage_planUsage_aiCredit_infoItemOne
-                                .tr(),
-                          ),
-                          _AIStarItem(
-                            label: LocaleKeys
-                                .settings_planPage_planUsage_aiCredit_infoItemTwo
-                                .tr(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AIStarItem extends StatelessWidget {
-  const _AIStarItem({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const FlowySvg(FlowySvgs.ai_star_s, color: Color(0xFF750D7E)),
-        const HSpace(4),
-        Expanded(child: FlowyText(label, maxLines: 2)),
-      ],
-    );
-  }
-}
-
 class _PlanUsageSummary extends StatelessWidget {
-  const _PlanUsageSummary();
+  const _PlanUsageSummary({required this.usage});
+
+  final WorkspaceUsagePB usage;
 
   @override
   Widget build(BuildContext context) {
@@ -509,9 +254,13 @@ class _PlanUsageSummary extends StatelessWidget {
               child: _UsageBox(
                 title: LocaleKeys.settings_planPage_planUsage_storageLabel.tr(),
                 label: LocaleKeys.settings_planPage_planUsage_storageUsage.tr(
-                  args: ['5', '20'],
+                  args: [
+                    usage.currentBlobInGb,
+                    usage.totalBlobInGb,
+                  ],
                 ),
-                value: 0.25,
+                value: usage.totalBlobBytes.toInt() /
+                    usage.totalBlobBytesLimit.toInt(),
               ),
             ),
             Expanded(
@@ -584,14 +333,14 @@ class _ToggleMore extends StatelessWidget {
   const _ToggleMore({
     required this.value,
     required this.label,
-    this.badgeLabel,
     required this.onChanged,
+    this.badgeLabel,
   });
 
   final bool value;
   final String label;
-  final String? badgeLabel;
   final void Function(bool) onChanged;
+  final String? badgeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -617,12 +366,12 @@ class _ToggleMore extends StatelessWidget {
             height: 26,
             child: Badge(
               padding: const EdgeInsets.symmetric(horizontal: 10),
+              backgroundColor: secondaryColor,
               label: FlowyText.semibold(
                 badgeLabel!,
                 fontSize: 12,
                 color: primaryColor,
               ),
-              backgroundColor: secondaryColor,
             ),
           ),
         ],
@@ -682,3 +431,218 @@ class _PlanProgressIndicator extends StatelessWidget {
     );
   }
 }
+
+/// Uncomment if we need it in the future
+// class _DealBox extends StatelessWidget {
+//   const _DealBox();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final isLM = Theme.of(context).brightness == Brightness.light;
+
+//     return Container(
+//       clipBehavior: Clip.antiAlias,
+//       decoration: BoxDecoration(
+//         gradient: LinearGradient(
+//           stops: isLM ? null : [.2, .3, .6],
+//           transform: isLM ? null : const GradientRotation(-.9),
+//           begin: isLM ? Alignment.centerLeft : Alignment.topRight,
+//           end: isLM ? Alignment.centerRight : Alignment.bottomLeft,
+//           colors: [
+//             isLM
+//                 ? const Color(0xFF7547C0).withAlpha(60)
+//                 : const Color(0xFF7547C0),
+//             if (!isLM) const Color.fromARGB(255, 94, 57, 153),
+//             isLM
+//                 ? const Color(0xFF251D37).withAlpha(60)
+//                 : const Color(0xFF251D37),
+//           ],
+//         ),
+//         borderRadius: BorderRadius.circular(16),
+//       ),
+//       child: Stack(
+//         children: [
+//           Padding(
+//             padding: const EdgeInsets.all(16),
+//             child: Row(
+//               children: [
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       const VSpace(18),
+//                       FlowyText.semibold(
+//                         LocaleKeys.settings_planPage_planUsage_deal_title.tr(),
+//                         fontSize: 24,
+//                         color: Theme.of(context).colorScheme.tertiary,
+//                       ),
+//                       const VSpace(8),
+//                       FlowyText.medium(
+//                         LocaleKeys.settings_planPage_planUsage_deal_info.tr(),
+//                         maxLines: 6,
+//                         color: Theme.of(context).colorScheme.tertiary,
+//                       ),
+//                       const VSpace(8),
+//                       FlowyGradientButton(
+//                         label: LocaleKeys
+//                             .settings_planPage_planUsage_deal_viewPlans
+//                             .tr(),
+//                         fontWeight: FontWeight.w500,
+//                         backgroundColor: isLM ? null : Colors.white,
+//                         textColor: isLM
+//                             ? Colors.white
+//                             : Theme.of(context).colorScheme.onPrimary,
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           Positioned(
+//             right: 0,
+//             top: 9,
+//             child: Container(
+//               height: 32,
+//               padding: const EdgeInsets.symmetric(horizontal: 16),
+//               decoration: BoxDecoration(
+//                 gradient: LinearGradient(
+//                   transform: const GradientRotation(.7),
+//                   colors: [
+//                     if (isLM) const Color(0xFF7156DF),
+//                     isLM
+//                         ? const Color(0xFF3B2E8A)
+//                         : const Color(0xFFCE006F).withAlpha(150),
+//                     isLM ? const Color(0xFF261A48) : const Color(0xFF431459),
+//                   ],
+//                 ),
+//               ),
+//               child: Center(
+//                 child: FlowyText.semibold(
+//                   LocaleKeys.settings_planPage_planUsage_deal_bannerLabel.tr(),
+//                   fontSize: 16,
+//                   color: Colors.white,
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+/// Uncomment if we need it in the future
+// class _AddAICreditBox extends StatelessWidget {
+//   const _AddAICreditBox();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return DecoratedBox(
+//       decoration: BoxDecoration(
+//         border: Border.all(color: const Color(0xFFBDBDBD)),
+//         borderRadius: BorderRadius.circular(16),
+//       ),
+//       child: Padding(
+//         padding: const EdgeInsets.all(16),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             FlowyText.semibold(
+//               LocaleKeys.settings_planPage_planUsage_aiCredit_title.tr(),
+//               fontSize: 18,
+//               color: AFThemeExtension.of(context).secondaryTextColor,
+//             ),
+//             const VSpace(8),
+//             Row(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Flexible(
+//                   flex: 5,
+//                   child: ConstrainedBox(
+//                     constraints: const BoxConstraints(maxWidth: 180),
+//                     child: Column(
+//                       mainAxisSize: MainAxisSize.min,
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         FlowyText.semibold(
+//                           LocaleKeys.settings_planPage_planUsage_aiCredit_price
+//                               .tr(),
+//                           fontSize: 24,
+//                         ),
+//                         FlowyText.medium(
+//                           LocaleKeys
+//                               .settings_planPage_planUsage_aiCredit_priceDescription
+//                               .tr(),
+//                           fontSize: 14,
+//                           color:
+//                               AFThemeExtension.of(context).secondaryTextColor,
+//                         ),
+//                         const VSpace(8),
+//                         FlowyGradientButton(
+//                           label: LocaleKeys
+//                               .settings_planPage_planUsage_aiCredit_purchase
+//                               .tr(),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//                 const HSpace(16),
+//                 Flexible(
+//                   flex: 6,
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     mainAxisSize: MainAxisSize.min,
+//                     children: [
+//                       FlowyText.regular(
+//                         LocaleKeys.settings_planPage_planUsage_aiCredit_info
+//                             .tr(),
+//                         overflow: TextOverflow.ellipsis,
+//                         maxLines: 5,
+//                       ),
+//                       const VSpace(8),
+//                       SeparatedColumn(
+//                         separatorBuilder: () => const VSpace(4),
+//                         children: [
+//                           _AIStarItem(
+//                             label: LocaleKeys
+//                                 .settings_planPage_planUsage_aiCredit_infoItemOne
+//                                 .tr(),
+//                           ),
+//                           _AIStarItem(
+//                             label: LocaleKeys
+//                                 .settings_planPage_planUsage_aiCredit_infoItemTwo
+//                                 .tr(),
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+/// Uncomment if we need it in the future
+// class _AIStarItem extends StatelessWidget {
+//   const _AIStarItem({required this.label});
+
+//   final String label;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Row(
+//       children: [
+//         const FlowySvg(FlowySvgs.ai_star_s, color: Color(0xFF750D7E)),
+//         const HSpace(4),
+//         Expanded(child: FlowyText(label, maxLines: 2)),
+//       ],
+//     );
+//   }
+// }

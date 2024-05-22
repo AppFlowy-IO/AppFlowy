@@ -8,9 +8,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:fixnum/fixnum.dart';
 
 class UserBackendService {
-  UserBackendService({
-    required this.userId,
-  });
+  UserBackendService({required this.userId});
 
   final Int64 userId;
 
@@ -218,5 +216,10 @@ class UserBackendService {
   ) async {
     final data = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
     return UserEventLeaveWorkspace(data).send();
+  }
+
+  static Future<FlowyResult<RepeatedWorkspaceSubscriptionPB, FlowyError>>
+      getWorkspaceSubscriptions() {
+    return UserEventGetWorkspaceSubscriptions().send();
   }
 }

@@ -488,6 +488,7 @@
           "bannerLabel": "Current plan",
           "freeTitle": "Free",
           "proTitle": "Pro",
+          "teamTitle": "Team",
           "freeInfo": "Perfect for individuals or small teams up to 3.",
           "upgrade": "Compare &\n Upgrade",
           "freeProOne": "Collaborative workspace",

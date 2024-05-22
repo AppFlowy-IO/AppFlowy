@@ -76,6 +76,8 @@ void showSettingsDialog(BuildContext context, UserProfilePB userProfile) =>
         ],
         child: SettingsDialog(
           userProfile,
+          workspaceId:
+              context.read<UserWorkspaceBloc>().userProfile.workspaceId,
           didLogout: () async {
             // Pop the dialog using the dialog context
             Navigator.of(dialogContext).pop();

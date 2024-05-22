@@ -1,7 +1,13 @@
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_svg/flowy_svg.dart';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FlowyErrorPage extends StatelessWidget {
@@ -70,34 +76,56 @@ class FlowyErrorPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
-        // mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const FlowyText.medium(
             "AppFlowy Error",
             fontSize: _titleFontSize,
           ),
-          const SizedBox(
-            height: _titleToMessagePadding,
+          const SizedBox(height: _titleToMessagePadding),
+          Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerDown: (_) async {
+              await Clipboard.setData(ClipboardData(text: message));
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceVariant,
+                    content: FlowyText(
+                      'Message copied to clipboard',
+                      fontSize: kIsWeb || !Platform.isIOS && !Platform.isAndroid
+                          ? 14
+                          : 12,
+                    ),
+                  ),
+                );
+              }
+            },
+            child: FlowyHover(
+              style: HoverStyle(
+                backgroundColor:
+                    Theme.of(context).colorScheme.tertiaryContainer,
+              ),
+              cursor: SystemMouseCursors.click,
+              child: FlowyTooltip(
+                message: 'Click to copy message',
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: FlowyText.semibold(message, maxLines: 10),
+                ),
+              ),
+            ),
           ),
-          FlowyText.semibold(
-            message,
-            maxLines: 10,
+          const SizedBox(height: _titleToMessagePadding),
+          FlowyText.regular(howToFix, maxLines: 10),
+          const SizedBox(height: _titleToMessagePadding),
+          GitHubRedirectButton(
+            title: 'Unexpected error',
+            message: message,
+            stackTrace: stackTrace,
           ),
-          const SizedBox(
-            height: _titleToMessagePadding,
-          ),
-          FlowyText.regular(
-            howToFix,
-            maxLines: 10,
-          ),
-          const SizedBox(
-            height: _titleToMessagePadding,
-          ),
-          const GitHubRedirectButton(),
-          const SizedBox(
-            height: _titleToMessagePadding,
-          ),
+          const SizedBox(height: _titleToMessagePadding),
           if (stackTrace != null) StackTracePreview(stackTrace!),
           if (actions != null)
             Row(
@@ -174,7 +202,16 @@ class StackTracePreview extends StatelessWidget {
 }
 
 class GitHubRedirectButton extends StatelessWidget {
-  const GitHubRedirectButton({super.key});
+  const GitHubRedirectButton({
+    super.key,
+    this.title,
+    this.message,
+    this.stackTrace,
+  });
+
+  final String? title;
+  final String? message;
+  final String? stackTrace;
 
   static const _height = 32.0;
 
@@ -183,8 +220,33 @@ class GitHubRedirectButton extends StatelessWidget {
         host: 'github.com',
         path: '/AppFlowy-IO/AppFlowy/issues/new',
         query:
-            'assignees=&labels=&projects=&template=bug_report.yaml&title=%5BBug%5D+',
+            'assignees=&labels=&projects=&template=bug_report.yaml&os=$_platform&title=%5BBug%5D+$title&context=$_contextString',
       );
+
+  String get _contextString {
+    if (message == null && stackTrace == null) {
+      return '';
+    }
+
+    String msg = "";
+    if (message != null) {
+      msg += 'Error message:%0A```%0A$message%0A```%0A';
+    }
+
+    if (stackTrace != null) {
+      msg += 'StackTrace:%0A```%0A$stackTrace%0A```%0A';
+    }
+
+    return msg;
+  }
+
+  String get _platform {
+    if (kIsWeb) {
+      return 'Web';
+    }
+
+    return Platform.operatingSystem;
+  }
 
   @override
   Widget build(BuildContext context) {

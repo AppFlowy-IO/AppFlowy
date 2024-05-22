@@ -83,14 +83,12 @@ class SettingsDialogEvent with _$SettingsDialogEvent {
 class SettingsDialogState with _$SettingsDialogState {
   const factory SettingsDialogState({
     required UserProfilePB userProfile,
-    required FlowyResult<void, String> successOrFailure,
     required SettingsPage page,
   }) = _SettingsDialogState;
 
   factory SettingsDialogState.initial(UserProfilePB userProfile) =>
       SettingsDialogState(
         userProfile: userProfile,
-        successOrFailure: FlowyResult.success(null),
         page: SettingsPage.account,
       );
 }
