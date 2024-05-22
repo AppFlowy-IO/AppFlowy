@@ -1,6 +1,7 @@
-import { RowId } from '@/application/collab.type';
-import { DateFormat, SelectOption, TimeFormat } from '@/application/database-yjs';
+import { FieldId, RowId } from '@/application/collab.type';
+import { DateFormat, TimeFormat } from '@/application/database-yjs';
 import { FieldType } from '@/application/database-yjs/database.type';
+import React from 'react';
 import { YArray } from 'yjs/dist/src/types/YArray';
 
 export interface Cell {
@@ -32,7 +33,7 @@ export interface UrlCell extends Cell {
 
 export type SelectionId = string;
 
-export interface SelectCell extends Cell {
+export interface SelectOptionCell extends Cell {
   fieldType: FieldType.SingleSelect | FieldType.MultiSelect;
   data: SelectionId;
 }
@@ -51,11 +52,6 @@ export interface DateTimeCell extends Cell {
   reminderId?: string;
 }
 
-export interface TimeStampCell extends Cell {
-  fieldType: FieldType.LastEditedTime | FieldType.CreatedTime;
-  data: TimestampCellData;
-}
-
 export interface DateTimeCellData {
   date?: string;
   time?: string;
@@ -65,11 +61,6 @@ export interface DateTimeCellData {
   endTime?: string;
   endTimestamp?: number;
   isRange?: boolean;
-}
-
-export interface TimestampCellData {
-  dataTime?: string;
-  timestamp?: number;
 }
 
 export interface ChecklistCell extends Cell {
@@ -84,7 +75,10 @@ export interface RelationCell extends Cell {
 
 export type RelationCellData = RowId[];
 
-export interface ChecklistCellData {
-  selected_option_ids?: string[];
-  options?: SelectOption[];
+export interface CellProps<T extends Cell> {
+  cell?: T;
+  rowId: string;
+  fieldId: FieldId;
+  style?: React.CSSProperties;
+  readOnly?: boolean;
 }

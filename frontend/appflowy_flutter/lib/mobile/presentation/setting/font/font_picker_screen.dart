@@ -29,9 +29,7 @@ class FontPickerScreen extends StatelessWidget {
 }
 
 class LanguagePickerPage extends StatefulWidget {
-  const LanguagePickerPage({
-    super.key,
-  });
+  const LanguagePickerPage({super.key});
 
   @override
   State<LanguagePickerPage> createState() => _LanguagePickerPageState();
@@ -43,7 +41,6 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
   @override
   void initState() {
     super.initState();
-
     availableFonts = _availableFonts;
   }
 
@@ -90,7 +87,6 @@ class _FontSelectorState extends State<FontSelector> {
   @override
   void initState() {
     super.initState();
-
     availableFonts = _availableFonts;
   }
 

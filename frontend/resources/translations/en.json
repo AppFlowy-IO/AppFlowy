@@ -353,7 +353,8 @@
       "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
       "workspaceName": {
         "title": "Workspace name",
-        "savedMessage": "Saved workspace name"
+        "savedMessage": "Saved workspace name",
+        "editTooltip": "Edit workspace name"
       },
       "workspaceIcon": {
         "title": "Workspace icon",
@@ -429,7 +430,8 @@
           "open": "Open folder",
           "openTooltip": "Open current data folder location",
           "copy": "Copy path",
-          "copiedHint": "Link copied!"
+          "copiedHint": "Path copied!",
+          "resetTooltip": "Reset to default location"
         },
         "resetDialog": {
           "title": "Are you sure?",
@@ -1252,7 +1254,9 @@
       "showGroup": "Show group",
       "showGroupContent": "Are you sure you want to show this group on the board?",
       "failedToLoad": "Failed to load board view"
-    }
+    },
+    "noGroup": "No group by property",
+    "noGroupDesc": "Board views require a property to group by in order to display"
   },
   "calendar": {
     "menuName": "Calendar",

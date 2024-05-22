@@ -208,7 +208,6 @@ class _FontButton extends StatelessWidget {
       showDoneButton: true,
       showHeader: true,
       title: LocaleKeys.titleBar_font.tr(),
-      barrierColor: Colors.transparent,
       backgroundColor: Theme.of(context).colorScheme.background,
       isScrollControlled: true,
       enableDraggableScrollable: true,
