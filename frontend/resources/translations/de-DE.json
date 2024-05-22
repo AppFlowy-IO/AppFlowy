@@ -70,32 +70,32 @@
     "LogInWithDiscord": "Mit Discord-Account anmelden"
   },
   "workspace": {
-    "chooseWorkspace": "Workspace wählen",
-    "create": "Workspace erstellen",
-    "reset": "Workspace zurücksetzen",
-    "resetWorkspacePrompt": "Das Zurücksetzen des Workspace löscht alle enthaltenen Seiten und Daten. Bist du sicher, dass du den Arbeitsbereich zurücksetzen möchstest? ",
-    "hint": "Workspace",
-    "notFoundError": "Workspace nicht gefunden",
-    "failedToLoad": "Etwas ist schief gelaufen! Der Workspace konnte nicht geladen werden. Versuche, alle @:appName-Instanzen zu schließen & versuche es erneut.",
+    "chooseWorkspace": "Arbeitsbereich wählen",
+    "create": "Arbeitsbereich erstellen",
+    "reset": "Arbeitsbereich zurücksetzen",
+    "resetWorkspacePrompt": "Das Zurücksetzen des Arbeitsbereiches löscht alle enthaltenen Seiten und Daten. Bist du sicher, dass du den Arbeitsbereich zurücksetzen möchtest? ",
+    "hint": "Arbeitsbereich",
+    "notFoundError": "Arbeitsbereich nicht gefunden",
+    "failedToLoad": "Etwas ist schief gelaufen! Der Arbeitsbereich konnte nicht geladen werden. Versuche, alle @:appName Instanzen zu schließen und versuche es erneut.",
     "errorActions": {
       "reportIssue": "Problem melden",
-      "reportIssueOnGithub": "Melde ein Problem auf Github",
+      "reportIssueOnGithub": "Melde ein Problem auf GitHub",
       "exportLogFiles": "Exportiere Log-Dateien",
       "reachOut": "Kontaktiere uns auf Discord"
     },
     "menuTitle": "Arbeitsbereiche",
-    "deleteWorkspaceHintText": "Sicher, dass du dein Workspace löschen möchtest?\nDies kann nicht mehr Rückgängig gemacht werden.",
-    "createSuccess": "Workspace erfolgreich erstellt",
-    "createFailed": "Der Workspace konnte nicht erstellt werden",
-    "createLimitExceeded": "Du hast die für dein Benutzerkonto maximal zulässige Anzahl an Arbeitsbereichen erreicht. Benötigst du zum fortsetzen deiner Arbeit noch weitere Arbeitsbereiche, erstelle auf Github bitte eine entsprechende Anfrage.",
-    "deleteSuccess": "Workspace erfolgreich gelöscht",
-    "deleteFailed": "Der Workspace konnte nicht gelöscht werden",
-    "openSuccess": "Workspace erfolgreich geöffnet",
-    "openFailed": "Der Workspace konnte nicht geöffnet werden",
-    "renameSuccess": "Workspace erfolgreich umbenannt",
-    "renameFailed": "Der Workspace konnte nicht umbenannt werden",
-    "updateIconSuccess": "Workspace erfolgreich zurückgesetzt",
-    "updateIconFailed": "Der Workspace konnte nicht zurückgesetzt werden",
+    "deleteWorkspaceHintText": "Sicher, dass du deinen Arbeitsbereich löschen möchtest? Dies kann nicht mehr Rückgängig gemacht werden.",
+    "createSuccess": "Arbeitsbereich erfolgreich erstellt",
+    "createFailed": "Der Arbeitsbereich konnte nicht erstellt werden",
+    "createLimitExceeded": "Du hast die für dein Benutzerkonto maximal zulässige Anzahl an Arbeitsbereichen erreicht. Benötigst du zum fortsetzen deiner Arbeit noch weitere Arbeitsbereiche, erstelle auf GitHub bitte eine entsprechende Anfrage.",
+    "deleteSuccess": "Arbeitsbereich erfolgreich gelöscht",
+    "deleteFailed": "Der Arbeitsbereich konnte nicht gelöscht werden",
+    "openSuccess": "Arbeitsbereich erfolgreich geöffnet",
+    "openFailed": "Der Arbeitsbereich konnte nicht geöffnet werden",
+    "renameSuccess": "Arbeitsbereich erfolgreich umbenannt",
+    "renameFailed": "Der Arbeitsbereich konnte nicht umbenannt werden",
+    "updateIconSuccess": "Arbeitsbereich erfolgreich zurückgesetzt",
+    "updateIconFailed": "Der Arbeitsbereich konnte nicht zurückgesetzt werden",
     "cannotDeleteTheOnlyWorkspace": "Der einzig vorhandene Arbeitsbereich kann nicht gelöscht werden",
     "fetchWorkspacesFailed": "Arbeitsbereiche konnten nicht abgerufen werden!",
     "leaveCurrentWorkspace": "Arbeitsbereich verlassen",
@@ -358,18 +358,19 @@
     "workspacePage": {
       "menuLabel": "Arbeitsbereich",
       "title": "Arbeitsbereich",
-      "description": "Passe das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datums-/Zeitformat und die Sprache deines Arbeitsbereichs an.",
+      "description": "Passe das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datums-/Zeitformat und die Sprache deines Arbeitsbereiches an.",
       "workspaceName": {
-        "title": "Name des Arbeitsbereichs",
-        "savedMessage": "Name des Arbeitsbereichs gespeichert"
+        "title": "Name des Arbeitsbereiches",
+        "savedMessage": "Name des Arbeitsbereiches gespeichert",
+        "editTooltip": "Name des Arbeitsbereiches bearbeiten"
       },
       "workspaceIcon": {
-        "title": "Arbeitsbereich-Symbol",
-        "description": "Passe das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datum, die Uhrzeit und die Sprache deines Arbeitsbereichs an."
+        "title": "Symbol des Arbeitsbereiches",
+        "description": "Lade ein Bild hoch oder verwende ein Emoji für deinen Arbeitsbereich. Das Symbol wird in deiner Seitenleiste und in deinen Benachrichtigungen angezeigt."
       },
       "appearance": {
         "title": "Aussehen",
-        "description": "Passe das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datums-/Zeitformat und die Sprache deines Arbeitsbereichs an.",
+        "description": "Passe das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datums-/Zeitformat und die Sprache deines Arbeitsbereiches an.",
         "options": {
           "system": "Auto",
           "light": "Hell",
@@ -381,7 +382,7 @@
         "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch."
       },
       "workspaceFont": {
-        "title": "Schriftart Arbeitsbereich"
+        "title": "Schriftart des Arbeitsbereiches"
       },
       "textDirection": {
         "title": "Textrichtung",
@@ -611,7 +612,7 @@
         "label": "Mitglieder",
         "user": "Nutzer",
         "role": "Rolle",
-        "removeFromWorkspace": "Vom Workspace entfernen",
+        "removeFromWorkspace": "Vom Arbeitsbereich entfernen",
         "owner": "Besitzer",
         "guest": "Gast",
         "member": "Mitglied",
@@ -1623,7 +1624,7 @@
         "deleteMyAccount": "Mein Benutzerkonto löschen",
         "dialogTitle": "Benutzerkonto löschen",
         "dialogContent1": "Bist du sicher, dass du dein Benutzerkonto unwiderruflich löschen möchtest?",
-        "dialogContent2": "Diese Aktion kann nicht rückgängig gemacht werden und führt dazu, dass der Zugriff auf alle Teambereiche aufgehoben wird, Ihr gesamtes Benutzerkonto, einschließlich privater Arbeitsbereiche, gelöscht wird und Sie aus allen freigegebenen Arbeitsbereichen entfernt werden."
+        "dialogContent2": "Diese Aktion kann nicht rückgängig gemacht werden und führt dazu, dass der Zugriff auf alle Teambereiche aufgehoben wird, dein gesamtes Benutzerkonto, einschließlich privater Arbeitsbereiche, gelöscht wird und du aus allen freigegebenen Arbeitsbereichen entfernt wirst."
       }
     },
     "workplace": {
@@ -1633,7 +1634,7 @@
       "workplaceName": "Name des Arbeitsbereiches",
       "workplaceNamePlaceholder": "Gib den Namen des Arbeitsbereiches ein",
       "workplaceIcon": "Symbol für den Arbeitsbereich",
-      "workplaceIconSubtitle": "Lade ein Bild hoch oder verwende ein Emoji für deinen Arbeitsbereich. Das Symbol wird in deiner Seitenleiste und in deinen Benachrichtigungen angezeigt",
+      "workplaceIconSubtitle": "Lade ein Bild hoch oder verwende ein Emoji für deinen Arbeitsbereich. Das Symbol wird in deiner Seitenleiste und in deinen Benachrichtigungen angezeigt.",
       "renameError": "Umbenennen des Arbeitsbereiches fehlgeschlagen",
       "updateIconError": "Symbol konnte nicht aktualisiert werden",
       "appearance": {
