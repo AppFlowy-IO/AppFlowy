@@ -33,7 +33,7 @@ pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer>
     config,
     true,
     fake_device_id,
-    Version::new("0.5.8"),
+    Version::new(0, 5, 8),
     Arc::new(FakeServerUserImpl),
   ))
 }

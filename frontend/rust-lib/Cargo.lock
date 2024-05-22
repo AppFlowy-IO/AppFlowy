@@ -1510,6 +1510,7 @@ dependencies = [
  "parking_lot 0.12.1",
  "protobuf",
  "rand 0.8.5",
+ "semver",
  "serde",
  "serde_json",
  "strum",
