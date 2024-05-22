@@ -131,7 +131,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
   void _showCardActions(BuildContext context) {
     showMobileBottomSheet(
       context,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       showDragHandle: true,
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,

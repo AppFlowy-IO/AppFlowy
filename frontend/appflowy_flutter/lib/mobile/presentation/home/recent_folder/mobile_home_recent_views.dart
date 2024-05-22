@@ -91,7 +91,7 @@ class _RecentViews extends StatelessWidget {
                 context,
                 showDivider: false,
                 showDragHandle: true,
-                backgroundColor: Theme.of(context).colorScheme.background,
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 builder: (_) {
                   return Column(
                     children: [

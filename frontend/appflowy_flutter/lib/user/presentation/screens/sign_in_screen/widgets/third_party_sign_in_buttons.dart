@@ -154,20 +154,20 @@ class _DesktopSignInButton extends StatelessWidget {
           ),
         ),
         style: ButtonStyle(
-          overlayColor: MaterialStateProperty.resolveWith<Color?>(
+          overlayColor: WidgetStateProperty.resolveWith<Color?>(
             (states) {
-              if (states.contains(MaterialState.hovered)) {
+              if (states.contains(WidgetState.hovered)) {
                 return style.colorScheme.onSecondaryContainer;
               }
               return null;
             },
           ),
-          shape: MaterialStateProperty.all(
+          shape: WidgetStateProperty.all(
             const RoundedRectangleBorder(
               borderRadius: Corners.s6Border,
             ),
           ),
-          side: MaterialStateProperty.all(
+          side: WidgetStateProperty.all(
             BorderSide(
               color: style.dividerColor,
             ),

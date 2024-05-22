@@ -293,7 +293,7 @@ class SupabaseInputState extends State<SupabaseInput> {
             .copyWith(fontWeight: FontWeight.w400, fontSize: 16),
         enabledBorder: UnderlineInputBorder(
           borderSide:
-              BorderSide(color: Theme.of(context).colorScheme.onBackground),
+              BorderSide(color: Theme.of(context).colorScheme.onSurface),
         ),
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),

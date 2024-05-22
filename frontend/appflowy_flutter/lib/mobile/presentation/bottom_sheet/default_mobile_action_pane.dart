@@ -54,7 +54,7 @@ enum MobilePaneActionType {
               context,
               showDragHandle: true,
               showDivider: false,
-              backgroundColor: Theme.of(context).colorScheme.background,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               useRootNavigator: true,
               builder: (context) {
                 return MultiBlocProvider(

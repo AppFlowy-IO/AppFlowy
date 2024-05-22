@@ -155,7 +155,7 @@ class StackTracePreview extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: FlowyButton(
-                  hoverColor: Theme.of(context).colorScheme.onBackground,
+                  hoverColor: Theme.of(context).colorScheme.onSurface,
                   text: const FlowyText(
                     "Copy",
                   ),

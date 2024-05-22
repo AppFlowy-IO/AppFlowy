@@ -128,7 +128,6 @@ void _showDatabaseFieldListFromToolbar(
     showHeader: true,
     showBackButton: true,
     title: LocaleKeys.grid_settings_properties.tr(),
-    showDivider: true,
     builder: (_) {
       return BlocProvider.value(
         value: context.read<ViewBloc>(),
@@ -150,7 +149,7 @@ void _showEditSortPanelFromToolbar(
     showDragHandle: true,
     showDivider: false,
     useSafeArea: false,
-    backgroundColor: Theme.of(context).colorScheme.background,
+    backgroundColor: Theme.of(context).colorScheme.surface,
     builder: (_) {
       return BlocProvider.value(
         value: context.read<SortEditorBloc>(),

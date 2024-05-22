@@ -31,7 +31,7 @@ class MobileRowDetailCheckboxCellSkin extends IEditableCheckboxCellSkin {
         alignment: AlignmentDirectional.centerStart,
         child: FlowySvg(
           state.isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
-          color: Theme.of(context).colorScheme.onBackground,
+          color: Theme.of(context).colorScheme.onSurface,
           blendMode: BlendMode.dst,
           size: const Size.square(24),
         ),

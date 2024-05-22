@@ -24,7 +24,7 @@ class ThemeUploadFailureWidget extends StatelessWidget {
           FlowySvg(
             FlowySvgs.close_m,
             size: ThemeUploadWidget.iconSize,
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           FlowyText.medium(
             errorMessage,

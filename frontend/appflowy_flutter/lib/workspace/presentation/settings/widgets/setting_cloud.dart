@@ -127,7 +127,7 @@ class CloudTypeSwitcher extends StatelessWidget {
             child: FlowyTextButton(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
               titleFromCloudType(cloudType),
-              fontColor: Theme.of(context).colorScheme.onBackground,
+              fontColor: Theme.of(context).colorScheme.onSurface,
               fillColor: Colors.transparent,
               onPressed: () {},
             ),
@@ -159,7 +159,6 @@ class CloudTypeSwitcher extends StatelessWidget {
                 showHeader: true,
                 showDragHandle: true,
                 showDivider: false,
-                showCloseButton: false,
                 title: LocaleKeys.settings_menu_cloudServerType.tr(),
                 builder: (context) {
                   return Column(

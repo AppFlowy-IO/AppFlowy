@@ -28,7 +28,7 @@ class MobileRowDetailURLCellSkin extends IEditableURLCellSkin {
           onTap: () => showMobileBottomSheet(
             context,
             showDragHandle: true,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
             builder: (_) {
               return BlocProvider.value(
                 value: bloc,

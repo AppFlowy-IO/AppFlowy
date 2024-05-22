@@ -168,7 +168,7 @@ class MobileHiddenGroup extends StatelessWidget {
         return TextButton(
           style: TextButton.styleFrom(
             textStyle: Theme.of(context).textTheme.bodyMedium,
-            foregroundColor: Theme.of(context).colorScheme.onBackground,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             visualDensity: VisualDensity.compact,
           ),
           child: CardCellBuilder(

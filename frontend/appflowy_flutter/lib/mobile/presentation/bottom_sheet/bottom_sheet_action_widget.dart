@@ -19,7 +19,7 @@ class BottomSheetActionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor =
-        this.iconColor ?? Theme.of(context).colorScheme.onBackground;
+        this.iconColor ?? Theme.of(context).colorScheme.onSurface;
 
     if (svg == null) {
       return OutlinedButton(

@@ -92,7 +92,7 @@ class MobileViewPageMoreButton extends StatelessWidget {
           context,
           showDragHandle: true,
           showDivider: false,
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           builder: (_) => MultiBlocProvider(
             providers: [
               BlocProvider.value(value: context.read<ViewBloc>()),
@@ -144,7 +144,7 @@ class MobileViewPageLayoutButton extends StatelessWidget {
           showDoneButton: true,
           showHeader: true,
           title: LocaleKeys.pageStyle_title.tr(),
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           builder: (_) => MultiBlocProvider(
             providers: [
               BlocProvider.value(value: context.read<DocumentPageStyleBloc>()),

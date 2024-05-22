@@ -60,7 +60,7 @@ class EditorStyleCustomizer {
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
-          color: theme.colorScheme.onBackground,
+          color: theme.colorScheme.onSurface,
           height: 1.5,
         ),
         bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
@@ -110,7 +110,7 @@ class EditorStyleCustomizer {
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle.copyWith(
           fontSize: fontSize,
-          color: theme.colorScheme.onBackground,
+          color: theme.colorScheme.onSurface,
           height: lineHeight,
         ),
         bold: baseTextStyle.copyWith(fontWeight: FontWeight.w600),
@@ -177,7 +177,7 @@ class EditorStyleCustomizer {
     return baseTextStyle(fontFamily).copyWith(
       fontSize: fontSize,
       height: 1.5,
-      color: Theme.of(context).colorScheme.onBackground,
+      color: Theme.of(context).colorScheme.onSurface,
     );
   }
 
@@ -187,7 +187,7 @@ class EditorStyleCustomizer {
       fontFamily: defaultFontFamily,
       fontSize: fontSize,
       height: 1.5,
-      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
     );
   }
 
@@ -195,8 +195,8 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     return SelectionMenuStyle(
       selectionMenuBackgroundColor: theme.cardColor,
-      selectionMenuItemTextColor: theme.colorScheme.onBackground,
-      selectionMenuItemIconColor: theme.colorScheme.onBackground,
+      selectionMenuItemTextColor: theme.colorScheme.onSurface,
+      selectionMenuItemIconColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedColor: theme.hoverColor,
@@ -207,8 +207,8 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     return InlineActionsMenuStyle(
       backgroundColor: theme.cardColor,
-      groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
-      menuItemTextColor: theme.colorScheme.onBackground,
+      groupTextColor: theme.colorScheme.onSurface.withOpacity(.8),
+      menuItemTextColor: theme.colorScheme.onSurface,
       menuItemSelectedColor: theme.colorScheme.secondary,
       menuItemSelectedTextColor: theme.colorScheme.onSurface,
     );

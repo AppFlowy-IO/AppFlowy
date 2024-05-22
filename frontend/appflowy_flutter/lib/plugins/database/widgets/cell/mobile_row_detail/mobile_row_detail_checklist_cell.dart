@@ -25,7 +25,7 @@ class MobileRowDetailChecklistCellSkin extends IEditableChecklistCellSkin {
       borderRadius: const BorderRadius.all(Radius.circular(14)),
       onTap: () => showMobileBottomSheet(
         context,
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         builder: (context) {
           return BlocProvider.value(
             value: bloc,

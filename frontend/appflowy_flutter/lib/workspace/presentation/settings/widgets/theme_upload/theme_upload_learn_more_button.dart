@@ -21,7 +21,7 @@ class ThemeUploadLearnMoreButton extends StatelessWidget {
       height: ThemeUploadWidget.buttonSize.height,
       child: IntrinsicWidth(
         child: SecondaryButton(
-          outlineColor: Theme.of(context).colorScheme.onBackground,
+          outlineColor: Theme.of(context).colorScheme.onSurface,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: FlowyText.medium(

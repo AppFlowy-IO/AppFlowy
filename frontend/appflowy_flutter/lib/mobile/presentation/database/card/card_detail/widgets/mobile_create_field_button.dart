@@ -22,17 +22,17 @@ class MobileRowDetailCreateFieldButton extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: double.infinity),
       child: TextButton.icon(
         style: Theme.of(context).textButtonTheme.style?.copyWith(
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
               ),
-              overlayColor: MaterialStateProperty.all<Color>(
+              overlayColor: WidgetStateProperty.all<Color>(
                 Theme.of(context).hoverColor,
               ),
               alignment: AlignmentDirectional.centerStart,
               splashFactory: NoSplash.splashFactory,
-              padding: const MaterialStatePropertyAll(
+              padding: const WidgetStatePropertyAll(
                 EdgeInsets.symmetric(vertical: 14, horizontal: 6),
               ),
             ),

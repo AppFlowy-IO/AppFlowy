@@ -671,7 +671,7 @@ class _BoardCardState extends State<_BoardCard> {
                     ? const Color(0x0F1F2329)
                     : const Color(0x0FEFF4FB),
                 foregroundColorOnHover:
-                    Theme.of(context).colorScheme.onBackground,
+                    Theme.of(context).colorScheme.onSurface,
               ),
             ),
             onStartEditing: () =>

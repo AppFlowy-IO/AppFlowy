@@ -13,7 +13,7 @@ class UploadNewThemeWidget extends StatelessWidget {
     return Container(
       color: Theme.of(context)
           .colorScheme
-          .background
+          .surface
           .withOpacity(ThemeUploadWidget.fadeOpacity),
       padding: ThemeUploadWidget.padding,
       child: Column(
@@ -23,7 +23,7 @@ class UploadNewThemeWidget extends StatelessWidget {
           FlowySvg(
             FlowySvgs.folder_m,
             size: ThemeUploadWidget.iconSize,
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           FlowyText.medium(
             LocaleKeys.settings_appearance_themeUpload_description.tr(),

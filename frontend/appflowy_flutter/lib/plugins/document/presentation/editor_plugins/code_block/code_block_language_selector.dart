@@ -70,7 +70,7 @@ class _CodeBlockLanguageSelectorState
             widget.language?.capitalize() ??
                 LocaleKeys.document_codeBlock_language_auto.tr(),
             constraints: const BoxConstraints(minWidth: 50),
-            fontColor: Theme.of(context).colorScheme.onBackground,
+            fontColor: Theme.of(context).colorScheme.onSurface,
             padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4),
             fillColor: Colors.transparent,
             hoverColor: Theme.of(context).colorScheme.secondaryContainer,

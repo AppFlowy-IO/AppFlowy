@@ -51,7 +51,7 @@ class MobileGridURLCellSkin extends IEditableURLCellSkin {
     showMobileBottomSheet(
       context,
       showDragHandle: true,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (context) => BlocProvider.value(
         value: bloc,
         child: MobileURLEditor(

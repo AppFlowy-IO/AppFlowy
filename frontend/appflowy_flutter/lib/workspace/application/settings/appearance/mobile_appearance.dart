@@ -1,15 +1,13 @@
-import 'package:flutter/material.dart';
-
 // ThemeData in mobile
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flutter/material.dart';
 
 class MobileAppearance extends BaseAppearance {
   static const _primaryColor = Color(0xFF00BCF0); //primary 100
-  static const _onBackgroundColor = Color(0xff2F3030); // text/title color
   static const _onSurfaceColor = Color(0xff676666); // text/body color
   static const _onSecondaryColor = Color(0xFFC5C7CB); // text/body2 color
   static const _hintColorInDarkMode = Color(0xff626262); // hint color
@@ -49,14 +47,12 @@ class MobileAppearance extends BaseAppearance {
             tertiary: const Color(0xff858585), // for light text
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
-            background: Colors.white,
-            onBackground: _onBackgroundColor,
             outline: const Color(0xffe3e3e3),
             outlineVariant: const Color(0xffCBD5E0).withOpacity(0.24),
             //Snack bar
             surface: Colors.white,
             onSurface: _onSurfaceColor, // text/body color
-            surfaceVariant: const Color.fromARGB(255, 216, 216, 216),
+            surfaceContainerHighest: const Color.fromARGB(255, 216, 216, 216),
           )
         : ColorScheme(
             brightness: brightness,
@@ -67,8 +63,6 @@ class MobileAppearance extends BaseAppearance {
             tertiary: const Color(0xff858585), // temp
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
-            background: const Color(0xff121212), // temp
-            onBackground: Colors.white,
             outline: _hintColorInDarkMode,
             outlineVariant: Colors.black,
             //Snack bar
@@ -86,14 +80,14 @@ class MobileAppearance extends BaseAppearance {
       dividerColor: colorTheme.outline, //caption
       hintColor: hintColor,
       disabledColor: colorTheme.outline,
-      scaffoldBackgroundColor: colorTheme.background,
+      scaffoldBackgroundColor: colorTheme.surface,
       appBarTheme: AppBarTheme(
         toolbarHeight: 44.0,
-        foregroundColor: colorTheme.onBackground,
-        backgroundColor: colorTheme.background,
+        foregroundColor: colorTheme.onSurface,
+        backgroundColor: colorTheme.surface,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          color: colorTheme.onBackground,
+          color: colorTheme.onSurface,
           fontSize: 18,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.05,
@@ -101,8 +95,8 @@ class MobileAppearance extends BaseAppearance {
         shadowColor: colorTheme.outlineVariant,
       ),
       radioTheme: RadioThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return colorTheme.primary;
           }
           return colorTheme.outline;
@@ -111,20 +105,20 @@ class MobileAppearance extends BaseAppearance {
       // button
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-          fixedSize: MaterialStateProperty.all(const Size.fromHeight(48)),
-          elevation: MaterialStateProperty.all(0),
-          textStyle: MaterialStateProperty.all(
+          fixedSize: WidgetStateProperty.all(const Size.fromHeight(48)),
+          elevation: WidgetStateProperty.all(0),
+          textStyle: WidgetStateProperty.all(
             TextStyle(
               fontSize: 14,
               fontFamily: fontStyle.fontFamily,
               fontWeight: FontWeight.w600,
             ),
           ),
-          shadowColor: MaterialStateProperty.all(null),
-          foregroundColor: MaterialStateProperty.all(Colors.white),
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.disabled)) {
+          shadowColor: WidgetStateProperty.all(null),
+          foregroundColor: WidgetStateProperty.all(Colors.white),
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.disabled)) {
                 return _primaryColor;
               }
               return colorTheme.primary;
@@ -134,29 +128,29 @@ class MobileAppearance extends BaseAppearance {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
-          textStyle: MaterialStateProperty.all(
+          textStyle: WidgetStateProperty.all(
             TextStyle(
               fontSize: 14,
               fontFamily: fontStyle.fontFamily,
               fontWeight: FontWeight.w500,
             ),
           ),
-          foregroundColor: MaterialStateProperty.all(colorTheme.onBackground),
-          backgroundColor: MaterialStateProperty.all(colorTheme.background),
-          shape: MaterialStateProperty.all(
+          foregroundColor: WidgetStateProperty.all(colorTheme.onSurface),
+          backgroundColor: WidgetStateProperty.all(colorTheme.surface),
+          shape: WidgetStateProperty.all(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
           ),
-          side: MaterialStateProperty.all(
+          side: WidgetStateProperty.all(
             BorderSide(color: colorTheme.outline, width: 0.5),
           ),
-          padding: MaterialStateProperty.all(
+          padding: WidgetStateProperty.all(
             const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
-          textStyle: MaterialStateProperty.all(fontStyle),
+          textStyle: WidgetStateProperty.all(fontStyle),
         ),
       ),
       // text
@@ -170,7 +164,7 @@ class MobileAppearance extends BaseAppearance {
           letterSpacing: 0.16,
         ),
         displayMedium: fontStyle.copyWith(
-          color: colorTheme.onBackground,
+          color: colorTheme.onSurface,
           fontSize: 32,
           fontWeight: FontWeight.w600,
           height: 1.20,
@@ -178,20 +172,20 @@ class MobileAppearance extends BaseAppearance {
         ),
         // H1 Semi 26
         displaySmall: fontStyle.copyWith(
-          color: colorTheme.onBackground,
+          color: colorTheme.onSurface,
           fontWeight: FontWeight.w600,
           height: 1.10,
           letterSpacing: 0.13,
         ),
         // body2 14 Regular
         bodyMedium: fontStyle.copyWith(
-          color: colorTheme.onBackground,
+          color: colorTheme.onSurface,
           fontWeight: FontWeight.w400,
           letterSpacing: 0.07,
         ),
         // Trash empty title
         labelLarge: fontStyle.copyWith(
-          color: colorTheme.onBackground,
+          color: colorTheme.onSurface,
           fontSize: 22,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.3,
@@ -204,7 +198,7 @@ class MobileAppearance extends BaseAppearance {
         ),
         // setting group title
         labelSmall: fontStyle.copyWith(
-          color: colorTheme.onBackground,
+          color: colorTheme.onSurface,
           fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.05,

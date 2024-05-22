@@ -238,7 +238,7 @@ class NewEventButton extends StatelessWidget {
           child: FlowyIconButton(
             onPressed: onCreate,
             icon: const FlowySvg(FlowySvgs.add_s),
-            fillColor: Theme.of(context).colorScheme.background,
+            fillColor: Theme.of(context).colorScheme.surface,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             width: 22,
             tooltipText: LocaleKeys.calendar_newEventButtonTooltip.tr(),
@@ -289,8 +289,8 @@ class _DayBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color dayTextColor = Theme.of(context).colorScheme.onBackground;
-    Color monthTextColor = Theme.of(context).colorScheme.onBackground;
+    Color dayTextColor = Theme.of(context).colorScheme.onSurface;
+    Color monthTextColor = Theme.of(context).colorScheme.onSurface;
     final String monthString =
         DateFormat("MMM ", context.locale.toLanguageTag()).format(date);
     final String dayString = date.day.toString();

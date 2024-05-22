@@ -265,7 +265,7 @@ class _BoardContentState extends State<_BoardContent> {
   BoxDecoration _makeBoxDecoration(BuildContext context) {
     final themeMode = context.read<AppearanceSettingsCubit>().state.themeMode;
     return BoxDecoration(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: const BorderRadius.all(Radius.circular(8)),
       border: themeMode == ThemeMode.light
           ? Border.fromBorderSide(

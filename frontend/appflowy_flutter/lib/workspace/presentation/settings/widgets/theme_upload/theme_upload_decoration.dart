@@ -15,7 +15,7 @@ class ThemeUploadDecoration extends StatelessWidget {
         borderRadius: BorderRadius.circular(ThemeUploadWidget.borderRadius),
         color: Theme.of(context).colorScheme.surface,
         border: Border.all(
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(
                 ThemeUploadWidget.fadeOpacity,
               ),
         ),
@@ -26,7 +26,7 @@ class ThemeUploadDecoration extends StatelessWidget {
         dashPattern: const [6, 6],
         color: Theme.of(context)
             .colorScheme
-            .onBackground
+            .onSurface
             .withOpacity(ThemeUploadWidget.fadeOpacity),
         radius: const Radius.circular(ThemeUploadWidget.borderRadius),
         child: ClipRRect(

@@ -183,7 +183,7 @@ class MobileDatabaseViewListButton extends StatelessWidget {
         showMobileBottomSheet(
           context,
           showDragHandle: true,
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           builder: (_) {
             return BlocProvider<ViewBloc>(
               create: (_) =>

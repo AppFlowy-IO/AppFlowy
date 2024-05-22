@@ -42,7 +42,6 @@ class MobileGridRelationCellSkin extends IEditableRelationCellSkin {
       onTap: () {
         showMobileBottomSheet(
           context,
-          padding: EdgeInsets.zero,
           backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
           builder: (context) {
             return const FlowyText("Coming soon");
