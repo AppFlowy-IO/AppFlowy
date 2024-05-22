@@ -63,7 +63,6 @@ class EditorStyleCustomizer {
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
           color: afThemeExtension.onBackground,
-          height: 1.5,
         ),
         bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
           fontWeight: FontWeight.w600,
@@ -111,10 +110,10 @@ class EditorStyleCustomizer {
       padding: padding,
       defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
+        lineHeight: lineHeight,
         text: baseTextStyle.copyWith(
           fontSize: fontSize,
           color: afThemeExtension.onBackground,
-          height: lineHeight,
         ),
         bold: baseTextStyle.copyWith(fontWeight: FontWeight.w600),
         italic: baseTextStyle.copyWith(fontStyle: FontStyle.italic),
