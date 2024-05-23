@@ -36,7 +36,7 @@ pub(crate) async fn send_chat_message_handler(
 pub(crate) async fn load_message_handler(
   data: AFPluginData<LoadChatMessagePB>,
   chat_manager: AFPluginState<Weak<ChatManager>>,
-) -> DataResult<RepeatedChatMessagePB, FlowyError> {
+) -> DataResult<ChatMessageListPB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let data = data.into_inner();
   data.validate()?;

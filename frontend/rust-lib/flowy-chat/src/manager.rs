@@ -1,5 +1,5 @@
 use crate::chat::Chat;
-use crate::entities::{ChatMessagePB, RepeatedChatMessagePB};
+use crate::entities::{ChatMessageListPB, ChatMessagePB};
 use crate::notification::{send_notification, ChatNotification};
 use crate::persistence::{
   insert_chat, insert_chat_messages, select_chat_messages, ChatMessageTable, ChatTable,
@@ -10,7 +10,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::{DBConnection, QueryResult};
 use lib_infra::util::timestamp;
 use std::sync::Arc;
-use tracing::{error, warn};
+use tracing::{error, instrument, trace, warn};
 
 pub trait ChatUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -97,14 +97,27 @@ impl ChatManager {
     limit: i64,
     after_message_id: Option<i64>,
     before_message_id: Option<i64>,
-  ) -> Result<RepeatedChatMessagePB, FlowyError> {
+  ) -> Result<ChatMessageListPB, FlowyError> {
+    trace!(
+      "Loading chat messages: chat_id={}, limit={}, after_message_id={:?}, before_message_id={:?}",
+      chat_id,
+      limit,
+      after_message_id,
+      before_message_id
+    );
+
     let uid = self.user_service.user_id()?;
     let messages = self
       .load_local_chat_messages(uid, chat_id, limit, after_message_id, before_message_id)
       .await?;
 
-    let after_message_id = after_message_id.or_else(|| messages.last().map(|m| m.message_id));
-    let before_message_id = before_message_id.or_else(|| messages.first().map(|m| m.message_id));
+    // If the number of messages equals the limit, then no need to load more messages from remote
+    if messages.len() == limit as usize {
+      return Ok(ChatMessageListPB {
+        messages,
+        has_more: true,
+      });
+    }
 
     if let Err(err) = self
       .load_remote_chat_messages(chat_id, limit, after_message_id, before_message_id)
@@ -112,7 +125,7 @@ impl ChatManager {
     {
       error!("Failed to load remote chat messages: {}", err);
     }
-    Ok(RepeatedChatMessagePB {
+    Ok(ChatMessageListPB {
       messages,
       has_more: true,
     })
@@ -140,6 +153,7 @@ impl ChatManager {
     Ok(messages)
   }
 
+  #[instrument(level = "info", skip_all, err)]
   async fn load_remote_chat_messages(
     &self,
     chat_id: &str,
@@ -147,6 +161,14 @@ impl ChatManager {
     after_message_id: Option<i64>,
     before_message_id: Option<i64>,
   ) -> Result<(), FlowyError> {
+    trace!(
+      "Loading chat messages from remote: chat_id={}, limit={}, after_message_id={:?}, before_message_id={:?}",
+      chat_id,
+      limit,
+      after_message_id,
+      before_message_id
+    );
+
     let chat_id = chat_id.to_string();
     let user_service = self.user_service.clone();
     let cloud_service = self.cloud_service.clone();
@@ -170,7 +192,7 @@ impl ChatManager {
             &chat_id,
             resp.messages.clone(),
           )?;
-          let pb = RepeatedChatMessagePB::from(resp);
+          let pb = ChatMessageListPB::from(resp);
           send_notification(&chat_id, ChatNotification::DidLoadChatMessage)
             .payload(pb)
             .send();

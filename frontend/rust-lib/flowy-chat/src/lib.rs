@@ -1,9 +1,9 @@
 mod event_handler;
-mod event_map;
+pub mod event_map;
 
 mod chat;
-mod entities;
+pub mod entities;
 pub mod manager;
 mod notification;
 mod persistence;
-pub mod protobuf;
+mod protobuf;

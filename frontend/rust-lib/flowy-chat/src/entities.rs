@@ -31,7 +31,7 @@ pub struct LoadChatMessagePB {
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
-pub struct RepeatedChatMessagePB {
+pub struct ChatMessageListPB {
   #[pb(index = 1)]
   pub has_more: bool,
 
@@ -39,14 +39,14 @@ pub struct RepeatedChatMessagePB {
   pub messages: Vec<ChatMessagePB>,
 }
 
-impl From<RepeatedChatMessage> for RepeatedChatMessagePB {
+impl From<RepeatedChatMessage> for ChatMessageListPB {
   fn from(repeated_chat_message: RepeatedChatMessage) -> Self {
     let messages = repeated_chat_message
       .messages
       .into_iter()
       .map(ChatMessagePB::from)
       .collect();
-    RepeatedChatMessagePB {
+    ChatMessageListPB {
       has_more: repeated_chat_message.has_more,
       messages,
     }

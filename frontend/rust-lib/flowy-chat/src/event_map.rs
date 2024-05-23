@@ -20,7 +20,7 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
 #[event_err = "FlowyError"]
 pub enum ChatEvent {
   /// Create a new workspace
-  #[event(input = "LoadChatMessagePB", output = "RepeatedChatMessage")]
+  #[event(input = "LoadChatMessagePB", output = "ChatMessageListPB")]
   LoadMessage = 0,
 
   #[event(input = "SendChatPayloadPB")]
