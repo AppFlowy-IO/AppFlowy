@@ -42,7 +42,7 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id: workspace_id.clone(),
-        inner: QueryCollab::new(object_id.clone(), collab_type.clone().into()),
+        inner: QueryCollab::new(object_id.clone(), collab_type.clone()),
       };
       match try_get_client?.get_collab(params).await {
         Ok(data) => {
@@ -78,7 +78,7 @@ where
       let client = try_get_client?;
       let params = object_ids
         .into_iter()
-        .map(|object_id| QueryCollab::new(object_id, object_ty.clone().into()))
+        .map(|object_id| QueryCollab::new(object_id, object_ty.clone()))
         .collect();
       let results = client.batch_get_collab(&workspace_id, params).await?;
       check_request_workspace_id_is_match(

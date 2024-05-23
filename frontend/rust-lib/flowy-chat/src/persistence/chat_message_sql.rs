@@ -1,4 +1,3 @@
-use flowy_chat_pub::cloud::ChatMessage;
 use flowy_sqlite::{
   diesel,
   query_dsl::*,
@@ -24,27 +23,6 @@ pub fn insert_chat_messages(
     .values(new_messages)
     .execute(&mut *conn)
 }
-
-pub fn read_chat_message(
-  mut conn: DBConnection,
-  message_id_val: i64,
-) -> QueryResult<ChatMessageTable> {
-  dsl::chat_message_table
-    .filter(chat_message_table::message_id.eq(message_id_val))
-    .first::<ChatMessageTable>(&mut *conn)
-}
-
-// pub fn select_chat_messages(
-//   mut conn: DBConnection,
-//   chat_id_val: &str,
-//   limit_val: i64,
-// ) -> QueryResult<Vec<ChatMessageTable>> {
-//   dsl::chat_message_table
-//     .filter(chat_message_table::chat_id.eq(chat_id_val))
-//     .order(chat_message_table::created_at.asc())
-//     .limit(limit_val)
-//     .load::<ChatMessageTable>(&mut *conn)
-// }
 
 pub fn select_chat_messages(
   mut conn: DBConnection,

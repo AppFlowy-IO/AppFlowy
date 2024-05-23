@@ -15,7 +15,7 @@ use tracing::debug;
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, MessageCursor, RepeatedChatMessage};
+use flowy_chat_pub::cloud::{ChatCloudService, MessageCursor, QAChatMessage, RepeatedChatMessage};
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
 };
@@ -377,7 +377,7 @@ impl CollabCloudPluginProvider for ServerProvider {
               let sync_object = SyncObject::new(
                 &collab_object.object_id,
                 &collab_object.workspace_id,
-                collab_object.collab_type.into(),
+                collab_object.collab_type,
                 &collab_object.device_id,
               );
               let (sink, stream) = (channel.sink(), channel.stream());
@@ -459,7 +459,8 @@ impl ChatCloudService for ServerProvider {
     workspace_id: &str,
     chat_id: &str,
     message: &str,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+    require_answer: bool,
+  ) -> FutureResult<QAChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let message = message.to_string();
@@ -467,7 +468,7 @@ impl ChatCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .chat_service()
-        .send_message(&workspace_id, &chat_id, &message)
+        .send_message(&workspace_id, &chat_id, &message, require_answer)
         .await
     })
   }

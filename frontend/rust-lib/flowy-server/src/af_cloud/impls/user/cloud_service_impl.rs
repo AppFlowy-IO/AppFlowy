@@ -348,7 +348,7 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id: workspace_id.clone(),
-        inner: QueryCollab::new(object_id, CollabType::UserAwareness.into()),
+        inner: QueryCollab::new(object_id, CollabType::UserAwareness),
       };
       let resp = try_get_client?.get_collab(params).await?;
       check_request_workspace_id_is_match(
@@ -380,7 +380,7 @@ where
       let params = CreateCollabParams {
         workspace_id: collab_object.workspace_id,
         object_id: collab_object.object_id,
-        collab_type: collab_object.collab_type.into(),
+        collab_type: collab_object.collab_type,
         encoded_collab_v1: data,
       };
       client.create_collab(params).await?;

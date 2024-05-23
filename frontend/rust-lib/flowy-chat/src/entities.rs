@@ -1,6 +1,6 @@
 use flowy_chat_pub::cloud::{ChatMessage, RepeatedChatMessage};
 use flowy_derive::ProtoBuf;
-use lib_infra::validator_fn::{required_not_empty_str, required_valid_path};
+use lib_infra::validator_fn::required_not_empty_str;
 use validator::Validate;
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -12,6 +12,9 @@ pub struct SendChatPayloadPB {
   #[pb(index = 2)]
   #[validate(custom = "required_not_empty_str")]
   pub message: String,
+
+  #[pb(index = 3)]
+  pub require_answer: bool,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]

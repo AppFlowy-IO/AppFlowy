@@ -93,7 +93,7 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id: workspace_id.clone(),
-        inner: QueryCollab::new(workspace_id.clone(), CollabType::Folder.into()),
+        inner: QueryCollab::new(workspace_id.clone(), CollabType::Folder),
       };
       let doc_state = try_get_client?
         .get_collab(params)
@@ -137,7 +137,7 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id: workspace_id.clone(),
-        inner: QueryCollab::new(object_id, collab_type.into()),
+        inner: QueryCollab::new(object_id, collab_type),
       };
       let doc_state = try_get_client?
         .get_collab(params)
@@ -164,7 +164,7 @@ where
         .map(|object| {
           CollabParams::new(
             object.object_id,
-            object.collab_type.into(),
+            object.collab_type,
             object.encoded_collab_v1,
           )
         })

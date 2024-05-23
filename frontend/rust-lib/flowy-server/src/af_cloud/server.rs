@@ -34,7 +34,7 @@ use crate::af_cloud::impls::{
   AFCloudChatCloudServiceImpl, AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl,
   AFCloudFileStorageServiceImpl, AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
 };
-use crate::default_impl::DefaultChatCloudServiceImpl;
+
 use crate::AppFlowyServer;
 
 pub(crate) type AFCloudClient = Client;

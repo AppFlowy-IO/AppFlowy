@@ -7,7 +7,7 @@ use crate::persistence::{
 use dashmap::DashMap;
 use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, MessageCursor, RepeatedChatMessage};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sqlite::{DBConnection, QueryResult};
+use flowy_sqlite::DBConnection;
 use lib_infra::util::timestamp;
 use std::sync::Arc;
 use tracing::{error, instrument, trace, warn};
@@ -39,15 +39,15 @@ impl ChatManager {
     }
   }
 
-  pub async fn open_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
+  pub async fn open_chat(&self, _chat_id: &str) -> Result<(), FlowyError> {
     Ok(())
   }
 
-  pub async fn close_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
+  pub async fn close_chat(&self, _chat_id: &str) -> Result<(), FlowyError> {
     Ok(())
   }
 
-  pub async fn delete_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
+  pub async fn delete_chat(&self, _chat_id: &str) -> Result<(), FlowyError> {
     Ok(())
   }
 
@@ -61,18 +61,25 @@ impl ChatManager {
     Ok(())
   }
 
-  pub async fn send_chat_message(&self, chat_id: &str, message: &str) -> Result<(), FlowyError> {
+  pub async fn send_chat_message(
+    &self,
+    chat_id: &str,
+    message: &str,
+    require_answer: bool,
+  ) -> Result<(), FlowyError> {
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
-    let message = self
+    let qa = self
       .cloud_service
-      .send_message(&workspace_id, chat_id, message)
+      .send_message(&workspace_id, chat_id, message, require_answer)
       .await?;
-    save_chat_message(
-      self.user_service.sqlite_connection(uid)?,
-      chat_id,
-      vec![message],
-    )?;
+
+    let mut messages = Vec::with_capacity(2);
+    messages.push(qa.question);
+    if let Some(answer) = qa.answer {
+      messages.push(answer);
+    }
+    save_chat_message(self.user_service.sqlite_connection(uid)?, chat_id, messages)?;
     Ok(())
   }
 

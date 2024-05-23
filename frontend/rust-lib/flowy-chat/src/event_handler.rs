@@ -26,7 +26,7 @@ pub(crate) async fn send_chat_message_handler(
   data.validate()?;
 
   chat_manager
-    .send_chat_message(&data.chat_id, &data.message)
+    .send_chat_message(&data.chat_id, &data.message, data.require_answer)
     .await?;
   Ok(())
 }

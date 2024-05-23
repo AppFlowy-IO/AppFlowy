@@ -501,18 +501,18 @@ impl FolderOperationHandler for ChatFolderOperation {
     })
   }
 
-  fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError> {
+  fn duplicate_view(&self, _view_id: &str) -> FutureResult<ViewData, FlowyError> {
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
 
   fn create_view_with_view_data(
     &self,
-    user_id: i64,
-    view_id: &str,
-    name: &str,
-    data: Vec<u8>,
-    layout: ViewLayout,
-    meta: HashMap<String, String>,
+    _user_id: i64,
+    _view_id: &str,
+    _name: &str,
+    _data: Vec<u8>,
+    _layout: ViewLayout,
+    _meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
@@ -521,8 +521,8 @@ impl FolderOperationHandler for ChatFolderOperation {
     &self,
     user_id: i64,
     view_id: &str,
-    name: &str,
-    layout: ViewLayout,
+    _name: &str,
+    _layout: ViewLayout,
   ) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
@@ -534,20 +534,20 @@ impl FolderOperationHandler for ChatFolderOperation {
 
   fn import_from_bytes(
     &self,
-    uid: i64,
-    view_id: &str,
-    name: &str,
-    import_type: ImportType,
-    bytes: Vec<u8>,
+    _uid: i64,
+    _view_id: &str,
+    _name: &str,
+    _import_type: ImportType,
+    _bytes: Vec<u8>,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
 
   fn import_from_file_path(
     &self,
-    view_id: &str,
-    name: &str,
-    path: String,
+    _view_id: &str,
+    _name: &str,
+    _path: String,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }

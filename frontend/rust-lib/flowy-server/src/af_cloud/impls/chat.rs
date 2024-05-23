@@ -2,7 +2,7 @@ use crate::af_cloud::AFServer;
 use client_api::entity::{
   CreateChatMessageParams, CreateChatParams, MessageCursor, RepeatedChatMessage,
 };
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage};
+use flowy_chat_pub::cloud::{ChatCloudService, QAChatMessage};
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
@@ -44,14 +44,18 @@ where
     workspace_id: &str,
     chat_id: &str,
     message: &str,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+    require_answer: bool,
+  ) -> FutureResult<QAChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let message = message.to_string();
     let try_get_client = self.inner.try_get_client();
 
     FutureResult::new(async move {
-      let params = CreateChatMessageParams { content: message };
+      let params = CreateChatMessageParams {
+        content: message,
+        require_answer,
+      };
       let message = try_get_client?
         .create_chat_message(&workspace_id, &chat_id, params)
         .await

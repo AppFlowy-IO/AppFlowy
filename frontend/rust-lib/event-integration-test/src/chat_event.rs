@@ -19,20 +19,19 @@ impl EventIntegrationTest {
       index: None,
       section: None,
     };
-    let view = EventBuilder::new(self.clone())
+    EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
       .payload(payload)
       .async_send()
       .await
-      .parse::<ViewPB>();
-
-    view
+      .parse::<ViewPB>()
   }
 
-  pub async fn send_message(&self, chat_id: &str, message: impl ToString) {
+  pub async fn send_message(&self, chat_id: &str, message: impl ToString, require_answer: bool) {
     let payload = SendChatPayloadPB {
       chat_id: chat_id.to_string(),
       message: message.to_string(),
+      require_answer,
     };
 
     EventBuilder::new(self.clone())

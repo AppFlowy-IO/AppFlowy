@@ -3,8 +3,7 @@ use event_integration_test::user_event::user_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_chat::entities::ChatMessageListPB;
 use flowy_chat::notification::ChatNotification;
-use flowy_folder::entities::ChildViewUpdatePB;
-use flowy_folder::notification::FolderNotification;
+
 use std::time::Duration;
 
 #[tokio::test]
@@ -59,6 +58,7 @@ async fn af_cloud_load_remote_chat_message_test() {
         &current_workspace.id,
         &chat_id,
         &format!("hello server {}", i),
+        false,
       )
       .await
       .unwrap();
@@ -77,7 +77,7 @@ async fn af_cloud_load_remote_chat_message_test() {
     .await
     .unwrap();
   assert_eq!(next_back_five.messages.len(), 5);
-  assert_eq!(next_back_five.has_more, true);
+  assert!(next_back_five.has_more);
   assert_eq!(next_back_five.total, 10);
   assert_eq!(next_back_five.messages[0].content, "hello server 5");
   assert_eq!(next_back_five.messages[1].content, "hello server 6");
@@ -100,6 +100,7 @@ async fn af_cloud_load_remote_chat_message_test() {
   let first_five_messages = receive_with_timeout(rx, Duration::from_secs(30))
     .await
     .unwrap();
+  assert!(!first_five_messages.has_more);
   assert_eq!(first_five_messages.messages[0].content, "hello server 0");
   assert_eq!(first_five_messages.messages[1].content, "hello server 1");
   assert_eq!(first_five_messages.messages[2].content, "hello server 2");

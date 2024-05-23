@@ -152,11 +152,13 @@ extension ViewLayoutExtension on ViewLayoutPB {
         ViewLayoutPB.Board => FlowySvgs.board_s,
         ViewLayoutPB.Calendar => FlowySvgs.date_s,
         ViewLayoutPB.Document => FlowySvgs.document_s,
+        ViewLayoutPB.Chat => FlowySvgs.document_s,
         _ => throw Exception('Unknown layout type'),
       };
 
   bool get isDocumentView => switch (this) {
         ViewLayoutPB.Document => true,
+        ViewLayoutPB.Chat ||
         ViewLayoutPB.Grid ||
         ViewLayoutPB.Board ||
         ViewLayoutPB.Calendar =>
@@ -169,7 +171,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
         ViewLayoutPB.Board ||
         ViewLayoutPB.Calendar =>
           true,
-        ViewLayoutPB.Document => false,
+        ViewLayoutPB.Document || ViewLayoutPB.Chat => false,
         _ => throw Exception('Unknown layout type'),
       };
 }

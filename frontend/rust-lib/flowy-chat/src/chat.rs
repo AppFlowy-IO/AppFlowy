@@ -1,6 +1,7 @@
 use flowy_chat_pub::cloud::ChatCloudService;
 use std::sync::Arc;
 
+#[allow(dead_code)]
 pub struct Chat {
   chat_id: String,
   cloud_service: Arc<dyn ChatCloudService>,
