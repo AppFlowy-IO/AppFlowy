@@ -45,7 +45,7 @@ class _SettingValueDropDownState extends State<SettingValueDropDown> {
       child: widget.child ??
           FlowyTextButton(
             widget.currentValue,
-            fontColor: AFThemeExtension.of(context).onBackground,
+            fontColor: AFThemeExtension.maybeOf(context)?.onBackground,
             fillColor: Colors.transparent,
             onPressed: () {},
           ),

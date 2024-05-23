@@ -85,14 +85,14 @@ class MobileAppearance extends BaseAppearance {
       dividerColor: colorTheme.outline, //caption
       hintColor: hintColor,
       disabledColor: colorTheme.outline,
-      scaffoldBackgroundColor: colorTheme.surface,
+      scaffoldBackgroundColor: background,
       appBarTheme: AppBarTheme(
         toolbarHeight: 44.0,
-        foregroundColor: colorTheme.onSurface,
-        backgroundColor: colorTheme.surface,
+        foregroundColor: onBackground,
+        backgroundColor: background,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          color: colorTheme.onSurface,
+          color: onBackground,
           fontSize: 18,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.05,
@@ -140,8 +140,8 @@ class MobileAppearance extends BaseAppearance {
               fontWeight: FontWeight.w500,
             ),
           ),
-          foregroundColor: WidgetStateProperty.all(colorTheme.onSurface),
-          backgroundColor: WidgetStateProperty.all(colorTheme.surface),
+          foregroundColor: WidgetStateProperty.all(onBackground),
+          backgroundColor: WidgetStateProperty.all(background),
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
           ),
@@ -169,7 +169,7 @@ class MobileAppearance extends BaseAppearance {
           letterSpacing: 0.16,
         ),
         displayMedium: fontStyle.copyWith(
-          color: colorTheme.onSurface,
+          color: onBackground,
           fontSize: 32,
           fontWeight: FontWeight.w600,
           height: 1.20,
@@ -177,33 +177,33 @@ class MobileAppearance extends BaseAppearance {
         ),
         // H1 Semi 26
         displaySmall: fontStyle.copyWith(
-          color: colorTheme.onSurface,
+          color: onBackground,
           fontWeight: FontWeight.w600,
           height: 1.10,
           letterSpacing: 0.13,
         ),
         // body2 14 Regular
         bodyMedium: fontStyle.copyWith(
-          color: colorTheme.onSurface,
+          color: onBackground,
           fontWeight: FontWeight.w400,
           letterSpacing: 0.07,
         ),
         // Trash empty title
         labelLarge: fontStyle.copyWith(
-          color: colorTheme.onSurface,
+          color: onBackground,
           fontSize: 22,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.3,
         ),
         // setting item title
         labelMedium: fontStyle.copyWith(
-          color: colorTheme.onSurface,
+          color: onBackground,
           fontSize: 18,
           fontWeight: FontWeight.w500,
         ),
         // setting group title
         labelSmall: fontStyle.copyWith(
-          color: colorTheme.onSurface,
+          color: onBackground,
           fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.05,

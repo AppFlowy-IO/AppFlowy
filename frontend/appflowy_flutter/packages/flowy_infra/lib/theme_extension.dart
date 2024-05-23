@@ -5,6 +5,9 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   static AFThemeExtension of(BuildContext context) =>
       Theme.of(context).extension<AFThemeExtension>()!;
 
+  static AFThemeExtension? maybeOf(BuildContext context) =>
+      Theme.of(context).extension<AFThemeExtension>();
+
   const AFThemeExtension({
     required this.warning,
     required this.success,
