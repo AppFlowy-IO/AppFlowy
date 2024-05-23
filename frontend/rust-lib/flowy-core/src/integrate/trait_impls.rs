@@ -15,7 +15,7 @@ use tracing::debug;
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, MessageOffset, RepeatedChatMessage};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, MessageCursor, RepeatedChatMessage};
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
 };
@@ -476,7 +476,7 @@ impl ChatCloudService for ServerProvider {
     &self,
     workspace_id: &str,
     chat_id: &str,
-    offset: MessageOffset,
+    offset: MessageCursor,
     limit: u64,
   ) -> FutureResult<RepeatedChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();

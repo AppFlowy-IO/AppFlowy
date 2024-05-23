@@ -1,5 +1,4 @@
 use std::sync::{Arc, Weak};
-use tracing::instrument;
 use validator::Validate;
 
 use flowy_error::{FlowyError, FlowyResult};

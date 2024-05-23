@@ -66,6 +66,8 @@ void main() {
           case ViewLayoutPB.Calendar:
             expect(find.byType(CalendarPage), findsOneWidget);
             break;
+          case ViewLayoutPB.Chat:
+            break;
         }
 
         await tester.openPage(gettingStarted);

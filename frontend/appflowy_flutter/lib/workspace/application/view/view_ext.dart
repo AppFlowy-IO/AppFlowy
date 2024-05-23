@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/ai_chat.dart';
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
@@ -50,6 +51,7 @@ extension ViewExtension on ViewPB {
         ViewLayoutPB.Calendar => PluginType.calendar,
         ViewLayoutPB.Document => PluginType.document,
         ViewLayoutPB.Grid => PluginType.grid,
+        ViewLayoutPB.Chat => PluginType.chat,
         _ => throw UnimplementedError(),
       };
 
@@ -76,6 +78,8 @@ extension ViewExtension on ViewPB {
           pluginType: pluginType,
           initialSelection: initialSelection,
         );
+      case ViewLayoutPB.Chat:
+        return AIChatPagePlugin(view: this);
     }
     throw UnimplementedError;
   }

@@ -37,6 +37,10 @@ pub struct ChatMessageListPB {
 
   #[pb(index = 2)]
   pub messages: Vec<ChatMessagePB>,
+
+  /// If the total number of messages is 0, then the total number of messages is unknown.
+  #[pb(index = 3)]
+  pub total: i64,
 }
 
 impl From<RepeatedChatMessage> for ChatMessageListPB {
@@ -49,6 +53,7 @@ impl From<RepeatedChatMessage> for ChatMessageListPB {
     ChatMessageListPB {
       has_more: repeated_chat_message.has_more,
       messages,
+      total: repeated_chat_message.total,
     }
   }
 }

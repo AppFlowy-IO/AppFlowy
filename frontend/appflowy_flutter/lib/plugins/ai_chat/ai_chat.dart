@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -10,7 +11,11 @@ import 'package:flutter/material.dart';
 class AIChatPluginBuilder extends PluginBuilder {
   @override
   Plugin build(dynamic data) {
-    return AIChatPagePlugin();
+    if (data is ViewPB) {
+      return AIChatPagePlugin(view: data);
+    }
+
+    throw FlowyPluginException.invalidData;
   }
 
   @override
@@ -20,7 +25,7 @@ class AIChatPluginBuilder extends PluginBuilder {
   FlowySvgData get icon => FlowySvgs.ai_summary_s;
 
   @override
-  PluginType get pluginType => PluginType.aiChat;
+  PluginType get pluginType => PluginType.chat;
 
   @override
   ViewLayoutPB get layoutType => ViewLayoutPB.Chat;
@@ -32,6 +37,13 @@ class AIChatPluginConfig implements PluginConfig {
 }
 
 class AIChatPagePlugin extends Plugin {
+  AIChatPagePlugin({
+    required ViewPB view,
+  }) : notifier = ViewPluginNotifier(view: view);
+
+  @override
+  final ViewPluginNotifier notifier;
+
   @override
   PluginWidgetBuilder get widgetBuilder => AIChatPagePluginWidgetBuilder();
 
@@ -39,7 +51,7 @@ class AIChatPagePlugin extends Plugin {
   PluginId get id => "AIChatStack";
 
   @override
-  PluginType get pluginType => PluginType.aiChat;
+  PluginType get pluginType => PluginType.chat;
 }
 
 class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder

@@ -5,7 +5,7 @@ use crate::persistence::{
   insert_chat, insert_chat_messages, select_chat_messages, ChatMessageTable, ChatTable,
 };
 use dashmap::DashMap;
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, MessageOffset, RepeatedChatMessage};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, MessageCursor, RepeatedChatMessage};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::{DBConnection, QueryResult};
 use lib_infra::util::timestamp;
@@ -116,6 +116,7 @@ impl ChatManager {
       return Ok(ChatMessageListPB {
         messages,
         has_more: true,
+        total: 0,
       });
     }
 
@@ -128,6 +129,7 @@ impl ChatManager {
     Ok(ChatMessageListPB {
       messages,
       has_more: true,
+      total: 0,
     })
   }
 
@@ -218,16 +220,16 @@ async fn _load_remote_chat_messages(
   if after_message_id.is_some() && before_message_id.is_some() {
     warn!("Cannot specify both after_message_id and before_message_id");
   }
-  let offset = if after_message_id.is_some() {
-    MessageOffset::AfterMessageId(after_message_id.unwrap())
+  let cursor = if after_message_id.is_some() {
+    MessageCursor::AfterMessageId(after_message_id.unwrap())
   } else if before_message_id.is_some() {
-    MessageOffset::BeforeMessageId(before_message_id.unwrap())
+    MessageCursor::BeforeMessageId(before_message_id.unwrap())
   } else {
-    MessageOffset::Offset(0)
+    MessageCursor::NextBack
   };
 
   let resp = cloud_service
-    .get_chat_messages(&workspace_id, &chat_id, offset, limit as u64)
+    .get_chat_messages(&workspace_id, &chat_id, cursor, limit as u64)
     .await?;
   Ok(resp)
 }

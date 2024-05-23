@@ -1,4 +1,4 @@
-use client_api::entity::{MessageOffset, RepeatedChatMessage};
+use client_api::entity::{MessageCursor, RepeatedChatMessage};
 use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage};
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
@@ -32,7 +32,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     &self,
     workspace_id: &str,
     chat_id: &str,
-    offset: MessageOffset,
+    offset: MessageCursor,
     limit: u64,
   ) -> FutureResult<RepeatedChatMessage, FlowyError> {
     FutureResult::new(async move {

@@ -18,7 +18,7 @@ enum PluginType {
   board,
   calendar,
   databaseDocument,
-  aiChat,
+  chat,
 }
 
 typedef PluginId = String;

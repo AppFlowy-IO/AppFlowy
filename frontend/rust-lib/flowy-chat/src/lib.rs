@@ -4,6 +4,6 @@ pub mod event_map;
 mod chat;
 pub mod entities;
 pub mod manager;
-mod notification;
+pub mod notification;
 mod persistence;
 mod protobuf;
