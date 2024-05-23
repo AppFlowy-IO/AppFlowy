@@ -52,7 +52,7 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
       children: [
         if (widget.showIconChanger) ...[
           SizedBox(
-            width: 32.0,
+            width: 30.0,
             child: EmojiPickerButton(
               emoji: widget.emoji,
               defaultIcon: widget.icon,
@@ -64,7 +64,7 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
           const HSpace(6),
         ],
         SizedBox(
-          height: 36.0,
+          height: 32.0,
           width: 220,
           child: FlowyTextField(
             controller: _controller,
