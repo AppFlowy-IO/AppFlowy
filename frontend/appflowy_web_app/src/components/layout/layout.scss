@@ -45,6 +45,7 @@
   opacity: 60%;
 }
 
+
 .workspaces, .database-conditions, .grid-scroll-table, .grid-board, .MuiPaper-root, .appflowy-database {
   ::-webkit-scrollbar {
     width: 0;
@@ -58,9 +59,6 @@
   font-family: "Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols;
   line-height: 1em;
   white-space: nowrap;
-  //&:hover {
-  //  background-color: rgba(156, 156, 156, 0.20);
-  //}
 }
 
 .theme-mode-item {

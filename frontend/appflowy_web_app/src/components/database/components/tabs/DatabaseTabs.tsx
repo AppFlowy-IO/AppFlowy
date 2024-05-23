@@ -54,7 +54,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     return (
       <div
         ref={ref}
-        className='mx-24 -mb-[0.5px] flex items-center overflow-hidden border-b border-line-divider text-text-title max-md:mx-4'
+        className='mx-16 -mb-[0.5px] flex items-center overflow-hidden border-b border-line-divider text-text-title max-md:mx-4'
       >
         <div
           style={{

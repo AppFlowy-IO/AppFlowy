@@ -18,7 +18,7 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
 
   useEffect(() => {
     if (!workspaceId || !databaseId) return;
-    void databaseService?.getDatabase(workspaceId, databaseId).then(({ databaseDoc: doc, rows }) => {
+    void databaseService?.getDatabase(workspaceId, databaseId, rowIds).then(({ databaseDoc: doc, rows }) => {
       const fields = doc
         .getMap(YjsEditorKey.data_section)
         .get(YjsEditorKey.database)
@@ -32,7 +32,7 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
 
       setRows(rows);
     });
-  }, [workspaceId, databaseId, databaseService]);
+  }, [workspaceId, databaseId, databaseService, rowIds]);
 
   return (
     <div style={style} className={'flex items-center gap-2'}>

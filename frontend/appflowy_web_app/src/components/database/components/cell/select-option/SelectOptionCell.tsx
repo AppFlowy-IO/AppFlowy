@@ -5,7 +5,7 @@ import { CellProps, SelectOptionCell as SelectOptionCellType } from '@/component
 import React, { useCallback, useMemo } from 'react';
 
 export function SelectOptionCell({ cell, fieldId, style, placeholder }: CellProps<SelectOptionCellType>) {
-  const selectOptionIds = useMemo(() => cell?.data.split(','), [cell]);
+  const selectOptionIds = useMemo(() => (!cell?.data ? [] : cell?.data.split(',')), [cell]);
   const { field } = useFieldSelector(fieldId);
   const typeOption = useMemo(() => {
     if (!field) return null;

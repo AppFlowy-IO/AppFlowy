@@ -16,7 +16,7 @@ export const Group = ({ groupId }: GroupProps) => {
 
   if (notFound) {
     return (
-      <div className={'mt-[10%] flex h-full w-full flex-col items-center gap-2 px-24 text-text-caption max-md:px-4'}>
+      <div className={'mt-[10%] flex h-full w-full flex-col items-center gap-2 px-16 text-text-caption max-md:px-4'}>
         <div className={'text-sm font-medium'}>{t('board.noGroup')}</div>
         <div className={'text-xs'}>{t('board.noGroupDesc')}</div>
       </div>
@@ -25,7 +25,7 @@ export const Group = ({ groupId }: GroupProps) => {
 
   if (columns.length === 0 || !fieldId) return null;
   return (
-    <AFScroller overflowYHidden className={'relative px-24 max-md:px-4'}>
+    <AFScroller overflowYHidden className={'relative px-16 max-md:px-4'}>
       <Droppable droppableId={`group-${groupId}`} direction='horizontal' type='column'>
         {(provided) => {
           return (

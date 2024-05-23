@@ -197,12 +197,14 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 .bulleted-icon {
   &:after {
     content: attr(data-letter);
+    font-weight: 500;
   }
 }
 
 .numbered-icon {
   &:after {
     content: attr(data-number) ".";
+    font-weight: 500;
   }
 }
 
@@ -238,7 +240,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
   &:hover {
     .container-bg {
-      background: var(--content-blue-100) !important;
+      background: var(--fill-list-hover) !important;
     }
   }
 }
@@ -270,4 +272,8 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
     @apply ml-5;
   }
 
+}
+
+.text-block-icon {
+  @apply flex items-center justify-center;
 }

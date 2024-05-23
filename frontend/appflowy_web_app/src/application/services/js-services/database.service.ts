@@ -17,7 +17,8 @@ export class JSDatabaseService implements DatabaseService {
 
   async getDatabase(
     workspaceId: string,
-    databaseId: string
+    databaseId: string,
+    rowIds?: string[]
   ): Promise<{
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
@@ -36,25 +37,24 @@ export class JSDatabaseService implements DatabaseService {
     const database = databaseDoc.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database) as YDatabase;
     const viewId = database.get(YjsDatabaseKey.metas)?.get(YjsDatabaseKey.iid)?.toString();
     const rowOrders = database.get(YjsDatabaseKey.views)?.get(viewId)?.get(YjsDatabaseKey.row_orders);
-    const rowIds = rowOrders.toJSON() as {
+    const rowOrdersIds = rowOrders.toJSON() as {
       id: string;
     }[];
 
-    if (!rowIds) {
+    if (!rowOrdersIds) {
       throw new Error('Database rows not found');
     }
 
-    if (isLoaded) {
-      for (const row of rowIds) {
-        const { doc } = await getCollabStorage(row.id, CollabType.DatabaseRow);
+    const ids = rowIds ? rowIds : rowOrdersIds.map((item) => item.id);
 
-        rowsFolder.set(row.id, doc);
+    if (isLoaded) {
+      for (const id of ids) {
+        const { doc } = await getCollabStorage(id, CollabType.DatabaseRow);
+
+        rowsFolder.set(id, doc);
       }
     } else {
-      const rows = await this.loadDatabaseRows(
-        workspaceId,
-        rowIds.map((item) => item.id)
-      );
+      const rows = await this.loadDatabaseRows(workspaceId, ids);
 
       rows.forEach((row, id) => {
         rowsFolder.set(id, row);
@@ -62,6 +62,27 @@ export class JSDatabaseService implements DatabaseService {
     }
 
     this.loadedDatabaseId.add(databaseId);
+
+    if (!rowIds) {
+      // Update rows if new rows are added
+      rowOrders?.observe((event) => {
+        if (event.changes.added.size > 0) {
+          const rowIds = rowOrders.toJSON() as {
+            id: string;
+          }[];
+
+          console.log('Update rows', rowIds);
+          void this.loadDatabaseRows(
+            workspaceId,
+            rowIds.map((item) => item.id)
+          ).then((newRows) => {
+            newRows.forEach((row, id) => {
+              rowsFolder.set(id, row);
+            });
+          });
+        }
+      });
+    }
 
     return {
       databaseDoc,
@@ -71,7 +92,8 @@ export class JSDatabaseService implements DatabaseService {
 
   async openDatabase(
     workspaceId: string,
-    viewId: string
+    viewId: string,
+    rowIds?: string[]
   ): Promise<{
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
@@ -112,28 +134,8 @@ export class JSDatabaseService implements DatabaseService {
       throw new Error('Database not found');
     }
 
-    const { databaseDoc, rows } = await this.getDatabase(workspaceId, databaseMeta.database_id);
-    const database = databaseDoc.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database) as YDatabase;
-    const rowOrders = database.get(YjsDatabaseKey.views)?.get(viewId)?.get(YjsDatabaseKey.row_orders);
+    const { databaseDoc, rows } = await this.getDatabase(workspaceId, databaseMeta.database_id, rowIds);
 
-    // Update rows if new rows are added
-    rowOrders?.observe((event) => {
-      if (event.changes.added.size > 0) {
-        const rowIds = rowOrders.toJSON() as {
-          id: string;
-        }[];
-
-        console.log('Update rows', rowIds);
-        void this.loadDatabaseRows(
-          workspaceId,
-          rowIds.map((item) => item.id)
-        ).then((newRows) => {
-          newRows.forEach((row, id) => {
-            rows.set(id, row);
-          });
-        });
-      }
-    });
     const handleUpdate = (update: Uint8Array, origin: CollabOrigin) => {
       if (origin === CollabOrigin.LocalSync) {
         // Send the update to the server
