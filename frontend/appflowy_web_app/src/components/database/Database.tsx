@@ -2,7 +2,6 @@ import { YDoc, YjsEditorKey } from '@/application/collab.type';
 import { useId } from '@/components/_shared/context-provider/IdProvider';
 import RecordNotFound from '@/components/_shared/not-found/RecordNotFound';
 import { AFConfigContext } from '@/components/app/AppConfig';
-import { DatabaseHeader } from '@/components/database/components/header';
 import DatabaseViews from '@/components/database/DatabaseViews';
 import { DatabaseContextProvider } from '@/components/database/DatabaseContext';
 import { Log } from '@/utils/log';
@@ -71,19 +70,16 @@ export const Database = memo(() => {
   }
 
   return (
-    <div className={'relative flex h-full w-full flex-col'}>
-      <DatabaseHeader viewId={objectId} />
-      <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
-        <DatabaseContextProvider
-          navigateToRow={navigateToRow}
-          viewId={viewId || objectId}
-          doc={doc}
-          rowDocMap={rows}
-          readOnly={true}
-        >
-          <DatabaseViews onChangeView={handleChangeView} currentViewId={viewId || objectId} />
-        </DatabaseContextProvider>
-      </div>
+    <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
+      <DatabaseContextProvider
+        navigateToRow={navigateToRow}
+        viewId={viewId || objectId}
+        doc={doc}
+        rowDocMap={rows}
+        readOnly={true}
+      >
+        <DatabaseViews onChangeView={handleChangeView} currentViewId={viewId || objectId} />
+      </DatabaseContextProvider>
     </div>
   );
 });

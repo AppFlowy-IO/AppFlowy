@@ -7,7 +7,7 @@ export function TextCell({ cell, style }: CellProps<TextCellType>) {
 
   if (!cell?.data) return null;
   return (
-    <div style={style} className={`cursor-text leading-[1.2] ${readOnly ? 'select-text' : ''}`}>
+    <div style={style} className={`text-cell w-full cursor-text leading-[1.2] ${readOnly ? 'select-text' : ''}`}>
       {cell?.data}
     </div>
   );

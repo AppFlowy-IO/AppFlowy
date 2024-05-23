@@ -26,7 +26,7 @@ export const RichTooltip = ({ placement = 'top', open, onClose, content, childre
         anchorEl={childNode}
         placement={placement}
         transition
-        style={{ zIndex: 2000 }}
+        style={{ zIndex: 1200 }}
         modifiers={[
           {
             name: 'flip',

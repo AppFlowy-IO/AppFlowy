@@ -101,7 +101,7 @@ export function useFieldsSelector(visibilitys: FieldVisibility[] = defaultVisibl
             visibility: Number(
               setting?.get(YjsDatabaseKey.visibility) || FieldVisibility.AlwaysShown
             ) as FieldVisibility,
-            wrap: setting?.get(YjsDatabaseKey.wrap),
+            wrap: setting?.get(YjsDatabaseKey.wrap) ?? true,
           };
         })
         .filter((column) => {

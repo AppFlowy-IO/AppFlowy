@@ -94,10 +94,10 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
       const row = data.rows[rowIndex];
       const column = data.columns[columnIndex] as RenderColumn;
 
-      const classList = ['flex', 'items-center', 'overflow-hidden'];
+      const classList = ['flex', 'items-center', 'overflow-hidden', 'grid-row-cell'];
 
       if (column.wrap) {
-        classList.push('whitespace-pre-wrap', 'break-words');
+        classList.push('wrap-cell');
       } else {
         classList.push('whitespace-nowrap');
       }
@@ -113,6 +113,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
       if (row.type === RenderRowType.Row) {
         return (
           <div
+            data-row-id={row.rowId}
             className={classList.join(' ')}
             style={{ ...style, borderLeftWidth: columnIndex === 1 || column.type === GridColumnType.Action ? 0 : 1 }}
           >
@@ -153,6 +154,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
           columnCount={columns.length}
           columnWidth={(index) => columnWidth(index, width)}
           rowHeight={rowHeight}
+          className={'grid-table'}
           overscanRowCount={5}
           overscanColumnCount={5}
           style={{
