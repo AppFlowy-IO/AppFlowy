@@ -1,14 +1,17 @@
 import { YDoc } from '@/application/collab.type';
+import { useRowMetaSelector } from '@/application/database-yjs';
 import { useId } from '@/components/_shared/context-provider/IdProvider';
 import { AFConfigContext } from '@/components/app/AppConfig';
-import { DocumentHeader } from '@/components/document/document_header';
 import { Editor } from '@/components/editor';
 import { Log } from '@/utils/log';
+import CircularProgress from '@mui/material/CircularProgress';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import RecordNotFound from 'src/components/_shared/not-found/RecordNotFound';
+import RecordNotFound from '@/components/_shared/not-found/RecordNotFound';
 
-export const Document = () => {
-  const { objectId: documentId, workspaceId } = useId() || {};
+export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
+  const { workspaceId } = useId() || {};
+  const documentId = useRowMetaSelector(rowId)?.documentId;
+
   const [doc, setDoc] = useState<YDoc | null>(null);
   const [notFound, setNotFound] = useState<boolean>(false);
 
@@ -32,22 +35,19 @@ export const Document = () => {
     void handleOpenDocument();
   }, [handleOpenDocument]);
 
-  if (!documentId) return null;
+  if (notFound || !documentId) {
+    return <RecordNotFound open={notFound} workspaceId={workspaceId} />;
+  }
 
-  return (
-    <>
-      {doc && (
-        <div className={'relative w-full'}>
-          <DocumentHeader doc={doc} viewId={documentId} />
-          <div className={'flex w-full justify-center'}>
-            <div className={'max-w-screen w-[964px] min-w-0'}>
-              <Editor doc={doc} readOnly={true} includeRoot={true} />
-            </div>
-          </div>
-        </div>
-      )}
+  if (!doc) {
+    return (
+      <div className={'flex h-full w-full items-center justify-center'}>
+        <CircularProgress />
+      </div>
+    );
+  }
 
-      <RecordNotFound open={notFound} workspaceId={workspaceId} />
-    </>
-  );
-};
+  return <Editor doc={doc} readOnly={true} includeRoot={false} />;
+}
+
+export default DatabaseRowSubDocument;

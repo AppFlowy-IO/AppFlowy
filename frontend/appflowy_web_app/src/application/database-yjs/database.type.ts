@@ -63,3 +63,10 @@ export interface CalendarLayoutSetting {
   showWeekends: boolean;
   layout: CalendarLayout;
 }
+
+export enum RowMetaKey {
+  DocumentId = 'document_id',
+  IconId = 'icon_id',
+  CoverId = 'cover_id',
+  IsDocumentEmpty = 'is_document_empty',
+}

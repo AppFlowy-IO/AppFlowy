@@ -20,7 +20,7 @@ export const MathEquation = memo(
           >
             <div
               contentEditable={false}
-              className={`container-bg w-full select-none rounded border border-line-divider bg-content-blue-50 px-3`}
+              className={`container-bg w-full select-none rounded  border border-line-divider bg-fill-list-active px-3`}
             >
               {formula ? (
                 <KatexMath latex={formula} />

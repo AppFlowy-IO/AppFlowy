@@ -62,6 +62,7 @@ export function parseCellDataForSort(field: YDatabaseField, data: string | boole
   switch (fieldType) {
     case FieldType.RichText:
     case FieldType.URL:
+      return data ? data : '\uFFFF';
     case FieldType.Number:
       return data;
     case FieldType.Checkbox:

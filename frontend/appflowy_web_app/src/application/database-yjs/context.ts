@@ -8,6 +8,7 @@ export interface DatabaseContextState {
   doc: YDoc;
   viewId: string;
   rowDocMap: Y.Map<YDoc>;
+  navigateToRow?: (rowId: string) => void;
 }
 
 export const DatabaseContext = createContext<DatabaseContextState | null>(null);
@@ -20,12 +21,18 @@ export const useDatabase = () => {
   return database;
 };
 
-export const useRowMeta = (rowId: string) => {
-  const rows = useContext(DatabaseContext)?.rowDocMap;
-  const rowMetaDoc = rows?.get(rowId);
-  const rowMeta = rowMetaDoc?.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database_row) as YDatabaseRow;
+export const useNavigateToRow = () => {
+  return useContext(DatabaseContext)?.navigateToRow;
+};
 
-  return rowMeta;
+export const useRow = (rowId: string) => {
+  const rows = useContext(DatabaseContext)?.rowDocMap;
+
+  return rows?.get(rowId)?.getMap(YjsEditorKey.data_section);
+};
+
+export const useRowData = (rowId: string) => {
+  return useRow(rowId)?.get(YjsEditorKey.database_row) as YDatabaseRow;
 };
 
 export const useViewId = () => {

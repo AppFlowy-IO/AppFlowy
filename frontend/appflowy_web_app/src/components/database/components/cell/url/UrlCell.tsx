@@ -9,7 +9,7 @@ export function UrlCell({ cell, style, placeholder }: CellProps<UrlCellType>) {
   const isUrl = useMemo(() => (cell ? processUrl(cell.data) : false), [cell]);
 
   const className = useMemo(() => {
-    const classList = ['select-text', 'w-fit'];
+    const classList = ['select-text', 'w-fit', 'flex', 'w-full', 'items-center'];
 
     if (isUrl) {
       classList.push('text-content-blue-400', 'underline', 'cursor-pointer');

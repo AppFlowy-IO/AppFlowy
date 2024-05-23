@@ -1,11 +1,12 @@
-import { FieldId, SortId, YDatabaseField, YjsDatabaseKey, YjsFolderKey } from '@/application/collab.type';
-import { getCell, MIN_COLUMN_WIDTH } from '@/application/database-yjs/const';
+import { FieldId, SortId, YDatabaseField, YjsDatabaseKey, YjsEditorKey, YjsFolderKey } from '@/application/collab.type';
+import { getCell, metaIdFromRowId, MIN_COLUMN_WIDTH } from '@/application/database-yjs/const';
 import {
   DatabaseContext,
   useDatabase,
   useDatabaseFields,
   useDatabaseView,
-  useRowMeta,
+  useRow,
+  useRowData,
   useRows,
   useViewId,
 } from '@/application/database-yjs/context';
@@ -18,8 +19,8 @@ import { parseYDatabaseCellToCell } from '@/components/database/components/cell/
 import { DateTimeCell } from '@/components/database/components/cell/cell.type';
 import dayjs from 'dayjs';
 import debounce from 'lodash-es/debounce';
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { CalendarLayoutSetting, FieldType, FieldVisibility, Filter, SortCondition } from './database.type';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { CalendarLayoutSetting, FieldType, FieldVisibility, Filter, RowMetaKey, SortCondition } from './database.type';
 
 export interface Column {
   fieldId: string;
@@ -473,7 +474,7 @@ export function useRowOrdersSelector() {
 }
 
 export function useCellSelector({ rowId, fieldId }: { rowId: string; fieldId: string }) {
-  const row = useRowMeta(rowId);
+  const row = useRowData(rowId);
   const cell = row?.get(YjsDatabaseKey.cells)?.get(fieldId);
   const [cellValue, setCellValue] = useState(() => (cell ? parseYDatabaseCellToCell(cell) : undefined));
 
@@ -585,3 +586,59 @@ export function useCalendarLayoutSetting() {
 
   return setting;
 }
+
+export function usePrimaryFieldId() {
+  const database = useDatabase();
+  const [primaryFieldId, setPrimaryFieldId] = React.useState<string | null>(null);
+
+  useEffect(() => {
+    const fields = database?.get(YjsDatabaseKey.fields);
+    const primaryFieldId = Array.from(fields?.keys() || []).find((fieldId) => {
+      return fields?.get(fieldId)?.get(YjsDatabaseKey.is_primary);
+    });
+
+    setPrimaryFieldId(primaryFieldId || null);
+  }, [database]);
+
+  return primaryFieldId;
+}
+
+export interface RowMeta {
+  documentId: string;
+  cover: string;
+  icon: string;
+  isEmptyDocument: boolean;
+}
+
+export const useRowMetaSelector = (rowId: string) => {
+  const [meta, setMeta] = useState<RowMeta | null>();
+  const yMeta = useRow(rowId)?.get(YjsEditorKey.meta);
+
+  useEffect(() => {
+    if (!yMeta) return;
+    const onChange = () => {
+      const metaJson = yMeta.toJSON();
+      const getData = metaIdFromRowId(rowId);
+      const icon = metaJson[getData(RowMetaKey.IconId)];
+      const cover = metaJson[getData(RowMetaKey.CoverId)];
+      const documentId = getData(RowMetaKey.DocumentId);
+      const isEmptyDocument = metaJson[getData(RowMetaKey.IsDocumentEmpty)];
+
+      return setMeta({
+        icon,
+        cover,
+        documentId,
+        isEmptyDocument,
+      });
+    };
+
+    onChange();
+
+    yMeta.observe(onChange);
+    return () => {
+      yMeta.unobserve(onChange);
+    };
+  }, [rowId, yMeta]);
+
+  return meta;
+};

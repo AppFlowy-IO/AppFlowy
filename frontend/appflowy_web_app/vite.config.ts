@@ -71,6 +71,9 @@ export default defineConfig({
     cors: false,
   },
   envPrefix: ['AF', 'TAURI_'],
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
   build: !!process.env.TAURI_PLATFORM
     ? {
         // Tauri supports es2021
@@ -82,15 +85,6 @@ export default defineConfig({
       }
     : {
         target: `esnext`,
-        terserOptions: !isDev
-          ? {
-              compress: {
-                keep_infinity: true,
-                drop_console: true,
-                drop_debugger: true,
-              },
-            }
-          : {},
         reportCompressedSize: true,
         sourcemap: isDev,
         rollupOptions: !isDev
