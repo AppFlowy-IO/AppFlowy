@@ -234,7 +234,6 @@ class DatabaseViewSettingTile extends StatelessWidget {
         showHeader: true,
         showBackButton: true,
         title: LocaleKeys.grid_settings_properties.tr(),
-        showDivider: true,
         builder: (_) {
           return BlocProvider.value(
             value: context.read<ViewBloc>(),

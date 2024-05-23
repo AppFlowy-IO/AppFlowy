@@ -930,7 +930,7 @@ class _CursorColorValueWidget extends StatelessWidget {
         FlowyText(
           LocaleKeys.appName.tr(),
           // To avoid the text color changes when it is hovered in dark mode
-          color: Theme.of(context).colorScheme.onBackground,
+          color: AFThemeExtension.of(context).onBackground,
         ),
       ],
     );
@@ -981,7 +981,7 @@ class _SelectionColorValueWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // To avoid the text color changes when it is hovered in dark mode
-    final textColor = Theme.of(context).colorScheme.onBackground;
+    final textColor = AFThemeExtension.of(context).onBackground;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

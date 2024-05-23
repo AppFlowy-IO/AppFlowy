@@ -59,14 +59,14 @@ class _SettingsDropdownState<T> extends State<SettingsDropdown<T>> {
                 ?.copyWith(fontFamily: fontFamilyUsed),
             menuStyle: MenuStyle(
               maximumSize:
-                  const MaterialStatePropertyAll(Size(double.infinity, 250)),
-              elevation: const MaterialStatePropertyAll(10),
+                  const WidgetStatePropertyAll(Size(double.infinity, 250)),
+              elevation: const WidgetStatePropertyAll(10),
               shadowColor:
-                  MaterialStatePropertyAll(Colors.black.withOpacity(0.4)),
-              backgroundColor: MaterialStatePropertyAll(
+                  WidgetStatePropertyAll(Colors.black.withOpacity(0.4)),
+              backgroundColor: WidgetStatePropertyAll(
                 Theme.of(context).cardColor,
               ),
-              padding: const MaterialStatePropertyAll(
+              padding: const WidgetStatePropertyAll(
                 EdgeInsets.symmetric(horizontal: 6, vertical: 8),
               ),
               alignment: Alignment.bottomLeft,

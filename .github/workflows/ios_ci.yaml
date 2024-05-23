@@ -20,7 +20,7 @@ on:
       - "!frontend/appflowy_web_app/**"
 
 env:
-  FLUTTER_VERSION: "3.19.0"
+  FLUTTER_VERSION: "3.22.0"
   RUST_TOOLCHAIN: "1.77.2"
 
 concurrency:

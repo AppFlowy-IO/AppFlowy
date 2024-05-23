@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,6 +43,7 @@ class EditorStyleCustomizer {
 
   EditorStyle desktop() {
     final theme = Theme.of(context);
+    final afThemeExtension = AFThemeExtension.of(context);
     final appearanceFont = context.read<AppearanceSettingsCubit>().state.font;
     final appearance = context.read<DocumentAppearanceCubit>().state;
     final fontSize = appearance.fontSize;
@@ -60,8 +62,7 @@ class EditorStyleCustomizer {
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
-          color: theme.colorScheme.onBackground,
-          height: 1.5,
+          color: afThemeExtension.onBackground,
         ),
         bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
           fontWeight: FontWeight.w600,
@@ -93,6 +94,7 @@ class EditorStyleCustomizer {
   }
 
   EditorStyle mobile() {
+    final afThemeExtension = AFThemeExtension.of(context);
     final pageStyle = context.read<DocumentPageStyleBloc>().state;
     final theme = Theme.of(context);
     final fontSize = pageStyle.fontLayout.fontSize;
@@ -108,10 +110,10 @@ class EditorStyleCustomizer {
       padding: padding,
       defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
+        lineHeight: lineHeight,
         text: baseTextStyle.copyWith(
           fontSize: fontSize,
-          color: theme.colorScheme.onBackground,
-          height: lineHeight,
+          color: afThemeExtension.onBackground,
         ),
         bold: baseTextStyle.copyWith(fontWeight: FontWeight.w600),
         italic: baseTextStyle.copyWith(fontStyle: FontStyle.italic),
@@ -177,7 +179,7 @@ class EditorStyleCustomizer {
     return baseTextStyle(fontFamily).copyWith(
       fontSize: fontSize,
       height: 1.5,
-      color: Theme.of(context).colorScheme.onBackground,
+      color: AFThemeExtension.of(context).onBackground,
     );
   }
 
@@ -187,16 +189,17 @@ class EditorStyleCustomizer {
       fontFamily: defaultFontFamily,
       fontSize: fontSize,
       height: 1.5,
-      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+      color: AFThemeExtension.of(context).onBackground.withOpacity(0.6),
     );
   }
 
   SelectionMenuStyle selectionMenuStyleBuilder() {
     final theme = Theme.of(context);
+    final afThemeExtension = AFThemeExtension.of(context);
     return SelectionMenuStyle(
       selectionMenuBackgroundColor: theme.cardColor,
-      selectionMenuItemTextColor: theme.colorScheme.onBackground,
-      selectionMenuItemIconColor: theme.colorScheme.onBackground,
+      selectionMenuItemTextColor: afThemeExtension.onBackground,
+      selectionMenuItemIconColor: afThemeExtension.onBackground,
       selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedColor: theme.hoverColor,
@@ -205,10 +208,11 @@ class EditorStyleCustomizer {
 
   InlineActionsMenuStyle inlineActionsMenuStyleBuilder() {
     final theme = Theme.of(context);
+    final afThemeExtension = AFThemeExtension.of(context);
     return InlineActionsMenuStyle(
       backgroundColor: theme.cardColor,
-      groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
-      menuItemTextColor: theme.colorScheme.onBackground,
+      groupTextColor: afThemeExtension.onBackground.withOpacity(.8),
+      menuItemTextColor: afThemeExtension.onBackground,
       menuItemSelectedColor: theme.colorScheme.secondary,
       menuItemSelectedTextColor: theme.colorScheme.onSurface,
     );

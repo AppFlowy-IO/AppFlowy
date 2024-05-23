@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 
 class SettingValueDropDown extends StatefulWidget {
   const SettingValueDropDown({
@@ -45,7 +45,7 @@ class _SettingValueDropDownState extends State<SettingValueDropDown> {
       child: widget.child ??
           FlowyTextButton(
             widget.currentValue,
-            fontColor: Theme.of(context).colorScheme.onBackground,
+            fontColor: AFThemeExtension.maybeOf(context)?.onBackground,
             fillColor: Colors.transparent,
             onPressed: () {},
           ),
