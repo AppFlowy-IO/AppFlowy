@@ -1,4 +1,4 @@
-use client_api::entity::{MessageOffset, RepeatedChatMessage};
+pub use client_api::entity::{ChatMessage, MessageOffset, RepeatedChatMessage};
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
@@ -24,4 +24,10 @@ pub trait ChatCloudService: Send + Sync + 'static {
     offset: MessageOffset,
     limit: u64,
   ) -> FutureResult<RepeatedChatMessage, FlowyError>;
+}
+
+pub trait ChatUserService: Send + Sync + 'static {
+  fn user_id(&self) -> Result<i64, FlowyError>;
+  fn device_id(&self) -> Result<String, FlowyError>;
+  fn workspace_id(&self) -> Result<String, FlowyError>;
 }
