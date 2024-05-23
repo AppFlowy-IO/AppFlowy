@@ -50,7 +50,7 @@ class WorkspaceMoreActionList extends StatelessWidget {
           child: FlowyButton(
             margin: const EdgeInsets.symmetric(horizontal: 4.0),
             text: const FlowySvg(
-              FlowySvgs.three_dots_s,
+              FlowySvgs.workspace_three_dots_s,
             ),
             onTap: () {
               controller.show();

@@ -195,9 +195,23 @@ class WorkspaceMenuItem extends StatelessWidget {
 
     return Row(
       children: [
+        if (isSelected) ...[
+          const Padding(
+            padding: EdgeInsets.all(5.0),
+            child: FlowySvg(
+              FlowySvgs.workspace_selected_s,
+              blendMode: null,
+              size: Size.square(14.0),
+            ),
+          ),
+          const HSpace(8.0),
+        ],
         ValueListenableBuilder(
           valueListenable: isHovered,
           builder: (context, value, child) {
+            if (!value) {
+              return const SizedBox.shrink();
+            }
             return Opacity(
               opacity: value ? 1.0 : 0.0,
               child: child,
@@ -205,15 +219,6 @@ class WorkspaceMenuItem extends StatelessWidget {
           },
           child: WorkspaceMoreActionList(workspace: workspace),
         ),
-        if (isSelected)
-          const Padding(
-            padding: EdgeInsets.all(5.0),
-            child: FlowySvg(
-              FlowySvgs.m_blue_check_s,
-              blendMode: null,
-              size: Size.square(14.0),
-            ),
-          ),
       ],
     );
   }
