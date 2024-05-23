@@ -69,7 +69,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             value={isSelected ? selectedViewId : objectId}
             onChange={handleChange}
           >
-            {viewIds.map((viewId, index) => {
+            {viewIds.map((viewId) => {
               const view = getFolderView(viewId);
 
               if (!view) return null;
@@ -80,9 +80,6 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
               return (
                 <ViewTab
                   key={viewId}
-                  style={{
-                    borderRight: index === viewIds.length - 1 ? 'none' : '1px solid var(--line-divider)',
-                  }}
                   icon={<Icon className={'h-4 w-4'} />}
                   iconPosition='start'
                   color='inherit'

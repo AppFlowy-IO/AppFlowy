@@ -18,6 +18,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flowy_infra/theme_extension.dart';
 
 class AppFlowyCloudViewSetting extends StatelessWidget {
   const AppFlowyCloudViewSetting({
@@ -289,7 +290,7 @@ class CloudURLInputState extends State<CloudURLInput> {
             .copyWith(fontWeight: FontWeight.w400, fontSize: 16),
         enabledBorder: UnderlineInputBorder(
           borderSide:
-              BorderSide(color: Theme.of(context).colorScheme.onBackground),
+              BorderSide(color: AFThemeExtension.of(context).onBackground),
         ),
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),

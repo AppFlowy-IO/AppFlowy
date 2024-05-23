@@ -3,7 +3,7 @@ import { CellProps, DateTimeCell as DateTimeCellType } from '@/components/databa
 import React, { useMemo } from 'react';
 import { ReactComponent as ReminderSvg } from '$icons/16x/clock_alarm.svg';
 
-export function DateTimeCell({ cell, fieldId, style }: CellProps<DateTimeCellType>) {
+export function DateTimeCell({ cell, fieldId, style, placeholder }: CellProps<DateTimeCellType>) {
   const { getDateTimeStr } = useDateTypeCellDispatcher(fieldId);
 
   const startDateTime = useMemo(() => {
@@ -25,7 +25,12 @@ export function DateTimeCell({ cell, fieldId, style }: CellProps<DateTimeCellTyp
 
   const hasReminder = !!cell?.reminderId;
 
-  if (!cell?.data) return null;
+  if (!cell?.data)
+    return placeholder ? (
+      <div style={style} className={'text-text-placeholder'}>
+        {placeholder}
+      </div>
+    ) : null;
   return (
     <div style={style} className={'flex cursor-text items-center gap-1'}>
       {hasReminder && <ReminderSvg className={'h-4 w-4'} />}

@@ -77,22 +77,22 @@ class _DatabaseViewSelectorButton extends StatelessWidget {
 
         return TextButton(
           style: ButtonStyle(
-            padding: const MaterialStatePropertyAll(
+            padding: const WidgetStatePropertyAll(
               EdgeInsets.fromLTRB(12, 8, 8, 8),
             ),
-            maximumSize: const MaterialStatePropertyAll(Size(200, 48)),
-            minimumSize: const MaterialStatePropertyAll(Size(48, 0)),
-            shape: const MaterialStatePropertyAll(
+            maximumSize: const WidgetStatePropertyAll(Size(200, 48)),
+            minimumSize: const WidgetStatePropertyAll(Size(48, 0)),
+            shape: const WidgetStatePropertyAll(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(12)),
               ),
             ),
-            backgroundColor: MaterialStatePropertyAll(
+            backgroundColor: WidgetStatePropertyAll(
               Theme.of(context).brightness == Brightness.light
                   ? const Color(0x0F212729)
                   : const Color(0x0FFFFFFF),
             ),
-            overlayColor: MaterialStatePropertyAll(
+            overlayColor: WidgetStatePropertyAll(
               Theme.of(context).colorScheme.secondary,
             ),
           ),
@@ -119,7 +119,6 @@ class _DatabaseViewSelectorButton extends StatelessWidget {
             showTransitionMobileBottomSheet(
               context,
               showDivider: false,
-              initialStop: 1.0,
               builder: (_) {
                 return MultiBlocProvider(
                   providers: [

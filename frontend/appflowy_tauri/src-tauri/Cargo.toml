@@ -94,6 +94,7 @@ flowy-notification = { path = "../../rust-lib/flowy-notification", features = [
 uuid = "1.5.0"
 tauri-plugin-deep-link = "0.1.2"
 dotenv = "0.15.0"
+semver = "1.0.23"
 
 [features]
 # by default Tauri runs in production mode

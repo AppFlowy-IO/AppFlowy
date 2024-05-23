@@ -22,8 +22,6 @@ Future<void> showTextColorAndBackgroundColorPicker(
   await showMobileBottomSheet(
     context,
     showHeader: true,
-    showCloseButton: false,
-    showDivider: true,
     showDragHandle: true,
     showDoneButton: true,
     barrierColor: Colors.transparent,

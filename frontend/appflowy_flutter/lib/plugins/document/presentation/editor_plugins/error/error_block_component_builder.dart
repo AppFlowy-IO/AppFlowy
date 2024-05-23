@@ -61,7 +61,7 @@ class _ErrorBlockComponentWidgetState extends State<ErrorBlockComponentWidget>
   Widget build(BuildContext context) {
     Widget child = DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(4),
       ),
       child: FlowyButton(

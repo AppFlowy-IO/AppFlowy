@@ -422,7 +422,7 @@ class _UnselectRowButton extends StatefulWidget {
 }
 
 class _UnselectRowButtonState extends State<_UnselectRowButton> {
-  final _materialStatesController = MaterialStatesController();
+  final _materialStatesController = WidgetStatesController();
 
   @override
   void dispose() {
@@ -437,26 +437,25 @@ class _UnselectRowButtonState extends State<_UnselectRowButton> {
       onHover: (_) => setState(() {}),
       onFocusChange: (_) => setState(() {}),
       style: ButtonStyle(
-        fixedSize: const MaterialStatePropertyAll(Size.square(32)),
-        minimumSize: const MaterialStatePropertyAll(Size.square(32)),
-        maximumSize: const MaterialStatePropertyAll(Size.square(32)),
-        overlayColor: MaterialStateProperty.resolveWith((state) {
-          if (state.contains(MaterialState.focused)) {
+        fixedSize: const WidgetStatePropertyAll(Size.square(32)),
+        minimumSize: const WidgetStatePropertyAll(Size.square(32)),
+        maximumSize: const WidgetStatePropertyAll(Size.square(32)),
+        overlayColor: WidgetStateProperty.resolveWith((state) {
+          if (state.contains(WidgetState.focused)) {
             return AFThemeExtension.of(context).greyHover;
           }
           return Colors.transparent;
         }),
-        shape: const MaterialStatePropertyAll(
+        shape: const WidgetStatePropertyAll(
           RoundedRectangleBorder(borderRadius: Corners.s6Border),
         ),
       ),
       statesController: _materialStatesController,
       child: Container(
-        color: _materialStatesController.value
-                    .contains(MaterialState.hovered) ||
-                _materialStatesController.value.contains(MaterialState.focused)
+        color: _materialStatesController.value.contains(WidgetState.hovered) ||
+                _materialStatesController.value.contains(WidgetState.focused)
             ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onBackground,
+            : AFThemeExtension.of(context).onBackground,
         width: 12,
         height: 1,
       ),

@@ -37,7 +37,6 @@ class RTLSetting extends StatelessWidget {
           showHeader: true,
           showDragHandle: true,
           showDivider: false,
-          showCloseButton: false,
           title: LocaleKeys.settings_appearance_textDirection_label.tr(),
           builder: (context) {
             final layoutDirection =
