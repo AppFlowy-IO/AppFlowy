@@ -148,22 +148,8 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
       height: 40,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // FIXME: use real data
-          FlowyText.regular(
-            'Last edited by Lucas',
-            fontSize: 13.0,
-            color: Theme.of(context).hintColor,
-          ),
-          const VSpace(4.0),
-          FlowyText.regular(
-            '2021-09-09 09:09:09',
-            fontSize: 13.0,
-            color: Theme.of(context).hintColor,
-          ),
-        ],
       ),
     );
   }
