@@ -1,7 +1,6 @@
 import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -13,30 +12,51 @@ class FavoriteMenuBloc extends Bloc<FavoriteMenuEvent, FavoriteMenuState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            final List<ViewPB> views = await _service.readFavorites().fold(
-                  (s) => s.items.where((e) => !e.isPinned).toList(),
-                  (f) => [],
-                );
+            final favoriteViews = await _service.readFavorites();
+            List<ViewPB> views = [];
+            List<ViewPB> todayViews = [];
+            List<ViewPB> thisWeekViews = [];
+            List<ViewPB> otherViews = [];
+
+            favoriteViews.onSuccess((s) {
+              _source = s;
+              (views, todayViews, thisWeekViews, otherViews) = _getViews(s);
+            });
+
             emit(
               state.copyWith(
                 views: views,
                 queriedViews: views,
+                todayViews: todayViews,
+                thisWeekViews: thisWeekViews,
+                otherViews: otherViews,
               ),
             );
           },
           search: (query) async {
-            if (query.isEmpty) {
-              emit(state.copyWith(queriedViews: state.views));
+            if (_source == null) {
               return;
             }
+            var (views, todayViews, thisWeekViews, otherViews) =
+                _getViews(_source!);
+            var queriedViews = views;
 
-            final queriedViews = state.views
-                .where(
-                  (view) =>
-                      view.name.toLowerCase().contains(query.toLowerCase()),
-                )
-                .toList();
-            emit(state.copyWith(queriedViews: queriedViews));
+            if (query.isNotEmpty) {
+              queriedViews = _filter(views, query);
+              todayViews = _filter(state.todayViews, query);
+              thisWeekViews = _filter(state.thisWeekViews, query);
+              otherViews = _filter(state.otherViews, query);
+            }
+
+            emit(
+              state.copyWith(
+                views: views,
+                queriedViews: queriedViews,
+                todayViews: todayViews,
+                thisWeekViews: thisWeekViews,
+                otherViews: otherViews,
+              ),
+            );
           },
         );
       },
@@ -44,6 +64,44 @@ class FavoriteMenuBloc extends Bloc<FavoriteMenuEvent, FavoriteMenuState> {
   }
 
   final FavoriteService _service = FavoriteService();
+  RepeatedFavoriteViewPB? _source;
+
+  List<ViewPB> _filter(List<ViewPB> views, String query) {
+    return views
+        .where(
+          (view) => view.name.toLowerCase().contains(query.toLowerCase()),
+        )
+        .toList();
+  }
+
+  // all, today, last week, other
+  (List<ViewPB>, List<ViewPB>, List<ViewPB>, List<ViewPB>) _getViews(
+    RepeatedFavoriteViewPB source,
+  ) {
+    final List<ViewPB> views =
+        source.items.map((v) => v.item).where((e) => !e.isPinned).toList();
+    final List<ViewPB> todayViews = [];
+    final List<ViewPB> thisWeekViews = [];
+    final List<ViewPB> otherViews = [];
+    for (final favoriteView in source.items) {
+      final view = favoriteView.item;
+      if (view.isPinned) {
+        continue;
+      }
+      final date = DateTime.fromMillisecondsSinceEpoch(
+        favoriteView.timestamp.toInt() * 1000,
+      );
+      final diff = DateTime.now().difference(date).inDays;
+      if (diff == 0) {
+        todayViews.add(view);
+      } else if (diff < 7) {
+        thisWeekViews.add(view);
+      } else {
+        otherViews.add(view);
+      }
+    }
+    return (views, todayViews, thisWeekViews, otherViews);
+  }
 }
 
 @freezed
@@ -57,9 +115,9 @@ class FavoriteMenuState with _$FavoriteMenuState {
   const factory FavoriteMenuState({
     @Default([]) List<ViewPB> views,
     @Default([]) List<ViewPB> queriedViews,
-    @Default([]) List<List<ViewPB>> todayViews,
-    @Default([]) List<List<ViewPB>> lastWeekViews,
-    @Default([]) List<List<ViewPB>> otherViews,
+    @Default([]) List<ViewPB> todayViews,
+    @Default([]) List<ViewPB> thisWeekViews,
+    @Default([]) List<ViewPB> otherViews,
   }) = _FavoriteMenuState;
 
   factory FavoriteMenuState.initial() => const FavoriteMenuState();

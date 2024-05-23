@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favo
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_more_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_pin_action.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/cupertino.dart';
@@ -31,61 +32,113 @@ class FavoriteMenu extends StatelessWidget {
       child: BlocProvider(
         create: (context) =>
             FavoriteMenuBloc()..add(const FavoriteMenuEvent.initial()),
+        child: BlocBuilder<FavoriteMenuBloc, FavoriteMenuState>(
+          builder: (context, state) {
+            if (state.views.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const VSpace(4),
+                _FavoriteSearchField(
+                  width: minWidth - 2 * _kHorizontalPadding,
+                  onSearch: (context, text) {
+                    context
+                        .read<FavoriteMenuBloc>()
+                        .add(FavoriteMenuEvent.search(text));
+                  },
+                ),
+                const VSpace(12),
+                _buildViews(context, state),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildViews(BuildContext context, FavoriteMenuState state) {
+    return Container(
+      width: minWidth - 2 * _kHorizontalPadding,
+      constraints: const BoxConstraints(
+        maxHeight: 300,
+      ),
+      child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _FavoriteSearchField(
-              width: minWidth - 2 * _kHorizontalPadding,
-              onSearch: (context, text) {
-                context
-                    .read<FavoriteMenuBloc>()
-                    .add(FavoriteMenuEvent.search(text));
-              },
+            ..._buildGroups(
+              context,
+              state.todayViews,
+              LocaleKeys.sideBar_today.tr(),
             ),
-            const VSpace(12),
-            _buildViews(context),
+            ..._buildGroups(
+              context,
+              state.thisWeekViews,
+              LocaleKeys.sideBar_thisWeek.tr(),
+            ),
+            ..._buildGroups(
+              context,
+              state.otherViews,
+              LocaleKeys.sideBar_others.tr(),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildViews(BuildContext context) {
-    return BlocBuilder<FavoriteMenuBloc, FavoriteMenuState>(
-      builder: (context, state) {
-        return Container(
-          width: minWidth - 2 * _kHorizontalPadding,
-          constraints: const BoxConstraints(
-            maxHeight: 300,
+  List<Widget> _buildGroups(
+    BuildContext context,
+    List<ViewPB> views,
+    String title,
+  ) {
+    return [
+      if (views.isNotEmpty) ...[
+        SizedBox(
+          height: 24,
+          child: FlowyText(
+            title,
+            fontSize: 12.0,
+            color: Theme.of(context).hintColor,
           ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: state.queriedViews
-                  .map(
-                    (e) => ViewItem(
-                      key: ValueKey(e.id),
-                      view: e,
-                      spaceType: FolderSpaceType.favorite,
-                      level: 0,
-                      onSelected: (view, _) {},
-                      isFeedback: false,
-                      isDraggable: false,
-                      shouldRenderChildren: false,
-                      leftIconBuilder: (_, __) => const HSpace(4.0),
-                      rightIconsBuilder: (_, view) => [
-                        FavoriteMoreActions(view: view),
-                        const HSpace(6.0),
-                        FavoritePinAction(view: view),
-                        const HSpace(4.0),
-                      ],
-                    ),
-                  )
-                  .toList(),
+        ),
+        const VSpace(2),
+        _buildGroupedViews(context, views),
+        const VSpace(8),
+        const Divider(height: 1),
+        const VSpace(8),
+      ],
+    ];
+  }
+
+  Widget _buildGroupedViews(BuildContext context, List<ViewPB> views) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: views
+          .map(
+            (e) => ViewItem(
+              key: ValueKey(e.id),
+              view: e,
+              spaceType: FolderSpaceType.favorite,
+              level: 0,
+              onSelected: (view, _) {},
+              isFeedback: false,
+              isDraggable: false,
+              shouldRenderChildren: false,
+              leftIconBuilder: (_, __) => const HSpace(4.0),
+              rightIconsBuilder: (_, view) => [
+                FavoriteMoreActions(view: view),
+                const HSpace(6.0),
+                FavoritePinAction(view: view),
+                const HSpace(4.0),
+              ],
             ),
-          ),
-        );
-      },
+          )
+          .toList(),
     );
   }
 }

@@ -12,8 +12,9 @@ class FavoritePinBloc extends Bloc<FavoritePinEvent, FavoritePinState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            final List<ViewPB> views =
-                await _service.readFavorites().fold((s) => s.items, (f) => []);
+            final List<ViewPB> views = await _service
+                .readFavorites()
+                .fold((s) => s.items.map((v) => v.item).toList(), (f) => []);
             emit(state.copyWith(views: views, queriedViews: views));
           },
           search: (query) async {

@@ -9,7 +9,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 
 class FavoriteService {
-  Future<FlowyResult<RepeatedViewPB, FlowyError>> readFavorites() {
+  Future<FlowyResult<RepeatedFavoriteViewPB, FlowyError>> readFavorites() {
     return FolderEventReadFavorites().send();
   }
 

@@ -241,7 +241,10 @@
     "addAPage": "Add a page",
     "addAPageToPrivate": "Add a page to private space",
     "addAPageToWorkspace": "Add a page to workspace",
-    "recent": "Recent"
+    "recent": "Recent",
+    "today": "Today",
+    "thisWeek": "This week",
+    "others": "Others"
   },
   "notifications": {
     "export": {

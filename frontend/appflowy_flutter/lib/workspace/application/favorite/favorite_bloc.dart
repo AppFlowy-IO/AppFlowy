@@ -39,11 +39,17 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
             final result = await _service.readFavorites();
             emit(
               result.fold(
-                (view) => state.copyWith(
-                  views: view.items,
-                  pinnedViews: view.items.where((v) => v.isPinned).toList(),
-                  unpinnedViews: view.items.where((v) => !v.isPinned).toList(),
-                ),
+                (favoriteViews) {
+                  final views = favoriteViews.items.map((v) => v.item).toList();
+                  final pinnedViews = views.where((v) => v.isPinned).toList();
+                  final unpinnedViews =
+                      views.where((v) => !v.isPinned).toList();
+                  return state.copyWith(
+                    views: views,
+                    pinnedViews: pinnedViews,
+                    unpinnedViews: unpinnedViews,
+                  );
+                },
                 (error) => state.copyWith(
                   views: [],
                 ),
