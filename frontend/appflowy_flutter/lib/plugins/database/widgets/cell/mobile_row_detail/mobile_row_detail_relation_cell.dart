@@ -19,7 +19,6 @@ class MobileRowDetailRelationCellSkin extends IEditableRelationCellSkin {
       borderRadius: const BorderRadius.all(Radius.circular(14)),
       onTap: () => showMobileBottomSheet(
         context,
-        padding: EdgeInsets.zero,
         builder: (context) {
           return const FlowyText("Coming soon");
         },

@@ -86,7 +86,7 @@ class _FlowyTabState extends State<FlowyTab> {
       return AFThemeExtension.of(context).lightGreyHover;
     }
 
-    return Theme.of(context).colorScheme.surfaceVariant;
+    return Theme.of(context).colorScheme.surfaceContainerHighest;
   }
 
   void _closeTab([TapUpDetails? details]) => context

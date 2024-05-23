@@ -34,8 +34,6 @@ class DesktopAppearance extends BaseAppearance {
       // Editor: toolbarColor
       onTertiary: theme.toolbarColor,
       tertiaryContainer: theme.questionBubbleBG,
-      background: theme.surface,
-      onBackground: theme.text,
       surface: theme.surface,
       // text&icon color when it is hovered
       onSurface: theme.hoverFG,
@@ -44,7 +42,7 @@ class DesktopAppearance extends BaseAppearance {
       onError: theme.onPrimary,
       error: theme.red,
       outline: theme.shader4,
-      surfaceVariant: theme.sidebarBg,
+      surfaceContainerHighest: theme.sidebarBg,
       shadow: theme.shadow,
     );
 
@@ -76,13 +74,13 @@ class DesktopAppearance extends BaseAppearance {
         contentTextStyle: TextStyle(color: colorScheme.onSurface),
       ),
       scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.any(scrollbarInteractiveStates.contains)) {
             return theme.shader7;
           }
           return theme.shader5;
         }),
-        thickness: MaterialStateProperty.resolveWith((states) {
+        thickness: WidgetStateProperty.resolveWith((states) {
           if (states.any(scrollbarInteractiveStates.contains)) {
             return 4;
           }
@@ -144,6 +142,8 @@ class DesktopAppearance extends BaseAppearance {
             fontWeight: FontWeight.w400,
             fontColor: theme.hint,
           ),
+          onBackground: theme.text,
+          background: theme.surface,
         ),
       ],
     );

@@ -1,5 +1,10 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -22,15 +27,13 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/flowy_tab.
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
+import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_view_actions.dart';
+import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/common_view_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'emoji.dart';
@@ -563,6 +566,44 @@ extension CommonOperations on WidgetTester {
       (widget) => widget is FlowySvg && widget.svg.path == svg.path,
     );
     await tapButton(button);
+  }
+
+  Future<void> openMoreViewActions() async {
+    final button = find.byType(MoreViewActions);
+    await tap(button);
+    await pumpAndSettle();
+  }
+
+  /// Presses on the Duplicate ViewAction in the [MoreViewActions] popup.
+  ///
+  /// [openMoreViewActions] must be called beforehand!
+  ///
+  Future<void> duplicateByMoreViewActions() async {
+    final button = find.descendant(
+      of: find.byType(ListView),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is ViewAction && widget.type == ViewActionType.duplicate,
+      ),
+    );
+    await tap(button);
+    await pump();
+  }
+
+  /// Presses on the Delete ViewAction in the [MoreViewActions] popup.
+  ///
+  /// [openMoreViewActions] must be called beforehand!
+  ///
+  Future<void> deleteByMoreViewActions() async {
+    final button = find.descendant(
+      of: find.byType(ListView),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is ViewAction && widget.type == ViewActionType.delete,
+      ),
+    );
+    await tap(button);
+    await pump();
   }
 }
 

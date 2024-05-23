@@ -19,10 +19,10 @@ const builtInCodeFontFamily = 'RobotoMono';
 abstract class BaseAppearance {
   final white = const Color(0xFFFFFFFF);
 
-  final Set<MaterialState> scrollbarInteractiveStates = <MaterialState>{
-    MaterialState.pressed,
-    MaterialState.hovered,
-    MaterialState.dragged,
+  final Set<WidgetState> scrollbarInteractiveStates = <WidgetState>{
+    WidgetState.pressed,
+    WidgetState.hovered,
+    WidgetState.dragged,
   };
 
   TextStyle getFontStyle({

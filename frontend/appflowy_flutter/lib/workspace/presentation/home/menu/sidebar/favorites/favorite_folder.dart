@@ -77,6 +77,8 @@ class FavoriteFolder extends StatelessWidget {
             isFeedback: false,
             view: view,
             leftPadding: HomeSpaceViewSizes.leftPadding,
+            leftIconBuilder: (_, __) =>
+                const HSpace(HomeSpaceViewSizes.leftPadding),
             level: 0,
             isHovered: isHovered,
             rightIconsBuilder: (context, view) => [
@@ -85,6 +87,7 @@ class FavoriteFolder extends StatelessWidget {
               FavoritePinAction(view: view),
               const HSpace(4.0),
             ],
+            shouldRenderChildren: false,
             onTertiarySelected: (_, view) =>
                 context.read<TabsBloc>().openTab(view),
             onSelected: (_, view) {
@@ -156,7 +159,6 @@ class FavoriteMoreButton extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
         leftIcon: const FlowySvg(
           FlowySvgs.workspace_three_dots_s,
-          blendMode: null,
         ),
         text: FlowyText.regular(LocaleKeys.button_more.tr()),
       ),

@@ -12,6 +12,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -92,7 +93,7 @@ class MobileViewPageMoreButton extends StatelessWidget {
           context,
           showDragHandle: true,
           showDivider: false,
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: AFThemeExtension.of(context).background,
           builder: (_) => MultiBlocProvider(
             providers: [
               BlocProvider.value(value: context.read<ViewBloc>()),
@@ -144,7 +145,7 @@ class MobileViewPageLayoutButton extends StatelessWidget {
           showDoneButton: true,
           showHeader: true,
           title: LocaleKeys.pageStyle_title.tr(),
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: AFThemeExtension.of(context).background,
           builder: (_) => MultiBlocProvider(
             providers: [
               BlocProvider.value(value: context.read<DocumentPageStyleBloc>()),

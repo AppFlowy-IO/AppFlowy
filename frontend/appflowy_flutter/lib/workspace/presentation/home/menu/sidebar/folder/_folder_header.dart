@@ -33,7 +33,7 @@ class FolderHeader extends StatelessWidget {
                 Opacity(opacity: onHover ? 1 : 0, child: child),
             child: FlowyIconButton(
               tooltipText: addButtonTooltip,
-              icon: const FlowySvg(FlowySvgs.add_s),
+              icon: const FlowySvg(FlowySvgs.view_item_add_s),
               onPressed: onAdded,
             ),
           ),

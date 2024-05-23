@@ -55,6 +55,9 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
               view.id,
               !view.isFavorite,
             );
+            if (view.isFavorite) {
+              await _service.unpinFavorite(view);
+            }
           },
           pin: (view) async {
             await _service.pinFavorite(view);

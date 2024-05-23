@@ -19,8 +19,10 @@ class FlowyEmojiHeader extends StatelessWidget {
         color: Theme.of(context).cardColor,
         child: Padding(
           padding: const EdgeInsets.only(bottom: 4.0),
-          child: FlowyText.regular(category.id,
-              color: Theme.of(context).hintColor),
+          child: FlowyText.regular(
+            category.id,
+            color: Theme.of(context).hintColor,
+          ),
         ),
       );
     } else {

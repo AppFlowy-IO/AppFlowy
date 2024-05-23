@@ -75,7 +75,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             );
             final isExpanded = await _getViewIsExpanded(view);
             emit(state.copyWith(isExpanded: isExpanded));
-            await _loadViewsWhenExpanded(emit, isExpanded);
+            await _loadChildViews(emit);
           },
           setIsEditing: (e) {
             emit(state.copyWith(isEditing: e.isEditing));
@@ -271,6 +271,33 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           successOrFailure: FlowyResult.failure(error),
           isExpanded: true,
           isLoading: false,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _loadChildViews(
+    Emitter<ViewState> emit,
+  ) async {
+    final viewsOrFailed =
+        await ViewBackendService.getChildViews(viewId: state.view.id);
+
+    viewsOrFailed.fold(
+      (childViews) {
+        state.view.freeze();
+        final viewWithChildViews = state.view.rebuild((b) {
+          b.childViews.clear();
+          b.childViews.addAll(childViews);
+        });
+        emit(
+          state.copyWith(
+            view: viewWithChildViews,
+          ),
+        );
+      },
+      (error) => emit(
+        state.copyWith(
+          successOrFailure: FlowyResult.failure(error),
         ),
       ),
     );

@@ -5,33 +5,39 @@ import { useEffect, useState } from 'react';
 export function useViewsIdSelector() {
   const folder = useFolderContext();
   const [viewsId, setViewsId] = useState<string[]>([]);
+  const views = folder?.get(YjsFolderKey.views);
+  const trash = folder?.get(YjsFolderKey.section)?.get(YjsFolderKey.trash);
+  const meta = folder?.get(YjsFolderKey.meta);
 
   useEffect(() => {
-    if (!folder) return;
+    if (!views) return;
 
-    const views = folder.get(YjsFolderKey.views);
-    const trash = folder.get(YjsFolderKey.section)?.get(YjsFolderKey.trash);
-    const meta = folder.get(YjsFolderKey.meta);
+    const trashUid = trash ? Array.from(trash.keys())[0] : null;
+    const userTrash = trashUid ? trash?.get(trashUid) : null;
 
-    console.log('folder', folder.toJSON());
     const collectIds = () => {
-      return Array.from(views.keys()).filter(
-        (id) => !trash?.has(id) && id !== meta?.get(YjsFolderKey.current_workspace)
-      );
+      const trashIds = userTrash?.toJSON()?.map((item) => item.id) || [];
+
+      return Array.from(views.keys()).filter((id) => {
+        return !trashIds.includes(id) && id !== meta?.get(YjsFolderKey.current_workspace);
+      });
     };
 
     setViewsId(collectIds());
     const observerEvent = () => setViewsId(collectIds());
 
-    folder.observe(observerEvent);
+    views.observe(observerEvent);
+    userTrash?.observe(observerEvent);
 
     return () => {
-      folder.unobserve(observerEvent);
+      views.unobserve(observerEvent);
+      userTrash?.unobserve(observerEvent);
     };
-  }, [folder]);
+  }, [views, trash, meta]);
 
   return {
     viewsId,
+    views,
   };
 }
 

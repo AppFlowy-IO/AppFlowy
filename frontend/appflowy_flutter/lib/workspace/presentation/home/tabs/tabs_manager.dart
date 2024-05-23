@@ -59,7 +59,7 @@ class _TabsManagerState extends State<TabsManager>
               alignment: Alignment.bottomLeft,
               height: HomeSizes.tabBarHeight,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
 
               /// TODO(Xazin): Custom Reorderable TabBar

@@ -211,7 +211,7 @@ class _SidebarState extends State<_Sidebar> {
     final userState = context.read<UserWorkspaceBloc>().state;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         border: Border(
           right: BorderSide(color: Theme.of(context).dividerColor),
         ),

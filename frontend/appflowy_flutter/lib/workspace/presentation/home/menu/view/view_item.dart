@@ -221,55 +221,34 @@ class InnerViewItem extends StatelessWidget {
     );
 
     // if the view is expanded and has child views, render its child views
-    if (isExpanded && shouldRenderChildren) {
-      if (childViews.isNotEmpty) {
-        final children = childViews.map((childView) {
-          return ViewItem(
-            key: ValueKey('${spaceType.name} ${childView.id}'),
-            parentView: view,
-            spaceType: spaceType,
-            isFirstChild: childView.id == childViews.first.id,
-            view: childView,
-            level: level + 1,
-            onSelected: onSelected,
-            onTertiarySelected: onTertiarySelected,
-            isDraggable: isDraggable,
-            leftPadding: leftPadding,
-            isFeedback: isFeedback,
-            isPlaceholder: isPlaceholder,
-            isHovered: isHovered,
-            leftIconBuilder: leftIconBuilder,
-            rightIconsBuilder: rightIconsBuilder,
-          );
-        }).toList();
+    if (isExpanded && shouldRenderChildren && childViews.isNotEmpty) {
+      final children = childViews.map((childView) {
+        return ViewItem(
+          key: ValueKey('${spaceType.name} ${childView.id}'),
+          parentView: view,
+          spaceType: spaceType,
+          isFirstChild: childView.id == childViews.first.id,
+          view: childView,
+          level: level + 1,
+          onSelected: onSelected,
+          onTertiarySelected: onTertiarySelected,
+          isDraggable: isDraggable,
+          leftPadding: leftPadding,
+          isFeedback: isFeedback,
+          isPlaceholder: isPlaceholder,
+          isHovered: isHovered,
+          leftIconBuilder: leftIconBuilder,
+          rightIconsBuilder: rightIconsBuilder,
+        );
+      }).toList();
 
-        child = Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            child,
-            ...children,
-          ],
-        );
-      } else {
-        child = Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            child,
-            Container(
-              height: height,
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left: (level + 2) * leftPadding),
-                child: FlowyText.regular(
-                  LocaleKeys.noPagesInside.tr(),
-                  color: Theme.of(context).hintColor,
-                ),
-              ),
-            ),
-          ],
-        );
-      }
+      child = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          child,
+          ...children,
+        ],
+      );
     }
 
     // wrap the child with DraggableItem if isDraggable is true
@@ -554,6 +533,10 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   Widget _buildLeftIcon() {
     if (isReferencedDatabaseView(widget.view, widget.parentView)) {
       return const _DotIconWidget();
+    }
+
+    if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
+      return HSpace(widget.leftPadding);
     }
 
     final child = GestureDetector(

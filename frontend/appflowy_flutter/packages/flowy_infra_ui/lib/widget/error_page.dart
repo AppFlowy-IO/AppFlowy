@@ -1,3 +1,4 @@
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
@@ -155,7 +156,7 @@ class StackTracePreview extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: FlowyButton(
-                  hoverColor: Theme.of(context).colorScheme.onBackground,
+                  hoverColor: AFThemeExtension.of(context).onBackground,
                   text: const FlowyText(
                     "Copy",
                   ),

@@ -1,0 +1,63 @@
+$today-highlight-bg: transparent;
+@import 'react-big-calendar/lib/sass/styles';
+@import 'react-big-calendar/lib/addons/dragAndDrop/styles'; // if using DnD
+
+.rbc-calendar {
+  font-size: 12px;
+}
+
+.rbc-button-link {
+  @apply rounded-full w-[20px] h-[20px] my-1.5;
+}
+
+.rbc-date-cell {
+  min-width: 100px;
+}
+
+.rbc-date-cell.rbc-now {
+
+  color: var(--content-on-fill);
+
+  .rbc-button-link {
+    background-color: var(--function-error);
+  }
+}
+
+.rbc-month-view {
+  border: none;
+
+  .rbc-month-row {
+    border: 1px solid var(--line-divider);
+    border-bottom: none;
+
+    &:last-child {
+      border-bottom: 1px solid var(--line-divider);
+    }
+  }
+}
+
+.rbc-month-header {
+  height: 40px;
+
+  .rbc-header {
+    border: none;
+    @apply flex items-end py-2 justify-center font-normal text-text-caption;
+  }
+}
+
+.rbc-month-row .rbc-row-bg {
+  .rbc-off-range-bg {
+    background-color: transparent;
+    color: var(--text-caption);
+  }
+
+  .rbc-day-bg.day-0, .rbc-day-bg.day-6 {
+    background-color: var(--fill-list-active);
+  }
+}
+
+.rbc-month-row {
+  display: inline-table !important;
+  flex: 0 0 0 !important;
+  min-height: 120px !important;
+}
