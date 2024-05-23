@@ -508,7 +508,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         onTap: () {},
         child: FlowyTooltip(
           message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
-          child: SizedBox.square(dimension: 16.0, child: icon),
+          child: SizedBox(width: 16.0, child: icon),
         ),
       ),
       popupBuilder: (context) {

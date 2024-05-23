@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/hover_builder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
@@ -50,18 +52,8 @@ class WorkspacesMenu extends StatelessWidget {
                 ),
               ),
               const HSpace(4.0),
-              FlowyButton(
-                key: createWorkspaceButtonKey,
-                useIntrinsicWidth: true,
-                text: const FlowySvg(
-                  FlowySvgs.workspace_three_dots_s,
-                  size: Size.square(16.0),
-                ),
-                onTap: () {
-                  _showCreateWorkspaceDialog(context);
-                  PopoverContainer.of(context).closeAll();
-                },
-              ),
+              const _WorkspaceMoreButton(),
+              const HSpace(8.0),
             ],
           ),
         ),
@@ -96,17 +88,6 @@ class WorkspacesMenu extends StatelessWidget {
     }
 
     return LocaleKeys.defaultUsername.tr();
-  }
-
-  Future<void> _showCreateWorkspaceDialog(BuildContext context) async {
-    if (context.mounted) {
-      final workspaceBloc = context.read<UserWorkspaceBloc>();
-      await CreateWorkspaceDialog(
-        onConfirm: (name) {
-          workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name));
-        },
-      ).show(context);
-    }
   }
 }
 
@@ -204,21 +185,24 @@ class WorkspaceMenuItem extends StatelessWidget {
               size: Size.square(14.0),
             ),
           ),
-          const HSpace(8.0),
         ],
         ValueListenableBuilder(
           valueListenable: isHovered,
           builder: (context, value, child) {
             if (!value) {
-              return const SizedBox.shrink();
+              return const SizedBox.square();
             }
-            return Opacity(
-              opacity: value ? 1.0 : 0.0,
-              child: child,
+            return Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Opacity(
+                opacity: value ? 1.0 : 0.0,
+                child: child,
+              ),
             );
           },
           child: WorkspaceMoreActionList(workspace: workspace),
         ),
+        const HSpace(8.0),
       ],
     );
   }
@@ -355,5 +339,40 @@ class _CreateWorkspaceButton extends StatelessWidget {
         },
       ).show(context);
     }
+  }
+}
+
+class _WorkspaceMoreButton extends StatelessWidget {
+  const _WorkspaceMoreButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      direction: PopoverDirection.bottomWithLeftAligned,
+      offset: const Offset(0, 6),
+      popupBuilder: (_) => FlowyButton(
+        margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 7.0),
+        leftIcon: const FlowySvg(FlowySvgs.workspace_logout_s),
+        iconPadding: 10.0,
+        text: FlowyText.regular(LocaleKeys.button_logout.tr()),
+        onTap: () async {
+          await getIt<AuthService>().signOut();
+          await runAppFlowy();
+        },
+      ),
+      child: SizedBox.square(
+        dimension: 24.0,
+        child: FlowyButton(
+          key: createWorkspaceButtonKey,
+          useIntrinsicWidth: true,
+          margin: EdgeInsets.zero,
+          text: const FlowySvg(
+            FlowySvgs.workspace_three_dots_s,
+            size: Size.square(16.0),
+          ),
+          onTap: () {},
+        ),
+      ),
+    );
   }
 }
