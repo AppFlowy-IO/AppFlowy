@@ -1,7 +1,7 @@
 import { CollabType, YDoc, YjsEditorKey } from '@/application/collab.type';
 import { getDBName, openCollabDB } from '@/application/services/js-services/db';
 import { APIService } from '@/application/services/js-services/wasm';
-import { applyDocument } from '@/application/ydoc/apply';
+import { applyYDoc } from '@/application/ydoc/apply';
 
 export function fetchCollab(workspaceId: string, id: string, type: CollabType) {
   return APIService.getCollab(workspaceId, id, type);
@@ -47,7 +47,7 @@ export async function getCollabStorageWithAPICall(workspaceId: string, id: strin
   const asyncApply = async () => {
     const res = await fetchCollab(workspaceId, id, type);
 
-    applyDocument(doc, res.state);
+    applyYDoc(doc, res.state);
   };
 
   // If the document exists locally, apply the state asynchronously,
@@ -95,7 +95,7 @@ export async function batchCollabs(
 
       const { doc } = await getCollabStorage(id, type);
 
-      applyDocument(doc, data);
+      applyYDoc(doc, data);
     }
   })();
 }

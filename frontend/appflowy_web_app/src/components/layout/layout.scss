@@ -91,8 +91,22 @@
     display: block;
     width: 100%;
     height: 100%;
-    boxShadow: var(--shadow);
-    backgroundColor: var(--bg-body);
+    box-shadow: var(--shadow);
+    background-color: var(--bg-body);
     transform: rotate(45deg);
+  }
+}
+
+.grid-row-cell.wrap-cell {
+  .text-cell {
+    @apply py-2 break-words whitespace-pre-wrap;
+  }
+
+  .relation-cell {
+    @apply py-2 break-words whitespace-pre-wrap flex-wrap;
+  }
+
+  .select-option-cell {
+    @apply flex-wrap py-2;
   }
 }

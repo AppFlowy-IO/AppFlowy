@@ -51,3 +51,5 @@ export const Document = () => {
     </>
   );
 };
+
+export default Document;

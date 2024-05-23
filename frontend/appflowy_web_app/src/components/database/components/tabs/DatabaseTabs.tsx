@@ -83,7 +83,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
                   icon={<Icon className={'h-4 w-4'} />}
                   iconPosition='start'
                   color='inherit'
-                  label={name || t('grid.title.placeholder')}
+                  label={<span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>}
                   value={viewId}
                 />
               );

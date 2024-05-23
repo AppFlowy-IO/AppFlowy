@@ -10,8 +10,9 @@ $today-highlight-bg: transparent;
   @apply rounded-full w-[20px] h-[20px] my-1.5;
 }
 
-.rbc-date-cell {
-  min-width: 100px;
+
+.rbc-date-cell, .rbc-header {
+  min-width: 120px;
   max-width: 180px;
 }
 
@@ -31,6 +32,7 @@ $today-highlight-bg: transparent;
   .rbc-month-row {
     border: 1px solid var(--line-divider);
     border-top: none;
+
   }
 
   &::-webkit-scrollbar {
@@ -57,11 +59,12 @@ $today-highlight-bg: transparent;
   top: 0;
   background: var(--bg-body);
   z-index: 50;
-  @apply border-b border-line-divider;
 
   .rbc-header {
     border: none;
-    @apply flex items-end py-2 justify-center font-normal text-text-caption;
+    border-bottom: 1px solid var(--line-divider);
+    @apply flex items-end py-2 justify-center font-normal text-text-caption bg-bg-body;
+
   }
 }
 

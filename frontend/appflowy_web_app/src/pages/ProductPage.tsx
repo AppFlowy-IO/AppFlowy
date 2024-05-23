@@ -1,9 +1,9 @@
-import { CollabType } from '@/application/collab.type';
 import { IdProvider } from '@/components/_shared/context-provider/IdProvider';
-import DatabasePage from '@/pages/DatabasePage';
-import React, { useMemo } from 'react';
+import React, { lazy, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import DocumentPage from '@/pages/DocumentPage';
+
+const DatabasePage = lazy(() => import('./DatabasePage'));
 
 enum URL_COLLAB_TYPE {
   DOCUMENT = 'document',
@@ -11,13 +11,6 @@ enum URL_COLLAB_TYPE {
   BOARD = 'board',
   CALENDAR = 'calendar',
 }
-
-const collabTypeMap: Record<string, CollabType> = {
-  [URL_COLLAB_TYPE.DOCUMENT]: CollabType.Document,
-  [URL_COLLAB_TYPE.GRID]: CollabType.WorkspaceDatabase,
-  [URL_COLLAB_TYPE.BOARD]: CollabType.WorkspaceDatabase,
-  [URL_COLLAB_TYPE.CALENDAR]: CollabType.WorkspaceDatabase,
-};
 
 function ProductPage() {
   const { workspaceId, type, objectId } = useParams();
@@ -38,7 +31,7 @@ function ProductPage() {
   if (!workspaceId || !type || !objectId) return null;
 
   return (
-    <IdProvider workspaceId={workspaceId} objectId={objectId} collabType={collabTypeMap[type]}>
+    <IdProvider workspaceId={workspaceId} objectId={objectId}>
       {PageComponent && <PageComponent />}
     </IdProvider>
   );

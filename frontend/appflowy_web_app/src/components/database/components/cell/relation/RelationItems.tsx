@@ -35,12 +35,12 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
   }, [workspaceId, databaseId, databaseService, rowIds]);
 
   return (
-    <div style={style} className={'flex items-center gap-2'}>
+    <div style={style} className={'relation-cell flex w-full items-center gap-2'}>
       {rowIds.map((rowId) => {
         const rowDoc = rows?.get(rowId);
 
         return (
-          <div key={rowId} className={'cursor-pointer underline'}>
+          <div key={rowId} className={'w-full cursor-pointer underline'}>
             {rowDoc && databasePrimaryFieldId && (
               <RelationPrimaryValue rowDoc={rowDoc} fieldId={databasePrimaryFieldId} />
             )}

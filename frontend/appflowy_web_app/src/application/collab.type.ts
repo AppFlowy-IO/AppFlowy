@@ -27,6 +27,8 @@ export enum BlockType {
   DividerBlock = 'divider',
   ImageBlock = 'image',
   GridBlock = 'grid',
+  BoardBlock = 'board',
+  CalendarBlock = 'calendar',
   OutlineBlock = 'outline',
   TableBlock = 'table',
   TableCell = 'table/cell',
@@ -109,6 +111,10 @@ export interface TableCellBlockData extends BlockData {
   height: number;
   rowPosition: number;
   width: number;
+}
+
+export interface DatabaseNodeData extends BlockData {
+  view_id: ViewId;
 }
 
 export enum MentionType {
