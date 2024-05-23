@@ -15,7 +15,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     workspace_id: &str,
     chat_id: &str,
     message: &str,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> FutureResult<ChatMessage, FlowyError>;
 
   fn get_chat_messages(
     &self,
@@ -24,10 +24,4 @@ pub trait ChatCloudService: Send + Sync + 'static {
     offset: MessageOffset,
     limit: u64,
   ) -> FutureResult<RepeatedChatMessage, FlowyError>;
-}
-
-pub trait ChatUserService: Send + Sync + 'static {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  fn device_id(&self) -> Result<String, FlowyError>;
-  fn workspace_id(&self) -> Result<String, FlowyError>;
 }

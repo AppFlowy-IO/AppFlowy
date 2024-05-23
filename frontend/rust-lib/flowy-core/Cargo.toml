@@ -32,6 +32,7 @@ uuid.workspace = true
 flowy-storage = { workspace = true }
 client-api.workspace = true
 flowy-chat = { workspace = true }
+flowy-chat-pub = { workspace = true }
 
 tracing.workspace = true
 futures-core = { version = "0.3", default-features = false }

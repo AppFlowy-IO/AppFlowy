@@ -23,6 +23,7 @@ lib-infra = { workspace = true }
 flowy-chat-pub.workspace = true
 dashmap = "5.5"
 flowy-sqlite = { workspace = true }
+tokio.workspace = true
 
 [build-dependencies]
 flowy-codegen.workspace = true

@@ -2,18 +2,18 @@
 -- Create table for chat documents
 CREATE TABLE chat_table
 (
-    chat_id      TEXT PRIMARY KEY,
-    created_at   INTEGER NOT NULL,
-    name         TEXT NOT NULL DEFAULT ''
+    chat_id    TEXT PRIMARY KEY NOT NULL,
+    created_at BIGINT           NOT NULL,
+    name       TEXT             NOT NULL DEFAULT ''
 );
 
 -- Create table for chat messages
 CREATE TABLE chat_message_table
 (
-    message_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    chat_id    TEXT NOT NULL,
-    content    TEXT NOT NULL,
-    created_at INTEGER NOT NULL,
+    message_id BIGINT PRIMARY KEY NOT NULL,
+    chat_id    TEXT               NOT NULL,
+    content    TEXT               NOT NULL,
+    created_at BIGINT             NOT NULL,
     FOREIGN KEY (chat_id) REFERENCES chat_table (chat_id) ON DELETE CASCADE
 );
 

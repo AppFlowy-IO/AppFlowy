@@ -15,7 +15,7 @@ pub struct SendChatPayloadPB {
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
-pub struct LoadHistoryMessagePB {
+pub struct LoadChatMessagePB {
   #[pb(index = 1)]
   #[validate(custom = "required_not_empty_str")]
   pub chat_id: String,

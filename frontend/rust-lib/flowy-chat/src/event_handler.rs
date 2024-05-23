@@ -33,8 +33,8 @@ pub(crate) async fn send_chat_message_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_history_message_handler(
-  data: AFPluginData<LoadHistoryMessagePB>,
+pub(crate) async fn load_message_handler(
+  data: AFPluginData<LoadChatMessagePB>,
   chat_manager: AFPluginState<Weak<ChatManager>>,
 ) -> DataResult<RepeatedChatMessagePB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
@@ -42,7 +42,7 @@ pub(crate) async fn get_history_message_handler(
   data.validate()?;
 
   let messages = chat_manager
-    .get_history_messages(
+    .load_chat_messages(
       &data.chat_id,
       data.limit,
       data.after_message_id,

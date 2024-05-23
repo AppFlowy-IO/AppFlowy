@@ -13,15 +13,15 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
     .name("Flowy-Chat")
     .state(chat_manager)
     .event(ChatEvent::SendMessage, send_chat_message_handler)
-    .event(ChatEvent::GetHistoryMessage, get_history_message_handler)
+    .event(ChatEvent::LoadMessage, load_message_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum ChatEvent {
   /// Create a new workspace
-  #[event(input = "LoadHistoryMessagePB", output = "RepeatedChatMessage")]
-  GetHistoryMessage = 0,
+  #[event(input = "LoadChatMessagePB", output = "RepeatedChatMessage")]
+  LoadMessage = 0,
 
   #[event(input = "SendChatPayloadPB")]
   SendMessage = 1,

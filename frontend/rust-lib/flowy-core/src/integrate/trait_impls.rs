@@ -15,6 +15,7 @@ use tracing::debug;
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, MessageOffset, RepeatedChatMessage};
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
 };
@@ -431,5 +432,61 @@ impl CollabCloudPluginProvider for ServerProvider {
 
   fn is_sync_enabled(&self) -> bool {
     *self.user_enable_sync.read()
+  }
+}
+
+impl ChatCloudService for ServerProvider {
+  fn create_chat(
+    &self,
+    uid: &i64,
+    workspace_id: &str,
+    chat_id: &str,
+  ) -> FutureResult<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server();
+    let chat_id = chat_id.to_string();
+    let uid = *uid;
+    FutureResult::new(async move {
+      server?
+        .chat_service()
+        .create_chat(&uid, &workspace_id, &chat_id)
+        .await
+    })
+  }
+
+  fn send_message(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let message = message.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .chat_service()
+        .send_message(&workspace_id, &chat_id, &message)
+        .await
+    })
+  }
+
+  fn get_chat_messages(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    offset: MessageOffset,
+    limit: u64,
+  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .chat_service()
+        .get_chat_messages(&workspace_id, &chat_id, offset, limit)
+        .await
+    })
   }
 }

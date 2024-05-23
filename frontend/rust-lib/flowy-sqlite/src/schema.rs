@@ -2,17 +2,17 @@
 
 diesel::table! {
     chat_message_table (message_id) {
-        message_id -> Nullable<Integer>,
+        message_id -> BigInt,
         chat_id -> Text,
         content -> Text,
-        created_at -> Integer,
+        created_at -> BigInt,
     }
 }
 
 diesel::table! {
     chat_table (chat_id) {
-        chat_id -> Nullable<Text>,
-        created_at -> Integer,
+        chat_id -> Text,
+        created_at -> BigInt,
         name -> Text,
     }
 }
