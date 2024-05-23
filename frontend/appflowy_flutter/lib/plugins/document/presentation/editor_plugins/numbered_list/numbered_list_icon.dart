@@ -15,8 +15,10 @@ class NumberedListIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle =
-        context.read<EditorState>().editorStyle.textStyleConfiguration.text;
+    final textStyleConfiguration =
+        context.read<EditorState>().editorStyle.textStyleConfiguration;
+    final textStyle = textStyleConfiguration.text;
+
     return Container(
       constraints: const BoxConstraints(
         minWidth: 22,
@@ -27,8 +29,15 @@ class NumberedListIcon extends StatelessWidget {
       child: Center(
         child: Text(
           node.levelString,
-          style: textStyle,
+          style: textStyle.copyWith(height: textStyleConfiguration.lineHeight),
           textDirection: textDirection,
+          textHeightBehavior: TextHeightBehavior(
+            applyHeightToFirstAscent:
+                textStyleConfiguration.applyHeightToFirstAscent,
+            applyHeightToLastDescent:
+                textStyleConfiguration.applyHeightToLastDescent,
+            leadingDistribution: textStyleConfiguration.leadingDistribution,
+          ),
         ),
       ),
     );

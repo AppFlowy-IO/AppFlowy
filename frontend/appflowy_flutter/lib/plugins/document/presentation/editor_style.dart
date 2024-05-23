@@ -134,8 +134,6 @@ class EditorStyleCustomizer {
             backgroundColor: Colors.grey.withOpacity(0.3),
           ),
         ),
-        applyHeightToFirstAscent: true,
-        applyHeightToLastDescent: true,
       ),
       textSpanDecorator: customizeAttributeDecorator,
       mobileDragHandleBallSize: const Size.square(12.0),
