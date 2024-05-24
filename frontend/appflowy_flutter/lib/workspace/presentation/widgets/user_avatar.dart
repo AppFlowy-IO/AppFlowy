@@ -7,9 +7,6 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
-const double _smallSize = 28;
-const double _largeSize = 64;
-
 class UserAvatar extends StatelessWidget {
   const UserAvatar({
     super.key,
