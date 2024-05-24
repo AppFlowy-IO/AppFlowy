@@ -9,7 +9,8 @@ import { useTranslation } from 'react-i18next';
 export function PrimaryCell(props: CellProps<CellType>) {
   const navigateToRow = useNavigateToRow();
   const { rowId } = props;
-  const icon = useRowMetaSelector(rowId)?.icon;
+  const meta = useRowMetaSelector(rowId);
+  const icon = meta?.icon;
 
   const [hover, setHover] = useState(false);
   const { t } = useTranslation();

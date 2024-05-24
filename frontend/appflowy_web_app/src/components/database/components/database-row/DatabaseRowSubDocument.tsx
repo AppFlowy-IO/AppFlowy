@@ -8,8 +8,10 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 
 export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
   const { workspaceId } = useId() || {};
-  const documentId = useRowMetaSelector(rowId)?.documentId;
+  const meta = useRowMetaSelector(rowId);
+  const documentId = meta?.documentId;
 
+  console.log('documentId', documentId);
   const [loading, setLoading] = useState(true);
   const [doc, setDoc] = useState<YDoc | null>(null);
 
@@ -21,8 +23,10 @@ export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
       setDoc(null);
       const doc = await documentService.openDocument(workspaceId, documentId);
 
+      console.log('doc', doc);
       setDoc(doc);
     } catch (e) {
+      console.error(e);
       // haven't created by client, ignore error and show empty
     }
   }, [documentService, workspaceId, documentId]);

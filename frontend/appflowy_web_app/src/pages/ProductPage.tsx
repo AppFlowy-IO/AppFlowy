@@ -27,7 +27,6 @@ function ProductPage() {
     }
   }, [type]);
 
-  console.log(workspaceId, type, objectId);
   if (!workspaceId || !type || !objectId) return null;
 
   return (

@@ -4,6 +4,7 @@ import React from 'react';
 
 function DatabaseRowHeader({ rowId }: { rowId: string }) {
   const fieldId = usePrimaryFieldId() || '';
+
   const meta = useRowMetaSelector(rowId);
   const cell = useCellSelector({
     rowId,

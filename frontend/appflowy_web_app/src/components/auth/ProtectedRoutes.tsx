@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/components/auth/auth.hooks';
 import { currentUserActions, LoginState } from '@/stores/currentUser/slice';
 import { useAppDispatch } from '@/stores/store';
@@ -43,7 +43,12 @@ function ProtectedRoutes() {
   }
 
   return (
-    <div className={'relative h-screen w-screen'}>
+    <div
+      className={'relative h-screen w-screen'}
+      style={{
+        overflow: 'hidden',
+      }}
+    >
       {checked ? (
         <SplashScreen />
       ) : (
@@ -53,7 +58,7 @@ function ProtectedRoutes() {
       )}
 
       {isLoading && <StartLoading />}
-      <Suspense>{platform.isTauri && <TauriAuth />}</Suspense>
+      {platform.isTauri && <TauriAuth />}
     </div>
   );
 }

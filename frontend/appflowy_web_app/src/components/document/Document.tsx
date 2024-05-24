@@ -4,7 +4,8 @@ import { AFConfigContext } from '@/components/app/AppConfig';
 import { DocumentHeader } from '@/components/document/document_header';
 import { Editor } from '@/components/editor';
 import { Log } from '@/utils/log';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import React, { Suspense, useCallback, useContext, useEffect, useState } from 'react';
 import RecordNotFound from 'src/components/_shared/not-found/RecordNotFound';
 
 export const Document = () => {
@@ -36,14 +37,20 @@ export const Document = () => {
 
   return (
     <>
-      {doc && (
+      {doc ? (
         <div className={'relative w-full'}>
           <DocumentHeader doc={doc} viewId={documentId} />
           <div className={'flex w-full justify-center'}>
-            <div className={'max-w-screen w-[964px] min-w-0'}>
-              <Editor doc={doc} readOnly={true} includeRoot={true} />
-            </div>
+            <Suspense fallback={<CircularProgress className={'mt-[120px]'} />}>
+              <div className={'max-w-screen w-[964px] min-w-0'}>
+                <Editor doc={doc} readOnly={true} includeRoot={true} />
+              </div>
+            </Suspense>
           </div>
+        </div>
+      ) : (
+        <div className={'flex h-full w-full items-center justify-center'}>
+          <CircularProgress />
         </div>
       )}
 

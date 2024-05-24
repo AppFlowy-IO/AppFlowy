@@ -166,6 +166,7 @@ export enum YjsEditorKey {
   // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   database_row = 'data',
   user_awareness = 'user_awareness',
+  empty = 'empty',
 
   // document
   blocks = 'blocks',

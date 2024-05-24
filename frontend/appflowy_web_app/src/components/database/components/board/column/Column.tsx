@@ -76,7 +76,6 @@ export function Column({ id, rows, fieldId, provided }: ColumnProps) {
     [rowHeight, rows]
   );
 
-  if (!rows) return <div ref={provided.innerRef} />;
   return (
     <div key={id} className='column flex w-[230px] flex-col gap-4' {...provided.draggableProps} ref={provided.innerRef}>
       <div className='column-header flex h-[24px] items-center text-xs font-medium' {...provided.dragHandleProps}>
@@ -87,20 +86,23 @@ export function Column({ id, rows, fieldId, provided }: ColumnProps) {
         <Droppable
           droppableId={`column-${id}`}
           mode='virtual'
-          renderClone={(provided, snapshot, rubric) => (
-            <ListItem
-              provided={provided}
-              isDragging={snapshot.isDragging}
-              item={rows[rubric.source.index]}
-              fieldId={fieldId}
-            />
-          )}
+          renderClone={(provided, snapshot, rubric) => {
+            return (
+              <ListItem
+                provided={provided}
+                isDragging={snapshot.isDragging}
+                item={rows?.[rubric.source.index]}
+                fieldId={fieldId}
+              />
+            );
+          }}
         >
           {(provided, snapshot) => {
+            const rowCount = rows?.length || 0;
             // Add an extra item to our list to make space for a dragging item
             // Usually the DroppableProvided.placeholder does this, but that won't
             // work in a virtual list
-            const itemCount = snapshot.isUsingPlaceholder ? rows.length + 1 : rows.length;
+            const itemCount = snapshot.isUsingPlaceholder ? rowCount + 1 : rowCount;
 
             return (
               <AutoSizer>

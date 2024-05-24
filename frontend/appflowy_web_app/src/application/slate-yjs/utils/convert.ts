@@ -11,7 +11,6 @@ import {
   BlockType,
 } from '@/application/collab.type';
 import { getFontFamily } from '@/utils/font';
-import { uniq } from 'lodash-es';
 import { Element, Text } from 'slate';
 
 interface BlockJson {
@@ -23,7 +22,6 @@ interface BlockJson {
 }
 
 export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | undefined {
-  console.log(doc);
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
   console.log(sharedRoot.toJSON());
@@ -115,11 +113,11 @@ export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | 
 
   // load font family
   if (fontFamilys.length > 0) {
-    window.WebFont?.load({
-      google: {
-        families: uniq(fontFamilys),
-      },
-    });
+    // window.WebFont?.load({
+    //   google: {
+    //     families: uniq(fontFamilys),
+    //   },
+    // });
   }
 
   return {

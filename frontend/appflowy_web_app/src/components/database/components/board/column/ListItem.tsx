@@ -12,7 +12,7 @@ export const ListItem = ({
   isDragging,
 }: {
   provided: DraggableProvided;
-  item: Row;
+  item?: Row;
   style?: React.CSSProperties;
   fieldId: string;
   onResize?: (height: number) => void;
@@ -30,7 +30,7 @@ export const ListItem = ({
       })}
       className={`w-full bg-bg-body ${isDragging ? 'is-dragging' : ''}`}
     >
-      <Card onResize={onResize} rowId={item.id} groupFieldId={fieldId} />
+      {item?.id ? <Card onResize={onResize} rowId={item.id} groupFieldId={fieldId} /> : null}
     </div>
   );
 };

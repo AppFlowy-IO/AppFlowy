@@ -1,9 +1,9 @@
+import { usePageInfo } from '@/components/_shared/page/usePageInfo';
 import { downloadPage, openAppFlowySchema, openUrl } from '@/utils/url';
 import { Button } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import Page from 'src/components/_shared/page/Page';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import Popover, { PopoverOrigin } from '@mui/material/Popover';
 
@@ -25,11 +25,15 @@ function Header() {
   const { objectId } = useParams();
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const { icon, name } = usePageInfo(objectId || '');
 
   return (
     <div className={'appflowy-top-bar flex h-[64px] p-4'}>
       <div className={'flex flex-1 items-center justify-between'}>
-        <div className={'flex-1'}>{objectId && <Page id={objectId} />}</div>
+        <div className={'flex flex-1 items-center gap-2'}>
+          <div>{icon}</div>
+          <div className={'flex-1 truncate'}>{name}</div>
+        </div>
 
         <Button
           className={'border-line-border'}

@@ -88,7 +88,6 @@
     "unsplash-js": "^7.0.19",
     "utf8": "^3.0.0",
     "validator": "^13.11.0",
-    "valtio": "^1.12.1",
     "vite-plugin-wasm": "^3.3.0",
     "y-indexeddb": "9.0.12",
     "yjs": "^13.6.14"

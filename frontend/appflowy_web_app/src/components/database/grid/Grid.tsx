@@ -1,7 +1,7 @@
 import { RowsContext, useDatabase, useRowOrdersSelector, useViewId } from '@/application/database-yjs';
 import { useRenderFields, GridHeader, GridTable } from '@/components/database/components/grid';
 import { CircularProgress } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export function Grid() {
   const database = useDatabase();
@@ -10,6 +10,10 @@ export function Grid() {
 
   const { fields, columnWidth } = useRenderFields();
   const rowOrders = useRowOrdersSelector();
+
+  useEffect(() => {
+    setScrollLeft(0);
+  }, [viewId]);
 
   if (!database || !rowOrders) {
     return (

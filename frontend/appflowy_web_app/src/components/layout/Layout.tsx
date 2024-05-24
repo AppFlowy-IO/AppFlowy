@@ -6,6 +6,7 @@ import { AFScroller } from '@/components/_shared/scroller';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import './layout.scss';
+import { ReactComponent as Logo } from '@/assets/logo.svg';
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { workspaceId } = useParams();
@@ -30,6 +31,13 @@ function Layout({ children }: { children: React.ReactNode }) {
 
     void getFolder(workspaceId);
   }, [getFolder, workspaceId]);
+
+  if (!folder)
+    return (
+      <div className={'flex h-screen w-screen items-center justify-center'}>
+        <Logo className={'h-20 w-20'} />
+      </div>
+    );
   return (
     <FolderProvider folder={folder}>
       <Header />
