@@ -125,7 +125,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                 title:
                     LocaleKeys.settings_workspacePage_textDirection_title.tr(),
                 children: const [
-                  _TextDirectionSelect(),
+                  TextDirectionSelect(),
                   EnableRTLItemsSwitcher(),
                 ],
               ),
@@ -387,19 +387,24 @@ class _WorkspaceIconSetting extends StatelessWidget {
   }
 }
 
-class _TextDirectionSelect extends StatelessWidget {
-  const _TextDirectionSelect();
+class TextDirectionSelect extends StatelessWidget {
+  const TextDirectionSelect({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
       builder: (context, state) {
-        final selectedItem = state.textDirection ?? AppFlowyTextDirection.auto;
+        final selectedItem = state.textDirection ?? AppFlowyTextDirection.ltr;
 
         return SettingsRadioSelect<AppFlowyTextDirection>(
-          onChanged: (item) => context
-              .read<AppearanceSettingsCubit>()
-              .setTextDirection(item.value),
+          onChanged: (item) {
+            context
+                .read<AppearanceSettingsCubit>()
+                .setTextDirection(item.value);
+            context
+                .read<DocumentAppearanceCubit>()
+                .syncDefaultTextDirection(item.value.name);
+          },
           items: [
             SettingsRadioItem(
               value: AppFlowyTextDirection.ltr,
