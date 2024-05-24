@@ -46,9 +46,11 @@ class FavoriteFolder extends StatelessWidget {
                 ),
                 // pages
                 ..._buildViews(context, state, isHovered),
-                // more button
-                const VSpace(2),
-                const FavoriteMoreButton(),
+                if (state.isExpanded) ...[
+                  // more button
+                  const VSpace(2),
+                  const FavoriteMoreButton(),
+                ],
               ],
             ),
           );

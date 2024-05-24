@@ -70,6 +70,7 @@
     "chooseWorkspace": "Choose your workspace",
     "create": "Create workspace",
     "reset": "Reset workspace",
+    "renameWorkspace": "Rename workspace",
     "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
     "hint": "workspace",
     "notFoundError": "Workspace not found",

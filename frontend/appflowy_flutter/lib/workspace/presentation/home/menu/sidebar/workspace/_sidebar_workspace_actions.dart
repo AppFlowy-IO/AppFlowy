@@ -16,6 +16,7 @@ enum WorkspaceMoreAction {
   rename,
   delete,
   leave,
+  divider,
 }
 
 class WorkspaceMoreActionList extends StatelessWidget {
@@ -32,6 +33,7 @@ class WorkspaceMoreActionList extends StatelessWidget {
     final actions = [];
     if (myRole.isOwner) {
       actions.add(WorkspaceMoreAction.rename);
+      actions.add(WorkspaceMoreAction.divider);
       actions.add(WorkspaceMoreAction.delete);
     } else if (myRole.canLeave) {
       actions.add(WorkspaceMoreAction.leave);
@@ -40,10 +42,11 @@ class WorkspaceMoreActionList extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return PopoverActionList<_WorkspaceMoreActionWrapper>(
-      direction: PopoverDirection.bottomWithCenterAligned,
+      direction: PopoverDirection.bottomWithLeftAligned,
       actions: actions
           .map((e) => _WorkspaceMoreActionWrapper(e, workspace))
           .toList(),
+      constraints: const BoxConstraints(minWidth: 220),
       buildChild: (controller) {
         return SizedBox.square(
           dimension: 24.0,
@@ -71,19 +74,36 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
 
   @override
   Widget buildWithContext(BuildContext context, PopoverController controller) {
+    if (inner == WorkspaceMoreAction.divider) {
+      return const Divider();
+    }
+
+    return _buildActionButton(context, controller);
+  }
+
+  Widget _buildActionButton(
+    BuildContext context,
+    PopoverController controller,
+  ) {
     return FlowyButton(
-      text: FlowyText(
+      leftIcon: buildLeftIcon(context),
+      iconPadding: 10.0,
+      text: FlowyText.regular(
         name,
-        color: inner == WorkspaceMoreAction.delete
+        fontSize: 14.0,
+        color: [WorkspaceMoreAction.delete, WorkspaceMoreAction.leave]
+                .contains(inner)
             ? Theme.of(context).colorScheme.error
             : null,
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+      margin: const EdgeInsets.all(6),
       onTap: () async {
         PopoverContainer.of(context).closeAll();
 
         final workspaceBloc = context.read<UserWorkspaceBloc>();
         switch (inner) {
+          case WorkspaceMoreAction.divider:
+            break;
           case WorkspaceMoreAction.delete:
             await NavigatorAlertDialog(
               title: LocaleKeys.workspace_deleteWorkspaceHintText.tr(),
@@ -95,7 +115,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
             ).show(context);
           case WorkspaceMoreAction.rename:
             await NavigatorTextFieldDialog(
-              title: LocaleKeys.workspace_create.tr(),
+              title: LocaleKeys.workspace_renameWorkspace.tr(),
               value: workspace.name,
               hintText: '',
               autoSelectAllText: true,
@@ -134,6 +154,27 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
         return LocaleKeys.button_rename.tr();
       case WorkspaceMoreAction.leave:
         return LocaleKeys.workspace_leaveCurrentWorkspace.tr();
+      case WorkspaceMoreAction.divider:
+        return '';
+    }
+  }
+
+  Widget buildLeftIcon(BuildContext context) {
+    switch (inner) {
+      case WorkspaceMoreAction.delete:
+        return FlowySvg(
+          FlowySvgs.delete_s,
+          color: Theme.of(context).colorScheme.error,
+        );
+      case WorkspaceMoreAction.rename:
+        return const FlowySvg(FlowySvgs.view_item_rename_s);
+      case WorkspaceMoreAction.leave:
+        return FlowySvg(
+          FlowySvgs.logout_s,
+          color: Theme.of(context).colorScheme.error,
+        );
+      case WorkspaceMoreAction.divider:
+        return const SizedBox.shrink();
     }
   }
 }
