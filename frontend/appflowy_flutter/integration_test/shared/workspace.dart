@@ -35,7 +35,7 @@ extension AppFlowyWorkspace on WidgetTester {
       of: find.byType(WorkspaceMenuItem),
       matching: find.byType(WorkspaceMoreActionList),
     );
-    expect(moreButton, findsOneWidget);
+    expect(moreButton.first, findsOneWidget);
     await tapButton(moreButton);
     await tapButton(find.findTextInFlowyText(LocaleKeys.button_rename.tr()));
     final input = find.byType(TextFormField);
