@@ -25,13 +25,11 @@ class MockDocumentAppearanceCubit extends Mock
 class MockDocumentAppearance extends Mock implements DocumentAppearance {}
 
 void main() {
-  // ignore: unused_local_variable
-  late AppFlowyUnitTest context;
   late AppearanceSettingsPB appearanceSettings;
   late DateTimeSettingsPB dateTimeSettings;
 
   setUp(() async {
-    context = await AppFlowyUnitTest.ensureInitialized();
+    await AppFlowyUnitTest.ensureInitialized();
     appearanceSettings =
         await UserSettingsBackendService().getAppearanceSetting();
     dateTimeSettings = await UserSettingsBackendService().getDateTimeSettings();

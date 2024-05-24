@@ -387,6 +387,7 @@ class _WorkspaceIconSetting extends StatelessWidget {
   }
 }
 
+@visibleForTesting
 class TextDirectionSelect extends StatelessWidget {
   const TextDirectionSelect({super.key});
 
