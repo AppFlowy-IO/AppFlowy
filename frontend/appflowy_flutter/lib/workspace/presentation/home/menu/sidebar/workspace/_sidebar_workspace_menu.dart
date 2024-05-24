@@ -343,7 +343,7 @@ class _CreateWorkspaceButton extends StatelessWidget {
 }
 
 class _WorkspaceMoreButton extends StatelessWidget {
-  const _WorkspaceMoreButton({super.key});
+  const _WorkspaceMoreButton();
 
   @override
   Widget build(BuildContext context) {
