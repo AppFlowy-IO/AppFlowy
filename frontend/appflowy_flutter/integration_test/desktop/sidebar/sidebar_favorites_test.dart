@@ -46,7 +46,7 @@ void main() {
       await tester.favoriteViewByName(names[1]);
       expect(
         tester.findFavoritePageName(names[1]),
-        findsNWidgets(2),
+        findsNWidgets(1),
       );
 
       await tester.unfavoriteViewByName(gettingStarted);
