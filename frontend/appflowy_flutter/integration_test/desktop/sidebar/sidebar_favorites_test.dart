@@ -122,7 +122,7 @@ void main() {
                 widget.view.isFavorite &&
                 widget.spaceType == FolderSpaceType.favorite,
           ),
-          findsNWidgets(6),
+          findsNWidgets(3),
         );
 
         await tester.hoverOnPageName(
@@ -135,7 +135,7 @@ void main() {
 
         expect(
           tester.findAllFavoritePages(),
-          findsNWidgets(3),
+          findsNWidgets(2),
         );
 
         await tester.hoverOnPageName(
@@ -168,7 +168,7 @@ void main() {
                 widget.isSelected != null &&
                 widget.isSelected!(),
           ),
-          findsNWidgets(2),
+          findsNWidgets(1),
         );
       },
     );
