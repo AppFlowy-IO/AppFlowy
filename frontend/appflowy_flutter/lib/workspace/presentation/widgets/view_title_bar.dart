@@ -33,7 +33,10 @@ class ViewTitleBar extends StatelessWidget {
             return const SizedBox.shrink();
           }
           return SingleChildScrollView(
-            child: Row(children: _buildViewTitles(context, ancestors)),
+            child: SizedBox(
+              height: 24,
+              child: Row(children: _buildViewTitles(context, ancestors)),
+            ),
           );
         },
       ),
@@ -192,6 +195,7 @@ class _ViewTitleState extends State<_ViewTitle> {
       },
       child: FlowyButton(
         useIntrinsicWidth: true,
+        margin: const EdgeInsets.symmetric(horizontal: 6.0),
         text: _buildIconAndName(state),
       ),
     );

@@ -424,12 +424,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       const HSpace(6),
       // title
       Expanded(
-        child: SizedBox(
-          height: 18.0,
-          child: FlowyText.regular(
-            widget.view.name,
-            overflow: TextOverflow.ellipsis,
-          ),
+        child: FlowyText.regular(
+          widget.view.name,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     ];

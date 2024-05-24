@@ -5,7 +5,6 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_folder_header.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/hover_builder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -15,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SectionFolder extends StatelessWidget {
+class SectionFolder extends StatefulWidget {
   const SectionFolder({
     super.key,
     required this.title,
@@ -34,10 +33,25 @@ class SectionFolder extends StatelessWidget {
   final String addButtonTooltip;
 
   @override
+  State<SectionFolder> createState() => _SectionFolderState();
+}
+
+class _SectionFolderState extends State<SectionFolder> {
+  final ValueNotifier<bool> isHovered = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    isHovered.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return HoverBuilder(
-      builder: (_, isHovered) => BlocProvider<FolderBloc>(
-        create: (context) => FolderBloc(type: spaceType)
+    return MouseRegion(
+      onEnter: (_) => isHovered.value = true,
+      onExit: (_) => isHovered.value = false,
+      child: BlocProvider<FolderBloc>(
+        create: (context) => FolderBloc(type: widget.spaceType)
           ..add(
             const FolderEvent.initial(),
           ),
@@ -61,9 +75,9 @@ class SectionFolder extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return FolderHeader(
-      title: title,
-      expandButtonTooltip: expandButtonTooltip,
-      addButtonTooltip: addButtonTooltip,
+      title: widget.title,
+      expandButtonTooltip: widget.expandButtonTooltip,
+      addButtonTooltip: widget.addButtonTooltip,
       onPressed: () =>
           context.read<FolderBloc>().add(const FolderEvent.expandOrUnExpand()),
       onAdded: () {
@@ -76,7 +90,7 @@ class SectionFolder extends StatelessWidget {
                     SidebarSectionsEvent.createRootViewInSection(
                       name: viewName,
                       index: 0,
-                      viewSection: spaceType.toViewSectionPB,
+                      viewSection: widget.spaceType.toViewSectionPB,
                     ),
                   );
 
@@ -101,11 +115,11 @@ class SectionFolder extends StatelessWidget {
       return [];
     }
 
-    return views.map(
+    return widget.views.map(
       (view) => ViewItem(
-        key: ValueKey('${spaceType.name} ${view.id}'),
-        spaceType: spaceType,
-        isFirstChild: view.id == views.first.id,
+        key: ValueKey('${widget.spaceType.name} ${view.id}'),
+        spaceType: widget.spaceType,
+        isFirstChild: view.id == widget.views.first.id,
         view: view,
         level: 0,
         leftPadding: HomeSpaceViewSizes.leftPadding,
@@ -120,17 +134,17 @@ class SectionFolder extends StatelessWidget {
         },
         onTertiarySelected: (viewContext, view) =>
             context.read<TabsBloc>().openTab(view),
-        isHoverEnabled: isHoverEnabled,
+        isHoverEnabled: widget.isHoverEnabled,
       ),
     );
   }
 
   Widget _buildDraggablePlaceholder(BuildContext context) {
-    if (views.isNotEmpty) {
+    if (widget.views.isNotEmpty) {
       return const SizedBox.shrink();
     }
     return ViewItem(
-      spaceType: spaceType,
+      spaceType: widget.spaceType,
       view: ViewPB(
         parentViewId: context
                 .read<UserWorkspaceBloc>()
@@ -144,7 +158,7 @@ class SectionFolder extends StatelessWidget {
       isFeedback: false,
       onSelected: (_, __) {},
       onTertiarySelected: (_, __) {},
-      isHoverEnabled: isHoverEnabled,
+      isHoverEnabled: widget.isHoverEnabled,
       isPlaceholder: true,
     );
   }

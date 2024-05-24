@@ -7,7 +7,6 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_more_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_pin_action.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/hover_builder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class FavoriteFolder extends StatelessWidget {
+class FavoriteFolder extends StatefulWidget {
   const FavoriteFolder({
     super.key,
     required this.views,
@@ -26,8 +25,21 @@ class FavoriteFolder extends StatelessWidget {
   final List<ViewPB> views;
 
   @override
+  State<FavoriteFolder> createState() => _FavoriteFolderState();
+}
+
+class _FavoriteFolderState extends State<FavoriteFolder> {
+  final isHovered = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    isHovered.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (views.isEmpty) {
+    if (widget.views.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -36,8 +48,10 @@ class FavoriteFolder extends StatelessWidget {
         ..add(const FolderEvent.initial()),
       child: BlocBuilder<FolderBloc, FolderState>(
         builder: (context, state) {
-          return HoverBuilder(
-            builder: (_, isHovered) => Column(
+          return MouseRegion(
+            onEnter: (_) => isHovered.value = true,
+            onExit: (_) => isHovered.value = false,
+            child: Column(
               children: [
                 FavoriteHeader(
                   onPressed: () => context
@@ -75,7 +89,7 @@ class FavoriteFolder extends StatelessWidget {
             ),
             spaceType: FolderSpaceType.favorite,
             isDraggable: false,
-            isFirstChild: view.id == views.first.id,
+            isFirstChild: view.id == widget.views.first.id,
             isFeedback: false,
             view: view,
             leftPadding: HomeSpaceViewSizes.leftPadding,

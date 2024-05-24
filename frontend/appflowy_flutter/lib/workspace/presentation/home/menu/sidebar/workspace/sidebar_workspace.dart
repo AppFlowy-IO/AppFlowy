@@ -200,12 +200,12 @@ class _SidebarSwitchWorkspaceButtonState
         );
       },
       child: FlowyButton(
-        margin: const EdgeInsets.symmetric(vertical: 8),
+        margin: EdgeInsets.zero,
         text: Row(
           children: [
             const HSpace(6.0),
-            SizedBox.square(
-              dimension: 16.0,
+            SizedBox(
+              width: 16.0,
               child: WorkspaceIcon(
                 workspace: widget.currentWorkspace,
                 iconSize: 16,

@@ -135,8 +135,6 @@ class FlowyText extends StatelessWidget {
           fontFamilyFallback: fallbackFontFamily,
           height: lineHeight,
         );
-    final strutStyle = StrutStyle.fromTextStyle(textStyle,
-        forceStrutHeight: this.strutStyle?.forceStrutHeight);
 
     if (selectable) {
       child = SelectableText(
@@ -152,7 +150,6 @@ class FlowyText extends StatelessWidget {
         maxLines: maxLines,
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
-        strutStyle: strutStyle,
         style: textStyle,
       );
     }
