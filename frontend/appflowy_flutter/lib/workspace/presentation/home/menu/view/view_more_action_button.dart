@@ -86,8 +86,6 @@ class ViewMoreActionButton extends StatelessWidget {
           ViewMoreActionType.collapseAllPages,
           ViewMoreActionType.divider,
           ViewMoreActionType.openInNewTab,
-          ViewMoreActionType.divider,
-          ViewMoreActionType.lastModified,
         ]);
     }
     return actionTypes;
@@ -106,6 +104,8 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
       return _buildDivider();
     } else if (inner == ViewMoreActionType.lastModified) {
       return _buildLastModified(context);
+    } else if (inner == ViewMoreActionType.created) {
+      return _buildCreated(context);
     } else if (inner == ViewMoreActionType.changeIcon) {
       return _buildEmojiActionButton(context, controller);
     } else {
@@ -144,6 +144,17 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
   }
 
   Widget _buildLastModified(BuildContext context) {
+    return Container(
+      height: 40,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+    );
+  }
+
+  Widget _buildCreated(BuildContext context) {
     return Container(
       height: 40,
       width: double.infinity,
