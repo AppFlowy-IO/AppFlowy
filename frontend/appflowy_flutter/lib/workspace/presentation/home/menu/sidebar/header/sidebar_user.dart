@@ -28,11 +28,14 @@ class SidebarUser extends StatelessWidget {
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
           children: [
+            const HSpace(6),
             UserAvatar(
               iconUrl: state.userProfile.iconUrl,
               name: state.userProfile.name,
+              size: 16.0,
+              fontSize: 10.0,
             ),
-            const HSpace(8),
+            const HSpace(10),
             Expanded(child: _buildUserName(context, state)),
             UserSettingButton(userProfile: state.userProfile),
             const HSpace(4),
