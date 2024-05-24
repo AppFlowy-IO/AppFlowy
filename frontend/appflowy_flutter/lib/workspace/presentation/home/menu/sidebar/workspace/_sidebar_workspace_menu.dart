@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/hover_builder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
@@ -91,7 +90,7 @@ class WorkspacesMenu extends StatelessWidget {
   }
 }
 
-class WorkspaceMenuItem extends StatelessWidget {
+class WorkspaceMenuItem extends StatefulWidget {
   const WorkspaceMenuItem({
     super.key,
     required this.workspace,
@@ -104,26 +103,41 @@ class WorkspaceMenuItem extends StatelessWidget {
   final bool isSelected;
 
   @override
+  State<WorkspaceMenuItem> createState() => _WorkspaceMenuItemState();
+}
+
+class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
+  final ValueNotifier<bool> isHovered = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    isHovered.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => WorkspaceMemberBloc(
-        userProfile: userProfile,
-        workspace: workspace,
+        userProfile: widget.userProfile,
+        workspace: widget.workspace,
       )..add(const WorkspaceMemberEvent.initial()),
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
           // settings right icon inside the flowy button will
           //  cause the popover dismiss intermediately when click the right icon.
           // so using the stack to put the right icon on the flowy button.
-          return HoverBuilder(
-            builder: (_, isHovered) => SizedBox(
-              height: 40,
+          return SizedBox(
+            height: 40,
+            child: MouseRegion(
+              onEnter: (_) => isHovered.value = true,
+              onExit: (_) => isHovered.value = false,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   _WorkspaceInfo(
-                    isSelected: isSelected,
-                    workspace: workspace,
+                    isSelected: widget.isSelected,
+                    workspace: widget.workspace,
                   ),
                   Positioned(left: 4, child: _buildLeftIcon(context)),
                   Positioned(
@@ -153,13 +167,13 @@ class WorkspaceMenuItem extends StatelessWidget {
       child: FlowyTooltip(
         message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
         child: WorkspaceIcon(
-          workspace: workspace,
+          workspace: widget.workspace,
           iconSize: 22,
           fontSize: 16,
           enableEdit: true,
           onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                 UserWorkspaceEvent.updateWorkspaceIcon(
-                  workspace.workspaceId,
+                  widget.workspace.workspaceId,
                   result.emoji,
                 ),
               ),
@@ -187,10 +201,10 @@ class WorkspaceMenuItem extends StatelessWidget {
               ),
             );
           },
-          child: WorkspaceMoreActionList(workspace: workspace),
+          child: WorkspaceMoreActionList(workspace: widget.workspace),
         ),
         const HSpace(8.0),
-        if (isSelected) ...[
+        if (widget.isSelected) ...[
           const Padding(
             padding: EdgeInsets.all(5.0),
             child: FlowySvg(
@@ -199,6 +213,7 @@ class WorkspaceMenuItem extends StatelessWidget {
               size: Size.square(14.0),
             ),
           ),
+          const HSpace(8.0),
         ],
       ],
     );
