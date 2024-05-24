@@ -5,7 +5,7 @@ import { CellProps, SelectOptionCell as SelectOptionCellType } from '@/component
 import React, { useCallback, useMemo } from 'react';
 
 export function SelectOptionCell({ cell, fieldId, style, placeholder }: CellProps<SelectOptionCellType>) {
-  const selectOptionIds = useMemo(() => cell?.data.split(','), [cell]);
+  const selectOptionIds = useMemo(() => (!cell?.data ? [] : cell?.data.split(',')), [cell]);
   const { field } = useFieldSelector(fieldId);
   const typeOption = useMemo(() => {
     if (!field) return null;
@@ -31,7 +31,10 @@ export function SelectOptionCell({ cell, fieldId, style, placeholder }: CellProp
     ) : null;
 
   return (
-    <div style={style} className={'flex h-full w-full cursor-pointer items-center gap-1 overflow-x-hidden'}>
+    <div
+      style={style}
+      className={'select-option-cell flex h-full w-full cursor-pointer items-center gap-1 overflow-x-hidden'}
+    >
       {renderSelectedOptions(selectOptionIds)}
     </div>
   );

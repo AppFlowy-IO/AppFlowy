@@ -10,8 +10,10 @@ $today-highlight-bg: transparent;
   @apply rounded-full w-[20px] h-[20px] my-1.5;
 }
 
-.rbc-date-cell {
-  min-width: 100px;
+
+.rbc-date-cell, .rbc-header {
+  min-width: 120px;
+  max-width: 180px;
 }
 
 .rbc-date-cell.rbc-now {
@@ -25,23 +27,44 @@ $today-highlight-bg: transparent;
 
 .rbc-month-view {
   border: none;
+  @apply h-full overflow-auto;
 
   .rbc-month-row {
     border: 1px solid var(--line-divider);
-    border-bottom: none;
+    border-top: none;
 
-    &:last-child {
-      border-bottom: 1px solid var(--line-divider);
+  }
+
+  &::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+
+  &:hover {
+
+    &::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background-color: var(--scrollbar-thumb);
     }
   }
+
+
 }
+
 
 .rbc-month-header {
   height: 40px;
+  position: sticky;
+  top: 0;
+  background: var(--bg-body);
+  z-index: 50;
 
   .rbc-header {
     border: none;
-    @apply flex items-end py-2 justify-center font-normal text-text-caption;
+    border-bottom: 1px solid var(--line-divider);
+    @apply flex items-end py-2 justify-center font-normal text-text-caption bg-bg-body;
+
   }
 }
 
@@ -60,4 +83,10 @@ $today-highlight-bg: transparent;
   display: inline-table !important;
   flex: 0 0 0 !important;
   min-height: 120px !important;
+}
+
+.event-properties {
+  .property-label {
+    @apply text-text-caption;
+  }
 }

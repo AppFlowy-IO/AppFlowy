@@ -4,7 +4,6 @@ import RecordNotFound from '@/components/_shared/not-found/RecordNotFound';
 import { AFConfigContext } from '@/components/app/AppConfig';
 import DatabaseViews from '@/components/database/DatabaseViews';
 import { DatabaseContextProvider } from '@/components/database/DatabaseContext';
-import DatabaseTitle from '@/components/database/DatabaseTitle';
 import { Log } from '@/utils/log';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
@@ -14,13 +13,14 @@ import * as Y from 'yjs';
 export const Database = memo(() => {
   const { objectId, workspaceId } = useId() || {};
   const [search, setSearch] = useSearchParams();
+
   const viewId = search.get('v');
   const [doc, setDoc] = useState<YDoc | null>(null);
   const [rows, setRows] = useState<Y.Map<YDoc> | null>(null); // Map<rowId, YDoc
   const [notFound, setNotFound] = useState<boolean>(false);
   const databaseService = useContext(AFConfigContext)?.service?.databaseService;
 
-  const handleOpenDocument = useCallback(async () => {
+  const handleOpenDatabase = useCallback(async () => {
     if (!databaseService || !workspaceId || !objectId) return;
 
     try {
@@ -28,6 +28,8 @@ export const Database = memo(() => {
       const { databaseDoc, rows } = await databaseService.openDatabase(workspaceId, objectId);
 
       console.log('databaseDoc', databaseDoc.getMap(YjsEditorKey.data_section).toJSON());
+      console.log('rows', rows);
+
       setDoc(databaseDoc);
       setRows(rows);
     } catch (e) {
@@ -38,8 +40,8 @@ export const Database = memo(() => {
 
   useEffect(() => {
     setNotFound(false);
-    void handleOpenDocument();
-  }, [handleOpenDocument]);
+    void handleOpenDatabase();
+  }, [handleOpenDatabase]);
 
   const handleChangeView = useCallback(
     (viewId: string) => {
@@ -48,13 +50,18 @@ export const Database = memo(() => {
     [setSearch]
   );
 
-  if (!objectId) return null;
+  const navigateToRow = useCallback(
+    (rowId: string) => {
+      setSearch({ r: rowId });
+    },
+    [setSearch]
+  );
 
-  if (!doc) {
+  if (notFound || !objectId) {
     return <RecordNotFound open={notFound} workspaceId={workspaceId} />;
   }
 
-  if (!rows) {
+  if (!rows || !doc) {
     return (
       <div className={'flex h-full w-full items-center justify-center'}>
         <CircularProgress />
@@ -63,13 +70,16 @@ export const Database = memo(() => {
   }
 
   return (
-    <div className={'relative flex h-full w-full flex-col'}>
-      <DatabaseTitle viewId={objectId} />
-      <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
-        <DatabaseContextProvider viewId={viewId || objectId} doc={doc} rowDocMap={rows} readOnly={true}>
-          <DatabaseViews onChangeView={handleChangeView} currentViewId={viewId || objectId} />
-        </DatabaseContextProvider>
-      </div>
+    <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
+      <DatabaseContextProvider
+        navigateToRow={navigateToRow}
+        viewId={viewId || objectId}
+        doc={doc}
+        rowDocMap={rows}
+        readOnly={true}
+      >
+        <DatabaseViews onChangeView={handleChangeView} currentViewId={viewId || objectId} />
+      </DatabaseContextProvider>
     </div>
   );
 });

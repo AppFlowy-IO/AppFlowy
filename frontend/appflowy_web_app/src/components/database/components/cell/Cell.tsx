@@ -17,6 +17,7 @@ export function Cell(props: CellProps<CellType>) {
   const { cell, rowId, fieldId, style } = props;
   const { field } = useFieldSelector(fieldId);
   const fieldType = Number(field?.get(YjsDatabaseKey.type)) as FieldType;
+
   const Component = useMemo(() => {
     switch (fieldType) {
       case FieldType.RichText:

@@ -2,7 +2,6 @@ import { YjsDatabaseKey } from '@/application/collab.type';
 import { FieldType, useCellSelector, useFieldSelector } from '@/application/database-yjs';
 import { Cell as CellType, CellProps, TextCell } from '@/components/database/components/cell/cell.type';
 import { CheckboxCell } from '@/components/database/components/cell/checkbox';
-import { ChecklistCell } from '@/components/database/components/cell/checklist';
 import { RowCreateModifiedTime } from '@/components/database/components/cell/created-modified';
 import { DateTimeCell } from '@/components/database/components/cell/date';
 import { NumberCell } from '@/components/database/components/cell/number';
@@ -11,6 +10,7 @@ import { SelectOptionCell } from '@/components/database/components/cell/select-o
 import { UrlCell } from '@/components/database/components/cell/url';
 import PropertyWrapper from '@/components/database/components/property/PropertyWrapper';
 import { TextProperty } from '@/components/database/components/property/text';
+import { ChecklistProperty } from 'src/components/database/components/property/cheklist';
 
 import React, { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -39,7 +39,7 @@ export function Property({ fieldId, rowId }: { fieldId: string; rowId: string })
       case FieldType.DateTime:
         return DateTimeCell;
       case FieldType.Checklist:
-        return ChecklistCell;
+        return ChecklistProperty;
       case FieldType.Relation:
         return RelationCell;
       default:

@@ -20,7 +20,6 @@ export type RenderColumn = {
 export function useRenderFields() {
   const fields = useFieldsSelector();
 
-  console.log('columns', fields);
   const renderColumns = useMemo(() => {
     const data = fields.map((column) => ({
       ...column,
@@ -30,7 +29,7 @@ export function useRenderFields() {
     return [
       {
         type: GridColumnType.Action,
-        width: 96,
+        width: 64,
       },
       ...data,
       {
@@ -39,7 +38,7 @@ export function useRenderFields() {
       },
       {
         type: GridColumnType.Action,
-        width: 96,
+        width: 64,
       },
     ].filter(Boolean) as RenderColumn[];
   }, [fields]);
