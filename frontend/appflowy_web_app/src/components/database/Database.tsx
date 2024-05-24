@@ -10,7 +10,7 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import { useSearchParams } from 'react-router-dom';
 import * as Y from 'yjs';
 
-export const Database = memo(() => {
+export const Database = memo((props?: { onNavigateToRow?: (viewId: string, rowId: string) => void }) => {
   const { objectId, workspaceId } = useId() || {};
   const [search, setSearch] = useSearchParams();
 
@@ -52,9 +52,16 @@ export const Database = memo(() => {
 
   const navigateToRow = useCallback(
     (rowId: string) => {
+      const currentViewId = objectId || viewId;
+
+      if (props?.onNavigateToRow && currentViewId) {
+        props.onNavigateToRow(currentViewId, rowId);
+        return;
+      }
+
       setSearch({ r: rowId });
     },
-    [setSearch]
+    [props, setSearch, viewId, objectId]
   );
 
   if (notFound || !objectId) {

@@ -38,7 +38,7 @@ export function Card({ groupFieldId, rowId, onResize, isDragging }: CardProps) {
       style={{
         minHeight: '38px',
       }}
-      className='flex cursor-pointer flex-col rounded-lg border border-line-divider p-3 shadow-sm hover:bg-fill-list-active hover:shadow'
+      className='flex cursor-pointer flex-col rounded-lg border border-line-divider p-3 text-xs shadow-sm hover:bg-fill-list-active hover:shadow'
     >
       {showFields.map((field, index) => {
         return <CardField index={index} key={field.fieldId} rowId={rowId} fieldId={field.fieldId} />;

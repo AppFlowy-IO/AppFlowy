@@ -1,4 +1,5 @@
-import { useFieldsSelector, useNavigateToRow } from '@/application/database-yjs';
+import { useFieldsSelector, useNavigateToRow, usePrimaryFieldId } from '@/application/database-yjs';
+import EventPaperTitle from '@/components/database/components/calendar/event/EventPaperTitle';
 import { Property } from '@/components/database/components/property';
 import { Tooltip } from '@mui/material';
 import React from 'react';
@@ -6,7 +7,10 @@ import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
 import { useTranslation } from 'react-i18next';
 
 function EventPaper({ rowId }: { rowId: string }) {
-  const fields = useFieldsSelector();
+  const primaryFieldId = usePrimaryFieldId();
+
+  const fields = useFieldsSelector().filter((column) => column.fieldId !== primaryFieldId);
+
   const navigateToRow = useNavigateToRow();
   const { t } = useTranslation();
 
@@ -27,6 +31,7 @@ function EventPaper({ rowId }: { rowId: string }) {
           </Tooltip>
         </div>
         <div className={'event-properties flex w-full flex-1 flex-col gap-4 overflow-y-auto py-2'}>
+          {primaryFieldId && <EventPaperTitle rowId={rowId} fieldId={primaryFieldId} />}
           {fields.map((field) => {
             return <Property fieldId={field.fieldId} rowId={rowId} key={field.fieldId} />;
           })}

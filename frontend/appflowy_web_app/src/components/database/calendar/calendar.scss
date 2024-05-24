@@ -12,8 +12,7 @@ $today-highlight-bg: transparent;
 
 
 .rbc-date-cell, .rbc-header {
-  min-width: 120px;
-  max-width: 180px;
+  min-width: 97px;
 }
 
 .rbc-date-cell.rbc-now {
@@ -82,7 +81,7 @@ $today-highlight-bg: transparent;
 .rbc-month-row {
   display: inline-table !important;
   flex: 0 0 0 !important;
-  min-height: 120px !important;
+  min-height: 97px !important;
 }
 
 .event-properties {

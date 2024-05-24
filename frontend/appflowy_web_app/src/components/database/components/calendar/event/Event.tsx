@@ -19,11 +19,21 @@ export function Event({ event }: EventWrapperProps<CalendarEvent>) {
         <div
           onClick={() => setOpen((prev) => !prev)}
           className={
-            'flex min-h-[24px] cursor-pointer flex-col gap-2 rounded-md border border-line-border bg-bg-body p-2 shadow-sm hover:bg-fill-list-active hover:shadow'
+            'flex min-h-[24px] cursor-pointer flex-col gap-2 rounded-md border border-line-border bg-bg-body p-2 text-xs shadow-sm hover:bg-fill-list-active hover:shadow'
           }
         >
           {showFields.map((field) => {
-            return <CardField index={0} key={field.fieldId} rowId={rowId} fieldId={field.fieldId} />;
+            return (
+              <div
+                key={field.fieldId}
+                style={{
+                  fontSize: '0.85em',
+                }}
+                className={'overflow-x-hidden truncate'}
+              >
+                <CardField index={0} rowId={rowId} fieldId={field.fieldId} />
+              </div>
+            );
           })}
         </div>
       </RichTooltip>

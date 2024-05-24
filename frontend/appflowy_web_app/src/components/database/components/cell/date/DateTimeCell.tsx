@@ -20,7 +20,7 @@ export function DateTimeCell({ cell, fieldId, style, placeholder }: CellProps<Da
   }, [cell, getDateTimeStr]);
 
   const dateStr = useMemo(() => {
-    return [startDateTime, endDateTime].filter(Boolean).join(' -> ');
+    return [startDateTime, endDateTime].filter(Boolean).join(' - ');
   }, [startDateTime, endDateTime]);
 
   const hasReminder = !!cell?.reminderId;

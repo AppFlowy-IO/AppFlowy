@@ -2,6 +2,7 @@ import { ViewLayout, YjsFolderKey, YView } from '@/application/collab.type';
 import { useFolderContext } from '@/application/folder-yjs';
 import { useId } from '@/components/_shared/context-provider/IdProvider';
 import { DatabaseActions } from '@/components/database/components/conditions';
+import { Tooltip } from '@mui/material';
 import { forwardRef, FunctionComponent, SVGProps, useCallback, useEffect, useMemo } from 'react';
 import { ViewTabs, ViewTab } from './ViewTabs';
 import { useTranslation } from 'react-i18next';
@@ -83,7 +84,11 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
                   icon={<Icon className={'h-4 w-4'} />}
                   iconPosition='start'
                   color='inherit'
-                  label={<span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>}
+                  label={
+                    <Tooltip title={name}>
+                      <span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>
+                    </Tooltip>
+                  }
                   value={viewId}
                 />
               );

@@ -3,17 +3,15 @@ import { useRowMetaSelector } from '@/application/database-yjs';
 import { useId } from '@/components/_shared/context-provider/IdProvider';
 import { AFConfigContext } from '@/components/app/AppConfig';
 import { Editor } from '@/components/editor';
-import { Log } from '@/utils/log';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import RecordNotFound from '@/components/_shared/not-found/RecordNotFound';
 
 export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
   const { workspaceId } = useId() || {};
   const documentId = useRowMetaSelector(rowId)?.documentId;
 
+  const [loading, setLoading] = useState(true);
   const [doc, setDoc] = useState<YDoc | null>(null);
-  const [notFound, setNotFound] = useState<boolean>(false);
 
   const documentService = useContext(AFConfigContext)?.service?.documentService;
 
@@ -25,27 +23,24 @@ export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
 
       setDoc(doc);
     } catch (e) {
-      Log.error(e);
-      setNotFound(true);
+      // haven't created by client, ignore error and show empty
     }
   }, [documentService, workspaceId, documentId]);
 
   useEffect(() => {
-    setNotFound(false);
-    void handleOpenDocument();
+    setLoading(true);
+    void handleOpenDocument().then(() => setLoading(false));
   }, [handleOpenDocument]);
 
-  if (notFound || !documentId) {
-    return <RecordNotFound open={notFound} workspaceId={workspaceId} />;
-  }
-
-  if (!doc) {
+  if (loading) {
     return (
-      <div className={'flex h-full w-full items-center justify-center'}>
+      <div className={'flex h-[260px] w-full items-center justify-center'}>
         <CircularProgress />
       </div>
     );
   }
+
+  if (!doc) return null;
 
   return <Editor doc={doc} readOnly={true} includeRoot={false} />;
 }

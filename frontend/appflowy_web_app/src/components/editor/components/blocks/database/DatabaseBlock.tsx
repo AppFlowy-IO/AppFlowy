@@ -1,7 +1,7 @@
 import { IdProvider, useId } from '@/components/_shared/context-provider/IdProvider';
 import { Database } from '@/components/database';
 import { DatabaseNode, EditorElementProps } from '@/components/editor/editor.type';
-import React, { forwardRef, memo, useMemo } from 'react';
+import React, { forwardRef, memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BlockType } from '@/application/collab.type';
 
@@ -31,6 +31,22 @@ export const DatabaseBlock = memo(
       return style;
     }, [type]);
 
+    const handleNavigateToRow = useCallback(
+      (viewId: string, rowId: string) => {
+        const origin = window.location.origin;
+        const urlType = {
+          [BlockType.GridBlock]: 'grid',
+          [BlockType.CalendarBlock]: 'calendar',
+          [BlockType.BoardBlock]: 'board',
+        }[type];
+
+        const url = `${origin}/workspace/${workspaceId}/${urlType}/${viewId}?r=${rowId}`;
+
+        window.open(url, '_blank');
+      },
+      [workspaceId, type]
+    );
+
     return (
       <>
         <div {...attributes} className={`relative w-full cursor-pointer py-2`}>
@@ -40,7 +56,7 @@ export const DatabaseBlock = memo(
           <div contentEditable={false} style={style} className={`container-bg flex w-full flex-col px-3`}>
             {viewId ? (
               <IdProvider workspaceId={workspaceId} objectId={viewId}>
-                <Database />
+                <Database onNavigateToRow={handleNavigateToRow} />
               </IdProvider>
             ) : (
               <div
