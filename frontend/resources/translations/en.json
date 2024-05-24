@@ -358,7 +358,7 @@
       },
       "workspaceIcon": {
         "title": "Workspace icon",
-        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language."
+        "description": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications."
       },
       "appearance": {
         "title": "Appearance",
@@ -1634,7 +1634,7 @@
       "workplaceName": "Workplace name",
       "workplaceNamePlaceholder": "Enter workplace name",
       "workplaceIcon": "Workplace icon",
-      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications",
+      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications.",
       "renameError": "Failed to rename workplace",
       "updateIconError": "Failed to update icon",
       "appearance": {
