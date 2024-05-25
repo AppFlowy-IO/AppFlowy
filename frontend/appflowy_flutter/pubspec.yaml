@@ -137,6 +137,7 @@ dependencies:
   permission_handler: ^11.3.1
   scaled_app: ^2.2.0
   flutter_chat_ui: ^1.6.13
+  flutter_chat_types: ^3.6.2
 
 dev_dependencies:
   flutter_lints: ^3.0.1

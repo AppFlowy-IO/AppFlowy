@@ -27,6 +27,7 @@ pub fn read_chat(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<ChatT
   Ok(row)
 }
 
+#[allow(dead_code)]
 pub fn update_chat_name(
   mut conn: DBConnection,
   chat_id_val: &str,
@@ -37,6 +38,7 @@ pub fn update_chat_name(
     .execute(&mut *conn)
 }
 
+#[allow(dead_code)]
 pub fn delete_chat(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<usize> {
   diesel::delete(dsl::chat_table.filter(chat_table::chat_id.eq(chat_id_val))).execute(&mut *conn)
 }

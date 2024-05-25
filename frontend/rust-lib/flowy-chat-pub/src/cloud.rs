@@ -1,4 +1,6 @@
-pub use client_api::entity::{ChatMessage, MessageCursor, QAChatMessage, RepeatedChatMessage};
+pub use client_api::entity::{
+  ChatMessage, ChatMessageType, MessageCursor, QAChatMessage, RepeatedChatMessage,
+};
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
@@ -10,12 +12,18 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &str,
   ) -> FutureResult<(), FlowyError>;
 
-  fn send_message(
+  fn send_system_message(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
-    require_answer: bool,
+  ) -> FutureResult<ChatMessage, FlowyError>;
+
+  fn send_user_message(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
   ) -> FutureResult<QAChatMessage, FlowyError>;
 
   fn get_chat_messages(

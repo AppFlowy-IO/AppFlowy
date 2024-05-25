@@ -1,6 +1,8 @@
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
-use flowy_chat::entities::{ChatMessageListPB, LoadChatMessagePB, SendChatPayloadPB};
+use flowy_chat::entities::{
+  ChatMessageListPB, ChatMessageTypePB, LoadChatMessagePB, SendChatPayloadPB,
+};
 use flowy_chat::event_map::ChatEvent;
 use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
 use flowy_folder::event_map::FolderEvent;
@@ -27,11 +29,16 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
-  pub async fn send_message(&self, chat_id: &str, message: impl ToString, require_answer: bool) {
+  pub async fn send_message(
+    &self,
+    chat_id: &str,
+    message: impl ToString,
+    message_type: ChatMessageTypePB,
+  ) {
     let payload = SendChatPayloadPB {
       chat_id: chat_id.to_string(),
       message: message.to_string(),
-      require_answer,
+      message_type,
     };
 
     EventBuilder::new(self.clone())

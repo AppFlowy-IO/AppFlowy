@@ -1,5 +1,6 @@
 library flowy_plugin;
 
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -72,14 +73,21 @@ abstract class PluginWidgetBuilder with NavigationItem {
   EdgeInsets get contentPadding =>
       const EdgeInsets.symmetric(horizontal: 40, vertical: 28);
 
-  Widget buildWidget({PluginContext? context, required bool shrinkWrap});
+  Widget buildWidget({
+    required PluginContext context,
+    required bool shrinkWrap,
+  });
 }
 
 class PluginContext {
-  PluginContext({required this.onDeleted});
+  PluginContext({
+    this.userProfile,
+    this.onDeleted,
+  });
 
   // calls when widget of the plugin get deleted
-  final Function(ViewPB, int?) onDeleted;
+  final Function(ViewPB, int?)? onDeleted;
+  final UserProfilePB? userProfile;
 }
 
 void registerPlugin({required PluginBuilder builder, PluginConfig? config}) {

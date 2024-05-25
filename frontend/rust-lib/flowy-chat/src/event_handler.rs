@@ -1,3 +1,4 @@
+use flowy_chat_pub::cloud::ChatMessageType;
 use std::sync::{Arc, Weak};
 use validator::Validate;
 
@@ -20,15 +21,20 @@ fn upgrade_chat_manager(
 pub(crate) async fn send_chat_message_handler(
   data: AFPluginData<SendChatPayloadPB>,
   chat_manager: AFPluginState<Weak<ChatManager>>,
-) -> Result<(), FlowyError> {
+) -> DataResult<RepeatedChatMessagePB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let data = data.into_inner();
   data.validate()?;
 
-  chat_manager
-    .send_chat_message(&data.chat_id, &data.message, data.require_answer)
+  let message_type = match data.message_type {
+    ChatMessageTypePB::System => ChatMessageType::System,
+    ChatMessageTypePB::User => ChatMessageType::User,
+  };
+  let messages = chat_manager
+    .send_chat_message(&data.chat_id, &data.message, message_type)
     .await?;
-  Ok(())
+
+  data_result_ok(RepeatedChatMessagePB::from(messages))
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -41,12 +47,7 @@ pub(crate) async fn load_message_handler(
   data.validate()?;
 
   let messages = chat_manager
-    .load_chat_messages(
-      &data.chat_id,
-      data.limit,
-      data.after_message_id,
-      data.before_message_id,
-    )
+    .load_prev_chat_messages(&data.chat_id, data.limit, data.before_message_id)
     .await?;
   data_result_ok(messages)
 }

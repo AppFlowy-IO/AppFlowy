@@ -1,5 +1,5 @@
 use flowy_chat_pub::cloud::{ChatMessage, RepeatedChatMessage};
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
 use validator::Validate;
 
@@ -14,7 +14,14 @@ pub struct SendChatPayloadPB {
   pub message: String,
 
   #[pb(index = 3)]
-  pub require_answer: bool,
+  pub message_type: ChatMessageTypePB,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
+pub enum ChatMessageTypePB {
+  #[default]
+  System = 0,
+  User = 1,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -71,6 +78,12 @@ pub struct ChatMessagePB {
 
   #[pb(index = 3)]
   pub created_at: i64,
+
+  #[pb(index = 4)]
+  pub author_type: i64,
+
+  #[pb(index = 5)]
+  pub author_id: String,
 }
 
 impl From<ChatMessage> for ChatMessagePB {
@@ -79,6 +92,22 @@ impl From<ChatMessage> for ChatMessagePB {
       message_id: chat_message.message_id,
       content: chat_message.content,
       created_at: chat_message.created_at.timestamp(),
+      author_type: chat_message.author.author_type as i64,
+      author_id: chat_message.author.author_id.to_string(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct RepeatedChatMessagePB {
+  #[pb(index = 1)]
+  items: Vec<ChatMessagePB>,
+}
+
+impl From<Vec<ChatMessage>> for RepeatedChatMessagePB {
+  fn from(messages: Vec<ChatMessage>) -> Self {
+    RepeatedChatMessagePB {
+      items: messages.into_iter().map(ChatMessagePB::from).collect(),
     }
   }
 }

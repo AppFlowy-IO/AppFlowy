@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/ai_chat/ai_chat.dart';
+import 'package:appflowy/plugins/ai_chat/chat.dart';
 import 'package:appflowy/plugins/database/calendar/calendar.dart';
 import 'package:appflowy/plugins/database/board/board.dart';
 import 'package:appflowy/plugins/database/grid/grid.dart';

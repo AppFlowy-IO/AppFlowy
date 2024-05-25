@@ -6,6 +6,8 @@ diesel::table! {
         chat_id -> Text,
         content -> Text,
         created_at -> BigInt,
+        author_type -> BigInt,
+        author_id -> Text,
     }
 }
 

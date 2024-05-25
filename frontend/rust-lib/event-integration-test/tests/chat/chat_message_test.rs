@@ -1,7 +1,7 @@
 use crate::util::receive_with_timeout;
 use event_integration_test::user_event::user_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
-use flowy_chat::entities::ChatMessageListPB;
+use flowy_chat::entities::{ChatMessageListPB, ChatMessageTypePB};
 use flowy_chat::notification::ChatNotification;
 
 use std::time::Duration;
@@ -17,7 +17,11 @@ async fn af_cloud_create_chat_message_test() {
   let chat_id = view.id.clone();
   for i in 0..10 {
     test
-      .send_message(&chat_id, format!("hello world {}", i))
+      .send_message(
+        &chat_id,
+        format!("hello world {}", i),
+        ChatMessageTypePB::System,
+      )
       .await;
   }
   let all = test.load_message(&chat_id, 10, None, None).await;
@@ -42,7 +46,7 @@ async fn af_cloud_create_chat_message_test() {
 }
 
 #[tokio::test]
-async fn af_cloud_load_remote_chat_message_test() {
+async fn af_cloud_load_remote_system_message_test() {
   user_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   test.af_cloud_sign_up().await;
@@ -54,11 +58,10 @@ async fn af_cloud_load_remote_chat_message_test() {
   let chat_service = test.server_provider.get_server().unwrap().chat_service();
   for i in 0..10 {
     chat_service
-      .send_message(
+      .send_system_message(
         &current_workspace.id,
         &chat_id,
         &format!("hello server {}", i),
-        false,
       )
       .await
       .unwrap();
@@ -106,4 +109,27 @@ async fn af_cloud_load_remote_chat_message_test() {
   assert_eq!(first_five_messages.messages[2].content, "hello server 2");
   assert_eq!(first_five_messages.messages[3].content, "hello server 3");
   assert_eq!(first_five_messages.messages[4].content, "hello server 4");
+}
+
+#[tokio::test]
+async fn af_cloud_load_remote_user_message_test() {
+  user_localhost_af_cloud().await;
+  let test = EventIntegrationTest::new().await;
+  test.af_cloud_sign_up().await;
+
+  let current_workspace = test.get_current_workspace().await;
+  let view = test.create_chat(&current_workspace.id).await;
+  let chat_id = view.id.clone();
+  test
+    .send_message(&chat_id, "hello world", ChatMessageTypePB::User)
+    .await;
+
+  let all = test.load_message(&chat_id, 5, None, None).await;
+  assert_eq!(all.messages.len(), 2);
+  // 2 means User
+  assert_eq!(all.messages[0].author_type, 1);
+  // 3 means AI
+  assert_eq!(all.messages[1].author_type, 3);
+  // The message ID is incremented by 1.
+  assert_eq!(all.messages[0].message_id + 1, all.messages[1].message_id);
 }

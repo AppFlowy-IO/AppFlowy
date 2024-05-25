@@ -1,3 +1,4 @@
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -30,10 +31,12 @@ class HomeStack extends StatelessWidget {
     super.key,
     required this.delegate,
     required this.layout,
+    required this.userProfile,
   });
 
   final HomeStackDelegate delegate;
   final HomeLayout layout;
+  final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +59,11 @@ class HomeStack extends StatelessWidget {
                   controller: pageController,
                   children: state.pageManagers
                       .map(
-                        (pm) => PageStack(pageManager: pm, delegate: delegate),
+                        (pm) => PageStack(
+                          pageManager: pm,
+                          delegate: delegate,
+                          userProfile: userProfile,
+                        ),
                       )
                       .toList(),
                 ),
@@ -74,11 +81,13 @@ class PageStack extends StatefulWidget {
     super.key,
     required this.pageManager,
     required this.delegate,
+    required this.userProfile,
   });
 
   final PageManager pageManager;
 
   final HomeStackDelegate delegate;
+  final UserProfilePB userProfile;
 
   @override
   State<PageStack> createState() => _PageStackState();
@@ -94,6 +103,7 @@ class _PageStackState extends State<PageStack>
       color: Theme.of(context).colorScheme.surface,
       child: FocusTraversalGroup(
         child: widget.pageManager.stackWidget(
+          userProfile: widget.userProfile,
           onDeleted: (view, index) {
             widget.delegate.didDeleteStackWidget(view, index);
           },
@@ -228,7 +238,10 @@ class PageManager {
     );
   }
 
-  Widget stackWidget({required Function(ViewPB, int?) onDeleted}) {
+  Widget stackWidget({
+    required UserProfilePB userProfile,
+    required Function(ViewPB, int?) onDeleted,
+  }) {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Consumer(
@@ -240,7 +253,10 @@ class PageManager {
                 if (pluginType == notifier.plugin.pluginType) {
                   final builder = notifier.plugin.widgetBuilder;
                   final pluginWidget = builder.buildWidget(
-                    context: PluginContext(onDeleted: onDeleted),
+                    context: PluginContext(
+                      onDeleted: onDeleted,
+                      userProfile: userProfile,
+                    ),
                     shrinkWrap: false,
                   );
 

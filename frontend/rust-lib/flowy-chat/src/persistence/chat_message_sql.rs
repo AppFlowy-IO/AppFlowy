@@ -13,6 +13,8 @@ pub struct ChatMessageTable {
   pub chat_id: String,
   pub content: String,
   pub created_at: i64,
+  pub author_type: i64,
+  pub author_id: String,
 }
 
 pub fn insert_chat_messages(
@@ -42,7 +44,7 @@ pub fn select_chat_messages(
     query = query.filter(chat_message_table::message_id.lt(before_message_id));
   }
   query = query
-    .order(chat_message_table::created_at.asc())
+    .order((chat_message_table::message_id.desc(),))
     .limit(limit_val);
 
   let messages: Vec<ChatMessageTable> = query.load::<ChatMessageTable>(&mut *conn)?;
