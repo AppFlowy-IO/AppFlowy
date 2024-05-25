@@ -5,7 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart'
-    show Chat, DarkChatTheme, InputOptions;
+    show Chat, DarkChatTheme, Input, InputOptions;
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
@@ -64,7 +64,6 @@ class _AIChatPageState extends State<AIChatPage> {
               child: BlocBuilder<ChatBloc, ChatState>(
                 builder: (blocContext, state) {
                   return Chat(
-                    inputOptions: inputOption,
                     messages: state.messages,
                     onAttachmentPressed: () {},
                     onMessageTap: (BuildContext _, types.Message message) {
@@ -73,12 +72,18 @@ class _AIChatPageState extends State<AIChatPage> {
                           .add(ChatEvent.tapMessage(message));
                     },
                     onSendPressed: (types.PartialText message) {
-                      blocContext
-                          .read<ChatBloc>()
-                          .add(ChatEvent.sendMessage(message.text));
+                      // Do nothing. We use the custom input widget.
                     },
                     user: _user,
                     theme: chatTheme,
+                    customBottomWidget: Input(
+                      isAttachmentUploading: false,
+                      onAttachmentPressed: () {},
+                      onSendPressed: (types.PartialText message) {
+                        onSendPressed(blocContext, message);
+                      },
+                      options: inputOption,
+                    ),
                     customMessageBuilder: (message, {required messageWidth}) {
                       return const SizedBox(
                         width: 100,
@@ -99,6 +104,8 @@ class _AIChatPageState extends State<AIChatPage> {
                                 .add(const ChatEvent.loadMessage());
                           },
                         );
+                      } else {
+                        Log.debug("no more messages");
                       }
                     },
                   );
@@ -109,5 +116,12 @@ class _AIChatPageState extends State<AIChatPage> {
         ),
       ),
     );
+  }
+
+  void onSendPressed(
+    BuildContext context,
+    types.PartialText message,
+  ) {
+    context.read<ChatBloc>().add(ChatEvent.sendMessage(message.text));
   }
 }

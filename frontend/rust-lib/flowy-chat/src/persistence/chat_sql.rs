@@ -20,6 +20,7 @@ pub fn insert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<
     .execute(&mut *conn)
 }
 
+#[allow(dead_code)]
 pub fn read_chat(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<ChatTable> {
   let row = dsl::chat_table
     .filter(chat_table::chat_id.eq(chat_id_val))

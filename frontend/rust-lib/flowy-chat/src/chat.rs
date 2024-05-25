@@ -4,16 +4,14 @@ use crate::notification::{send_notification, ChatNotification};
 use crate::persistence::{
   insert_chat, insert_chat_messages, select_chat_messages, ChatMessageTable, ChatTable,
 };
-use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageType, MessageCursor, RepeatedChatMessage,
-};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use lib_infra::util::timestamp;
-use std::sync::atomic::AtomicBool;
+
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{error, instrument, trace, warn};
+use tracing::{error, instrument, trace};
 
 enum PrevMessageState {
   HasMore,
@@ -116,19 +114,8 @@ impl Chat {
     limit: i64,
     before_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
-    if matches!(
-      *self.prev_message_state.read().await,
-      PrevMessageState::NoMore
-    ) {
-      return Ok(ChatMessageListPB {
-        messages: vec![],
-        has_more: false,
-        total: 0,
-      });
-    }
-
     trace!(
-      "Loading chat messages: chat_id={}, limit={}, before_message_id={:?}",
+      "Loading old messages: chat_id={}, limit={}, before_message_id={:?}",
       self.chat_id,
       limit,
       before_message_id
@@ -147,9 +134,19 @@ impl Chat {
       });
     }
 
-    self
-      .load_remote_prev_chat_messages(limit, before_message_id)
-      .await;
+    if matches!(
+      *self.prev_message_state.read().await,
+      PrevMessageState::HasMore
+    ) {
+      *self.prev_message_state.write().await = PrevMessageState::Loading;
+      if let Err(err) = self
+        .load_remote_chat_messages(limit, before_message_id, None)
+        .await
+      {
+        error!("Failed to load chat messages: {}", err);
+      }
+    }
+
     Ok(ChatMessageListPB {
       messages,
       has_more,
@@ -157,65 +154,14 @@ impl Chat {
     })
   }
 
-  #[instrument(level = "info", skip_all, err)]
-  async fn load_remote_prev_chat_messages(&self, limit: i64, before_message_id: Option<i64>) {
-    if matches!(
-      *self.prev_message_state.read().await,
-      PrevMessageState::Loading
-    ) {
-      return;
-    }
-
-    let workspace_id = self.user_service.workspace_id()?;
-    let chat_id = self.chat_id.clone();
-    let cloud_service = self.cloud_service.clone();
-    let user_service = self.user_service.clone();
-    let uid = self.uid;
-    let load_prev_message_state = self.prev_message_state.clone();
-
-    tokio::spawn(async move {
-      //
-      let cursor = if before_message_id.is_some() {
-        MessageCursor::BeforeMessageId(before_message_id.unwrap())
-      } else {
-        MessageCursor::NextBack
-      };
-      match cloud_service
-        .get_chat_messages(&workspace_id, &chat_id, cursor, limit as u64)
-        .await
-      {
-        Ok(resp) => {
-          // Save chat messages to local disk
-          save_chat_message(
-            user_service.sqlite_connection(uid)?,
-            &chat_id,
-            resp.messages.clone(),
-          )?;
-
-          if resp.has_more {
-            *load_prev_message_state.write().await = PrevMessageState::HasMore;
-          } else {
-            *load_prev_message_state.write().await = PrevMessageState::NoMore;
-          }
-
-          let pb = ChatMessageListPB::from(resp);
-          send_notification(&chat_id, ChatNotification::DidLoadChatMessage)
-            .payload(pb)
-            .send();
-        },
-        Err(err) => error!("Failed to load chat messages: {}", err),
-      }
-      Ok(())
-    });
-  }
-
+  #[allow(dead_code)]
   pub async fn load_after_chat_messages(
     &self,
     limit: i64,
     after_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
     trace!(
-      "Loading chat messages: chat_id={}, limit={}, after_message_id={:?}",
+      "Loading new messages: chat_id={}, limit={}, after_message_id={:?}",
       self.chat_id,
       limit,
       after_message_id,
@@ -235,7 +181,7 @@ impl Chat {
     }
 
     let _ = self
-      .load_remote_after_chat_messages(limit, after_message_id)
+      .load_remote_chat_messages(limit, None, after_message_id)
       .await;
     Ok(ChatMessageListPB {
       messages,
@@ -244,30 +190,33 @@ impl Chat {
     })
   }
 
-  async fn load_remote_after_chat_messages(
+  async fn load_remote_chat_messages(
     &self,
     limit: i64,
+    before_message_id: Option<i64>,
     after_message_id: Option<i64>,
   ) -> FlowyResult<()> {
-    if matches!(
-      *self.prev_message_state.read().await,
-      PrevMessageState::Loading
-    ) {
-      return;
-    }
+    trace!(
+      "Loading chat messages from remote: chat_id={}, limit={}, before_message_id={:?}, after_message_id={:?}",
+      self.chat_id,
+      limit,
+      before_message_id,
+      after_message_id
+    );
     let workspace_id = self.user_service.workspace_id()?;
     let chat_id = self.chat_id.clone();
     let cloud_service = self.cloud_service.clone();
     let user_service = self.user_service.clone();
     let uid = self.uid;
+    let prev_message_state = self.prev_message_state.clone();
     tokio::spawn(async move {
-      let cursor = if after_message_id.is_some() {
-        MessageCursor::AfterMessageId(after_message_id.unwrap())
-      } else {
-        MessageCursor::NextBack
+      let cursor = match (before_message_id, after_message_id) {
+        (Some(bid), _) => MessageCursor::BeforeMessageId(bid),
+        (_, Some(aid)) => MessageCursor::AfterMessageId(aid),
+        _ => MessageCursor::NextBack,
       };
       match cloud_service
-        .get_chat_messages(&workspace_id, &chat_id, cursor, limit as u64)
+        .get_chat_messages(&workspace_id, &chat_id, cursor.clone(), limit as u64)
         .await
       {
         Ok(resp) => {
@@ -278,6 +227,14 @@ impl Chat {
             resp.messages.clone(),
           )?;
 
+          if matches!(cursor, MessageCursor::BeforeMessageId(_)) {
+            if resp.has_more {
+              *prev_message_state.write().await = PrevMessageState::HasMore;
+            } else {
+              *prev_message_state.write().await = PrevMessageState::NoMore;
+            }
+          }
+
           let pb = ChatMessageListPB::from(resp);
           send_notification(&chat_id, ChatNotification::DidLoadChatMessage)
             .payload(pb)
@@ -285,8 +242,9 @@ impl Chat {
         },
         Err(err) => error!("Failed to load chat messages: {}", err),
       }
-      Ok(())
+      Ok::<(), FlowyError>(())
     });
+    Ok(())
   }
 
   async fn load_local_chat_messages(
@@ -335,16 +293,5 @@ fn save_chat_message(
     })
     .collect::<Vec<_>>();
   insert_chat_messages(conn, &records)?;
-  Ok(())
-}
-
-fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
-  let row = ChatTable {
-    chat_id: chat_id.to_string(),
-    created_at: timestamp(),
-    name: "".to_string(),
-  };
-
-  insert_chat(conn, &row)?;
   Ok(())
 }

@@ -1,5 +1,5 @@
 use client_api::entity::{MessageCursor, RepeatedChatMessage};
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, QAChatMessage};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, QAChatMessage};
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
@@ -19,9 +19,9 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
 
   fn send_system_message(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _message: &str,
   ) -> FutureResult<ChatMessage, FlowyError> {
     FutureResult::new(async move {
       Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
@@ -30,9 +30,9 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
 
   fn send_user_message(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _message: &str,
   ) -> FutureResult<QAChatMessage, FlowyError> {
     FutureResult::new(async move {
       Err(FlowyError::not_support().with_context("Chat is not supported in local server."))

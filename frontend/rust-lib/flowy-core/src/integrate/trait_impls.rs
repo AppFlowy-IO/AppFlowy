@@ -5,7 +5,6 @@ use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use collab::core::origin::{CollabClient, CollabOrigin};
 
-// use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
@@ -16,7 +15,7 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageType, MessageCursor, QAChatMessage, RepeatedChatMessage,
+  ChatCloudService, ChatMessage, MessageCursor, QAChatMessage, RepeatedChatMessage,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
