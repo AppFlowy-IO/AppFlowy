@@ -376,7 +376,6 @@ class _WorkspaceMoreButton extends StatelessWidget {
       child: SizedBox.square(
         dimension: 24.0,
         child: FlowyButton(
-          key: createWorkspaceButtonKey,
           useIntrinsicWidth: true,
           margin: EdgeInsets.zero,
           text: const FlowySvg(

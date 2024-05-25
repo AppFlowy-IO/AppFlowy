@@ -8,7 +8,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'base.dart';
+import 'util.dart';
 
 extension AppFlowyWorkspace on WidgetTester {
   /// Open workspace menu
@@ -35,13 +35,20 @@ extension AppFlowyWorkspace on WidgetTester {
       of: find.byType(WorkspaceMenuItem),
       matching: find.byType(WorkspaceMoreActionList),
     );
-    expect(moreButton.first, findsOneWidget);
-    await tapButton(moreButton);
-    await tapButton(find.findTextInFlowyText(LocaleKeys.button_rename.tr()));
-    final input = find.byType(TextFormField);
-    expect(input, findsOneWidget);
-    await enterText(input, name);
-    await tapButton(find.text(LocaleKeys.button_ok.tr()));
+    expect(moreButton, findsOneWidget);
+    await hoverOnWidget(
+      moreButton,
+      onHover: () async {
+        await tapButton(moreButton);
+        await tapButton(
+          find.findTextInFlowyText(LocaleKeys.button_rename.tr()),
+        );
+        final input = find.byType(TextFormField);
+        expect(input, findsOneWidget);
+        await enterText(input, name);
+        await tapButton(find.text(LocaleKeys.button_ok.tr()));
+      },
+    );
   }
 
   Future<void> changeWorkspaceIcon(String icon) async {
