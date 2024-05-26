@@ -36,7 +36,7 @@ class AIChatPluginBuilder extends PluginBuilder {
 
 class AIChatPluginConfig implements PluginConfig {
   @override
-  bool get creatable => true;
+  bool get creatable => false;
 }
 
 class AIChatPagePlugin extends Plugin {
