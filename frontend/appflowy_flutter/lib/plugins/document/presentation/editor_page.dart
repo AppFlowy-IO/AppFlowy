@@ -57,13 +57,14 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   customCutCommand,
   ...customTextAlignCommands,
 
-  // remove default shortcuts for cut, copy and paste
+  // remove standard shortcuts for copy, cut, paste, todo
   ...standardCommandShortcutEvents
     ..removeWhere(
       (shortcut) => [
         copyCommand,
         cutCommand,
         pasteCommand,
+        toggleTodoListCommand,
       ].contains(shortcut),
     ),
 
@@ -100,7 +101,6 @@ class AppFlowyEditorPage extends StatefulWidget {
   final String Function(Node)? placeholderText;
 
   /// Used to provide an initial selection on Page-load
-  ///
   final Selection? initialSelection;
 
   final bool useViewInfoBloc;

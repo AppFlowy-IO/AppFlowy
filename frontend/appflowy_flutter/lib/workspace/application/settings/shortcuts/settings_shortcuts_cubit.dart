@@ -104,11 +104,11 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     }
   }
 
-  ///Checks if the new command is conflicting with other shortcut
-  ///We also check using the key, whether this command is a codeblock
-  ///shortcut, if so we only check a conflict with other codeblock shortcut.
+  /// Checks if the new command is conflicting with other shortcut
+  /// We also check using the key, whether this command is a codeblock
+  /// shortcut, if so we only check a conflict with other codeblock shortcut.
   String getConflict(CommandShortcutEvent currentShortcut, String command) {
-    //check if currentShortcut is a codeblock shortcut.
+    // check if currentShortcut is a codeblock shortcut.
     final isCodeBlockCommand = currentShortcut.isCodeBlockCommand;
 
     for (final e in state.commandShortcutEvents) {
