@@ -56,7 +56,17 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   customPasteCommand,
   customCutCommand,
   ...customTextAlignCommands,
-  ...standardCommandShortcutEvents,
+
+  // remove default shortcuts for cut, copy and paste
+  ...standardCommandShortcutEvents
+    ..removeWhere(
+      (shortcut) => [
+        copyCommand,
+        cutCommand,
+        pasteCommand,
+      ].contains(shortcut),
+    ),
+
   emojiShortcutEvent,
 ];
 
@@ -111,15 +121,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     ],
   );
 
-  late final List<CommandShortcutEvent> commandShortcutEvents = [
-    toggleToggleListCommand,
-    ...localizedCodeBlockCommands,
-    customCopyCommand,
-    customPasteCommand,
-    customCutCommand,
-    ...customTextAlignCommands,
-    ...standardCommandShortcutEvents,
-    emojiShortcutEvent,
+  late final List<CommandShortcutEvent> cmdShortcutEvents = [
+    ...commandShortcutEvents,
     ..._buildFindAndReplaceCommands(),
   ];
 
@@ -309,7 +312,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
         // customize the shortcuts
         characterShortcutEvents: characterShortcutEvents,
-        commandShortcutEvents: commandShortcutEvents,
+        commandShortcutEvents: cmdShortcutEvents,
         // customize the context menu items
         contextMenuItems: customContextMenuItems,
         // customize the header and footer.
@@ -407,7 +410,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final customizeShortcuts =
         await settingsShortcutService.getCustomizeShortcuts();
     await settingsShortcutService.updateCommandShortcuts(
-      commandShortcutEvents,
+      cmdShortcutEvents,
       customizeShortcuts,
     );
   }
