@@ -52,7 +52,10 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
 
     if (viewIds.length === 0) return null;
     return (
-      <div ref={ref} className='mx-24 flex items-center overflow-hidden text-text-title max-md:mx-4'>
+      <div
+        ref={ref}
+        className='mx-16 -mb-[0.5px] flex items-center overflow-hidden border-b border-line-divider text-text-title max-md:mx-4'
+      >
         <div
           style={{
             width: 'calc(100% - 120px)',
@@ -66,7 +69,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             value={isSelected ? selectedViewId : objectId}
             onChange={handleChange}
           >
-            {viewIds.map((viewId, index) => {
+            {viewIds.map((viewId) => {
               const view = getFolderView(viewId);
 
               if (!view) return null;
@@ -77,13 +80,10 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
               return (
                 <ViewTab
                   key={viewId}
-                  style={{
-                    borderRight: index === viewIds.length - 1 ? 'none' : '1px solid var(--line-divider)',
-                  }}
                   icon={<Icon className={'h-4 w-4'} />}
                   iconPosition='start'
                   color='inherit'
-                  label={name || t('grid.title.placeholder')}
+                  label={<span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>}
                   value={viewId}
                 />
               );

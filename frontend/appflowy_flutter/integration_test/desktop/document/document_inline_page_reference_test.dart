@@ -111,6 +111,7 @@ Future<void> triggerReferenceDocumentBySlashMenu(WidgetTester tester) async {
       LogicalKeyboardKey.enter,
     ],
     tester: tester,
+    withKeyUp: true,
   );
 
   await tester.pumpAndSettle();
@@ -129,6 +130,7 @@ Future<void> enterDocumentText(WidgetTester tester) async {
       LogicalKeyboardKey.keyT,
     ],
     tester: tester,
+    withKeyUp: true,
   );
   await tester.pumpAndSettle();
 }

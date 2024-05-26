@@ -113,7 +113,7 @@ typedef WorkspaceSettingNotifyValue
 class UserWorkspaceListener {
   UserWorkspaceListener();
 
-  PublishNotifier<WorkspaceSettingNotifyValue>? _settingChangedNotifier =
+  final PublishNotifier<WorkspaceSettingNotifyValue> _settingChangedNotifier =
       PublishNotifier();
 
   FolderNotificationListener? _listener;
@@ -122,7 +122,7 @@ class UserWorkspaceListener {
     void Function(WorkspaceSettingNotifyValue)? onSettingUpdated,
   }) {
     if (onSettingUpdated != null) {
-      _settingChangedNotifier?.addPublishListener(onSettingUpdated);
+      _settingChangedNotifier.addPublishListener(onSettingUpdated);
     }
 
     // The "current-workspace" is predefined in the backend. Do not try to
@@ -140,13 +140,11 @@ class UserWorkspaceListener {
     switch (ty) {
       case FolderNotification.DidUpdateWorkspaceSetting:
         result.fold(
-          (payload) => _settingChangedNotifier?.value =
+          (payload) => _settingChangedNotifier.value =
               FlowyResult.success(WorkspaceSettingPB.fromBuffer(payload)),
-          (error) =>
-              _settingChangedNotifier?.value = FlowyResult.failure(error),
+          (error) => _settingChangedNotifier.value = FlowyResult.failure(error),
         );
         break;
-
       default:
         break;
     }
@@ -154,8 +152,6 @@ class UserWorkspaceListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-
-    _settingChangedNotifier?.dispose();
-    _settingChangedNotifier = null;
+    _settingChangedNotifier.dispose();
   }
 }

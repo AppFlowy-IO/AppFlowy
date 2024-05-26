@@ -20,7 +20,6 @@ import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/util/throttle.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -78,13 +77,13 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   bool isClosing = false;
 
-  final _updateSelectionDebounce = Debounce();
-  final _syncThrottle = Throttler(duration: const Duration(milliseconds: 500));
+  static const _syncDuration = Duration(milliseconds: 250);
+  final _updateSelectionDebounce = Debounce(duration: _syncDuration);
+  final _syncThrottle = Throttler(duration: _syncDuration);
 
   // The conflict handle logic is not fully implemented yet
   // use the syncTimer to force to reload the document state when the conflict happens.
   Timer? _syncTimer;
-  bool _shouldSync = false;
 
   bool get isLocalMode {
     final userProfilePB = state.userProfilePB;
@@ -116,7 +115,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   ) async {
     await event.when(
       initial: () async {
-        _resetSyncTimer();
         final result = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
@@ -211,19 +209,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     );
   }
 
-  void _resetSyncTimer() {
-    _syncTimer?.cancel();
-    _syncTimer = null;
-    _syncTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      if (!_shouldSync) {
-        return;
-      }
-      Log.debug('auto sync document');
-      // unawaited(_documentCollabAdapter.forceReload());
-      _shouldSync = false;
-    });
-  }
-
   /// Fetch document
   Future<FlowyResult<EditorState?, FlowyError>> _fetchDocumentState() async {
     final result = await _documentService.openDocument(documentId: documentId);
@@ -263,10 +248,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           // ignore: invalid_use_of_visible_for_testing_member
           emit(state.copyWith(isDocumentEmpty: editorState.document.isEmpty));
         }
-
-        // reset the sync timer
-        _shouldSync = true;
-        _resetSyncTimer();
       },
     );
 
@@ -328,8 +309,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
 
     unawaited(_documentCollabAdapter.syncV3(docEvent: docEvent));
-
-    _resetSyncTimer();
   }
 
   Future<void> _onAwarenessStatesUpdate(
@@ -353,7 +332,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   void _throttleSyncDoc(DocEventPB docEvent) {
-    _shouldSync = true;
     _syncThrottle.call(() {
       _onDocumentStateUpdate(docEvent);
     });

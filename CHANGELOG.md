@@ -105,7 +105,7 @@
 - Fixed a bug where newly created rows were not being automatically sorted.
 - Fixed issues related to deleting a sorting field or sort not removing existing sorts properly.
 ### Notes
-- Windows 7, Windows 8, and iOS 11 are not yet supported due to the upgrade to Flutter 3.19.0.
+- Windows 7, Windows 8, and iOS 11 are not yet supported due to the upgrade to Flutter 3.22.0.
 
 ## Version 0.4.9 - 02/17/2024
 ### Bug Fixes

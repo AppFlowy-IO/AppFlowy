@@ -107,6 +107,7 @@
     "@types/quill": "^2.0.10",
     "@types/react": "^18.2.66",
     "@types/react-beautiful-dnd": "^13.1.3",
+    "@types/react-big-calendar": "^1.8.9",
     "@types/react-color": "^3.0.6",
     "@types/react-custom-scrollbars": "^4.0.13",
     "@types/react-datepicker": "^4.19.3",

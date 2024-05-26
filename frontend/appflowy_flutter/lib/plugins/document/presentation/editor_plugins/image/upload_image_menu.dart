@@ -107,7 +107,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
             }),
             indicatorSize: TabBarIndicatorSize.label,
             isScrollable: true,
-            overlayColor: MaterialStatePropertyAll(
+            overlayColor: WidgetStatePropertyAll(
               PlatformExtension.isDesktop
                   ? Theme.of(context).colorScheme.secondary
                   : Colors.transparent,

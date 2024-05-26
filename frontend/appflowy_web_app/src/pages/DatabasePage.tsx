@@ -1,9 +1,24 @@
-import { Database } from '@/components/database';
+import { useId } from '@/components/_shared/context-provider/IdProvider';
+import { DatabaseHeader } from '@/components/database/components/header';
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
+import DatabaseRow from '@/components/database/DatabaseRow';
+import Database from '@/components/database/Database';
 
-function DatabasePage () {
+function DatabasePage() {
+  const objectId = useId()?.objectId;
+  const [search] = useSearchParams();
+  const rowId = search.get('r');
+
+  if (rowId) {
+    return <DatabaseRow rowId={rowId} />;
+  }
+
   return (
-    <Database />
+    <div className={'relative flex h-full w-full flex-col'}>
+      <DatabaseHeader viewId={objectId} />
+      <Database />
+    </div>
   );
 }
 

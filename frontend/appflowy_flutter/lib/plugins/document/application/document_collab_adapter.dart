@@ -183,7 +183,7 @@ class DocumentCollabAdapter {
     for (final state in values) {
       // the following code is only for version 1
       if (state.version != 1 || state.metadata.isEmpty) {
-        return;
+        continue;
       }
       final uid = state.user.uid.toString();
       final did = state.user.deviceId;
@@ -244,9 +244,8 @@ class DocumentCollabAdapter {
       );
       remoteSelections.add(remoteSelection);
     }
-    if (remoteSelections.isNotEmpty) {
-      editorState.remoteSelections.value = remoteSelections;
-    }
+
+    editorState.remoteSelections.value = remoteSelections;
   }
 }
 

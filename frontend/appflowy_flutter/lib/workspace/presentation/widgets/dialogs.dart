@@ -214,7 +214,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
             ),
             VSpace(Insets.sm * 1.5),
             Container(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               height: 1,
             ),
             VSpace(Insets.m * 1.5),

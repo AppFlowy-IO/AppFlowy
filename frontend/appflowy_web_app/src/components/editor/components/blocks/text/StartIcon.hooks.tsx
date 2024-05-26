@@ -1,12 +1,12 @@
 import { BlockType } from '@/application/collab.type';
-import { BulletedListIcon } from '@/components/editor/components/blocks/bulleted_list';
-import { NumberListIcon } from '@/components/editor/components/blocks/numbered_list';
-import ToggleIcon from '@/components/editor/components/blocks/toggle_list/ToggleIcon';
+import { BulletedListIcon } from '@/components/editor/components/blocks/bulleted-list';
+import { NumberListIcon } from '@/components/editor/components/blocks/numbered-list';
+import ToggleIcon from '@/components/editor/components/blocks/toggle-list/ToggleIcon';
 import { TextNode } from '@/components/editor/editor.type';
 import React, { FC, useCallback, useMemo } from 'react';
 import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Element } from 'slate';
-import CheckboxIcon from '../todo_list/CheckboxIcon';
+import CheckboxIcon from '@/components/editor/components/blocks/todo-list/CheckboxIcon';
 
 export function useStartIcon(node: TextNode) {
   const editor = useSlate();
@@ -37,7 +37,7 @@ export function useStartIcon(node: TextNode) {
       return null;
     }
 
-    return <Component className={`text-block-icon relative`} block={block} />;
+    return <Component className={`text-block-icon relative h-[24px] w-[24px]`} block={block} />;
   }, [Component, block]);
 
   return {

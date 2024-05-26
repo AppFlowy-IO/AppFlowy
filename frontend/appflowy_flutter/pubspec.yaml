@@ -18,7 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 0.5.8
 
 environment:
-  flutter: ">=3.19.0"
+  flutter: ">=3.22.0"
   sdk: ">=3.3.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
@@ -55,7 +55,7 @@ dependencies:
     path: packages/appflowy_popover
 
   #  third party packages
-  intl: ^0.18.0
+  intl: ^0.19.0
   time: ^2.1.3
   equatable: ^2.0.5
   freezed_annotation: ^2.2.0
@@ -135,9 +135,9 @@ dependencies:
   numerus: ^2.1.2
   flutter_animate: ^4.5.0
   permission_handler: ^11.3.1
-  scaled_app: ^2.2.0
   flutter_chat_ui: ^1.6.13
   flutter_chat_types: ^3.6.2
+  scaled_app: ^2.3.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -174,7 +174,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "b827d08"
+      ref: "0c79b870586f4bc5c23b61b327c51fe6a8856b47"
 
   sheet:
     git:

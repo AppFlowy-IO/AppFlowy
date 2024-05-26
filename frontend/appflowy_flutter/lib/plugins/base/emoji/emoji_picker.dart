@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_header.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_search_bar.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
@@ -83,7 +84,9 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
       },
       itemBuilder: (context, emojiId, emoji, callback) {
         return FlowyIconButton(
-          iconPadding: const EdgeInsets.all(2.0),
+          iconPadding: PlatformExtension.isWindows
+              ? const EdgeInsets.only(bottom: 2.0)
+              : const EdgeInsets.all(2),
           icon: FlowyText(
             emoji,
             fontSize: 28.0,

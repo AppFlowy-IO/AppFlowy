@@ -1,5 +1,5 @@
 import { YjsEditorKey } from '@/application/collab.type';
-import { applyDocument } from '@/application/ydoc/apply';
+import { applyYDoc } from '@/application/ydoc/apply';
 import * as Y from 'yjs';
 import * as docJson from '../../../../../cypress/fixtures/simple_doc.json';
 
@@ -11,7 +11,7 @@ describe('apply document', () => {
     data.set(YjsEditorKey.document, document);
 
     const state = new Uint8Array(docJson.data.doc_state);
-    applyDocument(collab, state);
+    applyYDoc(collab, state);
   });
 });
 

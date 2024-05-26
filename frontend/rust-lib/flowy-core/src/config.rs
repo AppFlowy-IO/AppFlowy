@@ -2,6 +2,7 @@ use std::fmt;
 use std::path::Path;
 
 use base64::Engine;
+use semver::Version;
 use tracing::{error, info};
 
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
@@ -15,7 +16,7 @@ use crate::integrate::log::create_log_filter;
 #[derive(Clone)]
 pub struct AppFlowyCoreConfig {
   /// Different `AppFlowyCoreConfig` instance should have different name
-  pub(crate) app_version: String,
+  pub(crate) app_version: Version,
   pub name: String,
   pub(crate) device_id: String,
   pub platform: String,
@@ -75,7 +76,7 @@ fn make_user_data_folder(root: &str, url: &str) -> String {
 
 impl AppFlowyCoreConfig {
   pub fn new(
-    app_version: String,
+    app_version: Version,
     custom_application_path: String,
     application_path: String,
     device_id: String,

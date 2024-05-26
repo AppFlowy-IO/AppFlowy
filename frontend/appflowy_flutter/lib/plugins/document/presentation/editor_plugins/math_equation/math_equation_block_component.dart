@@ -124,7 +124,7 @@ class MathEquationBlockComponentWidgetState
       decoration: BoxDecoration(
         color: formula.isNotEmpty
             ? Colors.transparent
-            : Theme.of(context).colorScheme.surfaceVariant,
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(4),
       ),
       child: FlowyHover(

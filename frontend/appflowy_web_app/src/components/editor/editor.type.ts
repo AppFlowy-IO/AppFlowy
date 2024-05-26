@@ -16,6 +16,7 @@ import {
   TableCellBlockData,
   BlockId,
   BlockData,
+  DatabaseNodeData,
 } from '@/application/collab.type';
 import { HTMLAttributes } from 'react';
 import { Element } from 'slate';
@@ -118,6 +119,12 @@ export interface TableCellNode extends BlockNode {
   type: BlockType.TableCell;
   blockId: string;
   data: TableCellBlockData;
+}
+
+export interface DatabaseNode extends BlockNode {
+  type: BlockType.GridBlock | BlockType.BoardBlock | BlockType.CalendarBlock;
+  blockId: string;
+  data: DatabaseNodeData;
 }
 
 export interface EditorElementProps<T = Element> extends HTMLAttributes<HTMLDivElement> {

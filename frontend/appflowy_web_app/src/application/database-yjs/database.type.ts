@@ -49,3 +49,24 @@ export interface Filter {
   id: string;
   content: string;
 }
+
+export enum CalendarLayout {
+  MonthLayout = 0,
+  WeekLayout = 1,
+  DayLayout = 2,
+}
+
+export interface CalendarLayoutSetting {
+  fieldId: string;
+  firstDayOfWeek: number;
+  showWeekNumbers: boolean;
+  showWeekends: boolean;
+  layout: CalendarLayout;
+}
+
+export enum RowMetaKey {
+  DocumentId = 'document_id',
+  IconId = 'icon_id',
+  CoverId = 'cover_id',
+  IsDocumentEmpty = 'is_document_empty',
+}

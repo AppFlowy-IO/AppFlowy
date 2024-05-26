@@ -347,6 +347,12 @@ impl DatabaseManager {
     })
     .await
     .map_err(internal_error)??;
+
+    // Currently, we only support importing up to 500 rows. We can support more rows in the future.
+    if !cfg!(debug_assertions) && params.rows.len() > 500 {
+      return Err(FlowyError::internal().with_context("The number of rows exceeds the limit"));
+    }
+
     let result = ImportResult {
       database_id: params.database_id.clone(),
       view_id: params.inline_view_id.clone(),

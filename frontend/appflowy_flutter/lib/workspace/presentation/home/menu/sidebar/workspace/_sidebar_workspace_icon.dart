@@ -38,6 +38,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
             child: EmojiText(
               emoji: widget.workspace.icon,
               fontSize: widget.iconSize,
+              lineHeight: 1,
             ),
           )
         : Container(

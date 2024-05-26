@@ -92,7 +92,7 @@ class FlowyIconPicker extends StatelessWidget {
       child: TabBar(
         indicatorSize: TabBarIndicatorSize.label,
         isScrollable: true,
-        overlayColor: MaterialStatePropertyAll(
+        overlayColor: WidgetStatePropertyAll(
           Theme.of(context).colorScheme.secondary,
         ),
         padding: EdgeInsets.zero,

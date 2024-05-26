@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flowy_infra/theme_extension.dart';
 
 class PageStyleCoverImage extends StatelessWidget {
   PageStyleCoverImage({
@@ -188,8 +189,7 @@ class PageStyleCoverImage extends StatelessWidget {
         );
       },
       title: LocaleKeys.pageStyle_presets.tr(),
-      barrierColor: Colors.transparent,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: AFThemeExtension.of(context).background,
       builder: (_) {
         return BlocProvider.value(
           value: pageStyleBloc,
@@ -267,8 +267,7 @@ class PageStyleCoverImage extends StatelessWidget {
       showHeader: true,
       showRemoveButton: true,
       title: LocaleKeys.pageStyle_unsplash.tr(),
-      barrierColor: Colors.transparent,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: AFThemeExtension.of(context).background,
       onRemove: () {
         pageStyleBloc.add(
           DocumentPageStyleEvent.updateCoverImage(
