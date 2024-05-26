@@ -9,3 +9,4 @@ edition = "2021"
 lib-infra = { workspace = true }
 flowy-error = { workspace = true }
 client-api = { workspace = true }
+futures.workspace = true

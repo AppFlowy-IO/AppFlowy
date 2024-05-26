@@ -84,6 +84,21 @@ pub struct ChatMessagePB {
 
   #[pb(index = 5)]
   pub author_id: String,
+
+  #[pb(index = 6)]
+  pub has_following: bool,
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct ChatMessageErrorPB {
+  #[pb(index = 1)]
+  pub chat_id: String,
+
+  #[pb(index = 2)]
+  pub content: String,
+
+  #[pb(index = 3)]
+  pub error_message: String,
 }
 
 impl From<ChatMessage> for ChatMessagePB {
@@ -94,6 +109,7 @@ impl From<ChatMessage> for ChatMessagePB {
       created_at: chat_message.created_at.timestamp(),
       author_type: chat_message.author.author_type as i64,
       author_id: chat_message.author.author_id.to_string(),
+      has_following: false,
     }
   }
 }

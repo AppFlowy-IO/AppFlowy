@@ -1,8 +1,8 @@
 use crate::chat::Chat;
 use crate::entities::ChatMessageListPB;
-use crate::persistence::{insert_chat, insert_chat_messages, ChatMessageTable, ChatTable};
+use crate::persistence::{insert_chat, ChatTable};
 use dashmap::DashMap;
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageType};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use lib_infra::util::timestamp;
@@ -84,13 +84,13 @@ impl ChatManager {
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-  ) -> Result<Vec<ChatMessage>, FlowyError> {
+  ) -> Result<(), FlowyError> {
     let chat = self.chats.get(chat_id).as_deref().cloned();
     match chat {
       None => Err(FlowyError::internal().with_context("Should call open chat first")),
       Some(chat) => {
-        let messages = chat.send_chat_message(message, message_type).await?;
-        Ok(messages)
+        chat.send_chat_message(message, message_type).await?;
+        Ok(())
       },
     }
   }

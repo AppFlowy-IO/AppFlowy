@@ -23,6 +23,6 @@ pub enum ChatEvent {
   #[event(input = "LoadChatMessagePB", output = "ChatMessageListPB")]
   LoadMessage = 0,
 
-  #[event(input = "SendChatPayloadPB", output = "RepeatedChatMessagePB")]
+  #[event(input = "SendChatPayloadPB")]
   SendMessage = 1,
 }

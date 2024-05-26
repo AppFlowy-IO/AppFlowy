@@ -1,13 +1,17 @@
-use crate::entities::{ChatMessageListPB, ChatMessagePB};
+use crate::entities::{ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB};
 use crate::manager::ChatUserService;
 use crate::notification::{send_notification, ChatNotification};
 use crate::persistence::{
   insert_chat, insert_chat_messages, select_chat_messages, ChatMessageTable, ChatTable,
 };
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
+use flowy_chat_pub::cloud::{
+  ChatCloudService, ChatMessage, ChatMessageStream, ChatMessageType, MessageCursor,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
+use futures::StreamExt;
 use lib_infra::util::timestamp;
+use std::future::Future;
 
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -50,49 +54,20 @@ impl Chat {
     &self,
     message: &str,
     message_type: ChatMessageType,
-  ) -> Result<Vec<ChatMessage>, FlowyError> {
-    let _uid = self.user_service.user_id()?;
+  ) -> Result<(), FlowyError> {
+    let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
-    let mut messages = Vec::with_capacity(2);
-
-    trace!(
-      "Sending chat message: chat_id={}, message={}, type={:?}",
-      self.chat_id,
-      message,
-      message_type
-    );
-    match message_type {
-      ChatMessageType::System => {
-        let message = self
-          .cloud_service
-          .send_system_message(&workspace_id, &self.chat_id, message)
-          .await?;
-        messages.push(message);
-      },
-      ChatMessageType::User => {
-        let qa = self
-          .cloud_service
-          .send_user_message(&workspace_id, &self.chat_id, message)
-          .await?;
-        messages.push(qa.question);
-        if let Some(answer) = qa.answer {
-          messages.push(answer);
-        }
-      },
-    };
-
-    trace!(
-      "Saving chat messages to local disk: chat_id={}, messages:{:?}",
-      self.chat_id,
-      messages
+    stream_send_chat_messages(
+      uid,
+      workspace_id,
+      self.chat_id.clone(),
+      message.to_string(),
+      message_type,
+      self.cloud_service.clone(),
+      self.user_service.clone(),
     );
 
-    save_chat_message(
-      self.user_service.sqlite_connection(self.uid)?,
-      &self.chat_id,
-      messages.clone(),
-    )?;
-    Ok(messages)
+    Ok(())
   }
 
   /// Load chat messages for a given `chat_id`.
@@ -269,6 +244,7 @@ impl Chat {
         created_at: record.created_at,
         author_type: record.author_type,
         author_id: record.author_id,
+        has_following: false,
       })
       .collect::<Vec<_>>();
 
@@ -276,6 +252,106 @@ impl Chat {
   }
 }
 
+fn stream_send_chat_messages(
+  uid: i64,
+  workspace_id: String,
+  chat_id: String,
+  message_content: String,
+  message_type: ChatMessageType,
+  cloud_service: Arc<dyn ChatCloudService>,
+  user_service: Arc<dyn ChatUserService>,
+) {
+  tokio::spawn(async move {
+    trace!(
+      "Sending chat message: chat_id={}, message={}, type={:?}",
+      chat_id,
+      message_content,
+      message_type
+    );
+
+    let mut messages = Vec::with_capacity(2);
+    let stream_result = cloud_service
+      .send_chat_message(&workspace_id, &chat_id, &message_content, message_type)
+      .await;
+
+    let mut has_following = true;
+
+    match stream_result {
+      Ok(mut stream) => {
+        while let Some(result) = stream.next().await {
+          match result {
+            Ok(message) => {
+              let mut pb = ChatMessagePB::from(message.clone());
+              if has_following {
+                pb.has_following = has_following;
+                has_following = false;
+              }
+              send_notification(&chat_id, ChatNotification::DidReceiveChatMessage)
+                .payload(pb)
+                .send();
+              messages.push(message);
+            },
+            Err(err) => {
+              let pb = ChatMessageErrorPB {
+                chat_id: chat_id.clone(),
+                content: message_content.clone(),
+                error_message: err.to_string(),
+              };
+              send_notification(&chat_id, ChatNotification::ChatMessageError)
+                .payload(pb)
+                .send();
+              break;
+            },
+          }
+        }
+
+        // Mark chat as finished
+        send_notification(&chat_id, ChatNotification::FinishAnswerQuestion).send();
+      },
+      Err(err) => {
+        error!("Failed to send chat message: {}", err);
+        let pb = ChatMessageErrorPB {
+          chat_id: chat_id.clone(),
+          content: message_content.clone(),
+          error_message: err.to_string(),
+        };
+        send_notification(&chat_id, ChatNotification::ChatMessageError)
+          .payload(pb)
+          .send();
+        return;
+      },
+    }
+
+    if messages.is_empty() {
+      return;
+    }
+
+    trace!(
+      "Saving chat messages to local disk: chat_id={}, messages:{:?}",
+      chat_id,
+      messages
+    );
+
+    // Insert chat messages to local disk
+    if let Err(err) = user_service.sqlite_connection(uid).and_then(|conn| {
+      let records = messages
+        .into_iter()
+        .map(|message| ChatMessageTable {
+          message_id: message.message_id,
+          chat_id: chat_id.clone(),
+          content: message.content,
+          created_at: message.created_at.timestamp(),
+          author_type: message.author.author_type as i64,
+          author_id: message.author.author_id.to_string(),
+        })
+        .collect::<Vec<_>>();
+      insert_chat_messages(conn, &records)?;
+      Ok(())
+    }) {
+      error!("Failed to save chat messages: {}", err);
+    }
+  });
+}
 fn save_chat_message(
   conn: DBConnection,
   chat_id: &str,

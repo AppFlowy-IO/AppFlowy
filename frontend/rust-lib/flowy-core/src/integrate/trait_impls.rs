@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
+use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
 
 use collab::preclude::CollabPlugin;
@@ -15,7 +16,7 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, MessageCursor, QAChatMessage, RepeatedChatMessage,
+  ChatCloudService, ChatMessageStream, MessageCursor, RepeatedChatMessage,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
@@ -31,6 +32,7 @@ use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage::ObjectValue;
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 use crate::integrate::server::{Server, ServerProvider};
@@ -436,6 +438,7 @@ impl CollabCloudPluginProvider for ServerProvider {
   }
 }
 
+#[async_trait]
 impl ChatCloudService for ServerProvider {
   fn create_chat(
     &self,
@@ -455,40 +458,21 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  fn send_system_message(
+  async fn send_chat_message(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+    message_type: ChatMessageType,
+  ) -> Result<ChatMessageStream, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let message = message.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .send_system_message(&workspace_id, &chat_id, &message)
-        .await
-    })
-  }
-
-  fn send_user_message(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
-  ) -> FutureResult<QAChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
-    let message = message.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .send_user_message(&workspace_id, &chat_id, &message)
-        .await
-    })
+    let server = self.get_server()?;
+    server
+      .chat_service()
+      .send_chat_message(&workspace_id, &chat_id, &message, message_type)
+      .await
   }
 
   fn get_chat_messages(

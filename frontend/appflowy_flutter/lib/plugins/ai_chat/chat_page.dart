@@ -4,8 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart'
-    show Chat, DarkChatTheme, Input, InputOptions;
+import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat, DarkChatTheme;
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
@@ -36,7 +35,6 @@ class _AIChatPageState extends State<AIChatPage> {
 
   late types.User _user;
   final chatTheme = const DarkChatTheme();
-  var inputOption = const InputOptions();
 
   @override
   Widget build(BuildContext context) {
@@ -53,14 +51,7 @@ class _AIChatPageState extends State<AIChatPage> {
             child: BlocListener<ChatBloc, ChatState>(
               listenWhen: (previous, current) =>
                   previous.loadingStatus != current.loadingStatus,
-              listener: (context, state) {
-                // inputOption = InputOptions(
-                //   enabled: state.loadingStatus.when(
-                //     loading: () => false,
-                //     finish: () => true,
-                //   ),
-                // );
-              },
+              listener: (context, state) {},
               child: BlocBuilder<ChatBloc, ChatState>(
                 builder: (blocContext, state) {
                   return Chat(
@@ -73,17 +64,10 @@ class _AIChatPageState extends State<AIChatPage> {
                     },
                     onSendPressed: (types.PartialText message) {
                       // Do nothing. We use the custom input widget.
+                      onSendPressed(blocContext, message);
                     },
                     user: _user,
                     theme: chatTheme,
-                    customBottomWidget: Input(
-                      isAttachmentUploading: false,
-                      onAttachmentPressed: () {},
-                      onSendPressed: (types.PartialText message) {
-                        onSendPressed(blocContext, message);
-                      },
-                      options: inputOption,
-                    ),
                     customMessageBuilder: (message, {required messageWidth}) {
                       return const SizedBox(
                         width: 100,
@@ -94,9 +78,7 @@ class _AIChatPageState extends State<AIChatPage> {
                     onEndReached: () async {
                       if (state.hasMore) {
                         state.loadingPreviousStatus.when(
-                          loading: () {
-                            Log.debug("loading");
-                          },
+                          loading: () => Log.debug("loading"),
                           finish: () {
                             Log.debug("loading more messages");
                             blocContext

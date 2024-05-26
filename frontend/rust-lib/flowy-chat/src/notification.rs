@@ -8,6 +8,9 @@ pub enum ChatNotification {
   #[default]
   Unknown = 0,
   DidLoadChatMessage = 1,
+  DidReceiveChatMessage = 2,
+  ChatMessageError = 3,
+  FinishAnswerQuestion = 4,
 }
 
 impl std::convert::From<ChatNotification> for i32 {
@@ -19,6 +22,9 @@ impl std::convert::From<i32> for ChatNotification {
   fn from(notification: i32) -> Self {
     match notification {
       1 => ChatNotification::DidLoadChatMessage,
+      2 => ChatNotification::DidReceiveChatMessage,
+      3 => ChatNotification::ChatMessageError,
+      4 => ChatNotification::ChatMessageError,
       _ => ChatNotification::Unknown,
     }
   }

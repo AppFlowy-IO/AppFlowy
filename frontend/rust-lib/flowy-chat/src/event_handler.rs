@@ -21,7 +21,7 @@ fn upgrade_chat_manager(
 pub(crate) async fn send_chat_message_handler(
   data: AFPluginData<SendChatPayloadPB>,
   chat_manager: AFPluginState<Weak<ChatManager>>,
-) -> DataResult<RepeatedChatMessagePB, FlowyError> {
+) -> Result<(), FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let data = data.into_inner();
   data.validate()?;
@@ -30,11 +30,10 @@ pub(crate) async fn send_chat_message_handler(
     ChatMessageTypePB::System => ChatMessageType::System,
     ChatMessageTypePB::User => ChatMessageType::User,
   };
-  let messages = chat_manager
+  chat_manager
     .send_chat_message(&data.chat_id, &data.message, message_type)
     .await?;
-
-  data_result_ok(RepeatedChatMessagePB::from(messages))
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

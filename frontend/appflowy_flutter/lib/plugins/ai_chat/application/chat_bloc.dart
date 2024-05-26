@@ -9,6 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'chat_message_listener.dart';
+
 part 'chat_bloc.freezed.dart';
 
 const loadingMessageId = 'chat_message_loading_id';
@@ -17,15 +19,31 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
     required ViewPB view,
     required UserProfilePB userProfile,
-  }) : super(
-          ChatState.initial(
-            view,
-            userProfile,
-          ),
+  })  : listener = ChatMessageListener(chatId: view.id),
+        super(
+          ChatState.initial(view, userProfile),
         ) {
     _dispatch();
+
+    listener.start(
+      chatMessageCallback: _handleChatMessage,
+      chatErrorMessageCallback: _handleErrorMessage,
+      finishAnswerQuestionCallback: () {
+        if (!isClosed) {
+          add(const ChatEvent.didFinishStreamingChatMessage());
+        }
+      },
+    );
   }
 
+  final ChatMessageListener listener;
+
+  @override
+  Future<void> close() {
+    listener.stop();
+    return super.close();
+  }
+ 
   void _dispatch() {
     on<ChatEvent>(
       (event, emit) async {
@@ -51,26 +69,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               );
             }
           },
-          sendMessage: (String message) {
-            _handleSentMessage(message, emit);
-            final loadingMessage = CustomMessage(
-              author: User(id: state.userProfile.id.toString()),
-              id: loadingMessageId,
-            );
-            final List<Message> allMessages = List.from(state.messages);
-            allMessages.insert(0, loadingMessage);
-            emit(
-              state.copyWith(
-                messages: allMessages,
-                loadingStatus: const LoadingState.loading(),
-              ),
-            );
-          },
-          didReceiveMessages: (List<Message> messages) {
+          didLoadMessages: (List<Message> messages) {
             final List<Message> allMessages = List.from(state.messages);
             allMessages
                 .removeWhere((element) => element.id == loadingMessageId);
-            allMessages.addAll(messages);
+            allMessages.insertAll(0, messages);
             emit(
               state.copyWith(
                 messages: allMessages,
@@ -91,10 +94,38 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             );
           },
           tapMessage: (Message message) {},
+          streamingChatMessage: (List<Message> messages) {
+            final List<Message> allMessages = List.from(state.messages);
+            allMessages
+                .removeWhere((element) => element.id == loadingMessageId);
+            allMessages.insertAll(0, messages);
+            emit(state.copyWith(messages: allMessages));
+          },
+          didFinishStreamingChatMessage: () {
+            emit(
+              state.copyWith(
+                answerQuestionStatus: const LoadingState.finish(),
+              ),
+            );
+          },
+          sendMessage: (String message) async {
+            await _handleSentMessage(message, emit);
+            final loadingMessage =
+                _loaddingMessage(state.userProfile.id.toString());
+            final List<Message> allMessages = List.from(state.messages);
+            allMessages.insert(0, loadingMessage);
+            emit(
+              state.copyWith(
+                messages: allMessages,
+                answerQuestionStatus: const LoadingState.loading(),
+              ),
+            );
+          },
         );
       },
     );
   }
+
 
   void _loadMessage(
     Int64? beforeMessageId,
@@ -109,12 +140,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         (list) {
           final messages =
               list.messages.map((m) => _fromChatMessage(m)).toList();
-
           if (!isClosed) {
             if (beforeMessageId != null) {
               add(ChatEvent.didLoadPreviousMessages(messages, list.hasMore));
             } else {
-              add(ChatEvent.didReceiveMessages(messages));
+              add(ChatEvent.didLoadMessages(messages));
             }
           }
         },
@@ -134,17 +164,35 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       message: message,
       messageType: ChatMessageTypePB.User,
     );
-    final result = await ChatEventSendMessage(payload).send();
-    result.fold((repeatedMessage) {
-      final messages =
-          repeatedMessage.items.map((m) => _fromChatMessage(m)).toList();
-      if (!isClosed) {
-        add(ChatEvent.didReceiveMessages(messages));
-      }
-    }, (err) {
-      Log.error("Failed to send message: $err");
-    });
+    await ChatEventSendMessage(payload).send();
   }
+
+  void _handleChatMessage(ChatMessagePB pb) {
+    if (!isClosed) {
+      final message = _fromChatMessage(pb);
+      final List<Message> messages = [];
+      if (pb.hasFollowing) {
+        messages.addAll([_loaddingMessage(0.toString()), message]);
+      } else {
+        messages.add(message);
+      }
+      add(ChatEvent.streamingChatMessage(messages));
+    }
+  }
+
+  void _handleErrorMessage(ChatMessageErrorPB message) {
+    if (!isClosed) {
+      Log.error("Received error: $message");
+    }
+  }
+}
+
+Message _loaddingMessage(String id) {
+  final loadingMessage = CustomMessage(
+    author: User(id: id),
+    id: loadingMessageId,
+  );
+  return loadingMessage;
 }
 
 Message _fromChatMessage(ChatMessagePB message) {
@@ -161,10 +209,16 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.sendMessage(String message) = _SendMessage;
   const factory ChatEvent.tapMessage(Message message) = _TapMessage;
   const factory ChatEvent.loadMessage() = _LoadMessage;
-  const factory ChatEvent.didReceiveMessages(List<Message> messages) =
+  const factory ChatEvent.didLoadMessages(List<Message> messages) =
       _DidLoadMessages;
+  const factory ChatEvent.streamingChatMessage(List<Message> messages) =
+      _DidStreamMessage;
+  const factory ChatEvent.didFinishStreamingChatMessage() =
+      _FinishStreamingMessage;
   const factory ChatEvent.didLoadPreviousMessages(
-      List<Message> messages, bool hasMore,) = _DidLoadPreviousMessages;
+    List<Message> messages,
+    bool hasMore,
+  ) = _DidLoadPreviousMessages;
 }
 
 @freezed
@@ -175,6 +229,7 @@ class ChatState with _$ChatState {
     required UserProfilePB userProfile,
     required LoadingState loadingStatus,
     required LoadingState loadingPreviousStatus,
+    required LoadingState answerQuestionStatus,
     required bool hasMore,
   }) = _ChatState;
 
@@ -188,6 +243,7 @@ class ChatState with _$ChatState {
         userProfile: userProfile,
         loadingStatus: const LoadingState.finish(),
         loadingPreviousStatus: const LoadingState.finish(),
+        answerQuestionStatus: const LoadingState.finish(),
         hasMore: true,
       );
 }
