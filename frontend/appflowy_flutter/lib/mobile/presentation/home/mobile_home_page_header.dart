@@ -35,7 +35,7 @@ class MobileHomePageHeader extends StatelessWidget {
           final isCollaborativeWorkspace =
               context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
           return ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 52),
+            constraints: const BoxConstraints(minHeight: 56),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -144,7 +144,7 @@ class _MobileWorkspace extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        FlowyText.medium(
+                        FlowyText.semibold(
                           currentWorkspace.name,
                           fontSize: 16.0,
                           overflow: TextOverflow.ellipsis,
@@ -153,7 +153,7 @@ class _MobileWorkspace extends StatelessWidget {
                         const FlowySvg(FlowySvgs.list_dropdown_s),
                       ],
                     ),
-                    FlowyText.medium(
+                    FlowyText.regular(
                       userProfile.email.isNotEmpty
                           ? userProfile.email
                           : userProfile.name,
