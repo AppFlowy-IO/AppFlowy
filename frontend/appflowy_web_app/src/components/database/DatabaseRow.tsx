@@ -1,6 +1,7 @@
 import { YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
 import { DatabaseContextState } from '@/application/database-yjs';
 import { useId } from '@/components/_shared/context-provider/IdProvider';
+import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { AFConfigContext } from '@/components/app/AppConfig';
 import { DatabaseRowProperties, DatabaseRowSubDocument } from '@/components/database/components/database-row';
 import DatabaseRowHeader from '@/components/database/components/header/DatabaseRowHeader';
@@ -8,7 +9,7 @@ import { DatabaseContextProvider } from '@/components/database/DatabaseContext';
 import { Log } from '@/utils/log';
 import { Divider } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useContext, useEffect, useState } from 'react';
 import RecordNotFound from 'src/components/_shared/not-found/RecordNotFound';
 
 function DatabaseRow({ rowId }: { rowId: string }) {
@@ -71,9 +72,13 @@ function DatabaseRow({ rowId }: { rowId: string }) {
             <DatabaseRowHeader rowId={rowId} />
 
             <div className={'flex flex-1 flex-col gap-4'}>
-              <DatabaseRowProperties rowId={rowId} />
+              <Suspense>
+                <DatabaseRowProperties rowId={rowId} />
+              </Suspense>
               <Divider className={'mx-16 max-md:mx-4'} />
-              <DatabaseRowSubDocument rowId={rowId} />
+              <Suspense fallback={<ComponentLoading />}>
+                <DatabaseRowSubDocument rowId={rowId} />
+              </Suspense>
             </div>
           </DatabaseContextProvider>
         </div>

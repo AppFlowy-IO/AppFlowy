@@ -138,15 +138,15 @@ export interface FolderMeta {
   current_workspace: string;
 }
 
-export enum CoverType {
+export enum DocCoverType {
   Color = 'CoverType.color',
   Image = 'CoverType.file',
   Asset = 'CoverType.asset',
 }
 
-export type PageCover = {
+export type DocCover = {
   image_type?: ImageType;
-  cover_selection_type?: CoverType;
+  cover_selection_type?: DocCoverType;
   cover_selection?: string;
 } | null;
 
@@ -200,6 +200,10 @@ export enum YjsFolderKey {
   id = 'id',
   name = 'name',
   icon = 'icon',
+  extra = 'extra',
+  cover = 'cover',
+  line_height_layout = 'line_height_layout',
+  font_layout = 'font_layout',
   type = 'ty',
   value = 'value',
   layout = 'layout',
@@ -338,7 +342,7 @@ export interface YView extends Y.Map<unknown> {
   get(key: YjsFolderKey.name): string;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsFolderKey.icon): string;
+  get(key: YjsFolderKey.icon | YjsFolderKey.extra): string;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
   get(key: YjsFolderKey.layout): string;
@@ -608,3 +612,15 @@ export const databaseLayoutMap = {
   [DatabaseViewLayout.Board]: 'board',
   [DatabaseViewLayout.Calendar]: 'calendar',
 };
+
+export enum FontLayout {
+  small = 'small',
+  normal = 'normal',
+  large = 'large',
+}
+
+export enum LineHeightLayout {
+  small = 'small',
+  normal = 'normal',
+  large = 'large',
+}

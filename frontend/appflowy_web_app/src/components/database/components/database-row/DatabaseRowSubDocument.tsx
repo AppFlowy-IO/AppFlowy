@@ -46,7 +46,7 @@ export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
 
   if (!doc) return null;
 
-  return <Editor doc={doc} readOnly={true} includeRoot={false} />;
+  return <Editor doc={doc} readOnly={true} />;
 }
 
 export default DatabaseRowSubDocument;

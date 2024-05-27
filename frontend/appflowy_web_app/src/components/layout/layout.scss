@@ -16,41 +16,37 @@
   box-shadow: var(--line-border) 0px 0px 0px 1px inset !important;
 }
 
-.appflowy-date-picker-calendar {
-  width: 100%;
-
-}
-
-.grid-sticky-header::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
-.grid-scroll-container::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
-
-.appflowy-scroll-container {
+@mixin hidden-scrollbar {
   &::-webkit-scrollbar {
-    width: 0;
-    height: 0;
+    display: none;
+  }
+
+  -ms-overflow-style: none;
+  scrollbar-width: none; // For Firefox
+}
+
+body {
+  &[data-os="windows"]:not([data-browser="firefox"]) {
+    .appflowy-custom-scroller {
+      @include hidden-scrollbar;
+    }
+  }
+
+  .grid-sticky-header {
+    @include hidden-scrollbar;
   }
 }
+
+
+.appflowy-date-picker-calendar {
+  width: 100%;
+}
+
 
 .appflowy-scrollbar-thumb-horizontal, .appflowy-scrollbar-thumb-vertical {
   background-color: var(--scrollbar-thumb);
   border-radius: 4px;
   opacity: 60%;
-}
-
-
-.workspaces, .database-conditions, .grid-scroll-table, .grid-board, .MuiPaper-root, .appflowy-database {
-  ::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
 }
 
 

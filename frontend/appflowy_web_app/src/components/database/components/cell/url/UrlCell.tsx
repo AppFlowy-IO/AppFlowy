@@ -30,9 +30,10 @@ export function UrlCell({ cell, style, placeholder }: CellProps<UrlCellType>) {
   return (
     <div
       style={style}
-      onClick={() => {
+      onClick={(e) => {
         if (!isUrl || !cell) return;
         if (readOnly) {
+          e.stopPropagation();
           void openUrl(cell.data, '_blank');
         }
       }}

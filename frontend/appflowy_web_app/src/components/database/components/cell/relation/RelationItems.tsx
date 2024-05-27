@@ -16,7 +16,9 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
   const { field } = useFieldSelector(fieldId);
   const currentDatabaseId = useDatabase()?.get(YjsDatabaseKey.id);
   const workspaceId = useId()?.workspaceId;
-  const rowIds = useMemo(() => (cell.data.toJSON() as RelationCellData) ?? [], [cell.data]);
+  const rowIds = useMemo(() => {
+    return (cell.data?.toJSON() as RelationCellData) ?? [];
+  }, [cell.data]);
   const databaseId = rowIds.length > 0 && field ? parseRelationTypeOption(field).database_id : undefined;
   const databaseService = useContext(AFConfigContext)?.service?.databaseService;
   const [databasePrimaryFieldId, setDatabasePrimaryFieldId] = useState<string | undefined>(undefined);
@@ -58,7 +60,8 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
         return (
           <div
             key={rowId}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               navigateToRow?.(rowId);
             }}
             className={'w-full cursor-pointer underline'}

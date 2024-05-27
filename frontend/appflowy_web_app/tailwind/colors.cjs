@@ -1,14 +1,17 @@
+
 /**
 * Do not edit directly
-* Generated on Thu, 09 May 2024 03:26:45 GMT
+* Generated on Mon, 27 May 2024 06:26:20 GMT
 * Generated from $pnpm css:variables 
 */
+
 
 module.exports = {
   "text": {
     "title": "var(--text-title)",
     "caption": "var(--text-caption)",
     "placeholder": "var(--text-placeholder)",
+    "disabled": "var(--text-disabled)",
     "link-default": "var(--text-link-default)",
     "link-hover": "var(--text-link-hover)",
     "link-pressed": "var(--text-link-pressed)",
@@ -26,50 +29,49 @@ module.exports = {
     "on-toolbar": "var(--line-on-toolbar)"
   },
   "fill": {
+    "toolbar": "var(--fill-toolbar)",
     "default": "var(--fill-default)",
     "hover": "var(--fill-hover)",
-    "toolbar": "var(--fill-toolbar)",
-    "selector": "var(--fill-selector)",
-    "list": {
-      "active": "var(--fill-list-active)",
-      "hover": "var(--fill-list-hover)"
-    }
+    "pressed": "var(--fill-pressed)",
+    "active": "var(--fill-active)",
+    "list-hover": "var(--fill-list-hover)",
+    "list-active": "var(--fill-list-active)"
   },
   "content": {
     "blue-400": "var(--content-blue-400)",
     "blue-300": "var(--content-blue-300)",
     "blue-600": "var(--content-blue-600)",
     "blue-100": "var(--content-blue-100)",
+    "blue-50": "var(--content-blue-50)",
+    "on-fill-hover": "var(--content-on-fill-hover)",
     "on-fill": "var(--content-on-fill)",
-    "on-tag": "var(--content-on-tag)",
-    "blue-50": "var(--content-blue-50)"
+    "on-tag": "var(--content-on-tag)"
   },
   "bg": {
     "body": "var(--bg-body)",
     "base": "var(--bg-base)",
-    "mask": "var(--bg-mask)",
     "tips": "var(--bg-tips)",
     "brand": "var(--bg-brand)"
   },
   "function": {
     "error": "var(--function-error)",
-    "warning": "var(--function-warning)",
+    "waring": "var(--function-waring)",
     "success": "var(--function-success)",
     "info": "var(--function-info)"
   },
   "tint": {
-    "red": "var(--tint-red)",
-    "green": "var(--tint-green)",
     "purple": "var(--tint-purple)",
-    "blue": "var(--tint-blue)",
-    "yellow": "var(--tint-yellow)",
     "pink": "var(--tint-pink)",
+    "red": "var(--tint-red)",
     "lime": "var(--tint-lime)",
+    "green": "var(--tint-green)",
     "aqua": "var(--tint-aqua)",
-    "orange": "var(--tint-orange)"
+    "blue": "var(--tint-blue)",
+    "orange": "var(--tint-orange)",
+    "yellow": "var(--tint-yellow)"
   },
   "scrollbar": {
-    "track": "var(--scrollbar-track)",
-    "thumb": "var(--scrollbar-thumb)"
+    "thumb": "var(--scrollbar-thumb)",
+    "track": "var(--scrollbar-track)"
   }
-}
+};

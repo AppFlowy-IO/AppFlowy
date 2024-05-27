@@ -44,7 +44,7 @@ function ProtectedRoutes() {
 
   return (
     <div
-      className={'relative h-screen w-screen'}
+      className={'relative h-screen w-screen bg-bg-body'}
       style={{
         overflow: 'hidden',
       }}
@@ -84,7 +84,7 @@ const StartLoading = () => {
   }, [dispatch]);
   return (
     <Portal>
-      <div className={'fixed inset-0 z-[1400] flex h-full w-full items-center justify-center bg-bg-mask bg-opacity-50'}>
+      <div className={'bg-bg-mask fixed inset-0 z-[1400] flex h-full w-full items-center justify-center bg-opacity-50'}>
         <CircularProgress />
       </div>
     </Portal>

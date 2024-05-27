@@ -1,19 +1,16 @@
-import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
 import { useNavigateToRow, useRowMetaSelector } from '@/application/database-yjs';
 import { TextCell as CellType, CellProps } from '@/components/database/components/cell/cell.type';
 import { TextCell } from '@/components/database/components/cell/text';
-import { Tooltip } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import OpenAction from '@/components/database/components/database-row/OpenAction';
+import { getPlatform } from '@/utils/platform';
+import React, { useEffect, useMemo, useState } from 'react';
 
 export function PrimaryCell(props: CellProps<CellType>) {
-  const navigateToRow = useNavigateToRow();
   const { rowId } = props;
   const meta = useRowMetaSelector(rowId);
   const icon = meta?.icon;
 
   const [hover, setHover] = useState(false);
-  const { t } = useTranslation();
 
   useEffect(() => {
     const table = document.querySelector('.grid-table');
@@ -32,32 +29,42 @@ export function PrimaryCell(props: CellProps<CellType>) {
       }
     };
 
+    const onMouseLeave = () => {
+      setHover(false);
+    };
+
     table.addEventListener('mousemove', onMouseMove);
+    table.addEventListener('mouseleave', onMouseLeave);
     return () => {
       table.removeEventListener('mousemove', onMouseMove);
+      table.removeEventListener('mouseleave', onMouseLeave);
     };
   }, [rowId]);
+
+  const isMobile = useMemo(() => {
+    return getPlatform().isMobile;
+  }, []);
+
+  const navigateToRow = useNavigateToRow();
+
   return (
-    <div className={'primary-cell relative flex min-h-full w-full items-center gap-2'}>
+    <div
+      onClick={() => {
+        if (isMobile) {
+          navigateToRow?.(rowId);
+        }
+      }}
+      className={'primary-cell relative flex min-h-full w-full items-center gap-2'}
+    >
       {icon && <div className={'h-4 w-4'}>{icon}</div>}
       <div className={'flex-1 overflow-x-hidden'}>
         <TextCell {...props} />
       </div>
 
       {hover && (
-        <Tooltip placement={'bottom'} title={t('tooltip.openAsPage')}>
-          <button
-            color={'primary'}
-            className={
-              'absolute right-0 top-1/2 min-w-0 -translate-y-1/2 transform rounded border border-line-divider bg-bg-body p-1 hover:bg-fill-list-hover'
-            }
-            onClick={() => {
-              navigateToRow?.(rowId);
-            }}
-          >
-            <ExpandMoreIcon />
-          </button>
-        </Tooltip>
+        <div className={'absolute right-0 top-1/2 min-w-0 -translate-y-1/2 transform '}>
+          <OpenAction rowId={rowId} />
+        </div>
       )}
     </div>
   );

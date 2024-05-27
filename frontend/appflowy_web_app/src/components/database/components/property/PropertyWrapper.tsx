@@ -7,7 +7,7 @@ function PropertyWrapper({ fieldId, children }: { fieldId: string; children: Rea
       <div className={'property-label flex h-[28px] w-[30%] items-center'}>
         <FieldDisplay fieldId={fieldId} />
       </div>
-      <div className={'flex flex-1 flex-wrap overflow-x-hidden pr-1'}>{children}</div>
+      <div className={'flex flex-1 flex-wrap items-center overflow-x-hidden pr-1'}>{children}</div>
     </div>
   );
 }
