@@ -3,9 +3,8 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/home.dart';
-import 'package:appflowy/mobile/presentation/home/mobile_folders.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
-import 'package:appflowy/mobile/presentation/home/recent_folder/mobile_home_recent_views.dart';
+import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -97,6 +96,7 @@ class MobileHomePage extends StatelessWidget {
           if (state.currentWorkspace == null) {
             return const SizedBox.shrink();
           }
+
           return Column(
             children: [
               // Header
@@ -110,43 +110,45 @@ class MobileHomePage extends StatelessWidget {
                   userProfile: userProfile,
                 ),
               ),
-              const Divider(),
 
-              // Folder
               Expanded(
-                child: Scrollbar(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Recent files
-                          const MobileRecentFolder(),
-
-                          // Folders
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: MobileFolders(
-                              user: userProfile,
-                              workspaceId:
-                                  state.currentWorkspace?.workspaceId ??
-                                      workspaceSetting.workspaceId,
-                              showFavorite: false,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: _TrashButton(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                child: MobileSpaceTab(
+                  userProfile: userProfile,
                 ),
               ),
+
+              // Folder
+              // Expanded(
+              //   child: Scrollbar(
+              //     child: SingleChildScrollView(
+              //       child: Padding(
+              //         padding: const EdgeInsets.symmetric(vertical: 8.0),
+              //         child: Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           mainAxisSize: MainAxisSize.min,
+              //           children: [
+              //             // Folders
+              //             Padding(
+              //               padding: const EdgeInsets.symmetric(horizontal: 24),
+              //               child: MobileFolders(
+              //                 user: userProfile,
+              //                 workspaceId:
+              //                     state.currentWorkspace?.workspaceId ??
+              //                         workspaceSetting.workspaceId,
+              //                 showFavorite: false,
+              //               ),
+              //             ),
+              //             const SizedBox(height: 8),
+              //             const Padding(
+              //               padding: EdgeInsets.symmetric(horizontal: 24),
+              //               child: _TrashButton(),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           );
         },
