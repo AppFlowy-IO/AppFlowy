@@ -34,19 +34,19 @@ class _MobileSectionFolderHeaderState extends State<MobileSectionFolderHeader> {
       children: [
         Expanded(
           child: FlowyButton(
-            text: FlowyText.semibold(
+            text: FlowyText.medium(
               widget.title,
-              fontSize: 20.0,
+              fontSize: 16.0,
             ),
             margin: const EdgeInsets.symmetric(vertical: 8),
             expandText: false,
+            iconPadding: 2,
             mainAxisAlignment: MainAxisAlignment.start,
             rightIcon: AnimatedRotation(
               duration: const Duration(milliseconds: 200),
               turns: _turns,
-              child: const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: Colors.grey,
+              child: const FlowySvg(
+                FlowySvgs.m_spaces_expand_s,
               ),
             ),
             onTap: () {
@@ -64,8 +64,7 @@ class _MobileSectionFolderHeaderState extends State<MobileSectionFolderHeader> {
           height: iconSize,
           width: iconSize,
           icon: const FlowySvg(
-            FlowySvgs.add_s,
-            size: Size.square(iconSize),
+            FlowySvgs.m_space_add_s,
           ),
           onPressed: widget.onAdded,
         ),
