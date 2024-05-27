@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/checkbox_cell_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 import '../editable_cell_skeleton/checkbox.dart';
@@ -31,7 +32,7 @@ class MobileRowDetailCheckboxCellSkin extends IEditableCheckboxCellSkin {
         alignment: AlignmentDirectional.centerStart,
         child: FlowySvg(
           state.isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
-          color: Theme.of(context).colorScheme.onBackground,
+          color: AFThemeExtension.of(context).onBackground,
           blendMode: BlendMode.dst,
           size: const Size.square(24),
         ),

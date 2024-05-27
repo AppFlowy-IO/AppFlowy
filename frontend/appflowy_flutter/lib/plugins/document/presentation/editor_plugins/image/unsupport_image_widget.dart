@@ -14,7 +14,7 @@ class UnSupportImageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(4),
       ),
       child: FlowyHover(

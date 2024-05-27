@@ -165,7 +165,7 @@ extension Expectation on WidgetTester {
         (widget) =>
             widget is SingleInnerViewItem &&
             widget.view.isFavorite &&
-            widget.categoryType == FolderCategoryType.favorite &&
+            widget.spaceType == FolderSpaceType.favorite &&
             widget.view.name == name &&
             widget.view.layout == layout,
         skipOffstage: false,
@@ -175,7 +175,7 @@ extension Expectation on WidgetTester {
         (widget) =>
             widget is SingleInnerViewItem &&
             widget.view.isFavorite &&
-            widget.categoryType == FolderCategoryType.favorite,
+            widget.spaceType == FolderSpaceType.favorite,
       );
 
   Finder findPageName(

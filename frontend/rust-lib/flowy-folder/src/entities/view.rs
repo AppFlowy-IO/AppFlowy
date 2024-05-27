@@ -152,6 +152,20 @@ pub struct RepeatedViewPB {
   pub items: Vec<ViewPB>,
 }
 
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct RepeatedFavoriteViewPB {
+  #[pb(index = 1)]
+  pub items: Vec<FavoriteViewPB>,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct FavoriteViewPB {
+  #[pb(index = 1)]
+  pub item: ViewPB,
+  #[pb(index = 2)]
+  pub timestamp: i64,
+}
+
 impl std::convert::From<Vec<ViewPB>> for RepeatedViewPB {
   fn from(items: Vec<ViewPB>) -> Self {
     RepeatedViewPB { items }

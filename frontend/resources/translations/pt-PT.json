@@ -56,7 +56,7 @@
     "resetWorkspacePrompt": "Reinciar do espaço de trabalho excluirá todas as páginas e dados contidos. Tem certeza de que deseja reiniciar o espaço de trabalho? Alternativamente, podes entrar em contato com a equipe de suporte para restaurar o espaço de trabalho",
     "hint": "ambiente de trabalho",
     "notFoundError": "Ambiente de trabalho não encontrada",
-    "failedToLoad": "Algo correu mal! Falha ao carregar o espaço de trabalho. Tente fechar qualquer instância aberta do AppFlowy e tente novamente.",
+    "failedToLoad": "Algo correu mal! Falha ao carregar o espaço de trabalho. Tente fechar qualquer instância aberta do @:appName e tente novamente.",
     "errorActions": {
       "reportIssue": "Relatar problema",
       "reachOut": "Entre em contacto no Discord"
@@ -293,7 +293,7 @@
       "themeUpload": {
         "button": "Carregar",
         "uploadTheme": "Carregar tema",
-        "description": "Carregue seu próprio tema AppFlowy usando o botão abaixo.",
+        "description": "Carregue seu próprio tema @:appName usando o botão abaixo.",
         "loading": "Aguarde enquanto validamos e carregamos seu tema...",
         "uploadSuccess": "Seu tema foi carregado com sucesso",
         "deletionFailure": "Falha ao excluir o tema. Tente excluí-lo manualmente.",
@@ -326,7 +326,7 @@
       "defaultLocation": "Leia arquivos e local de armazenamento de dados",
       "exportData": "Exporte seus dados",
       "doubleTapToCopy": "Toque duas vezes para copiar o caminho",
-      "restoreLocation": "Restaurar para o caminho padrão do AppFlowy",
+      "restoreLocation": "Restaurar para o caminho padrão do @:appName",
       "customizeLocation": "Abra outra pasta",
       "restartApp": "Reinicie o aplicativo para que as alterações entrem em vigor.",
       "exportDatabase": "Exportar banco de dados",
@@ -338,10 +338,10 @@
       "defineWhereYourDataIsStored": "Defina onde seus dados são armazenados",
       "open": "Abrir",
       "openFolder": "Abra uma pasta existente",
-      "openFolderDesc": "Leia e grave-o em sua pasta AppFlowy existente",
+      "openFolderDesc": "Leia e grave-o em sua pasta @:appName existente",
       "folderHintText": "nome da pasta",
       "location": "Criando uma nova pasta",
-      "locationDesc": "Escolha um nome para sua pasta de dados do AppFlowy",
+      "locationDesc": "Escolha um nome para sua pasta de dados do @:appName",
       "browser": "Navegar",
       "create": "Criar",
       "set": "Definir",
@@ -352,7 +352,7 @@
       "change": "Mudar",
       "openLocationTooltips": "Abra outro diretório de dados",
       "openCurrentDataFolder": "Abra o diretório de dados atual",
-      "recoverLocationTooltips": "Redefinir para o diretório de dados padrão do AppFlowy",
+      "recoverLocationTooltips": "Redefinir para o diretório de dados padrão do @:appName",
       "exportFileSuccess": "Exportar arquivo com sucesso!",
       "exportFileFail": "Falha na exportação do arquivo!",
       "export": "Exportar"
@@ -754,7 +754,7 @@
     "referencedCalendarPrefix": "Vista de"
   },
   "errorDialog": {
-    "title": "Erro do AppFlowy",
+    "title": "Erro do @:appName",
     "howToFixFallback": "Lamentamos o inconveniente! Envie um problema em nossa página do GitHub que descreva seu erro.",
     "github": "Ver no GitHub"
   },

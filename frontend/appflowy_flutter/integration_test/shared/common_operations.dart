@@ -11,9 +11,9 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -22,6 +22,8 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/flowy_tab.
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
+import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_view_actions.dart';
+import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/common_view_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -57,6 +59,7 @@ extension CommonOperations on WidgetTester {
   /// Tap the + button on the home page.
   Future<void> tapAddViewButton({
     String name = gettingStarted,
+    ViewLayoutPB layout = ViewLayoutPB.Document,
   }) async {
     await hoverOnPageName(
       name,
@@ -276,7 +279,7 @@ extension CommonOperations on WidgetTester {
     bool openAfterCreated = true,
   }) async {
     // create a new page
-    await tapAddViewButton(name: parentName ?? gettingStarted);
+    await tapAddViewButton(name: parentName ?? gettingStarted, layout: layout);
     await tapButtonWithName(layout.menuName);
     final settingsOrFailure = await getIt<KeyValueStorage>().getWithFormat(
       KVKeys.showRenameDialogWhenCreatingNewFile,
@@ -563,6 +566,44 @@ extension CommonOperations on WidgetTester {
       (widget) => widget is FlowySvg && widget.svg.path == svg.path,
     );
     await tapButton(button);
+  }
+
+  Future<void> openMoreViewActions() async {
+    final button = find.byType(MoreViewActions);
+    await tap(button);
+    await pumpAndSettle();
+  }
+
+  /// Presses on the Duplicate ViewAction in the [MoreViewActions] popup.
+  ///
+  /// [openMoreViewActions] must be called beforehand!
+  ///
+  Future<void> duplicateByMoreViewActions() async {
+    final button = find.descendant(
+      of: find.byType(ListView),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is ViewAction && widget.type == ViewActionType.duplicate,
+      ),
+    );
+    await tap(button);
+    await pump();
+  }
+
+  /// Presses on the Delete ViewAction in the [MoreViewActions] popup.
+  ///
+  /// [openMoreViewActions] must be called beforehand!
+  ///
+  Future<void> deleteByMoreViewActions() async {
+    final button = find.descendant(
+      of: find.byType(ListView),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is ViewAction && widget.type == ViewActionType.delete,
+      ),
+    );
+    await tap(button);
+    await pump();
   }
 }
 

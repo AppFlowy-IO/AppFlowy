@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -14,6 +11,8 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -147,7 +146,7 @@ class _DebugToast {
 
 class FlowyVersionDescription extends CustomActionCell {
   @override
-  Widget buildWithContext(BuildContext context) {
+  Widget buildWithContext(BuildContext context, PopoverController controller) {
     return FutureBuilder(
       future: PackageInfo.fromPlatform(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {

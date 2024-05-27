@@ -1,41 +1,20 @@
 import { CollabOrigin, CollabType, YDoc } from '@/application/collab.type';
-import { getDocumentStorage } from '@/application/services/js-services/storage/document';
+import { getCollabStorageWithAPICall } from '@/application/services/js-services/storage';
 import { DocumentService } from '@/application/services/services.type';
-import { APIService } from 'src/application/services/js-services/wasm';
-import { applyDocument } from 'src/application/ydoc/apply';
 
 export class JSDocumentService implements DocumentService {
   constructor() {
     //
   }
 
-  fetchDocument(workspaceId: string, docId: string) {
-    return APIService.getCollab(workspaceId, docId, CollabType.Document);
-  }
-
   async openDocument(workspaceId: string, docId: string): Promise<YDoc> {
-    const { doc, localExist } = await getDocumentStorage(docId);
-    const asyncApply = async () => {
-      const res = await this.fetchDocument(workspaceId, docId);
-
-      applyDocument(doc, res.state);
-    };
-
-    // If the document exists locally, apply the state asynchronously,
-    // otherwise, apply the state synchronously
-    if (localExist) {
-      void asyncApply();
-    } else {
-      await asyncApply();
-    }
+    const doc = await getCollabStorageWithAPICall(workspaceId, docId, CollabType.Document);
 
     const handleUpdate = (update: Uint8Array, origin: CollabOrigin) => {
-      if (origin === CollabOrigin.Remote) {
-        return;
+      if (origin === CollabOrigin.LocalSync) {
+        // Send the update to the server
+        console.log('update', update);
       }
-
-      // Send the update to the server
-      console.log('update', update);
     };
 
     doc.on('update', handleUpdate);

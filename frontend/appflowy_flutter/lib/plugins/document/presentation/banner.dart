@@ -23,7 +23,7 @@ class DocumentBanner extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 60),
       child: Container(
         width: double.infinity,
-        color: colorScheme.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         child: FittedBox(
           fit: BoxFit.scaleDown,
           child: Row(

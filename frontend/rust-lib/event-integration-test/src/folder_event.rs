@@ -139,6 +139,24 @@ impl EventIntegrationTest {
     }
   }
 
+  /// Create orphan views in the folder.
+  /// Orphan view: the parent_view_id equal to the view_id
+  /// Normally, the orphan view will be created in nested database
+  pub async fn create_orphan_view(&self, name: &str, view_id: &str, layout: ViewLayoutPB) {
+    let payload = CreateOrphanViewPayloadPB {
+      name: name.to_string(),
+      desc: "".to_string(),
+      layout,
+      view_id: view_id.to_string(),
+      initial_data: vec![],
+    };
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::CreateOrphanView)
+      .payload(payload)
+      .async_send()
+      .await;
+  }
+
   pub fn get_folder_data(&self) -> FolderData {
     let mutex_folder = self.appflowy_core.folder_manager.get_mutex_folder().clone();
     let folder_lock_guard = mutex_folder.read();
@@ -239,6 +257,18 @@ impl EventIntegrationTest {
       .async_send()
       .await
       .parse::<ViewPB>()
+  }
+
+  pub async fn get_view_ancestors(&self, view_id: &str) -> Vec<ViewPB> {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::GetViewAncestors)
+      .payload(ViewIdPB {
+        value: view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedViewPB>()
+      .items
   }
 }
 

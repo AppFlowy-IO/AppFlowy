@@ -1,6 +1,6 @@
 import { YDoc } from '@/application/collab.type';
 import { DocumentTest } from '@/../cypress/support/document';
-import { applyDocument } from '@/application/ydoc/apply';
+import { applyYDoc } from '@/application/ydoc/apply';
 import React from 'react';
 import * as Y from 'yjs';
 import { Editor } from './Editor';
@@ -20,7 +20,7 @@ describe('<Editor />', () => {
       const doc = new Y.Doc();
       const state = new Uint8Array(docJson.data.doc_state);
 
-      applyDocument(doc, state);
+      applyYDoc(doc, state);
       renderEditor(doc);
     });
   });

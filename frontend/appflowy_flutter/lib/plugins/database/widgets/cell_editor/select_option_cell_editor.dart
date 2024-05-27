@@ -380,7 +380,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
                   icon: FlowySvg(
                     FlowySvgs.three_dots_s,
                     size: const Size.square(16),
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: AFThemeExtension.of(context).onBackground,
                   ),
                 ),
               ],
@@ -462,7 +462,7 @@ class SelectOptionTagCell extends StatelessWidget {
                     child: FlowySvg(
                       FlowySvgs.drag_element_s,
                       size: const Size.square(14),
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: AFThemeExtension.of(context).onBackground,
                     ),
                   ),
                 ),

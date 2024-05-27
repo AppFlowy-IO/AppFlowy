@@ -148,7 +148,7 @@ class _UnsplashImages extends StatelessWidget {
               type: type,
               photo: photo,
               onTap: () => onSelectUnsplashImage(
-                photo.urls.regular.toString(),
+                photo.urls.full.toString(),
               ),
             ),
           )

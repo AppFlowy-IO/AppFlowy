@@ -10,6 +10,7 @@ use std::time::Duration;
 
 use nanoid::nanoid;
 use parking_lot::RwLock;
+use semver::Version;
 use tokio::select;
 use tokio::time::sleep;
 
@@ -55,7 +56,7 @@ impl EventIntegrationTest {
     let device_id = uuid::Uuid::new_v4().to_string();
 
     let config = AppFlowyCoreConfig::new(
-      "".to_string(),
+      Version::new(0, 5, 8),
       path.clone(),
       path,
       device_id,

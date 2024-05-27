@@ -245,7 +245,7 @@
       },
       "themeUpload": {
         "button": "بارگذاری",
-        "description": "تم قالب AppFlowy خود را با استفاده از دکمه زیر آپلود کنید.",
+        "description": "تم قالب @:appName خود را با استفاده از دکمه زیر آپلود کنید.",
         "loading": "لطفاً منتظر بمانید تا تم قالب شما را اعتبارسنجی و آپلود کنیم...",
         "uploadSuccess": "تم قالب شما با موفقیت آپلود شد",
         "deletionFailure": "تم حذف نشد. سعی کنید آن را به صورت دستی حذف کنید.",
@@ -262,7 +262,7 @@
       "defaultLocation": "خواندن فایل‌ها و مکان ذخیره داده‌ها",
       "exportData": "از داده‌های خود خروجی بگیرید",
       "doubleTapToCopy": "برای کپی کردن دوبار کلیک کنید",
-      "restoreLocation": "بازیابی به مسیر پیش فرض AppFlowy",
+      "restoreLocation": "بازیابی به مسیر پیش فرض @:appName",
       "customizeLocation": "پوشه دیگری باز کنید",
       "restartApp": "لطفاً برنامه را مجدداً راه اندازی کنید تا تغییرات اعمال شوند.",
       "exportDatabase": "از پایگاه داده‌ها خروجی بگیرید",
@@ -274,10 +274,10 @@
       "defineWhereYourDataIsStored": "محل ذخیره داده های خود را مشخص کنید",
       "open": "باز کردن",
       "openFolder": "باز کردن یک پوشه موجود",
-      "openFolderDesc": "خواندن و نوشتن آن در یک پوشه AppFlowy موجود",
+      "openFolderDesc": "خواندن و نوشتن آن در یک پوشه @:appName موجود",
       "folderHintText": "نام پوشه",
       "location": "ایجاد یک پوشه جدید",
-      "locationDesc": "یک نام برای پوشه داده AppFlowy خود انتخاب کنید",
+      "locationDesc": "یک نام برای پوشه داده @:appName خود انتخاب کنید",
       "browser": "مرورگر",
       "create": "ایجاد کردن",
       "set": "تنظیم کردن",
@@ -288,7 +288,7 @@
       "change": "تغییر",
       "openLocationTooltips": "باز کردن یک فهرست پوشه دیگر",
       "openCurrentDataFolder": "باز کردن فهرست پوشه فعلی",
-      "recoverLocationTooltips": "بازنشانی به فهرست داده های پیش فرض AppFlowy",
+      "recoverLocationTooltips": "بازنشانی به فهرست داده های پیش فرض @:appName",
       "exportFileSuccess": "خروجی گرفتن از فایل با موفقیت انجام شد.",
       "exportFileFail": "خروجی گرفتن از فایل انجام نشد!",
       "export": "خروجی گرفتن"
@@ -621,7 +621,7 @@
     "referencedCalendarPrefix": "نمای"
   },
   "errorDialog": {
-    "title": "خطای AppFlowy",
+    "title": "خطای @:appName",
     "howToFixFallback": "بابت مشکل پیش آمده متأسفیم! مشکل و شرح آن را در صفحه GitHub ما ارسال کنید.",
     "github": "مشاهده در GitHub"
   },

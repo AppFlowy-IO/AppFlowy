@@ -1,5 +1,5 @@
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_favorite_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -46,7 +46,7 @@ void main() {
       await tester.favoriteViewByName(names[1]);
       expect(
         tester.findFavoritePageName(names[1]),
-        findsNWidgets(2),
+        findsNWidgets(1),
       );
 
       await tester.unfavoriteViewByName(gettingStarted);
@@ -120,9 +120,9 @@ void main() {
             (widget) =>
                 widget is SingleInnerViewItem &&
                 widget.view.isFavorite &&
-                widget.categoryType == FolderCategoryType.favorite,
+                widget.spaceType == FolderSpaceType.favorite,
           ),
-          findsNWidgets(6),
+          findsNWidgets(3),
         );
 
         await tester.hoverOnPageName(
@@ -135,7 +135,7 @@ void main() {
 
         expect(
           tester.findAllFavoritePages(),
-          findsNWidgets(3),
+          findsNWidgets(2),
         );
 
         await tester.hoverOnPageName(
@@ -168,7 +168,7 @@ void main() {
                 widget.isSelected != null &&
                 widget.isSelected!(),
           ),
-          findsNWidgets(2),
+          findsNWidgets(1),
         );
       },
     );

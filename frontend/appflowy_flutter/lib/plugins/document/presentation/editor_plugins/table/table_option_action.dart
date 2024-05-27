@@ -137,7 +137,7 @@ class TableColorOptionAction extends PopoverActionCell {
           colors: colors,
           selected: selectedColor,
           border: Border.all(
-            color: Theme.of(context).colorScheme.onBackground,
+            color: AFThemeExtension.of(context).onBackground,
           ),
           onTap: (option, index) async {
             final backgroundColor =

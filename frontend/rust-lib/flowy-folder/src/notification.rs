@@ -12,7 +12,7 @@ pub enum FolderNotification {
   Unknown = 0,
   /// Trigger after creating a workspace
   DidCreateWorkspace = 1,
-  // /// Trigger after updating a workspace
+  /// Trigger after updating a workspace
   DidUpdateWorkspace = 2,
 
   DidUpdateWorkspaceViews = 3,

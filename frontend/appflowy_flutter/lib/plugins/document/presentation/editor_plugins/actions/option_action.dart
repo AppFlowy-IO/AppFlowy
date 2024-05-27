@@ -141,7 +141,7 @@ enum OptionDepthType {
 
 class DividerOptionAction extends CustomActionCell {
   @override
-  Widget buildWithContext(BuildContext context) {
+  Widget buildWithContext(BuildContext context, PopoverController controller) {
     return const Divider(
       height: 1.0,
       thickness: 1.0,
@@ -300,7 +300,7 @@ class ColorOptionAction extends PopoverActionCell {
           colors: colors,
           selected: selectedColor,
           border: Border.all(
-            color: Theme.of(context).colorScheme.onBackground,
+            color: AFThemeExtension.of(context).onBackground,
           ),
           onTap: (option, index) async {
             final transaction = editorState.transaction;

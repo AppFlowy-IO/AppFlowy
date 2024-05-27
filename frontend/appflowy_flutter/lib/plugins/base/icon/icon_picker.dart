@@ -1,13 +1,10 @@
-import 'package:flutter/material.dart';
-
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/icon.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 
 extension ToProto on FlowyIconType {
   ViewIconTypePB toProto() {
@@ -54,57 +51,28 @@ class FlowyIconPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ONLY supports emoji picker for now
-    return DefaultTabController(
-      length: 1,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const VSpace(8.0),
           Row(
             children: [
-              _buildTabs(context),
+              FlowyText(LocaleKeys.newSettings_workplace_chooseAnIcon.tr()),
               const Spacer(),
               _RemoveIconButton(
                 onTap: () => onSelected(EmojiPickerResult.none()),
               ),
             ],
           ),
-          const Divider(height: 2),
+          const VSpace(12.0),
+          const Divider(height: 0.5),
           Expanded(
-            child: TabBarView(
-              children: [
-                FlowyEmojiPicker(
-                  emojiPerLine: _getEmojiPerLine(context),
-                  onEmojiSelected: (_, emoji) =>
-                      onSelected(EmojiPickerResult.emoji(emoji)),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabs(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: TabBar(
-        indicatorSize: TabBarIndicatorSize.label,
-        isScrollable: true,
-        overlayColor: MaterialStatePropertyAll(
-          Theme.of(context).colorScheme.secondary,
-        ),
-        padding: EdgeInsets.zero,
-        tabs: [
-          FlowyHover(
-            style: const HoverStyle(borderRadius: BorderRadius.zero),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 8.0,
-              ),
-              child: FlowyText(LocaleKeys.emoji_emojiTab.tr()),
+            child: FlowyEmojiPicker(
+              emojiPerLine: _getEmojiPerLine(context),
+              onEmojiSelected: (_, emoji) =>
+                  onSelected(EmojiPickerResult.emoji(emoji)),
             ),
           ),
         ],
@@ -117,7 +85,7 @@ class FlowyIconPicker extends StatelessWidget {
       return 9;
     }
     final width = MediaQuery.of(context).size.width;
-    return width ~/ 46.0; // the size of the emoji
+    return width ~/ 40.0; // the size of the emoji
   }
 }
 
@@ -129,14 +97,14 @@ class _RemoveIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 28,
+      height: 24,
       child: FlowyButton(
         onTap: onTap,
         useIntrinsicWidth: true,
-        text: FlowyText.small(
-          LocaleKeys.document_plugins_cover_removeIcon.tr(),
+        text: FlowyText.regular(
+          LocaleKeys.button_remove.tr(),
+          color: Theme.of(context).hintColor,
         ),
-        leftIcon: const FlowySvg(FlowySvgs.delete_s),
       ),
     );
   }

@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -17,12 +15,13 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_top_menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_user.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
@@ -31,6 +30,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Home Sidebar is the left side bar of the home page.
@@ -211,7 +211,7 @@ class _SidebarState extends State<_Sidebar> {
     final userState = context.read<UserWorkspaceBloc>().state;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         border: Border(
           right: BorderSide(color: Theme.of(context).dividerColor),
         ),
@@ -222,7 +222,8 @@ class _SidebarState extends State<_Sidebar> {
           // top menu
           const Padding(padding: menuHorizontalInset, child: SidebarTopMenu()),
           // user or workspace, setting
-          Padding(
+          Container(
+            height: HomeSizes.workspaceSectionHeight,
             padding: menuHorizontalInset,
             child:
                 // if the workspaces are empty, show the user profile instead
@@ -231,12 +232,15 @@ class _SidebarState extends State<_Sidebar> {
                     : SidebarUser(userProfile: widget.userProfile),
           ),
           if (FeatureFlag.search.isOn) ...[
-            const VSpace(8),
-            const Padding(
+            const VSpace(6),
+            Container(
               padding: menuHorizontalInset,
-              child: _SidebarSearchButton(),
+              height: HomeSizes.searchSectionHeight,
+              child: const _SidebarSearchButton(),
             ),
           ],
+          // new page button
+          const SidebarNewPageButton(),
           // scrollable document list
           Expanded(
             child: Padding(
@@ -256,11 +260,14 @@ class _SidebarState extends State<_Sidebar> {
           // trash
           const Padding(
             padding: menuHorizontalInset,
-            child: SidebarTrashButton(),
+            child: Divider(height: 1.0, color: Color(0x141F2329)),
+          ),
+          const VSpace(14),
+          const Padding(
+            padding: menuHorizontalInset,
+            child: SidebarFooter(),
           ),
           const VSpace(10),
-          // new page button
-          const SidebarNewPageButton(),
         ],
       ),
     );
@@ -289,7 +296,8 @@ class _SidebarSearchButton extends StatelessWidget {
     return FlowyButton(
       onTap: () => CommandPalette.of(context).toggle(),
       leftIcon: const FlowySvg(FlowySvgs.search_s),
-      text: FlowyText(LocaleKeys.search_label.tr()),
+      iconPadding: 10.0,
+      text: FlowyText.regular(LocaleKeys.search_label.tr()),
     );
   }
 }

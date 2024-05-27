@@ -10,7 +10,10 @@ export const Callout = memo(
           <CalloutIcon node={node} />
         </div>
         <div ref={ref} className={`${attributes.className ?? ''} w-full bg-bg-body py-2`}>
-          <div {...attributes} className={`flex w-full flex-col rounded bg-content-blue-50 py-2 pl-10`}>
+          <div
+            {...attributes}
+            className={`flex w-full flex-col rounded border border-line-divider bg-fill-list-active py-2 pl-10`}
+          >
             {children}
           </div>
         </div>

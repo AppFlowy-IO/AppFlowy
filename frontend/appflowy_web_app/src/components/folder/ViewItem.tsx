@@ -1,7 +1,7 @@
 import { layoutMap, ViewLayout, YjsFolderKey } from '@/application/collab.type';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Page from 'src/components/_shared/page/Page';
+import Page from '@/components/_shared/page/Page';
 
 function ViewItem({ id }: { id: string }) {
   const navigate = useNavigate();
