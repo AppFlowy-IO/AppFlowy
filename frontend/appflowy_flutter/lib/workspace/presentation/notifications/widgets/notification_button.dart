@@ -48,10 +48,8 @@ class NotificationButton extends StatelessWidget {
   Widget _buildNotificationIcon(BuildContext context, bool hasUnreads) {
     return Stack(
       children: [
-        FlowySvg(
-          FlowySvgs.clock_alarm_s,
-          size: const Size.square(24),
-          color: Theme.of(context).colorScheme.tertiary,
+        const FlowySvg(
+          FlowySvgs.notification_s,
         ),
         if (hasUnreads)
           Positioned(

@@ -70,6 +70,7 @@
     "chooseWorkspace": "Choose your workspace",
     "create": "Create workspace",
     "reset": "Reset workspace",
+    "renameWorkspace": "Rename workspace",
     "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
     "hint": "workspace",
     "notFoundError": "Workspace not found",
@@ -136,7 +137,9 @@
     "openNewTab": "Open in a new tab",
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy Link",
+    "changeIcon":"Change icon",
+    "collapseAllPages": "Collapse all pages"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -239,7 +242,10 @@
     "addAPage": "Add a page",
     "addAPageToPrivate": "Add a page to private space",
     "addAPageToWorkspace": "Add a page to workspace",
-    "recent": "Recent"
+    "recent": "Recent",
+    "today": "Today",
+    "thisWeek": "This week",
+    "others": "Others"
   },
   "notifications": {
     "export": {
@@ -294,7 +300,8 @@
     "back": "Back",
     "signInGoogle": "Sign in with Google",
     "signInGithub": "Sign in with Github",
-    "signInDiscord": "Sign in with Discord"
+    "signInDiscord": "Sign in with Discord",
+    "more": "More"
   },
   "label": {
     "welcome": "Welcome!",
@@ -1584,7 +1591,9 @@
   },
   "favorite": {
     "noFavorite": "No favorite page",
-    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites"
+    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites",
+    "removeFromSidebar": "Remove from sidebar",
+    "addToSidebar": "Pin to sidebar"
   },
   "cardDetails": {
     "notesPlaceholder": "Enter a / to insert a block, or start typing"
@@ -1637,6 +1646,7 @@
       "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications.",
       "renameError": "Failed to rename workplace",
       "updateIconError": "Failed to update icon",
+      "chooseAnIcon": "Choose an icon",
       "appearance": {
         "name": "Appearance",
         "themeMode": {

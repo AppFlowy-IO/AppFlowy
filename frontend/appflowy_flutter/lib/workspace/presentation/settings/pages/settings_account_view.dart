@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -23,6 +20,8 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsAccountView extends StatefulWidget {
@@ -342,7 +341,8 @@ class _UserProfileSettingState extends State<UserProfileSetting> {
               child: UserAvatar(
                 iconUrl: widget.iconUrl,
                 name: widget.name,
-                isLarge: true,
+                size: 48,
+                fontSize: 24,
                 isHovering: isHovering,
               ),
             ),
