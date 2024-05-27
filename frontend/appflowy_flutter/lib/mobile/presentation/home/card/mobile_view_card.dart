@@ -47,7 +47,11 @@ class MobileViewCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(child: _buildTitle(context, state)),
-                    _buildCover(context, state),
+                    SizedBox(
+                      width: 84,
+                      height: 60,
+                      child: _buildCover(context, state),
+                    ),
                   ],
                 ),
                 const VSpace(12),
@@ -69,16 +73,12 @@ class MobileViewCard extends StatelessWidget {
   }
 
   Widget _buildCover(BuildContext context, RecentViewState state) {
-    return SizedBox(
-      width: 84,
-      height: 60,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: _ViewCover(
-          coverTypeV1: state.coverTypeV1,
-          coverTypeV2: state.coverTypeV2,
-          value: state.coverValue,
-        ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: _ViewCover(
+        coverTypeV1: state.coverTypeV1,
+        coverTypeV2: state.coverTypeV2,
+        value: state.coverValue,
       ),
     );
   }

@@ -44,11 +44,14 @@ class MobileHomePageHeader extends StatelessWidget {
                       ? _MobileWorkspace(userProfile: userProfile)
                       : _MobileUser(userProfile: userProfile),
                 ),
-                IconButton(
-                  onPressed: () => context.push(
+                GestureDetector(
+                  onTap: () => context.push(
                     MobileHomeSettingPage.routeName,
                   ),
-                  icon: const FlowySvg(FlowySvgs.m_setting_m),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: FlowySvg(FlowySvgs.m_setting_m),
+                  ),
                 ),
               ],
             ),
@@ -119,7 +122,6 @@ class _MobileWorkspace extends StatelessWidget {
           },
           child: Row(
             children: [
-              const HSpace(2.0),
               SizedBox.square(
                 dimension: 34.0,
                 child: WorkspaceIcon(

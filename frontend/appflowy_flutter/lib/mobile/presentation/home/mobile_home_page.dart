@@ -6,6 +6,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -96,8 +97,8 @@ class MobileHomePage extends StatelessWidget {
               // Header
               Padding(
                 padding: EdgeInsets.only(
-                  left: 16,
-                  right: 16,
+                  left: HomeSpaceViewSizes.mHorizontalPadding,
+                  right: 8.0,
                   top: Platform.isAndroid ? 8.0 : 0.0,
                 ),
                 child: MobileHomePageHeader(
