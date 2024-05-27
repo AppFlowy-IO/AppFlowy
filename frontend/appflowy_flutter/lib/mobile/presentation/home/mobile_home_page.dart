@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -83,10 +84,11 @@ class MobileHomePage extends StatelessWidget {
         ..add(
           const UserWorkspaceEvent.initial(),
         ),
-      child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+      child: BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
         buildWhen: (previous, current) =>
             previous.currentWorkspace?.workspaceId !=
             current.currentWorkspace?.workspaceId,
+        listener: (context, state) => getIt<CachedRecentService>().reset(),
         builder: (context, state) {
           if (state.currentWorkspace == null) {
             return const SizedBox.shrink();

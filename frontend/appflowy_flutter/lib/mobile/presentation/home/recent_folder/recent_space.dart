@@ -1,6 +1,5 @@
 import 'package:appflowy/mobile/presentation/home/card/mobile_view_card.dart';
 import 'package:appflowy/workspace/application/recent/prelude.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -15,25 +14,16 @@ class MobileRecentSpace extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           RecentViewsBloc()..add(const RecentViewsEvent.initial()),
-      child: BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
-        listenWhen: (previous, current) =>
-            current.currentWorkspace != null &&
-            previous.currentWorkspace?.workspaceId !=
-                current.currentWorkspace!.workspaceId,
-        listener: (context, state) => context
-            .read<RecentViewsBloc>()
-            .add(const RecentViewsEvent.resetRecentViews()),
-        child: BlocBuilder<RecentViewsBloc, RecentViewsState>(
-          builder: (context, state) {
-            final recentViews = _filterRecentViews(state.views);
+      child: BlocBuilder<RecentViewsBloc, RecentViewsState>(
+        builder: (context, state) {
+          final recentViews = _filterRecentViews(state.views);
 
-            if (recentViews.isEmpty) {
-              return const SizedBox.shrink();
-            }
+          if (recentViews.isEmpty) {
+            return const SizedBox.shrink();
+          }
 
-            return _RecentViews(recentViews: recentViews);
-          },
-        ),
+          return _RecentViews(recentViews: recentViews);
+        },
       ),
     );
   }
@@ -67,6 +57,7 @@ class _RecentViews extends StatelessWidget {
           return SizedBox(
             height: 136,
             child: MobileViewCard(
+              key: ValueKey(sectionView.item.id),
               view: sectionView.item,
               timestamp: sectionView.timestamp,
             ),
