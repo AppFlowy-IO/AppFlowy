@@ -7,18 +7,18 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 enum MobileSpaceTabType {
-  spaces,
   recent,
+  spaces,
   favorites;
 
   String get name {
     switch (this) {
       case MobileSpaceTabType.recent:
-        return "Recent";
+        return 'Recent';
       case MobileSpaceTabType.spaces:
-        return "Spaces";
+        return 'Spaces';
       case MobileSpaceTabType.favorites:
-        return "Favorites";
+        return 'Favorites';
     }
   }
 }

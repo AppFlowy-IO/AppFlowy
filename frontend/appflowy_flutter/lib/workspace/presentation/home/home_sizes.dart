@@ -18,5 +18,10 @@ class HomeInsets {
 class HomeSpaceViewSizes {
   static const double leftPadding = 16.0;
   static const double viewHeight = 30.0;
-  static const double mobileViewHeight = 48.0;
+
+  // mobile, m represents mobile
+  static const double mViewHeight = 48.0;
+  static const double mViewButtonDimension = 34.0;
+  static const double mHorizontalPadding = 12.0;
+  static const double mVerticalPadding = 12.0;
 }

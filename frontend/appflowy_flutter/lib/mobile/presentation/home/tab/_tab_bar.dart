@@ -37,6 +37,7 @@ class MobileSpaceTabBar extends StatelessWidget {
         labelStyle: labelStyle,
         labelPadding: const EdgeInsets.symmetric(horizontal: 12.0),
         unselectedLabelStyle: unselectedLabelStyle,
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
         indicator: RoundUnderlineTabIndicator(
           width: 28.0,
           borderSide: BorderSide(

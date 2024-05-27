@@ -36,7 +36,7 @@ class MobileSectionFolder extends StatelessWidget {
           return Column(
             children: [
               SizedBox(
-                height: HomeSpaceViewSizes.mobileViewHeight,
+                height: HomeSpaceViewSizes.mViewHeight,
                 child: MobileSectionFolderHeader(
                   title: title,
                   isExpanded: context.read<FolderBloc>().state.isExpanded,

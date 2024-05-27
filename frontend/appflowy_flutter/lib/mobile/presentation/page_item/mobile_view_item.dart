@@ -285,7 +285,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       borderRadius: BorderRadius.circular(4.0),
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
-        height: HomeSpaceViewSizes.mobileViewHeight,
+        height: HomeSpaceViewSizes.mViewHeight,
         child: Padding(
           padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
           child: Row(
