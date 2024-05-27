@@ -32,6 +32,7 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
         error: '',
       ),
     );
+
     try {
       final customizeShortcuts = await service.getCustomizeShortcuts();
       await service.updateCommandShortcuts(
@@ -40,7 +41,9 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       );
 
       //sort the shortcuts
-      commandShortcutEvents.sort((a, b) => a.key.compareTo(b.key));
+      commandShortcutEvents.sort(
+        (a, b) => a.key.toLowerCase().compareTo(b.key.toLowerCase()),
+      );
 
       emit(
         state.copyWith(
@@ -104,11 +107,11 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     }
   }
 
-  ///Checks if the new command is conflicting with other shortcut
-  ///We also check using the key, whether this command is a codeblock
-  ///shortcut, if so we only check a conflict with other codeblock shortcut.
+  /// Checks if the new command is conflicting with other shortcut
+  /// We also check using the key, whether this command is a codeblock
+  /// shortcut, if so we only check a conflict with other codeblock shortcut.
   String getConflict(CommandShortcutEvent currentShortcut, String command) {
-    //check if currentShortcut is a codeblock shortcut.
+    // check if currentShortcut is a codeblock shortcut.
     final isCodeBlockCommand = currentShortcut.isCodeBlockCommand;
 
     for (final e in state.commandShortcutEvents) {
