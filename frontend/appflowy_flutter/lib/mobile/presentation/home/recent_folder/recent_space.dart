@@ -1,4 +1,4 @@
-import 'package:appflowy/mobile/presentation/home/recent_folder/mobile_recent_view.dart';
+import 'package:appflowy/mobile/presentation/home/card/mobile_view_card.dart';
 import 'package:appflowy/workspace/application/recent/prelude.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -66,7 +66,10 @@ class _RecentViews extends StatelessWidget {
           final sectionView = recentViews[index];
           return SizedBox(
             height: 136,
-            child: MobileRecentViewV2(sectionView: sectionView),
+            child: MobileViewCard(
+              view: sectionView.item,
+              timestamp: sectionView.timestamp,
+            ),
           );
         },
         separatorBuilder: (context, index) => const HSpace(8),

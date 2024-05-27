@@ -1,4 +1,4 @@
-import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_folder.dart';
+import 'package:appflowy/mobile/presentation/home/favorite_folder/favorite_space.dart';
 import 'package:appflowy/mobile/presentation/home/home_space/home_space.dart';
 import 'package:appflowy/mobile/presentation/home/recent_folder/recent_space.dart';
 import 'package:appflowy/mobile/presentation/home/tab/_tab_bar.dart';
@@ -74,7 +74,7 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
         case MobileSpaceTabType.spaces:
           return MobileHomeSpace(userProfile: widget.userProfile);
         case MobileSpaceTabType.favorites:
-          return MobileFavoritePageFolder(userProfile: widget.userProfile);
+          return MobileFavoriteSpace(userProfile: widget.userProfile);
         default:
           throw Exception('Unknown tab type: $tab');
       }

@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/home/home.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -12,11 +9,8 @@ import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_scr
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class MobileHomeScreen extends StatelessWidget {
@@ -117,7 +111,7 @@ class MobileHomePage extends StatelessWidget {
                 ),
               ),
 
-              const _TrashButton(),
+              // const _TrashButton(),
             ],
           );
         },
@@ -126,24 +120,24 @@ class MobileHomePage extends StatelessWidget {
   }
 }
 
-class _TrashButton extends StatelessWidget {
-  const _TrashButton();
+// class _TrashButton extends StatelessWidget {
+//   const _TrashButton();
 
-  @override
-  Widget build(BuildContext context) {
-    return FlowyButton(
-      expand: true,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      leftIcon: FlowySvg(
-        FlowySvgs.m_delete_m,
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
-      leftIconSize: const Size.square(24),
-      text: FlowyText.medium(
-        LocaleKeys.trash_text.tr(),
-        fontSize: 18.0,
-      ),
-      onTap: () => context.push(MobileHomeTrashPage.routeName),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return FlowyButton(
+//       expand: true,
+//       margin: const EdgeInsets.symmetric(vertical: 8),
+//       leftIcon: FlowySvg(
+//         FlowySvgs.m_delete_m,
+//         color: Theme.of(context).colorScheme.onSurface,
+//       ),
+//       leftIconSize: const Size.square(24),
+//       text: FlowyText.medium(
+//         LocaleKeys.trash_text.tr(),
+//         fontSize: 18.0,
+//       ),
+//       onTap: () => context.push(MobileHomeTrashPage.routeName),
+//     );
+//   }
+// }
