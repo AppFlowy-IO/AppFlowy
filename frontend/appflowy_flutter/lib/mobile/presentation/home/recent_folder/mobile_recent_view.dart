@@ -122,6 +122,105 @@ class MobileRecentView extends StatelessWidget {
   }
 }
 
+class MobileRecentViewV2 extends StatelessWidget {
+  const MobileRecentViewV2({
+    super.key,
+    required this.sectionView,
+  });
+
+  final SectionViewPB sectionView;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<RecentViewBloc>(
+      create: (context) => RecentViewBloc(view: sectionView.item)
+        ..add(
+          const RecentViewEvent.initial(),
+        ),
+      child: BlocBuilder<RecentViewBloc, RecentViewState>(
+        builder: (context, state) {
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => context.pushView(sectionView.item),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const VSpace(22),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildTitle(context, state)),
+                    _buildCover(context, state),
+                  ],
+                ),
+                const VSpace(12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildAuthor(context),
+                    const Spacer(),
+                    _buildLastViewed(context),
+                  ],
+                ),
+                const VSpace(22),
+                const Divider(height: 1),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCover(BuildContext context, RecentViewState state) {
+    return SizedBox(
+      width: 84,
+      height: 60,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: _RecentCover(
+          coverTypeV1: state.coverTypeV1,
+          coverTypeV2: state.coverTypeV2,
+          value: state.coverValue,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context, RecentViewState state) {
+    var name = sectionView.item.name;
+    final icon = sectionView.item.icon.value;
+    if (icon.isNotEmpty) {
+      name = '$icon $name';
+    }
+    return FlowyText.semibold(
+      name,
+      fontSize: 16.0,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _buildAuthor(BuildContext context) {
+    return FlowyText.regular(
+      'Lucas Xu',
+      fontSize: 14.0,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+  }
+
+  Widget _buildLastViewed(BuildContext context) {
+    final date = DateTime.fromMillisecondsSinceEpoch(
+      sectionView.timestamp.toInt() * 1000,
+    );
+    return FlowyText.regular(
+      date.toIso8601String(),
+      fontSize: 13.0,
+      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+    );
+  }
+}
+
 class _RecentCover extends StatelessWidget {
   const _RecentCover({
     required this.coverTypeV1,

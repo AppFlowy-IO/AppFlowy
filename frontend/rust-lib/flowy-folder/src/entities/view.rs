@@ -155,11 +155,17 @@ pub struct RepeatedViewPB {
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedFavoriteViewPB {
   #[pb(index = 1)]
-  pub items: Vec<FavoriteViewPB>,
+  pub items: Vec<SectionViewPB>,
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
-pub struct FavoriteViewPB {
+pub struct RepeatedRecentViewPB {
+  #[pb(index = 1)]
+  pub items: Vec<SectionViewPB>,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct SectionViewPB {
   #[pb(index = 1)]
   pub item: ViewPB,
   #[pb(index = 2)]

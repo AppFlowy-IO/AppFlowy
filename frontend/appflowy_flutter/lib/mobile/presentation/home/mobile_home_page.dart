@@ -117,38 +117,7 @@ class MobileHomePage extends StatelessWidget {
                 ),
               ),
 
-              // Folder
-              // Expanded(
-              //   child: Scrollbar(
-              //     child: SingleChildScrollView(
-              //       child: Padding(
-              //         padding: const EdgeInsets.symmetric(vertical: 8.0),
-              //         child: Column(
-              //           crossAxisAlignment: CrossAxisAlignment.start,
-              //           mainAxisSize: MainAxisSize.min,
-              //           children: [
-              //             // Folders
-              //             Padding(
-              //               padding: const EdgeInsets.symmetric(horizontal: 24),
-              //               child: MobileFolders(
-              //                 user: userProfile,
-              //                 workspaceId:
-              //                     state.currentWorkspace?.workspaceId ??
-              //                         workspaceSetting.workspaceId,
-              //                 showFavorite: false,
-              //               ),
-              //             ),
-              //             const SizedBox(height: 8),
-              //             const Padding(
-              //               padding: EdgeInsets.symmetric(horizontal: 24),
-              //               child: _TrashButton(),
-              //             ),
-              //           ],
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
+              const _TrashButton(),
             ],
           );
         },

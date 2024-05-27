@@ -38,39 +38,40 @@ class MobileRecentSpace extends StatelessWidget {
     );
   }
 
-  List<ViewPB> _filterRecentViews(List<ViewPB> recentViews) {
+  List<SectionViewPB> _filterRecentViews(List<SectionViewPB> recentViews) {
     final ids = <String>{};
     final filteredRecentViews = recentViews.reversed.toList();
-    filteredRecentViews.retainWhere((element) => ids.add(element.id));
+    filteredRecentViews.retainWhere((e) => ids.add(e.item.id));
     return filteredRecentViews;
   }
 }
 
 class _RecentViews extends StatelessWidget {
   const _RecentViews({
-    super.key,
     required this.recentViews,
   });
 
-  final List<ViewPB> recentViews;
+  final List<SectionViewPB> recentViews;
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      key: const PageStorageKey('recent_views_page_storage_key'),
-      padding: const EdgeInsets.symmetric(
-        horizontal: HomeSpaceViewSizes.mHorizontalPadding,
-        vertical: HomeSpaceViewSizes.mVerticalPadding,
+    return Scrollbar(
+      child: ListView.separated(
+        key: const PageStorageKey('recent_views_page_storage_key'),
+        padding: const EdgeInsets.symmetric(
+          horizontal: HomeSpaceViewSizes.mHorizontalPadding,
+          vertical: HomeSpaceViewSizes.mVerticalPadding,
+        ),
+        itemBuilder: (context, index) {
+          final sectionView = recentViews[index];
+          return SizedBox(
+            height: 136,
+            child: MobileRecentViewV2(sectionView: sectionView),
+          );
+        },
+        separatorBuilder: (context, index) => const HSpace(8),
+        itemCount: recentViews.length,
       ),
-      itemBuilder: (context, index) {
-        final view = recentViews[index];
-        return SizedBox.square(
-          dimension: 148,
-          child: MobileRecentView(view: view),
-        );
-      },
-      separatorBuilder: (context, index) => const HSpace(8),
-      itemCount: recentViews.length,
     );
   }
 }

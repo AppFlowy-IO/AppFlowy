@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/recent/recent_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/foundation.dart';
 
 /// This is a lazy-singleton to share recent views across the application.
 ///
@@ -23,21 +22,23 @@ class CachedRecentService {
 
   Completer<void> _completer = Completer();
 
-  ValueNotifier<List<ViewPB>> notifier = ValueNotifier(const []);
+  ValueNotifier<List<SectionViewPB>> notifier = ValueNotifier(const []);
 
-  List<ViewPB> get _recentViews => notifier.value;
-  set _recentViews(List<ViewPB> value) => notifier.value = value;
+  List<SectionViewPB> get _recentViews => notifier.value;
+  set _recentViews(List<SectionViewPB> value) => notifier.value = value;
 
   final _listener = RecentViewsListener();
 
-  Future<List<ViewPB>> recentViews() async {
+  Future<List<SectionViewPB>> recentViews() async {
     if (_isInitialized) return _recentViews;
 
     _isInitialized = true;
 
     _listener.start(recentViewsUpdated: _recentViewsUpdated);
-    final result = await _readRecentViews();
-    _recentViews = result.toNullable()?.items ?? const [];
+    _recentViews = await _readRecentViews().fold(
+      (s) => s.items,
+      (_) => [],
+    );
     _completer.complete();
 
     return _recentViews;
@@ -55,7 +56,7 @@ class CachedRecentService {
         ),
       ).send();
 
-  Future<FlowyResult<RepeatedViewPB, FlowyError>> _readRecentViews() =>
+  Future<FlowyResult<RepeatedRecentViewPB, FlowyError>> _readRecentViews() =>
       FolderEventReadRecentViews().send();
 
   bool _isInitialized = false;
@@ -78,7 +79,10 @@ class CachedRecentService {
     final viewIds = result.toNullable();
     if (viewIds != null) {
       _readRecentViews().then(
-        (views) => _recentViews = views.toNullable()?.items ?? const [],
+        (views) => _recentViews = views.fold(
+          (s) => s.items,
+          (_) => [],
+        ),
       );
     }
   }
