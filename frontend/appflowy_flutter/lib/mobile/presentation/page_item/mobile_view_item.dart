@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -372,9 +373,9 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       child: AnimatedRotation(
         duration: const Duration(milliseconds: 250),
         turns: widget.isExpanded ? 0 : -0.25,
-        child: const Icon(
-          Icons.keyboard_arrow_down_rounded,
-          size: 28,
+        child: const FlowySvg(
+          FlowySvgs.m_expand_s,
+          blendMode: null,
         ),
       ),
       onTap: () {
