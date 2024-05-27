@@ -22,9 +22,9 @@ class SidebarNewPageButton extends StatelessWidget {
       height: HomeSizes.newPageSectionHeight,
       child: FlowyButton(
         onTap: () async => _createNewPage(context),
-        leftIcon: FlowySvg(
+        leftIcon: const FlowySvg(
           FlowySvgs.new_app_s,
-          color: Theme.of(context).colorScheme.primary,
+          blendMode: null,
         ),
         iconPadding: 10.0,
         text: SizedBox(
