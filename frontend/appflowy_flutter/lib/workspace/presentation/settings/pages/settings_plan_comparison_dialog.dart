@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsPlanComparisonDialog extends StatefulWidget {
-  const SettingsPlanComparisonDialog({super.key});
+  const SettingsPlanComparisonDialog({
+    super.key,
+    required this.workspaceId,
+    required this.currentPlan,
+  });
+
+  final String workspaceId;
+  final SubscriptionPlanPB currentPlan;
 
   @override
   State<SettingsPlanComparisonDialog> createState() =>
@@ -98,26 +112,57 @@ class _SettingsPlanComparisonDialogState
                           ),
                         ),
                         _PlanTable(
-                          title: 'Free',
-                          description:
-                              'For organizing every corner of your work & life.',
-                          price: '\$0',
-                          priceInfo: 'free forever',
+                          title: LocaleKeys
+                              .settings_comparePlanDialog_freePlan_title
+                              .tr(),
+                          description: LocaleKeys
+                              .settings_comparePlanDialog_freePlan_description
+                              .tr(),
+                          price: LocaleKeys
+                              .settings_comparePlanDialog_freePlan_price
+                              .tr(),
+                          priceInfo: LocaleKeys
+                              .settings_comparePlanDialog_freePlan_priceInfo
+                              .tr(),
                           cells: _freeLabels,
-                          isCurrent: true,
-                          canUpgrade: false,
-                          onSelected: () {},
+                          isCurrent:
+                              widget.currentPlan == SubscriptionPlanPB.None,
+                          canDowngrade:
+                              widget.currentPlan != SubscriptionPlanPB.None,
+                          onSelected: () async {
+                            if (widget.currentPlan == SubscriptionPlanPB.None) {
+                              return;
+                            }
+
+                            await UserBackendService.cancelSubscription(
+                              widget.workspaceId,
+                            );
+                          },
                         ),
                         _PlanTable(
-                          title: 'Professional',
-                          description:
-                              'A place for small groups to plan & get organized.',
-                          price: '\$10 /month',
-                          priceInfo: 'billed annually',
+                          title: LocaleKeys
+                              .settings_comparePlanDialog_proPlan_title
+                              .tr(),
+                          description: LocaleKeys
+                              .settings_comparePlanDialog_proPlan_description
+                              .tr(),
+                          price: LocaleKeys
+                              .settings_comparePlanDialog_proPlan_price
+                              .tr(),
+                          priceInfo: LocaleKeys
+                              .settings_comparePlanDialog_proPlan_priceInfo
+                              .tr(),
                           cells: _proLabels,
-                          isCurrent: false,
-                          canUpgrade: true,
-                          onSelected: () {},
+                          isCurrent:
+                              widget.currentPlan == SubscriptionPlanPB.Pro,
+                          canUpgrade:
+                              widget.currentPlan == SubscriptionPlanPB.None,
+                          onSelected: () =>
+                              context.read<SettingsPlanBloc>().add(
+                                    const SettingsPlanEvent.addSubscription(
+                                      SubscriptionPlanPB.Pro,
+                                    ),
+                                  ),
                         ),
                       ],
                     ),
@@ -140,8 +185,9 @@ class _PlanTable extends StatelessWidget {
     required this.priceInfo,
     required this.cells,
     required this.isCurrent,
-    required this.canUpgrade,
     required this.onSelected,
+    this.canUpgrade = false,
+    this.canDowngrade = false,
   });
 
   final String title;
@@ -151,16 +197,19 @@ class _PlanTable extends StatelessWidget {
 
   final List<String> cells;
   final bool isCurrent;
-  final bool canUpgrade;
   final VoidCallback onSelected;
+  final bool canUpgrade;
+  final bool canDowngrade;
 
   @override
   Widget build(BuildContext context) {
+    final highlightPlan = !isCurrent && !canDowngrade && canUpgrade;
+
     return Container(
       width: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: isCurrent && !canUpgrade
+        gradient: !highlightPlan
             ? null
             : const LinearGradient(
                 colors: [
@@ -169,7 +218,7 @@ class _PlanTable extends StatelessWidget {
                 ],
               ),
       ),
-      padding: isCurrent && !canUpgrade
+      padding: !highlightPlan
           ? const EdgeInsets.only(top: 4)
           : const EdgeInsets.all(4),
       child: Container(
@@ -186,20 +235,24 @@ class _PlanTable extends StatelessWidget {
             _Heading(
               title: title,
               description: description,
-              isPrimary: isCurrent && !canUpgrade,
+              isPrimary: !highlightPlan,
               horizontalInset: 12,
             ),
             _Heading(
               title: price,
               description: priceInfo,
-              isPrimary: isCurrent && !canUpgrade,
+              isPrimary: !highlightPlan,
               height: 64,
               horizontalInset: 12,
             ),
-            if (canUpgrade) ...[
-              const Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: _ActionButton(),
+            if (canUpgrade || canDowngrade) ...[
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: _ActionButton(
+                  onPressed: onSelected,
+                  isUpgrade: canUpgrade && !canDowngrade,
+                  useGradientBorder: !isCurrent && canUpgrade,
+                ),
               ),
             ] else ...[
               const SizedBox(height: 56),
@@ -247,30 +300,57 @@ class _ComparisonCell extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  const _ActionButton();
+  const _ActionButton({
+    required this.onPressed,
+    required this.isUpgrade,
+    this.useGradientBorder = false,
+  });
+
+  final VoidCallback onPressed;
+  final bool isUpgrade;
+  final bool useGradientBorder;
 
   @override
   Widget build(BuildContext context) {
+    final isLM = Theme.of(context).brightness == Brightness.light;
+
+    final gradientBorder = useGradientBorder && isLM;
     return SizedBox(
       height: 56,
       child: Row(
         children: [
           GestureDetector(
-            onTap: () {},
+            onTap: onPressed,
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: Container(
-                height: 40,
-                width: 152,
-                padding: const EdgeInsets.symmetric(vertical: 9),
-                decoration: BoxDecoration(
-                  border: Border.all(),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Center(
-                  child: FlowyText.medium(
-                    'Upgrade',
-                    fontSize: 14,
+              child: _drawGradientBorder(
+                isLM: isLM,
+                child: Container(
+                  height: gradientBorder ? 36 : 40,
+                  width: gradientBorder ? 148 : 152,
+                  decoration: BoxDecoration(
+                    color: gradientBorder
+                        ? Theme.of(context).cardColor
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: gradientBorder
+                          ? Colors.transparent
+                          : AFThemeExtension.of(context).textColor,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(gradientBorder ? 14 : 16),
+                  ),
+                  child: Center(
+                    child: _drawText(
+                      isUpgrade
+                          ? LocaleKeys
+                              .settings_comparePlanDialog_actions_upgrade
+                              .tr()
+                          : LocaleKeys
+                              .settings_comparePlanDialog_actions_downgrade
+                              .tr(),
+                      isLM,
+                    ),
                   ),
                 ),
               ),
@@ -278,6 +358,53 @@ class _ActionButton extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _drawText(String text, bool isLM) {
+    final child = FlowyText(
+      text,
+      fontSize: 14,
+      fontWeight: useGradientBorder ? FontWeight.w600 : FontWeight.w500,
+    );
+
+    if (!useGradientBorder || !isLM) {
+      return child;
+    }
+
+    return ShaderMask(
+      blendMode: BlendMode.srcIn,
+      shaderCallback: (bounds) => const LinearGradient(
+        transform: GradientRotation(-1.55),
+        stops: [0.4, 1],
+        colors: [
+          Color(0xFF251D37),
+          Color(0xFF7547C0),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+      child: child,
+    );
+  }
+
+  Widget _drawGradientBorder({required bool isLM, required Widget child}) {
+    if (!useGradientBorder || !isLM) {
+      return child;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          transform: GradientRotation(-1.2),
+          stops: [0.4, 1],
+          colors: [
+            Color(0xFF251D37),
+            Color(0xFF7547C0),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: child,
     );
   }
 }
@@ -334,42 +461,54 @@ class _PlanItem {
   final String? tooltip;
 }
 
-const _planLabels = [
-  _PlanItem(label: 'Workspaces'),
-  _PlanItem(label: 'Members'),
+final _planLabels = [
   _PlanItem(
-    label: 'Guests',
-    tooltip:
-        'Guests have read-only permissions to the specifically shared content',
+    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemOne.tr(),
   ),
   _PlanItem(
-    label: 'Guest collaborators',
-    tooltip: 'Guest collaborators are billed as one seat',
+    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemTwo.tr(),
   ),
-  _PlanItem(label: 'Storage'),
-  _PlanItem(label: 'Real-time collaboration'),
-  _PlanItem(label: 'Mobile app'),
-  _PlanItem(label: 'AI Responses'),
+  _PlanItem(
+    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemThree.tr(),
+    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipThree.tr(),
+  ),
+  _PlanItem(
+    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemFour.tr(),
+    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipFour.tr(),
+  ),
+  _PlanItem(
+    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemFive.tr(),
+  ),
+  _PlanItem(
+    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSix.tr(),
+  ),
+  _PlanItem(
+    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSeven.tr(),
+  ),
+  _PlanItem(
+    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemEight.tr(),
+    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipEight.tr(),
+  ),
 ];
 
-const _freeLabels = [
-  'charged per workspace',
-  '3',
-  '',
-  '0',
-  '5 GB',
-  'yes',
-  'yes',
-  '1,000 (no refresh)',
+final _freeLabels = [
+  LocaleKeys.settings_comparePlanDialog_freeLabels_itemOne.tr(),
+  LocaleKeys.settings_comparePlanDialog_freeLabels_itemTwo.tr(),
+  LocaleKeys.settings_comparePlanDialog_freeLabels_itemThree.tr(),
+  LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
+  LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
+  LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
+  LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
+  LocaleKeys.settings_comparePlanDialog_freeLabels_itemEight.tr(),
 ];
 
-const _proLabels = [
-  'charged per workspace',
-  'up to 10',
-  '',
-  '10 guests billed as one seat',
-  'unlimited',
-  'yes',
-  'yes',
-  '100,000 monthly',
+final _proLabels = [
+  LocaleKeys.settings_comparePlanDialog_proLabels_itemOne.tr(),
+  LocaleKeys.settings_comparePlanDialog_proLabels_itemTwo.tr(),
+  LocaleKeys.settings_comparePlanDialog_proLabels_itemThree.tr(),
+  LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
+  LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
+  LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
+  LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
+  LocaleKeys.settings_comparePlanDialog_proLabels_itemEight.tr(),
 ];

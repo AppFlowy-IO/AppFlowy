@@ -56,7 +56,10 @@ class SettingsPlanView extends StatelessWidget {
                 autoSeparate: false,
                 title: LocaleKeys.settings_planPage_title.tr(),
                 children: [
-                  _PlanUsageSummary(usage: state.workspaceUsage),
+                  _PlanUsageSummary(
+                    usage: state.workspaceUsage,
+                    currentPlan: state.subscription.subscriptionPlan,
+                  ),
                   _CurrentPlanBox(subscription: state.subscription),
                 ],
               );
@@ -108,7 +111,11 @@ class _CurrentPlanBox extends StatelessWidget {
                       label: LocaleKeys
                           .settings_planPage_planUsage_currentPlan_upgrade
                           .tr(),
-                      onPressed: () => _openPricingDialog(context),
+                      onPressed: () => _openPricingDialog(
+                        context,
+                        context.read<SettingsPlanBloc>().workspaceId,
+                        subscription.subscriptionPlan,
+                      ),
                     ),
                   ],
                 ),
@@ -190,9 +197,20 @@ class _CurrentPlanBox extends StatelessWidget {
     );
   }
 
-  void _openPricingDialog(BuildContext context) => showDialog(
+  void _openPricingDialog(
+    BuildContext context,
+    String workspaceId,
+    SubscriptionPlanPB plan,
+  ) =>
+      showDialog(
         context: context,
-        builder: (_) => const SettingsPlanComparisonDialog(),
+        builder: (_) => BlocProvider<SettingsPlanBloc>.value(
+          value: context.read<SettingsPlanBloc>(),
+          child: SettingsPlanComparisonDialog(
+            workspaceId: workspaceId,
+            currentPlan: plan,
+          ),
+        ),
       );
 }
 
@@ -231,9 +249,10 @@ class _ProConItem extends StatelessWidget {
 }
 
 class _PlanUsageSummary extends StatelessWidget {
-  const _PlanUsageSummary({required this.usage});
+  const _PlanUsageSummary({required this.usage, required this.currentPlan});
 
   final WorkspaceUsagePB usage;
+  final SubscriptionPlanPB currentPlan;
 
   @override
   Widget build(BuildContext context) {
@@ -263,6 +282,7 @@ class _PlanUsageSummary extends StatelessWidget {
                     usage.totalBlobBytesLimit.toInt(),
               ),
             ),
+            // TODO(Mathias): Implement AI Usage once it's ready in backend
             Expanded(
               child: _UsageBox(
                 title:
@@ -284,16 +304,16 @@ class _PlanUsageSummary extends StatelessWidget {
               value: false,
               label:
                   LocaleKeys.settings_planPage_planUsage_memberProToggle.tr(),
+              currentPlan: currentPlan,
               badgeLabel: LocaleKeys.settings_planPage_planUsage_proBadge.tr(),
-              onChanged: (value) {},
             ),
             const VSpace(8),
             _ToggleMore(
               value: false,
               label:
                   LocaleKeys.settings_planPage_planUsage_guestCollabToggle.tr(),
+              currentPlan: currentPlan,
               badgeLabel: LocaleKeys.settings_planPage_planUsage_proBadge.tr(),
-              onChanged: (value) {},
             ),
           ],
         ),
@@ -329,18 +349,25 @@ class _UsageBox extends StatelessWidget {
   }
 }
 
-class _ToggleMore extends StatelessWidget {
+class _ToggleMore extends StatefulWidget {
   const _ToggleMore({
     required this.value,
     required this.label,
-    required this.onChanged,
+    required this.currentPlan,
     this.badgeLabel,
   });
 
   final bool value;
   final String label;
-  final void Function(bool) onChanged;
+  final SubscriptionPlanPB currentPlan;
   final String? badgeLabel;
+
+  @override
+  State<_ToggleMore> createState() => _ToggleMoreState();
+}
+
+class _ToggleMoreState extends State<_ToggleMore> {
+  late bool toggleValue = widget.value;
 
   @override
   Widget build(BuildContext context) {
@@ -353,14 +380,37 @@ class _ToggleMore extends StatelessWidget {
     return Row(
       children: [
         Toggle(
-          value: value,
+          value: toggleValue,
           padding: EdgeInsets.zero,
           style: ToggleStyle.big,
-          onChanged: onChanged,
+          onChanged: (_) {
+            setState(() => toggleValue = !toggleValue);
+
+            Future.delayed(const Duration(milliseconds: 150), () {
+              if (mounted) {
+                showDialog(
+                  context: context,
+                  builder: (_) => BlocProvider<SettingsPlanBloc>.value(
+                    value: context.read<SettingsPlanBloc>(),
+                    child: SettingsPlanComparisonDialog(
+                      workspaceId: context.read<SettingsPlanBloc>().workspaceId,
+                      currentPlan: widget.currentPlan,
+                    ),
+                  ),
+                ).then((_) {
+                  Future.delayed(const Duration(milliseconds: 150), () {
+                    if (mounted) {
+                      setState(() => toggleValue = !toggleValue);
+                    }
+                  });
+                });
+              }
+            });
+          },
         ),
         const HSpace(10),
-        FlowyText.regular(label, fontSize: 14),
-        if (badgeLabel != null && badgeLabel!.isNotEmpty) ...[
+        FlowyText.regular(widget.label, fontSize: 14),
+        if (widget.badgeLabel != null && widget.badgeLabel!.isNotEmpty) ...[
           const HSpace(10),
           SizedBox(
             height: 26,
@@ -368,7 +418,7 @@ class _ToggleMore extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               backgroundColor: secondaryColor,
               label: FlowyText.semibold(
-                badgeLabel!,
+                widget.badgeLabel!,
                 fontSize: 12,
                 color: primaryColor,
               ),

@@ -526,6 +526,57 @@
         "methodButtonLabel": "Edit method"
       }
     },
+    "comparePlanDialog": {
+      "actions": {
+        "upgrade": "Upgrade",
+        "downgrade": "Downgrade"
+      },
+      "freePlan": {
+        "title": "Free",
+        "description": "For organizing every corner of your work & life.",
+        "price": "$0",
+        "priceInfo": "free forever"
+      },
+      "proPlan": {
+        "title": "Professional",
+        "description": "A palce for small groups to plan & get organized.",
+        "price": "$10 /month",
+        "priceInfo": "billed annually"
+      },
+      "planLabels": {
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Guests",
+        "tooltipThree": "Guests have read-only permission to the specifically chared content",
+        "itemFour": "Guest collaborators",
+        "tooltipFour": "Guest collaborators are billed as one seat",
+        "itemFive": "Storage",
+        "itemSix": "Real-time collaboration",
+        "itemSeven": "Mobile app",
+        "itemEight": "AI Responses",
+        "tooltipEight": "Lifetime means the number of responses never reset"
+      },
+      "freeLabels": {
+        "itemOne": "charged per workspace",
+        "itemTwo": "3",
+        "itemThree": "",
+        "itemFour": "0",
+        "itemFive": "5 GB",
+        "itemSix": "yes",
+        "itemSeven": "yes",
+        "itemEight": "1,000 lifetime"
+      },
+      "proLabels": {
+        "itemOne": "charged per workspace",
+        "itemTwo": "up to 10",
+        "itemThree": "",
+        "itemFour": "10 guests billed as one seat",
+        "itemFive": "unlimited",
+        "itemSix": "yes",
+        "itemSeven": "yes",
+        "itemEight": "100,000 monthly"
+      }
+    },
     "common": {
       "reset": "Reset"
     },

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:app_links/app_links.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -17,7 +19,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
-import 'package:flutter/material.dart';
 import 'package:url_protocol/url_protocol.dart';
 
 class AppFlowyCloudDeepLink {
@@ -91,6 +92,10 @@ class AppFlowyCloudDeepLink {
       _completer = null;
       return;
     }
+
+    debugPrint("== REACHED DEEEPLINK ==");
+    debugPrint("== ${uri.toString()} ==");
+    debugPrint("== REACHED DEEEPLINK ==");
 
     return _isAuthCallbackDeepLink(uri).fold(
       (_) async {
