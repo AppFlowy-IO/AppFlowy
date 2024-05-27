@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -16,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarWorkspace extends StatefulWidget {
@@ -50,8 +49,9 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
               ),
             ),
             UserSettingButton(userProfile: widget.userProfile),
-            const HSpace(4),
+            const HSpace(8),
             const NotificationButton(),
+            const HSpace(4),
           ],
         );
       },
@@ -144,7 +144,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
   }
 }
 
-class SidebarSwitchWorkspaceButton extends StatelessWidget {
+class SidebarSwitchWorkspaceButton extends StatefulWidget {
   const SidebarSwitchWorkspaceButton({
     super.key,
     required this.userProfile,
@@ -155,15 +155,30 @@ class SidebarSwitchWorkspaceButton extends StatelessWidget {
   final UserProfilePB userProfile;
 
   @override
+  State<SidebarSwitchWorkspaceButton> createState() =>
+      _SidebarSwitchWorkspaceButtonState();
+}
+
+class _SidebarSwitchWorkspaceButtonState
+    extends State<SidebarSwitchWorkspaceButton> {
+  final ValueNotifier<bool> _isWorkSpaceMenuExpanded = ValueNotifier(false);
+
+  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      direction: PopoverDirection.bottomWithCenterAligned,
-      offset: const Offset(0, 10),
-      constraints: const BoxConstraints(maxWidth: 260, maxHeight: 600),
-      onOpen: () => context
-          .read<UserWorkspaceBloc>()
-          .add(const UserWorkspaceEvent.fetchWorkspaces()),
-      onClose: () => Log.info('close workspace menu'),
+      direction: PopoverDirection.bottomWithLeftAligned,
+      offset: const Offset(0, 5),
+      constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
+      onOpen: () {
+        _isWorkSpaceMenuExpanded.value = true;
+        context
+            .read<UserWorkspaceBloc>()
+            .add(const UserWorkspaceEvent.fetchWorkspaces());
+      },
+      onClose: () {
+        _isWorkSpaceMenuExpanded.value = false;
+        Log.info('close workspace menu');
+      },
       popupBuilder: (_) {
         return BlocProvider<UserWorkspaceBloc>.value(
           value: context.read<UserWorkspaceBloc>(),
@@ -176,7 +191,7 @@ class SidebarSwitchWorkspaceButton extends StatelessWidget {
               }
               Log.info('open workspace menu');
               return WorkspacesMenu(
-                userProfile: userProfile,
+                userProfile: widget.userProfile,
                 currentWorkspace: currentWorkspace,
                 workspaces: workspaces,
               );
@@ -185,33 +200,42 @@ class SidebarSwitchWorkspaceButton extends StatelessWidget {
         );
       },
       child: FlowyButton(
-        margin: const EdgeInsets.symmetric(vertical: 8),
+        margin: EdgeInsets.zero,
         text: Row(
           children: [
-            const HSpace(2.0),
-            SizedBox.square(
-              dimension: 30.0,
+            const HSpace(6.0),
+            SizedBox(
+              width: 16.0,
               child: WorkspaceIcon(
-                workspace: currentWorkspace,
-                iconSize: 20,
+                workspace: widget.currentWorkspace,
+                iconSize: 16,
+                fontSize: 10,
                 enableEdit: false,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
-                        currentWorkspace.workspaceId,
+                        widget.currentWorkspace.workspaceId,
                         result.emoji,
                       ),
                     ),
               ),
             ),
-            const HSpace(6),
-            Expanded(
+            const HSpace(10),
+            Flexible(
               child: FlowyText.medium(
-                currentWorkspace.name,
+                widget.currentWorkspace.name,
                 overflow: TextOverflow.ellipsis,
                 withTooltip: true,
               ),
             ),
-            const FlowySvg(FlowySvgs.drop_menu_show_m),
+            const HSpace(4),
+            ValueListenableBuilder(
+              valueListenable: _isWorkSpaceMenuExpanded,
+              builder: (context, value, _) => FlowySvg(
+                value
+                    ? FlowySvgs.workspace_drop_down_menu_hide_s
+                    : FlowySvgs.workspace_drop_down_menu_show_s,
+              ),
+            ),
           ],
         ),
       ),

@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
@@ -62,22 +63,33 @@ class SidebarTopMenu extends StatelessWidget {
       children: [
         TextSpan(
           text: '${LocaleKeys.sideBar_closeSidebar.tr()}\n',
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .copyWith(color: Colors.white),
         ),
         TextSpan(
           text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .copyWith(color: Theme.of(context).hintColor),
         ),
       ],
     );
-    return FlowyTooltip(
-      richMessage: textSpan,
-      child: FlowyIconButton(
-        width: PlatformExtension.isWindows ? 30 : 28,
-        hoverColor: Colors.transparent,
-        onPressed: () => context
-            .read<HomeSettingBloc>()
-            .add(const HomeSettingEvent.collapseMenu()),
-        iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-        icon: const FlowySvg(FlowySvgs.hide_menu_m),
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12.0),
+      child: FlowyTooltip(
+        richMessage: textSpan,
+        child: FlowyIconButton(
+          width: 24,
+          onPressed: () => context
+              .read<HomeSettingBloc>()
+              .add(const HomeSettingEvent.collapseMenu()),
+          iconPadding: const EdgeInsets.all(2),
+          icon: const FlowySvg(FlowySvgs.hide_menu_s),
+        ),
       ),
     );
   }

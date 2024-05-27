@@ -19,12 +19,14 @@ void main() {
       // Duplicate
       await tester.openMoreViewActions();
       await tester.duplicateByMoreViewActions();
+      await tester.pumpAndSettle();
 
       expect(pageFinder, findsNWidgets(2));
 
       // Delete
       await tester.openMoreViewActions();
       await tester.deleteByMoreViewActions();
+      await tester.pumpAndSettle();
 
       expect(pageFinder, findsNWidgets(1));
     });

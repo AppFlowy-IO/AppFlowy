@@ -141,7 +141,7 @@ enum OptionDepthType {
 
 class DividerOptionAction extends CustomActionCell {
   @override
-  Widget buildWithContext(BuildContext context) {
+  Widget buildWithContext(BuildContext context, PopoverController controller) {
     return const Divider(
       height: 1.0,
       thickness: 1.0,

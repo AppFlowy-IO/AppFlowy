@@ -278,16 +278,19 @@ pub(crate) async fn duplicate_view_handler(
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_favorites_handler(
   folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<RepeatedViewPB, FlowyError> {
+) -> DataResult<RepeatedFavoriteViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let favorite_items = folder.get_all_favorites().await;
   let mut views = vec![];
   for item in favorite_items {
     if let Ok(view) = folder.get_view_pb(&item.id).await {
-      views.push(view);
+      views.push(FavoriteViewPB {
+        item: view,
+        timestamp: item.timestamp,
+      });
     }
   }
-  data_result_ok(RepeatedViewPB { items: views })
+  data_result_ok(RepeatedFavoriteViewPB { items: views })
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]

@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -43,6 +40,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -125,7 +124,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                 title:
                     LocaleKeys.settings_workspacePage_textDirection_title.tr(),
                 children: const [
-                  _TextDirectionSelect(),
+                  TextDirectionSelect(),
                   EnableRTLItemsSwitcher(),
                 ],
               ),
@@ -377,7 +376,8 @@ class _WorkspaceIconSetting extends StatelessWidget {
         child: WorkspaceIcon(
           workspace: workspace!,
           iconSize: workspace!.icon.isNotEmpty == true ? 46 : 20,
-          enableEdit: enableEdit,
+          fontSize: 16.0,
+          enableEdit: true,
           onSelected: (r) => context
               .read<WorkspaceSettingsBloc>()
               .add(WorkspaceSettingsEvent.updateWorkspaceIcon(r.emoji)),
@@ -387,19 +387,25 @@ class _WorkspaceIconSetting extends StatelessWidget {
   }
 }
 
-class _TextDirectionSelect extends StatelessWidget {
-  const _TextDirectionSelect();
+@visibleForTesting
+class TextDirectionSelect extends StatelessWidget {
+  const TextDirectionSelect({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
       builder: (context, state) {
-        final selectedItem = state.textDirection ?? AppFlowyTextDirection.auto;
+        final selectedItem = state.textDirection ?? AppFlowyTextDirection.ltr;
 
         return SettingsRadioSelect<AppFlowyTextDirection>(
-          onChanged: (item) => context
-              .read<AppearanceSettingsCubit>()
-              .setTextDirection(item.value),
+          onChanged: (item) {
+            context
+                .read<AppearanceSettingsCubit>()
+                .setTextDirection(item.value);
+            context
+                .read<DocumentAppearanceCubit>()
+                .syncDefaultTextDirection(item.value.name);
+          },
           items: [
             SettingsRadioItem(
               value: AppFlowyTextDirection.ltr,
