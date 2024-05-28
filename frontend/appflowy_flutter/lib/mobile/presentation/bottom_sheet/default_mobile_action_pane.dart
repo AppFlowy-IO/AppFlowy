@@ -67,6 +67,7 @@ enum MobilePaneActionType {
                     builder: (context, state) {
                       return MobileViewItemBottomSheet(
                         view: viewBloc.state.view,
+                        actions: const [],
                       );
                     },
                   ),

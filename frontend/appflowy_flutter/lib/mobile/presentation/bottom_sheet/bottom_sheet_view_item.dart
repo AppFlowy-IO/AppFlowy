@@ -14,11 +14,13 @@ class MobileViewItemBottomSheet extends StatefulWidget {
   const MobileViewItemBottomSheet({
     super.key,
     required this.view,
+    required this.actions,
     this.defaultType = MobileBottomSheetType.view,
   });
 
   final ViewPB view;
   final MobileBottomSheetType defaultType;
+  final List<MobileViewItemBottomSheetBodyAction> actions;
 
   @override
   State<MobileViewItemBottomSheet> createState() =>
@@ -40,6 +42,7 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
     switch (type) {
       case MobileBottomSheetType.view:
         return MobileViewItemBottomSheetBody(
+          actions: widget.actions,
           isFavorite: widget.view.isFavorite,
           onAction: (action) {
             switch (action) {
@@ -67,6 +70,12 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
                 context
                     .read<FavoriteBloc>()
                     .add(FavoriteEvent.toggle(widget.view));
+                break;
+              case MobileViewItemBottomSheetBodyAction.removeFromRecent:
+                // unimplemented
+                Navigator.pop(context);
+                break;
+              case MobileViewItemBottomSheetBodyAction.divider:
                 break;
             }
           },

@@ -60,7 +60,9 @@ class MobileFavoriteSpace extends StatelessWidget {
                 );
               }
 
-              return _FavoriteViews(favoriteViews: favoriteState.views);
+              return _FavoriteViews(
+                favoriteViews: favoriteState.views.reversed.toList(),
+              );
             },
           ),
         ),
@@ -80,7 +82,7 @@ class _FavoriteViews extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scrollbar(
       child: ListView.separated(
-        key: const PageStorageKey('recent_views_page_storage_key'),
+        key: const PageStorageKey('favorite_views_page_storage_key'),
         padding: const EdgeInsets.symmetric(
           horizontal: HomeSpaceViewSizes.mHorizontalPadding,
           vertical: HomeSpaceViewSizes.mVerticalPadding,

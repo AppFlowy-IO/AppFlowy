@@ -5,15 +5,19 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/application/recent/recent_view_bloc.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,16 +48,23 @@ class MobileViewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<RecentViewBloc>(
-      create: (context) => RecentViewBloc(view: view)
-        ..add(
-          const RecentViewEvent.initial(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ViewBloc>(
+          create: (context) =>
+              ViewBloc(view: view)..add(const ViewEvent.initial()),
         ),
+        BlocProvider(
+          create: (context) =>
+              RecentViewBloc(view: view)..add(const RecentViewEvent.initial()),
+        ),
+      ],
       child: BlocBuilder<RecentViewBloc, RecentViewState>(
         builder: (context, state) {
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => context.pushView(view),
+            onTapUp: (_) => context.pushView(view),
+            onLongPressUp: () => _showActionSheet(context),
             child: DecoratedBox(
               decoration: BoxDecoration(
                 border: Border(
@@ -99,7 +110,7 @@ class MobileViewCard extends StatelessWidget {
   Widget _buildNameAndLastViewed(BuildContext context, RecentViewState state) {
     return Row(
       children: [
-        Flexible(child: _buildAuthor(context)),
+        Flexible(child: _buildAuthor(context, state)),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 3.0),
           child: FlowySvg(FlowySvgs.dot_s),
@@ -121,8 +132,8 @@ class MobileViewCard extends StatelessWidget {
   }
 
   Widget _buildTitle(BuildContext context, RecentViewState state) {
-    var name = view.name;
-    final icon = view.icon.value;
+    var name = state.name;
+    final icon = state.icon;
     if (icon.isNotEmpty) {
       name = '$icon $name';
     }
@@ -134,7 +145,7 @@ class MobileViewCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAuthor(BuildContext context) {
+  Widget _buildAuthor(BuildContext context, RecentViewState state) {
     return FlowyText.regular(
       view.createdBy.toString(),
       fontSize: 13.0,
@@ -185,6 +196,43 @@ class MobileViewCard extends StatelessWidget {
     }
 
     return date;
+  }
+
+  Future<void> _showActionSheet(BuildContext context) async {
+    final viewBloc = context.read<ViewBloc>();
+    final favoriteBloc = context.read<FavoriteBloc>();
+    await showMobileBottomSheet(
+      context,
+      showDragHandle: true,
+      showDivider: false,
+      backgroundColor: AFThemeExtension.of(context).background,
+      useRootNavigator: true,
+      builder: (context) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: viewBloc),
+            BlocProvider.value(value: favoriteBloc),
+          ],
+          child: BlocBuilder<ViewBloc, ViewState>(
+            builder: (context, state) {
+              final isFavorite = state.view.isFavorite;
+              return MobileViewItemBottomSheet(
+                view: viewBloc.state.view,
+                actions: [
+                  isFavorite
+                      ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
+                      : MobileViewItemBottomSheetBodyAction.addToFavorites,
+                  MobileViewItemBottomSheetBodyAction.divider,
+                  MobileViewItemBottomSheetBodyAction.duplicate,
+                  MobileViewItemBottomSheetBodyAction.divider,
+                  MobileViewItemBottomSheetBodyAction.removeFromRecent,
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 }
 

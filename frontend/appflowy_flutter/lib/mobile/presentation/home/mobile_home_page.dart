@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
@@ -79,11 +80,19 @@ class MobileHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => UserWorkspaceBloc(userProfile: userProfile)
-        ..add(
-          const UserWorkspaceEvent.initial(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => UserWorkspaceBloc(userProfile: userProfile)
+            ..add(
+              const UserWorkspaceEvent.initial(),
+            ),
         ),
+        BlocProvider(
+          create: (context) =>
+              FavoriteBloc()..add(const FavoriteEvent.initial()),
+        ),
+      ],
       child: BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
         buildWhen: (previous, current) =>
             previous.currentWorkspace?.workspaceId !=

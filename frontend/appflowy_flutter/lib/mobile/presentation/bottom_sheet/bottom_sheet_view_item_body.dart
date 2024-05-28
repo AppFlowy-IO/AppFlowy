@@ -11,6 +11,8 @@ enum MobileViewItemBottomSheetBodyAction {
   delete,
   addToFavorites,
   removeFromFavorites,
+  divider,
+  removeFromRecent,
 }
 
 class MobileViewItemBottomSheetBody extends StatelessWidget {
@@ -18,48 +20,53 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
     super.key,
     this.isFavorite = false,
     required this.onAction,
+    required this.actions,
   });
 
   final bool isFavorite;
   final void Function(MobileViewItemBottomSheetBodyAction action) onAction;
+  final List<MobileViewItemBottomSheetBodyAction> actions;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        MobileQuickActionButton(
+      children:
+          actions.map((action) => _buildActionButton(context, action)).toList(),
+    );
+  }
+
+  Widget _buildActionButton(
+    BuildContext context,
+    MobileViewItemBottomSheetBodyAction action,
+  ) {
+    switch (action) {
+      case MobileViewItemBottomSheetBodyAction.rename:
+        return MobileQuickActionButton(
           text: LocaleKeys.button_rename.tr(),
-          icon: FlowySvgs.m_rename_s,
+          icon: FlowySvgs.view_item_rename_s,
           onTap: () => onAction(
             MobileViewItemBottomSheetBodyAction.rename,
           ),
-        ),
-        _divider(),
-        MobileQuickActionButton(
-          text: isFavorite
-              ? LocaleKeys.button_removeFromFavorites.tr()
-              : LocaleKeys.button_addToFavorites.tr(),
-          icon: isFavorite
-              ? FlowySvgs.m_favorite_selected_lg
-              : FlowySvgs.m_favorite_unselected_lg,
-          iconColor: isFavorite ? Colors.yellow : null,
-          onTap: () => onAction(
-            isFavorite
-                ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
-                : MobileViewItemBottomSheetBodyAction.addToFavorites,
-          ),
-        ),
-        _divider(),
-        MobileQuickActionButton(
+        );
+      case MobileViewItemBottomSheetBodyAction.duplicate:
+        return MobileQuickActionButton(
           text: LocaleKeys.button_duplicate.tr(),
-          icon: FlowySvgs.m_duplicate_s,
+          icon: FlowySvgs.duplicate_s,
           onTap: () => onAction(
             MobileViewItemBottomSheetBodyAction.duplicate,
           ),
-        ),
-        _divider(),
-        MobileQuickActionButton(
+        );
+      case MobileViewItemBottomSheetBodyAction.share:
+        return MobileQuickActionButton(
+          text: LocaleKeys.button_share.tr(),
+          icon: FlowySvgs.m_share_s,
+          onTap: () => onAction(
+            MobileViewItemBottomSheetBodyAction.share,
+          ),
+        );
+      case MobileViewItemBottomSheetBodyAction.delete:
+        return MobileQuickActionButton(
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
           icon: FlowySvgs.m_delete_s,
@@ -67,14 +74,33 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
           onTap: () => onAction(
             MobileViewItemBottomSheetBodyAction.delete,
           ),
-        ),
-        _divider(),
-      ],
-    );
+        );
+      case MobileViewItemBottomSheetBodyAction.addToFavorites:
+        return MobileQuickActionButton(
+          text: LocaleKeys.button_addToFavorites.tr(),
+          icon: FlowySvgs.favorite_s,
+          onTap: () => onAction(
+            MobileViewItemBottomSheetBodyAction.addToFavorites,
+          ),
+        );
+      case MobileViewItemBottomSheetBodyAction.removeFromFavorites:
+        return MobileQuickActionButton(
+          text: LocaleKeys.button_removeFromFavorites.tr(),
+          icon: FlowySvgs.favorite_section_remove_from_favorite_s,
+          onTap: () => onAction(
+            MobileViewItemBottomSheetBodyAction.removeFromFavorites,
+          ),
+        );
+      case MobileViewItemBottomSheetBodyAction.removeFromRecent:
+        return MobileQuickActionButton(
+          text: LocaleKeys.button_removeFromRecent.tr(),
+          icon: FlowySvgs.remove_from_recent_s,
+          onTap: () => onAction(
+            MobileViewItemBottomSheetBodyAction.removeFromRecent,
+          ),
+        );
+      case MobileViewItemBottomSheetBodyAction.divider:
+        return const Divider(height: 0.5);
+    }
   }
-
-  Widget _divider() => const Divider(
-        height: 8.5,
-        thickness: 0.5,
-      );
 }
