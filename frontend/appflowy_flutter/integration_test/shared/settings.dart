@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
@@ -97,6 +98,41 @@ extension AppFlowySettings on WidgetTester {
     );
 
     await tap(switcher);
+
+    // tap anywhere to close the settings page
+    await tapAt(Offset.zero);
+    await pumpAndSettle();
+  }
+
+// go to settings page and set default text direction
+  Future<void> setDefaultTextDirection(
+    AppFlowyTextDirection textDirection,
+  ) async {
+    String directionText =
+        LocaleKeys.settings_workspacePage_textDirection_leftToRight.tr();
+    if (textDirection == AppFlowyTextDirection.rtl) {
+      directionText =
+          LocaleKeys.settings_workspacePage_textDirection_rightToLeft.tr();
+    } else if (textDirection == AppFlowyTextDirection.auto) {
+      directionText = LocaleKeys.settings_workspacePage_textDirection_auto.tr();
+    }
+
+    await openSettings();
+    await openSettingsPage(SettingsPage.workspace);
+
+    final scrollable = find.findSettingsScrollable();
+    await scrollUntilVisible(
+      find.byType(TextDirectionSelect),
+      0,
+      scrollable: scrollable,
+    );
+
+    final directionRadio = find.descendant(
+      of: find.byType(TextDirectionSelect),
+      matching: find.text(directionText),
+    );
+
+    await tap(directionRadio);
 
     // tap anywhere to close the settings page
     await tapAt(Offset.zero);

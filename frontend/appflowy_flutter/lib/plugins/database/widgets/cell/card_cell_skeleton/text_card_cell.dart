@@ -1,9 +1,11 @@
+import 'dart:ui' as ui;
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
+import 'package:appflowy/util/text_direction.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -179,12 +181,25 @@ class _TextCellState extends State<TextCardCell> {
     );
   }
 
+  ui.TextDirection? lastDirection;
+
   Widget _buildTitle() {
-    final textField = _buildTextField();
     return BlocBuilder<TextCellBloc, TextCellState>(
       builder: (context, state) {
+        final text = _textEditingController.text.isNotEmpty
+            ? _textEditingController.text
+            : LocaleKeys.grid_row_titlePlaceholder.tr();
+        lastDirection = getTextDirectionBaseOnContext(
+          context,
+          text,
+          lastDirection: lastDirection,
+        );
+
         final icon = _buildIcon(state);
+        final textField = _buildTextField(lastDirection!);
+
         return Row(
+          textDirection: lastDirection,
           children: [
             if (icon != null) ...[
               icon,
@@ -197,7 +212,7 @@ class _TextCellState extends State<TextCardCell> {
     );
   }
 
-  Widget _buildTextField() {
+  Widget _buildTextField(ui.TextDirection lastDirection) {
     return BlocSelector<TextCellBloc, TextCellState, bool>(
       selector: (state) => state.enableEdit,
       builder: (context, isEditing) {
@@ -210,6 +225,7 @@ class _TextCellState extends State<TextCardCell> {
             },
             child: TextField(
               controller: _textEditingController,
+              textDirection: lastDirection,
               focusNode: focusNode,
               onEditingComplete: () => focusNode.unfocus(),
               maxLines: isEditing ? null : 2,
@@ -226,6 +242,7 @@ class _TextCellState extends State<TextCardCell> {
                 isDense: true,
                 isCollapsed: true,
                 hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+                hintTextDirection: lastDirection,
                 hintStyle: widget.style.titleTextStyle.copyWith(
                   color: Theme.of(context).hintColor,
                 ),

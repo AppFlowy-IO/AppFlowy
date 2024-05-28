@@ -17,6 +17,7 @@ class FlowyText extends StatelessWidget {
   final double? lineHeight;
   final bool withTooltip;
   final StrutStyle? strutStyle;
+  final TextDirection? textDirection;
 
   const FlowyText(
     this.text, {
@@ -34,6 +35,7 @@ class FlowyText extends StatelessWidget {
     this.lineHeight,
     this.withTooltip = false,
     this.strutStyle,
+    this.textDirection,
   });
 
   FlowyText.small(
@@ -50,6 +52,7 @@ class FlowyText extends StatelessWidget {
     this.lineHeight,
     this.withTooltip = false,
     this.strutStyle,
+    this.textDirection,
   })  : fontWeight = FontWeight.w400,
         fontSize = (Platform.isIOS || Platform.isAndroid) ? 14 : 12;
 
@@ -68,6 +71,7 @@ class FlowyText extends StatelessWidget {
     this.lineHeight,
     this.withTooltip = false,
     this.strutStyle,
+    this.textDirection,
   }) : fontWeight = FontWeight.w400;
 
   const FlowyText.medium(
@@ -85,6 +89,7 @@ class FlowyText extends StatelessWidget {
     this.lineHeight,
     this.withTooltip = false,
     this.strutStyle,
+    this.textDirection,
   }) : fontWeight = FontWeight.w500;
 
   const FlowyText.semibold(
@@ -102,6 +107,7 @@ class FlowyText extends StatelessWidget {
     this.lineHeight,
     this.withTooltip = false,
     this.strutStyle,
+    this.textDirection,
   }) : fontWeight = FontWeight.w600;
 
   // Some emojis are not supported on Linux and Android, fallback to noto color emoji
@@ -118,6 +124,7 @@ class FlowyText extends StatelessWidget {
     this.lineHeight,
     this.withTooltip = false,
     this.strutStyle = const StrutStyle(forceStrutHeight: true),
+    this.textDirection,
   })  : fontWeight = FontWeight.w400,
         fontFamily = 'noto color emoji',
         fallbackFontFamily = null;
@@ -143,6 +150,7 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         strutStyle: strutStyle,
         style: textStyle,
+        textDirection: textDirection,
       );
     } else {
       child = Text(
@@ -151,6 +159,7 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
+        textDirection: textDirection,
       );
     }
 

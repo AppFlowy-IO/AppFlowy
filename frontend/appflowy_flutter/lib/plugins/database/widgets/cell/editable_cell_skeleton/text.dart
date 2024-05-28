@@ -48,10 +48,12 @@ class EditableTextCell extends EditableCellWidget {
   final IEditableTextCellSkin skin;
 
   @override
-  GridEditableTextCell<EditableTextCell> createState() => _TextCellState();
+  GridEditableTextCell<EditableTextCell> createState() =>
+      EditableTextCellState();
 }
 
-class _TextCellState extends GridEditableTextCell<EditableTextCell> {
+@visibleForTesting
+class EditableTextCellState extends GridEditableTextCell<EditableTextCell> {
   late final TextEditingController _textEditingController;
   late final cellBloc = TextCellBloc(
     cellController: makeCellController(

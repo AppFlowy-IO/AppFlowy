@@ -605,6 +605,15 @@ extension CommonOperations on WidgetTester {
     await tap(button);
     await pump();
   }
+
+  Future<void> ctrlABackspace() async {
+    await simulateKeyEvent(
+      LogicalKeyboardKey.keyA,
+      isControlPressed: Platform.isWindows || Platform.isLinux,
+      isMetaPressed: Platform.isMacOS,
+    );
+    await simulateKeyEvent(LogicalKeyboardKey.backspace);
+  }
 }
 
 extension SettingsFinder on CommonFinders {

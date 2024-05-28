@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
@@ -10,6 +11,7 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/te
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
+import 'package:appflowy/util/text_direction.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -144,24 +146,24 @@ class _BannerTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<RowBannerBloc, RowBannerState>(
       builder: (context, state) {
-        final children = <Widget>[
-          if (state.rowMeta.icon.isNotEmpty)
-            EmojiButton(
-              emoji: state.rowMeta.icon,
-              showEmojiPicker: () => popoverController.show(),
+        Widget? emojiWidget, child;
+        if (state.rowMeta.icon.isNotEmpty) {
+          emojiWidget = EmojiButton(
+            emoji: state.rowMeta.icon,
+            showEmojiPicker: () => popoverController.show(),
+          );
+        }
+        if (state.primaryField != null) {
+          child = cellBuilder.buildCustom(
+            CellContext(
+              fieldId: state.primaryField!.id,
+              rowId: rowController.rowId,
             ),
-          const HSpace(4),
-          if (state.primaryField != null)
-            Expanded(
-              child: cellBuilder.buildCustom(
-                CellContext(
-                  fieldId: state.primaryField!.id,
-                  rowId: rowController.rowId,
-                ),
-                skinMap: EditableCellSkinMap(textSkin: _TitleSkin()),
-              ),
+            skinMap: EditableCellSkinMap(
+              textSkin: _TitleSkin(emojiWidget: emojiWidget),
             ),
-        ];
+          );
+        }
 
         return AppFlowyPopover(
           controller: popoverController,
@@ -175,7 +177,13 @@ class _BannerTitle extends StatelessWidget {
             },
             onExit: () {},
           ),
-          child: Row(children: children),
+          child: child ??
+              Row(
+                children: [
+                  if (emojiWidget != null) emojiWidget,
+                  const HSpace(4),
+                ],
+              ),
         );
       },
     );
@@ -277,6 +285,11 @@ class RowActionButton extends StatelessWidget {
 }
 
 class _TitleSkin extends IEditableTextCellSkin {
+  _TitleSkin({this.emojiWidget});
+
+  final Widget? emojiWidget;
+  ui.TextDirection? lastDirection;
+
   @override
   Widget build(
     BuildContext context,
@@ -285,26 +298,65 @@ class _TitleSkin extends IEditableTextCellSkin {
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {
-    return TextField(
-      controller: textEditingController,
-      focusNode: focusNode,
-      autofocus: true,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 28),
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.zero,
-        border: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        enabledBorder: InputBorder.none,
-        errorBorder: InputBorder.none,
-        disabledBorder: InputBorder.none,
-        hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
-        isDense: true,
-        isCollapsed: true,
-      ),
-      onChanged: (text) {
-        if (textEditingController.value.composing.isCollapsed) {
-          bloc.add(TextCellEvent.updateText(text));
-        }
+    return BlocBuilder<TextCellBloc, TextCellState>(
+      buildWhen: (p, c) {
+        final cText = c.content.isNotEmpty
+            ? c.content
+            : LocaleKeys.grid_row_titlePlaceholder.tr();
+        final cTextDirection = getTextDirectionBaseOnContext(
+          context,
+          cText,
+          lastDirection: lastDirection,
+        );
+
+        return lastDirection != cTextDirection;
+      },
+      builder: (context, state) {
+        final text = textEditingController.text.isNotEmpty
+            ? textEditingController.text
+            : LocaleKeys.grid_row_titlePlaceholder.tr();
+        lastDirection = getTextDirectionBaseOnContext(
+          context,
+          text,
+          lastDirection: lastDirection,
+        );
+
+        return Row(
+          textDirection: lastDirection,
+          children: [
+            if (emojiWidget != null) emojiWidget!,
+            const HSpace(4),
+            Expanded(
+              child: TextField(
+                controller: textEditingController,
+                focusNode: focusNode,
+                autofocus: true,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontSize: 28),
+                textDirection: lastDirection,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.zero,
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+                  hintTextDirection: lastDirection,
+                  isDense: true,
+                  isCollapsed: true,
+                ),
+                onChanged: (text) {
+                  if (textEditingController.value.composing.isCollapsed) {
+                    bloc.add(TextCellEvent.updateText(text));
+                  }
+                },
+              ),
+            ),
+          ],
+        );
       },
     );
   }
