@@ -38,6 +38,7 @@
     "@types/react-swipeable-views": "^0.13.4",
     "async-retry": "^1.3.3",
     "axios": "^1.6.8",
+    "colorthief": "^2.4.0",
     "dayjs": "^1.11.9",
     "decimal.js": "^10.4.3",
     "emoji-mart": "^5.5.2",

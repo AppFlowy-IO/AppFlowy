@@ -57,6 +57,24 @@ export const Document = () => {
     };
   }, [layoutStyle]);
 
+  const layoutClassName = useMemo(() => {
+    const classList = [];
+
+    if (layoutStyle.fontLayout === 'large') {
+      classList.push('font-large');
+    } else if (layoutStyle.fontLayout === 'small') {
+      classList.push('font-small');
+    }
+
+    if (layoutStyle.lineHeightLayout === 'large') {
+      classList.push('line-height-large');
+    } else if (layoutStyle.lineHeightLayout === 'small') {
+      classList.push('line-height-small');
+    }
+
+    return classList.join(' ');
+  }, [layoutStyle]);
+
   useEffect(() => {
     if (!layoutStyle.font) return;
     void window.WebFont?.load({
@@ -71,7 +89,7 @@ export const Document = () => {
   return (
     <>
       {doc ? (
-        <div style={style} className={'relative w-full'}>
+        <div style={style} className={`relative w-full ${layoutClassName}`}>
           <DocumentHeader doc={doc} viewId={documentId} />
           <div className={'flex w-full justify-center'}>
             <Suspense fallback={<ComponentLoading />}>
