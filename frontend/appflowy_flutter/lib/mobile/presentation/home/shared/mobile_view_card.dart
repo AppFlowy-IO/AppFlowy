@@ -110,9 +110,9 @@ class MobileViewCard extends StatelessWidget {
 
   Widget _buildNameAndLastViewed(BuildContext context, RecentViewState state) {
     final supportAvatar = isURL(state.icon);
-    if (!supportAvatar) {
-      return _buildLastViewed(context);
-    }
+    // if (!supportAvatar) {
+    //   return _buildLastViewed(context);
+    // }
     return Row(
       children: [
         _buildAvatar(context, state),
@@ -141,11 +141,8 @@ class MobileViewCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.0),
         child: SizedBox.square(
           dimension: 16.0,
-          child: Image.network(
-            iconUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) =>
-                const SizedBox.shrink(),
+          child: FlowyNetworkImage(
+            url: iconUrl,
           ),
         ),
       ),
