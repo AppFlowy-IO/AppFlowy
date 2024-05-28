@@ -57,7 +57,6 @@ class _RecentViews extends StatelessWidget {
         key: const PageStorageKey('recent_views_page_storage_key'),
         padding: const EdgeInsets.symmetric(
           horizontal: HomeSpaceViewSizes.mHorizontalPadding,
-          vertical: HomeSpaceViewSizes.mVerticalPadding,
         ),
         itemBuilder: (context, index) {
           final sectionView = recentViews[index];
