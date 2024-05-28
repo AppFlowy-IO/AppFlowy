@@ -46,12 +46,14 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
                   final unpinnedViews =
                       views.where((v) => !v.item.isPinned).toList();
                   return state.copyWith(
+                    isLoading: false,
                     views: views,
                     pinnedViews: pinnedViews,
                     unpinnedViews: unpinnedViews,
                   );
                 },
                 (error) => state.copyWith(
+                  isLoading: false,
                   views: [],
                 ),
               ),
@@ -109,6 +111,7 @@ class FavoriteState with _$FavoriteState {
     @Default([]) List<SectionViewPB> views,
     @Default([]) List<SectionViewPB> pinnedViews,
     @Default([]) List<SectionViewPB> unpinnedViews,
+    @Default(true) bool isLoading,
   }) = _FavoriteState;
 
   factory FavoriteState.initial() => const FavoriteState();

@@ -1,4 +1,5 @@
-import 'package:appflowy/mobile/presentation/home/card/mobile_view_card.dart';
+import 'package:appflowy/mobile/presentation/home/shared/empty_placeholder.dart';
+import 'package:appflowy/mobile/presentation/home/shared/mobile_view_card.dart';
 import 'package:appflowy/workspace/application/recent/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -16,10 +17,16 @@ class MobileRecentSpace extends StatelessWidget {
           RecentViewsBloc()..add(const RecentViewsEvent.initial()),
       child: BlocBuilder<RecentViewsBloc, RecentViewsState>(
         builder: (context, state) {
+          if (state.isLoading) {
+            return const SizedBox.shrink();
+          }
+
           final recentViews = _filterRecentViews(state.views);
 
           if (recentViews.isEmpty) {
-            return const SizedBox.shrink();
+            return const Center(
+              child: EmptyPagePlaceholder(type: MobileViewCardType.recent),
+            );
           }
 
           return _RecentViews(recentViews: recentViews);
