@@ -25,8 +25,9 @@ class MobileSpaceTabBar extends StatelessWidget {
       fontWeight: FontWeight.w400,
       fontSize: 15.0,
     );
-    return SizedBox(
+    return Container(
       height: height,
+      padding: const EdgeInsets.only(left: 8.0),
       child: TabBar(
         controller: tabController,
         tabs: tabs.map((e) => Tab(text: e.name)).toList(),
