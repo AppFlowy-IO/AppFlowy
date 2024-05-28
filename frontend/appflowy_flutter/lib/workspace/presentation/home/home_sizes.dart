@@ -22,6 +22,6 @@ class HomeSpaceViewSizes {
   // mobile, m represents mobile
   static const double mViewHeight = 48.0;
   static const double mViewButtonDimension = 34.0;
-  static const double mHorizontalPadding = 12.0;
+  static const double mHorizontalPadding = 20.0;
   static const double mVerticalPadding = 12.0;
 }

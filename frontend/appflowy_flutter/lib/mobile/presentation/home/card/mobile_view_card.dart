@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/application/recent/recent_view_bloc.dart';
@@ -10,6 +12,7 @@ import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -39,36 +42,58 @@ class MobileViewCard extends StatelessWidget {
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => context.pushView(view),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const VSpace(22),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _buildTitle(context, state)),
-                    SizedBox(
-                      width: 84,
-                      height: 60,
-                      child: _buildCover(context, state),
-                    ),
-                  ],
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Theme.of(context).dividerColor,
+                    width: 0.5,
+                  ),
                 ),
-                const VSpace(12),
-                Row(
-                  children: [
-                    _buildAuthor(context),
-                    const Spacer(),
-                    _buildLastViewed(context),
-                  ],
-                ),
-                const VSpace(22),
-                const Divider(height: 1),
-              ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(child: _buildDescription(context, state)),
+                  const HSpace(20.0),
+                  SizedBox(
+                    width: 84,
+                    height: 60,
+                    child: _buildCover(context, state),
+                  ),
+                ],
+              ),
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildDescription(BuildContext context, RecentViewState state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // page icon & page title
+        _buildTitle(context, state),
+        const VSpace(12.0),
+        // author & last viewed
+        _buildNameAndLastViewed(context, state),
+      ],
+    );
+  }
+
+  Widget _buildNameAndLastViewed(BuildContext context, RecentViewState state) {
+    return Row(
+      children: [
+        Flexible(child: _buildAuthor(context)),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 3.0),
+          child: FlowySvg(FlowySvgs.dot_s),
+        ),
+        _buildLastViewed(context),
+      ],
     );
   }
 
@@ -99,9 +124,10 @@ class MobileViewCard extends StatelessWidget {
 
   Widget _buildAuthor(BuildContext context) {
     return FlowyText.regular(
-      'Lucas Xu',
-      fontSize: 14.0,
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
+      view.createdBy.toString(),
+      fontSize: 13.0,
+      color: Theme.of(context).hintColor,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
@@ -109,14 +135,44 @@ class MobileViewCard extends StatelessWidget {
     if (timestamp == null) {
       return const SizedBox.shrink();
     }
-    final date = DateTime.fromMillisecondsSinceEpoch(
+    final date = _formatTimestamp(
       timestamp!.toInt() * 1000,
     );
     return FlowyText.regular(
-      date.toIso8601String(),
+      date,
       fontSize: 13.0,
-      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+      color: Theme.of(context).hintColor,
     );
+  }
+
+  String _formatTimestamp(int timestamp) {
+    final now = DateTime.now();
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    final difference = now.difference(dateTime);
+    final String date;
+
+    if (difference.inMinutes < 1) {
+      date = LocaleKeys.sideBar_justNow.tr();
+    } else if (difference.inHours < 1) {
+      // Less than 1 hour
+      date = LocaleKeys.sideBar_minutesAgo
+          .tr(namedArgs: {'count': difference.inMinutes.toString()});
+    } else if (difference.inHours >= 1 && difference.inHours < 24) {
+      // Between 1 hour and 24 hours
+      date = DateFormat('h:mm a').format(dateTime);
+    } else if (difference.inDays >= 1 && dateTime.year == now.year) {
+      // More than 24 hours but within the current year
+      date = DateFormat('M/d, h:mm a').format(dateTime);
+    } else {
+      // Other cases (previous years)
+      date = DateFormat('M/d/yyyy, h:mm a').format(dateTime);
+    }
+
+    if (difference.inHours >= 1) {
+      return '${LocaleKeys.sideBar_lastViewed.tr()} $date';
+    }
+
+    return date;
   }
 }
 
@@ -134,8 +190,7 @@ class _ViewCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final placeholder = Container(
-      // random color, update it once we have a better placeholder
-      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
+      color: const Color(0xFFE1FBFF),
     );
     final value = this.value;
     if (value == null) {

@@ -245,7 +245,10 @@
     "recent": "Recent",
     "today": "Today",
     "thisWeek": "This week",
-    "others": "Others"
+    "others": "Others",
+    "justNow": "just now",
+    "minutesAgo": "{count} minutes ago",
+    "lastViewed": "Last viewed"
   },
   "notifications": {
     "export": {
