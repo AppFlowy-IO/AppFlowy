@@ -75,14 +75,12 @@ class CachedRecentService {
 
   void _recentViewsUpdated(
     FlowyResult<RepeatedViewIdPB, FlowyError> result,
-  ) {
+  ) async {
     final viewIds = result.toNullable();
     if (viewIds != null) {
-      _readRecentViews().then(
-        (views) => _recentViews = views.fold(
-          (s) => s.items,
-          (_) => [],
-        ),
+      _recentViews = await _readRecentViews().fold(
+        (s) => s.items,
+        (_) => [],
       );
     }
   }

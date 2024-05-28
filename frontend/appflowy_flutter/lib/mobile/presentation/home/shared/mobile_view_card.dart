@@ -11,6 +11,7 @@ import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -201,6 +202,7 @@ class MobileViewCard extends StatelessWidget {
   Future<void> _showActionSheet(BuildContext context) async {
     final viewBloc = context.read<ViewBloc>();
     final favoriteBloc = context.read<FavoriteBloc>();
+    final recentViewsBloc = context.read<RecentViewsBloc>();
     await showMobileBottomSheet(
       context,
       showDragHandle: true,
@@ -212,6 +214,7 @@ class MobileViewCard extends StatelessWidget {
           providers: [
             BlocProvider.value(value: viewBloc),
             BlocProvider.value(value: favoriteBloc),
+            BlocProvider.value(value: recentViewsBloc),
           ],
           child: BlocBuilder<ViewBloc, ViewState>(
             builder: (context, state) {
