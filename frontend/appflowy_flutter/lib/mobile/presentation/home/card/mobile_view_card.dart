@@ -20,15 +20,27 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 
+enum MobileViewCardType {
+  recent,
+  favorite;
+
+  String get lastOperationHintText => switch (this) {
+        MobileViewCardType.recent => LocaleKeys.sideBar_lastViewed.tr(),
+        MobileViewCardType.favorite => LocaleKeys.sideBar_favoriteAt.tr(),
+      };
+}
+
 class MobileViewCard extends StatelessWidget {
   const MobileViewCard({
     super.key,
     required this.view,
     this.timestamp,
+    required this.type,
   });
 
   final ViewPB view;
   final Int64? timestamp;
+  final MobileViewCardType type;
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +181,7 @@ class MobileViewCard extends StatelessWidget {
     }
 
     if (difference.inHours >= 1) {
-      return '${LocaleKeys.sideBar_lastViewed.tr()} $date';
+      return '${type.lastOperationHintText} $date';
     }
 
     return date;

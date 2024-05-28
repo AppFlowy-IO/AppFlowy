@@ -248,7 +248,8 @@
     "others": "Others",
     "justNow": "just now",
     "minutesAgo": "{count} minutes ago",
-    "lastViewed": "Last viewed"
+    "lastViewed": "Last viewed",
+    "favoriteAt": "Favorited at"
   },
   "notifications": {
     "export": {

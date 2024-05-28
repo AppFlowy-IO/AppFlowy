@@ -82,7 +82,12 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
       return [];
     }
 
-    return context.read<FavoriteBloc>().state.pinnedViews.map(
+    return context
+        .read<FavoriteBloc>()
+        .state
+        .pinnedViews
+        .map((e) => e.item)
+        .map(
           (view) => ViewItem(
             key: ValueKey(
               '${FolderSpaceType.favorite.name} ${view.id}',

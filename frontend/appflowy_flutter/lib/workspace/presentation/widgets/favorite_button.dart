@@ -20,7 +20,7 @@ class ViewFavoriteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<FavoriteBloc, FavoriteState>(
       builder: (context, state) {
-        final isFavorite = state.views.any((v) => v.id == view.id);
+        final isFavorite = state.views.any((v) => v.item.id == view.id);
         return Listener(
           onPointerDown: (_) =>
               context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view)),

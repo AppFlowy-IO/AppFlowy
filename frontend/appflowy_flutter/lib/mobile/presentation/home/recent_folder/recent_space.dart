@@ -60,6 +60,7 @@ class _RecentViews extends StatelessWidget {
               key: ValueKey(sectionView.item.id),
               view: sectionView.item,
               timestamp: sectionView.timestamp,
+              type: MobileViewCardType.recent,
             ),
           );
         },

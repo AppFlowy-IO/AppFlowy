@@ -72,7 +72,7 @@ class _FavoriteViews extends StatelessWidget {
     required this.favoriteViews,
   });
 
-  final List<ViewPB> favoriteViews;
+  final List<SectionViewPB> favoriteViews;
 
   @override
   Widget build(BuildContext context) {
@@ -86,9 +86,14 @@ class _FavoriteViews extends StatelessWidget {
         itemBuilder: (context, index) {
           final view = favoriteViews[index];
           return SizedBox(
-            key: ValueKey(view.id),
+            key: ValueKey(view.item.id),
             height: 136,
-            child: MobileViewCard(view: view),
+            child: MobileViewCard(
+              key: ValueKey(view.item.id),
+              view: view.item,
+              timestamp: view.timestamp,
+              type: MobileViewCardType.favorite,
+            ),
           );
         },
         separatorBuilder: (context, index) => const HSpace(8),

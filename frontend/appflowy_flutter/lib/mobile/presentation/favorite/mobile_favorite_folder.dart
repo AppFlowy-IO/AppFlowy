@@ -67,7 +67,8 @@ class MobileFavoritePageFolder extends StatelessWidget {
                           MobileFavoriteFolder(
                             showHeader: false,
                             forceExpanded: true,
-                            views: favoriteState.views,
+                            views:
+                                favoriteState.views.map((e) => e.item).toList(),
                           ),
                           const VSpace(100.0),
                         ],
