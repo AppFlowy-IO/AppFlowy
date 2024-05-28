@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item_add_button.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -10,6 +11,7 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -315,7 +317,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
             fontSize: 20.0,
           )
         : SizedBox.square(
-            dimension: 20.0,
+            dimension: 18.0,
             child: widget.view.defaultIcon(),
           );
     return icon;
@@ -386,20 +388,42 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
   // + button
   Widget _buildViewMoreButton(BuildContext context) {
-    return MobileViewMoreButton(
-      onPressed: () {
-        final title = widget.view.name;
-        showMobileBottomSheet(
-          context,
-          showHeader: true,
-          title: title,
-          showDragHandle: true,
-          showCloseButton: true,
-          useRootNavigator: true,
-          builder: (sheetContext) {
-            // FIXME:
-            return const SizedBox.shrink();
-          },
+    return MobileViewMoreButton(onPressed: () => _showMoreActions(context));
+  }
+
+  Future<void> _showMoreActions(BuildContext context) async {
+    final viewBloc = context.read<ViewBloc>();
+    final favoriteBloc = context.read<FavoriteBloc>();
+    await showMobileBottomSheet(
+      context,
+      showDragHandle: true,
+      showDivider: false,
+      useRootNavigator: true,
+      backgroundColor: AFThemeExtension.of(context).background,
+      builder: (context) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: viewBloc),
+            BlocProvider.value(value: favoriteBloc),
+          ],
+          child: BlocBuilder<ViewBloc, ViewState>(
+            builder: (context, state) {
+              final isFavorite = state.view.isFavorite;
+              return MobileViewItemBottomSheet(
+                view: viewBloc.state.view,
+                actions: [
+                  isFavorite
+                      ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
+                      : MobileViewItemBottomSheetBodyAction.addToFavorites,
+                  MobileViewItemBottomSheetBodyAction.divider,
+                  MobileViewItemBottomSheetBodyAction.rename,
+                  MobileViewItemBottomSheetBodyAction.duplicate,
+                  MobileViewItemBottomSheetBodyAction.divider,
+                  MobileViewItemBottomSheetBodyAction.delete,
+                ],
+              );
+            },
+          ),
         );
       },
     );

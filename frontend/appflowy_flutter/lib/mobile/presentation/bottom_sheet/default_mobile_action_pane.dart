@@ -65,9 +65,21 @@ enum MobilePaneActionType {
                   ],
                   child: BlocBuilder<ViewBloc, ViewState>(
                     builder: (context, state) {
+                      final isFavorite = state.view.isFavorite;
                       return MobileViewItemBottomSheet(
                         view: viewBloc.state.view,
-                        actions: const [],
+                        actions: [
+                          isFavorite
+                              ? MobileViewItemBottomSheetBodyAction
+                                  .removeFromFavorites
+                              : MobileViewItemBottomSheetBodyAction
+                                  .addToFavorites,
+                          MobileViewItemBottomSheetBodyAction.divider,
+                          MobileViewItemBottomSheetBodyAction.rename,
+                          MobileViewItemBottomSheetBodyAction.duplicate,
+                          MobileViewItemBottomSheetBodyAction.divider,
+                          MobileViewItemBottomSheetBodyAction.delete,
+                        ],
                       );
                     },
                   ),

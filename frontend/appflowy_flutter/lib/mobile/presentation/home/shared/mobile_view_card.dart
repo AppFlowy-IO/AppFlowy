@@ -173,7 +173,8 @@ class MobileViewCard extends StatelessWidget {
 
   Widget _buildAuthor(BuildContext context, RecentViewState state) {
     return FlowyText.regular(
-      view.createdBy.toString(),
+      // view.createdBy.toString(),
+      'Lucas',
       fontSize: 12.0,
       color: Theme.of(context).hintColor,
       overflow: TextOverflow.ellipsis,
@@ -227,7 +228,7 @@ class MobileViewCard extends StatelessWidget {
   Future<void> _showActionSheet(BuildContext context) async {
     final viewBloc = context.read<ViewBloc>();
     final favoriteBloc = context.read<FavoriteBloc>();
-    final recentViewsBloc = context.read<RecentViewsBloc>();
+    final recentViewsBloc = context.read<RecentViewsBloc?>();
     await showMobileBottomSheet(
       context,
       showDragHandle: true,
@@ -239,28 +240,42 @@ class MobileViewCard extends StatelessWidget {
           providers: [
             BlocProvider.value(value: viewBloc),
             BlocProvider.value(value: favoriteBloc),
-            BlocProvider.value(value: recentViewsBloc),
+            if (recentViewsBloc != null)
+              BlocProvider.value(value: recentViewsBloc),
           ],
           child: BlocBuilder<ViewBloc, ViewState>(
             builder: (context, state) {
               final isFavorite = state.view.isFavorite;
               return MobileViewItemBottomSheet(
                 view: viewBloc.state.view,
-                actions: [
-                  isFavorite
-                      ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
-                      : MobileViewItemBottomSheetBodyAction.addToFavorites,
-                  MobileViewItemBottomSheetBodyAction.divider,
-                  MobileViewItemBottomSheetBodyAction.duplicate,
-                  MobileViewItemBottomSheetBodyAction.divider,
-                  MobileViewItemBottomSheetBodyAction.removeFromRecent,
-                ],
+                actions: _buildActions(isFavorite),
               );
             },
           ),
         );
       },
     );
+  }
+
+  List<MobileViewItemBottomSheetBodyAction> _buildActions(bool isFavorite) {
+    switch (type) {
+      case MobileViewCardType.recent:
+        return [
+          isFavorite
+              ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
+              : MobileViewItemBottomSheetBodyAction.addToFavorites,
+          MobileViewItemBottomSheetBodyAction.divider,
+          MobileViewItemBottomSheetBodyAction.duplicate,
+          MobileViewItemBottomSheetBodyAction.divider,
+          MobileViewItemBottomSheetBodyAction.removeFromRecent,
+        ];
+      case MobileViewCardType.favorite:
+        return [
+          MobileViewItemBottomSheetBodyAction.removeFromFavorites,
+          MobileViewItemBottomSheetBodyAction.divider,
+          MobileViewItemBottomSheetBodyAction.duplicate,
+        ];
+    }
   }
 }
 

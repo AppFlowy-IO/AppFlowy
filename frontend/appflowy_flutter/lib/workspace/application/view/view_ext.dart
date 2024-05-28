@@ -41,7 +41,7 @@ extension ViewExtension on ViewPB {
   Widget defaultIcon() => FlowySvg(
         switch (layout) {
           ViewLayoutPB.Board => FlowySvgs.board_s,
-          ViewLayoutPB.Calendar => FlowySvgs.date_s,
+          ViewLayoutPB.Calendar => FlowySvgs.calendar_s,
           ViewLayoutPB.Grid => FlowySvgs.grid_s,
           ViewLayoutPB.Document => FlowySvgs.document_s,
           _ => FlowySvgs.document_s,

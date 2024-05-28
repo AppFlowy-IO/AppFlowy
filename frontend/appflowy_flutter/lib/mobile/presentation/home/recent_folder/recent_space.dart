@@ -61,7 +61,7 @@ class _RecentViews extends StatelessWidget {
         itemBuilder: (context, index) {
           final sectionView = recentViews[index];
           return SizedBox(
-            height: 136,
+            height: 122,
             child: MobileViewCard(
               key: ValueKey(sectionView.item.id),
               view: sectionView.item,

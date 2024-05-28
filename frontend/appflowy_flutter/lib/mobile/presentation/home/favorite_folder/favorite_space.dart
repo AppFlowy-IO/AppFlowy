@@ -85,13 +85,12 @@ class _FavoriteViews extends StatelessWidget {
         key: const PageStorageKey('favorite_views_page_storage_key'),
         padding: const EdgeInsets.symmetric(
           horizontal: HomeSpaceViewSizes.mHorizontalPadding,
-          vertical: HomeSpaceViewSizes.mVerticalPadding,
         ),
         itemBuilder: (context, index) {
           final view = favoriteViews[index];
           return SizedBox(
             key: ValueKey(view.item.id),
-            height: 136,
+            height: 122,
             child: MobileViewCard(
               key: ValueKey(view.item.id),
               view: view.item,
