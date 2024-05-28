@@ -1,11 +1,10 @@
-import { usePageInfo } from '@/components/_shared/page/usePageInfo';
 import { downloadPage, openAppFlowySchema, openUrl } from '@/utils/url';
 import { Button } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import Popover, { PopoverOrigin } from '@mui/material/Popover';
+import Breadcrumb from 'src/components/layout/breadcrumb/Breadcrumb';
 
 const popoverOrigin: {
   anchorOrigin: PopoverOrigin;
@@ -22,18 +21,13 @@ const popoverOrigin: {
 };
 
 function Header() {
-  const { objectId } = useParams();
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-  const { icon, name } = usePageInfo(objectId || '');
 
   return (
     <div className={'appflowy-top-bar flex h-[64px] p-4'}>
-      <div className={'flex flex-1 items-center justify-between'}>
-        <div className={'flex flex-1 items-center gap-2'}>
-          <div>{icon}</div>
-          <div className={'flex-1 truncate'}>{name}</div>
-        </div>
+      <div className={'flex w-full items-center justify-between overflow-hidden'}>
+        <Breadcrumb />
 
         <Button
           className={'border-line-border'}

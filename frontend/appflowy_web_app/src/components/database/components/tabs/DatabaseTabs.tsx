@@ -108,7 +108,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             })}
           </ViewTabs>
         </div>
-        {layout !== DatabaseViewLayout.Calendar && <DatabaseActions />}
+        {layout !== DatabaseViewLayout.Calendar ? <DatabaseActions /> : null}
       </div>
     );
   }

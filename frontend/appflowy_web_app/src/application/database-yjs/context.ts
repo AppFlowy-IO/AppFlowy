@@ -22,6 +22,10 @@ export const useDatabase = () => {
   return database;
 };
 
+export function useDatabaseViewId() {
+  return useContext(DatabaseContext)?.viewId;
+}
+
 export const useNavigateToRow = () => {
   return useContext(DatabaseContext)?.navigateToRow;
 };

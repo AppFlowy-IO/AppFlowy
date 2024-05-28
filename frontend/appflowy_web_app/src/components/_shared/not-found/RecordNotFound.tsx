@@ -16,7 +16,7 @@ export function RecordNotFound({ open, workspaceId, title }: { workspaceId: stri
       <DialogActions className={'flex w-full items-center justify-center'}>
         <Button
           onClick={() => {
-            navigate(`/workspace/${workspaceId}`);
+            navigate(`/view/${workspaceId}`);
           }}
         >
           Go back

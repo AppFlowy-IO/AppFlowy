@@ -18,6 +18,7 @@ function DatabaseRow({ rowId }: { rowId: string }) {
   const [rows, setRows] = useState<DatabaseContextState['rowDocMap'] | null>(null); // Map<rowId, YDoc
   const databaseService = useContext(AFConfigContext)?.service?.databaseService;
   const [notFound, setNotFound] = useState<boolean>(false);
+
   const handleOpenDatabaseRow = useCallback(async () => {
     if (!databaseService || !workspaceId || !objectId) return;
 

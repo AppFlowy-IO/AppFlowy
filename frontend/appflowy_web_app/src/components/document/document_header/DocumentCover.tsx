@@ -28,6 +28,7 @@ function DocumentCover({ doc }: { doc: YDoc }) {
     return <img draggable={false} src={url} alt={''} className={'h-full w-full object-cover'} />;
   }, []);
 
+  if (!pageCover && !cover?.cover_selection) return null;
   return (
     <div className={`relative mb-[-80px] flex h-[255px] w-full`}>
       {pageCover ? (
