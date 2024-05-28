@@ -1,8 +1,8 @@
-import { Curmb, useNavigateToView } from '@/application/folder-yjs';
+import { Crumb, useNavigateToView } from '@/application/folder-yjs';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-function Item({ crumb, disableClick = false }: { crumb: Curmb; disableClick?: boolean }) {
+function Item({ crumb, disableClick = false }: { crumb: Crumb; disableClick?: boolean }) {
   const { viewId, icon, name } = crumb;
 
   const { t } = useTranslation();

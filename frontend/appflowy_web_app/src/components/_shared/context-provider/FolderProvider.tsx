@@ -1,12 +1,12 @@
 import { YFolder } from '@/application/collab.type';
-import { Curmb, FolderContext } from '@/application/folder-yjs';
+import { Crumb, FolderContext } from '@/application/folder-yjs';
 
 export const FolderProvider: React.FC<{
   folder: YFolder | null;
   children?: React.ReactNode;
   onNavigateToView?: (viewId: string) => void;
-  crumbs?: Curmb[];
-  setCrumbs?: React.Dispatch<React.SetStateAction<Curmb[]>>;
+  crumbs?: Crumb[];
+  setCrumbs?: React.Dispatch<React.SetStateAction<Crumb[]>>;
 }> = ({ folder, children, onNavigateToView, crumbs, setCrumbs }) => {
   return (
     <FolderContext.Provider

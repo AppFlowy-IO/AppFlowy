@@ -1,5 +1,5 @@
 import { YFolder, YjsEditorKey, YjsFolderKey } from '@/application/collab.type';
-import { Curmb } from '@/application/folder-yjs';
+import { Crumb } from '@/application/folder-yjs';
 import { AFConfigContext } from '@/components/app/AppConfig';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -11,7 +11,7 @@ export function useLayout() {
   const [folder, setFolder] = useState<YFolder | null>(null);
   const views = folder?.get(YjsFolderKey.views);
   const view = objectId ? views?.get(objectId) : null;
-  const [crumbs, setCrumbs] = useState<Curmb[]>([]);
+  const [crumbs, setCrumbs] = useState<Crumb[]>([]);
 
   const getFolder = useCallback(
     async (workspaceId: string) => {
