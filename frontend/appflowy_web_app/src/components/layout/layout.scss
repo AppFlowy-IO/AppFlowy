@@ -51,7 +51,7 @@ body {
 
 
 .view-icon {
-  @apply flex w-fit cursor-pointer rounded-lg py-2 text-6xl;
+  @apply flex w-fit leading-[1.5em] cursor-pointer rounded-lg py-2 text-[1.5em];
   font-family: "Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols;
   line-height: 1em;
   white-space: nowrap;

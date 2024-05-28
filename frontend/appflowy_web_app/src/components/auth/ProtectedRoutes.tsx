@@ -42,6 +42,11 @@ function ProtectedRoutes() {
     return null;
   }
 
+  if (currentUser.user?.workspaceId && (window.location.pathname === '/' || window.location.pathname === '')) {
+    navigate(`/view/${currentUser.user.workspaceId}`);
+    return null;
+  }
+
   return (
     <div
       className={'relative h-screen w-screen bg-bg-body'}

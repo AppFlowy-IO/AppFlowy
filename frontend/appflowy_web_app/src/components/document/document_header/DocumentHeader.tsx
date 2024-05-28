@@ -17,7 +17,7 @@ export function DocumentHeader({ viewId, doc }: { viewId: string; doc: YDoc }) {
   }, [icon]);
 
   return (
-    <div ref={ref} className={'document-header  mb-[20px] select-none'}>
+    <div ref={ref} className={'document-header mb-[10px] select-none'}>
       <div className={'view-banner relative flex w-full flex-col overflow-hidden'}>
         <DocumentCover onTextColor={setTextColor} doc={doc} />
 
@@ -28,7 +28,7 @@ export function DocumentHeader({ viewId, doc }: { viewId: string; doc: YDoc }) {
               bottom: '100%',
               width: '100%',
             }}
-            className={'flex items-center gap-2 py-4 px-14 max-md:px-2'}
+            className={'flex items-center gap-2 px-14 pb-10 text-4xl max-md:px-2 max-md:pb-6 max-sm:text-[7vw]'}
           >
             <div className={`view-icon`}>{iconObject?.value}</div>
             <div className={'flex flex-1 items-center gap-2 overflow-hidden'}>
@@ -36,7 +36,7 @@ export function DocumentHeader({ viewId, doc }: { viewId: string; doc: YDoc }) {
                 style={{
                   color: textColor,
                 }}
-                className={'text-4xl font-bold'}
+                className={'font-bold leading-[1.5em]'}
               >
                 {view?.get(YjsFolderKey.name)}
               </div>
