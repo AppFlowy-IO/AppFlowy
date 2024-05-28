@@ -11,7 +11,6 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -396,10 +395,11 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     final favoriteBloc = context.read<FavoriteBloc>();
     await showMobileBottomSheet(
       context,
+      showHeader: true,
+      title: widget.view.name,
       showDragHandle: true,
-      showDivider: false,
+      showCloseButton: true,
       useRootNavigator: true,
-      backgroundColor: AFThemeExtension.of(context).background,
       builder: (context) {
         return MultiBlocProvider(
           providers: [
@@ -417,6 +417,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
                       : MobileViewItemBottomSheetBodyAction.addToFavorites,
                   MobileViewItemBottomSheetBodyAction.divider,
                   MobileViewItemBottomSheetBodyAction.rename,
+                  MobileViewItemBottomSheetBodyAction.divider,
                   MobileViewItemBottomSheetBodyAction.duplicate,
                   MobileViewItemBottomSheetBodyAction.divider,
                   MobileViewItemBottomSheetBodyAction.delete,
