@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/presentation/home/tab/_tab_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 enum MobileSpaceTabType {
   recent,
@@ -51,18 +52,21 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MobileSpaceTabBar(tabController: _tabController, tabs: tabs),
-        const HSpace(12.0),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: _buildTabs(),
+    return Provider.value(
+      value: widget.userProfile,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MobileSpaceTabBar(tabController: _tabController, tabs: tabs),
+          const HSpace(12.0),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: _buildTabs(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

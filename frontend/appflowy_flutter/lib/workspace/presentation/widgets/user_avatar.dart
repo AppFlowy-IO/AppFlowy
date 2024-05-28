@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:string_validator/string_validator.dart';
 
 class UserAvatar extends StatelessWidget {
   const UserAvatar({
@@ -28,40 +29,79 @@ class UserAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (iconUrl.isEmpty) {
-      final String nameOrDefault = _userName(name);
-      final Color color = ColorGenerator(name).toColor();
-      const initialsCount = 2;
+      return _buildEmptyAvatar(context);
+    } else if (isURL(iconUrl)) {
+      return _buildUrlAvatar(context);
+    } else {
+      return _buildEmojiAvatar(context);
+    }
+  }
 
-      // Taking the first letters of the name components and limiting to 2 elements
-      final nameInitials = nameOrDefault
-          .split(' ')
-          .where((element) => element.isNotEmpty)
-          .take(initialsCount)
-          .map((element) => element[0].toUpperCase())
-          .join();
+  Widget _buildEmptyAvatar(BuildContext context) {
+    final String nameOrDefault = _userName(name);
+    final Color color = ColorGenerator(name).toColor();
+    const initialsCount = 2;
 
-      return Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
+    // Taking the first letters of the name components and limiting to 2 elements
+    final nameInitials = nameOrDefault
+        .split(' ')
+        .where((element) => element.isNotEmpty)
+        .take(initialsCount)
+        .map((element) => element[0].toUpperCase())
+        .join();
+
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: isHovering
+            ? Border.all(
+                color: _darken(color),
+                width: 4,
+              )
+            : null,
+      ),
+      child: FlowyText.regular(
+        nameInitials,
+        color: Colors.black,
+        fontSize: fontSize,
+      ),
+    );
+  }
+
+  Widget _buildUrlAvatar(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: DecoratedBox(
         decoration: BoxDecoration(
-          color: color,
           shape: BoxShape.circle,
           border: isHovering
               ? Border.all(
-                  color: _darken(color),
+                  color: Theme.of(context).colorScheme.primary,
                   width: 4,
                 )
               : null,
         ),
-        child: FlowyText.regular(
-          nameInitials,
-          color: Colors.black,
-          fontSize: fontSize,
+        child: ClipRRect(
+          borderRadius: Corners.s5Border,
+          child: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            child: Image.network(
+              iconUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  _buildEmptyAvatar(context),
+            ),
+          ),
         ),
-      );
-    }
+      ),
+    );
+  }
 
+  Widget _buildEmojiAvatar(BuildContext context) {
     return SizedBox.square(
       dimension: size,
       child: DecoratedBox(

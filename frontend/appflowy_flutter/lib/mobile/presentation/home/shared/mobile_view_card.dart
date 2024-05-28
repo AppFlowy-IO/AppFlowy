@@ -111,6 +111,7 @@ class MobileViewCard extends StatelessWidget {
   Widget _buildNameAndLastViewed(BuildContext context, RecentViewState state) {
     return Row(
       children: [
+        _buildAvatar(context, state),
         Flexible(child: _buildAuthor(context, state)),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 3.0),
@@ -118,6 +119,30 @@ class MobileViewCard extends StatelessWidget {
         ),
         _buildLastViewed(context),
       ],
+    );
+  }
+
+  Widget _buildAvatar(BuildContext context, RecentViewState state) {
+    final userProfile = Provider.of<UserProfilePB?>(context);
+    final iconUrl = userProfile?.iconUrl;
+    if (iconUrl == null || iconUrl.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2, bottom: 2, right: 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8.0),
+        child: SizedBox.square(
+          dimension: 16.0,
+          child: Image.network(
+            iconUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                const SizedBox.shrink(),
+          ),
+        ),
+      ),
     );
   }
 
@@ -149,7 +174,7 @@ class MobileViewCard extends StatelessWidget {
   Widget _buildAuthor(BuildContext context, RecentViewState state) {
     return FlowyText.regular(
       view.createdBy.toString(),
-      fontSize: 13.0,
+      fontSize: 12.0,
       color: Theme.of(context).hintColor,
       overflow: TextOverflow.ellipsis,
     );
@@ -164,7 +189,7 @@ class MobileViewCard extends StatelessWidget {
     );
     return FlowyText.regular(
       date,
-      fontSize: 13.0,
+      fontSize: 12.0,
       color: Theme.of(context).hintColor,
     );
   }
