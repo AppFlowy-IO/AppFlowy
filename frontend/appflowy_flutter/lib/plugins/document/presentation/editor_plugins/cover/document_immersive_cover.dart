@@ -151,6 +151,7 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         fontFamily: fontFamily,
         color:
             state.cover.isNone || state.cover.isPresets ? null : Colors.white,
+        overflow: TextOverflow.ellipsis,
       ),
       onChanged: _rename,
       onSubmitted: _rename,

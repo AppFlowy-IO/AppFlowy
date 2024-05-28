@@ -78,7 +78,7 @@ class MobileViewCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Flexible(child: _buildDescription(context, state)),
+                  Expanded(child: _buildDescription(context, state)),
                   const HSpace(20.0),
                   SizedBox(
                     width: 84,
@@ -109,6 +109,10 @@ class MobileViewCard extends StatelessWidget {
   }
 
   Widget _buildNameAndLastViewed(BuildContext context, RecentViewState state) {
+    final supportAvatar = isURL(state.icon);
+    if (!supportAvatar) {
+      return _buildLastViewed(context);
+    }
     return Row(
       children: [
         _buildAvatar(context, state),
@@ -125,7 +129,9 @@ class MobileViewCard extends StatelessWidget {
   Widget _buildAvatar(BuildContext context, RecentViewState state) {
     final userProfile = Provider.of<UserProfilePB?>(context);
     final iconUrl = userProfile?.iconUrl;
-    if (iconUrl == null || iconUrl.isEmpty) {
+    if (iconUrl == null ||
+        iconUrl.isEmpty ||
+        view.createdBy != userProfile?.id) {
       return const SizedBox.shrink();
     }
 
