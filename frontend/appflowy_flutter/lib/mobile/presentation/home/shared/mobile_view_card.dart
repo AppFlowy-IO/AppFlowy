@@ -66,27 +66,17 @@ class MobileViewCard extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTapUp: (_) => context.pushView(view),
             onLongPressUp: () => _showActionSheet(context),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: 0.5,
-                  ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(child: _buildDescription(context, state)),
+                const HSpace(20.0),
+                SizedBox(
+                  width: 84,
+                  height: 60,
+                  child: _buildCover(context, state),
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Expanded(child: _buildDescription(context, state)),
-                  const HSpace(20.0),
-                  SizedBox(
-                    width: 84,
-                    height: 60,
-                    child: _buildCover(context, state),
-                  ),
-                ],
-              ),
+              ],
             ),
           );
         },
@@ -110,9 +100,9 @@ class MobileViewCard extends StatelessWidget {
 
   Widget _buildNameAndLastViewed(BuildContext context, RecentViewState state) {
     final supportAvatar = isURL(state.icon);
-    // if (!supportAvatar) {
-    //   return _buildLastViewed(context);
-    // }
+    if (!supportAvatar) {
+      return _buildLastViewed(context);
+    }
     return Row(
       children: [
         _buildAvatar(context, state),

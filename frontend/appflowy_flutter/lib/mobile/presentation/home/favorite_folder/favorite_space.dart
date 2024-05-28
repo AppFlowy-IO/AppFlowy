@@ -88,9 +88,16 @@ class _FavoriteViews extends StatelessWidget {
         ),
         itemBuilder: (context, index) {
           final view = favoriteViews[index];
-          return SizedBox(
-            key: ValueKey(view.item.id),
-            height: 122,
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 0.5,
+                ),
+              ),
+            ),
             child: MobileViewCard(
               key: ValueKey(view.item.id),
               view: view.item,

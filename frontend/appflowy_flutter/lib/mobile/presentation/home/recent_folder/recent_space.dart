@@ -60,8 +60,16 @@ class _RecentViews extends StatelessWidget {
         ),
         itemBuilder: (context, index) {
           final sectionView = recentViews[index];
-          return SizedBox(
-            height: 122,
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 0.5,
+                ),
+              ),
+            ),
             child: MobileViewCard(
               key: ValueKey(sectionView.item.id),
               view: sectionView.item,
