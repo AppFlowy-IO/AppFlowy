@@ -33,6 +33,9 @@ class ViewExtKeys {
   static String coverKey = 'cover';
   static String coverTypeKey = 'type';
   static String coverValueKey = 'value';
+
+  // is pinned
+  static String isPinnedKey = 'is_pinned';
 }
 
 extension ViewExtension on ViewPB {
@@ -99,6 +102,16 @@ extension ViewExtension on ViewPB {
       };
 
   FlowySvgData get iconData => layout.icon;
+
+  bool get isPinned {
+    try {
+      final ext = jsonDecode(extra);
+      final isPinned = ext[ViewExtKeys.isPinnedKey] ?? false;
+      return isPinned;
+    } catch (e) {
+      return false;
+    }
+  }
 
   PageStyleCover? get cover {
     if (layout != ViewLayoutPB.Document) {
