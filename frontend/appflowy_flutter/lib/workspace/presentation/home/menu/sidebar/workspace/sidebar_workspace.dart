@@ -49,9 +49,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
               ),
             ),
             UserSettingButton(userProfile: widget.userProfile),
-            const HSpace(8),
             const NotificationButton(),
-            const HSpace(4),
           ],
         );
       },
@@ -201,39 +199,42 @@ class _SidebarSwitchWorkspaceButtonState
       },
       child: FlowyButton(
         margin: EdgeInsets.zero,
-        text: Row(
-          children: [
-            const HSpace(6.0),
-            WorkspaceIcon(
-              workspace: widget.currentWorkspace,
-              iconSize: 16,
-              fontSize: 10,
-              enableEdit: false,
-              onSelected: (result) => context.read<UserWorkspaceBloc>().add(
-                    UserWorkspaceEvent.updateWorkspaceIcon(
-                      widget.currentWorkspace.workspaceId,
-                      result.emoji,
+        text: SizedBox(
+          height: 30,
+          child: Row(
+            children: [
+              const HSpace(6.0),
+              WorkspaceIcon(
+                workspace: widget.currentWorkspace,
+                iconSize: 16,
+                fontSize: 10,
+                enableEdit: false,
+                onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+                      UserWorkspaceEvent.updateWorkspaceIcon(
+                        widget.currentWorkspace.workspaceId,
+                        result.emoji,
+                      ),
                     ),
-                  ),
-            ),
-            const HSpace(10),
-            Flexible(
-              child: FlowyText.medium(
-                widget.currentWorkspace.name,
-                overflow: TextOverflow.ellipsis,
-                withTooltip: true,
               ),
-            ),
-            const HSpace(4),
-            ValueListenableBuilder(
-              valueListenable: _isWorkSpaceMenuExpanded,
-              builder: (context, value, _) => FlowySvg(
-                value
-                    ? FlowySvgs.workspace_drop_down_menu_hide_s
-                    : FlowySvgs.workspace_drop_down_menu_show_s,
+              const HSpace(10),
+              Flexible(
+                child: FlowyText.medium(
+                  widget.currentWorkspace.name,
+                  overflow: TextOverflow.ellipsis,
+                  withTooltip: true,
+                ),
               ),
-            ),
-          ],
+              const HSpace(4),
+              ValueListenableBuilder(
+                valueListenable: _isWorkSpaceMenuExpanded,
+                builder: (context, value, _) => FlowySvg(
+                  value
+                      ? FlowySvgs.workspace_drop_down_menu_hide_s
+                      : FlowySvgs.workspace_drop_down_menu_show_s,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
