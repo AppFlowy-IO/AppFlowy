@@ -2,7 +2,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export function RecordNotFound({ open, workspaceId }: { workspaceId: string; open: boolean }) {
+export function RecordNotFound({ open, workspaceId, title }: { workspaceId: string; open: boolean; title?: string }) {
   const navigate = useNavigate();
 
   return (
@@ -10,13 +10,13 @@ export function RecordNotFound({ open, workspaceId }: { workspaceId: string; ope
       <DialogTitle>Oops.. something went wrong</DialogTitle>
       <DialogContent>
         <DialogContentText id='alert-dialog-description'>
-          Sorry, the document you are looking for does not exist.
+          {title ? title : 'The record you are looking for does not exist.'}
         </DialogContentText>
       </DialogContent>
       <DialogActions className={'flex w-full items-center justify-center'}>
         <Button
           onClick={() => {
-            navigate(`/workspace/${workspaceId}`);
+            navigate(`/view/${workspaceId}`);
           }}
         >
           Go back

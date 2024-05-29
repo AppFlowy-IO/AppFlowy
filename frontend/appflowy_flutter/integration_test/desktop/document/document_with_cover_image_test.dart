@@ -130,24 +130,24 @@ void main() {
       final searchEmojiTextField = find.byWidgetPredicate(
         (widget) =>
             widget is TextField &&
-            widget.decoration!.hintText == LocaleKeys.emoji_search.tr(),
+            widget.decoration!.hintText == LocaleKeys.search_label.tr(),
       );
       await tester.enterText(
         searchEmojiTextField,
-        'hand',
+        'punch',
       );
 
       // change skin tone
       await tester.editor.changeEmojiSkinTone(EmojiSkinTone.dark);
 
       // select an icon with skin tone
-      const hand = '👋🏿';
-      await tester.tapEmoji(hand);
-      tester.expectToSeeDocumentIcon(hand);
+      const punch = '👊🏿';
+      await tester.tapEmoji(punch);
+      tester.expectToSeeDocumentIcon(punch);
       tester.expectViewHasIcon(
         gettingStarted,
         ViewLayoutPB.Document,
-        hand,
+        punch,
       );
     });
   });

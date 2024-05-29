@@ -222,7 +222,7 @@
       },
       "themeUpload": {
         "button": "Kargatu",
-        "description": "Kargatu zure AppFlowy gaia beheko botoia erabiliz.",
+        "description": "Kargatu zure @:appName gaia beheko botoia erabiliz.",
         "loading": "Mesedez, itxaron zure gaia balioztatzen eta kargatzen dugun bitartean...",
         "uploadSuccess": "Zure gaia behar bezala kargatu da",
         "deletionFailure": "Ezin izan da gaia ezabatu. Saiatu eskuz ezabatzen.",
@@ -239,7 +239,7 @@
       "defaultLocation": "Non gordetzen diren zure datuak",
       "exportData": "Esportatu zure datuak",
       "doubleTapToCopy": "Sakatu birritan bidea kopiatzeko",
-      "restoreLocation": "Berrezarri AppFlowy-ren biden lehenetsira",
+      "restoreLocation": "Berrezarri @:appName-ren biden lehenetsira",
       "customizeLocation": "Beste karpeta bat ireki",
       "restartApp": "Mesedez, berrabiarazi aplikazioa aldaketak indarrean egon daitezen.",
       "exportDatabase": "Datubasea exportatu",
@@ -251,10 +251,10 @@
       "defineWhereYourDataIsStored": "Zure datuak non gordetzen diren zehaztu",
       "open": "Oreki",
       "openFolder": "Ireki karpeta bat",
-      "openFolderDesc": "Irakurri eta idatzi zure AppFlowy karpetan...",
+      "openFolderDesc": "Irakurri eta idatzi zure @:appName karpetan...",
       "folderHintText": "karpetaren izena",
       "location": "Karpeta berria sortzen",
-      "locationDesc": "Aukeratu izen bat AppFlowy datuen karpetarako",
+      "locationDesc": "Aukeratu izen bat @:appName datuen karpetarako",
       "browser": "Bilatu",
       "create": "Sortu",
       "set": "Ezarri",
@@ -265,7 +265,7 @@
       "change": "Aldatu",
       "openLocationTooltips": "Ireki beste datu-direktorio bat",
       "openCurrentDataFolder": "Ireki uneko datuen direktorioa",
-      "recoverLocationTooltips": "Berrezarri AppFlowyren datu-direktorio lehenetsira",
+      "recoverLocationTooltips": "Berrezarri @:appNameren datu-direktorio lehenetsira",
       "exportFileSuccess": "Esportatu fitxategia behar bezala!",
       "exportFileFail": "Ezin izan da esportatu fitxategia!",
       "export": "Esportatu"
@@ -580,7 +580,7 @@
     "referencedCalendarPrefix": "-ren ikuspegia"
   },
   "errorDialog": {
-    "title": "AppFlowy errorea",
+    "title": "@:appName errorea",
     "howToFixFallback": "Sentitzen dugu eragozpenak! Bidali zure errorea deskribatzen duen arazo bat gure GitHub orrian.",
     "github": "Ikusi GitHub-en"
   },

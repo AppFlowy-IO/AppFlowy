@@ -1,3 +1,4 @@
+import { useAppThemeMode } from '@/components/app/useAppThemeMode';
 import React, { useMemo } from 'react';
 import createTheme from '@mui/material/styles/createTheme';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
@@ -7,7 +8,7 @@ import 'src/styles/tailwind.css';
 import 'src/styles/template.css';
 
 function AppTheme({ children }: { children: React.ReactNode }) {
-  const isDark = false;
+  const { isDark } = useAppThemeMode();
   const theme = useMemo(
     () =>
       createTheme({
@@ -72,6 +73,7 @@ function AppTheme({ children }: { children: React.ReactNode }) {
             styleOverrides: {
               root: {
                 backgroundImage: 'none',
+                boxShadow: 'var(--shadow)',
               },
             },
           },
@@ -100,6 +102,14 @@ function AppTheme({ children }: { children: React.ReactNode }) {
             },
           },
           MuiInputBase: {
+            defaultProps: {
+              sx: {
+                '&.Mui-disabled, .Mui-disabled': {
+                  color: 'var(--text-caption)',
+                  WebkitTextFillColor: 'var(--text-caption) !important',
+                },
+              },
+            },
             styleOverrides: {
               input: {
                 backgroundColor: 'transparent !important',

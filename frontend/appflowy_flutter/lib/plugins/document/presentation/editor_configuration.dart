@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
@@ -15,6 +12,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
@@ -95,8 +94,9 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
             final factor = pageStyle.fontLayout.factor;
             final headingPaddings = pageStyle.lineHeightLayout.headingPaddings
                 .map((e) => e * factor);
-            final level = node.attributes[HeadingBlockKeys.level] ?? 6;
-            return EdgeInsets.only(top: headingPaddings.elementAt(level));
+            int level = node.attributes[HeadingBlockKeys.level] ?? 6;
+            level = level.clamp(1, 6);
+            return EdgeInsets.only(top: headingPaddings.elementAt(level - 1));
           }
 
           return const EdgeInsets.only(top: 12.0, bottom: 4.0);

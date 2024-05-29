@@ -29,7 +29,7 @@ class MobileQuickActionButton extends StatelessWidget {
         onTap: enable ? onTap : null,
         borderRadius: BorderRadius.circular(12),
         overlayColor:
-            enable ? null : const MaterialStatePropertyAll(Colors.transparent),
+            enable ? null : const WidgetStatePropertyAll(Colors.transparent),
         splashColor: Colors.transparent,
         child: Container(
           height: 44,

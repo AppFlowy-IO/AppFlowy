@@ -18,6 +18,11 @@ export interface UserProfile {
   workspaceId?: string;
 }
 
+export interface UserWorkspace {
+  visitingWorkspaceId: string;
+  workspaces: Workspace[];
+}
+
 export interface Workspace {
   id: string;
   name: string;
@@ -26,6 +31,8 @@ export interface Workspace {
     id: number;
     name: string;
   };
+  type: number;
+  workspaceDatabaseId: string;
 }
 
 export interface SignUpWithEmailPasswordParams {

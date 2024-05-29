@@ -9,8 +9,8 @@ const AppMain = withAppWrapper(() => {
   return (
     <Routes>
       <Route path={'/'} element={<ProtectedRoutes />}>
-        <Route path={'/workspace/:workspaceId'} element={<FolderPage />} />
-        <Route path={'/workspace/:workspaceId/:collabType/:objectId'} element={<ProductPage />} />
+        <Route path={'/view/:workspaceId'} element={<FolderPage />} />
+        <Route path={'/view/:workspaceId/:objectId'} element={<ProductPage />} />
       </Route>
       <Route path={'/login'} element={<LoginPage />} />
     </Routes>

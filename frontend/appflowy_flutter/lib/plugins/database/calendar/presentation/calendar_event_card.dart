@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../application/calendar_bloc.dart';
-
 import 'calendar_event_editor.dart';
 
 class EventCard extends StatefulWidget {
@@ -102,7 +102,7 @@ class _EventCardState extends State<EventCard> {
           hoverColor: Theme.of(context).brightness == Brightness.light
               ? const Color(0x0F1F2329)
               : const Color(0x0FEFF4FB),
-          foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
+          foregroundColorOnHover: AFThemeExtension.of(context).onBackground,
         ),
       ),
       onStartEditing: () {},

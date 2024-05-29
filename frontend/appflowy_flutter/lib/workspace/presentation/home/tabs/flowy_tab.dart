@@ -33,7 +33,7 @@ class _FlowyTabState extends State<FlowyTab> {
         onExit: (_) => _setHovering(),
         child: Container(
           width: HomeSizes.tabBarWidth,
-          height: HomeSizes.tabBarHeigth,
+          height: HomeSizes.tabBarHeight,
           decoration: BoxDecoration(
             color: _getBackgroundColor(),
           ),
@@ -86,7 +86,7 @@ class _FlowyTabState extends State<FlowyTab> {
       return AFThemeExtension.of(context).lightGreyHover;
     }
 
-    return Theme.of(context).colorScheme.surfaceVariant;
+    return Theme.of(context).colorScheme.surfaceContainerHighest;
   }
 
   void _closeTab([TapUpDetails? details]) => context

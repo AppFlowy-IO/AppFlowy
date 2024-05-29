@@ -27,7 +27,7 @@ class FlowyLogoTitle extends StatelessWidget {
               blendMode: null,
             ),
           ),
-          const VSpace(40),
+          const VSpace(20),
           FlowyText.regular(
             title,
             fontSize: FontSizes.s24,

@@ -1,5 +1,6 @@
 import { YDoc } from '@/application/collab.type';
 import { ProviderType, SignUpWithEmailPasswordParams, UserProfile } from '@/application/user.type';
+import * as Y from 'yjs';
 
 export interface AFService {
   getDeviceID: () => string;
@@ -8,6 +9,7 @@ export interface AFService {
   userService: UserService;
   documentService: DocumentService;
   folderService: FolderService;
+  databaseService: DatabaseService;
 }
 
 export interface AFServiceConfig {
@@ -30,6 +32,26 @@ export interface AuthService {
 
 export interface DocumentService {
   openDocument: (workspaceId: string, docId: string) => Promise<YDoc>;
+}
+
+export interface DatabaseService {
+  openDatabase: (
+    workspaceId: string,
+    viewId: string,
+    rowIds?: string[]
+  ) => Promise<{
+    databaseDoc: YDoc;
+    rows: Y.Map<YDoc>;
+  }>;
+  getDatabase: (
+    workspaceId: string,
+    databaseId: string,
+    rowIds?: string[]
+  ) => Promise<{
+    databaseDoc: YDoc;
+    rows: Y.Map<YDoc>;
+  }>;
+  closeDatabase: (databaseId: string) => Promise<void>;
 }
 
 export interface UserService {

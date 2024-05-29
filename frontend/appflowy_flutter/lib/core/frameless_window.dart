@@ -2,36 +2,15 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/window_title_bar.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:window_manager/window_manager.dart';
-
-class WindowsButtonListener extends WindowListener {
-  WindowsButtonListener();
-
-  final ValueNotifier<bool> isMaximized = ValueNotifier(false);
-
-  @override
-  void onWindowMaximize() {
-    isMaximized.value = true;
-  }
-
-  @override
-  void onWindowUnmaximize() {
-    isMaximized.value = false;
-  }
-
-  void dispose() {
-    isMaximized.dispose();
-  }
-}
 
 class CocoaWindowChannel {
   CocoaWindowChannel._();
@@ -71,43 +50,8 @@ class MoveWindowDetector extends StatefulWidget {
 }
 
 class MoveWindowDetectorState extends State<MoveWindowDetector> {
-  late final WindowsButtonListener? windowsButtonListener;
-
   double winX = 0;
   double winY = 0;
-
-  bool isMaximized = false;
-
-  @override
-  void initState() {
-    if (PlatformExtension.isWindows) {
-      windowsButtonListener = WindowsButtonListener();
-      windowManager.addListener(windowsButtonListener!);
-      windowsButtonListener!.isMaximized.addListener(() {
-        if (mounted) {
-          setState(
-            () => isMaximized = windowsButtonListener!.isMaximized.value,
-          );
-        }
-      });
-    } else {
-      windowsButtonListener = null;
-    }
-
-    windowManager.isMaximized().then(
-          (v) => mounted ? setState(() => isMaximized = v) : null,
-        );
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    if (windowsButtonListener != null) {
-      windowManager.removeListener(windowsButtonListener!);
-      windowsButtonListener?.dispose();
-    }
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,45 +60,14 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
     }
 
     if (Platform.isWindows) {
-      final brightness = Theme.of(context).brightness;
-
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.showTitleBar) ...[
-            Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-              ),
-              child: DragToMoveArea(
-                child: Row(
-                  children: [
-                    const HSpace(4),
-                    _buildToggleMenuButton(context),
-                    const Spacer(),
-                    WindowCaptionButton.minimize(
-                      brightness: brightness,
-                      onPressed: () => windowManager.minimize(),
-                    ),
-                    if (isMaximized) ...[
-                      WindowCaptionButton.unmaximize(
-                        brightness: brightness,
-                        onPressed: () => windowManager.unmaximize(),
-                      ),
-                    ] else ...[
-                      WindowCaptionButton.maximize(
-                        brightness: brightness,
-                        onPressed: () => windowManager.maximize(),
-                      ),
-                    ],
-                    WindowCaptionButton.close(
-                      brightness: brightness,
-                      onPressed: () => windowManager.close(),
-                    ),
-                  ],
-                ),
-              ),
+            WindowTitleBar(
+              leftChildren: [
+                _buildToggleMenuButton(context),
+              ],
             ),
           ] else ...[
             const SizedBox(height: 5),
@@ -190,13 +103,25 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
       return const SizedBox.shrink();
     }
 
+    final color = Theme.of(context).isLightMode ? Colors.white : Colors.black;
+    final textSpan = TextSpan(
+      children: [
+        TextSpan(
+          text: '${LocaleKeys.sideBar_openSidebar.tr()}\n',
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: color),
+        ),
+        TextSpan(
+          text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .copyWith(color: Theme.of(context).hintColor),
+        ),
+      ],
+    );
+
     return FlowyTooltip(
-      richMessage: TextSpan(
-        children: [
-          TextSpan(text: '${LocaleKeys.sideBar_closeSidebar.tr()}\n'),
-          const TextSpan(text: 'Ctrl+\\'),
-        ],
-      ),
+      richMessage: textSpan,
       child: FlowyIconButton(
         hoverColor: Colors.transparent,
         onPressed: () => context

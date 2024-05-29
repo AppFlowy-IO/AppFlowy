@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+const String _emojiFontFamily = 'noto color emoji';
+
 class FlowyText extends StatelessWidget {
   final String text;
   final TextOverflow? overflow;
@@ -16,6 +18,7 @@ class FlowyText extends StatelessWidget {
   final List<String>? fallbackFontFamily;
   final double? lineHeight;
   final bool withTooltip;
+  final StrutStyle? strutStyle;
 
   const FlowyText(
     this.text, {
@@ -32,6 +35,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle,
   });
 
   FlowyText.small(
@@ -47,6 +51,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle,
   })  : fontWeight = FontWeight.w400,
         fontSize = (Platform.isIOS || Platform.isAndroid) ? 14 : 12;
 
@@ -64,6 +69,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle,
   }) : fontWeight = FontWeight.w400;
 
   const FlowyText.medium(
@@ -80,6 +86,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle,
   }) : fontWeight = FontWeight.w500;
 
   const FlowyText.semibold(
@@ -96,6 +103,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle,
   }) : fontWeight = FontWeight.w600;
 
   // Some emojis are not supported on Linux and Android, fallback to noto color emoji
@@ -105,34 +113,44 @@ class FlowyText extends StatelessWidget {
     this.fontSize,
     this.overflow,
     this.color,
-    this.textAlign,
+    this.textAlign = TextAlign.center,
     this.maxLines = 1,
     this.decoration,
     this.selectable = false,
     this.lineHeight,
     this.withTooltip = false,
+    this.strutStyle = const StrutStyle(forceStrutHeight: true),
   })  : fontWeight = FontWeight.w400,
-        fontFamily = 'noto color emoji',
+        fontFamily = _emojiFontFamily,
         fallbackFontFamily = null;
 
   @override
   Widget build(BuildContext context) {
     Widget child;
 
+    double fontSize =
+        this.fontSize ?? Theme.of(context).textTheme.bodyMedium!.fontSize!;
+    if (Platform.isLinux && fontFamily == _emojiFontFamily) {
+      fontSize = fontSize * 0.8;
+    }
+
+    final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          decoration: decoration,
+          fontFamily: fontFamily,
+          fontFamilyFallback: fallbackFontFamily,
+          height: lineHeight,
+        );
+
     if (selectable) {
       child = SelectableText(
         text,
         maxLines: maxLines,
         textAlign: textAlign,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: color,
-              decoration: decoration,
-              fontFamily: fontFamily,
-              fontFamilyFallback: fallbackFontFamily,
-              height: lineHeight,
-            ),
+        strutStyle: strutStyle,
+        style: textStyle,
       );
     } else {
       child = Text(
@@ -140,15 +158,7 @@ class FlowyText extends StatelessWidget {
         maxLines: maxLines,
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: color,
-              decoration: decoration,
-              fontFamily: fontFamily,
-              fontFamilyFallback: fallbackFontFamily,
-              height: lineHeight,
-            ),
+        style: textStyle,
       );
     }
 

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -12,6 +10,7 @@ import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_it
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -25,7 +24,7 @@ class MobileViewItem extends StatelessWidget {
     super.key,
     required this.view,
     this.parentView,
-    required this.categoryType,
+    required this.spaceType,
     required this.level,
     this.leftPadding = 10,
     required this.onSelected,
@@ -39,7 +38,7 @@ class MobileViewItem extends StatelessWidget {
   final ViewPB view;
   final ViewPB? parentView;
 
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
 
   // indicate the level of the view item
   // used to calculate the left padding
@@ -80,7 +79,7 @@ class MobileViewItem extends StatelessWidget {
             view: state.view,
             parentView: parentView,
             childViews: state.view.childViews,
-            categoryType: categoryType,
+            spaceType: spaceType,
             level: level,
             leftPadding: leftPadding,
             showActions: true,
@@ -104,7 +103,7 @@ class InnerMobileViewItem extends StatelessWidget {
     required this.view,
     required this.parentView,
     required this.childViews,
-    required this.categoryType,
+    required this.spaceType,
     this.isDraggable = true,
     this.isExpanded = true,
     required this.level,
@@ -120,7 +119,7 @@ class InnerMobileViewItem extends StatelessWidget {
   final ViewPB view;
   final ViewPB? parentView;
   final List<ViewPB> childViews;
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
 
   final bool isDraggable;
   final bool isExpanded;
@@ -144,7 +143,7 @@ class InnerMobileViewItem extends StatelessWidget {
       parentView: parentView,
       level: level,
       showActions: showActions,
-      categoryType: categoryType,
+      spaceType: spaceType,
       onSelected: onSelected,
       isExpanded: isExpanded,
       isDraggable: isDraggable,
@@ -159,9 +158,9 @@ class InnerMobileViewItem extends StatelessWidget {
       if (childViews.isNotEmpty) {
         final children = childViews.map((childView) {
           return MobileViewItem(
-            key: ValueKey('${categoryType.name} ${childView.id}'),
+            key: ValueKey('${spaceType.name} ${childView.id}'),
             parentView: view,
-            categoryType: categoryType,
+            spaceType: spaceType,
             isFirstChild: childView.id == childViews.first.id,
             view: childView,
             level: level + 1,
@@ -235,7 +234,7 @@ class InnerMobileViewItem extends StatelessWidget {
           return MobileViewItem(
             view: view,
             parentView: parentView,
-            categoryType: categoryType,
+            spaceType: spaceType,
             level: level,
             onSelected: onSelected,
             isDraggable: false,
@@ -262,7 +261,7 @@ class SingleMobileInnerViewItem extends StatefulWidget {
     required this.level,
     required this.leftPadding,
     this.isDraggable = true,
-    required this.categoryType,
+    required this.spaceType,
     required this.showActions,
     required this.onSelected,
     required this.isFeedback,
@@ -282,7 +281,7 @@ class SingleMobileInnerViewItem extends StatefulWidget {
   final bool isDraggable;
   final bool showActions;
   final ViewItemOnSelected onSelected;
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
   final ActionPaneBuilder? startActionPane;
   final ActionPaneBuilder? endActionPane;
 
@@ -407,10 +406,9 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
                       ViewEvent.createView(
                         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                         layout,
-                        section:
-                            widget.categoryType != FolderCategoryType.favorite
-                                ? widget.categoryType.toViewSectionPB
-                                : null,
+                        section: widget.spaceType != FolderSpaceType.favorite
+                            ? widget.spaceType.toViewSectionPB
+                            : null,
                       ),
                     );
               },

@@ -530,6 +530,10 @@ impl FolderManager {
     while let Some(view) =
       self.with_folder(|| None, |folder| folder.views.get_view(&parent_view_id))
     {
+      // If the view is already in the ancestors list, then break the loop
+      if ancestors.iter().any(|v: &ViewPB| v.id == view.id) {
+        break;
+      }
       ancestors.push(view_pb_without_child_views(view.as_ref().clone()));
       parent_view_id = view.parent_view_id.clone();
     }

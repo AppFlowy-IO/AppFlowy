@@ -81,15 +81,12 @@ class EditorOperations {
 
   /// Taps the 'Remove Icon' button in the cover toolbar and the icon popover
   Future<void> tapRemoveIconButton({bool isInPicker = false}) async {
-    Finder button =
-        find.text(LocaleKeys.document_plugins_cover_removeIcon.tr());
-    if (isInPicker) {
-      button = find.descendant(
-        of: find.byType(FlowyIconPicker),
-        matching: button,
-      );
-    }
-
+    final Finder button = !isInPicker
+        ? find.text(LocaleKeys.document_plugins_cover_removeIcon.tr())
+        : find.descendant(
+            of: find.byType(FlowyIconPicker),
+            matching: find.text(LocaleKeys.button_remove.tr()),
+          );
     await tester.tapButton(button);
   }
 

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/font_colors.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_get_selection_color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -21,8 +22,6 @@ Future<void> showTextColorAndBackgroundColorPicker(
   await showMobileBottomSheet(
     context,
     showHeader: true,
-    showCloseButton: false,
-    showDivider: true,
     showDragHandle: true,
     showDoneButton: true,
     barrierColor: Colors.transparent,
@@ -154,7 +153,7 @@ class _TextColorAndBackgroundColorState
 }
 
 class _BackgroundColors extends StatelessWidget {
-  _BackgroundColors({
+  const _BackgroundColors({
     this.selectedColor,
     required this.onSelectedColor,
   });
@@ -162,29 +161,11 @@ class _BackgroundColors extends StatelessWidget {
   final Color? selectedColor;
   final void Function(Color color) onSelectedColor;
 
-  final colors = [
-    const Color(0x00FFFFFF),
-    const Color(0xFFE8E0FF),
-    const Color(0xFFFFE6FD),
-    const Color(0xFFFFDAE6),
-    const Color(0xFFFFEFE3),
-    const Color(0xFFF5FFDC),
-    const Color(0xFFDDFFD6),
-    const Color(0xFFDEFFF1),
-    const Color(0xFFE1FBFF),
-    const Color(0xFFFFADAD),
-    const Color(0xFFFFE088),
-    const Color(0xFFA7DF4A),
-    const Color(0xFFD4C0FF),
-    const Color(0xFFFDB2FE),
-    const Color(0xFFFFD18B),
-    const Color(0xFFFFF176),
-    const Color(0xFF71E6B4),
-    const Color(0xFF80F1FF),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).brightness == Brightness.light
+        ? EditorFontColors.lightColors
+        : EditorFontColors.darkColors;
     return GridView.count(
       crossAxisCount: _count,
       shrinkWrap: true,

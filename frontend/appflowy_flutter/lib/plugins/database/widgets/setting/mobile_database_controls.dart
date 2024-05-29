@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -128,7 +129,6 @@ void _showDatabaseFieldListFromToolbar(
     showHeader: true,
     showBackButton: true,
     title: LocaleKeys.grid_settings_properties.tr(),
-    showDivider: true,
     builder: (_) {
       return BlocProvider.value(
         value: context.read<ViewBloc>(),
@@ -150,7 +150,7 @@ void _showEditSortPanelFromToolbar(
     showDragHandle: true,
     showDivider: false,
     useSafeArea: false,
-    backgroundColor: Theme.of(context).colorScheme.background,
+    backgroundColor: AFThemeExtension.of(context).background,
     builder: (_) {
       return BlocProvider.value(
         value: context.read<SortEditorBloc>(),

@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
@@ -22,6 +20,8 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsAccountView extends StatefulWidget {
@@ -78,46 +78,46 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                 ],
               ),
 
-              // Enable when/if we need change email feature
-              // // Only show change email if the user is authenticated and not using local auth
-              // if (isAuthEnabled &&
-              //     state.userProfile.authenticator != AuthenticatorPB.Local) ...[
-              //   const SettingsCategorySpacer(),
-              //   SettingsCategory(
-              //     title: LocaleKeys.settings_accountPage_email_title.tr(),
-              //     children: [
-              //       SingleSettingAction(
-              //         label: state.userProfile.email,
-              //         buttonLabel: LocaleKeys
-              //             .settings_accountPage_email_actions_change
-              //             .tr(),
-              //         onPressed: () => SettingsAlertDialog(
-              //           title: LocaleKeys
-              //               .settings_accountPage_email_actions_change
-              //               .tr(),
-              //           confirmLabel: LocaleKeys.button_save.tr(),
-              //           confirm: () {
-              //             context.read<SettingsUserViewBloc>().add(
-              //                   SettingsUserEvent.updateUserEmail(
-              //                     _emailController.text,
-              //                   ),
-              //                 );
-              //             Navigator.of(context).pop();
-              //           },
-              //           children: [
-              //             SettingsInputField(
-              //               label: LocaleKeys.settings_accountPage_email_title
-              //                   .tr(),
-              //               value: state.userProfile.email,
-              //               hideActions: true,
-              //               textController: _emailController,
-              //             ),
-              //           ],
-              //         ).show(context),
-              //       ),
-              //     ],
-              //   ),
-              // ],
+              // Only show email if the user is authenticated and not using local auth
+              if (isAuthEnabled &&
+                  state.userProfile.authenticator != AuthenticatorPB.Local) ...[
+                SettingsCategory(
+                  title: LocaleKeys.settings_accountPage_email_title.tr(),
+                  children: [
+                    FlowyText.regular(state.userProfile.email),
+                    // Enable when/if we need change email feature
+                    // SingleSettingAction(
+                    //   label: state.userProfile.email,
+                    //   buttonLabel: LocaleKeys
+                    //       .settings_accountPage_email_actions_change
+                    //       .tr(),
+                    //   onPressed: () => SettingsAlertDialog(
+                    //     title: LocaleKeys
+                    //         .settings_accountPage_email_actions_change
+                    //         .tr(),
+                    //     confirmLabel: LocaleKeys.button_save.tr(),
+                    //     confirm: () {
+                    //       context.read<SettingsUserViewBloc>().add(
+                    //             SettingsUserEvent.updateUserEmail(
+                    //               _emailController.text,
+                    //             ),
+                    //           );
+                    //       Navigator.of(context).pop();
+                    //     },
+                    //     children: [
+                    //       SettingsInputField(
+                    //         label: LocaleKeys.settings_accountPage_email_title
+                    //             .tr(),
+                    //         value: state.userProfile.email,
+                    //         hideActions: true,
+                    //         textController: _emailController,
+                    //       ),
+                    //     ],
+                    //   ).show(context),
+                    // ),
+                  ],
+                ),
+              ],
 
               /// Enable when we have change password feature and 2FA
               // const SettingsCategorySpacer(),
@@ -341,7 +341,8 @@ class _UserProfileSettingState extends State<UserProfileSetting> {
               child: UserAvatar(
                 iconUrl: widget.iconUrl,
                 name: widget.name,
-                isLarge: true,
+                size: 48,
+                fontSize: 24,
                 isHovering: isHovering,
               ),
             ),
