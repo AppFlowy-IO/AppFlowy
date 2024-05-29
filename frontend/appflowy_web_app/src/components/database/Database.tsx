@@ -1,4 +1,5 @@
-import { YDoc, YjsEditorKey } from '@/application/collab.type';
+import { YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { DatabaseContextState } from '@/application/database-yjs';
 import { useId } from '@/components/_shared/context-provider/IdProvider';
 import RecordNotFound from '@/components/_shared/not-found/RecordNotFound';
 import { AFConfigContext } from '@/components/app/AppConfig';
@@ -8,15 +9,14 @@ import { Log } from '@/utils/log';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import * as Y from 'yjs';
 
-export const Database = memo(() => {
+export const Database = memo((props?: { onNavigateToRow?: (viewId: string, rowId: string) => void }) => {
   const { objectId, workspaceId } = useId() || {};
   const [search, setSearch] = useSearchParams();
 
   const viewId = search.get('v');
   const [doc, setDoc] = useState<YDoc | null>(null);
-  const [rows, setRows] = useState<Y.Map<YDoc> | null>(null); // Map<rowId, YDoc
+  const [rows, setRows] = useState<DatabaseContextState['rowDocMap'] | null>(null); // Map<rowId, YDoc
   const [notFound, setNotFound] = useState<boolean>(false);
   const databaseService = useContext(AFConfigContext)?.service?.databaseService;
 
@@ -52,10 +52,26 @@ export const Database = memo(() => {
 
   const navigateToRow = useCallback(
     (rowId: string) => {
+      const currentViewId = objectId || viewId;
+
+      if (props?.onNavigateToRow && currentViewId) {
+        props.onNavigateToRow(currentViewId, rowId);
+        return;
+      }
+
       setSearch({ r: rowId });
     },
-    [setSearch]
+    [props, setSearch, viewId, objectId]
   );
+
+  const databaseId = doc?.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database)?.get(YjsDatabaseKey.id) as string;
+
+  useEffect(() => {
+    if (!databaseId || !databaseService) return;
+    return () => {
+      void databaseService.closeDatabase(databaseId);
+    };
+  }, [databaseService, databaseId]);
 
   if (notFound || !objectId) {
     return <RecordNotFound open={notFound} workspaceId={workspaceId} />;
@@ -74,7 +90,7 @@ export const Database = memo(() => {
       <DatabaseContextProvider
         navigateToRow={navigateToRow}
         viewId={viewId || objectId}
-        doc={doc}
+        databaseDoc={doc}
         rowDocMap={rows}
         readOnly={true}
       >

@@ -22,8 +22,7 @@ interface BlockJson {
   external_id?: string;
 }
 
-export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | undefined {
-  console.log(doc);
+export function yDocToSlateContent(doc: YDoc): Element | undefined {
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
   console.log(sharedRoot.toJSON());
@@ -107,13 +106,6 @@ export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | 
 
   if (!result) return;
 
-  if (!includeRoot) {
-    return result;
-  }
-
-  const { children, ...rootNode } = result;
-
-  // load font family
   if (fontFamilys.length > 0) {
     window.WebFont?.load({
       google: {
@@ -122,21 +114,7 @@ export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | 
     });
   }
 
-  return {
-    children: [
-      {
-        ...rootNode,
-        children: [
-          {
-            textId: pageId,
-            type: YjsEditorKey.text,
-            children: [{ text: '' }],
-          },
-        ],
-      },
-      ...children,
-    ],
-  };
+  return result;
 }
 
 export function blockToSlateNode(block: BlockJson): Element {

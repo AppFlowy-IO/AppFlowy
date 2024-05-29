@@ -51,6 +51,7 @@ export interface DatabaseService {
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
   }>;
+  closeDatabase: (databaseId: string) => Promise<void>;
 }
 
 export interface UserService {
