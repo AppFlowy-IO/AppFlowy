@@ -4,9 +4,24 @@ import React, { useEffect, useState } from 'react';
 
 export function RelationPrimaryValue({ rowDoc, fieldId }: { rowDoc: YDoc; fieldId: FieldId }) {
   const [text, setText] = useState<string | null>(null);
+  const [row, setRow] = useState<YDatabaseRow | null>(null);
 
   useEffect(() => {
-    const row = rowDoc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database_row) as YDatabaseRow;
+    const data = rowDoc.getMap(YjsEditorKey.data_section);
+
+    const onRowChange = () => {
+      setRow(data?.get(YjsEditorKey.database_row) as YDatabaseRow);
+    };
+
+    onRowChange();
+    data?.observe(onRowChange);
+    return () => {
+      data?.unobserve(onRowChange);
+    };
+  }, [rowDoc]);
+
+  useEffect(() => {
+    if (!row) return;
     const cells = row.get(YjsDatabaseKey.cells);
     const primaryCell = cells.get(fieldId);
 
@@ -21,7 +36,7 @@ export function RelationPrimaryValue({ rowDoc, fieldId }: { rowDoc: YDoc; fieldI
     return () => {
       primaryCell.unobserve(observeHandler);
     };
-  }, [rowDoc, fieldId]);
+  }, [row, fieldId]);
 
   return <div>{text}</div>;
 }

@@ -1,36 +1,23 @@
-import { YFolder, YjsEditorKey } from '@/application/collab.type';
 import { FolderProvider } from '@/components/_shared/context-provider/FolderProvider';
-import { AFConfigContext } from '@/components/app/AppConfig';
 import Header from '@/components/layout/Header';
 import { AFScroller } from '@/components/_shared/scroller';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLayout } from '@/components/layout/Layout.hooks';
+import React from 'react';
 import './layout.scss';
+import { ReactComponent as Logo } from '@/assets/logo.svg';
 
 function Layout({ children }: { children: React.ReactNode }) {
-  const { workspaceId } = useParams();
-  const folderService = useContext(AFConfigContext)?.service?.folderService;
-  const [folder, setFolder] = useState<YFolder | null>(null);
-  const getFolder = useCallback(
-    async (workspaceId: string) => {
-      const folder = (await folderService?.openWorkspace(workspaceId))
-        ?.getMap(YjsEditorKey.data_section)
-        .get(YjsEditorKey.folder);
+  const { folder, handleNavigateToView, crumbs, setCrumbs } = useLayout();
 
-      if (!folder) return;
+  if (!folder)
+    return (
+      <div className={'flex h-screen w-screen items-center justify-center'}>
+        <Logo className={'h-20 w-20'} />
+      </div>
+    );
 
-      setFolder(folder);
-    },
-    [folderService]
-  );
-
-  useEffect(() => {
-    if (!workspaceId) return;
-
-    void getFolder(workspaceId);
-  }, [getFolder, workspaceId]);
   return (
-    <FolderProvider folder={folder}>
+    <FolderProvider setCrumbs={setCrumbs} crumbs={crumbs} onNavigateToView={handleNavigateToView} folder={folder}>
       <Header />
       <AFScroller
         overflowXHidden

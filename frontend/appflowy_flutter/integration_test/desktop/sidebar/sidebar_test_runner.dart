@@ -4,7 +4,7 @@ import 'sidebar_favorites_test.dart' as sidebar_favorite_test;
 import 'sidebar_icon_test.dart' as sidebar_icon_test;
 import 'sidebar_test.dart' as sidebar_test;
 
-void startTesting() {
+void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   // Sidebar integration tests

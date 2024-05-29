@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -15,6 +13,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sid
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -126,6 +125,7 @@ class _MobileWorkspace extends StatelessWidget {
                 child: WorkspaceIcon(
                   workspace: currentWorkspace,
                   iconSize: 26,
+                  fontSize: 16.0,
                   enableEdit: false,
                   onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                         UserWorkspaceEvent.updateWorkspaceIcon(

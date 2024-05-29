@@ -146,7 +146,7 @@ pub enum FolderEvent {
   #[event(input = "MoveNestedViewPayloadPB")]
   MoveNestedView = 32,
 
-  #[event(output = "RepeatedViewPB")]
+  #[event(output = "RepeatedFavoriteViewPB")]
   ReadFavorites = 33,
 
   #[event(input = "RepeatedViewIdPB")]

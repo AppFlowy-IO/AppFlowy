@@ -196,7 +196,7 @@ impl FolderTest {
       },
       FolderScript::ReadFavorites => {
         let favorites = read_favorites(sdk).await;
-        self.favorites = favorites.to_vec();
+        self.favorites = favorites.items.iter().map(|x| x.item.clone()).collect();
       },
     }
   }
@@ -375,10 +375,10 @@ pub async fn toggle_favorites(sdk: &EventIntegrationTest, view_id: Vec<String>) 
     .await;
 }
 
-pub async fn read_favorites(sdk: &EventIntegrationTest) -> RepeatedViewPB {
+pub async fn read_favorites(sdk: &EventIntegrationTest) -> RepeatedFavoriteViewPB {
   EventBuilder::new(sdk.clone())
     .event(ReadFavorites)
     .async_send()
     .await
-    .parse::<RepeatedViewPB>()
+    .parse::<RepeatedFavoriteViewPB>()
 }

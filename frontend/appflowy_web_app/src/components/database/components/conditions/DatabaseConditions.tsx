@@ -18,7 +18,7 @@ export function DatabaseConditions() {
         borderTopWidth: expanded ? '1px' : '0',
       }}
       className={
-        'database-conditions relative mx-24 transform overflow-hidden border-t border-line-divider transition-all max-md:mx-4'
+        'database-conditions relative mx-16 transform overflow-hidden border-t border-line-divider transition-all max-md:mx-4'
       }
     >
       <AFScroller overflowYHidden className={'flex items-center gap-2'}>

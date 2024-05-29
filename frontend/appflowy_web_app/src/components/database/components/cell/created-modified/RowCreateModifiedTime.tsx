@@ -1,5 +1,5 @@
 import { YjsDatabaseKey } from '@/application/collab.type';
-import { useRowMeta } from '@/application/database-yjs';
+import { useRowDataSelector } from '@/application/database-yjs';
 import { useDateTypeCellDispatcher } from '@/components/database/components/cell/Cell.hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 
@@ -15,24 +15,22 @@ export function RowCreateModifiedTime({
   attrName: YjsDatabaseKey.last_modified | YjsDatabaseKey.created_at;
 }) {
   const { getDateTimeStr } = useDateTypeCellDispatcher(fieldId);
-  const rowMeta = useRowMeta(rowId);
+  const { row: rowData } = useRowDataSelector(rowId);
   const [value, setValue] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!rowMeta) return;
+    if (!rowData) return;
     const observeHandler = () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      setValue(rowMeta.get(attrName));
+      setValue(rowData.get(attrName));
     };
 
     observeHandler();
 
-    rowMeta.observe(observeHandler);
+    rowData.observe(observeHandler);
     return () => {
-      rowMeta.unobserve(observeHandler);
+      rowData.unobserve(observeHandler);
     };
-  }, [rowMeta, attrName]);
+  }, [rowData, attrName]);
 
   const time = useMemo(() => {
     if (!value) return null;
@@ -40,7 +38,11 @@ export function RowCreateModifiedTime({
   }, [value, getDateTimeStr]);
 
   if (!time) return null;
-  return <div style={style}>{time}</div>;
+  return (
+    <div style={style} className={'flex w-full items-center'}>
+      {time}
+    </div>
+  );
 }
 
 export default RowCreateModifiedTime;

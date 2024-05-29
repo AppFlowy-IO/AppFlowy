@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -13,6 +11,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DatabaseShareButton extends StatelessWidget {
@@ -39,11 +38,7 @@ class DatabaseShareButton extends StatelessWidget {
           );
         },
         child: BlocBuilder<DatabaseShareBloc, DatabaseShareState>(
-          builder: (context, state) => ConstrainedBox(
-            constraints: const BoxConstraints.expand(
-              height: 30,
-              width: 100,
-            ),
+          builder: (context, state) => IntrinsicWidth(
             child: DatabaseShareActionList(view: view),
           ),
         ),
@@ -106,6 +101,8 @@ class DatabaseShareActionListState extends State<DatabaseShareActionList> {
         onPointerDown: (_) => controller.show(),
         child: RoundedTextButton(
           title: LocaleKeys.shareAction_buttonText.tr(),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          fontSize: 14.0,
           textColor: Theme.of(context).colorScheme.onPrimary,
           onPressed: () {},
         ),

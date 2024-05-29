@@ -57,15 +57,34 @@ export const YjsEditor = {
 export function withYjs<T extends Editor>(
   editor: T,
   doc: Y.Doc,
-  localOrigin: CollabOrigin = CollabOrigin.Local
+  {
+    localOrigin,
+  }: {
+    localOrigin: CollabOrigin;
+  }
 ): T & YjsEditor {
   const e = editor as T & YjsEditor;
   const { apply, onChange } = e;
 
   e.sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
+
+  const initializeDocumentContent = () => {
+    const content = yDocToSlateContent(doc);
+
+    if (!content) {
+      return;
+    }
+
+    e.children = content.children;
+    Editor.normalize(editor, { force: true });
+  };
+
   e.applyRemoteEvents = (events: Array<YEvent<YSharedRoot>>, _: Transaction) => {
     YjsEditor.flushLocalChanges(e);
 
+    // TODO: handle remote events
+    // This is a temporary implementation to apply remote events to slate
+    initializeDocumentContent();
     Editor.withoutNormalizing(editor, () => {
       events.forEach((event) => {
         translateYjsEvent(e.sharedRoot, editor, event).forEach((op) => {
@@ -87,17 +106,8 @@ export function withYjs<T extends Editor>(
       throw new Error('Already connected');
     }
 
-    const content = yDocToSlateContent(doc, true);
-
-    if (!content) {
-      return;
-    }
-
-    console.log(content);
-
+    initializeDocumentContent();
     e.sharedRoot.observeDeep(handleYEvents);
-    e.children = content.children;
-    Editor.normalize(editor, { force: true });
     connectSet.add(e);
   };
 

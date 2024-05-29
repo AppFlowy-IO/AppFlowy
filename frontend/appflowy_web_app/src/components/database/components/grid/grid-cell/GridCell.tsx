@@ -1,8 +1,10 @@
-import { FieldId } from '@/application/collab.type';
+import { FieldId, YjsDatabaseKey } from '@/application/collab.type';
 import { useCellSelector } from '@/application/database-yjs';
 import { useFieldSelector } from '@/application/database-yjs/selector';
 import { Cell } from '@/components/database/components/cell';
-import React, { useEffect } from 'react';
+import { CellProps, Cell as CellType } from '@/components/database/components/cell/cell.type';
+import { PrimaryCell } from '@/components/database/components/cell/primary';
+import React, { useEffect, useMemo, useRef } from 'react';
 
 export interface GridCellProps {
   rowId: string;
@@ -13,8 +15,9 @@ export interface GridCellProps {
 }
 
 export function GridCell({ onResize, rowId, fieldId, columnIndex, rowIndex }: GridCellProps) {
-  const ref = React.useRef<HTMLDivElement>(null);
-  const field = useFieldSelector(fieldId);
+  const ref = useRef<HTMLDivElement>(null);
+  const { field } = useFieldSelector(fieldId);
+  const isPrimary = field?.get(YjsDatabaseKey.is_primary);
   const cell = useCellSelector({
     rowId,
     fieldId,
@@ -23,15 +26,13 @@ export function GridCell({ onResize, rowId, fieldId, columnIndex, rowIndex }: Gr
   useEffect(() => {
     const el = ref.current;
 
-    if (!el) return;
+    if (!el || !cell) return;
 
     const observer = new ResizeObserver(() => {
-      if (onResize) {
-        onResize(rowIndex, columnIndex, {
-          width: el.offsetWidth,
-          height: el.offsetHeight,
-        });
-      }
+      onResize?.(rowIndex, columnIndex, {
+        width: el.offsetWidth,
+        height: el.offsetHeight,
+      });
     });
 
     observer.observe(el);
@@ -39,12 +40,21 @@ export function GridCell({ onResize, rowId, fieldId, columnIndex, rowIndex }: Gr
     return () => {
       observer.disconnect();
     };
-  }, [columnIndex, onResize, rowIndex]);
+  }, [columnIndex, onResize, rowIndex, cell]);
+
+  const Component = useMemo(() => {
+    if (isPrimary) {
+      return PrimaryCell;
+    }
+
+    return Cell;
+  }, [isPrimary]) as React.FC<CellProps<CellType>>;
 
   if (!field) return null;
+
   return (
-    <div ref={ref} className={'grid-cell w-full cursor-text overflow-hidden text-xs'}>
-      <Cell cell={cell} rowId={rowId} fieldId={fieldId} />
+    <div ref={ref} className={'grid-cell flex min-h-full w-full cursor-text items-center overflow-hidden text-xs'}>
+      <Component cell={cell} rowId={rowId} fieldId={fieldId} />
     </div>
   );
 }

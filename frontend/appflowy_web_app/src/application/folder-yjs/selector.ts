@@ -54,10 +54,10 @@ export function useViewSelector(viewId: string) {
     setView(view || null);
     const observerEvent = () => setClock((prev) => prev + 1);
 
-    view.observe(observerEvent);
+    view?.observe(observerEvent);
 
     return () => {
-      view.unobserve(observerEvent);
+      view?.unobserve(observerEvent);
     };
   }, [folder, viewId]);
 

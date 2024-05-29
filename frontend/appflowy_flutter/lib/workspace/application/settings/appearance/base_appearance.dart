@@ -33,7 +33,7 @@ abstract class BaseAppearance {
     double? letterSpacing,
     double? lineHeight,
   }) {
-    fontSize = fontSize ?? FontSizes.s12;
+    fontSize = fontSize ?? FontSizes.s14;
     fontWeight = fontWeight ??
         (PlatformExtension.isDesktopOrWeb ? FontWeight.w500 : FontWeight.w400);
     letterSpacing = fontSize * (letterSpacing ?? 0.005);

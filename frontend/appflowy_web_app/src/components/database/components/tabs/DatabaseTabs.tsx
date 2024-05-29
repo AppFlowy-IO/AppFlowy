@@ -1,7 +1,9 @@
-import { ViewLayout, YjsFolderKey, YView } from '@/application/collab.type';
+import { DatabaseViewLayout, ViewLayout, YjsDatabaseKey, YjsFolderKey, YView } from '@/application/collab.type';
+import { useDatabaseView } from '@/application/database-yjs';
 import { useFolderContext } from '@/application/folder-yjs';
 import { useId } from '@/components/_shared/context-provider/IdProvider';
 import { DatabaseActions } from '@/components/database/components/conditions';
+import { Tooltip } from '@mui/material';
 import { forwardRef, FunctionComponent, SVGProps, useCallback, useEffect, useMemo } from 'react';
 import { ViewTabs, ViewTab } from './ViewTabs';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +33,9 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     const objectId = useId().objectId;
     const { t } = useTranslation();
     const folder = useFolderContext();
+    const view = useDatabaseView();
+    const layout = Number(view?.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
+
     const handleChange = (_: React.SyntheticEvent, newValue: string) => {
       setSelectedViewId?.(newValue);
     };
@@ -50,12 +55,21 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
       [folder]
     );
 
+    const className = useMemo(() => {
+      const classList = [
+        'mx-16 -mb-[0.5px] flex items-center overflow-hidden border-line-divider text-text-title max-md:mx-4',
+      ];
+
+      if (layout === DatabaseViewLayout.Calendar) {
+        classList.push('border-b');
+      }
+
+      return classList.join(' ');
+    }, [layout]);
+
     if (viewIds.length === 0) return null;
     return (
-      <div
-        ref={ref}
-        className='mx-24 -mb-[0.5px] flex items-center overflow-hidden border-b border-line-divider text-text-title max-md:mx-4'
-      >
+      <div ref={ref} className={className}>
         <div
           style={{
             width: 'calc(100% - 120px)',
@@ -83,14 +97,18 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
                   icon={<Icon className={'h-4 w-4'} />}
                   iconPosition='start'
                   color='inherit'
-                  label={name || t('grid.title.placeholder')}
+                  label={
+                    <Tooltip title={name} placement={'right'}>
+                      <span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>
+                    </Tooltip>
+                  }
                   value={viewId}
                 />
               );
             })}
           </ViewTabs>
         </div>
-        <DatabaseActions />
+        {layout !== DatabaseViewLayout.Calendar ? <DatabaseActions /> : null}
       </div>
     );
   }

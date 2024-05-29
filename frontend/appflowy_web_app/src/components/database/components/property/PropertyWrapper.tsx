@@ -3,11 +3,11 @@ import React from 'react';
 
 function PropertyWrapper({ fieldId, children }: { fieldId: string; children: React.ReactNode }) {
   return (
-    <div className={'flex w-full items-center gap-2'}>
-      <div className={'w-[100px] text-text-caption'}>
+    <div className={'flex min-h-[28px] w-full gap-2'}>
+      <div className={'property-label flex h-[28px] w-[30%] items-center'}>
         <FieldDisplay fieldId={fieldId} />
       </div>
-      <div className={'flex flex-1 flex-wrap pr-1'}>{children}</div>
+      <div className={'flex flex-1 flex-wrap items-center overflow-x-hidden pr-1'}>{children}</div>
     </div>
   );
 }

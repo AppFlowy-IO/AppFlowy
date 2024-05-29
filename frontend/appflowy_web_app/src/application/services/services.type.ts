@@ -37,18 +37,21 @@ export interface DocumentService {
 export interface DatabaseService {
   openDatabase: (
     workspaceId: string,
-    viewId: string
+    viewId: string,
+    rowIds?: string[]
   ) => Promise<{
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
   }>;
   getDatabase: (
     workspaceId: string,
-    databaseId: string
+    databaseId: string,
+    rowIds?: string[]
   ) => Promise<{
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
   }>;
+  closeDatabase: (databaseId: string) => Promise<void>;
 }
 
 export interface UserService {

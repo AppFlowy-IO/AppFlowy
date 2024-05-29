@@ -13,7 +13,7 @@ function LoginPage() {
       const workspaceId = currentUser.user?.workspaceId;
 
       if (!redirect || redirect === '/') {
-        return navigate(`/workspace/${workspaceId}`);
+        return navigate(`/view/${workspaceId}`);
       }
 
       navigate(`${redirect}`);
