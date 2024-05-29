@@ -2,7 +2,7 @@ use crate::manager::{FolderInitDataSource, FolderManager};
 use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
 use collab::core::collab::DataSource;
-use collab_entity::CollabType;
+use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::{Folder, FolderNotify, UserId};
 use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
@@ -118,18 +118,7 @@ impl FolderManager {
     self
       .folder_indexer
       .set_index_content_receiver(index_content_rx, workspace_id.clone());
-
-    // Index all views in the folder if needed
-    if !self.folder_indexer.is_indexed() {
-      let views = folder.views.get_all_views();
-      let folder_indexer = self.folder_indexer.clone();
-
-      // We spawn a blocking task to index all views in the folder
-      let wid = workspace_id.clone();
-      spawn_blocking(move || {
-        folder_indexer.index_all_views(views, wid);
-      });
-    }
+    self.handle_index_folder(workspace_id.clone(), &folder);
 
     *self.mutex_folder.write() = Some(folder);
 
@@ -156,6 +145,7 @@ impl FolderManager {
       &weak_mutex_folder,
       Arc::downgrade(&self.user),
     );
+
     Ok(())
   }
 
@@ -191,5 +181,48 @@ impl FolderManager {
       Some(folder_notifier),
       folder_data,
     ))
+  }
+
+  fn handle_index_folder(&self, workspace_id: String, folder: &Folder) {
+    // If folder index has indexes we compare against state map
+    let mut index_all = false;
+    if self.folder_indexer.is_indexed() {
+      // If indexes already exist, we compare against the previous folder
+      // state if it exists
+      let old_encoded = self
+        .store_preferences
+        .get_object::<EncodedCollab>(&workspace_id);
+      if let Some(encoded) = old_encoded {
+        let changes = folder.calculate_view_changes(encoded);
+        if changes.is_ok() {
+          let folder_indexer = self.folder_indexer.clone();
+          let views = folder.views.get_all_views();
+          let view_changes = changes.unwrap();
+
+          let wid = workspace_id.clone();
+          spawn_blocking(move || {
+            folder_indexer.index_view_changes(views, view_changes, wid);
+          });
+        }
+      } else {
+        // If there is no state map, we index all views in workspace
+        index_all = true;
+      }
+    } else {
+      // If there exists no indexes, we index all views in workspace
+      index_all = true;
+    }
+
+    if index_all {
+      // We need all views in the current workspace
+      let views = folder.views.get_all_views_belonging_to(&workspace_id);
+      let folder_indexer = self.folder_indexer.clone();
+      let wid = workspace_id.clone();
+
+      // We spawn a blocking task to index all views in the folder
+      spawn_blocking(move || {
+        folder_indexer.index_all_views(views, wid);
+      });
+    }
   }
 }

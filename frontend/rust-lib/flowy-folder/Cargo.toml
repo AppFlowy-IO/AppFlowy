@@ -14,7 +14,7 @@ collab-plugins = { workspace = true }
 collab-integrate = { workspace = true }
 flowy-folder-pub = { workspace = true }
 flowy-search-pub = { workspace = true }
-
+flowy-sqlite = { workspace = true }
 flowy-derive.workspace = true
 flowy-notification = { workspace = true }
 parking_lot.workspace = true

@@ -15,7 +15,7 @@ use crate::{
   },
 };
 use collab::core::collab::{IndexContent, IndexContentReceiver};
-use collab_folder::{View, ViewIcon, ViewIndexContent, ViewLayout};
+use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewIndexContent, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_search_pub::entities::{FolderIndexManager, IndexManager, IndexableData};
 use flowy_user::services::authenticate_user::AuthenticateUser;
@@ -124,7 +124,7 @@ impl FolderIndexManagerImpl {
   }
 
   fn index_all(&self, indexes: Vec<IndexableData>) -> Result<(), FlowyError> {
-    if self.is_indexed() || indexes.is_empty() {
+    if indexes.is_empty() {
       return Ok(());
     }
 
@@ -411,15 +411,39 @@ impl FolderIndexManager for FolderIndexManagerImpl {
   fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: String) {
     let indexable_data = views
       .into_iter()
-      .map(|view| IndexableData {
-        id: view.id.clone(),
-        data: view.name.clone(),
-        icon: view.icon.clone(),
-        layout: view.layout.clone(),
-        workspace_id: workspace_id.clone(),
-      })
+      .map(|view| IndexableData::from_view(view, workspace_id.clone()))
       .collect();
 
     let _ = self.index_all(indexable_data);
+  }
+
+  fn index_view_changes(
+    &self,
+    views: Vec<Arc<View>>,
+    changes: Vec<FolderViewChange>,
+    workspace_id: String,
+  ) {
+    let mut views_iter = views.into_iter();
+    for change in changes {
+      match change {
+        FolderViewChange::Inserted { view_id } => {
+          let view = views_iter.find(|view| view.id == view_id);
+          if let Some(view) = view {
+            let indexable_data = IndexableData::from_view(view, workspace_id.clone());
+            let _ = self.add_index(indexable_data);
+          }
+        },
+        FolderViewChange::Updated { view_id } => {
+          let view = views_iter.find(|view| view.id == view_id);
+          if let Some(view) = view {
+            let indexable_data = IndexableData::from_view(view, workspace_id.clone());
+            let _ = self.update_index(indexable_data);
+          }
+        },
+        FolderViewChange::Deleted { view_ids } => {
+          let _ = self.remove_indices(view_ids);
+        },
+      };
+    }
   }
 }

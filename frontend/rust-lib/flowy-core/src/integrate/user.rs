@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
 use anyhow::Context;
-use collab_entity::CollabType;
+use flowy_sqlite::kv::StorePreferences;
 use tracing::event;
 
+use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
@@ -23,8 +24,38 @@ pub(crate) struct UserStatusCallbackImpl {
   pub(crate) database_manager: Arc<DatabaseManager>,
   pub(crate) document_manager: Arc<DocumentManager>,
   pub(crate) server_provider: Arc<ServerProvider>,
+  pub(crate) store_preference: Arc<StorePreferences>,
   #[allow(dead_code)]
   pub(crate) config: AppFlowyCoreConfig,
+}
+
+impl UserStatusCallbackImpl {
+  fn save_folder_state(&self) -> FlowyResult<()> {
+    let folder_manager = self.folder_manager.clone();
+
+    let mutex_folder = folder_manager.get_mutex_folder();
+    let folder_lock_guard = mutex_folder.read();
+    let folder = folder_lock_guard.as_ref();
+    if let Some(folder) = folder {
+      let encoded_collab = folder.encode_collab_v1();
+      return match encoded_collab {
+        Ok(encoded) => {
+          let result = self
+            .store_preference
+            .set_object(&folder.get_workspace_id(), encoded);
+
+          if let Ok(_) = result {
+            Ok(())
+          } else {
+            Err(FlowyError::internal().with_context("Failed to store folder state"))
+          }
+        },
+        Err(e) => Err(FlowyError::internal().with_context(e)),
+      };
+    }
+
+    Ok(())
+  }
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
@@ -203,6 +234,8 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
+
+    let _ = self.save_folder_state();
 
     to_fut(async move {
       folder_manager.initialize_with_workspace_id(user_id).await?;

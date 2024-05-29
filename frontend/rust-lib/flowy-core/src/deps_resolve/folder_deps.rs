@@ -16,6 +16,7 @@ use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandle
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
+use flowy_sqlite::kv::StorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
@@ -35,6 +36,7 @@ impl FolderDepsResolver {
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
     folder_indexer: Arc<FolderIndexManagerImpl>,
+    store_preferences: Arc<StorePreferences>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
@@ -48,8 +50,8 @@ impl FolderDepsResolver {
         handlers,
         server_provider.clone(),
         folder_indexer,
+        store_preferences,
       )
-      .await
       .unwrap(),
     )
   }

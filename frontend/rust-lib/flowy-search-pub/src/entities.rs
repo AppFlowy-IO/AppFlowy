@@ -2,7 +2,7 @@ use std::any::Any;
 use std::sync::Arc;
 
 use collab::core::collab::IndexContentReceiver;
-use collab_folder::{View, ViewIcon, ViewLayout};
+use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewLayout};
 use flowy_error::FlowyError;
 
 pub struct IndexableData {
@@ -11,6 +11,18 @@ pub struct IndexableData {
   pub icon: Option<ViewIcon>,
   pub layout: ViewLayout,
   pub workspace_id: String,
+}
+
+impl IndexableData {
+  pub fn from_view(view: Arc<View>, workspace_id: String) -> Self {
+    IndexableData {
+      id: view.id.clone(),
+      data: view.name.clone(),
+      icon: view.icon.clone(),
+      layout: view.layout.clone(),
+      workspace_id: workspace_id.clone(),
+    }
+  }
 }
 
 pub trait IndexManager: Send + Sync {
@@ -25,4 +37,11 @@ pub trait IndexManager: Send + Sync {
 
 pub trait FolderIndexManager: IndexManager {
   fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: String);
+
+  fn index_view_changes(
+    &self,
+    views: Vec<Arc<View>>,
+    changes: Vec<FolderViewChange>,
+    workspace_id: String,
+  );
 }
