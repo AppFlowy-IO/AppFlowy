@@ -14,13 +14,11 @@ function CardField({ rowId, fieldId, index }: { rowId: string; fieldId: string; 
 
   const isPrimary = field?.get(YjsDatabaseKey.is_primary);
   const style = useMemo(() => {
-    const styleProperties = {
-      fontSize: '12px',
-    };
+    const styleProperties = {};
 
     if (isPrimary) {
       Object.assign(styleProperties, {
-        fontSize: '14px',
+        fontSize: '1.25em',
         fontWeight: 500,
       });
     }

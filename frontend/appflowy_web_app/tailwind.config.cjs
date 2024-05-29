@@ -1,5 +1,5 @@
-const colors = require('./style-dictionary/tailwind/colors.cjs');
-const boxShadow = require('./style-dictionary/tailwind/box-shadow.cjs');
+const colors = require('./tailwind/colors.cjs');
+const boxShadow = require('./tailwind/box-shadow.cjs');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {

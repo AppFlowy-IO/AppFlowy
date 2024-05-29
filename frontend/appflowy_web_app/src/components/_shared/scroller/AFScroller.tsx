@@ -1,4 +1,4 @@
-import { Scrollbars } from 'react-custom-scrollbars';
+import { Scrollbars } from 'react-custom-scrollbars-2';
 import React from 'react';
 
 export interface AFScrollerProps {
@@ -18,8 +18,7 @@ export const AFScroller = React.forwardRef(
         autoHide
         ref={(el) => {
           if (!el) return;
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
+          
           const scrollEl = el.container?.firstChild as HTMLElement;
 
           if (!scrollEl) return;
@@ -62,7 +61,7 @@ export const AFScroller = React.forwardRef(
               marginRight: 0,
               marginBottom: 0,
             }}
-            className={className}
+            className={`${className} appflowy-custom-scroller`}
           />
         )}
       >

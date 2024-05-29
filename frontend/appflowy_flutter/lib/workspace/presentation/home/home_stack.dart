@@ -273,7 +273,7 @@ class HomeTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onSecondaryContainer,
+        color: Theme.of(context).colorScheme.surface,
       ),
       height: HomeSizes.topBarHeight + HomeInsets.topBarTitleVerticalPadding,
       child: Padding(
