@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+const String _emojiFontFamily = 'noto color emoji';
+
 class FlowyText extends StatelessWidget {
   final String text;
   final TextOverflow? overflow;
@@ -141,6 +143,12 @@ class FlowyText extends StatelessWidget {
       if (fontFamily != null && fallbackFontFamily == null) {
         fallbackFontFamily = [fontFamily];
       }
+    }
+
+    var fontSize =
+        this.fontSize ?? Theme.of(context).textTheme.bodyMedium!.fontSize!;
+    if (Platform.isLinux && fontFamily == _emojiFontFamily) {
+      fontSize = fontSize * 0.8;
     }
 
     final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
