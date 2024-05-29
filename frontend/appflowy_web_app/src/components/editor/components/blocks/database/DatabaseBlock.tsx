@@ -88,7 +88,8 @@ export const DatabaseBlock = memo(
         </div>
       </>
     );
-  })
+  }),
+  (prevProps, nextProps) => prevProps.node.data.view_id === nextProps.node.data.view_id
 );
 
 export default DatabaseBlock;

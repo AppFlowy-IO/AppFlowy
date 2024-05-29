@@ -1,6 +1,6 @@
 import { ToggleListNode } from '@/components/editor/editor.type';
 import React from 'react';
-import { ReactComponent as RightSvg } from '$icons/16x/more.svg';
+import { ReactComponent as ExpandSvg } from '$icons/16x/drop_menu_show.svg';
 
 function ToggleIcon({ block, className }: { block: ToggleListNode; className: string }) {
   const { collapsed } = block.data;
@@ -14,7 +14,7 @@ function ToggleIcon({ block, className }: { block: ToggleListNode; className: st
       }}
       className={`${className} cursor-pointer pr-1 text-xl hover:text-fill-default`}
     >
-      {collapsed ? <RightSvg /> : <RightSvg className={'rotate-90 transform'} />}
+      {collapsed ? <ExpandSvg className={'-rotate-90 transform'} /> : <ExpandSvg />}
     </span>
   );
 }

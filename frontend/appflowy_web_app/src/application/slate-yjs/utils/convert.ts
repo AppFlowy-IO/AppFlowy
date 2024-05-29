@@ -10,22 +10,14 @@ import {
   BlockData,
   BlockType,
 } from '@/application/collab.type';
+import { BlockJson } from '@/application/slate-yjs/utils/types';
 import { getFontFamily } from '@/utils/font';
 import { uniq } from 'lodash-es';
 import { Element, Text } from 'slate';
 
-interface BlockJson {
-  id: string;
-  ty: string;
-  data?: string;
-  children?: string;
-  external_id?: string;
-}
-
 export function yDocToSlateContent(doc: YDoc): Element | undefined {
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
-  console.log(sharedRoot.toJSON());
   const document = sharedRoot.get(YjsEditorKey.document);
   const pageId = document.get(YjsEditorKey.page_id) as string;
   const blocks = document.get(YjsEditorKey.blocks) as YBlocks;
@@ -129,6 +121,7 @@ export function blockToSlateNode(block: BlockJson): Element {
 
   return {
     blockId: block.id,
+    relationId: block.children,
     data: blockData,
     type: block.ty,
     children: [],

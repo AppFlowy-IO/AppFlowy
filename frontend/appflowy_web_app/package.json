@@ -86,6 +86,7 @@
     "slate": "^0.101.4",
     "slate-history": "^0.100.0",
     "slate-react": "^0.101.3",
+    "smooth-scroll-into-view-if-needed": "^2.0.2",
     "ts-results": "^3.3.0",
     "unsplash-js": "^7.0.19",
     "utf8": "^3.0.0",

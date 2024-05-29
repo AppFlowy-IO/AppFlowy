@@ -72,7 +72,7 @@ export default defineConfig({
   },
   envPrefix: ['AF', 'TAURI_'],
   esbuild: {
-    pure: !isDev ? ['console.log', 'console.debug', 'console.info'] : [],
+    pure: !isDev ? ['console.log', 'console.debug', 'console.info', 'console.trace'] : [],
   },
   build: !!process.env.TAURI_PLATFORM
     ? {

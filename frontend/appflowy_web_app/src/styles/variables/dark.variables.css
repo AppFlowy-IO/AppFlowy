@@ -48,4 +48,11 @@
     --shadow: 0px 0px 25px 0px rgba(0, 0, 0, 0.3);
     --scrollbar-track: #252F41;
     --scrollbar-thumb: #3c4557;
+    --gradient1: linear-gradient(233deg, #34BDAF 0%, #B682D5 100%);
+    --gradient2: linear-gradient(180deg, #4CC2CC 0%, #E17570 100%);
+    --gradient3: linear-gradient(180deg, #AF70E1 0%, #ED7196 100%);
+    --gradient4: linear-gradient(180deg, #A348D6 0%, #45A7DF 100%);
+    --gradient5: linear-gradient(56.2deg, #5749CA 0%, #BB4A97 100%);
+    --gradient6: linear-gradient(180deg, #036FFA 0%, #00B8E5 100%);
+    --gradient7: linear-gradient(38.2deg, #F0C6CF 0%, #DECCE2 40.4754%, #CAD3F9 100%);
 }

@@ -197,6 +197,9 @@ dependencies:
   slate-react:
     specifier: ^0.101.3
     version: 0.101.6(react-dom@18.2.0)(react@18.2.0)(slate@0.101.5)
+  smooth-scroll-into-view-if-needed:
+    specifier: ^2.0.2
+    version: 2.0.2
   ts-results:
     specifier: ^3.3.0
     version: 3.3.0
@@ -7971,6 +7974,12 @@ packages:
       astral-regex: 2.0.0
       is-fullwidth-code-point: 3.0.0
     dev: true
+
+  /smooth-scroll-into-view-if-needed@2.0.2:
+    resolution: {integrity: sha512-z54WzUSlM+xHHvJu3lMIsh+1d1kA4vaakcAtQvqzeGJ5Ffau7EKjpRrMHh1/OBo5zyU2h30ZYEt77vWmPHqg7Q==}
+    dependencies:
+      scroll-into-view-if-needed: 3.1.0
+    dev: false
 
   /snake-case@3.0.4:
     resolution: {integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==}

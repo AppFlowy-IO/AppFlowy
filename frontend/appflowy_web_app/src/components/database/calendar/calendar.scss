@@ -1,3 +1,5 @@
+@use "src/styles/mixin.scss";
+
 $today-highlight-bg: transparent;
 @import 'react-big-calendar/lib/sass/styles';
 @import 'react-big-calendar/lib/addons/dragAndDrop/styles'; // if using DnD
@@ -34,20 +36,7 @@ $today-highlight-bg: transparent;
 
   }
 
-  &::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-
-  &:hover {
-
-    &::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb {
-      border-radius: 4px;
-      background-color: var(--scrollbar-thumb);
-    }
-  }
-
+  @include mixin.scrollbar-style;
 
 }
 
