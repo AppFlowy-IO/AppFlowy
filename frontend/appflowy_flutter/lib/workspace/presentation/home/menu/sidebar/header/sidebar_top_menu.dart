@@ -52,10 +52,13 @@ class SidebarTopMenu extends StatelessWidget {
         ? FlowySvgs.flowy_logo_dark_mode_xl
         : FlowySvgs.flowy_logo_text_xl;
 
-    return FlowySvg(
-      svgData,
-      size: const Size(92, 17),
-      blendMode: null,
+    return Padding(
+      padding: const EdgeInsets.only(top: 12.0, left: 4),
+      child: FlowySvg(
+        svgData,
+        size: const Size(92, 17),
+        blendMode: null,
+      ),
     );
   }
 
