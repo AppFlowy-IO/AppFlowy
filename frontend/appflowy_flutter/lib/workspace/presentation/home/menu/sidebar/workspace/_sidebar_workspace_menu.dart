@@ -128,7 +128,7 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
           //  cause the popover dismiss intermediately when click the right icon.
           // so using the stack to put the right icon on the flowy button.
           return SizedBox(
-            height: 40,
+            height: 44,
             child: MouseRegion(
               onEnter: (_) => isHovered.value = true,
               onExit: (_) => isHovered.value = false,
@@ -250,7 +250,6 @@ class _WorkspaceInfo extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 withTooltip: true,
               ),
-              const VSpace(2.0),
               // workspace members count
               FlowyText.regular(
                 state.isLoading
