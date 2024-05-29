@@ -55,7 +55,7 @@ class MobileFavoriteSpace extends StatelessWidget {
               }
 
               if (favoriteState.views.isEmpty) {
-                return const EmptyPagePlaceholder(
+                return const EmptySpacePlaceholder(
                   type: MobileViewCardType.favorite,
                 );
               }

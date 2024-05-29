@@ -1,6 +1,7 @@
 import 'package:appflowy/mobile/presentation/home/tab/_round_underline_tab_indicator.dart';
-import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
+import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:reorderable_tabbar/reorderable_tabbar.dart';
 
 class MobileSpaceTabBar extends StatelessWidget {
   const MobileSpaceTabBar({
@@ -8,11 +9,13 @@ class MobileSpaceTabBar extends StatelessWidget {
     this.height = 38.0,
     required this.tabController,
     required this.tabs,
+    required this.onReorder,
   });
 
   final double height;
   final List<MobileSpaceTabType> tabs;
   final TabController tabController;
+  final OnReorder onReorder;
 
   @override
   Widget build(BuildContext context) {
@@ -25,16 +28,16 @@ class MobileSpaceTabBar extends StatelessWidget {
       fontWeight: FontWeight.w400,
       fontSize: 15.0,
     );
+
     return Container(
       height: height,
       padding: const EdgeInsets.only(left: 8.0),
-      child: TabBar(
+      child: ReorderableTabBar(
         controller: tabController,
-        tabs: tabs.map((e) => Tab(text: e.name)).toList(),
+        tabs: tabs.map((e) => Tab(text: e.tr)).toList(),
         indicatorSize: TabBarIndicatorSize.label,
         indicatorColor: Theme.of(context).primaryColor,
         isScrollable: true,
-        tabAlignment: TabAlignment.start,
         labelStyle: labelStyle,
         labelPadding: const EdgeInsets.symmetric(horizontal: 12.0),
         unselectedLabelStyle: unselectedLabelStyle,
@@ -46,6 +49,7 @@ class MobileSpaceTabBar extends StatelessWidget {
             width: 3,
           ),
         ),
+        onReorder: onReorder,
       ),
     );
   }

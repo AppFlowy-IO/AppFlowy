@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
+import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -118,12 +119,14 @@ class MobileHomePage extends StatelessWidget {
               ),
 
               Expanded(
-                child: MobileSpaceTab(
-                  userProfile: userProfile,
+                child: BlocProvider(
+                  create: (context) =>
+                      SpaceOrderBloc()..add(const SpaceOrderEvent.initial()),
+                  child: MobileSpaceTab(
+                    userProfile: userProfile,
+                  ),
                 ),
               ),
-
-              // const _TrashButton(),
             ],
           );
         },
@@ -131,25 +134,3 @@ class MobileHomePage extends StatelessWidget {
     );
   }
 }
-
-// class _TrashButton extends StatelessWidget {
-//   const _TrashButton();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return FlowyButton(
-//       expand: true,
-//       margin: const EdgeInsets.symmetric(vertical: 8),
-//       leftIcon: FlowySvg(
-//         FlowySvgs.m_delete_m,
-//         color: Theme.of(context).colorScheme.onSurface,
-//       ),
-//       leftIconSize: const Size.square(24),
-//       text: FlowyText.medium(
-//         LocaleKeys.trash_text.tr(),
-//         fontSize: 18.0,
-//       ),
-//       onTap: () => context.push(MobileHomeTrashPage.routeName),
-//     );
-//   }
-// }

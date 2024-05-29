@@ -255,7 +255,10 @@
     "emptyFavorite": "No Favorite Documents",
     "emptyFavoriteDescription": "Start exploring and mark documents as favorites. They’ll be listed here for quick access!",
     "removePageFromRecent": "Remove this page from the Recent?",
-    "removeSuccess": "Removed successfully"
+    "removeSuccess": "Removed successfully",
+    "favoriteSpace": "Favorites",
+    "RecentSpace": "Recent",
+    "Spaces": "Spaces"
   },
   "notifications": {
     "export": {

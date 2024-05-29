@@ -25,7 +25,7 @@ class MobileRecentSpace extends StatelessWidget {
 
           if (recentViews.isEmpty) {
             return const Center(
-              child: EmptyPagePlaceholder(type: MobileViewCardType.recent),
+              child: EmptySpacePlaceholder(type: MobileViewCardType.recent),
             );
           }
 
