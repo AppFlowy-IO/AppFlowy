@@ -167,6 +167,7 @@ class _ViewTitleState extends State<_ViewTitle> {
       onPointerDown: (_) => context.read<TabsBloc>().openPlugin(widget.view),
       child: FlowyButton(
         useIntrinsicWidth: true,
+        margin: const EdgeInsets.symmetric(horizontal: 6.0),
         onTap: () {},
         text: _buildIconAndName(state),
       ),
