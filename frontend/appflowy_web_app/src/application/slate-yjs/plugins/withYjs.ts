@@ -59,10 +59,8 @@ export function withYjs<T extends Editor>(
   doc: Y.Doc,
   {
     localOrigin,
-    includeRoot = true,
   }: {
     localOrigin: CollabOrigin;
-    includeRoot?: boolean;
   }
 ): T & YjsEditor {
   const e = editor as T & YjsEditor;
@@ -71,7 +69,7 @@ export function withYjs<T extends Editor>(
   e.sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
   const initializeDocumentContent = () => {
-    const content = yDocToSlateContent(doc, includeRoot);
+    const content = yDocToSlateContent(doc);
 
     if (!content) {
       return;

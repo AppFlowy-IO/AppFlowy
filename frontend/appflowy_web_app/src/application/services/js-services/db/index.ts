@@ -10,6 +10,7 @@ import * as Y from 'yjs';
 export async function openCollabDB(docName: string): Promise<YDoc> {
   const name = `${databasePrefix}_${docName}`;
   const doc = new Y.Doc();
+
   const provider = new IndexeddbPersistence(name, doc);
 
   let resolve: (value: unknown) => void;
@@ -24,14 +25,6 @@ export async function openCollabDB(docName: string): Promise<YDoc> {
   await promise;
 
   return doc as YDoc;
-}
-
-export async function deleteCollabDB(docName: string) {
-  const name = `${databasePrefix}_${docName}`;
-  const doc = new Y.Doc();
-  const provider = new IndexeddbPersistence(name, doc);
-
-  await provider.destroy();
 }
 
 export function getDBName(id: string, type: string) {

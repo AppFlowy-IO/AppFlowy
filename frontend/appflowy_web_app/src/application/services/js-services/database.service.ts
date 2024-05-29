@@ -11,6 +11,8 @@ import * as Y from 'yjs';
 export class JSDatabaseService implements DatabaseService {
   private loadedDatabaseId: Set<string> = new Set();
 
+  private cacheDatabaseRowDocMap: Map<string, Y.Doc> = new Map();
+
   constructor() {
     //
   }
@@ -23,9 +25,20 @@ export class JSDatabaseService implements DatabaseService {
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
   }> {
-    const rootRowsDoc = new Y.Doc();
-    const rowsFolder = rootRowsDoc.getMap();
     const isLoaded = this.loadedDatabaseId.has(databaseId);
+
+    const rootRowsDoc =
+      this.cacheDatabaseRowDocMap.get(databaseId) ??
+      new Y.Doc({
+        guid: databaseId,
+      });
+
+    if (!this.cacheDatabaseRowDocMap.has(databaseId)) {
+      this.cacheDatabaseRowDocMap.set(databaseId, rootRowsDoc);
+    }
+
+    const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
+
     let databaseDoc: YDoc | undefined = undefined;
 
     if (isLoaded) {
@@ -51,13 +64,15 @@ export class JSDatabaseService implements DatabaseService {
       for (const id of ids) {
         const { doc } = await getCollabStorage(id, CollabType.DatabaseRow);
 
-        rowsFolder.set(id, doc);
+        if (!rowsFolder.has(id)) {
+          rowsFolder.set(id, doc);
+        }
       }
     } else {
-      const rows = await this.loadDatabaseRows(workspaceId, ids);
-
-      rows.forEach((row, id) => {
-        rowsFolder.set(id, row);
+      void this.loadDatabaseRows(workspaceId, ids, (id, row) => {
+        if (!rowsFolder.has(id)) {
+          rowsFolder.set(id, row);
+        }
       });
     }
 
@@ -74,19 +89,20 @@ export class JSDatabaseService implements DatabaseService {
           console.log('Update rows', rowIds);
           void this.loadDatabaseRows(
             workspaceId,
-            rowIds.map((item) => item.id)
-          ).then((newRows) => {
-            newRows.forEach((row, id) => {
-              rowsFolder.set(id, row);
-            });
-          });
+            rowIds.map((item) => item.id),
+            (rowId: string, rowDoc) => {
+              if (!rowsFolder.has(rowId)) {
+                rowsFolder.set(rowId, rowDoc);
+              }
+            }
+          );
         }
       });
     }
 
     return {
       databaseDoc,
-      rows: rowsFolder as Y.Map<YDoc>,
+      rows: rowsFolder,
     };
   }
 
@@ -144,6 +160,7 @@ export class JSDatabaseService implements DatabaseService {
     };
 
     databaseDoc.on('update', handleUpdate);
+    console.log('Database loaded', rows.toJSON());
 
     return {
       databaseDoc,
@@ -151,9 +168,7 @@ export class JSDatabaseService implements DatabaseService {
     };
   }
 
-  async loadDatabaseRows(workspaceId: string, rowIds: string[]) {
-    const rows = new Map<string, YDoc>();
-
+  async loadDatabaseRows(workspaceId: string, rowIds: string[], rowCallback: (rowId: string, rowDoc: YDoc) => void) {
     try {
       await batchCollabs(
         workspaceId,
@@ -161,12 +176,14 @@ export class JSDatabaseService implements DatabaseService {
           object_id: id,
           collab_type: CollabType.DatabaseRow,
         })),
-        (id, rowDoc) => rows.set(id, rowDoc)
+        rowCallback
       );
     } catch (e) {
       console.error(e);
     }
+  }
 
-    return rows;
+  async closeDatabase(databaseId: string) {
+    this.cacheDatabaseRowDocMap.delete(databaseId);
   }
 }

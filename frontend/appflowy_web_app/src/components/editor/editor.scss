@@ -52,6 +52,7 @@
 
 [role=textbox] {
   .text-element {
+    @apply my-1;
     &::selection {
       @apply bg-transparent;
     }
@@ -209,11 +210,6 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 }
 
 
-.grid-block .grid-scroll-container::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
 .image-render {
   .image-resizer {
     @apply absolute w-[10px] top-0 z-10 flex h-full cursor-col-resize items-center justify-end;
@@ -269,11 +265,39 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 
   .mention-content {
-    @apply ml-5;
+    @apply ml-6;
   }
 
 }
 
 .text-block-icon {
   @apply flex items-center justify-center;
+}
+
+
+.font-small {
+  .text-element {
+    line-height: 1.7;
+  }
+}
+
+
+.font-large {
+  .text-element {
+    line-height: 1.2;
+  }
+}
+
+.line-height-large {
+  .text-element {
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+}
+
+.line-height-small {
+  .text-element {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
 }

@@ -22,7 +22,6 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
 
   useEffect(() => {
     if (ref.current) {
-      console.log(ref.current, scrollLeft);
       ref.current.scrollTo({ scrollLeft });
     }
   }, [scrollLeft]);
