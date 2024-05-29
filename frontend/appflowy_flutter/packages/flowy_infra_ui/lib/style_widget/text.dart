@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+const String _emojiFontFamily = 'noto color emoji';
+
 class FlowyText extends StatelessWidget {
   final String text;
   final TextOverflow? overflow;
@@ -119,12 +121,18 @@ class FlowyText extends StatelessWidget {
     this.withTooltip = false,
     this.strutStyle = const StrutStyle(forceStrutHeight: true),
   })  : fontWeight = FontWeight.w400,
-        fontFamily = 'noto color emoji',
+        fontFamily = _emojiFontFamily,
         fallbackFontFamily = null;
 
   @override
   Widget build(BuildContext context) {
     Widget child;
+
+    double fontSize =
+        this.fontSize ?? Theme.of(context).textTheme.bodyMedium!.fontSize!;
+    if (Platform.isLinux && fontFamily == _emojiFontFamily) {
+      fontSize = fontSize * 0.8;
+    }
 
     final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
           fontSize: fontSize,
