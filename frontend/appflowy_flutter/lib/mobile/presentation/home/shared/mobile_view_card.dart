@@ -22,6 +22,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -151,16 +152,31 @@ class MobileViewCard extends StatelessWidget {
   }
 
   Widget _buildTitle(BuildContext context, RecentViewState state) {
-    var name = state.name;
+    final name = state.name;
     final icon = state.icon;
-    if (icon.isNotEmpty) {
-      name = '$icon $name';
-    }
-    return FlowyText.semibold(
-      name,
-      fontSize: 16.0,
+    return RichText(
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: icon,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontSize: 17.0,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: GoogleFonts.notoColorEmoji().fontFamily,
+                ),
+          ),
+          const TextSpan(text: ' '),
+          TextSpan(
+            text: name,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ],
+      ),
     );
   }
 
