@@ -154,6 +154,9 @@ class MobileViewCard extends StatelessWidget {
   Widget _buildTitle(BuildContext context, RecentViewState state) {
     final name = state.name;
     final icon = state.icon;
+    final fontFamily = Platform.isAndroid || Platform.isLinux
+        ? GoogleFonts.notoColorEmoji().fontFamily
+        : null;
     return RichText(
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
@@ -164,10 +167,10 @@ class MobileViewCard extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontSize: 17.0,
                   fontWeight: FontWeight.w600,
-                  fontFamily: GoogleFonts.notoColorEmoji().fontFamily,
+                  fontFamily: fontFamily,
                 ),
           ),
-          const TextSpan(text: ' '),
+          if (icon.isNotEmpty) const WidgetSpan(child: HSpace(2.0)),
           TextSpan(
             text: name,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(

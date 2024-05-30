@@ -138,7 +138,7 @@ class FlowyText extends StatelessWidget {
 
     var fontFamily = this.fontFamily;
     var fallbackFontFamily = this.fallbackFontFamily;
-    if (isEmoji) {
+    if (isEmoji && (Platform.isLinux || Platform.isAndroid)) {
       fontFamily = _loadEmojiFontFamilyIfNeeded();
       if (fontFamily != null && fallbackFontFamily == null) {
         fallbackFontFamily = [fontFamily];
