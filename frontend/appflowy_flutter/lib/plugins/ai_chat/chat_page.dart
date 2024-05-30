@@ -13,6 +13,7 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 import 'presentation/chat_input.dart';
+import 'presentation/chat_message_hover.dart';
 import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_theme.dart';
 
@@ -121,10 +122,7 @@ class _AIChatPageState extends State<AIChatPage> {
             ? AFThemeExtension.of(context).tint1
             : Theme.of(context).colorScheme.primary,
       ),
-      child: ClipRRect(
-        borderRadius: borderRadius,
-        child: Container(child: child),
-      ),
+      child: child,
     );
 
     if (isMobile) {
@@ -139,10 +137,17 @@ class _AIChatPageState extends State<AIChatPage> {
               break;
           }
         },
-        builder: (context) => decoratedChild,
+        builder: (context) =>
+            ClipRRect(borderRadius: borderRadius, child: decoratedChild),
       );
     } else {
-      return decoratedChild;
+      return ClipRRect(
+        borderRadius: borderRadius,
+        child: ChatMessageHover(
+          message: message,
+          child: decoratedChild,
+        ),
+      );
     }
   }
 
