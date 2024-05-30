@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
 
+/// Simple ChangeNotifier that can be listened to, notifies the
+/// application on events that should trigger focus loss.
+///
+/// Eg. lose focus in AppFlowyEditor
+///
+abstract class ShouldLoseFocus with ChangeNotifier {}
+
+/// Private implementation to allow the [AFFocusManager] to
+/// call [notifyListeners] without being directly invokable.
+///
+class _ShouldLoseFocusImpl extends ShouldLoseFocus {
+  void notify() => notifyListeners();
+}
+
 class AFFocusManager extends InheritedWidget {
   AFFocusManager({super.key, required super.child});
 
-  final loseFocusNotifier = ShouldLoseFocus();
+  final ShouldLoseFocus loseFocusNotifier = _ShouldLoseFocusImpl();
 
   void notifyLoseFocus() {
-    loseFocusNotifier.notify();
+    (loseFocusNotifier as _ShouldLoseFocusImpl).notify();
   }
 
   @override
@@ -19,13 +33,4 @@ class AFFocusManager extends InheritedWidget {
     assert(result != null, "AFFocusManager could not be found");
     return result!;
   }
-}
-
-class ShouldLoseFocus with ChangeNotifier {
-  /// Should not be accessed directly, use the [AFFocusManager]
-  /// for clearer usage.
-  ///
-  /// Example: `AFFocusManager.of(context).notifyLoseFocus();`
-  ///
-  void notify() => notifyListeners();
 }
