@@ -152,6 +152,7 @@ class FavoriteMoreButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final favoriteBloc = context.watch<FavoriteBloc>();
+    final tabsBloc = context.read<TabsBloc>();
     final unpinnedViews = favoriteBloc.state.unpinnedViews;
     // only show the more button if there are unpinned views
     if (unpinnedViews.isEmpty) {
@@ -169,8 +170,11 @@ class FavoriteMoreButton extends StatelessWidget {
         borderRadius: 10.0,
       ),
       popupBuilder: (_) {
-        return BlocProvider.value(
-          value: favoriteBloc,
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: favoriteBloc),
+            BlocProvider.value(value: tabsBloc),
+          ],
           child: const FavoriteMenu(minWidth: minWidth),
         );
       },
