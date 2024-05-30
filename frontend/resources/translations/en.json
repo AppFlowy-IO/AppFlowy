@@ -547,6 +547,10 @@
       "enableNotifications": {
         "label": "Enable notifications",
         "hint": "Turn off to stop local notifications from appearing."
+      },
+      "showNotificationsIcon": {
+        "label": "Show notifications icon",
+        "hint": "Turn off to hide notification icons in the app."
       }
     },
     "appearance": {

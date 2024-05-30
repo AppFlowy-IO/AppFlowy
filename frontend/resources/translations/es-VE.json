@@ -64,7 +64,7 @@
     "alreadyHaveAnAccount": "¿Ya tienes cuenta?",
     "logIn": "Iniciar sesión",
     "generalError": "Algo ha salido mal. Por favor, inténtalo más tarde",
-    "limitRateError": "Por razones de seguridad, solo puedes solicitar un enlace mágico cada 60 segundos",
+    "limitRateError": "Por razones de seguridad, solo puedes solicitar un enlace mágico cada 60 segundos"
   },
   "workspace": {
     "chooseWorkspace": "Elige tu espacio de trabajo",

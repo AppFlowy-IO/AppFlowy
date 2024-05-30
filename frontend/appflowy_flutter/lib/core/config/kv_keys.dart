@@ -65,6 +65,11 @@ class KVKeys {
   /// {'feature_flag_1': true, 'feature_flag_2': false}
   static const String featureFlag = 'featureFlag';
 
+  /// The key for saving show notification icon option
+  ///
+  /// The value is a boolean string
+  static const String showNotificationIcon = 'showNotificationIcon';
+
   /// The key for saving the last opened workspace id
   ///
   /// The workspace id is a string.

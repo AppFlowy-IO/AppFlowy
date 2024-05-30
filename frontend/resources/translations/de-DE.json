@@ -65,7 +65,7 @@
     "alreadyHaveAnAccount": "Du hast bereits ein Konto?",
     "logIn": "Anmeldung",
     "generalError": "Etwas ist schiefgelaufen. Bitte versuche es später noch einmal",
-    "limitRateError": "Aus Sicherheitsgründen kannst du nur alle 60 Sekunden einen Authentifizierungslink anfordern",
+    "limitRateError": "Aus Sicherheitsgründen kannst du nur alle 60 Sekunden einen Authentifizierungslink anfordern"
   },
   "workspace": {
     "chooseWorkspace": "Arbeitsbereich wählen",

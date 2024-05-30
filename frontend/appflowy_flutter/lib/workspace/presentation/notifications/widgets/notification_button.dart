@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/notifications/notification_dialog.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -25,25 +26,35 @@ class NotificationButton extends StatelessWidget {
 
     return BlocProvider<ReminderBloc>.value(
       value: getIt<ReminderBloc>(),
-      child: BlocBuilder<ReminderBloc, ReminderState>(
-        builder: (context, state) => FlowyTooltip(
-          message: LocaleKeys.notificationHub_title.tr(),
-          child: AppFlowyPopover(
-            mutex: mutex,
-            direction: PopoverDirection.bottomWithLeftAligned,
-            constraints: const BoxConstraints(maxHeight: 500, maxWidth: 425),
-            windowPadding: EdgeInsets.zero,
-            margin: EdgeInsets.zero,
-            popupBuilder: (_) => NotificationDialog(views: views, mutex: mutex),
-            child: SizedBox.square(
-              dimension: HomeSizes.workspaceSectionHeight,
-              child: FlowyButton(
-                useIntrinsicWidth: true,
-                text: _buildNotificationIcon(context, state.hasUnreads),
-              ),
-            ),
-          ),
-        ),
+      child: BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
+        builder: (notificationSettingsContext, notificationSettingsState) {
+          return BlocBuilder<ReminderBloc, ReminderState>(
+            builder: (context, state) => notificationSettingsState
+                    .isShowNotificationsIconEnabled
+                ? FlowyTooltip(
+                    message: LocaleKeys.notificationHub_title.tr(),
+                    child: AppFlowyPopover(
+                      mutex: mutex,
+                      direction: PopoverDirection.bottomWithLeftAligned,
+                      constraints:
+                          const BoxConstraints(maxHeight: 500, maxWidth: 425),
+                      windowPadding: EdgeInsets.zero,
+                      margin: EdgeInsets.zero,
+                      popupBuilder: (_) =>
+                          NotificationDialog(views: views, mutex: mutex),
+                      child: SizedBox.square(
+                        dimension: HomeSizes.workspaceSectionHeight,
+                        child: FlowyButton(
+                          useIntrinsicWidth: true,
+                          text:
+                              _buildNotificationIcon(context, state.hasUnreads),
+                        ),
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          );
+        },
       ),
     );
   }
