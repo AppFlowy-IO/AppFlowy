@@ -80,8 +80,10 @@ class _AIChatPageState extends State<AIChatPage> {
                       child: CircularProgressIndicator.adaptive(),
                     );
                   },
-                  onMessageLongPress:
-                      (BuildContext _, types.Message message) {},
+                  // onMessageLongPress:
+                  //     (BuildContext context, types.Message message) {
+                  //   // show menu
+                  // },
                   onEndReached: () async {
                     if (state.hasMore) {
                       state.loadingPreviousStatus.when(
@@ -96,6 +98,27 @@ class _AIChatPageState extends State<AIChatPage> {
                     } else {
                       Log.debug("no more messages");
                     }
+                  },
+                  bubbleBuilder: (
+                    child, {
+                    required message,
+                    required nextMessageInGroup,
+                  }) {
+                    final isAuthor = message.author.id == _user.id;
+                    const borderRadius = BorderRadius.all(Radius.circular(20));
+                    return DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: borderRadius,
+                        color:
+                            !isAuthor || message.type == types.MessageType.image
+                                ? AFThemeExtension.of(context).tint1
+                                : Theme.of(context).colorScheme.primary,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: borderRadius,
+                        child: Container(child: child),
+                      ),
+                    );
                   },
                 );
               },
