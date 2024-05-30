@@ -33,7 +33,7 @@ function NoDate({ emptyEvents }: { emptyEvents: CalendarEvent[] }) {
       <Button
         size={'small'}
         variant={'outlined'}
-        className={'rounded-md border-line-divider '}
+        className={'whitespace-nowrap rounded-md border-line-divider'}
         color={'inherit'}
         onClick={() => setOpen(true)}
       >

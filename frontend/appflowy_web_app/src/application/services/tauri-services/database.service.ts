@@ -7,6 +7,10 @@ export class TauriDatabaseService implements DatabaseService {
     //
   }
 
+  async closeDatabase(_databaseId: string) {
+    return Promise.reject('Not implemented');
+  }
+
   async openDatabase(
     _workspaceId: string,
     _viewId: string

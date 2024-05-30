@@ -1,20 +1,15 @@
-import { layoutMap, ViewLayout, YjsFolderKey } from '@/application/collab.type';
-import { useId } from '@/components/_shared/context-provider/IdProvider';
+import { useNavigateToView } from '@/application/folder-yjs';
 import { usePageInfo } from '@/components/_shared/page/usePageInfo';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 function MentionPage({ pageId }: { pageId: string }) {
-  const navigate = useNavigate();
-  const { workspaceId } = useId();
-  const { view, icon, name } = usePageInfo(pageId);
+  const onNavigateToView = useNavigateToView();
+  const { icon, name } = usePageInfo(pageId);
 
   return (
     <span
       onClick={() => {
-        const layout = parseInt(view?.get(YjsFolderKey.layout) ?? '0') as ViewLayout;
-
-        navigate(`/workspace/${workspaceId}/${layoutMap[layout]}/${pageId}`);
+        onNavigateToView?.(pageId);
       }}
       className={`mention-inline px-1 underline`}
       contentEditable={false}

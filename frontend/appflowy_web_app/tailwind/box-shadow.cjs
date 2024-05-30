@@ -1,9 +1,11 @@
+
 /**
 * Do not edit directly
-* Generated on Thu, 09 May 2024 03:26:45 GMT
+* Generated on Mon, 27 May 2024 06:26:20 GMT
 * Generated from $pnpm css:variables 
 */
 
+
 module.exports = {
   "md": "var(--shadow)"
-}
+};

@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -51,22 +52,23 @@ class SidebarTopMenu extends StatelessWidget {
         ? FlowySvgs.flowy_logo_dark_mode_xl
         : FlowySvgs.flowy_logo_text_xl;
 
-    return FlowySvg(
-      svgData,
-      size: const Size(92, 17),
-      blendMode: null,
+    return Padding(
+      padding: const EdgeInsets.only(top: 12.0, left: 4),
+      child: FlowySvg(
+        svgData,
+        size: const Size(92, 17),
+        blendMode: null,
+      ),
     );
   }
 
   Widget _buildCollapseMenuButton(BuildContext context) {
+    final color = Theme.of(context).isLightMode ? Colors.white : Colors.black;
     final textSpan = TextSpan(
       children: [
         TextSpan(
           text: '${LocaleKeys.sideBar_closeSidebar.tr()}\n',
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium!
-              .copyWith(color: Colors.white),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: color),
         ),
         TextSpan(
           text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',

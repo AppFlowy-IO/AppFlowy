@@ -5,6 +5,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mo
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/video/video_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/video/video_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -110,7 +112,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       showMenu: true,
       menuBuilder: (Node node, CustomImageBlockComponentState state) =>
           Positioned(
-        top: 0,
+        top: 10,
         right: 10,
         child: ImageMenu(node: node, state: state),
       ),
@@ -180,7 +182,6 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration,
     ),
     CodeBlockKeys.type: CodeBlockComponentBuilder(
-      editorState: editorState,
       configuration: configuration.copyWith(
         textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
         placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
@@ -227,6 +228,16 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
       configuration: configuration,
+    ),
+    VideoBlockKeys.type: VideoBlockComponentBuilder(
+      configuration: configuration,
+      showMenu: true,
+      menuBuilder: (node, state) => Positioned(
+        top: 10,
+        right: 10,
+        child: VideoMenu(node: node, state: state),
+      ),
+      placeholderBuilder: (node) => VideoPlaceholder(node: node),
     ),
   };
 
