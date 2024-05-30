@@ -213,6 +213,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         style: styleCustomizer.selectionMenuStyleBuilder(),
       ).handler(editorState);
 
+  AFFocusManager? focusManager;
+
+  void _loseFocus() => widget.editorState.selection = null;
+
   @override
   void initState() {
     super.initState();
@@ -254,7 +258,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     _customizeBlockComponentBackgroundColorDecorator();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AFFocusManager.of(context).loseFocusNotifier.addListener(_loseFocus);
+      if (!mounted) {
+        return;
+      }
+
+      focusManager = AFFocusManager.of(context);
+      focusManager!.loseFocusNotifier.addListener(_loseFocus);
 
       if (widget.initialSelection != null) {
         widget.editorState.updateSelectionWithReason(widget.initialSelection);
@@ -262,11 +271,20 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     });
   }
 
-  void _loseFocus() => widget.editorState.selection = null;
+  @override
+  void didChangeDependencies() {
+    final currFocusManager = AFFocusManager.of(context);
+    if (focusManager != currFocusManager) {
+      focusManager?.loseFocusNotifier.removeListener(_loseFocus);
+      focusManager = currFocusManager;
+      focusManager!.loseFocusNotifier.addListener(_loseFocus);
+    }
+    super.didChangeDependencies();
+  }
 
   @override
   void dispose() {
-    AFFocusManager.of(context).loseFocusNotifier.removeListener(_loseFocus);
+    focusManager?.loseFocusNotifier.removeListener(_loseFocus);
 
     if (widget.useViewInfoBloc && !viewInfoBloc.isClosed) {
       viewInfoBloc.add(const ViewInfoEvent.unregisterEditorState());
