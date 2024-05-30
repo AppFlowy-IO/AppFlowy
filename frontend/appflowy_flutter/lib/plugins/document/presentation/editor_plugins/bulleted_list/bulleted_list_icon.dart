@@ -37,7 +37,9 @@ class BulletedListIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconPadding = context.read<DocumentPageStyleBloc>().state.iconPadding;
+    final iconPadding = PlatformExtension.isMobile
+        ? context.read<DocumentPageStyleBloc>().state.iconPadding
+        : 0.0;
     return Container(
       constraints: const BoxConstraints(
         minWidth: 22,

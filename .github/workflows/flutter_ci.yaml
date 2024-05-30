@@ -173,7 +173,7 @@ jobs:
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
             sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libmpv-dev mpv
           fi
         shell: bash
 
@@ -273,7 +273,7 @@ jobs:
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
           sudo apt-get update
-          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libmpv-dev mpv
         shell: bash
 
       - name: Enable Flutter Desktop
@@ -320,6 +320,12 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Install video dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install libmpv-dev mpv
+        shell: bash
+
       - name: Flutter Integration Test 1
         uses: ./.github/actions/flutter_integration_test
         with:
@@ -344,6 +350,12 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Install video dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install libmpv-dev mpv
+        shell: bash
+
       - name: Flutter Integration Test 2
         uses: ./.github/actions/flutter_integration_test
         with:
@@ -367,6 +379,12 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+
+      - name: Install video dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install libmpv-dev mpv
+        shell: bash
 
       - name: Flutter Integration Test 3
         uses: ./.github/actions/flutter_integration_test

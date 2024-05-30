@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+const String _emojiFontFamily = 'noto color emoji';
 
 class FlowyText extends StatelessWidget {
   final String text;
@@ -17,6 +20,7 @@ class FlowyText extends StatelessWidget {
   final double? lineHeight;
   final bool withTooltip;
   final StrutStyle? strutStyle;
+  final bool isEmoji;
 
   const FlowyText(
     this.text, {
@@ -33,6 +37,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.isEmoji = false,
     this.strutStyle,
   });
 
@@ -49,6 +54,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.isEmoji = false,
     this.strutStyle,
   })  : fontWeight = FontWeight.w400,
         fontSize = (Platform.isIOS || Platform.isAndroid) ? 14 : 12;
@@ -67,6 +73,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.isEmoji = false,
     this.strutStyle,
   }) : fontWeight = FontWeight.w400;
 
@@ -84,6 +91,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.isEmoji = false,
     this.strutStyle,
   }) : fontWeight = FontWeight.w500;
 
@@ -101,6 +109,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.isEmoji = false,
     this.strutStyle,
   }) : fontWeight = FontWeight.w600;
 
@@ -118,13 +127,29 @@ class FlowyText extends StatelessWidget {
     this.lineHeight,
     this.withTooltip = false,
     this.strutStyle = const StrutStyle(forceStrutHeight: true),
+    this.isEmoji = true,
+    this.fontFamily,
   })  : fontWeight = FontWeight.w400,
-        fontFamily = 'noto color emoji',
         fallbackFontFamily = null;
 
   @override
   Widget build(BuildContext context) {
     Widget child;
+
+    var fontFamily = this.fontFamily;
+    var fallbackFontFamily = this.fallbackFontFamily;
+    if (isEmoji && (Platform.isLinux || Platform.isAndroid)) {
+      fontFamily = _loadEmojiFontFamilyIfNeeded();
+      if (fontFamily != null && fallbackFontFamily == null) {
+        fallbackFontFamily = [fontFamily];
+      }
+    }
+
+    var fontSize =
+        this.fontSize ?? Theme.of(context).textTheme.bodyMedium!.fontSize!;
+    if (Platform.isLinux && fontFamily == _emojiFontFamily) {
+      fontSize = fontSize * 0.8;
+    }
 
     final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
           fontSize: fontSize,
@@ -162,5 +187,13 @@ class FlowyText extends StatelessWidget {
     }
 
     return child;
+  }
+
+  String? _loadEmojiFontFamilyIfNeeded() {
+    if (Platform.isLinux || Platform.isAndroid) {
+      return GoogleFonts.notoColorEmoji().fontFamily;
+    }
+
+    return null;
   }
 }

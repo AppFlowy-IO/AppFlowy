@@ -138,7 +138,7 @@
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
     "copyLink": "Copy Link",
-    "changeIcon":"Change icon",
+    "changeIcon": "Change icon",
     "collapseAllPages": "Collapse all pages"
   },
   "blankPageTitle": "Blank page",
@@ -246,7 +246,20 @@
     "recent": "Recent",
     "today": "Today",
     "thisWeek": "This week",
-    "others": "Others"
+    "others": "Others",
+    "justNow": "just now",
+    "minutesAgo": "{count} minutes ago",
+    "lastViewed": "Last viewed",
+    "favoriteAt": "Favorited at",
+    "emptyRecent": "No Recent Documents",
+    "emptyRecentDescription": "As you view documents, they will appear here for easy retrieval",
+    "emptyFavorite": "No Favorite Documents",
+    "emptyFavoriteDescription": "Start exploring and mark documents as favorites. They’ll be listed here for quick access!",
+    "removePageFromRecent": "Remove this page from the Recent?",
+    "removeSuccess": "Removed successfully",
+    "favoriteSpace": "Favorites",
+    "RecentSpace": "Recent",
+    "Spaces": "Spaces"
   },
   "notifications": {
     "export": {
@@ -285,6 +298,7 @@
     "update": "Update",
     "share": "Share",
     "removeFromFavorites": "Remove from favorites",
+    "removeFromRecent": "Remove from recent",
     "addToFavorites": "Add to favorites",
     "rename": "Rename",
     "helpCenter": "Help Center",
@@ -534,6 +548,10 @@
       "enableNotifications": {
         "label": "Enable notifications",
         "hint": "Turn off to stop local notifications from appearing."
+      },
+      "showNotificationsIcon": {
+        "label": "Show notifications icon",
+        "hint": "Turn off to hide notification icons in the app."
       }
     },
     "appearance": {
@@ -1122,7 +1140,16 @@
         "newDatabase": "New Database",
         "linkToDatabase": "Link to Database"
       },
-      "date": "Date"
+      "date": "Date",
+      "video": {
+        "label": "Video",
+        "emptyLabel": "Add a video",
+        "placeholder": "Enter a link to a video",
+        "copiedToPasteBoard": "The video link has been copied to the clipboard",
+        "insertVideo": "Insert video",
+        "invalidVideoUrl": "Invalid video url, must be a valid file.",
+        "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      }
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"

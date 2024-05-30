@@ -1,5 +1,5 @@
 import { YjsDatabaseKey } from '@/application/collab.type';
-import { useRowData } from '@/application/database-yjs';
+import { useRowDataSelector } from '@/application/database-yjs';
 import { useDateTypeCellDispatcher } from '@/components/database/components/cell/Cell.hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 
@@ -15,14 +15,12 @@ export function RowCreateModifiedTime({
   attrName: YjsDatabaseKey.last_modified | YjsDatabaseKey.created_at;
 }) {
   const { getDateTimeStr } = useDateTypeCellDispatcher(fieldId);
-  const rowData = useRowData(rowId);
+  const { row: rowData } = useRowDataSelector(rowId);
   const [value, setValue] = useState<string | null>(null);
 
   useEffect(() => {
     if (!rowData) return;
     const observeHandler = () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
       setValue(rowData.get(attrName));
     };
 

@@ -5,7 +5,6 @@ import ListItem from '@/components/database/components/board/column/ListItem';
 import { useRenderColumn } from '@/components/database/components/board/column/useRenderColumn';
 import { useMeasureHeight } from '@/components/database/components/cell/useMeasure';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Draggable, DraggableProvided, Droppable } from 'react-beautiful-dnd';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeList } from 'react-window';
 
@@ -13,10 +12,9 @@ export interface ColumnProps {
   id: string;
   rows?: Row[];
   fieldId: string;
-  provided: DraggableProvided;
 }
 
-export function Column({ id, rows, fieldId, provided }: ColumnProps) {
+export function Column({ id, rows, fieldId }: ColumnProps) {
   const { header } = useRenderColumn(id, fieldId);
   const ref = React.useRef<VariableSizeList | null>(null);
   const forceUpdate = useCallback((index: number) => {
@@ -54,13 +52,7 @@ export function Column({ id, rows, fieldId, provided }: ColumnProps) {
         });
       };
 
-      return (
-        <Draggable isDragDisabled draggableId={item.id} index={index} key={item.id}>
-          {(provided) => (
-            <ListItem fieldId={fieldId} onResize={onResizeCallback} provided={provided} item={item} style={style} />
-          )}
-        </Draggable>
-      );
+      return <ListItem fieldId={fieldId} onResize={onResizeCallback} item={item} style={style} />;
     },
     [fieldId, onResize]
   );
@@ -75,55 +67,32 @@ export function Column({ id, rows, fieldId, provided }: ColumnProps) {
     },
     [rowHeight, rows]
   );
+  const rowCount = rows?.length || 0;
 
-  if (!rows) return <div ref={provided.innerRef} />;
   return (
-    <div key={id} className='column flex w-[230px] flex-col gap-4' {...provided.draggableProps} ref={provided.innerRef}>
-      <div className='column-header flex h-[24px] items-center text-xs font-medium' {...provided.dragHandleProps}>
+    <div key={id} className='column flex w-[230px] flex-col gap-4'>
+      <div className='column-header flex h-[24px] items-center text-xs font-medium'>
         <Tag label={header?.name} color={header?.color} />
       </div>
 
       <div className={'w-full flex-1 overflow-hidden'}>
-        <Droppable
-          droppableId={`column-${id}`}
-          mode='virtual'
-          renderClone={(provided, snapshot, rubric) => (
-            <ListItem
-              provided={provided}
-              isDragging={snapshot.isDragging}
-              item={rows[rubric.source.index]}
-              fieldId={fieldId}
-            />
-          )}
-        >
-          {(provided, snapshot) => {
-            // Add an extra item to our list to make space for a dragging item
-            // Usually the DroppableProvided.placeholder does this, but that won't
-            // work in a virtual list
-            const itemCount = snapshot.isUsingPlaceholder ? rows.length + 1 : rows.length;
-
+        <AutoSizer>
+          {({ height, width }: { height: number; width: number }) => {
             return (
-              <AutoSizer>
-                {({ height, width }: { height: number; width: number }) => {
-                  return (
-                    <VariableSizeList
-                      ref={ref}
-                      height={height}
-                      itemCount={itemCount}
-                      itemSize={getItemSize}
-                      width={width}
-                      outerElementType={AFScroller}
-                      outerRef={provided.innerRef}
-                      itemData={rows}
-                    >
-                      {Row}
-                    </VariableSizeList>
-                  );
-                }}
-              </AutoSizer>
+              <VariableSizeList
+                ref={ref}
+                height={height}
+                itemCount={rowCount}
+                itemSize={getItemSize}
+                width={width}
+                outerElementType={AFScroller}
+                itemData={rows}
+              >
+                {Row}
+              </VariableSizeList>
             );
           }}
-        </Droppable>
+        </AutoSizer>
       </div>
     </div>
   );

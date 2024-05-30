@@ -1,4 +1,4 @@
-import { parseChecklistData } from '@/application/database-yjs';
+import { FieldType, parseChecklistData } from '@/application/database-yjs';
 import { CellProps, ChecklistCell as ChecklistCellType } from '@/components/database/components/cell/cell.type';
 import LinearProgressWithLabel from '@/components/_shared/progress/LinearProgressWithLabel';
 import React, { useMemo } from 'react';
@@ -10,6 +10,8 @@ export function ChecklistCell({ cell, style, placeholder }: CellProps<ChecklistC
 
   const options = data?.options;
   const selectedOptions = data?.selectedOptionIds;
+
+  if (cell?.fieldType !== FieldType.Checklist) return null;
 
   if (!data || !options || !selectedOptions)
     return placeholder ? (
