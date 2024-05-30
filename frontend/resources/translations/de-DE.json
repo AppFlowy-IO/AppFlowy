@@ -71,6 +71,7 @@
     "chooseWorkspace": "Arbeitsbereich wählen",
     "create": "Arbeitsbereich erstellen",
     "reset": "Arbeitsbereich zurücksetzen",
+    "renameWorkspace": "Arbeitsbereich umbenennen",
     "resetWorkspacePrompt": "Das Zurücksetzen des Arbeitsbereiches löscht alle enthaltenen Seiten und Daten. Bist du sicher, dass du den Arbeitsbereich zurücksetzen möchtest? ",
     "hint": "Arbeitsbereich",
     "notFoundError": "Arbeitsbereich nicht gefunden",
@@ -137,7 +138,9 @@
     "openNewTab": "In einem neuen Tab öffnen",
     "moveTo": "Verschieben nach",
     "addToFavorites": "Zu Favoriten hinzufügen",
-    "copyLink": "Link kopieren"
+    "copyLink": "Link kopieren",
+    "changeIcon": "Symbol ändern",
+    "collapseAllPages": "Alle Seiten einklappen"
   },
   "blankPageTitle": "Leere Seite",
   "newPageText": "Neue Seite",
@@ -243,6 +246,9 @@
     "addAPageToPrivate": "Eine Seite zum privaten Bereich hinzufügen.",
     "addAPageToWorkspace": "Eine Seite zum Arbeitsbereich hinzufügen",
     "recent": "Zuletzt",
+    "today": "Heute",
+    "thisWeek": "Diese Woche",
+    "others": "Andere",
     "public": "Öffentlich",
     "clickToHidePublic": "Hier klicken, um den öffentlichen Bereich auszublenden.\nHier erstellte Seiten sind für jedes Mitglied sichtbar.",
     "addAPageToPublic": "Eine Seite zum öffentlichen Bereich hinzufügen."
@@ -300,7 +306,8 @@
     "back": "Zurück",
     "signInGoogle": "Mit einem Google Benutzerkonto anmelden",
     "signInGithub": "Mit einem Github Benutzerkonto anmelden",
-    "signInDiscord": "Mit einem Discord Benutzerkonto anmelden"
+    "signInDiscord": "Mit einem Discord Benutzerkonto anmelden",
+    "more": "Mehr"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -1274,7 +1281,13 @@
       "today": "Heute",
       "jumpToday": "Springe zu Heute",
       "previousMonth": "Vorheriger Monat",
-      "nextMonth": "Nächster Monat"
+      "nextMonth": "Nächster Monat",
+      "views": {
+        "day": "Tag",
+        "week": "Woche",
+        "month": "Monat",
+        "year": "Jahr"
+      }
     },
     "mobileEventScreen": {
       "emptyTitle": "Noch keine Events",
@@ -1294,7 +1307,8 @@
       },
       "unscheduledEventsTitle": "Ungeplante Events",
       "clickToAdd": "Klicken Sie, um es zum Kalender hinzuzufügen",
-      "name": "Kalendereinstellungen"
+      "name": "Kalendereinstellungen",
+      "clickToOpen": "Hier klicken, um den Eintrag zu öffnen"
     },
     "referencedCalendarPrefix": "Sicht von",
     "quickJumpYear": "Spring zu",
@@ -1585,7 +1599,9 @@
   },
   "favorite": {
     "noFavorite": "Leere Favoritenseite",
-    "noFavoriteHintText": "Nach links wischen, um es den Favoriten hinzuzufügen"
+    "noFavoriteHintText": "Nach links wischen, um es den Favoriten hinzuzufügen",
+    "removeFromSidebar": "Aus der Seitenleiste entfernen",
+    "addToSidebar": "An Seitenleiste anheften"
   },
   "cardDetails": {
     "notesPlaceholder": "'/'-Taste, um einen Block einzufügen oder Text eingeben"
@@ -1638,6 +1654,7 @@
       "workplaceIconSubtitle": "Lade ein Bild hoch oder verwende ein Emoji für deinen Arbeitsbereich. Das Symbol wird in deiner Seitenleiste und in deinen Benachrichtigungen angezeigt.",
       "renameError": "Umbenennen des Arbeitsbereiches fehlgeschlagen",
       "updateIconError": "Symbol konnte nicht aktualisiert werden",
+      "chooseAnIcon": "Symbol auswählen",
       "appearance": {
         "name": "Aussehen",
         "themeMode": {
