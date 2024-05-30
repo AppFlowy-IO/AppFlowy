@@ -55,9 +55,8 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration.copyWith(
         placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
       ),
-      iconBuilder: PlatformExtension.isMobile
-          ? (_, node, onCheck) => TodoListIcon(node: node, onCheck: onCheck)
-          : null,
+      iconBuilder: (_, node, onCheck) =>
+          TodoListIcon(node: node, onCheck: onCheck),
       toggleChildrenTriggers: [
         LogicalKeyboardKey.shift,
         LogicalKeyboardKey.shiftLeft,
@@ -68,18 +67,14 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration.copyWith(
         placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
       ),
-      iconBuilder: PlatformExtension.isMobile
-          ? (_, node) => BulletedListIcon(node: node)
-          : null,
+      iconBuilder: (_, node) => BulletedListIcon(node: node),
     ),
     NumberedListBlockKeys.type: NumberedListBlockComponentBuilder(
       configuration: configuration.copyWith(
         placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
       ),
-      iconBuilder: PlatformExtension.isMobile
-          ? (_, node, textDirection) =>
-              NumberedListIcon(node: node, textDirection: textDirection)
-          : null,
+      iconBuilder: (_, node, textDirection) =>
+          NumberedListIcon(node: node, textDirection: textDirection),
     ),
     QuoteBlockKeys.type: QuoteBlockComponentBuilder(
       configuration: configuration.copyWith(
@@ -169,7 +164,10 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
     ),
     CalloutBlockKeys.type: CalloutBlockComponentBuilder(
-      configuration: configuration,
+      configuration: configuration.copyWith(
+        textStyle: (_) => styleCustomizer.calloutBlockStyleBuilder(),
+        placeholderTextStyle: (_) => styleCustomizer.calloutBlockStyleBuilder(),
+      ),
       defaultColor: calloutBGColor,
     ),
     DividerBlockKeys.type: DividerBlockComponentBuilder(
