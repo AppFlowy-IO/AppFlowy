@@ -431,25 +431,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
   }
 }
 
-class _DotIconWidget extends StatelessWidget {
-  const _DotIconWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(6.0),
-      child: Container(
-        width: 4,
-        height: 4,
-        decoration: BoxDecoration(
-          color: Theme.of(context).iconTheme.color,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
-    );
-  }
-}
-
 // workaround: we should use view.isEndPoint or something to check if the view can contain child views. But currently, we don't have that field.
 bool isReferencedDatabaseView(ViewPB view, ViewPB? parentView) {
   if (parentView == null) {

@@ -11,7 +11,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobileFavoriteSpace extends StatelessWidget {
+class MobileFavoriteSpace extends StatefulWidget {
   const MobileFavoriteSpace({
     super.key,
     required this.userProfile,
@@ -20,7 +20,17 @@ class MobileFavoriteSpace extends StatelessWidget {
   final UserProfilePB userProfile;
 
   @override
+  State<MobileFavoriteSpace> createState() => _MobileFavoriteSpaceState();
+}
+
+class _MobileFavoriteSpaceState extends State<MobileFavoriteSpace>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final workspaceId =
         context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
             '';
@@ -28,7 +38,9 @@ class MobileFavoriteSpace extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) => SidebarSectionsBloc()
-            ..add(SidebarSectionsEvent.initial(userProfile, workspaceId)),
+            ..add(
+              SidebarSectionsEvent.initial(widget.userProfile, workspaceId),
+            ),
         ),
         BlocProvider(
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
