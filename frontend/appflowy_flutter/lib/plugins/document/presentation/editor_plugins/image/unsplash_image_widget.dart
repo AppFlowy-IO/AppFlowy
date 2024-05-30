@@ -128,12 +128,7 @@ class _UnsplashImages extends StatefulWidget {
 }
 
 class _UnsplashImagesState extends State<_UnsplashImages> {
-  late int _selectedPhotoIndex;
-  @override
-  void initState() {
-    super.initState();
-    _selectedPhotoIndex = -1;
-  }
+  int _selectedPhotoIndex = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +198,7 @@ class _UnsplashImage extends StatelessWidget {
               decoration: ShapeDecoration(
                 shape: RoundedRectangleBorder(
                   side: const BorderSide(width: 1.50, color: Color(0xFF00BCF0)),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
               padding: const EdgeInsets.all(2.0),
