@@ -1,3 +1,4 @@
+use flowy_sqlite::upsert::excluded;
 use flowy_sqlite::{
   diesel,
   query_dsl::*,
@@ -17,6 +18,12 @@ pub struct ChatTable {
 pub fn insert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<usize> {
   diesel::insert_into(chat_table::table)
     .values(new_chat)
+    .on_conflict(chat_table::chat_id)
+    .do_update()
+    .set((
+      chat_table::created_at.eq(excluded(chat_table::created_at)),
+      chat_table::name.eq(excluded(chat_table::name)),
+    ))
     .execute(&mut *conn)
 }
 

@@ -1,4 +1,3 @@
--- Your SQL goes here
 -- Create table for chat documents
 CREATE TABLE chat_table
 (
@@ -16,8 +15,6 @@ CREATE TABLE chat_message_table
     created_at       BIGINT             NOT NULL,
     author_type      BIGINT             NOT NULL,
     author_id        TEXT               NOT NULL,
-    reply_message_id BIGINT,
-    FOREIGN KEY (chat_id) REFERENCES chat_table (chat_id) ON DELETE CASCADE
+    reply_message_id BIGINT
 );
-
-CREATE INDEX idx_chat_messages_chat_id_created_at ON chat_message_table (message_id ASC, created_at ASC);
+CREATE INDEX idx_chat_messages_chat_id_message_id ON chat_message_table (chat_id, message_id);

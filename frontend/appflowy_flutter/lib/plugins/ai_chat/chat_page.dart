@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -34,15 +33,13 @@ class AIChatPage extends StatefulWidget {
 }
 
 class _AIChatPageState extends State<AIChatPage> {
+  late types.User _user;
+
   @override
   void initState() {
     super.initState();
-    _user = types.User(
-      id: widget.userProfile.id.toString(),
-    );
+    _user = types.User(id: widget.userProfile.id.toString());
   }
-
-  late types.User _user;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +54,9 @@ class _AIChatPageState extends State<AIChatPage> {
           child: BlocListener<ChatBloc, ChatState>(
             listenWhen: (previous, current) =>
                 previous.loadingStatus != current.loadingStatus,
-            listener: (context, state) {},
+            listener: (context, state) {
+              // Handle state changes if necessary
+            },
             child: BlocBuilder<ChatBloc, ChatState>(
               builder: (blocContext, state) {
                 return Chat(
@@ -69,13 +68,11 @@ class _AIChatPageState extends State<AIChatPage> {
                         .add(ChatEvent.tapMessage(message));
                   },
                   onSendPressed: (types.PartialText message) {
-                    // Do nothing. We use the custom input widget.
-                    // onSendPressed(blocContext, message);
+                    // Custom input handling, so do nothing here
                   },
                   customBottomWidget: ChatInput(
-                    onSendPressed: (message) {
-                      onSendPressed(blocContext, message);
-                    },
+                    onSendPressed: (message) =>
+                        onSendPressed(blocContext, message),
                   ),
                   user: _user,
                   theme: buildTheme(context),
@@ -87,15 +84,12 @@ class _AIChatPageState extends State<AIChatPage> {
                     );
                   },
                   onEndReached: () async {
-                    if (state.hasMore) {
-                      state.loadingPreviousStatus.when(
-                        loading: () => Log.debug("loading"),
-                        finish: () {
-                          blocContext
-                              .read<ChatBloc>()
-                              .add(const ChatEvent.loadPrevMessage());
-                        },
-                      );
+                    if (state.hasMore &&
+                        state.loadingPreviousStatus !=
+                            const LoadingState.loading()) {
+                      blocContext
+                          .read<ChatBloc>()
+                          .add(const ChatEvent.loadPrevMessage());
                     }
                   },
                   emptyState: const Center(
@@ -138,12 +132,8 @@ class _AIChatPageState extends State<AIChatPage> {
           switch (action) {
             case ChatMessageAction.copy:
               if (message is TextMessage) {
-                Clipboard.setData(
-                  ClipboardData(text: message.text),
-                );
-                showMessageToast(
-                  LocaleKeys.grid_row_copyProperty.tr(),
-                );
+                Clipboard.setData(ClipboardData(text: message.text));
+                showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
               }
               break;
           }
@@ -201,10 +191,7 @@ class _AIChatPageState extends State<AIChatPage> {
     );
   }
 
-  void onSendPressed(
-    BuildContext context,
-    types.PartialText message,
-  ) {
+  void onSendPressed(BuildContext context, types.PartialText message) {
     context.read<ChatBloc>().add(ChatEvent.sendMessage(message.text));
   }
 }

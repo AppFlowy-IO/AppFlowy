@@ -67,8 +67,6 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(chat_message_table -> chat_table (chat_id));
-
 diesel::allow_tables_to_appear_in_same_query!(
     chat_message_table,
     chat_table,

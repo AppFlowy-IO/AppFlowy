@@ -155,7 +155,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Future<void> _handleSentMessage(
-      String message, Emitter<ChatState> emit) async {
+    String message,
+    Emitter<ChatState> emit,
+  ) async {
     final payload = SendChatPayloadPB(
       chatId: state.view.id,
       message: message,
@@ -213,7 +215,9 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.didFinishStreamingChatMessage() =
       _FinishStreamingMessage;
   const factory ChatEvent.didLoadPreviousMessages(
-      List<Message> messages, bool hasMore) = _DidLoadPreviousMessages;
+    List<Message> messages,
+    bool hasMore,
+  ) = _DidLoadPreviousMessages;
 }
 
 @freezed

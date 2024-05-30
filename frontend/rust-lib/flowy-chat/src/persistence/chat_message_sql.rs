@@ -31,7 +31,6 @@ pub fn insert_chat_messages(
         .on_conflict(chat_message_table::message_id)
         .do_update()
         .set((
-          chat_message_table::chat_id.eq(excluded(chat_message_table::chat_id)),
           chat_message_table::content.eq(excluded(chat_message_table::content)),
           chat_message_table::created_at.eq(excluded(chat_message_table::created_at)),
           chat_message_table::author_type.eq(excluded(chat_message_table::author_type)),

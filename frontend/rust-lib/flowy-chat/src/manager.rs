@@ -61,7 +61,7 @@ impl ChatManager {
     Ok(())
   }
 
-  pub async fn create_chat(&self, uid: &i64, chat_id: &str) -> Result<(), FlowyError> {
+  pub async fn create_chat(&self, uid: &i64, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
     self
       .cloud_service
@@ -75,8 +75,8 @@ impl ChatManager {
       self.user_service.clone(),
       self.cloud_service.clone(),
     ));
-    self.chats.insert(chat_id.to_string(), chat);
-    Ok(())
+    self.chats.insert(chat_id.to_string(), chat.clone());
+    Ok(chat)
   }
 
   #[instrument(level = "info", skip_all, err)]
@@ -86,13 +86,25 @@ impl ChatManager {
     message: &str,
     message_type: ChatMessageType,
   ) -> Result<(), FlowyError> {
+    let chat = self.get_or_create_chat_instance(chat_id).await?;
+    chat.send_chat_message(message, message_type).await?;
+    Ok(())
+  }
+
+  pub async fn get_or_create_chat_instance(&self, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
     let chat = self.chats.get(chat_id).as_deref().cloned();
     match chat {
-      None => Err(FlowyError::internal().with_context("Should call open chat first")),
-      Some(chat) => {
-        chat.send_chat_message(message, message_type).await?;
-        Ok(())
+      None => {
+        let chat = Arc::new(Chat::new(
+          self.user_service.user_id().unwrap(),
+          chat_id.to_string(),
+          self.user_service.clone(),
+          self.cloud_service.clone(),
+        ));
+        self.chats.insert(chat_id.to_string(), chat.clone());
+        Ok(chat)
       },
+      Some(chat) => Ok(chat),
     }
   }
 
@@ -117,16 +129,11 @@ impl ChatManager {
     limit: i64,
     before_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
-    let chat = self.chats.get(chat_id).as_deref().cloned();
-    match chat {
-      None => Err(FlowyError::internal().with_context("Should call open chat first")),
-      Some(chat) => {
-        let list = chat
-          .load_prev_chat_messages(limit, before_message_id)
-          .await?;
-        Ok(list)
-      },
-    }
+    let chat = self.get_or_create_chat_instance(chat_id).await?;
+    let list = chat
+      .load_prev_chat_messages(limit, before_message_id)
+      .await?;
+    Ok(list)
   }
 
   pub async fn load_latest_chat_messages(
@@ -135,16 +142,11 @@ impl ChatManager {
     limit: i64,
     after_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
-    let chat = self.chats.get(chat_id).as_deref().cloned();
-    match chat {
-      None => Err(FlowyError::internal().with_context("Should call open chat first")),
-      Some(chat) => {
-        let list = chat
-          .load_latest_chat_messages(limit, after_message_id)
-          .await?;
-        Ok(list)
-      },
-    }
+    let chat = self.get_or_create_chat_instance(chat_id).await?;
+    let list = chat
+      .load_latest_chat_messages(limit, after_message_id)
+      .await?;
+    Ok(list)
   }
 }
 
