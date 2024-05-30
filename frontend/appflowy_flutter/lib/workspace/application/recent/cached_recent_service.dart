@@ -48,13 +48,22 @@ class CachedRecentService {
   Future<FlowyResult<void, FlowyError>> updateRecentViews(
     List<String> viewIds,
     bool addInRecent,
-  ) async =>
-      FolderEventUpdateRecentViews(
-        UpdateRecentViewPayloadPB(
-          viewIds: viewIds,
-          addInRecent: addInRecent,
-        ),
-      ).send();
+  ) async {
+    final List<String> duplicatedViewIds = [];
+    for (final viewId in viewIds) {
+      for (final view in _recentViews) {
+        if (view.item.id == viewId) {
+          duplicatedViewIds.add(viewId);
+        }
+      }
+    }
+    return FolderEventUpdateRecentViews(
+      UpdateRecentViewPayloadPB(
+        viewIds: addInRecent ? viewIds : duplicatedViewIds,
+        addInRecent: addInRecent,
+      ),
+    ).send();
+  }
 
   Future<FlowyResult<RepeatedRecentViewPB, FlowyError>> _readRecentViews() =>
       FolderEventReadRecentViews().send();
