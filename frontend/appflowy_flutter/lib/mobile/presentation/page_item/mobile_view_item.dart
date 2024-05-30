@@ -257,7 +257,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     final children = [
       // expand icon
       _buildLeftIcon(),
-      const HSpace(6),
       // icon
       _buildViewIcon(),
       const HSpace(8),
@@ -326,22 +325,23 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
   // show > if the view is expandable.
   // show · if the view can't contain child views.
   Widget _buildLeftIcon() {
-    if (isReferencedDatabaseView(widget.view, widget.parentView)) {
-      return const _DotIconWidget();
-    }
-
     if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
       return HSpace(widget.leftPadding);
     }
 
     return GestureDetector(
-      child: AnimatedRotation(
-        duration: const Duration(milliseconds: 250),
-        turns: widget.isExpanded ? 0 : -0.25,
-        child: const FlowySvg(
-          FlowySvgs.m_expand_s,
-          blendMode: null,
-        ),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 6.0, top: 6.0, bottom: 6.0),
+        child: widget.isExpanded
+            ? const FlowySvg(
+                FlowySvgs.m_expand_s,
+                blendMode: null,
+              )
+            : const FlowySvg(
+                FlowySvgs.m_collapse_s,
+                blendMode: null,
+              ),
       ),
       onTap: () {
         context
