@@ -148,7 +148,7 @@ class FavoriteMenu extends StatelessWidget {
   }
 }
 
-class _FavoriteSearchField extends StatelessWidget {
+class _FavoriteSearchField extends StatefulWidget {
   const _FavoriteSearchField({
     required this.width,
     required this.onSearch,
@@ -158,10 +158,29 @@ class _FavoriteSearchField extends StatelessWidget {
   final void Function(BuildContext context, String text) onSearch;
 
   @override
+  State<_FavoriteSearchField> createState() => _FavoriteSearchFieldState();
+}
+
+class _FavoriteSearchFieldState extends State<_FavoriteSearchField> {
+  final focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    focusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       height: 30,
-      width: width,
+      width: widget.width,
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         shape: RoundedRectangleBorder(
@@ -174,8 +193,9 @@ class _FavoriteSearchField extends StatelessWidget {
         ),
       ),
       child: CupertinoSearchTextField(
-        onChanged: (text) => onSearch(context, text),
+        onChanged: (text) => widget.onSearch(context, text),
         padding: EdgeInsets.zero,
+        focusNode: focusNode,
         placeholder: LocaleKeys.search_label.tr(),
         prefixIcon: const FlowySvg(FlowySvgs.m_search_m),
         prefixInsets: const EdgeInsets.only(left: 12.0, right: 8.0),
