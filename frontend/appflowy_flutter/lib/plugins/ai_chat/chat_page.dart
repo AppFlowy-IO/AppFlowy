@@ -2,10 +2,14 @@ import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat, DarkChatTheme;
+import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+
+import 'presentation/chat_input.dart';
+import 'presentation/chat_theme.dart';
 
 class AIChatPage extends StatefulWidget {
   const AIChatPage({
@@ -33,7 +37,6 @@ class _AIChatPageState extends State<AIChatPage> {
   }
 
   late types.User _user;
-  final chatTheme = const DarkChatTheme();
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +64,15 @@ class _AIChatPageState extends State<AIChatPage> {
                   },
                   onSendPressed: (types.PartialText message) {
                     // Do nothing. We use the custom input widget.
-                    onSendPressed(blocContext, message);
+                    // onSendPressed(blocContext, message);
                   },
+                  customBottomWidget: ChatInput(
+                    onSendPressed: (message) {
+                      onSendPressed(blocContext, message);
+                    },
+                  ),
                   user: _user,
-                  theme: chatTheme,
+                  theme: buildTheme(context),
                   customMessageBuilder: (message, {required messageWidth}) {
                     return const SizedBox(
                       width: 100,
@@ -95,6 +103,52 @@ class _AIChatPageState extends State<AIChatPage> {
           ),
         ),
       ),
+    );
+  }
+
+  AFDefaultChatTheme buildTheme(BuildContext context) {
+    return AFDefaultChatTheme(
+      backgroundColor: AFThemeExtension.of(context).background,
+      primaryColor: Theme.of(context).colorScheme.primary,
+      secondaryColor: AFThemeExtension.of(context).tint1,
+      receivedMessageDocumentIconColor: Theme.of(context).primaryColor,
+      receivedMessageCaptionTextStyle: TextStyle(
+        color: AFThemeExtension.of(context).textColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        height: 1.5,
+      ),
+      receivedMessageBodyTextStyle: TextStyle(
+        color: AFThemeExtension.of(context).textColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        height: 1.5,
+      ),
+      receivedMessageLinkTitleTextStyle: TextStyle(
+        color: AFThemeExtension.of(context).textColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        height: 1.5,
+      ),
+      receivedMessageBodyLinkTextStyle: const TextStyle(
+        color: Colors.lightBlue,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        height: 1.5,
+      ),
+      sentMessageBodyTextStyle: TextStyle(
+        color: AFThemeExtension.of(context).textColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        height: 1.5,
+      ),
+      sentMessageBodyLinkTextStyle: const TextStyle(
+        color: Colors.blue,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        height: 1.5,
+      ),
+      inputElevation: 2,
     );
   }
 

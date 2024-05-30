@@ -1,18 +1,11 @@
 use crate::entities::{ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB};
 use crate::manager::ChatUserService;
 use crate::notification::{send_notification, ChatNotification};
-use crate::persistence::{
-  insert_chat, insert_chat_messages, select_chat_messages, ChatMessageTable, ChatTable,
-};
-use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageStream, ChatMessageType, MessageCursor,
-};
+use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use futures::StreamExt;
-use lib_infra::util::timestamp;
-use std::future::Future;
-
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{error, instrument, trace};

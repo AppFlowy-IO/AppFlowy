@@ -1,8 +1,12 @@
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+
+// final isMobile = defaultTargetPlatform == TargetPlatform.android ||
+//     defaultTargetPlatform == TargetPlatform.iOS;
 
 /// A class that represents bottom bar widget with a text field, attachment and
 /// send buttons inside. By default hides send button when text field is empty.
@@ -109,10 +113,10 @@ class _ChatInputState extends State<ChatInput> {
 
   Widget _inputBuilder() {
     final query = MediaQuery.of(context);
-    final buttonPadding = InheritedChatTheme.of(context)
-        .theme
-        .inputPadding
-        .copyWith(left: 16, right: 16);
+    const textPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 6);
+    const buttonPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 6);
+    const inputPadding = EdgeInsets.all(6);
+
     final safeAreaInsets = isMobile
         ? EdgeInsets.fromLTRB(
             query.padding.left,
@@ -121,32 +125,16 @@ class _ChatInputState extends State<ChatInput> {
             query.viewInsets.bottom + query.padding.bottom,
           )
         : EdgeInsets.zero;
-    final textPadding = InheritedChatTheme.of(context)
-        .theme
-        .inputPadding
-        .copyWith(left: 0, right: 0)
-        .add(
-          EdgeInsets.fromLTRB(
-            widget.onAttachmentPressed != null ? 0 : 24,
-            0,
-            _sendButtonVisible ? 0 : 24,
-            0,
-          ),
-        );
 
     return Focus(
       autofocus: !widget.options.autofocus,
       child: Padding(
-        padding: InheritedChatTheme.of(context).theme.inputMargin,
+        padding: inputPadding,
         child: Material(
-          borderRadius: InheritedChatTheme.of(context).theme.inputBorderRadius,
-          color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
-          surfaceTintColor:
-              InheritedChatTheme.of(context).theme.inputSurfaceTintColor,
-          elevation: InheritedChatTheme.of(context).theme.inputElevation,
+          borderRadius: BorderRadius.circular(12),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          elevation: 0.6,
           child: Container(
-            decoration:
-                InheritedChatTheme.of(context).theme.inputContainerDecoration,
             padding: safeAreaInsets,
             child: Row(
               textDirection: TextDirection.ltr,
@@ -166,38 +154,24 @@ class _ChatInputState extends State<ChatInput> {
                       autofocus: widget.options.autofocus,
                       enableSuggestions: widget.options.enableSuggestions,
                       controller: _textController,
-                      cursorColor: InheritedChatTheme.of(context)
-                          .theme
-                          .inputTextCursorColor,
-                      decoration: InheritedChatTheme.of(context)
-                          .theme
-                          .inputTextDecoration
-                          .copyWith(
-                            hintStyle: InheritedChatTheme.of(context)
-                                .theme
-                                .inputTextStyle
-                                .copyWith(
-                                  color: InheritedChatTheme.of(context)
-                                      .theme
-                                      .inputTextColor
-                                      .withOpacity(0.5),
-                                ),
-                            hintText: "",
-                          ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: '',
+                        hintStyle: TextStyle(
+                          color: AFThemeExtension.of(context)
+                              .textColor
+                              .withOpacity(0.5),
+                        ),
+                      ),
                       focusNode: _inputFocusNode,
                       keyboardType: widget.options.keyboardType,
                       maxLines: 5,
                       minLines: 1,
                       onChanged: widget.options.onTextChanged,
                       onTap: widget.options.onTextFieldTap,
-                      style: InheritedChatTheme.of(context)
-                          .theme
-                          .inputTextStyle
-                          .copyWith(
-                            color: InheritedChatTheme.of(context)
-                                .theme
-                                .inputTextColor,
-                          ),
+                      style: TextStyle(
+                        color: AFThemeExtension.of(context).textColor,
+                      ),
                       textCapitalization: TextCapitalization.sentences,
                     ),
                   ),
@@ -296,25 +270,6 @@ class InputOptions {
 
   /// Controls the [TextInput] enabled behavior. Defaults to [true].
   final bool enabled;
-}
-
-class InheritedChatTheme extends InheritedWidget {
-  /// Creates [InheritedWidget] from a provided [ChatTheme] class.
-  const InheritedChatTheme({
-    super.key,
-    required this.theme,
-    required super.child,
-  });
-
-  static InheritedChatTheme of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<InheritedChatTheme>()!;
-
-  /// Represents chat theme.
-  final ChatTheme theme;
-
-  @override
-  bool updateShouldNotify(InheritedChatTheme oldWidget) =>
-      theme.hashCode != oldWidget.theme.hashCode;
 }
 
 final isMobile = defaultTargetPlatform == TargetPlatform.android ||
