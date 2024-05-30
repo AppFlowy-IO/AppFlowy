@@ -39,13 +39,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         add(ChatEvent.streamingChatMessage([error]));
       },
       latestMessageCallback: (list) {
-        final messages =
-            list.messages.map((m) => _createChatMessage(m)).toList();
+        final messages = list.messages.map(_createChatMessage).toList();
         add(ChatEvent.didLoadLatestMessages(messages));
       },
       prevMessageCallback: (list) {
-        final messages =
-            list.messages.map((m) => _createChatMessage(m)).toList();
+        final messages = list.messages.map(_createChatMessage).toList();
         add(ChatEvent.didLoadPreviousMessages(messages, list.hasMore));
       },
       finishAnswerQuestionCallback: () {
@@ -88,34 +86,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             );
           },
           didLoadLatestMessages: (List<Message> messages) {
-            final Set<Message> uniqueMessages = {
-              ...state.messages,
-              ...messages,
-            };
+            final uniqueMessages = {...state.messages, ...messages}.toList()
+              ..sort((a, b) => b.id.compareTo(a.id));
             emit(
               state.copyWith(
-                messages: uniqueMessages.toList(),
-                loadingStatus: const LoadingState.finish(),
-              ),
-            );
-            emit(
-              state.copyWith(
-                messages: uniqueMessages.toList(),
+                messages: uniqueMessages,
                 loadingStatus: const LoadingState.finish(),
               ),
             );
           },
           didLoadPreviousMessages: (List<Message> messages, bool hasMore) {
             Log.debug("did load previous messages: ${messages.length}");
-            // reorder all messages by message id by desc order
-            final Set<Message> uniqueMessages = {
-              ...state.messages,
-              ...messages,
-            };
-
+            final uniqueMessages = {...state.messages, ...messages}.toList()
+              ..sort((a, b) => b.id.compareTo(a.id));
             emit(
               state.copyWith(
-                messages: uniqueMessages.toList(),
+                messages: uniqueMessages,
                 loadingPreviousStatus: const LoadingState.finish(),
                 hasMore: hasMore,
               ),
@@ -123,15 +109,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           },
           tapMessage: (Message message) {},
           streamingChatMessage: (List<Message> messages) {
-            final List<Message> allMessages = List.from(state.messages);
-            allMessages.removeWhere((element) {
-              return element.metadata
+            final allMessages = state.messages.where((element) {
+              return !(element.metadata
                           ?.containsValue(CustomMessageType.loading) ==
                       true ||
                   element.metadata
                           ?.containsValue(CustomMessageType.streamError) ==
-                      true;
-            });
+                      true);
+            }).toList();
             allMessages.insertAll(0, messages);
             emit(state.copyWith(messages: allMessages));
           },
@@ -145,9 +130,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           sendMessage: (String message) async {
             await _handleSentMessage(message, emit);
             final loadingMessage =
-                _loaddingMessage(state.userProfile.id.toString());
-            final List<Message> allMessages = List.from(state.messages);
-            allMessages.insert(0, loadingMessage);
+                _loadingMessage(state.userProfile.id.toString());
+            final allMessages = List<Message>.from(state.messages)
+              ..insert(0, loadingMessage);
             emit(
               state.copyWith(
                 messages: allMessages,
@@ -160,9 +145,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  void _loadPrevMessage(
-    Int64? beforeMessageId,
-  ) {
+  void _loadPrevMessage(Int64? beforeMessageId) {
     final payload = LoadPrevChatMessagePB(
       chatId: state.view.id,
       limit: Int64(10),
@@ -172,9 +155,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Future<void> _handleSentMessage(
-    String message,
-    Emitter<ChatState> emit,
-  ) async {
+      String message, Emitter<ChatState> emit) async {
     final payload = SendChatPayloadPB(
       chatId: state.view.id,
       message: message,
@@ -186,25 +167,21 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   void _handleChatMessage(ChatMessagePB pb) {
     if (!isClosed) {
       final message = _createChatMessage(pb);
-      final List<Message> messages = [];
-      if (pb.hasFollowing) {
-        messages.addAll([_loaddingMessage(0.toString()), message]);
-      } else {
-        messages.add(message);
-      }
+      final messages = pb.hasFollowing
+          ? [_loadingMessage(0.toString()), message]
+          : [message];
       add(ChatEvent.streamingChatMessage(messages));
     }
   }
 
-  Message _loaddingMessage(String id) {
-    final loadingMessage = CustomMessage(
+  Message _loadingMessage(String id) {
+    return CustomMessage(
       author: User(id: id),
       metadata: {
         CustomMessageType.loading.toString(): CustomMessageType.loading,
       },
       id: 'chat_message_loading_id',
     );
-    return loadingMessage;
   }
 
   Message _createChatMessage(ChatMessagePB message) {
@@ -219,10 +196,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Message? _getReplyMessage(List<Message?> messages, String messageId) {
-    final message = messages.firstWhereOrNull(
-      (element) => element!.id == messageId,
-    );
-    return message;
+    return messages.firstWhereOrNull((element) => element?.id == messageId);
   }
 }
 
@@ -239,9 +213,7 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.didFinishStreamingChatMessage() =
       _FinishStreamingMessage;
   const factory ChatEvent.didLoadPreviousMessages(
-    List<Message> messages,
-    bool hasMore,
-  ) = _DidLoadPreviousMessages;
+      List<Message> messages, bool hasMore) = _DidLoadPreviousMessages;
 }
 
 @freezed
@@ -256,10 +228,7 @@ class ChatState with _$ChatState {
     required bool hasMore,
   }) = _ChatState;
 
-  factory ChatState.initial(
-    ViewPB view,
-    UserProfilePB userProfile,
-  ) =>
+  factory ChatState.initial(ViewPB view, UserProfilePB userProfile) =>
       ChatState(
         view: view,
         messages: [],

@@ -324,7 +324,7 @@ fn stream_send_chat_messages(
               let pb = ChatMessageErrorPB {
                 chat_id: chat_id.clone(),
                 content: message_content.clone(),
-                error_message: "Service unavailable".to_string(),
+                error_message: "Service Temporarily Unavailable".to_string(),
               };
               send_notification(&chat_id, ChatNotification::ChatMessageError)
                 .payload(pb)
