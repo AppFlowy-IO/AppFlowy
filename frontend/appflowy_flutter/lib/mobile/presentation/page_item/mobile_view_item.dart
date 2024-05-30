@@ -274,11 +274,11 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     // hover action
 
     // ··· more action button
-    // children.add(_buildViewMoreActionButton(context));
+    children.add(_buildViewMoreButton(context));
     // only support add button for document layout
     if (!widget.isFeedback && widget.view.layout == ViewLayoutPB.Document) {
       // + button
-      children.add(_buildViewMoreButton(context));
+
       children.add(_buildViewAddButton(context));
     }
 
