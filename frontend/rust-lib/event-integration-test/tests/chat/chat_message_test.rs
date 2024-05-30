@@ -58,7 +58,7 @@ async fn af_cloud_load_remote_system_message_test() {
   let chat_service = test.server_provider.get_server().unwrap().chat_service();
   for i in 0..10 {
     chat_service
-      .send_system_message(
+      .send_chat_message(
         &current_workspace.id,
         &chat_id,
         &format!("hello server {}", i),

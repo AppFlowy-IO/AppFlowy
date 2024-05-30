@@ -1,14 +1,20 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 import 'presentation/chat_input.dart';
+import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_theme.dart';
 
 class AIChatPage extends StatefulWidget {
@@ -95,37 +101,56 @@ class _AIChatPageState extends State<AIChatPage> {
                               .add(const ChatEvent.loadMessage());
                         },
                       );
-                    } else {
-                      Log.debug("no more messages");
                     }
                   },
                   bubbleBuilder: (
                     child, {
                     required message,
                     required nextMessageInGroup,
-                  }) {
-                    final isAuthor = message.author.id == _user.id;
-                    const borderRadius = BorderRadius.all(Radius.circular(20));
-                    return DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: borderRadius,
-                        color:
-                            !isAuthor || message.type == types.MessageType.image
-                                ? AFThemeExtension.of(context).tint1
-                                : Theme.of(context).colorScheme.primary,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: borderRadius,
-                        child: Container(child: child),
-                      ),
-                    );
-                  },
+                  }) =>
+                      buildBubble(message, child),
                 );
               },
             ),
           ),
         ),
       ),
+    );
+  }
+
+  ChatPopupMenu buildBubble(Message message, Widget child) {
+    final isAuthor = message.author.id == _user.id;
+    const borderRadius = BorderRadius.all(Radius.circular(20));
+
+    return ChatPopupMenu(
+      onAction: (action) {
+        switch (action) {
+          case ChatMessageAction.copy:
+            if (message is TextMessage) {
+              Clipboard.setData(
+                ClipboardData(text: message.text),
+              );
+              showMessageToast(
+                LocaleKeys.grid_row_copyProperty.tr(),
+              );
+            }
+            break;
+        }
+      },
+      builder: (context) {
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: borderRadius,
+            color: !isAuthor || message.type == types.MessageType.image
+                ? AFThemeExtension.of(context).tint1
+                : Theme.of(context).colorScheme.primary,
+          ),
+          child: ClipRRect(
+            borderRadius: borderRadius,
+            child: Container(child: child),
+          ),
+        );
+      },
     );
   }
 
