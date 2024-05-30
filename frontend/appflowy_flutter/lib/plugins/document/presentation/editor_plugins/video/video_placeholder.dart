@@ -36,7 +36,7 @@ class VideoPlaceholderState extends State<VideoPlaceholder> {
   Widget build(BuildContext context) {
     final Widget child = DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(4),
       ),
       child: FlowyHover(

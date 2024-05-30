@@ -62,10 +62,10 @@ packages:
     dependency: "direct main"
     description:
       name: appflowy_editor_plugins
-      sha256: "3325a8e71e24ac8547462aee75bff87c43e6fd1ece8b37c91180b6fde43cca05"
+      sha256: "46c899acc22245798e5beed255852455d9d85c3fae8b275ef4db257810b1c59d"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "0.0.6"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -1616,7 +1616,7 @@ packages:
       sha256: a2ad9f22cf2200a5ce455b59c5ea7bfb09a84acfc52452d1db54f4958c99d76a
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.3.0"
   screen_brightness:
     dependency: transitive
     description:
@@ -2248,7 +2248,7 @@ packages:
       sha256: "3923c89304b715fb1eb6423f017651664a03bf5f4b29983627c4da791f74a4ec"
       url: "https://pub.dev"
     source: hosted
-    version: "13.0.0"
+    version: "14.2.1"
   volume_controller:
     dependency: transitive
     description:

@@ -57,7 +57,7 @@ class _VideoMenuState extends State<VideoMenu> {
       child: PlatformExtension.isMobile
           ? MenuBlockButton(
               tooltip: LocaleKeys.button_edit.tr(),
-              iconData: FlowySvgs.edit_s,
+              iconData: FlowySvgs.more_s,
               onTap: showMobileMenu,
             )
           : Row(
@@ -103,7 +103,6 @@ class _VideoMenuState extends State<VideoMenu> {
       context,
       showHeader: true,
       showCloseButton: true,
-      showDivider: true,
       showDragHandle: true,
       title: LocaleKeys.document_plugins_action.tr(),
       builder: (context) {
@@ -240,11 +239,17 @@ class _VideoAlignButtonState extends State<_VideoAlignButton> {
     allowMenuClose();
   }
 
-  void preventMenuClose() => editorState.service.selectionService
-      .registerGestureInterceptor(gestureInterceptor);
+  void preventMenuClose() {
+    widget.state.preventClose = true;
+    editorState.service.selectionService
+        .registerGestureInterceptor(gestureInterceptor);
+  }
 
-  void allowMenuClose() => editorState.service.selectionService
-      .unregisterGestureInterceptor(interceptorKey);
+  void allowMenuClose() {
+    widget.state.preventClose = false;
+    editorState.service.selectionService
+        .unregisterGestureInterceptor(interceptorKey);
+  }
 
   FlowySvgData iconFor(String alignment) {
     switch (alignment) {
