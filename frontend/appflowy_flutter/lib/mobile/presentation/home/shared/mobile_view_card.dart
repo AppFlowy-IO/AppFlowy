@@ -53,8 +53,8 @@ class MobileViewCard extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ViewBloc>(
-          create: (context) =>
-              ViewBloc(view: view)..add(const ViewEvent.initial()),
+          create: (context) => ViewBloc(view: view, shouldLoadChildViews: false)
+            ..add(const ViewEvent.initial()),
         ),
         BlocProvider(
           create: (context) =>

@@ -109,6 +109,7 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
               const HSpace(4.0),
             ],
             shouldRenderChildren: false,
+            shouldLoadChildViews: false,
             onTertiarySelected: (_, view) =>
                 context.read<TabsBloc>().openTab(view),
             onSelected: (_, view) {
