@@ -1501,6 +1501,7 @@ dependencies = [
  "collab-plugins",
  "dotenv",
  "flowy-chat",
+ "flowy-chat-pub",
  "flowy-core",
  "flowy-database-pub",
  "flowy-database2",

@@ -57,6 +57,7 @@ chrono = "0.4.31"
 zip = "0.6.6"
 walkdir = "2.5.0"
 futures = "0.3.30"
+flowy-chat-pub = { workspace = true }
 
 [features]
 default = ["supabase_cloud_test"]

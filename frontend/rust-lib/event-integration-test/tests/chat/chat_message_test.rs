@@ -4,6 +4,7 @@ use event_integration_test::EventIntegrationTest;
 use flowy_chat::entities::{ChatMessageListPB, ChatMessageTypePB};
 use flowy_chat::notification::ChatNotification;
 
+use flowy_chat_pub::cloud::ChatMessageType;
 use std::time::Duration;
 
 #[tokio::test]
@@ -62,6 +63,7 @@ async fn af_cloud_load_remote_system_message_test() {
         &current_workspace.id,
         &chat_id,
         &format!("hello server {}", i),
+        ChatMessageType::System,
       )
       .await
       .unwrap();
