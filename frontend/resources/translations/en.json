@@ -550,7 +550,7 @@
       },
       "showNotificationsIcon": {
         "label": "Show notifications icon",
-        "hint": "Turn off to hide notification icons in the app."
+        "hint": "Toggle off to hide the notification icon in the sidebar."
       }
     },
     "appearance": {
