@@ -45,6 +45,7 @@ extension ViewExtension on ViewPB {
           ViewLayoutPB.Calendar => FlowySvgs.date_s,
           ViewLayoutPB.Grid => FlowySvgs.grid_s,
           ViewLayoutPB.Document => FlowySvgs.document_s,
+          ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
           _ => FlowySvgs.document_s,
         },
       );
@@ -165,7 +166,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
         ViewLayoutPB.Board => FlowySvgs.board_s,
         ViewLayoutPB.Calendar => FlowySvgs.date_s,
         ViewLayoutPB.Document => FlowySvgs.document_s,
-        ViewLayoutPB.Chat => FlowySvgs.document_s,
+        ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
         _ => throw Exception('Unknown layout type'),
       };
 

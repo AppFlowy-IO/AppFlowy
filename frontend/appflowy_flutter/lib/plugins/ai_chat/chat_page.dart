@@ -95,6 +95,7 @@ class _AIChatPageState extends State<AIChatPage> {
                   emptyState: const Center(
                     child: CircularProgressIndicator.adaptive(),
                   ),
+                  messageWidthRatio: 0.92,
                   bubbleBuilder: (
                     child, {
                     required message,

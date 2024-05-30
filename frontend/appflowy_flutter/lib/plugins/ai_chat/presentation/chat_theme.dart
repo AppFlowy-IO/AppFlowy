@@ -102,7 +102,7 @@ class AFDefaultChatTheme extends ChatTheme {
     super.messageBorderRadius = 20,
     super.messageInsetsHorizontal = 20,
     super.messageInsetsVertical = 16,
-    super.messageMaxWidth = 440,
+    super.messageMaxWidth = 1000,
     super.primaryColor = primary,
     super.receivedEmojiMessageTextStyle = const TextStyle(fontSize: 40),
     super.receivedMessageBodyBoldTextStyle,
