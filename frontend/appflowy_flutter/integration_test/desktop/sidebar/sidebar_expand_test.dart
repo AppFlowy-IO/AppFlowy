@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,8 +12,8 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('sidebar expand test', () {
-    bool isExpanded({required FolderCategoryType type}) {
-      if (type == FolderCategoryType.private) {
+    bool isExpanded({required FolderSpaceType type}) {
+      if (type == FolderSpaceType.private) {
         return find
             .descendant(
               of: find.byType(PrivateSectionFolder),
@@ -30,19 +30,19 @@ void main() {
       await tester.tapAnonymousSignInButton();
 
       // first time is expanded
-      expect(isExpanded(type: FolderCategoryType.private), true);
+      expect(isExpanded(type: FolderSpaceType.private), true);
 
       // collapse the personal folder
       await tester.tapButton(
         find.byTooltip(LocaleKeys.sideBar_clickToHidePrivate.tr()),
       );
-      expect(isExpanded(type: FolderCategoryType.private), false);
+      expect(isExpanded(type: FolderSpaceType.private), false);
 
       // expand the personal folder
       await tester.tapButton(
         find.byTooltip(LocaleKeys.sideBar_clickToHidePrivate.tr()),
       );
-      expect(isExpanded(type: FolderCategoryType.private), true);
+      expect(isExpanded(type: FolderSpaceType.private), true);
     });
   });
 }

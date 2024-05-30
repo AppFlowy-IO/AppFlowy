@@ -29,6 +29,6 @@ EmojiPickerConfig buildFlowyEmojiPickerConfig(BuildContext context) {
     noRecentsText: LocaleKeys.emoji_noRecent.tr(),
     noRecentsStyle: style.textTheme.bodyMedium,
     noEmojiFoundText: LocaleKeys.emoji_noEmojiFound.tr(),
-    scrollBarHandleColor: style.colorScheme.onBackground,
+    scrollBarHandleColor: style.colorScheme.onSurface,
   );
 }

@@ -1,31 +1,30 @@
-import 'package:flutter/material.dart';
-
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item_add_button.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 typedef ViewItemOnSelected = void Function(ViewPB);
 typedef ActionPaneBuilder = ActionPane Function(BuildContext context);
 
-const _itemHeight = 48.0;
-
 class MobileViewItem extends StatelessWidget {
   const MobileViewItem({
     super.key,
     required this.view,
     this.parentView,
-    required this.categoryType,
+    required this.spaceType,
     required this.level,
     this.leftPadding = 10,
     required this.onSelected,
@@ -39,7 +38,7 @@ class MobileViewItem extends StatelessWidget {
   final ViewPB view;
   final ViewPB? parentView;
 
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
 
   // indicate the level of the view item
   // used to calculate the left padding
@@ -80,7 +79,7 @@ class MobileViewItem extends StatelessWidget {
             view: state.view,
             parentView: parentView,
             childViews: state.view.childViews,
-            categoryType: categoryType,
+            spaceType: spaceType,
             level: level,
             leftPadding: leftPadding,
             showActions: true,
@@ -104,7 +103,7 @@ class InnerMobileViewItem extends StatelessWidget {
     required this.view,
     required this.parentView,
     required this.childViews,
-    required this.categoryType,
+    required this.spaceType,
     this.isDraggable = true,
     this.isExpanded = true,
     required this.level,
@@ -120,7 +119,7 @@ class InnerMobileViewItem extends StatelessWidget {
   final ViewPB view;
   final ViewPB? parentView;
   final List<ViewPB> childViews;
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
 
   final bool isDraggable;
   final bool isExpanded;
@@ -144,7 +143,7 @@ class InnerMobileViewItem extends StatelessWidget {
       parentView: parentView,
       level: level,
       showActions: showActions,
-      categoryType: categoryType,
+      spaceType: spaceType,
       onSelected: onSelected,
       isExpanded: isExpanded,
       isDraggable: isDraggable,
@@ -159,9 +158,9 @@ class InnerMobileViewItem extends StatelessWidget {
       if (childViews.isNotEmpty) {
         final children = childViews.map((childView) {
           return MobileViewItem(
-            key: ValueKey('${categoryType.name} ${childView.id}'),
+            key: ValueKey('${spaceType.name} ${childView.id}'),
             parentView: view,
-            categoryType: categoryType,
+            spaceType: spaceType,
             isFirstChild: childView.id == childViews.first.id,
             view: childView,
             level: level + 1,
@@ -178,48 +177,10 @@ class InnerMobileViewItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             child,
-            const Divider(
-              height: 1,
-            ),
             ...children,
           ],
         );
-      } else {
-        child = Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            child,
-            const Divider(
-              height: 1,
-            ),
-            Container(
-              height: _itemHeight,
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left: (level + 2) * leftPadding),
-                child: FlowyText.medium(
-                  LocaleKeys.noPagesInside.tr(),
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-            const Divider(
-              height: 1,
-            ),
-          ],
-        );
       }
-    } else {
-      child = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          child,
-          const Divider(
-            height: 1,
-          ),
-        ],
-      );
     }
 
     // wrap the child with DraggableItem if isDraggable is true
@@ -227,7 +188,6 @@ class InnerMobileViewItem extends StatelessWidget {
       child = DraggableViewItem(
         isFirstChild: isFirstChild,
         view: view,
-        // FIXME: use better color
         centerHighlightColor: Colors.blue.shade200,
         topHighlightColor: Colors.blue.shade200,
         bottomHighlightColor: Colors.blue.shade200,
@@ -235,7 +195,7 @@ class InnerMobileViewItem extends StatelessWidget {
           return MobileViewItem(
             view: view,
             parentView: parentView,
-            categoryType: categoryType,
+            spaceType: spaceType,
             level: level,
             onSelected: onSelected,
             isDraggable: false,
@@ -262,7 +222,7 @@ class SingleMobileInnerViewItem extends StatefulWidget {
     required this.level,
     required this.leftPadding,
     this.isDraggable = true,
-    required this.categoryType,
+    required this.spaceType,
     required this.showActions,
     required this.onSelected,
     required this.isFeedback,
@@ -282,7 +242,7 @@ class SingleMobileInnerViewItem extends StatefulWidget {
   final bool isDraggable;
   final bool showActions;
   final ViewItemOnSelected onSelected;
-  final FolderCategoryType categoryType;
+  final FolderSpaceType spaceType;
   final ActionPaneBuilder? startActionPane;
   final ActionPaneBuilder? endActionPane;
 
@@ -297,15 +257,15 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     final children = [
       // expand icon
       _buildLeftIcon(),
-      const HSpace(4),
+      const HSpace(6),
       // icon
       _buildViewIcon(),
       const HSpace(8),
       // title
       Expanded(
-        child: FlowyText.medium(
+        child: FlowyText.regular(
           widget.view.name,
-          fontSize: 18.0,
+          fontSize: 16.0,
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -318,6 +278,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     // only support add button for document layout
     if (!widget.isFeedback && widget.view.layout == ViewLayoutPB.Document) {
       // + button
+      children.add(_buildViewMoreButton(context));
       children.add(_buildViewAddButton(context));
     }
 
@@ -325,7 +286,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       borderRadius: BorderRadius.circular(4.0),
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
-        height: _itemHeight,
+        height: HomeSpaceViewSizes.mViewHeight,
         child: Padding(
           padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
           child: Row(
@@ -350,12 +311,12 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
   Widget _buildViewIcon() {
     final icon = widget.view.icon.value.isNotEmpty
-        ? EmojiText(
-            emoji: widget.view.icon.value,
-            fontSize: 24.0,
+        ? FlowyText.emoji(
+            widget.view.icon.value,
+            fontSize: 20.0,
           )
         : SizedBox.square(
-            dimension: 26.0,
+            dimension: 18.0,
             child: widget.view.defaultIcon(),
           );
     return icon;
@@ -369,13 +330,17 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       return const _DotIconWidget();
     }
 
+    if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
+      return HSpace(widget.leftPadding);
+    }
+
     return GestureDetector(
       child: AnimatedRotation(
         duration: const Duration(milliseconds: 250),
         turns: widget.isExpanded ? 0 : -0.25,
-        child: const Icon(
-          Icons.keyboard_arrow_down_rounded,
-          size: 28,
+        child: const FlowySvg(
+          FlowySvgs.m_expand_s,
+          blendMode: null,
         ),
       ),
       onTap: () {
@@ -407,15 +372,59 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
                       ViewEvent.createView(
                         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                         layout,
-                        section:
-                            widget.categoryType != FolderCategoryType.favorite
-                                ? widget.categoryType.toViewSectionPB
-                                : null,
+                        section: widget.spaceType != FolderSpaceType.favorite
+                            ? widget.spaceType.toViewSectionPB
+                            : null,
                       ),
                     );
               },
             );
           },
+        );
+      },
+    );
+  }
+
+  // + button
+  Widget _buildViewMoreButton(BuildContext context) {
+    return MobileViewMoreButton(onPressed: () => _showMoreActions(context));
+  }
+
+  Future<void> _showMoreActions(BuildContext context) async {
+    final viewBloc = context.read<ViewBloc>();
+    final favoriteBloc = context.read<FavoriteBloc>();
+    await showMobileBottomSheet(
+      context,
+      showHeader: true,
+      title: widget.view.name,
+      showDragHandle: true,
+      showCloseButton: true,
+      useRootNavigator: true,
+      builder: (context) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: viewBloc),
+            BlocProvider.value(value: favoriteBloc),
+          ],
+          child: BlocBuilder<ViewBloc, ViewState>(
+            builder: (context, state) {
+              final isFavorite = state.view.isFavorite;
+              return MobileViewItemBottomSheet(
+                view: viewBloc.state.view,
+                actions: [
+                  isFavorite
+                      ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
+                      : MobileViewItemBottomSheetBodyAction.addToFavorites,
+                  MobileViewItemBottomSheetBodyAction.divider,
+                  MobileViewItemBottomSheetBodyAction.rename,
+                  MobileViewItemBottomSheetBodyAction.divider,
+                  MobileViewItemBottomSheetBodyAction.duplicate,
+                  MobileViewItemBottomSheetBodyAction.divider,
+                  MobileViewItemBottomSheetBodyAction.delete,
+                ],
+              );
+            },
+          ),
         );
       },
     );

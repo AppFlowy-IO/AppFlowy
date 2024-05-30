@@ -13,7 +13,6 @@ import { translateYTextEvent } from 'src/application/slate-yjs/utils/translateYj
  * @param op
  */
 export function translateYjsEvent(sharedRoot: YSharedRoot, editor: Editor, event: Y.YEvent<YSharedRoot>): Operation[] {
-  console.log('translateYjsEvent', event);
   if (event instanceof Y.YMapEvent) {
     return translateYMapEvent(sharedRoot, editor, event);
   }

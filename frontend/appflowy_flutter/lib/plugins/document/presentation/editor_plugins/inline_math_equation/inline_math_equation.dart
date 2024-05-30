@@ -77,7 +77,7 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
                     ),
                     fontSize: 14.0,
                     color: widget.textStyle?.color ??
-                        theme.colorScheme.onBackground,
+                        theme.colorScheme.onSurface,
                   ),
                 ),
                 const HSpace(2),

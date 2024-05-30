@@ -23,7 +23,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           text: LocaleKeys.document_menuName.tr(),
           leftIcon: const FlowySvg(
             FlowySvgs.document_s,
-            size: Size.square(20),
+            size: Size.square(18),
           ),
           showTopBorder: false,
           onTap: () => onAction(ViewLayoutPB.Document),
@@ -32,7 +32,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           text: LocaleKeys.grid_menuName.tr(),
           leftIcon: const FlowySvg(
             FlowySvgs.grid_s,
-            size: Size.square(20),
+            size: Size.square(18),
           ),
           showTopBorder: false,
           onTap: () => onAction(ViewLayoutPB.Grid),
@@ -41,7 +41,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           text: LocaleKeys.board_menuName.tr(),
           leftIcon: const FlowySvg(
             FlowySvgs.board_s,
-            size: Size.square(20),
+            size: Size.square(18),
           ),
           showTopBorder: false,
           onTap: () => onAction(ViewLayoutPB.Board),
@@ -49,8 +49,8 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
         FlowyOptionTile.text(
           text: LocaleKeys.calendar_menuName.tr(),
           leftIcon: const FlowySvg(
-            FlowySvgs.date_s,
-            size: Size.square(20),
+            FlowySvgs.calendar_s,
+            size: Size.square(18),
           ),
           showTopBorder: false,
           onTap: () => onAction(ViewLayoutPB.Calendar),

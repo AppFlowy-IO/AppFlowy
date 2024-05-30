@@ -1,6 +1,6 @@
 import { ReactComponent as InformationSvg } from '@/assets/information.svg';
-import { ReactComponent as CloseSvg } from '@/assets/close.svg';
-import { Button } from "@mui/material";
+import { ReactComponent as CloseSvg } from '$icons/16x/close.svg';
+import { Button } from '@mui/material';
 
 export const ErrorModal = ({ message, onClose }: { message: string; onClose: () => void }) => {
   return (
@@ -22,9 +22,11 @@ export const ErrorModal = ({ message, onClose }: { message: string; onClose: () 
         <h1 className={'text-xl'}>Oops.. something went wrong</h1>
         <h2>{message}</h2>
 
-        <Button onClick={() => {
-          window.location.reload();
-        }}>
+        <Button
+          onClick={() => {
+            window.location.reload();
+          }}
+        >
           Reload
         </Button>
       </div>

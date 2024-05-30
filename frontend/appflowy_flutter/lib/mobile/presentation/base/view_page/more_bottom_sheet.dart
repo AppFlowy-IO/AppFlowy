@@ -38,6 +38,7 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
           case MobileViewBottomSheetBodyAction.removeFromFavorites:
             context.pop();
             context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
+
             break;
           case MobileViewBottomSheetBodyAction.undo:
             EditorNotification.undo().post();

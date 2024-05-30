@@ -20,6 +20,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
@@ -188,8 +189,7 @@ class PageStyleCoverImage extends StatelessWidget {
         );
       },
       title: LocaleKeys.pageStyle_presets.tr(),
-      barrierColor: Colors.transparent,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: AFThemeExtension.of(context).background,
       builder: (_) {
         return BlocProvider.value(
           value: pageStyleBloc,
@@ -257,6 +257,9 @@ class PageStyleCoverImage extends StatelessWidget {
 
   void _showUnsplash(BuildContext context) {
     final pageStyleBloc = context.read<DocumentPageStyleBloc>();
+    final backgroundColor = AFThemeExtension.of(context).background;
+    final maxHeight = MediaQuery.of(context).size.height * 0.6;
+
     context.pop();
 
     showMobileBottomSheet(
@@ -267,8 +270,7 @@ class PageStyleCoverImage extends StatelessWidget {
       showHeader: true,
       showRemoveButton: true,
       title: LocaleKeys.pageStyle_unsplash.tr(),
-      barrierColor: Colors.transparent,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: backgroundColor,
       onRemove: () {
         pageStyleBloc.add(
           DocumentPageStyleEvent.updateCoverImage(
@@ -279,11 +281,11 @@ class PageStyleCoverImage extends StatelessWidget {
       builder: (_) {
         return ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.6,
+            maxHeight: maxHeight,
             minHeight: 80,
           ),
           child: BlocProvider.value(
-            value: context.read<DocumentPageStyleBloc>(),
+            value: pageStyleBloc,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: UnsplashImageWidget(

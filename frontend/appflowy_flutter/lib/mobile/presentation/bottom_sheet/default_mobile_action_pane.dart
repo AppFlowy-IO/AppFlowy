@@ -3,6 +3,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_slide_action_button.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -54,7 +55,7 @@ enum MobilePaneActionType {
               context,
               showDragHandle: true,
               showDivider: false,
-              backgroundColor: Theme.of(context).colorScheme.background,
+              backgroundColor: AFThemeExtension.of(context).background,
               useRootNavigator: true,
               builder: (context) {
                 return MultiBlocProvider(
@@ -64,8 +65,21 @@ enum MobilePaneActionType {
                   ],
                   child: BlocBuilder<ViewBloc, ViewState>(
                     builder: (context, state) {
+                      final isFavorite = state.view.isFavorite;
                       return MobileViewItemBottomSheet(
                         view: viewBloc.state.view,
+                        actions: [
+                          isFavorite
+                              ? MobileViewItemBottomSheetBodyAction
+                                  .removeFromFavorites
+                              : MobileViewItemBottomSheetBodyAction
+                                  .addToFavorites,
+                          MobileViewItemBottomSheetBodyAction.divider,
+                          MobileViewItemBottomSheetBodyAction.rename,
+                          MobileViewItemBottomSheetBodyAction.duplicate,
+                          MobileViewItemBottomSheetBodyAction.divider,
+                          MobileViewItemBottomSheetBodyAction.delete,
+                        ],
                       );
                     },
                   ),

@@ -66,6 +66,7 @@ void main() {
           LogicalKeyboardKey.keyR,
         ],
         tester: tester,
+        withKeyUp: true,
       );
       expect(first.attributes[blockComponentAlign], rightAlignmentKey);
 
@@ -77,6 +78,7 @@ void main() {
           LogicalKeyboardKey.keyE,
         ],
         tester: tester,
+        withKeyUp: true,
       );
       expect(first.attributes[blockComponentAlign], centerAlignmentKey);
 
@@ -88,6 +90,7 @@ void main() {
           LogicalKeyboardKey.keyL,
         ],
         tester: tester,
+        withKeyUp: true,
       );
       expect(first.attributes[blockComponentAlign], leftAlignmentKey);
     });

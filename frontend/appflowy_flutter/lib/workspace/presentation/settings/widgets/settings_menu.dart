@@ -32,7 +32,7 @@ class SettingsMenu extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8) +
                 const EdgeInsets.only(left: 8, right: 4),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(8),
                 bottomLeft: Radius.circular(8),

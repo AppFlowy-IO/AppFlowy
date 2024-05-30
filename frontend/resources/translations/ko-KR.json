@@ -222,7 +222,7 @@
       },
       "themeUpload": {
         "button": "업로드",
-        "description": "아래 버튼을 사용하여 나만의 AppFlowy 테마를 업로드하세요.",
+        "description": "아래 버튼을 사용하여 나만의 @:appName 테마를 업로드하세요.",
         "loading": "테마를 확인하고 업로드하는 동안 잠시 기다려 주십시오...",
         "uploadSuccess": "테마가 성공적으로 업로드되었습니다.",
         "deletionFailure": "테마를 삭제하지 못했습니다. 수동으로 삭제해 보십시오.",
@@ -241,7 +241,7 @@
       "defaultLocation": "파일 및 데이터 저장 위치 읽기",
       "exportData": "데이터 내보내기",
       "doubleTapToCopy": "경로를 복사하려면 두 번 탭하세요.",
-      "restoreLocation": "AppFlowy 기본 경로로 복원",
+      "restoreLocation": "@:appName 기본 경로로 복원",
       "customizeLocation": "다른 폴더 열기",
       "restartApp": "변경 사항을 적용하려면 앱을 다시 시작하십시오.",
       "exportDatabase": "데이터베이스 내보내기",
@@ -253,10 +253,10 @@
       "defineWhereYourDataIsStored": "데이터가 저장되는 위치 정의",
       "open": "열려 있는",
       "openFolder": "기존 폴더 열기",
-      "openFolderDesc": "기존 AppFlowy 폴더에서 읽고 쓰기",
+      "openFolderDesc": "기존 @:appName 폴더에서 읽고 쓰기",
       "folderHintText": "폴더 이름",
       "location": "새 폴더 만들기",
-      "locationDesc": "AppFlowy 데이터 폴더의 이름을 선택하세요",
+      "locationDesc": "@:appName 데이터 폴더의 이름을 선택하세요",
       "browser": "검색",
       "create": "만들다",
       "set": "세트",
@@ -267,7 +267,7 @@
       "change": "변화",
       "openLocationTooltips": "다른 데이터 디렉토리 열기",
       "openCurrentDataFolder": "현재 데이터 디렉토리 열기",
-      "recoverLocationTooltips": "AppFlowy의 기본 데이터 디렉터리로 재설정",
+      "recoverLocationTooltips": "@:appName의 기본 데이터 디렉터리로 재설정",
       "exportFileSuccess": "파일을 성공적으로 내보냈습니다!",
       "exportFileFail": "파일 내보내기 실패!",
       "export": "내보내다"
@@ -577,7 +577,7 @@
     "referencedCalendarPrefix": "관점"
   },
   "errorDialog": {
-    "title": "AppFlowy 오류",
+    "title": "@:appName 오류",
     "howToFixFallback": "불편을 끼쳐드려 죄송합니다! 오류를 설명하는 문제를 GitHub 페이지에 제출하세요.",
     "github": "GitHub에서 보기"
   },

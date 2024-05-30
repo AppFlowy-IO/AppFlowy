@@ -158,7 +158,9 @@ impl FolderTest {
         assert_eq!(self.child_view, view, "View not equal");
       },
       FolderScript::ReadView(view_id) => {
-        let view = read_view(sdk, &view_id).await;
+        let mut view = read_view(sdk, &view_id).await;
+        // Ignore the last edited time
+        view.last_edited = 0;
         self.child_view = view;
       },
       FolderScript::UpdateView {
@@ -196,7 +198,7 @@ impl FolderTest {
       },
       FolderScript::ReadFavorites => {
         let favorites = read_favorites(sdk).await;
-        self.favorites = favorites.to_vec();
+        self.favorites = favorites.items.iter().map(|x| x.item.clone()).collect();
       },
     }
   }
@@ -375,10 +377,10 @@ pub async fn toggle_favorites(sdk: &EventIntegrationTest, view_id: Vec<String>) 
     .await;
 }
 
-pub async fn read_favorites(sdk: &EventIntegrationTest) -> RepeatedViewPB {
+pub async fn read_favorites(sdk: &EventIntegrationTest) -> RepeatedFavoriteViewPB {
   EventBuilder::new(sdk.clone())
     .event(ReadFavorites)
     .async_send()
     .await
-    .parse::<RepeatedViewPB>()
+    .parse::<RepeatedFavoriteViewPB>()
 }

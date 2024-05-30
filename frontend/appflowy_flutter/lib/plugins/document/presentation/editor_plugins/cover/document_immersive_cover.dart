@@ -16,6 +16,7 @@ import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
@@ -133,9 +134,11 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
     if (documentFontFamily != null && fontFamily != documentFontFamily) {
       fontFamily = getGoogleFontSafely(documentFontFamily).fontFamily;
     }
-    return TextField(
+
+    return AutoSizeTextField(
       controller: textEditingController,
       focusNode: focusNode,
+      minFontSize: 18.0,
       decoration: const InputDecoration(
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
@@ -151,6 +154,7 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         fontFamily: fontFamily,
         color:
             state.cover.isNone || state.cover.isPresets ? null : Colors.white,
+        overflow: TextOverflow.ellipsis,
       ),
       onChanged: _rename,
       onSubmitted: _rename,

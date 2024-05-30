@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
@@ -10,7 +11,13 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         Delta,
         ParagraphBlockKeys,
         NodeIterator,
-        NodeExternalValues;
+        NodeExternalValues,
+        HeadingBlockKeys,
+        QuoteBlockKeys,
+        NumberedListBlockKeys,
+        BulletedListBlockKeys,
+        blockComponentDelta;
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -144,21 +151,25 @@ extension BlockToNode on BlockPB {
         final deltaString = meta.textMap[externalId];
         if (deltaString != null) {
           final delta = jsonDecode(deltaString);
-          map['delta'] = delta;
-          // map.putIfAbsent(
-          //   'delta',
-          //   () => delta,
-          // );
+          map[blockComponentDelta] = delta;
         }
       }
     }
 
+    Attributes adapterCallback(Attributes map) => map
+      ..putIfAbsent(
+        blockComponentDelta,
+        () => Delta().toJson(),
+      );
+
     final adapter = {
-      ParagraphBlockKeys.type: (Attributes map) => map
-        ..putIfAbsent(
-          'delta',
-          () => Delta().toJson(),
-        ),
+      ParagraphBlockKeys.type: adapterCallback,
+      HeadingBlockKeys.type: adapterCallback,
+      CodeBlockKeys.type: adapterCallback,
+      QuoteBlockKeys.type: adapterCallback,
+      NumberedListBlockKeys.type: adapterCallback,
+      BulletedListBlockKeys.type: adapterCallback,
+      ToggleListBlockKeys.type: adapterCallback,
     };
     return adapter[ty]?.call(map) ?? map;
   }
