@@ -7,10 +7,11 @@ const CHAT_OBSERVABLE_SOURCE: &str = "Chat";
 pub enum ChatNotification {
   #[default]
   Unknown = 0,
-  DidLoadChatMessage = 1,
-  DidReceiveChatMessage = 2,
-  ChatMessageError = 3,
-  FinishAnswerQuestion = 4,
+  DidLoadLatestChatMessage = 1,
+  DidLoadPrevChatMessage = 2,
+  DidReceiveChatMessage = 3,
+  ChatMessageError = 4,
+  FinishAnswerQuestion = 5,
 }
 
 impl std::convert::From<ChatNotification> for i32 {
@@ -21,10 +22,11 @@ impl std::convert::From<ChatNotification> for i32 {
 impl std::convert::From<i32> for ChatNotification {
   fn from(notification: i32) -> Self {
     match notification {
-      1 => ChatNotification::DidLoadChatMessage,
-      2 => ChatNotification::DidReceiveChatMessage,
-      3 => ChatNotification::ChatMessageError,
+      1 => ChatNotification::DidLoadLatestChatMessage,
+      2 => ChatNotification::DidLoadPrevChatMessage,
+      3 => ChatNotification::DidReceiveChatMessage,
       4 => ChatNotification::ChatMessageError,
+      5 => ChatNotification::FinishAnswerQuestion,
       _ => ChatNotification::Unknown,
     }
   }

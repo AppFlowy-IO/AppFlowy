@@ -53,7 +53,7 @@ class _AIChatPageState extends State<AIChatPage> {
           create: (context) => ChatBloc(
             view: widget.view,
             userProfile: widget.userProfile,
-          )..add(const ChatEvent.loadMessage()),
+          )..add(const ChatEvent.initialLoad()),
           child: BlocListener<ChatBloc, ChatState>(
             listenWhen: (previous, current) =>
                 previous.loadingStatus != current.loadingStatus,
@@ -86,10 +86,6 @@ class _AIChatPageState extends State<AIChatPage> {
                       child: CircularProgressIndicator.adaptive(),
                     );
                   },
-                  // onMessageLongPress:
-                  //     (BuildContext context, types.Message message) {
-                  //   // show menu
-                  // },
                   onEndReached: () async {
                     if (state.hasMore) {
                       state.loadingPreviousStatus.when(
@@ -98,11 +94,14 @@ class _AIChatPageState extends State<AIChatPage> {
                           Log.debug("loading more messages");
                           blocContext
                               .read<ChatBloc>()
-                              .add(const ChatEvent.loadMessage());
+                              .add(const ChatEvent.loadPrevMessage());
                         },
                       );
                     }
                   },
+                  emptyState: const Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  ),
                   bubbleBuilder: (
                     child, {
                     required message,
@@ -121,6 +120,7 @@ class _AIChatPageState extends State<AIChatPage> {
   ChatPopupMenu buildBubble(Message message, Widget child) {
     final isAuthor = message.author.id == _user.id;
     const borderRadius = BorderRadius.all(Radius.circular(20));
+    if (isMobile) {}
 
     return ChatPopupMenu(
       onAction: (action) {

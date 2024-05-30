@@ -1,5 +1,7 @@
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_sqlite::upsert::excluded;
 use flowy_sqlite::{
-  diesel,
+  diesel, insert_into,
   query_dsl::*,
   schema::{chat_message_table, chat_message_table::dsl},
   DBConnection, ExpressionMethods, Identifiable, Insertable, QueryResult, Queryable,
@@ -15,15 +17,33 @@ pub struct ChatMessageTable {
   pub created_at: i64,
   pub author_type: i64,
   pub author_id: String,
+  pub reply_message_id: Option<i64>,
 }
 
 pub fn insert_chat_messages(
   mut conn: DBConnection,
   new_messages: &[ChatMessageTable],
-) -> QueryResult<usize> {
-  diesel::insert_into(chat_message_table::table)
-    .values(new_messages)
-    .execute(&mut *conn)
+) -> FlowyResult<()> {
+  conn.immediate_transaction(|conn| {
+    for message in new_messages {
+      let _ = insert_into(chat_message_table::table)
+        .values(message)
+        .on_conflict(chat_message_table::message_id)
+        .do_update()
+        .set((
+          chat_message_table::chat_id.eq(excluded(chat_message_table::chat_id)),
+          chat_message_table::content.eq(excluded(chat_message_table::content)),
+          chat_message_table::created_at.eq(excluded(chat_message_table::created_at)),
+          chat_message_table::author_type.eq(excluded(chat_message_table::author_type)),
+          chat_message_table::author_id.eq(excluded(chat_message_table::author_id)),
+          chat_message_table::reply_message_id.eq(excluded(chat_message_table::reply_message_id)),
+        ))
+        .execute(conn)?;
+    }
+    Ok::<(), FlowyError>(())
+  })?;
+
+  Ok(())
 }
 
 pub fn select_chat_messages(

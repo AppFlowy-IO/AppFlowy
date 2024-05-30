@@ -8,6 +8,7 @@ diesel::table! {
         created_at -> BigInt,
         author_type -> BigInt,
         author_id -> Text,
+        reply_message_id -> Nullable<BigInt>,
     }
 }
 

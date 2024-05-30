@@ -37,8 +37,8 @@ pub(crate) async fn send_chat_message_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn load_message_handler(
-  data: AFPluginData<LoadChatMessagePB>,
+pub(crate) async fn load_prev_message_handler(
+  data: AFPluginData<LoadPrevChatMessagePB>,
   chat_manager: AFPluginState<Weak<ChatManager>>,
 ) -> DataResult<ChatMessageListPB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
@@ -47,6 +47,21 @@ pub(crate) async fn load_message_handler(
 
   let messages = chat_manager
     .load_prev_chat_messages(&data.chat_id, data.limit, data.before_message_id)
+    .await?;
+  data_result_ok(messages)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn load_next_message_handler(
+  data: AFPluginData<LoadNextChatMessagePB>,
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> DataResult<ChatMessageListPB, FlowyError> {
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let data = data.into_inner();
+  data.validate()?;
+
+  let messages = chat_manager
+    .load_latest_chat_messages(&data.chat_id, data.limit, data.after_message_id)
     .await?;
   data_result_ok(messages)
 }

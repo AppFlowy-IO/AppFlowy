@@ -18,6 +18,13 @@ typedef ChatErrorMessageCallback = void Function(
   ChatMessageErrorPB message,
 );
 
+typedef LatestMessageCallback = void Function(
+  ChatMessageListPB list,
+);
+typedef PrevMessageCallback = void Function(
+  ChatMessageListPB list,
+);
+
 class ChatMessageListener {
   ChatMessageListener({
     required this.chatId,
@@ -36,16 +43,22 @@ class ChatMessageListener {
   ChatNotificationParser? _parser;
   ChatMessageCallback? chatMessageCallback;
   ChatErrorMessageCallback? chatErrorMessageCallback;
+  LatestMessageCallback? latestMessageCallback;
+  PrevMessageCallback? prevMessageCallback;
   void Function()? finishAnswerQuestionCallback;
 
   void start({
     ChatMessageCallback? chatMessageCallback,
     ChatErrorMessageCallback? chatErrorMessageCallback,
+    LatestMessageCallback? latestMessageCallback,
+    PrevMessageCallback? prevMessageCallback,
     void Function()? finishAnswerQuestionCallback,
   }) {
     this.chatMessageCallback = chatMessageCallback;
     this.chatErrorMessageCallback = chatErrorMessageCallback;
     this.finishAnswerQuestionCallback = finishAnswerQuestionCallback;
+    this.latestMessageCallback = latestMessageCallback;
+    this.prevMessageCallback = prevMessageCallback;
   }
 
   void _callback(
@@ -66,6 +79,22 @@ class ChatMessageListener {
           (r) {
             final value = ChatMessageErrorPB.fromBuffer(r);
             chatErrorMessageCallback?.call(value);
+          },
+        );
+        break;
+      case ChatNotification.DidLoadLatestChatMessage:
+        result.map(
+          (r) {
+            final value = ChatMessageListPB.fromBuffer(r);
+            latestMessageCallback?.call(value);
+          },
+        );
+        break;
+      case ChatNotification.DidLoadPrevChatMessage:
+        result.map(
+          (r) {
+            final value = ChatMessageListPB.fromBuffer(r);
+            prevMessageCallback?.call(value);
           },
         );
         break;

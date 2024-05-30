@@ -155,8 +155,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
       (view) {
         final plugin = view.plugin(arguments: widget.arguments ?? const {})
           ..init();
-        return plugin.widgetBuilder
-            .buildWidget(shrinkWrap: false, context: PluginContext());
+        return plugin.widgetBuilder.buildWidget(
+          shrinkWrap: false,
+          context: PluginContext(userProfile: state.userProfilePB),
+        );
       },
       (error) {
         return FlowyMobileStateContainer.error(

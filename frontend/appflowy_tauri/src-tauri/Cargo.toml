@@ -20,7 +20,7 @@ bytes = "1.5.0"
 serde = "1.0"
 serde_json = "1.0.108"
 protobuf = { version = "2.28.0" }
-diesel = { version = "2.1.0", features = ["sqlite", "chrono", "r2d2"] }
+diesel = { version = "2.1.0", features = ["sqlite", "chrono", "r2d2", "serde_json"] }
 uuid = { version = "1.5.0", features = ["serde", "v4"] }
 serde_repr = "0.1"
 parking_lot = "0.12"

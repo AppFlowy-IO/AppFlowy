@@ -7,7 +7,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use lib_infra::util::timestamp;
 use std::sync::Arc;
-use tracing::instrument;
+use tracing::{instrument, trace};
 
 pub trait ChatUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -37,6 +37,7 @@ impl ChatManager {
   }
 
   pub async fn open_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
+    trace!("open chat: {}", chat_id);
     self.chats.entry(chat_id.to_string()).or_insert_with(|| {
       Arc::new(Chat::new(
         self.user_service.user_id().unwrap(),
@@ -122,6 +123,24 @@ impl ChatManager {
       Some(chat) => {
         let list = chat
           .load_prev_chat_messages(limit, before_message_id)
+          .await?;
+        Ok(list)
+      },
+    }
+  }
+
+  pub async fn load_latest_chat_messages(
+    &self,
+    chat_id: &str,
+    limit: i64,
+    after_message_id: Option<i64>,
+  ) -> Result<ChatMessageListPB, FlowyError> {
+    let chat = self.chats.get(chat_id).as_deref().cloned();
+    match chat {
+      None => Err(FlowyError::internal().with_context("Should call open chat first")),
+      Some(chat) => {
+        let list = chat
+          .load_latest_chat_messages(limit, after_message_id)
           .await?;
         Ok(list)
       },

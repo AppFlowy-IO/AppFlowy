@@ -25,7 +25,7 @@ pub enum ChatMessageTypePB {
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
-pub struct LoadChatMessagePB {
+pub struct LoadPrevChatMessagePB {
   #[pb(index = 1)]
   #[validate(custom = "required_not_empty_str")]
   pub chat_id: String,
@@ -33,11 +33,21 @@ pub struct LoadChatMessagePB {
   #[pb(index = 2)]
   pub limit: i64,
 
-  #[pb(index = 3, one_of)]
-  pub after_message_id: Option<i64>,
-
   #[pb(index = 4, one_of)]
   pub before_message_id: Option<i64>,
+}
+
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct LoadNextChatMessagePB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub chat_id: String,
+
+  #[pb(index = 2)]
+  pub limit: i64,
+
+  #[pb(index = 4, one_of)]
+  pub after_message_id: Option<i64>,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -87,6 +97,9 @@ pub struct ChatMessagePB {
 
   #[pb(index = 6)]
   pub has_following: bool,
+
+  #[pb(index = 7, one_of)]
+  pub reply_message_id: Option<i64>,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -110,6 +123,7 @@ impl From<ChatMessage> for ChatMessagePB {
       author_type: chat_message.author.author_type as i64,
       author_id: chat_message.author.author_id.to_string(),
       has_following: false,
+      reply_message_id: None,
     }
   }
 }

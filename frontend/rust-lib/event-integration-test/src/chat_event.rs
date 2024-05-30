@@ -1,7 +1,8 @@
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 use flowy_chat::entities::{
-  ChatMessageListPB, ChatMessageTypePB, LoadChatMessagePB, SendChatPayloadPB,
+  ChatMessageListPB, ChatMessageTypePB, LoadNextChatMessagePB, LoadPrevChatMessagePB,
+  SendChatPayloadPB,
 };
 use flowy_chat::event_map::ChatEvent;
 use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
@@ -48,21 +49,38 @@ impl EventIntegrationTest {
       .await;
   }
 
-  pub async fn load_message(
+  pub async fn load_prev_message(
+    &self,
+    chat_id: &str,
+    limit: i64,
+    before_message_id: Option<i64>,
+  ) -> ChatMessageListPB {
+    let payload = LoadPrevChatMessagePB {
+      chat_id: chat_id.to_string(),
+      limit,
+      before_message_id,
+    };
+    EventBuilder::new(self.clone())
+      .event(ChatEvent::LoadPrevMessage)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<ChatMessageListPB>()
+  }
+
+  pub async fn load_next_message(
     &self,
     chat_id: &str,
     limit: i64,
     after_message_id: Option<i64>,
-    before_message_id: Option<i64>,
   ) -> ChatMessageListPB {
-    let payload = LoadChatMessagePB {
+    let payload = LoadNextChatMessagePB {
       chat_id: chat_id.to_string(),
       limit,
       after_message_id,
-      before_message_id,
     };
     EventBuilder::new(self.clone())
-      .event(ChatEvent::LoadMessage)
+      .event(ChatEvent::LoadNextMessage)
       .payload(payload)
       .async_send()
       .await
