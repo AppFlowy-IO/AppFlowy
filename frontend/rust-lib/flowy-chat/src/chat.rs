@@ -333,9 +333,6 @@ fn stream_send_chat_messages(
             },
           }
         }
-
-        // Mark chat as finished
-        send_notification(&chat_id, ChatNotification::FinishAnswerQuestion).send();
       },
       Err(err) => {
         error!("Failed to send chat message: {}", err);
@@ -376,6 +373,9 @@ fn stream_send_chat_messages(
         })
         .collect::<Vec<_>>();
       insert_chat_messages(conn, &records)?;
+
+      // Mark chat as finished
+      send_notification(&chat_id, ChatNotification::FinishAnswerQuestion).send();
       Ok(())
     }) {
       error!("Failed to save chat messages: {}", err);

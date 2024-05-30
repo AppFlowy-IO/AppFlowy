@@ -116,7 +116,7 @@ async fn af_cloud_load_remote_system_message_test() {
   // Load first five messages
   let rx = test
     .notification_sender
-    .subscribe::<ChatMessageListPB>(&chat_id, ChatNotification::DidLoadLatestChatMessage);
+    .subscribe::<ChatMessageListPB>(&chat_id, ChatNotification::DidLoadPrevChatMessage);
   test
     .load_prev_message(&chat_id, 5, Some(next_back_five.messages[4].message_id))
     .await;

@@ -91,7 +91,6 @@ class _AIChatPageState extends State<AIChatPage> {
                       state.loadingPreviousStatus.when(
                         loading: () => Log.debug("loading"),
                         finish: () {
-                          Log.debug("loading more messages");
                           blocContext
                               .read<ChatBloc>()
                               .add(const ChatEvent.loadPrevMessage());
@@ -117,41 +116,43 @@ class _AIChatPageState extends State<AIChatPage> {
     );
   }
 
-  ChatPopupMenu buildBubble(Message message, Widget child) {
+  Widget buildBubble(Message message, Widget child) {
     final isAuthor = message.author.id == _user.id;
     const borderRadius = BorderRadius.all(Radius.circular(20));
-    if (isMobile) {}
-
-    return ChatPopupMenu(
-      onAction: (action) {
-        switch (action) {
-          case ChatMessageAction.copy:
-            if (message is TextMessage) {
-              Clipboard.setData(
-                ClipboardData(text: message.text),
-              );
-              showMessageToast(
-                LocaleKeys.grid_row_copyProperty.tr(),
-              );
-            }
-            break;
-        }
-      },
-      builder: (context) {
-        return DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: borderRadius,
-            color: !isAuthor || message.type == types.MessageType.image
-                ? AFThemeExtension.of(context).tint1
-                : Theme.of(context).colorScheme.primary,
-          ),
-          child: ClipRRect(
-            borderRadius: borderRadius,
-            child: Container(child: child),
-          ),
-        );
-      },
+    final decoratedChild = DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        color: !isAuthor || message.type == types.MessageType.image
+            ? AFThemeExtension.of(context).tint1
+            : Theme.of(context).colorScheme.primary,
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: Container(child: child),
+      ),
     );
+
+    if (isMobile) {
+      return ChatPopupMenu(
+        onAction: (action) {
+          switch (action) {
+            case ChatMessageAction.copy:
+              if (message is TextMessage) {
+                Clipboard.setData(
+                  ClipboardData(text: message.text),
+                );
+                showMessageToast(
+                  LocaleKeys.grid_row_copyProperty.tr(),
+                );
+              }
+              break;
+          }
+        },
+        builder: (context) => decoratedChild,
+      );
+    } else {
+      return decoratedChild;
+    }
   }
 
   AFDefaultChatTheme buildTheme(BuildContext context) {
