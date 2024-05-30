@@ -66,13 +66,9 @@ class FavoriteMenuBloc extends Bloc<FavoriteMenuEvent, FavoriteMenuState> {
   final FavoriteService _service = FavoriteService();
   RepeatedFavoriteViewPB? _source;
 
-  List<ViewPB> _filter(List<ViewPB> views, String query) {
-    return views
-        .where(
-          (view) => view.name.toLowerCase().contains(query.toLowerCase()),
-        )
-        .toList();
-  }
+  List<ViewPB> _filter(List<ViewPB> views, String query) => views
+      .where((view) => view.name.toLowerCase().contains(query.toLowerCase()))
+      .toList();
 
   // all, today, last week, other
   (List<ViewPB>, List<ViewPB>, List<ViewPB>, List<ViewPB>) _getViews(
@@ -85,9 +81,6 @@ class FavoriteMenuBloc extends Bloc<FavoriteMenuEvent, FavoriteMenuState> {
     final List<ViewPB> otherViews = [];
     for (final favoriteView in source.items) {
       final view = favoriteView.item;
-      if (view.isPinned) {
-        continue;
-      }
       final date = DateTime.fromMillisecondsSinceEpoch(
         favoriteView.timestamp.toInt() * 1000,
       );
