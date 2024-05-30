@@ -104,6 +104,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  auto_size_text_field:
+    dependency: "direct main"
+    description:
+      name: auto_size_text_field
+      sha256: c4ba8714ba4216ca122acac1573581dac499f3162c9218a28b573dca73721b3f
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
   avatar_stack:
     dependency: "direct main"
     description:
@@ -1569,6 +1577,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
+  reorderable_tabbar:
+    dependency: "direct main"
+    description:
+      name: reorderable_tabbar
+      sha256: dd19d7b6f60f0dec4be02ba0a2c860f9acbe5a392cb8b5b8c1417cbfcbfe923f
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.6"
   reorderables:
     dependency: "direct main"
     description:
@@ -1992,6 +2008,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0+1"
+  tab_indicator_styler:
+    dependency: transitive
+    description:
+      name: tab_indicator_styler
+      sha256: "9e7e90367e20f71f3882fc6578fdcced35ab1c66ab20fcb623cdcc20d2796c76"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   table_calendar:
     dependency: "direct main"
     description:

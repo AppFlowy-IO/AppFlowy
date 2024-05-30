@@ -101,9 +101,13 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
 
           return const EdgeInsets.only(top: 12.0, bottom: 4.0);
         },
-        placeholderText: (node) => LocaleKeys.blockPlaceholders_heading.tr(
-          args: [node.attributes[HeadingBlockKeys.level].toString()],
-        ),
+        placeholderText: (node) {
+          int level = node.attributes[HeadingBlockKeys.level] ?? 6;
+          level = level.clamp(1, 6);
+          return LocaleKeys.blockPlaceholders_heading.tr(
+            args: [level.toString()],
+          );
+        },
       ),
       textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
     ),

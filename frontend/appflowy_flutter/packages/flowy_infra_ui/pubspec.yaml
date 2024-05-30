@@ -20,6 +20,7 @@ dependencies:
   loading_indicator: ^3.1.0
   async:
   url_launcher: ^6.1.11
+  google_fonts: ^6.1.0
 
   # Federated Platform Interface
   flowy_infra_ui_platform_interface:

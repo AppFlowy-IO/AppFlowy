@@ -75,4 +75,15 @@ class KVKeys {
   ///
   /// The value is a double string.
   static const String scaleFactor = 'scaleFactor';
+
+  /// The key for saving the last opened space
+  ///
+  /// The value is a int string.
+  static const String lastOpenedSpace = 'lastOpenedSpace';
+
+  /// The key for saving the space order
+  ///
+  /// The value is a json string with the following format:
+  /// [0, 1, 2]
+  static const String spaceOrder = 'spaceOrder';
 }

@@ -40,17 +40,20 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
             emit(
               result.fold(
                 (favoriteViews) {
-                  final views = favoriteViews.items.map((v) => v.item).toList();
-                  final pinnedViews = views.where((v) => v.isPinned).toList();
+                  final views = favoriteViews.items.toList();
+                  final pinnedViews =
+                      views.where((v) => v.item.isPinned).toList();
                   final unpinnedViews =
-                      views.where((v) => !v.isPinned).toList();
+                      views.where((v) => !v.item.isPinned).toList();
                   return state.copyWith(
+                    isLoading: false,
                     views: views,
                     pinnedViews: pinnedViews,
                     unpinnedViews: unpinnedViews,
                   );
                 },
                 (error) => state.copyWith(
+                  isLoading: false,
                   views: [],
                 ),
               ),
@@ -105,12 +108,11 @@ class FavoriteEvent with _$FavoriteEvent {
 @freezed
 class FavoriteState with _$FavoriteState {
   const factory FavoriteState({
-    required List<ViewPB> views,
-    @Default([]) List<ViewPB> pinnedViews,
-    @Default([]) List<ViewPB> unpinnedViews,
+    @Default([]) List<SectionViewPB> views,
+    @Default([]) List<SectionViewPB> pinnedViews,
+    @Default([]) List<SectionViewPB> unpinnedViews,
+    @Default(true) bool isLoading,
   }) = _FavoriteState;
 
-  factory FavoriteState.initial() => const FavoriteState(
-        views: [],
-      );
+  factory FavoriteState.initial() => const FavoriteState();
 }

@@ -245,7 +245,20 @@
     "recent": "Recent",
     "today": "Today",
     "thisWeek": "This week",
-    "others": "Others"
+    "others": "Others",
+    "justNow": "just now",
+    "minutesAgo": "{count} minutes ago",
+    "lastViewed": "Last viewed",
+    "favoriteAt": "Favorited at",
+    "emptyRecent": "No Recent Documents",
+    "emptyRecentDescription": "As you view documents, they will appear here for easy retrieval",
+    "emptyFavorite": "No Favorite Documents",
+    "emptyFavoriteDescription": "Start exploring and mark documents as favorites. They’ll be listed here for quick access!",
+    "removePageFromRecent": "Remove this page from the Recent?",
+    "removeSuccess": "Removed successfully",
+    "favoriteSpace": "Favorites",
+    "RecentSpace": "Recent",
+    "Spaces": "Spaces"
   },
   "notifications": {
     "export": {
@@ -284,6 +297,7 @@
     "update": "Update",
     "share": "Share",
     "removeFromFavorites": "Remove from favorites",
+    "removeFromRecent": "Remove from recent",
     "addToFavorites": "Add to favorites",
     "rename": "Rename",
     "helpCenter": "Help Center",
