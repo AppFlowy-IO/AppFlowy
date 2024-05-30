@@ -47,6 +47,7 @@
     "unmatchedPasswordError": "Passwörter stimmen nicht überein",
     "syncPromptMessage": "Synchronisation kann ein paar Minuten dauern. Diese Seite bitte nicht schließen",
     "or": "ODER",
+    "signInWith": "Anmeldeoptionen:",
     "signInWithGoogle": "Mit Google anmelden",
     "signInWithGithub": "Mit Github anmelden",
     "signInWithDiscord": "Mit Discord anmelden",
@@ -65,9 +66,6 @@
     "logIn": "Anmeldung",
     "generalError": "Etwas ist schiefgelaufen. Bitte versuche es später noch einmal",
     "limitRateError": "Aus Sicherheitsgründen kannst du nur alle 60 Sekunden einen Authentifizierungslink anfordern",
-    "LogInWithGoogle": "Mit Google-Account anmelden",
-    "LogInWithGithub": "Mit GitHub-Account anmelden",
-    "LogInWithDiscord": "Mit Discord-Account anmelden"
   },
   "workspace": {
     "chooseWorkspace": "Arbeitsbereich wählen",
