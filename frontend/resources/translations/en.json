@@ -1121,7 +1121,16 @@
         "newDatabase": "New Database",
         "linkToDatabase": "Link to Database"
       },
-      "date": "Date"
+      "date": "Date",
+      "video": {
+        "label": "Video",
+        "emptyLabel": "Add a video",
+        "placeholder": "Enter a link to a video",
+        "copiedToPasteBoard": "The video link has been copied to the clipboard",
+        "insertVideo": "Insert video",
+        "invalidVideoUrl": "Invalid video url, must be a valid file.",
+        "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      }
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"

@@ -47,7 +47,7 @@ dependencies:
       ref: 8a6434ae3d02624b614a010af80f775db11bf22e
   appflowy_result:
     path: packages/appflowy_result
-  appflowy_editor_plugins: ^0.0.2
+  appflowy_editor_plugins: ^0.0.6
 
   appflowy_editor:
 
