@@ -101,7 +101,7 @@ async fn af_cloud_load_remote_system_message_test() {
   assert!(all.messages.is_empty());
 
   // Wait for the messages to be loaded.
-  let next_back_five = receive_with_timeout(rx, Duration::from_secs(30))
+  let next_back_five = receive_with_timeout(rx, Duration::from_secs(60))
     .await
     .unwrap();
   assert_eq!(next_back_five.messages.len(), 5);
@@ -120,7 +120,7 @@ async fn af_cloud_load_remote_system_message_test() {
   test
     .load_prev_message(&chat_id, 5, Some(next_back_five.messages[4].message_id))
     .await;
-  let first_five_messages = receive_with_timeout(rx, Duration::from_secs(30))
+  let first_five_messages = receive_with_timeout(rx, Duration::from_secs(60))
     .await
     .unwrap();
   assert!(!first_five_messages.has_more);
@@ -146,7 +146,7 @@ async fn af_cloud_load_remote_user_message_test() {
   test
     .send_message(&chat_id, "hello world", ChatMessageTypePB::User)
     .await;
-  let _ = receive_with_timeout(rx, Duration::from_secs(30))
+  let _ = receive_with_timeout(rx, Duration::from_secs(60))
     .await
     .unwrap();
 

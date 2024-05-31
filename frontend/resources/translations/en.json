@@ -147,7 +147,10 @@
   "newGridText": "New grid",
   "newCalendarText": "New calendar",
   "newBoardText": "New board",
-  "newChatText": "New chat",
+  "chat": {
+    "newChat": "New chat",
+    "unsupportedCloudPrompt": "This feature is only available when using AppFlowy Cloud"
+  },
   "trash": {
     "text": "Trash",
     "restoreAll": "Restore All",

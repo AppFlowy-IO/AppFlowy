@@ -677,7 +677,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       case ViewLayoutPB.Calendar:
         return LocaleKeys.newCalendarText.tr();
       case ViewLayoutPB.Chat:
-        return LocaleKeys.newChatText.tr();
+        return LocaleKeys.chat_newChat.tr();
     }
     return LocaleKeys.newPageText.tr();
   }

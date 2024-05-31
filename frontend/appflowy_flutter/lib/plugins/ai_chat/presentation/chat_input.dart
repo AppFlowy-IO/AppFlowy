@@ -5,11 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
-// final isMobile = defaultTargetPlatform == TargetPlatform.android ||
-//     defaultTargetPlatform == TargetPlatform.iOS;
-
-/// A class that represents bottom bar widget with a text field, attachment and
-/// send buttons inside. By default hides send button when text field is empty.
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
   const ChatInput({
@@ -20,20 +15,9 @@ class ChatInput extends StatefulWidget {
     this.options = const InputOptions(),
   });
 
-  /// Whether attachment is uploading. Will replace attachment button with a
-  /// [CircularProgressIndicator]. Since we don't have libraries for
-  /// managing media in dependencies we have no way of knowing if
-  /// something is uploading so you need to set this manually.
   final bool? isAttachmentUploading;
-
-  /// See [AttachmentButton.onPressed].
   final VoidCallback? onAttachmentPressed;
-
-  /// Will be called on [SendButton] tap. Has [types.PartialText] which can
-  /// be transformed to [types.TextMessage] and added to the messages list.
   final void Function(types.PartialText) onSendPressed;
-
-  /// Customisation options for the [ChatInput].
   final InputOptions options;
 
   @override
