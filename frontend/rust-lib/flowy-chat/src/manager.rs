@@ -19,7 +19,7 @@ pub trait ChatUserService: Send + Sync + 'static {
 pub struct ChatManager {
   cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn ChatUserService>,
-  chats: DashMap<String, Arc<Chat>>,
+  chats: Arc<DashMap<String, Arc<Chat>>>,
 }
 
 impl ChatManager {
@@ -32,7 +32,7 @@ impl ChatManager {
     Self {
       cloud_service,
       user_service,
-      chats: DashMap::new(),
+      chats: Arc::new(DashMap::new()),
     }
   }
 

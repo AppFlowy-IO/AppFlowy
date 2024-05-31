@@ -72,12 +72,10 @@ class _AIChatPageState extends State<AIChatPage> {
                       .add(ChatEvent.tapMessage(message));
                 },
                 onSendPressed: (types.PartialText message) {
-                  // Custom input handling, so do nothing here
+                  // We use custom bottom widget for chat input, so
+                  // do not need to handle this event.
                 },
-                customBottomWidget: ChatInput(
-                  onSendPressed: (message) =>
-                      onSendPressed(blocContext, message),
-                ),
+                customBottomWidget: buildChatInput(blocContext),
                 user: _user,
                 theme: buildTheme(context),
                 customMessageBuilder: (message, {required messageWidth}) {
@@ -99,7 +97,7 @@ class _AIChatPageState extends State<AIChatPage> {
                 emptyState: const Center(
                   child: CircularProgressIndicator.adaptive(),
                 ),
-                messageWidthRatio: 0.92,
+                messageWidthRatio: 0.7,
                 bubbleBuilder: (
                   child, {
                   required message,
@@ -160,6 +158,24 @@ class _AIChatPageState extends State<AIChatPage> {
         ),
       );
     }
+  }
+
+  Widget buildChatInput(BuildContext context) {
+    final query = MediaQuery.of(context);
+    final safeAreaInsets = isMobile
+        ? EdgeInsets.fromLTRB(
+            query.padding.left,
+            0,
+            query.padding.right,
+            query.viewInsets.bottom + query.padding.bottom,
+          )
+        : EdgeInsets.zero;
+    return Padding(
+      padding: safeAreaInsets,
+      child: ChatInput(
+        onSendPressed: (message) => onSendPressed(context, message),
+      ),
+    );
   }
 
   AFDefaultChatTheme buildTheme(BuildContext context) {

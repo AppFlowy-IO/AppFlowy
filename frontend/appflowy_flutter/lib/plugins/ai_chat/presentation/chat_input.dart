@@ -96,19 +96,9 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   Widget _inputBuilder() {
-    final query = MediaQuery.of(context);
     const textPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 6);
     const buttonPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 6);
     const inputPadding = EdgeInsets.all(6);
-
-    final safeAreaInsets = isMobile
-        ? EdgeInsets.fromLTRB(
-            query.padding.left,
-            0,
-            query.padding.right,
-            query.viewInsets.bottom + query.padding.bottom,
-          )
-        : EdgeInsets.zero;
 
     return Focus(
       autofocus: !widget.options.autofocus,
@@ -116,64 +106,63 @@ class _ChatInputState extends State<ChatInput> {
         padding: inputPadding,
         child: Material(
           borderRadius: BorderRadius.circular(12),
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: isMobile
+              ? Theme.of(context).colorScheme.surfaceContainer
+              : Theme.of(context).colorScheme.surfaceContainerHighest,
           elevation: 0.6,
-          child: Container(
-            padding: safeAreaInsets,
-            child: Row(
-              textDirection: TextDirection.ltr,
-              children: [
-                if (widget.onAttachmentPressed != null)
-                  AttachmentButton(
-                    isLoading: widget.isAttachmentUploading ?? false,
-                    onPressed: widget.onAttachmentPressed,
+          child: Row(
+            textDirection: TextDirection.ltr,
+            children: [
+              if (widget.onAttachmentPressed != null)
+                AttachmentButton(
+                  isLoading: widget.isAttachmentUploading ?? false,
+                  onPressed: widget.onAttachmentPressed,
+                  padding: buttonPadding,
+                ),
+              Expanded(
+                child: Padding(
+                  padding: textPadding,
+                  child: TextField(
+                    enabled: widget.options.enabled,
+                    autocorrect: widget.options.autocorrect,
+                    autofocus: widget.options.autofocus,
+                    enableSuggestions: widget.options.enableSuggestions,
+                    controller: _textController,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: '',
+                      hintStyle: TextStyle(
+                        color: AFThemeExtension.of(context)
+                            .textColor
+                            .withOpacity(0.5),
+                      ),
+                    ),
+                    focusNode: _inputFocusNode,
+                    keyboardType: widget.options.keyboardType,
+                    maxLines: 5,
+                    minLines: 1,
+                    onChanged: widget.options.onTextChanged,
+                    onTap: widget.options.onTextFieldTap,
+                    style: TextStyle(
+                      color: AFThemeExtension.of(context).textColor,
+                    ),
+                    textCapitalization: TextCapitalization.sentences,
+                  ),
+                ),
+              ),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: buttonPadding.bottom + buttonPadding.top + 24,
+                ),
+                child: Visibility(
+                  visible: _sendButtonVisible,
+                  child: SendButton(
+                    onPressed: _handleSendPressed,
                     padding: buttonPadding,
                   ),
-                Expanded(
-                  child: Padding(
-                    padding: textPadding,
-                    child: TextField(
-                      enabled: widget.options.enabled,
-                      autocorrect: widget.options.autocorrect,
-                      autofocus: widget.options.autofocus,
-                      enableSuggestions: widget.options.enableSuggestions,
-                      controller: _textController,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: '',
-                        hintStyle: TextStyle(
-                          color: AFThemeExtension.of(context)
-                              .textColor
-                              .withOpacity(0.5),
-                        ),
-                      ),
-                      focusNode: _inputFocusNode,
-                      keyboardType: widget.options.keyboardType,
-                      maxLines: 5,
-                      minLines: 1,
-                      onChanged: widget.options.onTextChanged,
-                      onTap: widget.options.onTextFieldTap,
-                      style: TextStyle(
-                        color: AFThemeExtension.of(context).textColor,
-                      ),
-                      textCapitalization: TextCapitalization.sentences,
-                    ),
-                  ),
                 ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: buttonPadding.bottom + buttonPadding.top + 24,
-                  ),
-                  child: Visibility(
-                    visible: _sendButtonVisible,
-                    child: SendButton(
-                      onPressed: _handleSendPressed,
-                      padding: buttonPadding,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
