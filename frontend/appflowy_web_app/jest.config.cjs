@@ -19,7 +19,4 @@ module.exports = {
   'transformIgnorePatterns': [`/node_modules/(?!${esModules})`],
   testMatch: ['**/*.test.ts'],
   coverageDirectory: '<rootDir>/coverage',
-  coverageReporters: [
-    'json-summary',
-  ],
 };
