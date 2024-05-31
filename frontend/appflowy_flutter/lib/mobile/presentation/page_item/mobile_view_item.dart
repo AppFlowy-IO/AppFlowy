@@ -333,13 +333,10 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.only(right: 6.0, top: 6.0, bottom: 6.0),
-        child: widget.isExpanded
-            ? const FlowySvg(
-                FlowySvgs.m_expand_s,
-                blendMode: null,
-              )
-            : const FlowySvg(
-                FlowySvgs.m_collapse_s,
+        child: FlowySvg(
+                 widget.isExpanded 
+                   ? FlowySvgs.m_expand_s
+                   : FlowySvgs.m_collapse_s,
                 blendMode: null,
               ),
       ),
