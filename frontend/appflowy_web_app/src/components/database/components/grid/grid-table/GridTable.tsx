@@ -1,8 +1,9 @@
-import { DEFAULT_ROW_HEIGHT } from '@/application/database-yjs/const';
 import { AFScroller } from '@/components/_shared/scroller';
+import { useMeasureHeight } from '@/components/database/components/cell/useMeasure';
+import { debounce } from 'lodash-es';
 import { GridColumnType, RenderColumn } from '../grid-column';
 import { GridCalculateRowCell, GridRowCell, RenderRowType, useRenderRows } from '../grid-row';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { GridChildComponentProps, VariableSizeGrid } from 'react-window';
 
@@ -18,7 +19,11 @@ export interface GridTableProps {
 export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: GridTableProps) => {
   const ref = useRef<VariableSizeGrid | null>(null);
   const { rows } = useRenderRows();
-  const rowHeights = useRef<{ [key: string]: number }>({});
+  const forceUpdate = useCallback((index: number) => {
+    ref.current?.resetAfterRowIndex(index, true);
+  }, []);
+
+  const { rowHeight, onResize } = useMeasureHeight({ forceUpdate, rows });
 
   useEffect(() => {
     if (ref.current) {
@@ -31,40 +36,6 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
       ref.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
     }
   }, [columns]);
-
-  const rowHeight = useCallback(
-    (index: number) => {
-      const row = rows[index];
-
-      if (!row || !row.rowId) return DEFAULT_ROW_HEIGHT;
-
-      return rowHeights.current[row.rowId] || DEFAULT_ROW_HEIGHT;
-    },
-    [rows]
-  );
-
-  const setRowHeight = useCallback(
-    (index: number, height: number) => {
-      const row = rows[index];
-      const rowId = row.rowId;
-
-      if (!row || !rowId) return;
-      const oldHeight = rowHeights.current[rowId];
-
-      rowHeights.current[rowId] = Math.max(oldHeight || DEFAULT_ROW_HEIGHT, height);
-      if (oldHeight !== height) {
-        ref.current?.resetAfterRowIndex(index, true);
-      }
-    },
-    [rows]
-  );
-
-  const onResize = useCallback(
-    (rowIndex: number, columnIndex: number, size: { width: number; height: number }) => {
-      setRowHeight(rowIndex, size.height);
-    },
-    [setRowHeight]
-  );
 
   const getItemKey = useCallback(
     ({ columnIndex, rowIndex }: { columnIndex: number; rowIndex: number }) => {

@@ -1,9 +1,13 @@
 import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
 import { useNavigateToView } from '@/application/folder-yjs';
-import { IdProvider, useId } from '@/components/_shared/context-provider/IdProvider';
+import { getCurrentWorkspace } from '@/application/services/js-services/storage';
+import { IdProvider } from '@/components/_shared/context-provider/IdProvider';
 import { Database } from '@/components/database';
+import { useGetDatabaseId, useLoadDatabase } from '@/components/database/Database.hooks';
+import { DatabaseContextProvider } from '@/components/database/DatabaseContext';
 import { DatabaseNode, EditorElementProps } from '@/components/editor/editor.type';
 import { Tooltip } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import React, { forwardRef, memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BlockType } from '@/application/collab.type';
@@ -12,11 +16,10 @@ export const DatabaseBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DatabaseNode>>(({ node, children, ...attributes }, ref) => {
     const { t } = useTranslation();
     const viewId = node.data.view_id;
-    const workspaceId = useId()?.workspaceId;
     const type = node.type;
     const navigateToView = useNavigateToView();
     const [isHovering, setIsHovering] = useState(false);
-
+    const [databaseViewId, setDatabaseViewId] = useState<string | undefined>(viewId);
     const style = useMemo(() => {
       const style = {};
 
@@ -37,13 +40,22 @@ export const DatabaseBlock = memo(
     }, [type]);
 
     const handleNavigateToRow = useCallback(
-      (viewId: string, rowId: string) => {
-        const url = `/view/${workspaceId}/${viewId}?r=${rowId}`;
+      async (rowId: string) => {
+        const workspace = await getCurrentWorkspace();
+
+        if (!workspace) return;
+
+        const url = `/view/${workspace.id}/${databaseViewId}?r=${rowId}`;
 
         window.open(url, '_blank');
       },
-      [workspaceId]
+      [databaseViewId]
     );
+    const databaseId = useGetDatabaseId(viewId);
+
+    const { doc, rows, notFound } = useLoadDatabase({
+      databaseId,
+    });
 
     return (
       <>
@@ -57,9 +69,17 @@ export const DatabaseBlock = memo(
             {children}
           </div>
           <div contentEditable={false} style={style} className={`container-bg relative flex w-full flex-col px-3`}>
-            {viewId ? (
-              <IdProvider workspaceId={workspaceId} objectId={viewId}>
-                <Database onNavigateToRow={handleNavigateToRow} />
+            {viewId && doc && rows ? (
+              <IdProvider objectId={viewId}>
+                <DatabaseContextProvider
+                  navigateToRow={handleNavigateToRow}
+                  viewId={databaseViewId || viewId}
+                  databaseDoc={doc}
+                  rowDocMap={rows}
+                  readOnly={true}
+                >
+                  <Database iidIndex={viewId} viewId={databaseViewId || viewId} onNavigateToView={setDatabaseViewId} />
+                </DatabaseContextProvider>
                 {isHovering && (
                   <div className={'absolute right-4 top-1'}>
                     <Tooltip placement={'bottom'} title={t('tooltip.openAsPage')}>
@@ -80,8 +100,14 @@ export const DatabaseBlock = memo(
               <div
                 className={'mt-[10%] flex h-full w-full flex-col items-center gap-2 px-16 text-text-caption max-md:px-4'}
               >
-                <div className={'text-sm font-medium'}>{t('document.plugins.database.noDataSource')}</div>
-                <div className={'text-xs'}>{t('grid.relation.noDatabaseSelected')}</div>
+                {notFound ? (
+                  <>
+                    <div className={'text-sm font-medium'}>{t('document.plugins.database.noDataSource')}</div>
+                    <div className={'text-xs'}>{t('grid.relation.noDatabaseSelected')}</div>
+                  </>
+                ) : (
+                  <CircularProgress />
+                )}
               </div>
             )}
           </div>

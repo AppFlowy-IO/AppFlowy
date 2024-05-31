@@ -1,4 +1,4 @@
-import { UserProfile, UserWorkspace } from '@/application/user.type';
+import { UserProfile, UserWorkspace, Workspace } from '@/application/user.type';
 
 const userKey = 'user';
 const workspaceKey = 'workspace';
@@ -33,4 +33,11 @@ export async function setUserWorkspace(workspace: UserWorkspace) {
   const str = JSON.stringify(workspace);
 
   localStorage.setItem(workspaceKey, str);
+}
+
+export async function getCurrentWorkspace(): Promise<Workspace | undefined> {
+  const userProfile = await getSignInUser();
+  const userWorkspace = await getUserWorkspace();
+
+  return userWorkspace?.workspaces.find((workspace) => workspace.id === userProfile?.workspaceId);
 }

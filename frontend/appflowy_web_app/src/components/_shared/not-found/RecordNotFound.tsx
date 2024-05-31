@@ -1,8 +1,9 @@
+import { getCurrentWorkspace } from '@/application/services/js-services/storage';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export function RecordNotFound({ open, workspaceId, title }: { workspaceId: string; open: boolean; title?: string }) {
+export function RecordNotFound({ open, title }: { open: boolean; title?: string }) {
   const navigate = useNavigate();
 
   return (
@@ -15,8 +16,11 @@ export function RecordNotFound({ open, workspaceId, title }: { workspaceId: stri
       </DialogContent>
       <DialogActions className={'flex w-full items-center justify-center'}>
         <Button
-          onClick={() => {
-            navigate(`/view/${workspaceId}`);
+          onClick={async () => {
+            const workspace = await getCurrentWorkspace();
+
+            if (!workspace) return;
+            navigate(`/view/${workspace.id}`);
           }}
         >
           Go back

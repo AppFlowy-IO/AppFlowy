@@ -125,6 +125,6 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ['@mui/material/Tooltip'],
+    include: ['react', 'react-dom', '@mui/icons-material/ErrorOutline'],
   },
 });

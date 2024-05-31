@@ -93,10 +93,10 @@ export async function batchGetCollab(
     }))
   )) as unknown as Map<string, { doc_state: number[] }>;
 
-  const result: Record<string, Uint8Array> = {};
+  const result: Record<string, number[]> = {};
 
   res.forEach((value, key) => {
-    result[key] = new Uint8Array(value.doc_state);
+    result[key] = value.doc_state;
   });
   return result;
 }
