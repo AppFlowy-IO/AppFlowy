@@ -16,7 +16,7 @@ extension MobileRouter on BuildContext {
   Future<void> pushView(ViewPB view, [Map<String, dynamic>? arguments]) async {
     // set the current view before pushing the new view
     getIt<MenuSharedState>().latestOpenView = view;
-    await getIt<CachedRecentService>().updateRecentViews([view.id], true);
+    unawaited(getIt<CachedRecentService>().updateRecentViews([view.id], true));
 
     final uri = Uri(
       path: view.routeName,
