@@ -57,7 +57,19 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
                 }
               },
             );
+
+            // only document supports the cover
+            if (view.layout != ViewLayoutPB.Document) {
+              emit(
+                state.copyWith(
+                  name: view.name,
+                  icon: view.icon.value,
+                ),
+              );
+            }
+
             final cover = getCoverV2();
+
             if (cover != null) {
               emit(
                 state.copyWith(

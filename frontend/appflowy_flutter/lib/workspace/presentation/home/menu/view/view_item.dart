@@ -57,6 +57,7 @@ class ViewItem extends StatelessWidget {
     this.shouldRenderChildren = true,
     this.leftIconBuilder,
     this.rightIconsBuilder,
+    this.shouldLoadChildViews = true,
   });
 
   final ViewPB view;
@@ -107,10 +108,14 @@ class ViewItem extends StatelessWidget {
   // custom the right icon widget, if it's null, the default ... and + button will be used
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
+  final bool shouldLoadChildViews;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
+      create: (_) =>
+          ViewBloc(view: view, shouldLoadChildViews: shouldLoadChildViews)
+            ..add(const ViewEvent.initial()),
       child: BlocConsumer<ViewBloc, ViewState>(
         listenWhen: (p, c) =>
             c.lastCreatedView != null &&

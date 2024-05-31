@@ -257,7 +257,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     final children = [
       // expand icon
       _buildLeftIcon(),
-      const HSpace(6),
       // icon
       _buildViewIcon(),
       const HSpace(8),
@@ -274,11 +273,11 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     // hover action
 
     // ··· more action button
-    // children.add(_buildViewMoreActionButton(context));
+    children.add(_buildViewMoreButton(context));
     // only support add button for document layout
     if (!widget.isFeedback && widget.view.layout == ViewLayoutPB.Document) {
       // + button
-      children.add(_buildViewMoreButton(context));
+
       children.add(_buildViewAddButton(context));
     }
 
@@ -326,22 +325,20 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
   // show > if the view is expandable.
   // show · if the view can't contain child views.
   Widget _buildLeftIcon() {
-    if (isReferencedDatabaseView(widget.view, widget.parentView)) {
-      return const _DotIconWidget();
-    }
-
     if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
       return HSpace(widget.leftPadding);
     }
 
     return GestureDetector(
-      child: AnimatedRotation(
-        duration: const Duration(milliseconds: 250),
-        turns: widget.isExpanded ? 0 : -0.25,
-        child: const FlowySvg(
-          FlowySvgs.m_expand_s,
-          blendMode: null,
-        ),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 6.0, top: 6.0, bottom: 6.0),
+        child: FlowySvg(
+                 widget.isExpanded 
+                   ? FlowySvgs.m_expand_s
+                   : FlowySvgs.m_collapse_s,
+                blendMode: null,
+              ),
       ),
       onTap: () {
         context
@@ -427,25 +424,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
           ),
         );
       },
-    );
-  }
-}
-
-class _DotIconWidget extends StatelessWidget {
-  const _DotIconWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(6.0),
-      child: Container(
-        width: 4,
-        height: 4,
-        decoration: BoxDecoration(
-          color: Theme.of(context).iconTheme.color,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
     );
   }
 }

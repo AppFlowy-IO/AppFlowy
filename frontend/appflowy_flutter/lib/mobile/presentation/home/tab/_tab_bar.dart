@@ -39,6 +39,7 @@ class MobileSpaceTabBar extends StatelessWidget {
         indicatorColor: Theme.of(context).primaryColor,
         isScrollable: true,
         labelStyle: labelStyle,
+        labelColor: baseStyle?.color,
         labelPadding: const EdgeInsets.symmetric(horizontal: 12.0),
         unselectedLabelStyle: unselectedLabelStyle,
         overlayColor: WidgetStateProperty.all(Colors.transparent),

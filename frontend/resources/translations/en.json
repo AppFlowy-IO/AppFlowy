@@ -139,7 +139,7 @@
     "addToFavorites": "Add to Favorites",
     "copyLink": "Copy Link",
     "changeIcon": "Change icon",
-    "collapseAllPages": "Collapse all pages"
+    "collapseAllPages": "Collapse all subpages"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -229,8 +229,8 @@
     "genSummary": "Generate summary"
   },
   "sideBar": {
-    "closeSidebar": "Close side bar",
-    "openSidebar": "Open side bar",
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar",
     "personal": "Personal",
     "private": "Private",
     "workspace": "Workspace",

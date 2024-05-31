@@ -21,7 +21,7 @@ class MobileBottomNavigationBar extends StatelessWidget {
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Theme(
-        data: ThemeData(
+        data: Theme.of(context).copyWith(
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
         ),

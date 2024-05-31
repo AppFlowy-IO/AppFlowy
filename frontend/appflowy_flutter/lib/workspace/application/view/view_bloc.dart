@@ -19,7 +19,7 @@ import 'package:protobuf/protobuf.dart';
 part 'view_bloc.freezed.dart';
 
 class ViewBloc extends Bloc<ViewEvent, ViewState> {
-  ViewBloc({required this.view})
+  ViewBloc({required this.view, this.shouldLoadChildViews = true})
       : viewBackendSvc = ViewBackendService(),
         listener = ViewListener(viewId: view.id),
         favoriteListener = FavoriteListener(),
@@ -31,6 +31,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   final ViewBackendService viewBackendSvc;
   final ViewListener listener;
   final FavoriteListener favoriteListener;
+  final bool shouldLoadChildViews;
 
   @override
   Future<void> close() async {
@@ -74,8 +75,10 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               },
             );
             final isExpanded = await _getViewIsExpanded(view);
-            emit(state.copyWith(isExpanded: isExpanded));
-            await _loadChildViews(emit);
+            emit(state.copyWith(isExpanded: isExpanded, view: view));
+            if (shouldLoadChildViews) {
+              await _loadChildViews(emit);
+            }
           },
           setIsEditing: (e) {
             emit(state.copyWith(isEditing: e.isEditing));

@@ -7,11 +7,21 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobileRecentSpace extends StatelessWidget {
+class MobileRecentSpace extends StatefulWidget {
   const MobileRecentSpace({super.key});
 
   @override
+  State<MobileRecentSpace> createState() => _MobileRecentSpaceState();
+}
+
+class _MobileRecentSpaceState extends State<MobileRecentSpace>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return BlocProvider(
       create: (context) =>
           RecentViewsBloc()..add(const RecentViewsEvent.initial()),
