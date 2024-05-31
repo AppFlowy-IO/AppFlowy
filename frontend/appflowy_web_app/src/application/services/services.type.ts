@@ -1,5 +1,5 @@
 import { YDoc } from '@/application/collab.type';
-import { ProviderType, SignUpWithEmailPasswordParams, UserProfile, Workspace } from '@/application/user.type';
+import { ProviderType, SignUpWithEmailPasswordParams, UserProfile } from '@/application/user.type';
 import * as Y from 'yjs';
 
 export interface AFService {

@@ -26,8 +26,11 @@ describe('<Editor />', () => {
     cy.fixture('folder').then((folderJson) => {
       const doc = new Y.Doc();
       const state = new Uint8Array(folderJson.data.doc_state);
+
       applyYDoc(doc, state);
+
       const folder = doc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.folder) as YFolder;
+      
       cy.fixture('full_doc').then((docJson) => {
         const doc = new Y.Doc();
         const state = new Uint8Array(docJson.data.doc_state);

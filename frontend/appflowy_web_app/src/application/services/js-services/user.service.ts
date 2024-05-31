@@ -1,5 +1,5 @@
 import { UserService } from '@/application/services/services.type';
-import { UserProfile, UserWorkspace, Workspace } from '@/application/user.type';
+import { UserProfile, UserWorkspace } from '@/application/user.type';
 import { APIService } from 'src/application/services/js-services/wasm';
 import {
   getAuthInfo,

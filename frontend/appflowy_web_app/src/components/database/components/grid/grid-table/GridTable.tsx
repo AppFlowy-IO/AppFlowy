@@ -1,9 +1,8 @@
 import { AFScroller } from '@/components/_shared/scroller';
 import { useMeasureHeight } from '@/components/database/components/cell/useMeasure';
-import { debounce } from 'lodash-es';
 import { GridColumnType, RenderColumn } from '../grid-column';
 import { GridCalculateRowCell, GridRowCell, RenderRowType, useRenderRows } from '../grid-row';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { GridChildComponentProps, VariableSizeGrid } from 'react-window';
 

@@ -21,7 +21,9 @@ describe('<Database />', () => {
     cy.fixture('folder').then((folderJson) => {
       const doc = new Y.Doc();
       const state = new Uint8Array(folderJson.data.doc_state);
+
       applyYDoc(doc, state);
+      
       const folder = doc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.folder) as YFolder;
 
       cy.fixture(`database/4c658817-20db-4f56-b7f9-0637a22dfeb6`).then((database) => {
