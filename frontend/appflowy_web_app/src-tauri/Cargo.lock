@@ -184,6 +184,7 @@ dependencies = [
  "flowy-notification",
  "flowy-user",
  "lib-dispatch",
+ "semver",
  "serde",
  "serde_json",
  "tauri",
@@ -843,7 +844,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=0b52164#0b521646f5d609abe11a213ab063402c32496e9b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ca3348ba5037bc5b38f93905dfd057e121d4678e#ca3348ba5037bc5b38f93905dfd057e121d4678e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -867,7 +868,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=0b52164#0b521646f5d609abe11a213ab063402c32496e9b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ca3348ba5037bc5b38f93905dfd057e121d4678e#ca3348ba5037bc5b38f93905dfd057e121d4678e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -897,7 +898,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=0b52164#0b521646f5d609abe11a213ab063402c32496e9b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ca3348ba5037bc5b38f93905dfd057e121d4678e#ca3348ba5037bc5b38f93905dfd057e121d4678e"
 dependencies = [
  "anyhow",
  "collab",
@@ -916,7 +917,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=0b52164#0b521646f5d609abe11a213ab063402c32496e9b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ca3348ba5037bc5b38f93905dfd057e121d4678e#ca3348ba5037bc5b38f93905dfd057e121d4678e"
 dependencies = [
  "anyhow",
  "bytes",
@@ -931,7 +932,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=0b52164#0b521646f5d609abe11a213ab063402c32496e9b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ca3348ba5037bc5b38f93905dfd057e121d4678e#ca3348ba5037bc5b38f93905dfd057e121d4678e"
 dependencies = [
  "anyhow",
  "chrono",
@@ -969,7 +970,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=0b52164#0b521646f5d609abe11a213ab063402c32496e9b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ca3348ba5037bc5b38f93905dfd057e121d4678e#ca3348ba5037bc5b38f93905dfd057e121d4678e"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1050,7 +1051,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=0b52164#0b521646f5d609abe11a213ab063402c32496e9b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ca3348ba5037bc5b38f93905dfd057e121d4678e#ca3348ba5037bc5b38f93905dfd057e121d4678e"
 dependencies = [
  "anyhow",
  "collab",
@@ -2113,6 +2114,7 @@ dependencies = [
  "flowy-folder-pub",
  "flowy-notification",
  "flowy-search-pub",
+ "flowy-sqlite",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
@@ -2232,6 +2234,7 @@ dependencies = [
  "postgrest",
  "rand 0.8.5",
  "reqwest",
+ "semver",
  "serde",
  "serde_json",
  "thiserror",
@@ -5616,9 +5619,9 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "1.0.22"
+version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92d43fe69e652f3df9bdc2b85b2854a0825b86e4fb76bc44d945137d053639ca"
+checksum = "61697e0a1c7e512e84a621326239844a24d8207b4669b41bc18b32ea5cbf988b"
 dependencies = [
  "serde",
 ]
