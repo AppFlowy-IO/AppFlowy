@@ -1,7 +1,5 @@
+import 'dart:async';
 import 'dart:convert';
-
-import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:flutter/material.dart';
 
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
@@ -9,20 +7,22 @@ import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 extension MobileRouter on BuildContext {
   Future<void> pushView(ViewPB view, [Map<String, dynamic>? arguments]) async {
-    await push(
-      Uri(
-        path: view.routeName,
-        queryParameters: view.queryParameters(arguments),
-      ).toString(),
-    ).then((value) {
-      getIt<MenuSharedState>().latestOpenView = view;
-      getIt<CachedRecentService>().updateRecentViews([view.id], true);
-    });
+    // set the current view before pushing the new view
+    getIt<MenuSharedState>().latestOpenView = view;
+    await getIt<CachedRecentService>().updateRecentViews([view.id], true);
+
+    final uri = Uri(
+      path: view.routeName,
+      queryParameters: view.queryParameters(arguments),
+    ).toString();
+    await push(uri);
   }
 }
 
