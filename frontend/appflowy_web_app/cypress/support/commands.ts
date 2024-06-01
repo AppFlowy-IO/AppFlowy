@@ -25,7 +25,6 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 //
-
 import { YDoc } from '@/application/collab.type';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

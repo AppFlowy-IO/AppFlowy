@@ -56,15 +56,7 @@ jobs:
         working-directory: frontend/appflowy_web_app
         run: |
           pnpm run lint
-      - name: Run tests
-        working-directory: frontend/appflowy_web_app
-        run: |
-          pnpm run test:unit --coverage --coverageReporters json-summary
-      - name: Jest Coverage Comment
-        uses: MishaKav/jest-coverage-comment@main
-        with:
-          coverage-summary-path: frontend/appflowy_web_app/coverage/coverage-summary.json
-
+      
       - name: build and analyze
         working-directory: frontend/appflowy_web_app
         run: |

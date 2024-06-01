@@ -6,6 +6,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import usePluginImport from 'vite-plugin-importer';
 import { totalBundleSize } from 'vite-plugin-total-bundle-size';
 import path from 'path';
+import istanbul from 'vite-plugin-istanbul';
 
 const resourcesPath = path.resolve(__dirname, '../resources');
 const isDev = process.env.NODE_ENV === 'development';
@@ -40,6 +41,10 @@ export default defineConfig({
         },
       },
     }),
+    istanbul({
+      cypress: true,
+      requireEnv: false,
+    }),
     usePluginImport({
       libraryName: '@mui/icons-material',
       libraryDirectory: '',
@@ -66,7 +71,7 @@ export default defineConfig({
     port: !!process.env.TAURI_PLATFORM ? 5173 : process.env.PORT ? parseInt(process.env.PORT) : 3000,
     strictPort: true,
     watch: {
-      ignored: ['**/__tests__/**'],
+      ignored: ['**/__tests__/**', '**/cypress/**', 'node_modules', '**/*.cy.tsx', '**/*.cy.ts', 'cypress'],
     },
     cors: false,
   },
@@ -125,6 +130,6 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ['react', 'react-dom', '@mui/icons-material/ErrorOutline'],
+    include: ['react', 'react-dom', '@mui/icons-material/ErrorOutline', '@mui/icons-material/CheckCircleOutline'],
   },
 });

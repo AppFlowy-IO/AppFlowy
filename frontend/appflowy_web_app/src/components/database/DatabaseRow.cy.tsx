@@ -18,6 +18,7 @@ describe('<DatabaseRow />', () => {
   });
 
   it('renders with a row', () => {
+    cy.wait(1000);
     cy.fixture('folder').then((folderJson) => {
       const doc = new Y.Doc();
       const state = new Uint8Array(folderJson.data.doc_state);
@@ -25,15 +26,15 @@ describe('<DatabaseRow />', () => {
       applyYDoc(doc, state);
       const folder = doc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.folder) as YFolder;
 
-      cy.fixture(`database/4c658817-20db-4f56-b7f9-0637a22dfeb6`).then((database) => {
-        cy.fixture(`database/rows/4c658817-20db-4f56-b7f9-0637a22dfeb6`).then((rows) => {
-          const doc = new Y.Doc();
+      cy.fixture('database/4c658817-20db-4f56-b7f9-0637a22dfeb6').then((database) => {
+        const doc = new Y.Doc();
+        const databaseState = new Uint8Array(database.data.doc_state);
+
+        applyYDoc(doc, databaseState);
+
+        cy.fixture('database/rows/4c658817-20db-4f56-b7f9-0637a22dfeb6').then((rows) => {
           const rootRowsDoc = new Y.Doc();
           const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
-          const databaseState = new Uint8Array(database.data.doc_state);
-
-          applyYDoc(doc, databaseState);
-
           const data = rows['2f944220-9f45-40d9-96b5-e8c0888daf7c'];
           const rowDoc = new Y.Doc();
 

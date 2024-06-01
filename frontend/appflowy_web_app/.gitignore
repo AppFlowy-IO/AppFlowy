@@ -32,3 +32,4 @@ src/application/services/tauri-services/backend/events/
 .env
 
 coverage
+.nyc_output
