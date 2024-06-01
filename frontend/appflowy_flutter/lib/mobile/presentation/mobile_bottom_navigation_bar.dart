@@ -10,6 +10,28 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+const _homeLabel = 'home';
+const _addLabel = 'add';
+const _notificationLabel = 'notification';
+final _items = <BottomNavigationBarItem>[
+  const BottomNavigationBarItem(
+    label: _homeLabel,
+    icon: FlowySvg(FlowySvgs.m_home_unselected_m),
+    activeIcon: FlowySvg(FlowySvgs.m_home_selected_m, blendMode: null),
+  ),
+  const BottomNavigationBarItem(
+    label: _addLabel,
+    icon: FlowySvg(FlowySvgs.m_home_add_m),
+  ),
+  const BottomNavigationBarItem(
+    label: _notificationLabel,
+    icon: FlowySvg(FlowySvgs.m_home_notification_m),
+    activeIcon: FlowySvg(
+      FlowySvgs.m_home_notification_m,
+    ),
+  ),
+];
+
 /// Builds the "shell" for the app by building a Scaffold with a
 /// BottomNavigationBar, where [child] is placed in the body of the Scaffold.
 class MobileBottomNavigationBar extends StatelessWidget {
@@ -24,8 +46,6 @@ class MobileBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context);
-
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Theme(
@@ -39,26 +59,7 @@ class MobileBottomNavigationBar extends StatelessWidget {
           enableFeedback: false,
           type: BottomNavigationBarType.fixed,
           elevation: 0,
-          items: <BottomNavigationBarItem>[
-            const BottomNavigationBarItem(
-              label: 'home',
-              icon: FlowySvg(FlowySvgs.m_home_unselected_m),
-              activeIcon:
-                  FlowySvg(FlowySvgs.m_home_selected_m, blendMode: null),
-            ),
-            const BottomNavigationBarItem(
-              label: 'add',
-              icon: FlowySvg(FlowySvgs.m_home_add_m),
-            ),
-            BottomNavigationBarItem(
-              label: 'notification',
-              icon: const FlowySvg(FlowySvgs.m_home_notification_m),
-              activeIcon: FlowySvg(
-                FlowySvgs.m_home_notification_m,
-                color: style.colorScheme.primary,
-              ),
-            ),
-          ],
+          items: _items,
           currentIndex: navigationShell.currentIndex,
           onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
         ),
@@ -69,7 +70,7 @@ class MobileBottomNavigationBar extends StatelessWidget {
   /// Navigate to the current location of the branch at the provided index when
   /// tapping an item in the BottomNavigationBar.
   void _onTap(BuildContext context, int bottomBarIndex) {
-    if (bottomBarIndex == 1) {
+    if (_items[bottomBarIndex].label == _addLabel) {
       // show an add dialog
       _showCreatePageBottomSheet(context);
       return;
