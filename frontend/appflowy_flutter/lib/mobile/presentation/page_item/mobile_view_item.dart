@@ -334,11 +334,9 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       child: Padding(
         padding: const EdgeInsets.only(right: 6.0, top: 6.0, bottom: 6.0),
         child: FlowySvg(
-                 widget.isExpanded 
-                   ? FlowySvgs.m_expand_s
-                   : FlowySvgs.m_collapse_s,
-                blendMode: null,
-              ),
+          widget.isExpanded ? FlowySvgs.m_expand_s : FlowySvgs.m_collapse_s,
+          blendMode: null,
+        ),
       ),
       onTap: () {
         context
