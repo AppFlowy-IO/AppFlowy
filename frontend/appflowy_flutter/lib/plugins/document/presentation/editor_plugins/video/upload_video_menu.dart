@@ -94,10 +94,7 @@ class _EmbedUrlState extends State<_EmbedUrl> {
       return widget.onSubmit(inputText);
     }
 
-    if (inputText.startsWith('https://youtube')) {
-      isYouTubeError = true;
-    }
-
+    isYouTubeError = youtubeUrlRegex.hasMatch(inputText);
     setState(() => isUrlValid = false);
   }
 
