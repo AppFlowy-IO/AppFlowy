@@ -186,9 +186,7 @@ pub fn type_option_data_from_pb<T: Into<Bytes>>(
     FieldType::Summary => {
       SummarizationTypeOptionPB::try_from(bytes).map(|pb| SummarizationTypeOption::from(pb).into())
     },
-    FieldType::Time => {
-      TimeTypeOptionPB::try_from(bytes).map(|pb| TimeTypeOption::from(pb).into())
-    },
+    FieldType::Time => TimeTypeOptionPB::try_from(bytes).map(|pb| TimeTypeOption::from(pb).into()),
   }
 }
 
@@ -258,9 +256,7 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
     },
     FieldType::Time => {
       let time_type_option: TimeTypeOption = type_option.into();
-      TimeTypeOptionPB::from(time_type_option)
-        .try_into()
-        .unwrap()
+      TimeTypeOptionPB::from(time_type_option).try_into().unwrap()
     },
   }
 }
