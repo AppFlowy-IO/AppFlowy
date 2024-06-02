@@ -58,7 +58,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           add(const ChatEvent.didFinishStreaming());
           if (state.lastSentMessage != null) {
             final payload = ChatMessageIdPB(
-                chatId: chatId, messageId: state.lastSentMessage!.messageId);
+              chatId: chatId,
+              messageId: state.lastSentMessage!.messageId,
+            );
             //  When user message was sent to the server, we start gettting related question
             ChatEventGetRelatedQuestion(payload).send().then((result) {
               if (!isClosed) {
