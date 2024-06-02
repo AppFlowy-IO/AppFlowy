@@ -17,7 +17,7 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessageStream, MessageCursor, RepeatedChatMessage,
+  ChatCloudService, ChatMessage, ChatMessageStream, MessageCursor, RepeatedChatMessage,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
@@ -507,6 +507,23 @@ impl ChatCloudService for ServerProvider {
       server?
         .chat_service()
         .get_related_message(&workspace_id, &chat_id, message_id)
+        .await
+    })
+  }
+
+  fn generate_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    question_message_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .chat_service()
+        .generate_answer(&workspace_id, &chat_id, question_message_id)
         .await
     })
   }

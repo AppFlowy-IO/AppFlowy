@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_ai_message.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_error_message.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_user_message.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -51,7 +52,12 @@ class _AIChatPageState extends State<AIChatPage> {
     if (widget.userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
       return buildChatWidget();
     } else {
-      return buildUnsupportWidget();
+      return Center(
+        child: FlowyText(
+          LocaleKeys.chat_unsupportedCloudPrompt.tr(),
+          fontSize: 20,
+        ),
+      );
     }
   }
 
@@ -69,11 +75,6 @@ class _AIChatPageState extends State<AIChatPage> {
               return Chat(
                 messages: state.messages,
                 onAttachmentPressed: () {},
-                onMessageTap: (BuildContext _, types.Message message) {
-                  blocContext
-                      .read<ChatBloc>()
-                      .add(ChatEvent.tapMessage(message));
-                },
                 onSendPressed: (types.PartialText message) {
                   // We use custom bottom widget for chat input, so
                   // do not need to handle this event.
@@ -88,7 +89,7 @@ class _AIChatPageState extends State<AIChatPage> {
                           const LoadingState.loading()) {
                     blocContext
                         .read<ChatBloc>()
-                        .add(const ChatEvent.loadPrevMessage());
+                        .add(const ChatEvent.startLoadingPrevMessage());
                   }
                 },
                 emptyState: BlocBuilder<ChatBloc, ChatState>(
@@ -100,7 +101,7 @@ class _AIChatPageState extends State<AIChatPage> {
                           );
                   },
                 ),
-                messageWidthRatio: isMobile ? 0.8 : 0.9,
+                messageWidthRatio: isMobile ? 0.8 : 0.86,
                 bubbleBuilder: (
                   child, {
                   required message,
@@ -112,16 +113,32 @@ class _AIChatPageState extends State<AIChatPage> {
                       child: child,
                     );
                   } else {
-                    final messageType =
-                        restoreOnetimeMessageType(message.metadata);
-
+                    final messageType = restoreOnetimeMessageType(
+                      message.metadata,
+                    );
                     if (messageType == OnetimeMessageType.serverStreamError) {
                       return ChatErrorMessage(
+                        message: message,
                         onRetryPressed: () {
-                          blocContext.read<ChatBloc>().add(
-                                const ChatEvent.retryGenerate(),
-                              );
+                          blocContext
+                              .read<ChatBloc>()
+                              .add(const ChatEvent.retryGenerate());
                         },
+                      );
+                    }
+
+                    if (messageType == OnetimeMessageType.relatedQuestion) {
+                      return RelatedQuestionList(
+                        onQuestionSelected: (question) {
+                          blocContext
+                              .read<ChatBloc>()
+                              .add(ChatEvent.sendMessage(question));
+                          blocContext
+                              .read<ChatBloc>()
+                              .add(const ChatEvent.clearReleatedQuestion());
+                        },
+                        chatId: widget.view.id,
+                        relatedQuestions: state.relatedQuestions,
                       );
                     }
 
@@ -136,15 +153,6 @@ class _AIChatPageState extends State<AIChatPage> {
             },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget buildUnsupportWidget() {
-    return Center(
-      child: FlowyText(
-        LocaleKeys.chat_unsupportedCloudPrompt.tr(),
-        fontSize: 20,
       ),
     );
   }
@@ -249,9 +257,6 @@ class _AIChatPageState extends State<AIChatPage> {
         child: ChatInput(
           chatId: widget.view.id,
           onSendPressed: (message) => onSendPressed(context, message.text),
-          onQuestionSelected: (question) {
-            onSendPressed(context, question);
-          },
         ),
       ),
     );

@@ -3,8 +3,12 @@ use crate::entities::{
 };
 use crate::manager::ChatUserService;
 use crate::notification::{send_notification, ChatNotification};
-use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
+use crate::persistence::{
+  insert_answer_message, insert_chat_messages, select_chat_messages, ChatMessageTable,
+};
+use flowy_chat_pub::cloud::{
+  ChatAuthorType, ChatCloudService, ChatMessage, ChatMessageType, MessageCursor,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use futures::StreamExt;
@@ -265,6 +269,25 @@ impl Chat {
     Ok(RepeatedRelatedQuestionPB::from(resp))
   }
 
+  #[instrument(level = "debug", skip_all, err)]
+  pub async fn generate_answer(&self, question_message_id: i64) -> FlowyResult<ChatMessagePB> {
+    let workspace_id = self.user_service.workspace_id()?;
+    let resp = self
+      .cloud_service
+      .generate_answer(&workspace_id, &self.chat_id, question_message_id)
+      .await?;
+
+    save_answer(
+      self.user_service.sqlite_connection(self.uid)?,
+      &self.chat_id,
+      resp.clone(),
+      question_message_id,
+    )?;
+
+    let pb = ChatMessagePB::from(resp);
+    Ok(pb)
+  }
+
   async fn load_local_chat_messages(
     &self,
     limit: i64,
@@ -318,8 +341,6 @@ fn stream_send_chat_messages(
       .send_chat_message(&workspace_id, &chat_id, &message_content, message_type)
       .await;
 
-    let mut user_asked_question = None;
-
     // By default, stream only returns two messages:
     // 1. user message
     // 2. ai response message
@@ -329,17 +350,14 @@ fn stream_send_chat_messages(
           match result {
             Ok(message) => {
               let mut pb = ChatMessagePB::from(message.clone());
-              if user_asked_question.is_none() {
+              if matches!(message.author.author_type, ChatAuthorType::Human) {
                 pb.has_following = true;
-                user_asked_question = Some(pb.clone());
-              } else {
-                pb.reply_message_id = user_asked_question.as_ref().map(|m| m.message_id);
-                if let Some(user_asked_question) = &user_asked_question {
-                  send_notification(&chat_id, ChatNotification::LastSentMessage)
-                    .payload(user_asked_question.clone())
-                    .send();
-                }
+                send_notification(&chat_id, ChatNotification::LastUserSentMessage)
+                  .payload(pb.clone())
+                  .send();
               }
+
+              //
               send_notification(&chat_id, ChatNotification::DidReceiveChatMessage)
                 .payload(pb)
                 .send();
@@ -352,7 +370,7 @@ fn stream_send_chat_messages(
                 content: message_content.clone(),
                 error_message: "Service Temporarily Unavailable".to_string(),
               };
-              send_notification(&chat_id, ChatNotification::ChatMessageError)
+              send_notification(&chat_id, ChatNotification::StreamChatMessageError)
                 .payload(pb)
                 .send();
               break;
@@ -367,7 +385,7 @@ fn stream_send_chat_messages(
           content: message_content.clone(),
           error_message: err.to_string(),
         };
-        send_notification(&chat_id, ChatNotification::ChatMessageError)
+        send_notification(&chat_id, ChatNotification::StreamChatMessageError)
           .payload(pb)
           .send();
         return;
@@ -395,7 +413,7 @@ fn stream_send_chat_messages(
           created_at: message.created_at.timestamp(),
           author_type: message.author.author_type as i64,
           author_id: message.author.author_id.to_string(),
-          reply_message_id: user_asked_question.as_ref().map(|m| m.message_id),
+          reply_message_id: message.reply_message_id,
         })
         .collect::<Vec<_>>();
       insert_chat_messages(conn, &records)?;
@@ -423,9 +441,27 @@ fn save_chat_message(
       created_at: message.created_at.timestamp(),
       author_type: message.author.author_type as i64,
       author_id: message.author.author_id.to_string(),
-      reply_message_id: None,
+      reply_message_id: message.reply_message_id,
     })
     .collect::<Vec<_>>();
   insert_chat_messages(conn, &records)?;
+  Ok(())
+}
+fn save_answer(
+  conn: DBConnection,
+  chat_id: &str,
+  message: ChatMessage,
+  question_message_id: i64,
+) -> FlowyResult<()> {
+  let record = ChatMessageTable {
+    message_id: message.message_id,
+    chat_id: chat_id.to_string(),
+    content: message.content,
+    created_at: message.created_at.timestamp(),
+    author_type: message.author.author_type as i64,
+    author_id: message.author.author_id.to_string(),
+    reply_message_id: message.reply_message_id,
+  };
+  insert_answer_message(conn, question_message_id, record)?;
   Ok(())
 }

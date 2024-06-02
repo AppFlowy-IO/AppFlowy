@@ -7,8 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
-import 'chat_related_question.dart';
-
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
   const ChatInput({
@@ -17,7 +15,6 @@ class ChatInput extends StatefulWidget {
     this.onAttachmentPressed,
     required this.onSendPressed,
     required this.chatId,
-    required this.onQuestionSelected,
     this.options = const InputOptions(),
   });
 
@@ -26,7 +23,6 @@ class ChatInput extends StatefulWidget {
   final void Function(types.PartialText) onSendPressed;
   final InputOptions options;
   final String chatId;
-  final Function(String) onQuestionSelected;
 
   @override
   State<ChatInput> createState() => _ChatInputState();
@@ -118,24 +114,16 @@ class _ChatInputState extends State<ChatInput> {
               ? Theme.of(context).colorScheme.surfaceContainer
               : Theme.of(context).colorScheme.surfaceContainerHighest,
           elevation: 0.6,
-          child: Column(
+          child: Row(
             children: [
-              RelatedQuestionList(
-                chatId: widget.chatId,
-                onQuestionSelected: widget.onQuestionSelected,
-              ),
-              Row(
-                children: [
-                  if (widget.onAttachmentPressed != null)
-                    AttachmentButton(
-                      isLoading: widget.isAttachmentUploading ?? false,
-                      onPressed: widget.onAttachmentPressed,
-                      padding: buttonPadding,
-                    ),
-                  Expanded(child: _inputTextField(textPadding)),
-                  _sendButton(buttonPadding),
-                ],
-              ),
+              if (widget.onAttachmentPressed != null)
+                AttachmentButton(
+                  isLoading: widget.isAttachmentUploading ?? false,
+                  onPressed: widget.onAttachmentPressed,
+                  padding: buttonPadding,
+                ),
+              Expanded(child: _inputTextField(textPadding)),
+              _sendButton(buttonPadding),
             ],
           ),
         ),

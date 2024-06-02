@@ -18,7 +18,7 @@ class ChatRelatedMessageBloc
         await event.when(
           initial: () async {
             listener.start(
-              lastSentMessageCallback: (message) {
+              lastUserSentMessageCallback: (message) {
                 if (!isClosed) {
                   add(ChatRelatedMessageEvent.updateLastSentMessage(message));
                 }

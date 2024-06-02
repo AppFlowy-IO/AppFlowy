@@ -45,6 +45,41 @@ pub fn insert_chat_messages(
   Ok(())
 }
 
+pub fn insert_answer_message(
+  mut conn: DBConnection,
+  question_message_id: i64,
+  message: ChatMessageTable,
+) -> FlowyResult<()> {
+  conn.immediate_transaction(|conn| {
+    // Step 1: Get the message with the given question_message_id
+    let question_message = dsl::chat_message_table
+      .filter(chat_message_table::message_id.eq(question_message_id))
+      .first::<ChatMessageTable>(conn)?;
+
+    // Step 2: Use reply_message_id from the retrieved message to delete the existing message
+    if let Some(reply_id) = question_message.reply_message_id {
+      diesel::delete(dsl::chat_message_table.filter(chat_message_table::message_id.eq(reply_id)))
+        .execute(conn)?;
+    }
+
+    // Step 3: Insert the new message
+    let _ = insert_into(chat_message_table::table)
+      .values(message)
+      .on_conflict(chat_message_table::message_id)
+      .do_update()
+      .set((
+        chat_message_table::content.eq(excluded(chat_message_table::content)),
+        chat_message_table::created_at.eq(excluded(chat_message_table::created_at)),
+        chat_message_table::author_type.eq(excluded(chat_message_table::author_type)),
+        chat_message_table::author_id.eq(excluded(chat_message_table::author_id)),
+        chat_message_table::reply_message_id.eq(excluded(chat_message_table::reply_message_id)),
+      ))
+      .execute(conn)?;
+    Ok::<(), FlowyError>(())
+  })?;
+
+  Ok(())
+}
 pub fn select_chat_messages(
   mut conn: DBConnection,
   chat_id_val: &str,

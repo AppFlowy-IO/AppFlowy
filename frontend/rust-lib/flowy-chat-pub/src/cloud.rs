@@ -1,6 +1,6 @@
 pub use client_api::entity::ai_dto::{RelatedQuestion, RepeatedRelatedQuestion};
 pub use client_api::entity::{
-  ChatMessage, ChatMessageType, MessageCursor, QAChatMessage, RepeatedChatMessage,
+  ChatAuthorType, ChatMessage, ChatMessageType, MessageCursor, QAChatMessage, RepeatedChatMessage,
 };
 use client_api::error::AppResponseError;
 use flowy_error::FlowyError;
@@ -40,4 +40,11 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &str,
     message_id: i64,
   ) -> FutureResult<RepeatedRelatedQuestion, FlowyError>;
+
+  fn generate_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    question_message_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError>;
 }

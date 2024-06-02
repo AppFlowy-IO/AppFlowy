@@ -3,7 +3,7 @@ use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::{
   CreateChatMessageParams, CreateChatParams, MessageCursor, RepeatedChatMessage,
 };
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageStream, ChatMessageType};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageStream, ChatMessageType};
 use flowy_error::FlowyError;
 use futures_util::StreamExt;
 use lib_infra::async_trait::async_trait;
@@ -103,6 +103,25 @@ where
         .await
         .map_err(FlowyError::from)?;
 
+      Ok(resp)
+    })
+  }
+
+  fn generate_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    question_message_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+
+    FutureResult::new(async move {
+      let resp = try_get_client?
+        .generate_question_answer(&workspace_id, &chat_id, question_message_id)
+        .await
+        .map_err(FlowyError::from)?;
       Ok(resp)
     })
   }

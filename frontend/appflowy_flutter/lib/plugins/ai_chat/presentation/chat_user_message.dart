@@ -35,8 +35,9 @@ class ChatUserMessageBubble extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _wrapHover(
-                DecoratedBox(
+              // _wrapHover(
+              Flexible(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: borderRadius,
                     color: backgroundColor,
@@ -50,6 +51,7 @@ class ChatUserMessageBubble extends StatelessWidget {
                   ),
                 ),
               ),
+              // ),
               BlocBuilder<ChatUserMessageBloc, ChatUserMessageState>(
                 builder: (context, state) {
                   return Padding(
@@ -66,13 +68,6 @@ class ChatUserMessageBubble extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-
-  ChatUserMessageHover _wrapHover(Widget child) {
-    return ChatUserMessageHover(
-      message: message,
-      child: child,
     );
   }
 }

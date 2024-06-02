@@ -50,8 +50,9 @@ class ChatAIMessageBubble extends StatelessWidget {
             children: [
               const ChatBorderedCircleAvatar(
                 child: FlowySvg(
-                  FlowySvgs.flowy_logo_xl,
-                  blendMode: null,
+                  FlowySvgs.flowy_ai_chat_logo_s,
+                  // color: Theme.of(context).colorScheme.primary,
+                  // blendMode: null,
                   size: Size.square(24),
                 ),
               ),

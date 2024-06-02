@@ -1,6 +1,6 @@
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::{ChatMessageType, MessageCursor, RepeatedChatMessage};
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageStream};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageStream};
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
@@ -44,10 +44,21 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
 
   fn get_related_message(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message_id: i64,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _message_id: i64,
   ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
+    FutureResult::new(async move {
+      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    })
+  }
+
+  fn generate_answer(
+    &self,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _question_message_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError> {
     FutureResult::new(async move {
       Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
     })
