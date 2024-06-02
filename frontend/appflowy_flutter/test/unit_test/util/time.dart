@@ -2,7 +2,7 @@ import 'package:appflowy/util/time.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('parseTime should parse timer string to minutes', () {
+  test('parseTime should parse time string to minutes', () {
     expect(parseTime('10'), 10);
     expect(parseTime('70m'), 70);
     expect(parseTime('4h 20m'), 260);

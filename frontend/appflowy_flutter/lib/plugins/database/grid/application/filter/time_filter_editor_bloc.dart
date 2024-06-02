@@ -7,7 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'number_filter_editor_bloc.freezed.dart';
+part 'time_filter_editor_bloc.freezed.dart';
 
 class TimeFilterEditorBloc
     extends Bloc<TimeFilterEditorEvent, TimeFilterEditorState> {

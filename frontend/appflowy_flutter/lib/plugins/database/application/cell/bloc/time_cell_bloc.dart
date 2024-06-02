@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/util/timer.dart';
+import 'package:appflowy/util/time.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
-part 'timer_cell_bloc.freezed.dart';
+part 'time_cell_bloc.freezed.dart';
 
 class TimeCellBloc extends Bloc<TimeCellEvent, TimeCellState> {
   TimeCellBloc({
@@ -37,7 +37,7 @@ class TimeCellBloc extends Bloc<TimeCellEvent, TimeCellState> {
       (event, emit) async {
         await event.when(
           didReceiveCellUpdate: (content) {
-            emit(state.copyWith(content: content?.timer ?? ""));
+            emit(state.copyWith(content: content?.time ?? ""));
           },
           didUpdateField: (fieldInfo) {
             final wrap = fieldInfo.wrapCellContent;
@@ -104,7 +104,7 @@ class TimeCellState with _$TimeCellState {
   factory TimeCellState.initial(TimeCellController cellController) {
     final wrap = cellController.fieldInfo.wrapCellContent;
     return TimeCellState(
-      content: cellController.getCellData()?.timer ?? "",
+      content: cellController.getCellData()?.time ?? "",
       wrap: wrap ?? true,
     );
   }
