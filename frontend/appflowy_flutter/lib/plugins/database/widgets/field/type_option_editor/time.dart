@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'builder.dart';
 
-class TimerTypeOptionEditorFactory implements TypeOptionEditorFactory {
-  const TimerTypeOptionEditorFactory();
+class TimeTypeOptionEditorFactory implements TypeOptionEditorFactory {
+  const TimeTypeOptionEditorFactory();
 
   @override
   Widget? build({

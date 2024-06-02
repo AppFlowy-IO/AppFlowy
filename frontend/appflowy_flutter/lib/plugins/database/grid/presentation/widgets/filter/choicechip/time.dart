@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/timer_filter_editor_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/time_filter_editor_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -14,8 +14,8 @@ import '../disclosure_button.dart';
 import '../filter_info.dart';
 import 'choicechip.dart';
 
-class TimerFilterChoiceChip extends StatefulWidget {
-  const TimerFilterChoiceChip({
+class TimeFilterChoiceChip extends StatefulWidget {
+  const TimeFilterChoiceChip({
     super.key,
     required this.filterInfo,
   });
@@ -23,25 +23,25 @@ class TimerFilterChoiceChip extends StatefulWidget {
   final FilterInfo filterInfo;
 
   @override
-  State<TimerFilterChoiceChip> createState() => _TimerFilterChoiceChipState();
+  State<TimeFilterChoiceChip> createState() => _TimeFilterChoiceChipState();
 }
 
-class _TimerFilterChoiceChipState extends State<TimerFilterChoiceChip> {
+class _TimeFilterChoiceChipState extends State<TimeFilterChoiceChip> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => TimerFilterEditorBloc(
+      create: (_) => TimeFilterEditorBloc(
         filterInfo: widget.filterInfo,
       ),
-      child: BlocBuilder<TimerFilterEditorBloc, TimerFilterEditorState>(
+      child: BlocBuilder<TimeFilterEditorBloc, TimeFilterEditorState>(
         builder: (context, state) {
           return AppFlowyPopover(
             constraints: BoxConstraints.loose(const Size(200, 100)),
             direction: PopoverDirection.bottomWithCenterAligned,
             popupBuilder: (_) {
               return BlocProvider.value(
-                value: context.read<TimerFilterEditorBloc>(),
-                child: const TimerFilterEditor(),
+                value: context.read<TimeFilterEditorBloc>(),
+                child: const TimeFilterEditor(),
               );
             },
             child: ChoiceChipButton(
@@ -54,19 +54,19 @@ class _TimerFilterChoiceChipState extends State<TimerFilterChoiceChip> {
   }
 }
 
-class TimerFilterEditor extends StatefulWidget {
-  const TimerFilterEditor({super.key});
+class TimeFilterEditor extends StatefulWidget {
+  const TimeFilterEditor({super.key});
 
   @override
-  State<TimerFilterEditor> createState() => _TimerFilterEditorState();
+  State<TimeFilterEditor> createState() => _TimeFilterEditorState();
 }
 
-class _TimerFilterEditorState extends State<TimerFilterEditor> {
+class _TimeFilterEditorState extends State<TimeFilterEditor> {
   final popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TimerFilterEditorBloc, TimerFilterEditorState>(
+    return BlocBuilder<TimeFilterEditorBloc, TimeFilterEditorState>(
       builder: (context, state) {
         final List<Widget> children = [
           _buildFilterPanel(context, state),
@@ -74,7 +74,7 @@ class _TimerFilterEditorState extends State<TimerFilterEditor> {
               state.filter.condition !=
                   NumberFilterConditionPB.NumberIsNotEmpty) ...[
             const VSpace(4),
-            _buildFilterTimerField(context, state),
+            _buildFilterTimeField(context, state),
           ],
         ];
 
@@ -88,7 +88,7 @@ class _TimerFilterEditorState extends State<TimerFilterEditor> {
 
   Widget _buildFilterPanel(
     BuildContext context,
-    TimerFilterEditorState state,
+    TimeFilterEditorState state,
   ) {
     return SizedBox(
       height: 20,
@@ -102,13 +102,13 @@ class _TimerFilterEditorState extends State<TimerFilterEditor> {
           ),
           const HSpace(4),
           Expanded(
-            child: TimerFilterConditionPBList(
+            child: TimeFilterConditionPBList(
               filterInfo: state.filterInfo,
               popoverMutex: popoverMutex,
               onCondition: (condition) {
                 context
-                    .read<TimerFilterEditorBloc>()
-                    .add(TimerFilterEditorEvent.updateCondition(condition));
+                    .read<TimeFilterEditorBloc>()
+                    .add(TimeFilterEditorEvent.updateCondition(condition));
               },
             ),
           ),
@@ -119,8 +119,8 @@ class _TimerFilterEditorState extends State<TimerFilterEditor> {
               switch (action) {
                 case FilterDisclosureAction.delete:
                   context
-                      .read<TimerFilterEditorBloc>()
-                      .add(const TimerFilterEditorEvent.delete());
+                      .read<TimeFilterEditorBloc>()
+                      .add(const TimeFilterEditorEvent.delete());
                   break;
               }
             },
@@ -130,9 +130,9 @@ class _TimerFilterEditorState extends State<TimerFilterEditor> {
     );
   }
 
-  Widget _buildFilterTimerField(
+  Widget _buildFilterTimeField(
     BuildContext context,
-    TimerFilterEditorState state,
+    TimeFilterEditorState state,
   ) {
     return FlowyTextField(
       text: state.filter.content,
@@ -141,15 +141,15 @@ class _TimerFilterEditorState extends State<TimerFilterEditor> {
       autoFocus: false,
       onChanged: (text) {
         context
-            .read<TimerFilterEditorBloc>()
-            .add(TimerFilterEditorEvent.updateContent(text));
+            .read<TimeFilterEditorBloc>()
+            .add(TimeFilterEditorEvent.updateContent(text));
       },
     );
   }
 }
 
-class TimerFilterConditionPBList extends StatelessWidget {
-  const TimerFilterConditionPBList({
+class TimeFilterConditionPBList extends StatelessWidget {
+  const TimeFilterConditionPBList({
     super.key,
     required this.filterInfo,
     required this.popoverMutex,
@@ -162,7 +162,7 @@ class TimerFilterConditionPBList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerFilter = filterInfo.timerFilter()!;
+    final timeFilter = filterInfo.timeFilter()!;
     return PopoverActionList<ConditionWrapper>(
       asBarrier: true,
       mutex: popoverMutex,
@@ -171,13 +171,13 @@ class TimerFilterConditionPBList extends StatelessWidget {
           .map(
             (action) => ConditionWrapper(
               action,
-              timerFilter.condition == action,
+              timeFilter.condition == action,
             ),
           )
           .toList(),
       buildChild: (controller) {
         return ConditionButton(
-          conditionName: timerFilter.condition.filterName,
+          conditionName: timeFilter.condition.filterName,
           onTap: () => controller.show(),
         );
       },
@@ -203,7 +203,7 @@ class ConditionWrapper extends ActionCell {
   String get name => inner.filterName;
 }
 
-extension TimerFilterConditionPBExtension on NumberFilterConditionPB {
+extension TimeFilterConditionPBExtension on NumberFilterConditionPB {
   String get filterName {
     return switch (this) {
       NumberFilterConditionPB.Equal => LocaleKeys.grid_numberFilter_equal.tr(),

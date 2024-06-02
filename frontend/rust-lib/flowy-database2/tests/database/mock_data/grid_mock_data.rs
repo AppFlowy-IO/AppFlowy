@@ -9,7 +9,7 @@ use flowy_database2::services::field::summary_type_option::summary::Summarizatio
 use flowy_database2::services::field::{
   ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
   NumberFormat, NumberTypeOption, RelationTypeOption, SelectOption, SelectOptionColor,
-  SingleSelectTypeOption, TimeFormat, TimerTypeOption, TimestampTypeOption,
+  SingleSelectTypeOption, TimeFormat, TimeTypeOption, TimestampTypeOption,
 };
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
@@ -132,12 +132,12 @@ pub fn make_test_grid() -> DatabaseData {
           .build();
         fields.push(relation_field);
       },
-      FieldType::Timer => {
-        let type_option = TimerTypeOption;
-        let timer_field = FieldBuilder::new(field_type, type_option)
+      FieldType::Time => {
+        let type_option = TimeTypeOption;
+        let time_field = FieldBuilder::new(field_type, type_option)
           .name("Estimated time")
           .build();
-        fields.push(timer_field);
+        fields.push(time_field);
       },
     }
   }
@@ -164,7 +164,7 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::Checklist => {
               row_builder.insert_checklist_cell(vec![("First thing".to_string(), false)])
             },
-            FieldType::Timer => row_builder.insert_timer_cell(75),
+            FieldType::Time => row_builder.insert_time_cell(75),
             _ => "".to_owned(),
           };
         }

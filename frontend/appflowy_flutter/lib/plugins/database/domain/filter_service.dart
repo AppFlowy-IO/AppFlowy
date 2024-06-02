@@ -202,26 +202,26 @@ class FilterBackendService {
           );
   }
 
-  Future<FlowyResult<void, FlowyError>> insertTimerFilter({
+  Future<FlowyResult<void, FlowyError>> insertTimeFilter({
     required String fieldId,
     String? filterId,
     required NumberFilterConditionPB condition,
     String content = "",
   }) {
-    final filter = TimerFilterPB()
+    final filter = TimeFilterPB()
       ..condition = condition
       ..content = content;
 
     return filterId == null
         ? insertFilter(
             fieldId: fieldId,
-            fieldType: FieldType.Timer,
+            fieldType: FieldType.Time,
             data: filter.writeToBuffer(),
           )
         : updateFilter(
             filterId: filterId,
             fieldId: fieldId,
-            fieldType: FieldType.Timer,
+            fieldType: FieldType.Time,
             data: filter.writeToBuffer(),
           );
   }

@@ -1,15 +1,15 @@
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/timer_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/time_cell_bloc.dart';
 import 'package:flutter/material.dart';
 
-import '../editable_cell_skeleton/timer.dart';
+import '../editable_cell_skeleton/time.dart';
 
-class MobileGridTimerCellSkin extends IEditableTimerCellSkin {
+class MobileGridTimeCellSkin extends IEditableTimeCellSkin {
   @override
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
-    TimerCellBloc bloc,
+    TimeCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {

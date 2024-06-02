@@ -1,7 +1,7 @@
 final RegExp timerRegExp =
     RegExp(r'(?:(?<hours>\d*)h)? ?(?:(?<minutes>\d*)m)?');
 
-int? parseTimer(String timerStr) {
+int? parseTime(String timerStr) {
   int? res = int.tryParse(timerStr);
   if (res != null) {
     return res;

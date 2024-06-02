@@ -449,7 +449,7 @@ pub enum FieldType {
   CreatedTime = 9,
   Relation = 10,
   Summary = 11,
-  Timer = 12,
+  Time = 12,
 }
 
 impl Display for FieldType {
@@ -490,7 +490,7 @@ impl FieldType {
       FieldType::CreatedTime => "Created time",
       FieldType::Relation => "Relation",
       FieldType::Summary => "Summarize",
-      FieldType::Timer => "Timer",
+      FieldType::Time => "Time",
     };
     s.to_string()
   }
@@ -543,8 +543,8 @@ impl FieldType {
     matches!(self, FieldType::Relation)
   }
 
-  pub fn is_timer(&self) -> bool {
-    matches!(self, FieldType::Timer)
+  pub fn is_time(&self) -> bool {
+    matches!(self, FieldType::Time)
   }
 
   pub fn can_be_group(&self) -> bool {

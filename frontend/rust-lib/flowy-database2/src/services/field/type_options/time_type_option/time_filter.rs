@@ -1,11 +1,11 @@
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
 
-use crate::entities::{NumberFilterConditionPB, TimerFilterPB};
+use crate::entities::{NumberFilterConditionPB, TimeFilterPB};
 use crate::services::cell::insert_text_cell;
 use crate::services::filter::PreFillCellsWithFilter;
 
-impl TimerFilterPB {
+impl TimeFilterPB {
   pub fn is_visible(&self, cell_minutes: Option<i64>) -> bool {
     if self.content.is_empty() {
       match self.condition {
@@ -37,7 +37,7 @@ impl TimerFilterPB {
   }
 }
 
-impl PreFillCellsWithFilter for TimerFilterPB {
+impl PreFillCellsWithFilter for TimeFilterPB {
   fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
     let expected_decimal = || self.content.parse::<i64>().ok();
 

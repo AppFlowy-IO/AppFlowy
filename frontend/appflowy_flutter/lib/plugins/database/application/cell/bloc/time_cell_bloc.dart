@@ -9,15 +9,15 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 part 'timer_cell_bloc.freezed.dart';
 
-class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
-  TimerCellBloc({
+class TimeCellBloc extends Bloc<TimeCellEvent, TimeCellState> {
+  TimeCellBloc({
     required this.cellController,
-  }) : super(TimerCellState.initial(cellController)) {
+  }) : super(TimeCellState.initial(cellController)) {
     _dispatch();
     _startListening();
   }
 
-  final TimerCellController cellController;
+  final TimeCellController cellController;
   void Function()? _onCellChangedFn;
 
   @override
@@ -33,7 +33,7 @@ class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
   }
 
   void _dispatch() {
-    on<TimerCellEvent>(
+    on<TimeCellEvent>(
       (event, emit) async {
         await event.when(
           didReceiveCellUpdate: (content) {
@@ -46,7 +46,7 @@ class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
             }
           },
           updateCell: (text) async {
-            text = parseTimer(text)?.toString() ?? text;
+            text = parseTime(text)?.toString() ?? text;
             if (state.content != text) {
               emit(state.copyWith(content: text));
               await cellController.saveCellData(text);
@@ -56,7 +56,7 @@ class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
               // So for every cell data that will be formatted in the backend.
               // It needs to get the formatted data after saving.
               add(
-                TimerCellEvent.didReceiveCellUpdate(
+                TimeCellEvent.didReceiveCellUpdate(
                   cellController.getCellData(),
                 ),
               );
@@ -71,7 +71,7 @@ class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
     _onCellChangedFn = cellController.addListener(
       onCellChanged: (cellContent) {
         if (!isClosed) {
-          add(TimerCellEvent.didReceiveCellUpdate(cellContent));
+          add(TimeCellEvent.didReceiveCellUpdate(cellContent));
         }
       },
       onFieldChanged: _onFieldChangedListener,
@@ -80,30 +80,30 @@ class TimerCellBloc extends Bloc<TimerCellEvent, TimerCellState> {
 
   void _onFieldChangedListener(FieldInfo fieldInfo) {
     if (!isClosed) {
-      add(TimerCellEvent.didUpdateField(fieldInfo));
+      add(TimeCellEvent.didUpdateField(fieldInfo));
     }
   }
 }
 
 @freezed
-class TimerCellEvent with _$TimerCellEvent {
-  const factory TimerCellEvent.didReceiveCellUpdate(TimerCellDataPB? cell) =
+class TimeCellEvent with _$TimeCellEvent {
+  const factory TimeCellEvent.didReceiveCellUpdate(TimeCellDataPB? cell) =
       _DidReceiveCellUpdate;
-  const factory TimerCellEvent.didUpdateField(FieldInfo fieldInfo) =
+  const factory TimeCellEvent.didUpdateField(FieldInfo fieldInfo) =
       _DidUpdateField;
-  const factory TimerCellEvent.updateCell(String text) = _UpdateCell;
+  const factory TimeCellEvent.updateCell(String text) = _UpdateCell;
 }
 
 @freezed
-class TimerCellState with _$TimerCellState {
-  const factory TimerCellState({
+class TimeCellState with _$TimeCellState {
+  const factory TimeCellState({
     required String content,
     required bool wrap,
-  }) = _TimerCellState;
+  }) = _TimeCellState;
 
-  factory TimerCellState.initial(TimerCellController cellController) {
+  factory TimeCellState.initial(TimeCellController cellController) {
     final wrap = cellController.fieldInfo.wrapCellContent;
-    return TimerCellState(
+    return TimeCellState(
       content: cellController.getCellData()?.timer ?? "",
       wrap: wrap ?? true,
     );

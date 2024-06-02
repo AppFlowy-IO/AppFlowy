@@ -4,7 +4,7 @@ use crate::entities::NumberFilterConditionPB;
 use crate::services::filter::ParseFilterData;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct TimerFilterPB {
+pub struct TimeFilterPB {
   #[pb(index = 1)]
   pub condition: NumberFilterConditionPB,
 
@@ -12,9 +12,9 @@ pub struct TimerFilterPB {
   pub content: String,
 }
 
-impl ParseFilterData for TimerFilterPB {
+impl ParseFilterData for TimeFilterPB {
   fn parse(condition: u8, content: String) -> Self {
-    TimerFilterPB {
+    TimeFilterPB {
       condition: NumberFilterConditionPB::try_from(condition)
         .unwrap_or(NumberFilterConditionPB::Equal),
       content,

@@ -61,9 +61,9 @@ class FilterInfo {
         : null;
   }
 
-  TimerFilterPB? timerFilter() {
-    return filter.data.fieldType == FieldType.Timer
-        ? TimerFilterPB.fromBuffer(filter.data.data)
+  TimeFilterPB? timeFilter() {
+    return filter.data.fieldType == FieldType.Time
+        ? TimeFilterPB.fromBuffer(filter.data.data)
         : null;
   }
 }

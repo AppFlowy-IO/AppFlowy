@@ -19,7 +19,7 @@ import 'editable_cell_skeleton/summary.dart';
 import 'editable_cell_skeleton/text.dart';
 import 'editable_cell_skeleton/timestamp.dart';
 import 'editable_cell_skeleton/url.dart';
-import 'editable_cell_skeleton/timer.dart';
+import 'editable_cell_skeleton/time.dart';
 
 enum EditableCellStyle {
   desktopGrid,
@@ -121,10 +121,10 @@ class EditableCellBuilder {
           skin: IEditableSummaryCellSkin.fromStyle(style),
           key: key,
         ),
-      FieldType.Timer => EditableTimerCell(
+      FieldType.Time => EditableTimeCell(
           databaseController: databaseController,
           cellContext: cellContext,
-          skin: IEditableTimerCellSkin.fromStyle(style),
+          skin: IEditableTimeCellSkin.fromStyle(style),
           key: key,
         ),
       _ => throw UnimplementedError(),
@@ -213,10 +213,10 @@ class EditableCellBuilder {
           skin: skinMap.relationSkin!,
           key: key,
         ),
-      FieldType.Timer => EditableTimerCell(
+      FieldType.Time => EditableTimeCell(
           databaseController: databaseController,
           cellContext: cellContext,
-          skin: skinMap.timerSkin!,
+          skin: skinMap.timeSkin!,
           key: key,
         ),
       _ => throw UnimplementedError(),
@@ -374,7 +374,7 @@ class EditableCellSkinMap {
     this.textSkin,
     this.urlSkin,
     this.relationSkin,
-    this.timerSkin,
+    this.timeSkin,
   });
 
   final IEditableCheckboxCellSkin? checkboxSkin;
@@ -386,7 +386,7 @@ class EditableCellSkinMap {
   final IEditableTextCellSkin? textSkin;
   final IEditableURLCellSkin? urlSkin;
   final IEditableRelationCellSkin? relationSkin;
-  final IEditableTimerCellSkin? timerSkin;
+  final IEditableTimeCellSkin? timeSkin;
 
   bool has(FieldType fieldType) {
     return switch (fieldType) {
@@ -402,7 +402,7 @@ class EditableCellSkinMap {
       FieldType.Number => numberSkin != null,
       FieldType.RichText => textSkin != null,
       FieldType.URL => urlSkin != null,
-      FieldType.Timer => timerSkin != null,
+      FieldType.Time => timeSkin != null,
       _ => throw UnimplementedError(),
     };
   }

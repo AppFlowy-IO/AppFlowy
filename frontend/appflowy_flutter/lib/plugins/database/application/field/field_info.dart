@@ -63,7 +63,7 @@ class FieldInfo with _$FieldInfo {
       case FieldType.SingleSelect:
       case FieldType.Checklist:
       case FieldType.URL:
-      case FieldType.Timer:
+      case FieldType.Time:
         return true;
       default:
         return false;
@@ -85,7 +85,7 @@ class FieldInfo with _$FieldInfo {
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
       case FieldType.Checklist:
-      case FieldType.Timer:
+      case FieldType.Time:
         return true;
       default:
         return false;

@@ -1,7 +1,7 @@
-use crate::entities::{TimerCellDataPB, TimerFilterPB};
+use crate::entities::{TimeCellDataPB, TimeFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  TimerCellData, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TimeCellData, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
@@ -12,50 +12,50 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
-pub struct TimerTypeOption;
+pub struct TimeTypeOption;
 
-impl TypeOption for TimerTypeOption {
-  type CellData = TimerCellData;
-  type CellChangeset = TimerCellChangeset;
-  type CellProtobufType = TimerCellDataPB;
-  type CellFilter = TimerFilterPB;
+impl TypeOption for TimeTypeOption {
+  type CellData = TimeCellData;
+  type CellChangeset = TimeCellChangeset;
+  type CellProtobufType = TimeCellDataPB;
+  type CellFilter = TimeFilterPB;
 }
 
-impl From<TypeOptionData> for TimerTypeOption {
+impl From<TypeOptionData> for TimeTypeOption {
   fn from(_data: TypeOptionData) -> Self {
     Self
   }
 }
 
-impl From<TimerTypeOption> for TypeOptionData {
-  fn from(_data: TimerTypeOption) -> Self {
+impl From<TimeTypeOption> for TypeOptionData {
+  fn from(_data: TimeTypeOption) -> Self {
     TypeOptionDataBuilder::new().build()
   }
 }
 
-impl TypeOptionCellDataSerde for TimerTypeOption {
+impl TypeOptionCellDataSerde for TimeTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     if let Some(minutes) = cell_data.0 {
-      return TimerCellDataPB {
+      return TimeCellDataPB {
         minutes,
-        timer: TimerTypeOption::format_cell_data(minutes),
+        time: TimeTypeOption::format_cell_data(minutes),
       };
     }
-    TimerCellDataPB {
+    TimeCellDataPB {
       minutes: i64::default(),
-      timer: "".to_string(),
+      time: "".to_string(),
     }
   }
 
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(TimerCellData::from(cell))
+    Ok(TimeCellData::from(cell))
   }
 }
 
-impl TimerTypeOption {
+impl TimeTypeOption {
   pub fn new() -> Self {
     Self
   }
@@ -73,42 +73,42 @@ impl TimerTypeOption {
   }
 }
 
-impl TypeOptionTransform for TimerTypeOption {}
+impl TypeOptionTransform for TimeTypeOption {}
 
-impl CellDataDecoder for TimerTypeOption {
+impl CellDataDecoder for TimeTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     self.parse_cell(cell)
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     if let Some(minutes) = cell_data.0 {
-      return TimerTypeOption::format_cell_data(minutes);
+      return TimeTypeOption::format_cell_data(minutes);
     }
     "".to_string()
   }
 
   fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    let timer_cell_data = self.parse_cell(cell).ok()?;
-    Some(timer_cell_data.0.unwrap() as f64)
+    let time_cell_data = self.parse_cell(cell).ok()?;
+    Some(time_cell_data.0.unwrap() as f64)
   }
 }
 
-pub type TimerCellChangeset = String;
+pub type TimeCellChangeset = String;
 
-impl CellDataChangeset for TimerTypeOption {
+impl CellDataChangeset for TimeTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
     _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     let str = changeset.trim().to_string();
-    let cell_data = TimerCellData(str.parse::<i64>().ok());
+    let cell_data = TimeCellData(str.parse::<i64>().ok());
 
     Ok((Cell::from(&cell_data), cell_data))
   }
 }
 
-impl TypeOptionCellDataFilter for TimerTypeOption {
+impl TypeOptionCellDataFilter for TimeTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
@@ -118,7 +118,7 @@ impl TypeOptionCellDataFilter for TimerTypeOption {
   }
 }
 
-impl TypeOptionCellDataCompare for TimerTypeOption {
+impl TypeOptionCellDataCompare for TimeTypeOption {
   fn apply_cmp(
     &self,
     cell_data: &<Self as TypeOption>::CellData,
@@ -132,39 +132,39 @@ impl TypeOptionCellDataCompare for TimerTypeOption {
 
 #[cfg(test)]
 mod tests {
-  use crate::services::field::TimerTypeOption;
+  use crate::services::field::TimeTypeOption;
 
   #[test]
   fn format_cell_data_test() {
-    struct TimerFormatTest<'a> {
+    struct TimeFormatTest<'a> {
       minutes: i64,
       exp: &'a str,
     }
 
     let tests = vec![
-      TimerFormatTest {
+      TimeFormatTest {
         minutes: 5,
         exp: "5m",
       },
-      TimerFormatTest {
+      TimeFormatTest {
         minutes: 75,
         exp: "1h 15m",
       },
-      TimerFormatTest {
+      TimeFormatTest {
         minutes: 120,
         exp: "2h",
       },
-      TimerFormatTest {
+      TimeFormatTest {
         minutes: 0,
         exp: "0m",
       },
-      TimerFormatTest {
+      TimeFormatTest {
         minutes: -50,
         exp: "",
       },
     ];
     for test in tests {
-      let res = TimerTypeOption::format_cell_data(test.minutes);
+      let res = TimeTypeOption::format_cell_data(test.minutes);
       assert_eq!(res, test.exp.to_string());
     }
   }

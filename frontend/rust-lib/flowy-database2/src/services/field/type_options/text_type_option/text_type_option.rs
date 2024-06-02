@@ -81,7 +81,7 @@ impl CellDataDecoder for RichTextTypeOption {
       | FieldType::Checkbox
       | FieldType::URL
       | FieldType::Summary
-      | FieldType::Timer => Some(StringCellData::from(stringify_cell(cell, field))),
+      | FieldType::Time => Some(StringCellData::from(stringify_cell(cell, field))),
       FieldType::Checklist
       | FieldType::LastEditedTime
       | FieldType::CreatedTime

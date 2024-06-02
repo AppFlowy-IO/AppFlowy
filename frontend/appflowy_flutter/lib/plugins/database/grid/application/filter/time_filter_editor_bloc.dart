@@ -7,17 +7,17 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'timer_filter_editor_bloc.freezed.dart';
+part 'number_filter_editor_bloc.freezed.dart';
 
-class TimerFilterEditorBloc
-    extends Bloc<TimerFilterEditorEvent, TimerFilterEditorState> {
-  TimerFilterEditorBloc({required this.filterInfo})
+class TimeFilterEditorBloc
+    extends Bloc<TimeFilterEditorEvent, TimeFilterEditorState> {
+  TimeFilterEditorBloc({required this.filterInfo})
       : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
         ),
-        super(TimerFilterEditorState.initial(filterInfo)) {
+        super(TimeFilterEditorState.initial(filterInfo)) {
     _dispatch();
     _startListening();
   }
@@ -27,7 +27,7 @@ class TimerFilterEditorBloc
   final FilterListener _listener;
 
   void _dispatch() {
-    on<TimerFilterEditorEvent>(
+    on<TimeFilterEditorEvent>(
       (event, emit) async {
         event.when(
           didReceiveFilter: (filter) {
@@ -35,12 +35,12 @@ class TimerFilterEditorBloc
             emit(
               state.copyWith(
                 filterInfo: filterInfo,
-                filter: filterInfo.timerFilter()!,
+                filter: filterInfo.timeFilter()!,
               ),
             );
           },
           updateCondition: (NumberFilterConditionPB condition) {
-            _filterBackendSvc.insertTimerFilter(
+            _filterBackendSvc.insertTimeFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
               condition: condition,
@@ -48,7 +48,7 @@ class TimerFilterEditorBloc
             );
           },
           updateContent: (content) {
-            _filterBackendSvc.insertTimerFilter(
+            _filterBackendSvc.insertTimeFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
               condition: state.filter.condition,
@@ -70,7 +70,7 @@ class TimerFilterEditorBloc
     _listener.start(
       onUpdated: (filter) {
         if (!isClosed) {
-          add(TimerFilterEditorEvent.didReceiveFilter(filter));
+          add(TimeFilterEditorEvent.didReceiveFilter(filter));
         }
       },
     );
@@ -84,28 +84,28 @@ class TimerFilterEditorBloc
 }
 
 @freezed
-class TimerFilterEditorEvent with _$TimerFilterEditorEvent {
-  const factory TimerFilterEditorEvent.didReceiveFilter(FilterPB filter) =
+class TimeFilterEditorEvent with _$TimeFilterEditorEvent {
+  const factory TimeFilterEditorEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
-  const factory TimerFilterEditorEvent.updateCondition(
+  const factory TimeFilterEditorEvent.updateCondition(
     NumberFilterConditionPB condition,
   ) = _UpdateCondition;
-  const factory TimerFilterEditorEvent.updateContent(String content) =
+  const factory TimeFilterEditorEvent.updateContent(String content) =
       _UpdateContent;
-  const factory TimerFilterEditorEvent.delete() = _Delete;
+  const factory TimeFilterEditorEvent.delete() = _Delete;
 }
 
 @freezed
-class TimerFilterEditorState with _$TimerFilterEditorState {
-  const factory TimerFilterEditorState({
+class TimeFilterEditorState with _$TimeFilterEditorState {
+  const factory TimeFilterEditorState({
     required FilterInfo filterInfo,
-    required TimerFilterPB filter,
-  }) = _TimerFilterEditorState;
+    required TimeFilterPB filter,
+  }) = _TimeFilterEditorState;
 
-  factory TimerFilterEditorState.initial(FilterInfo filterInfo) {
-    return TimerFilterEditorState(
+  factory TimeFilterEditorState.initial(FilterInfo filterInfo) {
+    return TimeFilterEditorState(
       filterInfo: filterInfo,
-      filter: filterInfo.timerFilter()!,
+      filter: filterInfo.timeFilter()!,
     );
   }
 }

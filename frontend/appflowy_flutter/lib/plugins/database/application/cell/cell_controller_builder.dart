@@ -16,7 +16,7 @@ typedef TimestampCellController = CellController<TimestampCellDataPB, String>;
 typedef URLCellController = CellController<URLCellDataPB, String>;
 typedef RelationCellController = CellController<RelationCellDataPB, String>;
 typedef SummaryCellController = CellController<String, String>;
-typedef TimerCellController = CellController<TimerCellDataPB, String>;
+typedef TimeCellController = CellController<TimeCellDataPB, String>;
 
 CellController makeCellController(
   DatabaseController databaseController,
@@ -145,14 +145,14 @@ CellController makeCellController(
         ),
         cellDataPersistence: TextCellDataPersistence(),
       );
-    case FieldType.Timer:
-      return TimerCellController(
+    case FieldType.Time:
+      return TimeCellController(
         viewId: viewId,
         fieldController: fieldController,
         cellContext: cellContext,
         rowCache: rowCache,
         cellDataLoader: CellDataLoader(
-          parser: TimerCellDataParser(),
+          parser: TimeCellDataParser(),
           reloadOnFieldChange: true,
         ),
         cellDataPersistence: TextCellDataPersistence(),

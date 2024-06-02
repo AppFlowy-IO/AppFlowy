@@ -15,7 +15,7 @@ import 'single_select.dart';
 import 'summary.dart';
 import 'timestamp.dart';
 import 'url.dart';
-import 'timer.dart';
+import 'time.dart';
 
 typedef TypeOptionDataCallback = void Function(Uint8List typeOptionData);
 
@@ -34,7 +34,7 @@ abstract class TypeOptionEditorFactory {
       FieldType.Checklist => const ChecklistTypeOptionEditorFactory(),
       FieldType.Relation => const RelationTypeOptionEditorFactory(),
       FieldType.Summary => const SummaryTypeOptionEditorFactory(),
-      FieldType.Timer => const TimerTypeOptionEditorFactory(),
+      FieldType.Time => const TimeTypeOptionEditorFactory(),
       _ => throw UnimplementedError(),
     };
   }

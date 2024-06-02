@@ -1,17 +1,17 @@
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/timer_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/time_cell_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../editable_cell_skeleton/timer.dart';
+import '../editable_cell_skeleton/time.dart';
 
-class DesktopGridTimerCellSkin extends IEditableTimerCellSkin {
+class DesktopGridTimeCellSkin extends IEditableTimeCellSkin {
   @override
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
-    TimerCellBloc bloc,
+    TimeCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {
@@ -20,7 +20,7 @@ class DesktopGridTimerCellSkin extends IEditableTimerCellSkin {
       focusNode: focusNode,
       onEditingComplete: () => focusNode.unfocus(),
       onSubmitted: (_) => focusNode.unfocus(),
-      maxLines: context.watch<TimerCellBloc>().state.wrap ? null : 1,
+      maxLines: context.watch<TimeCellBloc>().state.wrap ? null : 1,
       style: Theme.of(context).textTheme.bodyMedium,
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(

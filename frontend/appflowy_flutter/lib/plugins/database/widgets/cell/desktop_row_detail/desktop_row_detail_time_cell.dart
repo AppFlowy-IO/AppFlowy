@@ -1,17 +1,17 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/timer_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/time_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-import '../editable_cell_skeleton/timer.dart';
+import '../editable_cell_skeleton/time.dart';
 
-class DesktopRowDetailTimerCellSkin extends IEditableTimerCellSkin {
+class DesktopRowDetailTimeCellSkin extends IEditableTimeCellSkin {
   @override
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
-    TimerCellBloc bloc,
+    TimeCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {

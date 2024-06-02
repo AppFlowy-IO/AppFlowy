@@ -6,7 +6,7 @@ mod relation_entities;
 mod select_option_entities;
 mod summary_entities;
 mod text_entities;
-mod timer_entities;
+mod time_entities;
 mod timestamp_entities;
 mod url_entities;
 
@@ -18,6 +18,6 @@ pub use relation_entities::*;
 pub use select_option_entities::*;
 pub use summary_entities::*;
 pub use text_entities::*;
-pub use timer_entities::*;
+pub use time_entities::*;
 pub use timestamp_entities::*;
 pub use url_entities::*;

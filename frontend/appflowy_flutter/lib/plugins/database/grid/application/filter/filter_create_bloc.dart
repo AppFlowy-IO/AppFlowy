@@ -127,8 +127,8 @@ class GridCreateFilterBloc
           fieldId: fieldId,
           condition: NumberFilterConditionPB.Equal,
         );
-      case FieldType.Timer:
-        return _filterBackendSvc.insertTimerFilter(
+      case FieldType.Time:
+        return _filterBackendSvc.insertTimeFilter(
           fieldId: fieldId,
           condition: NumberFilterConditionPB.Equal,
         );

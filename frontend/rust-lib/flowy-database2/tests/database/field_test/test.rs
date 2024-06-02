@@ -41,7 +41,7 @@ async fn grid_create_field() {
   ];
   test.run_scripts(scripts).await;
 
-  let (params, field) = create_timer_field(&test.view_id());
+  let (params, field) = create_time_field(&test.view_id());
   let scripts = vec![
     CreateField { params },
     AssertFieldTypeOptionEqual {
@@ -51,7 +51,7 @@ async fn grid_create_field() {
   ];
   test.run_scripts(scripts).await;
 
-  let (params, field) = create_timer_field(&test.view_id());
+  let (params, field) = create_time_field(&test.view_id());
   let scripts = vec![
     CreateField { params },
     AssertFieldTypeOptionEqual {

@@ -119,7 +119,7 @@ class FieldOptionValues {
       case FieldType.RichText:
       case FieldType.URL:
       case FieldType.Checkbox:
-      case FieldType.Timer:
+      case FieldType.Time:
         return null;
       case FieldType.Number:
         return NumberTypeOptionPB(

@@ -22,7 +22,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.CreatedTime => LocaleKeys.grid_field_createdAtFieldName.tr(),
         FieldType.Relation => LocaleKeys.grid_field_relationFieldName.tr(),
         FieldType.Summary => LocaleKeys.grid_field_summaryFieldName.tr(),
-        FieldType.Timer => LocaleKeys.grid_field_timerFieldName.tr(),
+        FieldType.Time => LocaleKeys.grid_field_timeFieldName.tr(),
         _ => throw UnimplementedError(),
       };
 
@@ -39,7 +39,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.CreatedTime => FlowySvgs.created_at_s,
         FieldType.Relation => FlowySvgs.relation_s,
         FieldType.Summary => FlowySvgs.ai_summary_s,
-        FieldType.Timer => FlowySvgs.timer_start_s,
+        FieldType.Time => FlowySvgs.timer_start_s,
         _ => throw UnimplementedError(),
       };
 
@@ -56,7 +56,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Checklist => const Color(0xFF98F4CD),
         FieldType.Relation => const Color(0xFFFDEDA7),
         FieldType.Summary => const Color(0xFFBECCFF),
-        FieldType.Timer => const Color(0xFFFDEDA7),
+        FieldType.Time => const Color(0xFFFDEDA7),
         _ => throw UnimplementedError(),
       };
 
@@ -74,7 +74,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Checklist => const Color(0xFF42AD93),
         FieldType.Relation => const Color(0xFFFDEDA7),
         FieldType.Summary => const Color(0xFF6859A7),
-        FieldType.Timer => const Color(0xFFFDEDA7),
+        FieldType.Time => const Color(0xFFFDEDA7),
         _ => throw UnimplementedError(),
       };
 }

@@ -13,7 +13,7 @@ use crate::services::cell::{CellCache, CellDataChangeset, CellDataDecoder, CellP
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimerTypeOption,
+  RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
   TimestampTypeOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
 };
@@ -449,9 +449,9 @@ impl<'a> TypeOptionCellExt<'a> {
             self.cell_data_cache.clone(),
           )
         }),
-      FieldType::Timer => self
+      FieldType::Time => self
         .field
-        .get_type_option::<TimerTypeOption>(field_type)
+        .get_type_option::<TimeTypeOption>(field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,
@@ -562,8 +562,8 @@ fn get_type_option_transform_handler(
     },
     FieldType::Summary => Box::new(SummarizationTypeOption::from(type_option_data))
       as Box<dyn TypeOptionTransformHandler>,
-    FieldType::Timer => {
-      Box::new(TimerTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
+    FieldType::Time => {
+      Box::new(TimeTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },
   }
 }

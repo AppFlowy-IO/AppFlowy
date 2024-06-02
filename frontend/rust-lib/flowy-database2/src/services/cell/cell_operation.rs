@@ -222,7 +222,7 @@ impl<'a> CellBuilder<'a> {
           FieldType::RichText => {
             cells.insert(field_id, insert_text_cell(cell_str, field));
           },
-          FieldType::Number | FieldType::Timer => {
+          FieldType::Number | FieldType::Time => {
             if let Ok(num) = cell_str.parse::<i64>() {
               cells.insert(field_id, insert_number_cell(num, field));
             }
