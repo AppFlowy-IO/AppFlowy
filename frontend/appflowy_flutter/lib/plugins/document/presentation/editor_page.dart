@@ -263,7 +263,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       }
 
       focusManager = AFFocusManager.maybeOf(context);
-      focusManager!.loseFocusNotifier.addListener(_loseFocus);
+      focusManager?.loseFocusNotifier.addListener(_loseFocus);
 
       if (widget.initialSelection != null) {
         widget.editorState.updateSelectionWithReason(widget.initialSelection);
