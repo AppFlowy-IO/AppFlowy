@@ -39,9 +39,7 @@ impl TypeOptionCellDataSerde for TimeTypeOption {
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     if let Some(time) = cell_data.0 {
-      return TimeCellDataPB {
-        time,
-      };
+      return TimeCellDataPB { time };
     }
     TimeCellDataPB {
       time: i64::default(),
