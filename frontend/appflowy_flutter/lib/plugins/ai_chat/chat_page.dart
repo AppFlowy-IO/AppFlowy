@@ -1,5 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_ai_message.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_error_message.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_user_message.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -14,9 +17,9 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 import 'presentation/chat_input.dart';
-import 'presentation/chat_message_hover.dart';
 import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_theme.dart';
+import 'presentation/chat_welcome_page.dart';
 
 class AIChatPage extends StatefulWidget {
   const AIChatPage({
@@ -55,7 +58,7 @@ class _AIChatPageState extends State<AIChatPage> {
   Widget buildChatWidget() {
     return SizedBox.expand(
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.symmetric(horizontal: 60),
         child: BlocProvider(
           create: (context) => ChatBloc(
             view: widget.view,
@@ -78,13 +81,7 @@ class _AIChatPageState extends State<AIChatPage> {
                 customBottomWidget: buildChatInput(blocContext),
                 user: _user,
                 theme: buildTheme(context),
-                customMessageBuilder: (message, {required messageWidth}) {
-                  return const SizedBox(
-                    width: 100,
-                    height: 50,
-                    child: CircularProgressIndicator.adaptive(),
-                  );
-                },
+                customMessageBuilder: _customMessageBuilder,
                 onEndReached: () async {
                   if (state.hasMore &&
                       state.loadingPreviousStatus !=
@@ -94,16 +91,47 @@ class _AIChatPageState extends State<AIChatPage> {
                         .add(const ChatEvent.loadPrevMessage());
                   }
                 },
-                emptyState: const Center(
-                  child: CircularProgressIndicator.adaptive(),
+                emptyState: BlocBuilder<ChatBloc, ChatState>(
+                  builder: (context, state) {
+                    return state.loadingStatus == const LoadingState.finish()
+                        ? const ChatWelcomePage()
+                        : const Center(
+                            child: CircularProgressIndicator.adaptive(),
+                          );
+                  },
                 ),
-                messageWidthRatio: 0.7,
+                messageWidthRatio: isMobile ? 0.8 : 0.9,
                 bubbleBuilder: (
                   child, {
                   required message,
                   required nextMessageInGroup,
-                }) =>
-                    buildBubble(message, child),
+                }) {
+                  if (message.author.id == _user.id) {
+                    return ChatUserMessageBubble(
+                      message: message,
+                      child: child,
+                    );
+                  } else {
+                    final messageType =
+                        restoreOnetimeMessageType(message.metadata);
+
+                    if (messageType == OnetimeMessageType.serverStreamError) {
+                      return ChatErrorMessage(
+                        onRetryPressed: () {
+                          blocContext.read<ChatBloc>().add(
+                                const ChatEvent.retryGenerate(),
+                              );
+                        },
+                      );
+                    }
+
+                    return ChatAIMessageBubble(
+                      message: message,
+                      customMessageType: messageType,
+                      child: child,
+                    );
+                  }
+                },
               );
             },
           ),
@@ -123,40 +151,85 @@ class _AIChatPageState extends State<AIChatPage> {
 
   Widget buildBubble(Message message, Widget child) {
     final isAuthor = message.author.id == _user.id;
-    const borderRadius = BorderRadius.all(Radius.circular(20));
-    final decoratedChild = DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-        color: !isAuthor || message.type == types.MessageType.image
-            ? AFThemeExtension.of(context).tint1
-            : Theme.of(context).colorScheme.secondary,
-      ),
-      child: child,
-    );
+    const borderRadius = BorderRadius.all(Radius.circular(6));
 
-    if (isMobile) {
-      return ChatPopupMenu(
-        onAction: (action) {
-          switch (action) {
-            case ChatMessageAction.copy:
-              if (message is TextMessage) {
-                Clipboard.setData(ClipboardData(text: message.text));
-                showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
-              }
-              break;
-          }
-        },
-        builder: (context) =>
-            ClipRRect(borderRadius: borderRadius, child: decoratedChild),
-      );
-    } else {
+    final childWithPadding = isAuthor
+        ? Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: child,
+          )
+        : Padding(
+            padding: const EdgeInsets.all(8),
+            child: child,
+          );
+
+    // If the message is from the author, we will decorate it with a different color
+    final decoratedChild = isAuthor
+        ? DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: borderRadius,
+              color: !isAuthor || message.type == types.MessageType.image
+                  ? AFThemeExtension.of(context).tint1
+                  : Theme.of(context).colorScheme.secondary,
+            ),
+            child: childWithPadding,
+          )
+        : childWithPadding;
+
+    // If the message is from the author, no further actions are needed
+    if (isAuthor) {
       return ClipRRect(
         borderRadius: borderRadius,
-        child: ChatMessageHover(
-          message: message,
-          child: decoratedChild,
-        ),
+        child: decoratedChild,
       );
+    } else {
+      if (isMobile) {
+        return ChatPopupMenu(
+          onAction: (action) {
+            switch (action) {
+              case ChatMessageAction.copy:
+                if (message is TextMessage) {
+                  Clipboard.setData(ClipboardData(text: message.text));
+                  showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
+                }
+                break;
+            }
+          },
+          builder: (context) =>
+              ClipRRect(borderRadius: borderRadius, child: decoratedChild),
+        );
+      } else {
+        // Show hover effect only on desktop
+        return ClipRRect(
+          borderRadius: borderRadius,
+          child: ChatAIMessageHover(
+            message: message,
+            child: decoratedChild,
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _customMessageBuilder(
+    types.CustomMessage message, {
+    required int messageWidth,
+  }) {
+    // iteration custom message type
+    final messageType = restoreOnetimeMessageType(message.metadata);
+    if (messageType == null) {
+      return const SizedBox.shrink();
+    }
+
+    switch (messageType) {
+      case OnetimeMessageType.loading:
+        return const SizedBox(
+          width: 50,
+          height: 30,
+          child: CircularProgressIndicator.adaptive(),
+        );
+      default:
+        return const SizedBox.shrink();
     }
   }
 
@@ -170,10 +243,16 @@ class _AIChatPageState extends State<AIChatPage> {
             query.viewInsets.bottom + query.padding.bottom,
           )
         : EdgeInsets.zero;
-    return Padding(
-      padding: safeAreaInsets,
-      child: ChatInput(
-        onSendPressed: (message) => onSendPressed(context, message),
+    return ClipRect(
+      child: Padding(
+        padding: safeAreaInsets,
+        child: ChatInput(
+          chatId: widget.view.id,
+          onSendPressed: (message) => onSendPressed(context, message.text),
+          onQuestionSelected: (question) {
+            onSendPressed(context, question);
+          },
+        ),
       ),
     );
   }
@@ -224,7 +303,7 @@ class _AIChatPageState extends State<AIChatPage> {
     );
   }
 
-  void onSendPressed(BuildContext context, types.PartialText message) {
-    context.read<ChatBloc>().add(ChatEvent.sendMessage(message.text));
+  void onSendPressed(BuildContext context, String message) {
+    context.read<ChatBloc>().add(ChatEvent.sendMessage(message));
   }
 }

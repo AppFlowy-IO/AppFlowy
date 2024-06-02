@@ -12,6 +12,7 @@ pub enum ChatNotification {
   DidReceiveChatMessage = 3,
   ChatMessageError = 4,
   FinishAnswerQuestion = 5,
+  LastSentMessage = 6,
 }
 
 impl std::convert::From<ChatNotification> for i32 {
@@ -27,6 +28,7 @@ impl std::convert::From<i32> for ChatNotification {
       3 => ChatNotification::DidReceiveChatMessage,
       4 => ChatNotification::ChatMessageError,
       5 => ChatNotification::FinishAnswerQuestion,
+      6 => ChatNotification::LastSentMessage,
       _ => ChatNotification::Unknown,
     }
   }

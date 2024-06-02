@@ -1,5 +1,5 @@
 use crate::chat::Chat;
-use crate::entities::ChatMessageListPB;
+use crate::entities::{ChatMessageListPB, RepeatedRelatedQuestionPB};
 use crate::persistence::{insert_chat, ChatTable};
 use dashmap::DashMap;
 use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageType};
@@ -147,6 +147,16 @@ impl ChatManager {
       .load_latest_chat_messages(limit, after_message_id)
       .await?;
     Ok(list)
+  }
+
+  pub async fn get_related_questions(
+    &self,
+    chat_id: &str,
+    message_id: i64,
+  ) -> Result<RepeatedRelatedQuestionPB, FlowyError> {
+    let chat = self.get_or_create_chat_instance(chat_id).await?;
+    let resp = chat.get_related_question(message_id).await?;
+    Ok(resp)
   }
 }
 

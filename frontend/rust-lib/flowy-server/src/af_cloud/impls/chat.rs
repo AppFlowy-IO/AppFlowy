@@ -1,4 +1,5 @@
 use crate::af_cloud::AFServer;
+use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::{
   CreateChatMessageParams, CreateChatParams, MessageCursor, RepeatedChatMessage,
 };
@@ -79,6 +80,26 @@ where
     FutureResult::new(async move {
       let resp = try_get_client?
         .get_chat_messages(&workspace_id, &chat_id, offset, limit)
+        .await
+        .map_err(FlowyError::from)?;
+
+      Ok(resp)
+    })
+  }
+
+  fn get_related_message(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message_id: i64,
+  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+
+    FutureResult::new(async move {
+      let resp = try_get_client?
+        .get_chat_related_question(&workspace_id, &chat_id, message_id)
         .await
         .map_err(FlowyError::from)?;
 

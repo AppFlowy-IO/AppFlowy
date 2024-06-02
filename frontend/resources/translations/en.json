@@ -149,7 +149,12 @@
   "newBoardText": "New board",
   "chat": {
     "newChat": "New chat",
-    "unsupportedCloudPrompt": "This feature is only available when using AppFlowy Cloud"
+    "inputMessageHint": "Message",
+    "unsupportedCloudPrompt": "This feature is only available when using AppFlowy Cloud",
+    "relatedQuestion": "Related",
+    "serverUnavailable": "Service Temporarily Unavailable",
+    "clickToRetry": "Click to retry",
+    "aiMistakePrompt": "AI can make mistakes. Check important info."
   },
   "trash": {
     "text": "Trash",

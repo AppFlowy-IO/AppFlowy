@@ -27,12 +27,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     listener.start(
       chatMessageCallback: _handleChatMessage,
       chatErrorMessageCallback: (err) {
-        final error = TextMessage(
-          metadata: {
-            CustomMessageType.streamError.toString():
-                CustomMessageType.streamError,
-          },
-          text: err.errorMessage,
+        Log.error("chat error: ${err.errorMessage}");
+        final error = CustomMessage(
+          metadata: OnetimeMessageType.serverStreamError.toMap(),
           author: const User(id: "system"),
           id: 'system',
         );
@@ -109,13 +106,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           },
           tapMessage: (Message message) {},
           streamingChatMessage: (List<Message> messages) {
+            // filter out loading or error messages
             final allMessages = state.messages.where((element) {
-              return !(element.metadata
-                          ?.containsValue(CustomMessageType.loading) ==
-                      true ||
-                  element.metadata
-                          ?.containsValue(CustomMessageType.streamError) ==
-                      true);
+              return !(element.metadata?.containsKey(onetimeMessageType) ==
+                  true);
             }).toList();
             allMessages.insertAll(0, messages);
             emit(state.copyWith(messages: allMessages));
@@ -140,6 +134,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
+          retryGenerate: () {},
         );
       },
     );
@@ -179,21 +174,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   Message _loadingMessage(String id) {
     return CustomMessage(
       author: User(id: id),
-      metadata: {
-        CustomMessageType.loading.toString(): CustomMessageType.loading,
-      },
+      metadata: OnetimeMessageType.loading.toMap(),
+      // fake id
       id: 'chat_message_loading_id',
     );
   }
 
   Message _createChatMessage(ChatMessagePB message) {
-    final id = message.messageId.toString();
+    final messageId = message.messageId.toString();
     return TextMessage(
       author: User(id: message.authorId),
-      id: id,
+      id: messageId,
       text: message.content,
       createdAt: message.createdAt.toInt(),
-      repliedMessage: _getReplyMessage(state.messages, id),
+      repliedMessage: _getReplyMessage(state.messages, messageId),
     );
   }
 
@@ -218,6 +212,7 @@ class ChatEvent with _$ChatEvent {
     List<Message> messages,
     bool hasMore,
   ) = _DidLoadPreviousMessages;
+  const factory ChatEvent.retryGenerate() = _RetryGenerate;
 }
 
 @freezed
@@ -229,6 +224,7 @@ class ChatState with _$ChatState {
     required LoadingState loadingStatus,
     required LoadingState loadingPreviousStatus,
     required LoadingState answerQuestionStatus,
+    required List<String> relatedQuestions,
     required bool hasMore,
   }) = _ChatState;
 
@@ -241,6 +237,7 @@ class ChatState with _$ChatState {
         loadingPreviousStatus: const LoadingState.finish(),
         answerQuestionStatus: const LoadingState.finish(),
         hasMore: true,
+        relatedQuestions: [],
       );
 }
 
@@ -250,4 +247,39 @@ class LoadingState with _$LoadingState {
   const factory LoadingState.finish() = _Finish;
 }
 
-enum CustomMessageType { loading, streamError }
+enum OnetimeMessageType { unknown, loading, serverStreamError }
+
+const onetimeMessageType = "OnetimeMessageType";
+
+extension OnetimeMessageTypeExtension on OnetimeMessageType {
+  static OnetimeMessageType fromString(String value) {
+    switch (value) {
+      case 'OnetimeMessageType.loading':
+        return OnetimeMessageType.loading;
+      case 'OnetimeMessageType.serverStreamError':
+        return OnetimeMessageType.serverStreamError;
+      default:
+        Log.error('Unknown OnetimeMessageType: $value');
+        return OnetimeMessageType.unknown;
+    }
+  }
+
+  Map<String, String> toMap() {
+    return {
+      onetimeMessageType: toString(),
+    };
+  }
+}
+
+OnetimeMessageType? restoreOnetimeMessageType(Map<String, dynamic>? metadata) {
+  if (metadata == null) {
+    return null;
+  }
+
+  for (final entry in metadata.entries) {
+    if (entry.key == onetimeMessageType) {
+      return OnetimeMessageTypeExtension.fromString(entry.value as String);
+    }
+  }
+  return null;
+}

@@ -1,4 +1,6 @@
-use crate::entities::{ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB};
+use crate::entities::{
+  ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB,
+};
 use crate::manager::ChatUserService;
 use crate::notification::{send_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
@@ -124,7 +126,7 @@ impl Chat {
         .load_remote_chat_messages(limit, before_message_id, None)
         .await
       {
-        error!("Failed to load chat messages: {}", err);
+        error!("Failed to load previous chat messages: {}", err);
       }
     }
 
@@ -244,6 +246,25 @@ impl Chat {
     Ok(())
   }
 
+  pub async fn get_related_question(
+    &self,
+    message_id: i64,
+  ) -> Result<RepeatedRelatedQuestionPB, FlowyError> {
+    let workspace_id = self.user_service.workspace_id()?;
+    let resp = self
+      .cloud_service
+      .get_related_message(&workspace_id, &self.chat_id, message_id)
+      .await?;
+
+    trace!(
+      "Related messages: chat_id={}, message_id={}, messages:{:?}",
+      self.chat_id,
+      message_id,
+      resp.items
+    );
+    Ok(RepeatedRelatedQuestionPB::from(resp))
+  }
+
   async fn load_local_chat_messages(
     &self,
     limit: i64,
@@ -297,7 +318,7 @@ fn stream_send_chat_messages(
       .send_chat_message(&workspace_id, &chat_id, &message_content, message_type)
       .await;
 
-    let mut reply_message_id = None;
+    let mut user_asked_question = None;
 
     // By default, stream only returns two messages:
     // 1. user message
@@ -308,11 +329,16 @@ fn stream_send_chat_messages(
           match result {
             Ok(message) => {
               let mut pb = ChatMessagePB::from(message.clone());
-              if reply_message_id.is_none() {
+              if user_asked_question.is_none() {
                 pb.has_following = true;
-                reply_message_id = Some(pb.message_id);
+                user_asked_question = Some(pb.clone());
               } else {
-                pb.reply_message_id = reply_message_id;
+                pb.reply_message_id = user_asked_question.as_ref().map(|m| m.message_id);
+                if let Some(user_asked_question) = &user_asked_question {
+                  send_notification(&chat_id, ChatNotification::LastSentMessage)
+                    .payload(user_asked_question.clone())
+                    .send();
+                }
               }
               send_notification(&chat_id, ChatNotification::DidReceiveChatMessage)
                 .payload(pb)
@@ -369,7 +395,7 @@ fn stream_send_chat_messages(
           created_at: message.created_at.timestamp(),
           author_type: message.author.author_type as i64,
           author_id: message.author.author_id.to_string(),
-          reply_message_id,
+          reply_message_id: user_asked_question.as_ref().map(|m| m.message_id),
         })
         .collect::<Vec<_>>();
       insert_chat_messages(conn, &records)?;

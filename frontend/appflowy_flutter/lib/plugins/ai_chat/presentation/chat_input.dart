@@ -1,9 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+
+import 'chat_related_question.dart';
 
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
@@ -12,6 +16,8 @@ class ChatInput extends StatefulWidget {
     this.isAttachmentUploading,
     this.onAttachmentPressed,
     required this.onSendPressed,
+    required this.chatId,
+    required this.onQuestionSelected,
     this.options = const InputOptions(),
   });
 
@@ -19,6 +25,8 @@ class ChatInput extends StatefulWidget {
   final VoidCallback? onAttachmentPressed;
   final void Function(types.PartialText) onSendPressed;
   final InputOptions options;
+  final String chatId;
+  final Function(String) onQuestionSelected;
 
   @override
   State<ChatInput> createState() => _ChatInputState();
@@ -110,60 +118,71 @@ class _ChatInputState extends State<ChatInput> {
               ? Theme.of(context).colorScheme.surfaceContainer
               : Theme.of(context).colorScheme.surfaceContainerHighest,
           elevation: 0.6,
-          child: Row(
-            textDirection: TextDirection.ltr,
+          child: Column(
             children: [
-              if (widget.onAttachmentPressed != null)
-                AttachmentButton(
-                  isLoading: widget.isAttachmentUploading ?? false,
-                  onPressed: widget.onAttachmentPressed,
-                  padding: buttonPadding,
-                ),
-              Expanded(
-                child: Padding(
-                  padding: textPadding,
-                  child: TextField(
-                    enabled: widget.options.enabled,
-                    autocorrect: widget.options.autocorrect,
-                    autofocus: widget.options.autofocus,
-                    enableSuggestions: widget.options.enableSuggestions,
-                    controller: _textController,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: '',
-                      hintStyle: TextStyle(
-                        color: AFThemeExtension.of(context)
-                            .textColor
-                            .withOpacity(0.5),
-                      ),
-                    ),
-                    focusNode: _inputFocusNode,
-                    keyboardType: widget.options.keyboardType,
-                    maxLines: 5,
-                    minLines: 1,
-                    onChanged: widget.options.onTextChanged,
-                    onTap: widget.options.onTextFieldTap,
-                    style: TextStyle(
-                      color: AFThemeExtension.of(context).textColor,
-                    ),
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                ),
+              RelatedQuestionList(
+                chatId: widget.chatId,
+                onQuestionSelected: widget.onQuestionSelected,
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: buttonPadding.bottom + buttonPadding.top + 24,
-                ),
-                child: Visibility(
-                  visible: _sendButtonVisible,
-                  child: SendButton(
-                    onPressed: _handleSendPressed,
-                    padding: buttonPadding,
-                  ),
-                ),
+              Row(
+                children: [
+                  if (widget.onAttachmentPressed != null)
+                    AttachmentButton(
+                      isLoading: widget.isAttachmentUploading ?? false,
+                      onPressed: widget.onAttachmentPressed,
+                      padding: buttonPadding,
+                    ),
+                  Expanded(child: _inputTextField(textPadding)),
+                  _sendButton(buttonPadding),
+                ],
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Padding _inputTextField(EdgeInsets textPadding) {
+    return Padding(
+      padding: textPadding,
+      child: TextField(
+        enabled: widget.options.enabled,
+        autocorrect: widget.options.autocorrect,
+        autofocus: widget.options.autofocus,
+        enableSuggestions: widget.options.enableSuggestions,
+        controller: _textController,
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          hintText: LocaleKeys.chat_inputMessageHint.tr(),
+          hintStyle: TextStyle(
+            color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
+          ),
+        ),
+        focusNode: _inputFocusNode,
+        keyboardType: widget.options.keyboardType,
+        maxLines: 5,
+        minLines: 1,
+        onChanged: widget.options.onTextChanged,
+        onTap: widget.options.onTextFieldTap,
+        style: TextStyle(
+          color: AFThemeExtension.of(context).textColor,
+        ),
+        textCapitalization: TextCapitalization.sentences,
+      ),
+    );
+  }
+
+  ConstrainedBox _sendButton(EdgeInsets buttonPadding) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: buttonPadding.bottom + buttonPadding.top + 24,
+      ),
+      child: Visibility(
+        visible: _sendButtonVisible,
+        child: SendButton(
+          onPressed: _handleSendPressed,
+          padding: buttonPadding,
         ),
       ),
     );

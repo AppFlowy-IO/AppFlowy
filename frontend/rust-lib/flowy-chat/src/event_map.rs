@@ -15,6 +15,7 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
     .event(ChatEvent::SendMessage, send_chat_message_handler)
     .event(ChatEvent::LoadPrevMessage, load_prev_message_handler)
     .event(ChatEvent::LoadNextMessage, load_next_message_handler)
+    .event(ChatEvent::GetRelatedQuestion, get_related_question_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -29,4 +30,7 @@ pub enum ChatEvent {
 
   #[event(input = "SendChatPayloadPB")]
   SendMessage = 2,
+
+  #[event(input = "ChatMessageIdPB", output = "RepeatedRelatedQuestionPB")]
+  GetRelatedQuestion = 3,
 }

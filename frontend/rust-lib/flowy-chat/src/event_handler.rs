@@ -65,3 +65,16 @@ pub(crate) async fn load_next_message_handler(
     .await?;
   data_result_ok(messages)
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_related_question_handler(
+  data: AFPluginData<ChatMessageIdPB>,
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> DataResult<RepeatedRelatedQuestionPB, FlowyError> {
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let data = data.into_inner();
+  let messages = chat_manager
+    .get_related_questions(&data.chat_id, data.message_id)
+    .await?;
+  data_result_ok(messages)
+}

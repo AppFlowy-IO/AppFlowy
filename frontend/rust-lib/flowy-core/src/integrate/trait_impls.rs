@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
+use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
 
@@ -489,6 +490,23 @@ impl ChatCloudService for ServerProvider {
       server?
         .chat_service()
         .get_chat_messages(&workspace_id, &chat_id, offset, limit)
+        .await
+    })
+  }
+
+  fn get_related_message(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message_id: i64,
+  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .chat_service()
+        .get_related_message(&workspace_id, &chat_id, message_id)
         .await
     })
   }

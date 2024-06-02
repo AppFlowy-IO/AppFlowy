@@ -1,4 +1,6 @@
-use flowy_chat_pub::cloud::{ChatMessage, RepeatedChatMessage};
+use flowy_chat_pub::cloud::{
+  ChatMessage, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
+};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
 use validator::Validate;
@@ -138,6 +140,51 @@ impl From<Vec<ChatMessage>> for RepeatedChatMessagePB {
   fn from(messages: Vec<ChatMessage>) -> Self {
     RepeatedChatMessagePB {
       items: messages.into_iter().map(ChatMessagePB::from).collect(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct ChatMessageIdPB {
+  #[pb(index = 1)]
+  pub chat_id: String,
+
+  #[pb(index = 2)]
+  pub message_id: i64,
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct RelatedQuestionPB {
+  #[pb(index = 1)]
+  pub content: String,
+}
+
+impl From<RelatedQuestion> for RelatedQuestionPB {
+  fn from(value: RelatedQuestion) -> Self {
+    RelatedQuestionPB {
+      content: value.content,
+    }
+  }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct RepeatedRelatedQuestionPB {
+  #[pb(index = 1)]
+  pub message_id: i64,
+
+  #[pb(index = 2)]
+  pub items: Vec<RelatedQuestionPB>,
+}
+
+impl From<RepeatedRelatedQuestion> for RepeatedRelatedQuestionPB {
+  fn from(value: RepeatedRelatedQuestion) -> Self {
+    RepeatedRelatedQuestionPB {
+      message_id: value.message_id,
+      items: value
+        .items
+        .into_iter()
+        .map(RelatedQuestionPB::from)
+        .collect(),
     }
   }
 }
