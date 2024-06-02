@@ -33,4 +33,8 @@ class AFFocusManager extends InheritedWidget {
     assert(result != null, "AFFocusManager could not be found");
     return result!;
   }
+
+  static AFFocusManager? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<AFFocusManager>();
+  }
 }

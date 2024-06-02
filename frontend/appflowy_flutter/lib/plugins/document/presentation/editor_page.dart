@@ -262,7 +262,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         return;
       }
 
-      focusManager = AFFocusManager.of(context);
+      focusManager = AFFocusManager.maybeOf(context);
       focusManager!.loseFocusNotifier.addListener(_loseFocus);
 
       if (widget.initialSelection != null) {
@@ -273,11 +273,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   void didChangeDependencies() {
-    final currFocusManager = AFFocusManager.of(context);
+    final currFocusManager = AFFocusManager.maybeOf(context);
     if (focusManager != currFocusManager) {
       focusManager?.loseFocusNotifier.removeListener(_loseFocus);
       focusManager = currFocusManager;
-      focusManager!.loseFocusNotifier.addListener(_loseFocus);
+      focusManager?.loseFocusNotifier.addListener(_loseFocus);
     }
     super.didChangeDependencies();
   }
