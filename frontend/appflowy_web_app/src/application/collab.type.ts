@@ -27,6 +27,8 @@ export enum BlockType {
   DividerBlock = 'divider',
   ImageBlock = 'image',
   GridBlock = 'grid',
+  BoardBlock = 'board',
+  CalendarBlock = 'calendar',
   OutlineBlock = 'outline',
   TableBlock = 'table',
   TableCell = 'table/cell',
@@ -111,6 +113,10 @@ export interface TableCellBlockData extends BlockData {
   width: number;
 }
 
+export interface DatabaseNodeData extends BlockData {
+  view_id: ViewId;
+}
+
 export enum MentionType {
   PageRef = 'page',
   Date = 'date',
@@ -132,15 +138,15 @@ export interface FolderMeta {
   current_workspace: string;
 }
 
-export enum CoverType {
+export enum DocCoverType {
   Color = 'CoverType.color',
   Image = 'CoverType.file',
   Asset = 'CoverType.asset',
 }
 
-export type PageCover = {
+export type DocCover = {
   image_type?: ImageType;
-  cover_selection_type?: CoverType;
+  cover_selection_type?: DocCoverType;
   cover_selection?: string;
 } | null;
 
@@ -160,6 +166,7 @@ export enum YjsEditorKey {
   // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   database_row = 'data',
   user_awareness = 'user_awareness',
+  empty = 'empty',
 
   // document
   blocks = 'blocks',
@@ -193,6 +200,10 @@ export enum YjsFolderKey {
   id = 'id',
   name = 'name',
   icon = 'icon',
+  extra = 'extra',
+  cover = 'cover',
+  line_height_layout = 'line_height_layout',
+  font_layout = 'font_layout',
   type = 'ty',
   value = 'value',
   layout = 'layout',
@@ -241,6 +252,13 @@ export enum YjsDatabaseKey {
   condition = 'condition',
   format = 'format',
   filter_type = 'filter_type',
+  visible = 'visible',
+  hide_ungrouped_column = 'hide_ungrouped_column',
+  collapse_hidden_groups = 'collapse_hidden_groups',
+  first_day_of_week = 'first_day_of_week',
+  show_week_numbers = 'show_week_numbers',
+  show_weekends = 'show_weekends',
+  layout_ty = 'layout_ty',
 }
 
 export interface YDoc extends Y.Doc {
@@ -324,7 +342,7 @@ export interface YView extends Y.Map<unknown> {
   get(key: YjsFolderKey.name): string;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsFolderKey.icon): string;
+  get(key: YjsFolderKey.icon | YjsFolderKey.extra): string;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
   get(key: YjsFolderKey.layout): string;
@@ -425,17 +443,54 @@ export type YDatabaseFieldOrders = Y.Array<unknown>; // [ { id: FieldId } ]
 
 export type YDatabaseRowOrders = Y.Array<YDatabaseRowOrder>; // [ { id: RowId, height: number } ]
 
-export type YDatabaseGroups = Y.Array<unknown>;
+export type YDatabaseGroups = Y.Array<YDatabaseGroup>;
 
 export type YDatabaseFilters = Y.Array<YDatabaseFilter>;
 
 export type YDatabaseSorts = Y.Array<YDatabaseSort>;
 
-export type YDatabaseLayoutSettings = Y.Map<unknown>;
-
 export type YDatabaseCalculations = Y.Array<YDatabaseCalculation>;
 
 export type SortId = string;
+
+export type GroupId = string;
+
+export interface YDatabaseLayoutSettings extends Y.Map<unknown> {
+  // DatabaseViewLayout.Board
+  get(key: '1'): YDatabaseBoardLayoutSetting;
+
+  // DatabaseViewLayout.Calendar
+  get(key: '2'): YDatabaseCalendarLayoutSetting;
+}
+
+export interface YDatabaseBoardLayoutSetting extends Y.Map<unknown> {
+  get(key: YjsDatabaseKey.hide_ungrouped_column | YjsDatabaseKey.collapse_hidden_groups): boolean;
+}
+
+export interface YDatabaseCalendarLayoutSetting extends Y.Map<unknown> {
+  get(key: YjsDatabaseKey.first_day_of_week | YjsDatabaseKey.field_id | YjsDatabaseKey.layout_ty): string;
+
+  get(key: YjsDatabaseKey.show_week_numbers | YjsDatabaseKey.show_weekends): boolean;
+}
+
+export interface YDatabaseGroup extends Y.Map<unknown> {
+  get(key: YjsDatabaseKey.id): GroupId;
+
+  get(key: YjsDatabaseKey.field_id): FieldId;
+
+  // eslint-disable-next-line @typescript-eslint/unified-signatures
+  get(key: YjsDatabaseKey.content): string;
+
+  get(key: YjsDatabaseKey.groups): YDatabaseGroupColumns;
+}
+
+export type YDatabaseGroupColumns = Y.Array<YDatabaseGroupColumn>;
+
+export interface YDatabaseGroupColumn extends Y.Map<unknown> {
+  get(key: YjsDatabaseKey.id): string;
+
+  get(key: YjsDatabaseKey.visible): boolean;
+}
 
 export interface YDatabaseRowOrder extends Y.Map<unknown> {
   get(key: YjsDatabaseKey.id): SortId;
@@ -557,3 +612,15 @@ export const databaseLayoutMap = {
   [DatabaseViewLayout.Board]: 'board',
   [DatabaseViewLayout.Calendar]: 'calendar',
 };
+
+export enum FontLayout {
+  small = 'small',
+  normal = 'normal',
+  large = 'large',
+}
+
+export enum LineHeightLayout {
+  small = 'small',
+  normal = 'normal',
+  large = 'large',
+}

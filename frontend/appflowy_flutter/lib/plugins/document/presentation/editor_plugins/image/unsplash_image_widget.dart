@@ -112,7 +112,7 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   }
 }
 
-class _UnsplashImages extends StatelessWidget {
+class _UnsplashImages extends StatefulWidget {
   const _UnsplashImages({
     required this.type,
     required this.photos,
@@ -124,16 +124,23 @@ class _UnsplashImages extends StatelessWidget {
   final OnSelectUnsplashImage onSelectUnsplashImage;
 
   @override
+  State<_UnsplashImages> createState() => _UnsplashImagesState();
+}
+
+class _UnsplashImagesState extends State<_UnsplashImages> {
+  int _selectedPhotoIndex = -1;
+
+  @override
   Widget build(BuildContext context) {
-    final crossAxisCount = switch (type) {
+    final crossAxisCount = switch (widget.type) {
       UnsplashImageType.halfScreen => 3,
       UnsplashImageType.fullScreen => 2,
     };
-    final mainAxisSpacing = switch (type) {
+    final mainAxisSpacing = switch (widget.type) {
       UnsplashImageType.halfScreen => 16.0,
       UnsplashImageType.fullScreen => 16.0,
     };
-    final crossAxisSpacing = switch (type) {
+    final crossAxisSpacing = switch (widget.type) {
       UnsplashImageType.halfScreen => 10.0,
       UnsplashImageType.fullScreen => 16.0,
     };
@@ -142,17 +149,23 @@ class _UnsplashImages extends StatelessWidget {
       mainAxisSpacing: mainAxisSpacing,
       crossAxisSpacing: crossAxisSpacing,
       childAspectRatio: 4 / 3,
-      children: photos
-          .map(
-            (photo) => _UnsplashImage(
-              type: type,
-              photo: photo,
-              onTap: () => onSelectUnsplashImage(
-                photo.urls.regular.toString(),
-              ),
-            ),
-          )
-          .toList(),
+      children: widget.photos.asMap().entries.map((entry) {
+        final index = entry.key;
+        final photo = entry.value;
+        return _UnsplashImage(
+          type: widget.type,
+          photo: photo,
+          onTap: () {
+            widget.onSelectUnsplashImage(
+              photo.urls.regular.toString(),
+            );
+            setState(() {
+              _selectedPhotoIndex = index;
+            });
+          },
+          isSelected: index == _selectedPhotoIndex,
+        );
+      }).toList(),
     );
   }
 }
@@ -162,11 +175,13 @@ class _UnsplashImage extends StatelessWidget {
     required this.type,
     required this.photo,
     required this.onTap,
+    required this.isSelected,
   });
 
   final UnsplashImageType type;
   final Photo photo;
   final VoidCallback onTap;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +192,19 @@ class _UnsplashImage extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: child,
+      child: isSelected
+          ? Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: ShapeDecoration(
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(width: 1.50, color: Color(0xFF00BCF0)),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              padding: const EdgeInsets.all(2.0),
+              child: child,
+            )
+          : child,
     );
   }
 

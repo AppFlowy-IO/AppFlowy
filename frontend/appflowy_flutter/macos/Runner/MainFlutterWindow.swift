@@ -1,7 +1,7 @@
 import Cocoa
 import FlutterMacOS
 
-private let kTrafficLightOffetTop = 22
+private let kTrafficLightOffetTop = 14
 
 class MainFlutterWindow: NSWindow {
   func registerMethodChannel(flutterViewController: FlutterViewController) {
@@ -17,7 +17,7 @@ class MainFlutterWindow: NSWindow {
         let nY = position[1] as! NSNumber
         let x = nX.doubleValue
         let y = nY.doubleValue
-        
+
         self.setFrameOrigin(NSPoint(x: x, y: y))
         result(nil)
         return
@@ -30,7 +30,7 @@ class MainFlutterWindow: NSWindow {
         result(nil)
         return
       }
-      
+
       result(FlutterMethodNotImplemented)
     })
   }
@@ -51,9 +51,9 @@ class MainFlutterWindow: NSWindow {
     let zoomButton = self.standardWindowButton(ButtonType.zoomButton)!
     let titlebarView = closeButton.superview!
 
-    self.layoutTrafficLightButton(titlebarView: titlebarView, button: closeButton, offsetTop: CGFloat(kTrafficLightOffetTop), offsetLeft: 20)
-    self.layoutTrafficLightButton(titlebarView: titlebarView, button: minButton, offsetTop: CGFloat(kTrafficLightOffetTop), offsetLeft: 38)
-    self.layoutTrafficLightButton(titlebarView: titlebarView, button: zoomButton, offsetTop: CGFloat(kTrafficLightOffetTop), offsetLeft: 56)
+    self.layoutTrafficLightButton(titlebarView: titlebarView, button: closeButton, offsetTop: CGFloat(kTrafficLightOffetTop), offsetLeft: 12)
+    self.layoutTrafficLightButton(titlebarView: titlebarView, button: minButton, offsetTop: CGFloat(kTrafficLightOffetTop), offsetLeft: 30)
+    self.layoutTrafficLightButton(titlebarView: titlebarView, button: zoomButton, offsetTop: CGFloat(kTrafficLightOffetTop), offsetLeft: 48)
 
     let customToolbar = NSTitlebarAccessoryViewController()
     let newView = NSView()

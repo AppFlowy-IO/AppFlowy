@@ -60,7 +60,7 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
                               child: IconButton(
                                 icon: Icon(
                                   Icons.close,
-                                  color: style.colorScheme.onBackground,
+                                  color: style.colorScheme.onSurface,
                                 ),
                                 onPressed: () =>
                                     setState(() => _textController.clear()),
@@ -86,7 +86,7 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
                             child: Text(
                               LocaleKeys.button_cancel.tr(),
                               style: style.textTheme.titleSmall?.copyWith(
-                                color: style.colorScheme.onBackground,
+                                color: style.colorScheme.onSurface,
                               ),
                             ),
                             onPressed: () => setState(() => isEditing = false),
@@ -96,7 +96,7 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
                               LocaleKeys.button_add.tr(),
                               style: style.textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: style.colorScheme.onBackground,
+                                color: style.colorScheme.onSurface,
                               ),
                             ),
                             onPressed: () {
@@ -117,14 +117,14 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
               )
             : ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: style.colorScheme.onBackground,
+                  foregroundColor: style.colorScheme.onSurface,
                   backgroundColor: style.colorScheme.secondary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ).copyWith(
                   overlayColor:
-                      MaterialStateProperty.all(Theme.of(context).hoverColor),
+                      WidgetStateProperty.all(Theme.of(context).hoverColor),
                 ),
                 icon: const Icon(Icons.add),
                 label: Text(

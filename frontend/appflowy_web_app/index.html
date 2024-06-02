@@ -3,15 +3,44 @@
 <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/appflowy.svg" />
-    <meta name="viewport"
-          content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>AppFlowy</title>
 </head>
 <body id="body">
 <div id="root"></div>
 <script type="module" src="/src/main.tsx"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const body = document.body;
+    const isWin = userAgent.indexOf('win') > -1;
+    const isMac = userAgent.indexOf('mac') > -1;
+    const isLinux = userAgent.indexOf('linux') > -1;
+    const isFirefox = userAgent.indexOf('firefox') > -1;
+    const isChrome = userAgent.indexOf('chrome') > -1;
+    const isSafari = userAgent.indexOf('safari') > -1;
+    if (isWin) {
+      body.setAttribute('data-os', 'windows');
+    } else if (isMac) {
+      body.setAttribute('data-os', 'mac');
+    } else if (isLinux) {
+      body.setAttribute('data-os', 'linux');
+    } else {
+      body.setAttribute('data-os', 'unknown');
+    }
 
+    if (isFirefox) {
+      body.setAttribute('data-browser', 'firefox');
+    } else if (isChrome) {
+      body.setAttribute('data-browser', 'chrome');
+    } else if (isSafari) {
+      body.setAttribute('data-browser', 'safari');
+    } else {
+      body.setAttribute('data-browser', 'unknown');
+    }
+  });
+</script>
 </body>
 </html>

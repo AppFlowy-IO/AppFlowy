@@ -58,4 +58,11 @@
       <action android:name="android.support.customtabs.action.CustomTabsService" />
     </intent>
   </queries>
+  <!--
+    Media access permissions.
+    Android 13 or higher.
+    Used for VideoBlock (edia_kit)
+  -->
+  <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+  <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 </manifest>

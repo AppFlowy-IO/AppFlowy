@@ -3,7 +3,6 @@
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_storage::ObjectStorageService;
-use semver::Version;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
@@ -106,13 +105,12 @@ impl AppFlowyCore {
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
-    let app_version = Version::parse(&config.app_version).unwrap_or_else(|_| Version::new(0, 5, 4));
     let user_config = UserConfig::new(
       &config.name,
       &config.storage_path,
       &config.application_path,
       &config.device_id,
-      app_version,
+      config.app_version.clone(),
     );
 
     let authenticate_user = Arc::new(AuthenticateUser::new(

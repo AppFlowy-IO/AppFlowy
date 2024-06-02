@@ -133,7 +133,7 @@ impl ServerProvider {
           config,
           *self.user_enable_sync.read(),
           self.config.device_id.clone(),
-          &self.config.app_version,
+          self.config.app_version.clone(),
           self.user.clone(),
         ));
 

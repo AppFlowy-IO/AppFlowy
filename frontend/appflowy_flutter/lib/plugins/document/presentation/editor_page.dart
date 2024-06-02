@@ -56,7 +56,18 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   customPasteCommand,
   customCutCommand,
   ...customTextAlignCommands,
-  ...standardCommandShortcutEvents,
+
+  // remove standard shortcuts for copy, cut, paste, todo
+  ...standardCommandShortcutEvents
+    ..removeWhere(
+      (shortcut) => [
+        copyCommand,
+        cutCommand,
+        pasteCommand,
+        toggleTodoListCommand,
+      ].contains(shortcut),
+    ),
+
   emojiShortcutEvent,
 ];
 
@@ -90,7 +101,6 @@ class AppFlowyEditorPage extends StatefulWidget {
   final String Function(Node)? placeholderText;
 
   /// Used to provide an initial selection on Page-load
-  ///
   final Selection? initialSelection;
 
   final bool useViewInfoBloc;
@@ -111,15 +121,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     ],
   );
 
-  late final List<CommandShortcutEvent> commandShortcutEvents = [
-    toggleToggleListCommand,
-    ...localizedCodeBlockCommands,
-    customCopyCommand,
-    customPasteCommand,
-    customCutCommand,
-    ...customTextAlignCommands,
-    ...standardCommandShortcutEvents,
-    emojiShortcutEvent,
+  late final List<CommandShortcutEvent> cmdShortcutEvents = [
+    ...commandShortcutEvents,
     ..._buildFindAndReplaceCommands(),
   ];
 
@@ -309,7 +312,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
         // customize the shortcuts
         characterShortcutEvents: characterShortcutEvents,
-        commandShortcutEvents: commandShortcutEvents,
+        commandShortcutEvents: cmdShortcutEvents,
         // customize the context menu items
         contextMenuItems: customContextMenuItems,
         // customize the header and footer.
@@ -385,18 +388,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       emojiMenuItem,
       autoGeneratorMenuItem,
       dateMenuItem,
+      videoBlockItem(LocaleKeys.document_plugins_video_label.tr()),
     ];
   }
 
   (bool, Selection?) _computeAutoFocusParameters() {
     if (widget.editorState.document.isEmpty) {
       return (true, Selection.collapsed(Position(path: [0])));
-    }
-    final nodes =
-        widget.editorState.document.root.children.where((e) => e.delta != null);
-    final isAllEmpty = nodes.isNotEmpty && nodes.every((e) => e.delta!.isEmpty);
-    if (isAllEmpty) {
-      return (true, Selection.collapsed(Position(path: nodes.first.path)));
     }
     return const (false, null);
   }
@@ -407,7 +405,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final customizeShortcuts =
         await settingsShortcutService.getCustomizeShortcuts();
     await settingsShortcutService.updateCommandShortcuts(
-      commandShortcutEvents,
+      cmdShortcutEvents,
       customizeShortcuts,
     );
   }
@@ -437,7 +435,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             Material(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(4),
             ),
             child: FindAndReplaceMenuWidget(

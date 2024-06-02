@@ -43,7 +43,7 @@ Widget getGridFabs(BuildContext context) {
               .read<GridBloc>()
               .add(const GridEvent.createRow(openRowDetail: true));
         },
-        overlayColor: const MaterialStatePropertyAll<Color>(Color(0xFF009FD1)),
+        overlayColor: const WidgetStatePropertyAll<Color>(Color(0xFF009FD1)),
         boxShadow: const BoxShadow(
           offset: Offset(0, 8),
           color: Color(0x6612BFEF),
@@ -75,7 +75,7 @@ class MobileGridFab extends StatelessWidget {
   final VoidCallback onTap;
   final FlowySvgData icon;
   final Size iconSize;
-  final MaterialStateProperty<Color?>? overlayColor;
+  final WidgetStateProperty<Color?>? overlayColor;
 
   @override
   Widget build(BuildContext context) {

@@ -11,20 +11,34 @@ import * as Y from 'yjs';
 export class JSDatabaseService implements DatabaseService {
   private loadedDatabaseId: Set<string> = new Set();
 
+  private cacheDatabaseRowDocMap: Map<string, Y.Doc> = new Map();
+
   constructor() {
     //
   }
 
   async getDatabase(
     workspaceId: string,
-    databaseId: string
+    databaseId: string,
+    rowIds?: string[]
   ): Promise<{
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
   }> {
-    const rootRowsDoc = new Y.Doc();
-    const rowsFolder = rootRowsDoc.getMap();
     const isLoaded = this.loadedDatabaseId.has(databaseId);
+
+    const rootRowsDoc =
+      this.cacheDatabaseRowDocMap.get(databaseId) ??
+      new Y.Doc({
+        guid: databaseId,
+      });
+
+    if (!this.cacheDatabaseRowDocMap.has(databaseId)) {
+      this.cacheDatabaseRowDocMap.set(databaseId, rootRowsDoc);
+    }
+
+    const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
+
     let databaseDoc: YDoc | undefined = undefined;
 
     if (isLoaded) {
@@ -36,42 +50,66 @@ export class JSDatabaseService implements DatabaseService {
     const database = databaseDoc.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database) as YDatabase;
     const viewId = database.get(YjsDatabaseKey.metas)?.get(YjsDatabaseKey.iid)?.toString();
     const rowOrders = database.get(YjsDatabaseKey.views)?.get(viewId)?.get(YjsDatabaseKey.row_orders);
-    const rowIds = rowOrders.toJSON() as {
+    const rowOrdersIds = rowOrders.toJSON() as {
       id: string;
     }[];
 
-    if (!rowIds) {
+    if (!rowOrdersIds) {
       throw new Error('Database rows not found');
     }
 
-    if (isLoaded) {
-      for (const row of rowIds) {
-        const { doc } = await getCollabStorage(row.id, CollabType.DatabaseRow);
+    const ids = rowIds ? rowIds : rowOrdersIds.map((item) => item.id);
 
-        rowsFolder.set(row.id, doc);
+    if (isLoaded) {
+      for (const id of ids) {
+        const { doc } = await getCollabStorage(id, CollabType.DatabaseRow);
+
+        if (!rowsFolder.has(id)) {
+          rowsFolder.set(id, doc);
+        }
       }
     } else {
-      const rows = await this.loadDatabaseRows(
-        workspaceId,
-        rowIds.map((item) => item.id)
-      );
-
-      rows.forEach((row, id) => {
-        rowsFolder.set(id, row);
+      void this.loadDatabaseRows(workspaceId, ids, (id, row) => {
+        if (!rowsFolder.has(id)) {
+          rowsFolder.set(id, row);
+        }
       });
     }
 
     this.loadedDatabaseId.add(databaseId);
 
+    if (!rowIds) {
+      // Update rows if new rows are added
+      rowOrders?.observe((event) => {
+        if (event.changes.added.size > 0) {
+          const rowIds = rowOrders.toJSON() as {
+            id: string;
+          }[];
+
+          console.log('Update rows', rowIds);
+          void this.loadDatabaseRows(
+            workspaceId,
+            rowIds.map((item) => item.id),
+            (rowId: string, rowDoc) => {
+              if (!rowsFolder.has(rowId)) {
+                rowsFolder.set(rowId, rowDoc);
+              }
+            }
+          );
+        }
+      });
+    }
+
     return {
       databaseDoc,
-      rows: rowsFolder as Y.Map<YDoc>,
+      rows: rowsFolder,
     };
   }
 
   async openDatabase(
     workspaceId: string,
-    viewId: string
+    viewId: string,
+    rowIds?: string[]
   ): Promise<{
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
@@ -112,28 +150,8 @@ export class JSDatabaseService implements DatabaseService {
       throw new Error('Database not found');
     }
 
-    const { databaseDoc, rows } = await this.getDatabase(workspaceId, databaseMeta.database_id);
-    const database = databaseDoc.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database) as YDatabase;
-    const rowOrders = database.get(YjsDatabaseKey.views)?.get(viewId)?.get(YjsDatabaseKey.row_orders);
+    const { databaseDoc, rows } = await this.getDatabase(workspaceId, databaseMeta.database_id, rowIds);
 
-    // Update rows if new rows are added
-    rowOrders?.observe((event) => {
-      if (event.changes.added.size > 0) {
-        const rowIds = rowOrders.toJSON() as {
-          id: string;
-        }[];
-
-        console.log('Update rows', rowIds);
-        void this.loadDatabaseRows(
-          workspaceId,
-          rowIds.map((item) => item.id)
-        ).then((newRows) => {
-          newRows.forEach((row, id) => {
-            rows.set(id, row);
-          });
-        });
-      }
-    });
     const handleUpdate = (update: Uint8Array, origin: CollabOrigin) => {
       if (origin === CollabOrigin.LocalSync) {
         // Send the update to the server
@@ -142,6 +160,7 @@ export class JSDatabaseService implements DatabaseService {
     };
 
     databaseDoc.on('update', handleUpdate);
+    console.log('Database loaded', rows.toJSON());
 
     return {
       databaseDoc,
@@ -149,9 +168,7 @@ export class JSDatabaseService implements DatabaseService {
     };
   }
 
-  async loadDatabaseRows(workspaceId: string, rowIds: string[]) {
-    const rows = new Map<string, YDoc>();
-
+  async loadDatabaseRows(workspaceId: string, rowIds: string[], rowCallback: (rowId: string, rowDoc: YDoc) => void) {
     try {
       await batchCollabs(
         workspaceId,
@@ -159,12 +176,14 @@ export class JSDatabaseService implements DatabaseService {
           object_id: id,
           collab_type: CollabType.DatabaseRow,
         })),
-        (id, rowDoc) => rows.set(id, rowDoc)
+        rowCallback
       );
     } catch (e) {
       console.error(e);
     }
+  }
 
-    return rows;
+  async closeDatabase(databaseId: string) {
+    this.cacheDatabaseRowDocMap.delete(databaseId);
   }
 }

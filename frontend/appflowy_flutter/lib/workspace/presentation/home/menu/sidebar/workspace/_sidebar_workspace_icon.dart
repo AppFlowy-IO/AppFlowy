@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -14,12 +13,14 @@ class WorkspaceIcon extends StatefulWidget {
     required this.workspace,
     required this.enableEdit,
     required this.iconSize,
+    required this.fontSize,
     required this.onSelected,
   });
 
   final UserWorkspacePB workspace;
   final double iconSize;
   final bool enableEdit;
+  final double fontSize;
   final void Function(EmojiPickerResult) onSelected;
 
   @override
@@ -35,24 +36,24 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         ? Container(
             width: widget.iconSize,
             alignment: Alignment.center,
-            child: EmojiText(
-              emoji: widget.workspace.icon,
+            child: FlowyText.emoji(
+              widget.workspace.icon,
               fontSize: widget.iconSize,
             ),
           )
         : Container(
             alignment: Alignment.center,
             width: widget.iconSize,
-            height: max(widget.iconSize, 26),
+            height: min(widget.iconSize, 26),
             decoration: BoxDecoration(
               color: ColorGenerator(widget.workspace.name).toColor(),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(4),
             ),
             child: FlowyText(
               widget.workspace.name.isEmpty
                   ? ''
                   : widget.workspace.name.substring(0, 1),
-              fontSize: 16,
+              fontSize: widget.fontSize,
               color: Colors.black,
             ),
           );
@@ -62,7 +63,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         offset: const Offset(0, 8),
         controller: controller,
         direction: PopoverDirection.bottomWithLeftAligned,
-        constraints: BoxConstraints.loose(const Size(360, 380)),
+        constraints: BoxConstraints.loose(const Size(364, 356)),
         clickHandler: PopoverClickHandler.gestureDetector,
         popupBuilder: (_) => FlowyIconPicker(
           onSelected: (result) {

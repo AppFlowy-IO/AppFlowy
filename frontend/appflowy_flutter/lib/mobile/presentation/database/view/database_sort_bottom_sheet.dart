@@ -438,7 +438,7 @@ class _SortDetailContent extends StatelessWidget {
                   color: Theme.of(context).colorScheme.surface,
                 ),
                 splashFactory: NoSplash.splashFactory,
-                overlayColor: const MaterialStatePropertyAll(
+                overlayColor: const WidgetStatePropertyAll(
                   Colors.transparent,
                 ),
                 onTap: (index) {

@@ -19,7 +19,7 @@ import 'package:protobuf/protobuf.dart';
 part 'view_bloc.freezed.dart';
 
 class ViewBloc extends Bloc<ViewEvent, ViewState> {
-  ViewBloc({required this.view})
+  ViewBloc({required this.view, this.shouldLoadChildViews = true})
       : viewBackendSvc = ViewBackendService(),
         listener = ViewListener(viewId: view.id),
         favoriteListener = FavoriteListener(),
@@ -31,6 +31,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   final ViewBackendService viewBackendSvc;
   final ViewListener listener;
   final FavoriteListener favoriteListener;
+  final bool shouldLoadChildViews;
 
   @override
   Future<void> close() async {
@@ -74,8 +75,10 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               },
             );
             final isExpanded = await _getViewIsExpanded(view);
-            emit(state.copyWith(isExpanded: isExpanded));
-            await _loadViewsWhenExpanded(emit, isExpanded);
+            emit(state.copyWith(isExpanded: isExpanded, view: view));
+            if (shouldLoadChildViews) {
+              await _loadChildViews(emit);
+            }
           },
           setIsEditing: (e) {
             emit(state.copyWith(isEditing: e.isEditing));
@@ -222,6 +225,12 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               viewIcon: value.icon ?? '',
             );
           },
+          collapseAllPages: (value) async {
+            for (final childView in view.childViews) {
+              await _setViewIsExpanded(childView, false);
+            }
+            add(const ViewEvent.setIsExpanded(false));
+          },
         );
       },
     );
@@ -265,6 +274,33 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           successOrFailure: FlowyResult.failure(error),
           isExpanded: true,
           isLoading: false,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _loadChildViews(
+    Emitter<ViewState> emit,
+  ) async {
+    final viewsOrFailed =
+        await ViewBackendService.getChildViews(viewId: state.view.id);
+
+    viewsOrFailed.fold(
+      (childViews) {
+        state.view.freeze();
+        final viewWithChildViews = state.view.rebuild((b) {
+          b.childViews.clear();
+          b.childViews.addAll(childViews);
+        });
+        emit(
+          state.copyWith(
+            view: viewWithChildViews,
+          ),
+        );
+      },
+      (error) => emit(
+        state.copyWith(
+          successOrFailure: FlowyResult.failure(error),
         ),
       ),
     );
@@ -388,6 +424,7 @@ class ViewEvent with _$ViewEvent {
     bool isPublic,
   ) = UpdateViewVisibility;
   const factory ViewEvent.updateIcon(String? icon) = UpdateIcon;
+  const factory ViewEvent.collapseAllPages() = CollapseAllPages;
 }
 
 @freezed

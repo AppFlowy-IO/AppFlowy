@@ -42,7 +42,7 @@
     "emailHint": "Correo",
     "passwordHint": "Contraseña",
     "dontHaveAnAccount": "¿No posee credenciales?",
-    "createAccount": "Crear cuenta",
+    "createAccount": "Crear una cuenta",
     "repeatPasswordEmptyError": "La contraseña no puede estar en blanco",
     "unmatchedPasswordError": "Las contraseñas no coinciden",
     "syncPromptMessage": "La sincronización de los datos puede tardar un poco. Por favor no cierres esta página",
@@ -64,12 +64,7 @@
     "alreadyHaveAnAccount": "¿Ya tienes cuenta?",
     "logIn": "Iniciar sesión",
     "generalError": "Algo ha salido mal. Por favor, inténtalo más tarde",
-    "limitRateError": "Por razones de seguridad, solo puedes solicitar un enlace mágico cada 60 segundos",
-    "LogInWithGoogle": "Iniciar sesión con Google",
-    "LogInWithGithub": "Iniciar sesión con Github",
-    "LogInWithDiscord": "Iniciar sesión con Discord",
-    "loginAsGuestButtonText": "Empezar",
-    "logInWithMagicLink": "Iniciar sesión con Enlace Mágico"
+    "limitRateError": "Por razones de seguridad, solo puedes solicitar un enlace mágico cada 60 segundos"
   },
   "workspace": {
     "chooseWorkspace": "Elige tu espacio de trabajo",
@@ -425,7 +420,7 @@
         "dark": "Modo Oscuro",
         "system": "Adapt to System"
       },
-      "fontScaleFactor": "Escala de la fuente",
+      "fontScaleFactor": "Factor de escala de fuente",
       "documentSettings": {
         "cursorColor": "Color del cursor del documento",
         "selectionColor": "Color de selección de documento",
@@ -483,7 +478,7 @@
       "enableRTLToolbarItems": "Habilitar elementos de la barra de herramientas RTL",
       "members": {
         "title": "Configuración de miembros",
-        "inviteMembers": "Invitar miembros",
+        "inviteMembers": "Invitar a los miembros",
         "sendInvite": "Enviar invitación",
         "copyInviteLink": "Copiar enlace de invitación",
         "label": "Miembros",
@@ -494,8 +489,7 @@
         "guest": "Invitado",
         "member": "Miembro",
         "memberHintText": "Un miembro puede leer, comentar y editar páginas. Invitar a miembros e invitados.",
-        "guestHintText": "Un Invitado puede leer, reaccionar, comentar y editar ciertas páginas con permiso.",
-        "emailInvalidError": "Email no válido, compruébalo y vuelve a intentarlo.",
+        "emailInvalidError": "Correo electrónico no válido, compruébalo y vuelve a intentarlo.",
         "emailSent": "Email enviado, por favor revisa la bandeja de entrada",
         "members": "miembros",
         "membersCount": {
@@ -577,7 +571,6 @@
         "codeBlockOutdentLines": "Eliminar dos espacios al inicio de la línea en el bloque de código",
         "codeBlockAddTwoSpaces": "Insertar dos espacios en la posición del cursor en el bloque de código",
         "codeBlockSelectAll": "Seleccionar todo el contenido dentro de un bloque de código",
-        "codeBlockPasteText": "Pegar texto en bloque de código",
         "textAlignLeft": "Alinear texto a la izquierda",
         "textAlignCenter": "Alinear el texto al centro",
         "textAlignRight": "Alinear el texto a la derecha"
@@ -595,7 +588,7 @@
       "userAgreement": "Acuerdo del Usuario",
       "termsAndConditions": "Términos y condiciones",
       "userprofileError": "No se pudo cargar el perfil de usuario",
-      "userprofileErrorDescription": "Intenta cerrar sesión y volver a entrar para comprobar si el problema persiste.",
+      "userprofileErrorDescription": "Intente cerrar sesión y volver a iniciarla para comprobar si el problema persiste.",
       "selectLayout": "Seleccionar diseño",
       "selectStartingDay": "Seleccione el día de inicio",
       "version": "Versión"
@@ -678,8 +671,8 @@
       "choicechipPrefix": {
         "before": "Antes",
         "after": "Después",
-        "onOrBefore": "En o antes de",
-        "onOrAfter": "En o después de",
+        "onOrBefore": "En o antes",
+        "onOrAfter": "Sobre o después",
         "isEmpty": "Está vacio",
         "isNotEmpty": "No está vacío"
       }

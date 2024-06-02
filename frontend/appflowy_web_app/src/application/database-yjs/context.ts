@@ -1,34 +1,51 @@
 import { YDatabase, YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
-import { filterBy } from '@/application/database-yjs/filter';
 import { Row } from '@/application/database-yjs/selector';
-import { sortBy } from '@/application/database-yjs/sort';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext } from 'react';
 import * as Y from 'yjs';
-import debounce from 'lodash-es/debounce';
 
 export interface DatabaseContextState {
   readOnly: boolean;
-  doc: YDoc;
+  databaseDoc: YDoc;
   viewId: string;
   rowDocMap: Y.Map<YDoc>;
+  isDatabaseRowPage?: boolean;
+  navigateToRow?: (rowId: string) => void;
 }
 
 export const DatabaseContext = createContext<DatabaseContextState | null>(null);
 
 export const useDatabase = () => {
   const database = useContext(DatabaseContext)
-    ?.doc?.getMap(YjsEditorKey.data_section)
+    ?.databaseDoc?.getMap(YjsEditorKey.data_section)
     .get(YjsEditorKey.database) as YDatabase;
 
   return database;
 };
 
-export const useRowMeta = (rowId: string) => {
-  const rows = useContext(DatabaseContext)?.rowDocMap;
-  const rowMetaDoc = rows?.get(rowId);
-  const rowMeta = rowMetaDoc?.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database_row) as YDatabaseRow;
+export function useDatabaseViewId() {
+  return useContext(DatabaseContext)?.viewId;
+}
 
-  return rowMeta;
+export const useNavigateToRow = () => {
+  return useContext(DatabaseContext)?.navigateToRow;
+};
+
+export const useRowDocMap = () => {
+  return useContext(DatabaseContext)?.rowDocMap;
+};
+
+export const useIsDatabaseRowPage = () => {
+  return useContext(DatabaseContext)?.isDatabaseRowPage;
+};
+
+export const useRow = (rowId: string) => {
+  const rows = useRowDocMap();
+
+  return rows?.get(rowId)?.getMap(YjsEditorKey.data_section);
+};
+
+export const useRowData = (rowId: string) => {
+  return useRow(rowId)?.get(YjsEditorKey.database_row) as YDatabaseRow;
 };
 
 export const useViewId = () => {
@@ -56,72 +73,16 @@ export function useDatabaseFields() {
   return database.get(YjsDatabaseKey.fields);
 }
 
-export interface GridRowsState {
+export interface RowsState {
   rowOrders: Row[];
 }
 
-export const GridRowsContext = createContext<GridRowsState | null>(null);
+export const RowsContext = createContext<RowsState | null>(null);
 
-export function useGridRowsContext() {
-  return useContext(GridRowsContext);
+export function useRowsContext() {
+  return useContext(RowsContext);
 }
 
-export function useGridRows() {
-  return useGridRowsContext()?.rowOrders;
-}
-
-export function useGridRowOrders() {
-  const rows = useContext(DatabaseContext)?.rowDocMap;
-  const [rowOrders, setRowOrders] = useState<Row[]>();
-  const view = useDatabaseView();
-  const sorts = view?.get(YjsDatabaseKey.sorts);
-  const fields = useDatabaseFields();
-  const filters = view?.get(YjsDatabaseKey.filters);
-
-  useEffect(() => {
-    const onConditionsChange = () => {
-      const originalRowOrders = view?.get(YjsDatabaseKey.row_orders).toJSON();
-
-      if (!originalRowOrders || !rows) return;
-
-      console.log('sort or filter changed');
-      if (sorts?.length === 0 && filters?.length === 0) {
-        setRowOrders(originalRowOrders);
-        return;
-      }
-
-      let rowOrders: Row[] | undefined;
-
-      if (sorts?.length) {
-        rowOrders = sortBy(originalRowOrders, sorts, fields, rows);
-      }
-
-      if (filters?.length) {
-        rowOrders = filterBy(rowOrders ?? originalRowOrders, filters, fields, rows);
-      }
-
-      if (rowOrders) {
-        setRowOrders(rowOrders);
-      } else {
-        setRowOrders(originalRowOrders);
-      }
-    };
-
-    const debounceConditionsChange = debounce(onConditionsChange, 200);
-
-    onConditionsChange();
-    sorts?.observeDeep(debounceConditionsChange);
-    filters?.observeDeep(debounceConditionsChange);
-    fields?.observeDeep(debounceConditionsChange);
-    rows?.observeDeep(debounceConditionsChange);
-
-    return () => {
-      sorts?.unobserveDeep(debounceConditionsChange);
-      filters?.unobserveDeep(debounceConditionsChange);
-      fields?.unobserveDeep(debounceConditionsChange);
-      rows?.observeDeep(debounceConditionsChange);
-    };
-  }, [fields, rows, sorts, filters, view]);
-
-  return rowOrders;
+export function useRows() {
+  return useRowsContext()?.rowOrders;
 }

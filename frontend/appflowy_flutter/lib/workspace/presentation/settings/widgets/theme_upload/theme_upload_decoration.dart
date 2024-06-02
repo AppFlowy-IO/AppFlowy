@@ -1,4 +1,5 @@
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'theme_upload_view.dart';
@@ -15,7 +16,7 @@ class ThemeUploadDecoration extends StatelessWidget {
         borderRadius: BorderRadius.circular(ThemeUploadWidget.borderRadius),
         color: Theme.of(context).colorScheme.surface,
         border: Border.all(
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(
+          color: AFThemeExtension.of(context).onBackground.withOpacity(
                 ThemeUploadWidget.fadeOpacity,
               ),
         ),
@@ -26,7 +27,7 @@ class ThemeUploadDecoration extends StatelessWidget {
         dashPattern: const [6, 6],
         color: Theme.of(context)
             .colorScheme
-            .onBackground
+            .onSurface
             .withOpacity(ThemeUploadWidget.fadeOpacity),
         radius: const Radius.circular(ThemeUploadWidget.borderRadius),
         child: ClipRRect(

@@ -15,6 +15,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -265,7 +266,7 @@ class _BoardContentState extends State<_BoardContent> {
   BoxDecoration _makeBoxDecoration(BuildContext context) {
     final themeMode = context.read<AppearanceSettingsCubit>().state.themeMode;
     return BoxDecoration(
-      color: Theme.of(context).colorScheme.background,
+      color: AFThemeExtension.of(context).background,
       borderRadius: const BorderRadius.all(Radius.circular(8)),
       border: themeMode == ThemeMode.light
           ? Border.fromBorderSide(

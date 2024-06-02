@@ -52,6 +52,7 @@
 
 [role=textbox] {
   .text-element {
+    @apply my-1;
     &::selection {
       @apply bg-transparent;
     }
@@ -197,20 +198,17 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 .bulleted-icon {
   &:after {
     content: attr(data-letter);
+    font-weight: 500;
   }
 }
 
 .numbered-icon {
   &:after {
     content: attr(data-number) ".";
+    font-weight: 500;
   }
 }
 
-
-.grid-block .grid-scroll-container::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
 
 .image-render {
   .image-resizer {
@@ -238,7 +236,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
   &:hover {
     .container-bg {
-      background: var(--content-blue-100) !important;
+      background: var(--fill-list-hover) !important;
     }
   }
 }
@@ -267,7 +265,39 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 
   .mention-content {
-    @apply ml-5;
+    @apply ml-6;
   }
 
+}
+
+.text-block-icon {
+  @apply flex items-center justify-center;
+}
+
+
+.font-small {
+  .text-element {
+    line-height: 1.7;
+  }
+}
+
+
+.font-large {
+  .text-element {
+    line-height: 1.2;
+  }
+}
+
+.line-height-large {
+  .text-element {
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+}
+
+.line-height-small {
+  .text-element {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
 }

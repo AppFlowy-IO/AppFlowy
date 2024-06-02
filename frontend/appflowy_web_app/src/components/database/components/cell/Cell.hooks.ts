@@ -26,7 +26,7 @@ export function useDateTypeCellDispatcher(fieldId: string) {
 
   const getDateTimeStr = useCallback(
     (timeStamp: string, includeTime?: boolean) => {
-      if (!typeOptionValue) return null;
+      if (!typeOptionValue || !timeStamp) return null;
       const timeFormat = getTimeFormat(typeOptionValue.timeFormat);
       const dateFormat = getDateFormat(typeOptionValue.dateFormat);
       const format = [dateFormat];

@@ -48,6 +48,7 @@ tokio-stream = { workspace = true, features = ["sync"] }
 lib-dispatch = { workspace = true }
 yrs.workspace = true
 rand = "0.8.5"
+semver = "1.0.23"
 
 [dependencies.client-api]
 workspace = true

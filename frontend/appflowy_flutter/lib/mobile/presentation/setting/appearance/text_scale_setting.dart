@@ -45,7 +45,6 @@ class TextScaleSetting extends StatelessWidget {
           showHeader: true,
           showDragHandle: true,
           showDivider: false,
-          showCloseButton: false,
           title: LocaleKeys.settings_appearance_fontScaleFactor.tr(),
           builder: (context) {
             return FontSizeStepper(

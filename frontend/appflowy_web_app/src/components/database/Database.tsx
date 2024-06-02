@@ -1,33 +1,26 @@
-import { DatabaseViewLayout, YDatabase, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { DatabaseContextState } from '@/application/database-yjs';
 import { useId } from '@/components/_shared/context-provider/IdProvider';
 import RecordNotFound from '@/components/_shared/not-found/RecordNotFound';
 import { AFConfigContext } from '@/components/app/AppConfig';
-import { Board } from '@/components/database/board';
-import { Calendar } from '@/components/database/calendar';
-import { DatabaseConditionsContext } from '@/components/database/components/conditions/context';
-import { Grid } from '@/components/database/grid';
-import { DatabaseTabs, TabPanel } from '@/components/database/components/tabs';
+import DatabaseViews from '@/components/database/DatabaseViews';
 import { DatabaseContextProvider } from '@/components/database/DatabaseContext';
-import DatabaseTitle from '@/components/database/DatabaseTitle';
 import { Log } from '@/utils/log';
 import CircularProgress from '@mui/material/CircularProgress';
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import SwipeableViews from 'react-swipeable-views';
-import DatabaseConditions from 'src/components/database/components/conditions/DatabaseConditions';
-import * as Y from 'yjs';
 
-export const Database = memo(() => {
+export const Database = memo((props?: { onNavigateToRow?: (viewId: string, rowId: string) => void }) => {
   const { objectId, workspaceId } = useId() || {};
   const [search, setSearch] = useSearchParams();
-  const viewId = search.get('v');
 
+  const viewId = search.get('v');
   const [doc, setDoc] = useState<YDoc | null>(null);
-  const [rows, setRows] = useState<Y.Map<YDoc> | null>(null); // Map<rowId, YDoc
+  const [rows, setRows] = useState<DatabaseContextState['rowDocMap'] | null>(null); // Map<rowId, YDoc
   const [notFound, setNotFound] = useState<boolean>(false);
   const databaseService = useContext(AFConfigContext)?.service?.databaseService;
 
-  const handleOpenDocument = useCallback(async () => {
+  const handleOpenDatabase = useCallback(async () => {
     if (!databaseService || !workspaceId || !objectId) return;
 
     try {
@@ -35,6 +28,8 @@ export const Database = memo(() => {
       const { databaseDoc, rows } = await databaseService.openDatabase(workspaceId, objectId);
 
       console.log('databaseDoc', databaseDoc.getMap(YjsEditorKey.data_section).toJSON());
+      console.log('rows', rows);
+
       setDoc(databaseDoc);
       setRows(rows);
     } catch (e) {
@@ -45,12 +40,8 @@ export const Database = memo(() => {
 
   useEffect(() => {
     setNotFound(false);
-    void handleOpenDocument();
-  }, [handleOpenDocument]);
-
-  const database = useMemo(() => doc?.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database) as YDatabase, [doc]);
-
-  const views = useMemo(() => database?.get(YjsDatabaseKey.views), [database]);
+    void handleOpenDatabase();
+  }, [handleOpenDatabase]);
 
   const handleChangeView = useCallback(
     (viewId: string) => {
@@ -59,39 +50,34 @@ export const Database = memo(() => {
     [setSearch]
   );
 
-  const viewIds = useMemo(() => (views ? Array.from(views.keys()) : []), [views]);
+  const navigateToRow = useCallback(
+    (rowId: string) => {
+      const currentViewId = objectId || viewId;
 
-  const value = useMemo(() => {
-    return Math.max(
-      0,
-      viewIds.findIndex((id) => id === (viewId ?? objectId))
-    );
-  }, [viewId, viewIds, objectId]);
+      if (props?.onNavigateToRow && currentViewId) {
+        props.onNavigateToRow(currentViewId, rowId);
+        return;
+      }
 
-  const getDatabaseViewComponent = useCallback((layout: DatabaseViewLayout) => {
-    switch (layout) {
-      case DatabaseViewLayout.Grid:
-        return Grid;
-      case DatabaseViewLayout.Board:
-        return Board;
-      case DatabaseViewLayout.Calendar:
-        return Calendar;
-    }
-  }, []);
+      setSearch({ r: rowId });
+    },
+    [props, setSearch, viewId, objectId]
+  );
 
-  const [conditionsExpanded, setConditionsExpanded] = useState<boolean>(false);
-  const toggleExpanded = useCallback(() => {
-    setConditionsExpanded((prev) => !prev);
-  }, []);
+  const databaseId = doc?.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database)?.get(YjsDatabaseKey.id) as string;
 
-  console.log('viewId', viewId, 'objectId', doc, objectId, database);
-  if (!objectId) return null;
+  useEffect(() => {
+    if (!databaseId || !databaseService) return;
+    return () => {
+      void databaseService.closeDatabase(databaseId);
+    };
+  }, [databaseService, databaseId]);
 
-  if (!doc) {
+  if (notFound || !objectId) {
     return <RecordNotFound open={notFound} workspaceId={workspaceId} />;
   }
 
-  if (!rows) {
+  if (!rows || !doc) {
     return (
       <div className={'flex h-full w-full items-center justify-center'}>
         <CircularProgress />
@@ -100,47 +86,16 @@ export const Database = memo(() => {
   }
 
   return (
-    <div className={'relative flex h-full w-full flex-col'}>
-      <DatabaseTitle viewId={objectId} />
-      <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
-        <DatabaseContextProvider viewId={viewId || objectId} doc={doc} rowDocMap={rows} readOnly={true}>
-          <DatabaseConditionsContext.Provider
-            value={{
-              expanded: conditionsExpanded,
-              toggleExpanded,
-            }}
-          >
-            <DatabaseTabs selectedViewId={viewId || objectId} setSelectedViewId={handleChangeView} viewIds={viewIds} />
-            <DatabaseConditions />
-          </DatabaseConditionsContext.Provider>
-          <SwipeableViews
-            slideStyle={{
-              overflow: 'hidden',
-            }}
-            className={'h-full w-full flex-1 overflow-hidden'}
-            axis={'x'}
-            index={value}
-            containerStyle={{ height: '100%' }}
-          >
-            {viewIds.map((viewId, index) => {
-              const layout = Number(views.get(viewId)?.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
-              const Component = getDatabaseViewComponent(layout);
-
-              return (
-                <TabPanel
-                  data-view-id={viewId}
-                  className={'flex h-full w-full flex-col'}
-                  key={viewId}
-                  index={index}
-                  value={value}
-                >
-                  <Component />
-                </TabPanel>
-              );
-            })}
-          </SwipeableViews>
-        </DatabaseContextProvider>
-      </div>
+    <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
+      <DatabaseContextProvider
+        navigateToRow={navigateToRow}
+        viewId={viewId || objectId}
+        databaseDoc={doc}
+        rowDocMap={rows}
+        readOnly={true}
+      >
+        <DatabaseViews onChangeView={handleChangeView} currentViewId={viewId || objectId} />
+      </DatabaseContextProvider>
     </div>
   );
 });

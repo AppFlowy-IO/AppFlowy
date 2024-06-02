@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flutter/material.dart';
 
 // the default font family is empty, so we can use the default font family of the platform
 // the system will choose the default font family of the platform
@@ -20,10 +19,10 @@ const builtInCodeFontFamily = 'RobotoMono';
 abstract class BaseAppearance {
   final white = const Color(0xFFFFFFFF);
 
-  final Set<MaterialState> scrollbarInteractiveStates = <MaterialState>{
-    MaterialState.pressed,
-    MaterialState.hovered,
-    MaterialState.dragged,
+  final Set<WidgetState> scrollbarInteractiveStates = <WidgetState>{
+    WidgetState.pressed,
+    WidgetState.hovered,
+    WidgetState.dragged,
   };
 
   TextStyle getFontStyle({
@@ -34,7 +33,7 @@ abstract class BaseAppearance {
     double? letterSpacing,
     double? lineHeight,
   }) {
-    fontSize = fontSize ?? FontSizes.s12;
+    fontSize = fontSize ?? FontSizes.s14;
     fontWeight = fontWeight ??
         (PlatformExtension.isDesktopOrWeb ? FontWeight.w500 : FontWeight.w400);
     letterSpacing = fontSize * (letterSpacing ?? 0.005);

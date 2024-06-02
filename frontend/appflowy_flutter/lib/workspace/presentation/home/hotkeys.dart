@@ -6,7 +6,7 @@ import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
@@ -141,6 +141,16 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
       keyDownHandler: (_) => _scaleWithStep(-0.1),
     ),
 
+    // Reset app scaling
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.digit0,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => _scaleToSize(1),
+    ),
+
     // Open settings dialog
     openSettingsHotKey(context, widget.userProfile),
   ];
@@ -182,7 +192,11 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
 
     Log.info('scale the app from $currentScaleFactor to $textScale');
 
-    ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => textScale;
-    await windowSizeManager.setScaleFactor(textScale);
+    await _scaleToSize(textScale);
+  }
+
+  Future<void> _scaleToSize(double size) async {
+    ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => size;
+    await windowSizeManager.setScaleFactor(size);
   }
 }

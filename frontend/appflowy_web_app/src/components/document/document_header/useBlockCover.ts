@@ -1,4 +1,4 @@
-import { PageCover, YBlocks, YDoc, YDocument, YjsEditorKey } from '@/application/collab.type';
+import { DocCover, YBlocks, YDoc, YDocument, YjsEditorKey } from '@/application/collab.type';
 import { useEffect, useMemo, useState } from 'react';
 
 export function useBlockCover(doc: YDoc) {
@@ -22,7 +22,7 @@ export function useBlockCover(doc: YDoc) {
     };
   }, [doc]);
 
-  const coverObj: PageCover = useMemo(() => {
+  const coverObj: DocCover = useMemo(() => {
     try {
       return JSON.parse(cover || '');
     } catch (e) {

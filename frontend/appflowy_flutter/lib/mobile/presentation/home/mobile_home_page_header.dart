@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -15,6 +13,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sid
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -36,7 +35,7 @@ class MobileHomePageHeader extends StatelessWidget {
           final isCollaborativeWorkspace =
               context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
           return ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 52),
+            constraints: const BoxConstraints(minHeight: 56),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -45,11 +44,14 @@ class MobileHomePageHeader extends StatelessWidget {
                       ? _MobileWorkspace(userProfile: userProfile)
                       : _MobileUser(userProfile: userProfile),
                 ),
-                IconButton(
-                  onPressed: () => context.push(
+                GestureDetector(
+                  onTap: () => context.push(
                     MobileHomeSettingPage.routeName,
                   ),
-                  icon: const FlowySvg(FlowySvgs.m_setting_m),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: FlowySvg(FlowySvgs.m_setting_m),
+                  ),
                 ),
               ],
             ),
@@ -120,12 +122,12 @@ class _MobileWorkspace extends StatelessWidget {
           },
           child: Row(
             children: [
-              const HSpace(2.0),
               SizedBox.square(
                 dimension: 34.0,
                 child: WorkspaceIcon(
                   workspace: currentWorkspace,
                   iconSize: 26,
+                  fontSize: 16.0,
                   enableEdit: false,
                   onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                         UserWorkspaceEvent.updateWorkspaceIcon(
@@ -142,7 +144,7 @@ class _MobileWorkspace extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        FlowyText.medium(
+                        FlowyText.semibold(
                           currentWorkspace.name,
                           fontSize: 16.0,
                           overflow: TextOverflow.ellipsis,
@@ -151,7 +153,7 @@ class _MobileWorkspace extends StatelessWidget {
                         const FlowySvg(FlowySvgs.list_dropdown_s),
                       ],
                     ),
-                    FlowyText.medium(
+                    FlowyText.regular(
                       userProfile.email.isNotEmpty
                           ? userProfile.email
                           : userProfile.name,

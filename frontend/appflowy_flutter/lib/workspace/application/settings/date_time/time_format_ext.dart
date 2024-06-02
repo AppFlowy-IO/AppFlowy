@@ -8,6 +8,6 @@ extension TimeFormatter on UserTimeFormatPB {
 }
 
 final _toFormat = {
-  UserTimeFormatPB.TwelveHour: DateFormat.Hm(),
-  UserTimeFormatPB.TwentyFourHour: DateFormat.jm(),
+  UserTimeFormatPB.TwentyFourHour: DateFormat.Hm(),
+  UserTimeFormatPB.TwelveHour: DateFormat.jm(),
 };

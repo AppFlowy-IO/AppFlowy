@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 export function DatabaseActions() {
   const { t } = useTranslation();
+
   const sorts = useSortsSelector();
   const filter = useFiltersSelector();
   const conditionsContext = useConditionsContext();

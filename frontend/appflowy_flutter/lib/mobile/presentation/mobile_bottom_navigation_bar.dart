@@ -20,49 +20,40 @@ class MobileBottomNavigationBar extends StatelessWidget {
 
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: BottomNavigationBar(
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        enableFeedback: true,
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            // There is no text shown on the bottom navigation bar, but Exception will be thrown if label is null here.
-            label: 'home',
-            icon: const FlowySvg(FlowySvgs.m_home_unselected_lg),
-            activeIcon: FlowySvg(
-              FlowySvgs.m_home_selected_lg,
-              color: style.colorScheme.primary,
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          enableFeedback: false,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          items: <BottomNavigationBarItem>[
+            const BottomNavigationBarItem(
+              label: 'home',
+              icon: FlowySvg(FlowySvgs.m_home_unselected_m),
+              activeIcon:
+                  FlowySvg(FlowySvgs.m_home_selected_m, blendMode: null),
             ),
-          ),
-          const BottomNavigationBarItem(
-            label: 'favorite',
-            icon: FlowySvg(FlowySvgs.m_favorite_unselected_lg),
-            activeIcon: FlowySvg(
-              FlowySvgs.m_favorite_selected_lg,
-              blendMode: null,
+            const BottomNavigationBarItem(
+              label: 'add',
+              icon: FlowySvg(FlowySvgs.m_home_add_m),
             ),
-          ),
-          // Enable this when search is ready.
-          // BottomNavigationBarItem(
-          //   label: 'search',
-          //   icon: const FlowySvg(FlowySvgs.m_search_lg),
-          //   activeIcon: FlowySvg(
-          //     FlowySvgs.m_search_lg,
-          //     color: style.colorScheme.primary,
-          //   ),
-          // ),
-          BottomNavigationBarItem(
-            label: 'notification',
-            icon: const FlowySvg(FlowySvgs.m_notification_unselected_lg),
-            activeIcon: FlowySvg(
-              FlowySvgs.m_notification_selected_lg,
-              color: style.colorScheme.primary,
+            BottomNavigationBarItem(
+              label: 'notification',
+              icon: const FlowySvg(FlowySvgs.m_home_notification_m),
+              activeIcon: FlowySvg(
+                FlowySvgs.m_home_notification_m,
+                color: style.colorScheme.primary,
+              ),
             ),
-          ),
-        ],
-        currentIndex: navigationShell.currentIndex,
-        onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
+          ],
+          currentIndex: navigationShell.currentIndex,
+          onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
+        ),
       ),
     );
   }
