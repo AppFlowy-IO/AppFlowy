@@ -6,32 +6,32 @@ use crate::services::cell::insert_text_cell;
 use crate::services::filter::PreFillCellsWithFilter;
 
 impl TimeFilterPB {
-  pub fn is_visible(&self, cell_minutes: Option<i64>) -> bool {
+  pub fn is_visible(&self, cell_time: Option<i64>) -> bool {
     if self.content.is_empty() {
       match self.condition {
         NumberFilterConditionPB::NumberIsEmpty => {
-          return cell_minutes.is_none();
+          return cell_time.is_none();
         },
         NumberFilterConditionPB::NumberIsNotEmpty => {
-          return cell_minutes.is_some();
+          return cell_time.is_some();
         },
         _ => {},
       }
     }
 
-    if cell_minutes.is_none() {
+    if cell_time.is_none() {
       return false;
     }
 
-    let minutes = cell_minutes.unwrap();
-    let content_minutes = self.content.parse::<i64>().unwrap_or_default();
+    let time = cell_time.unwrap();
+    let content_time = self.content.parse::<i64>().unwrap_or_default();
     match self.condition {
-      NumberFilterConditionPB::Equal => minutes == content_minutes,
-      NumberFilterConditionPB::NotEqual => minutes != content_minutes,
-      NumberFilterConditionPB::GreaterThan => minutes > content_minutes,
-      NumberFilterConditionPB::LessThan => minutes < content_minutes,
-      NumberFilterConditionPB::GreaterThanOrEqualTo => minutes >= content_minutes,
-      NumberFilterConditionPB::LessThanOrEqualTo => minutes <= content_minutes,
+      NumberFilterConditionPB::Equal => time == content_time,
+      NumberFilterConditionPB::NotEqual => time != content_time,
+      NumberFilterConditionPB::GreaterThan => time > content_time,
+      NumberFilterConditionPB::LessThan => time < content_time,
+      NumberFilterConditionPB::GreaterThanOrEqualTo => time >= content_time,
+      NumberFilterConditionPB::LessThanOrEqualTo => time <= content_time,
       _ => true,
     }
   }

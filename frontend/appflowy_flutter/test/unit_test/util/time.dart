@@ -13,4 +13,12 @@ void main() {
     expect(parseTime('10a'), null);
     expect(parseTime('2h'), 120);
   });
+
+  test('formatTime should format time minutes to formatted string', () {
+    expect(formatTime(5), "5m");
+    expect(formatTime(75), "1h 15m");
+    expect(formatTime(120), "2h");
+    expect(formatTime(-50), "");
+    expect(formatTime(0), "0m");
+  });
 }

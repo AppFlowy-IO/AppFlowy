@@ -30,8 +30,8 @@ impl std::convert::From<String> for TimeCellData {
 
 impl ToString for TimeCellData {
   fn to_string(&self) -> String {
-    if let Some(minutes) = self.0 {
-      minutes.to_string()
+    if let Some(time) = self.0 {
+      time.to_string()
     } else {
       "".to_string()
     }

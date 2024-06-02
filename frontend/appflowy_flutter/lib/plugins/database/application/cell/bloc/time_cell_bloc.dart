@@ -37,7 +37,12 @@ class TimeCellBloc extends Bloc<TimeCellEvent, TimeCellState> {
       (event, emit) async {
         await event.when(
           didReceiveCellUpdate: (content) {
-            emit(state.copyWith(content: content?.time ?? ""));
+            emit(
+              state.copyWith(
+                content:
+                    content != null ? formatTime(content.time.toInt()) : "",
+              ),
+            );
           },
           didUpdateField: (fieldInfo) {
             final wrap = fieldInfo.wrapCellContent;
@@ -103,8 +108,9 @@ class TimeCellState with _$TimeCellState {
 
   factory TimeCellState.initial(TimeCellController cellController) {
     final wrap = cellController.fieldInfo.wrapCellContent;
+    final cellData = cellController.getCellData();
     return TimeCellState(
-      content: cellController.getCellData()?.time ?? "",
+      content: cellData != null ? formatTime(cellData.time.toInt()) : "",
       wrap: wrap ?? true,
     );
   }

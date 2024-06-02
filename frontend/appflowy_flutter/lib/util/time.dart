@@ -29,3 +29,15 @@ int? parseTime(String timerStr) {
 
   return res;
 }
+
+String formatTime(int minutes) {
+  if (minutes >= 60) {
+    if (minutes % 60 == 0) {
+      return "${minutes ~/ 60}h";
+    }
+    return "${minutes ~/ 60}h ${minutes % 60}m";
+  } else if (minutes >= 0) {
+    return "${minutes}m";
+  }
+  return "";
+}

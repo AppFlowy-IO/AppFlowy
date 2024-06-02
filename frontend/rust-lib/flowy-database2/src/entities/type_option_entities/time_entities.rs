@@ -23,9 +23,6 @@ impl From<TimeTypeOptionPB> for TimeTypeOption {
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct TimeCellDataPB {
-  #[pb(index = 1)]
-  pub time: String,
-
   #[pb(index = 2)]
-  pub minutes: i64,
+  pub time: i64,
 }

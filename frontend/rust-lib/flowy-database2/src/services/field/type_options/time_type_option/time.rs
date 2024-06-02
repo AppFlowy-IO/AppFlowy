@@ -38,15 +38,13 @@ impl TypeOptionCellDataSerde for TimeTypeOption {
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
-    if let Some(minutes) = cell_data.0 {
+    if let Some(time) = cell_data.0 {
       return TimeCellDataPB {
-        minutes,
-        time: TimeTypeOption::format_cell_data(minutes),
+        time,
       };
     }
     TimeCellDataPB {
-      minutes: i64::default(),
-      time: "".to_string(),
+      time: i64::default(),
     }
   }
 
@@ -59,18 +57,6 @@ impl TimeTypeOption {
   pub fn new() -> Self {
     Self
   }
-
-  pub(crate) fn format_cell_data(minutes: i64) -> String {
-    if minutes >= 60 {
-      if minutes % 60 == 0 {
-        return format!("{}h", minutes / 60);
-      }
-      return format!("{}h {}m", minutes / 60, minutes % 60);
-    } else if minutes >= 0 {
-      return format!("{}m", minutes);
-    }
-    "".to_string()
-  }
 }
 
 impl TypeOptionTransform for TimeTypeOption {}
@@ -81,8 +67,8 @@ impl CellDataDecoder for TimeTypeOption {
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    if let Some(minutes) = cell_data.0 {
-      return TimeTypeOption::format_cell_data(minutes);
+    if let Some(time) = cell_data.0 {
+      return time.to_string();
     }
     "".to_string()
   }
@@ -127,45 +113,5 @@ impl TypeOptionCellDataCompare for TimeTypeOption {
   ) -> Ordering {
     let order = cell_data.0.cmp(&other_cell_data.0);
     sort_condition.evaluate_order(order)
-  }
-}
-
-#[cfg(test)]
-mod tests {
-  use crate::services::field::TimeTypeOption;
-
-  #[test]
-  fn format_cell_data_test() {
-    struct TimeFormatTest<'a> {
-      minutes: i64,
-      exp: &'a str,
-    }
-
-    let tests = vec![
-      TimeFormatTest {
-        minutes: 5,
-        exp: "5m",
-      },
-      TimeFormatTest {
-        minutes: 75,
-        exp: "1h 15m",
-      },
-      TimeFormatTest {
-        minutes: 120,
-        exp: "2h",
-      },
-      TimeFormatTest {
-        minutes: 0,
-        exp: "0m",
-      },
-      TimeFormatTest {
-        minutes: -50,
-        exp: "",
-      },
-    ];
-    for test in tests {
-      let res = TimeTypeOption::format_cell_data(test.minutes);
-      assert_eq!(res, test.exp.to_string());
-    }
   }
 }
