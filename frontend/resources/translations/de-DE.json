@@ -156,6 +156,10 @@
     "aiServerUnavailable": "Beim Generieren einer Antwort ist ein Fehler aufgetreten.",
     "clickToRetry": "Erneut versuchen",
     "regenerateAnswer": "Regenerieren",
+    "question1": "Wie verwendet man Kanban zur Aufgabenverwaltung?",
+    "question2": "Erkläre mir die GTD-Methode",
+    "question3": "Warum sollte ich Rust verwenden?",
+    "question4": "Gebe mir ein Rezept mit dem, was in meiner Küche ist",
     "aiMistakePrompt": "KI kann Fehler machen. Überprüfe wichtige Informationen."
   },
   "trash": {
