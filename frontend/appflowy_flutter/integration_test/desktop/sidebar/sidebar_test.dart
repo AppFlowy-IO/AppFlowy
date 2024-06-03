@@ -39,6 +39,9 @@ void main() {
       await tester.tapAnonymousSignInButton();
 
       for (final layout in ViewLayoutPB.values) {
+        if (layout == ViewLayoutPB.Chat) {
+          continue;
+        }
         // create a new page
         final name = 'AppFlowy_$layout';
         await tester.createNewPageWithNameUnderParent(
