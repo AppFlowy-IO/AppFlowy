@@ -50,7 +50,10 @@ class ViewAddButton extends StatelessWidget {
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.bottomWithLeftAligned,
       actions: _actions,
-      offset: const Offset(0, 4),
+      offset: const Offset(0, 8),
+      constraints: const BoxConstraints(
+        minWidth: 200,
+      ),
       buildChild: (popover) {
         return FlowyIconButton(
           width: 24,
@@ -121,7 +124,7 @@ class ViewImportActionWrapper extends ActionCell {
   final DocumentPluginBuilder pluginBuilder;
 
   @override
-  Widget? leftIcon(Color iconColor) => const FlowySvg(FlowySvgs.import_s);
+  Widget? leftIcon(Color iconColor) => const FlowySvg(FlowySvgs.icon_import_s);
 
   @override
   String get name => LocaleKeys.moreAction_import.tr();

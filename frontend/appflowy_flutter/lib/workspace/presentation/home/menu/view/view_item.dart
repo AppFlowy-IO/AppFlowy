@@ -501,7 +501,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             fontSize: 16.0,
             lineHeight: 1.4,
           )
-        : widget.view.defaultIcon();
+        : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
 
     return AppFlowyPopover(
       offset: const Offset(20, 0),
