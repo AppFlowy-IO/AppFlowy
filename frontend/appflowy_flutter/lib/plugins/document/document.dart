@@ -145,7 +145,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
               ? [
                   DocumentCollaborators(
                     key: ValueKey('collaborators_${view.id}'),
-                    width: 150,
+                    width: 120,
                     height: 32,
                     view: view,
                   ),

@@ -33,6 +33,7 @@ class ViewTitleBar extends StatelessWidget {
             return const SizedBox.shrink();
           }
           return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             child: SizedBox(
               height: 24,
               child: Row(children: _buildViewTitles(context, ancestors)),
@@ -216,7 +217,6 @@ class _ViewTitleState extends State<_ViewTitle> {
             FlowyText.emoji(
               state.icon,
               fontSize: 14.0,
-              lineHeight: 1.3,
             ),
             const HSpace(4.0),
           ],
@@ -225,7 +225,6 @@ class _ViewTitleState extends State<_ViewTitle> {
             child: FlowyText.regular(
               state.name,
               overflow: TextOverflow.ellipsis,
-              lineHeight: 1.3,
             ),
           ),
         ],

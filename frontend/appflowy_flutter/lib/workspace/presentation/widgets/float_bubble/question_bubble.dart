@@ -2,6 +2,7 @@ import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -59,6 +60,21 @@ class _BubbleActionListState extends State<BubbleActionList> {
     );
     actions.add(FlowyVersionDescription());
 
+    final (color, borderColor, shadowColor, iconColor) =
+        Theme.of(context).isLightMode
+            ? (
+                Colors.white,
+                const Color(0x2D454849),
+                const Color(0x14000000),
+                Colors.black,
+              )
+            : (
+                const Color(0xFF242B37),
+                const Color(0x2DFFFFFF),
+                const Color(0x14000000),
+                Colors.white,
+              );
+
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.topWithRightAligned,
       actions: actions,
@@ -66,37 +82,34 @@ class _BubbleActionListState extends State<BubbleActionList> {
       buildChild: (controller) {
         return FlowyTooltip(
           message: LocaleKeys.questionBubble_help.tr(),
-          child: GestureDetector(
-            child: Container(
-              padding: const EdgeInsets.all(10.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18.0),
-                border: Border.all(
-                  color: const Color(0x2E45494A),
-                  width: 0.5,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              child: Container(
+                padding: const EdgeInsets.all(10.0),
+                decoration: ShapeDecoration(
+                  color: color,
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 0.50, color: borderColor),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  shadows: [
+                    BoxShadow(
+                      color: shadowColor,
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: FlowySvg(
+                  FlowySvgs.help_center_s,
+                  color: iconColor,
                 ),
               ),
-              child: const FlowySvg(
-                FlowySvgs.help_center_s,
-              ),
+              onTap: () => controller.show(),
             ),
-            onTap: () => controller.show(),
           ),
         );
-        // return FlowyTextButton(
-        //   '?',
-        //   tooltip: LocaleKeys.questionBubble_help.tr(),
-        //   fontWeight: FontWeight.w600,
-        //   fontColor: fontColor,
-        //   fillColor: fillColor,
-        //   hoverColor: Theme.of(context).colorScheme.primary,
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   radius: Corners.s10Border,
-        //   onPressed: () {
-        //     toggle();
-        //     controller.show();
-        //   },
-        // );
       },
       onClosed: toggle,
       onSelected: (action, controller) {

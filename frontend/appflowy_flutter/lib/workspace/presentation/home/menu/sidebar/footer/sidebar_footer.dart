@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -47,22 +49,15 @@ class SidebarTrashButton extends StatelessWidget {
               LocaleKeys.trash_text.tr(),
               lineHeight: 1.15,
             ),
+            onTap: () {
+              getIt<MenuSharedState>().latestOpenView = null;
+              getIt<TabsBloc>().add(
+                TabsEvent.openPlugin(
+                  plugin: makePlugin(pluginType: PluginType.trash),
+                ),
+              );
+            },
           );
-
-          // MouseRegion(
-          //   cursor: SystemMouseCursors.click,
-          //   child: GestureDetector(
-          //     onTap: () {
-          //       getIt<MenuSharedState>().latestOpenView = null;
-          //       getIt<TabsBloc>().add(
-          //         TabsEvent.openPlugin(
-          //           plugin: makePlugin(pluginType: PluginType.trash),
-          //         ),
-          //       );
-          //     },
-          //     child: const FlowySvg(FlowySvgs.sidebar_footer_trash_m),
-          //   ),
-          // );
         },
       ),
     );

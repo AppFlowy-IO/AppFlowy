@@ -499,6 +499,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         ? FlowyText.emoji(
             widget.view.icon.value,
             fontSize: 16.0,
+            lineHeight: 1.4,
           )
         : widget.view.defaultIcon();
 

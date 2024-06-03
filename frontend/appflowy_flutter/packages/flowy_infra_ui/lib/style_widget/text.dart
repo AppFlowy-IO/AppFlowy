@@ -166,14 +166,12 @@ class FlowyText extends StatelessWidget {
         text,
         maxLines: maxLines,
         textAlign: textAlign,
-        strutStyle: strutStyle,
         style: textStyle,
       );
     } else {
       child = Text(
         text,
         maxLines: maxLines,
-        strutStyle: strutStyle,
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
