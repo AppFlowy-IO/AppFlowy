@@ -1,10 +1,9 @@
 import { DatabaseViewLayout, ViewLayout, YjsDatabaseKey, YjsFolderKey, YView } from '@/application/collab.type';
 import { useDatabaseView } from '@/application/database-yjs';
 import { useFolderContext } from '@/application/folder-yjs';
-import { useId } from '@/components/_shared/context-provider/IdProvider';
 import { DatabaseActions } from '@/components/database/components/conditions';
 import { Tooltip } from '@mui/material';
-import { forwardRef, FunctionComponent, SVGProps, useCallback, useEffect, useMemo } from 'react';
+import { forwardRef, FunctionComponent, SVGProps, useCallback, useMemo } from 'react';
 import { ViewTabs, ViewTab } from './ViewTabs';
 import { useTranslation } from 'react-i18next';
 
@@ -30,7 +29,6 @@ const DatabaseIcons: {
 
 export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
   ({ viewIds, selectedViewId, setSelectedViewId }, ref) => {
-    const objectId = useId().objectId;
     const { t } = useTranslation();
     const folder = useFolderContext();
     const view = useDatabaseView();
@@ -39,13 +37,6 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     const handleChange = (_: React.SyntheticEvent, newValue: string) => {
       setSelectedViewId?.(newValue);
     };
-
-    useEffect(() => {
-      if (selectedViewId === undefined) {
-        setSelectedViewId?.(objectId);
-      }
-    }, [selectedViewId, setSelectedViewId, objectId]);
-    const isSelected = useMemo(() => viewIds.some((viewId) => viewId === selectedViewId), [viewIds, selectedViewId]);
 
     const getFolderView = useCallback(
       (viewId: string) => {
@@ -80,7 +71,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             scrollButtons={false}
             variant='scrollable'
             allowScrollButtonsMobile
-            value={isSelected ? selectedViewId : objectId}
+            value={selectedViewId}
             onChange={handleChange}
           >
             {viewIds.map((viewId) => {
@@ -94,11 +85,12 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
               return (
                 <ViewTab
                   key={viewId}
+                  data-testid={`view-tab-${viewId}`}
                   icon={<Icon className={'h-4 w-4'} />}
                   iconPosition='start'
                   color='inherit'
                   label={
-                    <Tooltip title={name} placement={'right'}>
+                    <Tooltip title={name} enterDelay={1000} enterNextDelay={1000} placement={'right'}>
                       <span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>
                     </Tooltip>
                   }

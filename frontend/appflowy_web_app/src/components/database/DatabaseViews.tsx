@@ -13,19 +13,21 @@ import DatabaseConditions from 'src/components/database/components/conditions/Da
 
 function DatabaseViews({
   onChangeView,
-  currentViewId,
+  viewId,
+  iidIndex,
 }: {
   onChangeView: (viewId: string) => void;
-  currentViewId: string;
+  viewId: string;
+  iidIndex: string;
 }) {
-  const { childViews, viewIds } = useDatabaseViewsSelector();
+  const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex);
 
   const value = useMemo(() => {
     return Math.max(
       0,
-      viewIds.findIndex((id) => id === currentViewId)
+      viewIds.findIndex((id) => id === viewId)
     );
-  }, [currentViewId, viewIds]);
+  }, [viewId, viewIds]);
 
   const [conditionsExpanded, setConditionsExpanded] = useState<boolean>(false);
   const toggleExpanded = useCallback(() => {
@@ -58,7 +60,7 @@ function DatabaseViews({
           toggleExpanded,
         }}
       >
-        <DatabaseTabs selectedViewId={currentViewId} setSelectedViewId={onChangeView} viewIds={viewIds} />
+        <DatabaseTabs selectedViewId={viewId} setSelectedViewId={onChangeView} viewIds={viewIds} />
         <DatabaseConditions />
       </DatabaseConditionsContext.Provider>
       <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>

@@ -12,7 +12,7 @@ import React, { Suspense, useCallback, useContext, useEffect, useMemo, useState 
 import RecordNotFound from 'src/components/_shared/not-found/RecordNotFound';
 
 export const Document = () => {
-  const { objectId: documentId, workspaceId } = useId() || {};
+  const { objectId: documentId } = useId() || {};
   const [doc, setDoc] = useState<YDoc | null>(null);
   const [notFound, setNotFound] = useState<boolean>(false);
   const extra = usePageInfo(documentId).extra;
@@ -27,17 +27,17 @@ export const Document = () => {
   const documentService = useContext(AFConfigContext)?.service?.documentService;
 
   const handleOpenDocument = useCallback(async () => {
-    if (!documentService || !workspaceId || !documentId) return;
+    if (!documentService || !documentId) return;
     try {
       setDoc(null);
-      const doc = await documentService.openDocument(workspaceId, documentId);
+      const doc = await documentService.openDocument(documentId);
 
       setDoc(doc);
     } catch (e) {
       Log.error(e);
       setNotFound(true);
     }
-  }, [documentService, workspaceId, documentId]);
+  }, [documentService, documentId]);
 
   useEffect(() => {
     setNotFound(false);
@@ -105,7 +105,7 @@ export const Document = () => {
         </div>
       )}
 
-      <RecordNotFound open={notFound} workspaceId={workspaceId} />
+      <RecordNotFound open={notFound} />
     </>
   );
 };

@@ -64,7 +64,7 @@ export const useDatabaseView = () => {
   const database = useDatabase();
   const viewId = useViewId();
 
-  return viewId ? database.get(YjsDatabaseKey.views)?.get(viewId) : undefined;
+  return viewId ? database?.get(YjsDatabaseKey.views)?.get(viewId) : undefined;
 };
 
 export function useDatabaseFields() {

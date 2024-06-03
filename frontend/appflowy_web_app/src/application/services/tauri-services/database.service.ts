@@ -7,24 +7,15 @@ export class TauriDatabaseService implements DatabaseService {
     //
   }
 
+  async getWorkspaceDatabases(): Promise<{ views: string[]; database_id: string }[]> {
+    return Promise.reject('Not implemented');
+  }
+
   async closeDatabase(_databaseId: string) {
     return Promise.reject('Not implemented');
   }
 
-  async openDatabase(
-    _workspaceId: string,
-    _viewId: string
-  ): Promise<{
-    databaseDoc: YDoc;
-    rows: Y.Map<YDoc>;
-  }> {
-    return Promise.reject('Not implemented');
-  }
-
-  async getDatabase(
-    _workspaceId: string,
-    _databaseId: string
-  ): Promise<{
+  async openDatabase(_viewId: string): Promise<{
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
   }> {

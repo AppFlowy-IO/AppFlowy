@@ -7,3 +7,4 @@ tsconfig.json
 vite.config.ts
 **/*.cy.tsx
 *.config.ts
+coverage/

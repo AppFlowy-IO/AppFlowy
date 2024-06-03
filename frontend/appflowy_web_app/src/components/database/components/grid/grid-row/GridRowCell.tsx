@@ -1,5 +1,6 @@
+import { areEqual } from 'react-window';
 import { GridColumnType } from '../grid-column';
-import React from 'react';
+import React, { memo } from 'react';
 import GridCell from '../grid-cell/GridCell';
 
 export interface GridRowCellProps {
@@ -11,7 +12,7 @@ export interface GridRowCellProps {
   onResize?: (rowIndex: number, columnIndex: number, size: { width: number; height: number }) => void;
 }
 
-export function GridRowCell({ onResize, rowIndex, columnIndex, rowId, fieldId, type }: GridRowCellProps) {
+export const GridRowCell = memo(({ onResize, rowIndex, columnIndex, rowId, fieldId, type }: GridRowCellProps) => {
   if (type === GridColumnType.Field && fieldId) {
     return (
       <GridCell rowIndex={rowIndex} onResize={onResize} rowId={rowId} fieldId={fieldId} columnIndex={columnIndex} />
@@ -23,6 +24,6 @@ export function GridRowCell({ onResize, rowIndex, columnIndex, rowId, fieldId, t
   }
 
   return null;
-}
+}, areEqual);
 
 export default GridRowCell;

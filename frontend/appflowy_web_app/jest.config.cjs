@@ -17,4 +17,7 @@ module.exports = {
     '(.*)/node_modules/nanoid/.+\\.(j|t)sx?$': 'ts-jest',
   },
   'transformIgnorePatterns': [`/node_modules/(?!${esModules})`],
+  testMatch: ['**/*.test.ts'],
+  coverageDirectory: '<rootDir>/coverage/jest',
+  collectCoverage: true,
 };

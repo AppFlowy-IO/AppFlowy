@@ -110,7 +110,7 @@ export async function batchCollabs(
 
     const { doc } = await getCollabStorage(id, type);
 
-    applyYDoc(doc, data);
+    applyYDoc(doc, new Uint8Array(data));
 
     rowCallback?.(id, doc);
   }
