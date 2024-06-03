@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class ChatErrorMessage extends StatelessWidget {
   final Message message;
   @override
   Widget build(BuildContext context) {
-    final canRetry = message.metadata?["canRetry"] != null;
+    final canRetry = message.metadata?[canRetryKey] != null;
 
     if (canRetry) {
       return Column(
@@ -25,32 +26,9 @@ class ChatErrorMessage extends StatelessWidget {
           Center(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: FlowyText(
-                    LocaleKeys.chat_aiServerUnavailable.tr(),
-                    fontSize: 14,
-                  ),
-                ),
+                _aiUnvaliable(),
                 const VSpace(10),
-                FlowyButton(
-                  radius: BorderRadius.circular(20),
-                  useIntrinsicWidth: true,
-                  text: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: FlowyText(
-                      LocaleKeys.chat_regenerateAnswer.tr(),
-                      fontSize: 14,
-                    ),
-                  ),
-                  onTap: onRetryPressed,
-                  iconPadding: 0,
-                  leftIcon: const Icon(
-                    Icons.refresh,
-                    size: 20,
-                  ),
-                ),
+                _retryButton(),
               ],
             ),
           ),
@@ -72,5 +50,35 @@ class ChatErrorMessage extends StatelessWidget {
         ),
       );
     }
+  }
+
+  FlowyButton _retryButton() {
+    return FlowyButton(
+      radius: BorderRadius.circular(20),
+      useIntrinsicWidth: true,
+      text: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: FlowyText(
+          LocaleKeys.chat_regenerateAnswer.tr(),
+          fontSize: 14,
+        ),
+      ),
+      onTap: onRetryPressed,
+      iconPadding: 0,
+      leftIcon: const Icon(
+        Icons.refresh,
+        size: 20,
+      ),
+    );
+  }
+
+  Padding _aiUnvaliable() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: FlowyText(
+        LocaleKeys.chat_aiServerUnavailable.tr(),
+        fontSize: 14,
+      ),
+    );
   }
 }

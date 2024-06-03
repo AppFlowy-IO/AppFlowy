@@ -84,7 +84,7 @@ class _AIChatPageState extends State<AIChatPage> {
                 theme: buildTheme(context),
                 customMessageBuilder: _customMessageBuilder,
                 onEndReached: () async {
-                  if (state.hasMore &&
+                  if (state.hasMorePrevMessage &&
                       state.loadingPreviousStatus !=
                           const LoadingState.loading()) {
                     blocContext
@@ -94,7 +94,8 @@ class _AIChatPageState extends State<AIChatPage> {
                 },
                 emptyState: BlocBuilder<ChatBloc, ChatState>(
                   builder: (context, state) {
-                    return state.loadingStatus == const LoadingState.finish()
+                    return state.initialLoadingStatus ==
+                            const LoadingState.finish()
                         ? const ChatWelcomePage()
                         : const Center(
                             child: CircularProgressIndicator.adaptive(),
@@ -113,7 +114,7 @@ class _AIChatPageState extends State<AIChatPage> {
                       child: child,
                     );
                   } else {
-                    final messageType = restoreOnetimeMessageType(
+                    final messageType = onetimeMessageTypeFromMeta(
                       message.metadata,
                     );
                     if (messageType == OnetimeMessageType.serverStreamError) {
@@ -224,7 +225,7 @@ class _AIChatPageState extends State<AIChatPage> {
     required int messageWidth,
   }) {
     // iteration custom message type
-    final messageType = restoreOnetimeMessageType(message.metadata);
+    final messageType = onetimeMessageTypeFromMeta(message.metadata);
     if (messageType == null) {
       return const SizedBox.shrink();
     }

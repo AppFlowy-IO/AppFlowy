@@ -14,6 +14,8 @@ import 'chat_message_listener.dart';
 
 part 'chat_bloc.freezed.dart';
 
+const canRetryKey = "canRetry";
+
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
     required ViewPB view,
@@ -33,25 +35,32 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         }
       },
       chatErrorMessageCallback: (err) {
-        Log.error("chat error: ${err.errorMessage}");
-        final metadata = OnetimeMessageType.serverStreamError.toMap();
-        if (state.lastSentMessage != null) {
-          metadata["canRetry"] = "true";
+        if (!isClosed) {
+          Log.error("chat error: ${err.errorMessage}");
+          final metadata = OnetimeMessageType.serverStreamError.toMap();
+          if (state.lastSentMessage != null) {
+            metadata[canRetryKey] = "true";
+          }
+          final error = CustomMessage(
+            metadata: metadata,
+            author: const User(id: "system"),
+            id: 'system',
+          );
+          add(ChatEvent.streaming([error]));
+          add(const ChatEvent.didFinishStreaming());
         }
-        final error = CustomMessage(
-          metadata: metadata,
-          author: const User(id: "system"),
-          id: 'system',
-        );
-        add(ChatEvent.streaming([error]));
       },
       latestMessageCallback: (list) {
-        final messages = list.messages.map(_createChatMessage).toList();
-        add(ChatEvent.didLoadLatestMessages(messages));
+        if (!isClosed) {
+          final messages = list.messages.map(_createChatMessage).toList();
+          add(ChatEvent.didLoadLatestMessages(messages));
+        }
       },
       prevMessageCallback: (list) {
-        final messages = list.messages.map(_createChatMessage).toList();
-        add(ChatEvent.didLoadPreviousMessages(messages, list.hasMore));
+        if (!isClosed) {
+          final messages = list.messages.map(_createChatMessage).toList();
+          add(ChatEvent.didLoadPreviousMessages(messages, list.hasMore));
+        }
       },
       finishAnswerQuestionCallback: () {
         if (!isClosed) {
@@ -122,7 +131,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               state.copyWith(
                 messages: uniqueMessages,
                 loadingPreviousStatus: const LoadingState.finish(),
-                hasMore: hasMore,
+                hasMorePrevMessage: hasMore,
               ),
             );
           },
@@ -132,7 +141,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             emit(
               state.copyWith(
                 messages: uniqueMessages,
-                loadingStatus: const LoadingState.finish(),
+                initialLoadingStatus: const LoadingState.finish(),
               ),
             );
           },
@@ -160,6 +169,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ..insert(0, loadingMessage);
             emit(
               state.copyWith(
+                lastSentMessage: null,
                 messages: allMessages,
                 answerQuestionStatus: const LoadingState.loading(),
                 relatedQuestions: [],
@@ -307,11 +317,20 @@ class ChatState with _$ChatState {
     required ViewPB view,
     required List<Message> messages,
     required UserProfilePB userProfile,
-    required LoadingState loadingStatus,
+    // When opening the chat, the initial loading status will be set as loading.
+    //After the initial loading is done, the status will be set as finished.
+    required LoadingState initialLoadingStatus,
+    // When loading previous messages, the status will be set as loading.
+    // After the loading is done, the status will be set as finished.
     required LoadingState loadingPreviousStatus,
+    // When sending a user message, the status will be set as loading.
+    // After the message is sent, the status will be set as finished.
     required LoadingState answerQuestionStatus,
-    required bool hasMore,
+    // Indicate whether there are more previous messages to load.
+    required bool hasMorePrevMessage,
+    // The related questions that are received after the user message is sent.
     required List<RelatedQuestionPB> relatedQuestions,
+    // The last user message that is sent to the server.
     ChatMessagePB? lastSentMessage,
   }) = _ChatState;
 
@@ -320,10 +339,10 @@ class ChatState with _$ChatState {
         view: view,
         messages: [],
         userProfile: userProfile,
-        loadingStatus: const LoadingState.finish(),
+        initialLoadingStatus: const LoadingState.finish(),
         loadingPreviousStatus: const LoadingState.finish(),
         answerQuestionStatus: const LoadingState.finish(),
-        hasMore: true,
+        hasMorePrevMessage: true,
         relatedQuestions: [],
       );
 }
@@ -360,7 +379,7 @@ extension OnetimeMessageTypeExtension on OnetimeMessageType {
   }
 }
 
-OnetimeMessageType? restoreOnetimeMessageType(Map<String, dynamic>? metadata) {
+OnetimeMessageType? onetimeMessageTypeFromMeta(Map<String, dynamic>? metadata) {
   if (metadata == null) {
     return null;
   }
