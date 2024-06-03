@@ -64,6 +64,7 @@ class NotificationButton extends StatelessWidget {
       children: [
         const FlowySvg(
           FlowySvgs.notification_s,
+          opacity: 0.7,
         ),
         if (hasUnreads)
           Positioned(
