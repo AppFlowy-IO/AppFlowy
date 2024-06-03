@@ -1,17 +1,17 @@
-import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_select.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_select.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:bloc_test/bloc_test.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
-import 'package:appflowy/user/application/user_settings_service.dart';
 
 import '../util.dart';
 
@@ -41,7 +41,6 @@ void main() {
       AppTheme.fallback,
       appearanceSettings.themeMode,
       appearanceSettings.font,
-      appearanceSettings.monospaceFont,
       appearanceSettings.layoutDirection,
       appearanceSettings.textDirection,
       appearanceSettings.enableRtlToolbarItems,
