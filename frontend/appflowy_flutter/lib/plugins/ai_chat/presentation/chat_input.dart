@@ -111,7 +111,7 @@ class _ChatInputState extends State<ChatInput> {
       child: Padding(
         padding: inputPadding,
         child: Material(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(30),
           color: isMobile
               ? Theme.of(context).colorScheme.surfaceContainer
               : Theme.of(context).colorScheme.surfaceContainerHighest,
