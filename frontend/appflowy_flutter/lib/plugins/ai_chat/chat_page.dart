@@ -99,7 +99,17 @@ class _AIChatPageState extends State<AIChatPage> {
                   builder: (context, state) {
                     return state.initialLoadingStatus ==
                             const LoadingState.finish()
-                        ? const ChatWelcomePage()
+                        ? Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 100),
+                            child: ChatWelcomePage(
+                              onSelectedQuestion: (question) {
+                                blocContext
+                                    .read<ChatBloc>()
+                                    .add(ChatEvent.sendMessage(question));
+                              },
+                            ),
+                          )
                         : const Center(
                             child: CircularProgressIndicator.adaptive(),
                           );
