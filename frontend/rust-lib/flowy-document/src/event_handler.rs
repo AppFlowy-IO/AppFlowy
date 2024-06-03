@@ -56,6 +56,8 @@ pub(crate) async fn open_document_handler(
   let manager = upgrade_document(manager)?;
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
+  manager.open_document(&doc_id).await?;
+
   let document = manager.get_document(&doc_id).await?;
   let document_data = document.lock().get_document_data()?;
   data_result_ok(DocumentDataPB::from(document_data))
