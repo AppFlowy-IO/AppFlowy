@@ -446,10 +446,10 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       } else {
         // ··· more action button
         children.add(_buildViewMoreActionButton(context));
-        children.add(const HSpace(8.0));
         // only support add button for document layout
         if (widget.view.layout == ViewLayoutPB.Document) {
           // + button
+          children.add(const HSpace(8.0));
           children.add(_buildViewAddButton(context));
         }
         children.add(const HSpace(4.0));
