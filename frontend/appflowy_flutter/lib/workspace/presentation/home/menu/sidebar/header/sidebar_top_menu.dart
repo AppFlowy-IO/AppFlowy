@@ -91,13 +91,16 @@ class SidebarTopMenu extends StatelessWidget {
           padding: const EdgeInsets.only(top: 12.0),
           child: FlowyTooltip(
             richMessage: textSpan,
-            child: FlowyIconButton(
-              width: 24,
-              onPressed: () => context
+            child: Listener(
+              onPointerDown: (_) => context
                   .read<HomeSettingBloc>()
                   .add(const HomeSettingEvent.collapseMenu()),
-              iconPadding: const EdgeInsets.all(4),
-              icon: const FlowySvg(FlowySvgs.hide_menu_s),
+              child: FlowyIconButton(
+                width: 24,
+                onPressed: () {},
+                iconPadding: const EdgeInsets.all(4),
+                icon: const FlowySvg(FlowySvgs.hide_menu_s),
+              ),
             ),
           ),
         ),

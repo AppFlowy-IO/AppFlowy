@@ -429,15 +429,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       // icon
       _buildViewIconButton(),
       const HSpace(6),
-      // const SizedBox(
-      //   width: 6.0,
-      //   height: 1,
-      // ),
       // title
       Expanded(
         child: FlowyText.regular(
           widget.view.name,
           overflow: TextOverflow.ellipsis,
+          lineHeight: 1.1,
         ),
       ),
     ];

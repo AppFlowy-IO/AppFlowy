@@ -165,11 +165,14 @@ class _ViewTitleState extends State<_ViewTitle> {
   Widget _buildUnEditableViewTitle(BuildContext context, ViewTitleState state) {
     return Listener(
       onPointerDown: (_) => context.read<TabsBloc>().openPlugin(widget.view),
-      child: FlowyButton(
-        useIntrinsicWidth: true,
-        margin: const EdgeInsets.symmetric(horizontal: 6.0),
-        onTap: () {},
-        text: _buildIconAndName(state),
+      child: SizedBox(
+        height: 32.0,
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          margin: const EdgeInsets.symmetric(horizontal: 6.0),
+          onTap: () {},
+          text: _buildIconAndName(state, false),
+        ),
       ),
     );
   }
@@ -194,15 +197,18 @@ class _ViewTitleState extends State<_ViewTitle> {
           emoji: state.icon,
         );
       },
-      child: FlowyButton(
-        useIntrinsicWidth: true,
-        margin: const EdgeInsets.symmetric(horizontal: 6.0),
-        text: _buildIconAndName(state),
+      child: SizedBox(
+        height: 32.0,
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          margin: const EdgeInsets.symmetric(horizontal: 6.0),
+          text: _buildIconAndName(state, true),
+        ),
       ),
     );
   }
 
-  Widget _buildIconAndName(ViewTitleState state) {
+  Widget _buildIconAndName(ViewTitleState state, bool isEditable) {
     return SingleChildScrollView(
       child: Row(
         children: [
@@ -210,14 +216,16 @@ class _ViewTitleState extends State<_ViewTitle> {
             FlowyText.emoji(
               state.icon,
               fontSize: 14.0,
+              lineHeight: 1.3,
             ),
-            const HSpace(6.0),
+            const HSpace(4.0),
           ],
-          ConstrainedBox(
-            constraints: const BoxConstraints(),
+          Opacity(
+            opacity: isEditable ? 1.0 : 0.5,
             child: FlowyText.regular(
               state.name,
               overflow: TextOverflow.ellipsis,
+              lineHeight: 1.3,
             ),
           ),
         ],

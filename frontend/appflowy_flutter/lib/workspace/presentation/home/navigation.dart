@@ -91,13 +91,16 @@ class FlowyNavigation extends StatelessWidget {
               turns: const AlwaysStoppedAnimation(180 / 360),
               child: FlowyTooltip(
                 richMessage: textSpan,
-                child: FlowyIconButton(
-                  width: 24,
-                  onPressed: () => context
+                child: Listener(
+                  onPointerDown: (event) => context
                       .read<HomeSettingBloc>()
                       .add(const HomeSettingEvent.collapseMenu()),
-                  iconPadding: const EdgeInsets.all(4),
-                  icon: const FlowySvg(FlowySvgs.hide_menu_s),
+                  child: FlowyIconButton(
+                    width: 24,
+                    onPressed: () {},
+                    iconPadding: const EdgeInsets.all(4),
+                    icon: const FlowySvg(FlowySvgs.hide_menu_s),
+                  ),
                 ),
               ),
             ),
