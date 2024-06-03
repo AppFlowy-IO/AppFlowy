@@ -57,6 +57,7 @@ class ViewItem extends StatelessWidget {
     this.shouldRenderChildren = true,
     this.leftIconBuilder,
     this.rightIconsBuilder,
+    this.shouldLoadChildViews = true,
   });
 
   final ViewPB view;
@@ -107,10 +108,14 @@ class ViewItem extends StatelessWidget {
   // custom the right icon widget, if it's null, the default ... and + button will be used
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
+  final bool shouldLoadChildViews;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
+      create: (_) =>
+          ViewBloc(view: view, shouldLoadChildViews: shouldLoadChildViews)
+            ..add(const ViewEvent.initial()),
       child: BlocConsumer<ViewBloc, ViewState>(
         listenWhen: (p, c) =>
             c.lastCreatedView != null &&
@@ -422,6 +427,10 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       // icon
       _buildViewIconButton(),
       const HSpace(6),
+      // const SizedBox(
+      //   width: 6.0,
+      //   height: 1,
+      // ),
       // title
       Expanded(
         child: FlowyText.regular(
@@ -672,6 +681,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         return LocaleKeys.newBoardText.tr();
       case ViewLayoutPB.Calendar:
         return LocaleKeys.newCalendarText.tr();
+      case ViewLayoutPB.Chat:
+        return LocaleKeys.chat_newChat.tr();
     }
     return LocaleKeys.newPageText.tr();
   }

@@ -64,8 +64,6 @@ class MobileFavoriteScreen extends StatelessWidget {
                 builder: (context, state) {
                   return MobileFavoritePage(
                     userProfile: userProfile,
-                    workspaceId: state.currentWorkspace?.workspaceId ??
-                        workspaceSetting.workspaceId,
                   );
                 },
               ),
@@ -81,11 +79,9 @@ class MobileFavoritePage extends StatelessWidget {
   const MobileFavoritePage({
     super.key,
     required this.userProfile,
-    required this.workspaceId,
   });
 
   final UserProfilePB userProfile;
-  final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +104,6 @@ class MobileFavoritePage extends StatelessWidget {
         Expanded(
           child: MobileFavoritePageFolder(
             userProfile: userProfile,
-            workspaceId: workspaceId,
           ),
         ),
       ],

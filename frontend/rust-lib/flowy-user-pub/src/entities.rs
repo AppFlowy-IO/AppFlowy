@@ -395,6 +395,7 @@ pub struct WorkspaceMember {
   pub email: String,
   pub role: Role,
   pub name: String,
+  pub avatar_url: Option<String>,
 }
 
 /// represent the user awareness object id for the workspace.

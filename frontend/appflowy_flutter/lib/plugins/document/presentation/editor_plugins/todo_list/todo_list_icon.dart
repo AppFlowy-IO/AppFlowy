@@ -17,7 +17,9 @@ class TodoListIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconPadding = context.read<DocumentPageStyleBloc>().state.iconPadding;
+    final iconPadding = PlatformExtension.isMobile
+        ? context.read<DocumentPageStyleBloc>().state.iconPadding
+        : 0.0;
     final checked = node.attributes[TodoListBlockKeys.checked] ?? false;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

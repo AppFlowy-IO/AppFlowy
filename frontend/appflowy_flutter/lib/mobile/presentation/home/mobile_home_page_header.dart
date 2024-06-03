@@ -35,7 +35,7 @@ class MobileHomePageHeader extends StatelessWidget {
           final isCollaborativeWorkspace =
               context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
           return ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 52),
+            constraints: const BoxConstraints(minHeight: 56),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -44,11 +44,14 @@ class MobileHomePageHeader extends StatelessWidget {
                       ? _MobileWorkspace(userProfile: userProfile)
                       : _MobileUser(userProfile: userProfile),
                 ),
-                IconButton(
-                  onPressed: () => context.push(
+                GestureDetector(
+                  onTap: () => context.push(
                     MobileHomeSettingPage.routeName,
                   ),
-                  icon: const FlowySvg(FlowySvgs.m_setting_m),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: FlowySvg(FlowySvgs.m_setting_m),
+                  ),
                 ),
               ],
             ),
@@ -119,7 +122,6 @@ class _MobileWorkspace extends StatelessWidget {
           },
           child: Row(
             children: [
-              const HSpace(2.0),
               SizedBox.square(
                 dimension: 34.0,
                 child: WorkspaceIcon(
@@ -142,7 +144,7 @@ class _MobileWorkspace extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        FlowyText.medium(
+                        FlowyText.semibold(
                           currentWorkspace.name,
                           fontSize: 16.0,
                           overflow: TextOverflow.ellipsis,
@@ -151,7 +153,7 @@ class _MobileWorkspace extends StatelessWidget {
                         const FlowySvg(FlowySvgs.list_dropdown_s),
                       ],
                     ),
-                    FlowyText.medium(
+                    FlowyText.regular(
                       userProfile.email.isNotEmpty
                           ? userProfile.email
                           : userProfile.name,

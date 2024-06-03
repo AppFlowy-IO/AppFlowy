@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -60,6 +58,9 @@ class EditorStyleCustomizer {
           DefaultAppearanceSettings.getDefaultSelectionColor(context),
       defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
+        lineHeight: 1.2,
+        applyHeightToFirstAscent: true,
+        applyHeightToLastDescent: true,
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
           color: afThemeExtension.onBackground,
@@ -80,7 +81,7 @@ class EditorStyleCustomizer {
         ),
         code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: fontSize - 2,
+            fontSize: fontSize,
             fontWeight: FontWeight.normal,
             color: Colors.red,
             backgroundColor: theme.colorScheme.inverseSurface.withOpacity(0.8),
@@ -105,7 +106,6 @@ class EditorStyleCustomizer {
     final textScaleFactor =
         context.read<AppearanceSettingsCubit>().state.textScaleFactor;
     final baseTextStyle = this.baseTextStyle(fontFamily);
-    final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.mobile(
       padding: padding,
       defaultTextDirection: defaultTextDirection,
@@ -127,7 +127,7 @@ class EditorStyleCustomizer {
         ),
         code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle.copyWith(
-            fontSize: codeFontSize,
+            fontSize: fontSize,
             fontWeight: FontWeight.normal,
             fontStyle: FontStyle.italic,
             color: Colors.red,
@@ -180,6 +180,14 @@ class EditorStyleCustomizer {
       fontSize: fontSize,
       height: 1.5,
       color: AFThemeExtension.of(context).onBackground,
+    );
+  }
+
+  TextStyle calloutBlockStyleBuilder() {
+    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    return baseTextStyle(null).copyWith(
+      fontSize: fontSize,
+      height: 1.5,
     );
   }
 

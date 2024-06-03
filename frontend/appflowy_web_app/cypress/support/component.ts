@@ -14,6 +14,7 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
+import '@cypress/code-coverage/support';
 import './commands';
 import './document';
 // Alternatively you can use CommonJS syntax:
@@ -31,6 +32,10 @@ declare global {
     interface Chainable {
       mount: typeof mount;
       mockAPI: () => void;
+      mockDatabase: () => void;
+      mockCurrentWorkspace: () => void;
+      mockGetWorkspaceDatabases: () => void;
+      mockDocument: (id: string) => void;
     }
   }
 }
@@ -39,3 +44,4 @@ Cypress.Commands.add('mount', mount);
 
 // Example use:
 // cy.mount(<MyComponent />)
+

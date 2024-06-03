@@ -16,12 +16,12 @@ class WorkspaceService {
     required ViewSectionPB viewSection,
     String? desc,
     int? index,
+    ViewLayoutPB? layout,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = workspaceId
       ..name = name
-      // only allow document layout for the top-level views
-      ..layout = ViewLayoutPB.Document
+      ..layout = layout ?? ViewLayoutPB.Document
       ..section = viewSection;
 
     if (desc != null) {

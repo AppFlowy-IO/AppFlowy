@@ -42,6 +42,7 @@ flowy-error = { workspace = true, features = ["impl_from_serde", "impl_from_reqw
 flowy-server-pub = { workspace = true }
 flowy-encrypt = { workspace = true }
 flowy-storage = { workspace = true }
+flowy-chat-pub = { workspace = true }
 mime_guess = "2.0"
 url = "2.4"
 tokio-util = "0.7"

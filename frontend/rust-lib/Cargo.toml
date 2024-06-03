@@ -29,6 +29,7 @@ members = [
     "build-tool/flowy-codegen",
     "build-tool/flowy-derive",
     "flowy-search-pub",
+    "flowy-chat", "flowy-chat-pub",
 ]
 resolver = "2"
 
@@ -61,13 +62,15 @@ flowy-search = { workspace = true, path = "flowy-search" }
 flowy-search-pub = { workspace = true, path = "flowy-search-pub" }
 collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-date = { workspace = true, path = "flowy-date" }
+flowy-chat = { workspace = true, path = "flowy-chat" }
+flowy-chat-pub = { workspace = true, path = "flowy-chat-pub" }
 anyhow = "1.0"
 tracing = "0.1.40"
 bytes = "1.5.0"
 serde_json = "1.0.108"
 serde = "1.0.194"
 protobuf = { version = "2.28.0" }
-diesel = { version = "2.1.0", features = ["sqlite", "chrono", "r2d2"] }
+diesel = { version = "2.1.0", features = ["sqlite", "chrono", "r2d2", "serde_json"] }
 uuid = { version = "1.5.0", features = ["serde", "v4", "v5"] }
 serde_repr = "0.1"
 parking_lot = "0.12"
@@ -91,7 +94,7 @@ yrs = "0.18.8"
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
 client-api = { version = "0.2" }
-appflowy-cloud-billing-client = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client", rev = "1d5297d2cfc8813b7f6a97cc74cb4ebef78c4b30" }
+appflowy-cloud-billing-client = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client", rev = "13d00e3a63e7f6eb19f5372539a6c49c22ca5f8c" }
 
 [profile.dev]
 opt-level = 1
@@ -118,7 +121,7 @@ lto = false
 incremental = false
 
 [patch.crates-io]
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "6cc46e3779f7174284a0b52cbc87fb1cf98b0b9f" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b36715dc2427e23a15fa81c629e1817d3dbf1e1a" }
 
 # TODO(Lucas.Xu) Upgrade to the latest version of RocksDB once PR(https://github.com/rust-rocksdb/rust-rocksdb/pull/869) is merged.
 # Currently, using the following revision id. This commit is patched to fix the 32-bit build issue and it's checked out from 0.21.0, not 0.22.0.
@@ -132,10 +135,10 @@ rocksdb = { git = "https://github.com/LucasXu0/rust-rocksdb", rev = "21cf4a23ec1
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0b52164" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0b52164" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0b52164" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0b52164" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0b52164" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0b52164" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "0b52164" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }

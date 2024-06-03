@@ -8,8 +8,8 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('board add row test', () {
-    testWidgets('Add card from header', (tester) async {
+  group('notification test', () {
+    testWidgets('enable notification', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
@@ -17,7 +17,7 @@ void main() {
       await tester.openSettingsPage(SettingsPage.notifications);
       await tester.pumpAndSettle();
 
-      final switchFinder = find.byType(Switch);
+      final switchFinder = find.byType(Switch).first;
 
       // Defaults to enabled
       Switch switchWidget = tester.widget(switchFinder);

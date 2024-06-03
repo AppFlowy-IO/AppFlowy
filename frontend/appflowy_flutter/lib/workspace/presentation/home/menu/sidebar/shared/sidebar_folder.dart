@@ -38,7 +38,9 @@ class SidebarFolder extends StatelessWidget {
                 }
                 return Padding(
                   padding: const EdgeInsets.only(top: 16.0, bottom: 10),
-                  child: FavoriteFolder(views: state.views),
+                  child: FavoriteFolder(
+                    views: state.views.map((e) => e.item).toList(),
+                  ),
                 );
               },
             ),

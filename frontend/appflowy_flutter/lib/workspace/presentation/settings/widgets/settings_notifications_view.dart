@@ -33,6 +33,23 @@ class SettingsNotificationsView extends StatelessWidget {
                 ),
               ],
             ),
+            SettingListTile(
+              label: LocaleKeys
+                  .settings_notifications_showNotificationsIcon_label
+                  .tr(),
+              hint: LocaleKeys.settings_notifications_showNotificationsIcon_hint
+                  .tr(),
+              trailing: [
+                Switch(
+                  value: state.isShowNotificationsIconEnabled,
+                  splashRadius: 0,
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (_) => context
+                      .read<NotificationSettingsCubit>()
+                      .toogleShowNotificationIconEnabled(),
+                ),
+              ],
+            ),
           ],
         );
       },

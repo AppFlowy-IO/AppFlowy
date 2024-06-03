@@ -15,7 +15,7 @@ export function ChecklistProperty(props: CellProps<CellType>) {
   const selectedOptions = data?.selectedOptionIds;
 
   return (
-    <div className={'flex w-full flex-col gap-2'}>
+    <div className={'flex w-full flex-col gap-2 py-2'}>
       <ChecklistCell {...props} />
       {options?.map((option) => {
         const isSelected = selectedOptions?.includes(option.id);

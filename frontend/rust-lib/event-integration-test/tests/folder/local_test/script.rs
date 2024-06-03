@@ -158,7 +158,9 @@ impl FolderTest {
         assert_eq!(self.child_view, view, "View not equal");
       },
       FolderScript::ReadView(view_id) => {
-        let view = read_view(sdk, &view_id).await;
+        let mut view = read_view(sdk, &view_id).await;
+        // Ignore the last edited time
+        view.last_edited = 0;
         self.child_view = view;
       },
       FolderScript::UpdateView {

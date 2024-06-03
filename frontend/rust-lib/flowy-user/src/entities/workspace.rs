@@ -17,6 +17,9 @@ pub struct WorkspaceMemberPB {
 
   #[pb(index = 3)]
   pub role: AFRolePB,
+
+  #[pb(index = 4, one_of)]
+  pub avatar_url: Option<String>,
 }
 
 impl From<WorkspaceMember> for WorkspaceMemberPB {
@@ -25,6 +28,7 @@ impl From<WorkspaceMember> for WorkspaceMemberPB {
       email: value.email,
       name: value.name,
       role: value.role.into(),
+      avatar_url: value.avatar_url,
     }
   }
 }

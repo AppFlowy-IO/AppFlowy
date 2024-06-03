@@ -1,8 +1,9 @@
-import { ViewLayout, YjsFolderKey, YView } from '@/application/collab.type';
+import { DatabaseViewLayout, ViewLayout, YjsDatabaseKey, YjsFolderKey, YView } from '@/application/collab.type';
+import { useDatabaseView } from '@/application/database-yjs';
 import { useFolderContext } from '@/application/folder-yjs';
-import { useId } from '@/components/_shared/context-provider/IdProvider';
 import { DatabaseActions } from '@/components/database/components/conditions';
-import { forwardRef, FunctionComponent, SVGProps, useCallback, useEffect, useMemo } from 'react';
+import { Tooltip } from '@mui/material';
+import { forwardRef, FunctionComponent, SVGProps, useCallback, useMemo } from 'react';
 import { ViewTabs, ViewTab } from './ViewTabs';
 import { useTranslation } from 'react-i18next';
 
@@ -28,19 +29,14 @@ const DatabaseIcons: {
 
 export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
   ({ viewIds, selectedViewId, setSelectedViewId }, ref) => {
-    const objectId = useId().objectId;
     const { t } = useTranslation();
     const folder = useFolderContext();
+    const view = useDatabaseView();
+    const layout = Number(view?.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
+
     const handleChange = (_: React.SyntheticEvent, newValue: string) => {
       setSelectedViewId?.(newValue);
     };
-
-    useEffect(() => {
-      if (selectedViewId === undefined) {
-        setSelectedViewId?.(objectId);
-      }
-    }, [selectedViewId, setSelectedViewId, objectId]);
-    const isSelected = useMemo(() => viewIds.some((viewId) => viewId === selectedViewId), [viewIds, selectedViewId]);
 
     const getFolderView = useCallback(
       (viewId: string) => {
@@ -50,12 +46,21 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
       [folder]
     );
 
+    const className = useMemo(() => {
+      const classList = [
+        'mx-16 -mb-[0.5px] flex items-center overflow-hidden border-line-divider text-text-title max-md:mx-4',
+      ];
+
+      if (layout === DatabaseViewLayout.Calendar) {
+        classList.push('border-b');
+      }
+
+      return classList.join(' ');
+    }, [layout]);
+
     if (viewIds.length === 0) return null;
     return (
-      <div
-        ref={ref}
-        className='mx-16 -mb-[0.5px] flex items-center overflow-hidden border-b border-line-divider text-text-title max-md:mx-4'
-      >
+      <div ref={ref} className={className}>
         <div
           style={{
             width: 'calc(100% - 120px)',
@@ -66,7 +71,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             scrollButtons={false}
             variant='scrollable'
             allowScrollButtonsMobile
-            value={isSelected ? selectedViewId : objectId}
+            value={selectedViewId}
             onChange={handleChange}
           >
             {viewIds.map((viewId) => {
@@ -80,17 +85,22 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
               return (
                 <ViewTab
                   key={viewId}
+                  data-testid={`view-tab-${viewId}`}
                   icon={<Icon className={'h-4 w-4'} />}
                   iconPosition='start'
                   color='inherit'
-                  label={<span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>}
+                  label={
+                    <Tooltip title={name} enterDelay={1000} enterNextDelay={1000} placement={'right'}>
+                      <span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>
+                    </Tooltip>
+                  }
                   value={viewId}
                 />
               );
             })}
           </ViewTabs>
         </div>
-        <DatabaseActions />
+        {layout !== DatabaseViewLayout.Calendar ? <DatabaseActions /> : null}
       </div>
     );
   }

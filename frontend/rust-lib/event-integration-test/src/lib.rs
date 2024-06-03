@@ -24,6 +24,7 @@ use lib_dispatch::runtime::AFPluginRuntime;
 
 use crate::user_event::TestNotificationSender;
 
+mod chat_event;
 pub mod database_event;
 pub mod document;
 pub mod document_event;

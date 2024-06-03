@@ -29,7 +29,7 @@ class AppFlowyBoardTest {
     return ViewBackendService.createView(
       parentViewId: app.id,
       name: "Test Board",
-      layoutType: builder.layoutType!,
+      layoutType: builder.layoutType,
       openAfterCreate: true,
     ).then((result) {
       return result.fold(

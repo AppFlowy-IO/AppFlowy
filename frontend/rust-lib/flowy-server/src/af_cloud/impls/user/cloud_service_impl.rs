@@ -353,10 +353,7 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id: workspace_id.clone(),
-        inner: QueryCollab {
-          object_id,
-          collab_type: CollabType::UserAwareness,
-        },
+        inner: QueryCollab::new(object_id, CollabType::UserAwareness),
       };
       let resp = try_get_client?.get_collab(params).await?;
       check_request_workspace_id_is_match(
@@ -386,10 +383,10 @@ where
     FutureResult::new(async move {
       let client = try_get_client?;
       let params = CreateCollabParams {
-        workspace_id: collab_object.workspace_id.clone(),
-        object_id: collab_object.object_id.clone(),
+        workspace_id: collab_object.workspace_id,
+        object_id: collab_object.object_id,
+        collab_type: collab_object.collab_type,
         encoded_collab_v1: data,
-        collab_type: collab_object.collab_type.clone(),
       };
       client.create_collab(params).await?;
       Ok(())
@@ -406,10 +403,12 @@ where
     FutureResult::new(async move {
       let params = objects
         .into_iter()
-        .map(|object| CollabParams {
-          object_id: object.object_id,
-          encoded_collab_v1: object.encoded_collab,
-          collab_type: object.collab_type,
+        .map(|object| {
+          CollabParams::new(
+            object.object_id,
+            u8::from(object.collab_type).into(),
+            object.encoded_collab,
+          )
         })
         .collect::<Vec<_>>();
       try_get_client?

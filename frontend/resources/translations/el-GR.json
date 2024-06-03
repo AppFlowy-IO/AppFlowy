@@ -201,8 +201,8 @@
     "addBlockBelow": "Add a block below"
   },
   "sideBar": {
-    "closeSidebar": "Close side bar",
-    "openSidebar": "Open side bar",
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar",
     "personal": "Personal",
     "favorites": "Favorites",
     "clickToHidePersonal": "Click to hide personal section",
