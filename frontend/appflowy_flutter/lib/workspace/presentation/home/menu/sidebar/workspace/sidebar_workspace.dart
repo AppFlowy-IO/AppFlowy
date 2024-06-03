@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -227,14 +226,6 @@ class _SidebarSwitchWorkspaceButtonState
                 ),
               ),
               const HSpace(4),
-              ValueListenableBuilder(
-                valueListenable: _isWorkSpaceMenuExpanded,
-                builder: (context, value, _) => FlowySvg(
-                  value
-                      ? FlowySvgs.workspace_drop_down_menu_hide_s
-                      : FlowySvgs.workspace_drop_down_menu_show_s,
-                ),
-              ),
             ],
           ),
         ),
