@@ -16,12 +16,14 @@ class WorkspaceIcon extends StatefulWidget {
     required this.fontSize,
     required this.onSelected,
     this.borderRadius = 4,
+    this.emojiSize,
   });
 
   final UserWorkspacePB workspace;
   final double iconSize;
   final bool enableEdit;
   final double fontSize;
+  final double? emojiSize;
   final void Function(EmojiPickerResult) onSelected;
   final double borderRadius;
 
@@ -40,7 +42,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
             alignment: Alignment.center,
             child: FlowyText.emoji(
               widget.workspace.icon,
-              fontSize: widget.iconSize,
+              fontSize: widget.emojiSize ?? widget.iconSize,
             ),
           )
         : Container(

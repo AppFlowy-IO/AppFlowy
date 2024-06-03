@@ -209,6 +209,7 @@ class _SidebarSwitchWorkspaceButtonState
                 workspace: widget.currentWorkspace,
                 iconSize: 24,
                 fontSize: 16,
+                emojiSize: 18,
                 enableEdit: false,
                 borderRadius: 8.0,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
