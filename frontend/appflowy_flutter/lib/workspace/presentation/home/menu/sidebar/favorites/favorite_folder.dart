@@ -134,15 +134,19 @@ class FavoriteHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      onTap: onPressed,
-      margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 7.0),
-      leftIcon: const FlowySvg(
-        FlowySvgs.favorite_header_icon_s,
-        blendMode: null,
+    return SizedBox(
+      height: HomeSizes.newPageSectionHeight,
+      child: FlowyButton(
+        onTap: onPressed,
+        margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 3.0),
+        leftIcon: const FlowySvg(
+          FlowySvgs.favorite_header_icon_m,
+          blendMode: null,
+        ),
+        leftIconSize: const Size.square(24.0),
+        iconPadding: 8.0,
+        text: FlowyText.regular(LocaleKeys.sideBar_favorites.tr()),
       ),
-      iconPadding: 10.0,
-      text: FlowyText.regular(LocaleKeys.sideBar_favorites.tr()),
     );
   }
 }

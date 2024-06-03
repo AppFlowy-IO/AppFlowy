@@ -23,16 +23,15 @@ class SidebarNewPageButton extends StatelessWidget {
       child: FlowyButton(
         onTap: () async => _createNewPage(context),
         leftIcon: const FlowySvg(
-          FlowySvgs.new_app_s,
+          FlowySvgs.new_app_m,
           blendMode: null,
         ),
-        margin: const EdgeInsets.only(left: 8.0),
-        iconPadding: 11.0,
-        text: SizedBox(
-          height: 18.0,
-          child: FlowyText.regular(
-            LocaleKeys.newPageText.tr(),
-          ),
+        leftIconSize: const Size.square(24.0),
+        margin: const EdgeInsets.only(left: 4.0),
+        iconPadding: 8.0,
+        text: FlowyText.regular(
+          LocaleKeys.newPageText.tr(),
+          lineHeight: 1.15,
         ),
       ),
     );

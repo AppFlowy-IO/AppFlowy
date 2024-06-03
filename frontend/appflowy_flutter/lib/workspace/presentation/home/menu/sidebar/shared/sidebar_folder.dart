@@ -25,6 +25,7 @@ class SidebarFolder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const sectionPadding = 16.0;
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (context, value, child) {
@@ -36,11 +37,8 @@ class SidebarFolder extends StatelessWidget {
                 if (state.views.isEmpty) {
                   return const SizedBox.shrink();
                 }
-                return Padding(
-                  padding: const EdgeInsets.only(top: 16.0, bottom: 10),
-                  child: FavoriteFolder(
-                    views: state.views.map((e) => e.item).toList(),
-                  ),
+                return FavoriteFolder(
+                  views: state.views.map((e) => e.item).toList(),
                 );
               },
             ),
@@ -56,18 +54,18 @@ class SidebarFolder extends StatelessWidget {
                   children: isCollaborativeWorkspace
                       ? [
                           // public
-                          const VSpace(10),
+                          const VSpace(sectionPadding),
                           PublicSectionFolder(views: state.section.publicViews),
 
                           // private
-                          const VSpace(10),
+                          const VSpace(sectionPadding),
                           PrivateSectionFolder(
                             views: state.section.privateViews,
                           ),
                         ]
                       : [
                           // personal
-                          const VSpace(10),
+                          const VSpace(sectionPadding),
                           PersonalSectionFolder(
                             views: state.section.publicViews,
                           ),

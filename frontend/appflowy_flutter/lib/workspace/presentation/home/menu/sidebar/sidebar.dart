@@ -209,7 +209,7 @@ class _SidebarState extends State<_Sidebar> {
 
   @override
   Widget build(BuildContext context) {
-    const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 12);
+    const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 8);
     final userState = context.read<UserWorkspaceBloc>().state;
     return MouseRegion(
       onEnter: (_) => _isHovered.value = true,
@@ -234,8 +234,7 @@ class _SidebarState extends State<_Sidebar> {
             // user or workspace, setting
             Container(
               height: HomeSizes.workspaceSectionHeight,
-              padding: menuHorizontalInset -
-                  const EdgeInsets.only(left: 4.0, right: 6),
+              padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
               child:
                   // if the workspaces are empty, show the user profile instead
                   userState.isCollabWorkspaceOn &&
@@ -251,9 +250,11 @@ class _SidebarState extends State<_Sidebar> {
                 child: const _SidebarSearchButton(),
               ),
             ],
+            const VSpace(6.0),
             // new page button
             const SidebarNewPageButton(),
             // scrollable document list
+            const VSpace(16.0),
             Expanded(
               child: Padding(
                 padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
