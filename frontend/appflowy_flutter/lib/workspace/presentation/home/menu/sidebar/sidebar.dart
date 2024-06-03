@@ -271,16 +271,18 @@ class _SidebarState extends State<_Sidebar> {
             ),
             const VSpace(10),
             // trash
-            const Padding(
-              padding: menuHorizontalInset,
-              child: Divider(height: 1.0, color: Color(0x141F2329)),
+            Padding(
+              padding: menuHorizontalInset +
+                  const EdgeInsets.symmetric(horizontal: 4.0),
+              child: const Divider(height: 1.0, color: Color(0x141F2329)),
+            ),
+            const VSpace(8),
+            Padding(
+              padding: menuHorizontalInset +
+                  const EdgeInsets.symmetric(horizontal: 4.0),
+              child: const SidebarFooter(),
             ),
             const VSpace(14),
-            const Padding(
-              padding: menuHorizontalInset,
-              child: SidebarFooter(),
-            ),
-            const VSpace(10),
           ],
         ),
       ),
