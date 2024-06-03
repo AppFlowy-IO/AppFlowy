@@ -38,6 +38,7 @@ impl FolderDepsResolver {
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
     folder_indexer: Arc<FolderIndexManagerImpl>,
+    store_preferences: Arc<StorePreferences>,
     chat_manager: &Arc<ChatManager>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {

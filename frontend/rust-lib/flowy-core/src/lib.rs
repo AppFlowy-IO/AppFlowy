@@ -180,6 +180,7 @@ impl AppFlowyCore {
         collab_builder.clone(),
         server_provider.clone(),
         folder_indexer.clone(),
+        store_preference.clone(),
         &chat_manager,
       )
       .await;
