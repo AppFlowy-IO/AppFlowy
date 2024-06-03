@@ -53,7 +53,6 @@ class ViewAddButton extends StatelessWidget {
       offset: const Offset(0, 4),
       buildChild: (popover) {
         return FlowyIconButton(
-          hoverColor: Colors.transparent,
           width: 24,
           icon: const FlowySvg(FlowySvgs.view_item_add_s),
           onPressed: () {
