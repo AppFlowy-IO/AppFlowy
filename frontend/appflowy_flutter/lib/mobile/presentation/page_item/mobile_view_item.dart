@@ -413,7 +413,8 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
                   MobileViewItemBottomSheetBodyAction.divider,
                   MobileViewItemBottomSheetBodyAction.rename,
                   MobileViewItemBottomSheetBodyAction.divider,
-                  MobileViewItemBottomSheetBodyAction.duplicate,
+                  if (state.view.layout != ViewLayoutPB.Chat)
+                    MobileViewItemBottomSheetBodyAction.duplicate,
                   MobileViewItemBottomSheetBodyAction.divider,
                   MobileViewItemBottomSheetBodyAction.delete,
                 ],

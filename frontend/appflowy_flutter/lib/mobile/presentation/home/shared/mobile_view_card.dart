@@ -257,10 +257,9 @@ class MobileViewCard extends StatelessWidget {
           ],
           child: BlocBuilder<ViewBloc, ViewState>(
             builder: (context, state) {
-              final isFavorite = state.view.isFavorite;
               return MobileViewItemBottomSheet(
                 view: viewBloc.state.view,
-                actions: _buildActions(isFavorite),
+                actions: _buildActions(state.view),
               );
             },
           ),
@@ -269,15 +268,16 @@ class MobileViewCard extends StatelessWidget {
     );
   }
 
-  List<MobileViewItemBottomSheetBodyAction> _buildActions(bool isFavorite) {
+  List<MobileViewItemBottomSheetBodyAction> _buildActions(ViewPB view) {
     switch (type) {
       case MobileViewCardType.recent:
         return [
-          isFavorite
+          view.isFavorite
               ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
               : MobileViewItemBottomSheetBodyAction.addToFavorites,
           MobileViewItemBottomSheetBodyAction.divider,
-          MobileViewItemBottomSheetBodyAction.duplicate,
+          if (view.layout != ViewLayoutPB.Chat)
+            MobileViewItemBottomSheetBodyAction.duplicate,
           MobileViewItemBottomSheetBodyAction.divider,
           MobileViewItemBottomSheetBodyAction.removeFromRecent,
         ];

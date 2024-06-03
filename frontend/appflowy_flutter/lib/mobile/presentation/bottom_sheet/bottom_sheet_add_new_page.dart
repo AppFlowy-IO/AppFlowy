@@ -55,6 +55,15 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           showTopBorder: false,
           onTap: () => onAction(ViewLayoutPB.Calendar),
         ),
+        FlowyOptionTile.text(
+          text: LocaleKeys.chat_newChat.tr(),
+          leftIcon: const FlowySvg(
+            FlowySvgs.chat_ai_page_s,
+            size: Size.square(18),
+          ),
+          showTopBorder: false,
+          onTap: () => onAction(ViewLayoutPB.Chat),
+        ),
       ],
     );
   }
