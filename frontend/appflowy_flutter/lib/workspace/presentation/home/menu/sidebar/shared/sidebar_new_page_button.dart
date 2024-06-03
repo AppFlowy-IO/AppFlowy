@@ -18,7 +18,7 @@ class SidebarNewPageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       height: HomeSizes.newPageSectionHeight,
       child: FlowyButton(
         onTap: () async => _createNewPage(context),
@@ -26,7 +26,8 @@ class SidebarNewPageButton extends StatelessWidget {
           FlowySvgs.new_app_s,
           blendMode: null,
         ),
-        iconPadding: 10.0,
+        margin: const EdgeInsets.only(left: 8.0),
+        iconPadding: 11.0,
         text: SizedBox(
           height: 18.0,
           child: FlowyText.regular(

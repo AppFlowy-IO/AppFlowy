@@ -224,7 +224,8 @@ class _SidebarState extends State<_Sidebar> {
           // user or workspace, setting
           Container(
             height: HomeSizes.workspaceSectionHeight,
-            padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
+            padding: menuHorizontalInset -
+                const EdgeInsets.only(left: 4.0, right: 6),
             child:
                 // if the workspaces are empty, show the user profile instead
                 userState.isCollabWorkspaceOn && userState.workspaces.isNotEmpty

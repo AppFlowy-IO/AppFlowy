@@ -203,12 +203,13 @@ class _SidebarSwitchWorkspaceButtonState
           height: 30,
           child: Row(
             children: [
-              const HSpace(6.0),
+              const HSpace(4.0),
               WorkspaceIcon(
                 workspace: widget.currentWorkspace,
-                iconSize: 16,
-                fontSize: 10,
+                iconSize: 24,
+                fontSize: 16,
                 enableEdit: false,
+                borderRadius: 8.0,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
                         widget.currentWorkspace.workspaceId,
@@ -216,12 +217,13 @@ class _SidebarSwitchWorkspaceButtonState
                       ),
                     ),
               ),
-              const HSpace(10),
+              const HSpace(8),
               Flexible(
                 child: FlowyText.medium(
                   widget.currentWorkspace.name,
                   overflow: TextOverflow.ellipsis,
                   withTooltip: true,
+                  fontSize: 15.0,
                 ),
               ),
               const HSpace(4),
