@@ -11,6 +11,7 @@ class FolderHeader extends StatefulWidget {
     required this.addButtonTooltip,
     required this.onPressed,
     required this.onAdded,
+    required this.isExpanded,
   });
 
   final String title;
@@ -18,6 +19,7 @@ class FolderHeader extends StatefulWidget {
   final String addButtonTooltip;
   final VoidCallback onPressed;
   final VoidCallback onAdded;
+  final bool isExpanded;
 
   @override
   State<FolderHeader> createState() => _FolderHeaderState();
@@ -51,7 +53,20 @@ class _FolderHeaderState extends State<FolderHeader> {
           ),
         ),
         iconPadding: 10.0,
-        text: FlowyText(widget.title),
+        text: Row(
+          children: [
+            FlowyText(
+              widget.title,
+              lineHeight: 1.15,
+            ),
+            const HSpace(4.0),
+            FlowySvg(
+              widget.isExpanded
+                  ? FlowySvgs.workspace_drop_down_menu_show_s
+                  : FlowySvgs.workspace_drop_down_menu_hide_s,
+            ),
+          ],
+        ),
       ),
     );
   }

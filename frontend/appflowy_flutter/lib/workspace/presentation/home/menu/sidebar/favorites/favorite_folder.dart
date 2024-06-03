@@ -145,7 +145,10 @@ class FavoriteHeader extends StatelessWidget {
         ),
         leftIconSize: const Size.square(24.0),
         iconPadding: 8.0,
-        text: FlowyText.regular(LocaleKeys.sideBar_favorites.tr()),
+        text: FlowyText.regular(
+          LocaleKeys.sideBar_favorites.tr(),
+          lineHeight: 1.15,
+        ),
       ),
     );
   }
