@@ -256,7 +256,7 @@ class _AIChatPageState extends State<AIChatPage> {
             query.padding.right,
             query.viewInsets.bottom + query.padding.bottom,
           )
-        : EdgeInsets.zero;
+        : const EdgeInsets.symmetric(horizontal: 70);
     return Column(
       children: [
         ClipRect(
