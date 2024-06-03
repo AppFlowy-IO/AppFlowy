@@ -88,7 +88,7 @@ class SidebarTopMenu extends StatelessWidget {
       builder: (_, value, ___) => Opacity(
         opacity: value ? 1 : 0,
         child: Padding(
-          padding: const EdgeInsets.only(top: 12.0),
+          padding: const EdgeInsets.only(top: 12.0, right: 4.0),
           child: FlowyTooltip(
             richMessage: textSpan,
             child: Listener(
