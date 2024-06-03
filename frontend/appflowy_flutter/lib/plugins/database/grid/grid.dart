@@ -25,7 +25,7 @@ class GridPluginBuilder implements PluginBuilder {
   PluginType get pluginType => PluginType.grid;
 
   @override
-  ViewLayoutPB? get layoutType => ViewLayoutPB.Grid;
+  ViewLayoutPB get layoutType => ViewLayoutPB.Grid;
 }
 
 class GridPluginConfig implements PluginConfig {

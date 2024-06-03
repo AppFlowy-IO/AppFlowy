@@ -135,9 +135,12 @@ dependencies:
   numerus: ^2.1.2
   flutter_animate: ^4.5.0
   permission_handler: ^11.3.1
+  flutter_chat_ui: ^1.6.13
+  flutter_chat_types: ^3.6.2
   scaled_app: ^2.3.0
   auto_size_text_field: ^2.2.3
   reorderable_tabbar: ^1.0.6
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1

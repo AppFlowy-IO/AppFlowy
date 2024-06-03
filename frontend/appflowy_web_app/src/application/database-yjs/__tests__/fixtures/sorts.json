@@ -1,0 +1,82 @@
+{
+  "sort_asc_text_field": {
+    "id": "sort_asc_text_field",
+    "field_id": "text_field",
+    "condition": "asc"
+  },
+  "sort_desc_text_field": {
+    "field_id": "text_field",
+    "condition": "desc",
+    "id": "sort_desc_text_field"
+  },
+  "sort_asc_number_field": {
+    "field_id": "number_field",
+    "condition": "asc",
+    "id": "sort_asc_number_field"
+  },
+  "sort_desc_number_field": {
+    "field_id": "number_field",
+    "condition": "desc",
+    "id": "sort_desc_number_field"
+  },
+  "sort_asc_date_field": {
+    "field_id": "date_field",
+    "condition": "asc",
+    "id": "sort_asc_date_field"
+  },
+  "sort_desc_date_field": {
+    "field_id": "date_field",
+    "condition": "desc",
+    "id": "sort_desc_date_field"
+  },
+  "sort_asc_checkbox_field": {
+    "field_id": "checkbox_field",
+    "condition": "asc",
+    "id": "sort_asc_checkbox_field"
+  },
+  "sort_desc_checkbox_field": {
+    "field_id": "checkbox_field",
+    "condition": "desc",
+    "id": "sort_desc_checkbox_field"
+  },
+  "sort_asc_checklist_field": {
+    "field_id": "checklist_field",
+    "condition": "asc",
+    "id": "sort_asc_checklist_field"
+  },
+  "sort_desc_checklist_field": {
+    "field_id": "checklist_field",
+    "condition": "desc",
+    "id": "sort_desc_checklist_field"
+  },
+  "sort_asc_single_select_field": {
+    "field_id": "single_select_field",
+    "condition": "asc",
+    "id": "sort_asc_single_select_field"
+  },
+  "sort_desc_single_select_field": {
+    "field_id": "single_select_field",
+    "condition": "desc",
+    "id": "sort_desc_single_select_field"
+  },
+  "sort_asc_multi_select_field": {
+    "field_id": "multi_select_field",
+    "condition": "asc",
+    "id": "sort_asc_multi_select_field"
+  },
+  "sort_desc_multi_select_field": {
+    "field_id": "multi_select_field",
+    "condition": "desc",
+    "id": "sort_desc_multi_select_field"
+  },
+  "sort_asc_url_field": {
+    "field_id": "url_field",
+    "condition": "asc",
+    "id": "sort_asc_url_field"
+  },
+  "sort_desc_url_field": {
+    "field_id": "url_field",
+    "condition": "desc",
+    "id": "sort_desc_url_field"
+  }
+}

@@ -29,7 +29,7 @@ export function Grid() {
         rowOrders,
       }}
     >
-      <div className={'flex w-full flex-1 flex-col'}>
+      <div className={'database-grid flex w-full flex-1 flex-col'}>
         <GridHeader scrollLeft={scrollLeft} columnWidth={columnWidth} columns={fields} onScrollLeft={setScrollLeft} />
         <div className={'grid-scroll-table w-full flex-1'}>
           <GridTable

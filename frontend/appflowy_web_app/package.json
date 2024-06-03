@@ -19,7 +19,10 @@
     "cypress:open": "cypress open",
     "test": "pnpm run test:unit && pnpm run test:components",
     "test:components": "cypress run --component --browser chrome --headless",
-    "test:unit": "jest"
+    "test:unit": "jest --coverage",
+    "test:cy": "cypress run",
+    "merge-coverage": "node scripts/merge-coverage.cjs",
+    "coverage": "pnpm run test:unit && pnpm run test:components && pnpm run merge-coverage"
   },
   "dependencies": {
     "@appflowyinc/client-api-wasm": "0.0.3",
@@ -86,6 +89,7 @@
     "slate": "^0.101.4",
     "slate-history": "^0.100.0",
     "slate-react": "^0.101.3",
+    "smooth-scroll-into-view-if-needed": "^2.0.2",
     "ts-results": "^3.3.0",
     "unsplash-js": "^7.0.19",
     "utf8": "^3.0.0",
@@ -95,6 +99,9 @@
     "yjs": "^13.6.14"
   },
   "devDependencies": {
+    "@cypress/code-coverage": "^3.12.39",
+    "@istanbuljs/nyc-config-babel": "^3.0.0",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@svgr/plugin-svgo": "^8.0.1",
     "@tauri-apps/cli": "^1.5.11",
     "@types/google-protobuf": "^3.15.12",
@@ -132,7 +139,9 @@
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "istanbul-lib-coverage": "^3.2.2",
     "jest-environment-jsdom": "^29.6.2",
+    "nyc": "^15.1.0",
     "postcss": "^8.4.21",
     "prettier": "2.8.4",
     "prettier-plugin-tailwindcss": "^0.2.2",
@@ -147,6 +156,7 @@
     "vite": "^5.2.0",
     "vite-plugin-compression2": "^1.0.0",
     "vite-plugin-importer": "^0.2.5",
+    "vite-plugin-istanbul": "^6.0.2",
     "vite-plugin-svgr": "^3.2.0",
     "vite-plugin-terminal": "^1.2.0",
     "vite-plugin-total-bundle-size": "^1.0.7"

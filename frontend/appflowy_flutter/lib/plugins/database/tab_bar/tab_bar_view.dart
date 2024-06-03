@@ -243,11 +243,14 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);
 
   @override
-  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
+  Widget buildWidget({
+    required PluginContext context,
+    required bool shrinkWrap,
+  }) {
     notifier.isDeleted.addListener(() {
       final deletedView = notifier.isDeleted.value;
       if (deletedView != null && deletedView.hasIndex()) {
-        context?.onDeleted(notifier.view, deletedView.index);
+        context.onDeleted?.call(notifier.view, deletedView.index);
       }
     });
 

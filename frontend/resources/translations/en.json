@@ -147,6 +147,17 @@
   "newGridText": "New grid",
   "newCalendarText": "New calendar",
   "newBoardText": "New board",
+  "chat": {
+    "newChat": "New chat",
+    "inputMessageHint": "Message AppFlowy AI",
+    "unsupportedCloudPrompt": "This feature is only available when using AppFlowy Cloud",
+    "relatedQuestion": "Related",
+    "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
+    "aiServerUnavailable": "There was an error generating a response.",
+    "clickToRetry": "Click to retry",
+    "regenerateAnswer": "Regenerate",
+    "aiMistakePrompt": "AI can make mistakes. Check important info."
+  },
   "trash": {
     "text": "Trash",
     "restoreAll": "Restore All",

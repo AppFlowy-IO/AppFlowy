@@ -22,5 +22,6 @@ export const CodeBlock = memo(
         </div>
       </>
     );
-  })
+  }),
+  (prevProps, nextProps) => JSON.stringify(prevProps.node) === JSON.stringify(nextProps.node)
 );

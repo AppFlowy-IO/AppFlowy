@@ -26,11 +26,7 @@ function ProductPage() {
 
   if (!workspaceId || !objectId) return null;
 
-  return (
-    <IdProvider workspaceId={workspaceId} objectId={objectId}>
-      {PageComponent && <PageComponent />}
-    </IdProvider>
-  );
+  return <IdProvider objectId={objectId}>{PageComponent && <PageComponent />}</IdProvider>;
 }
 
 export default ProductPage;

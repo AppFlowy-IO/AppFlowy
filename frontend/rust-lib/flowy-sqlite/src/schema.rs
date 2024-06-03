@@ -1,6 +1,26 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    chat_message_table (message_id) {
+        message_id -> BigInt,
+        chat_id -> Text,
+        content -> Text,
+        created_at -> BigInt,
+        author_type -> BigInt,
+        author_id -> Text,
+        reply_message_id -> Nullable<BigInt>,
+    }
+}
+
+diesel::table! {
+    chat_table (chat_id) {
+        chat_id -> Text,
+        created_at -> BigInt,
+        name -> Text,
+    }
+}
+
+diesel::table! {
     collab_snapshot (id) {
         id -> Text,
         object_id -> Text,
@@ -48,8 +68,10 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
-  collab_snapshot,
-  user_data_migration_records,
-  user_table,
-  user_workspace_table,
+    chat_message_table,
+    chat_table,
+    collab_snapshot,
+    user_data_migration_records,
+    user_table,
+    user_workspace_table,
 );

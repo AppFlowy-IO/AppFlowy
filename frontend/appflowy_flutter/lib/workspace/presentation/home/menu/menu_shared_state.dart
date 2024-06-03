@@ -2,7 +2,9 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 class MenuSharedState {
-  MenuSharedState({ViewPB? view}) {
+  MenuSharedState({
+    ViewPB? view,
+  }) {
     _latestOpenView.value = view;
   }
 

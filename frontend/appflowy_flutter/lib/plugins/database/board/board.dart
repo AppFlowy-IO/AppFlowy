@@ -25,7 +25,7 @@ class BoardPluginBuilder implements PluginBuilder {
   PluginType get pluginType => PluginType.board;
 
   @override
-  ViewLayoutPB? get layoutType => ViewLayoutPB.Board;
+  ViewLayoutPB get layoutType => ViewLayoutPB.Board;
 }
 
 class BoardPluginConfig implements PluginConfig {

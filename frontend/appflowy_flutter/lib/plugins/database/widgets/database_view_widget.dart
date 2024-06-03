@@ -54,6 +54,7 @@ class _DatabaseViewWidgetState extends State<DatabaseViewWidget> {
       valueListenable: _layoutTypeChangeNotifier,
       builder: (_, __, ___) => viewPlugin.widgetBuilder.buildWidget(
         shrinkWrap: widget.shrinkWrap,
+        context: PluginContext(),
       ),
     );
   }

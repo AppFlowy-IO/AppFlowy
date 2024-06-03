@@ -1,3 +1,4 @@
+@use "src/styles/mixin.scss";
 
 .sketch-picker {
   background-color: var(--bg-body) !important;
@@ -16,24 +17,21 @@
   box-shadow: var(--line-border) 0px 0px 0px 1px inset !important;
 }
 
-@mixin hidden-scrollbar {
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  -ms-overflow-style: none;
-  scrollbar-width: none; // For Firefox
-}
 
 body {
+
   &[data-os="windows"]:not([data-browser="firefox"]) {
     .appflowy-custom-scroller {
-      @include hidden-scrollbar;
+      @include mixin.hidden-scrollbar
+    }
+
+    .MuiBox-root {
+      @include mixin.scrollbar-style;
     }
   }
 
   .grid-sticky-header {
-    @include hidden-scrollbar;
+    @include mixin.hidden-scrollbar
   }
 }
 

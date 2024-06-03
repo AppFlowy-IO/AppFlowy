@@ -2,7 +2,6 @@ import Placeholder from '@/components/editor/components/blocks/text/Placeholder'
 import { useSlateStatic } from 'slate-react';
 import { useStartIcon } from './StartIcon.hooks';
 import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
-
 import React, { forwardRef, memo, useMemo } from 'react';
 
 export const Text = memo(
@@ -27,5 +26,6 @@ export const Text = memo(
         </span>
       );
     }
-  )
+  ),
+  (prevProps, nextProps) => JSON.stringify(prevProps.node) === JSON.stringify(nextProps.node)
 );

@@ -213,6 +213,9 @@ void main() {
     const layouts = ViewLayoutPB.values;
     for (var i = 0; i < layouts.length; i++) {
       final layout = layouts[i];
+      if (layout == ViewLayoutPB.Chat) {
+        continue;
+      }
       viewBloc.add(
         ViewEvent.createView(
           'Test $layout',

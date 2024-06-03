@@ -10,7 +10,7 @@ import {
 import { FieldType, SortCondition } from '@/application/database-yjs/database.type';
 import { parseChecklistData, parseSelectOptionCellData } from '@/application/database-yjs/fields';
 import { Row } from '@/application/database-yjs/selector';
-import orderBy from 'lodash-es/orderBy';
+import { orderBy } from 'lodash-es';
 import * as Y from 'yjs';
 
 export function sortBy(rows: Row[], sorts: YDatabaseSorts, fields: YDatabaseFields, rowMetas: Y.Map<YDoc>) {
