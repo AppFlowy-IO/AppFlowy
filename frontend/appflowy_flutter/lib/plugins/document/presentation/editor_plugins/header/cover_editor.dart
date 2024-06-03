@@ -1,14 +1,17 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/material.dart';
 
 const String kLocalImagesKey = 'local_images';
 
 List<String> get builtInAssetImages => [
-      "assets/images/app_flowy_abstract_cover_1.jpg",
-      "assets/images/app_flowy_abstract_cover_2.jpg",
+      'assets/images/built_in_cover_images/m_cover_image_1.jpg',
+      'assets/images/built_in_cover_images/m_cover_image_2.jpg',
+      'assets/images/built_in_cover_images/m_cover_image_3.jpg',
+      'assets/images/built_in_cover_images/m_cover_image_4.jpg',
+      'assets/images/built_in_cover_images/m_cover_image_5.jpg',
+      'assets/images/built_in_cover_images/m_cover_image_6.jpg',
     ];
 
 class ColorOption {

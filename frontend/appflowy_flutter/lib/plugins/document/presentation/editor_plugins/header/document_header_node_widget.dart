@@ -28,8 +28,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
 
-import 'cover_editor.dart';
-
 const double kCoverHeight = 250.0;
 const double kIconHeight = 60.0;
 const double kToolbarHeight = 40.0; // with padding to the top
@@ -296,7 +294,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           leftIconSize: const Size.square(18),
           onTap: () => widget.onIconOrCoverChanged(
             cover: PlatformExtension.isDesktopOrWeb
-                ? (CoverType.asset, builtInAssetImages.first)
+                ? (CoverType.asset, '1')
                 : (CoverType.color, '0xffe8e0ff'),
           ),
           useIntrinsicWidth: true,
