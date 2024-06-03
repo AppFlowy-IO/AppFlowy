@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/mobile/presentation/chat/mobile_chat_screen.dart';
@@ -15,15 +16,15 @@ import 'package:go_router/go_router.dart';
 
 extension MobileRouter on BuildContext {
   Future<void> pushView(ViewPB view, [Map<String, dynamic>? arguments]) async {
-    await push(
-      Uri(
-        path: view.routeName,
-        queryParameters: view.queryParameters(arguments),
-      ).toString(),
-    ).then((value) {
-      getIt<MenuSharedState>().latestOpenView = view;
-      getIt<CachedRecentService>().updateRecentViews([view.id], true);
-    });
+    // set the current view before pushing the new view
+    getIt<MenuSharedState>().latestOpenView = view;
+    unawaited(getIt<CachedRecentService>().updateRecentViews([view.id], true));
+
+    final uri = Uri(
+      path: view.routeName,
+      queryParameters: view.queryParameters(arguments),
+    ).toString();
+    await push(uri);
   }
 }
 
