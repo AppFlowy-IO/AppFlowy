@@ -1,14 +1,17 @@
+use crate::entities::IndexedWorkspaceIds;
 use crate::manager::{FolderInitDataSource, FolderManager};
 use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
 use collab::core::collab::DataSource;
-use collab_entity::{CollabType, EncodedCollab};
+use collab_entity::CollabType;
 use collab_folder::{Folder, FolderNotify, UserId};
 use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::{Arc, Weak};
 use tokio::task::spawn_blocking;
 use tracing::{event, info, Level};
+
+pub const INDEXED_WORKSPACE_KEY: &str = "indexed-workspace-ids";
 
 impl FolderManager {
   /// Called immediately after the application launched if the user already sign in/sign up.
@@ -184,28 +187,23 @@ impl FolderManager {
   }
 
   fn handle_index_folder(&self, workspace_id: String, folder: &Folder) {
-    // If folder index has indexes we compare against state map
-    let mut index_all = false;
+    let index_all;
     if self.folder_indexer.is_indexed() {
-      // If indexes already exist, we compare against the previous folder
-      // state if it exists
-      let old_encoded = self
+      // If indexes already exist, we check if the workspace was
+      // previously indexed, if it wasn't we index all
+      let indexed_ids = self
         .store_preferences
-        .get_object::<EncodedCollab>(&workspace_id);
-      if let Some(encoded) = old_encoded {
-        let changes = folder.calculate_view_changes(encoded);
-        if changes.is_ok() {
-          let folder_indexer = self.folder_indexer.clone();
-          let views = folder.views.get_all_views();
-          let view_changes = changes.unwrap();
-
-          let wid = workspace_id.clone();
-          spawn_blocking(move || {
-            folder_indexer.index_view_changes(views, view_changes, wid);
-          });
+        .get_object::<IndexedWorkspaceIds>(INDEXED_WORKSPACE_KEY);
+      if let Some(indexed_ids) = indexed_ids {
+        index_all = !indexed_ids.workspace_ids.contains(&workspace_id.clone());
+        if !index_all {
+          let mut workspace_ids = indexed_ids.workspace_ids.clone();
+          workspace_ids.push(workspace_id.clone());
+          let _ = self
+            .store_preferences
+            .set_object(INDEXED_WORKSPACE_KEY, IndexedWorkspaceIds { workspace_ids });
         }
       } else {
-        // If there is no state map, we index all views in workspace
         index_all = true;
       }
     } else {
@@ -214,8 +212,7 @@ impl FolderManager {
     }
 
     if index_all {
-      // We need all views in the current workspace
-      let views = folder.views.get_all_views_belonging_to(&workspace_id);
+      let views = folder.views.get_all_views();
       let folder_indexer = self.folder_indexer.clone();
       let wid = workspace_id.clone();
 

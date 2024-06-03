@@ -208,7 +208,6 @@ impl AppFlowyCore {
       database_manager: database_manager.clone(),
       document_manager: document_manager.clone(),
       server_provider: server_provider.clone(),
-      store_preference: store_preference.clone(),
       config: config.clone(),
     };
 
