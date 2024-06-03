@@ -25,6 +25,29 @@ import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
 import 'presentation/chat_welcome_page.dart';
 
+class AIChatUILayout {
+  static EdgeInsets get chatPadding =>
+      isMobile ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 70);
+
+  static EdgeInsets get welcomePagePadding => isMobile
+      ? const EdgeInsets.symmetric(horizontal: 20)
+      : const EdgeInsets.symmetric(horizontal: 100);
+
+  static double get messageWidthRatio => isMobile ? 0.8 : 0.86;
+
+  static EdgeInsets safeAreaInsets(BuildContext context) {
+    final query = MediaQuery.of(context);
+    return isMobile
+        ? EdgeInsets.fromLTRB(
+            query.padding.left,
+            0,
+            query.padding.right,
+            query.viewInsets.bottom + query.padding.bottom,
+          )
+        : const EdgeInsets.symmetric(horizontal: 70);
+  }
+}
+
 class AIChatPage extends StatefulWidget {
   const AIChatPage({
     super.key,
@@ -67,7 +90,7 @@ class _AIChatPageState extends State<AIChatPage> {
   Widget buildChatWidget() {
     return SizedBox.expand(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 60),
+        padding: AIChatUILayout.chatPadding,
         child: BlocProvider(
           create: (context) => ChatBloc(
             view: widget.view,
@@ -100,8 +123,7 @@ class _AIChatPageState extends State<AIChatPage> {
                     return state.initialLoadingStatus ==
                             const LoadingState.finish()
                         ? Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 100),
+                            padding: AIChatUILayout.welcomePagePadding,
                             child: ChatWelcomePage(
                               onSelectedQuestion: (question) {
                                 blocContext
@@ -115,7 +137,7 @@ class _AIChatPageState extends State<AIChatPage> {
                           );
                   },
                 ),
-                messageWidthRatio: isMobile ? 0.8 : 0.86,
+                messageWidthRatio: AIChatUILayout.messageWidthRatio,
                 bubbleBuilder: (
                   child, {
                   required message,
@@ -258,35 +280,26 @@ class _AIChatPageState extends State<AIChatPage> {
   }
 
   Widget buildChatInput(BuildContext context) {
-    final query = MediaQuery.of(context);
-    final safeAreaInsets = isMobile
-        ? EdgeInsets.fromLTRB(
-            query.padding.left,
-            0,
-            query.padding.right,
-            query.viewInsets.bottom + query.padding.bottom,
-          )
-        : const EdgeInsets.symmetric(horizontal: 70);
-    return Column(
-      children: [
-        ClipRect(
-          child: Padding(
-            padding: safeAreaInsets,
-            child: ChatInput(
+    return ClipRect(
+      child: Padding(
+        padding: AIChatUILayout.safeAreaInsets(context),
+        child: Column(
+          children: [
+            ChatInput(
               chatId: widget.view.id,
               onSendPressed: (message) => onSendPressed(context, message.text),
             ),
-          ),
+            const VSpace(6),
+            Opacity(
+              opacity: 0.6,
+              child: FlowyText(
+                LocaleKeys.chat_aiMistakePrompt.tr(),
+                fontSize: 12,
+              ),
+            ),
+          ],
         ),
-        const VSpace(6),
-        Opacity(
-          opacity: 0.6,
-          child: FlowyText(
-            LocaleKeys.chat_aiMistakePrompt.tr(),
-            fontSize: 12,
-          ),
-        ),
-      ],
+      ),
     );
   }
 

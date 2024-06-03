@@ -5,6 +5,8 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
+import 'chat_input.dart';
+
 class ChatWelcomePage extends StatelessWidget {
   ChatWelcomePage({required this.onSelectedQuestion, super.key});
 
@@ -12,37 +14,35 @@ class ChatWelcomePage extends StatelessWidget {
 
   final List<String> items = [
     LocaleKeys.chat_question1.tr(),
-    LocaleKeys.chat_question1.tr(),
-    LocaleKeys.chat_question1.tr(),
-    LocaleKeys.chat_question1.tr(),
+    LocaleKeys.chat_question2.tr(),
+    LocaleKeys.chat_question3.tr(),
+    LocaleKeys.chat_question4.tr(),
   ];
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const FlowySvg(
-            FlowySvgs.flowy_ai_chat_logo_s,
-            size: Size.square(44),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const FlowySvg(
+          FlowySvgs.flowy_ai_chat_logo_s,
+          size: Size.square(44),
+        ),
+        const SizedBox(height: 40),
+        GridView.builder(
+          shrinkWrap: true,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: isMobile ? 2 : 4,
+            crossAxisSpacing: 6,
+            mainAxisSpacing: 6,
+            childAspectRatio: 16.0 / 9.0,
           ),
-          const SizedBox(height: 40),
-          GridView.builder(
-            shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              crossAxisSpacing: 6,
-              mainAxisSpacing: 2,
-              childAspectRatio: 16.0 / 9.0,
-            ),
-            itemCount: items.length,
-            itemBuilder: (context, index) => WelcomeQuestion(
-              question: items[index],
-              onSelected: onSelectedQuestion,
-            ),
+          itemCount: items.length,
+          itemBuilder: (context, index) => WelcomeQuestion(
+            question: items[index],
+            onSelected: onSelectedQuestion,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -64,6 +64,8 @@ class WelcomeQuestion extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         child: FlowyHover(
+          // Make the hover effect only available on mobile
+          isSelected: () => isMobile,
           style: HoverStyle(
             borderRadius: BorderRadius.circular(6),
           ),
