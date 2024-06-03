@@ -10,6 +10,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -252,14 +253,26 @@ class _AIChatPageState extends State<AIChatPage> {
             query.viewInsets.bottom + query.padding.bottom,
           )
         : EdgeInsets.zero;
-    return ClipRect(
-      child: Padding(
-        padding: safeAreaInsets,
-        child: ChatInput(
-          chatId: widget.view.id,
-          onSendPressed: (message) => onSendPressed(context, message.text),
+    return Column(
+      children: [
+        ClipRect(
+          child: Padding(
+            padding: safeAreaInsets,
+            child: ChatInput(
+              chatId: widget.view.id,
+              onSendPressed: (message) => onSendPressed(context, message.text),
+            ),
+          ),
         ),
-      ),
+        const VSpace(6),
+        Opacity(
+          opacity: 0.6,
+          child: FlowyText(
+            LocaleKeys.chat_aiMistakePrompt.tr(),
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 
