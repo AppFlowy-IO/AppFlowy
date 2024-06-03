@@ -19,6 +19,7 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 import 'presentation/chat_input.dart';
+import 'presentation/chat_loading.dart';
 import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_welcome_page.dart';
@@ -233,15 +234,7 @@ class _AIChatPageState extends State<AIChatPage> {
 
     switch (messageType) {
       case OnetimeMessageType.loading:
-        return SizedBox(
-          width: 50,
-          height: 30,
-          child: CircularProgressIndicator.adaptive(
-            valueColor: AlwaysStoppedAnimation<Color?>(
-              Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        );
+        return const ChatAILoading();
       default:
         return const SizedBox.shrink();
     }

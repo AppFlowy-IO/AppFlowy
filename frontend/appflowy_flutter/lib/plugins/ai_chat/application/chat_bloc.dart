@@ -9,7 +9,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
+import 'package:nanoid/nanoid.dart';
 import 'chat_message_listener.dart';
 
 part 'chat_bloc.freezed.dart';
@@ -146,11 +146,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             );
           },
           streaming: (List<Message> messages) {
-            // filter out loading or error messages
-            final allMessages = state.messages.where((element) {
-              return !(element.metadata?.containsKey(onetimeMessageType) ==
-                  true);
-            }).toList();
+            final allMessages = _perminentMessages();
             allMessages.insertAll(0, messages);
             emit(state.copyWith(messages: allMessages));
           },
@@ -196,11 +192,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             });
           },
           didReceiveRelatedQuestion: (List<RelatedQuestionPB> questions) {
-            final allMessages = state.messages.where((element) {
-              return !(element.metadata?.containsKey(onetimeMessageType) ==
-                  true);
-            }).toList();
-
+            final allMessages = _perminentMessages();
             final message = CustomMessage(
               metadata: OnetimeMessageType.relatedQuestion.toMap(),
               author: const User(id: "system"),
@@ -231,6 +223,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         );
       },
     );
+  }
+
+// Returns the list of messages that are not include one-time messages.
+  List<Message> _perminentMessages() {
+    final allMessages = state.messages.where((element) {
+      return !(element.metadata?.containsKey(onetimeMessageType) == true);
+    }).toList();
+
+    return allMessages;
   }
 
   void _loadPrevMessage(Int64? beforeMessageId) {
@@ -269,7 +270,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       author: User(id: id),
       metadata: OnetimeMessageType.loading.toMap(),
       // fake id
-      id: 'chat_message_loading_id',
+      id: nanoid(),
     );
   }
 

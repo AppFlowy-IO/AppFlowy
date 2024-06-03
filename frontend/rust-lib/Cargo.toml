@@ -93,7 +93,7 @@ yrs = "0.18.8"
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "39c5a5ab65ea052079f4ff9214d73a6efe6e3668" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b36715dc2427e23a15fa81c629e1817d3dbf1e1a" }
 
 [profile.dev]
 opt-level = 1

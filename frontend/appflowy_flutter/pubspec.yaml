@@ -140,6 +140,7 @@ dependencies:
   scaled_app: ^2.3.0
   auto_size_text_field: ^2.2.3
   reorderable_tabbar: ^1.0.6
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
