@@ -98,7 +98,9 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             (f) => Log.error(f.msg, f),
           );
         },
-        cancelSubscription: () {},
+        cancelSubscription: () async {
+          await UserBackendService.cancelSubscription(workspaceId);
+        },
       );
     });
   }

@@ -93,10 +93,6 @@ class AppFlowyCloudDeepLink {
       return;
     }
 
-    debugPrint("== REACHED DEEEPLINK ==");
-    debugPrint("== ${uri.toString()} ==");
-    debugPrint("== REACHED DEEEPLINK ==");
-
     return _isAuthCallbackDeepLink(uri).fold(
       (_) async {
         final deviceId = await getDeviceId();

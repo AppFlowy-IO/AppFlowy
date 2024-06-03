@@ -75,7 +75,6 @@ class SettingsDialog extends StatelessWidget {
   }
 
   Widget getSettingsView(SettingsPage page, UserProfilePB user) {
-    debugPrint("[WorkspaceID] $workspaceId");
     switch (page) {
       case SettingsPage.account:
         return SettingsAccountView(

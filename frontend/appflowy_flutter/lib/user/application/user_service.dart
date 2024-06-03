@@ -233,7 +233,8 @@ class UserBackendService {
       ..workspaceId = workspaceId
       ..recurringInterval = RecurringIntervalPB.Month
       ..workspaceSubscriptionPlan = plan
-      ..successUrl = 'http://$_deepLinkSubscriptionUrl';
+      ..successUrl =
+          'http://$_deepLinkSubscriptionUrl'; // TODO(Mathias): Change once Zack has resolved
 
     return UserEventSubscribeWorkspace(request).send();
   }
