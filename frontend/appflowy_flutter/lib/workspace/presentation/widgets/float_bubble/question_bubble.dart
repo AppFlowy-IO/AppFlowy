@@ -7,9 +7,8 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,9 +20,8 @@ class QuestionBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 30,
-      height: 30,
+    return const SizedBox.square(
+      dimension: 36.0,
       child: BubbleActionList(),
     );
   }
@@ -66,20 +64,39 @@ class _BubbleActionListState extends State<BubbleActionList> {
       actions: actions,
       offset: const Offset(0, -8),
       buildChild: (controller) {
-        return FlowyTextButton(
-          '?',
-          tooltip: LocaleKeys.questionBubble_help.tr(),
-          fontWeight: FontWeight.w600,
-          fontColor: fontColor,
-          fillColor: fillColor,
-          hoverColor: Theme.of(context).colorScheme.primary,
-          mainAxisAlignment: MainAxisAlignment.center,
-          radius: Corners.s10Border,
-          onPressed: () {
-            toggle();
-            controller.show();
-          },
+        return FlowyTooltip(
+          message: LocaleKeys.questionBubble_help.tr(),
+          child: GestureDetector(
+            child: Container(
+              padding: const EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18.0),
+                border: Border.all(
+                  color: const Color(0x2E45494A),
+                  width: 0.5,
+                ),
+              ),
+              child: const FlowySvg(
+                FlowySvgs.help_center_s,
+              ),
+            ),
+            onTap: () => controller.show(),
+          ),
         );
+        // return FlowyTextButton(
+        //   '?',
+        //   tooltip: LocaleKeys.questionBubble_help.tr(),
+        //   fontWeight: FontWeight.w600,
+        //   fontColor: fontColor,
+        //   fillColor: fillColor,
+        //   hoverColor: Theme.of(context).colorScheme.primary,
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   radius: Corners.s10Border,
+        //   onPressed: () {
+        //     toggle();
+        //     controller.show();
+        //   },
+        // );
       },
       onClosed: toggle,
       onSelected: (action, controller) {
