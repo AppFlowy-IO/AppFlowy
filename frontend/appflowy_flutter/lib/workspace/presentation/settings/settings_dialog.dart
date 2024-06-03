@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_billing_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_data_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/feature_flag_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_page.dart';
@@ -22,12 +24,14 @@ class SettingsDialog extends StatelessWidget {
     required this.dismissDialog,
     required this.didLogout,
     required this.restartApp,
+    required this.workspaceId,
   }) : super(key: ValueKey(user.id));
 
   final VoidCallback dismissDialog;
   final VoidCallback didLogout;
   final VoidCallback restartApp;
   final UserProfilePB user;
+  final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +41,7 @@ class SettingsDialog extends StatelessWidget {
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
         builder: (context, state) => FlowyDialog(
           width: MediaQuery.of(context).size.width * 0.7,
+          constraints: const BoxConstraints(maxWidth: 784, minWidth: 564),
           child: ScaffoldMessenger(
             child: Scaffold(
               backgroundColor: Colors.transparent,
@@ -89,6 +94,10 @@ class SettingsDialog extends StatelessWidget {
         return const SettingsShortcutsView();
       case SettingsPage.member:
         return WorkspaceMembersPage(userProfile: user);
+      case SettingsPage.plan:
+        return SettingsPlanView(workspaceId: workspaceId);
+      case SettingsPage.billing:
+        return const SettingsBillingView();
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
       default:

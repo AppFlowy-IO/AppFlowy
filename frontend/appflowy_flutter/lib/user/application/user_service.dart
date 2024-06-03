@@ -7,10 +7,10 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:fixnum/fixnum.dart';
 
+const _deepLinkSubscriptionUrl = 'appflowy-flutter://subscription-callback';
+
 class UserBackendService {
-  UserBackendService({
-    required this.userId,
-  });
+  UserBackendService({required this.userId});
 
   final Int64 userId;
 
@@ -218,5 +218,31 @@ class UserBackendService {
   ) async {
     final data = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
     return UserEventLeaveWorkspace(data).send();
+  }
+
+  static Future<FlowyResult<RepeatedWorkspaceSubscriptionPB, FlowyError>>
+      getWorkspaceSubscriptions() {
+    return UserEventGetWorkspaceSubscriptions().send();
+  }
+
+  static Future<FlowyResult<PaymentLinkPB, FlowyError>> createSubscription(
+    String workspaceId,
+    SubscriptionPlanPB plan,
+  ) {
+    final request = SubscribeWorkspacePB()
+      ..workspaceId = workspaceId
+      ..recurringInterval = RecurringIntervalPB.Month
+      ..workspaceSubscriptionPlan = plan
+      ..successUrl =
+          'http://$_deepLinkSubscriptionUrl'; // TODO(Mathias): Change once Zack has resolved
+
+    return UserEventSubscribeWorkspace(request).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> cancelSubscription(
+    String workspaceId,
+  ) {
+    final request = UserWorkspaceIdPB()..workspaceId = workspaceId;
+    return UserEventCancelWorkspaceSubscription(request).send();
   }
 }

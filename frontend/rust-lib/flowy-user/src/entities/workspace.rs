@@ -209,6 +209,7 @@ pub struct SubscribeWorkspacePB {
 
   #[pb(index = 2)]
   pub recurring_interval: RecurringIntervalPB,
+
   #[pb(index = 3)]
   pub workspace_subscription_plan: SubscriptionPlanPB,
 
