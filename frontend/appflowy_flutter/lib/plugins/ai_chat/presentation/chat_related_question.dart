@@ -71,9 +71,10 @@ class RelatedQuestionList extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
-                    const FlowySvg(
+                    FlowySvg(
                       FlowySvgs.ai_summary_generate_s,
-                      size: Size.square(24),
+                      size: const Size.square(24),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     const HSpace(6),
                     FlowyText(

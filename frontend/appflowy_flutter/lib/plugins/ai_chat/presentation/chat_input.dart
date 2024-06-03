@@ -1,6 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -109,7 +111,7 @@ class _ChatInputState extends State<ChatInput> {
       child: Padding(
         padding: inputPadding,
         child: Material(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(30),
           color: isMobile
               ? Theme.of(context).colorScheme.surfaceContainer
               : Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -169,9 +171,11 @@ class _ChatInputState extends State<ChatInput> {
       ),
       child: Visibility(
         visible: _sendButtonVisible,
-        child: SendButton(
-          onPressed: _handleSendPressed,
+        child: Padding(
           padding: buttonPadding,
+          child: SendButton(
+            onPressed: _handleSendPressed,
+          ),
         ),
       ),
     );
@@ -255,3 +259,24 @@ class InputOptions {
 
 final isMobile = defaultTargetPlatform == TargetPlatform.android ||
     defaultTargetPlatform == TargetPlatform.iOS;
+
+class SendButton extends StatelessWidget {
+  const SendButton({required this.onPressed, super.key});
+
+  final void Function() onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyIconButton(
+      width: 36,
+      fillColor: Theme.of(context).colorScheme.secondary,
+      radius: BorderRadius.circular(18),
+      icon: FlowySvg(
+        FlowySvgs.send_s,
+        size: const Size.square(24),
+        color: Theme.of(context).colorScheme.primary,
+      ),
+      onPressed: onPressed,
+    );
+  }
+}
