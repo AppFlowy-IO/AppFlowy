@@ -92,7 +92,7 @@ class FlowyErrorPage extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     backgroundColor:
-                        Theme.of(context).colorScheme.surfaceVariant,
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     content: FlowyText(
                       'Message copied to clipboard',
                       fontSize: kIsWeb || !Platform.isIOS && !Platform.isAndroid

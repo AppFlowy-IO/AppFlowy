@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -134,9 +133,9 @@ class _SettingsPlanComparisonDialogState
                               return;
                             }
 
-                            await UserBackendService.cancelSubscription(
-                              widget.workspaceId,
-                            );
+                            context.read<SettingsPlanBloc>().add(
+                                  const SettingsPlanEvent.cancelSubscription(),
+                                );
                           },
                         ),
                         _PlanTable(
