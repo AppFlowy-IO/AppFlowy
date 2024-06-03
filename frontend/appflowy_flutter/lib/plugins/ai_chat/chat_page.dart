@@ -33,7 +33,7 @@ class AIChatUILayout {
       ? const EdgeInsets.symmetric(horizontal: 20)
       : const EdgeInsets.symmetric(horizontal: 100);
 
-  static double get messageWidthRatio => isMobile ? 0.8 : 0.86;
+  static double get messageWidthRatio => 0.85;
 
   static EdgeInsets safeAreaInsets(BuildContext context) {
     final query = MediaQuery.of(context);

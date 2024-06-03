@@ -84,6 +84,7 @@ class FlowyIconButton extends StatelessWidget {
         richMessage: richTooltipText,
         showDuration: Duration.zero,
         child: RawMaterialButton(
+          clipBehavior: Clip.antiAlias,
           visualDensity: VisualDensity.compact,
           hoverElevation: 0,
           highlightElevation: 0,
