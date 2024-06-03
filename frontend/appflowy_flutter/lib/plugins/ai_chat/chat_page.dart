@@ -233,10 +233,14 @@ class _AIChatPageState extends State<AIChatPage> {
 
     switch (messageType) {
       case OnetimeMessageType.loading:
-        return const SizedBox(
+        return SizedBox(
           width: 50,
           height: 30,
-          child: CircularProgressIndicator.adaptive(),
+          child: CircularProgressIndicator.adaptive(
+            valueColor: AlwaysStoppedAnimation<Color?>(
+              Theme.of(context).colorScheme.primary,
+            ),
+          ),
         );
       default:
         return const SizedBox.shrink();
