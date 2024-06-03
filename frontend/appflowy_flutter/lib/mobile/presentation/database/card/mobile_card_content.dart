@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
+import 'package:appflowy/plugins/database/widgets/card/card_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/mobile_board_card_cell_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -16,7 +16,7 @@ class MobileCardContent extends StatelessWidget {
 
   final RowMetaPB rowMeta;
   final CardCellBuilder cellBuilder;
-  final List<CellContext> cells;
+  final List<CellMeta> cells;
   final RowCardStyleConfiguration styleConfiguration;
 
   @override
@@ -26,9 +26,9 @@ class MobileCardContent extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: cells.map(
-          (cellContext) {
+          (cellMeta) {
             return cellBuilder.build(
-              cellContext: cellContext,
+              cellContext: cellMeta.cellContext(),
               styleMap: mobileBoardCardCellStyleMap(context),
               hasNotes: !rowMeta.isDocumentEmpty,
             );

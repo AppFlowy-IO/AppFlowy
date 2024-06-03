@@ -178,7 +178,7 @@ class _DeletedFilesListView extends StatelessWidget {
               title: Text(
                 deletedFile.name,
                 style: theme.textTheme.labelMedium
-                    ?.copyWith(color: theme.colorScheme.onBackground),
+                    ?.copyWith(color: theme.colorScheme.onSurface),
               ),
               horizontalTitleGap: 0,
               tileColor: theme.colorScheme.onSurface.withOpacity(0.1),

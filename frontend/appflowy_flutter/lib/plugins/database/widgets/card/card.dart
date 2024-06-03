@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/action.dart';
@@ -186,7 +185,7 @@ class _CardContent extends StatelessWidget {
 
   final RowMetaPB rowMeta;
   final CardCellBuilder cellBuilder;
-  final List<CellContext> cells;
+  final List<CellMeta> cells;
   final RowCardStyleConfiguration styleConfiguration;
 
   @override
@@ -210,9 +209,9 @@ class _CardContent extends StatelessWidget {
   List<Widget> _makeCells(
     BuildContext context,
     RowMetaPB rowMeta,
-    List<CellContext> cells,
+    List<CellMeta> cells,
   ) {
-    return cells.mapIndexed((int index, CellContext cellContext) {
+    return cells.mapIndexed((int index, CellMeta cellMeta) {
       EditableCardNotifier? cellNotifier;
 
       if (index == 0) {
@@ -225,7 +224,7 @@ class _CardContent extends StatelessWidget {
       }
 
       return cellBuilder.build(
-        cellContext: cellContext,
+        cellContext: cellMeta.cellContext(),
         cellNotifier: cellNotifier,
         styleMap: styleConfiguration.cellStyleMap,
         hasNotes: !rowMeta.isDocumentEmpty,

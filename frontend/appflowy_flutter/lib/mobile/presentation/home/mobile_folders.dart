@@ -70,20 +70,20 @@ class MobileFolders extends StatelessWidget {
                       ? [
                           MobileSectionFolder(
                             title: LocaleKeys.sideBar_workspace.tr(),
-                            categoryType: FolderCategoryType.public,
+                            spaceType: FolderSpaceType.public,
                             views: state.section.publicViews,
                           ),
                           const VSpace(8.0),
                           MobileSectionFolder(
                             title: LocaleKeys.sideBar_private.tr(),
-                            categoryType: FolderCategoryType.private,
+                            spaceType: FolderSpaceType.private,
                             views: state.section.privateViews,
                           ),
                         ]
                       : [
                           MobileSectionFolder(
                             title: LocaleKeys.sideBar_personal.tr(),
-                            categoryType: FolderCategoryType.public,
+                            spaceType: FolderSpaceType.public,
                             views: state.section.publicViews,
                           ),
                         ],

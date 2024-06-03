@@ -1,12 +1,14 @@
 import { getPlatform } from '@/utils/platform';
-import validator from 'validator';
+import isURL from 'validator/lib/isURL';
+import isIP from 'validator/lib/isIP';
+import isFQDN from 'validator/lib/isFQDN';
 
 export const downloadPage = 'https://appflowy.io/download';
 
 export const openAppFlowySchema = 'appflowy-flutter://';
 
 export function isValidUrl(input: string) {
-  return validator.isURL(input, { require_protocol: true, require_host: false });
+  return isURL(input, { require_protocol: true, require_host: false });
 }
 
 // Process the URL to make sure it's a valid URL
@@ -20,7 +22,7 @@ export function processUrl(input: string) {
 
   const domain = input.split('/')[0];
 
-  if (validator.isIP(domain) || validator.isFQDN(domain)) {
+  if (isIP(domain) || isFQDN(domain)) {
     processedUrl = `https://${input}`;
     if (isValidUrl(processedUrl)) {
       return processedUrl;

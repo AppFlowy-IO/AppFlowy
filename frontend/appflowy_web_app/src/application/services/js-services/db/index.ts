@@ -1,41 +1,8 @@
 import { YDoc } from '@/application/collab.type';
-import { getAuthInfo } from '@/application/services/js-services/storage';
-import * as Y from 'yjs';
-import { IndexeddbPersistence } from 'y-indexeddb';
 import { databasePrefix } from '@/application/constants';
-import BaseDexie from 'dexie';
-import { usersSchema, UsersTable } from './tables/users';
-
-const version = 1;
-
-type DexieTables = UsersTable;
-export type Dexie<T = DexieTables> = BaseDexie & T;
-
-let db: Dexie | undefined;
-
-export function getDB() {
-  const authInfo = getAuthInfo();
-
-  if (!db && authInfo?.uuid) {
-    return openDB(authInfo?.uuid);
-  }
-
-  return db;
-}
-
-export function openDB(uuid: string) {
-  const dbName = `${databasePrefix}_${uuid}`;
-
-  if (db && db.name === dbName) {
-    return db;
-  }
-
-  db = new BaseDexie(dbName) as Dexie;
-  const schema = Object.assign({}, usersSchema);
-
-  db.version(version).stores(schema);
-  return db;
-}
+import { getAuthInfo } from '@/application/services/js-services/storage';
+import { IndexeddbPersistence } from 'y-indexeddb';
+import * as Y from 'yjs';
 
 /**
  * Open the collaboration database, and return a function to close it
@@ -65,4 +32,11 @@ export async function deleteCollabDB(docName: string) {
   const provider = new IndexeddbPersistence(name, doc);
 
   await provider.destroy();
+}
+
+export function getDBName(id: string, type: string) {
+  const { uuid } = getAuthInfo() || {};
+
+  if (!uuid) throw new Error('No user found');
+  return `${uuid}_${type}_${id}`;
 }

@@ -13,12 +13,12 @@ const _lightShader5 = Color(0xFFe0e0e0);
 const _lightShader6 = Color(0xFFf2f2f2);
 const _lightMain1 = Color(0xFF00bcf0);
 const _lightTint9 = Color(0xFFe1fbFF);
-const _darkShader1 = Color(0xFF131720);
+const _darkShader1 = Color(0xE5FFFFFF);
 const _darkShader2 = Color(0xFF1A202C);
 const _darkShader3 = Color(0xFF363D49);
 const _darkShader5 = Color(0xFFBBC3CD);
 const _darkShader6 = Color(0xFFF2F2F2);
-const _darkMain1 = Color(0xFF00BCF0);
+const _darkMain1 = Color(0x19FFFFFF);
 const _darkInput = Color(0xFF282E3A);
 
 class DefaultColorScheme extends FlowyColorScheme {

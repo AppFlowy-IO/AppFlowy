@@ -29,6 +29,7 @@ class EmojiText extends StatelessWidget {
       emoji,
       fontSize: fontSize,
       textAlign: textAlign,
+      strutStyle: const StrutStyle(forceStrutHeight: true),
       fallbackFontFamily: _cachedFallbackFontFamily,
       lineHeight: lineHeight,
     );

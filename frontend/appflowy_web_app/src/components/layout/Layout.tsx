@@ -19,6 +19,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 
       if (!folder) return;
 
+      console.log(folder.toJSON());
       setFolder(folder);
     },
     [folderService]

@@ -1,9 +1,13 @@
+import 'package:appflowy/shared/google_fonts_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/flutter/af_dropdown_menu.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsDropdown<T> extends StatefulWidget {
   const SettingsDropdown({
@@ -37,6 +41,10 @@ class _SettingsDropdownState<T> extends State<SettingsDropdown<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final fontFamily = context.read<AppearanceSettingsCubit>().state.font;
+    final fontFamilyUsed =
+        getGoogleFontSafely(fontFamily).fontFamily ?? defaultFontFamily;
+
     return Row(
       children: [
         Expanded(
@@ -45,16 +53,20 @@ class _SettingsDropdownState<T> extends State<SettingsDropdown<T>> {
             expandedInsets: widget.expandWidth ? EdgeInsets.zero : null,
             initialSelection: widget.selectedOption,
             dropdownMenuEntries: widget.options,
+            textStyle: Theme.of(context)
+                .textTheme
+                .bodyLarge
+                ?.copyWith(fontFamily: fontFamilyUsed),
             menuStyle: MenuStyle(
               maximumSize:
-                  const MaterialStatePropertyAll(Size(double.infinity, 250)),
-              elevation: const MaterialStatePropertyAll(10),
+                  const WidgetStatePropertyAll(Size(double.infinity, 250)),
+              elevation: const WidgetStatePropertyAll(10),
               shadowColor:
-                  MaterialStatePropertyAll(Colors.black.withOpacity(0.4)),
-              backgroundColor: MaterialStatePropertyAll(
+                  WidgetStatePropertyAll(Colors.black.withOpacity(0.4)),
+              backgroundColor: WidgetStatePropertyAll(
                 Theme.of(context).cardColor,
               ),
-              padding: const MaterialStatePropertyAll(
+              padding: const WidgetStatePropertyAll(
                 EdgeInsets.symmetric(horizontal: 6, vertical: 8),
               ),
               alignment: Alignment.bottomLeft,

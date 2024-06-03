@@ -27,7 +27,7 @@ Future<void> runIntegration3OnDesktop() async {
   settings_test_runner.main();
   share_markdown_test.main();
   import_files_test.main();
-  sidebar_test_runner.startTesting();
-  board_test_runner.startTesting();
+  sidebar_test_runner.main();
+  board_test_runner.main();
   tabs_test.main();
 }

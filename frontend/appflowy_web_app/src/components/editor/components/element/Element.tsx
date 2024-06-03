@@ -1,20 +1,20 @@
 import { BlockData, BlockType, InlineBlockType, YjsEditorKey } from '@/application/collab.type';
-import { BulletedList } from '@/components/editor/components/blocks/bulleted_list';
+import { BulletedList } from '@/components/editor/components/blocks/bulleted-list';
 import { Callout } from '@/components/editor/components/blocks/callout';
 import { CodeBlock } from '@/components/editor/components/blocks/code';
 import { DividerNode } from '@/components/editor/components/blocks/divider';
 import { Heading } from '@/components/editor/components/blocks/heading';
 import { ImageBlock } from '@/components/editor/components/blocks/image';
-import { MathEquation } from '@/components/editor/components/blocks/math_equation';
-import { NumberedList } from '@/components/editor/components/blocks/numbered_list';
+import { MathEquation } from '@/components/editor/components/blocks/math-equation';
+import { NumberedList } from '@/components/editor/components/blocks/numbered-list';
 import { Outline } from '@/components/editor/components/blocks/outline';
 import { Page } from '@/components/editor/components/blocks/page';
 import { Paragraph } from '@/components/editor/components/blocks/paragraph';
 import { Quote } from '@/components/editor/components/blocks/quote';
 import { TableBlock, TableCellBlock } from '@/components/editor/components/blocks/table';
 import { Text } from '@/components/editor/components/blocks/text';
-import { TodoList } from '@/components/editor/components/blocks/todo_list';
-import { ToggleList } from '@/components/editor/components/blocks/toggle_list';
+import { TodoList } from 'src/components/editor/components/blocks/todo-list';
+import { ToggleList } from 'src/components/editor/components/blocks/toggle-list';
 import { UnSupportedBlock } from '@/components/editor/components/element/UnSupportedBlock';
 import { Formula } from '@/components/editor/components/leaf/formula';
 import { Mention } from '@/components/editor/components/leaf/mention';
@@ -22,6 +22,7 @@ import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
 import React, { FC, useMemo } from 'react';
 import { RenderElementProps } from 'slate-react';
+import { DatabaseBlock } from 'src/components/editor/components/blocks/database';
 
 export const Element = ({
   element: node,
@@ -64,6 +65,10 @@ export const Element = ({
         return TableBlock;
       case BlockType.TableCell:
         return TableCellBlock;
+      case BlockType.GridBlock:
+      case BlockType.BoardBlock:
+      case BlockType.CalendarBlock:
+        return DatabaseBlock;
       default:
         return UnSupportedBlock;
     }

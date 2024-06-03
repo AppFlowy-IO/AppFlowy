@@ -1,7 +1,6 @@
+import 'package:appflowy_popover/src/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:appflowy_popover/src/layout.dart';
 
 import 'mask.dart';
 import 'mutex.dart';
@@ -290,6 +289,13 @@ class PopoverContainer extends StatefulWidget {
     final PopoverContainerState? result =
         context.findAncestorStateOfType<PopoverContainerState>();
     return result!;
+  }
+
+  static PopoverContainerState? maybeOf(BuildContext context) {
+    if (context is StatefulElement && context.state is PopoverContainerState) {
+      return context.state as PopoverContainerState;
+    }
+    return context.findAncestorStateOfType<PopoverContainerState>();
   }
 }
 

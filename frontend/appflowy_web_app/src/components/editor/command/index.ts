@@ -24,7 +24,10 @@ export const CustomEditor = {
       }
 
       if (node.type === InlineBlockType.Mention && (node.data as Mention)?.type === MentionType.Date) {
-        return renderDate((node.data as Mention).date || '');
+        const date = (node.data as Mention).date || '';
+        const isUnix = date?.length === 10;
+
+        return renderDate(date, 'MMM DD, YYYY', isUnix);
       }
     }
 

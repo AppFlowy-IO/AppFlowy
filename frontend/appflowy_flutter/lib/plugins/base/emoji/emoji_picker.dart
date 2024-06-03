@@ -1,12 +1,10 @@
-import 'dart:io';
-
 import 'package:appflowy/plugins/base/emoji/emoji_picker_header.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_search_bar.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // use a global value to store the selected emoji to prevent reloading every time.
 EmojiData? kCachedEmojiData;
@@ -27,7 +25,6 @@ class FlowyEmojiPicker extends StatefulWidget {
 
 class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
   EmojiData? emojiData;
-  List<String>? fallbackFontFamily;
 
   @override
   void initState() {
@@ -45,13 +42,6 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
           });
         },
       );
-    }
-
-    if (Platform.isAndroid || Platform.isLinux) {
-      final notoColorEmoji = GoogleFonts.notoColorEmoji().fontFamily;
-      if (notoColorEmoji != null) {
-        fallbackFontFamily = [notoColorEmoji];
-      }
     }
   }
 
@@ -82,14 +72,18 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         );
       },
       itemBuilder: (context, emojiId, emoji, callback) {
-        return FlowyIconButton(
-          iconPadding: const EdgeInsets.all(2.0),
-          icon: FlowyText(
-            emoji,
-            fontSize: 28.0,
-            fallbackFontFamily: fallbackFontFamily,
+        return SizedBox(
+          width: 36,
+          height: 36,
+          child: FlowyButton(
+            margin: EdgeInsets.zero,
+            radius: Corners.s8Border,
+            text: FlowyText.emoji(
+              emoji,
+              fontSize: 24.0,
+            ),
+            onTap: () => callback(emojiId, emoji),
           ),
-          onPressed: () => callback(emojiId, emoji),
         );
       },
       searchBarBuilder: (context, keyword, skinTone) {

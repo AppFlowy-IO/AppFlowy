@@ -1,6 +1,6 @@
 import { Operation, Node } from 'slate';
-import Y from 'yjs';
+import * as Y from 'yjs';
 
-export function applySlateOp (ydoc: Y.Doc, slateRoot: Node, op: Operation) {
+export function applySlateOp(ydoc: Y.Doc, slateRoot: Node, op: Operation) {
   console.log('applySlateOp', op);
 }

@@ -57,7 +57,7 @@ class _FlowyEmojiSkinToneSelectorState
       child: FlowyTooltip(
         message: LocaleKeys.emoji_selectSkinTone.tr(),
         child: _buildIconButton(
-          lastSelectedEmojiSkinTone?.icon ?? '✋',
+          lastSelectedEmojiSkinTone?.icon ?? '👋',
           () => controller.show(),
         ),
       ),
@@ -65,19 +65,22 @@ class _FlowyEmojiSkinToneSelectorState
   }
 
   Widget _buildIconButton(String icon, VoidCallback onPressed) {
-    return FlowyIconButton(
-      key: emojiSkinToneKey(icon),
-      icon: Padding(
-        // add a left padding to align the emoji center
-        padding: const EdgeInsets.only(
-          left: 3.0,
-        ),
-        child: FlowyText(
-          icon,
-          fontSize: 22.0,
-        ),
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0x1E171717)),
+        borderRadius: BorderRadius.circular(8),
       ),
-      onPressed: onPressed,
+      child: FlowyButton(
+        key: emojiSkinToneKey(icon),
+        margin: EdgeInsets.zero,
+        text: FlowyText.emoji(
+          icon,
+          fontSize: 24.0,
+        ),
+        onTap: onPressed,
+      ),
     );
   }
 }
@@ -86,17 +89,17 @@ extension EmojiSkinToneIcon on EmojiSkinTone {
   String get icon {
     switch (this) {
       case EmojiSkinTone.none:
-        return '✋';
+        return '👋';
       case EmojiSkinTone.light:
-        return '✋🏻';
+        return '👋🏻';
       case EmojiSkinTone.mediumLight:
-        return '✋🏼';
+        return '👋🏼';
       case EmojiSkinTone.medium:
-        return '✋🏽';
+        return '👋🏽';
       case EmojiSkinTone.mediumDark:
-        return '✋🏾';
+        return '👋🏾';
       case EmojiSkinTone.dark:
-        return '✋🏿';
+        return '👋🏿';
     }
   }
 }

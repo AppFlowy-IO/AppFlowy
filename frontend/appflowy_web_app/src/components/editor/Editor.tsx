@@ -4,10 +4,18 @@ import { EditorContextProvider } from '@/components/editor/EditorContext';
 import React from 'react';
 import './editor.scss';
 
-export const Editor = ({ readOnly, doc }: { readOnly: boolean; doc: YDoc }) => {
+export const Editor = ({
+  readOnly,
+  doc,
+  includeRoot = true,
+}: {
+  readOnly: boolean;
+  doc: YDoc;
+  includeRoot?: boolean;
+}) => {
   return (
     <EditorContextProvider readOnly={readOnly}>
-      <CollaborativeEditor doc={doc} />
+      <CollaborativeEditor doc={doc} includeRoot={includeRoot} />
     </EditorContextProvider>
   );
 };
