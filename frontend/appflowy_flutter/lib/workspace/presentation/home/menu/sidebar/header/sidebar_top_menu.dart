@@ -96,7 +96,7 @@ class SidebarTopMenu extends StatelessWidget {
               onPressed: () => context
                   .read<HomeSettingBloc>()
                   .add(const HomeSettingEvent.collapseMenu()),
-              iconPadding: const EdgeInsets.all(2),
+              iconPadding: const EdgeInsets.all(4),
               icon: const FlowySvg(FlowySvgs.hide_menu_s),
             ),
           ),
