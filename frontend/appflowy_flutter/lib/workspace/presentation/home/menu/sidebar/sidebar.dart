@@ -254,7 +254,14 @@ class _SidebarState extends State<_Sidebar> {
             // new page button
             const SidebarNewPageButton(),
             // scrollable document list
-            const VSpace(16.0),
+            const VSpace(12.0),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
+              child: Divider(
+                color: Color(0x1E1F2329),
+                height: 0.5,
+              ),
+            ),
             Expanded(
               child: Padding(
                 padding: menuHorizontalInset - const EdgeInsets.only(right: 6),

@@ -31,6 +31,7 @@ class SidebarFolder extends StatelessWidget {
       builder: (context, value, child) {
         return Column(
           children: [
+            const VSpace(4.0),
             // favorite
             BlocBuilder<FavoriteBloc, FavoriteState>(
               builder: (context, state) {
@@ -73,6 +74,7 @@ class SidebarFolder extends StatelessWidget {
                 );
               },
             ),
+            const VSpace(200),
           ],
         );
       },
