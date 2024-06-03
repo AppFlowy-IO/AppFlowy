@@ -139,7 +139,7 @@
     "addToFavorites": "Add to Favorites",
     "copyLink": "Copy Link",
     "changeIcon": "Change icon",
-    "collapseAllPages": "Collapse all pages"
+    "collapseAllPages": "Collapse all subpages"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -240,8 +240,8 @@
     "genSummary": "Generate summary"
   },
   "sideBar": {
-    "closeSidebar": "Close side bar",
-    "openSidebar": "Open side bar",
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar",
     "personal": "Personal",
     "private": "Private",
     "workspace": "Workspace",
@@ -453,7 +453,7 @@
     "manageDataPage": {
       "menuLabel": "Manage data",
       "title": "Manage data",
-      "description": "Manage data local storage or Import your existing data into @:appName. You can secure your data with end to end encryption.",
+      "description": "Manage data local storage or Import your existing data into @:appName.",
       "dataStorage": {
         "title": "File storage location",
         "tooltip": "The location where your files are stored",
@@ -561,7 +561,7 @@
       },
       "showNotificationsIcon": {
         "label": "Show notifications icon",
-        "hint": "Turn off to hide notification icons in the app."
+        "hint": "Toggle off to hide the notification icon in the sidebar."
       }
     },
     "appearance": {
@@ -1154,10 +1154,11 @@
       "video": {
         "label": "Video",
         "emptyLabel": "Add a video",
-        "placeholder": "Enter a link to a video",
+        "placeholder": "Paste the video link",
         "copiedToPasteBoard": "The video link has been copied to the clipboard",
-        "insertVideo": "Insert video",
-        "invalidVideoUrl": "Invalid video url, must be a valid file.",
+        "insertVideo": "Add video",
+        "invalidVideoUrl": "The source URL is not supported yet.",
+        "invalidVideoUrlYouTube": "YouTube is not supported yet.",
         "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
       }
     },

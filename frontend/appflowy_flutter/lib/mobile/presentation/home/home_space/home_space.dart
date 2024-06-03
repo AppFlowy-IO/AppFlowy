@@ -5,13 +5,23 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobileHomeSpace extends StatelessWidget {
+class MobileHomeSpace extends StatefulWidget {
   const MobileHomeSpace({super.key, required this.userProfile});
 
   final UserProfilePB userProfile;
 
   @override
+  State<MobileHomeSpace> createState() => _MobileHomeSpaceState();
+}
+
+class _MobileHomeSpaceState extends State<MobileHomeSpace>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final workspaceId =
         context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
             '';
@@ -23,7 +33,7 @@ class MobileHomeSpace extends StatelessWidget {
             vertical: HomeSpaceViewSizes.mVerticalPadding,
           ),
           child: MobileFolders(
-            user: userProfile,
+            user: widget.userProfile,
             workspaceId: workspaceId,
             showFavorite: false,
           ),

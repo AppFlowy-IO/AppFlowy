@@ -1,5 +1,8 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
@@ -20,6 +23,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -27,8 +31,6 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final codeBlockLocalization = CodeBlockLocalizations(
@@ -211,6 +213,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         style: styleCustomizer.selectionMenuStyleBuilder(),
       ).handler(editorState);
 
+  AFFocusManager? focusManager;
+
+  void _loseFocus() => widget.editorState.selection = null;
+
   @override
   void initState() {
     super.initState();
@@ -251,17 +257,35 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     // customize the dynamic theme color
     _customizeBlockComponentBackgroundColorDecorator();
 
-    if (widget.initialSelection != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.editorState.updateSelectionWithReason(
-          widget.initialSelection,
-        );
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      focusManager = AFFocusManager.maybeOf(context);
+      focusManager?.loseFocusNotifier.addListener(_loseFocus);
+
+      if (widget.initialSelection != null) {
+        widget.editorState.updateSelectionWithReason(widget.initialSelection);
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    final currFocusManager = AFFocusManager.maybeOf(context);
+    if (focusManager != currFocusManager) {
+      focusManager?.loseFocusNotifier.removeListener(_loseFocus);
+      focusManager = currFocusManager;
+      focusManager?.loseFocusNotifier.addListener(_loseFocus);
     }
+    super.didChangeDependencies();
   }
 
   @override
   void dispose() {
+    focusManager?.loseFocusNotifier.removeListener(_loseFocus);
+
     if (widget.useViewInfoBloc && !viewInfoBloc.isClosed) {
       viewInfoBloc.add(const ViewInfoEvent.unregisterEditorState());
     }

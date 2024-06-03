@@ -1,5 +1,4 @@
 import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -43,9 +42,9 @@ class FavoriteMenuBloc extends Bloc<FavoriteMenuEvent, FavoriteMenuState> {
 
             if (query.isNotEmpty) {
               queriedViews = _filter(views, query);
-              todayViews = _filter(state.todayViews, query);
-              thisWeekViews = _filter(state.thisWeekViews, query);
-              otherViews = _filter(state.otherViews, query);
+              todayViews = _filter(todayViews, query);
+              thisWeekViews = _filter(thisWeekViews, query);
+              otherViews = _filter(otherViews, query);
             }
 
             emit(
@@ -66,28 +65,20 @@ class FavoriteMenuBloc extends Bloc<FavoriteMenuEvent, FavoriteMenuState> {
   final FavoriteService _service = FavoriteService();
   RepeatedFavoriteViewPB? _source;
 
-  List<ViewPB> _filter(List<ViewPB> views, String query) {
-    return views
-        .where(
-          (view) => view.name.toLowerCase().contains(query.toLowerCase()),
-        )
-        .toList();
-  }
+  List<ViewPB> _filter(List<ViewPB> views, String query) => views
+      .where((view) => view.name.toLowerCase().contains(query.toLowerCase()))
+      .toList();
 
   // all, today, last week, other
   (List<ViewPB>, List<ViewPB>, List<ViewPB>, List<ViewPB>) _getViews(
     RepeatedFavoriteViewPB source,
   ) {
-    final List<ViewPB> views =
-        source.items.map((v) => v.item).where((e) => !e.isPinned).toList();
+    final List<ViewPB> views = source.items.map((v) => v.item).toList();
     final List<ViewPB> todayViews = [];
     final List<ViewPB> thisWeekViews = [];
     final List<ViewPB> otherViews = [];
     for (final favoriteView in source.items) {
       final view = favoriteView.item;
-      if (view.isPinned) {
-        continue;
-      }
       final date = DateTime.fromMillisecondsSinceEpoch(
         favoriteView.timestamp.toInt() * 1000,
       );
