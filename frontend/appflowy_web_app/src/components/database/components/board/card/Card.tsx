@@ -1,6 +1,6 @@
-import { useFieldsSelector } from '@/application/database-yjs';
+import { useFieldsSelector, useNavigateToRow } from '@/application/database-yjs';
 import CardField from '@/components/database/components/field/CardField';
-import React, { useEffect, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 
 export interface CardProps {
   groupFieldId: string;
@@ -9,7 +9,7 @@ export interface CardProps {
   isDragging?: boolean;
 }
 
-export function Card({ groupFieldId, rowId, onResize, isDragging }: CardProps) {
+export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardProps) => {
   const fields = useFieldsSelector();
   const showFields = useMemo(() => fields.filter((field) => field.fieldId !== groupFieldId), [fields, groupFieldId]);
 
@@ -32,19 +32,24 @@ export function Card({ groupFieldId, rowId, onResize, isDragging }: CardProps) {
     };
   }, [onResize, isDragging]);
 
+  const navigateToRow = useNavigateToRow();
+
   return (
     <div
+      onClick={() => {
+        navigateToRow?.(rowId);
+      }}
       ref={ref}
       style={{
         minHeight: '38px',
       }}
-      className='flex cursor-pointer flex-col rounded-lg border border-line-divider p-3 shadow-sm hover:bg-fill-list-active hover:shadow'
+      className='relative flex cursor-pointer flex-col rounded-lg border border-line-border p-3 text-xs shadow-sm hover:bg-fill-list-active hover:shadow'
     >
       {showFields.map((field, index) => {
         return <CardField index={index} key={field.fieldId} rowId={rowId} fieldId={field.fieldId} />;
       })}
     </div>
   );
-}
+});
 
 export default Card;

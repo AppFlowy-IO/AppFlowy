@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-import { GridChildComponentProps, VariableSizeGrid } from 'react-window';
+import React, { memo, useEffect, useRef } from 'react';
+import { areEqual, GridChildComponentProps, VariableSizeGrid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { GridColumnType, RenderColumn, GridColumn } from '../grid-column';
 
@@ -10,24 +10,25 @@ export interface GridHeaderProps {
   scrollLeft?: number;
 }
 
+const Cell = memo(({ columnIndex, style, data }: GridChildComponentProps) => {
+  const column = data[columnIndex];
+
+  // Placeholder for Action toolbar
+  if (!column || column.type === GridColumnType.Action) return <div style={style} />;
+
+  if (column.type === GridColumnType.Field) {
+    return (
+      <div style={style}>
+        <GridColumn column={column} index={columnIndex} />
+      </div>
+    );
+  }
+
+  return <div style={style} className={'border-t border-b border-line-divider'} />;
+}, areEqual);
+
 export const GridHeader = ({ scrollLeft, onScrollLeft, columnWidth, columns }: GridHeaderProps) => {
   const ref = useRef<VariableSizeGrid | null>(null);
-  const Cell = useCallback(({ columnIndex, style, data }: GridChildComponentProps) => {
-    const column = data[columnIndex];
-
-    // Placeholder for Action toolbar
-    if (!column || column.type === GridColumnType.Action) return <div style={style} />;
-
-    if (column.type === GridColumnType.Field) {
-      return (
-        <div style={style}>
-          <GridColumn column={column} index={columnIndex} />
-        </div>
-      );
-    }
-
-    return <div style={style} className={'border-t border-b border-line-divider'} />;
-  }, []);
 
   useEffect(() => {
     if (ref.current) {

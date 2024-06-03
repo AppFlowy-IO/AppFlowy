@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -128,7 +130,7 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
           //  cause the popover dismiss intermediately when click the right icon.
           // so using the stack to put the right icon on the flowy button.
           return SizedBox(
-            height: 40,
+            height: 44,
             child: MouseRegion(
               onEnter: (_) => isHovered.value = true,
               onExit: (_) => isHovered.value = false,
@@ -242,6 +244,7 @@ class _WorkspaceInfo extends StatelessWidget {
           rightIcon: const HSpace(32.0),
           text: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // workspace name
               FlowyText.medium(
@@ -250,7 +253,7 @@ class _WorkspaceInfo extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 withTooltip: true,
               ),
-              const VSpace(2.0),
+              if (Platform.isMacOS) const VSpace(2.0),
               // workspace members count
               FlowyText.regular(
                 state.isLoading

@@ -13,11 +13,12 @@ class SidebarFooter extends StatelessWidget {
     return const Row(
       children: [
         Expanded(child: SidebarTrashButton()),
-        SizedBox(
-          height: 16,
-          child: VerticalDivider(width: 1, color: Color(0x141F2329)),
-        ),
-        Expanded(child: SidebarWidgetButton()),
+        // Enable it when the widget button is ready
+        // SizedBox(
+        //   height: 16,
+        //   child: VerticalDivider(width: 1, color: Color(0x141F2329)),
+        // ),
+        // Expanded(child: SidebarWidgetButton()),
       ],
     );
   }

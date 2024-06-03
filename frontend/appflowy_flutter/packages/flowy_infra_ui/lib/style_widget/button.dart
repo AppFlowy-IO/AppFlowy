@@ -106,7 +106,7 @@ class FlowyButton extends StatelessWidget {
     }
 
     if (rightIcon != null) {
-      children.add(const HSpace(6));
+      children.add(HSpace(iconPadding));
       // No need to define the size of rightIcon. Just use its intrinsic width
       children.add(rightIcon!);
     }

@@ -141,6 +141,18 @@ export function textFilterCheck(data: string, content: string, condition: TextFi
 }
 
 export function numberFilterCheck(data: string, content: string, condition: number) {
+  if (isNaN(Number(data)) || isNaN(Number(content)) || data === '' || content === '') {
+    if (condition === NumberFilterCondition.NumberIsEmpty && data === '') {
+      return true;
+    }
+
+    if (condition === NumberFilterCondition.NumberIsNotEmpty && data !== '') {
+      return true;
+    }
+
+    return false;
+  }
+
   const decimal = new Decimal(data).toNumber();
   const filterDecimal = new Decimal(content).toNumber();
 
@@ -188,6 +200,14 @@ export function checklistFilterCheck(data: string, content: string, condition: n
 }
 
 export function selectOptionFilterCheck(data: string, content: string, condition: number) {
+  if (SelectOptionFilterCondition.OptionIsEmpty === condition) {
+    return data === '';
+  }
+
+  if (SelectOptionFilterCondition.OptionIsNotEmpty === condition) {
+    return data !== '';
+  }
+
   const selectedOptionIds = data.split(',');
   const filterOptionIds = content.split(',');
 

@@ -5,9 +5,10 @@ import * as Y from 'yjs';
 
 export interface DatabaseContextState {
   readOnly: boolean;
-  doc: YDoc;
+  databaseDoc: YDoc;
   viewId: string;
   rowDocMap: Y.Map<YDoc>;
+  isDatabaseRowPage?: boolean;
   navigateToRow?: (rowId: string) => void;
 }
 
@@ -15,18 +16,30 @@ export const DatabaseContext = createContext<DatabaseContextState | null>(null);
 
 export const useDatabase = () => {
   const database = useContext(DatabaseContext)
-    ?.doc?.getMap(YjsEditorKey.data_section)
+    ?.databaseDoc?.getMap(YjsEditorKey.data_section)
     .get(YjsEditorKey.database) as YDatabase;
 
   return database;
 };
 
+export function useDatabaseViewId() {
+  return useContext(DatabaseContext)?.viewId;
+}
+
 export const useNavigateToRow = () => {
   return useContext(DatabaseContext)?.navigateToRow;
 };
 
+export const useRowDocMap = () => {
+  return useContext(DatabaseContext)?.rowDocMap;
+};
+
+export const useIsDatabaseRowPage = () => {
+  return useContext(DatabaseContext)?.isDatabaseRowPage;
+};
+
 export const useRow = (rowId: string) => {
-  const rows = useContext(DatabaseContext)?.rowDocMap;
+  const rows = useRowDocMap();
 
   return rows?.get(rowId)?.getMap(YjsEditorKey.data_section);
 };
@@ -51,7 +64,7 @@ export const useDatabaseView = () => {
   const database = useDatabase();
   const viewId = useViewId();
 
-  return viewId ? database.get(YjsDatabaseKey.views)?.get(viewId) : undefined;
+  return viewId ? database?.get(YjsDatabaseKey.views)?.get(viewId) : undefined;
 };
 
 export function useDatabaseFields() {

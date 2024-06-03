@@ -19,47 +19,56 @@ AppDir:
     exec_args: $@
   apt:
     arch:
-    - amd64
+      - amd64
     allow_unauthenticated: true
     sources:
-    - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy main restricted
-    - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy-updates main restricted
-    - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy universe
-    - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy-updates universe
-    - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy multiverse
-    - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy-updates multiverse
-    - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy-backports main restricted
-        universe multiverse
-    - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security main restricted
-    - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security universe
-    - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security multiverse
-    - sourceline: deb https://ppa.launchpadcontent.net/touchegg/stable/ubuntu/ jammy
-        main
-    - sourceline: deb https://packagecloud.io/slacktechnologies/slack/debian/ jessie
-        main
-    - sourceline: deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]
-        https://cli.github.com/packages stable main
-    - sourceline: deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_16.x
-        jammy main
-    - sourceline: deb [arch=amd64,arm64,armhf] http://packages.microsoft.com/repos/code
-        stable main
-    - sourceline: deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable
-        main
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy main restricted
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy-updates main restricted
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy universe
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy-updates universe
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy multiverse
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy-updates multiverse
+      - sourceline:
+          deb http://id.archive.ubuntu.com/ubuntu/ jammy-backports main restricted
+          universe multiverse
+      - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security main restricted
+      - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security universe
+      - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security multiverse
+      - sourceline:
+          deb https://ppa.launchpadcontent.net/touchegg/stable/ubuntu/ jammy
+          main
+      - sourceline:
+          deb https://packagecloud.io/slacktechnologies/slack/debian/ jessie
+          main
+      - sourceline:
+          deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]
+          https://cli.github.com/packages stable main
+      - sourceline:
+          deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_16.x
+          jammy main
+      - sourceline:
+          deb [arch=amd64,arm64,armhf] http://packages.microsoft.com/repos/code
+          stable main
+      - sourceline:
+          deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable
+          main
     include:
-    - libc6:amd64
-    - libnotify4:amd64
-    - libkeybinder-3.0-0:amd64
-    - libwayland-cursor0:amd64
-    - libwayland-client0:amd64
-    - libwayland-egl1:amd64
+      - libc6:amd64
+      - libnotify4:amd64
+      - libkeybinder-3.0-0:amd64
+      - libwayland-cursor0:amd64
+      - libwayland-client0:amd64
+      - libwayland-egl1:amd64
+      - libmpv-dev:amd64
+      - mpv:amd64
   files:
     include: []
     exclude:
-    - usr/share/man
-    - usr/share/doc/*/README.*
-    - usr/share/doc/*/changelog.*
-    - usr/share/doc/*/NEWS.*
-    - usr/share/doc/*/TODO.*
+      - usr/share/man
+      - usr/share/doc/*/README.*
+      - usr/share/doc/*/changelog.*
+      - usr/share/doc/*/NEWS.*
+      - usr/share/doc/*/TODO.*
   test:
     fedora-30:
       image: appimagecrafters/tests-env:fedora-30

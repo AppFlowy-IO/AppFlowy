@@ -32,8 +32,8 @@ lib-dispatch = { workspace = true }
 
 # Core
 #flowy-core = { workspace = true, features = ["profiling"] }
-flowy-core = { workspace = true, features = ["verbose_log"] }
-#flowy-core = { workspace = true }
+#flowy-core = { workspace = true, features = ["verbose_log"] }
+flowy-core = { workspace = true }
 
 flowy-notification = { workspace = true, features = ["dart"] }
 flowy-document = { workspace = true, features = ["dart"] }

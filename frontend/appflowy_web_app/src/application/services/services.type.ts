@@ -31,26 +31,19 @@ export interface AuthService {
 }
 
 export interface DocumentService {
-  openDocument: (workspaceId: string, docId: string) => Promise<YDoc>;
+  openDocument: (docId: string) => Promise<YDoc>;
 }
 
 export interface DatabaseService {
+  getWorkspaceDatabases: () => Promise<{ views: string[]; database_id: string }[]>;
   openDatabase: (
-    workspaceId: string,
-    viewId: string,
-    rowIds?: string[]
-  ) => Promise<{
-    databaseDoc: YDoc;
-    rows: Y.Map<YDoc>;
-  }>;
-  getDatabase: (
-    workspaceId: string,
     databaseId: string,
     rowIds?: string[]
   ) => Promise<{
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
   }>;
+  closeDatabase: (databaseId: string) => Promise<void>;
 }
 
 export interface UserService {

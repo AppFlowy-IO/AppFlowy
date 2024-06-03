@@ -800,7 +800,10 @@ impl FolderManager {
     if let Some(view) = &view {
       let view_layout: ViewLayout = view.layout.clone().into();
       if let Some(handle) = self.operation_handlers.get(&view_layout) {
-        let _ = handle.open_view(view_id).await;
+        info!("Open view: {}", view.id);
+        if let Err(err) = handle.open_view(view_id).await {
+          error!("Open view error: {:?}", err);
+        }
       }
     }
 

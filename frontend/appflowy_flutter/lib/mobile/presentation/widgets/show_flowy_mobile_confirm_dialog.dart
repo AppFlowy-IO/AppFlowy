@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 enum ConfirmDialogActionAlignment {
@@ -83,5 +85,48 @@ Future<T?> showFlowyMobileConfirmDialog<T>(
         actions: actions,
       );
     },
+  );
+}
+
+Future<T?> showFlowyCupertinoConfirmDialog<T>({
+  BuildContext? context,
+  required String title,
+  required Widget leftButton,
+  required Widget rightButton,
+  void Function(BuildContext context)? onLeftButtonPressed,
+  void Function(BuildContext context)? onRightButtonPressed,
+}) {
+  return showDialog(
+    context: context ?? AppGlobals.context,
+    builder: (context) => CupertinoAlertDialog(
+      title: FlowyText.medium(
+        title,
+        fontSize: 18,
+        maxLines: 10,
+        lineHeight: 1.3,
+      ),
+      actions: [
+        CupertinoDialogAction(
+          onPressed: () {
+            if (onLeftButtonPressed != null) {
+              onLeftButtonPressed(context);
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
+          child: leftButton,
+        ),
+        CupertinoDialogAction(
+          onPressed: () {
+            if (onRightButtonPressed != null) {
+              onRightButtonPressed(context);
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
+          child: rightButton,
+        ),
+      ],
+    ),
   );
 }

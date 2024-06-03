@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -29,24 +30,23 @@ class _MobileSectionFolderHeaderState extends State<MobileSectionFolderHeader> {
 
   @override
   Widget build(BuildContext context) {
-    const iconSize = 32.0;
     return Row(
       children: [
         Expanded(
           child: FlowyButton(
-            text: FlowyText.semibold(
+            text: FlowyText.medium(
               widget.title,
-              fontSize: 20.0,
+              fontSize: 16.0,
             ),
             margin: const EdgeInsets.symmetric(vertical: 8),
             expandText: false,
+            iconPadding: 2,
             mainAxisAlignment: MainAxisAlignment.start,
             rightIcon: AnimatedRotation(
               duration: const Duration(milliseconds: 200),
               turns: _turns,
-              child: const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: Colors.grey,
+              child: const FlowySvg(
+                FlowySvgs.m_spaces_expand_s,
               ),
             ),
             onTap: () {
@@ -60,12 +60,10 @@ class _MobileSectionFolderHeaderState extends State<MobileSectionFolderHeader> {
         FlowyIconButton(
           key: mobileCreateNewPageButtonKey,
           hoverColor: Theme.of(context).colorScheme.secondaryContainer,
-          iconPadding: const EdgeInsets.all(2),
-          height: iconSize,
-          width: iconSize,
+          height: HomeSpaceViewSizes.mViewButtonDimension,
+          width: HomeSpaceViewSizes.mViewButtonDimension,
           icon: const FlowySvg(
-            FlowySvgs.add_s,
-            size: Size.square(iconSize),
+            FlowySvgs.m_space_add_s,
           ),
           onPressed: widget.onAdded,
         ),

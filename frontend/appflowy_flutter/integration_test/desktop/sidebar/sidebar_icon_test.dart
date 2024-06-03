@@ -18,6 +18,9 @@ void main() {
 
       // create document, board, grid and calendar views
       for (final value in ViewLayoutPB.values) {
+        if (value == ViewLayoutPB.Chat) {
+          continue;
+        }
         await tester.createNewPageWithNameUnderParent(
           name: value.name,
           parentName: gettingStarted,
@@ -46,6 +49,9 @@ void main() {
 
       // create document, board, grid and calendar views
       for (final value in ViewLayoutPB.values) {
+        if (value == ViewLayoutPB.Chat) {
+          continue;
+        }
         await tester.createNewPageWithNameUnderParent(
           name: value.name,
           parentName: gettingStarted,

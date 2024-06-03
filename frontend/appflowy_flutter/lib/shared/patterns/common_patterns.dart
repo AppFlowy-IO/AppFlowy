@@ -13,6 +13,20 @@ const _imgUrlPattern =
     r'(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.gif|.webm)(\?[^\s[",><]*)?';
 final imgUrlRegex = RegExp(_imgUrlPattern);
 
+/// This pattern allows for both HTTP and HTTPS Scheme
+/// It allows for query parameters
+/// It only allows the following video extensions:
+///  .mp4, .mov, .avi, .webm, .flv, .m4v (mpeg), .mpeg, .h264,
+///
+const _videoUrlPattern =
+    r'(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.mp4|.mov|.avi|.webm|.flv|.m4v|.mpeg|.h264)(\?[^\s[",><]*)?';
+final videoUrlRegex = RegExp(_videoUrlPattern);
+
+/// This pattern matches both youtube.com and shortened youtu.be urls.
+///
+const _youtubeUrlPattern = r'^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/';
+final youtubeUrlRegex = RegExp(_youtubeUrlPattern);
+
 const _appflowyCloudUrlPattern = r'^(https:\/\/)(.*)(\.appflowy\.cloud\/)(.*)';
 final appflowyCloudUrlRegex = RegExp(_appflowyCloudUrlPattern);
 

@@ -284,7 +284,7 @@ pub(crate) async fn read_favorites_handler(
   let mut views = vec![];
   for item in favorite_items {
     if let Ok(view) = folder.get_view_pb(&item.id).await {
-      views.push(FavoriteViewPB {
+      views.push(SectionViewPB {
         item: view,
         timestamp: item.timestamp,
       });
@@ -296,16 +296,19 @@ pub(crate) async fn read_favorites_handler(
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_recent_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<RepeatedViewPB, FlowyError> {
+) -> DataResult<RepeatedRecentViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let recent_items = folder.get_my_recent_sections().await;
   let mut views = vec![];
   for item in recent_items {
     if let Ok(view) = folder.get_view_pb(&item.id).await {
-      views.push(view);
+      views.push(SectionViewPB {
+        item: view,
+        timestamp: item.timestamp,
+      });
     }
   }
-  data_result_ok(RepeatedViewPB { items: views })
+  data_result_ok(RepeatedRecentViewPB { items: views })
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]

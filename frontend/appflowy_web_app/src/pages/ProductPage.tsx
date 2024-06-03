@@ -1,3 +1,5 @@
+import { ViewLayout } from '@/application/collab.type';
+import { useViewLayout } from '@/application/folder-yjs';
 import { IdProvider } from '@/components/_shared/context-provider/IdProvider';
 import React, { lazy, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
@@ -5,36 +7,26 @@ import DocumentPage from '@/pages/DocumentPage';
 
 const DatabasePage = lazy(() => import('./DatabasePage'));
 
-enum URL_COLLAB_TYPE {
-  DOCUMENT = 'document',
-  GRID = 'grid',
-  BOARD = 'board',
-  CALENDAR = 'calendar',
-}
-
 function ProductPage() {
-  const { workspaceId, type, objectId } = useParams();
+  const { workspaceId, objectId } = useParams();
+  const type = useViewLayout();
+
   const PageComponent = useMemo(() => {
     switch (type) {
-      case URL_COLLAB_TYPE.DOCUMENT:
+      case ViewLayout.Document:
         return DocumentPage;
-      case URL_COLLAB_TYPE.GRID:
-      case URL_COLLAB_TYPE.BOARD:
-      case URL_COLLAB_TYPE.CALENDAR:
+      case ViewLayout.Grid:
+      case ViewLayout.Board:
+      case ViewLayout.Calendar:
         return DatabasePage;
       default:
         return null;
     }
   }, [type]);
 
-  console.log(workspaceId, type, objectId);
-  if (!workspaceId || !type || !objectId) return null;
+  if (!workspaceId || !objectId) return null;
 
-  return (
-    <IdProvider workspaceId={workspaceId} objectId={objectId}>
-      {PageComponent && <PageComponent />}
-    </IdProvider>
-  );
+  return <IdProvider objectId={objectId}>{PageComponent && <PageComponent />}</IdProvider>;
 }
 
 export default ProductPage;

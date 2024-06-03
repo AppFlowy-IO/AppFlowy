@@ -3,7 +3,7 @@ import { Leaf } from '@/components/editor/components/leaf';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import React, { useCallback } from 'react';
 import { NodeEntry } from 'slate';
-import { Editable, ReactEditor } from 'slate-react';
+import { Editable, ReactEditor, RenderElementProps } from 'slate-react';
 import { Element } from './components/element';
 
 const EditorEditable = ({ editor }: { editor: ReactEditor }) => {
@@ -17,13 +17,15 @@ const EditorEditable = ({ editor }: { editor: ReactEditor }) => {
     [codeDecorate]
   );
 
+  const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, []);
+
   return (
     <Editable
       role={'textbox'}
       decorate={decorate}
       className={'px-16 outline-none focus:outline-none max-md:px-4'}
       renderLeaf={Leaf}
-      renderElement={Element}
+      renderElement={renderElement}
       readOnly={readOnly}
       spellCheck={false}
       autoCorrect={'off'}

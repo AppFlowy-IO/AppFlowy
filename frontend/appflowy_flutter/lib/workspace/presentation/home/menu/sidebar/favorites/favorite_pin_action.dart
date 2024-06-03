@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -31,8 +30,6 @@ class FavoritePinAction extends StatelessWidget {
         width: 24,
         icon: icon,
         onPressed: () {
-          PopoverContainer.maybeOf(context)?.closeAll();
-
           view.isPinned
               ? context.read<FavoriteBloc>().add(FavoriteEvent.unpin(view))
               : context.read<FavoriteBloc>().add(FavoriteEvent.pin(view));

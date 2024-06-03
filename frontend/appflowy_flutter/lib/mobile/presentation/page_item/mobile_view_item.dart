@@ -1,11 +1,13 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item_add_button.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -16,8 +18,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 typedef ViewItemOnSelected = void Function(ViewPB);
 typedef ActionPaneBuilder = ActionPane Function(BuildContext context);
-
-const _itemHeight = 48.0;
 
 class MobileViewItem extends StatelessWidget {
   const MobileViewItem({
@@ -177,48 +177,10 @@ class InnerMobileViewItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             child,
-            const Divider(
-              height: 1,
-            ),
             ...children,
           ],
         );
-      } else {
-        child = Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            child,
-            const Divider(
-              height: 1,
-            ),
-            Container(
-              height: _itemHeight,
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(left: (level + 2) * leftPadding),
-                child: FlowyText.medium(
-                  LocaleKeys.noPagesInside.tr(),
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-            const Divider(
-              height: 1,
-            ),
-          ],
-        );
       }
-    } else {
-      child = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          child,
-          const Divider(
-            height: 1,
-          ),
-        ],
-      );
     }
 
     // wrap the child with DraggableItem if isDraggable is true
@@ -226,7 +188,6 @@ class InnerMobileViewItem extends StatelessWidget {
       child = DraggableViewItem(
         isFirstChild: isFirstChild,
         view: view,
-        // FIXME: use better color
         centerHighlightColor: Colors.blue.shade200,
         topHighlightColor: Colors.blue.shade200,
         bottomHighlightColor: Colors.blue.shade200,
@@ -296,15 +257,14 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     final children = [
       // expand icon
       _buildLeftIcon(),
-      const HSpace(4),
       // icon
       _buildViewIcon(),
       const HSpace(8),
       // title
       Expanded(
-        child: FlowyText.medium(
+        child: FlowyText.regular(
           widget.view.name,
-          fontSize: 18.0,
+          fontSize: 16.0,
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -313,10 +273,11 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     // hover action
 
     // ··· more action button
-    // children.add(_buildViewMoreActionButton(context));
+    children.add(_buildViewMoreButton(context));
     // only support add button for document layout
     if (!widget.isFeedback && widget.view.layout == ViewLayoutPB.Document) {
       // + button
+
       children.add(_buildViewAddButton(context));
     }
 
@@ -324,7 +285,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       borderRadius: BorderRadius.circular(4.0),
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
-        height: _itemHeight,
+        height: HomeSpaceViewSizes.mViewHeight,
         child: Padding(
           padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
           child: Row(
@@ -349,12 +310,12 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
   Widget _buildViewIcon() {
     final icon = widget.view.icon.value.isNotEmpty
-        ? EmojiText(
-            emoji: widget.view.icon.value,
-            fontSize: 24.0,
+        ? FlowyText.emoji(
+            widget.view.icon.value,
+            fontSize: 20.0,
           )
         : SizedBox.square(
-            dimension: 26.0,
+            dimension: 18.0,
             child: widget.view.defaultIcon(),
           );
     return icon;
@@ -364,17 +325,17 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
   // show > if the view is expandable.
   // show · if the view can't contain child views.
   Widget _buildLeftIcon() {
-    if (isReferencedDatabaseView(widget.view, widget.parentView)) {
-      return const _DotIconWidget();
+    if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
+      return HSpace(widget.leftPadding);
     }
 
     return GestureDetector(
-      child: AnimatedRotation(
-        duration: const Duration(milliseconds: 250),
-        turns: widget.isExpanded ? 0 : -0.25,
-        child: const Icon(
-          Icons.keyboard_arrow_down_rounded,
-          size: 28,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 6.0, top: 6.0, bottom: 6.0),
+        child: FlowySvg(
+          widget.isExpanded ? FlowySvgs.m_expand_s : FlowySvgs.m_collapse_s,
+          blendMode: null,
         ),
       ),
       onTap: () {
@@ -418,23 +379,50 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       },
     );
   }
-}
 
-class _DotIconWidget extends StatelessWidget {
-  const _DotIconWidget();
+  // + button
+  Widget _buildViewMoreButton(BuildContext context) {
+    return MobileViewMoreButton(onPressed: () => _showMoreActions(context));
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(6.0),
-      child: Container(
-        width: 4,
-        height: 4,
-        decoration: BoxDecoration(
-          color: Theme.of(context).iconTheme.color,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
+  Future<void> _showMoreActions(BuildContext context) async {
+    final viewBloc = context.read<ViewBloc>();
+    final favoriteBloc = context.read<FavoriteBloc>();
+    await showMobileBottomSheet(
+      context,
+      showHeader: true,
+      title: widget.view.name,
+      showDragHandle: true,
+      showCloseButton: true,
+      useRootNavigator: true,
+      builder: (context) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: viewBloc),
+            BlocProvider.value(value: favoriteBloc),
+          ],
+          child: BlocBuilder<ViewBloc, ViewState>(
+            builder: (context, state) {
+              final isFavorite = state.view.isFavorite;
+              return MobileViewItemBottomSheet(
+                view: viewBloc.state.view,
+                actions: [
+                  isFavorite
+                      ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
+                      : MobileViewItemBottomSheetBodyAction.addToFavorites,
+                  MobileViewItemBottomSheetBodyAction.divider,
+                  MobileViewItemBottomSheetBodyAction.rename,
+                  MobileViewItemBottomSheetBodyAction.divider,
+                  if (state.view.layout != ViewLayoutPB.Chat)
+                    MobileViewItemBottomSheetBodyAction.duplicate,
+                  MobileViewItemBottomSheetBodyAction.divider,
+                  MobileViewItemBottomSheetBodyAction.delete,
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

@@ -1,28 +1,33 @@
 import { DatabaseViewLayout, YjsDatabaseKey } from '@/application/collab.type';
 import { useDatabaseViewsSelector } from '@/application/database-yjs';
+import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { Board } from '@/components/database/board';
 import { Calendar } from '@/components/database/calendar';
 import { DatabaseConditionsContext } from '@/components/database/components/conditions/context';
 import { DatabaseTabs } from '@/components/database/components/tabs';
 import { Grid } from '@/components/database/grid';
-import React, { useCallback, useMemo, useState } from 'react';
+import { ElementFallbackRender } from '@/components/error/ElementFallbackRender';
+import React, { Suspense, useCallback, useMemo, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import DatabaseConditions from 'src/components/database/components/conditions/DatabaseConditions';
 
 function DatabaseViews({
   onChangeView,
-  currentViewId,
+  viewId,
+  iidIndex,
 }: {
   onChangeView: (viewId: string) => void;
-  currentViewId: string;
+  viewId: string;
+  iidIndex: string;
 }) {
-  const { childViews, viewIds } = useDatabaseViewsSelector();
+  const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex);
 
   const value = useMemo(() => {
     return Math.max(
       0,
-      viewIds.findIndex((id) => id === currentViewId)
+      viewIds.findIndex((id) => id === viewId)
     );
-  }, [currentViewId, viewIds]);
+  }, [viewId, viewIds]);
 
   const [conditionsExpanded, setConditionsExpanded] = useState<boolean>(false);
   const toggleExpanded = useCallback(() => {
@@ -55,10 +60,14 @@ function DatabaseViews({
           toggleExpanded,
         }}
       >
-        <DatabaseTabs selectedViewId={currentViewId} setSelectedViewId={onChangeView} viewIds={viewIds} />
+        <DatabaseTabs selectedViewId={viewId} setSelectedViewId={onChangeView} viewIds={viewIds} />
         <DatabaseConditions />
       </DatabaseConditionsContext.Provider>
-      <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>{view}</div>
+      <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
+        <Suspense fallback={<ComponentLoading />}>
+          <ErrorBoundary fallbackRender={ElementFallbackRender}>{view}</ErrorBoundary>
+        </Suspense>
+      </div>
     </>
   );
 }

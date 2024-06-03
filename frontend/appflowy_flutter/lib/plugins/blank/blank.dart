@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,9 @@ class BlankPluginBuilder extends PluginBuilder {
 
   @override
   PluginType get pluginType => PluginType.blank;
+
+  @override
+  ViewLayoutPB get layoutType => ViewLayoutPB.Document;
 }
 
 class BlankPluginConfig implements PluginConfig {
@@ -47,7 +51,10 @@ class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
   Widget tabBarItem(String pluginId) => leftBarItem;
 
   @override
-  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) =>
+  Widget buildWidget({
+    required PluginContext context,
+    required bool shrinkWrap,
+  }) =>
       const BlankPage();
 
   @override

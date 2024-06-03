@@ -10,23 +10,14 @@ import {
   BlockData,
   BlockType,
 } from '@/application/collab.type';
+import { BlockJson } from '@/application/slate-yjs/utils/types';
 import { getFontFamily } from '@/utils/font';
 import { uniq } from 'lodash-es';
 import { Element, Text } from 'slate';
 
-interface BlockJson {
-  id: string;
-  ty: string;
-  data?: string;
-  children?: string;
-  external_id?: string;
-}
-
-export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | undefined {
-  console.log(doc);
+export function yDocToSlateContent(doc: YDoc): Element | undefined {
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
-  console.log(sharedRoot.toJSON());
   const document = sharedRoot.get(YjsEditorKey.document);
   const pageId = document.get(YjsEditorKey.page_id) as string;
   const blocks = document.get(YjsEditorKey.blocks) as YBlocks;
@@ -107,13 +98,6 @@ export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | 
 
   if (!result) return;
 
-  if (!includeRoot) {
-    return result;
-  }
-
-  const { children, ...rootNode } = result;
-
-  // load font family
   if (fontFamilys.length > 0) {
     window.WebFont?.load({
       google: {
@@ -122,21 +106,7 @@ export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | 
     });
   }
 
-  return {
-    children: [
-      {
-        ...rootNode,
-        children: [
-          {
-            textId: pageId,
-            type: YjsEditorKey.text,
-            children: [{ text: '' }],
-          },
-        ],
-      },
-      ...children,
-    ],
-  };
+  return result;
 }
 
 export function blockToSlateNode(block: BlockJson): Element {
@@ -151,6 +121,7 @@ export function blockToSlateNode(block: BlockJson): Element {
 
   return {
     blockId: block.id,
+    relationId: block.children,
     data: blockData,
     type: block.ty,
     children: [],

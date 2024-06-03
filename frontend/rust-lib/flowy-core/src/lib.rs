@@ -10,6 +10,7 @@ use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
+use flowy_chat::manager::ChatManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
@@ -57,6 +58,7 @@ pub struct AppFlowyCore {
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<StorePreferences>,
   pub search_manager: Arc<SearchManager>,
+  pub chat_manager: Arc<ChatManager>,
 }
 
 impl AppFlowyCore {
@@ -137,6 +139,7 @@ impl AppFlowyCore {
       document_manager,
       collab_builder,
       search_manager,
+      chat_manager,
     ) = async {
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
@@ -164,6 +167,9 @@ impl AppFlowyCore {
         Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
+      let chat_manager =
+        ChatDepsResolver::resolve(Arc::downgrade(&authenticate_user), server_provider.clone());
+
       let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Some(Arc::downgrade(
         &authenticate_user,
       ))));
@@ -174,7 +180,7 @@ impl AppFlowyCore {
         collab_builder.clone(),
         server_provider.clone(),
         folder_indexer.clone(),
-        store_preference.clone(),
+        &chat_manager,
       )
       .await;
 
@@ -198,6 +204,7 @@ impl AppFlowyCore {
         document_manager,
         collab_builder,
         search_manager,
+        chat_manager,
       )
     }
     .await;
@@ -233,6 +240,7 @@ impl AppFlowyCore {
         Arc::downgrade(&user_manager),
         Arc::downgrade(&document_manager),
         Arc::downgrade(&search_manager),
+        Arc::downgrade(&chat_manager),
       ),
     ));
 
@@ -247,6 +255,7 @@ impl AppFlowyCore {
       task_dispatcher,
       store_preference,
       search_manager,
+      chat_manager,
     }
   }
 

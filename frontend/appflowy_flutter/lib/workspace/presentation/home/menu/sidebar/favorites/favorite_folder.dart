@@ -82,7 +82,12 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
       return [];
     }
 
-    return context.read<FavoriteBloc>().state.pinnedViews.map(
+    return context
+        .read<FavoriteBloc>()
+        .state
+        .pinnedViews
+        .map((e) => e.item)
+        .map(
           (view) => ViewItem(
             key: ValueKey(
               '${FolderSpaceType.favorite.name} ${view.id}',
@@ -104,6 +109,7 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
               const HSpace(4.0),
             ],
             shouldRenderChildren: false,
+            shouldLoadChildViews: false,
             onTertiarySelected: (_, view) =>
                 context.read<TabsBloc>().openTab(view),
             onSelected: (_, view) {
@@ -147,6 +153,7 @@ class FavoriteMoreButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final favoriteBloc = context.watch<FavoriteBloc>();
+    final tabsBloc = context.read<TabsBloc>();
     final unpinnedViews = favoriteBloc.state.unpinnedViews;
     // only show the more button if there are unpinned views
     if (unpinnedViews.isEmpty) {
@@ -164,8 +171,11 @@ class FavoriteMoreButton extends StatelessWidget {
         borderRadius: 10.0,
       ),
       popupBuilder: (_) {
-        return BlocProvider.value(
-          value: favoriteBloc,
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: favoriteBloc),
+            BlocProvider.value(value: tabsBloc),
+          ],
           child: const FavoriteMenu(minWidth: minWidth),
         );
       },
