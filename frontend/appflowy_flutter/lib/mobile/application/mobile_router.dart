@@ -1,15 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:appflowy/mobile/presentation/chat/mobile_chat_screen.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 extension MobileRouter on BuildContext {
@@ -37,6 +39,9 @@ extension on ViewPB {
         return MobileCalendarScreen.routeName;
       case ViewLayoutPB.Board:
         return MobileBoardScreen.routeName;
+      case ViewLayoutPB.Chat:
+        return MobileChatScreen.routeName;
+
       default:
         throw UnimplementedError('routeName for $this is not implemented');
     }
@@ -64,6 +69,11 @@ extension on ViewPB {
         return {
           MobileBoardScreen.viewId: id,
           MobileBoardScreen.viewTitle: name,
+        };
+      case ViewLayoutPB.Chat:
+        return {
+          MobileChatScreen.viewId: id,
+          MobileChatScreen.viewTitle: name,
         };
       default:
         throw UnimplementedError(

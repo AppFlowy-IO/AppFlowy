@@ -89,6 +89,7 @@ jobs:
         with:
           os: ${{ matrix.os }}
           flutter_version: ${{ env.FLUTTER_VERSION }}
+          DISABLE_CI_TEST_LOG: "true"
           rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
           cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
           rust_target: ${{ matrix.target }}
@@ -202,6 +203,7 @@ jobs:
       - name: Run Flutter unit tests
         env:
           DISABLE_EVENT_LOG: true
+          DISABLE_CI_TEST_LOG: "true"
         working-directory: frontend
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then

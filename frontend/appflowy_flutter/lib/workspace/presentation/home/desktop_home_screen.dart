@@ -153,6 +153,7 @@ class DesktopHomeScreen extends StatelessWidget {
     final homeStack = HomeStack(
       layout: layout,
       delegate: DesktopHomeScreenStackAdaptor(context),
+      userProfile: userProfile,
     );
     final menu = _buildHomeSidebar(
       context,

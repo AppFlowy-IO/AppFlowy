@@ -48,6 +48,9 @@ class DatabaseDocumentPluginBuilder extends PluginBuilder {
 
   @override
   PluginType get pluginType => PluginType.databaseDocument;
+
+  @override
+  ViewLayoutPB get layoutType => ViewLayoutPB.Document;
 }
 
 class DatabaseDocumentPlugin extends Plugin {
@@ -98,7 +101,10 @@ class DatabaseDocumentPluginWidgetBuilder extends PluginWidgetBuilder
   EdgeInsets get contentPadding => EdgeInsets.zero;
 
   @override
-  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
+  Widget buildWidget({
+    required PluginContext context,
+    required bool shrinkWrap,
+  }) {
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
       builder: (_, state) => DatabaseDocumentPage(
         key: ValueKey(documentId),

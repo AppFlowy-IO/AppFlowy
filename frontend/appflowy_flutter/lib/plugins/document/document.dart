@@ -43,7 +43,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   PluginType get pluginType => PluginType.document;
 
   @override
-  ViewLayoutPB? get layoutType => ViewLayoutPB.Document;
+  ViewLayoutPB get layoutType => ViewLayoutPB.Document;
 }
 
 class DocumentPlugin extends Plugin {
@@ -107,7 +107,10 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   EdgeInsets get contentPadding => EdgeInsets.zero;
 
   @override
-  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
+  Widget buildWidget({
+    required PluginContext context,
+    required bool shrinkWrap,
+  }) {
     notifier.isDeleted.addListener(() {
       final deletedView = notifier.isDeleted.value;
       if (deletedView != null && deletedView.hasIndex()) {
@@ -121,7 +124,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
         builder: (_, state) => DocumentPage(
           key: ValueKey(view.id),
           view: view,
-          onDeleted: () => context?.onDeleted(view, deletedViewIndex),
+          onDeleted: () => context.onDeleted?.call(view, deletedViewIndex),
           initialSelection: initialSelection,
         ),
       ),

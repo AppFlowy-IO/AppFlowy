@@ -378,6 +378,26 @@ impl TestNotificationSender {
     rx
   }
 
+  pub fn subscribe_without_payload(
+    &self,
+    id: &str,
+    ty: impl Into<i32> + Send,
+  ) -> tokio::sync::mpsc::Receiver<()> {
+    let id = id.to_string();
+    let (tx, rx) = tokio::sync::mpsc::channel::<()>(10);
+    let mut receiver = self.sender.subscribe();
+    let ty = ty.into();
+    af_spawn(async move {
+      // DatabaseNotification::DidUpdateDatabaseSnapshotState
+      while let Ok(value) = receiver.recv().await {
+        if value.id == id && value.ty == ty {
+          let _ = tx.send(()).await;
+        }
+      }
+    });
+    rx
+  }
+
   pub fn subscribe_with_condition<T, F>(&self, id: &str, when: F) -> tokio::sync::mpsc::Receiver<T>
   where
     T: TryFrom<Bytes, Error = ProtobufError> + Send + 'static,
