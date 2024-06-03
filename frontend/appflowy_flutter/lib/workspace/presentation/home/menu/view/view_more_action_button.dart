@@ -83,6 +83,7 @@ class ViewMoreActionButton extends StatelessWidget {
         ViewMoreActionType.rename,
       ]);
 
+      // Chat doesn't change icon and duplicate
       if (view.layout != ViewLayoutPB.Chat) {
         actionTypes.addAll([
           ViewMoreActionType.changeIcon,
@@ -95,6 +96,7 @@ class ViewMoreActionButton extends StatelessWidget {
         ViewMoreActionType.divider,
       ]);
 
+      // Chat doesn't change collapse
       if (view.layout != ViewLayoutPB.Chat) {
         actionTypes.add(ViewMoreActionType.collapseAllPages);
         actionTypes.add(ViewMoreActionType.divider);

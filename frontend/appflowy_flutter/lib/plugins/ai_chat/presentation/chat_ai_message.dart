@@ -29,7 +29,7 @@ class ChatAIMessageBubble extends StatelessWidget {
 
   final Message message;
   final Widget child;
-  final OnetimeMessageType? customMessageType;
+  final OnetimeShotType? customMessageType;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +95,7 @@ class ChatAIMessageHover extends StatefulWidget {
   final Widget child;
   final Message message;
   final bool autoShowHover = true;
-  final OnetimeMessageType? customMessageType;
+  final OnetimeShotType? customMessageType;
 
   @override
   State<ChatAIMessageHover> createState() => _ChatAIMessageHoverState();

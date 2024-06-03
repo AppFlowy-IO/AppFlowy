@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_ai_message.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_error_message.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_streaming_error_message.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_user_message.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -22,6 +22,7 @@ import 'presentation/chat_input.dart';
 import 'presentation/chat_loading.dart';
 import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_theme.dart';
+import 'presentation/chat_user_invalid_message.dart';
 import 'presentation/chat_welcome_page.dart';
 
 class AIChatPage extends StatefulWidget {
@@ -119,8 +120,8 @@ class _AIChatPageState extends State<AIChatPage> {
                     final messageType = onetimeMessageTypeFromMeta(
                       message.metadata,
                     );
-                    if (messageType == OnetimeMessageType.serverStreamError) {
-                      return ChatErrorMessage(
+                    if (messageType == OnetimeShotType.serverStreamError) {
+                      return ChatStreamingError(
                         message: message,
                         onRetryPressed: () {
                           blocContext
@@ -130,7 +131,13 @@ class _AIChatPageState extends State<AIChatPage> {
                       );
                     }
 
-                    if (messageType == OnetimeMessageType.relatedQuestion) {
+                    if (messageType == OnetimeShotType.invalidSendMesssage) {
+                      return ChatInvalidUserMessage(
+                        message: message,
+                      );
+                    }
+
+                    if (messageType == OnetimeShotType.relatedQuestion) {
                       return RelatedQuestionList(
                         onQuestionSelected: (question) {
                           blocContext
@@ -233,7 +240,7 @@ class _AIChatPageState extends State<AIChatPage> {
     }
 
     switch (messageType) {
-      case OnetimeMessageType.loading:
+      case OnetimeShotType.loading:
         return const ChatAILoading();
       default:
         return const SizedBox.shrink();

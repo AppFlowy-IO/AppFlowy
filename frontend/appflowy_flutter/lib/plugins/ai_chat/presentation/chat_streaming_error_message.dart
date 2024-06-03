@@ -5,8 +5,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 
-class ChatErrorMessage extends StatelessWidget {
-  const ChatErrorMessage({
+class ChatStreamingError extends StatelessWidget {
+  const ChatStreamingError({
     required this.message,
     required this.onRetryPressed,
     super.key,

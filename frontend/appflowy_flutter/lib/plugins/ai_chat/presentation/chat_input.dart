@@ -135,11 +135,8 @@ class _ChatInputState extends State<ChatInput> {
     return Padding(
       padding: textPadding,
       child: TextField(
-        enabled: widget.options.enabled,
-        autocorrect: widget.options.autocorrect,
-        autofocus: widget.options.autofocus,
-        enableSuggestions: widget.options.enableSuggestions,
         controller: _textController,
+        focusNode: _inputFocusNode,
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: LocaleKeys.chat_inputMessageHint.tr(),
@@ -147,16 +144,20 @@ class _ChatInputState extends State<ChatInput> {
             color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
           ),
         ),
-        focusNode: _inputFocusNode,
-        keyboardType: widget.options.keyboardType,
-        maxLines: 5,
-        minLines: 1,
-        onChanged: widget.options.onTextChanged,
-        onTap: widget.options.onTextFieldTap,
         style: TextStyle(
           color: AFThemeExtension.of(context).textColor,
         ),
+        enabled: widget.options.enabled,
+        autocorrect: widget.options.autocorrect,
+        autofocus: widget.options.autofocus,
+        enableSuggestions: widget.options.enableSuggestions,
+        spellCheckConfiguration: const SpellCheckConfiguration(),
+        keyboardType: widget.options.keyboardType,
         textCapitalization: TextCapitalization.sentences,
+        maxLines: 10,
+        minLines: 1,
+        onChanged: widget.options.onTextChanged,
+        onTap: widget.options.onTextFieldTap,
       ),
     );
   }

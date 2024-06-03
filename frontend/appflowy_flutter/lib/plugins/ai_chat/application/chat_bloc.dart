@@ -15,6 +15,7 @@ import 'chat_message_listener.dart';
 part 'chat_bloc.freezed.dart';
 
 const canRetryKey = "canRetry";
+const sendMessageErrorKey = "sendMessageError";
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
@@ -37,7 +38,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       chatErrorMessageCallback: (err) {
         if (!isClosed) {
           Log.error("chat error: ${err.errorMessage}");
-          final metadata = OnetimeMessageType.serverStreamError.toMap();
+          final metadata = OnetimeShotType.serverStreamError.toMap();
           if (state.lastSentMessage != null) {
             metadata[canRetryKey] = "true";
           }
@@ -159,10 +160,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           },
           sendMessage: (String message) async {
             await _handleSentMessage(message, emit);
+
+            // Create a loading indicator
             final loadingMessage =
                 _loadingMessage(state.userProfile.id.toString());
             final allMessages = List<Message>.from(state.messages)
               ..insert(0, loadingMessage);
+
             emit(
               state.copyWith(
                 lastSentMessage: null,
@@ -194,7 +198,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           didReceiveRelatedQuestion: (List<RelatedQuestionPB> questions) {
             final allMessages = _perminentMessages();
             final message = CustomMessage(
-              metadata: OnetimeMessageType.relatedQuestion.toMap(),
+              metadata: OnetimeShotType.relatedQuestion.toMap(),
               author: const User(id: "system"),
               id: 'system',
             );
@@ -228,7 +232,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 // Returns the list of messages that are not include one-time messages.
   List<Message> _perminentMessages() {
     final allMessages = state.messages.where((element) {
-      return !(element.metadata?.containsKey(onetimeMessageType) == true);
+      return !(element.metadata?.containsKey(onetimeShotType) == true);
     }).toList();
 
     return allMessages;
@@ -252,7 +256,24 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       message: message,
       messageType: ChatMessageTypePB.User,
     );
-    await ChatEventSendMessage(payload).send();
+    final result = await ChatEventSendMessage(payload).send();
+    result.fold(
+      (_) {},
+      (err) {
+        if (!isClosed) {
+          Log.error("Failed to send message: ${err.msg}");
+          final metadata = OnetimeShotType.invalidSendMesssage.toMap();
+          metadata[sendMessageErrorKey] = err.msg;
+          final error = CustomMessage(
+            metadata: metadata,
+            author: const User(id: "system"),
+            id: 'system',
+          );
+
+          add(ChatEvent.streaming([error]));
+        }
+      },
+    );
   }
 
   void _handleChatMessage(ChatMessagePB pb) {
@@ -268,7 +289,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   Message _loadingMessage(String id) {
     return CustomMessage(
       author: User(id: id),
-      metadata: OnetimeMessageType.loading.toMap(),
+      metadata: OnetimeShotType.loading.toMap(),
       // fake id
       id: nanoid(),
     );
@@ -354,39 +375,47 @@ class LoadingState with _$LoadingState {
   const factory LoadingState.finish() = _Finish;
 }
 
-enum OnetimeMessageType { unknown, loading, serverStreamError, relatedQuestion }
+enum OnetimeShotType {
+  unknown,
+  loading,
+  serverStreamError,
+  relatedQuestion,
+  invalidSendMesssage
+}
 
-const onetimeMessageType = "OnetimeMessageType";
+const onetimeShotType = "OnetimeShotType";
 
-extension OnetimeMessageTypeExtension on OnetimeMessageType {
-  static OnetimeMessageType fromString(String value) {
+extension OnetimeMessageTypeExtension on OnetimeShotType {
+  static OnetimeShotType fromString(String value) {
     switch (value) {
-      case 'OnetimeMessageType.loading':
-        return OnetimeMessageType.loading;
-      case 'OnetimeMessageType.serverStreamError':
-        return OnetimeMessageType.serverStreamError;
-      case 'OnetimeMessageType.relatedQuestion':
-        return OnetimeMessageType.relatedQuestion;
+      case 'OnetimeShotType.loading':
+        return OnetimeShotType.loading;
+      case 'OnetimeShotType.serverStreamError':
+        return OnetimeShotType.serverStreamError;
+      case 'OnetimeShotType.relatedQuestion':
+        return OnetimeShotType.relatedQuestion;
+      case 'OnetimeShotType.invalidSendMesssage':
+        return OnetimeShotType.invalidSendMesssage;
       default:
-        Log.error('Unknown OnetimeMessageType: $value');
-        return OnetimeMessageType.unknown;
+        Log.error('Unknown OnetimeShotType: $value');
+        return OnetimeShotType.unknown;
     }
   }
 
   Map<String, String> toMap() {
     return {
-      onetimeMessageType: toString(),
+      onetimeShotType: toString(),
     };
   }
 }
 
-OnetimeMessageType? onetimeMessageTypeFromMeta(Map<String, dynamic>? metadata) {
+OnetimeShotType? onetimeMessageTypeFromMeta(Map<String, dynamic>? metadata) {
   if (metadata == null) {
     return null;
   }
 
   for (final entry in metadata.entries) {
-    if (entry.key == onetimeMessageType) {
+    if (entry.key == onetimeShotType) {
       return OnetimeMessageTypeExtension.fromString(entry.value as String);
     }
   }

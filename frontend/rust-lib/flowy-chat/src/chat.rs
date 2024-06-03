@@ -69,6 +69,10 @@ impl Chat {
     message: &str,
     message_type: ChatMessageType,
   ) -> Result<(), FlowyError> {
+    if message.len() > 2000 {
+      return Err(FlowyError::text_too_long().with_context("Exceeds maximum message 2000 length"));
+    }
+
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
     stream_send_chat_messages(
