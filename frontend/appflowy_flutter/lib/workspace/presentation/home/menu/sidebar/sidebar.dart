@@ -269,7 +269,7 @@ class _SidebarState extends State<_Sidebar> {
                 ),
               ),
             ),
-            const VSpace(10),
+
             // trash
             Padding(
               padding: menuHorizontalInset +
