@@ -422,8 +422,10 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final children = [
+      const HSpace(2),
       // expand icon or placeholder
       widget.leftIconBuilder?.call(context, widget.view) ?? _buildLeftIcon(),
+      const HSpace(2),
       // icon
       _buildViewIconButton(),
       const HSpace(6),
@@ -545,16 +547,18 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       return HSpace(widget.leftPadding);
     }
 
-    final child = GestureDetector(
-      child: FlowySvg(
-        widget.isExpanded
-            ? FlowySvgs.view_item_expand_s
-            : FlowySvgs.view_item_unexpand_s,
-        size: const Size.square(16.0),
+    final child = FlowyHover(
+      child: GestureDetector(
+        child: FlowySvg(
+          widget.isExpanded
+              ? FlowySvgs.view_item_expand_s
+              : FlowySvgs.view_item_unexpand_s,
+          size: const Size.square(16.0),
+        ),
+        onTap: () => context
+            .read<ViewBloc>()
+            .add(ViewEvent.setIsExpanded(!widget.isExpanded)),
       ),
-      onTap: () => context
-          .read<ViewBloc>()
-          .add(ViewEvent.setIsExpanded(!widget.isExpanded)),
     );
 
     if (widget.isHovered != null) {
