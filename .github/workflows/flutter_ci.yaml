@@ -203,6 +203,7 @@ jobs:
       - name: Run Flutter unit tests
         env:
           DISABLE_EVENT_LOG: true
+          DISABLE_CI_TEST_LOG: "true"
         working-directory: frontend
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
