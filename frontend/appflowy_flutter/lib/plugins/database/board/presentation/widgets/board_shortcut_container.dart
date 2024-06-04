@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/plugins/database/board/application/board_actions_bloc.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/shared/callback_shortcuts.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +21,9 @@ class BoardShortcutContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CallbackShortcuts(
+    return AFCallbackShortcuts(
+      canAcceptEvent: (_, __) =>
+          context.read<AFCallbackShortcutsProvider>().isShortcutsEnabled.value,
       bindings: {
         const SingleActivator(LogicalKeyboardKey.arrowUp):
             focusScope.focusPrevious,
@@ -93,9 +96,9 @@ class BoardShortcutContainer extends StatelessWidget {
     if (focusScope.value.length != 1) {
       return;
     }
-      context
-          .read<BoardActionsCubit>()
-          .openCardWithRowId(focusScope.value.first.rowId);
+    context
+        .read<BoardActionsCubit>()
+        .openCardWithRowId(focusScope.value.first.rowId);
   }
 
   void _shitEnterHandler(BuildContext context) {
