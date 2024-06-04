@@ -269,7 +269,8 @@ class SendButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       width: 36,
-      fillColor: Theme.of(context).colorScheme.secondary,
+      fillColor: AFThemeExtension.of(context).lightGreyHover,
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       radius: BorderRadius.circular(18),
       icon: FlowySvg(
         FlowySvgs.send_s,
