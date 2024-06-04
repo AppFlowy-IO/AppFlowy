@@ -24,13 +24,11 @@ class ChatBorderedCircleAvatar extends StatelessWidget {
     super.key,
     this.border = const BorderSide(),
     this.backgroundImage,
-    this.backgroundColor,
     this.child,
   });
 
   final BorderSide border;
   final ImageProvider<Object>? backgroundImage;
-  final Color? backgroundColor;
   final Widget? child;
 
   @override
@@ -41,7 +39,8 @@ class ChatBorderedCircleAvatar extends StatelessWidget {
         constraints: const BoxConstraints.expand(),
         child: CircleAvatar(
           backgroundImage: backgroundImage,
-          backgroundColor: backgroundColor,
+          backgroundColor:
+              Theme.of(context).colorScheme.surfaceContainerHighest,
           child: child,
         ),
       ),
@@ -118,7 +117,7 @@ class ChatUserAvatar extends StatelessWidget {
           shape: BoxShape.circle,
           border: isHovering
               ? Border.all(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.secondary,
                   width: 4,
                 )
               : null,

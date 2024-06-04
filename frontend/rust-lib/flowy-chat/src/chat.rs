@@ -368,7 +368,7 @@ fn stream_send_chat_messages(
               messages.push(message);
             },
             Err(err) => {
-              error!("Failed to send chat message: {}", err);
+              error!("stream chat message error: {}", err);
               let pb = ChatMessageErrorPB {
                 chat_id: chat_id.clone(),
                 content: message_content.clone(),

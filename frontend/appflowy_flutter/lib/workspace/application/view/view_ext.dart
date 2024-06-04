@@ -41,10 +41,10 @@ class ViewExtKeys {
 extension ViewExtension on ViewPB {
   Widget defaultIcon() => FlowySvg(
         switch (layout) {
-          ViewLayoutPB.Board => FlowySvgs.board_s,
-          ViewLayoutPB.Calendar => FlowySvgs.calendar_s,
-          ViewLayoutPB.Grid => FlowySvgs.grid_s,
-          ViewLayoutPB.Document => FlowySvgs.document_s,
+          ViewLayoutPB.Board => FlowySvgs.icon_board_s,
+          ViewLayoutPB.Calendar => FlowySvgs.icon_calendar_s,
+          ViewLayoutPB.Grid => FlowySvgs.icon_grid_s,
+          ViewLayoutPB.Document => FlowySvgs.icon_document_s,
           ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
           _ => FlowySvgs.document_s,
         },

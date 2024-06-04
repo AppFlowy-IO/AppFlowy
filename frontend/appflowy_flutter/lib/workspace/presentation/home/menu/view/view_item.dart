@@ -422,20 +422,19 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final children = [
+      const HSpace(2),
       // expand icon or placeholder
       widget.leftIconBuilder?.call(context, widget.view) ?? _buildLeftIcon(),
+      const HSpace(2),
       // icon
       _buildViewIconButton(),
       const HSpace(6),
-      // const SizedBox(
-      //   width: 6.0,
-      //   height: 1,
-      // ),
       // title
       Expanded(
         child: FlowyText.regular(
           widget.view.name,
           overflow: TextOverflow.ellipsis,
+          lineHeight: 1.1,
         ),
       ),
     ];
@@ -447,10 +446,10 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       } else {
         // ··· more action button
         children.add(_buildViewMoreActionButton(context));
-        children.add(const HSpace(8.0));
         // only support add button for document layout
         if (widget.view.layout == ViewLayoutPB.Document) {
           // + button
+          children.add(const HSpace(8.0));
           children.add(_buildViewAddButton(context));
         }
         children.add(const HSpace(4.0));
@@ -500,8 +499,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         ? FlowyText.emoji(
             widget.view.icon.value,
             fontSize: 16.0,
+            lineHeight: 1.4,
           )
-        : widget.view.defaultIcon();
+        : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
 
     return AppFlowyPopover(
       offset: const Offset(20, 0),
@@ -545,16 +545,18 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       return HSpace(widget.leftPadding);
     }
 
-    final child = GestureDetector(
-      child: FlowySvg(
-        widget.isExpanded
-            ? FlowySvgs.view_item_expand_s
-            : FlowySvgs.view_item_unexpand_s,
-        size: const Size.square(16.0),
+    final child = FlowyHover(
+      child: GestureDetector(
+        child: FlowySvg(
+          widget.isExpanded
+              ? FlowySvgs.view_item_expand_s
+              : FlowySvgs.view_item_unexpand_s,
+          size: const Size.square(16.0),
+        ),
+        onTap: () => context
+            .read<ViewBloc>()
+            .add(ViewEvent.setIsExpanded(!widget.isExpanded)),
       ),
-      onTap: () => context
-          .read<ViewBloc>()
-          .add(ViewEvent.setIsExpanded(!widget.isExpanded)),
     );
 
     if (widget.isHovered != null) {

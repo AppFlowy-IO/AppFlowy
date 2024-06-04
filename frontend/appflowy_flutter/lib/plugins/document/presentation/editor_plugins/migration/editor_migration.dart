@@ -191,7 +191,13 @@ class EditorMigration {
     } else {
       switch (coverType) {
         case CoverType.asset:
-          // The new version does not support the asset cover.
+          extra = {
+            ViewExtKeys.coverKey: {
+              ViewExtKeys.coverTypeKey:
+                  PageStyleCoverImageType.builtInImage.toString(),
+              ViewExtKeys.coverValueKey: coverDetails,
+            },
+          };
           break;
         case CoverType.color:
           extra = {

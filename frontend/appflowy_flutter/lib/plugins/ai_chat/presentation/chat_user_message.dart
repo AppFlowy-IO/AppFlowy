@@ -25,7 +25,8 @@ class ChatUserMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const borderRadius = BorderRadius.all(Radius.circular(6));
-    final backgroundColor = Theme.of(context).colorScheme.secondary;
+    final backgroundColor =
+        Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return BlocProvider(
       create: (context) => ChatUserMessageBloc(message: message),

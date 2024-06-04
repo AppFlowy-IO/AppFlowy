@@ -11,9 +11,6 @@ import 'package:flutter/material.dart';
 // Desktop: Based on the OS
 const defaultFontFamily = '';
 
-// the Poppins font is embedded in the app, so we can use it without GoogleFonts
-// TODO(Lucas): after releasing version 0.5.6, remove it.
-const fallbackFontFamily = 'Poppins';
 const builtInCodeFontFamily = 'RobotoMono';
 
 abstract class BaseAppearance {
@@ -47,7 +44,7 @@ abstract class BaseAppearance {
       height: lineHeight,
     );
 
-    if (fontFamily == defaultFontFamily || fontFamily == fallbackFontFamily) {
+    if (fontFamily == defaultFontFamily) {
       return textStyle;
     }
 

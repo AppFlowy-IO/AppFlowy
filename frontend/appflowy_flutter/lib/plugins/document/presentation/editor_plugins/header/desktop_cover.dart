@@ -155,7 +155,7 @@ class _DesktopCoverState extends State<DesktopCover> {
         );
       case CoverType.asset:
         return Image.asset(
-          widget.coverDetails!,
+          PageStyleCoverImageType.builtInImagePath(detail),
           fit: BoxFit.cover,
         );
       case CoverType.color:
