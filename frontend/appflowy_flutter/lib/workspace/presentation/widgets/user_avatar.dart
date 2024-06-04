@@ -16,12 +16,14 @@ class UserAvatar extends StatelessWidget {
     required this.size,
     required this.fontSize,
     this.isHovering = false,
+    this.decoration,
   });
 
   final String iconUrl;
   final String name;
   final double size;
   final double fontSize;
+  final Decoration? decoration;
 
   // If true, a border will be applied on top of the avatar
   final bool isHovering;
@@ -54,17 +56,18 @@ class UserAvatar extends StatelessWidget {
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: isHovering
-            ? Border.all(
-                color: _darken(color),
-                width: 4,
-              )
-            : null,
-      ),
-      child: FlowyText.regular(
+      decoration: decoration ??
+          BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: isHovering
+                ? Border.all(
+                    color: _darken(color),
+                    width: 4,
+                  )
+                : null,
+          ),
+      child: FlowyText.medium(
         nameInitials,
         color: Colors.black,
         fontSize: fontSize,
@@ -76,15 +79,16 @@ class UserAvatar extends StatelessWidget {
     return SizedBox.square(
       dimension: size,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: isHovering
-              ? Border.all(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 4,
-                )
-              : null,
-        ),
+        decoration: decoration ??
+            BoxDecoration(
+              shape: BoxShape.circle,
+              border: isHovering
+                  ? Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 4,
+                    )
+                  : null,
+            ),
         child: ClipRRect(
           borderRadius: Corners.s5Border,
           child: CircleAvatar(
@@ -105,15 +109,16 @@ class UserAvatar extends StatelessWidget {
     return SizedBox.square(
       dimension: size,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: isHovering
-              ? Border.all(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 4,
-                )
-              : null,
-        ),
+        decoration: decoration ??
+            BoxDecoration(
+              shape: BoxShape.circle,
+              border: isHovering
+                  ? Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 4,
+                    )
+                  : null,
+            ),
         child: ClipRRect(
           borderRadius: Corners.s5Border,
           child: CircleAvatar(
