@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Start the frontend server
-node server.cjs &
+bun run server.cjs &
 
 # Start the nginx server
 service nginx start

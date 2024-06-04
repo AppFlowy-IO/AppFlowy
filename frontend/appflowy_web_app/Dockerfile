@@ -1,11 +1,11 @@
-FROM node:latest
+FROM oven/bun:latest
 
 WORKDIR /app
 
 RUN apt-get update && \
     apt-get install -y nginx
 
-RUN npm install fastify axios cheerio pino pino-pretty @fastify/rate-limit
+RUN bun install cheerio pino axios pino-pretty
 
 COPY . .
 
