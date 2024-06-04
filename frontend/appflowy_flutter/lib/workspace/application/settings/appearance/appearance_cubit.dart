@@ -41,7 +41,6 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             appTheme,
             appearanceSettings.themeMode,
             appearanceSettings.font,
-            appearanceSettings.monospaceFont,
             appearanceSettings.layoutDirection,
             appearanceSettings.textDirection,
             appearanceSettings.enableRtlToolbarItems,
@@ -374,7 +373,6 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required AppTheme appTheme,
     required ThemeMode themeMode,
     required String font,
-    required String monospaceFont,
     required LayoutDirection layoutDirection,
     required AppFlowyTextDirection? textDirection,
     required bool enableRtlToolbarItems,
@@ -393,7 +391,6 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     AppTheme appTheme,
     ThemeModePB themeModePB,
     String font,
-    String monospaceFont,
     LayoutDirectionPB layoutDirectionPB,
     TextDirectionPB? textDirectionPB,
     bool enableRtlToolbarItems,
@@ -410,7 +407,6 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     return AppearanceSettingsState(
       appTheme: appTheme,
       font: font,
-      monospaceFont: monospaceFont,
       layoutDirection: LayoutDirection.fromLayoutDirectionPB(layoutDirectionPB),
       textDirection: AppFlowyTextDirection.fromTextDirectionPB(textDirectionPB),
       enableRtlToolbarItems: enableRtlToolbarItems,
@@ -435,7 +431,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       appTheme,
       brightness,
       font,
-      monospaceFont,
+      builtInCodeFontFamily,
     );
   }
 }
