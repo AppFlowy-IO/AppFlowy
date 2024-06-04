@@ -94,7 +94,7 @@ dependencies:
     git:
       url: https://github.com/Xazin/flutter_calendar_view
       ref: "6fe0c98"
-  window_manager: ^0.3.4
+  window_manager: ^0.3.9
   http: ^1.0.0
   path: ^1.8.3
   mocktail: ^1.0.1
