@@ -23,7 +23,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SidebarTopMenu extends StatelessWidget {
   const SidebarTopMenu({
     super.key,
+    required this.isSidebarOnHover,
   });
+
+  final ValueNotifier<bool> isSidebarOnHover;
 
   @override
   Widget build(BuildContext context) {
@@ -80,17 +83,26 @@ class SidebarTopMenu extends StatelessWidget {
       ],
     );
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 12.0),
-      child: FlowyTooltip(
-        richMessage: textSpan,
-        child: FlowyIconButton(
-          width: 24,
-          onPressed: () => context
-              .read<HomeSettingBloc>()
-              .add(const HomeSettingEvent.collapseMenu()),
-          iconPadding: const EdgeInsets.all(2),
-          icon: const FlowySvg(FlowySvgs.hide_menu_s),
+    return ValueListenableBuilder(
+      valueListenable: isSidebarOnHover,
+      builder: (_, value, ___) => Opacity(
+        opacity: value ? 1 : 0,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 12.0, right: 4.0),
+          child: FlowyTooltip(
+            richMessage: textSpan,
+            child: Listener(
+              onPointerDown: (_) => context
+                  .read<HomeSettingBloc>()
+                  .add(const HomeSettingEvent.collapseMenu()),
+              child: FlowyIconButton(
+                width: 24,
+                onPressed: () {},
+                iconPadding: const EdgeInsets.all(4),
+                icon: const FlowySvg(FlowySvgs.hide_menu_s),
+              ),
+            ),
+          ),
         ),
       ),
     );

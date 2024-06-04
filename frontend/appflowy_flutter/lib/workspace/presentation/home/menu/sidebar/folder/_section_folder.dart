@@ -76,6 +76,7 @@ class _SectionFolderState extends State<SectionFolder> {
   Widget _buildHeader(BuildContext context) {
     return FolderHeader(
       title: widget.title,
+      isExpanded: context.watch<FolderBloc>().state.isExpanded,
       expandButtonTooltip: widget.expandButtonTooltip,
       addButtonTooltip: widget.addButtonTooltip,
       onPressed: () =>

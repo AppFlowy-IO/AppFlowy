@@ -127,7 +127,7 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
         onPressed: () => context
             .read<HomeSettingBloc>()
             .add(const HomeSettingEvent.collapseMenu()),
-        iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+        iconPadding: const EdgeInsets.all(4.0),
         icon: context.read<HomeSettingBloc>().state.isMenuCollapsed
             ? const FlowySvg(FlowySvgs.show_menu_s)
             : const FlowySvg(FlowySvgs.hide_menu_m),
