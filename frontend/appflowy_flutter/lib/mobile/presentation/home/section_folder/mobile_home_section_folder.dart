@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/default_mobile_action_pane.dart';
 import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder_header.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
@@ -69,6 +70,17 @@ class MobileSectionFolder extends StatelessWidget {
                     leftPadding: HomeSpaceViewSizes.leftPadding,
                     isFeedback: false,
                     onSelected: context.pushView,
+                    endActionPane: (context) {
+                      return buildEndActionPane(
+                        context,
+                        [
+                          MobilePaneActionType.more,
+                          MobilePaneActionType.add,
+                        ],
+                        spaceType: spaceType,
+                        needSpace: false,
+                      );
+                    },
                   ),
                 ),
             ],
