@@ -434,7 +434,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         child: FlowyText.regular(
           widget.view.name,
           overflow: TextOverflow.ellipsis,
-          lineHeight: 1.1,
+          // lineHeight: 1.1,
         ),
       ),
     ];
@@ -499,7 +499,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         ? FlowyText.emoji(
             widget.view.icon.value,
             fontSize: 16.0,
-            lineHeight: 1.4,
           )
         : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
 

@@ -147,7 +147,8 @@ class FlowyText extends StatelessWidget {
 
     var fontSize =
         this.fontSize ?? Theme.of(context).textTheme.bodyMedium!.fontSize!;
-    if (Platform.isLinux && fontFamily == _emojiFontFamily) {
+    if ((Platform.isLinux || Platform.isWindows || Platform.isAndroid) &&
+        isEmoji) {
       fontSize = fontSize * 0.8;
     }
 
