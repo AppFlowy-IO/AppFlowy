@@ -108,7 +108,10 @@ class ViewAddButtonActionWrapper extends ActionCell {
   final PluginBuilder pluginBuilder;
 
   @override
-  Widget? leftIcon(Color iconColor) => FlowySvg(pluginBuilder.icon);
+  Widget? leftIcon(Color iconColor) => FlowySvg(
+        pluginBuilder.icon,
+        size: const Size.square(16),
+      );
 
   @override
   String get name => pluginBuilder.menuName;
