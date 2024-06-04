@@ -434,7 +434,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         child: FlowyText.regular(
           widget.view.name,
           overflow: TextOverflow.ellipsis,
-          // lineHeight: 1.1,
         ),
       ),
     ];
@@ -466,7 +465,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         child: Padding(
           padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: children,
           ),
         ),

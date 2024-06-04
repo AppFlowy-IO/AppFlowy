@@ -170,6 +170,14 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
+        strutStyle: Platform.isMacOS
+            ? StrutStyle.fromTextStyle(
+                textStyle,
+                forceStrutHeight: true,
+                leadingDistribution: TextLeadingDistribution.even,
+                height: 1.1,
+              )
+            : null,
       );
     }
 
