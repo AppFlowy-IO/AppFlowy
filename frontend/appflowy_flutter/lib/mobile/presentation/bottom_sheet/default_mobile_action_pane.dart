@@ -181,6 +181,7 @@ ActionPane buildEndActionPane(
   MobileViewCardType? cardType,
   FolderSpaceType? spaceType,
 }) {
+  debugPrint('actions: $actions');
   return ActionPane(
     motion: const ScrollMotion(),
     extentRatio: actions.length / 5,
