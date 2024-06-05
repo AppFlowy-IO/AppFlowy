@@ -2166,6 +2166,7 @@ dependencies = [
  "flowy-folder-pub",
  "flowy-notification",
  "flowy-search-pub",
+ "flowy-sqlite",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",

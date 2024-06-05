@@ -14,7 +14,7 @@ collab-plugins = { workspace = true }
 collab-integrate = { workspace = true }
 flowy-folder-pub = { workspace = true }
 flowy-search-pub = { workspace = true }
-
+flowy-sqlite = { workspace = true }
 flowy-derive.workspace = true
 flowy-notification = { workspace = true }
 parking_lot.workspace = true
@@ -35,6 +35,7 @@ strum_macros = "0.21"
 protobuf.workspace = true
 uuid.workspace = true
 tokio-stream = { workspace = true, features = ["sync"] }
+serde = { workspace = true, features = ["derive"]}
 serde_json.workspace = true
 validator = "0.16.0"
 async-trait.workspace = true

@@ -13,6 +13,18 @@ pub struct IndexableData {
   pub workspace_id: String,
 }
 
+impl IndexableData {
+  pub fn from_view(view: Arc<View>, workspace_id: String) -> Self {
+    IndexableData {
+      id: view.id.clone(),
+      data: view.name.clone(),
+      icon: view.icon.clone(),
+      layout: view.layout.clone(),
+      workspace_id: workspace_id.clone(),
+    }
+  }
+}
+
 pub trait IndexManager: Send + Sync {
   fn set_index_content_receiver(&self, rx: IndexContentReceiver, workspace_id: String);
   fn add_index(&self, data: IndexableData) -> Result<(), FlowyError>;

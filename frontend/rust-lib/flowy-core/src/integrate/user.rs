@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use anyhow::Context;
-use collab_entity::CollabType;
 use tracing::event;
 
+use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;

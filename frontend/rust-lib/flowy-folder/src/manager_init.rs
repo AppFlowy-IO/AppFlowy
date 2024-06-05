@@ -1,3 +1,4 @@
+use crate::entities::IndexedWorkspaceIds;
 use crate::manager::{FolderInitDataSource, FolderManager};
 use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
@@ -9,6 +10,8 @@ use flowy_error::{FlowyError, FlowyResult};
 use std::sync::{Arc, Weak};
 use tokio::task::spawn_blocking;
 use tracing::{event, info, Level};
+
+pub const INDEXED_WORKSPACE_KEY: &str = "indexed-workspace-ids";
 
 impl FolderManager {
   /// Called immediately after the application launched if the user already sign in/sign up.
@@ -118,18 +121,7 @@ impl FolderManager {
     self
       .folder_indexer
       .set_index_content_receiver(index_content_rx, workspace_id.clone());
-
-    // Index all views in the folder if needed
-    if !self.folder_indexer.is_indexed() {
-      let views = folder.views.get_all_views();
-      let folder_indexer = self.folder_indexer.clone();
-
-      // We spawn a blocking task to index all views in the folder
-      let wid = workspace_id.clone();
-      spawn_blocking(move || {
-        folder_indexer.index_all_views(views, wid);
-      });
-    }
+    self.handle_index_folder(workspace_id.clone(), &folder);
 
     *self.mutex_folder.write() = Some(folder);
 
@@ -156,6 +148,7 @@ impl FolderManager {
       &weak_mutex_folder,
       Arc::downgrade(&self.user),
     );
+
     Ok(())
   }
 
@@ -191,5 +184,42 @@ impl FolderManager {
       Some(folder_notifier),
       folder_data,
     ))
+  }
+
+  fn handle_index_folder(&self, workspace_id: String, folder: &Folder) {
+    let index_all;
+    if self.folder_indexer.is_indexed() {
+      // If indexes already exist, we check if the workspace was
+      // previously indexed, if it wasn't we index all
+      let indexed_ids = self
+        .store_preferences
+        .get_object::<IndexedWorkspaceIds>(INDEXED_WORKSPACE_KEY);
+      if let Some(indexed_ids) = indexed_ids {
+        index_all = !indexed_ids.workspace_ids.contains(&workspace_id.clone());
+        if !index_all {
+          let mut workspace_ids = indexed_ids.workspace_ids.clone();
+          workspace_ids.push(workspace_id.clone());
+          let _ = self
+            .store_preferences
+            .set_object(INDEXED_WORKSPACE_KEY, IndexedWorkspaceIds { workspace_ids });
+        }
+      } else {
+        index_all = true;
+      }
+    } else {
+      // If there exists no indexes, we index all views in workspace
+      index_all = true;
+    }
+
+    if index_all {
+      let views = folder.views.get_all_views();
+      let folder_indexer = self.folder_indexer.clone();
+      let wid = workspace_id.clone();
+
+      // We spawn a blocking task to index all views in the folder
+      spawn_blocking(move || {
+        folder_indexer.index_all_views(views, wid);
+      });
+    }
   }
 }

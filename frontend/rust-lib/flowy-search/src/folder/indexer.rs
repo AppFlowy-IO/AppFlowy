@@ -124,7 +124,7 @@ impl FolderIndexManagerImpl {
   }
 
   fn index_all(&self, indexes: Vec<IndexableData>) -> Result<(), FlowyError> {
-    if self.is_indexed() || indexes.is_empty() {
+    if indexes.is_empty() {
       return Ok(());
     }
 
@@ -411,13 +411,7 @@ impl FolderIndexManager for FolderIndexManagerImpl {
   fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: String) {
     let indexable_data = views
       .into_iter()
-      .map(|view| IndexableData {
-        id: view.id.clone(),
-        data: view.name.clone(),
-        icon: view.icon.clone(),
-        layout: view.layout.clone(),
-        workspace_id: workspace_id.clone(),
-      })
+      .map(|view| IndexableData::from_view(view, workspace_id.clone()))
       .collect();
 
     let _ = self.index_all(indexable_data);
