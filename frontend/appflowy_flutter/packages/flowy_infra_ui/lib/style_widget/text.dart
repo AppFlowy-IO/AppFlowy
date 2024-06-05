@@ -166,7 +166,6 @@ class FlowyText extends StatelessWidget {
         text,
         maxLines: maxLines,
         textAlign: textAlign,
-        strutStyle: strutStyle,
         style: textStyle,
       );
     } else {

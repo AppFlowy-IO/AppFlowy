@@ -21,7 +21,7 @@ class AIChatPluginBuilder extends PluginBuilder {
   }
 
   @override
-  String get menuName => "AIChat";
+  String get menuName => "AI Chat";
 
   @override
   FlowySvgData get icon => FlowySvgs.chat_ai_page_s;

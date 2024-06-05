@@ -190,7 +190,8 @@ class _Sidebar extends StatefulWidget {
 class _SidebarState extends State<_Sidebar> {
   final _scrollController = ScrollController();
   Timer? _scrollDebounce;
-  bool isScrolling = false;
+  bool _isScrolling = false;
+  final _isHovered = ValueNotifier(false);
 
   @override
   void initState() {
@@ -203,79 +204,101 @@ class _SidebarState extends State<_Sidebar> {
     _scrollDebounce?.cancel();
     _scrollController.removeListener(_onScrollChanged);
     _scrollController.dispose();
+    _isHovered.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 12);
+    const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 8);
     final userState = context.read<UserWorkspaceBloc>().state;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        border: Border(
-          right: BorderSide(color: Theme.of(context).dividerColor),
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // top menu
-          const Padding(padding: menuHorizontalInset, child: SidebarTopMenu()),
-          // user or workspace, setting
-          Container(
-            height: HomeSizes.workspaceSectionHeight,
-            padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
-            child:
-                // if the workspaces are empty, show the user profile instead
-                userState.isCollabWorkspaceOn && userState.workspaces.isNotEmpty
-                    ? SidebarWorkspace(userProfile: widget.userProfile)
-                    : SidebarUser(userProfile: widget.userProfile),
+    return MouseRegion(
+      onEnter: (_) => _isHovered.value = true,
+      onExit: (_) => _isHovered.value = false,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          border: Border(
+            right: BorderSide(color: Theme.of(context).dividerColor),
           ),
-          if (FeatureFlag.search.isOn) ...[
-            const VSpace(6),
-            Container(
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // top menu
+            Padding(
               padding: menuHorizontalInset,
-              height: HomeSizes.searchSectionHeight,
-              child: const _SidebarSearchButton(),
+              child: SidebarTopMenu(
+                isSidebarOnHover: _isHovered,
+              ),
             ),
-          ],
-          // new page button
-          const SidebarNewPageButton(),
-          // scrollable document list
-          Expanded(
-            child: Padding(
+            // user or workspace, setting
+            Container(
+              height: HomeSizes.workspaceSectionHeight,
               padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(right: 6),
-                controller: _scrollController,
-                physics: const ClampingScrollPhysics(),
-                child: SidebarFolder(
-                  userProfile: widget.userProfile,
-                  isHoverEnabled: !isScrolling,
+              child:
+                  // if the workspaces are empty, show the user profile instead
+                  userState.isCollabWorkspaceOn &&
+                          userState.workspaces.isNotEmpty
+                      ? SidebarWorkspace(userProfile: widget.userProfile)
+                      : SidebarUser(userProfile: widget.userProfile),
+            ),
+            if (FeatureFlag.search.isOn) ...[
+              const VSpace(6),
+              Container(
+                padding: menuHorizontalInset,
+                height: HomeSizes.searchSectionHeight,
+                child: const _SidebarSearchButton(),
+              ),
+            ],
+            const VSpace(6.0),
+            // new page button
+            const SidebarNewPageButton(),
+            // scrollable document list
+            const VSpace(12.0),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
+              child: Divider(
+                color: Color(0x1E1F2329),
+                height: 0.5,
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(right: 6),
+                  controller: _scrollController,
+                  physics: const ClampingScrollPhysics(),
+                  child: SidebarFolder(
+                    userProfile: widget.userProfile,
+                    isHoverEnabled: !_isScrolling,
+                  ),
                 ),
               ),
             ),
-          ),
-          const VSpace(10),
-          // trash
-          const Padding(
-            padding: menuHorizontalInset,
-            child: Divider(height: 1.0, color: Color(0x141F2329)),
-          ),
-          const VSpace(14),
-          const Padding(
-            padding: menuHorizontalInset,
-            child: SidebarFooter(),
-          ),
-          const VSpace(10),
-        ],
+
+            // trash
+            Padding(
+              padding: menuHorizontalInset +
+                  const EdgeInsets.symmetric(horizontal: 4.0),
+              child: const Divider(height: 1.0, color: Color(0x141F2329)),
+            ),
+            const VSpace(8),
+            Padding(
+              padding: menuHorizontalInset +
+                  const EdgeInsets.symmetric(horizontal: 4.0),
+              child: const SidebarFooter(),
+            ),
+            const VSpace(14),
+          ],
+        ),
       ),
     );
   }
 
   void _onScrollChanged() {
-    setState(() => isScrolling = true);
+    setState(() => _isScrolling = true);
 
     _scrollDebounce?.cancel();
     _scrollDebounce =
@@ -284,7 +307,7 @@ class _SidebarState extends State<_Sidebar> {
 
   void _setScrollStopped() {
     if (mounted) {
-      setState(() => isScrolling = false);
+      setState(() => _isScrolling = false);
     }
   }
 }

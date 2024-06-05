@@ -37,7 +37,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
-  FlowySvgData get icon => FlowySvgs.document_s;
+  FlowySvgData get icon => FlowySvgs.icon_document_s;
 
   @override
   PluginType get pluginType => PluginType.document;
@@ -148,7 +148,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
               ? [
                   DocumentCollaborators(
                     key: ValueKey('collaborators_${view.id}'),
-                    width: 150,
+                    width: 120,
                     height: 32,
                     view: view,
                   ),

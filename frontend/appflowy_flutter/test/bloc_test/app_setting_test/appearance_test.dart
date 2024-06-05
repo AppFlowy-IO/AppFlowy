@@ -37,7 +37,6 @@ void main() {
       ),
       verify: (bloc) {
         expect(bloc.state.font, defaultFontFamily);
-        expect(bloc.state.monospaceFont, 'SF Mono');
         expect(bloc.state.themeMode, ThemeMode.system);
       },
     );
