@@ -85,7 +85,7 @@ jobs:
           BACKEND_VERSION: 0.3.24-amd64
         run: |
           docker pull appflowyinc/appflowy_cloud:latest
-          docker compose up -d
+          docker compose -f docker-compose-ci.yml up -d
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib

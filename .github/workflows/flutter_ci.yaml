@@ -250,7 +250,8 @@ jobs:
         run: |
           docker compose down -v --remove-orphans
           docker compose pull
-          docker compose up -d
+          docker compose -f docker-compose-ci.yml up -d
+          docker ps -a
           sleep 10
 
       - name: Checkout source code
