@@ -6,6 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class MobileRecentSpace extends StatefulWidget {
   const MobileRecentSpace({super.key});
@@ -62,34 +63,36 @@ class _RecentViews extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-      child: ListView.separated(
-        key: const PageStorageKey('recent_views_page_storage_key'),
-        padding: const EdgeInsets.symmetric(
-          horizontal: HomeSpaceViewSizes.mHorizontalPadding,
-        ),
-        itemBuilder: (context, index) {
-          final sectionView = recentViews[index];
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).dividerColor,
-                  width: 0.5,
+    return SlidableAutoCloseBehavior(
+      child: Scrollbar(
+        child: ListView.separated(
+          key: const PageStorageKey('recent_views_page_storage_key'),
+          padding: const EdgeInsets.symmetric(
+            horizontal: HomeSpaceViewSizes.mHorizontalPadding,
+          ),
+          itemBuilder: (context, index) {
+            final sectionView = recentViews[index];
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 24.0),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Theme.of(context).dividerColor,
+                    width: 0.5,
+                  ),
                 ),
               ),
-            ),
-            child: MobileViewCard(
-              key: ValueKey(sectionView.item.id),
-              view: sectionView.item,
-              timestamp: sectionView.timestamp,
-              type: MobileViewCardType.recent,
-            ),
-          );
-        },
-        separatorBuilder: (context, index) => const HSpace(8),
-        itemCount: recentViews.length,
+              child: MobileViewCard(
+                key: ValueKey(sectionView.item.id),
+                view: sectionView.item,
+                timestamp: sectionView.timestamp,
+                type: MobileViewCardType.recent,
+              ),
+            );
+          },
+          separatorBuilder: (context, index) => const HSpace(8),
+          itemCount: recentViews.length,
+        ),
       ),
     );
   }

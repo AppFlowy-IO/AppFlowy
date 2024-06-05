@@ -191,6 +191,7 @@ class _SidebarState extends State<_Sidebar> {
   Timer? _scrollDebounce;
   bool _isScrolling = false;
   final _isHovered = ValueNotifier(false);
+  final _scrollOffset = ValueNotifier<double>(0);
 
   @override
   void initState() {
@@ -203,6 +204,7 @@ class _SidebarState extends State<_Sidebar> {
     _scrollDebounce?.cancel();
     _scrollController.removeListener(_onScrollChanged);
     _scrollController.dispose();
+    _scrollOffset.dispose();
     _isHovered.dispose();
     super.dispose();
   }
@@ -255,11 +257,20 @@ class _SidebarState extends State<_Sidebar> {
             const SidebarNewPageButton(),
             // scrollable document list
             const VSpace(12.0),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0),
-              child: Divider(
-                color: Color(0x1E1F2329),
-                height: 0.5,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ValueListenableBuilder(
+                valueListenable: _scrollOffset,
+                builder: (_, offset, child) {
+                  return Opacity(
+                    opacity: offset > 0 ? 1 : 0,
+                    child: child,
+                  );
+                },
+                child: const Divider(
+                  color: Color(0x141F2329),
+                  height: 0.5,
+                ),
               ),
             ),
             Expanded(
@@ -281,7 +292,7 @@ class _SidebarState extends State<_Sidebar> {
             Padding(
               padding: menuHorizontalInset +
                   const EdgeInsets.symmetric(horizontal: 4.0),
-              child: const Divider(height: 1.0, color: Color(0x141F2329)),
+              child: const Divider(height: 0.5, color: Color(0x141F2329)),
             ),
             const VSpace(8),
             Padding(
@@ -302,6 +313,8 @@ class _SidebarState extends State<_Sidebar> {
     _scrollDebounce?.cancel();
     _scrollDebounce =
         Timer(const Duration(milliseconds: 300), _setScrollStopped);
+
+    _scrollOffset.value = _scrollController.offset;
   }
 
   void _setScrollStopped() {

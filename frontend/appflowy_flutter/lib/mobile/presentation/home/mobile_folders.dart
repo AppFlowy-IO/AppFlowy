@@ -111,7 +111,7 @@ class _TrashButton extends StatelessWidget {
       height: 52,
       child: FlowyButton(
         expand: true,
-        margin: const EdgeInsets.symmetric(vertical: 8),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 2.0),
         leftIcon: const FlowySvg(
           FlowySvgs.m_delete_s,
         ),
