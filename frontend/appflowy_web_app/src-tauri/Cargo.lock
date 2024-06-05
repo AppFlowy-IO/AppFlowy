@@ -2173,6 +2173,7 @@ dependencies = [
  "nanoid",
  "parking_lot 0.12.1",
  "protobuf",
+ "serde",
  "serde_json",
  "strum_macros 0.21.1",
  "tokio",

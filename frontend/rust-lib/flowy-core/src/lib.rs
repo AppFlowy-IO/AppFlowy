@@ -173,15 +173,20 @@ impl AppFlowyCore {
       let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Some(Arc::downgrade(
         &authenticate_user,
       ))));
+
+      let folder_operation_handlers = folder_operation_handlers(
+        document_manager.clone(),
+        database_manager.clone(),
+        chat_manager.clone(),
+      );
+
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
-        &document_manager,
-        &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
         folder_indexer.clone(),
         store_preference.clone(),
-        &chat_manager,
+        folder_operation_handlers,
       )
       .await;
 

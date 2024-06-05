@@ -1,17 +1,14 @@
-use crate::entities::IndexedWorkspaceIds;
 use crate::manager::{FolderInitDataSource, FolderManager};
 use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
 use collab::core::collab::DataSource;
-use collab_entity::CollabType;
+use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::{Folder, FolderNotify, UserId};
 use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::{Arc, Weak};
 use tokio::task::spawn_blocking;
 use tracing::{event, info, Level};
-
-pub const INDEXED_WORKSPACE_KEY: &str = "indexed-workspace-ids";
 
 impl FolderManager {
   /// Called immediately after the application launched if the user already sign in/sign up.
@@ -187,28 +184,27 @@ impl FolderManager {
   }
 
   fn handle_index_folder(&self, workspace_id: String, folder: &Folder) {
-    let index_all;
-    if self.folder_indexer.is_indexed() {
-      // If indexes already exist, we check if the workspace was
-      // previously indexed, if it wasn't we index all
-      let indexed_ids = self
-        .store_preferences
-        .get_object::<IndexedWorkspaceIds>(INDEXED_WORKSPACE_KEY);
-      if let Some(indexed_ids) = indexed_ids {
-        index_all = !indexed_ids.workspace_ids.contains(&workspace_id.clone());
-        if !index_all {
-          let mut workspace_ids = indexed_ids.workspace_ids.clone();
-          workspace_ids.push(workspace_id.clone());
-          let _ = self
-            .store_preferences
-            .set_object(INDEXED_WORKSPACE_KEY, IndexedWorkspaceIds { workspace_ids });
+    let mut index_all = true;
+
+    let encoded_collab = self
+      .store_preferences
+      .get_object::<EncodedCollab>(&workspace_id);
+
+    if let Some(encoded_collab) = encoded_collab {
+      if let Ok(changes) = folder.calculate_view_changes(encoded_collab) {
+        let folder_indexer = self.folder_indexer.clone();
+
+        let views = folder.views.get_all_views();
+        let wid = workspace_id.clone();
+
+        if !changes.is_empty() && !views.is_empty() {
+          spawn_blocking(move || {
+            // We index the changes
+            folder_indexer.index_view_changes(views, changes, wid);
+          });
+          index_all = false;
         }
-      } else {
-        index_all = true;
       }
-    } else {
-      // If there exists no indexes, we index all views in workspace
-      index_all = true;
     }
 
     if index_all {
@@ -218,8 +214,24 @@ impl FolderManager {
 
       // We spawn a blocking task to index all views in the folder
       spawn_blocking(move || {
+        // We remove old indexes just in case
+        let _ = folder_indexer.remove_indices_for_workspace(wid.clone());
+
+        // We index all views from the workspace
         folder_indexer.index_all_views(views, wid);
       });
+    }
+
+    self.save_collab_to_preferences(folder);
+  }
+
+  fn save_collab_to_preferences(&self, folder: &Folder) {
+    let encoded_collab = folder.encode_collab_v1();
+
+    if let Ok(encoded) = encoded_collab {
+      let _ = self
+        .store_preferences
+        .set_object(&folder.get_workspace_id(), encoded);
     }
   }
 }
