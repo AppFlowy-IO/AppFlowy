@@ -1201,6 +1201,14 @@ impl FolderManager {
       .filter(|id| !my_private_view_ids.contains(id))
       .collect()
   }
+
+  pub fn remove_indices_for_workspace(&self, workspace_id: String) -> FlowyResult<()> {
+    self
+      .folder_indexer
+      .remove_indices_for_workspace(workspace_id)?;
+
+    Ok(())
+  }
 }
 
 /// Return the views that belong to the workspace. The views are filtered by the trash and all the private views.
