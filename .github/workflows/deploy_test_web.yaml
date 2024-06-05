@@ -62,7 +62,7 @@ jobs:
         with:
           SSH_PRIVATE_KEY: ${{ env.SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i"
-          SOURCE: "frontend/appflowy_web_app/dist frontend/appflowy_web_app/Dockerfile frontend/appflowy_web_app/nginx.conf frontend/appflowy_web_app/.env nginx-signed.crt nginx-signed.key"
+          SOURCE: "frontend/appflowy_web_app/dist frontend/appflowy_web_app/server.cjs frontend/appflowy_web_app/start.sh frontend/appflowy_web_app/Dockerfile frontend/appflowy_web_app/nginx.conf frontend/appflowy_web_app/.env nginx-signed.crt nginx-signed.key"
           REMOTE_HOST: ${{ env.REMOTE_HOST }}
           REMOTE_USER: ${{ env.REMOTE_USER }}
           EXCLUDE: "frontend/appflowy_web_app/dist/, frontend/appflowy_web_app/node_modules/"

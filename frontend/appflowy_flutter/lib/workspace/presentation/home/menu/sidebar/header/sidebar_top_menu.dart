@@ -56,7 +56,7 @@ class SidebarTopMenu extends StatelessWidget {
         : FlowySvgs.flowy_logo_text_xl;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 12.0, left: 4),
+      padding: const EdgeInsets.only(top: 12.0, left: 8),
       child: FlowySvg(
         svgData,
         size: const Size(92, 17),
