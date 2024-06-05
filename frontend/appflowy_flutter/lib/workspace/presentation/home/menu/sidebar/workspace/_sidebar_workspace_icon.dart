@@ -15,13 +15,19 @@ class WorkspaceIcon extends StatefulWidget {
     required this.iconSize,
     required this.fontSize,
     required this.onSelected,
+    this.borderRadius = 4,
+    this.emojiSize,
+    this.alignment,
   });
 
   final UserWorkspacePB workspace;
   final double iconSize;
   final bool enableEdit;
   final double fontSize;
+  final double? emojiSize;
   final void Function(EmojiPickerResult) onSelected;
+  final double borderRadius;
+  final Alignment? alignment;
 
   @override
   State<WorkspaceIcon> createState() => _WorkspaceIconState();
@@ -34,22 +40,26 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
   Widget build(BuildContext context) {
     Widget child = widget.workspace.icon.isNotEmpty
         ? Container(
-            width: widget.iconSize,
-            alignment: Alignment.center,
+            width: widget.emojiSize ?? widget.iconSize,
+            alignment: widget.alignment ?? Alignment.center,
             child: FlowyText.emoji(
               widget.workspace.icon,
-              fontSize: widget.iconSize,
+              fontSize: widget.emojiSize ?? widget.iconSize,
             ),
           )
         : Container(
             alignment: Alignment.center,
             width: widget.iconSize,
-            height: min(widget.iconSize, 26),
+            height: min(widget.iconSize, 24),
             decoration: BoxDecoration(
               color: ColorGenerator(widget.workspace.name).toColor(),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(widget.borderRadius),
+              border: Border.all(
+                color: const Color(0xa1717171),
+                width: 0.5,
+              ),
             ),
-            child: FlowyText(
+            child: FlowyText.semibold(
               widget.workspace.name.isEmpty
                   ? ''
                   : widget.workspace.name.substring(0, 1),

@@ -169,7 +169,10 @@ impl AppFlowyCore {
 
       let chat_manager =
         ChatDepsResolver::resolve(Arc::downgrade(&authenticate_user), server_provider.clone());
-      let folder_indexer = Arc::new(FolderIndexManagerImpl::new(None));
+
+      let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Some(Arc::downgrade(
+        &authenticate_user,
+      ))));
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         &document_manager,
@@ -177,6 +180,7 @@ impl AppFlowyCore {
         collab_builder.clone(),
         server_provider.clone(),
         folder_indexer.clone(),
+        store_preference.clone(),
         &chat_manager,
       )
       .await;

@@ -21,6 +21,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
       children: [
         FlowyOptionTile.text(
           text: LocaleKeys.document_menuName.tr(),
+          height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.document_s,
             size: Size.square(18),
@@ -30,6 +31,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
         ),
         FlowyOptionTile.text(
           text: LocaleKeys.grid_menuName.tr(),
+          height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.grid_s,
             size: Size.square(18),
@@ -39,6 +41,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
         ),
         FlowyOptionTile.text(
           text: LocaleKeys.board_menuName.tr(),
+          height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.board_s,
             size: Size.square(18),
@@ -48,12 +51,23 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
         ),
         FlowyOptionTile.text(
           text: LocaleKeys.calendar_menuName.tr(),
+          height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.calendar_s,
             size: Size.square(18),
           ),
           showTopBorder: false,
           onTap: () => onAction(ViewLayoutPB.Calendar),
+        ),
+        FlowyOptionTile.text(
+          text: LocaleKeys.chat_newChat.tr(),
+          height: 52.0,
+          leftIcon: const FlowySvg(
+            FlowySvgs.chat_ai_page_s,
+            size: Size.square(18),
+          ),
+          showTopBorder: false,
+          onTap: () => onAction(ViewLayoutPB.Chat),
         ),
       ],
     );

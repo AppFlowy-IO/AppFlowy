@@ -22,6 +22,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
@@ -63,21 +64,33 @@ class MobileViewCard extends StatelessWidget {
       ],
       child: BlocBuilder<RecentViewBloc, RecentViewState>(
         builder: (context, state) {
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTapUp: (_) => context.pushView(view),
-            onLongPressUp: () => _showActionSheet(context),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(child: _buildDescription(context, state)),
-                const HSpace(20.0),
-                SizedBox(
-                  width: 84,
-                  height: 60,
-                  child: _buildCover(context, state),
-                ),
+          return Slidable(
+            endActionPane: buildEndActionPane(
+              context,
+              [
+                MobilePaneActionType.more,
+                context.watch<ViewBloc>().state.view.isFavorite
+                    ? MobilePaneActionType.removeFromFavorites
+                    : MobilePaneActionType.addToFavorites,
               ],
+              cardType: type,
+            ),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapUp: (_) => context.pushView(view),
+              onLongPressUp: () => _showActionSheet(context),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(child: _buildDescription(context, state)),
+                  const HSpace(20.0),
+                  SizedBox(
+                    width: 84,
+                    height: 60,
+                    child: _buildCover(context, state),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -257,10 +270,9 @@ class MobileViewCard extends StatelessWidget {
           ],
           child: BlocBuilder<ViewBloc, ViewState>(
             builder: (context, state) {
-              final isFavorite = state.view.isFavorite;
               return MobileViewItemBottomSheet(
                 view: viewBloc.state.view,
-                actions: _buildActions(isFavorite),
+                actions: _buildActions(state.view),
               );
             },
           ),
@@ -269,15 +281,16 @@ class MobileViewCard extends StatelessWidget {
     );
   }
 
-  List<MobileViewItemBottomSheetBodyAction> _buildActions(bool isFavorite) {
+  List<MobileViewItemBottomSheetBodyAction> _buildActions(ViewPB view) {
     switch (type) {
       case MobileViewCardType.recent:
         return [
-          isFavorite
+          view.isFavorite
               ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
               : MobileViewItemBottomSheetBodyAction.addToFavorites,
           MobileViewItemBottomSheetBodyAction.divider,
-          MobileViewItemBottomSheetBodyAction.duplicate,
+          if (view.layout != ViewLayoutPB.Chat)
+            MobileViewItemBottomSheetBodyAction.duplicate,
           MobileViewItemBottomSheetBodyAction.divider,
           MobileViewItemBottomSheetBodyAction.removeFromRecent,
         ];

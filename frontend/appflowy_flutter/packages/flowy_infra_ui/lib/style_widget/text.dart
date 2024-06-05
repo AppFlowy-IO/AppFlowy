@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const String _emojiFontFamily = 'noto color emoji';
-
 class FlowyText extends StatelessWidget {
   final String text;
   final TextOverflow? overflow;
@@ -138,16 +136,13 @@ class FlowyText extends StatelessWidget {
 
     var fontFamily = this.fontFamily;
     var fallbackFontFamily = this.fallbackFontFamily;
-    if (isEmoji && (Platform.isLinux || Platform.isAndroid)) {
+    var fontSize =
+        this.fontSize ?? Theme.of(context).textTheme.bodyMedium!.fontSize!;
+    if (isEmoji && _useNotoColorEmoji) {
       fontFamily = _loadEmojiFontFamilyIfNeeded();
       if (fontFamily != null && fallbackFontFamily == null) {
         fallbackFontFamily = [fontFamily];
       }
-    }
-
-    var fontSize =
-        this.fontSize ?? Theme.of(context).textTheme.bodyMedium!.fontSize!;
-    if (Platform.isLinux && fontFamily == _emojiFontFamily) {
       fontSize = fontSize * 0.8;
     }
 
@@ -166,7 +161,6 @@ class FlowyText extends StatelessWidget {
         text,
         maxLines: maxLines,
         textAlign: textAlign,
-        strutStyle: strutStyle,
         style: textStyle,
       );
     } else {
@@ -176,6 +170,14 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
+        strutStyle: Platform.isMacOS
+            ? StrutStyle.fromTextStyle(
+                textStyle,
+                forceStrutHeight: true,
+                leadingDistribution: TextLeadingDistribution.even,
+                height: 1.1,
+              )
+            : null,
       );
     }
 
@@ -190,10 +192,13 @@ class FlowyText extends StatelessWidget {
   }
 
   String? _loadEmojiFontFamilyIfNeeded() {
-    if (Platform.isLinux || Platform.isAndroid) {
+    if (_useNotoColorEmoji) {
       return GoogleFonts.notoColorEmoji().fontFamily;
     }
 
     return null;
   }
+
+  bool get _useNotoColorEmoji =>
+      Platform.isLinux || Platform.isAndroid || Platform.isWindows;
 }

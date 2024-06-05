@@ -237,8 +237,7 @@ class EditorStyleCustomizer {
     try {
       return getGoogleFontSafely(fontFamily, fontWeight: fontWeight);
     } on Exception {
-      if ([defaultFontFamily, fallbackFontFamily, builtInCodeFontFamily]
-          .contains(fontFamily)) {
+      if ([defaultFontFamily, builtInCodeFontFamily].contains(fontFamily)) {
         return TextStyle(fontFamily: fontFamily, fontWeight: fontWeight);
       }
 

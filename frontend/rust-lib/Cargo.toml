@@ -121,8 +121,8 @@ lto = false
 incremental = false
 
 [patch.crates-io]
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b36715dc2427e23a15fa81c629e1817d3dbf1e1a" }
-shared-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b36715dc2427e23a15fa81c629e1817d3dbf1e1a" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "3f55cea9ca386875a1668ef30600c83cd6a1ffe2" }
+shared-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "3f55cea9ca386875a1668ef30600c83cd6a1ffe2" }
 
 # TODO(Lucas.Xu) Upgrade to the latest version of RocksDB once PR(https://github.com/rust-rocksdb/rust-rocksdb/pull/869) is merged.
 # Currently, using the following revision id. This commit is patched to fix the 32-bit build issue and it's checked out from 0.21.0, not 0.22.0.
@@ -136,10 +136,10 @@ rocksdb = { git = "https://github.com/LucasXu0/rust-rocksdb", rev = "21cf4a23ec1
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cca5135f0010fa5de22a298cbed939e21575538c" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }

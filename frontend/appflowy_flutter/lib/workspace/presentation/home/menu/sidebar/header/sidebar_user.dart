@@ -28,17 +28,26 @@ class SidebarUser extends StatelessWidget {
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
           children: [
-            const HSpace(6),
+            const HSpace(4),
             UserAvatar(
               iconUrl: state.userProfile.iconUrl,
               name: state.userProfile.name,
-              size: 16.0,
-              fontSize: 10.0,
+              size: 24.0,
+              fontSize: 16.0,
+              decoration: ShapeDecoration(
+                color: const Color(0xFFFBE8FB),
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(width: 0.50, color: Color(0x19171717)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
             ),
-            const HSpace(10),
+            const HSpace(8),
             Expanded(child: _buildUserName(context, state)),
             UserSettingButton(userProfile: state.userProfile),
+            const HSpace(8.0),
             const NotificationButton(),
+            const HSpace(10.0),
           ],
         ),
       ),
@@ -51,6 +60,7 @@ class SidebarUser extends StatelessWidget {
       name,
       overflow: TextOverflow.ellipsis,
       color: Theme.of(context).colorScheme.tertiary,
+      fontSize: 15.0,
     );
   }
 

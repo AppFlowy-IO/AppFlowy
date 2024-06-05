@@ -44,7 +44,7 @@ class DatabaseDocumentPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
-  FlowySvgData get icon => FlowySvgs.document_s;
+  FlowySvgData get icon => FlowySvgs.icon_document_s;
 
   @override
   PluginType get pluginType => PluginType.databaseDocument;

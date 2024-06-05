@@ -123,12 +123,13 @@ class _MobileWorkspace extends StatelessWidget {
           child: Row(
             children: [
               SizedBox.square(
-                dimension: 34.0,
+                dimension: currentWorkspace.icon.isNotEmpty ? 34.0 : 26.0,
                 child: WorkspaceIcon(
                   workspace: currentWorkspace,
                   iconSize: 26,
                   fontSize: 16.0,
                   enableEdit: false,
+                  alignment: Alignment.centerLeft,
                   onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                         UserWorkspaceEvent.updateWorkspaceIcon(
                           currentWorkspace.workspaceId,
@@ -137,32 +138,13 @@ class _MobileWorkspace extends StatelessWidget {
                       ),
                 ),
               ),
-              const HSpace(8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        FlowyText.semibold(
-                          currentWorkspace.name,
-                          fontSize: 16.0,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const HSpace(4.0),
-                        const FlowySvg(FlowySvgs.list_dropdown_s),
-                      ],
-                    ),
-                    FlowyText.regular(
-                      userProfile.email.isNotEmpty
-                          ? userProfile.email
-                          : userProfile.name,
-                      overflow: TextOverflow.ellipsis,
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ],
-                ),
+              currentWorkspace.icon.isNotEmpty
+                  ? const HSpace(2)
+                  : const HSpace(8),
+              FlowyText.semibold(
+                currentWorkspace.name,
+                fontSize: 16.0,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -179,7 +161,9 @@ class _MobileWorkspace extends StatelessWidget {
       showDivider: false,
       showHeader: true,
       showDragHandle: true,
+      showCloseButton: true,
       title: LocaleKeys.workspace_menuTitle.tr(),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) {
         return BlocProvider.value(
           value: context.read<UserWorkspaceBloc>(),
