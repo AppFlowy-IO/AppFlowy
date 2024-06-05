@@ -12,11 +12,36 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SearchField extends StatelessWidget {
+class SearchField extends StatefulWidget {
   const SearchField({super.key, this.query, this.isLoading = false});
 
   final String? query;
   final bool isLoading;
+
+  @override
+  State<SearchField> createState() => _SearchFieldState();
+}
+
+class _SearchFieldState extends State<SearchField> {
+  final focusNode = FocusNode();
+  late final controller = TextEditingController(text: widget.query);
+
+  @override
+  void initState() {
+    super.initState();
+    focusNode.requestFocus();
+    controller.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: controller.text.length,
+    );
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +54,8 @@ class SearchField extends StatelessWidget {
         ),
         Expanded(
           child: FlowyTextField(
-            controller: TextEditingController(text: query),
+            focusNode: focusNode,
+            controller: controller,
             textStyle:
                 Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
             decoration: InputDecoration(
@@ -84,7 +110,7 @@ class SearchField extends StatelessWidget {
                 .add(CommandPaletteEvent.searchChanged(search: value)),
           ),
         ),
-        if (isLoading) ...[
+        if (widget.isLoading) ...[
           const HSpace(12),
           FlowyTooltip(
             message: LocaleKeys.commandPalette_loadingTooltip.tr(),
