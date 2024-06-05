@@ -2,7 +2,9 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 class MenuSharedState {
-  MenuSharedState({ViewPB? view}) {
+  MenuSharedState({
+    ViewPB? view,
+  }) {
     _latestOpenView.value = view;
   }
 
@@ -17,13 +19,8 @@ class MenuSharedState {
     }
   }
 
-  VoidCallback addLatestViewListener(void Function(ViewPB?) callback) {
-    void listener() {
-      callback(_latestOpenView.value);
-    }
-
+  void addLatestViewListener(VoidCallback listener) {
     _latestOpenView.addListener(listener);
-    return listener;
   }
 
   void removeLatestViewListener(VoidCallback listener) {

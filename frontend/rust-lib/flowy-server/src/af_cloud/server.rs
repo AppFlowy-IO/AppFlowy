@@ -10,8 +10,10 @@ use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
 use client_api::{Client, ClientConfiguration};
+use flowy_chat_pub::cloud::ChatCloudService;
 use flowy_storage::ObjectStorageService;
 use rand::Rng;
+use semver::Version;
 use tokio::select;
 use tokio::sync::{watch, Mutex};
 use tokio_stream::wrappers::WatchStream;
@@ -30,9 +32,10 @@ use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::af_cloud::impls::{
-  AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
-  AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
+  AFCloudChatCloudServiceImpl, AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl,
+  AFCloudFileStorageServiceImpl, AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
 };
+
 use crate::AppFlowyServer;
 
 pub(crate) type AFCloudClient = Client;
@@ -53,7 +56,7 @@ impl AppFlowyCloudServer {
     config: AFCloudConfiguration,
     enable_sync: bool,
     mut device_id: String,
-    client_version: &str,
+    client_version: Version,
     user: Arc<dyn ServerUser>,
   ) -> Self {
     // The device id can't be empty, so we generate a new one if it is.
@@ -70,7 +73,7 @@ impl AppFlowyCloudServer {
       ClientConfiguration::default()
         .with_compression_buffer_size(10240)
         .with_compression_quality(8),
-      client_version,
+      &client_version.to_string(),
     );
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
@@ -211,6 +214,13 @@ impl AppFlowyServer for AppFlowyCloudServer {
       inner: server,
       user: self.user.clone(),
     })
+  }
+
+  fn chat_service(&self) -> Arc<dyn ChatCloudService> {
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
+    Arc::new(AFCloudChatCloudServiceImpl { inner: server })
   }
 
   fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {

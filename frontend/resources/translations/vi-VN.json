@@ -60,7 +60,7 @@
     "resetWorkspacePrompt": "Đặt lại không gian làm việc sẽ xóa tất cả các trang và dữ liệu trong đó. Bạn có chắc chắn muốn đặt lại không gian làm việc? Ngoài ra, bạn có thể liên hệ với nhóm hỗ trợ để khôi phục không gian làm việc",
     "hint": "không gian làm việc",
     "notFoundError": "Không tìm thấy không gian làm việc",
-    "failedToLoad": "Đã xảy ra lỗi! Không tải được không gian làm việc. Hãy thử đóng mọi phiên bản đang mở của AppFlowy và thử lại.",
+    "failedToLoad": "Đã xảy ra lỗi! Không tải được không gian làm việc. Hãy thử đóng mọi phiên bản đang mở của @:appName và thử lại.",
     "errorActions": {
       "reportIssue": "Báo cáo một vấn đề",
       "reportIssueOnGithub": "Báo cáo sự cố trên Github",
@@ -314,7 +314,7 @@
       "cloudSupabaseUrl": "Supabase URL",
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "Anon key không được để trống nếu url supabase không trống",
-      "cloudAppFlowy": "AppFlowy Cloud Beta",
+      "cloudAppFlowy": "@:appName Cloud Beta",
       "clickToCopy": "Bấm để sao chép",
       "selfHostStart": "Nếu bạn không có máy chủ, vui lòng tham khảo",
       "selfHostContent": "tài liệu",
@@ -332,11 +332,11 @@
       "inputTextFieldHint": "Bí mật của bạn",
       "historicalUserList": "Lịch sử đăng nhập",
       "openHistoricalUser": "Ấn để mở tài khoản ẩn danh",
-      "importAppFlowyData": "Nhập dữ liệu từ thư mục AppFlowy bên ngoài",
+      "importAppFlowyData": "Nhập dữ liệu từ thư mục @:appName bên ngoài",
       "importingAppFlowyDataTip": "Quá trình nhập dữ liệu đang diễn ra. Vui lòng không đóng ứng dụng",
-      "importAppFlowyDataDescription": "Sao chép dữ liệu từ thư mục dữ liệu AppFlowy bên ngoài và nhập dữ liệu đó vào thư mục dữ liệu AppFlowy hiện tại",
-      "importSuccess": "Đã nhập thành công thư mục dữ liệu AppFlowy",
-      "importFailed": "Nhập thư mục dữ liệu AppFlowy không thành công",
+      "importAppFlowyDataDescription": "Sao chép dữ liệu từ thư mục dữ liệu @:appName bên ngoài và nhập dữ liệu đó vào thư mục dữ liệu @:appName hiện tại",
+      "importSuccess": "Đã nhập thành công thư mục dữ liệu @:appName",
+      "importFailed": "Nhập thư mục dữ liệu @:appName không thành công",
       "importGuide": "Để biết thêm chi tiết, vui lòng kiểm tra tài liệu được tham chiếu"
     },
     "notifications": {
@@ -430,7 +430,7 @@
       "defaultLocation": "Đọc tập tin và vị trí lưu trữ dữ liệu",
       "exportData": "Xuất dữ liệu của bạn",
       "doubleTapToCopy": "Nhấn đúp để sao chép đường dẫn",
-      "restoreLocation": "Khôi phục về đường dẫn mặc định của AppFlowy",
+      "restoreLocation": "Khôi phục về đường dẫn mặc định của @:appName",
       "customizeLocation": "Mở thư mục khác",
       "restartApp": "Vui lòng khởi động lại ứng dụng để những thay đổi có hiệu lực.",
       "exportDatabase": "Xuất cơ sở dữ liệu",
@@ -442,10 +442,10 @@
       "defineWhereYourDataIsStored": "Xác định nơi dữ liệu của bạn được lưu trữ",
       "open": "Mở",
       "openFolder": "Mở một thư mục hiện có",
-      "openFolderDesc": "Đọc và ghi nó vào thư mục AppFlowy hiện có của bạn",
+      "openFolderDesc": "Đọc và ghi nó vào thư mục @:appName hiện có của bạn",
       "folderHintText": "tên thư mục",
       "location": "Tạo một thư mục mới",
-      "locationDesc": "Chọn tên cho thư mục dữ liệu AppFlowy của bạn",
+      "locationDesc": "Chọn tên cho thư mục dữ liệu @:appName của bạn",
       "browser": "Duyệt",
       "create": "Tạo",
       "folderPath": "Đường dẫn lưu trữ thư mục của bạn",
@@ -455,7 +455,7 @@
       "change": "Thay đổi",
       "openLocationTooltips": "Mở thư mục dữ liệu khác",
       "openCurrentDataFolder": "Mở thư mục dữ liệu hiện tại",
-      "recoverLocationTooltips": "Đặt lại về thư mục dữ liệu mặc định của AppFlowy",
+      "recoverLocationTooltips": "Đặt lại về thư mục dữ liệu mặc định của @:appName",
       "exportFileSuccess": "Xuất tập tin thành công!",
       "exportFileFail": "Xuất tập tin thất bại!",
       "export": "Xuất"
@@ -765,7 +765,7 @@
     }
   },
   "errorDialog": {
-    "title": "Lỗi của AppFlowy",
+    "title": "Lỗi của @:appName",
     "howToFixFallback": "Chúng tôi xin lỗi vì sự cố này! Vui lòng mở sự cố trên GitHub để báo lỗi.",
     "github": "Xem trên GitHub"
   },

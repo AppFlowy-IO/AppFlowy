@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
@@ -20,6 +18,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 
 // const _channel = "InlinePageReference";
 
@@ -65,8 +64,11 @@ class InlinePageReferenceService extends InlineActionsDelegate {
 
     _recentViewsInitialized = true;
 
-    final views =
-        (await _recentService.recentViews()).reversed.toSet().toList();
+    final views = (await _recentService.recentViews())
+        .reversed
+        .map((e) => e.item)
+        .toSet()
+        .toList();
 
     // Filter by viewLayout
     views.retainWhere(

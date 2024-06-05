@@ -30,6 +30,7 @@ pub fn init_flowy_core() -> AppFlowyCore {
   let config: tauri_utils::config::Config = serde_json::from_str(config_json).unwrap();
 
   let app_version = config.package.version.clone().map(|v| v.to_string()).unwrap_or_else(|| "0.0.0".to_string());
+  let app_version = semver::Version::parse(&app_version).unwrap_or_else(|_| semver::Version::new(0, 5, 8));
   let mut data_path = tauri::api::path::app_local_data_dir(&config).unwrap();
   if cfg!(debug_assertions) {
     data_path.push("data_dev");

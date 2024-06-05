@@ -1,4 +1,5 @@
 use client_api::ClientConfiguration;
+use semver::Version;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -32,7 +33,7 @@ pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer>
     config,
     true,
     fake_device_id,
-    "0.5.1",
+    Version::new(0, 5, 8),
     Arc::new(FakeServerUserImpl),
   ))
 }

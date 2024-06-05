@@ -236,17 +236,21 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   final String? initialRowId;
 
   @override
-  Widget get leftBarItem => ViewTitleBar(view: notifier.view);
+  Widget get leftBarItem =>
+      ViewTitleBar(key: ValueKey(notifier.view.id), view: notifier.view);
 
   @override
   Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);
 
   @override
-  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
+  Widget buildWidget({
+    required PluginContext context,
+    required bool shrinkWrap,
+  }) {
     notifier.isDeleted.addListener(() {
       final deletedView = notifier.isDeleted.value;
       if (deletedView != null && deletedView.hasIndex()) {
-        context?.onDeleted(notifier.view, deletedView.index);
+        context.onDeleted?.call(notifier.view, deletedView.index);
       }
     });
 
@@ -278,7 +282,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
                 ]
               : [],
           DatabaseShareButton(key: ValueKey(view.id), view: view),
-          const HSpace(4),
+          const HSpace(10),
           ViewFavoriteButton(view: view),
           const HSpace(4),
           MoreViewActions(view: view, isDocument: false),

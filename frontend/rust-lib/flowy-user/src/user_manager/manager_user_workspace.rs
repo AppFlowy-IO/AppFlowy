@@ -261,7 +261,11 @@ impl UserManager {
     // delete workspace from local sqlite db
     let uid = self.user_id()?;
     let conn = self.db_connection(uid)?;
-    delete_user_workspaces(conn, workspace_id)
+    delete_user_workspaces(conn, workspace_id)?;
+
+    self
+      .user_workspace_service
+      .did_delete_workspace(workspace_id.to_string())
   }
 
   #[instrument(level = "info", skip(self), err)]
@@ -275,6 +279,11 @@ impl UserManager {
     let uid = self.user_id()?;
     let conn = self.db_connection(uid)?;
     delete_user_workspaces(conn, workspace_id)?;
+
+    self
+      .user_workspace_service
+      .did_delete_workspace(workspace_id.to_string())?;
+
     Ok(())
   }
 

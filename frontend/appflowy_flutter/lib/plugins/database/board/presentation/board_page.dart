@@ -14,12 +14,14 @@ import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/card/card_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/desktop_board_card_cell_style.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
+import 'package:appflowy/plugins/shared/callback_shortcuts.dart';
 import 'package:appflowy/shared/conditional_listenable_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -27,6 +29,7 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
@@ -319,64 +322,67 @@ class _BoardContentState extends State<_BoardContent> {
           },
         ),
       ],
-      child: FocusScope(
-        autofocus: true,
-        child: BoardShortcutContainer(
-          focusScope: widget.focusScope,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: AppFlowyBoard(
-              boardScrollController: scrollManager,
-              scrollController: scrollController,
-              controller: context.read<BoardBloc>().boardController,
-              groupConstraints: const BoxConstraints.tightFor(width: 256),
-              config: config,
-              leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
-              trailing: context
-                          .read<BoardBloc>()
-                          .groupingFieldType
-                          ?.canCreateNewGroup ??
-                      false
-                  ? BoardTrailing(scrollController: scrollController)
-                  : const HSpace(40),
-              headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-                value: context.read<BoardBloc>(),
-                child: BoardColumnHeader(
-                  groupData: groupData,
-                  margin: config.groupHeaderPadding,
+      child: Provider(
+        create: (context) => AFCallbackShortcutsProvider(),
+        child: FocusScope(
+          autofocus: true,
+          child: BoardShortcutContainer(
+            focusScope: widget.focusScope,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: AppFlowyBoard(
+                boardScrollController: scrollManager,
+                scrollController: scrollController,
+                controller: context.read<BoardBloc>().boardController,
+                groupConstraints: const BoxConstraints.tightFor(width: 256),
+                config: config,
+                leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
+                trailing: context
+                            .read<BoardBloc>()
+                            .groupingFieldType
+                            ?.canCreateNewGroup ??
+                        false
+                    ? BoardTrailing(scrollController: scrollController)
+                    : const HSpace(40),
+                headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
+                  value: context.read<BoardBloc>(),
+                  child: BoardColumnHeader(
+                    groupData: groupData,
+                    margin: config.groupHeaderPadding,
+                  ),
                 ),
-              ),
-              footerBuilder: (_, groupData) => MultiBlocProvider(
-                providers: [
-                  BlocProvider.value(
-                    value: context.read<BoardBloc>(),
+                footerBuilder: (_, groupData) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider.value(
+                      value: context.read<BoardBloc>(),
+                    ),
+                    BlocProvider.value(
+                      value: context.read<BoardActionsCubit>(),
+                    ),
+                  ],
+                  child: BoardColumnFooter(
+                    columnData: groupData,
+                    boardConfig: config,
+                    scrollManager: scrollManager,
                   ),
-                  BlocProvider.value(
-                    value: context.read<BoardActionsCubit>(),
-                  ),
-                ],
-                child: BoardColumnFooter(
-                  columnData: groupData,
-                  boardConfig: config,
-                  scrollManager: scrollManager,
                 ),
-              ),
-              cardBuilder: (_, column, columnItem) => MultiBlocProvider(
-                key: ValueKey("board_card_${column.id}_${columnItem.id}"),
-                providers: [
-                  BlocProvider<BoardBloc>.value(
-                    value: context.read<BoardBloc>(),
+                cardBuilder: (_, column, columnItem) => MultiBlocProvider(
+                  key: ValueKey("board_card_${column.id}_${columnItem.id}"),
+                  providers: [
+                    BlocProvider<BoardBloc>.value(
+                      value: context.read<BoardBloc>(),
+                    ),
+                    BlocProvider.value(
+                      value: context.read<BoardActionsCubit>(),
+                    ),
+                  ],
+                  child: _BoardCard(
+                    afGroupData: column,
+                    groupItem: columnItem as GroupItem,
+                    boardConfig: config,
+                    notifier: widget.focusScope,
+                    cellBuilder: cellBuilder,
                   ),
-                  BlocProvider.value(
-                    value: context.read<BoardActionsCubit>(),
-                  ),
-                ],
-                child: _BoardCard(
-                  afGroupData: column,
-                  groupItem: columnItem as GroupItem,
-                  boardConfig: config,
-                  notifier: widget.focusScope,
-                  cellBuilder: cellBuilder,
                 ),
               ),
             ),
@@ -671,7 +677,7 @@ class _BoardCardState extends State<_BoardCard> {
                     ? const Color(0x0F1F2329)
                     : const Color(0x0FEFF4FB),
                 foregroundColorOnHover:
-                    Theme.of(context).colorScheme.onBackground,
+                    AFThemeExtension.of(context).onBackground,
               ),
             ),
             onStartEditing: () =>

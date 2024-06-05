@@ -1,3 +1,4 @@
+@use "src/styles/mixin.scss";
 
 .sketch-picker {
   background-color: var(--bg-body) !important;
@@ -16,27 +17,29 @@
   box-shadow: var(--line-border) 0px 0px 0px 1px inset !important;
 }
 
-.appflowy-date-picker-calendar {
-  width: 100%;
 
-}
+body {
 
-.grid-sticky-header::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
+  &[data-os="windows"]:not([data-browser="firefox"]) {
+    .appflowy-custom-scroller {
+      @include mixin.hidden-scrollbar
+    }
 
-.grid-scroll-container::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
+    .MuiBox-root {
+      @include mixin.scrollbar-style;
+    }
+  }
 
-
-.appflowy-scroll-container {
-  &::-webkit-scrollbar {
-    width: 0;
+  .grid-sticky-header {
+    @include mixin.hidden-scrollbar
   }
 }
+
+
+.appflowy-date-picker-calendar {
+  width: 100%;
+}
+
 
 .appflowy-scrollbar-thumb-horizontal, .appflowy-scrollbar-thumb-vertical {
   background-color: var(--scrollbar-thumb);
@@ -44,28 +47,12 @@
   opacity: 60%;
 }
 
-.workspaces {
-  ::-webkit-scrollbar {
-    width: 0px;
-  }
-}
-
-
-.MuiPopover-root, .MuiPaper-root {
-  ::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
-}
 
 .view-icon {
-  @apply flex w-fit cursor-pointer rounded-lg py-2 text-6xl;
+  @apply flex w-fit leading-[1.5em] cursor-pointer rounded-lg py-2 text-[1.5em];
   font-family: "Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols;
   line-height: 1em;
   white-space: nowrap;
-  //&:hover {
-  //  background-color: rgba(156, 156, 156, 0.20);
-  //}
 }
 
 .theme-mode-item {
@@ -82,5 +69,38 @@
 .document-header {
   .view-banner {
     @apply items-center;
+  }
+}
+
+.tooltip-arrow {
+  overflow: hidden;
+  position: absolute;
+  width: 1em;
+  height: 0.71em;
+  color: var(--bg-body);
+
+  &:before {
+    content: '""';
+    margin: auto;
+    display: block;
+    width: 100%;
+    height: 100%;
+    box-shadow: var(--shadow);
+    background-color: var(--bg-body);
+    transform: rotate(45deg);
+  }
+}
+
+.grid-row-cell.wrap-cell {
+  .text-cell {
+    @apply py-2 break-words whitespace-pre-wrap;
+  }
+
+  .relation-cell {
+    @apply py-2 break-words whitespace-pre-wrap flex-wrap;
+  }
+
+  .select-option-cell {
+    @apply flex-wrap py-2;
   }
 }

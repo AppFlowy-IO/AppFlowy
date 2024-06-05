@@ -57,7 +57,7 @@ void showSnackBarMessage(
 }) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       duration: duration,
       action: !showCancel
           ? null

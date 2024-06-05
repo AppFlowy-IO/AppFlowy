@@ -41,6 +41,7 @@ flowy-error = { workspace = true, features = ["impl_from_serde", "impl_from_reqw
 flowy-server-pub = { workspace = true }
 flowy-encrypt = { workspace = true }
 flowy-storage = { workspace = true }
+flowy-chat-pub = { workspace = true }
 mime_guess = "2.0"
 url = "2.4"
 tokio-util = "0.7"
@@ -48,6 +49,7 @@ tokio-stream = { workspace = true, features = ["sync"] }
 lib-dispatch = { workspace = true }
 yrs.workspace = true
 rand = "0.8.5"
+semver = "1.0.23"
 
 [dependencies.client-api]
 workspace = true

@@ -10,6 +10,7 @@ function Placeholder({ node, ...attributes }: { node: Element; className?: strin
   const { t } = useTranslation();
   const { readOnly } = useEditorContext();
   const editor = useSlate();
+
   const selected = useSelected() && !readOnly && !!editor.selection && Range.isCollapsed(editor.selection);
   const [isComposing, setIsComposing] = useState(false);
   const block = useMemo(() => {
@@ -33,7 +34,7 @@ function Placeholder({ node, ...attributes }: { node: Element; className?: strin
   const unSelectedPlaceholder = useMemo(() => {
     switch (block?.type) {
       case BlockType.Paragraph: {
-        if (editor.children.length === 1) {
+        if (editor.children.length === 1 && !readOnly) {
           return t('editor.slashPlaceHolder');
         }
 
@@ -73,7 +74,7 @@ function Placeholder({ node, ...attributes }: { node: Element; className?: strin
       default:
         return '';
     }
-  }, [block, t, editor.children.length]);
+  }, [readOnly, block, t, editor.children.length]);
 
   const selectedPlaceholder = useMemo(() => {
     switch (block?.type) {
@@ -122,7 +123,7 @@ function Placeholder({ node, ...attributes }: { node: Element; className?: strin
 
   return (
     <span
-      data-placeholder={selected ? selectedPlaceholder : unSelectedPlaceholder}
+      data-placeholder={selected && !readOnly ? selectedPlaceholder : unSelectedPlaceholder}
       contentEditable={false}
       {...attributes}
       className={className}

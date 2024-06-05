@@ -3,7 +3,9 @@
   "exclude": [
     "node_modules",
     "src/application/services/tauri-services",
-    "**/*.cy.tsx"
+    "**/*.cy.tsx",
+    "dist",
+    "coverage"
   ],
   "references": [
     {

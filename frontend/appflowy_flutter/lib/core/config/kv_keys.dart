@@ -65,6 +65,11 @@ class KVKeys {
   /// {'feature_flag_1': true, 'feature_flag_2': false}
   static const String featureFlag = 'featureFlag';
 
+  /// The key for saving show notification icon option
+  ///
+  /// The value is a boolean string
+  static const String showNotificationIcon = 'showNotificationIcon';
+
   /// The key for saving the last opened workspace id
   ///
   /// The workspace id is a string.
@@ -75,4 +80,15 @@ class KVKeys {
   ///
   /// The value is a double string.
   static const String scaleFactor = 'scaleFactor';
+
+  /// The key for saving the last opened space
+  ///
+  /// The value is a int string.
+  static const String lastOpenedSpace = 'lastOpenedSpace';
+
+  /// The key for saving the space order
+  ///
+  /// The value is a json string with the following format:
+  /// [0, 1, 2]
+  static const String spaceOrder = 'spaceOrder';
 }

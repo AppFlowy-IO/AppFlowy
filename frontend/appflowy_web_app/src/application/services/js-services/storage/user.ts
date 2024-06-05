@@ -1,18 +1,43 @@
-import { UserProfile } from '@/application/user.type';
-import { getDB } from '@/application/services/js-services/db';
-import { getAuthInfo } from '@/application/services/js-services/storage/token';
+import { UserProfile, UserWorkspace, Workspace } from '@/application/user.type';
 
-const primaryKeyName = 'uid';
+const userKey = 'user';
+const workspaceKey = 'workspace';
 
 export async function getSignInUser(): Promise<UserProfile | undefined> {
-  const db = getDB();
-  const authInfo = getAuthInfo();
+  const userStr = localStorage.getItem(userKey);
 
-  return db?.users.get(authInfo?.uuid);
+  try {
+    return userStr ? JSON.parse(userStr) : undefined;
+  } catch (e) {
+    return undefined;
+  }
 }
 
 export async function setSignInUser(profile: UserProfile) {
-  const db = getDB();
+  const userStr = JSON.stringify(profile);
 
-  return db?.users.put(profile, primaryKeyName);
+  localStorage.setItem(userKey, userStr);
+}
+
+export async function getUserWorkspace(): Promise<UserWorkspace | undefined> {
+  const str = localStorage.getItem(workspaceKey);
+
+  try {
+    return str ? JSON.parse(str) : undefined;
+  } catch (e) {
+    return undefined;
+  }
+}
+
+export async function setUserWorkspace(workspace: UserWorkspace) {
+  const str = JSON.stringify(workspace);
+
+  localStorage.setItem(workspaceKey, str);
+}
+
+export async function getCurrentWorkspace(): Promise<Workspace | undefined> {
+  const userProfile = await getSignInUser();
+  const userWorkspace = await getUserWorkspace();
+
+  return userWorkspace?.workspaces.find((workspace) => workspace.id === userProfile?.workspaceId);
 }

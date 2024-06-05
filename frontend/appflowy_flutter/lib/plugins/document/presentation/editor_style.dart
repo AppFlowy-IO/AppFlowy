@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -15,6 +13,7 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,9 +41,14 @@ class EditorStyleCustomizer {
 
   EditorStyle desktop() {
     final theme = Theme.of(context);
+    final afThemeExtension = AFThemeExtension.of(context);
+    final appearanceFont = context.read<AppearanceSettingsCubit>().state.font;
     final appearance = context.read<DocumentAppearanceCubit>().state;
     final fontSize = appearance.fontSize;
-    final fontFamily = appearance.fontFamily;
+    String fontFamily = appearance.fontFamily;
+    if (fontFamily.isEmpty && appearanceFont.isNotEmpty) {
+      fontFamily = appearanceFont;
+    }
 
     return EditorStyle.desktop(
       padding: padding,
@@ -54,10 +58,12 @@ class EditorStyleCustomizer {
           DefaultAppearanceSettings.getDefaultSelectionColor(context),
       defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
+        lineHeight: 1.2,
+        applyHeightToFirstAscent: true,
+        applyHeightToLastDescent: true,
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
-          color: theme.colorScheme.onBackground,
-          height: 1.5,
+          color: afThemeExtension.onBackground,
         ),
         bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
           fontWeight: FontWeight.w600,
@@ -75,7 +81,7 @@ class EditorStyleCustomizer {
         ),
         code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: fontSize - 2,
+            fontSize: fontSize,
             fontWeight: FontWeight.normal,
             color: Colors.red,
             backgroundColor: theme.colorScheme.inverseSurface.withOpacity(0.8),
@@ -89,6 +95,7 @@ class EditorStyleCustomizer {
   }
 
   EditorStyle mobile() {
+    final afThemeExtension = AFThemeExtension.of(context);
     final pageStyle = context.read<DocumentPageStyleBloc>().state;
     final theme = Theme.of(context);
     final fontSize = pageStyle.fontLayout.fontSize;
@@ -99,15 +106,14 @@ class EditorStyleCustomizer {
     final textScaleFactor =
         context.read<AppearanceSettingsCubit>().state.textScaleFactor;
     final baseTextStyle = this.baseTextStyle(fontFamily);
-    final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.mobile(
       padding: padding,
       defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
+        lineHeight: lineHeight,
         text: baseTextStyle.copyWith(
           fontSize: fontSize,
-          color: theme.colorScheme.onBackground,
-          height: lineHeight,
+          color: afThemeExtension.onBackground,
         ),
         bold: baseTextStyle.copyWith(fontWeight: FontWeight.w600),
         italic: baseTextStyle.copyWith(fontStyle: FontStyle.italic),
@@ -121,7 +127,7 @@ class EditorStyleCustomizer {
         ),
         code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle.copyWith(
-            fontSize: codeFontSize,
+            fontSize: fontSize,
             fontWeight: FontWeight.normal,
             fontStyle: FontStyle.italic,
             color: Colors.red,
@@ -173,7 +179,15 @@ class EditorStyleCustomizer {
     return baseTextStyle(fontFamily).copyWith(
       fontSize: fontSize,
       height: 1.5,
-      color: Theme.of(context).colorScheme.onBackground,
+      color: AFThemeExtension.of(context).onBackground,
+    );
+  }
+
+  TextStyle calloutBlockStyleBuilder() {
+    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    return baseTextStyle(null).copyWith(
+      fontSize: fontSize,
+      height: 1.5,
     );
   }
 
@@ -183,16 +197,17 @@ class EditorStyleCustomizer {
       fontFamily: defaultFontFamily,
       fontSize: fontSize,
       height: 1.5,
-      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+      color: AFThemeExtension.of(context).onBackground.withOpacity(0.6),
     );
   }
 
   SelectionMenuStyle selectionMenuStyleBuilder() {
     final theme = Theme.of(context);
+    final afThemeExtension = AFThemeExtension.of(context);
     return SelectionMenuStyle(
       selectionMenuBackgroundColor: theme.cardColor,
-      selectionMenuItemTextColor: theme.colorScheme.onBackground,
-      selectionMenuItemIconColor: theme.colorScheme.onBackground,
+      selectionMenuItemTextColor: afThemeExtension.onBackground,
+      selectionMenuItemIconColor: afThemeExtension.onBackground,
       selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedColor: theme.hoverColor,
@@ -201,10 +216,11 @@ class EditorStyleCustomizer {
 
   InlineActionsMenuStyle inlineActionsMenuStyleBuilder() {
     final theme = Theme.of(context);
+    final afThemeExtension = AFThemeExtension.of(context);
     return InlineActionsMenuStyle(
       backgroundColor: theme.cardColor,
-      groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
-      menuItemTextColor: theme.colorScheme.onBackground,
+      groupTextColor: afThemeExtension.onBackground.withOpacity(.8),
+      menuItemTextColor: afThemeExtension.onBackground,
       menuItemSelectedColor: theme.colorScheme.secondary,
       menuItemSelectedTextColor: theme.colorScheme.onSurface,
     );
@@ -221,8 +237,7 @@ class EditorStyleCustomizer {
     try {
       return getGoogleFontSafely(fontFamily, fontWeight: fontWeight);
     } on Exception {
-      if ([defaultFontFamily, fallbackFontFamily, builtInCodeFontFamily]
-          .contains(fontFamily)) {
+      if ([defaultFontFamily, builtInCodeFontFamily].contains(fontFamily)) {
         return TextStyle(fontFamily: fontFamily, fontWeight: fontWeight);
       }
 

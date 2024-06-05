@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 
 class FeatureFlagsPage extends StatelessWidget {
   const FeatureFlagsPage({
@@ -50,7 +49,8 @@ class _FeatureFlagItemState extends State<_FeatureFlagItem> {
       subtitle: FlowyText.small(widget.featureFlag.description, maxLines: 3),
       trailing: Switch.adaptive(
         value: widget.featureFlag.isOn,
-        onChanged: (value) => setState(() => widget.featureFlag.update(value)),
+        onChanged: (value) =>
+            setState(() async => widget.featureFlag.update(value)),
       ),
     );
   }

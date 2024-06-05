@@ -17,7 +17,7 @@ switch_deps() {
         # Switch to local paths
         for crate in collab collab-folder collab-document collab-database collab-plugins collab-user collab-entity collab-sync-protocol collab-persistence; do
             sed -i '' \
-                -e "s#${crate} = { git = \"https://github.com/AppFlowy-IO/AppFlowy-Collab\", rev = \"[a-f0-9]*\" }#${crate} = { path = \"$repo_path/$crate\" }#g" \
+                -e "s#${crate} = { .*git = \"https://github.com/AppFlowy-IO/AppFlowy-Collab\".* }#${crate} = { path = \"$repo_path/$crate\" }#g" \
                 "$cargo_toml"
         done
         echo "Switched to local paths in $cargo_toml."

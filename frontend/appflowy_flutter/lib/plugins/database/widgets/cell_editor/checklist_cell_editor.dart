@@ -423,7 +423,7 @@ class _DeleteTaskButton extends StatefulWidget {
 }
 
 class _DeleteTaskButtonState extends State<_DeleteTaskButton> {
-  final _materialStatesController = MaterialStatesController();
+  final _materialStatesController = WidgetStatesController();
 
   @override
   void dispose() {
@@ -438,16 +438,16 @@ class _DeleteTaskButtonState extends State<_DeleteTaskButton> {
       onHover: (_) => setState(() {}),
       onFocusChange: (_) => setState(() {}),
       style: ButtonStyle(
-        fixedSize: const MaterialStatePropertyAll(Size.square(32)),
-        minimumSize: const MaterialStatePropertyAll(Size.square(32)),
-        maximumSize: const MaterialStatePropertyAll(Size.square(32)),
-        overlayColor: MaterialStateProperty.resolveWith((state) {
-          if (state.contains(MaterialState.focused)) {
+        fixedSize: const WidgetStatePropertyAll(Size.square(32)),
+        minimumSize: const WidgetStatePropertyAll(Size.square(32)),
+        maximumSize: const WidgetStatePropertyAll(Size.square(32)),
+        overlayColor: WidgetStateProperty.resolveWith((state) {
+          if (state.contains(WidgetState.focused)) {
             return AFThemeExtension.of(context).greyHover;
           }
           return Colors.transparent;
         }),
-        shape: const MaterialStatePropertyAll(
+        shape: const WidgetStatePropertyAll(
           RoundedRectangleBorder(borderRadius: Corners.s6Border),
         ),
       ),
@@ -455,8 +455,8 @@ class _DeleteTaskButtonState extends State<_DeleteTaskButton> {
       child: FlowySvg(
         FlowySvgs.delete_s,
         color: _materialStatesController.value
-                    .contains(MaterialState.hovered) ||
-                _materialStatesController.value.contains(MaterialState.focused)
+                    .contains(WidgetState.hovered) ||
+                _materialStatesController.value.contains(WidgetState.focused)
             ? Theme.of(context).colorScheme.error
             : null,
       ),

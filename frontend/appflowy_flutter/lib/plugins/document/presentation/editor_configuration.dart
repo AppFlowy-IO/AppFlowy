@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
@@ -8,11 +5,15 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mo
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/video/video_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/video/video_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
@@ -54,9 +55,8 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration.copyWith(
         placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
       ),
-      iconBuilder: PlatformExtension.isMobile
-          ? (_, node, onCheck) => TodoListIcon(node: node, onCheck: onCheck)
-          : null,
+      iconBuilder: (_, node, onCheck) =>
+          TodoListIcon(node: node, onCheck: onCheck),
       toggleChildrenTriggers: [
         LogicalKeyboardKey.shift,
         LogicalKeyboardKey.shiftLeft,
@@ -67,18 +67,14 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration.copyWith(
         placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
       ),
-      iconBuilder: PlatformExtension.isMobile
-          ? (_, node) => BulletedListIcon(node: node)
-          : null,
+      iconBuilder: (_, node) => BulletedListIcon(node: node),
     ),
     NumberedListBlockKeys.type: NumberedListBlockComponentBuilder(
       configuration: configuration.copyWith(
         placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
       ),
-      iconBuilder: PlatformExtension.isMobile
-          ? (_, node, textDirection) =>
-              NumberedListIcon(node: node, textDirection: textDirection)
-          : null,
+      iconBuilder: (_, node, textDirection) =>
+          NumberedListIcon(node: node, textDirection: textDirection),
     ),
     QuoteBlockKeys.type: QuoteBlockComponentBuilder(
       configuration: configuration.copyWith(
@@ -93,15 +89,20 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
             final factor = pageStyle.fontLayout.factor;
             final headingPaddings = pageStyle.lineHeightLayout.headingPaddings
                 .map((e) => e * factor);
-            final level = node.attributes[HeadingBlockKeys.level] ?? 6;
-            return EdgeInsets.only(top: headingPaddings.elementAt(level));
+            int level = node.attributes[HeadingBlockKeys.level] ?? 6;
+            level = level.clamp(1, 6);
+            return EdgeInsets.only(top: headingPaddings.elementAt(level - 1));
           }
 
           return const EdgeInsets.only(top: 12.0, bottom: 4.0);
         },
-        placeholderText: (node) => LocaleKeys.blockPlaceholders_heading.tr(
-          args: [node.attributes[HeadingBlockKeys.level].toString()],
-        ),
+        placeholderText: (node) {
+          int level = node.attributes[HeadingBlockKeys.level] ?? 6;
+          level = level.clamp(1, 6);
+          return LocaleKeys.blockPlaceholders_heading.tr(
+            args: [level.toString()],
+          );
+        },
       ),
       textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
     ),
@@ -110,7 +111,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       showMenu: true,
       menuBuilder: (Node node, CustomImageBlockComponentState state) =>
           Positioned(
-        top: 0,
+        top: 10,
         right: 10,
         child: ImageMenu(node: node, state: state),
       ),
@@ -163,7 +164,10 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
     ),
     CalloutBlockKeys.type: CalloutBlockComponentBuilder(
-      configuration: configuration,
+      configuration: configuration.copyWith(
+        textStyle: (_) => styleCustomizer.calloutBlockStyleBuilder(),
+        placeholderTextStyle: (_) => styleCustomizer.calloutBlockStyleBuilder(),
+      ),
       defaultColor: calloutBGColor,
     ),
     DividerBlockKeys.type: DividerBlockComponentBuilder(
@@ -180,7 +184,6 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration,
     ),
     CodeBlockKeys.type: CodeBlockComponentBuilder(
-      editorState: editorState,
       configuration: configuration.copyWith(
         textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
         placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
@@ -227,6 +230,16 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
       configuration: configuration,
+    ),
+    VideoBlockKeys.type: VideoBlockComponentBuilder(
+      configuration: configuration,
+      showMenu: true,
+      menuBuilder: (node, state) => Positioned(
+        top: 10,
+        right: 10,
+        child: VideoMenu(node: node, state: state),
+      ),
+      placeholderBuilder: (node) => VideoPlaceholder(node: node),
     ),
   };
 

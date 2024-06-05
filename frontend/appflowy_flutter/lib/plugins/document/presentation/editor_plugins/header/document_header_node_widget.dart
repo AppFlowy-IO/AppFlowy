@@ -28,8 +28,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
 
-import 'cover_editor.dart';
-
 const double kCoverHeight = 250.0;
 const double kIconHeight = 60.0;
 const double kToolbarHeight = 40.0; // with padding to the top
@@ -296,13 +294,14 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           leftIconSize: const Size.square(18),
           onTap: () => widget.onIconOrCoverChanged(
             cover: PlatformExtension.isDesktopOrWeb
-                ? (CoverType.asset, builtInAssetImages.first)
+                ? (CoverType.asset, '1')
                 : (CoverType.color, '0xffe8e0ff'),
           ),
           useIntrinsicWidth: true,
-          leftIcon: const FlowySvg(FlowySvgs.image_s),
+          leftIcon: const FlowySvg(FlowySvgs.add_cover_s),
           text: FlowyText.small(
             LocaleKeys.document_plugins_cover_addCover.tr(),
+            color: Theme.of(context).hintColor,
           ),
         ),
       );
@@ -311,28 +310,24 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
     if (widget.hasIcon) {
       children.add(
         FlowyButton(
-          leftIconSize: const Size.square(18),
           onTap: () => widget.onIconOrCoverChanged(icon: ""),
           useIntrinsicWidth: true,
-          leftIcon: const Icon(
-            Icons.emoji_emotions_outlined,
-            size: 18,
-          ),
+          leftIcon: const FlowySvg(FlowySvgs.add_icon_s),
+          iconPadding: 4.0,
           text: FlowyText.small(
             LocaleKeys.document_plugins_cover_removeIcon.tr(),
+            color: Theme.of(context).hintColor,
           ),
         ),
       );
     } else {
       Widget child = FlowyButton(
-        leftIconSize: const Size.square(18),
         useIntrinsicWidth: true,
-        leftIcon: const Icon(
-          Icons.emoji_emotions_outlined,
-          size: 18,
-        ),
+        leftIcon: const FlowySvg(FlowySvgs.add_icon_s),
+        iconPadding: 4.0,
         text: FlowyText.small(
           LocaleKeys.document_plugins_cover_addIcon.tr(),
+          color: Theme.of(context).hintColor,
         ),
         onTap: PlatformExtension.isDesktop
             ? null

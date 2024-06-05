@@ -31,21 +31,6 @@ textarea {
 }
 
 
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-
-:root[data-dark-mode=true] body {
-    scrollbar-color: #fff var(--bg-body);
-}
-
-body {
-    scrollbar-track-color: var(--bg-body);
-    scrollbar-shadow-color: var(--bg-body);
-}
-
-
 .btn {
     @apply rounded-xl border border-line-divider px-4 py-3;
 }
@@ -63,3 +48,12 @@ th {
     @apply text-left font-normal;
 }
 
+html {
+    font-size: 16px;
+}
+
+@media (max-width: 600px) {
+    html {
+        font-size: 14px;
+    }
+}

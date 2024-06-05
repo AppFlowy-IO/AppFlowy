@@ -5,7 +5,10 @@ import wasm from 'vite-plugin-wasm';
 import { visualizer } from 'rollup-plugin-visualizer';
 import usePluginImport from 'vite-plugin-importer';
 import { totalBundleSize } from 'vite-plugin-total-bundle-size';
+import path from 'path';
+import istanbul from 'vite-plugin-istanbul';
 
+const resourcesPath = path.resolve(__dirname, '../resources');
 const isDev = process.env.NODE_ENV === 'development';
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -38,6 +41,10 @@ export default defineConfig({
         },
       },
     }),
+    istanbul({
+      cypress: true,
+      requireEnv: false,
+    }),
     usePluginImport({
       libraryName: '@mui/icons-material',
       libraryDirectory: '',
@@ -64,11 +71,14 @@ export default defineConfig({
     port: !!process.env.TAURI_PLATFORM ? 5173 : process.env.PORT ? parseInt(process.env.PORT) : 3000,
     strictPort: true,
     watch: {
-      ignored: ['**/__tests__/**'],
+      ignored: ['**/__tests__/**', '**/cypress/**', 'node_modules', '**/*.cy.tsx', '**/*.cy.ts', 'cypress'],
     },
     cors: false,
   },
   envPrefix: ['AF', 'TAURI_'],
+  esbuild: {
+    pure: !isDev ? ['console.log', 'console.debug', 'console.info', 'console.trace'] : [],
+  },
   build: !!process.env.TAURI_PLATFORM
     ? {
         // Tauri supports es2021
@@ -80,15 +90,6 @@ export default defineConfig({
       }
     : {
         target: `esnext`,
-        terserOptions: !isDev
-          ? {
-              compress: {
-                keep_infinity: true,
-                drop_console: true,
-                drop_debugger: true,
-              },
-            }
-          : {},
         reportCompressedSize: true,
         sourcemap: isDev,
         rollupOptions: !isDev
@@ -104,8 +105,8 @@ export default defineConfig({
                     id.includes('/react-is@') ||
                     id.includes('/yjs@') ||
                     id.includes('/y-indexeddb@') ||
-                    id.includes('/dexie@') ||
-                    id.includes('/redux')
+                    id.includes('/redux') ||
+                    id.includes('/react-custom-scrollbars')
                   ) {
                     return 'common';
                   }
@@ -124,10 +125,11 @@ export default defineConfig({
           ? `${__dirname}/src/application/services/tauri-services`
           : `${__dirname}/src/application/services/js-services`,
       },
+      { find: '$icons', replacement: `${resourcesPath}/flowy_icons/` },
     ],
   },
 
   optimizeDeps: {
-    include: ['@mui/material/Tooltip'],
+    include: ['react', 'react-dom', '@mui/icons-material/ErrorOutline', '@mui/icons-material/CheckCircleOutline'],
   },
 });

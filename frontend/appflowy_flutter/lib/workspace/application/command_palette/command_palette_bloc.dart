@@ -101,22 +101,15 @@ class CommandPaletteBloc
   Future<void> _initTrash() async {
     _trashListener.start(
       trashUpdated: (trashOrFailed) {
-        final trash = trashOrFailed.fold(
-          (trash) => trash,
-          (error) => null,
-        );
-
+        final trash = trashOrFailed.toNullable();
         add(CommandPaletteEvent.trashChanged(trash: trash));
       },
     );
 
     final trashOrFailure = await _trashService.readTrash();
-    final trashRes = trashOrFailure.fold(
-      (trash) => trash,
-      (error) => null,
-    );
+    final trash = trashOrFailure.toNullable();
 
-    add(CommandPaletteEvent.trashChanged(trash: trashRes?.items));
+    add(CommandPaletteEvent.trashChanged(trash: trash?.items));
   }
 
   void _debounceOnSearchChanged(String value) {

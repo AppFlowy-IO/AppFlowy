@@ -41,12 +41,9 @@ class DocumentShareButton extends StatelessWidget {
           );
         },
         child: BlocBuilder<DocumentShareBloc, DocumentShareState>(
-          builder: (context, state) => ConstrainedBox(
-            constraints: const BoxConstraints.expand(
-              height: 30,
-              width: 100,
-            ),
-            child: ShareActionList(view: view),
+          builder: (context, state) => SizedBox(
+            height: 32.0,
+            child: IntrinsicWidth(child: ShareActionList(view: view)),
           ),
         ),
       ),
@@ -120,7 +117,9 @@ class ShareActionListState extends State<ShareActionList> {
         onPointerDown: (_) => controller.show(),
         child: RoundedTextButton(
           title: LocaleKeys.shareAction_buttonText.tr(),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
           onPressed: () {},
+          fontSize: 14.0,
           textColor: Theme.of(context).colorScheme.onPrimary,
         ),
       ),

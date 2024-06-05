@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -13,6 +11,8 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
@@ -30,10 +30,12 @@ class HomeStack extends StatelessWidget {
     super.key,
     required this.delegate,
     required this.layout,
+    required this.userProfile,
   });
 
   final HomeStackDelegate delegate;
   final HomeLayout layout;
+  final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +58,11 @@ class HomeStack extends StatelessWidget {
                   controller: pageController,
                   children: state.pageManagers
                       .map(
-                        (pm) => PageStack(pageManager: pm, delegate: delegate),
+                        (pm) => PageStack(
+                          pageManager: pm,
+                          delegate: delegate,
+                          userProfile: userProfile,
+                        ),
                       )
                       .toList(),
                 ),
@@ -74,11 +80,13 @@ class PageStack extends StatefulWidget {
     super.key,
     required this.pageManager,
     required this.delegate,
+    required this.userProfile,
   });
 
   final PageManager pageManager;
 
   final HomeStackDelegate delegate;
+  final UserProfilePB userProfile;
 
   @override
   State<PageStack> createState() => _PageStackState();
@@ -94,6 +102,7 @@ class _PageStackState extends State<PageStack>
       color: Theme.of(context).colorScheme.surface,
       child: FocusTraversalGroup(
         child: widget.pageManager.stackWidget(
+          userProfile: widget.userProfile,
           onDeleted: (view, index) {
             widget.delegate.didDeleteStackWidget(view, index);
           },
@@ -228,7 +237,10 @@ class PageManager {
     );
   }
 
-  Widget stackWidget({required Function(ViewPB, int?) onDeleted}) {
+  Widget stackWidget({
+    required UserProfilePB userProfile,
+    required Function(ViewPB, int?) onDeleted,
+  }) {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Consumer(
@@ -240,7 +252,10 @@ class PageManager {
                 if (pluginType == notifier.plugin.pluginType) {
                   final builder = notifier.plugin.widgetBuilder;
                   final pluginWidget = builder.buildWidget(
-                    context: PluginContext(onDeleted: onDeleted),
+                    context: PluginContext(
+                      onDeleted: onDeleted,
+                      userProfile: userProfile,
+                    ),
                     shrinkWrap: false,
                   );
 
@@ -274,15 +289,13 @@ class HomeTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onSecondaryContainer,
-        border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor),
-        ),
+        color: Theme.of(context).colorScheme.surface,
       ),
-      height: HomeSizes.topBarHeight,
+      height: HomeSizes.topBarHeight + HomeInsets.topBarTitleVerticalPadding,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: HomeInsets.topBarTitlePadding,
+          horizontal: HomeInsets.topBarTitleHorizontalPadding,
+          vertical: HomeInsets.topBarTitleVerticalPadding,
         ),
         child: Row(
           children: [

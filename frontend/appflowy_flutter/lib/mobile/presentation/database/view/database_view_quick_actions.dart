@@ -107,9 +107,9 @@ enum _Action {
 
   FlowySvgData get icon {
     return switch (this) {
-      edit => FlowySvgs.edit_s,
-      duplicate => FlowySvgs.copy_s,
-      delete => FlowySvgs.delete_s,
+      edit => FlowySvgs.view_item_rename_s,
+      duplicate => FlowySvgs.duplicate_s,
+      delete => FlowySvgs.trash_s,
     };
   }
 

@@ -146,7 +146,7 @@ pub enum FolderEvent {
   #[event(input = "MoveNestedViewPayloadPB")]
   MoveNestedView = 32,
 
-  #[event(output = "RepeatedViewPB")]
+  #[event(output = "RepeatedFavoriteViewPB")]
   ReadFavorites = 33,
 
   #[event(input = "RepeatedViewIdPB")]
@@ -155,7 +155,7 @@ pub enum FolderEvent {
   #[event(input = "UpdateViewIconPayloadPB")]
   UpdateViewIcon = 35,
 
-  #[event(output = "RepeatedViewPB")]
+  #[event(output = "RepeatedRecentViewPB")]
   ReadRecentViews = 36,
 
   // used for add or remove recent views, like history

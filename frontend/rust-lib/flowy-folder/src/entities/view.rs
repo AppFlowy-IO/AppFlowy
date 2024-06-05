@@ -60,6 +60,18 @@ pub struct ViewPB {
 
   #[pb(index = 9, one_of)]
   pub extra: Option<String>,
+
+  // user_id
+  #[pb(index = 10, one_of)]
+  pub created_by: Option<i64>,
+
+  // timestamp
+  #[pb(index = 11)]
+  pub last_edited: i64,
+
+  // user_id
+  #[pb(index = 12, one_of)]
+  pub last_edited_by: Option<i64>,
 }
 
 pub fn view_pb_without_child_views(view: View) -> ViewPB {
@@ -73,6 +85,9 @@ pub fn view_pb_without_child_views(view: View) -> ViewPB {
     icon: view.icon.clone().map(|icon| icon.into()),
     is_favorite: view.is_favorite,
     extra: view.extra,
+    created_by: view.created_by,
+    last_edited: view.last_edited_time,
+    last_edited_by: view.last_edited_by,
   }
 }
 
@@ -87,6 +102,9 @@ pub fn view_pb_without_child_views_from_arc(view: Arc<View>) -> ViewPB {
     icon: view.icon.clone().map(|icon| icon.into()),
     is_favorite: view.is_favorite,
     extra: view.extra.clone(),
+    created_by: view.created_by,
+    last_edited: view.last_edited_time,
+    last_edited_by: view.last_edited_by,
   }
 }
 
@@ -105,6 +123,9 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
     icon: view.icon.clone().map(|icon| icon.into()),
     is_favorite: view.is_favorite,
     extra: view.extra.clone(),
+    created_by: view.created_by,
+    last_edited: view.last_edited_time,
+    last_edited_by: view.last_edited_by,
   }
 }
 
@@ -115,6 +136,7 @@ pub enum ViewLayoutPB {
   Grid = 1,
   Board = 2,
   Calendar = 3,
+  Chat = 4,
 }
 
 impl ViewLayoutPB {
@@ -133,6 +155,7 @@ impl std::convert::From<ViewLayout> for ViewLayoutPB {
       ViewLayout::Board => ViewLayoutPB::Board,
       ViewLayout::Document => ViewLayoutPB::Document,
       ViewLayout::Calendar => ViewLayoutPB::Calendar,
+      ViewLayout::Chat => ViewLayoutPB::Chat,
     }
   }
 }
@@ -150,6 +173,26 @@ pub struct SectionViewsPB {
 pub struct RepeatedViewPB {
   #[pb(index = 1)]
   pub items: Vec<ViewPB>,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct RepeatedFavoriteViewPB {
+  #[pb(index = 1)]
+  pub items: Vec<SectionViewPB>,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct RepeatedRecentViewPB {
+  #[pb(index = 1)]
+  pub items: Vec<SectionViewPB>,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct SectionViewPB {
+  #[pb(index = 1)]
+  pub item: ViewPB,
+  #[pb(index = 2)]
+  pub timestamp: i64,
 }
 
 impl std::convert::From<Vec<ViewPB>> for RepeatedViewPB {

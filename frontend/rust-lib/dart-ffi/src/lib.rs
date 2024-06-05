@@ -1,11 +1,11 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
 use allo_isolate::Isolate;
-use std::sync::Arc;
-use std::{ffi::CStr, os::raw::c_char};
-
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
+use semver::Version;
+use std::sync::Arc;
+use std::{ffi::CStr, os::raw::c_char};
 use tracing::{debug, error, info, trace, warn};
 
 use flowy_core::config::AppFlowyCoreConfig;
@@ -67,8 +67,16 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     let _ = save_appflowy_cloud_config(&configuration.root, &configuration.appflowy_cloud_config);
   }
 
+  let mut app_version =
+    Version::parse(&configuration.app_version).unwrap_or_else(|_| Version::new(0, 5, 8));
+
+  let min_version = Version::new(0, 5, 8);
+  if app_version < min_version {
+    app_version = min_version;
+  }
+
   let config = AppFlowyCoreConfig::new(
-    configuration.app_version,
+    app_version,
     configuration.custom_app_path,
     configuration.origin_app_path,
     configuration.device_id,
@@ -160,12 +168,6 @@ pub extern "C" fn set_stream_port(notification_port: i64) -> i32 {
 #[no_mangle]
 pub extern "C" fn set_log_stream_port(port: i64) -> i32 {
   *LOG_STREAM_ISOLATE.lock() = Some(Isolate::new(port));
-
-  LOG_STREAM_ISOLATE
-    .lock()
-    .as_ref()
-    .unwrap()
-    .post("hello log".to_string().as_bytes().to_vec());
 
   0
 }

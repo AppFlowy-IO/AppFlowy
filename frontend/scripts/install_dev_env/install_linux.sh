@@ -38,9 +38,9 @@ fi
 printMessage "Setting up Flutter"
 # Get the current Flutter version
 FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K\S+')
-# Check if the current version is 3.19.0
-if [ "$FLUTTER_VERSION" = "3.19.0" ]; then
-    echo "Flutter version is already 3.19.0"
+# Check if the current version is 3.22.0
+if [ "$FLUTTER_VERSION" = "3.22.0" ]; then
+    echo "Flutter version is already 3.22.0"
 else
     # Get the path to the Flutter SDK
     FLUTTER_PATH=$(which flutter)
@@ -49,12 +49,12 @@ else
     current_dir=$(pwd)
 
     cd $FLUTTER_PATH
-    # Use git to checkout version 3.19.0 of Flutter
-    git checkout 3.19.0
+    # Use git to checkout version 3.22.0 of Flutter
+    git checkout 3.22.0
     # Get back to current working directory
     cd "$current_dir"
 
-    echo "Switched to Flutter version 3.19.0"
+    echo "Switched to Flutter version 3.22.0"
 fi
 
 # Enable linux desktop
@@ -78,7 +78,17 @@ if command apt-get &>/dev/null; then
 elif command dnf &>/dev/null; then
     sudo dnf install libnotify-dev
 else
-    echo 'Your system is not supported, please install libnotify manually.'
+    echo 'Your system is not supported, please install libnotify-dev manually.'
+fi
+
+# For Video Block support
+printMessage "Installing libmpv-dev mpv"
+if command apt-get &>/dev/null; then
+    sudo apt-get install libmpv-dev mpv
+elif command dnf &>/dev/null; then
+    sudo dnf install libmpv-dev mpv
+else
+    echo 'Your system is not supported, please install libmpv-dev mpv manually.'
 fi
 
 # Add the githooks directory to your git configuration

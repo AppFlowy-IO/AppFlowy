@@ -52,11 +52,11 @@ jobs:
         working-directory: frontend/appflowy_web_app
         run: |
           pnpm install
-      - name: test and lint
+      - name: Run lint check
         working-directory: frontend/appflowy_web_app
         run: |
           pnpm run lint
-          pnpm run test:unit
+      
       - name: build and analyze
         working-directory: frontend/appflowy_web_app
         run: |

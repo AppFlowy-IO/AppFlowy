@@ -226,7 +226,7 @@
       },
       "themeUpload": {
         "button": "Feltöltés",
-        "description": "Töltse fel saját AppFlowy témáját az alábbi gomb segítségével.",
+        "description": "Töltse fel saját @:appName témáját az alábbi gomb segítségével.",
         "loading": "Kérjük, várjon, amíg ellenőrizzük és feltöltjük a témát...",
         "uploadSuccess": "A témát sikeresen feltöltötte",
         "deletionFailure": "Nem sikerült törölni a témát. Próbálja meg manuálisan törölni.",
@@ -243,7 +243,7 @@
       "defaultLocation": "Fájlok és adattárolási hely olvasása",
       "exportData": "Exportálja adatait",
       "doubleTapToCopy": "Koppintson duplán az útvonal másolásához",
-      "restoreLocation": "Visszaállítás az AppFlowy alapértelmezett elérési útjára",
+      "restoreLocation": "Visszaállítás az @:appName alapértelmezett elérési útjára",
       "customizeLocation": "Nyisson meg egy másik mappát",
       "restartApp": "Kérjük, indítsa újra az alkalmazást, hogy a változtatások életbe lépjenek.",
       "exportDatabase": "Adatbázis exportálása",
@@ -255,10 +255,10 @@
       "defineWhereYourDataIsStored": "Határozza meg, hol tárolják adatait",
       "open": "Nyisd ki",
       "openFolder": "Nyisson meg egy meglévő mappát",
-      "openFolderDesc": "Olvassa el és írja be a meglévő AppFlowy mappájába",
+      "openFolderDesc": "Olvassa el és írja be a meglévő @:appName mappájába",
       "folderHintText": "mappa neve",
       "location": "Új mappa létrehozása",
-      "locationDesc": "Válasszon nevet az AppFlowy adatmappájának",
+      "locationDesc": "Válasszon nevet az @:appName adatmappájának",
       "browser": "Tallózás",
       "create": "Teremt",
       "set": "Készlet",
@@ -269,7 +269,7 @@
       "change": "változás",
       "openLocationTooltips": "Nyisson meg egy másik adatkönyvtárat",
       "openCurrentDataFolder": "Nyissa meg az aktuális adatkönyvtárat",
-      "recoverLocationTooltips": "Állítsa vissza az AppFlowy alapértelmezett adatkönyvtárát",
+      "recoverLocationTooltips": "Állítsa vissza az @:appName alapértelmezett adatkönyvtárát",
       "exportFileSuccess": "A fájl exportálása sikeres volt!",
       "exportFileFail": "A fájl exportálása nem sikerült!",
       "export": "Export"
@@ -578,7 +578,7 @@
     "referencedCalendarPrefix": "Nézet"
   },
   "errorDialog": {
-    "title": "AppFlowy hiba",
+    "title": "@:appName hiba",
     "howToFixFallback": "Elnézést kérünk a kellemetlenségért! Nyújtsa be a problémát a GitHub-oldalunkon, amely leírja a hibát.",
     "github": "Megtekintés a GitHubon"
   },

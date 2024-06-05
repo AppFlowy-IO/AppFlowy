@@ -5,7 +5,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -37,8 +36,6 @@ class WorkspaceMembersPage extends StatelessWidget {
             title: LocaleKeys.settings_appearance_members_title.tr(),
             children: [
               if (state.myRole.canInvite) const _InviteMember(),
-              if (state.myRole.canInvite && state.members.isNotEmpty)
-                const SettingsCategorySpacer(),
               if (state.members.isNotEmpty)
                 _MemberList(
                   members: state.members,

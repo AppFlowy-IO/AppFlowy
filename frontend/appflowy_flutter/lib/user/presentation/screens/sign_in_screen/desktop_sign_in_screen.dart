@@ -30,6 +30,7 @@ class DesktopSignInScreen extends StatelessWidget {
           body: Center(
             child: AuthFormContainer(
               children: [
+                const VSpace(20),
                 FlowyLogoTitle(
                   title: LocaleKeys.welcomeText.tr(),
                   logoSize: const Size(60, 60),

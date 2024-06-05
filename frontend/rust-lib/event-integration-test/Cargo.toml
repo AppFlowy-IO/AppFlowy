@@ -16,6 +16,7 @@ flowy-database-pub = { workspace = true }
 flowy-document = { path = "../flowy-document" }
 flowy-document-pub = { workspace = true }
 flowy-encrypt = { workspace = true }
+flowy-chat = { workspace = true }
 lib-dispatch = { workspace = true }
 lib-infra = { workspace = true }
 flowy-server = { path = "../flowy-server" }
@@ -24,6 +25,7 @@ flowy-notification = { workspace = true }
 anyhow.workspace = true
 flowy-storage = { workspace = true }
 flowy-search = { workspace = true }
+semver = "1.0.23"
 
 serde.workspace = true
 serde_json.workspace = true
@@ -55,6 +57,7 @@ chrono = "0.4.31"
 zip = "0.6.6"
 walkdir = "2.5.0"
 futures = "0.3.30"
+flowy-chat-pub = { workspace = true }
 
 [features]
 default = ["supabase_cloud_test"]

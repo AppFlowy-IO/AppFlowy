@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:appflowy/mobile/presentation/chat/mobile_chat_screen.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
@@ -61,6 +62,7 @@ GoRouter generateRouter(Widget child) {
         _mobileGridScreenRoute(),
         _mobileBoardScreenRoute(),
         _mobileCalendarScreenRoute(),
+        _mobileChatScreenRoute(),
         // card detail page
         _mobileCardDetailScreenRoute(),
         _mobileDateCellEditScreenRoute(),
@@ -483,6 +485,21 @@ GoRoute _mobileEditorScreenRoute() {
 
       return MaterialExtendedPage(
         child: MobileDocumentScreen(id: id, title: title),
+      );
+    },
+  );
+}
+
+GoRoute _mobileChatScreenRoute() {
+  return GoRoute(
+    path: MobileChatScreen.routeName,
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    pageBuilder: (context, state) {
+      final id = state.uri.queryParameters[MobileChatScreen.viewId]!;
+      final title = state.uri.queryParameters[MobileChatScreen.viewTitle];
+
+      return MaterialExtendedPage(
+        child: MobileChatScreen(id: id, title: title),
       );
     },
   );

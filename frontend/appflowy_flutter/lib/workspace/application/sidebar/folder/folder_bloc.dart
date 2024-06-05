@@ -9,18 +9,18 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'folder_bloc.freezed.dart';
 
-enum FolderCategoryType {
+enum FolderSpaceType {
   favorite,
   private,
   public;
 
   ViewSectionPB get toViewSectionPB {
     switch (this) {
-      case FolderCategoryType.private:
+      case FolderSpaceType.private:
         return ViewSectionPB.Private;
-      case FolderCategoryType.public:
+      case FolderSpaceType.public:
         return ViewSectionPB.Public;
-      case FolderCategoryType.favorite:
+      case FolderSpaceType.favorite:
         throw UnimplementedError();
     }
   }
@@ -28,7 +28,7 @@ enum FolderCategoryType {
 
 class FolderBloc extends Bloc<FolderEvent, FolderState> {
   FolderBloc({
-    required FolderCategoryType type,
+    required FolderSpaceType type,
   }) : super(FolderState.initial(type)) {
     on<FolderEvent>((event, emit) async {
       await event.map(
@@ -84,12 +84,12 @@ class FolderEvent with _$FolderEvent {
 @freezed
 class FolderState with _$FolderState {
   const factory FolderState({
-    required FolderCategoryType type,
+    required FolderSpaceType type,
     required bool isExpanded,
   }) = _FolderState;
 
   factory FolderState.initial(
-    FolderCategoryType type,
+    FolderSpaceType type,
   ) =>
       FolderState(
         type: type,

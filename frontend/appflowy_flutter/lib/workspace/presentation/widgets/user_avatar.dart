@@ -1,90 +1,124 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/util/built_in_svgs.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-
-const double _smallSize = 28;
-const double _largeSize = 64;
+import 'package:flutter/material.dart';
+import 'package:string_validator/string_validator.dart';
 
 class UserAvatar extends StatelessWidget {
   const UserAvatar({
     super.key,
     required this.iconUrl,
     required this.name,
-    this.isLarge = false,
+    required this.size,
+    required this.fontSize,
     this.isHovering = false,
+    this.decoration,
   });
 
   final String iconUrl;
   final String name;
-  final bool isLarge;
+  final double size;
+  final double fontSize;
+  final Decoration? decoration;
 
   // If true, a border will be applied on top of the avatar
   final bool isHovering;
 
   @override
   Widget build(BuildContext context) {
-    final size = isLarge ? _largeSize : _smallSize;
-
     if (iconUrl.isEmpty) {
-      final String nameOrDefault = _userName(name);
-      final Color color = ColorGenerator(name).toColor();
-      const initialsCount = 2;
-
-      // Taking the first letters of the name components and limiting to 2 elements
-      final nameInitials = nameOrDefault
-          .split(' ')
-          .where((element) => element.isNotEmpty)
-          .take(initialsCount)
-          .map((element) => element[0].toUpperCase())
-          .join();
-
-      return Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: isHovering
-              ? Border.all(
-                  color: _darken(color),
-                  width: 4,
-                )
-              : null,
-        ),
-        child: FlowyText.semibold(
-          nameInitials,
-          color: Colors.black,
-          fontSize: isLarge
-              ? nameInitials.length == initialsCount
-                  ? 20
-                  : 26
-              : nameInitials.length == initialsCount
-                  ? 12
-                  : 14,
-        ),
-      );
+      return _buildEmptyAvatar(context);
+    } else if (isURL(iconUrl)) {
+      return _buildUrlAvatar(context);
+    } else {
+      return _buildEmojiAvatar(context);
     }
+  }
 
+  Widget _buildEmptyAvatar(BuildContext context) {
+    final String nameOrDefault = _userName(name);
+    final Color color = ColorGenerator(name).toColor();
+    const initialsCount = 2;
+
+    // Taking the first letters of the name components and limiting to 2 elements
+    final nameInitials = nameOrDefault
+        .split(' ')
+        .where((element) => element.isNotEmpty)
+        .take(initialsCount)
+        .map((element) => element[0].toUpperCase())
+        .join();
+
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: decoration ??
+          BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: isHovering
+                ? Border.all(
+                    color: _darken(color),
+                    width: 4,
+                  )
+                : null,
+          ),
+      child: FlowyText.medium(
+        nameInitials,
+        color: Colors.black,
+        fontSize: fontSize,
+      ),
+    );
+  }
+
+  Widget _buildUrlAvatar(BuildContext context) {
     return SizedBox.square(
       dimension: size,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: isHovering
-              ? Border.all(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 4,
-                )
-              : null,
+        decoration: decoration ??
+            BoxDecoration(
+              shape: BoxShape.circle,
+              border: isHovering
+                  ? Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 4,
+                    )
+                  : null,
+            ),
+        child: ClipRRect(
+          borderRadius: Corners.s5Border,
+          child: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            child: Image.network(
+              iconUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  _buildEmptyAvatar(context),
+            ),
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmojiAvatar(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: DecoratedBox(
+        decoration: decoration ??
+            BoxDecoration(
+              shape: BoxShape.circle,
+              border: isHovering
+                  ? Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 4,
+                    )
+                  : null,
+            ),
         child: ClipRRect(
           borderRadius: Corners.s5Border,
           child: CircleAvatar(
@@ -94,7 +128,7 @@ class UserAvatar extends StatelessWidget {
                     FlowySvgData('emoji/$iconUrl'),
                     blendMode: null,
                   )
-                : EmojiText(emoji: iconUrl, fontSize: isLarge ? 36 : 18),
+                : FlowyText.emoji(iconUrl, fontSize: fontSize),
           ),
         ),
       ),
