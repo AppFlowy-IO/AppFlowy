@@ -89,7 +89,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
       children: [
         MobileQuickActionButton(
           text: LocaleKeys.button_rename.tr(),
-          icon: FlowySvgs.m_rename_s,
+          icon: FlowySvgs.view_item_rename_s,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.rename,
           ),
@@ -99,10 +99,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
           text: isFavorite
               ? LocaleKeys.button_removeFromFavorites.tr()
               : LocaleKeys.button_addToFavorites.tr(),
-          icon: isFavorite
-              ? FlowySvgs.m_favorite_selected_lg
-              : FlowySvgs.m_favorite_unselected_lg,
-          iconColor: isFavorite ? Colors.yellow : null,
+          icon: isFavorite ? FlowySvgs.unfavorite_s : FlowySvgs.favorite_s,
           onTap: () => onAction(
             isFavorite
                 ? MobileViewBottomSheetBodyAction.removeFromFavorites
@@ -112,7 +109,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         _divider(),
         MobileQuickActionButton(
           text: LocaleKeys.button_duplicate.tr(),
-          icon: FlowySvgs.m_duplicate_s,
+          icon: FlowySvgs.duplicate_s,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.duplicate,
           ),
@@ -121,7 +118,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         MobileQuickActionButton(
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
-          icon: FlowySvgs.m_delete_s,
+          icon: FlowySvgs.trash_s,
           iconColor: Theme.of(context).colorScheme.error,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.delete,
