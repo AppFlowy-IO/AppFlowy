@@ -44,6 +44,13 @@ export default defineConfig({
     istanbul({
       cypress: true,
       requireEnv: false,
+      include: ['src/**/*'],
+      exclude: [
+        '**/__tests__/**/*',
+        'cypress/**/*',
+        'node_modules/**/*',
+        'src/application/services/tauri-services/**/*',
+      ],
     }),
     usePluginImport({
       libraryName: '@mui/icons-material',
@@ -130,6 +137,12 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ['react', 'react-dom', '@mui/icons-material/ErrorOutline', '@mui/icons-material/CheckCircleOutline'],
+    include: [
+      'react',
+      'react-dom',
+      '@mui/icons-material/ErrorOutline',
+      '@mui/icons-material/CheckCircleOutline',
+      '@mui/icons-material/FunctionsOutlined',
+    ],
   },
 });

@@ -1,5 +1,5 @@
 import { useReadOnly } from '@/application/database-yjs';
-import { CellProps, UrlCell as UrlCellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, UrlCell as UrlCellType } from '@/application/database-yjs/cell.type';
 import { openUrl, processUrl } from '@/utils/url';
 import React, { useMemo } from 'react';
 

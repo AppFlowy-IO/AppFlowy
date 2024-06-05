@@ -2,7 +2,7 @@ import { FieldId, YjsDatabaseKey } from '@/application/collab.type';
 import { useCellSelector } from '@/application/database-yjs';
 import { useFieldSelector } from '@/application/database-yjs/selector';
 import { Cell } from '@/components/database/components/cell';
-import { CellProps, Cell as CellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, Cell as CellType } from '@/application/database-yjs/cell.type';
 import { PrimaryCell } from '@/components/database/components/cell/primary';
 import React, { useEffect, useMemo, useRef } from 'react';
 
