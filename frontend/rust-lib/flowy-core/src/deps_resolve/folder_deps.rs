@@ -33,28 +33,21 @@ pub struct FolderDepsResolver();
 impl FolderDepsResolver {
   pub async fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
-    document_manager: &Arc<DocumentManager>,
-    database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
     folder_indexer: Arc<FolderIndexManagerImpl>,
     store_preferences: Arc<StorePreferences>,
-    chat_manager: &Arc<ChatManager>,
+    operation_handlers: FolderOperationHandlers,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
     });
 
-    let handlers = folder_operation_handlers(
-      document_manager.clone(),
-      database_manager.clone(),
-      chat_manager.clone(),
-    );
     Arc::new(
       FolderManager::new(
         user.clone(),
         collab_builder,
-        handlers,
+        operation_handlers,
         server_provider.clone(),
         folder_indexer,
         store_preferences,
@@ -64,7 +57,7 @@ impl FolderDepsResolver {
   }
 }
 
-fn folder_operation_handlers(
+pub fn folder_operation_handlers(
   document_manager: Arc<DocumentManager>,
   database_manager: Arc<DatabaseManager>,
   chat_manager: Arc<ChatManager>,
