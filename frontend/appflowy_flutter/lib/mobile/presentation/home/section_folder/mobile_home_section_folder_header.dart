@@ -38,7 +38,7 @@ class _MobileSectionFolderHeaderState extends State<MobileSectionFolderHeader> {
               widget.title,
               fontSize: 16.0,
             ),
-            margin: const EdgeInsets.symmetric(vertical: 8),
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 2.0),
             expandText: false,
             iconPadding: 2,
             mainAxisAlignment: MainAxisAlignment.start,

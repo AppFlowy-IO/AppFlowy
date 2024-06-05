@@ -8,9 +8,10 @@ export function Breadcrumb() {
   const renderCrumb = useMemo(() => {
     return crumbs?.map((crumb, index) => {
       const isLast = index === crumbs.length - 1;
+      const key = crumb.rowId ? `${crumb.viewId}-${crumb.rowId}` : `${crumb.viewId}`;
 
       return (
-        <React.Fragment key={crumb.viewId}>
+        <React.Fragment key={key}>
           <Item crumb={crumb} disableClick={isLast} />
           {!isLast && <span>/</span>}
         </React.Fragment>

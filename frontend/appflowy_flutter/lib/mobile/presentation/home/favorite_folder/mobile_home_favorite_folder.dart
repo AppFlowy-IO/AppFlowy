@@ -63,12 +63,16 @@ class MobileFavoriteFolder extends StatelessWidget {
                     view: view,
                     level: 0,
                     onSelected: context.pushView,
-                    endActionPane: (context) => buildEndActionPane(context, [
-                      view.isFavorite
-                          ? MobilePaneActionType.removeFromFavorites
-                          : MobilePaneActionType.addToFavorites,
-                      MobilePaneActionType.more,
-                    ]),
+                    endActionPane: (context) => buildEndActionPane(
+                      context,
+                      [
+                        view.isFavorite
+                            ? MobilePaneActionType.removeFromFavorites
+                            : MobilePaneActionType.addToFavorites,
+                        MobilePaneActionType.more,
+                      ],
+                      spaceType: FolderSpaceType.favorite,
+                    ),
                   ),
                 ),
             ],

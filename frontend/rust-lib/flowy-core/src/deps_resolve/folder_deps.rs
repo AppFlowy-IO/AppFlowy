@@ -1,6 +1,7 @@
 use bytes::Bytes;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
+use flowy_chat::manager::ChatManager;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
@@ -9,13 +10,15 @@ use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
 use flowy_document::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
-use flowy_folder::entities::ViewLayoutPB;
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
-use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
+use flowy_folder::view_operation::{
+  FolderOperationHandler, FolderOperationHandlers, View, ViewData,
+};
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
+use flowy_sqlite::kv::StorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
@@ -35,12 +38,18 @@ impl FolderDepsResolver {
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
     folder_indexer: Arc<FolderIndexManagerImpl>,
+    store_preferences: Arc<StorePreferences>,
+    chat_manager: &Arc<ChatManager>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
     });
 
-    let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
+    let handlers = folder_operation_handlers(
+      document_manager.clone(),
+      database_manager.clone(),
+      chat_manager.clone(),
+    );
     Arc::new(
       FolderManager::new(
         user.clone(),
@@ -48,8 +57,8 @@ impl FolderDepsResolver {
         handlers,
         server_provider.clone(),
         folder_indexer,
+        store_preferences,
       )
-      .await
       .unwrap(),
     )
   }
@@ -58,6 +67,7 @@ impl FolderDepsResolver {
 fn folder_operation_handlers(
   document_manager: Arc<DocumentManager>,
   database_manager: Arc<DatabaseManager>,
+  chat_manager: Arc<ChatManager>,
 ) -> FolderOperationHandlers {
   let mut map: HashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>> = HashMap::new();
 
@@ -65,9 +75,11 @@ fn folder_operation_handlers(
   map.insert(ViewLayout::Document, document_folder_operation);
 
   let database_folder_operation = Arc::new(DatabaseFolderOperation(database_manager));
+  let chat_folder_operation = Arc::new(ChatFolderOperation(chat_manager));
   map.insert(ViewLayout::Board, database_folder_operation.clone());
   map.insert(ViewLayout::Grid, database_folder_operation.clone());
   map.insert(ViewLayout::Calendar, database_folder_operation);
+  map.insert(ViewLayout::Chat, chat_folder_operation);
   Arc::new(map)
 }
 
@@ -315,7 +327,15 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       },
       Some(params) => {
         let database_manager = self.0.clone();
-        let layout = layout_type_from_view_layout(layout.into());
+
+        let layout = match layout {
+          ViewLayout::Board => DatabaseLayoutPB::Board,
+          ViewLayout::Calendar => DatabaseLayoutPB::Calendar,
+          ViewLayout::Grid => DatabaseLayoutPB::Grid,
+          ViewLayout::Document | ViewLayout::Chat => {
+            return FutureResult::new(async move { Err(FlowyError::not_support()) });
+          },
+        };
         let name = name.to_string();
         let database_view_id = view_id.to_string();
 
@@ -350,6 +370,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         return FutureResult::new(async move {
           Err(FlowyError::internal().with_context(format!("Can't handle {:?} layout type", layout)))
         });
+      },
+      ViewLayout::Chat => {
+        // TODO(nathan): AI
+        todo!("AI")
       },
     };
     FutureResult::new(async move {
@@ -413,7 +437,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
   fn did_update_view(&self, old: &View, new: &View) -> FutureResult<(), FlowyError> {
     let database_layout = match new.layout {
-      ViewLayout::Document => {
+      ViewLayout::Document | ViewLayout::Chat => {
         return FutureResult::new(async {
           Err(FlowyError::internal().with_context("Can't handle document layout type"))
         });
@@ -450,11 +474,83 @@ impl CreateDatabaseExtParams {
   }
 }
 
-pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
-  match layout {
-    ViewLayoutPB::Grid => DatabaseLayoutPB::Grid,
-    ViewLayoutPB::Board => DatabaseLayoutPB::Board,
-    ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
-    ViewLayoutPB::Document => DatabaseLayoutPB::Grid,
+struct ChatFolderOperation(Arc<ChatManager>);
+impl FolderOperationHandler for ChatFolderOperation {
+  fn open_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    let manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      manager.open_chat(&view_id).await?;
+      Ok(())
+    })
+  }
+
+  fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    let manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      manager.close_chat(&view_id).await?;
+      Ok(())
+    })
+  }
+
+  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    let manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      manager.delete_chat(&view_id).await?;
+      Ok(())
+    })
+  }
+
+  fn duplicate_view(&self, _view_id: &str) -> FutureResult<ViewData, FlowyError> {
+    FutureResult::new(async move { Err(FlowyError::not_support()) })
+  }
+
+  fn create_view_with_view_data(
+    &self,
+    _user_id: i64,
+    _view_id: &str,
+    _name: &str,
+    _data: Vec<u8>,
+    _layout: ViewLayout,
+    _meta: HashMap<String, String>,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Err(FlowyError::not_support()) })
+  }
+
+  fn create_built_in_view(
+    &self,
+    user_id: i64,
+    view_id: &str,
+    _name: &str,
+    _layout: ViewLayout,
+  ) -> FutureResult<(), FlowyError> {
+    let manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      manager.create_chat(&user_id, &view_id).await?;
+      Ok(())
+    })
+  }
+
+  fn import_from_bytes(
+    &self,
+    _uid: i64,
+    _view_id: &str,
+    _name: &str,
+    _import_type: ImportType,
+    _bytes: Vec<u8>,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Err(FlowyError::not_support()) })
+  }
+
+  fn import_from_file_path(
+    &self,
+    _view_id: &str,
+    _name: &str,
+    _path: String,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
 }

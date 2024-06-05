@@ -169,12 +169,6 @@ pub extern "C" fn set_stream_port(notification_port: i64) -> i32 {
 pub extern "C" fn set_log_stream_port(port: i64) -> i32 {
   *LOG_STREAM_ISOLATE.lock() = Some(Isolate::new(port));
 
-  LOG_STREAM_ISOLATE
-    .lock()
-    .as_ref()
-    .unwrap()
-    .post("hello log".to_string().as_bytes().to_vec());
-
   0
 }
 

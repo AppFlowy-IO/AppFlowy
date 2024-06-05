@@ -38,7 +38,8 @@ export const MathEquation = memo(
         </>
       );
     }
-  )
+  ),
+  (prevProps, nextProps) => JSON.stringify(prevProps.node) === JSON.stringify(nextProps.node)
 );
 
 export default MathEquation;

@@ -147,6 +147,21 @@
   "newGridText": "New grid",
   "newCalendarText": "New calendar",
   "newBoardText": "New board",
+  "chat": {
+    "newChat": "AI Chat",
+    "inputMessageHint": "Message AppFlowy AI",
+    "unsupportedCloudPrompt": "This feature is only available when using AppFlowy Cloud",
+    "relatedQuestion": "Related",
+    "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
+    "aiServerUnavailable": "🌈 Uh-oh! 🌈. A unicorn ate our response. Please retry!",
+    "clickToRetry": "Click to retry",
+    "regenerateAnswer": "Regenerate",
+    "question1": "How to use Kanban to manage tasks",
+    "question2": "Explain the GTD method",
+    "question3": "Why use Rust",
+    "question4": "Recipe with what's in my kitchen",
+    "aiMistakePrompt": "AI can make mistakes. Check important info."
+  },
   "trash": {
     "text": "Trash",
     "restoreAll": "Restore All",
@@ -442,7 +457,7 @@
     "manageDataPage": {
       "menuLabel": "Manage data",
       "title": "Manage data",
-      "description": "Manage data local storage or Import your existing data into @:appName. You can secure your data with end to end encryption.",
+      "description": "Manage data local storage or Import your existing data into @:appName.",
       "dataStorage": {
         "title": "File storage location",
         "tooltip": "The location where your files are stored",
@@ -550,7 +565,7 @@
       },
       "showNotificationsIcon": {
         "label": "Show notifications icon",
-        "hint": "Turn off to hide notification icons in the app."
+        "hint": "Toggle off to hide the notification icon in the sidebar."
       }
     },
     "appearance": {
@@ -1143,10 +1158,11 @@
       "video": {
         "label": "Video",
         "emptyLabel": "Add a video",
-        "placeholder": "Enter a link to a video",
+        "placeholder": "Paste the video link",
         "copiedToPasteBoard": "The video link has been copied to the clipboard",
-        "insertVideo": "Insert video",
-        "invalidVideoUrl": "Invalid video url, must be a valid file.",
+        "insertVideo": "Add video",
+        "invalidVideoUrl": "The source URL is not supported yet.",
+        "invalidVideoUrlYouTube": "YouTube is not supported yet.",
         "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
       }
     },

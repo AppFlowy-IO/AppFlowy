@@ -2,6 +2,7 @@ import { EditorElementProps, TableCellNode, TableNode } from '@/components/edito
 import React, { forwardRef, memo, useMemo } from 'react';
 import { Grid } from '@atlaskit/primitives';
 import './table.scss';
+import isEqual from 'lodash-es/isEqual';
 
 const Table = memo(
   forwardRef<HTMLDivElement, EditorElementProps<TableNode>>(({ node, children, className, ...attributes }, ref) => {
@@ -50,7 +51,8 @@ const Table = memo(
         </Grid>
       </div>
     );
-  })
+  }),
+  (prevProps, nextProps) => isEqual(prevProps.node, nextProps.node)
 );
 
 export default Table;

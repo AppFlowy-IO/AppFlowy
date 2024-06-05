@@ -21,7 +21,6 @@ import { filterBy, parseFilter } from '@/application/database-yjs/filter';
 import { groupByField } from '@/application/database-yjs/group';
 import { sortBy } from '@/application/database-yjs/sort';
 import { useViewsIdSelector } from '@/application/folder-yjs';
-import { useId } from '@/components/_shared/context-provider/IdProvider';
 import { parseYDatabaseCellToCell } from '@/components/database/components/cell/cell.parse';
 import { DateTimeCell } from '@/components/database/components/cell/cell.type';
 import dayjs from 'dayjs';
@@ -44,10 +43,10 @@ export interface Row {
 
 const defaultVisible = [FieldVisibility.AlwaysShown, FieldVisibility.HideWhenEmpty];
 
-export function useDatabaseViewsSelector() {
+export function useDatabaseViewsSelector(iidIndex: string) {
   const database = useDatabase();
-  const { objectId: currentViewId } = useId();
   const { viewsId: visibleViewsId, views: folderViews } = useViewsIdSelector();
+
   const views = database?.get(YjsDatabaseKey.views);
   const [viewIds, setViewIds] = useState<string[]>([]);
   const childViews = useMemo(() => {
@@ -58,16 +57,33 @@ export function useDatabaseViewsSelector() {
     if (!views) return;
 
     const observerEvent = () => {
-      setViewIds(
-        Array.from(views.keys()).filter((id) => {
-          const view = folderViews?.get(id);
+      const viewsObj = views.toJSON();
 
-          return (
-            visibleViewsId.includes(id) &&
-            (view?.get(YjsFolderKey.bid) === currentViewId || view?.get(YjsFolderKey.id) === currentViewId)
-          );
-        })
-      );
+      const viewsSorted = Object.entries(viewsObj).sort((a, b) => {
+        const [, viewA] = a;
+        const [, viewB] = b;
+
+        return Number(viewB.created_at) - Number(viewA.created_at);
+      });
+
+      const viewsId = [];
+
+      for (const viewItem of viewsSorted) {
+        const [key] = viewItem;
+        const view = folderViews?.get(key);
+
+        console.log('view', view?.get(YjsFolderKey.bid), iidIndex);
+        if (
+          visibleViewsId.includes(key) &&
+          view &&
+          (view.get(YjsFolderKey.bid) === iidIndex || view.get(YjsFolderKey.id) === iidIndex)
+        ) {
+          viewsId.push(key);
+        }
+      }
+
+      console.log('viewsId', viewsId);
+      setViewIds(viewsId);
     };
 
     observerEvent();
@@ -76,7 +92,7 @@ export function useDatabaseViewsSelector() {
     return () => {
       views.unobserve(observerEvent);
     };
-  }, [visibleViewsId, views, folderViews, currentViewId]);
+  }, [visibleViewsId, views, folderViews, iidIndex]);
 
   return {
     childViews,

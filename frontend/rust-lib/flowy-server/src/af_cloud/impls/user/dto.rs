@@ -89,6 +89,7 @@ pub fn from_af_workspace_member(member: AFWorkspaceMember) -> WorkspaceMember {
     email: member.email,
     role: from_af_role(member.role),
     name: member.name,
+    avatar_url: member.avatar_url,
   }
 }
 

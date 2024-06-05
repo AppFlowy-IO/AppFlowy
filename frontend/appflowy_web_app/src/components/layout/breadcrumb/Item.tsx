@@ -17,7 +17,9 @@ function Item({ crumb, disableClick = false }: { crumb: Crumb; disableClick?: bo
       }}
     >
       {icon}
-      <span className={!disableClick ? 'underline' : 'flex-1 truncate'}>
+      <span
+        className={!disableClick ? 'max-w-[250px] truncate hover:text-fill-default hover:underline' : 'flex-1 truncate'}
+      >
         {name || t('menuAppHeader.defaultNewPageName')}
       </span>
     </div>

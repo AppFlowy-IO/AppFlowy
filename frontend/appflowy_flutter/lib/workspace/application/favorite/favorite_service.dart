@@ -34,7 +34,8 @@ class FavoriteService {
     bool isPinned,
   ) async {
     try {
-      final current = view.extra.isNotEmpty ? jsonDecode(view.extra) : {};
+      final current =
+          view.extra.isNotEmpty ? jsonDecode(view.extra) : <String, dynamic>{};
       final merged = mergeMaps(
         current,
         <String, dynamic>{ViewExtKeys.isPinnedKey: isPinned},

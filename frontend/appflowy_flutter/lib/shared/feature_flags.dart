@@ -85,6 +85,8 @@ enum FeatureFlag {
 
   bool get isOn {
     if ([
+      // release this feature in version 0.5.9
+      FeatureFlag.search,
       // release this feature in version 0.5.6
       FeatureFlag.collaborativeWorkspace,
       FeatureFlag.membersSettings,
@@ -102,9 +104,9 @@ enum FeatureFlag {
     switch (this) {
       case FeatureFlag.collaborativeWorkspace:
       case FeatureFlag.membersSettings:
-      case FeatureFlag.search:
       case FeatureFlag.unknown:
         return false;
+      case FeatureFlag.search:
       case FeatureFlag.syncDocument:
       case FeatureFlag.syncDatabase:
         return true;

@@ -1,4 +1,4 @@
-name: Cypress Tests
+name: Web Code Coverage
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
-  cypress-run:
+  test:
     if: github.event.pull_request.draft != true
     runs-on: ubuntu-22.04
     steps:
@@ -46,3 +46,14 @@ jobs:
           build: pnpm run build
           start: pnpm run start
           browser: chrome
+
+      - name: Jest run
+        working-directory: frontend/appflowy_web_app
+        run: |
+          pnpm run test:unit
+
+      - name: Generate and post coverage summary
+        working-directory: frontend/appflowy_web_app
+        run: |
+          pnpm run merge-coverage
+      

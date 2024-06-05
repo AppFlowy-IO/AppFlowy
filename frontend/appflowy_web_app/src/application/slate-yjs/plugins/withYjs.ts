@@ -1,6 +1,5 @@
 import { CollabOrigin, YjsEditorKey, YSharedRoot } from '@/application/collab.type';
-import { applySlateOp } from '@/application/slate-yjs/utils/applySlateOpts';
-import { translateYjsEvent } from 'src/application/slate-yjs/utils/translateYjsEvent';
+import { applyToYjs } from '@/application/slate-yjs/utils/applyToYjs';
 import { Editor, Operation, Descendant } from 'slate';
 import Y, { YEvent, Transaction } from 'yjs';
 import { yDocToSlateContent } from '@/application/slate-yjs/utils/convert';
@@ -57,12 +56,11 @@ export const YjsEditor = {
 export function withYjs<T extends Editor>(
   editor: T,
   doc: Y.Doc,
-  {
-    localOrigin,
-  }: {
+  opts?: {
     localOrigin: CollabOrigin;
   }
 ): T & YjsEditor {
+  const { localOrigin = CollabOrigin.Local } = opts ?? {};
   const e = editor as T & YjsEditor;
   const { apply, onChange } = e;
 
@@ -76,23 +74,34 @@ export function withYjs<T extends Editor>(
     }
 
     e.children = content.children;
+
+    console.log('initializeDocumentContent', doc.getMap(YjsEditorKey.data_section).toJSON(), e.children);
     Editor.normalize(editor, { force: true });
   };
 
-  e.applyRemoteEvents = (events: Array<YEvent<YSharedRoot>>, _: Transaction) => {
-    YjsEditor.flushLocalChanges(e);
+  const applyIntercept = (op: Operation) => {
+    if (YjsEditor.connected(e)) {
+      YjsEditor.storeLocalChange(e, op);
+    }
 
-    // TODO: handle remote events
-    // This is a temporary implementation to apply remote events to slate
+    apply(op);
+  };
+
+  const applyRemoteIntercept = (op: Operation) => {
+    apply(op);
+  };
+
+  e.applyRemoteEvents = (_events: Array<YEvent<YSharedRoot>>, _: Transaction) => {
+    // Flush local changes to ensure all local changes are applied before processing remote events
+    YjsEditor.flushLocalChanges(e);
+    // Replace the apply function to avoid storing remote changes as local changes
+    e.apply = applyRemoteIntercept;
+
+    // Initialize or update the document content to ensure it is in the correct state before applying remote events
     initializeDocumentContent();
-    Editor.withoutNormalizing(editor, () => {
-      events.forEach((event) => {
-        translateYjsEvent(e.sharedRoot, editor, event).forEach((op) => {
-          // apply remote events to slate, don't call e.apply here because e.apply has been overridden.
-          apply(op);
-        });
-      });
-    });
+
+    // Restore the apply function to store local changes after applying remote changes
+    e.apply = applyIntercept;
   };
 
   const handleYEvents = (events: Array<YEvent<YSharedRoot>>, transaction: Transaction) => {
@@ -133,18 +142,12 @@ export function withYjs<T extends Editor>(
     // parse changes and apply to ydoc
     doc.transact(() => {
       changes.forEach((change) => {
-        applySlateOp(doc, { children: change.slateContent }, change.op);
+        applyToYjs(doc, { children: change.slateContent }, change.op);
       });
     }, localOrigin);
   };
 
-  e.apply = (op) => {
-    if (YjsEditor.connected(e)) {
-      YjsEditor.storeLocalChange(e, op);
-    }
-
-    apply(op);
-  };
+  e.apply = applyIntercept;
 
   e.onChange = () => {
     if (YjsEditor.connected(e)) {
