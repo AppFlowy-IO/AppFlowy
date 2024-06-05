@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -30,7 +32,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Home Sidebar is the left side bar of the home page.
@@ -95,7 +96,7 @@ class HomeSideBar extends StatelessWidget {
         }
         return MultiBlocProvider(
           providers: [
-            BlocProvider(create: (_) => getIt<ActionNavigationBloc>()),
+            BlocProvider.value(value: getIt<ActionNavigationBloc>()),
             BlocProvider(
               create: (_) => SidebarSectionsBloc()
                 ..add(
@@ -191,6 +192,7 @@ class _SidebarState extends State<_Sidebar> {
   Timer? _scrollDebounce;
   bool _isScrolling = false;
   final _isHovered = ValueNotifier(false);
+  final _scrollOffset = ValueNotifier<double>(0);
 
   @override
   void initState() {
@@ -203,6 +205,7 @@ class _SidebarState extends State<_Sidebar> {
     _scrollDebounce?.cancel();
     _scrollController.removeListener(_onScrollChanged);
     _scrollController.dispose();
+    _scrollOffset.dispose();
     _isHovered.dispose();
     super.dispose();
   }
@@ -255,11 +258,20 @@ class _SidebarState extends State<_Sidebar> {
             const SidebarNewPageButton(),
             // scrollable document list
             const VSpace(12.0),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0),
-              child: Divider(
-                color: Color(0x1E1F2329),
-                height: 0.5,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ValueListenableBuilder(
+                valueListenable: _scrollOffset,
+                builder: (_, offset, child) {
+                  return Opacity(
+                    opacity: offset > 0 ? 1 : 0,
+                    child: child,
+                  );
+                },
+                child: const Divider(
+                  color: Color(0x141F2329),
+                  height: 0.5,
+                ),
               ),
             ),
             Expanded(
@@ -281,7 +293,7 @@ class _SidebarState extends State<_Sidebar> {
             Padding(
               padding: menuHorizontalInset +
                   const EdgeInsets.symmetric(horizontal: 4.0),
-              child: const Divider(height: 1.0, color: Color(0x141F2329)),
+              child: const Divider(height: 0.5, color: Color(0x141F2329)),
             ),
             const VSpace(8),
             Padding(
@@ -302,6 +314,8 @@ class _SidebarState extends State<_Sidebar> {
     _scrollDebounce?.cancel();
     _scrollDebounce =
         Timer(const Duration(milliseconds: 300), _setScrollStopped);
+
+    _scrollOffset.value = _scrollController.offset;
   }
 
   void _setScrollStopped() {

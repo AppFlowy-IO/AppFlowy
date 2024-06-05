@@ -21,11 +21,11 @@ class ActionNavigationBloc
                 currentAction = currentAction.copyWith(arguments: {});
               }
 
-              action.arguments?.addAll({ActionArgumentKeys.view: view});
+              currentAction.arguments?.addAll({ActionArgumentKeys.view: view});
             }
           }
 
-          emit(state.copyWith(action: action, nextActions: nextActions));
+          emit(state.copyWith(action: currentAction, nextActions: nextActions));
 
           if (nextActions.isNotEmpty) {
             final newActions = [...nextActions];

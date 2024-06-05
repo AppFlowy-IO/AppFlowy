@@ -232,3 +232,8 @@ pub struct UserFolderPB {
   #[pb(index = 2)]
   pub workspace_id: String,
 }
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Eq, PartialEq)]
+pub struct IndexedWorkspaceIds {
+  pub workspace_ids: Vec<String>,
+}

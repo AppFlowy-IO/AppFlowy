@@ -9,6 +9,7 @@ class MobileSlideActionButton extends StatelessWidget {
     required this.svg,
     this.size = 32.0,
     this.backgroundColor = Colors.transparent,
+    this.borderRadius = BorderRadius.zero,
     required this.onPressed,
   });
 
@@ -16,15 +17,18 @@ class MobileSlideActionButton extends StatelessWidget {
   final double size;
   final Color backgroundColor;
   final SlidableActionCallback onPressed;
+  final BorderRadius borderRadius;
 
   @override
   Widget build(BuildContext context) {
     return CustomSlidableAction(
+      borderRadius: borderRadius,
       backgroundColor: backgroundColor,
       onPressed: (context) {
         HapticFeedback.mediumImpact();
         onPressed(context);
       },
+      padding: EdgeInsets.zero,
       child: FlowySvg(
         svg,
         size: Size.square(size),

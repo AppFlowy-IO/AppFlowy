@@ -102,9 +102,9 @@ enum FeatureFlag {
     switch (this) {
       case FeatureFlag.collaborativeWorkspace:
       case FeatureFlag.membersSettings:
-      case FeatureFlag.search:
       case FeatureFlag.unknown:
         return false;
+      case FeatureFlag.search:
       case FeatureFlag.syncDocument:
       case FeatureFlag.syncDatabase:
         return true;

@@ -44,6 +44,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
       case MobileViewItemBottomSheetBodyAction.rename:
         return FlowyOptionTile.text(
           text: LocaleKeys.button_rename.tr(),
+          height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.view_item_rename_s,
             size: Size.square(18),
@@ -57,6 +58,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
       case MobileViewItemBottomSheetBodyAction.duplicate:
         return FlowyOptionTile.text(
           text: LocaleKeys.button_duplicate.tr(),
+          height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.duplicate_s,
             size: Size.square(18),
@@ -71,6 +73,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
       case MobileViewItemBottomSheetBodyAction.share:
         return FlowyOptionTile.text(
           text: LocaleKeys.button_share.tr(),
+          height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.share_s,
             size: Size.square(18),
@@ -84,9 +87,10 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
       case MobileViewItemBottomSheetBodyAction.delete:
         return FlowyOptionTile.text(
           text: LocaleKeys.button_delete.tr(),
+          height: 52.0,
           textColor: Theme.of(context).colorScheme.error,
           leftIcon: FlowySvg(
-            FlowySvgs.delete_s,
+            FlowySvgs.trash_s,
             size: const Size.square(18),
             color: Theme.of(context).colorScheme.error,
           ),
@@ -98,6 +102,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
         );
       case MobileViewItemBottomSheetBodyAction.addToFavorites:
         return FlowyOptionTile.text(
+          height: 52.0,
           text: LocaleKeys.button_addToFavorites.tr(),
           leftIcon: const FlowySvg(
             FlowySvgs.favorite_s,
@@ -111,6 +116,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
         );
       case MobileViewItemBottomSheetBodyAction.removeFromFavorites:
         return FlowyOptionTile.text(
+          height: 52.0,
           text: LocaleKeys.button_removeFromFavorites.tr(),
           leftIcon: const FlowySvg(
             FlowySvgs.favorite_section_remove_from_favorite_s,
@@ -124,6 +130,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
         );
       case MobileViewItemBottomSheetBodyAction.removeFromRecent:
         return FlowyOptionTile.text(
+          height: 52.0,
           text: LocaleKeys.button_removeFromRecent.tr(),
           leftIcon: const FlowySvg(
             FlowySvgs.remove_from_recent_s,
@@ -137,7 +144,10 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
         );
 
       case MobileViewItemBottomSheetBodyAction.divider:
-        return const Divider(height: 0.5);
+        return const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12.0),
+          child: Divider(height: 0.5),
+        );
     }
   }
 }

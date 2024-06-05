@@ -25,6 +25,7 @@ class FlowyTooltip extends StatelessWidget {
     final isLightMode = Theme.of(context).brightness == Brightness.light;
     return Tooltip(
       margin: margin,
+      verticalOffset: 16.0,
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       decoration: BoxDecoration(
         color: isLightMode ? const Color(0xE5171717) : const Color(0xE5E5E5E5),
