@@ -140,7 +140,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
           MobileQuickActionButton(
             onTap: () =>
                 _performAction(viewId, _bloc.state.currentRowId, false),
-            icon: FlowySvgs.copy_s,
+            icon: FlowySvgs.duplicate_s,
             text: LocaleKeys.button_duplicate.tr(),
           ),
           const Divider(height: 8.5, thickness: 0.5),
@@ -148,7 +148,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
             onTap: () => _performAction(viewId, _bloc.state.currentRowId, true),
             text: LocaleKeys.button_delete.tr(),
             textColor: Theme.of(context).colorScheme.error,
-            icon: FlowySvgs.m_delete_m,
+            icon: FlowySvgs.trash_s,
             iconColor: Theme.of(context).colorScheme.error,
           ),
           const Divider(height: 8.5, thickness: 0.5),

@@ -23,7 +23,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           text: LocaleKeys.document_menuName.tr(),
           height: 52.0,
           leftIcon: const FlowySvg(
-            FlowySvgs.document_s,
+            FlowySvgs.icon_document_s,
             size: Size.square(18),
           ),
           showTopBorder: false,
@@ -33,7 +33,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           text: LocaleKeys.grid_menuName.tr(),
           height: 52.0,
           leftIcon: const FlowySvg(
-            FlowySvgs.grid_s,
+            FlowySvgs.icon_grid_s,
             size: Size.square(18),
           ),
           showTopBorder: false,
@@ -43,7 +43,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           text: LocaleKeys.board_menuName.tr(),
           height: 52.0,
           leftIcon: const FlowySvg(
-            FlowySvgs.board_s,
+            FlowySvgs.icon_board_s,
             size: Size.square(18),
           ),
           showTopBorder: false,
@@ -53,7 +53,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           text: LocaleKeys.calendar_menuName.tr(),
           height: 52.0,
           leftIcon: const FlowySvg(
-            FlowySvgs.calendar_s,
+            FlowySvgs.icon_calendar_s,
             size: Size.square(18),
           ),
           showTopBorder: false,

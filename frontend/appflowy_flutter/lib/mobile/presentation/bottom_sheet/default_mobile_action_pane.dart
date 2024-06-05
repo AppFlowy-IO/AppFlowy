@@ -74,13 +74,14 @@ enum MobilePaneActionType {
                 return AddNewPageWidgetBottomSheet(
                   view: view,
                   onAction: (layout) {
-                    context.read<ViewBloc>().add(
-                          ViewEvent.createView(
-                            LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                            layout,
-                            section: spaceType!.toViewSectionPB,
-                          ),
-                        );
+                    Navigator.of(sheetContext).pop();
+                    viewBloc.add(
+                      ViewEvent.createView(
+                        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                        layout,
+                        section: spaceType!.toViewSectionPB,
+                      ),
+                    );
                   },
                 );
               },
