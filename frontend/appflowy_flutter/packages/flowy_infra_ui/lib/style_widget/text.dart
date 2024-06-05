@@ -170,7 +170,7 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
-        strutStyle: Platform.isMacOS
+        strutStyle: (Platform.isMacOS || Platform.isLinux) & !isEmoji
             ? StrutStyle.fromTextStyle(
                 textStyle,
                 forceStrutHeight: true,
