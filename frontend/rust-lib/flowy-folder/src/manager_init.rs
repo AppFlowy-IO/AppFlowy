@@ -10,8 +10,6 @@ use std::sync::{Arc, Weak};
 use tokio::task::spawn_blocking;
 use tracing::{event, info, Level};
 
-pub const INDEXED_WORKSPACE_KEY: &str = "indexed-workspace-ids";
-
 impl FolderManager {
   /// Called immediately after the application launched if the user already sign in/sign up.
   #[tracing::instrument(level = "info", skip(self, initial_data), err)]
@@ -213,12 +211,11 @@ impl FolderManager {
       let views = folder.views.get_all_views();
       let folder_indexer = self.folder_indexer.clone();
       let wid = workspace_id.clone();
-      let store_preferences = self.store_preferences.clone();
 
       // We spawn a blocking task to index all views in the folder
       spawn_blocking(move || {
         // We remove old indexes just in case
-        folder_indexer.remove_indices_for_workspace(wid.clone());
+        let _ = folder_indexer.remove_indices_for_workspace(wid.clone());
 
         // We index all views from the workspace
         folder_indexer.index_all_views(views, wid);
@@ -232,7 +229,7 @@ impl FolderManager {
     let encoded_collab = folder.encode_collab_v1();
 
     if let Ok(encoded) = encoded_collab {
-      let result = self
+      let _ = self
         .store_preferences
         .set_object(&folder.get_workspace_id(), encoded);
     }

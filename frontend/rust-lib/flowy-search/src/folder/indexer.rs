@@ -15,7 +15,7 @@ use crate::{
   },
 };
 use collab::core::collab::{IndexContent, IndexContentReceiver};
-use collab_folder::{View, ViewIcon, ViewIndexContent, ViewLayout};
+use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewIndexContent, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_search_pub::entities::{FolderIndexManager, IndexManager, IndexableData};
 use flowy_user::services::authenticate_user::AuthenticateUser;
@@ -445,27 +445,15 @@ impl FolderIndexManager for FolderIndexManagerImpl {
     for change in changes {
       match change {
         FolderViewChange::Inserted { view_id } => {
-          tracing::warn!("[Indexer] ViewChange Reached: {:?}", change);
           let view = views_iter.find(|view| view.id == view_id);
           if let Some(view) = view {
-            tracing::warn!(
-              "[Indexer] ViewChange Reached Inserted: {:?} : {:?}",
-              view_id,
-              view
-            );
             let indexable_data = IndexableData::from_view(view, workspace_id.clone());
             let _ = self.add_index(indexable_data);
           }
         },
         FolderViewChange::Updated { view_id } => {
-          tracing::warn!("[Indexer] ViewChange Reached: {:?}", change);
           let view = views_iter.find(|view| view.id == view_id);
           if let Some(view) = view {
-            tracing::warn!(
-              "[Indexer] ViewChange Reached Updated: {:?} : {:?}",
-              view_id,
-              view
-            );
             let indexable_data = IndexableData::from_view(view, workspace_id.clone());
             let _ = self.update_index(indexable_data);
           }
