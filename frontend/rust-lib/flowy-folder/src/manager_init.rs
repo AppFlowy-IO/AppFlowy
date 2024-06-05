@@ -197,7 +197,7 @@ impl FolderManager {
         let views = folder.views.get_all_views();
         let wid = workspace_id.clone();
 
-        if changes.len() > 0 && views.len() > 0 {
+        if !changes.is_empty() && !views.is_empty() {
           spawn_blocking(move || {
             // We index the changes
             folder_indexer.index_view_changes(views, changes, wid);

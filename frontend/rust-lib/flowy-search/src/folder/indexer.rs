@@ -274,13 +274,13 @@ impl FolderIndexManagerImpl {
       .schema
       .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
 
-    return Ok((
+    Ok((
       id_field,
       title_field,
       icon_field,
       icon_ty_field,
       workspace_id_field,
-    ));
+    ))
   }
 }
 
