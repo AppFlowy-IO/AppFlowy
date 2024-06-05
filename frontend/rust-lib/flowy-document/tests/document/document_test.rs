@@ -20,6 +20,7 @@ async fn restore_document() {
     .unwrap();
   let data_a = test.get_document_data(&doc_id).await.unwrap();
   assert_eq!(data_a, data);
+  test.open_document(&doc_id).await.unwrap();
 
   let data_b = test
     .get_document(&doc_id)
@@ -59,6 +60,7 @@ async fn document_apply_insert_action() {
   _ = test.create_document(uid, &doc_id, Some(data.clone())).await;
 
   // open a document
+  test.open_document(&doc_id).await.unwrap();
   let document = test.get_document(&doc_id).await.unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
@@ -112,6 +114,7 @@ async fn document_apply_update_page_action() {
   _ = test.create_document(uid, &doc_id, Some(data.clone())).await;
 
   // open a document
+  test.open_document(&doc_id).await.unwrap();
   let document = test.get_document(&doc_id).await.unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
@@ -155,6 +158,7 @@ async fn document_apply_update_action() {
   _ = test.create_document(uid, &doc_id, Some(data.clone())).await;
 
   // open a document
+  test.open_document(&doc_id).await.unwrap();
   let document = test.get_document(&doc_id).await.unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
