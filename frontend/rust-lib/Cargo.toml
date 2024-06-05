@@ -94,7 +94,7 @@ yrs = "0.18.8"
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
 client-api = { version = "0.2" }
-appflowy-cloud-billing-client = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client", rev = "5a9b151bbb22e9789867b3ca810f7b35f0f7ebb4" }
+appflowy-cloud-billing-client = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client", rev = "48ab2cc33302caf3bb158636817a4010b1fa711e" }
 
 [profile.dev]
 opt-level = 1

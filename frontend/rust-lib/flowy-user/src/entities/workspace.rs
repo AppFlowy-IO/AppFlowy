@@ -299,6 +299,12 @@ pub struct WorkspaceSubscriptionPB {
 
   #[pb(index = 4)]
   pub is_active: bool,
+
+  #[pb(index = 5)]
+  pub has_canceled: bool,
+
+  #[pb(index = 6)]
+  pub canceled_at: i64, // value is valid only if has_canceled is true
 }
 
 impl From<WorkspaceSubscription> for WorkspaceSubscriptionPB {
@@ -308,6 +314,8 @@ impl From<WorkspaceSubscription> for WorkspaceSubscriptionPB {
       subscription_plan: s.subscription_plan.into(),
       recurring_interval: s.recurring_interval.into(),
       is_active: s.is_active,
+      has_canceled: s.canceled_at.is_some(),
+      canceled_at: s.canceled_at.unwrap_or_default(),
     }
   }
 }

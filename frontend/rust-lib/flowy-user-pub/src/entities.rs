@@ -439,6 +439,7 @@ pub struct WorkspaceSubscription {
   pub subscription_plan: SubscriptionPlan,
   pub recurring_interval: RecurringInterval,
   pub is_active: bool,
+  pub canceled_at: Option<i64>,
 }
 
 pub struct WorkspaceUsage {

@@ -686,5 +686,6 @@ fn to_workspace_subscription(s: WorkspaceSubscriptionStatus) -> WorkspaceSubscri
       s.subscription_status,
       appflowy_cloud_billing_client::entities::SubscriptionStatus::Active
     ),
+    canceled_at: s.canceled_at,
   }
 }
