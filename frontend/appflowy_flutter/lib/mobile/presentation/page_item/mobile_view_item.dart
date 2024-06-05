@@ -298,9 +298,12 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
             widget.view.icon.value,
             fontSize: 20.0,
           )
-        : SizedBox.square(
-            dimension: 18.0,
-            child: widget.view.defaultIcon(),
+        : Opacity(
+            opacity: 0.7,
+            child: SizedBox.square(
+              dimension: 18.0,
+              child: widget.view.defaultIcon(),
+            ),
           );
     return icon;
   }
