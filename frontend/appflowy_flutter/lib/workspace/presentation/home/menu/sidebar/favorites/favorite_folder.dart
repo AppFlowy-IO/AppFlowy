@@ -189,11 +189,13 @@ class FavoriteMoreButton extends StatelessWidget {
       margin: EdgeInsets.zero,
       child: FlowyButton(
         onTap: () {},
-        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
+        margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 7.0),
         leftIcon: const FlowySvg(
           FlowySvgs.workspace_three_dots_s,
         ),
-        text: FlowyText.regular(LocaleKeys.button_more.tr()),
+        text: FlowyText.regular(
+          LocaleKeys.button_more.tr(),
+        ),
       ),
     );
   }

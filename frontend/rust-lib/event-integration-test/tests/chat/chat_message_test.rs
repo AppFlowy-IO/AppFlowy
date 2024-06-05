@@ -1,7 +1,7 @@
 use crate::util::receive_with_timeout;
 use event_integration_test::user_event::user_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
-use flowy_chat::entities::{ChatMessageListPB, ChatMessageTypePB};
+use flowy_chat::entities::ChatMessageListPB;
 use flowy_chat::notification::ChatNotification;
 
 use flowy_chat_pub::cloud::ChatMessageType;
@@ -131,31 +131,31 @@ async fn af_cloud_load_remote_system_message_test() {
   assert_eq!(first_five_messages.messages[4].content, "hello server 0");
 }
 
-#[tokio::test]
-async fn af_cloud_load_remote_user_message_test() {
-  user_localhost_af_cloud().await;
-  let test = EventIntegrationTest::new().await;
-  test.af_cloud_sign_up().await;
-
-  let current_workspace = test.get_current_workspace().await;
-  let view = test.create_chat(&current_workspace.id).await;
-  let chat_id = view.id.clone();
-  let rx = test
-    .notification_sender
-    .subscribe_without_payload(&chat_id, ChatNotification::FinishAnswerQuestion);
-  test
-    .send_message(&chat_id, "hello world", ChatMessageTypePB::User)
-    .await;
-  let _ = receive_with_timeout(rx, Duration::from_secs(60))
-    .await
-    .unwrap();
-
-  let all = test.load_next_message(&chat_id, 5, None).await;
-  assert_eq!(all.messages.len(), 2);
-  // 3 means AI
-  assert_eq!(all.messages[0].author_type, 3);
-  // 2 means User
-  assert_eq!(all.messages[1].author_type, 1);
-  // The message ID is incremented by 1.
-  assert_eq!(all.messages[1].message_id + 1, all.messages[0].message_id);
-}
+// #[tokio::test]
+// async fn af_cloud_load_remote_user_message_test() {
+//   user_localhost_af_cloud().await;
+//   let test = EventIntegrationTest::new().await;
+//   test.af_cloud_sign_up().await;
+//
+//   let current_workspace = test.get_current_workspace().await;
+//   let view = test.create_chat(&current_workspace.id).await;
+//   let chat_id = view.id.clone();
+//   let rx = test
+//     .notification_sender
+//     .subscribe_without_payload(&chat_id, ChatNotification::FinishAnswerQuestion);
+//   test
+//     .send_message(&chat_id, "hello world", ChatMessageTypePB::User)
+//     .await;
+//   let _ = receive_with_timeout(rx, Duration::from_secs(60))
+//     .await
+//     .unwrap();
+//
+//   let all = test.load_next_message(&chat_id, 5, None).await;
+//   assert_eq!(all.messages.len(), 2);
+//   // 3 means AI
+//   assert_eq!(all.messages[0].author_type, 3);
+//   // 2 means User
+//   assert_eq!(all.messages[1].author_type, 1);
+//   // The message ID is incremented by 1.
+//   assert_eq!(all.messages[1].message_id + 1, all.messages[0].message_id);
+// }

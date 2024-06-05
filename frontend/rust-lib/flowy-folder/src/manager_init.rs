@@ -1,3 +1,4 @@
+use crate::entities::IndexedWorkspaceIds;
 use crate::manager::{FolderInitDataSource, FolderManager};
 use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
