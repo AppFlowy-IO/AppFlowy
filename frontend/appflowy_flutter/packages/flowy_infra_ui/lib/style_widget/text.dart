@@ -143,6 +143,9 @@ class FlowyText extends StatelessWidget {
       if (fontFamily != null && fallbackFontFamily == null) {
         fallbackFontFamily = [fontFamily];
       }
+    }
+
+    if (isEmoji && (_useNotoColorEmoji || Platform.isWindows)) {
       fontSize = fontSize * 0.8;
     }
 
@@ -199,6 +202,5 @@ class FlowyText extends StatelessWidget {
     return null;
   }
 
-  bool get _useNotoColorEmoji =>
-      Platform.isLinux || Platform.isAndroid || Platform.isWindows;
+  bool get _useNotoColorEmoji => Platform.isLinux || Platform.isAndroid;
 }

@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/document/application/document_appearance_cubit.
 import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
-import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -150,11 +149,6 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
                     key: ValueKey('collaborators_${view.id}'),
                     width: 120,
                     height: 32,
-                    view: view,
-                  ),
-                  const HSpace(16),
-                  DocumentSyncIndicator(
-                    key: ValueKey('sync_state_${view.id}'),
                     view: view,
                   ),
                   const HSpace(16),

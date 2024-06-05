@@ -118,10 +118,6 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
 
     return Column(
       children: [
-        // Only show the indicator in integration test mode
-        // if (FlowyRunner.currentMode.isIntegrationTest)
-        //   const DocumentSyncIndicator(),
-
         if (state.isDeleted) _buildBanner(context),
         Expanded(child: appflowyEditorPage),
       ],

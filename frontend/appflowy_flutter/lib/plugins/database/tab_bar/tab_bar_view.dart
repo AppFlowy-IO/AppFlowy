@@ -1,9 +1,7 @@
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/share_button.dart';
-import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/plugins/util.dart';
-import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
@@ -272,15 +270,6 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
       value: bloc,
       child: Row(
         children: [
-          ...FeatureFlag.syncDatabase.isOn
-              ? [
-                  DatabaseSyncIndicator(
-                    key: ValueKey('sync_state_${view.id}'),
-                    view: view,
-                  ),
-                  const HSpace(16),
-                ]
-              : [],
           DatabaseShareButton(key: ValueKey(view.id), view: view),
           const HSpace(10),
           ViewFavoriteButton(view: view),
