@@ -19,6 +19,7 @@ function Filter({ filterId }: { filterId: string }) {
         onClick={(e) => {
           setAnchorEl(e.currentTarget);
         }}
+        data-testid={'database-filter-condition'}
         className={
           'flex cursor-pointer flex-nowrap items-center gap-1 rounded-full border border-line-divider py-1 px-2 hover:border-fill-default hover:text-fill-default hover:shadow-sm'
         }
@@ -39,6 +40,7 @@ function Filter({ filterId }: { filterId: string }) {
           onClose={() => {
             setAnchorEl(null);
           }}
+          data-testid={'filter-menu-popover'}
           slotProps={{
             paper: {
               style: {

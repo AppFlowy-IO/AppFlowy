@@ -58,6 +58,7 @@ function NumberFilterMenu({ filter }: { filter: NumberFilter }) {
       {displayTextField && (
         <TextField
           disabled={readOnly}
+          data-testid={'number-filter-input'}
           spellCheck={false}
           inputProps={{
             className: 'text-xs p-1.5',

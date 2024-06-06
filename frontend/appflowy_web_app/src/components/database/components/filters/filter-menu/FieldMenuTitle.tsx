@@ -10,7 +10,10 @@ function FieldMenuTitle({ fieldId, selectedConditionText }: { fieldId: string; s
       </div>
       <div className={'flex flex-1 items-center justify-end'}>
         <div className={'flex items-center gap-1'}>
-          <div className={'overflow max-w-[100px] truncate whitespace-nowrap text-xs font-normal'}>
+          <div
+            data-testid={'filter-condition-type'}
+            className={'overflow max-w-[100px] truncate whitespace-nowrap text-xs font-normal'}
+          >
             {selectedConditionText}
           </div>
           <ArrowDownSvg />
