@@ -39,6 +39,8 @@ export function withTestingRowData(id: string, index: number) {
 
   rowData.set(YjsDatabaseKey.id, id);
   rowData.set(YjsDatabaseKey.height, 37);
+  rowData.set(YjsDatabaseKey.last_modified, Date.now() + index * 1000);
+  rowData.set(YjsDatabaseKey.created_at, Date.now() + index * 1000);
 
   const cells = new Y.Map() as YDatabaseCells;
 

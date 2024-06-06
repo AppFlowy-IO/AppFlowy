@@ -14,18 +14,17 @@ import {
   useDatabaseView,
   useIsDatabaseRowPage,
   useRowDocMap,
-  useRows,
   useViewId,
 } from '@/application/database-yjs/context';
 import { filterBy, parseFilter } from '@/application/database-yjs/filter';
 import { groupByField } from '@/application/database-yjs/group';
 import { sortBy } from '@/application/database-yjs/sort';
 import { useViewsIdSelector } from '@/application/folder-yjs';
-import { parseYDatabaseCellToCell } from '@/components/database/components/cell/cell.parse';
-import { DateTimeCell } from '@/components/database/components/cell/cell.type';
-import dayjs from 'dayjs';
+import { parseYDatabaseCellToCell } from '@/application/database-yjs/cell.parse';
+import { DateTimeCell } from '@/application/database-yjs/cell.type';
+import * as dayjs from 'dayjs';
 import { throttle } from 'lodash-es';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Y from 'yjs';
 import { CalendarLayoutSetting, FieldType, FieldVisibility, Filter, RowMetaKey, SortCondition } from './database.type';
 
@@ -147,12 +146,6 @@ export function useFieldsSelector(visibilitys: FieldVisibility[] = defaultVisibl
   }, [database, viewId, visibilitys]);
 
   return columns;
-}
-
-export function useRowsSelector() {
-  const rowOrders = useRows();
-
-  return useMemo(() => rowOrders ?? [], [rowOrders]);
 }
 
 export function useFieldSelector(fieldId: string) {
@@ -403,7 +396,7 @@ export function useRowsByGroup(groupId: string) {
     if (!fieldId || !rowOrders || !rows) return;
 
     const onConditionsChange = () => {
-      if (rows.size !== rowOrders?.length) return;
+      if (rows.size < rowOrders?.length) return;
 
       const newResult = new Map<string, Row[]>();
 
@@ -456,7 +449,7 @@ export function useRowOrdersSelector() {
 
     if (!originalRowOrders || !rows) return;
 
-    if (originalRowOrders.length !== rows.size && !isDatabaseRowPage) return;
+    if (originalRowOrders.length > rows.size && !isDatabaseRowPage) return;
     if (sorts?.length === 0 && filters?.length === 0) {
       setRowOrders(originalRowOrders);
       return;
@@ -691,7 +684,7 @@ export function useCalendarLayoutSetting() {
 
 export function usePrimaryFieldId() {
   const database = useDatabase();
-  const [primaryFieldId, setPrimaryFieldId] = React.useState<string | null>(null);
+  const [primaryFieldId, setPrimaryFieldId] = useState<string | null>(null);
 
   useEffect(() => {
     const fields = database?.get(YjsDatabaseKey.fields);

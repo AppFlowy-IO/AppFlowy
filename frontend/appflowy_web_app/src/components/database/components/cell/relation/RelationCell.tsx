@@ -1,5 +1,5 @@
 import { FieldType } from '@/application/database-yjs';
-import { CellProps, RelationCell as RelationCellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, RelationCell as RelationCellType } from '@/application/database-yjs/cell.type';
 import RelationItems from '@/components/database/components/cell/relation/RelationItems';
 import React from 'react';
 

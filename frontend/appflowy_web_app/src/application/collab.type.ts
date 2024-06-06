@@ -369,7 +369,19 @@ export interface YDocument extends Y.Map<unknown> {
 }
 
 export interface YBlocks extends Y.Map<unknown> {
-  get(key: BlockId): Y.Map<unknown>;
+  get(key: BlockId): YBlock;
+}
+
+export interface YBlock extends Y.Map<unknown> {
+  get(key: YjsEditorKey.block_id | YjsEditorKey.block_parent): BlockId;
+
+  get(key: YjsEditorKey.block_type): BlockType;
+
+  get(key: YjsEditorKey.block_data): string;
+
+  get(key: YjsEditorKey.block_children): ChildrenId;
+
+  get(key: YjsEditorKey.block_external_id): ExternalId;
 }
 
 export interface YMeta extends Y.Map<unknown> {

@@ -1,7 +1,7 @@
 import { useFieldSelector, parseSelectOptionTypeOptions } from '@/application/database-yjs';
 import { Tag } from '@/components/_shared/tag';
 import { SelectOptionColorMap } from '@/components/database/components/cell/cell.const';
-import { CellProps, SelectOptionCell as SelectOptionCellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, SelectOptionCell as SelectOptionCellType } from '@/application/database-yjs/cell.type';
 import React, { useCallback, useMemo } from 'react';
 
 export function SelectOptionCell({ cell, fieldId, style, placeholder }: CellProps<SelectOptionCellType>) {

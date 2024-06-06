@@ -1,5 +1,5 @@
 import { FieldId, YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
-import { parseYDatabaseCellToCell } from '@/components/database/components/cell/cell.parse';
+import { parseYDatabaseCellToCell } from '@/application/database-yjs/cell.parse';
 import React, { useEffect, useState } from 'react';
 
 export function RelationPrimaryValue({ rowDoc, fieldId }: { rowDoc: YDoc; fieldId: FieldId }) {

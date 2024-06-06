@@ -1,5 +1,5 @@
 import { FieldId, RowId } from '@/application/collab.type';
-import { DateFormat, TimeFormat } from '@/application/database-yjs';
+import { DateFormat, TimeFormat } from '@/application/database-yjs/index';
 import { FieldType } from '@/application/database-yjs/database.type';
 import React from 'react';
 import { YArray } from 'yjs/dist/src/types/YArray';

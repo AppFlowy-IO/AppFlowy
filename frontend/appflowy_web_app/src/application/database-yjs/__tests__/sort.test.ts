@@ -4,7 +4,9 @@ import { withTestingRows } from '@/application/database-yjs/__tests__/withTestin
 import {
   withCheckboxSort,
   withChecklistSort,
+  withCreatedAtSort,
   withDateTimeSort,
+  withLastModifiedSort,
   withMultiSelectOptionSort,
   withNumberSort,
   withRichTextSort,
@@ -19,10 +21,12 @@ import {
   withSelectOptionTestingField,
   withURLTestingField,
   withChecklistTestingField,
+  withRelationTestingField,
 } from './withTestingField';
 import { sortBy, parseCellDataForSort } from '../sort';
 import * as Y from 'yjs';
 import { expect } from '@jest/globals';
+import { YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
 
 describe('parseCellDataForSort', () => {
   it('should parse data correctly based on field type', () => {
@@ -127,6 +131,17 @@ describe('parseCellDataForSort', () => {
 
     expect(result).toBe(0);
   });
+
+  it('should return empty string for Relation field', () => {
+    const doc = new Y.Doc();
+    const field = withRelationTestingField();
+    doc.getMap().set('field', field);
+    const data = '';
+
+    const result = parseCellDataForSort(field, data);
+
+    expect(result).toBe('');
+  });
 });
 
 describe('Database sortBy', () => {
@@ -134,6 +149,53 @@ describe('Database sortBy', () => {
 
   beforeEach(() => {
     rows = withTestingRows();
+  });
+
+  it('should not sort rows if no sort is provided', () => {
+    const { sorts, fields, rowMap } = withTestingData();
+
+    const sortedRows = sortBy(rows, sorts, fields, rowMap)
+      .map((row) => row.id)
+      .join(',');
+    expect(sortedRows).toBe('1,2,3,4,5,6,7,8,9,10');
+  });
+
+  it('should not sort rows if no rows are provided', () => {
+    const { sorts, fields } = withTestingData();
+    const rowMap = new Y.Map() as Y.Map<Y.Doc>;
+    const sortedRows = sortBy(rows, sorts, fields, rowMap)
+      .map((row) => row.id)
+      .join(',');
+    expect(sortedRows).toBe('1,2,3,4,5,6,7,8,9,10');
+  });
+
+  it('should return default data if rowMeta is not found', () => {
+    const { sorts, fields, rowMap } = withTestingData();
+    const sort = withNumberSort();
+    sorts.push([sort]);
+    rowMap.delete('1');
+
+    const sortedRows = sortBy(rows, sorts, fields, rowMap)
+      .map((row) => row.id)
+      .join(',');
+    expect(sortedRows).toBe('1,2,3,4,5,6,7,8,9,10');
+  });
+
+  it('should return default data if cell is not found', () => {
+    const { sorts, fields, rowMap } = withTestingData();
+    const sort = withNumberSort();
+    sorts.push([sort]);
+    const rowDoc = rowMap.get('1');
+    rowDoc
+      ?.getMap(YjsEditorKey.data_section)
+      .get(YjsEditorKey.database_row)
+      ?.get(YjsDatabaseKey.cells)
+      .delete('number_field');
+
+    const sortedRows = sortBy(rows, sorts, fields, rowMap)
+      .map((row) => row.id)
+      .join(',');
+    expect(sortedRows).toBe('1,2,3,4,5,6,7,8,9,10');
   });
 
   it('should sort by number field in ascending order', () => {
@@ -310,5 +372,26 @@ describe('Database sortBy', () => {
       .map((row) => row.id)
       .join(',');
     expect(sortedRows).toBe('3,9,1,2,5,6,7,8,4,10');
+  });
+
+  it('should sort by CreatedAt field in ascending order', () => {
+    const { sorts, fields, rowMap } = withTestingData();
+    const sort = withCreatedAtSort();
+    sorts.push([sort]);
+
+    const sortedRows = sortBy(rows, sorts, fields, rowMap)
+      .map((row) => row.id)
+      .join(',');
+    expect(sortedRows).toBe('1,2,3,4,5,6,7,8,9,10');
+  });
+
+  it('should sort by LastEditedTime field', () => {
+    const { sorts, fields, rowMap } = withTestingData();
+    const sort = withLastModifiedSort();
+    sorts.push([sort]);
+    const sortedRows = sortBy(rows, sorts, fields, rowMap)
+      .map((row) => row.id)
+      .join(',');
+    expect(sortedRows).toBe('1,2,3,4,5,6,7,8,9,10');
   });
 });
