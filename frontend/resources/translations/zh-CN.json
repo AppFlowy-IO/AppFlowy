@@ -47,13 +47,24 @@
     "unmatchedPasswordError": "两次密码输入不一致",
     "syncPromptMessage": "同步数据可能需要一段时间，请不要关闭此页面",
     "or": "或",
+    "signInWithGoogle": "使用 Google 账户登录",
+    "signInWithGithub": "使用 Github 账户登录",
+    "signInWithDiscord": "使用 Discord 账户登录",
+    "signUpWithGoogle": "使用 Google 账户注册",
+    "signUpWithGithub": "使用 Github 账户注册",
+    "signUpWithDiscord": "使用 Discord 账户注册",
     "signInWith": "用其他方式登入：",
     "signInWithEmail": "使用邮箱登录",
+    "signInWithMagicLink": "使用魔法链接登录",
+    "signUpWithMagicLink": "使用魔法链接注册",
     "pleaseInputYourEmail": "请输入邮箱地址",
     "settings": "设置",
     "magicLinkSent": "魔法链接已经发送到您的邮箱，请检查！",
     "invalidEmail": "请输入一个有效的邮箱地址",
     "alreadyHaveAnAccount": "已经有账户了？",
+    "logIn": "登陆",
+    "generalError": "出现错误，请稍后再试",
+    "limitRateError": "出于安全原因，每60秒仅可以发送一次链接",
     "LogInWithGoogle": "使用 Google 登录",
     "LogInWithGithub": "使用 Github 登录",
     "LogInWithDiscord": "使用 Discord 登录",
@@ -148,7 +159,11 @@
     "serverUnavailable": "服务暂时不可用，请稍后再试",
     "clickToRetry": "点击重试",
     "regenerateAnswer": "重新生成",
-    "question1": "如何使用 Kanban 来管理任务"
+    "question1": "如何使用 Kanban 来管理任务",
+    "question2": "介绍一下 GTD 工作法",
+    "question3": "为什么使用 Rust",
+    "question4": "使用现有食材制定一份菜谱",
+    "aiMistakePrompt": "AI 可能出错，请验证重要信息"
   },
   "trash": {
     "text": "回收站",
@@ -243,7 +258,15 @@
     "clickToHideFavorites": "单击隐藏收藏夹栏目",
     "addAPage": "添加页面",
     "addAPageToPrivate": "添加页面到私人空间",
-    "recent": "最近的"
+    "addAPageToWorkspace": "添加页面到工作空间",
+    "recent": "最近的",
+    "today": "今日",
+    "thisWeek": "本周",
+    "others": "其他",
+    "justNow": "现在",
+    "minutesAgo": "{count} 分钟以前",
+    "lastViewed": "最近一次查看",
+    "removeSuccess": "成功移除"
   },
   "notifications": {
     "export": {
@@ -259,6 +282,7 @@
   },
   "button": {
     "ok": "OK",
+    "confirm": "确认",
     "done": "完成",
     "cancel": "取消",
     "signIn": "登录",
@@ -298,6 +322,7 @@
     "signInGoogle": "使用 Google 账户登录",
     "signInGithub": "使用 Github 账户登录",
     "signInDiscord": "使用 Discord 账户登录",
+    "more": "更多",
     "Done": "完成",
     "Cancel": "取消",
     "OK": "确认"
@@ -324,6 +349,21 @@
   },
   "settings": {
     "title": "设置",
+    "accountPage": {
+      "menuLabel": "我的账户",
+      "title": "我的账户",
+      "description": "自定义您的简介，管理账户安全信息和 AI API keys，或登陆您的账户",
+      "email": {
+        "title": "邮箱",
+        "actions": {
+          "change": "更改邮箱"
+        }
+      },
+      "keys": {
+        "title": "AI API 密钥",
+        "openAILabel": "OpenAI API 密钥"
+      }
+    },
     "menu": {
       "appearance": "外观",
       "language": "语言",
