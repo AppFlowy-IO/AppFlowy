@@ -42,6 +42,7 @@
     "emailHint": "邮箱",
     "passwordHint": "密码",
     "dontHaveAnAccount": "没有账户?",
+    "createAccount": "新建账户",
     "repeatPasswordEmptyError": "确认密码不能为空",
     "unmatchedPasswordError": "两次密码输入不一致",
     "syncPromptMessage": "同步数据可能需要一段时间，请不要关闭此页面",
@@ -49,8 +50,10 @@
     "signInWith": "用其他方式登入：",
     "signInWithEmail": "使用邮箱登录",
     "pleaseInputYourEmail": "请输入邮箱地址",
+    "settings": "设置",
     "magicLinkSent": "魔法链接已经发送到您的邮箱，请检查！",
     "invalidEmail": "请输入一个有效的邮箱地址",
+    "alreadyHaveAnAccount": "已经有账户了？",
     "LogInWithGoogle": "使用 Google 登录",
     "LogInWithGithub": "使用 Github 登录",
     "LogInWithDiscord": "使用 Discord 登录",
@@ -61,6 +64,7 @@
     "chooseWorkspace": "选择您的工作区",
     "create": "新建工作区",
     "reset": "重置工作区",
+    "renameWorkspace": "重命名工作区",
     "resetWorkspacePrompt": "重置工作区将删除其中的所有页面和数据。您确定要重置工作区吗？您也可以联系技术支持团队来恢复工作区",
     "hint": "工作区",
     "notFoundError": "找不到工作区",
@@ -127,7 +131,9 @@
     "openNewTab": "在新选项卡中打开",
     "moveTo": "移动",
     "addToFavorites": "添加到收藏夹",
-    "copyLink": "复制链接"
+    "copyLink": "复制链接",
+    "changeIcon": "更改图表",
+    "collapseAllPages": "收起全部子页面"
   },
   "blankPageTitle": "空白页",
   "newPageText": "新页面",
@@ -135,6 +141,15 @@
   "newGridText": "新建网格",
   "newCalendarText": "新日历",
   "newBoardText": "新建看板",
+  "chat": {
+    "newChat": "AI 对话",
+    "unsupportedCloudPrompt": "该功能仅在使用 AppFlowy Cloud 时可用",
+    "relatedQuestion": "相关问题",
+    "serverUnavailable": "服务暂时不可用，请稍后再试",
+    "clickToRetry": "点击重试",
+    "regenerateAnswer": "重新生成",
+    "question1": "如何使用 Kanban 来管理任务"
+  },
   "trash": {
     "text": "回收站",
     "restoreAll": "全部恢复",
