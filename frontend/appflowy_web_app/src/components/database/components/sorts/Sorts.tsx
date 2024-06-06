@@ -19,6 +19,7 @@ export function Sorts() {
         onClick={(e) => {
           setAnchorEl(e.currentTarget);
         }}
+        data-testid={'database-sort-condition'}
         className='flex cursor-pointer items-center gap-1 rounded-full border border-line-divider px-2 py-1 text-xs hover:border-fill-default hover:text-fill-default hover:shadow-sm'
       >
         <SortSvg />

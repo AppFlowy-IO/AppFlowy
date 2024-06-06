@@ -100,6 +100,7 @@ export async function batchCollabs(
 
   const res = await batchFetchCollab(workspaceId, params);
 
+  console.log('Fetched collab data:', res);
   for (const id of Object.keys(res)) {
     const type = params.find((param) => param.object_id === id)?.collab_type;
     const data = res[id];

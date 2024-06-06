@@ -17,11 +17,13 @@ export function DatabaseActions() {
         onClick={() => {
           conditionsContext?.toggleExpanded();
         }}
+        data-testid={'database-actions-filter'}
         color={filter.length > 0 ? 'primary' : 'inherit'}
       >
         {t('grid.settings.filter')}
       </TextButton>
       <TextButton
+        data-testid={'database-actions-sort'}
         onClick={() => {
           conditionsContext?.toggleExpanded();
         }}
