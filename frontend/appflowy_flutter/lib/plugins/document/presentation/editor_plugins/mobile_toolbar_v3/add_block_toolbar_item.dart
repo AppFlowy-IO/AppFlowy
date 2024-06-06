@@ -197,15 +197,6 @@ class _AddBlockMenu extends StatelessWidget {
         },
       ),
 
-      // video
-      TypeOptionMenuItemValue(
-        value: VideoBlockKeys.type,
-        backgroundColor: colorMap[VideoBlockKeys.type]!,
-        text: LocaleKeys.document_plugins_video_label.tr(),
-        icon: FlowySvgs.m_add_block_video_s,
-        onTap: (_, __) => _insertBlock(videoBlockNode()),
-      ),
-
       // date
       TypeOptionMenuItemValue(
         value: ParagraphBlockKeys.type,
@@ -296,7 +287,6 @@ class _AddBlockMenu extends StatelessWidget {
         NumberedListBlockKeys.type: const Color(0xFFA35F94),
         ToggleListBlockKeys.type: const Color(0xFFA35F94),
         ImageBlockKeys.type: const Color(0xFFBAAC74),
-        VideoBlockKeys.type: const Color(0xFFBAAC74),
         MentionBlockKeys.type: const Color(0xFF40AAB8),
         DividerBlockKeys.type: const Color(0xFF4BB299),
         CalloutBlockKeys.type: const Color(0xFF66599B),
@@ -313,7 +303,6 @@ class _AddBlockMenu extends StatelessWidget {
       NumberedListBlockKeys.type: const Color(0xFFFFB9EF),
       ToggleListBlockKeys.type: const Color(0xFFFFB9EF),
       ImageBlockKeys.type: const Color(0xFFFDEDA7),
-      VideoBlockKeys.type: const Color(0xFFFDEDA7),
       MentionBlockKeys.type: const Color(0xFF91EAF5),
       DividerBlockKeys.type: const Color(0xFF98F4CD),
       CalloutBlockKeys.type: const Color(0xFFCABDFF),
