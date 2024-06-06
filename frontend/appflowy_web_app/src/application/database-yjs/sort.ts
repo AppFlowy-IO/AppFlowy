@@ -15,6 +15,8 @@ import * as Y from 'yjs';
 
 export function sortBy(rows: Row[], sorts: YDatabaseSorts, fields: YDatabaseFields, rowMetas: Y.Map<YDoc>) {
   const sortArray = sorts.toArray();
+
+  if (sortArray.length === 0 || rowMetas.size === 0 || fields.size === 0) return rows;
   const iteratees = sortArray.map((sort) => {
     return (row: { id: string }) => {
       const fieldId = sort.get(YjsDatabaseKey.field_id);
@@ -26,8 +28,7 @@ export function sortBy(rows: Row[], sorts: YDatabaseSorts, fields: YDatabaseFiel
 
       const defaultData = parseCellDataForSort(field, '');
 
-      if (!rowMeta) return defaultData;
-      const meta = rowMeta.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database_row) as YDatabaseRow;
+      const meta = rowMeta?.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database_row) as YDatabaseRow;
 
       if (!meta) return defaultData;
       if (fieldType === FieldType.LastEditedTime) {
@@ -69,9 +70,9 @@ export function parseCellDataForSort(field: YDatabaseField, data: string | boole
       return data === 'Yes';
     case FieldType.SingleSelect:
     case FieldType.MultiSelect:
-      return parseSelectOptionCellData(field, typeof data === 'string' ? data : '');
+      return parseSelectOptionCellData(field, data as string);
     case FieldType.Checklist:
-      return parseChecklistData(typeof data === 'string' ? data : '')?.percentage ?? 0;
+      return parseChecklistData(data as string)?.percentage ?? 0;
     case FieldType.DateTime:
       return Number(data);
     case FieldType.Relation:

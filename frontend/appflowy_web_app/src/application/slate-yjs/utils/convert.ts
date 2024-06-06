@@ -11,21 +11,19 @@ import {
   BlockType,
 } from '@/application/collab.type';
 import { BlockJson } from '@/application/slate-yjs/utils/types';
-import { getFontFamily } from '@/utils/font';
-import { uniq } from 'lodash-es';
 import { Element, Text } from 'slate';
 
-export function yDocToSlateContent(doc: YDoc): Element | undefined {
-  const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
-
-  const document = sharedRoot.get(YjsEditorKey.document);
-  const pageId = document.get(YjsEditorKey.page_id) as string;
-  const blocks = document.get(YjsEditorKey.blocks) as YBlocks;
-  const meta = document.get(YjsEditorKey.meta) as YMeta;
-  const childrenMap = meta.get(YjsEditorKey.children_map) as YChildrenMap;
-  const textMap = meta.get(YjsEditorKey.text_map) as YTextMap;
-  const fontFamilys: string[] = [];
-
+export function yDataToSlateContent({
+  blocks,
+  rootId,
+  childrenMap,
+  textMap,
+}: {
+  blocks: YBlocks;
+  childrenMap: YChildrenMap;
+  textMap: YTextMap;
+  rootId: string;
+}): Element | undefined {
   function traverse(id: string) {
     const block = blocks.get(id).toJSON() as BlockJson;
     const childrenId = block.children as string;
@@ -44,7 +42,9 @@ export function yDocToSlateContent(doc: YDoc): Element | undefined {
 
     let delta;
 
-    if (!textId) {
+    const yText = textId ? textMap.get(textId) : undefined;
+
+    if (!yText) {
       if (children.length === 0) {
         children.push({
           text: '',
@@ -64,18 +64,12 @@ export function yDocToSlateContent(doc: YDoc): Element | undefined {
         }
       }
     } else {
-      delta = textMap.get(textId)?.toDelta();
+      delta = yText.toDelta();
     }
 
     try {
       const slateDelta = delta.flatMap(deltaInsertToSlateNode);
 
-      // collect font family
-      slateDelta.forEach((node: Text) => {
-        if (node.font_family) {
-          fontFamilys.push(getFontFamily(node.font_family));
-        }
-      });
       const textNode: Element = {
         textId,
         type: YjsEditorKey.text,
@@ -85,28 +79,37 @@ export function yDocToSlateContent(doc: YDoc): Element | undefined {
       children.unshift(textNode);
       return slateNode;
     } catch (e) {
-      console.error(e);
       return;
     }
   }
 
-  const root = blocks.get(pageId);
+  const root = blocks.get(rootId);
 
   if (!root) return;
 
-  const result = traverse(pageId);
+  const result = traverse(rootId);
 
   if (!result) return;
 
-  if (fontFamilys.length > 0) {
-    window.WebFont?.load({
-      google: {
-        families: uniq(fontFamilys),
-      },
-    });
-  }
-
   return result;
+}
+
+export function yDocToSlateContent(doc: YDoc): Element | undefined {
+  const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
+
+  const document = sharedRoot.get(YjsEditorKey.document);
+  const pageId = document.get(YjsEditorKey.page_id) as string;
+  const blocks = document.get(YjsEditorKey.blocks) as YBlocks;
+  const meta = document.get(YjsEditorKey.meta) as YMeta;
+  const childrenMap = meta.get(YjsEditorKey.children_map) as YChildrenMap;
+  const textMap = meta.get(YjsEditorKey.text_map) as YTextMap;
+
+  return yDataToSlateContent({
+    blocks,
+    rootId: pageId,
+    childrenMap,
+    textMap,
+  });
 }
 
 export function blockToSlateNode(block: BlockJson): Element {
@@ -116,7 +119,7 @@ export function blockToSlateNode(block: BlockJson): Element {
   try {
     blockData = data ? JSON.parse(data) : {};
   } catch (e) {
-    blockData = {};
+    // do nothing
   }
 
   return {
@@ -128,13 +131,12 @@ export function blockToSlateNode(block: BlockJson): Element {
   };
 }
 
-export function deltaInsertToSlateNode({
-  attributes,
-  insert,
-}: {
+export interface YDelta {
   insert: string;
-  attributes: Record<string, string | number | undefined | boolean>;
-}): Element | Text | Element[] {
+  attributes?: Record<string, string | number | undefined | boolean>;
+}
+
+export function deltaInsertToSlateNode({ attributes, insert }: YDelta): Element | Text | Element[] {
   const matchInlines = transformToInlineElement({
     insert,
     attributes,
@@ -145,17 +147,7 @@ export function deltaInsertToSlateNode({
   }
 
   if (attributes) {
-    if ('font_color' in attributes && attributes['font_color'] === '') {
-      delete attributes['font_color'];
-    }
-
-    if ('bg_color' in attributes && attributes['bg_color'] === '') {
-      delete attributes['bg_color'];
-    }
-
-    if ('code' in attributes && !attributes['code']) {
-      delete attributes['code'];
-    }
+    dealWithEmptyAttribute(attributes);
   }
 
   return {
@@ -164,10 +156,15 @@ export function deltaInsertToSlateNode({
   };
 }
 
-export function transformToInlineElement(op: {
-  insert: string;
-  attributes: Record<string, string | number | undefined | boolean>;
-}): Element[] {
+function dealWithEmptyAttribute(attributes: Record<string, string | number | undefined | boolean>) {
+  for (const key in attributes) {
+    if (!attributes[key]) {
+      delete attributes[key];
+    }
+  }
+}
+
+export function transformToInlineElement(op: YDelta): Element[] {
   const attributes = op.attributes;
 
   if (!attributes) return [];

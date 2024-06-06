@@ -10,7 +10,7 @@ import { CheckboxCell } from '@/components/database/components/cell/checkbox';
 import { SelectOptionCell } from '@/components/database/components/cell/select-option';
 import { DateTimeCell } from '@/components/database/components/cell/date';
 import { ChecklistCell } from '@/components/database/components/cell/checklist';
-import { CellProps, Cell as CellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, Cell as CellType } from '@/application/database-yjs/cell.type';
 import { RelationCell } from '@/components/database/components/cell/relation';
 
 export function Cell(props: CellProps<CellType>) {

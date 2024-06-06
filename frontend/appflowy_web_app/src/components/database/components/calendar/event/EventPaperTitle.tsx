@@ -1,5 +1,5 @@
 import { useCellSelector } from '@/application/database-yjs';
-import { TextCell } from '@/components/database/components/cell/cell.type';
+import { TextCell } from '@/application/database-yjs/cell.type';
 import { TextProperty } from '@/components/database/components/property/text';
 import React from 'react';
 
