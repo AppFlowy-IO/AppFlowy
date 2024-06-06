@@ -47,10 +47,8 @@ dependencies:
       ref: 8a6434ae3d02624b614a010af80f775db11bf22e
   appflowy_result:
     path: packages/appflowy_result
-  appflowy_editor_plugins: ^0.0.6
-
+  appflowy_editor_plugins:
   appflowy_editor:
-
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -184,6 +182,12 @@ dependency_overrides:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
       ref: "0c79b870586f4bc5c23b61b327c51fe6a8856b47"
+
+  appflowy_editor_plugins:
+    git:
+      url: https://github.com/AppFlowy-IO/AppFlowy-plugins.git
+      path: "packages/appflowy_editor_plugins"
+      ref: "87af520732deae1138c12a4c33a62ae56b2aa81f"
 
   sheet:
     git:

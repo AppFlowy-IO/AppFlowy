@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 
@@ -37,8 +36,6 @@ extension AppFlowyTestBase on WidgetTester {
     AuthenticatorType? cloudType,
     String? email,
   }) async {
-    VideoBlockKit.ensureInitialized();
-
     if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
       // Set the window size
       await binding.setSurfaceSize(windowSize);
