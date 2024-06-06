@@ -78,7 +78,6 @@ class MobileViewCard extends StatelessWidget {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTapUp: (_) => context.pushView(view),
-              onLongPressUp: () => _showActionSheet(context),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
