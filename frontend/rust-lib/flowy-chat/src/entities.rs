@@ -19,6 +19,23 @@ pub struct SendChatPayloadPB {
   pub message_type: ChatMessageTypePB,
 }
 
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct StreamChatPayloadPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub chat_id: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "required_not_empty_str")]
+  pub message: String,
+
+  #[pb(index = 3)]
+  pub message_type: ChatMessageTypePB,
+
+  #[pb(index = 4)]
+  pub text_stream_port: i64,
+}
+
 #[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
 pub enum ChatMessageTypePB {
   #[default]
@@ -97,10 +114,7 @@ pub struct ChatMessagePB {
   #[pb(index = 5)]
   pub author_id: String,
 
-  #[pb(index = 6)]
-  pub has_following: bool,
-
-  #[pb(index = 7, one_of)]
+  #[pb(index = 6, one_of)]
   pub reply_message_id: Option<i64>,
 }
 
@@ -110,9 +124,6 @@ pub struct ChatMessageErrorPB {
   pub chat_id: String,
 
   #[pb(index = 2)]
-  pub content: String,
-
-  #[pb(index = 3)]
   pub error_message: String,
 }
 
@@ -124,7 +135,6 @@ impl From<ChatMessage> for ChatMessagePB {
       created_at: chat_message.created_at.timestamp(),
       author_type: chat_message.author.author_type as i64,
       author_id: chat_message.author.author_id.to_string(),
-      has_following: false,
       reply_message_id: None,
     }
   }

@@ -1,47 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_related_question_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RelatedQuestionPage extends StatefulWidget {
-  const RelatedQuestionPage({
-    required this.chatId,
-    required this.onQuestionSelected,
-    super.key,
-  });
-
-  final String chatId;
-  final Function(String) onQuestionSelected;
-
-  @override
-  State<RelatedQuestionPage> createState() => _RelatedQuestionPageState();
-}
-
-class _RelatedQuestionPageState extends State<RelatedQuestionPage> {
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ChatRelatedMessageBloc(chatId: widget.chatId)
-        ..add(
-          const ChatRelatedMessageEvent.initial(),
-        ),
-      child: BlocBuilder<ChatRelatedMessageBloc, ChatRelatedMessageState>(
-        builder: (blocContext, state) {
-          return RelatedQuestionList(
-            chatId: widget.chatId,
-            onQuestionSelected: widget.onQuestionSelected,
-            relatedQuestions: state.relatedQuestions,
-          );
-        },
-      ),
-    );
-  }
-}
 
 class RelatedQuestionList extends StatelessWidget {
   const RelatedQuestionList({

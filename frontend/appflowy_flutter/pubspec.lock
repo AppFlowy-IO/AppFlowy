@@ -641,7 +641,7 @@ packages:
     source: git
     version: "1.0.2"
   flutter_link_previewer:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_link_previewer
       sha256: "007069e60f42419fb59872beb7a3cc3ea21e9f1bdff5d40239f376fa62ca9f20"
@@ -678,7 +678,7 @@ packages:
     source: hosted
     version: "0.7.2"
   flutter_parsed_text:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_parsed_text
       sha256: "529cf5793b7acdf16ee0f97b158d0d4ba0bf06e7121ef180abe1a5b59e32c1e2"
@@ -1026,7 +1026,7 @@ packages:
     source: hosted
     version: "0.6.0"
   isolates:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: isolates
       sha256: ce89e4141b27b877326d3715be2dceac7a7ba89f3229785816d2d318a75ddf28

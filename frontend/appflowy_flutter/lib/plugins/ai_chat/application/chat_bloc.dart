@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ffi';
+
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
@@ -11,7 +14,8 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nanoid/nanoid.dart';
 import 'chat_message_listener.dart';
-
+import 'package:isolates/isolates.dart';
+import 'package:isolates/ports.dart';
 part 'chat_bloc.freezed.dart';
 
 const canRetryKey = "canRetry";
@@ -27,77 +31,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           ChatState.initial(view, userProfile),
         ) {
     _dispatch();
-
-    listener.start(
-      chatMessageCallback: _handleChatMessage,
-      lastUserSentMessageCallback: (message) {
-        if (!isClosed) {
-          add(ChatEvent.didSentUserMessage(message));
-        }
-      },
-      chatErrorMessageCallback: (err) {
-        if (!isClosed) {
-          Log.error("chat error: ${err.errorMessage}");
-          final metadata = OnetimeShotType.serverStreamError.toMap();
-          if (state.lastSentMessage != null) {
-            metadata[canRetryKey] = "true";
-          }
-          final error = CustomMessage(
-            metadata: metadata,
-            author: const User(id: "system"),
-            id: 'system',
-          );
-          add(ChatEvent.streaming([error]));
-          add(const ChatEvent.didFinishStreaming());
-        }
-      },
-      latestMessageCallback: (list) {
-        if (!isClosed) {
-          final messages = list.messages.map(_createChatMessage).toList();
-          add(ChatEvent.didLoadLatestMessages(messages));
-        }
-      },
-      prevMessageCallback: (list) {
-        if (!isClosed) {
-          final messages = list.messages.map(_createChatMessage).toList();
-          add(ChatEvent.didLoadPreviousMessages(messages, list.hasMore));
-        }
-      },
-      finishAnswerQuestionCallback: () {
-        if (!isClosed) {
-          add(const ChatEvent.didFinishStreaming());
-          if (state.lastSentMessage != null) {
-            final payload = ChatMessageIdPB(
-              chatId: chatId,
-              messageId: state.lastSentMessage!.messageId,
-            );
-            //  When user message was sent to the server, we start gettting related question
-            ChatEventGetRelatedQuestion(payload).send().then((result) {
-              if (!isClosed) {
-                result.fold(
-                  (list) {
-                    add(
-                      ChatEvent.didReceiveRelatedQuestion(list.items),
-                    );
-                  },
-                  (err) {
-                    Log.error("Failed to get related question: $err");
-                  },
-                );
-              }
-            });
-          }
-        }
-      },
-    );
+    _startListening();
   }
 
   final ChatMessageListener listener;
   final String chatId;
 
   @override
-  Future<void> close() {
-    listener.stop();
+  Future<void> close() async {
+    if (state.streamController != null) {
+      await state.streamController?.close();
+    }
+    await listener.stop();
     return super.close();
   }
 
@@ -146,10 +91,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
-          streaming: (List<Message> messages) {
+          streaming: (Message message) {
             final allMessages = _perminentMessages();
-            allMessages.insertAll(0, messages);
-            emit(state.copyWith(messages: allMessages));
+            allMessages.insert(0, message);
+            emit(
+              state.copyWith(
+                messages: allMessages,
+              ),
+            );
           },
           didFinishStreaming: () {
             emit(
@@ -159,7 +108,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             );
           },
           sendMessage: (String message) async {
-            await _handleSentMessage(message, emit);
+            await _streamMessage(message, emit);
 
             // Create a loading indicator
             final loadingMessage =
@@ -224,7 +173,75 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
+          didReceiveNewAnswerStream:
+              (StreamController<String> streamController) {
+            emit(
+              state.copyWith(streamController: streamController),
+            );
+          },
         );
+      },
+    );
+  }
+
+  void _startListening() {
+    listener.start(
+      chatMessageCallback: (message) {
+        _handleChatMessage(message);
+      },
+      chatErrorMessageCallback: (err) {
+        if (!isClosed) {
+          Log.error("chat error: ${err.errorMessage}");
+          final metadata = OnetimeShotType.serverStreamError.toMap();
+          if (state.lastSentMessage != null) {
+            metadata[canRetryKey] = "true";
+          }
+          final error = CustomMessage(
+            metadata: metadata,
+            author: const User(id: "system"),
+            id: 'system',
+          );
+          add(ChatEvent.streaming(error));
+          add(const ChatEvent.didFinishStreaming());
+        }
+      },
+      latestMessageCallback: (list) {
+        if (!isClosed) {
+          final messages = list.messages.map(_createChatMessage).toList();
+          add(ChatEvent.didLoadLatestMessages(messages));
+        }
+      },
+      prevMessageCallback: (list) {
+        if (!isClosed) {
+          final messages = list.messages.map(_createChatMessage).toList();
+          add(ChatEvent.didLoadPreviousMessages(messages, list.hasMore));
+        }
+      },
+      finishAnswerQuestionCallback: () {
+        if (!isClosed) {
+          add(const ChatEvent.didFinishStreaming());
+          if (state.lastSentMessage != null) {
+            final payload = ChatMessageIdPB(
+              chatId: chatId,
+              messageId: state.lastSentMessage!.messageId,
+            );
+            //  When user message was sent to the server, we start gettting related question
+            ChatEventGetRelatedQuestion(payload).send().then((result) {
+              if (!isClosed) {
+                result.fold(
+                  (list) {
+                    add(
+                      ChatEvent.didReceiveRelatedQuestion(list.items),
+                    );
+                  },
+                  (err) {
+                    Log.error("Failed to get related question: $err");
+                  },
+                );
+              }
+            });
+          }
+        }
       },
     );
   }
@@ -247,18 +264,42 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatEventLoadPrevMessage(payload).send();
   }
 
-  Future<void> _handleSentMessage(
+  Future<void> _streamMessage(
     String message,
     Emitter<ChatState> emit,
   ) async {
-    final payload = SendChatPayloadPB(
+    final newCompleter = Completer<String>();
+    final sendPort = singleCompletePort(newCompleter);
+
+    if (state.streamController != null) {
+      await state.streamController?.close();
+    }
+
+    final controller = StreamController<String>.broadcast();
+    unawaited(controller.addStream(newCompleter.future.asStream()));
+    add(ChatEvent.didReceiveNewAnswerStream(controller));
+
+    // Loading indicator for user after sending message
+    // final loading = _loadingMessage(0.toString());
+    // add(ChatEvent.streaming(loading));
+
+    final payload = StreamChatPayloadPB(
       chatId: state.view.id,
       message: message,
       messageType: ChatMessageTypePB.User,
+      textStreamPort: Int64(sendPort.nativePort),
     );
-    final result = await ChatEventSendMessage(payload).send();
+
+    // Stream message to the server
+    final result = await ChatEventStreamMessage(payload).send();
     result.fold(
-      (_) {},
+      (ChatMessagePB question) {
+        add(ChatEvent.didSentUserMessage(question));
+        _handleChatMessage(question);
+
+        final streamAnswer = _streamAnswerMessage(controller);
+        add(ChatEvent.streaming(streamAnswer));
+      },
       (err) {
         if (!isClosed) {
           Log.error("Failed to send message: ${err.msg}");
@@ -270,7 +311,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             id: 'system',
           );
 
-          add(ChatEvent.streaming([error]));
+          add(ChatEvent.streaming(error));
         }
       },
     );
@@ -279,10 +320,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   void _handleChatMessage(ChatMessagePB pb) {
     if (!isClosed) {
       final message = _createChatMessage(pb);
-      final messages = pb.hasFollowing
-          ? [_loadingMessage(0.toString()), message]
-          : [message];
-      add(ChatEvent.streaming(messages));
+      add(ChatEvent.streaming(message));
     }
   }
 
@@ -291,6 +329,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       author: User(id: id),
       metadata: OnetimeShotType.loading.toMap(),
       // fake id
+      id: nanoid(),
+    );
+  }
+
+  Message _streamAnswerMessage(StreamController<String> streamController) {
+    final metadata = OnetimeShotType.streamAnswer.toMap();
+    metadata["streamController"] = streamController;
+    return CustomMessage(
+      author: User(id: nanoid()),
+      metadata: metadata,
       id: nanoid(),
     );
   }
@@ -322,7 +370,7 @@ class ChatEvent with _$ChatEvent {
   ) = _DidLoadPreviousMessages;
   const factory ChatEvent.didLoadLatestMessages(List<Message> messages) =
       _DidLoadMessages;
-  const factory ChatEvent.streaming(List<Message> messages) = _DidStreamMessage;
+  const factory ChatEvent.streaming(Message messages) = _DidStreamMessage;
   const factory ChatEvent.didFinishStreaming() = _FinishStreamingMessage;
   const factory ChatEvent.didReceiveRelatedQuestion(
     List<RelatedQuestionPB> questions,
@@ -331,6 +379,9 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.retryGenerate() = _RetryGenerate;
   const factory ChatEvent.didSentUserMessage(ChatMessagePB message) =
       _DidSendUserMessage;
+  const factory ChatEvent.didReceiveNewAnswerStream(
+    StreamController<String> streamController,
+  ) = _DidReceiveAnswerCompleter;
 }
 
 @freezed
@@ -354,6 +405,7 @@ class ChatState with _$ChatState {
     required List<RelatedQuestionPB> relatedQuestions,
     // The last user message that is sent to the server.
     ChatMessagePB? lastSentMessage,
+    StreamController<String>? streamController,
   }) = _ChatState;
 
   factory ChatState.initial(ViewPB view, UserProfilePB userProfile) =>
@@ -380,7 +432,8 @@ enum OnetimeShotType {
   loading,
   serverStreamError,
   relatedQuestion,
-  invalidSendMesssage
+  invalidSendMesssage,
+  streamAnswer,
 }
 
 const onetimeShotType = "OnetimeShotType";
@@ -396,13 +449,15 @@ extension OnetimeMessageTypeExtension on OnetimeShotType {
         return OnetimeShotType.relatedQuestion;
       case 'OnetimeShotType.invalidSendMesssage':
         return OnetimeShotType.invalidSendMesssage;
+      case 'OnetimeShotType.streamAnswer':
+        return OnetimeShotType.streamAnswer;
       default:
         Log.error('Unknown OnetimeShotType: $value');
         return OnetimeShotType.unknown;
     }
   }
 
-  Map<String, String> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       onetimeShotType: toString(),
     };

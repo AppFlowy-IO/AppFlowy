@@ -8,7 +8,7 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-chrono = { workspace = true,  default-features = false, features = ["clock"] }
+chrono = { workspace = true, default-features = false, features = ["clock"] }
 bytes = { version = "1.5" }
 pin-project = "1.1.3"
 futures-core = { version = "0.3" }
@@ -21,6 +21,8 @@ tempfile = "3.8.1"
 validator = "0.16.0"
 tracing.workspace = true
 atomic_refcell = "0.1"
+allo-isolate = { version = "^0.1", features = ["catch-unwind"], optional = true }
+futures = "0.3.30"
 
 [dev-dependencies]
 rand = "0.8.5"
@@ -28,7 +30,8 @@ futures = "0.3.30"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 zip = { version = "0.6.6", features = ["deflate"] }
-brotli = {  version = "3.4.0", optional = true }
+brotli = { version = "3.4.0", optional = true }
 
 [features]
 compression = ["brotli"]
+isolate_flutter = ["allo-isolate"]

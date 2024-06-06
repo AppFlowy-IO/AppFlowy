@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_ai_message.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/ai_message_bubble.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_streaming_error_message.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_user_message.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/user_message_bubble.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -24,6 +26,7 @@ import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
 import 'presentation/chat_welcome_page.dart';
+import 'presentation/message/text_message.dart';
 
 class AIChatUILayout {
   static EdgeInsets get chatPadding =>
@@ -138,6 +141,13 @@ class _AIChatPageState extends State<AIChatPage> {
                   },
                 ),
                 messageWidthRatio: AIChatUILayout.messageWidthRatio,
+                textMessageBuilder: (
+                  textMessage, {
+                  required messageWidth,
+                  required showName,
+                }) {
+                  return _buildAITextMessage(textMessage);
+                },
                 bubbleBuilder: (
                   child, {
                   required message,
@@ -149,46 +159,7 @@ class _AIChatPageState extends State<AIChatPage> {
                       child: child,
                     );
                   } else {
-                    final messageType = onetimeMessageTypeFromMeta(
-                      message.metadata,
-                    );
-                    if (messageType == OnetimeShotType.serverStreamError) {
-                      return ChatStreamingError(
-                        message: message,
-                        onRetryPressed: () {
-                          blocContext
-                              .read<ChatBloc>()
-                              .add(const ChatEvent.retryGenerate());
-                        },
-                      );
-                    }
-
-                    if (messageType == OnetimeShotType.invalidSendMesssage) {
-                      return ChatInvalidUserMessage(
-                        message: message,
-                      );
-                    }
-
-                    if (messageType == OnetimeShotType.relatedQuestion) {
-                      return RelatedQuestionList(
-                        onQuestionSelected: (question) {
-                          blocContext
-                              .read<ChatBloc>()
-                              .add(ChatEvent.sendMessage(question));
-                          blocContext
-                              .read<ChatBloc>()
-                              .add(const ChatEvent.clearReleatedQuestion());
-                        },
-                        chatId: widget.view.id,
-                        relatedQuestions: state.relatedQuestions,
-                      );
-                    }
-
-                    return ChatAIMessageBubble(
-                      message: message,
-                      customMessageType: messageType,
-                      child: child,
-                    );
+                    return _buildAIBubble(message, blocContext, state, child);
                   }
                 },
               );
@@ -196,6 +167,58 @@ class _AIChatPageState extends State<AIChatPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAITextMessage(TextMessage message) {
+    return ChatTextMessageWidget(
+      user: message.author,
+      messageUserId: message.id,
+      text: message.text,
+    );
+  }
+
+  Widget _buildAIBubble(
+    Message message,
+    BuildContext blocContext,
+    ChatState state,
+    Widget child,
+  ) {
+    final messageType = onetimeMessageTypeFromMeta(
+      message.metadata,
+    );
+    if (messageType == OnetimeShotType.serverStreamError) {
+      return ChatStreamingError(
+        message: message,
+        onRetryPressed: () {
+          blocContext.read<ChatBloc>().add(const ChatEvent.retryGenerate());
+        },
+      );
+    }
+
+    if (messageType == OnetimeShotType.invalidSendMesssage) {
+      return ChatInvalidUserMessage(
+        message: message,
+      );
+    }
+
+    if (messageType == OnetimeShotType.relatedQuestion) {
+      return RelatedQuestionList(
+        onQuestionSelected: (question) {
+          blocContext.read<ChatBloc>().add(ChatEvent.sendMessage(question));
+          blocContext
+              .read<ChatBloc>()
+              .add(const ChatEvent.clearReleatedQuestion());
+        },
+        chatId: widget.view.id,
+        relatedQuestions: state.relatedQuestions,
+      );
+    }
+
+    return ChatAIMessageBubble(
+      message: message,
+      customMessageType: messageType,
+      child: child,
     );
   }
 
@@ -274,6 +297,18 @@ class _AIChatPageState extends State<AIChatPage> {
     switch (messageType) {
       case OnetimeShotType.loading:
         return const ChatAILoading();
+      case OnetimeShotType.streamAnswer:
+        final streamController = message.metadata?['streamController'];
+        if (streamController is StreamController<String>) {
+          return ChatTextMessageWidget(
+            user: message.author,
+            messageUserId: message.id,
+            text: streamController,
+            key: ValueKey(message.id),
+          );
+        } else {
+          return const SizedBox.shrink();
+        }
       default:
         return const SizedBox.shrink();
     }

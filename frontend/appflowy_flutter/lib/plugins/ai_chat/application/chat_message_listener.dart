@@ -28,7 +28,6 @@ class ChatMessageListener {
   ChatNotificationParser? _parser;
 
   ChatMessageCallback? chatMessageCallback;
-  ChatMessageCallback? lastUserSentMessageCallback;
   ChatErrorMessageCallback? chatErrorMessageCallback;
   LatestMessageCallback? latestMessageCallback;
   PrevMessageCallback? prevMessageCallback;
@@ -39,14 +38,12 @@ class ChatMessageListener {
     ChatErrorMessageCallback? chatErrorMessageCallback,
     LatestMessageCallback? latestMessageCallback,
     PrevMessageCallback? prevMessageCallback,
-    ChatMessageCallback? lastUserSentMessageCallback,
     void Function()? finishAnswerQuestionCallback,
   }) {
     this.chatMessageCallback = chatMessageCallback;
     this.chatErrorMessageCallback = chatErrorMessageCallback;
     this.latestMessageCallback = latestMessageCallback;
     this.prevMessageCallback = prevMessageCallback;
-    this.lastUserSentMessageCallback = lastUserSentMessageCallback;
     this.finishAnswerQuestionCallback = finishAnswerQuestionCallback;
   }
 
@@ -58,9 +55,6 @@ class ChatMessageListener {
       switch (ty) {
         case ChatNotification.DidReceiveChatMessage:
           chatMessageCallback?.call(ChatMessagePB.fromBuffer(r));
-          break;
-        case ChatNotification.LastUserSentMessage:
-          lastUserSentMessageCallback?.call(ChatMessagePB.fromBuffer(r));
           break;
         case ChatNotification.StreamChatMessageError:
           chatErrorMessageCallback?.call(ChatMessageErrorPB.fromBuffer(r));

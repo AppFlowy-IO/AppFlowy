@@ -12,7 +12,7 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
   AFPlugin::new()
     .name("Flowy-Chat")
     .state(chat_manager)
-    .event(ChatEvent::SendMessage, send_chat_message_handler)
+    .event(ChatEvent::StreamMessage, stream_chat_message_handler)
     .event(ChatEvent::LoadPrevMessage, load_prev_message_handler)
     .event(ChatEvent::LoadNextMessage, load_next_message_handler)
     .event(ChatEvent::GetRelatedQuestion, get_related_question_handler)
@@ -29,12 +29,14 @@ pub enum ChatEvent {
   #[event(input = "LoadNextChatMessagePB", output = "ChatMessageListPB")]
   LoadNextMessage = 1,
 
-  #[event(input = "SendChatPayloadPB")]
-  SendMessage = 2,
+  #[event(input = "StreamChatPayloadPB", output = "ChatMessagePB")]
+  StreamMessage = 2,
 
+  // #[event(input = "StreamChatPayloadPB", output = "ChatMessagePB")]
+  // StopStream= 3,
   #[event(input = "ChatMessageIdPB", output = "RepeatedRelatedQuestionPB")]
-  GetRelatedQuestion = 3,
+  GetRelatedQuestion = 4,
 
   #[event(input = "ChatMessageIdPB", output = "ChatMessagePB")]
-  GetAnswerForQuestion = 4,
+  GetAnswerForQuestion = 5,
 }

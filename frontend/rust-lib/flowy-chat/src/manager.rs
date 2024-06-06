@@ -7,7 +7,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use lib_infra::util::timestamp;
 use std::sync::Arc;
-use tracing::{instrument, trace};
+use tracing::trace;
 
 pub trait ChatUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -79,16 +79,18 @@ impl ChatManager {
     Ok(chat)
   }
 
-  #[instrument(level = "info", skip_all, err)]
-  pub async fn send_chat_message(
+  pub async fn stream_chat_message(
     &self,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-  ) -> Result<(), FlowyError> {
+    text_stream_port: i64,
+  ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
-    chat.send_chat_message(message, message_type).await?;
-    Ok(())
+    let question = chat
+      .stream_chat_message(message, message_type, text_stream_port)
+      .await?;
+    Ok(question)
   }
 
   pub async fn get_or_create_chat_instance(&self, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {

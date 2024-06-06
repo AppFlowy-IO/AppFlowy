@@ -6,12 +6,15 @@ use crate::notification::{send_notification, ChatNotification};
 use crate::persistence::{
   insert_answer_message, insert_chat_messages, select_chat_messages, ChatMessageTable,
 };
+use allo_isolate::Isolate;
 use flowy_chat_pub::cloud::{
-  ChatAuthorType, ChatCloudService, ChatMessage, ChatMessageType, MessageCursor,
+  ChatCloudService, ChatMessage, ChatMessageType, EitherStringOrChatMessage, MessageCursor,
+  StreamAnswer,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
-use futures::StreamExt;
+use futures::{SinkExt, StreamExt};
+use lib_infra::isolate_stream::IsolateSink;
 use std::sync::atomic::AtomicI64;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -64,28 +67,90 @@ impl Chat {
   }
 
   #[instrument(level = "info", skip_all, err)]
-  pub async fn send_chat_message(
+  pub async fn stream_chat_message(
     &self,
     message: &str,
     message_type: ChatMessageType,
-  ) -> Result<(), FlowyError> {
+    text_stream_port: i64,
+  ) -> Result<ChatMessagePB, FlowyError> {
     if message.len() > 2000 {
       return Err(FlowyError::text_too_long().with_context("Exceeds maximum message 2000 length"));
     }
 
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
-    stream_send_chat_messages(
-      uid,
-      workspace_id,
-      self.chat_id.clone(),
-      message.to_string(),
-      message_type,
-      self.cloud_service.clone(),
-      self.user_service.clone(),
-    );
+    let question = self
+      .cloud_service
+      .send_question(&workspace_id, &self.chat_id, message, message_type)
+      .await?;
 
-    Ok(())
+    save_chat_message(
+      self.user_service.sqlite_connection(uid)?,
+      &self.chat_id,
+      vec![question.clone()],
+    )?;
+
+    let chat_id = self.chat_id.clone();
+    let question_id = question.message_id;
+    let cloud_service = self.cloud_service.clone();
+    let user_service = self.user_service.clone();
+    tokio::spawn(async move {
+      let mut text_sink = IsolateSink::new(Isolate::new(text_stream_port));
+      match cloud_service
+        .stream_answer(&workspace_id, &chat_id, question_id)
+        .await
+      {
+        Ok(mut stream) => {
+          while let Some(message) = stream.next().await {
+            match message {
+              Ok(message) => match message {
+                EitherStringOrChatMessage::Left(s) => {
+                  let _ = text_sink.send(s).await;
+                },
+                EitherStringOrChatMessage::Right(answer) => {
+                  save_chat_message(
+                    user_service.sqlite_connection(uid)?,
+                    &chat_id,
+                    vec![answer.clone()],
+                  )?;
+
+                  let pb = ChatMessagePB::from(answer);
+                  send_notification(&chat_id, ChatNotification::DidReceiveChatMessage)
+                    .payload(pb)
+                    .send();
+
+                  send_notification(&chat_id, ChatNotification::FinishAnswerQuestion).send();
+                },
+              },
+              Err(err) => {
+                error!("Failed to stream answer: {}", err);
+                let pb = ChatMessageErrorPB {
+                  chat_id: chat_id.clone(),
+                  error_message: err.to_string(),
+                };
+                send_notification(&chat_id, ChatNotification::StreamChatMessageError)
+                  .payload(pb)
+                  .send();
+                break;
+              },
+            }
+          }
+        },
+        Err(err) => {
+          let pb = ChatMessageErrorPB {
+            chat_id: chat_id.clone(),
+            error_message: err.to_string(),
+          };
+          send_notification(&chat_id, ChatNotification::StreamChatMessageError)
+            .payload(pb)
+            .send();
+        },
+      }
+      Ok::<(), FlowyError>(())
+    });
+
+    let question_pb = ChatMessagePB::from(question);
+    Ok(question_pb)
   }
 
   /// Load chat messages for a given `chat_id`.
@@ -314,121 +379,12 @@ impl Chat {
         created_at: record.created_at,
         author_type: record.author_type,
         author_id: record.author_id,
-        has_following: false,
         reply_message_id: record.reply_message_id,
       })
       .collect::<Vec<_>>();
 
     Ok(messages)
   }
-}
-
-fn stream_send_chat_messages(
-  uid: i64,
-  workspace_id: String,
-  chat_id: String,
-  message_content: String,
-  message_type: ChatMessageType,
-  cloud_service: Arc<dyn ChatCloudService>,
-  user_service: Arc<dyn ChatUserService>,
-) {
-  tokio::spawn(async move {
-    trace!(
-      "Sending chat message: chat_id={}, message={}, type={:?}",
-      chat_id,
-      message_content,
-      message_type
-    );
-
-    let mut messages = Vec::with_capacity(2);
-    let stream_result = cloud_service
-      .send_chat_message(&workspace_id, &chat_id, &message_content, message_type)
-      .await;
-
-    // By default, stream only returns two messages:
-    // 1. user message
-    // 2. ai response message
-    match stream_result {
-      Ok(mut stream) => {
-        while let Some(result) = stream.next().await {
-          match result {
-            Ok(message) => {
-              let mut pb = ChatMessagePB::from(message.clone());
-              if matches!(message.author.author_type, ChatAuthorType::Human) {
-                pb.has_following = true;
-                send_notification(&chat_id, ChatNotification::LastUserSentMessage)
-                  .payload(pb.clone())
-                  .send();
-              }
-
-              //
-              send_notification(&chat_id, ChatNotification::DidReceiveChatMessage)
-                .payload(pb)
-                .send();
-              messages.push(message);
-            },
-            Err(err) => {
-              error!("stream chat message error: {}", err);
-              let pb = ChatMessageErrorPB {
-                chat_id: chat_id.clone(),
-                content: message_content.clone(),
-                error_message: "Service Temporarily Unavailable".to_string(),
-              };
-              send_notification(&chat_id, ChatNotification::StreamChatMessageError)
-                .payload(pb)
-                .send();
-              break;
-            },
-          }
-        }
-      },
-      Err(err) => {
-        error!("Failed to send chat message: {}", err);
-        let pb = ChatMessageErrorPB {
-          chat_id: chat_id.clone(),
-          content: message_content.clone(),
-          error_message: err.to_string(),
-        };
-        send_notification(&chat_id, ChatNotification::StreamChatMessageError)
-          .payload(pb)
-          .send();
-        return;
-      },
-    }
-
-    if messages.is_empty() {
-      return;
-    }
-
-    trace!(
-      "Saving chat messages to local disk: chat_id={}, messages:{:?}",
-      chat_id,
-      messages
-    );
-
-    // Insert chat messages to local disk
-    if let Err(err) = user_service.sqlite_connection(uid).and_then(|conn| {
-      let records = messages
-        .into_iter()
-        .map(|message| ChatMessageTable {
-          message_id: message.message_id,
-          chat_id: chat_id.clone(),
-          content: message.content,
-          created_at: message.created_at.timestamp(),
-          author_type: message.author.author_type as i64,
-          author_id: message.author.author_id.to_string(),
-          reply_message_id: message.reply_message_id,
-        })
-        .collect::<Vec<_>>();
-      insert_chat_messages(conn, &records)?;
-
-      // Mark chat as finished
-      send_notification(&chat_id, ChatNotification::FinishAnswerQuestion).send();
-      Ok(())
-    }) {
-      error!("Failed to save chat messages: {}", err);
-    }
-  });
 }
 
 fn save_chat_message(
