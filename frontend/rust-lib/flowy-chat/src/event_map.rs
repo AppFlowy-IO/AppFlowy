@@ -17,6 +17,7 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
     .event(ChatEvent::LoadNextMessage, load_next_message_handler)
     .event(ChatEvent::GetRelatedQuestion, get_related_question_handler)
     .event(ChatEvent::GetAnswerForQuestion, get_answer_handler)
+    .event(ChatEvent::StopStream, stop_stream_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -32,8 +33,9 @@ pub enum ChatEvent {
   #[event(input = "StreamChatPayloadPB", output = "ChatMessagePB")]
   StreamMessage = 2,
 
-  // #[event(input = "StreamChatPayloadPB", output = "ChatMessagePB")]
-  // StopStream= 3,
+  #[event(input = "StopStreamPB")]
+  StopStream = 3,
+
   #[event(input = "ChatMessageIdPB", output = "RepeatedRelatedQuestionPB")]
   GetRelatedQuestion = 4,
 

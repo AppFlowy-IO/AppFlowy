@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/ai_message_bubble.dart';
@@ -7,6 +5,7 @@ import 'package:appflowy/plugins/ai_chat/presentation/chat_streaming_error_messa
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/user_message_bubble.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -146,7 +145,7 @@ class _AIChatPageState extends State<AIChatPage> {
                   required messageWidth,
                   required showName,
                 }) {
-                  return _buildAITextMessage(textMessage);
+                  return _buildAITextMessage(blocContext, textMessage);
                 },
                 bubbleBuilder: (
                   child, {
@@ -170,7 +169,7 @@ class _AIChatPageState extends State<AIChatPage> {
     );
   }
 
-  Widget _buildAITextMessage(TextMessage message) {
+  Widget _buildAITextMessage(BuildContext context, TextMessage message) {
     return ChatTextMessageWidget(
       user: message.author,
       messageUserId: message.id,
@@ -225,7 +224,6 @@ class _AIChatPageState extends State<AIChatPage> {
   Widget buildBubble(Message message, Widget child) {
     final isAuthor = message.author.id == _user.id;
     const borderRadius = BorderRadius.all(Radius.circular(6));
-
     final childWithPadding = isAuthor
         ? Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -298,15 +296,16 @@ class _AIChatPageState extends State<AIChatPage> {
       case OnetimeShotType.loading:
         return const ChatAILoading();
       case OnetimeShotType.streamAnswer:
-        final streamController = message.metadata?['streamController'];
-        if (streamController is StreamController<String>) {
+        final stream = message.metadata?["$AnswerStream"];
+        if (stream is AnswerStream) {
           return ChatTextMessageWidget(
             user: message.author,
             messageUserId: message.id,
-            text: streamController,
+            text: stream,
             key: ValueKey(message.id),
           );
         } else {
+          Log.error("Invalid stream answer metadata: $stream");
           return const SizedBox.shrink();
         }
       default:
@@ -320,9 +319,19 @@ class _AIChatPageState extends State<AIChatPage> {
         padding: AIChatUILayout.safeAreaInsets(context),
         child: Column(
           children: [
-            ChatInput(
-              chatId: widget.view.id,
-              onSendPressed: (message) => onSendPressed(context, message.text),
+            BlocSelector<ChatBloc, ChatState, LoadingState>(
+              selector: (state) => state.streamingStatus,
+              builder: (context, state) {
+                return ChatInput(
+                  chatId: widget.view.id,
+                  onSendPressed: (message) =>
+                      onSendPressed(context, message.text),
+                  isStreaming: state != const LoadingState.finish(),
+                  onStopStreaming: () {
+                    context.read<ChatBloc>().add(const ChatEvent.stopStream());
+                  },
+                );
+              },
             ),
             const VSpace(6),
             Opacity(

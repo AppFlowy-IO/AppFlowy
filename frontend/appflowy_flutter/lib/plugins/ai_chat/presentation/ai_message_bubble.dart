@@ -118,7 +118,7 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
           borderRadius: Corners.s6Border,
         ),
         child: Padding(
-          padding: const EdgeInsets.only(bottom: 20),
+          padding: const EdgeInsets.only(bottom: 30),
           child: widget.child,
         ),
       ),

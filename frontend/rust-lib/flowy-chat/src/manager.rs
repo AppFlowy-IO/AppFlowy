@@ -170,6 +170,12 @@ impl ChatManager {
     let resp = chat.generate_answer(question_message_id).await?;
     Ok(resp)
   }
+
+  pub async fn stop_stream(&self, chat_id: &str) -> Result<(), FlowyError> {
+    let chat = self.get_or_create_chat_instance(chat_id).await?;
+    chat.stop_stream_message().await;
+    Ok(())
+  }
 }
 
 fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {

@@ -97,3 +97,16 @@ pub(crate) async fn get_answer_handler(
     .await?;
   data_result_ok(message)
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn stop_stream_handler(
+  data: AFPluginData<StopStreamPB>,
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.into_inner();
+  data.validate()?;
+
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let message = chat_manager.stop_stream(&data.chat_id).await?;
+  Ok(())
+}

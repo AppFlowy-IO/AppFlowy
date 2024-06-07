@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:isolate';
 
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -14,8 +15,6 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nanoid/nanoid.dart';
 import 'chat_message_listener.dart';
-import 'package:isolates/isolates.dart';
-import 'package:isolates/ports.dart';
 part 'chat_bloc.freezed.dart';
 
 const canRetryKey = "canRetry";
@@ -39,8 +38,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   @override
   Future<void> close() async {
-    if (state.streamController != null) {
-      await state.streamController?.close();
+    if (state.answerStream != null) {
+      await state.answerStream?.dispose();
     }
     await listener.stop();
     return super.close();
@@ -103,7 +102,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           didFinishStreaming: () {
             emit(
               state.copyWith(
-                answerQuestionStatus: const LoadingState.finish(),
+                streamingStatus: const LoadingState.finish(),
               ),
             );
           },
@@ -120,7 +119,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               state.copyWith(
                 lastSentMessage: null,
                 messages: allMessages,
-                answerQuestionStatus: const LoadingState.loading(),
+                streamingStatus: const LoadingState.loading(),
                 relatedQuestions: [],
               ),
             );
@@ -173,11 +172,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
-          didReceiveNewAnswerStream:
-              (StreamController<String> streamController) {
-            emit(
-              state.copyWith(streamController: streamController),
-            );
+          didUpdateAnswerStream: (AnswerStream stream) {
+            emit(state.copyWith(answerStream: stream));
+          },
+          stopStream: () {
+            final payload = StopStreamPB(chatId: chatId);
+            ChatEventStopStream(payload).send();
           },
         );
       },
@@ -268,16 +268,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     String message,
     Emitter<ChatState> emit,
   ) async {
-    final newCompleter = Completer<String>();
-    final sendPort = singleCompletePort(newCompleter);
-
-    if (state.streamController != null) {
-      await state.streamController?.close();
+    if (state.answerStream != null) {
+      await state.answerStream?.dispose();
     }
 
-    final controller = StreamController<String>.broadcast();
-    unawaited(controller.addStream(newCompleter.future.asStream()));
-    add(ChatEvent.didReceiveNewAnswerStream(controller));
+    final answerStream = AnswerStream();
+    add(ChatEvent.didUpdateAnswerStream(answerStream));
 
     // Loading indicator for user after sending message
     // final loading = _loadingMessage(0.toString());
@@ -287,7 +283,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       chatId: state.view.id,
       message: message,
       messageType: ChatMessageTypePB.User,
-      textStreamPort: Int64(sendPort.nativePort),
+      textStreamPort: Int64(answerStream.nativePort),
     );
 
     // Stream message to the server
@@ -297,7 +293,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         add(ChatEvent.didSentUserMessage(question));
         _handleChatMessage(question);
 
-        final streamAnswer = _streamAnswerMessage(controller);
+        final streamAnswer = _streamAnswerMessage(answerStream);
         add(ChatEvent.streaming(streamAnswer));
       },
       (err) {
@@ -333,9 +329,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  Message _streamAnswerMessage(StreamController<String> streamController) {
+  Message _streamAnswerMessage(AnswerStream stream) {
     final metadata = OnetimeShotType.streamAnswer.toMap();
-    metadata["streamController"] = streamController;
+    metadata["$AnswerStream"] = stream;
     return CustomMessage(
       author: User(id: nanoid()),
       metadata: metadata,
@@ -379,9 +375,10 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.retryGenerate() = _RetryGenerate;
   const factory ChatEvent.didSentUserMessage(ChatMessagePB message) =
       _DidSendUserMessage;
-  const factory ChatEvent.didReceiveNewAnswerStream(
-    StreamController<String> streamController,
-  ) = _DidReceiveAnswerCompleter;
+  const factory ChatEvent.didUpdateAnswerStream(
+    AnswerStream stream,
+  ) = _DidUpdateAnswerStream;
+  const factory ChatEvent.stopStream() = _StopStream;
 }
 
 @freezed
@@ -398,14 +395,14 @@ class ChatState with _$ChatState {
     required LoadingState loadingPreviousStatus,
     // When sending a user message, the status will be set as loading.
     // After the message is sent, the status will be set as finished.
-    required LoadingState answerQuestionStatus,
+    required LoadingState streamingStatus,
     // Indicate whether there are more previous messages to load.
     required bool hasMorePrevMessage,
     // The related questions that are received after the user message is sent.
     required List<RelatedQuestionPB> relatedQuestions,
     // The last user message that is sent to the server.
     ChatMessagePB? lastSentMessage,
-    StreamController<String>? streamController,
+    AnswerStream? answerStream,
   }) = _ChatState;
 
   factory ChatState.initial(ViewPB view, UserProfilePB userProfile) =>
@@ -415,7 +412,7 @@ class ChatState with _$ChatState {
         userProfile: userProfile,
         initialLoadingStatus: const LoadingState.finish(),
         loadingPreviousStatus: const LoadingState.finish(),
-        answerQuestionStatus: const LoadingState.finish(),
+        streamingStatus: const LoadingState.finish(),
         hasMorePrevMessage: true,
         relatedQuestions: [],
       );
@@ -475,4 +472,23 @@ OnetimeShotType? onetimeMessageTypeFromMeta(Map<String, dynamic>? metadata) {
     }
   }
   return null;
+}
+
+class AnswerStream {
+  AnswerStream() {
+    _port.handler = _controller.add;
+  }
+
+  final RawReceivePort _port = RawReceivePort();
+  final StreamController<String> _controller = StreamController.broadcast();
+  int get nativePort => _port.sendPort.nativePort;
+
+  Future<void> dispose() async {
+    await _controller.close();
+    _port.close();
+  }
+
+  StreamSubscription<String> listen(void Function(String event)? onData) {
+    return _controller.stream.listen(onData);
+  }
 }

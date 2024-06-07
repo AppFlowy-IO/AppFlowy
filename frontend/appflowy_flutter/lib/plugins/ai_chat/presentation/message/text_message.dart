@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/foundation.dart';
@@ -32,12 +33,18 @@ class ChatTextMessageWidget extends StatefulWidget {
 
 class ChatTextMessageWidgetState extends State<ChatTextMessageWidget> {
   StreamSubscription<String>? _subscription;
-  String? _currentText;
+  String _currentText = "";
 
   @override
   void initState() {
     super.initState();
-    _subscribeToStream();
+    if (widget.text is String) {
+      _currentText = widget.text as String;
+    }
+
+    if (widget.text is AnswerStream) {
+      _subscribeToStream();
+    }
   }
 
   @override
@@ -56,16 +63,13 @@ class ChatTextMessageWidgetState extends State<ChatTextMessageWidget> {
   }
 
   void _subscribeToStream() {
-    if (widget.text is StreamController<String>) {
-      final streamController = widget.text as StreamController<String>;
-      _subscription = streamController.stream.listen((data) {
+    if (widget.text is AnswerStream) {
+      final stream = widget.text as AnswerStream;
+      _subscription?.cancel();
+      _subscription = stream.listen((data) {
         setState(() {
-          _currentText = data;
+          _currentText = _currentText + data;
         });
-      });
-    } else if (widget.text is String) {
-      setState(() {
-        _currentText = widget.text as String;
       });
     }
   }
@@ -77,10 +81,10 @@ class ChatTextMessageWidgetState extends State<ChatTextMessageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (_currentText == null) {
+    if (_currentText.isEmpty) {
       return const ChatAILoading();
     } else {
-      return _textWidgetBuilder(widget.user, context, _currentText!);
+      return _textWidgetBuilder(widget.user, context, _currentText);
     }
   }
 

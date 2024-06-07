@@ -36,6 +36,13 @@ pub struct StreamChatPayloadPB {
   pub text_stream_port: i64,
 }
 
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct StopStreamPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub chat_id: String,
+}
+
 #[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
 pub enum ChatMessageTypePB {
   #[default]
