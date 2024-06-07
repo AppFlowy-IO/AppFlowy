@@ -40,9 +40,7 @@ class ChatTextMessageWidgetState extends State<ChatTextMessageWidget> {
     super.initState();
     if (widget.text is String) {
       _currentText = widget.text as String;
-    }
-
-    if (widget.text is AnswerStream) {
+    } else if (widget.text is AnswerStream) {
       _subscribeToStream();
     }
   }

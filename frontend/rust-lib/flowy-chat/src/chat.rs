@@ -8,8 +8,7 @@ use crate::persistence::{
 };
 use allo_isolate::Isolate;
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageType, EitherStringOrChatMessage, MessageCursor,
-  StreamAnswer,
+  ChatCloudService, ChatMessage, ChatMessageType, MessageCursor, StreamAnswer, StringOrMessage,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
@@ -17,7 +16,7 @@ use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
 use std::sync::atomic::{AtomicBool, AtomicI64};
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 use tracing::{error, info, instrument, trace};
 
 enum PrevMessageState {
@@ -34,6 +33,7 @@ pub struct Chat {
   prev_message_state: Arc<RwLock<PrevMessageState>>,
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
+  steam_buffer: Arc<Mutex<String>>,
 }
 
 impl Chat {
@@ -51,6 +51,7 @@ impl Chat {
       prev_message_state: Arc::new(RwLock::new(PrevMessageState::HasMore)),
       latest_message_id: Default::default(),
       stop_stream: Arc::new(AtomicBool::new(false)),
+      steam_buffer: Arc::new(Mutex::new("".to_string())),
     }
   }
 
@@ -84,16 +85,24 @@ impl Chat {
     if message.len() > 2000 {
       return Err(FlowyError::text_too_long().with_context("Exceeds maximum message 2000 length"));
     }
-
+    // clear
     self
       .stop_stream
       .store(false, std::sync::atomic::Ordering::SeqCst);
+    self.steam_buffer.lock().await.clear();
+
+    let stream_buffer = self.steam_buffer.clone();
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
+
     let question = self
       .cloud_service
       .send_question(&workspace_id, &self.chat_id, message, message_type)
-      .await?;
+      .await
+      .map_err(|err| {
+        error!("Failed to send question: {}", err);
+        FlowyError::server_error()
+      })?;
 
     save_chat_message(
       self.user_service.sqlite_connection(uid)?,
@@ -116,26 +125,26 @@ impl Chat {
           while let Some(message) = stream.next().await {
             match message {
               Ok(message) => match message {
-                EitherStringOrChatMessage::Left(s) => {
+                StringOrMessage::Left(s) => {
                   if stop_stream.load(std::sync::atomic::Ordering::Relaxed) {
                     trace!("Stop streaming message");
+                    let answer = cloud_service
+                      .save_answer(
+                        &workspace_id,
+                        &chat_id,
+                        &stream_buffer.lock().await,
+                        question_id,
+                      )
+                      .await?;
+                    Self::save_answer(uid, &chat_id, &user_service, answer)?;
                     break;
                   }
+                  stream_buffer.lock().await.push_str(&s);
                   let _ = text_sink.send(s).await;
                 },
-                EitherStringOrChatMessage::Right(answer) => {
+                StringOrMessage::Right(answer) => {
                   trace!("Received final answer: {:?}", answer);
-                  save_chat_message(
-                    user_service.sqlite_connection(uid)?,
-                    &chat_id,
-                    vec![answer.clone()],
-                  )?;
-
-                  let pb = ChatMessagePB::from(answer);
-                  send_notification(&chat_id, ChatNotification::DidReceiveChatMessage)
-                    .payload(pb)
-                    .send();
-                  send_notification(&chat_id, ChatNotification::FinishAnswerQuestion).send();
+                  Self::save_answer(uid, &chat_id, &user_service, answer)?;
                 },
               },
               Err(err) => {
@@ -167,6 +176,26 @@ impl Chat {
 
     let question_pb = ChatMessagePB::from(question);
     Ok(question_pb)
+  }
+
+  fn save_answer(
+    uid: i64,
+    chat_id: &String,
+    user_service: &Arc<dyn ChatUserService>,
+    answer: ChatMessage,
+  ) -> Result<(), FlowyError> {
+    save_chat_message(
+      user_service.sqlite_connection(uid)?,
+      &chat_id,
+      vec![answer.clone()],
+    )?;
+    let pb = ChatMessagePB::from(answer);
+    send_notification(&chat_id, ChatNotification::DidReceiveChatMessage)
+      .payload(pb)
+      .send();
+
+    send_notification(&chat_id, ChatNotification::FinishAnswerQuestion).send();
+    Ok(())
   }
 
   /// Load chat messages for a given `chat_id`.

@@ -42,6 +42,18 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     })
   }
 
+  fn save_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+    question_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    FutureResult::new(async move {
+      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+    })
+  }
+
   async fn stream_answer(
     &self,
     workspace_id: &str,

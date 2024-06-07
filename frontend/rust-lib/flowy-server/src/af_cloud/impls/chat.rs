@@ -1,7 +1,8 @@
 use crate::af_cloud::AFServer;
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::{
-  CreateChatMessageParams, CreateChatParams, MessageCursor, RepeatedChatMessage,
+  CreateAnswerMessageParams, CreateChatMessageParams, CreateChatParams, MessageCursor,
+  RepeatedChatMessage,
 };
 use flowy_chat_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageStream, ChatMessageType, StreamAnswer,
@@ -83,6 +84,30 @@ where
     FutureResult::new(async move {
       let message = try_get_client?
         .create_question(&workspace_id, &chat_id, params)
+        .await
+        .map_err(FlowyError::from)?;
+      Ok(message)
+    })
+  }
+
+  fn save_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+    question_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let params = CreateAnswerMessageParams {
+      content: message.to_string(),
+      question_message_id: question_id,
+    };
+
+    FutureResult::new(async move {
+      let message = try_get_client?
+        .create_answer(&workspace_id, &chat_id, params)
         .await
         .map_err(FlowyError::from)?;
       Ok(message)

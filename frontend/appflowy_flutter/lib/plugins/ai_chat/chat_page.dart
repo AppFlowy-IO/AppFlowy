@@ -5,7 +5,6 @@ import 'package:appflowy/plugins/ai_chat/presentation/chat_streaming_error_messa
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/user_message_bubble.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -170,11 +169,23 @@ class _AIChatPageState extends State<AIChatPage> {
   }
 
   Widget _buildAITextMessage(BuildContext context, TextMessage message) {
-    return ChatTextMessageWidget(
-      user: message.author,
-      messageUserId: message.id,
-      text: message.text,
-    );
+    final stream = message.metadata?["$AnswerStream"];
+    if (stream is AnswerStream) {
+      // If the message contains a continuously updating answer stream, we will use the stream's text to render
+      // the [ChatTextMessageWidget].
+      return ChatTextMessageWidget(
+        user: message.author,
+        messageUserId: message.id,
+        text: stream,
+        key: ValueKey(message.id),
+      );
+    } else {
+      return ChatTextMessageWidget(
+        user: message.author,
+        messageUserId: message.id,
+        text: message.text,
+      );
+    }
   }
 
   Widget _buildAIBubble(
@@ -295,19 +306,6 @@ class _AIChatPageState extends State<AIChatPage> {
     switch (messageType) {
       case OnetimeShotType.loading:
         return const ChatAILoading();
-      case OnetimeShotType.streamAnswer:
-        final stream = message.metadata?["$AnswerStream"];
-        if (stream is AnswerStream) {
-          return ChatTextMessageWidget(
-            user: message.author,
-            messageUserId: message.id,
-            text: stream,
-            key: ValueKey(message.id),
-          );
-        } else {
-          Log.error("Invalid stream answer metadata: $stream");
-          return const SizedBox.shrink();
-        }
       default:
         return const SizedBox.shrink();
     }

@@ -1,14 +1,15 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:collection/collection.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
@@ -35,6 +36,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   final ChatMessageListener listener;
   final String chatId;
+
+  /// The last streaming message id
+  String lastStreamMessageId = '';
+
+  /// Using a temporary map to associate the real message ID with the last streaming message ID.
+  ///
+  /// When a message is streaming, it does not have a real message ID. To maintain the relationship
+  /// between the real message ID and the last streaming message ID, we use this map to store the associations.
+  ///
+  /// This map will be updated when receiving a message from the server and its author type
+  /// is 3 (AI response).
+  final HashMap<String, String> temporaryMessageIDMap = HashMap();
 
   @override
   Future<void> close() async {
@@ -92,6 +105,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           },
           streaming: (Message message) {
             final allMessages = _perminentMessages();
+
+            // remove message with the same id
+            allMessages.removeWhere((element) => element.id == message.id);
             allMessages.insert(0, message);
             emit(
               state.copyWith(
@@ -111,7 +127,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
             // Create a loading indicator
             final loadingMessage =
-                _loadingMessage(state.userProfile.id.toString());
+                _createLoadingMessage(state.userProfile.id.toString());
             final allMessages = List<Message>.from(state.messages)
               ..insert(0, loadingMessage);
 
@@ -135,7 +151,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             ChatEventGetAnswerForQuestion(payload).send().then((result) {
               if (!isClosed) {
                 result.fold(
-                  (answer) => _handleChatMessage(answer),
+                  (answer) {
+                    final message = _createTextMessage(answer);
+                    add(ChatEvent.streaming(message));
+                  },
                   (err) {
                     Log.error("Failed to get answer: $err");
                   },
@@ -175,9 +194,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           didUpdateAnswerStream: (AnswerStream stream) {
             emit(state.copyWith(answerStream: stream));
           },
-          stopStream: () {
+          stopStream: () async {
             final payload = StopStreamPB(chatId: chatId);
-            ChatEventStopStream(payload).send();
+            await ChatEventStopStream(payload).send();
+            emit(
+              state.copyWith(
+                answerStream: null,
+                streamingStatus: const LoadingState.finish(),
+              ),
+            );
           },
         );
       },
@@ -186,8 +211,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   void _startListening() {
     listener.start(
-      chatMessageCallback: (message) {
-        _handleChatMessage(message);
+      chatMessageCallback: (pb) {
+        if (!isClosed) {
+          // 3 mean message response from AI
+          if (pb.authorType == 3 && lastStreamMessageId.isNotEmpty) {
+            temporaryMessageIDMap[pb.messageId.toString()] =
+                lastStreamMessageId;
+            lastStreamMessageId = "";
+          }
+
+          final message = _createTextMessage(pb);
+          add(ChatEvent.streaming(message));
+        }
       },
       chatErrorMessageCallback: (err) {
         if (!isClosed) {
@@ -207,13 +242,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       },
       latestMessageCallback: (list) {
         if (!isClosed) {
-          final messages = list.messages.map(_createChatMessage).toList();
+          final messages = list.messages.map(_createTextMessage).toList();
           add(ChatEvent.didLoadLatestMessages(messages));
         }
       },
       prevMessageCallback: (list) {
         if (!isClosed) {
-          final messages = list.messages.map(_createChatMessage).toList();
+          final messages = list.messages.map(_createTextMessage).toList();
           add(ChatEvent.didLoadPreviousMessages(messages, list.hasMore));
         }
       },
@@ -275,10 +310,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final answerStream = AnswerStream();
     add(ChatEvent.didUpdateAnswerStream(answerStream));
 
-    // Loading indicator for user after sending message
-    // final loading = _loadingMessage(0.toString());
-    // add(ChatEvent.streaming(loading));
-
     final payload = StreamChatPayloadPB(
       chatId: state.view.id,
       message: message,
@@ -290,17 +321,24 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final result = await ChatEventStreamMessage(payload).send();
     result.fold(
       (ChatMessagePB question) {
-        add(ChatEvent.didSentUserMessage(question));
-        _handleChatMessage(question);
+        if (!isClosed) {
+          add(ChatEvent.didSentUserMessage(question));
 
-        final streamAnswer = _streamAnswerMessage(answerStream);
-        add(ChatEvent.streaming(streamAnswer));
+          final message = _createTextMessage(question);
+          add(ChatEvent.streaming(message));
+
+          final streamAnswer = _createStreamMessage(answerStream);
+          add(ChatEvent.streaming(streamAnswer));
+        }
       },
       (err) {
         if (!isClosed) {
           Log.error("Failed to send message: ${err.msg}");
           final metadata = OnetimeShotType.invalidSendMesssage.toMap();
-          metadata[sendMessageErrorKey] = err.msg;
+          if (err.code != ErrorCode.Internal) {
+            metadata[sendMessageErrorKey] = err.msg;
+          }
+
           final error = CustomMessage(
             metadata: metadata,
             author: const User(id: "system"),
@@ -313,14 +351,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  void _handleChatMessage(ChatMessagePB pb) {
-    if (!isClosed) {
-      final message = _createChatMessage(pb);
-      add(ChatEvent.streaming(message));
-    }
-  }
-
-  Message _loadingMessage(String id) {
+  Message _createLoadingMessage(String id) {
     return CustomMessage(
       author: User(id: id),
       metadata: OnetimeShotType.loading.toMap(),
@@ -329,29 +360,31 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  Message _streamAnswerMessage(AnswerStream stream) {
-    final metadata = OnetimeShotType.streamAnswer.toMap();
-    metadata["$AnswerStream"] = stream;
-    return CustomMessage(
+  Message _createStreamMessage(AnswerStream stream) {
+    final streamMessageId = nanoid();
+    lastStreamMessageId = streamMessageId;
+    return TextMessage(
       author: User(id: nanoid()),
-      metadata: metadata,
-      id: nanoid(),
+      metadata: {"$AnswerStream": stream},
+      id: streamMessageId,
+      text: '',
     );
   }
 
-  Message _createChatMessage(ChatMessagePB message) {
-    final messageId = message.messageId.toString();
+  Message _createTextMessage(ChatMessagePB message) {
+    String messageId = message.messageId.toString();
+
+    /// If the message id is in the temporary map, we will use the previous fake message id
+    if (temporaryMessageIDMap.containsKey(messageId)) {
+      messageId = temporaryMessageIDMap[messageId]!;
+    }
+
     return TextMessage(
       author: User(id: message.authorId),
       id: messageId,
       text: message.content,
       createdAt: message.createdAt.toInt(),
-      repliedMessage: _getReplyMessage(state.messages, messageId),
     );
-  }
-
-  Message? _getReplyMessage(List<Message?> messages, String messageId) {
-    return messages.firstWhereOrNull((element) => element?.id == messageId);
   }
 }
 
@@ -430,7 +463,6 @@ enum OnetimeShotType {
   serverStreamError,
   relatedQuestion,
   invalidSendMesssage,
-  streamAnswer,
 }
 
 const onetimeShotType = "OnetimeShotType";
@@ -446,8 +478,6 @@ extension OnetimeMessageTypeExtension on OnetimeShotType {
         return OnetimeShotType.relatedQuestion;
       case 'OnetimeShotType.invalidSendMesssage':
         return OnetimeShotType.invalidSendMesssage;
-      case 'OnetimeShotType.streamAnswer':
-        return OnetimeShotType.streamAnswer;
       default:
         Log.error('Unknown OnetimeShotType: $value');
         return OnetimeShotType.unknown;

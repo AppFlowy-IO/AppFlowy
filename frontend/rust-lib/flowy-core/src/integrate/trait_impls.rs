@@ -497,6 +497,25 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
+  fn save_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+    question_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let message = message.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .chat_service()
+        .save_answer(&workspace_id, &chat_id, &message, question_id)
+        .await
+    })
+  }
+
   async fn stream_answer(
     &self,
     workspace_id: &str,
