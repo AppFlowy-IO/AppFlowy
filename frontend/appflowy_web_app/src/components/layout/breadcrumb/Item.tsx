@@ -9,19 +9,19 @@ import { ReactComponent as CalendarSvg } from '$icons/16x/date.svg';
 
 const renderCrumbIcon = (icon: string) => {
   if (Number(icon) === ViewLayout.Grid) {
-    return <GridSvg />;
+    return <GridSvg className={'h-4 w-4'} />;
   }
 
   if (Number(icon) === ViewLayout.Board) {
-    return <BoardSvg />;
+    return <BoardSvg className={'h-4 w-4'} />;
   }
 
   if (Number(icon) === ViewLayout.Calendar) {
-    return <CalendarSvg />;
+    return <CalendarSvg className={'h-4 w-4'} />;
   }
 
   if (Number(icon) === ViewLayout.Document) {
-    return <DocumentSvg />;
+    return <DocumentSvg className={'h-4 w-4'} />;
   }
 
   return icon;
@@ -41,7 +41,7 @@ function Item({ crumb, disableClick = false }: { crumb: Crumb; disableClick?: bo
         onNavigateToView?.(viewId);
       }}
     >
-      <span className={'h-4 w-4'}>{renderCrumbIcon(icon)}</span>
+      {renderCrumbIcon(icon)}
       <span
         className={!disableClick ? 'max-w-[250px] truncate hover:text-fill-default hover:underline' : 'flex-1 truncate'}
       >

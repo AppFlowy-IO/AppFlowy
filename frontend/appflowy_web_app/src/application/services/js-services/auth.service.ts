@@ -1,8 +1,8 @@
 import { AuthService } from '@/application/services/services.type';
 import { ProviderType, SignUpWithEmailPasswordParams } from '@/application/user.type';
 import { APIService } from 'src/application/services/js-services/wasm';
-import { signInSuccess } from '@/application/services/js-services/storage/auth';
-import { invalidToken } from '@/application/services/js-services/storage';
+import { signInSuccess } from '@/application/services/js-services/session/auth';
+import { invalidToken } from 'src/application/services/js-services/session';
 import { afterSignInDecorator } from '@/application/services/js-services/decorator';
 
 export class JSAuthService implements AuthService {
