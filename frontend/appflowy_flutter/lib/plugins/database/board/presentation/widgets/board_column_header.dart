@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy/plugins/shared/callback_shortcuts.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -32,7 +31,6 @@ class BoardColumnHeader extends StatefulWidget {
 class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   final FocusNode _focusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
-  late final AFCallbackShortcutsProvider _shortcutsProvider;
 
   late final TextEditingController _controller =
       TextEditingController.fromValue(
@@ -47,21 +45,15 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   @override
   void initState() {
     super.initState();
-    _shortcutsProvider = context.read<AFCallbackShortcutsProvider>();
     _focusNode.addListener(() {
       if (!_focusNode.hasFocus) {
         _saveEdit();
       }
     });
-    _keyboardListenerFocusNode.addListener(() {
-      _shortcutsProvider.isShortcutsEnabled.value =
-          !_keyboardListenerFocusNode.hasFocus;
-    });
   }
 
   @override
   void dispose() {
-    _shortcutsProvider.isShortcutsEnabled.value = true;
     _focusNode.dispose();
     _keyboardListenerFocusNode.dispose();
     _controller.dispose();
