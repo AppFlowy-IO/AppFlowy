@@ -2,7 +2,7 @@ import { CollabType } from '@/application/collab.type';
 import { ClientAPI } from '@appflowyinc/client-api-wasm';
 import { UserProfile, UserWorkspace } from '@/application/user.type';
 import { AFCloudConfig } from '@/application/services/services.type';
-import { invalidToken, readTokenStr, writeToken } from '@/application/services/js-services/storage';
+import { invalidToken, readTokenStr, writeToken } from 'src/application/services/js-services/session';
 
 let client: ClientAPI;
 

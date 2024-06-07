@@ -1,6 +1,6 @@
 import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
 import { useNavigateToView } from '@/application/folder-yjs';
-import { getCurrentWorkspace } from '@/application/services/js-services/storage';
+import { getCurrentWorkspace } from 'src/application/services/js-services/session';
 import { IdProvider } from '@/components/_shared/context-provider/IdProvider';
 import { Database } from '@/components/database';
 import { useGetDatabaseId, useLoadDatabase } from '@/components/database/Database.hooks';

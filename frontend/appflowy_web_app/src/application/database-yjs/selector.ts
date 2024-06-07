@@ -71,7 +71,6 @@ export function useDatabaseViewsSelector(iidIndex: string) {
         const [key] = viewItem;
         const view = folderViews?.get(key);
 
-        console.log('view', view?.get(YjsFolderKey.bid), iidIndex);
         if (
           visibleViewsId.includes(key) &&
           view &&
@@ -81,7 +80,6 @@ export function useDatabaseViewsSelector(iidIndex: string) {
         }
       }
 
-      console.log('viewsId', viewsId);
       setViewIds(viewsId);
     };
 
