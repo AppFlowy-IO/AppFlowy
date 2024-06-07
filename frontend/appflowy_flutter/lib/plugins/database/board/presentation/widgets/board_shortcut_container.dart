@@ -70,7 +70,7 @@ class BoardShortcutContainer extends StatelessWidget {
       const SingleActivator(LogicalKeyboardKey.numpadEnter): () =>
           _enterHandler(context),
       const SingleActivator(LogicalKeyboardKey.enter, shift: true): () =>
-          _shitEnterHandler(context),
+          _shiftEnterHandler(context),
       const SingleActivator(LogicalKeyboardKey.comma): () =>
           _moveGroupToAdjacentGroup(context, true),
       const SingleActivator(LogicalKeyboardKey.period): () =>
@@ -111,7 +111,7 @@ class BoardShortcutContainer extends StatelessWidget {
     return true;
   }
 
-  bool _shitEnterHandler(BuildContext context) {
+  bool _shiftEnterHandler(BuildContext context) {
     if (focusScope.value.isEmpty) {
       context
           .read<BoardActionsCubit>()
