@@ -1,11 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/src/emoji_picker.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/src/emoji_picker_builder.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/src/models/emoji_model.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 const int emojiSearchLimit = 40;
 const int emojiNumberPerRow = 8;
@@ -23,10 +24,6 @@ final Map<LogicalKeyboardKey, int> arrowKeys = {
 };
 
 class EmojiShortcutPickerView extends EmojiPickerBuilder {
-  final VoidCallback onExit;
-  final EditorState editorState;
-  final String shortcutCharacter;
-
   const EmojiShortcutPickerView(
     super.config,
     super.state,
@@ -35,6 +32,10 @@ class EmojiShortcutPickerView extends EmojiPickerBuilder {
     this.onExit, {
     super.key,
   });
+
+  final VoidCallback onExit;
+  final EditorState editorState;
+  final String shortcutCharacter;
 
   @override
   EmojiShortcutPickerViewState createState() => EmojiShortcutPickerViewState();
@@ -65,9 +66,9 @@ class EmojiShortcutPickerViewState extends State<EmojiShortcutPickerView>
     super.dispose();
   }
 
-  KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
     // Check if the key event is key press, not key release
-    if (event is! RawKeyDownEvent) return KeyEventResult.ignored;
+    if (event is! KeyDownEvent) return KeyEventResult.ignored;
 
     // Handle arrow keys
     if (arrowKeys[event.logicalKey] != null) {
@@ -112,6 +113,12 @@ class EmojiShortcutPickerViewState extends State<EmojiShortcutPickerView>
 
         // Typing character
         widget.editorState.insertTextAtCurrentSelection(event.character!);
+
+        // If more than 10 characters have been typed, close menu
+        if (_emojiController.text.length > 10) {
+          widget.onExit();
+          return KeyEventResult.handled;
+        }
 
         // Determine whether or not the shortcut character was pressed again
         if (event.character == widget.shortcutCharacter) {
@@ -189,7 +196,7 @@ class EmojiShortcutPickerViewState extends State<EmojiShortcutPickerView>
   @override
   Widget build(BuildContext context) {
     return Focus(
-      onKey: _onKey,
+      onKeyEvent: _onKey,
       focusNode: _focusNode,
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -230,7 +237,7 @@ class EmojiShortcutPickerViewState extends State<EmojiShortcutPickerView>
                                 setState(() => _selectedIndex = index);
                                 _selectEmoji();
                               },
-                              child: Container(
+                              child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   borderRadius: Corners.s8Border,
                                   color: index == _selectedIndex
@@ -241,7 +248,6 @@ class EmojiShortcutPickerViewState extends State<EmojiShortcutPickerView>
                                   fit: BoxFit.scaleDown,
                                   child: Text(
                                     searchEmojiList.elementAt(index).emoji,
-                                    textScaleFactor: 1.0,
                                     style: TextStyle(
                                       fontSize: emojiSize,
                                       backgroundColor: Colors.transparent,
