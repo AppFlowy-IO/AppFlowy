@@ -26,6 +26,7 @@ flowy-sqlite = { workspace = true }
 tokio.workspace = true
 futures.workspace = true
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
+log = "0.4.21"
 
 [build-dependencies]
 flowy-codegen.workspace = true

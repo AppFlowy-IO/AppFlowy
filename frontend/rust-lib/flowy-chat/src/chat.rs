@@ -392,20 +392,19 @@ impl Chat {
 
   #[instrument(level = "debug", skip_all, err)]
   pub async fn generate_answer(&self, question_message_id: i64) -> FlowyResult<ChatMessagePB> {
+    trace!(
+      "[Chat] generate answer: chat_id={}, question_message_id={}",
+      self.chat_id,
+      question_message_id
+    );
     let workspace_id = self.user_service.workspace_id()?;
-    let resp = self
+    let answer = self
       .cloud_service
       .generate_answer(&workspace_id, &self.chat_id, question_message_id)
       .await?;
 
-    save_answer(
-      self.user_service.sqlite_connection(self.uid)?,
-      &self.chat_id,
-      resp.clone(),
-      question_message_id,
-    )?;
-
-    let pb = ChatMessagePB::from(resp);
+    Self::save_answer(self.uid, &self.chat_id, &self.user_service, answer.clone())?;
+    let pb = ChatMessagePB::from(answer);
     Ok(pb)
   }
 
@@ -457,23 +456,5 @@ fn save_chat_message(
     })
     .collect::<Vec<_>>();
   insert_chat_messages(conn, &records)?;
-  Ok(())
-}
-fn save_answer(
-  conn: DBConnection,
-  chat_id: &str,
-  message: ChatMessage,
-  question_message_id: i64,
-) -> FlowyResult<()> {
-  let record = ChatMessageTable {
-    message_id: message.message_id,
-    chat_id: chat_id.to_string(),
-    content: message.content,
-    created_at: message.created_at.timestamp(),
-    author_type: message.author.author_type as i64,
-    author_id: message.author.author_id.to_string(),
-    reply_message_id: message.reply_message_id,
-  };
-  insert_answer_message(conn, question_message_id, record)?;
   Ok(())
 }

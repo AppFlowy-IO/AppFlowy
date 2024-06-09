@@ -19,7 +19,6 @@ import 'package:nanoid/nanoid.dart';
 import 'chat_message_listener.dart';
 part 'chat_bloc.freezed.dart';
 
-const canRetryKey = "canRetry";
 const sendMessageErrorKey = "sendMessageError";
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
@@ -150,29 +149,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                 relatedQuestions: [],
               ),
             );
-          },
-          retryGenerate: () {
-            if (state.lastSentMessage == null) {
-              return;
-            }
-
-            final payload = ChatMessageIdPB(
-              chatId: chatId,
-              messageId: state.lastSentMessage!.messageId,
-            );
-            ChatEventGetAnswerForQuestion(payload).send().then((result) {
-              if (!isClosed) {
-                result.fold(
-                  (answer) {
-                    final message = _createTextMessage(answer);
-                    add(ChatEvent.receveMessage(message));
-                  },
-                  (err) {
-                    Log.error("Failed to get answer: $err");
-                  },
-                );
-              }
-            });
           },
           didReceiveRelatedQuestion: (List<RelatedQuestionPB> questions) {
             final allMessages = _perminentMessages();
@@ -441,7 +417,6 @@ class ChatEvent with _$ChatEvent {
     List<RelatedQuestionPB> questions,
   ) = _DidReceiveRelatedQueston;
   const factory ChatEvent.clearReleatedQuestion() = _ClearRelatedQuestion;
-  const factory ChatEvent.retryGenerate() = _RetryGenerate;
   const factory ChatEvent.didSentUserMessage(ChatMessagePB message) =
       _DidSendUserMessage;
   const factory ChatEvent.didUpdateAnswerStream(

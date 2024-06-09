@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
@@ -46,6 +47,10 @@ class ChatAITextMessageWidget extends StatelessWidget {
                     );
               },
             );
+          }
+
+          if (state.retryState == const LoadingState.loading()) {
+            return const ChatAILoading();
           }
 
           if (state.text.isEmpty) {

@@ -1844,6 +1844,7 @@ dependencies = [
  "futures",
  "lib-dispatch",
  "lib-infra",
+ "log",
  "protobuf",
  "strum_macros 0.21.1",
  "tokio",

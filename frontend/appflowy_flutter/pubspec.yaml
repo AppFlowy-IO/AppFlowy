@@ -142,9 +142,6 @@ dependencies:
   reorderable_tabbar: ^1.0.6
   shimmer: ^3.0.0
   isolates: ^3.0.3+8
-  flutter_parsed_text: ^2.2.1
-  flutter_link_previewer: ^3.2.2
-  # flutter_markdown: ^0.7.1
   markdown_widget: ^2.3.2+6
 
 dev_dependencies:

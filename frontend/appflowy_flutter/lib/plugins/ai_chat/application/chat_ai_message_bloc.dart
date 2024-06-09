@@ -49,10 +49,17 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
             emit(state.copyWith(error: error));
           },
           retry: () {
-            // if (questionId is! Int64) {
-            //   Log.error("Question id is not Int64: $questionId");
-            //   return const SizedBox.shrink();
-            // }
+            if (questionId is! Int64) {
+              Log.error("Question id is not Int64: $questionId");
+              return;
+            }
+            emit(
+              state.copyWith(
+                retryState: const LoadingState.loading(),
+                error: null,
+              ),
+            );
+
             final payload = ChatMessageIdPB(
               chatId: chatId,
               messageId: questionId,
@@ -60,13 +67,25 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
             ChatEventGetAnswerForQuestion(payload).send().then((result) {
               if (!isClosed) {
                 result.fold(
-                  (answer) {},
+                  (answer) {
+                    add(ChatAIMessageEvent.retryResult(answer.content));
+                  },
                   (err) {
                     Log.error("Failed to get answer: $err");
+                    add(ChatAIMessageEvent.receiveError(err.toString()));
                   },
                 );
               }
             });
+          },
+          retryResult: (String text) {
+            emit(
+              state.copyWith(
+                text: text,
+                error: null,
+                retryState: const LoadingState.finish(),
+              ),
+            );
           },
         );
       },
@@ -90,6 +109,7 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.newText(String text) = _NewText;
   const factory ChatAIMessageEvent.receiveError(String error) = _ReceiveError;
   const factory ChatAIMessageEvent.retry() = _Retry;
+  const factory ChatAIMessageEvent.retryResult(String text) = _RetryResult;
 }
 
 @freezed
@@ -98,12 +118,14 @@ class ChatAIMessageState with _$ChatAIMessageState {
     AnswerStream? stream,
     String? error,
     required String text,
+    required LoadingState retryState,
   }) = _ChatAIMessageState;
 
   factory ChatAIMessageState.initial(dynamic text) {
     return ChatAIMessageState(
       text: text is String ? text : "",
       stream: text is AnswerStream ? text : null,
+      retryState: const LoadingState.finish(),
     );
   }
 }
