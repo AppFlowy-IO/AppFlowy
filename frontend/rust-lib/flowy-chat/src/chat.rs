@@ -3,9 +3,7 @@ use crate::entities::{
 };
 use crate::manager::ChatUserService;
 use crate::notification::{send_notification, ChatNotification};
-use crate::persistence::{
-  insert_answer_message, insert_chat_messages, select_chat_messages, ChatMessageTable,
-};
+use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use allo_isolate::Isolate;
 use flowy_chat_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageType, MessageCursor, StringOrMessage,
