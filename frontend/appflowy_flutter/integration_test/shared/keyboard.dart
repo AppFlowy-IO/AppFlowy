@@ -10,11 +10,25 @@ class FlowyTestKeyboard {
   }) async {
     for (final LogicalKeyboardKey key in keys) {
       await flutter_test.simulateKeyDownEvent(key);
+      await tester.pumpAndSettle();
+    }
 
-      if (withKeyUp) {
+    if (withKeyUp) {
+      for (final LogicalKeyboardKey key in keys) {
         await flutter_test.simulateKeyUpEvent(key);
+        await tester.pumpAndSettle();
       }
+    }
+  }
 
+  static Future<void> simulateKeyDownUpEvent(
+    List<LogicalKeyboardKey> keys, {
+    required flutter_test.WidgetTester tester,
+  }) async {
+    for (final LogicalKeyboardKey key in keys) {
+      await flutter_test.simulateKeyDownEvent(key);
+      await tester.pumpAndSettle();
+      await flutter_test.simulateKeyUpEvent(key);
       await tester.pumpAndSettle();
     }
   }
