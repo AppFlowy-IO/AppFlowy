@@ -119,11 +119,13 @@ impl DocumentManager {
         format!("document {} already exists", doc_id),
       ))
     } else {
-      let doc_state =
-        doc_state_from_document_data(doc_id, data.unwrap_or_else(default_document_data))
-          .await?
-          .doc_state
-          .to_vec();
+      let doc_state = doc_state_from_document_data(
+        doc_id,
+        data.unwrap_or_else(|| default_document_data(doc_id)),
+      )
+      .await?
+      .doc_state
+      .to_vec();
       let collab = self
         .collab_for_document(uid, doc_id, DataSource::DocStateV1(doc_state), false)
         .await?;
