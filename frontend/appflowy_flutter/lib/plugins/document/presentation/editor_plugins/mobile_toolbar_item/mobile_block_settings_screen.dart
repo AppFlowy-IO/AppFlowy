@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -51,18 +51,15 @@ enum MobileBlockActionType {
 }
 
 class MobileBlockSettingsScreen extends StatelessWidget {
+  const MobileBlockSettingsScreen({super.key, required this.actions});
+
+  final List<MobileBlockActionType> actions;
+
   static const routeName = '/block_settings';
 
   // the action string comes from the enum MobileBlockActionType
   // example: MobileBlockActionType.delete.actionString, MobileBlockActionType.duplicate.actionString, etc.
   static const supportedActions = 'actions';
-
-  const MobileBlockSettingsScreen({
-    super.key,
-    required this.actions,
-  });
-
-  final List<MobileBlockActionType> actions;
 
   @override
   Widget build(BuildContext context) {

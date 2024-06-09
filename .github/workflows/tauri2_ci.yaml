@@ -1,0 +1,113 @@
+name: Tauri-CI
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/tauri2_ci.yaml"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_web_app/**"
+      - "frontend/resources/**"
+
+env:
+  NODE_VERSION: "18.16.0"
+  PNPM_VERSION: "8.5.0"
+  RUST_TOOLCHAIN: "1.77.2"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tauri-build:
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ ubuntu-20.04 ]
+
+    runs-on: ${{ matrix.platform }}
+
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Maximize build space (ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+          sudo rm -rf /opt/hostedtoolcache/codeQL
+          sudo rm -rf ${GITHUB_WORKSPACE}/.git
+          sudo rm -rf $ANDROID_HOME/ndk
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+          profile: minimal
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./frontend/appflowy_web_app/src-tauri -> target"
+
+      - name: Node_modules cache
+        uses: actions/cache@v2
+        with:
+          path: frontend/appflowy_web_app/node_modules
+          key: node-modules-${{ runner.os }}
+
+      - name: install dependencies (windows only)
+        if: matrix.platform == 'windows-latest'
+        working-directory: frontend
+        run: |
+          cargo install --force duckscript_cli
+          vcpkg integrate install
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
+        working-directory: frontend
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: install cargo-make
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo make appflowy-tauri-deps-tools
+
+      - name: install frontend dependencies
+        working-directory: frontend/appflowy_web_app
+        run: |
+          mkdir dist
+          pnpm install
+          cd src-tauri && cargo build
+
+      - name: test and lint
+        working-directory: frontend/appflowy_web_app
+        run: |
+          pnpm run lint:tauri
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tauriScript: pnpm tauri
+          projectPath: frontend/appflowy_web_app
+          args: "--debug"

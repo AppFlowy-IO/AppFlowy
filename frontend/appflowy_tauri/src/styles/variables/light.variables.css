@@ -1,6 +1,6 @@
 /**
 * Do not edit directly
-* Generated on Wed, 12 Jul 2023 07:09:42 GMT
+* Generated on Tue, 19 Mar 2024 03:48:58 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -36,7 +36,7 @@
   --base-light-color-light-green: #ddffd6;
   --base-light-color-light-aqua: #defff1;
   --base-light-color-light-blue: #e1fbff;
-  --base-light-color-light-red: #ffe7ee;
+  --base-light-color-light-red: #ffdddd;
   --base-black-neutral-100: #252F41;
   --base-black-neutral-200: #313c51;
   --base-black-neutral-300: #3c4557;
@@ -68,6 +68,7 @@
   --base-black-color-light-red: #56363F;
   --base-black-color-light-aqua: #1B3849;
   --base-black-color-light-lime: #394027;
+  --base-black-color-light-orange: #5E3C3C;
   --base-else-brand: #2c144b;
   --text-title: #333333;
   --text-caption: #828282;
@@ -110,7 +111,7 @@
   --function-info: #00bcf0;
   --tint-purple: #e8e0ff;
   --tint-pink: #ffe7ee;
-  --tint-red: #ffe7ee;
+  --tint-red: #ffdddd;
   --tint-lime: #f5ffdc;
   --tint-green: #ddffd6;
   --tint-aqua: #defff1;
@@ -118,4 +119,6 @@
   --tint-orange: #ffefe3;
   --tint-yellow: #fff2cd;
   --shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+  --scrollbar-thumb: #bdbdbd;
+  --scrollbar-track: #edeef2;
 }

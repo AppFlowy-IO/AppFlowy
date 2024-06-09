@@ -1,5 +1,5 @@
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::cell::stringify_cell_data;
+use flowy_database2::services::cell::stringify_cell;
 use flowy_database2::services::field::CHECK;
 use flowy_database2::services::share::csv::CSVFormat;
 
@@ -20,24 +20,6 @@ async fn export_meta_csv_test() {
     let record = record.unwrap();
     dbg!(record);
   }
-}
-
-#[tokio::test]
-async fn export_csv_test() {
-  let test = DatabaseEditorTest::new_grid().await;
-  let database = test.editor.clone();
-  let s = database.export_csv(CSVFormat::Original).await.unwrap();
-  let expected = r#"Name,Price,Time,Status,Platform,is urgent,link,TODO,Last Modified,Created At
-A,$1,2022/03/14,,"Google,Facebook",Yes,AppFlowy website - https://www.appflowy.io,,,
-,$2,2022/03/14,,"Google,Twitter",Yes,,,,
-C,$3,2022/03/14,Completed,"Facebook,Google,Twitter",No,,,,
-DA,$14,2022/11/17,Completed,,No,,,,
-AE,,2022/11/13,Planned,"Facebook,Twitter",No,,,,
-AE,$5,2022/12/25,Planned,Facebook,Yes,,,,
-CB,,,,,,,,,
-"#;
-  println!("{}", s);
-  assert_eq!(s, expected);
 }
 
 #[tokio::test]
@@ -67,7 +49,7 @@ async fn export_and_then_import_meta_csv_test() {
     for (index, row_detail) in rows.iter().enumerate() {
       if let Some(cell) = row_detail.row.cells.get(&field.id) {
         let field_type = FieldType::from(field.field_type);
-        let s = stringify_cell_data(cell, &field_type, &field_type, &field);
+        let s = stringify_cell(cell, &field);
         match &field_type {
           FieldType::RichText => {
             if index == 0 {
@@ -99,6 +81,8 @@ async fn export_and_then_import_meta_csv_test() {
           FieldType::Checklist => {},
           FieldType::LastEditedTime => {},
           FieldType::CreatedTime => {},
+          FieldType::Relation => {},
+          FieldType::Summary => {},
         }
       } else {
         panic!(
@@ -140,7 +124,7 @@ async fn history_database_import_test() {
     for (index, row_detail) in rows.iter().enumerate() {
       if let Some(cell) = row_detail.row.cells.get(&field.id) {
         let field_type = FieldType::from(field.field_type);
-        let s = stringify_cell_data(cell, &field_type, &field_type, &field);
+        let s = stringify_cell(cell, &field);
         match &field_type {
           FieldType::RichText => {
             if index == 0 {
@@ -180,6 +164,8 @@ async fn history_database_import_test() {
           FieldType::Checklist => {},
           FieldType::LastEditedTime => {},
           FieldType::CreatedTime => {},
+          FieldType::Relation => {},
+          FieldType::Summary => {},
         }
       } else {
         panic!(

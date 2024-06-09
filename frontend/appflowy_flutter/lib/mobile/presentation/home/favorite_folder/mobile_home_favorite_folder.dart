@@ -3,7 +3,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/default_mobile_action_
 import 'package:appflowy/mobile/presentation/home/favorite_folder/mobile_home_favorite_folder_header.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +27,7 @@ class MobileFavoriteFolder extends StatelessWidget {
     }
 
     return BlocProvider<FolderBloc>(
-      create: (context) => FolderBloc(type: FolderCategoryType.favorite)
+      create: (context) => FolderBloc(type: FolderSpaceType.favorite)
         ..add(
           const FolderEvent.initial(),
         ),
@@ -54,23 +54,25 @@ class MobileFavoriteFolder extends StatelessWidget {
                 ...views.map(
                   (view) => MobileViewItem(
                     key: ValueKey(
-                      '${FolderCategoryType.favorite.name} ${view.id}',
+                      '${FolderSpaceType.favorite.name} ${view.id}',
                     ),
-                    categoryType: FolderCategoryType.favorite,
+                    spaceType: FolderSpaceType.favorite,
                     isDraggable: false,
                     isFirstChild: view.id == views.first.id,
                     isFeedback: false,
                     view: view,
                     level: 0,
-                    onSelected: (view) async {
-                      await context.pushView(view);
-                    },
-                    endActionPane: (context) => buildEndActionPane(context, [
-                      view.isFavorite
-                          ? MobilePaneActionType.removeFromFavorites
-                          : MobilePaneActionType.addToFavorites,
-                      MobilePaneActionType.more,
-                    ]),
+                    onSelected: context.pushView,
+                    endActionPane: (context) => buildEndActionPane(
+                      context,
+                      [
+                        view.isFavorite
+                            ? MobilePaneActionType.removeFromFavorites
+                            : MobilePaneActionType.addToFavorites,
+                        MobilePaneActionType.more,
+                      ],
+                      spaceType: FolderSpaceType.favorite,
+                    ),
                   ),
                 ),
             ],

@@ -2,6 +2,7 @@
   "appName": "AppFlowy",
   "defaultUsername": "Eu",
   "welcomeText": "Bem-vindo ao @:appName",
+  "welcomeTo": "Bem-vindo ao",
   "githubStarText": "Dar uma estrela no Github",
   "subscribeNewsletterText": "Inscreva-se para receber novidades",
   "letsGoButtonText": "Vamos lá",
@@ -32,8 +33,10 @@
   "signIn": {
     "loginTitle": "Conectar-se ao @:appName",
     "loginButtonText": "Conectar-se",
+    "loginStartWithAnonymous": "Iniciar com uma sessão anônima",
     "continueAnonymousUser": "Continuar em uma sessão anônima",
     "buttonText": "Entre",
+    "signingInText": "Entrando...",
     "forgotPassword": "Esqueceu sua senha?",
     "emailHint": "E-mail",
     "passwordHint": "Senha",
@@ -41,15 +44,25 @@
     "repeatPasswordEmptyError": "Senha não pode estar em branco.",
     "unmatchedPasswordError": "As senhas não conferem.",
     "syncPromptMessage": "A sincronização dos dados pode demorar um pouco. Por favor não feche esta página",
+    "or": "OU",
     "signInWith": "Entrar com:",
+    "LogInWithGoogle": "Entrar com o Google",
+    "LogInWithGithub": "Entrar com o Github",
+    "LogInWithDiscord": "Entrar com o Discord",
     "loginAsGuestButtonText": "Iniciar"
   },
   "workspace": {
+    "chooseWorkspace": "Escolha seu espaço de trabalho",
     "create": "Crie um espaço de trabalho",
     "reset": "Redefinir espaço de trabalho",
     "resetWorkspacePrompt": "A redefinição do espaço de trabalho excluirá todas as páginas e dados contidos nele. Tem certeza de que deseja redefinir o espaço de trabalho? Alternativamente, você pode entrar em contato com a equipe de suporte para restaurar o espaço de trabalho",
     "hint": "Espaço de trabalho",
-    "notFoundError": "Espaço de trabalho não encontrado"
+    "notFoundError": "Espaço de trabalho não encontrado",
+    "failedToLoad": "Algo deu errado! Falha ao carregar o espaço de trabalho. Tente fechar qualquer instância aberta do @:appName e tente novamente.",
+    "errorActions": {
+      "reportIssue": "Reporte um problema",
+      "reachOut": "Entre em contato no Discord"
+    }
   },
   "shareAction": {
     "buttonText": "Compartilhar",
@@ -106,6 +119,13 @@
     "confirmRestoreAll": {
       "title": "Tem certeza de que deseja restaurar todas as páginas da Lixeira?",
       "caption": "Essa ação não pode ser desfeita."
+    },
+    "mobile": {
+      "actions": "Ações de lixo",
+      "empty": "A lixeira está vazia",
+      "emptyDescription": "Você não tem nenhum arquivo excluído",
+      "isDeleted": "foi deletado",
+      "isRestored": "foi restaurado"
     }
   },
   "deletePagePrompt": {
@@ -132,6 +152,7 @@
     "defaultNewPageName": "Sem título",
     "renameDialog": "Renomear"
   },
+  "noPagesInside": "Sem páginas internas",
   "toolbar": {
     "undo": "Desfazer",
     "redo": "Refazer",
@@ -168,7 +189,8 @@
     "favorites": "Favoritos",
     "clickToHidePersonal": "Clique para ocultar a seção pessoal",
     "clickToHideFavorites": "Clique para ocultar a seção favorita",
-    "addAPage": "Adicionar uma página"
+    "addAPage": "Adicionar uma página",
+    "recent": "Recentes"
   },
   "notifications": {
     "export": {
@@ -183,7 +205,9 @@
     "editContact": "Editar um contato"
   },
   "button": {
+    "ok": "OK",
     "done": "Feito",
+    "cancel": "Cancelar",
     "signIn": "Conectar",
     "signOut": "Desconectar",
     "complete": "Completar",
@@ -195,14 +219,20 @@
     "discard": "Descartar",
     "replace": "substituir",
     "insertBelow": "Inserir Abaixo",
+    "insertAbove": "Insira acima",
     "upload": "Carregar",
     "edit": "Editar",
     "delete": "Excluir",
     "duplicate": "Duplicado",
     "putback": "Por de volta",
-    "OK": "Ok",
-    "Done": "Feito",
-    "Cancel": "Cancelar",
+    "update": "Atualizar",
+    "share": "Compartilhar",
+    "removeFromFavorites": "Remover dos favoritos",
+    "addToFavorites": "Adicionar aos favoritos",
+    "rename": "Renomear",
+    "helpCenter": "Central de Ajuda",
+    "add": "Adicionar",
+    "yes": "Sim",
     "tryAGain": "Tentar novamente"
   },
   "label": {
@@ -232,21 +262,56 @@
       "language": "Idioma",
       "user": "Usuário",
       "files": "Arquivos",
+      "notifications": "Notificações",
       "open": "Abrir Configurações",
       "logout": "Sair",
       "logoutPrompt": "Tem certeza de que deseja sair?",
       "selfEncryptionLogoutPrompt": "Tem certeza que deseja sair? Certifique-se de ter copiado o segredo de criptografia",
       "syncSetting": "Configuração de sincronização",
+      "cloudSettings": "Configurações de nuvem",
       "enableSync": "Ativar sincronização",
       "enableEncrypt": "Criptografar dados",
+      "cloudURL": "URL base",
+      "invalidCloudURLScheme": "Esquema inválido",
+      "cloudServerType": "Servidor em nuvem",
+      "cloudServerTypeTip": "Observe que ele pode desconectar sua conta atual após mudar o servidor em nuvem",
+      "cloudLocal": "Local",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "URL da Supabase",
+      "cloudSupabaseAnonKey": "Chave anônima Supabase",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "A chave anon não pode estar vazia se o URL da supabase não estiver vazio",
+      "cloudAppFlowy": "@:appName Cloud Beta",
+      "clickToCopy": "Clique para copiar",
+      "selfHostStart": "Se você não possui um servidor, consulte o",
+      "selfHostContent": "documento",
+      "selfHostEnd": "para obter orientação sobre como hospedar seu próprio servidor",
+      "cloudURLHint": "Insira o URL base do seu servidor",
+      "cloudWSURL": "URL do WebSocket",
+      "cloudWSURLHint": "Insira o endereço do websocket do seu servidor",
+      "restartApp": "Reiniciar",
+      "restartAppTip": "Reinicie o aplicativo para que as alterações tenham efeito. Observe que isso pode desconectar sua conta atual",
       "enableEncryptPrompt": "Ative a criptografia para proteger seus dados com este segredo. Armazene-o com segurança; uma vez ativado, não pode ser desativado. Se perdidos, seus dados se tornarão irrecuperáveis. Clique para copiar",
       "inputEncryptPrompt": "Por favor, insira seu segredo de criptografia para",
       "clickToCopySecret": "Clique para copiar o segredo",
+      "configServerSetting": "Configure seu servidor",
+      "configServerGuide": "Após selecionar `Quick Start`, navegue até `Settings` e depois \"Cloud Settings\" para configurar seu servidor auto-hospedado.",
       "inputTextFieldHint": "Seu segredo",
       "historicalUserList": "Histórico de login do usuário",
       "historicalUserListTooltip": "Esta lista exibe suas contas anônimas. Você pode clicar em uma conta para ver seus detalhes. Contas anônimas são criadas clicando no botão ‘Começar’",
       "openHistoricalUser": "Clique para abrir a conta anônima",
+      "customPathPrompt": "Armazenar a pasta de dados do @:appName em uma pasta sincronizada na nuvem, como o Google Drive, pode representar riscos. Se o banco de dados nesta pasta for acessado ou modificado de vários locais ao mesmo tempo, isso poderá resultar em conflitos de sincronização e possível corrupção de dados",
+      "importAppFlowyData": "Importar dados da pasta @:appName externa",
+      "importAppFlowyDataDescription": "Copie dados de uma pasta de dados externa do @:appName e importe-os para a pasta de dados atual do @:appName",
+      "importSuccess": "Importou com sucesso a pasta de dados do @:appName",
+      "importFailed": "Falha ao importar a pasta de dados do @:appName",
+      "importGuide": "Para mais detalhes, consulte o documento referenciado",
       "supabaseSetting": "Configuração de Supabase"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Habilitar notificações",
+        "hint": "Desligue para impedir notificações locais de aparecer"
+      }
     },
     "appearance": {
       "resetSetting": "Redefinir esta configuração",
@@ -260,26 +325,67 @@
         "dark": "Modo escuro",
         "system": "Adaptar-se ao sistema"
       },
+      "documentSettings": {
+        "cursorColor": "Cor do cursor do documento",
+        "selectionColor": "Cor de seleção do documento",
+        "hexEmptyError": "A cor hexadecimal não pode estar vazia",
+        "hexLengthError": "O valor hexadecimal deve ter 6 dígitos",
+        "hexInvalidError": "Valor hexadecimal inválido",
+        "opacityEmptyError": "A opacidade não pode estar vazia",
+        "opacityRangeError": "A opacidade deve estar entre 1 e 100",
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "Aplicar"
+      },
+      "layoutDirection": {
+        "label": "Direção do Layout",
+        "hint": "Controle o fluxo do conteúdo na tela, da esquerda para a direita ou da direita para a esquerda.",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "Direção de texto padrão",
+        "hint": "Especifique se o texto deve começar da esquerda ou da direita como padrão.",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "AUTO",
+        "fallback": "Igual à direção do layout"
+      },
       "themeUpload": {
         "button": "Carregar",
-        "description": "Carregue seu próprio tema AppFlowy usando o botão abaixo.",
-        "failure": "O tema que foi carregado tinha um formato inválido.",
+        "uploadTheme": "Carregar tema",
+        "description": "Carregue seu próprio tema @:appName usando o botão abaixo.",
         "loading": "Aguarde enquanto validamos e carregamos seu tema...",
         "uploadSuccess": "Seu tema foi carregado com sucesso",
         "deletionFailure": "Falha ao excluir o tema. Tente excluí-lo manualmente.",
         "filePickerDialogTitle": "Escolha um arquivo .flowy_plugin",
-        "urlUploadFailure": "Falha ao abrir url: {}"
+        "urlUploadFailure": "Falha ao abrir url: {}",
+        "failure": "O tema que foi carregado tinha um formato inválido."
       },
       "theme": "Tema",
       "builtInsLabel": "Temas embutidos",
-      "pluginsLabel": "Plugins"
+      "pluginsLabel": "Plugins",
+      "dateFormat": {
+        "label": "Formato de data",
+        "local": "Local",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "Amigável",
+        "dmy": "D/M/A"
+      },
+      "timeFormat": {
+        "label": "Formato de hora",
+        "twelveHour": "Doze horas",
+        "twentyFourHour": "Vinte e quatro horas"
+      },
+      "showNamingDialogWhenCreatingPage": "Mostrar caixa de diálogo de nomenclatura ao criar uma página"
     },
     "files": {
       "copy": "cópia de",
       "defaultLocation": "Onde os seus dados ficam armazenados",
       "exportData": "Exporte seus dados",
       "doubleTapToCopy": "Clique duas vezes para copiar o caminho",
-      "restoreLocation": "Restaurar para o caminho padrão do AppFlowy",
+      "restoreLocation": "Restaurar para o caminho padrão do @:appName",
       "customizeLocation": "Abrir outra pasta",
       "restartApp": "Reinicie o aplicativo para que as alterações entrem em vigor.",
       "exportDatabase": "Exportar banco de dados",
@@ -291,10 +397,10 @@
       "defineWhereYourDataIsStored": "Defina onde seus dados são armazenados",
       "open": "Abrir",
       "openFolder": "Abra uma pasta existente",
-      "openFolderDesc": "Gravar na pasta AppFlowy existente ...",
+      "openFolderDesc": "Gravar na pasta @:appName existente ...",
       "folderHintText": "nome da pasta",
       "location": "Criando nova pasta",
-      "locationDesc": "Escolha um nome para sua pasta de dados do AppFlowy",
+      "locationDesc": "Escolha um nome para sua pasta de dados do @:appName",
       "browser": "Navegar",
       "create": "Criar",
       "set": "Definir",
@@ -305,7 +411,7 @@
       "change": "Mudar",
       "openLocationTooltips": "Abra outro diretório de dados",
       "openCurrentDataFolder": "Abra o diretório de dados atual",
-      "recoverLocationTooltips": "Redefinir para o diretório de dados padrão do AppFlowy",
+      "recoverLocationTooltips": "Redefinir para o diretório de dados padrão do @:appName",
       "exportFileSuccess": "Exportar arquivo com sucesso!",
       "exportFileFail": "Falha na exportação do arquivo!",
       "export": "Exportar"
@@ -313,8 +419,10 @@
     "user": {
       "name": "Nome",
       "email": "E-mail",
+      "tooltipSelectIcon": "Selecionar ícone",
       "selectAnIcon": "Escolha um ícone",
       "pleaseInputYourOpenAIKey": "por favor insira sua chave OpenAI",
+      "pleaseInputYourStabilityAIKey": "insira sua chave Stability AI",
       "clickToLogout": "Clique para sair do usuário atual"
     },
     "shortcuts": {
@@ -326,12 +434,42 @@
       "shortcutIsAlreadyUsed": "Este atalho já é usado para: {conflict}",
       "resetToDefault": "Redefinir para atalhos de teclado padrão",
       "couldNotLoadErrorMsg": "Não foi possível carregar os atalhos. Tente novamente",
-      "couldNotSaveErrorMsg": "Não foi possível salvar os atalhos. Tente novamente"
+      "couldNotSaveErrorMsg": "Não foi possível salvar os atalhos. Tente novamente",
+      "commands": {
+        "codeBlockNewParagraph": "Bloco de código: insirir um novo parágrafo",
+        "codeBlockAddTwoSpaces": "Bloco de código: insirir dois espaços no início da linha",
+        "codeBlockSelectAll": "Bloco de código: selecionar tudo",
+        "codeBlockPasteText": "Bloco de códito: Colar texto",
+        "textAlignLeft": "Alinhar texto à esquerda",
+        "textAlignCenter": "Alinhar texto ao centro",
+        "textAlignRight": "Alinhar texto à direita",
+        "codeBlockDeleteTwoSpaces": "Bloco de código: excluir dois espaços no início da linha"
+      }
+    },
+    "mobile": {
+      "personalInfo": "Informações pessoais",
+      "username": "Nome de usuário",
+      "usernameEmptyError": "O nome de usuário não pode ficar vazio",
+      "about": "Sobre",
+      "pushNotifications": "Notificações via push",
+      "support": "Apoiar",
+      "joinDiscord": "Junte-se a nós no Discord",
+      "privacyPolicy": "Política de Privacidade",
+      "userAgreement": "Termo de Acordo do Usuário",
+      "termsAndConditions": "Termos e Condições",
+      "userprofileError": "Falha ao carregar o perfil do usuário",
+      "userprofileErrorDescription": "Tente sair e fazer login novamente para verificar se o problema ainda persiste.",
+      "selectLayout": "Selecione o layout",
+      "selectStartingDay": "Selecione o dia de início",
+      "version": "Versão"
     }
   },
   "grid": {
     "deleteView": "Tem certeza de que deseja excluir esta visualização?",
     "createView": "Novo",
+    "title": {
+      "placeholder": "Sem título"
+    },
     "settings": {
       "filter": "Filtro",
       "sort": "Organizar",
@@ -345,7 +483,15 @@
       "typeAValue": "Digite um valor...",
       "layout": "Disposição",
       "databaseLayout": "Disposição",
-      "Properties": "Propriedades"
+      "editView": "Editar visualização",
+      "boardSettings": "Configurações do quadro",
+      "calendarSettings": "Configurações do calendário",
+      "createView": "Nova visualização",
+      "duplicateView": "Visualização duplicada",
+      "deleteView": "Excluir visualização",
+      "numberOfVisibleFields": "{} mostrando",
+      "Properties": "Propriedades",
+      "viewList": "Visualizações de banco de dados"
     },
     "textFilter": {
       "contains": "Contém",
@@ -375,20 +521,25 @@
       "isComplete": "está completo",
       "isIncomplted": "está imcompleto"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Está",
       "isNot": "Não está",
-      "isEmpty": "Está vazio",
-      "isNotEmpty": "Não está vazio"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contém",
       "doesNotContain": "Não contém",
       "isEmpty": "Está vazio",
       "isNotEmpty": "Está vazio"
     },
+    "dateFilter": {
+      "is": "É",
+      "before": "É antes",
+      "after": "é depois",
+      "between": "Está entre",
+      "empty": "Está vazia",
+      "notEmpty": "Não está vazio"
+    },
     "field": {
       "hide": "Ocultar",
+      "show": "Mostrar",
       "insertLeft": "Inserir a esquerda",
       "insertRight": "Inserir a direita",
       "duplicate": "Duplicar",
@@ -406,6 +557,7 @@
       "numberFormat": "Formato numérico",
       "dateFormat": "Formato de data",
       "includeTime": "Incluir hora",
+      "isRange": "Data final",
       "dateFormatFriendly": "Mês Dia, Ano",
       "dateFormatISO": "Ano-Mês-Dia",
       "dateFormatLocal": "Mês/Dia/Ano",
@@ -416,13 +568,37 @@
       "timeFormatTwelveHour": "12 horas",
       "timeFormatTwentyFourHour": "24 horas",
       "clearDate": "Limpar data",
+      "dateTime": "Data hora",
+      "startDateTime": "Data e hora de início",
+      "endDateTime": "Data e hora de término",
+      "failedToLoadDate": "Falha ao carregar o valor da data",
+      "selectTime": "Selecione o horário",
+      "selectDate": "Selecione a data",
+      "visibility": "Visibilidade",
+      "propertyType": "Tipo de Propriedade",
       "addSelectOption": "Adicionar uma opção",
+      "typeANewOption": "Digite uma nova opção",
       "optionTitle": "Opções",
       "addOption": "Adicioar opção",
       "editProperty": "Editar propriedade",
       "newProperty": "Nova coluna",
       "deleteFieldPromptMessage": "Tem certeza? Esta propriedade será excluída",
-      "newColumn": "Nova Coluna"
+      "newColumn": "Nova Coluna",
+      "format": "Formato"
+    },
+    "rowPage": {
+      "newField": "Adicione um novo campo",
+      "fieldDragElementTooltip": "Clique para abrir o menu",
+      "showHiddenFields": {
+        "one": "Mostrar campo oculto {count}",
+        "many": "Mostrar {count} campos ocultos",
+        "other": "Mostrar {count} campos ocultos"
+      },
+      "hideHiddenFields": {
+        "one": "Ocultar {count} campo oculto",
+        "many": "Ocultar {count} campos ocultos",
+        "other": "Ocultar {count} campos ocultos"
+      }
     },
     "sort": {
       "ascending": "Crescente",
@@ -439,7 +615,12 @@
       "copyProperty": "Propriedade copiada para a área de transferência",
       "count": "Contagem",
       "newRow": "Nova linha",
-      "action": "Ação"
+      "action": "Ação",
+      "add": "Clique em adicionar abaixo",
+      "drag": "Arraste para mover",
+      "dragAndClick": "Arraste para mover, clique para abrir o menu",
+      "insertRecordAbove": "Insira o registro acima",
+      "insertRecordBelow": "Insira o registro abaixo"
     },
     "selectOption": {
       "create": "Criar",
@@ -456,11 +637,24 @@
       "colorPanelTitle": "cores",
       "panelTitle": "Selecione uma opção ou crie uma",
       "searchOption": "Procurar uma opção",
+      "searchOrCreateOption": "Pesquise ou crie uma opção...",
+      "createNew": "Crie um novo",
+      "orSelectOne": "Ou selecione uma opção",
+      "typeANewOption": "Digite uma nova opção",
+      "tagName": "Nome da etiqueta",
       "colorPannelTitle": "Cores",
       "pannelTitle": "Escolha uma opção ou crie uma"
     },
     "checklist": {
-      "addNew": "Adicionar um item"
+      "taskHint": "Descrição da tarefa",
+      "addNew": "Adicionar um item",
+      "submitNewTask": "Criar",
+      "hideComplete": "Ocultar tarefas concluídas",
+      "showComplete": "Mostrar todas as tarefas"
+    },
+    "url": {
+      "launch": "Abrir com o navegador",
+      "copy": "Copiar URL"
     },
     "menuName": "Grade",
     "referencedGridPrefix": "Vista de"
@@ -483,6 +677,9 @@
       "calendar": {
         "selectACalendarToLinkTo": "Selecione um calendário para vincular",
         "createANewCalendar": "Criar um novo calendário"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Selecione um documento para vincular"
       }
     },
     "selectionMenu": {
@@ -490,9 +687,10 @@
       "codeBlock": "Bloco de código"
     },
     "plugins": {
-      "referencedBoard": "Quadro vinculado",
-      "referencedGrid": "Grade vinculado",
-      "referencedCalendar": "calendário referenciado",
+      "referencedBoard": "Quadro referenciado",
+      "referencedGrid": "Grade referenciada",
+      "referencedCalendar": "Calendário referenciado",
+      "referencedDocument": "Referenciar um documento",
       "autoGeneratorMenuItemName": "Gerar nome automaticamente",
       "autoGeneratorTitleName": "Gerar por IA",
       "autoGeneratorLearnMore": "Saiba mais",
@@ -512,7 +710,15 @@
       "smartEditDisabled": "Conecte OpenAI em Configurações",
       "discardResponse": "Deseja descartar as respostas de IA?",
       "createInlineMathEquation": "Criar equação",
+      "fonts": "Fontes",
+      "insertDate": "Inserir data",
+      "emoji": "Emoji",
       "toggleList": "Alternar lista",
+      "quoteList": "Lista de citações",
+      "numberedList": "Lista numerada",
+      "bulletedList": "Lista com marcadores",
+      "todoList": "Lista de afazeres",
+      "callout": "Destacar",
       "cover": {
         "changeCover": "Mudar capa",
         "colors": "cores",
@@ -534,10 +740,12 @@
         "couldNotFetchImage": "Não foi possível obter a imagem",
         "imageSavingFailed": "Falha ao salvar a imagem",
         "addIcon": "Adicionar ícone",
+        "changeIcon": "Alterar ícone",
         "coverRemoveAlert": "Ele será removido da capa após ser excluído.",
         "alertDialogConfirmation": "Você tem certeza que quer continuar?"
       },
       "mathEquation": {
+        "name": "Equação Matemática",
         "addMathEquation": "Adicionar equação matemática",
         "editMathEquation": "Editar equação matemática"
       },
@@ -557,7 +765,11 @@
         "defaultColor": "Padrão"
       },
       "image": {
-        "copiedToPasteBoard": "O link da imagem foi copiado para a área de transferência"
+        "copiedToPasteBoard": "O link da imagem foi copiado para a área de transferência",
+        "addAnImage": "Adicione uma imagem"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "O link foi copiado para a área de transferência"
       },
       "outline": {
         "addHeadingToCreateOutline": "Adicione títulos para criar um sumário."
@@ -574,6 +786,15 @@
         "copy": "Cópia",
         "cut": "Corte",
         "paste": "Colar"
+      },
+      "action": "Ações",
+      "database": {
+        "selectDataSource": "Selecione a fonte de dados",
+        "noDataSource": "Nenhuma fonte de dados",
+        "selectADataSource": "Selecione uma fonte de dados",
+        "toContinue": "continuar",
+        "newDatabase": "Novo banco de dados",
+        "linkToDatabase": "Link para banco de dados"
       },
       "autoCompletionMenuItemName": "Preenchimento Automático"
     },
@@ -593,13 +814,35 @@
         "label": "imagem URL",
         "placeholder": "Insira o URL da imagem"
       },
+      "ai": {
+        "label": "Gerar imagem da OpenAI",
+        "placeholder": "Insira o prompt para OpenAI gerar imagem"
+      },
+      "stability_ai": {
+        "label": "Gerar imagem da Stability AI",
+        "placeholder": "Insira o prompt para Stability AI gerar imagem"
+      },
       "support": "O limite de tamanho da imagem é de 5 MB. Formatos suportados: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "imagem inválida",
         "invalidImageSize": "O tamanho da imagem deve ser inferior a 5 MB",
         "invalidImageFormat": "O formato da imagem não é suportado. Formatos suportados: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "URL de imagem inválido"
-      }
+      },
+      "embedLink": {
+        "label": "Incorporar link",
+        "placeholder": "Cole ou digite um link de imagem"
+      },
+      "unsplash": {
+        "label": "Remover respingo"
+      },
+      "searchForAnImage": "Procurar uma imagem",
+      "pleaseInputYourOpenAIKey": "insira sua chave OpenAI na página configurações",
+      "pleaseInputYourStabilityAIKey": "insira sua chave Stability AI na página Configurações",
+      "saveImageToGallery": "Salvar imagem",
+      "failedToAddImageToGallery": "Falha ao adicionar imagem à galeria",
+      "successToAddImageToGallery": "Imagem adicionada à galeria com sucesso",
+      "unableToLoadImage": "Não foi possível carregar a imagem"
     },
     "codeBlock": {
       "language": {
@@ -627,18 +870,59 @@
         "label": "Link para a página",
         "tooltip": "Clique para abrir a página"
       }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Restaurar ao padrão"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "A versão atual não suporta este bloco.",
+      "blockContentHasBeenCopied": "O conteúdo do bloco foi copiado."
     }
   },
   "board": {
-    "menuName": "Quadro",
-    "referencedBoardPrefix": "Vista de",
     "column": {
-      "createNewCard": "Novo"
+      "createNewCard": "Novo",
+      "renameGroupTooltip": "Pressione para renomear o grupo",
+      "createNewColumn": "Adicionar um novo grupo",
+      "addToColumnTopTooltip": "Adicione um novo cartão na parte superior",
+      "addToColumnBottomTooltip": "Adicione um novo cartão na parte inferior",
+      "renameColumn": "Renomear",
+      "hideColumn": "Esconder",
+      "newGroup": "Novo grupo",
+      "deleteColumn": "Excluir",
+      "deleteColumnConfirmation": "Isso excluirá este grupo e todos os cartões nele contidos. Você tem certeza que quer continuar?"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "Grupos ocultos",
+      "collapseTooltip": "Ocultar os grupos ocultos",
+      "expandTooltip": "Ver os grupos ocultos"
+    },
+    "cardDetail": "Detalhe do cartão",
+    "cardActions": "Ações de cartão",
+    "cardDuplicated": "O cartão foi duplicado",
+    "cardDeleted": "O cartão foi excluído",
+    "showOnCard": "Mostrar detalhes no cartão",
+    "setting": "Configurações",
+    "propertyName": "Nome da propriedade",
+    "menuName": "Quadro",
+    "showUngrouped": "Mostrar itens desagrupados",
+    "ungroupedButtonText": "Desagrupado",
+    "ungroupedButtonTooltip": "Contém cartões que não pertencem a nenhum grupo",
+    "ungroupedItemsTitle": "Clique para adicionar ao quadro",
+    "groupBy": "Agrupar por",
+    "referencedBoardPrefix": "Vista de",
+    "notesTooltip": "Notas dentro",
+    "mobile": {
+      "editURL": "Editar URL",
+      "showGroup": "Mostrar grupo",
+      "showGroupContent": "Tem certeza de que deseja mostrar este grupo no quadro?",
+      "failedToLoad": "Falha ao carregar a visualização do quadro"
     }
   },
   "calendar": {
     "menuName": "Calendário",
     "defaultNewCalendarTitle": "Sem título",
+    "newEventButtonTooltip": "Adicionar um novo evento",
     "navigation": {
       "today": "Hoje",
       "jumpToday": "Pular para hoje",
@@ -650,15 +934,18 @@
       "showWeekends": "Mostrar fins de semana",
       "firstDayOfWeek": "Comece a semana em",
       "layoutDateField": "Calendário de layout por",
+      "changeLayoutDateField": "Alterar campo de layout",
       "noDateTitle": "sem data",
+      "unscheduledEventsTitle": "Eventos não agendados",
       "clickToAdd": "Clique para adicionar ao calendário",
       "name": "Layout do calendário",
       "noDateHint": "Eventos não agendados aparecerão aqui"
     },
-    "referencedCalendarPrefix": "Vista de"
+    "referencedCalendarPrefix": "Vista de",
+    "quickJumpYear": "Ir para"
   },
   "errorDialog": {
-    "title": "Erro do AppFlowy",
+    "title": "Erro do @:appName",
     "howToFixFallback": "Lamentamos o inconveniente! Envie um problema em nossa página do GitHub que descreva seu erro.",
     "github": "Ver no GitHub"
   },
@@ -693,6 +980,10 @@
     "gray": "Cinza"
   },
   "emoji": {
+    "emojiTab": "Emoji",
+    "search": "Buscar emoji",
+    "noRecent": "Nenhum emoji recente",
+    "noEmojiFound": "Nenhum emoji encontrado",
     "filter": "Filtro",
     "random": "Aleatório",
     "selectSkinTone": "Selecione o tom do tema",
@@ -709,6 +1000,223 @@
       "flags": "Bandeiras",
       "nature": "Natureza",
       "frequentlyUsed": "Usado frequentemente"
+    },
+    "skinTone": {
+      "default": "Padrão",
+      "light": "Luz",
+      "mediumLight": "Médio-leve",
+      "medium": "Médio",
+      "mediumDark": "Médio-escuro",
+      "dark": "Escuro"
     }
+  },
+  "inlineActions": {
+    "noResults": "Nenhum resultado",
+    "pageReference": "Referenciar pagina ",
+    "docReference": "Referenciar documento",
+    "boardReference": "Referenciar quadro",
+    "calReference": "Referenciar calendário ",
+    "gridReference": "Referenciar grade",
+    "date": "Data",
+    "reminder": {
+      "groupTitle": "Lembrete",
+      "shortKeyword": "lembrar"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Altere o formato de data e hora nas configurações",
+    "dateFormat": "Formato de data",
+    "includeTime": "Incluir tempo",
+    "isRange": "Data final",
+    "timeFormat": "Formato de hora",
+    "clearDate": "Limpar data"
+  },
+  "relativeDates": {
+    "yesterday": "Ontem",
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "oneWeek": "1 semana"
+  },
+  "notificationHub": {
+    "title": "Notificações",
+    "mobile": {
+      "title": "Atualizações"
+    },
+    "emptyTitle": "A par de tudo!",
+    "emptyBody": "Nenhuma notificação ou ação pendente. Aproveite a calmaria.",
+    "tabs": {
+      "inbox": "Caixa de entrada",
+      "upcoming": "Por vir"
+    },
+    "actions": {
+      "markAllRead": "Marcar tudo como lido",
+      "showAll": "Todos",
+      "showUnreads": "Não lida"
+    },
+    "filters": {
+      "ascending": "Ascendente",
+      "descending": "Descendente",
+      "groupByDate": "Agrupar por data",
+      "showUnreadsOnly": "Mostrar apenas os não lidos",
+      "resetToDefault": "Restaurar ao padrão"
+    }
+  },
+  "reminderNotification": {
+    "title": "Lembrete",
+    "message": "Lembre-se de marcar isso antes que você esqueça!",
+    "tooltipDelete": "Excluir",
+    "tooltipMarkRead": "Marcar como lido",
+    "tooltipMarkUnread": "Marcar como não lido"
+  },
+  "findAndReplace": {
+    "find": "Localizar",
+    "previousMatch": "Localizar anterior",
+    "nextMatch": "Localizar proxímo",
+    "close": "Fechar",
+    "replace": "Substituir",
+    "replaceAll": "Substituir tudo",
+    "noResult": "Nenhum resultado",
+    "caseSensitive": "Sensível a maiúsculas e minúsculas"
+  },
+  "error": {
+    "weAreSorry": "Nós lamentamos",
+    "loadingViewError": "Estamos tendo problemas para carregar esta visualização. Verifique sua conexão com a Internet, atualize o aplicativo e não hesite em entrar em contato com a equipe se o problema persistir."
+  },
+  "editor": {
+    "bold": "Negrito",
+    "bulletedList": "Lista com marcadores",
+    "checkbox": "Caixa de seleção",
+    "embedCode": "Incorporar Código",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Destacar",
+    "color": "Cor",
+    "image": "Imagem",
+    "italic": "Itálico",
+    "link": "Link",
+    "numberedList": "Lista Numerada",
+    "quote": "Citar",
+    "strikethrough": "Tachado",
+    "text": "Texto",
+    "underline": "Sublinhado",
+    "fontColorDefault": "Padrão",
+    "fontColorGray": "Cinza",
+    "fontColorBrown": "Marrom",
+    "fontColorOrange": "Laranja",
+    "fontColorYellow": "Amarelo",
+    "fontColorGreen": "Verde",
+    "fontColorBlue": "Azul",
+    "fontColorPurple": "Roxo",
+    "fontColorPink": "Rosa",
+    "fontColorRed": "Vermelho",
+    "backgroundColorDefault": "Plano de fundo padrão",
+    "backgroundColorGray": "Fundo cinza",
+    "backgroundColorBrown": "Fundo marrom",
+    "backgroundColorOrange": "Fundo laranja",
+    "backgroundColorYellow": "Fundo amarelo",
+    "backgroundColorGreen": "Fundo verde",
+    "backgroundColorBlue": "Fundo azul",
+    "backgroundColorPurple": "Fundo roxo",
+    "backgroundColorPink": "Fundo rosa",
+    "backgroundColorRed": "Fundo vermelho",
+    "done": "Feito",
+    "cancel": "Cancelar",
+    "tint1": "Matiz 1",
+    "tint2": "Matiz 2",
+    "tint3": "Matiz 3",
+    "tint4": "Matiz 4",
+    "tint5": "Matiz 5",
+    "tint6": "Matiz 6",
+    "tint7": "Matiz 7",
+    "tint8": "Matiz 8",
+    "tint9": "Matiz 9",
+    "lightLightTint1": "Roxo",
+    "lightLightTint2": "Rosa",
+    "lightLightTint3": "Rosa Claro",
+    "lightLightTint4": "Laranja",
+    "lightLightTint5": "Amarelo",
+    "lightLightTint6": "Lima",
+    "lightLightTint7": "Verde",
+    "lightLightTint8": "Aqua",
+    "lightLightTint9": "Azul",
+    "urlHint": "URL",
+    "mobileHeading1": "Cabeçallho 1",
+    "mobileHeading2": "Título 2",
+    "mobileHeading3": "Título 3",
+    "textColor": "Cor do texto",
+    "backgroundColor": "Cor de fundo",
+    "addYourLink": "Adicionar seu link",
+    "openLink": "Abrir link",
+    "copyLink": "Copiar link",
+    "removeLink": "Remover link",
+    "editLink": "Editar link",
+    "linkText": "Texto",
+    "linkTextHint": "Por favor insira o texto",
+    "linkAddressHint": "Por favor insira o URL",
+    "highlightColor": "Cor de destaque",
+    "clearHighlightColor": "Cor de destaque clara",
+    "customColor": "Cor customizada",
+    "hexValue": "Valor hexadecimal",
+    "opacity": "Opacidade",
+    "resetToDefaultColor": "Redefinir para a cor padrão",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "Auto",
+    "cut": "Cortar",
+    "copy": "Copiar",
+    "paste": "Colar",
+    "find": "Encontrar",
+    "previousMatch": "Localizar anterior",
+    "nextMatch": "Localizar próxima",
+    "closeFind": "Fechar",
+    "replace": "Substituir",
+    "replaceAll": "Substituir tudo",
+    "regex": "Regex",
+    "caseSensitive": "Maiúsculas e minúsculas",
+    "uploadImage": "Enviar Imagem",
+    "urlImage": "URL da imagem",
+    "incorrectLink": "Link incorreto",
+    "upload": "Carregar",
+    "chooseImage": "Escolha uma imagem",
+    "loading": "Carregando",
+    "imageLoadFailed": "Não foi possível carregar a imagem",
+    "divider": "Divisor",
+    "table": "Tabela",
+    "colAddBefore": "Acrescentar antes",
+    "rowAddBefore": "Acrescentar antes",
+    "colAddAfter": "Adicionar após",
+    "rowAddAfter": "Adicionar após",
+    "colRemove": "Remover",
+    "rowRemove": "Remover",
+    "colDuplicate": "Duplicado",
+    "rowDuplicate": "Duplicado",
+    "colClear": "Limpar conteúdo",
+    "rowClear": "Limpar conteúdo",
+    "slashPlaceHolder": "Digite '/' para inserir um bloco ou comece a digitar",
+    "typeSomething": "Digite algo..."
+  },
+  "favorite": {
+    "noFavorite": "Nenhuma página favorita",
+    "noFavoriteHintText": "Deslize a página para a esquerda para adicioná-la aos seus favoritos"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Digite um / para inserir um bloco ou comece a digitar"
+  },
+  "blockPlaceholders": {
+    "todoList": "A fazer",
+    "bulletList": "Lista",
+    "numberList": "Lista",
+    "quote": "Citar",
+    "heading": "Cabeçalho {}"
+  },
+  "titleBar": {
+    "pageIcon": "Ícone de página",
+    "language": "Idioma",
+    "font": "Fonte",
+    "actions": "Ações",
+    "date": "Data",
+    "addField": "Adicionar campo",
+    "userIcon": "Ícone do usuário"
   }
 }

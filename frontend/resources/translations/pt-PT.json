@@ -43,10 +43,10 @@
     "unmatchedPasswordError": "As palavras-passes não conferem.",
     "syncPromptMessage": "A sincronização dos dados pode demorar um pouco. Por favor não feche esta página",
     "or": "OU",
+    "signInWith": "Entrar com:",
     "LogInWithGoogle": "Iniciar sessão com o Google",
     "LogInWithGithub": "Iniciar sessão com o Github",
     "LogInWithDiscord": "Iniciar sessão com o Discord",
-    "signInWith": "Entrar com:",
     "loginAsGuestButtonText": "Iniciar"
   },
   "workspace": {
@@ -56,7 +56,7 @@
     "resetWorkspacePrompt": "Reinciar do espaço de trabalho excluirá todas as páginas e dados contidos. Tem certeza de que deseja reiniciar o espaço de trabalho? Alternativamente, podes entrar em contato com a equipe de suporte para restaurar o espaço de trabalho",
     "hint": "ambiente de trabalho",
     "notFoundError": "Ambiente de trabalho não encontrada",
-    "failedToLoad": "Algo correu mal! Falha ao carregar o espaço de trabalho. Tente fechar qualquer instância aberta do AppFlowy e tente novamente.",
+    "failedToLoad": "Algo correu mal! Falha ao carregar o espaço de trabalho. Tente fechar qualquer instância aberta do @:appName e tente novamente.",
     "errorActions": {
       "reportIssue": "Relatar problema",
       "reachOut": "Entre em contacto no Discord"
@@ -194,7 +194,9 @@
     "editContact": "Editar um conctato"
   },
   "button": {
+    "ok": "OK",
     "done": "Feito",
+    "cancel": "Cancelar",
     "signIn": "Entrar",
     "signOut": "Sair",
     "complete": "Completar",
@@ -210,10 +212,7 @@
     "edit": "Editar",
     "delete": "Excluir",
     "duplicate": "Duplicado",
-    "putback": "Por de volta",
-    "OK": "OK",
-    "Done": "Feito",
-    "Cancel": "Cancelar"
+    "putback": "Por de volta"
   },
   "label": {
     "welcome": "Bem vindo!",
@@ -294,13 +293,13 @@
       "themeUpload": {
         "button": "Carregar",
         "uploadTheme": "Carregar tema",
-        "description": "Carregue seu próprio tema AppFlowy usando o botão abaixo.",
-        "failure": "O tema que foi carregado tinha um formato inválido.",
+        "description": "Carregue seu próprio tema @:appName usando o botão abaixo.",
         "loading": "Aguarde enquanto validamos e carregamos seu tema...",
         "uploadSuccess": "Seu tema foi carregado com sucesso",
         "deletionFailure": "Falha ao excluir o tema. Tente excluí-lo manualmente.",
         "filePickerDialogTitle": "Escolha um arquivo .flowy_plugin",
-        "urlUploadFailure": "Falha ao abrir url: {}"
+        "urlUploadFailure": "Falha ao abrir url: {}",
+        "failure": "O tema que foi carregado tinha um formato inválido."
       },
       "theme": "Tema",
       "builtInsLabel": "Temas integrados",
@@ -327,7 +326,7 @@
       "defaultLocation": "Leia arquivos e local de armazenamento de dados",
       "exportData": "Exporte seus dados",
       "doubleTapToCopy": "Toque duas vezes para copiar o caminho",
-      "restoreLocation": "Restaurar para o caminho padrão do AppFlowy",
+      "restoreLocation": "Restaurar para o caminho padrão do @:appName",
       "customizeLocation": "Abra outra pasta",
       "restartApp": "Reinicie o aplicativo para que as alterações entrem em vigor.",
       "exportDatabase": "Exportar banco de dados",
@@ -339,10 +338,10 @@
       "defineWhereYourDataIsStored": "Defina onde seus dados são armazenados",
       "open": "Abrir",
       "openFolder": "Abra uma pasta existente",
-      "openFolderDesc": "Leia e grave-o em sua pasta AppFlowy existente",
+      "openFolderDesc": "Leia e grave-o em sua pasta @:appName existente",
       "folderHintText": "nome da pasta",
       "location": "Criando uma nova pasta",
-      "locationDesc": "Escolha um nome para sua pasta de dados do AppFlowy",
+      "locationDesc": "Escolha um nome para sua pasta de dados do @:appName",
       "browser": "Navegar",
       "create": "Criar",
       "set": "Definir",
@@ -353,7 +352,7 @@
       "change": "Mudar",
       "openLocationTooltips": "Abra outro diretório de dados",
       "openCurrentDataFolder": "Abra o diretório de dados atual",
-      "recoverLocationTooltips": "Redefinir para o diretório de dados padrão do AppFlowy",
+      "recoverLocationTooltips": "Redefinir para o diretório de dados padrão do @:appName",
       "exportFileSuccess": "Exportar arquivo com sucesso!",
       "exportFileFail": "Falha na exportação do arquivo!",
       "export": "Exportar"
@@ -427,13 +426,9 @@
       "isComplete": "está completo",
       "isIncomplted": "está incompleto"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "É",
       "isNot": "não é",
-      "isEmpty": "Está vazia",
-      "isNotEmpty": "Não está vazio"
-    },
-    "multiSelectOptionFilter": {
       "contains": "contém",
       "doesNotContain": "Não contém",
       "isEmpty": "Está vazia",
@@ -725,10 +720,15 @@
     }
   },
   "board": {
-    "menuName": "Quadro",
-    "referencedBoardPrefix": "Vista de",
     "column": {
       "createNewCard": "Novo"
+    },
+    "menuName": "Quadro",
+    "referencedBoardPrefix": "Vista de",
+    "mobile": {
+      "showGroup": "Mostrar grupo",
+      "showGroupContent": "Tem certeza de que deseja mostrar este grupo no quadro?",
+      "failedToLoad": "Falha ao carregar a visualização do quadro"
     }
   },
   "calendar": {
@@ -754,7 +754,7 @@
     "referencedCalendarPrefix": "Vista de"
   },
   "errorDialog": {
-    "title": "Erro do AppFlowy",
+    "title": "Erro do @:appName",
     "howToFixFallback": "Lamentamos o inconveniente! Envie um problema em nossa página do GitHub que descreva seu erro.",
     "github": "Ver no GitHub"
   },

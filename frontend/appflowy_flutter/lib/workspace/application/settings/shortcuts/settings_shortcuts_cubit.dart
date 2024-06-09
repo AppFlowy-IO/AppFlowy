@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_shortcut_event.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -33,14 +32,19 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
         error: '',
       ),
     );
+
     try {
       final customizeShortcuts = await service.getCustomizeShortcuts();
       await service.updateCommandShortcuts(
         commandShortcutEvents,
         customizeShortcuts,
       );
+
       //sort the shortcuts
-      commandShortcutEvents.sort((a, b) => a.key.compareTo(b.key));
+      commandShortcutEvents.sort(
+        (a, b) => a.key.toLowerCase().compareTo(b.key.toLowerCase()),
+      );
+
       emit(
         state.copyWith(
           status: ShortcutsStatus.success,
@@ -103,11 +107,11 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     }
   }
 
-  ///Checks if the new command is conflicting with other shortcut
-  ///We also check using the key, whether this command is a codeblock
-  ///shortcut, if so we only check a conflict with other codeblock shortcut.
+  /// Checks if the new command is conflicting with other shortcut
+  /// We also check using the key, whether this command is a codeblock
+  /// shortcut, if so we only check a conflict with other codeblock shortcut.
   String getConflict(CommandShortcutEvent currentShortcut, String command) {
-    //check if currentShortcut is a codeblock shortcut.
+    // check if currentShortcut is a codeblock shortcut.
     final isCodeBlockCommand = currentShortcut.isCodeBlockCommand;
 
     for (final e in state.commandShortcutEvents) {
@@ -120,5 +124,5 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
 }
 
 extension on CommandShortcutEvent {
-  bool get isCodeBlockCommand => codeBlockCommands.contains(this);
+  bool get isCodeBlockCommand => localizedCodeBlockCommands.contains(this);
 }

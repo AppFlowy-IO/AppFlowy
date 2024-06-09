@@ -14,16 +14,6 @@ pub struct GroupSetting {
   pub content: String,
 }
 
-pub struct GroupChangesets {
-  pub changesets: Vec<GroupChangeset>,
-}
-
-impl From<Vec<GroupChangeset>> for GroupChangesets {
-  fn from(changesets: Vec<GroupChangeset>) -> Self {
-    Self { changesets }
-  }
-}
-
 #[derive(Clone, Default, Debug)]
 pub struct GroupChangeset {
   pub group_id: String,
@@ -92,7 +82,6 @@ impl From<GroupSetting> for GroupSettingMap {
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Group {
   pub id: String,
-  pub name: String,
   #[serde(default = "GROUP_VISIBILITY")]
   pub visible: bool,
 }
@@ -104,9 +93,8 @@ impl TryFrom<GroupMap> for Group {
     match value.get_str_value("id") {
       None => bail!("Invalid group data"),
       Some(id) => {
-        let name = value.get_str_value("name").unwrap_or_default();
         let visible = value.get_bool_value("visible").unwrap_or_default();
-        Ok(Self { id, name, visible })
+        Ok(Self { id, visible })
       },
     }
   }
@@ -116,7 +104,6 @@ impl From<Group> for GroupMap {
   fn from(group: Group) -> Self {
     GroupMapBuilder::new()
       .insert_str_value("id", group.id)
-      .insert_str_value("name", group.name)
       .insert_bool_value("visible", group.visible)
       .build()
   }
@@ -125,12 +112,8 @@ impl From<Group> for GroupMap {
 const GROUP_VISIBILITY: fn() -> bool = || true;
 
 impl Group {
-  pub fn new(id: String, name: String) -> Self {
-    Self {
-      id,
-      name,
-      visible: true,
-    }
+  pub fn new(id: String) -> Self {
+    Self { id, visible: true }
   }
 }
 
@@ -138,32 +121,20 @@ impl Group {
 pub struct GroupData {
   pub id: String,
   pub field_id: String,
-  pub name: String,
   pub is_default: bool,
   pub is_visible: bool,
   pub(crate) rows: Vec<RowDetail>,
-
-  /// [filter_content] is used to determine which group the cell belongs to.
-  pub filter_content: String,
 }
 
 impl GroupData {
-  pub fn new(
-    id: String,
-    field_id: String,
-    name: String,
-    filter_content: String,
-    is_visible: bool,
-  ) -> Self {
+  pub fn new(id: String, field_id: String, is_visible: bool) -> Self {
     let is_default = id == field_id;
     Self {
       id,
       field_id,
       is_default,
       is_visible,
-      name,
       rows: vec![],
-      filter_content,
     }
   }
 

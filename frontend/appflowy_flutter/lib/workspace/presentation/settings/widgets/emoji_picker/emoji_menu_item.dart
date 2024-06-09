@@ -1,12 +1,14 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
-  name: 'Emoji',
+  getName: LocaleKeys.document_plugins_emoji.tr,
   icon: (editorState, onSelected, style) => SelectableIconWidget(
     icon: Icons.emoji_emotions_outlined,
     isSelected: onSelected,
@@ -15,10 +17,12 @@ SelectionMenuItem emojiMenuItem = SelectionMenuItem(
   keywords: ['emoji'],
   handler: (editorState, menuService, context) {
     final container = Overlay.of(context);
+    menuService.dismiss();
     showEmojiPickerMenu(
       container,
       editorState,
-      menuService,
+      menuService.alignment,
+      menuService.offset,
     );
   },
 );
@@ -26,17 +30,15 @@ SelectionMenuItem emojiMenuItem = SelectionMenuItem(
 void showEmojiPickerMenu(
   OverlayState container,
   EditorState editorState,
-  SelectionMenuService menuService,
+  Alignment alignment,
+  Offset offset,
 ) {
-  menuService.dismiss();
-
-  final alignment = menuService.alignment;
-  final offset = menuService.offset;
   final top = alignment == Alignment.topLeft ? offset.dy : null;
   final bottom = alignment == Alignment.bottomLeft ? offset.dy : null;
 
   keepEditorFocusNotifier.increase();
-  final emojiPickerMenuEntry = FullScreenOverlayEntry(
+  late OverlayEntry emojiPickerMenuEntry;
+  emojiPickerMenuEntry = FullScreenOverlayEntry(
     top: top,
     bottom: bottom,
     left: offset.dx,
@@ -57,6 +59,7 @@ void showEmojiPickerMenu(
           },
           onExit: () {
             // close emoji panel
+            emojiPickerMenuEntry.remove();
           },
         ),
       ),
@@ -67,10 +70,10 @@ void showEmojiPickerMenu(
 
 class EmojiSelectionMenu extends StatefulWidget {
   const EmojiSelectionMenu({
-    Key? key,
+    super.key,
     required this.onSubmitted,
     required this.onExit,
-  }) : super(key: key);
+  });
 
   final void Function(String emoji) onSubmitted;
   final void Function() onExit;

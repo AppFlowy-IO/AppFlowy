@@ -1,6 +1,6 @@
 use crate::services::sort::SortController;
-use flowy_task::{TaskContent, TaskHandler};
 use lib_infra::future::BoxResultFuture;
+use lib_infra::priority_task::{TaskContent, TaskHandler};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 

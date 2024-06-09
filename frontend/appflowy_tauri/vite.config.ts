@@ -19,7 +19,7 @@ export default defineConfig({
               params: {
                 overrides: {
                   removeViewBox: false,
-                }
+                },
               },
             },
           ],
@@ -33,7 +33,7 @@ export default defineConfig({
       },
     }),
   ],
-  publicDir: '../appflowy_flutter/assets',
+
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors
   clearScreen: false,
@@ -41,6 +41,9 @@ export default defineConfig({
   server: {
     port: 1420,
     strictPort: true,
+    watch: {
+      ignored: ['**/__tests__/**'],
+    },
   },
   // to make use of `TAURI_DEBUG` and other env variables
   // https://tauri.studio/v1/api/config#buildconfig.beforedevcommand
@@ -55,9 +58,13 @@ export default defineConfig({
   },
   resolve: {
     alias: [
+      { find: 'src/', replacement: `${__dirname}/src/` },
       { find: '@/', replacement: `${__dirname}/src/` },
       { find: '$app/', replacement: `${__dirname}/src/appflowy_app/` },
       { find: '$app_reducers/', replacement: `${__dirname}/src/appflowy_app/stores/reducers/` },
     ],
+  },
+  optimizeDeps: {
+    include: ['@mui/material/Tooltip'],
   },
 });

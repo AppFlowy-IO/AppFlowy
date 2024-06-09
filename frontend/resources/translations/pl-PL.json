@@ -43,10 +43,10 @@
     "unmatchedPasswordError": "Hasła nie są takie same",
     "syncPromptMessage": "Synchronizacja danych może chwilę potrwać. Proszę nie zamykać tej strony",
     "or": "ALBO",
+    "signInWith": "Zaloguj się korzystając z:",
     "LogInWithGoogle": "Zaloguj się za pomocą Google",
     "LogInWithGithub": "Zaloguj się za pomocą Githuba",
     "LogInWithDiscord": "Zaloguj się za pomocą Discorda",
-    "signInWith": "Zaloguj się korzystając z:",
     "loginAsGuestButtonText": "Rozpocznij"
   },
   "workspace": {
@@ -56,7 +56,7 @@
     "resetWorkspacePrompt": "Zresetowanie przestrzeni roboczej spowoduje usunięcie wszystkich znajdujących się w niej stron i danych. Czy na pewno chcesz zresetować przestrzeń roboczą? Alternatywnie możesz skontaktować się z zespołem pomocy technicznej, aby przywrócić przestrzeń roboczą",
     "hint": "przestrzeń robocza",
     "notFoundError": "Przestrzeni nie znaleziono",
-    "failedToLoad": "Coś poszło nie tak! Wczytywanie przestrzeni roboczej nie powiodło się. Spróbuj wyłączyć wszystkie otwarte instancje AppFlowy i spróbuj ponownie.",
+    "failedToLoad": "Coś poszło nie tak! Wczytywanie przestrzeni roboczej nie powiodło się. Spróbuj wyłączyć wszystkie otwarte instancje @:appName i spróbuj ponownie.",
     "errorActions": {
       "reportIssue": "Zgłoś problem",
       "reachOut": "Skontaktuj się na Discord"
@@ -228,9 +228,7 @@
     "removeFromFavorites": "Usuń z ulubionych",
     "addToFavorites": "Dodaj do ulubionych",
     "rename": "Zmień nazwę",
-    "helpCenter": "Centrum Pomocy",
-    "Done": "Zrobione",
-    "Cancel": "Anuluj"
+    "helpCenter": "Centrum Pomocy"
   },
   "label": {
     "welcome": "Witaj!",
@@ -265,10 +263,9 @@
       "logoutPrompt": "Czy na pewno chcesz się wylogować?",
       "selfEncryptionLogoutPrompt": "Czy na pewno chcesz się wylogować? Upewnij się, że skopiowałeś sekret szyfrowania",
       "syncSetting": "Ustawienie synchronizacji",
-      "cloudSetting": "Ustawienia Chmury",
-      "cloudURL": "URL Serwera",
       "enableSync": "Włącz synchronizację",
       "enableEncrypt": "Szyfruj dane",
+      "cloudURL": "URL Serwera",
       "enableEncryptPrompt": "Aktywuj szyfrowanie, aby zabezpieczyć swoje dane tym sekretem. Przechowuj go bezpiecznie; po włączeniu nie można go wyłączyć. Jeśli zostanie utracony, nie będziesz w stanie odzyskać danych. Kliknij, aby skopiować",
       "inputEncryptPrompt": "Wprowadź swój sekret szyfrowania dla",
       "clickToCopySecret": "Kliknij, aby skopiować sekret",
@@ -276,7 +273,8 @@
       "historicalUserList": "Historia logowania użytkownika",
       "historicalUserListTooltip": "Na tej liście wyświetlane są Twoje anonimowe konta. Możesz kliknąć konto, aby wyświetlić jego szczegóły. Konta anonimowe tworzy się poprzez kliknięcie przycisku „Rozpocznij”.",
       "openHistoricalUser": "Kliknij, aby otworzyć anonimowe konto",
-      "supabaseSetting": "Ustawienie Supabase"
+      "supabaseSetting": "Ustawienie Supabase",
+      "cloudSetting": "Ustawienia Chmury"
     },
     "notifications": {
       "enableNotifications": {
@@ -312,13 +310,13 @@
       },
       "themeUpload": {
         "button": "Prześlij",
-        "description": "Prześlij własny motyw AppFlowy za pomocą przycisku poniżej.",
-        "failure": "Przesłany motyw miał nieprawidłowy format.",
+        "description": "Prześlij własny motyw @:appName za pomocą przycisku poniżej.",
         "loading": "Poczekaj, aż zweryfikujemy i prześlemy Twój motyw...",
         "uploadSuccess": "Twój motyw został przesłany pomyślnie",
         "deletionFailure": "Nie udało się usunąć motywu. Spróbuj usunąć go ręcznie.",
         "filePickerDialogTitle": "Wybierz plik .flowy_plugin",
-        "urlUploadFailure": "Nie udało się otworzyć adresu URL: {}"
+        "urlUploadFailure": "Nie udało się otworzyć adresu URL: {}",
+        "failure": "Przesłany motyw miał nieprawidłowy format."
       },
       "theme": "Motyw",
       "builtInsLabel": "Wbudowane motywy",
@@ -343,7 +341,7 @@
       "defaultLocation": "Ścieżka katalogu z plikami",
       "exportData": "Eksportuj swoje dane",
       "doubleTapToCopy": "Kliknij dwukrotnie, aby skopiować ścieżkę",
-      "restoreLocation": "Przywróć domyślną ścieżkę AppFlowy",
+      "restoreLocation": "Przywróć domyślną ścieżkę @:appName",
       "customizeLocation": "Otwórz inny folder",
       "restartApp": "Uruchom ponownie aplikację, aby zmiany zaczęły obowiązywać.",
       "exportDatabase": "Eksportuj bazę danych",
@@ -355,10 +353,10 @@
       "defineWhereYourDataIsStored": "Zdefiniuj miejsce przechowywania Twoich danych",
       "open": "Otwórz",
       "openFolder": "Otwórz istniejący folder",
-      "openFolderDesc": "Przeczytaj i zapisz go w istniejącym folderze AppFlowy",
+      "openFolderDesc": "Przeczytaj i zapisz go w istniejącym folderze @:appName",
       "folderHintText": "Nazwa folderu",
       "location": "Tworzenie nowego folderu",
-      "locationDesc": "Wybierz nazwę folderu danych AppFlowy",
+      "locationDesc": "Wybierz nazwę folderu danych @:appName",
       "browser": "Przeglądaj",
       "create": "Stwórz",
       "set": "Ustaw",
@@ -369,7 +367,7 @@
       "change": "Zmień",
       "openLocationTooltips": "Otwórz inny katalog danych",
       "openCurrentDataFolder": "Otwórz bieżący katalog danych",
-      "recoverLocationTooltips": "Zresetuj do domyślnego katalogu danych AppFlowy",
+      "recoverLocationTooltips": "Zresetuj do domyślnego katalogu danych @:appName",
       "exportFileSuccess": "Eksportowanie pliku zakończono pomyślnie!",
       "exportFileFail": "Eksport pliku nie powiódł się!",
       "export": "Eksport"
@@ -456,13 +454,9 @@
       "isComplete": "jest kompletna",
       "isIncomplted": "jest niekompletna"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Jest",
       "isNot": "Nie jest",
-      "isEmpty": "Jest pusty",
-      "isNotEmpty": "Nie jest pusty"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Zawiera",
       "doesNotContain": "Nie zawiera",
       "isEmpty": "Jest pusty",
@@ -789,11 +783,16 @@
       "expandTooltip": "Pokaż ukryte grupy"
     },
     "menuName": "Tablica",
-    "referencedBoardPrefix": "Widok",
     "ungroupedButtonText": "Niepogrupowane",
     "ungroupedButtonTooltip": "Zawiera karty, które nie należą do żadnej grupy",
     "ungroupedItemsTitle": "Kliknij by dodać tablicę",
-    "groupBy": "Grupuj zgodnie z"
+    "groupBy": "Grupuj zgodnie z",
+    "referencedBoardPrefix": "Widok",
+    "mobile": {
+      "showGroup": "Pokaż grupę",
+      "showGroupContent": "Czy na pewno chcesz pokazać tę grupę na tablicy?",
+      "failedToLoad": "Nie udało się załadować widoku tablicy"
+    }
   },
   "calendar": {
     "menuName": "Kalendarz",
@@ -822,7 +821,7 @@
     "referencedCalendarPrefix": "Widok"
   },
   "errorDialog": {
-    "title": "Błąd AppFlowy",
+    "title": "Błąd @:appName",
     "howToFixFallback": "Przepraszamy za niedogodności! Zgłoś problem na naszej stronie GitHub, który opisuje Twój błąd.",
     "github": "Zobacz na GitHubie"
   },

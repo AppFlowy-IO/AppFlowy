@@ -128,7 +128,7 @@ class _SmartEditBlockComponentWidgetState
         if (state.result.isEmpty) {
           completer.complete(true);
         } else {
-          showDialog(
+          await showDialog(
             context: context,
             builder: (context) {
               return DiscardDialog(
@@ -331,9 +331,9 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
               ),
             ],
           ),
-          onPressed: () async => await _onExit(),
+          onPressed: () async => _onExit(),
         ),
-        const Spacer(flex: 1),
+        const Spacer(),
         Expanded(
           child: Container(
             alignment: Alignment.centerRight,
@@ -398,7 +398,7 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
       ),
     );
     transaction.afterSelection = Selection(
-      start: Position(path: selection.end.path.next, offset: 0),
+      start: Position(path: selection.end.path.next),
       end: Position(
         path: [selection.end.path.next.first + insertedText.length],
       ),
@@ -411,7 +411,6 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
     return editorState.apply(
       transaction,
       options: const ApplyOptions(
-        recordRedo: false,
         recordUndo: false,
       ),
     );

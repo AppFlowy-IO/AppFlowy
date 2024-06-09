@@ -1,0 +1,10 @@
+node_modules/
+dist/
+src-tauri/
+.eslintrc.cjs
+tsconfig.json
+**/backend/**
+vite.config.ts
+**/*.cy.tsx
+*.config.ts
+coverage/

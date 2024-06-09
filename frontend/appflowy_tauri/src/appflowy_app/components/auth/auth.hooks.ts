@@ -1,106 +1,186 @@
-import { currentUserActions } from '../../stores/reducers/current-user/slice';
-import { useAppDispatch, useAppSelector } from '../../stores/store';
-import { UserProfilePB } from '../../../services/backend/events/flowy-user';
-import { AuthBackendService, UserBackendService } from '../../stores/effects/user/user_bd_svc';
-import { WorkspaceSettingPB } from '../../../services/backend/models/flowy-folder2/workspace';
-import { Log } from '../../utils/log';
-import { FolderEventGetCurrentWorkspaceSetting } from '@/services/backend/events/flowy-folder2';
+import { currentUserActions, LoginState, parseWorkspaceSettingPBToSetting } from '$app_reducers/current-user/slice';
+import { AuthenticatorPB, ProviderTypePB, UserNotification, UserProfilePB } from '@/services/backend/events/flowy-user';
+import { UserService } from '$app/application/user/user.service';
+import { AuthService } from '$app/application/user/auth.service';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { getCurrentWorkspaceSetting } from '$app/application/folder/workspace.service';
+import { useCallback } from 'react';
+import { subscribeNotifications } from '$app/application/notification';
+import { nanoid } from 'nanoid';
+import { open } from '@tauri-apps/api/shell';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.currentUser);
-  const authBackendService = new AuthBackendService();
 
-  async function checkUser() {
-    const result = await UserBackendService.getUserProfile();
+  // Subscribe to user update events
+  const subscribeToUser = useCallback(() => {
+    const unsubscribePromise = subscribeNotifications({
+      [UserNotification.DidUpdateUserProfile]: async (changeset) => {
+        dispatch(
+          currentUserActions.updateUser({
+            email: changeset.email,
+            displayName: changeset.name,
+            iconUrl: changeset.icon_url,
+          })
+        );
+      },
+    });
 
-    if (result.ok) {
-      const userProfile = result.val;
+    return () => {
+      void unsubscribePromise.then((fn) => fn());
+    };
+  }, [dispatch]);
 
-      const workspaceSetting = await _openWorkspace().then((r) => {
-        if (r.ok) {
-          return r.val;
-        } else {
-          return undefined;
-        }
-      });
+  const setUser = useCallback(
+    async (userProfile?: Partial<UserProfilePB>) => {
+      if (!userProfile) return;
+
+      const workspaceSetting = await getCurrentWorkspaceSetting();
+
+      const isLocal = userProfile.authenticator === AuthenticatorPB.Local;
 
       dispatch(
-        currentUserActions.checkUser({
+        currentUserActions.updateUser({
           id: userProfile.id,
           token: userProfile.token,
           email: userProfile.email,
           displayName: userProfile.name,
+          iconUrl: userProfile.icon_url,
           isAuthenticated: true,
-          workspaceSetting: workspaceSetting,
+          workspaceSetting: workspaceSetting ? parseWorkspaceSettingPBToSetting(workspaceSetting) : undefined,
+          isLocal,
         })
       );
-    }
+    },
+    [dispatch]
+  );
 
-    return result;
-  }
+  // Check if the user is authenticated
+  const checkUser = useCallback(async () => {
+    const userProfile = await UserService.getUserProfile();
 
-  async function register(email: string, password: string, name: string): Promise<UserProfilePB> {
-    const authResult = await authBackendService.signUp({ email, password, name });
+    await setUser(userProfile);
 
-    if (authResult.ok) {
-      const userProfile = authResult.val;
-      // Get the workspace setting after user registered. The workspace setting
-      // contains the latest visiting page and the current workspace data.
-      const openWorkspaceResult = await _openWorkspace();
+    return userProfile;
+  }, [setUser]);
 
-      if (openWorkspaceResult.ok) {
-        const workspaceSetting: WorkspaceSettingPB = openWorkspaceResult.val;
+  const register = useCallback(
+    async (email: string, password: string, name: string): Promise<UserProfilePB> => {
+      const deviceId = currentUser?.deviceId ?? nanoid(8);
+      const userProfile = await AuthService.signUp({ deviceId, email, password, name });
 
-        dispatch(
-          currentUserActions.updateUser({
-            id: userProfile.id,
-            token: userProfile.token,
-            email: userProfile.email,
-            displayName: userProfile.name,
-            isAuthenticated: true,
-            workspaceSetting: workspaceSetting,
-          })
-        );
-      }
+      await setUser(userProfile);
 
-      return authResult.val;
-    } else {
-      Log.error(authResult.val.msg);
-      throw new Error(authResult.val.msg);
-    }
-  }
+      return userProfile;
+    },
+    [setUser, currentUser?.deviceId]
+  );
 
-  async function login(email: string, password: string): Promise<UserProfilePB> {
-    const result = await authBackendService.signIn({ email, password });
-
-    if (result.ok) {
-      const { id, token, name } = result.val;
-
-      dispatch(
-        currentUserActions.updateUser({
-          id: id,
-          token: token,
-          email,
-          displayName: name,
-          isAuthenticated: true,
-        })
-      );
-      return result.val;
-    } else {
-      Log.error(result.val.msg);
-      throw new Error(result.val.msg);
-    }
-  }
-
-  async function logout() {
-    await authBackendService.signOut();
+  const logout = useCallback(async () => {
+    await AuthService.signOut();
     dispatch(currentUserActions.logout());
-  }
+  }, [dispatch]);
 
-  async function _openWorkspace() {
-    return FolderEventGetCurrentWorkspaceSetting();
-  }
+  const signInAsAnonymous = useCallback(async () => {
+    const fakeEmail = nanoid(8) + '@appflowy.io';
+    const fakePassword = 'AppFlowy123@';
+    const fakeName = 'Me';
 
-  return { currentUser, checkUser, register, login, logout };
+    await register(fakeEmail, fakePassword, fakeName);
+  }, [register]);
+
+  const signIn = useCallback(
+    async (provider: ProviderTypePB) => {
+      dispatch(currentUserActions.setLoginState(LoginState.Loading));
+      try {
+        const url = await AuthService.getOAuthURL(provider);
+
+        await open(url);
+      } catch {
+        dispatch(currentUserActions.setLoginState(LoginState.Error));
+      }
+    },
+    [dispatch]
+  );
+
+  const signInWithOAuth = useCallback(
+    async (uri: string) => {
+      dispatch(currentUserActions.setLoginState(LoginState.Loading));
+      try {
+        const deviceId = currentUser?.deviceId ?? nanoid(8);
+
+        await AuthService.signInWithOAuth({ uri, deviceId });
+        const userProfile = await UserService.getUserProfile();
+
+        await setUser(userProfile);
+
+        return userProfile;
+      } catch (e) {
+        dispatch(currentUserActions.setLoginState(LoginState.Error));
+        return Promise.reject(e);
+      }
+    },
+    [dispatch, currentUser?.deviceId, setUser]
+  );
+
+  // Only for development purposes
+  const signInWithEmailPassword = useCallback(
+    async (email: string, password: string, domain?: string) => {
+      dispatch(currentUserActions.setLoginState(LoginState.Loading));
+
+      try {
+        const response = await fetch(
+          `https://${domain ? domain : 'test.appflowy.cloud'}/gotrue/token?grant_type=password`,
+          {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify({
+              email,
+              password,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        let uri = `appflowy-flutter://#`;
+        const params: string[] = [];
+
+        Object.keys(data).forEach((key) => {
+          if (typeof data[key] === 'object') {
+            return;
+          }
+
+          params.push(`${key}=${data[key]}`);
+        });
+        uri += params.join('&');
+
+        return signInWithOAuth(uri);
+      } catch (e) {
+        dispatch(currentUserActions.setLoginState(LoginState.Error));
+        return Promise.reject(e);
+      }
+    },
+    [dispatch, signInWithOAuth]
+  );
+
+  return {
+    currentUser,
+    checkUser,
+    register,
+    logout,
+    subscribeToUser,
+    signInAsAnonymous,
+    signIn,
+    signInWithOAuth,
+    signInWithEmailPassword,
+  };
 };

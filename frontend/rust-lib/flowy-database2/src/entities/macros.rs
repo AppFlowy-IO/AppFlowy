@@ -14,8 +14,10 @@ macro_rules! impl_into_field_type {
           7 => FieldType::Checklist,
           8 => FieldType::LastEditedTime,
           9 => FieldType::CreatedTime,
+          10 => FieldType::Relation,
+          11 => FieldType::Summary,
           _ => {
-            tracing::error!("🔴Can't parser FieldType from value: {}", ty);
+            tracing::error!("🔴Can't parse FieldType from value: {}", ty);
             FieldType::RichText
           },
         }
@@ -34,8 +36,32 @@ macro_rules! impl_into_field_visibility {
           1 => FieldVisibility::HideWhenEmpty,
           2 => FieldVisibility::AlwaysHidden,
           _ => {
-            tracing::error!("🔴Can't parser FieldVisibility from value: {}", ty);
+            tracing::error!("🔴Can't parse FieldVisibility from value: {}", ty);
             FieldVisibility::AlwaysShown
+          },
+        }
+      }
+    }
+  };
+}
+
+#[macro_export]
+macro_rules! impl_into_calculation_type {
+  ($target: ident) => {
+    impl std::convert::From<$target> for CalculationType {
+      fn from(ty: $target) -> Self {
+        match ty {
+          0 => CalculationType::Average,
+          1 => CalculationType::Max,
+          2 => CalculationType::Median,
+          3 => CalculationType::Min,
+          4 => CalculationType::Sum,
+          5 => CalculationType::Count,
+          6 => CalculationType::CountEmpty,
+          7 => CalculationType::CountNonEmpty,
+          _ => {
+            tracing::error!("🔴 Can't parse CalculationType from value: {}", ty);
+            CalculationType::Average
           },
         }
       }

@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 aes-gcm = "0.10.2"
@@ -13,3 +15,6 @@ hmac = "0.12.1"
 sha2 = "0.10.7"
 anyhow.workspace = true
 base64 = "0.21.2"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["js"]}

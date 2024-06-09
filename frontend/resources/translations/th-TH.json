@@ -227,7 +227,9 @@
     "removeFromFavorites": "ลบออกจากรายการโปรด",
     "addToFavorites": "เพิ่มในรายการโปรด",
     "rename": "เปลี่ยนชื่อ",
-    "helpCenter": "ศูนย์ช่วยเหลือ"
+    "helpCenter": "ศูนย์ช่วยเหลือ",
+    "add": "เพิ่ม",
+    "yes": "ใช่"
   },
   "label": {
     "welcome": "ยินดีต้อนรับ!",
@@ -262,13 +264,33 @@
       "logoutPrompt": "คุณแน่ใจหรือว่าจะออกจากระบบ?",
       "selfEncryptionLogoutPrompt": "คุณแน่ใจหรือไม่ว่าต้องการที่จะออกจากระบบ? โปรดตรวจสอบให้แน่ใจว่าคุณได้คัดลอกการเข้ารหัสลับไว้แล้ว",
       "syncSetting": "การตั้งค่าการซิงค์",
-      "cloudSetting": "การตั้งค่าคลาวด์",
-      "cloudURL": "URL ของเซิร์ฟเวอร์",
+      "cloudSettings": "การตั้งค่าคลาวด์",
       "enableSync": "เปิดใช้งานการซิงค์",
       "enableEncrypt": "เข้ารหัสข้อมูล",
+      "cloudURL": "URL หลัก",
+      "invalidCloudURLScheme": "รูปแบบไม่ถูกต้อง",
+      "cloudServerType": "เซิร์ฟเวอร์คลาวด์",
+      "cloudServerTypeTip": "โปรดทราบว่าอาจมีการออกจากระบบบัญชีปัจจุบันของคุณหลังจากเปลี่ยนเซิร์ฟเวอร์คลาวด์",
+      "cloudLocal": "ในเครื่อง",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "URL ของ Supabase",
+      "cloudSupabaseAnonKey": "คีย์ไม่ระบุชื่อของ Supabase",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "หากมีการระบุ URL ของ Supabase คีย์ไม่ระบุชื่อจะต้องไม่ว่างเปล่า",
+      "cloudAppFlowy": "คลาวด์ของ AppFlowy",
+      "clickToCopy": "คลิกเพื่อคัดลอก",
+      "selfHostStart": "หากคุณไม่มีเซิร์ฟเวอร์ โปรดดูที่",
+      "selfHostContent": "เอกสาร",
+      "selfHostEnd": "สำหรับคำแนะนำเกี่ยวกับวิธีการโฮสต์เซิร์ฟเวอร์ของคุณเอง",
+      "cloudURLHint": "ป้อน URL หลักของเซิร์ฟเวอร์ของคุณ",
+      "cloudWSURL": "Websocket URL",
+      "cloudWSURLHint": "ป้อนที่อยู่ websocket ของเซิร์ฟเวอร์ของคุณ",
+      "restartApp": "รีสตาร์ท",
+      "restartAppTip": "รีสตาร์ทแอปพลิเคชันเพื่อให้มีการเปลี่ยนแปลง โปรดทราบไว้ว่าการดำเนินการนี้อาจจะออกจากระบบบัญชีปัจจุบันของคุณ",
       "enableEncryptPrompt": "เปิดใช้งานการเข้ารหัสเพื่อรักษาความปลอดภัยข้อมูลของคุณแบบเป็นความลับ จะเก็บไว้อย่างปลอดภัย เมื่อเปิดใช้งานแล้วจะไม่สามารถปิดได้ หากสูญหาย ข้อมูลของคุณจะไม่สามารถเรียกคืนได้ คลิกเพื่อคัดลอก",
       "inputEncryptPrompt": "กรุณาระบุการเข้ารหัสลับของคุณสำหรับ",
       "clickToCopySecret": "คลิกเพื่อคัดลอกรหัสลับ",
+      "configServerSetting": "กำหนดการตั้งค่าเซิร์ฟเวอร์ของคุณ",
+      "configServerGuide": "หลังจากเลือก 'เริ่มต้นอย่างรวดเร็ว' แล้ว ให้ไปที่ 'การตั้งค่า' จากนั้นไปที่ \"การตั้งค่าคลาวด์\" เพื่อกำหนดค่าเซิร์ฟเวอร์ที่โฮสต์เองของคุณ",
       "inputTextFieldHint": "รหัสลับของคุณ",
       "historicalUserList": "ประวัติการเข้าสู่ระบบของผู้ใช้",
       "historicalUserListTooltip": "รายการนี้จะแสดงบัญชีที่ไม่ระบุตัวตนของคุณ คุณสามารถคลิกที่บัญชีเพื่อดูรายละเอียดได้ บัญชีที่ไม่เปิดเผยตัวตนถูกสร้างขึ้นโดยการคลิกปุ่ม 'เริ่มต้น'",
@@ -403,7 +425,9 @@
       "privacyPolicy": "นโยบายความเป็นส่วนตัว",
       "userAgreement": "ข้อตกลงผู้ใช้",
       "userprofileError": "ไม่สามารถโหลดโปรไฟล์ผู้ใช้ได้",
-      "userprofileErrorDescription": "โปรดลองออกจากระบบแล้วเข้าสู่ระบบอีกครั้งเพื่อตรวจสอบว่าปัญหายังคงอยู่หรือไม่"
+      "userprofileErrorDescription": "โปรดลองออกจากระบบแล้วเข้าสู่ระบบอีกครั้งเพื่อตรวจสอบว่าปัญหายังคงอยู่หรือไม่",
+      "selectLayout": "เลือกเค้าโครง",
+      "selectStartingDay": "เลือกวันเริ่มต้น"
     }
   },
   "grid": {
@@ -454,17 +478,23 @@
       "isComplete": "เสร็จสมบูรณ์",
       "isIncomplted": "ไม่เสร็จสมบูรณ์"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "เป็น",
       "isNot": "ไม่เป็น",
-      "isEmpty": "ว่างเปล่า",
-      "isNotEmpty": "ไม่ว่างเปล่า"
-    },
-    "multiSelectOptionFilter": {
       "contains": "ประกอบด้วย",
       "doesNotContain": "ไม่ประกอบด้วย",
       "isEmpty": "ว่างเปล่า",
       "isNotEmpty": "ไม่ว่างเปล่า"
+    },
+    "dateFilter": {
+      "is": "เป็น",
+      "before": "อยู่ก่อน",
+      "after": "อยู่หลัง",
+      "onOrBefore": "อยู่ในหรือก่อนหน้า",
+      "onOrAfter": "อยู่ในหรือหลังจาก",
+      "between": "อยู่ระหว่าง",
+      "empty": "มันว่างเปล่า",
+      "notEmpty": "มันไม่ว่างเปล่า"
     },
     "field": {
       "hide": "ซ่อน",
@@ -506,25 +536,27 @@
       "visibility": "การมองเห็น",
       "propertyType": "ประเภทคุณสมบัติ",
       "addSelectOption": "เพิ่มตัวเลือก",
+      "typeANewOption": "พิมพ์ตัวเลือกใหม่",
       "optionTitle": "ตัวเลือก",
       "addOption": "เพิ่มตัวเลือก",
       "editProperty": "แก้ไขคุณสมบัติ",
       "newProperty": "คุณสมบัติใหม่",
       "deleteFieldPromptMessage": "แน่ใจหรือไม่? คุณสมบัติเหล่านี้จะถูกลบ",
-      "newColumn": "คอลัมน์ใหม่"
+      "newColumn": "คอลัมน์ใหม่",
+      "format": "รูปแบบ"
     },
     "rowPage": {
       "newField": "เพิ่มฟิลด์ใหม่",
       "fieldDragElementTooltip": "คลิกเพื่อเปิดเมนู",
       "showHiddenFields": {
-        "one": "แสดงฟิลด์ที่ซ่อนอยู่ {} ฟิลด์",
-        "many": "แสดงฟิลด์ที่ซ่อนอยู่ {} ฟิลด์",
-        "other": "แสดงฟิลด์ที่ซ่อนอยู่ {} ฟิลด์"  
+        "one": "แสดงฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์",
+        "many": "แสดงฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์",
+        "other": "แสดงฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์"
       },
       "hideHiddenFields": {
-        "one": "ซ่อนฟิลด์ที่ซ่อนอยู่ {} ฟิลด์",
-        "many": "ซ่อนฟิลด์ที่ซ่อนอยู่ {} ฟิลด์",
-        "other": "ซ่อนฟิลด์ที่ซ่อนอยู่ {} ฟิลด์"
+        "one": "ซ่อนฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์",
+        "many": "ซ่อนฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์",
+        "other": "ซ่อนฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์"
       }
     },
     "sort": {
@@ -565,7 +597,9 @@
       "searchOption": "ค้นหาตัวเลือก",
       "searchOrCreateOption": "ค้นหาหรือสร้างตัวเลือก...",
       "createNew": "สร้างใหม่",
-      "orSelectOne": "หรือเลือกตัวเลือก"
+      "orSelectOne": "หรือเลือกตัวเลือก",
+      "typeANewOption": "พิมพ์ตัวเลือกใหม่",
+      "tagName": "ชื่อแท็ก"
     },
     "checklist": {
       "taskHint": "คำอธิบายงาน",
@@ -573,6 +607,10 @@
       "submitNewTask": "สร้าง",
       "hideComplete": "ซ่อนงานเสร็จ",
       "showComplete": "แสดงงานทั้งหมด"
+    },
+    "url": {
+      "launch": "เปิดในเบราว์เซอร์",
+      "copy": "คัดลอก URL"
     },
     "menuName": "ตาราง",
     "referencedGridPrefix": "มุมมองของ"
@@ -590,11 +628,11 @@
       },
       "grid": {
         "selectAGridToLinkTo": "เลือกตารางเพื่อเชื่อมโยง",
-      "createANewGrid": "สร้างตารางใหม่"
+        "createANewGrid": "สร้างตารางใหม่"
       },
       "calendar": {
         "selectACalendarToLinkTo": "เลือกปฏิทินเพื่อเชื่อมโยง",
-      "createANewCalendar": "สร้างปฏิทินใหม่"
+        "createANewCalendar": "สร้างปฏิทินใหม่"
       },
       "document": {
         "selectADocumentToLinkTo": "เลือกเอกสารเพื่อเชื่อมโยง"
@@ -724,7 +762,7 @@
       },
       "stability_ai": {
         "label": "สร้างรูปภาพจาก Stability AI",
-      "placeholder": "โปรดระบุคำขอใช้ Stability AI สร้างรูปภาพ"
+        "placeholder": "โปรดระบุคำขอใช้ Stability AI สร้างรูปภาพ"
       },
       "support": "ขนาดรูปภาพจำกัดอยู่ที่ 5MB รูปแบบที่รองรับ: JPEG, PNG, GIF, SVG",
       "error": {
@@ -736,6 +774,9 @@
       "embedLink": {
         "label": "ฝังลิงก์",
         "placeholder": "วางหรือพิมพ์ลิงก์รูปภาพ"
+      },
+      "unsplash": {
+        "label": "Unsplash"
       },
       "searchForAnImage": "ค้นหารูปภาพ",
       "pleaseInputYourOpenAIKey": "โปรดระบุคีย์ OpenAI ของคุณในหน้าการตั้งค่า",
@@ -786,8 +827,13 @@
       "renameGroupTooltip": "กดเพื่อเปลี่ยนชื่อกลุ่ม",
       "createNewColumn": "เพิ่มกลุ่มใหม่",
       "addToColumnTopTooltip": "เพิ่มการ์ดใหม่ที่ด้านบนสุด",
+      "addToColumnBottomTooltip": "เพิ่มการ์ดใหม่ที่ด้านล่างสุด",
       "renameColumn": "เปลี่ยนชื่อ",
-      "hideColumn": "ซ่อน"
+      "hideColumn": "ซ่อน",
+      "groupActions": "กลุ่มการดำเนินการ",
+      "newGroup": "กลุ่มใหม่",
+      "deleteColumn": "ลบ",
+      "deleteColumnConfirmation": "การดำเนินการนี้จะลบกลุ่มนี้และการ์ดทั้งหมดในกลุ่ม\nคุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?"
     },
     "hiddenGroupSection": {
       "sectionTitle": "กลุ่มที่ซ่อนไว้",
@@ -798,6 +844,9 @@
     "cardActions": "การดำเนินการการ์ด",
     "cardDuplicated": "การ์ดถูกคัดลอก",
     "cardDeleted": "การ์ดถูกลบ",
+    "showOnCard": "แสดงบนรายละเอียดการ์ด",
+    "setting": "การตั้งค่า",
+    "propertyName": "ชื่อคุณสมบัติ",
     "menuName": "กระดาน",
     "showUngrouped": "แสดงรายการที่ยังไม่ได้จัดกลุ่ม",
     "ungroupedButtonText": "ยังไม่ได้จัดกลุ่ม",
@@ -805,8 +854,12 @@
     "ungroupedItemsTitle": "คลิกเพื่อเพิ่มไปยังกระดาน",
     "groupBy": "จัดกลุ่มตาม",
     "referencedBoardPrefix": "มุมมองของ",
+    "notesTooltip": "บันทึกย่อข้างใน",
     "mobile": {
-      "editURL": "แก้ไข URL"
+      "editURL": "แก้ไข URL",
+      "showGroup": "เลิกซ่อนกลุ่ม",
+      "showGroupContent": "คุณแน่ใจหรือไม่ว่าต้องการแสดงกลุ่มนี้บนกระดาน?",
+      "failedToLoad": "โหลดมุมมองกระดานไม่สำเร็จ"
     }
   },
   "calendar": {
@@ -827,13 +880,15 @@
       "noDateTitle": "ไม่มีวันที่",
       "noDateHint": {
         "zero": "กิจกรรมที่ไม่ได้กำหนดวันจะแสดงที่นี่",
-        "one": "{} กิจกรรมที่ไม่ได้กำหนดวัน",
-        "other": "{} กิจกรรมที่ไม่ได้กำหนดวัน"
+        "one": "{count} กิจกรรมที่ไม่ได้กำหนดวัน",
+        "other": "{count} กิจกรรมที่ไม่ได้กำหนดวัน"
       },
+      "unscheduledEventsTitle": "เหตุการณ์ที่ไม่ได้กำหนดไว้",
       "clickToAdd": "คลิกเพื่อเพิ่มไปยังปฏิทิน",
-      "name": "เค้าโครงปฏิทิน"
+      "name": "การตั้งค่าปฏิทิน"
     },
-    "referencedCalendarPrefix": "มุมมองของ"
+    "referencedCalendarPrefix": "มุมมองของ",
+    "quickJumpYear": "ข้ามไปที่"
   },
   "errorDialog": {
     "title": "ข้อผิดพลาด AppFlowy",
@@ -921,6 +976,9 @@
   },
   "notificationHub": {
     "title": "การแจ้งเตือน",
+    "mobile": {
+      "title": "อัปเดต"
+    },
     "emptyTitle": "ตามทันแล้ว!",
     "emptyBody": "ไม่มีการแจ้งเตือนหรือการดำเนินการที่รอดำเนินการ โปรดเพลิดเพลินกับความสงบได้",
     "tabs": {
@@ -1072,7 +1130,7 @@
     "rowDuplicate": "ทำซ้ำ",
     "colClear": "ล้างเนื้อหา",
     "rowClear": "ล้างเนื้อหา",
-    "slashPlaceHolder": "ป้อน / เพื่อแทรกบล็อก หรือเริ่มพิมพ์"
+    "slashPlaceHolder": "พิมพ์ / เพื่อแทรกบล็อก หรือเริ่มพิมพ์"
   },
   "favorite": {
     "noFavorite": "ไม่มีหน้ารายการโปรด",
@@ -1091,6 +1149,10 @@
   "titleBar": {
     "pageIcon": "ไอคอนหน้า",
     "language": "ภาษา",
-    "font": "แบบอักษร"
+    "font": "แบบอักษร",
+    "actions": "การดำเนินการ",
+    "date": "วันที่",
+    "addField": "เพิ่มฟิลด์",
+    "userIcon": "ไอคอนผู้ใช้งาน"
   }
 }

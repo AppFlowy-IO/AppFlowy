@@ -70,11 +70,21 @@ impl SortDelegate for DatabaseViewSortDelegateImpl {
     })
   }
 
+  fn filter_row(&self, row_detail: &RowDetail) -> Fut<bool> {
+    let filter_controller = self.filter_controller.clone();
+    let row_detail = row_detail.clone();
+    to_fut(async move {
+      let mut row_details = vec![Arc::new(row_detail)];
+      filter_controller.filter_rows(&mut row_details).await;
+      !row_details.is_empty()
+    })
+  }
+
   fn get_field(&self, field_id: &str) -> Option<Field> {
     self.delegate.get_field(field_id)
   }
 
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>> {
     self.delegate.get_fields(view_id, field_ids)
   }
 }

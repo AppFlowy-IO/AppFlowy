@@ -1,9 +1,11 @@
+use flowy_chat::manager::ChatManager;
 use std::sync::Weak;
 
 use flowy_database2::DatabaseManager;
-use flowy_document2::manager::DocumentManager as DocumentManager2;
-use flowy_folder2::manager::FolderManager;
-use flowy_user::manager::UserManager;
+use flowy_document::manager::DocumentManager as DocumentManager2;
+use flowy_folder::manager::FolderManager;
+use flowy_search::services::manager::SearchManager;
+use flowy_user::user_manager::UserManager;
 use lib_dispatch::prelude::AFPlugin;
 
 pub fn make_plugins(
@@ -11,17 +13,21 @@ pub fn make_plugins(
   database_manager: Weak<DatabaseManager>,
   user_session: Weak<UserManager>,
   document_manager2: Weak<DocumentManager2>,
+  search_manager: Weak<SearchManager>,
+  chat_manager: Weak<ChatManager>,
 ) -> Vec<AFPlugin> {
   let store_preferences = user_session
     .upgrade()
     .map(|session| session.get_store_preferences())
     .unwrap();
   let user_plugin = flowy_user::event_map::init(user_session);
-  let folder_plugin = flowy_folder2::event_map::init(folder_manager);
+  let folder_plugin = flowy_folder::event_map::init(folder_manager);
   let database_plugin = flowy_database2::event_map::init(database_manager);
-  let document_plugin2 = flowy_document2::event_map::init(document_manager2);
+  let document_plugin2 = flowy_document::event_map::init(document_manager2);
   let config_plugin = flowy_config::event_map::init(store_preferences);
   let date_plugin = flowy_date::event_map::init();
+  let search_plugin = flowy_search::event_map::init(search_manager);
+  let chat_plugin = flowy_chat::event_map::init(chat_manager);
   vec![
     user_plugin,
     folder_plugin,
@@ -29,5 +35,7 @@ pub fn make_plugins(
     document_plugin2,
     config_plugin,
     date_plugin,
+    search_plugin,
+    chat_plugin,
   ]
 }

@@ -1,18 +1,12 @@
 import React from 'react';
-import Document from '$app/components/document';
-import { ContainerType } from '$app/hooks/document.hooks';
+import Editor from '$app/components/editor/Editor';
 
 interface Props {
   documentId: string;
-  getDocumentTitle?: () => React.ReactNode;
 }
 
-function RecordDocument({ documentId, getDocumentTitle }: Props) {
-  return (
-    <div className={'-ml-[72px] h-full min-h-[200px] w-[calc(100%+144px)]'}>
-      <Document getDocumentTitle={getDocumentTitle} containerType={ContainerType.EditRecord} documentId={documentId} />
-    </div>
-  );
+function RecordDocument({ documentId }: Props) {
+  return <Editor disableFocus={true} id={documentId} showTitle={false} />;
 }
 
-export default React.memo(RecordDocument);
+export default RecordDocument;

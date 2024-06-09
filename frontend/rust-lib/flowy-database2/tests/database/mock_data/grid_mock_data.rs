@@ -2,18 +2,19 @@ use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_i
 use collab_database::views::{DatabaseLayout, DatabaseView};
 use strum::IntoEnumIterator;
 
+use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
+use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
+use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
 use flowy_database2::services::field::{
-  DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, NumberFormat, NumberTypeOption,
-  SelectOption, SelectOptionColor, SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
+  ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
+  NumberFormat, NumberTypeOption, RelationTypeOption, SelectOption, SelectOptionColor,
+  SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
 };
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
-use crate::database::database_editor::TestRowBuilder;
-use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
-
 pub fn make_test_grid() -> DatabaseData {
+  let database_id = gen_database_id();
   let mut fields = vec![];
   let mut rows = vec![];
 
@@ -23,7 +24,6 @@ pub fn make_test_grid() -> DatabaseData {
       FieldType::RichText => {
         let text_field = FieldBuilder::from_field_type(field_type)
           .name("Name")
-          .visibility(true)
           .primary(true)
           .build();
         fields.push(text_field);
@@ -35,7 +35,6 @@ pub fn make_test_grid() -> DatabaseData {
 
         let number_field = FieldBuilder::new(field_type, type_option)
           .name("Price")
-          .visibility(true)
           .build();
         fields.push(number_field);
       },
@@ -49,7 +48,6 @@ pub fn make_test_grid() -> DatabaseData {
         let name = "Time";
         let date_field = FieldBuilder::new(field_type, date_type_option)
           .name(name)
-          .visibility(true)
           .build();
         fields.push(date_field);
       },
@@ -68,7 +66,6 @@ pub fn make_test_grid() -> DatabaseData {
         };
         let timestamp_field = FieldBuilder::new(field_type, timestamp_type_option)
           .name(name)
-          .visibility(true)
           .build();
         fields.push(timestamp_field);
       },
@@ -83,7 +80,6 @@ pub fn make_test_grid() -> DatabaseData {
           .extend(vec![option1, option2, option3]);
         let single_select_field = FieldBuilder::new(field_type, single_select_type_option)
           .name("Status")
-          .visibility(true)
           .build();
         fields.push(single_select_field);
       },
@@ -96,7 +92,6 @@ pub fn make_test_grid() -> DatabaseData {
         type_option.options.extend(vec![option1, option2, option3]);
         let multi_select_field = FieldBuilder::new(field_type, type_option)
           .name("Platform")
-          .visibility(true)
           .build();
         fields.push(multi_select_field);
       },
@@ -104,7 +99,6 @@ pub fn make_test_grid() -> DatabaseData {
         // Checkbox
         let checkbox_field = FieldBuilder::from_field_type(field_type)
           .name("is urgent")
-          .visibility(true)
           .build();
         fields.push(checkbox_field);
       },
@@ -112,21 +106,31 @@ pub fn make_test_grid() -> DatabaseData {
         // URL
         let url = FieldBuilder::from_field_type(field_type)
           .name("link")
-          .visibility(true)
           .build();
         fields.push(url);
       },
       FieldType::Checklist => {
-        // let option1 = SelectOption::with_color(FIRST_THING, SelectOptionColor::Purple);
-        // let option2 = SelectOption::with_color(SECOND_THING, SelectOptionColor::Orange);
-        // let option3 = SelectOption::with_color(THIRD_THING, SelectOptionColor::Yellow);
-        let type_option = ChecklistTypeOption::default();
-        // type_option.options.extend(vec![option1, option2, option3]);
+        let type_option = ChecklistTypeOption;
         let checklist_field = FieldBuilder::new(field_type, type_option)
           .name("TODO")
-          .visibility(true)
           .build();
         fields.push(checklist_field);
+      },
+      FieldType::Relation => {
+        let type_option = RelationTypeOption {
+          database_id: "".to_string(),
+        };
+        let relation_field = FieldBuilder::new(field_type, type_option)
+          .name("Related")
+          .build();
+        fields.push(relation_field);
+      },
+      FieldType::Summary => {
+        let type_option = SummarizationTypeOption { auto_fill: false };
+        let relation_field = FieldBuilder::new(field_type, type_option)
+          .name("AI summary")
+          .build();
+        fields.push(relation_field);
       },
     }
   }
@@ -134,7 +138,7 @@ pub fn make_test_grid() -> DatabaseData {
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
   for i in 0..7 {
-    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
+    let mut row_builder = TestRowBuilder::new(&database_id, gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -151,7 +155,7 @@ pub fn make_test_grid() -> DatabaseData {
               row_builder.insert_url_cell("AppFlowy website - https://www.appflowy.io")
             },
             FieldType::Checklist => {
-              row_builder.insert_checklist_cell(vec!["First thing".to_string()])
+              row_builder.insert_checklist_cell(vec![("First thing".to_string(), false)])
             },
             _ => "".to_owned(),
           };
@@ -168,6 +172,13 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::MultiSelect => row_builder
               .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(1)]),
             FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
+            FieldType::Checklist => row_builder.insert_checklist_cell(vec![
+              ("Have breakfast".to_string(), true),
+              ("Have lunch".to_string(), true),
+              ("Take a nap".to_string(), false),
+              ("Have dinner".to_string(), true),
+              ("Shower and head to bed".to_string(), false),
+            ]),
             _ => "".to_owned(),
           };
         }
@@ -203,6 +214,9 @@ pub fn make_test_grid() -> DatabaseData {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
             FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+            FieldType::Checklist => {
+              row_builder.insert_checklist_cell(vec![("Task 1".to_string(), true)])
+            },
             _ => "".to_owned(),
           };
         }
@@ -240,6 +254,11 @@ pub fn make_test_grid() -> DatabaseData {
               row_builder.insert_multi_select_cell(|mut options| vec![options.remove(1)])
             },
             FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
+            FieldType::Checklist => row_builder.insert_checklist_cell(vec![
+              ("Sprint".to_string(), true),
+              ("Sprint some more".to_string(), false),
+              ("Rest".to_string(), true),
+            ]),
             _ => "".to_owned(),
           };
         }
@@ -254,19 +273,28 @@ pub fn make_test_grid() -> DatabaseData {
     rows.push(row);
   }
 
+  let inline_view_id = gen_database_view_id();
+
   let view = DatabaseView {
-    id: gen_database_id(),
-    database_id: gen_database_view_id(),
+    database_id: database_id.clone(),
+    id: inline_view_id.clone(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     field_settings,
     ..Default::default()
   };
 
-  DatabaseData { view, fields, rows }
+  DatabaseData {
+    database_id,
+    inline_view_id,
+    views: vec![view],
+    fields,
+    rows,
+  }
 }
 
 pub fn make_no_date_test_grid() -> DatabaseData {
+  let database_id = gen_database_id();
   let mut fields = vec![];
   let mut rows = vec![];
 
@@ -276,7 +304,6 @@ pub fn make_no_date_test_grid() -> DatabaseData {
       FieldType::RichText => {
         let text_field = FieldBuilder::from_field_type(field_type)
           .name("Name")
-          .visibility(true)
           .primary(true)
           .build();
         fields.push(text_field);
@@ -288,7 +315,6 @@ pub fn make_no_date_test_grid() -> DatabaseData {
 
         let number_field = FieldBuilder::new(field_type, type_option)
           .name("Price")
-          .visibility(true)
           .build();
         fields.push(number_field);
       },
@@ -299,7 +325,7 @@ pub fn make_no_date_test_grid() -> DatabaseData {
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
   for i in 0..3 {
-    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
+    let mut row_builder = TestRowBuilder::new(&database_id, gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -335,14 +361,22 @@ pub fn make_no_date_test_grid() -> DatabaseData {
     rows.push(row);
   }
 
+  let inline_view_id = gen_database_view_id();
+
   let view = DatabaseView {
-    id: gen_database_view_id(),
-    database_id: gen_database_id(),
+    database_id: database_id.clone(),
+    id: inline_view_id.clone(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     field_settings,
     ..Default::default()
   };
 
-  DatabaseData { view, fields, rows }
+  DatabaseData {
+    database_id,
+    inline_view_id,
+    views: vec![view],
+    fields,
+    rows,
+  }
 }

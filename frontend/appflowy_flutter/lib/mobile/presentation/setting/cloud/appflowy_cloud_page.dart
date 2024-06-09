@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_cloud.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,13 +13,13 @@ class AppFlowyCloudPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(LocaleKeys.settings_menu_cloudSettings.tr()),
+      appBar: FlowyAppBar(
+        titleText: LocaleKeys.settings_menu_cloudSettings.tr(),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SettingCloud(
-          didResetServerUrl: () async {
+          restartAppFlowy: () async {
             await runAppFlowy();
           },
         ),

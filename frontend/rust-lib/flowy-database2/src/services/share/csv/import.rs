@@ -1,9 +1,9 @@
 use std::{fs::File, io::prelude::*};
 
-use collab_database::database::{gen_database_id, gen_field_id, gen_row_id};
+use collab_database::database::{gen_database_id, gen_field_id, gen_row_id, timestamp};
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, CreateRowParams};
-use collab_database::views::{CreateDatabaseParams, DatabaseLayout};
+use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 
 use flowy_error::{FlowyError, FlowyResult};
 
@@ -99,10 +99,10 @@ fn database_from_fields_and_rows(
 
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
-  let created_rows = rows
+  let rows = rows
     .iter()
     .map(|cells| {
-      let mut params = CreateRowParams::new(gen_row_id());
+      let mut params = CreateRowParams::new(gen_row_id(), database_id.clone());
       for (index, cell_content) in cells.iter().enumerate() {
         if let Some(field) = fields.get(index) {
           let field_type = FieldType::from(field.field_type);
@@ -126,31 +126,31 @@ fn database_from_fields_and_rows(
     })
     .collect::<Vec<CreateRowParams>>();
 
+  let timestamp = timestamp();
+
   CreateDatabaseParams {
-    database_id,
-    view_id: view_id.to_string(),
-    name: "".to_string(),
-    layout: DatabaseLayout::Grid,
-    layout_settings: Default::default(),
-    filters: vec![],
-    groups: vec![],
-    sorts: vec![],
-    created_rows,
+    database_id: database_id.clone(),
+    inline_view_id: view_id.to_string(),
+    rows,
     fields,
-    field_settings,
+    views: vec![CreateViewParams {
+      database_id,
+      view_id: view_id.to_string(),
+      name: "".to_string(),
+      layout: DatabaseLayout::Grid,
+      field_settings,
+      created_at: timestamp,
+      modified_at: timestamp,
+      ..Default::default()
+    }],
   }
 }
 
 fn default_field(field_str: String, is_primary: bool) -> Field {
   let field_type = FieldType::RichText;
-  let type_option_data = default_type_option_data_from_type(&field_type);
-  Field::new(
-    gen_field_id(),
-    field_str,
-    field_type.into(),
-    is_primary,
-  )
-  .with_type_option_data(field_type, type_option_data)
+  let type_option_data = default_type_option_data_from_type(field_type);
+  Field::new(gen_field_id(), field_str, field_type.into(), is_primary)
+    .with_type_option_data(field_type, type_option_data)
 }
 
 struct FieldsRows {
@@ -184,7 +184,7 @@ mod tests {
     let result = importer
       .import_csv_from_string(gen_database_view_id(), s.to_string(), CSVFormat::Original)
       .unwrap();
-    assert_eq!(result.created_rows.len(), 3);
+    assert_eq!(result.rows.len(), 3);
     assert_eq!(result.fields.len(), 6);
 
     assert_eq!(result.fields[0].name, "Name");
@@ -194,9 +194,9 @@ mod tests {
     assert_eq!(result.fields[4].name, "Checkbox");
     assert_eq!(result.fields[5].name, "URL");
 
-    assert_eq!(result.created_rows[0].cells.len(), 6);
-    assert_eq!(result.created_rows[1].cells.len(), 6);
-    assert_eq!(result.created_rows[2].cells.len(), 6);
+    assert_eq!(result.rows[0].cells.len(), 6);
+    assert_eq!(result.rows[1].cells.len(), 6);
+    assert_eq!(result.rows[2].cells.len(), 6);
 
     println!("{:?}", result);
   }

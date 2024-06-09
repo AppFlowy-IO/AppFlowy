@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
 
 const _bracketChar = '[';
 const _plusChar = '+';
@@ -79,13 +80,17 @@ Future<bool> inlinePageReferenceCommandHandler(
     }
   }
 
-  // ignore: use_build_context_synchronously
+  if (!context.mounted) {
+    return false;
+  }
+
   final service = InlineActionsService(
     context: context,
     handlers: [
       InlinePageReferenceService(
         currentViewId: currentViewId,
-      ).inlinePageReferenceDelegate,
+        limitResults: 10,
+      ),
     ],
   );
 
@@ -93,14 +98,14 @@ Future<bool> inlinePageReferenceCommandHandler(
 
   final List<InlineActionsResult> initialResults = [];
   for (final handler in service.handlers) {
-    final group = await handler();
+    final group = await handler.search(null);
 
     if (group.results.isNotEmpty) {
       initialResults.add(group);
     }
   }
 
-  if (service.context != null) {
+  if (context.mounted) {
     selectionMenuService = InlineActionsMenu(
       context: service.context!,
       editorState: editorState,

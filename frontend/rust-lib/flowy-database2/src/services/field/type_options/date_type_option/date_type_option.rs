@@ -4,13 +4,13 @@ use std::str::FromStr;
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
 use chrono_tz::Tz;
 use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use serde::{Deserialize, Serialize};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
-use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
+use crate::entities::{DateCellDataPB, DateFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   default_order, DateCellChangeset, DateCellData, DateFormat, TimeFormat, TypeOption,
@@ -19,9 +19,6 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 
-/// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
-/// So, storing the field type is necessary to distinguish the field type.
-/// Most of the cases, each [FieldType] has its own [TypeOption] implementation.
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
@@ -79,6 +76,8 @@ impl TypeOptionCellDataSerde for DateTypeOption {
     let end_timestamp = cell_data.end_timestamp;
     let (end_date, end_time) = self.formatted_date_time_from_timestamp(&end_timestamp);
 
+    let reminder_id = cell_data.reminder_id;
+
     DateCellDataPB {
       date,
       time,
@@ -88,6 +87,7 @@ impl TypeOptionCellDataSerde for DateTypeOption {
       end_timestamp: end_timestamp.unwrap_or_default(),
       include_time,
       is_range,
+      reminder_id,
     }
   }
 
@@ -199,20 +199,7 @@ impl DateTypeOption {
 impl TypeOptionTransform for DateTypeOption {}
 
 impl CellDataDecoder for DateTypeOption {
-  fn decode_cell(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    _field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    // Return default data if the type_option_cell_data is not FieldType::DateTime.
-    // It happens when switching from one field to another.
-    // For example:
-    // FieldType::RichText -> FieldType::DateTime, it will display empty content on the screen.
-    if !decoded_field_type.is_date() {
-      return Ok(Default::default());
-    }
-
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     self.parse_cell(cell)
   }
 
@@ -244,9 +231,8 @@ impl CellDataDecoder for DateTypeOption {
     }
   }
 
-  fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = Self::CellData::from(cell);
-    self.stringify_cell_data(cell_data)
+  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
+    None
   }
 }
 
@@ -257,18 +243,20 @@ impl CellDataChangeset for DateTypeOption {
     cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     // old date cell data
-    let (previous_timestamp, previous_end_timestamp, include_time, is_range) = match cell {
-      Some(cell) => {
-        let cell_data = DateCellData::from(&cell);
-        (
-          cell_data.timestamp,
-          cell_data.end_timestamp,
-          cell_data.include_time,
-          cell_data.is_range,
-        )
-      },
-      None => (None, None, false, false),
-    };
+    let (previous_timestamp, previous_end_timestamp, include_time, is_range, reminder_id) =
+      match cell {
+        Some(cell) => {
+          let cell_data = DateCellData::from(&cell);
+          (
+            cell_data.timestamp,
+            cell_data.end_timestamp,
+            cell_data.include_time,
+            cell_data.is_range,
+            cell_data.reminder_id,
+          )
+        },
+        None => (None, None, false, false, String::new()),
+      };
 
     if changeset.clear_flag == Some(true) {
       let cell_data = DateCellData {
@@ -276,6 +264,7 @@ impl CellDataChangeset for DateTypeOption {
         end_timestamp: None,
         include_time,
         is_range,
+        reminder_id: String::new(),
       };
 
       return Ok((Cell::from(&cell_data), cell_data));
@@ -284,6 +273,7 @@ impl CellDataChangeset for DateTypeOption {
     // update include_time and is_range if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
     let is_range = changeset.is_range.unwrap_or(is_range);
+    let reminder_id = changeset.reminder_id.unwrap_or(reminder_id);
 
     // Calculate the timestamp in the time zone specified in type option. If
     // a new timestamp is included in the changeset without an accompanying
@@ -323,6 +313,7 @@ impl CellDataChangeset for DateTypeOption {
       end_timestamp,
       include_time,
       is_range,
+      reminder_id,
     };
 
     Ok((Cell::from(&cell_data), cell_data))
@@ -333,14 +324,9 @@ impl TypeOptionCellDataFilter for DateTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_date() {
-      return true;
-    }
-
-    filter.is_visible(cell_data.timestamp)
+    filter.is_visible(cell_data).unwrap_or(true)
   }
 }
 

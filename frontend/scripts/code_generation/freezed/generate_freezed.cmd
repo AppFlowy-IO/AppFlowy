@@ -12,6 +12,7 @@ cd ..\..\..\appflowy_flutter
 REM Navigate to the appflowy_flutter directory and generate files
 echo Generating files for appflowy_flutter
 REM call flutter packages pub get
+call flutter packages pub get
 call dart run build_runner clean && call dart run build_runner build -d
 echo Done generating files for appflowy_flutter
 

@@ -1,10 +1,11 @@
 use anyhow::Error;
 use client_api::entity::auth_dto::{UpdateUserParams, UserMetaData};
-use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceMember};
+use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceInvitationStatus, AFWorkspaceMember};
 
-use flowy_user_deps::entities::{
-  Authenticator, Role, UpdateUserProfileParams, UserProfile, WorkspaceMember,
-  USER_METADATA_ICON_URL, USER_METADATA_OPEN_AI_KEY, USER_METADATA_STABILITY_AI_KEY,
+use flowy_user_pub::entities::{
+  Authenticator, Role, UpdateUserProfileParams, UserProfile, WorkspaceInvitationStatus,
+  WorkspaceMember, USER_METADATA_ICON_URL, USER_METADATA_OPEN_AI_KEY,
+  USER_METADATA_STABILITY_AI_KEY,
 };
 
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
@@ -88,5 +89,26 @@ pub fn from_af_workspace_member(member: AFWorkspaceMember) -> WorkspaceMember {
     email: member.email,
     role: from_af_role(member.role),
     name: member.name,
+    avatar_url: member.avatar_url,
+  }
+}
+
+pub fn to_workspace_invitation_status(
+  status: WorkspaceInvitationStatus,
+) -> AFWorkspaceInvitationStatus {
+  match status {
+    WorkspaceInvitationStatus::Pending => AFWorkspaceInvitationStatus::Pending,
+    WorkspaceInvitationStatus::Accepted => AFWorkspaceInvitationStatus::Accepted,
+    WorkspaceInvitationStatus::Rejected => AFWorkspaceInvitationStatus::Rejected,
+  }
+}
+
+pub fn from_af_workspace_invitation_status(
+  status: AFWorkspaceInvitationStatus,
+) -> WorkspaceInvitationStatus {
+  match status {
+    AFWorkspaceInvitationStatus::Pending => WorkspaceInvitationStatus::Pending,
+    AFWorkspaceInvitationStatus::Accepted => WorkspaceInvitationStatus::Accepted,
+    AFWorkspaceInvitationStatus::Rejected => WorkspaceInvitationStatus::Rejected,
   }
 }

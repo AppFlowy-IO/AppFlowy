@@ -1,10 +1,12 @@
 use collab::core::collab_state::SyncState;
 use collab_database::rows::RowId;
-use collab_database::user::DatabaseWithViews;
 use collab_database::views::DatabaseLayout;
 
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError};
+
+use lib_infra::validator_fn::required_not_empty_str;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowMetaPB};
@@ -67,8 +69,15 @@ impl AsRef<str> for DatabaseIdPB {
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct RepeatedDatabaseIdPB {
+  #[pb(index = 1)]
+  pub value: Vec<DatabaseIdPB>,
+}
+
+#[derive(Clone, ProtoBuf, Default, Debug, Validate)]
 pub struct DatabaseViewIdPB {
   #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
   pub value: String,
 }
 
@@ -84,21 +93,17 @@ pub struct MoveFieldPayloadPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub field_id: String,
+  pub from_field_id: String,
 
   #[pb(index = 3)]
-  pub from_index: i32,
-
-  #[pb(index = 4)]
-  pub to_index: i32,
+  pub to_field_id: String,
 }
 
 #[derive(Clone)]
 pub struct MoveFieldParams {
   pub view_id: String,
-  pub field_id: String,
-  pub from_index: i32,
-  pub to_index: i32,
+  pub from_field_id: String,
+  pub to_field_id: String,
 }
 
 impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
@@ -106,12 +111,13 @@ impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
 
   fn try_into(self) -> Result<MoveFieldParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
-    let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidParams)?;
+    let from_field_id =
+      NotEmptyStr::parse(self.from_field_id).map_err(|_| ErrorCode::InvalidParams)?;
+    let to_field_id = NotEmptyStr::parse(self.to_field_id).map_err(|_| ErrorCode::InvalidParams)?;
     Ok(MoveFieldParams {
       view_id: view_id.0,
-      field_id: item_id.0,
-      from_index: self.from_index,
-      to_index: self.to_index,
+      from_field_id: from_field_id.0,
+      to_field_id: to_field_id.0,
     })
   }
 }
@@ -196,27 +202,18 @@ impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct DatabaseDescriptionPB {
+pub struct DatabaseMetaPB {
   #[pb(index = 1)]
-  pub name: String,
+  pub database_id: String,
 
   #[pb(index = 2)]
-  pub database_id: String,
-}
-
-impl From<DatabaseWithViews> for DatabaseDescriptionPB {
-  fn from(data: DatabaseWithViews) -> Self {
-    Self {
-      name: data.name,
-      database_id: data.database_id,
-    }
-  }
+  pub inline_view_id: String,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedDatabaseDescriptionPB {
   #[pb(index = 1)]
-  pub items: Vec<DatabaseDescriptionPB>,
+  pub items: Vec<DatabaseMetaPB>,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -276,18 +273,27 @@ impl TryInto<DatabaseLayoutMeta> for DatabaseLayoutMetaPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct DatabaseSyncStatePB {
   #[pb(index = 1)]
-  pub is_syncing: bool,
+  pub value: DatabaseSyncState,
+}
 
-  #[pb(index = 2)]
-  pub is_finish: bool,
+#[derive(Debug, Default, ProtoBuf_Enum, PartialEq, Eq, Clone, Copy)]
+pub enum DatabaseSyncState {
+  #[default]
+  InitSyncBegin = 0,
+  InitSyncEnd = 1,
+  Syncing = 2,
+  SyncFinished = 3,
 }
 
 impl From<SyncState> for DatabaseSyncStatePB {
   fn from(value: SyncState) -> Self {
-    Self {
-      is_syncing: value.is_syncing(),
-      is_finish: value.is_sync_finished(),
-    }
+    let value = match value {
+      SyncState::InitSyncBegin => DatabaseSyncState::InitSyncBegin,
+      SyncState::InitSyncEnd => DatabaseSyncState::InitSyncEnd,
+      SyncState::Syncing => DatabaseSyncState::Syncing,
+      SyncState::SyncFinished => DatabaseSyncState::SyncFinished,
+    };
+    Self { value }
   }
 }
 

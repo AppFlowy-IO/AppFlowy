@@ -1,48 +1,51 @@
 import 'package:appflowy/plugins/trash/application/trash_bloc.dart';
-import 'package:appflowy/workspace/application/app/app_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
 
 class TrashTestContext {
+  TrashTestContext(this.unitTest);
+
   late ViewPB view;
-  late AppBloc appBloc;
+  late ViewBloc viewBloc;
   late List<ViewPB> allViews;
   final AppFlowyUnitTest unitTest;
 
-  TrashTestContext(this.unitTest);
-
   Future<void> initialize() async {
-    view = await unitTest.createTestApp();
-    appBloc = AppBloc(view: view)..add(const AppEvent.initial());
+    view = await unitTest.createWorkspace();
+    viewBloc = ViewBloc(view: view)..add(const ViewEvent.initial());
     await blocResponseFuture();
 
-    appBloc.add(
-      const AppEvent.createView(
+    viewBloc.add(
+      const ViewEvent.createView(
         "Document 1",
         ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
       ),
     );
-    await blocResponseFuture();
+    await blocResponseFuture(millisecond: 300);
 
-    appBloc.add(
-      const AppEvent.createView(
+    viewBloc.add(
+      const ViewEvent.createView(
         "Document 2",
         ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
       ),
     );
-    await blocResponseFuture();
+    await blocResponseFuture(millisecond: 300);
 
-    appBloc.add(
-      const AppEvent.createView(
+    viewBloc.add(
+      const ViewEvent.createView(
         "Document 3",
         ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
       ),
     );
-    await blocResponseFuture();
+    await blocResponseFuture(millisecond: 300);
 
-    allViews = [...appBloc.state.view.childViews];
+    allViews = [...viewBloc.state.view.childViews];
     assert(allViews.length == 3, 'but receive ${allViews.length}');
   }
 }
@@ -64,26 +67,32 @@ void main() {
       final context = TrashTestContext(unitTest);
       await context.initialize();
       final trashBloc = TrashBloc()..add(const TrashEvent.initial());
-      await blocResponseFuture(millisecond: 200);
+      await blocResponseFuture();
 
       // delete a view
-      final deletedView = context.appBloc.state.view.childViews[0];
-      context.appBloc.add(AppEvent.deleteView(deletedView.id));
+      final deletedView = context.viewBloc.state.view.childViews[0];
+      final deleteViewBloc = ViewBloc(view: deletedView)
+        ..add(const ViewEvent.initial());
       await blocResponseFuture();
-      assert(context.appBloc.state.view.childViews.length == 2);
+      deleteViewBloc.add(const ViewEvent.delete());
+      await blocResponseFuture(millisecond: 1000);
+      assert(context.viewBloc.state.view.childViews.length == 2);
       assert(trashBloc.state.objects.length == 1);
       assert(trashBloc.state.objects.first.id == deletedView.id);
 
       // put back
       trashBloc.add(TrashEvent.putback(deletedView.id));
-      await blocResponseFuture();
-      assert(context.appBloc.state.view.childViews.length == 3);
+      await blocResponseFuture(millisecond: 1000);
+      assert(context.viewBloc.state.view.childViews.length == 3);
       assert(trashBloc.state.objects.isEmpty);
 
       // delete all views
       for (final view in context.allViews) {
-        context.appBloc.add(AppEvent.deleteView(view.id));
+        final deleteViewBloc = ViewBloc(view: view)
+          ..add(const ViewEvent.initial());
         await blocResponseFuture();
+        deleteViewBloc.add(const ViewEvent.delete());
+        await blocResponseFuture(millisecond: 1000);
       }
       expect(trashBloc.state.objects[0].id, context.allViews[0].id);
       expect(trashBloc.state.objects[1].id, context.allViews[1].id);
@@ -91,12 +100,12 @@ void main() {
 
       // delete a view permanently
       trashBloc.add(TrashEvent.delete(trashBloc.state.objects[0]));
-      await blocResponseFuture();
+      await blocResponseFuture(millisecond: 1000);
       expect(trashBloc.state.objects.length, 2);
 
       // delete all view permanently
       trashBloc.add(const TrashEvent.deleteAll());
-      await blocResponseFuture();
+      await blocResponseFuture(millisecond: 1000);
       assert(
         trashBloc.state.objects.isEmpty,
         "but receive ${trashBloc.state.objects.length}",

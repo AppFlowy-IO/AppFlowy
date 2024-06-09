@@ -1,4 +1,186 @@
 # Release Notes
+## Version 0.5.8 - 05/20/2024
+### New Features
+- Improvement to the Callout block to insert new lines
+- New settings page "Manage data" replaced the "Files" page
+- New settings page "Workspace" replaced the "Appearance" and "Language" pages
+- A custom implementation of a title bar for Windows users
+- Added support for selecting Cards in kanban and performing grouped keyboard shortcuts
+- Added support for default system font family
+- Support for scaling the application up/down using a keyboard shortcut (CMD/CTRL + PLUS/MINUS)
+
+### Bug Fixes
+- Resolved and refined the UI on Mobile
+- Resolved issue with text editing in database
+- Improved appearance of empty text cells in kanban/calendar
+- Resolved an issue where a page's more actions (delete, duplicate) did not work properly
+- Resolved and inconsistency in padding on get started screen on Desktop
+
+## Version 0.5.7 - 05/10/2024
+### Bug Fixes
+- Resolved page opening issue on Android.
+- Fixed text input inconsistency on Kanban board cards.
+
+## Version 0.5.6 - 05/07/2024
+### New Features
+- Team collaboration is live! Add members to your workspace to edit and collaborate on pages together.
+- Collaborate in real time on the same page with other members. Edits made by others will appear instantly.
+- Create multiple workspaces for different kinds of content.
+- Customize your entire page on mobile through the Page Style menu with options for layout, font, font size, emoji, and cover image.
+- Open a row record as a full page.
+### Bug Fixes
+- Resolved issue with setting background color for the Simple Table block.
+- Adjusted toolbar for various screen sizes.
+- Added a request for photo permission before uploading images on mobile.
+- Exported creation and last modification timestamps to CSV.
+
+## Version 0.5.5 - 04/24/2024
+### New Features
+- Improved the display of code blocks with line numbers
+- Added support for signing in using Magic Link
+### Bug Fixes
+- Fixed the database synchronization indicator issue
+- Resolved the issue with opening the mentioned page on mobile
+- Cleared the collaboration status when the user exits AppFlowy
+
+## Version 0.5.4 - 04/08/2024
+### New Features
+- Introduced support for displaying a synchronization indicator within documents and databases to enhance user awareness of data sync status
+- Revamped the select option cell editor in database
+- Improved translations for Spanish, German, Kurdish, and Vietnamese
+- Supported Android 6 and newer versions
+### Bug Fixes
+- Resolved an issue where twelve-hour time formats were not being parsed correctly in databases
+- Fixed a bug affecting the user interface of the single select option filter
+- Fixed various minor UI issues
+
+## Version 0.5.3 - 03/21/2024
+### New Features
+- Added build support for 32-bit Android devices
+- Introduced filters for KanBan boards for enhanced organization
+- Introduced the new "Relations" column type in Grids
+- Expanded language support with the addition of Greek
+- Enhanced toolbar design for Mobile devices
+- Introduced a command palette feature with initial support for page search
+### Bug Fixes
+- Rectified the issue of incomplete row data in Grids when adding new rows with active filters
+- Enhanced the logic governing the filtering of number and select/multi-select fields for improved accuracy
+- Implemented UI refinements on both Desktop and Mobile platforms, enriching the overall user experience of AppFlowy
+
+## Version 0.5.2 - 03/13/2024
+### Bug Fixes
+- Import csv file.
+
+## Version 0.5.1 - 03/11/2024
+### New Features
+- Introduced support for performing generic calculations on databases.
+- Implemented functionality for easily duplicating calendar events.
+- Added the ability to duplicate fields with cell data, facilitating smoother data management.
+- Now supports customizing font styles and colors prior to typing.
+- Enhanced the checklist user experience with the integration of keyboard shortcuts.
+- Improved the dark mode experience on mobile devices.
+### Bug Fixes
+- Fixed an issue with some pages failing to sync properly.
+- Fixed an issue where links without the http(s) scheme could not be opened, ensuring consistent link functionality.
+- Fixed an issue that prevented numbers from being inserted before heading blocks.
+- Fixed the inline page reference update mechanism to accurately reflect workspace changes.
+- Fixed an issue that made it difficult to resize images in certain cases.
+- Enhanced image loading reliability by clearing the image cache when images fail to load.
+- Resolved a problem preventing the launching of URLs on some Linux distributions.
+
+## Version 0.5.0 - 02/26/2024
+### New Features
+- Added support for scaling text on mobile platforms for better readability.
+- Introduced a toggle for favorites directly from the documents' top bar.
+- Optimized the image upload process and added error messaging for failed uploads.
+- Implemented depth control for outline block components.
+- New checklist task creation is now more intuitive, with prompts appearing on hover over list items in the row detail page.
+- Enhanced sorting capabilities, allowing reordering and addition of multiple sorts.
+- Expanded sorting and filtering options to include more field types like checklist, creation time, and modification time.
+- Added support for field calculations within databases.
+### Bug Fixes
+- Fixed an issue where inserting an image from Unsplash in local mode was not possible.
+- Fixed undo/redo functionality in lists.
+- Fixed data loss issues when converting between block types.
+- Fixed a bug where newly created rows were not being automatically sorted.
+- Fixed issues related to deleting a sorting field or sort not removing existing sorts properly.
+### Notes
+- Windows 7, Windows 8, and iOS 11 are not yet supported due to the upgrade to Flutter 3.22.0.
+
+## Version 0.4.9 - 02/17/2024
+### Bug Fixes
+- Resolved the issue that caused users to be redirected to the Sign In page
+
+## Version 0.4.8 - 02/13/2024
+### Bug Fixes
+- Fixed a possible error when loading workspaces
+
+## Version 0.4.6 - 02/03/2024
+### Bug Fixes
+- Fixed refresh token bug
+
+## Version 0.4.5 - 02/01/2024
+### Bug Fixes
+- Fixed WebSocket connection issue
+
+## Version 0.4.4 - 01/31/2024
+### New Features
+- Added functionality for uploading images to cloud storage.
+- Enabled anonymous sign-in option for mobile platform users.
+- Introduced the ability to customize cloud settings directly from the startup page.
+- Added support for inserting reminders on the mobile platform.
+- Overhauled the user interface on mobile devices, including improvements to the action bottom sheet, editor toolbar, database details page, and app bar.
+- Implemented a shortcut (F2 key) to rename the current view.
+
+### Bug Fixes
+- Fixed an issue where the font family was not displaying correctly on the mobile platform.
+- Resolved a problem with the mobile row detail title not updating correctly.
+- Fixed issues related to deleting images and refactored the image actions menu for better usability.
+- Fixed other known issues.
+
+# Release Notes
+## Version 0.4.3 - 01/16/2024
+### Bug Fixes
+- Fixed file name too long issue
+
+## Version 0.4.2 - 01/15/2024
+AppFlowy for Android is available to download on GitHub.
+If you’ve been using our desktop app, it’s important to read [this guide](https://docs.appflowy.io/docs/guides/sync-desktop-and-mobile) before logging into the mobile app.
+### New Features
+- Enhanced RTL (Right-to-Left) support for mobile platforms.
+- Optimized selection gesture system on mobile.
+- Optimized the mobile toolbar menu.
+- Improved reference menu (‘@’ menu).
+- Updated privacy policy.
+- Improved the data import process for AppFlowy by implementing a progress indicator and compressing the data to enhance efficiency.
+- Enhanced the utilization of local disk space to optimize storage consumption.
+### Bug Fixes
+- Fixed sign-in cancellation issue on mobile.
+- Resolved keyboard close bug on Android.
+
+
+## Version 0.4.1 - 01/03/2024
+### Bug fixes
+- Fix import AppFlowy data folder
+
+## Version 0.4.0 - 12/30/2023
+1. Added capability to import data from an AppFlowy data folder. For detailed information, please see [AppFlowy Data Storage Documentation](https://docs.appflowy.io/docs/appflowy/product/data-storage).
+2. Enhanced user interface and fixed various bugs.
+3. Improved the efficiency of data synchronization in AppFlowy Cloud
+
+## Version 0.3.9.1 - 12/07/2023
+
+### Bug fixes
+- Fix potential blank pages that may occur in an empty document
+
+## Version 0.3.9 - 12/07/2023
+
+### New Features
+- Support inserting a new field to the left or right of an existing one
+
+### Bug fixes
+- Fix some emojis are shown in black/white
+- Fix unable to rename a subpage of subpage
 
 ## Version 0.3.8 - 11/13/2023
 

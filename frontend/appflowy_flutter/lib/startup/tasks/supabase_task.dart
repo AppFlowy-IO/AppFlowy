@@ -33,13 +33,15 @@ class InitSupabaseTask extends LaunchTask {
       return;
     }
 
-    supabase?.dispose();
+    await supabase?.dispose();
     supabase = null;
     final initializedSupabase = await Supabase.initialize(
       url: getIt<AppFlowyCloudSharedEnv>().supabaseConfig.url,
       anonKey: getIt<AppFlowyCloudSharedEnv>().supabaseConfig.anon_key,
       debug: kDebugMode,
-      localStorage: const SupabaseLocalStorage(),
+      authOptions: const FlutterAuthClientOptions(
+        localStorage: SupabaseLocalStorage(),
+      ),
     );
 
     if (realtimeService != null) {
@@ -60,7 +62,7 @@ class InitSupabaseTask extends LaunchTask {
   Future<void> dispose() async {
     await realtimeService?.dispose();
     realtimeService = null;
-    supabase?.dispose();
+    await supabase?.dispose();
     supabase = null;
   }
 }
@@ -70,16 +72,10 @@ class InitSupabaseTask extends LaunchTask {
 /// We don't use the default one because it always save the session in the document directory.
 /// When we switch to the different folder, the session still exists.
 class SupabaseLocalStorage extends LocalStorage {
-  const SupabaseLocalStorage()
-      : super(
-          initialize: _initialize,
-          hasAccessToken: _hasAccessToken,
-          accessToken: _accessToken,
-          removePersistedSession: _removePersistedSession,
-          persistSession: _persistSession,
-        );
+  const SupabaseLocalStorage();
 
-  static Future<void> _initialize() async {
+  @override
+  Future<void> initialize() async {
     HiveCipher? encryptionCipher;
 
     // customize the path for Hive
@@ -91,7 +87,8 @@ class SupabaseLocalStorage extends LocalStorage {
     );
   }
 
-  static Future<bool> _hasAccessToken() {
+  @override
+  Future<bool> hasAccessToken() {
     return Future.value(
       Hive.box(hiveBoxName).containsKey(
         supabasePersistSessionKey,
@@ -99,17 +96,20 @@ class SupabaseLocalStorage extends LocalStorage {
     );
   }
 
-  static Future<String?> _accessToken() {
+  @override
+  Future<String?> accessToken() {
     return Future.value(
       Hive.box(hiveBoxName).get(supabasePersistSessionKey) as String?,
     );
   }
 
-  static Future<void> _removePersistedSession() {
+  @override
+  Future<void> removePersistedSession() {
     return Hive.box(hiveBoxName).delete(supabasePersistSessionKey);
   }
 
-  static Future<void> _persistSession(String persistSessionString) {
+  @override
+  Future<void> persistSession(String persistSessionString) {
     return Hive.box(hiveBoxName).put(
       supabasePersistSessionKey,
       persistSessionString,

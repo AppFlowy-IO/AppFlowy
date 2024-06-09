@@ -7,6 +7,10 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 
+const String leftAlignmentKey = 'left';
+const String centerAlignmentKey = 'center';
+const String rightAlignmentKey = 'right';
+
 final alignToolbarItem = ToolbarItem(
   id: 'editor.align',
   group: 4,
@@ -23,52 +27,44 @@ final alignToolbarItem = ToolbarItem(
 
     bool isHighlight = false;
     FlowySvgData data = FlowySvgs.toolbar_align_left_s;
-    if (isSatisfyCondition((value) => value == 'left')) {
+    if (isSatisfyCondition((value) => value == leftAlignmentKey)) {
       isHighlight = true;
       data = FlowySvgs.toolbar_align_left_s;
-    } else if (isSatisfyCondition((value) => value == 'center')) {
+    } else if (isSatisfyCondition((value) => value == centerAlignmentKey)) {
       isHighlight = true;
       data = FlowySvgs.toolbar_align_center_s;
-    } else if (isSatisfyCondition((value) => value == 'right')) {
+    } else if (isSatisfyCondition((value) => value == rightAlignmentKey)) {
       isHighlight = true;
       data = FlowySvgs.toolbar_align_right_s;
     }
 
-    // final child = MouseRegion(
-    //   cursor: SystemMouseCursors.click,
-    //   child: FlowyTooltip(
-    //     message: LocaleKeys.document_plugins_optionAction_align.tr(),
-    //     child: FlowySvg(
-    //       data,
-    //       size: const Size.square(16),
-    //       color: isHighlight ? highlightColor : Colors.white,
-    //     ),
-    //   ),
-    // );
-
-    // the above code will cause an error in Flutter 3.13:
-    //  Cannot hit test a render box that has never been laid out.
     final child = FlowySvg(
       data,
       size: const Size.square(16),
       color: isHighlight ? highlightColor : Colors.white,
     );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: _AlignmentButtons(
-        child: child,
-        onAlignChanged: (align) async {
-          await editorState.updateNode(
-            selection,
-            (node) => node.copyWith(
-              attributes: {
-                ...node.attributes,
-                blockComponentAlign: align,
-              },
-            ),
-          );
-        },
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: FlowyTooltip(
+        message: LocaleKeys.document_plugins_optionAction_align.tr(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: _AlignmentButtons(
+            child: child,
+            onAlignChanged: (align) async {
+              await editorState.updateNode(
+                selection,
+                (node) => node.copyWith(
+                  attributes: {
+                    ...node.attributes,
+                    blockComponentAlign: align,
+                  },
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   },
@@ -129,19 +125,19 @@ class _AlignButtons extends StatelessWidget {
           _AlignButton(
             icon: FlowySvgs.toolbar_align_left_s,
             tooltips: LocaleKeys.document_plugins_optionAction_left.tr(),
-            onTap: () => onAlignChanged('left'),
+            onTap: () => onAlignChanged(leftAlignmentKey),
           ),
           const _Divider(),
           _AlignButton(
             icon: FlowySvgs.toolbar_align_center_s,
             tooltips: LocaleKeys.document_plugins_optionAction_center.tr(),
-            onTap: () => onAlignChanged('center'),
+            onTap: () => onAlignChanged(centerAlignmentKey),
           ),
           const _Divider(),
           _AlignButton(
             icon: FlowySvgs.toolbar_align_right_s,
             tooltips: LocaleKeys.document_plugins_optionAction_right.tr(),
-            onTap: () => onAlignChanged('right'),
+            onTap: () => onAlignChanged(rightAlignmentKey),
           ),
           const HSpace(4),
         ],

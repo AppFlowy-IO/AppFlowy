@@ -1,0 +1,126 @@
+# name: Android CI
+
+# on:
+#   push:
+#     branches:
+#       - "main"
+#     paths:
+#       - ".github/workflows/mobile_ci.yaml"
+#       - "frontend/**"
+#       - "!frontend/appflowy_tauri/**"
+
+#   pull_request:
+#     branches:
+#       - "main"
+#     paths:
+#       - ".github/workflows/mobile_ci.yaml"
+#       - "frontend/**"
+#       - "!frontend/appflowy_tauri/**"
+
+# env:
+#   CARGO_TERM_COLOR: always
+#   FLUTTER_VERSION: "3.22.0"
+#   RUST_TOOLCHAIN: "1.77.2"
+#   CARGO_MAKE_VERSION: "0.36.6"
+
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+#   cancel-in-progress: true
+
+# jobs:
+#   build:
+#     if: github.event.pull_request.draft != true
+#     strategy:
+#       fail-fast: true
+#       matrix:
+#         os: [macos-14]
+#     runs-on: ${{ matrix.os }}
+
+#     steps:
+#       - name: Check storage space
+#         run: df -h
+
+#           # the following step is required to avoid running out of space
+#       - name: Maximize build space
+#         if: matrix.os == 'ubuntu-latest'
+#         run: |
+#           sudo rm -rf /usr/share/dotnet
+#           sudo rm -rf /opt/ghc
+#           sudo rm -rf "/usr/local/share/boost"
+#           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+#           sudo docker image prune --all --force
+#           sudo rm -rf /opt/hostedtoolcache/codeQL
+#           sudo rm -rf ${GITHUB_WORKSPACE}/.git
+#           sudo rm -rf $ANDROID_HOME/ndk
+
+#       - name: Check storage space
+#         run: df -h
+
+#       - name: Checkout source code
+#         uses: actions/checkout@v4
+
+#       - uses: actions/setup-java@v4
+#         with:
+#           distribution: temurin
+#           java-version: 11
+
+#       - name: Install Rust toolchain
+#         id: rust_toolchain
+#         uses: actions-rs/toolchain@v1
+#         with:
+#           toolchain: ${{ env.RUST_TOOLCHAIN }}
+#           override: true
+#           profile: minimal
+
+#       - name: Install flutter
+#         id: flutter
+#         uses: subosito/flutter-action@v2
+#         with:
+#           channel: "stable"
+#           flutter-version: ${{ env.FLUTTER_VERSION }}
+
+#       - uses: gradle/gradle-build-action@v3
+#         with:
+#           gradle-version: 7.4.2
+
+#       - uses: davidB/rust-cargo-make@v1
+#         with:
+#           version: "0.36.6"
+
+#       - name: Install prerequisites
+#         working-directory: frontend
+#         run: |
+#           rustup target install aarch64-linux-android
+#           rustup target install x86_64-linux-android
+#           cargo install --force duckscript_cli
+#           cargo install cargo-ndk
+#           if [ "$RUNNER_OS" == "Linux" ]; then
+#             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+#             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+#             sudo apt-get update
+#             sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+#             sudo apt-get install keybinder-3.0 libnotify-dev
+#             sudo apt-get install gcc-multilib
+#           elif [ "$RUNNER_OS" == "Windows" ]; then
+#             vcpkg integrate install
+#           elif [ "$RUNNER_OS" == "macOS" ]; then
+#             echo 'do nothing'
+#           fi
+#           cargo make appflowy-flutter-deps-tools
+#         shell: bash
+
+#       - name: Build AppFlowy
+#         working-directory: frontend
+#         run: |
+#           cargo make --profile development-android appflowy-android-dev-ci
+
+
+#       - name: Run integration tests
+#         # https://github.com/ReactiveCircus/android-emulator-runner
+#         uses: reactivecircus/android-emulator-runner@v2
+#         with:
+#           api-level: 32
+#           arch: arm64-v8a
+#           disk-size: 2048M
+#           working-directory: frontend/appflowy_flutter
+#           script: flutter test integration_test/runner.dart

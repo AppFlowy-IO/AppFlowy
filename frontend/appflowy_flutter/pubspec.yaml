@@ -15,10 +15,11 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.3.9
+version: 0.5.9
 
 environment:
-  sdk: ">=3.1.5 <4.0.0"
+  flutter: ">=3.22.0"
+  sdk: ">=3.3.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -40,29 +41,27 @@ dependencies:
   flowy_svg:
     path: packages/flowy_svg
   appflowy_board:
+    # path: ../../../appflowy-board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 93a1b70
+      ref: 8a6434ae3d02624b614a010af80f775db11bf22e
+  appflowy_result:
+    path: packages/appflowy_result
+  appflowy_editor_plugins: ^0.0.6
+
   appflowy_editor:
-    git:
-      url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "4995d21"
 
   appflowy_popover:
     path: packages/appflowy_popover
 
   #  third party packages
-  intl: ^0.18.0
+  intl: ^0.19.0
   time: ^2.1.3
   equatable: ^2.0.5
   freezed_annotation: ^2.2.0
   get_it: ^7.6.0
   flutter_bloc: ^8.1.3
-  flutter_math_fork:
-    git:
-      url: https://github.com/xazin/flutter_math_fork.git
-      ref: de24059
-  dartz: ^0.10.1
+  flutter_math_fork: ^0.7.2
   provider: ^6.0.5
   path_provider: ^2.0.15
   sized_context: ^1.0.0+4
@@ -70,13 +69,12 @@ dependencies:
   expandable: ^5.0.1
   flutter_colorpicker: ^1.0.3
   highlight: ^0.7.0
-  package_info_plus: ^4.0.1
+  package_info_plus: ^6.0.0
   url_launcher: ^6.1.11
   clipboard: ^0.1.3
   connectivity_plus: ^5.0.2
   easy_localization: ^3.0.2
-  textfield_tags: ^2.0.2
-  device_info_plus: ^9.0.1
+  device_info_plus: ^10.1.0
   fluttertoast: ^8.2.2
   json_annotation: ^4.8.1
   table_calendar: ^3.0.9
@@ -85,31 +83,30 @@ dependencies:
   hotkey_manager: ^0.1.7
   fixnum: ^1.1.0
   flutter_svg: ^2.0.7
-  protobuf: "2.0.0"
+  protobuf: ^3.1.0
   charcode: ^1.3.1
   collection: ^1.17.1
   bloc: ^8.1.2
   shared_preferences: ^2.2.2
-  google_fonts: ^4.0.5
+  google_fonts: ^6.1.0
   percent_indicator: ^4.2.3
   calendar_view:
     git:
       url: https://github.com/Xazin/flutter_calendar_view
       ref: "6fe0c98"
-  window_manager: ^0.3.4
   http: ^1.0.0
   path: ^1.8.3
-  mocktail: ^0.3.0
-  archive: ^3.3.7
+  mocktail: ^1.0.1
+  archive: ^3.4.10
   nanoid: ^1.0.0
   supabase_flutter: ^1.10.4
-  envied: ^0.3.0+3
+  envied: ^0.5.2
   dotted_border: ^2.0.0+3
   url_protocol:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  super_clipboard: ^0.6.3
-  go_router: ^12.1.1
+  super_clipboard: ^0.8.4
+  go_router: ^13.1.0
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
   flutter_emoji_mart:
@@ -121,25 +118,51 @@ dependencies:
   # TODO: Consider implementing custom package
   # to gather notification handling for all platforms
   local_notifier: ^0.1.5
-  app_links: ^3.4.1
+
+  app_links: ^3.5.0
   flutter_slidable: ^3.0.0
   image_picker: ^1.0.4
   image_gallery_saver: ^2.0.3
   cached_network_image: ^3.3.0
-  leak_tracker: ^9.0.6
+  leak_tracker: ^10.0.0
+  keyboard_height_plugin: ^0.0.5
+  scrollable_positioned_list: ^0.3.8
+  flutter_cache_manager: ^3.3.1
+  share_plus: ^7.2.1
+  sheet:
+  file: ^7.0.0
+  avatar_stack: ^1.2.0
+  numerus: ^2.1.2
+  flutter_animate: ^4.5.0
+  permission_handler: ^11.3.1
+  flutter_chat_ui: ^1.6.13
+  flutter_chat_types: ^3.6.2
+  scaled_app: ^2.3.0
+  auto_size_text_field: ^2.2.3
+  reorderable_tabbar: ^1.0.6
+  shimmer: ^3.0.0
+  isolates: ^3.0.3+8
+  markdown_widget: ^2.3.2+6
+
+  # Window Manager for MacOS and Linux
+  window_manager: ^0.3.9
+
+  # BitsDojo Window for Windows
+  bitsdojo_window: ^0.1.6
 
 dev_dependencies:
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.1
+  analyzer: ^6.3.0
 
   flutter_test:
     sdk: flutter
   integration_test:
     sdk: flutter
-  build_runner: ^2.4.4
-  freezed: ^2.3.4
+  build_runner: ^2.4.9
+  freezed: ^2.4.7
   bloc_test: ^9.1.2
-  json_serializable: ^6.7.0
-  envied_generator: ^0.3.0+3
+  json_serializable: ^6.7.1
+  envied_generator: ^0.5.2
 
   plugin_platform_interface: any
   url_launcher_platform_interface: any
@@ -150,18 +173,33 @@ dependency_overrides:
 
   supabase_flutter:
     git:
-      url: https://github.com/LucasXu0/supabase-flutter
-      ref: 4bd9139
+      url: https://github.com/supabase/supabase-flutter
+      ref: 9b05eea
       path: packages/supabase_flutter
 
-  app_links:
-    git:
-      url: https://github.com/LucasXu0/app_links
-      ref: c64ce17
   url_protocol:
     git:
       url: https://github.com/LucasXu0/flutter_url_protocol.git
       commit: 77a8420
+
+  appflowy_editor:
+    git:
+      url: https://github.com/AppFlowy-IO/appflowy-editor.git
+      ref: "0c79b870586f4bc5c23b61b327c51fe6a8856b47"
+
+  sheet:
+    git:
+      url: https://github.com/jamesblasco/modal_bottom_sheet
+      ref: e44458d
+      path: sheet
+
+  uuid: ^4.1.0
+
+  flutter_cache_manager:
+    git:
+      url: https://github.com/LucasXu0/flutter_cache_manager.git
+      commit: fbab857b1b1d209240a146d32f496379b9f62276
+      path: flutter_cache_manager
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -215,6 +253,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/appearance/
+    - assets/images/built_in_cover_images/
     - assets/flowy_icons/
     - assets/flowy_icons/16x/
     - assets/flowy_icons/24x/

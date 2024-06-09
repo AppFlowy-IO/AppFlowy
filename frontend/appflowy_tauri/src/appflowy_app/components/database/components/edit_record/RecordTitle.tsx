@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
 import { Page, PageIcon } from '$app_reducers/pages/slice';
-import ViewTitle from '$app/components/_shared/ViewTitle';
+import ViewTitle from '$app/components/_shared/view_title/ViewTitle';
 import { ViewIconTypePB } from '@/services/backend';
 import { useViewId } from '$app/hooks';
-import { updateRowMeta } from '$app/components/database/application/row/row_service';
-import { cellService, Field, RowMeta, TextCell } from '$app/components/database/application';
+import { updateRowMeta } from '$app/application/database/row/row_service';
+import { cellService, Field, RowMeta, TextCell } from '$app/application/database';
 import { useDatabase } from '$app/components/database';
 import { useCell } from '$app/components/database/components/cell/Cell.hooks';
 

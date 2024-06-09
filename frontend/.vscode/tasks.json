@@ -14,10 +14,10 @@
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
+        "AF: Dart Clean",
         "AF: Flutter Clean",
         "AF: Build Appflowy Core",
         "AF: Flutter Pub Get",
-        "AF: Flutter Package Get",
         "AF: Generate Language Files",
         "AF: Generate Freezed Files",
         "AF: Generate Svg Files"
@@ -32,10 +32,10 @@
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
+        "AF: Dart Clean",
         "AF: Flutter Clean",
         "AF: Build Appflowy Core For iOS",
         "AF: Flutter Pub Get",
-        "AF: Flutter Package Get",
         "AF: Generate Language Files",
         "AF: Generate Freezed Files",
         "AF: Generate Svg Files"
@@ -50,10 +50,10 @@
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
+        "AF: Dart Clean",
         "AF: Flutter Clean",
         "AF: Build Appflowy Core For iOS Simulator",
         "AF: Flutter Pub Get",
-        "AF: Flutter Package Get",
         "AF: Generate Language Files",
         "AF: Generate Freezed Files",
         "AF: Generate Svg Files"
@@ -61,6 +61,41 @@
       "presentation": {
         "reveal": "always",
         "panel": "new"
+      }
+    },
+    {
+      "label": "AF: Clean + Rebuild All (Android)",
+      "type": "shell",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "AF: Dart Clean",
+        "AF: Flutter Clean",
+        "AF: Build Appflowy Core For Android",
+        "AF: Flutter Pub Get",
+        "AF: Generate Language Files",
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "AF: Build Appflowy Core",
+      "type": "shell",
+      "windows": {
+        "command": "cargo make --profile development-windows-x86 appflowy-core-dev"
+      },
+      "linux": {
+        "command": "cargo make --profile \"development-linux-$(uname -m)\" appflowy-core-dev"
+      },
+      "osx": {
+        "command": "cargo make --profile \"development-mac-$(uname -m)\" appflowy-core-dev"
+      },
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
       }
     },
     {
@@ -82,44 +117,9 @@
       }
     },
     {
-      "label": "AF: Clean + Rebuild All (Android)",
-      "type": "shell",
-      "dependsOrder": "sequence",
-      "dependsOn": [
-        "AF: Flutter Clean",
-        "AF: Build Appflowy Core For Android",
-        "AF: Flutter Pub Get",
-        "AF: Flutter Package Get",
-        "AF: Generate Language Files",
-        "AF: Generate Freezed Files",
-        "AF: Generate Svg Files"
-      ],
-      "presentation": {
-        "reveal": "always",
-        "panel": "new"
-      }
-    },
-    {
       "label": "AF: Build Appflowy Core For Android",
       "type": "shell",
       "command": "cargo make --profile development-android appflowy-core-dev-android",
-      "group": "build",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      }
-    },
-    {
-      "label": "AF: Build Appflowy Core",
-      "type": "shell",
-      "windows": {
-        "command": "cargo make --profile development-windows-x86 appflowy-core-dev"
-      },
-      "linux": {
-        "command": "cargo make --profile \"development-linux-$(uname -m)\" appflowy-core-dev"
-      },
-      "osx": {
-        "command": "cargo make --profile \"development-mac-$(uname -m)\" appflowy-core-dev"
-      },
       "group": "build",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -132,7 +132,6 @@
       "dependsOn": [
         "AF: Flutter Clean",
         "AF: Flutter Pub Get",
-        "AF: Flutter Package Get",
         "AF: Generate Language Files",
         "AF: Generate Freezed Files",
         "AF: Generate Svg Files"
@@ -147,6 +146,15 @@
       }
     },
     {
+      "label": "AF: Dart Clean",
+      "type": "shell",
+      "command": "cargo make flutter_clean",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
       "label": "AF: Flutter Clean",
       "type": "shell",
       "command": "flutter clean",
@@ -158,14 +166,6 @@
       "label": "AF: Flutter Pub Get",
       "type": "shell",
       "command": "flutter pub get",
-      "options": {
-        "cwd": "${workspaceFolder}/appflowy_flutter"
-      }
-    },
-    {
-      "label": "AF: Flutter Package Get",
-      "type": "shell",
-      "command": "flutter packages pub get",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
       }
@@ -234,32 +234,16 @@
       }
     },
     {
-      "label": "AF: Flutter Clean",
-      "type": "shell",
-      "command": "cargo make flutter_clean",
-      "group": "build",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      }
-    },
-    {
       "label": "AF: flutter build aar",
       "type": "flutter",
       "command": "flutter",
-      "args": ["build", "aar"],
+      "args": [
+        "build",
+        "aar"
+      ],
       "group": "build",
       "problemMatcher": [],
       "detail": "appflowy_flutter"
-    },
-    {
-      "label": "AF: Tauri UI Dev",
-      "type": "shell",
-      "isBackground": true,
-      "command": "yarn",
-      "args": ["dev"],
-      "options": {
-        "cwd": "${workspaceFolder}/appflowy_tauri"
-      }
     },
     {
       "label": "AF: Tauri UI Build",
@@ -270,9 +254,10 @@
       }
     },
     {
-      "label": "AF: Tauri Dev",
+      "label": "AF: Tauri UI Dev",
       "type": "shell",
-      "command": "npm run tauri:dev",
+      "isBackground": true,
+      "command": "pnpm sync:i18n && pnpm run dev",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_tauri"
       }
@@ -289,7 +274,10 @@
       "label": "AF: Tauri Clean + Dev",
       "type": "shell",
       "dependsOrder": "sequence",
-      "dependsOn": ["AF: Tauri Clean", "AF: Tauri UI Dev"],
+      "dependsOn": [
+        "AF: Tauri Clean",
+        "AF: Tauri UI Dev"
+      ],
       "options": {
         "cwd": "${workspaceFolder}"
       }
@@ -309,6 +297,6 @@
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
       }
-    },
+    }
   ]
 }

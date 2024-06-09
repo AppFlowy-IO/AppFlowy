@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "AppFlowy",
-    "version": "0.0.0"
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
@@ -19,7 +19,9 @@
       },
       "fs": {
         "all": true,
-        "scope": ["$APPLOCALDATA/**", "$APPLOCALDATA/images/*"],
+        "scope": [
+          "$APPLOCALDATA/**"
+        ],
         "readFile": true,
         "writeFile": true,
         "readDir": true,
@@ -29,6 +31,19 @@
         "removeFile": true,
         "renameFile": true,
         "exists": true
+      },
+      "clipboard": {
+        "all": true,
+        "writeText": true,
+        "readText": true
+      },
+      "dialog": {
+        "all": true,
+        "ask": true,
+        "confirm": true,
+        "message": true,
+        "open": true,
+        "save": true
       }
     },
     "bundle": {
@@ -75,10 +90,23 @@
       {
         "fileDropEnabled": false,
         "fullscreen": false,
-        "height": 1200,
+        "height": 800,
         "resizable": true,
         "title": "AppFlowy",
-        "width": 1200
+        "width": 1200,
+        "minWidth": 800,
+        "minHeight": 600,
+        "visible": false,
+        "label": "main"
+      },
+      {
+        "height": 300,
+        "width": 549,
+        "decorations": false,
+        "url": "launch_splash.jpg",
+        "label": "splashscreen",
+        "center": true,
+        "visible": true
       }
     ]
   }

@@ -12,7 +12,7 @@ condition = { env_set = [
 
 [tasks.appflowy-core-dev-ios]
 category = "Build"
-dependencies = ["env_check"]
+dependencies = ["env_check", "set-app-version"]
 run_task = { name = [
   "setup-crate-type",
   "sdk-build-ios",
@@ -21,16 +21,17 @@ run_task = { name = [
 ] }
 
 [tasks.sdk-build-ios]
+dependencies = ["set-app-version"]
 private = true
 script = [
   """
     cd rust-lib/
     rustup show
-    if [ "${BUILD_FLAG}" == "debug" ]; then
-      echo "🚀 🚀 🚀  Building for debug"
+    if [ "${BUILD_FLAG}" = "debug" ]; then
+      echo "🚀 🚀 🚀  Building iOS SDK for debug"
       cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     else
-      echo "🚀 🚀 🚀  Building for release"
+      echo "🚀 🚀 🚀  Building iOS SDK  for release"
       cargo lipo --release --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     fi
     cd ../
@@ -40,7 +41,7 @@ script_runner = "@shell"
 
 [tasks.appflowy-core-dev-android]
 category = "Build"
-dependencies = ["env_check"]
+dependencies = ["env_check", "set-app-version"]
 run_task = { name = [
   "setup-crate-type",
   "sdk-build-android",
@@ -48,19 +49,43 @@ run_task = { name = [
   "restore-crate-type",
 ] }
 
+# only use in CI job
+[tasks.appflowy-core-dev-android-ci]
+category = "Build"
+dependencies = ["env_check", "set-app-version"]
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-build-android-ci",
+  "post-mobile-android",
+  "restore-crate-type",
+] }
+
 [tasks.sdk-build-android]
+dependencies = ["set-app-version"]
 private = true
 script = [
   """
     cd rust-lib/
-    rustup show
-    if [ "${BUILD_FLAG}" == "debug" ]; then
-      echo "🚀 🚀 🚀  Building for debug"
-      cargo ndk -t arm64-v8a -t x86_64 -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
+    if [ "${BUILD_FLAG}" = "debug" ]; then
+      echo "🚀 🚀 🚀  Building Android SDK for debug"
+      cargo ndk -t arm64-v8a -t armeabi-v7a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     else
-      echo "🚀 🚀 🚀  Building for release"
-      cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi --release
+      echo "🚀 🚀 🚀  Building Android SDK for release"
+      cargo ndk -t arm64-v8a -t armeabi-v7a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi --release
     fi
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+# only use in CI job
+[tasks.sdk-build-android-ci]
+dependencies = ["set-app-version"]
+private = true
+script = [
+  """
+    cd rust-lib/
+    cargo ndk -t arm64-v8a -t armeabi-v7a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     cd ../
   """,
 ]
@@ -73,6 +98,9 @@ script = [
     echo "🚀 🚀 🚀  AppFlowy-Core for iOS platform build success"
     dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/packages/appflowy_backend/${TARGET_OS}
     lib = set lib${LIB_NAME}.${LIB_EXT}
+
+    ls -a ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}
+
 
     echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} to ${dart_ffi_dir}/${lib}"
     rm -f ${dart_ffi_dir}/${lib}
@@ -95,7 +123,7 @@ script = [
     lib = set lib${LIB_NAME}.${LIB_EXT}
 
     echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/jniLibs/ to ${dart_ffi_dir}/"
-    rm -r ${dart_ffi_dir}/jniLibs/
+    rm -r ${dart_ffi_dir}/jniLibs
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/jniLibs/ \
     ${dart_ffi_dir}/
 

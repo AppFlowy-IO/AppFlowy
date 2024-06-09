@@ -1,28 +1,28 @@
 import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CoverImagePicker extends StatefulWidget {
-  final VoidCallback onBackPressed;
-  final Function(List<String> paths) onFileSubmit;
-
   const CoverImagePicker({
     super.key,
     required this.onBackPressed,
     required this.onFileSubmit,
   });
+
+  final VoidCallback onBackPressed;
+  final Function(List<String> paths) onFileSubmit;
 
   @override
   State<CoverImagePicker> createState() => _CoverImagePickerState();
@@ -37,12 +37,13 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
       child: BlocListener<CoverImagePickerBloc, CoverImagePickerState>(
         listener: (context, state) {
           if (state is NetworkImagePicked) {
-            state.successOrFail.isRight()
-                ? showSnapBar(
-                    context,
-                    LocaleKeys.document_plugins_cover_invalidImageUrl.tr(),
-                  )
-                : null;
+            state.successOrFail.fold(
+              (s) {},
+              (e) => showSnapBar(
+                context,
+                LocaleKeys.document_plugins_cover_invalidImageUrl.tr(),
+              ),
+            );
           }
           if (state is Done) {
             state.successOrFail.fold(
@@ -95,12 +96,9 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
 }
 
 class NetworkImageUrlInput extends StatefulWidget {
-  final void Function(String color) onAdd;
+  const NetworkImageUrlInput({super.key, required this.onAdd});
 
-  const NetworkImageUrlInput({
-    super.key,
-    required this.onAdd,
-  });
+  final void Function(String color) onAdd;
 
   @override
   State<NetworkImageUrlInput> createState() => _NetworkImageUrlInputState();
@@ -113,9 +111,13 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
   @override
   void initState() {
     super.initState();
-    urlController.addListener(() {
-      setState(() {});
-    });
+    urlController.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    urlController.dispose();
+    super.dispose();
   }
 
   @override
@@ -133,7 +135,6 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
           width: 5,
         ),
         Expanded(
-          flex: 1,
           child: RoundedTextButton(
             onPressed: () {
               urlController.text.isNotEmpty
@@ -155,14 +156,14 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
 }
 
 class ImagePickerActionButtons extends StatelessWidget {
-  final VoidCallback onBackPressed;
-  final VoidCallback onSave;
-
   const ImagePickerActionButtons({
     super.key,
     required this.onBackPressed,
     required this.onSave,
   });
+
+  final VoidCallback onBackPressed;
+  final VoidCallback onSave;
 
   @override
   Widget build(BuildContext context) {
@@ -190,9 +191,9 @@ class ImagePickerActionButtons extends StatelessWidget {
 }
 
 class CoverImagePreviewWidget extends StatefulWidget {
-  final dynamic state;
-
   const CoverImagePreviewWidget({super.key, required this.state});
+
+  final dynamic state;
 
   @override
   State<CoverImagePreviewWidget> createState() =>
@@ -200,7 +201,7 @@ class CoverImagePreviewWidget extends StatefulWidget {
 }
 
 class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
-  _buildFilePickerWidget(BuildContext ctx) {
+  DecoratedBox _buildFilePickerWidget(BuildContext ctx) {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -208,7 +209,6 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
         border: Border.fromBorderSide(
           BorderSide(
             color: Theme.of(context).colorScheme.primary,
-            width: 1,
           ),
         ),
       ),
@@ -255,7 +255,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
     );
   }
 
-  _buildImageDeleteButton(BuildContext ctx) {
+  Positioned _buildImageDeleteButton(BuildContext ctx) {
     return Positioned(
       right: 10,
       top: 10,
@@ -320,9 +320,9 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             : (widget.state is NetworkImagePicked)
                 ? widget.state.successOrFail.fold(
                     (l) => _buildImageDeleteButton(context),
-                    (r) => Container(),
+                    (r) => const SizedBox.shrink(),
                   )
-                : Container(),
+                : const SizedBox.shrink(),
       ],
     );
   }

@@ -1,0 +1,41 @@
+{
+  "name": "appflowy_web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build_release_wasm": "cd wasm-libs/af-wasm && wasm-pack build",
+    "build_dev_wasm": "cd wasm-libs/af-wasm && wasm-pack build --features=\"localhost_dev\"",
+    "dev": "pnpm run build_dev_wasm && vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "clean": "cargo make --cwd .. web_clean",
+    "test": "cargo test && wasm-pack test --headless",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "events": "^3.3.0",
+    "google-protobuf": "^3.21.2",
+    "protoc-gen-ts": "^0.8.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ts-results": "^3.3.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/events": "^3.0.3",
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8",
+    "vite-plugin-wasm": "^3.3.0",
+    "rimraf": "^5.0.5"
+  }
+}

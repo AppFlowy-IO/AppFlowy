@@ -43,7 +43,7 @@
       "type": "color"
     },
     "on-toolbar": {
-      "value": "{Base.black.neutral.N00}",
+      "value": "white",
       "type": "color"
     }
   },
@@ -71,7 +71,7 @@
       "type": "color"
     },
     "toolbar": {
-      "value": "{Base.black.neutral.800}",
+      "value": "#0F111C",
       "type": "color"
     },
     "selector": {
@@ -80,7 +80,7 @@
     },
     "list": {
       "active": {
-        "value": "{Base.black.neutral.100}",
+        "value": "{Base.black.neutral.300}",
         "type": "color"
       },
       "hover": {
@@ -191,6 +191,10 @@
     "aqua": {
       "value": "{Base.black.color.light.aqua}",
       "type": "color"
+    },
+    "orange": {
+      "value": "{Base.black.color.light.orange}",
+      "type": "color"
     }
   },
   "shadow": {
@@ -203,5 +207,15 @@
       "type": "innerShadow"
     },
     "type": "boxShadow"
+  },
+  "scrollbar": {
+    "track": {
+      "value": "{Base.black.neutral.100}",
+      "type": "color"
+    },
+    "thumb": {
+      "value": "{Base.black.neutral.300}",
+      "type": "color"
+    }
   }
 }

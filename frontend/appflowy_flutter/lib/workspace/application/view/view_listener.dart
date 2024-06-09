@@ -1,24 +1,27 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 // Delete the view from trash, which means the view was deleted permanently
-typedef DeleteViewNotifyValue = Either<ViewPB, FlowyError>;
+typedef DeleteViewNotifyValue = FlowyResult<ViewPB, FlowyError>;
 // The view get updated
 typedef UpdateViewNotifiedValue = ViewPB;
 // Restore the view from trash
-typedef RestoreViewNotifiedValue = Either<ViewPB, FlowyError>;
+typedef RestoreViewNotifiedValue = FlowyResult<ViewPB, FlowyError>;
 // Move the view to trash
-typedef MoveToTrashNotifiedValue = Either<DeletedViewPB, FlowyError>;
+typedef MoveToTrashNotifiedValue = FlowyResult<DeletedViewPB, FlowyError>;
 
 class ViewListener {
+  ViewListener({required this.viewId});
+
   StreamSubscription<SubscribeObject>? _subscription;
   void Function(UpdateViewNotifiedValue)? _updatedViewNotifier;
   void Function(ChildViewUpdatePB)? _updateViewChildViewsNotifier;
@@ -29,10 +32,6 @@ class ViewListener {
 
   FolderNotificationParser? _parser;
   final String viewId;
-
-  ViewListener({
-    required this.viewId,
-  });
 
   void start({
     void Function(UpdateViewNotifiedValue)? onViewUpdated,
@@ -65,7 +64,7 @@ class ViewListener {
 
   void _handleObservableType(
     FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case FolderNotification.DidUpdateView:
@@ -88,22 +87,23 @@ class ViewListener {
         break;
       case FolderNotification.DidDeleteView:
         result.fold(
-          (payload) => _deletedNotifier?.call(left(ViewPB.fromBuffer(payload))),
-          (error) => _deletedNotifier?.call(right(error)),
+          (payload) => _deletedNotifier
+              ?.call(FlowyResult.success(ViewPB.fromBuffer(payload))),
+          (error) => _deletedNotifier?.call(FlowyResult.failure(error)),
         );
         break;
       case FolderNotification.DidRestoreView:
         result.fold(
-          (payload) =>
-              _restoredNotifier?.call(left(ViewPB.fromBuffer(payload))),
-          (error) => _restoredNotifier?.call(right(error)),
+          (payload) => _restoredNotifier
+              ?.call(FlowyResult.success(ViewPB.fromBuffer(payload))),
+          (error) => _restoredNotifier?.call(FlowyResult.failure(error)),
         );
         break;
       case FolderNotification.DidMoveViewToTrash:
         result.fold(
           (payload) => _moveToTrashNotifier
-              ?.call(left(DeletedViewPB.fromBuffer(payload))),
-          (error) => _moveToTrashNotifier?.call(right(error)),
+              ?.call(FlowyResult.success(DeletedViewPB.fromBuffer(payload))),
+          (error) => _moveToTrashNotifier?.call(FlowyResult.failure(error)),
         );
         break;
       default:

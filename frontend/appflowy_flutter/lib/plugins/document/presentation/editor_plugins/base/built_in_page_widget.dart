@@ -1,31 +1,30 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:dartz/dartz.dart' as dartz;
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
-
-import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
 class BuiltInPageWidget extends StatefulWidget {
   const BuiltInPageWidget({
-    Key? key,
+    super.key,
     required this.node,
     required this.editorState,
     required this.builder,
-  }) : super(key: key);
+  });
 
   final Node node;
   final EditorState editorState;
@@ -36,7 +35,8 @@ class BuiltInPageWidget extends StatefulWidget {
 }
 
 class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
-  late Future<dartz.Either<FlowyError, ViewPB>> future;
+  late Future<FlowyResult<ViewPB, FlowyError>> future;
+
   final focusNode = FocusNode();
 
   String get parentViewId => widget.node.attributes[DatabaseBlockKeys.parentID];
@@ -45,14 +45,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   @override
   void initState() {
     super.initState();
-    future = ViewBackendService()
-        .getChildView(
-          parentViewId: parentViewId,
-          childViewId: childViewId,
-        )
-        .then(
-          (value) => value.swap(),
-        );
+    future = ViewBackendService().getChildView(
+      parentViewId: parentViewId,
+      childViewId: childViewId,
+    );
   }
 
   @override
@@ -63,9 +59,9 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<dartz.Either<FlowyError, ViewPB>>(
+    return FutureBuilder<FlowyResult<ViewPB, FlowyError>>(
       builder: (context, snapshot) {
-        final page = snapshot.data?.toOption().toNullable();
+        final page = snapshot.data?.toNullable();
         if (snapshot.hasData && page != null) {
           return _build(context, page);
         }
@@ -93,7 +89,6 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
       child: SizedBox(
         height: viewPB.pluginType == PluginType.calendar ? 700 : 400,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildMenu(context, viewPB),
@@ -165,7 +160,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
               case _ActionType.delete:
                 final transaction = widget.editorState.transaction;
                 transaction.deleteNode(widget.node);
-                widget.editorState.apply(transaction);
+                await widget.editorState.apply(transaction);
                 break;
             }
             controller.close();
@@ -178,7 +173,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   Future<void> _deletePage() async {
     final transaction = widget.editorState.transaction;
     transaction.deleteNode(widget.node);
-    widget.editorState.apply(transaction);
+    await widget.editorState.apply(transaction);
   }
 }
 
@@ -188,9 +183,9 @@ enum _ActionType {
 }
 
 class _ActionWrapper extends ActionCell {
-  final _ActionType inner;
-
   _ActionWrapper(this.inner);
+
+  final _ActionType inner;
 
   Widget? icon(Color iconColor) => null;
 

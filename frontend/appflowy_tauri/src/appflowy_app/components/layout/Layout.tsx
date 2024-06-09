@@ -1,49 +1,65 @@
-import React, { ReactNode, useEffect } from 'react';
-import SideBar from '$app/components/layout/SideBar';
-import TopBar from '$app/components/layout/TopBar';
+import React, { ReactNode, useEffect, useMemo } from 'react';
+import SideBar from '$app/components/layout/side_bar/SideBar';
+import TopBar from '$app/components/layout/top_bar/TopBar';
 import { useAppSelector } from '$app/stores/store';
-import { FooterPanel } from '$app/components/layout/FooterPanel';
-import BlockDragDropContext from '$app/components/_shared/BlockDraggable/BlockDragDropContext';
+import './layout.scss';
+import { AFScroller } from '../_shared/scroller';
+import { useNavigate } from 'react-router-dom';
+import { pageTypeMap } from '$app_reducers/pages/slice';
+import { useShortcuts } from '$app/components/layout/Layout.hooks';
 
 function Layout({ children }: { children: ReactNode }) {
   const { isCollapsed, width } = useAppSelector((state) => state.sidebar);
+  const currentUser = useAppSelector((state) => state.currentUser);
+  const navigate = useNavigate();
+  const { id: latestOpenViewId, layout } = useMemo(
+    () =>
+      currentUser?.workspaceSetting?.latestView || {
+        id: undefined,
+        layout: undefined,
+      },
+    [currentUser?.workspaceSetting?.latestView]
+  );
+
+  const onKeyDown = useShortcuts();
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Backspace' && e.target instanceof HTMLBodyElement) {
-        e.preventDefault();
-      }
-    };
-
     window.addEventListener('keydown', onKeyDown);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, []);
+  }, [onKeyDown]);
+
+  useEffect(() => {
+    if (latestOpenViewId) {
+      const pageType = pageTypeMap[layout];
+
+      navigate(`/page/${pageType}/${latestOpenViewId}`);
+    }
+  }, [latestOpenViewId, navigate, layout]);
   return (
-    <BlockDragDropContext>
-      <div className='flex h-screen w-[100%] text-sm text-text-title'>
+    <>
+      <div className='flex h-screen w-[100%] select-none text-sm text-text-title'>
         <SideBar />
         <div
-          className='flex flex-1 flex-col bg-bg-body'
+          className='flex flex-1 select-none flex-col bg-bg-body'
           style={{
-            width: isCollapsed ? 'auto' : `calc(100% - ${width}px)`,
+            width: isCollapsed ? '100%' : `calc(100% - ${width}px)`,
           }}
         >
           <TopBar />
-          <div
+          <AFScroller
+            overflowXHidden
             style={{
-              height: 'calc(100vh - 64px - 48px)',
+              height: 'calc(100vh - 64px)',
             }}
-            className={'overflow-y-auto overflow-x-hidden'}
+            className={'appflowy-layout appflowy-scroll-container select-none'}
           >
             {children}
-          </div>
-
-          <FooterPanel />
+          </AFScroller>
         </div>
       </div>
-    </BlockDragDropContext>
+    </>
   );
 }
 

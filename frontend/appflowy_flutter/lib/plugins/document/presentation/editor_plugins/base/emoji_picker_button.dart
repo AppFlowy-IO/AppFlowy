@@ -17,6 +17,8 @@ class EmojiPickerButton extends StatelessWidget {
     this.defaultIcon,
     this.offset,
     this.direction,
+    this.title,
+    this.showBorder = true,
   });
 
   final String emoji;
@@ -27,20 +29,21 @@ class EmojiPickerButton extends StatelessWidget {
   final Widget? defaultIcon;
   final Offset? offset;
   final PopoverDirection? direction;
+  final String? title;
+  final bool showBorder;
 
   @override
   Widget build(BuildContext context) {
     if (PlatformExtension.isDesktopOrWeb) {
       return AppFlowyPopover(
         controller: popoverController,
-        triggerActions: PopoverTriggerFlags.click,
         constraints: BoxConstraints.expand(
           width: emojiPickerSize.width,
           height: emojiPickerSize.height,
         ),
         offset: offset,
         direction: direction ?? PopoverDirection.rightWithTopAligned,
-        popupBuilder: (context) => Container(
+        popupBuilder: (_) => Container(
           width: emojiPickerSize.width,
           height: emojiPickerSize.height,
           padding: const EdgeInsets.all(4.0),
@@ -49,46 +52,49 @@ class EmojiPickerButton extends StatelessWidget {
             onExit: () {},
           ),
         ),
-        child: emoji.isEmpty && defaultIcon != null
-            ? FlowyButton(
-                useIntrinsicWidth: true,
-                text: defaultIcon!,
-                onTap: () => popoverController.show(),
-              )
-            : FlowyTextButton(
-                emoji,
-                overflow: TextOverflow.visible,
-                fontSize: emojiSize,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 35.0),
-                fillColor: Colors.transparent,
-                mainAxisAlignment: MainAxisAlignment.center,
-                onPressed: () {
-                  popoverController.show();
-                },
-              ),
-      );
-    } else {
-      return FlowyTextButton(
-        emoji,
-        overflow: TextOverflow.visible,
-        fontSize: emojiSize,
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(minWidth: 35.0),
-        fillColor: Colors.transparent,
-        mainAxisAlignment: MainAxisAlignment.center,
-        onPressed: () async {
-          final result = await context.push<EmojiPickerResult>(
-            MobileEmojiPickerScreen.routeName,
-          );
-          if (result != null) {
-            onSubmitted(
-              result.emoji,
-              null,
-            );
-          }
-        },
+        child: Container(
+          width: 30.0,
+          height: 30.0,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: showBorder
+                ? Border.all(
+                    color: Theme.of(context).dividerColor,
+                  )
+                : null,
+          ),
+          child: FlowyButton(
+            margin: emoji.isEmpty && defaultIcon != null
+                ? EdgeInsets.zero
+                : const EdgeInsets.only(left: 2.0),
+            expandText: false,
+            text: emoji.isEmpty && defaultIcon != null
+                ? defaultIcon!
+                : FlowyText.emoji(emoji, fontSize: emojiSize),
+            onTap: popoverController.show,
+          ),
+        ),
       );
     }
+    return FlowyTextButton(
+      emoji,
+      overflow: TextOverflow.visible,
+      fontSize: emojiSize,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 35.0),
+      fillColor: Colors.transparent,
+      mainAxisAlignment: MainAxisAlignment.center,
+      onPressed: () async {
+        final result = await context.push<EmojiPickerResult>(
+          Uri(
+            path: MobileEmojiPickerScreen.routeName,
+            queryParameters: {MobileEmojiPickerScreen.pageTitle: title},
+          ).toString(),
+        );
+        if (result != null) {
+          onSubmitted(result.emoji, null);
+        }
+      },
+    );
   }
 }

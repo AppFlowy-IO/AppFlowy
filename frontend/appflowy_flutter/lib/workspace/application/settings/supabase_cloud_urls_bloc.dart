@@ -7,7 +7,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:dartz/dartz.dart';
 
 import 'appflowy_cloud_setting_bloc.dart';
 
@@ -19,55 +18,67 @@ class SupabaseCloudURLsBloc
     on<SupabaseCloudURLsEvent>((event, emit) async {
       await event.when(
         updateUrl: (String url) {
-          emit(state.copyWith(updatedUrl: url));
+          emit(
+            state.copyWith(
+              updatedUrl: url,
+              showRestartHint: url.isNotEmpty && state.upatedAnonKey.isNotEmpty,
+              urlError: null,
+            ),
+          );
         },
         updateAnonKey: (String anonKey) {
-          emit(state.copyWith(upatedAnonKey: anonKey));
+          emit(
+            state.copyWith(
+              upatedAnonKey: anonKey,
+              showRestartHint:
+                  anonKey.isNotEmpty && state.updatedUrl.isNotEmpty,
+              anonKeyError: null,
+            ),
+          );
         },
         confirmUpdate: () async {
           if (state.updatedUrl.isEmpty) {
             emit(
               state.copyWith(
-                urlError: none(),
-                anonKeyError: none(),
-                restartApp: true,
+                urlError:
+                    LocaleKeys.settings_menu_cloudSupabaseUrlCanNotBeEmpty.tr(),
+                anonKeyError: null,
+                restartApp: false,
               ),
             );
-            await setSupbaseServer(none(), none());
-          } else {
-            // The anon key can't be empty if the url is not empty.
-            if (state.upatedAnonKey.isEmpty) {
-              emit(
-                state.copyWith(
-                  urlError: none(),
-                  anonKeyError: some(
-                    LocaleKeys.settings_menu_cloudSupabaseAnonKeyCanNotBeEmpty
-                        .tr(),
-                  ),
-                  restartApp: false,
-                ),
-              );
-              return;
-            }
-
-            validateUrl(state.updatedUrl).fold(
-              (error) => emit(state.copyWith(urlError: Some(error))),
-              (_) async {
-                await setSupbaseServer(
-                  Some(state.updatedUrl),
-                  Some(state.upatedAnonKey),
-                );
-
-                add(const SupabaseCloudURLsEvent.didSaveConfig());
-              },
-            );
+            return;
           }
+
+          if (state.upatedAnonKey.isEmpty) {
+            emit(
+              state.copyWith(
+                urlError: null,
+                anonKeyError: LocaleKeys
+                    .settings_menu_cloudSupabaseAnonKeyCanNotBeEmpty
+                    .tr(),
+                restartApp: false,
+              ),
+            );
+            return;
+          }
+
+          validateUrl(state.updatedUrl).fold(
+            (_) async {
+              await useSupabaseCloud(
+                url: state.updatedUrl,
+                anonKey: state.upatedAnonKey,
+              );
+
+              add(const SupabaseCloudURLsEvent.didSaveConfig());
+            },
+            (error) => emit(state.copyWith(urlError: error)),
+          );
         },
         didSaveConfig: () {
           emit(
             state.copyWith(
-              urlError: none(),
-              anonKeyError: none(),
+              urlError: null,
+              anonKeyError: null,
               restartApp: true,
             ),
           );
@@ -96,9 +107,10 @@ class SupabaseCloudURLsState with _$SupabaseCloudURLsState {
     required SupabaseConfiguration config,
     required String updatedUrl,
     required String upatedAnonKey,
-    required Option<String> urlError,
-    required Option<String> anonKeyError,
+    required String? urlError,
+    required String? anonKeyError,
     required bool restartApp,
+    required bool showRestartHint,
   }) = _SupabaseCloudURLsState;
 
   factory SupabaseCloudURLsState.initial() {
@@ -106,9 +118,10 @@ class SupabaseCloudURLsState with _$SupabaseCloudURLsState {
     return SupabaseCloudURLsState(
       updatedUrl: config.url,
       upatedAnonKey: config.anon_key,
-      urlError: none(),
-      anonKeyError: none(),
+      urlError: null,
+      anonKeyError: null,
       restartApp: false,
+      showRestartHint: config.url.isNotEmpty && config.anon_key.isNotEmpty,
       config: config,
     );
   }

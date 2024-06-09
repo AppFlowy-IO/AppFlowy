@@ -8,6 +8,7 @@ use std::time::Duration;
 use anyhow::Error;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
+use collab::preclude::Collab;
 use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
 use serde_json::Value;
@@ -16,11 +17,11 @@ use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, RetryIf};
 use uuid::Uuid;
 
-use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{Folder, FolderData, Workspace};
-use flowy_user_deps::cloud::*;
-use flowy_user_deps::entities::*;
-use flowy_user_deps::DEFAULT_USER_NAME;
+use flowy_error::{internal_error, FlowyError};
+use flowy_folder_pub::cloud::{Folder, FolderData, Workspace};
+use flowy_user_pub::cloud::*;
+use flowy_user_pub::entities::*;
+use flowy_user_pub::DEFAULT_USER_NAME;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -97,7 +98,7 @@ where
       }
 
       // Query the user profile and workspaces
-      tracing::debug!("user uuid: {}", params.uuid,);
+      tracing::debug!("user uuid: {}", params.uuid);
       let user_profile =
         get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid))
           .await?
@@ -116,6 +117,7 @@ where
 
       Ok(AuthResponse {
         user_id: user_profile.uid,
+        user_uuid: params.uuid,
         name: user_name,
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
@@ -146,6 +148,7 @@ where
 
       Ok(AuthResponse {
         user_id: response.uid,
+        user_uuid: params.uuid,
         name: DEFAULT_USER_NAME(),
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
@@ -166,6 +169,34 @@ where
   fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::internal().with_context("Can't generate callback url when using supabase"))
+    })
+  }
+
+  fn create_user(&self, _email: &str, _password: &str) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::not_support().with_context("Can't create user when using supabase"))
+    })
+  }
+
+  fn sign_in_with_password(
+    &self,
+    _email: &str,
+    _password: &str,
+  ) -> FutureResult<UserProfile, FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::not_support().with_context("Can't sign in with password when using supabase"))
+    })
+  }
+
+  fn sign_in_with_magic_link(
+    &self,
+    _email: &str,
+    _redirect_to: &str,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::not_support().with_context("Can't sign in with magic link when using supabase"),
+      )
     })
   }
 
@@ -230,22 +261,31 @@ where
       Ok(user_workspaces)
     })
   }
-  fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+
+  fn get_user_awareness_doc_state(
+    &self,
+    _uid: i64,
+    _workspace_id: &str,
+    object_id: &str,
+  ) -> FutureResult<Vec<u8>, FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
-    let awareness_id = uid.to_string();
     let (tx, rx) = channel();
+    let object_id = object_id.to_string();
     af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
           let action =
-            FetchObjectUpdateAction::new(awareness_id, CollabType::UserAwareness, postgrest);
+            FetchObjectUpdateAction::new(object_id, CollabType::UserAwareness, postgrest);
           action.run_with_fix_interval(3, 3).await
         }
         .await,
       )
     });
-    FutureResult::new(async { rx.await? })
+    FutureResult::new(async {
+      let doc_state = rx.await.map_err(internal_error)?;
+      doc_state.map_err(internal_error)
+    })
   }
 
   fn receive_realtime_event(&self, json: Value) {
@@ -268,9 +308,7 @@ where
     self.user_update_rx.write().take()
   }
 
-  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error> {
-    let collab_object = collab_object;
-
+  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();
     let init_update = default_workspace_doc_state(&collab_object);
@@ -307,15 +345,15 @@ where
   fn create_collab_object(
     &self,
     collab_object: &CollabObject,
-    update: Vec<u8>,
-  ) -> FutureResult<(), Error> {
+    data: Vec<u8>,
+  ) -> FutureResult<(), FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let cloned_collab_object = collab_object.clone();
     let (tx, rx) = channel();
     af_spawn(async move {
       tx.send(
         async move {
-          CreateCollabAction::new(cloned_collab_object, try_get_postgrest?, update)
+          CreateCollabAction::new(cloned_collab_object, try_get_postgrest?, data)
             .run()
             .await?;
           Ok(())
@@ -324,6 +362,51 @@ where
       )
     });
     FutureResult::new(async { rx.await? })
+  }
+
+  fn batch_create_collab_object(
+    &self,
+    _workspace_id: &str,
+    _objects: Vec<UserCollabParams>,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support batch create collab"),
+      )
+    })
+  }
+
+  fn create_workspace(&self, _workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support mulitple workspaces"),
+      )
+    })
+  }
+
+  fn delete_workspace(&self, _workspace_id: &str) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support mulitple workspaces"),
+      )
+    })
+  }
+
+  fn patch_workspace(
+    &self,
+    _workspace_id: &str,
+    _new_workspace_name: Option<&str>,
+    _new_workspace_icon: Option<&str>,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support mulitple workspaces"),
+      )
+    })
   }
 }
 
@@ -604,14 +687,15 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
 
 fn default_workspace_doc_state(collab_object: &CollabObject) -> Vec<u8> {
   let workspace_id = collab_object.object_id.clone();
-  let collab = Arc::new(MutexCollab::new(
+  let collab = Arc::new(MutexCollab::new(Collab::new_with_origin(
     CollabOrigin::Empty,
     &collab_object.object_id,
     vec![],
-  ));
+    false,
+  )));
   let workspace = Workspace::new(workspace_id, "My workspace".to_string(), collab_object.uid);
   let folder = Folder::create(collab_object.uid, collab, None, FolderData::new(workspace));
-  folder.encode_collab_v1().doc_state.to_vec()
+  folder.encode_collab_v1().unwrap().doc_state.to_vec()
 }
 
 fn oauth_params_from_box_any(any: BoxAny) -> Result<SupabaseOAuthParams, Error> {

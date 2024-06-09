@@ -1,6 +1,6 @@
-import 'package:appflowy/plugins/database_view/application/filter/filter_service.dart';
-import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
+import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -42,7 +42,6 @@ void main() {
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: filterInfo.filter.id,
-      fieldType: textField.fieldType,
     );
     await gridResponseFuture();
 
@@ -62,7 +61,7 @@ void main() {
     await gridResponseFuture();
 
     final textField = context.textFieldContext();
-    service.insertTextFilter(
+    await service.insertTextFilter(
       fieldId: textField.id,
       condition: TextFilterConditionPB.TextIsEmpty,
       content: "",
@@ -93,12 +92,12 @@ void main() {
     );
     await gridResponseFuture();
 
-    final controller = await context.makeTextCellController(0);
-    controller.saveCellData("edit text cell content");
+    final controller = context.makeTextCellController(0);
+    await controller.saveCellData("edit text cell content");
     await gridResponseFuture();
     assert(gridBloc.state.rowInfos.length == 2);
 
-    controller.saveCellData("");
+    await controller.saveCellData("");
     await gridResponseFuture();
     assert(gridBloc.state.rowInfos.length == 3);
   });

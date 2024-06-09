@@ -1,55 +1,47 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SettingsCustomizeShortcutsWrapper extends StatelessWidget {
-  const SettingsCustomizeShortcutsWrapper({super.key});
+class SettingsShortcutsView extends StatelessWidget {
+  const SettingsShortcutsView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ShortcutsCubit>(
       create: (_) =>
           ShortcutsCubit(SettingsShortcutService())..fetchShortcuts(),
-      child: const SettingsCustomizeShortcutsView(),
-    );
-  }
-}
-
-class SettingsCustomizeShortcutsView extends StatelessWidget {
-  const SettingsCustomizeShortcutsView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ShortcutsCubit, ShortcutsState>(
-      builder: (context, state) {
-        switch (state.status) {
-          case ShortcutsStatus.initial:
-          case ShortcutsStatus.updating:
-            return const Center(child: CircularProgressIndicator());
-          case ShortcutsStatus.success:
-            return ShortcutsListView(shortcuts: state.commandShortcutEvents);
-          case ShortcutsStatus.failure:
-            return ShortcutsErrorView(
-              errorMessage: state.error,
-            );
-        }
-      },
+      child: SettingsBody(
+        title: LocaleKeys.settings_shortcuts_shortcutsLabel.tr(),
+        children: [
+          BlocBuilder<ShortcutsCubit, ShortcutsState>(
+            builder: (_, state) => switch (state.status) {
+              ShortcutsStatus.initial ||
+              ShortcutsStatus.updating =>
+                const Center(child: CircularProgressIndicator()),
+              ShortcutsStatus.success =>
+                ShortcutsListView(shortcuts: state.commandShortcutEvents),
+              ShortcutsStatus.failure =>
+                ShortcutsErrorView(errorMessage: state.error),
+            },
+          ),
+        ],
+      ),
     );
   }
 }
 
 class ShortcutsListView extends StatelessWidget {
-  const ShortcutsListView({
-    super.key,
-    required this.shortcuts,
-  });
+  const ShortcutsListView({super.key, required this.shortcuts});
 
   final List<CommandShortcutEvent> shortcuts;
 
@@ -73,14 +65,7 @@ class ShortcutsListView extends StatelessWidget {
           ],
         ),
         const VSpace(10),
-        Expanded(
-          child: ListView.builder(
-            itemCount: shortcuts.length,
-            itemBuilder: (context, index) => ShortcutsListTile(
-              shortcutEvent: shortcuts[index],
-            ),
-          ),
-        ),
+        ...shortcuts.map((e) => ShortcutsListTile(shortcutEvent: e)),
         const VSpace(10),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -88,9 +73,8 @@ class ShortcutsListView extends StatelessWidget {
             const Spacer(),
             FlowyTextButton(
               LocaleKeys.settings_shortcuts_resetToDefault.tr(),
-              onPressed: () {
-                context.read<ShortcutsCubit>().resetToDefault();
-              },
+              fontColor: AFThemeExtension.of(context).textColor,
+              onPressed: () => context.read<ShortcutsCubit>().resetToDefault(),
             ),
           ],
         ),
@@ -100,13 +84,32 @@ class ShortcutsListView extends StatelessWidget {
   }
 }
 
-class ShortcutsListTile extends StatelessWidget {
+class ShortcutsListTile extends StatefulWidget {
   const ShortcutsListTile({
     super.key,
     required this.shortcutEvent,
   });
 
   final CommandShortcutEvent shortcutEvent;
+
+  @override
+  State<ShortcutsListTile> createState() => _ShortcutsListTileState();
+}
+
+class _ShortcutsListTileState extends State<ShortcutsListTile> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    controller = TextEditingController(text: widget.shortcutEvent.command);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,17 +119,16 @@ class ShortcutsListTile extends StatelessWidget {
           children: [
             Expanded(
               child: FlowyText.medium(
-                key: Key(shortcutEvent.key),
-                shortcutEvent.key.capitalize(),
+                key: Key(widget.shortcutEvent.key),
+                widget.shortcutEvent.description!.capitalize(),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             FlowyTextButton(
-              shortcutEvent.command,
+              widget.shortcutEvent.command,
+              fontColor: AFThemeExtension.of(context).textColor,
               fillColor: Colors.transparent,
-              onPressed: () {
-                showKeyListenerDialog(context);
-              },
+              onPressed: () => showKeyListenerDialog(context, controller),
             ),
           ],
         ),
@@ -137,21 +139,23 @@ class ShortcutsListTile extends StatelessWidget {
     );
   }
 
-  void showKeyListenerDialog(BuildContext widgetContext) {
+  void showKeyListenerDialog(
+    BuildContext widgetContext,
+    TextEditingController controller,
+  ) {
     showDialog(
       context: widgetContext,
       builder: (builderContext) {
-        final controller = TextEditingController(text: shortcutEvent.command);
         final formKey = GlobalKey<FormState>();
         return AlertDialog(
           title: Text(LocaleKeys.settings_shortcuts_updateShortcutStep.tr()),
-          content: RawKeyboardListener(
+          content: KeyboardListener(
             focusNode: FocusNode(),
-            onKey: (key) {
-              if (key is! RawKeyDownEvent) return;
+            onKeyEvent: (key) {
+              if (key is! KeyDownEvent) return;
               if (key.logicalKey == LogicalKeyboardKey.enter &&
-                  !key.isShiftPressed) {
-                if (controller.text == shortcutEvent.command) {
+                  !HardwareKeyboard.instance.isShiftPressed) {
+                if (controller.text == widget.shortcutEvent.command) {
                   _dismiss(builderContext);
                 }
                 if (formKey.currentState!.validate()) {
@@ -161,7 +165,7 @@ class ShortcutsListTile extends StatelessWidget {
               } else if (key.logicalKey == LogicalKeyboardKey.escape) {
                 _dismiss(builderContext);
               } else {
-                //extract the keybinding command from the rawkeyevent.
+                //extract the keybinding command from the key event.
                 controller.text = key.convertToCommand;
               }
             },
@@ -187,9 +191,9 @@ class ShortcutsListTile extends StatelessWidget {
     );
   }
 
-  _validateForConflicts(BuildContext context, String command) {
+  String? _validateForConflicts(BuildContext context, String command) {
     final conflict = BlocProvider.of<ShortcutsCubit>(context).getConflict(
-      shortcutEvent,
+      widget.shortcutEvent,
       command,
     );
     if (conflict.isEmpty) return null;
@@ -199,27 +203,27 @@ class ShortcutsListTile extends StatelessWidget {
     );
   }
 
-  _updateKey(BuildContext context, String command) {
-    shortcutEvent.updateCommand(command: command);
+  void _updateKey(BuildContext context, String command) {
+    widget.shortcutEvent.updateCommand(command: command);
     BlocProvider.of<ShortcutsCubit>(context).updateAllShortcuts();
   }
 
-  _dismiss(BuildContext context) => Navigator.of(context).pop();
+  void _dismiss(BuildContext context) => Navigator.of(context).pop();
 }
 
-extension on RawKeyEvent {
+extension on KeyEvent {
   String get convertToCommand {
     String command = '';
-    if (isAltPressed) {
+    if (HardwareKeyboard.instance.isAltPressed) {
       command += 'alt+';
     }
-    if (isControlPressed) {
+    if (HardwareKeyboard.instance.isControlPressed) {
       command += 'ctrl+';
     }
-    if (isShiftPressed) {
+    if (HardwareKeyboard.instance.isShiftPressed) {
       command += 'shift+';
     }
-    if (isMetaPressed) {
+    if (HardwareKeyboard.instance.isMetaPressed) {
       command += 'meta+';
     }
 
@@ -233,8 +237,9 @@ extension on RawKeyEvent {
 }
 
 class ShortcutsErrorView extends StatelessWidget {
-  final String errorMessage;
   const ShortcutsErrorView({super.key, required this.errorMessage});
+
+  final String errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -248,9 +253,7 @@ class ShortcutsErrorView extends StatelessWidget {
         ),
         FlowyIconButton(
           icon: const Icon(Icons.replay_outlined),
-          onPressed: () {
-            BlocProvider.of<ShortcutsCubit>(context).fetchShortcuts();
-          },
+          onPressed: () => context.read<ShortcutsCubit>().fetchShortcuts(),
         ),
       ],
     );

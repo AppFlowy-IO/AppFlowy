@@ -1,0 +1,78 @@
+name: Flutter Integration Test
+description: Run integration tests for AppFlowy
+
+inputs:
+  test_path:
+    description: "The path to the integration test file"
+    required: true
+  flutter_version:
+    description: "The version of Flutter to use"
+    required: true
+  rust_toolchain:
+    description: "The version of Rust to use"
+    required: true
+  cargo_make_version:
+    description: "The version of cargo-make to use"
+    required: true
+  rust_target:
+    description: "The target to build for"
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      id: rust_toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ inputs.RUST_TOOLCHAIN }}
+        target: ${{ inputs.rust_target }}
+        override: true
+        profile: minimal
+
+    - name: Install flutter
+      id: flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: "stable"
+        flutter-version: ${{ inputs.flutter_version }}
+        cache: true
+
+    - uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-make@${{ inputs.cargo_make_version }}
+
+    - name: Install prerequisites
+      working-directory: frontend
+      run: |
+        sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+        sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+        sudo apt-get update
+        sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev network-manager libmpv-dev mpv
+      shell: bash
+
+    - name: Enable Flutter Desktop
+      run: |
+        flutter config --enable-linux-desktop
+      shell: bash
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: ${{ github.run_id }}-ubuntu-latest
+
+    - name: Uncompressed appflowy_flutter
+      run: tar -xf appflowy_flutter.tar.gz
+      shell: bash
+
+    - name: Run Flutter integration tests
+      working-directory: frontend/appflowy_flutter
+      run: |
+        export DISPLAY=:99
+        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+        sudo apt-get install network-manager
+        flutter test ${{ inputs.test_path }} -d Linux --coverage
+      shell: bash

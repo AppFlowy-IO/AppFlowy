@@ -70,7 +70,7 @@ void main() {
 
     test('fromName throws error for non-existent theme', () async {
       expect(
-        () async => await AppTheme.fromName(
+        () async => AppTheme.fromName(
           'bogus',
           pluginService: MockPluginService(),
         ),

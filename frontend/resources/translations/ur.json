@@ -188,9 +188,8 @@
         "editContact": "رابطہ ایڈیٹ کریں"
     },
     "button": {
-        "OK": "ٹھیک ہے",
-        "Done": "ہو گیا",
-        "Cancel": "منسوخ کریں",
+        "ok": "ٹھیک ہے",
+        "cancel": "منسوخ کریں",
         "signIn": "سائن ان کریں",
         "signOut": "سائن آؤٹ کریں",
         "complete": "مکمل",
@@ -392,7 +391,7 @@
             "isComplete": "مکمل ہے",
             "isIncomplted": "نامکمل ہے"
         },
-        "singleSelectOptionFilter": {
+        "selectOptionFilter": {
             "is": "ہے",
             "isNot": "نہیں ہے",
             "isEmpty": "خالی ہے",

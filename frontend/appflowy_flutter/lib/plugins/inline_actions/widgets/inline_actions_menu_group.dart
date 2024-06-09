@@ -16,6 +16,7 @@ class InlineActionsGroup extends StatelessWidget {
     required this.onSelected,
     required this.startOffset,
     required this.endOffset,
+    this.isLastGroup = false,
     this.isGroupSelected = false,
     this.selectedIndex = 0,
   });
@@ -28,13 +29,14 @@ class InlineActionsGroup extends StatelessWidget {
   final int startOffset;
   final int endOffset;
 
+  final bool isLastGroup;
   final bool isGroupSelected;
   final int selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: isLastGroup ? EdgeInsets.zero : const EdgeInsets.only(bottom: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

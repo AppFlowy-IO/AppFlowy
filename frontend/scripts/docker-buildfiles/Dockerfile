@@ -21,10 +21,10 @@ WORKDIR /home/$user
 RUN sudo pacman -S --needed --noconfirm curl tar
 RUN curl -sSfL \
     --output yay.tar.gz \
-    https://github.com/Jguer/yay/releases/download/v12.0.2/yay_12.0.2_x86_64.tar.gz && \
+    https://github.com/Jguer/yay/releases/download/v12.3.3/yay_12.3.3_x86_64.tar.gz && \
   tar -xf yay.tar.gz && \
-  sudo mv yay_12.0.2_x86_64/yay /bin && \
-  rm -rf yay_12.0.2_x86_64 && \
+  sudo mv yay_12.3.3_x86_64/yay /bin && \
+  rm -rf yay_12.3.3_x86_64 && \
   yay --version
 
 # Install Rust
@@ -32,23 +32,23 @@ RUN yay -S --noconfirm curl base-devel openssl clang cmake ninja pkg-config xdg-
 RUN xdg-user-dirs-update
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN source ~/.cargo/env && \
-    rustup toolchain install 1.70 && \
-    rustup default 1.70
+    rustup toolchain install 1.75 && \
+    rustup default 1.75
 
 # Install Flutter
 RUN sudo pacman -S --noconfirm git tar gtk3
 RUN curl -sSfL \
       --output flutter.tar.xz \
-      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
+      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.22.0-stable.tar.xz && \
     tar -xf flutter.tar.xz && \
     rm flutter.tar.xz
 RUN flutter config --enable-linux-desktop
 RUN flutter doctor
-RUN dart pub global activate protoc_plugin 20.0.1
+RUN dart pub global activate protoc_plugin 21.1.2
 
 # Install build dependencies for AppFlowy
 RUN yay -S --noconfirm jemalloc4 cargo-make cargo-binstall
-RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang rsync libnotify rocksdb zstd
+RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang rsync libnotify rocksdb zstd mpv
 RUN sudo ln -s /usr/bin/sha1sum /usr/bin/shasum
 RUN source ~/.cargo/env && cargo binstall duckscript_cli -y
 

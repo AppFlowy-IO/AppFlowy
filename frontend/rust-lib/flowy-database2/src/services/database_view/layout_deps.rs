@@ -136,26 +136,16 @@ impl DatabaseLayoutDepsResolver {
     let field_type = FieldType::DateTime;
     let default_date_type_option = DateTypeOption::default();
     let field_id = gen_field_id();
-    Field::new(
-      field_id,
-      "Date".to_string(),
-      field_type.into(),
-      false,
-    )
-    .with_type_option_data(field_type, default_date_type_option.into())
+    Field::new(field_id, "Date".to_string(), field_type.into(), false)
+      .with_type_option_data(field_type, default_date_type_option.into())
   }
 
   fn create_select_field(&self) -> Field {
     let field_type = FieldType::SingleSelect;
     let default_select_type_option = SingleSelectTypeOption::default();
     let field_id = gen_field_id();
-    Field::new(
-      field_id,
-      "Status".to_string(),
-      field_type.into(),
-      false,
-    )
-    .with_type_option_data(field_type, default_select_type_option.into())
+    Field::new(field_id, "Status".to_string(), field_type.into(), false)
+      .with_type_option_data(field_type, default_select_type_option.into())
   }
 }
 

@@ -78,7 +78,8 @@ class Popover extends StatefulWidget {
   /// The direction of the popover
   final PopoverDirection direction;
 
-  final void Function()? onClose;
+  final VoidCallback? onOpen;
+  final VoidCallback? onClose;
   final Future<bool> Function()? canClose;
 
   final bool asBarrier;
@@ -89,6 +90,8 @@ class Popover extends StatefulWidget {
   /// Because if the parent widget of the popover is GestureDetector,
   ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
   final PopoverClickHandler clickHandler;
+
+  final bool skipTraversal;
 
   /// The content area of the popover.
   final Widget child;
@@ -106,10 +109,12 @@ class Popover extends StatefulWidget {
     this.direction = PopoverDirection.rightWithTopAligned,
     this.mutex,
     this.windowPadding,
+    this.onOpen,
     this.onClose,
     this.canClose,
     this.asBarrier = false,
     this.clickHandler = PopoverClickHandler.listener,
+    this.skipTraversal = false,
   });
 
   @override
@@ -122,8 +127,8 @@ class PopoverState extends State<Popover> {
 
   @override
   void initState() {
-    widget.controller?._state = this;
     super.initState();
+    widget.controller?._state = this;
   }
 
   void showOverlay() {
@@ -156,21 +161,17 @@ class PopoverState extends State<Popover> {
           offset: widget.offset ?? Offset.zero,
           windowPadding: widget.windowPadding ?? EdgeInsets.zero,
           popupBuilder: widget.popupBuilder,
-          onClose: () => close(),
-          onCloseAll: () => _removeRootOverlay(),
+          onClose: close,
+          onCloseAll: _removeRootOverlay,
+          skipTraversal: widget.skipTraversal,
         ),
       );
 
-      return FocusScope(
-        onKey: (node, event) {
-          if (event is RawKeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.escape) {
-            _removeRootOverlay();
-            return KeyEventResult.handled;
-          }
-          return KeyEventResult.ignored;
+      return CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.escape): _removeRootOverlay,
         },
-        child: Stack(children: children),
+        child: FocusScope(child: Stack(children: children)),
       );
     });
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
@@ -223,6 +224,7 @@ class PopoverState extends State<Popover> {
       child: _buildClickHandler(
         widget.child,
         () {
+          widget.onOpen?.call();
           if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
             showOverlay();
           }
@@ -235,14 +237,22 @@ class PopoverState extends State<Popover> {
     switch (widget.clickHandler) {
       case PopoverClickHandler.listener:
         return Listener(
-          onPointerDown: (_) => handler(),
+          onPointerDown: (_) => _callHandler(handler),
           child: child,
         );
       case PopoverClickHandler.gestureDetector:
         return GestureDetector(
-          onTap: handler,
+          onTap: () => _callHandler(handler),
           child: child,
         );
+    }
+  }
+
+  void _callHandler(VoidCallback handler) {
+    if (_rootEntry.contains(this)) {
+      close();
+    } else {
+      handler();
     }
   }
 }
@@ -255,9 +265,10 @@ class PopoverContainer extends StatefulWidget {
   final EdgeInsets windowPadding;
   final void Function() onClose;
   final void Function() onCloseAll;
+  final bool skipTraversal;
 
   const PopoverContainer({
-    Key? key,
+    super.key,
     required this.popupBuilder,
     required this.direction,
     required this.popoverLink,
@@ -265,7 +276,8 @@ class PopoverContainer extends StatefulWidget {
     required this.windowPadding,
     required this.onClose,
     required this.onCloseAll,
-  }) : super(key: key);
+    required this.skipTraversal,
+  });
 
   @override
   State<StatefulWidget> createState() => PopoverContainerState();
@@ -278,6 +290,13 @@ class PopoverContainer extends StatefulWidget {
         context.findAncestorStateOfType<PopoverContainerState>();
     return result!;
   }
+
+  static PopoverContainerState? maybeOf(BuildContext context) {
+    if (context is StatefulElement && context.state is PopoverContainerState) {
+      return context.state as PopoverContainerState;
+    }
+    return context.findAncestorStateOfType<PopoverContainerState>();
+  }
 }
 
 class PopoverContainerState extends State<PopoverContainer> {
@@ -285,6 +304,7 @@ class PopoverContainerState extends State<PopoverContainer> {
   Widget build(BuildContext context) {
     return Focus(
       autofocus: true,
+      skipTraversal: widget.skipTraversal,
       child: CustomSingleChildLayout(
         delegate: PopoverLayoutDelegate(
           direction: widget.direction,

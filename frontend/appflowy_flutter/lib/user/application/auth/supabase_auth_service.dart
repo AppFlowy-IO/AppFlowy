@@ -9,7 +9,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -22,11 +22,11 @@ class SupabaseAuthService implements AuthService {
   GoTrueClient get _auth => _client.auth;
 
   final BackendAuthService _backendAuthService = BackendAuthService(
-    AuthTypePB.Supabase,
+    AuthenticatorPB.Supabase,
   );
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUp({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUp({
     required String name,
     required String email,
     required String password,
@@ -39,7 +39,7 @@ class SupabaseAuthService implements AuthService {
     );
     final uuid = response.user?.id;
     if (uuid == null) {
-      return left(AuthError.supabaseSignUpError);
+      return FlowyResult.failure(AuthError.supabaseSignUpError);
     }
     // assign the uuid to our backend service.
     //  and will transfer this logic to backend later.
@@ -54,7 +54,7 @@ class SupabaseAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signInWithEmailPassword({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
@@ -66,7 +66,7 @@ class SupabaseAuthService implements AuthService {
       );
       final uuid = response.user?.id;
       if (uuid == null) {
-        return Left(AuthError.supabaseSignInError);
+        return FlowyResult.failure(AuthError.supabaseSignInError);
       }
       return _backendAuthService.signInWithEmailPassword(
         email: email,
@@ -77,12 +77,12 @@ class SupabaseAuthService implements AuthService {
       );
     } on AuthException catch (e) {
       Log.error(e);
-      return Left(AuthError.supabaseSignInError);
+      return FlowyResult.failure(AuthError.supabaseSignInError);
     }
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpWithOAuth({
     required String platform,
     Map<String, String> params = const {},
   }) async {
@@ -94,7 +94,7 @@ class SupabaseAuthService implements AuthService {
     final provider = platform.toProvider();
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {
-        return await _setupAuth(
+        return _setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
             AuthServiceMapKeys.email: userEmail,
@@ -110,7 +110,9 @@ class SupabaseAuthService implements AuthService {
       redirectTo: supabaseLoginCallback,
     );
     if (!response) {
-      completer.complete(left(AuthError.supabaseSignInWithOauthError));
+      completer.complete(
+        FlowyResult.failure(AuthError.supabaseSignInWithOauthError),
+      );
     }
     return completer.future;
   }
@@ -122,7 +124,7 @@ class SupabaseAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpAsGuest({
     Map<String, String> params = const {},
   }) async {
     // supabase don't support guest login.
@@ -131,13 +133,13 @@ class SupabaseAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithMagicLink({
     required String email,
     Map<String, String> params = const {},
   }) async {
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {
-        return await _setupAuth(
+        return _setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
             AuthServiceMapKeys.email: userEmail,
@@ -155,39 +157,39 @@ class SupabaseAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> getUser() async {
+  Future<FlowyResult<UserProfilePB, FlowyError>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
   }
 
-  Future<Either<FlowyError, User>> getSupabaseUser() async {
+  Future<FlowyResult<User, FlowyError>> getSupabaseUser() async {
     final user = _auth.currentUser;
     if (user == null) {
-      return left(AuthError.supabaseGetUserError);
+      return FlowyResult.failure(AuthError.supabaseGetUserError);
     }
-    return Right(user);
+    return FlowyResult.success(user);
   }
 
-  Future<Either<FlowyError, UserProfilePB>> _setupAuth({
+  Future<FlowyResult<UserProfilePB, FlowyError>> _setupAuth({
     required Map<String, String> map,
   }) async {
     final payload = OauthSignInPB(
-      authType: AuthTypePB.Supabase,
+      authenticator: AuthenticatorPB.Supabase,
       map: map,
     );
 
-    return UserEventOauthSignIn(payload).send().then((value) => value.swap());
+    return UserEventOauthSignIn(payload).send().then((value) => value);
   }
 }
 
 extension on String {
-  Provider toProvider() {
+  OAuthProvider toProvider() {
     switch (this) {
       case 'github':
-        return Provider.github;
+        return OAuthProvider.github;
       case 'google':
-        return Provider.google;
+        return OAuthProvider.google;
       case 'discord':
-        return Provider.discord;
+        return OAuthProvider.discord;
       default:
         throw UnimplementedError();
     }
@@ -208,15 +210,15 @@ extension on String {
 ///   a `FlowyError` or a `UserProfilePB`.
 ///
 /// Returns:
-/// A completer of type `Either<FlowyError, UserProfilePB>`. This completer completes
+/// A completer of type `FlowyResult<UserProfilePB, FlowyError>`. This completer completes
 /// with the response from the [onSuccess] callback when a user signs in.
-Completer<Either<FlowyError, UserProfilePB>> supabaseLoginCompleter({
-  required Future<Either<FlowyError, UserProfilePB>> Function(
+Completer<FlowyResult<UserProfilePB, FlowyError>> supabaseLoginCompleter({
+  required Future<FlowyResult<UserProfilePB, FlowyError>> Function(
     String userId,
     String userEmail,
   ) onSuccess,
 }) {
-  final completer = Completer<Either<FlowyError, UserProfilePB>>();
+  final completer = Completer<FlowyResult<UserProfilePB, FlowyError>>();
   late final StreamSubscription<AuthState> subscription;
   final auth = Supabase.instance.client.auth;
 
@@ -228,24 +230,22 @@ Completer<Either<FlowyError, UserProfilePB>> supabaseLoginCompleter({
         user.email ?? user.newEmail ?? '',
       );
       // Only cancel the subscription if the Event is signedIn.
-      subscription.cancel();
+      await subscription.cancel();
       completer.complete(response);
     }
   });
   return completer;
 }
 
-Map<String, String> queryParamsForProvider(Provider provider) {
+Map<String, String> queryParamsForProvider(OAuthProvider provider) {
   switch (provider) {
-    case Provider.github:
-      return {};
-    case Provider.google:
+    case OAuthProvider.google:
       return {
         'access_type': 'offline',
         'prompt': 'consent',
       };
-    case Provider.discord:
-      return {};
+    case OAuthProvider.github:
+    case OAuthProvider.discord:
     default:
       return {};
   }

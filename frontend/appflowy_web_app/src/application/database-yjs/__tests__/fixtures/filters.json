@@ -1,0 +1,40 @@
+{
+  "filter_text_field": {
+    "field_id": "text_field",
+    "condition": 2,
+    "content": "w"
+  },
+  "filter_number_field": {
+    "field_id": "number_field",
+    "condition": 2,
+    "content": 1000
+  },
+  "filter_date_field": {
+    "field_id": "date_field",
+    "condition": 1,
+    "content": 1685798400000
+  },
+  "filter_checkbox_field": {
+    "field_id": "checkbox_field",
+    "condition": 1
+  },
+  "filter_checklist_field": {
+    "field_id": "checklist_field",
+    "condition": 1
+  },
+  "filter_url_field": {
+    "field_id": "url_field",
+    "condition": 0,
+    "content": "https://example.com/4"
+  },
+  "filter_single_select_field": {
+    "field_id": "single_select_field",
+    "condition": 0,
+    "content": "2"
+  },
+  "filter_multi_select_field": {
+    "field_id": "multi_select_field",
+    "condition": 2,
+    "content": "1,3"
+  }
+}

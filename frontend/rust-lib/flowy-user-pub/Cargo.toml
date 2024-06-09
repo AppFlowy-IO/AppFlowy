@@ -1,0 +1,23 @@
+[package]
+name = "flowy-user-pub"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lib-infra = { workspace = true }
+flowy-error = { workspace = true }
+uuid.workspace = true
+serde.workspace = true
+collab = { workspace = true }
+collab-entity = { workspace = true }
+serde_json.workspace = true
+serde_repr.workspace = true
+chrono = { workspace = true, default-features = false, features = ["clock", "serde"] }
+anyhow.workspace = true
+tokio = { workspace = true, features = ["sync"] }
+tokio-stream = "0.1.14"
+flowy-folder-pub.workspace = true
+tracing.workspace = true
+base64 = "0.21"

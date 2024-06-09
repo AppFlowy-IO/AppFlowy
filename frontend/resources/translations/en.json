@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "Me",
   "welcomeText": "Welcome to @:appName",
+  "welcomeTo": "Welcome to",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "Subscribe to Newsletter",
   "letsGoButtonText": "Quick Start",
   "title": "Title",
   "youCanAlso": "You can also",
   "and": "and",
+  "failedToOpenUrl": "Failed to open url: {}",
   "blockActions": {
     "addBelowTooltip": "Click to add below",
     "addAboveCmd": "Alt+click",
@@ -35,36 +37,74 @@
     "loginStartWithAnonymous": "Start with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
     "buttonText": "Sign In",
+    "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",
     "passwordHint": "Password",
     "dontHaveAnAccount": "Don't have an account?",
+    "createAccount": "Create account",
     "repeatPasswordEmptyError": "Repeat password can't be empty",
     "unmatchedPasswordError": "Repeat password is not the same as password",
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "or": "OR",
-    "LogInWithGoogle": "Log in with Google",
-    "LogInWithGithub": "Log in with Github",
-    "LogInWithDiscord": "Log in with Discord",
-    "signInWith": "Sign in with:"
+    "signInWithGoogle": "Log in with Google",
+    "signInWithGithub": "Log in with Github",
+    "signInWithDiscord": "Log in with Discord",
+    "signUpWithGoogle": "Sign up with Google",
+    "signUpWithGithub": "Sign up with Github",
+    "signUpWithDiscord": "Sign up with Discord",
+    "signInWith": "Sign in with:",
+    "signInWithEmail": "Sign in with Email",
+    "signInWithMagicLink": "Log in with Magic Link",
+    "signUpWithMagicLink": "Sign up with Magic Link",
+    "pleaseInputYourEmail": "Please enter your email address",
+    "settings": "Settings",
+    "magicLinkSent": "We emailed a magic link. Click the link to log in.",
+    "invalidEmail": "Please enter a valid email address",
+    "alreadyHaveAnAccount": "Already have an account?",
+    "logIn": "Log in",
+    "generalError": "Something went wrong. Please try again later",
+    "limitRateError": "For security reasons, you can only request a magic link every 60 seconds"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
     "create": "Create workspace",
     "reset": "Reset workspace",
+    "renameWorkspace": "Rename workspace",
     "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
     "hint": "workspace",
     "notFoundError": "Workspace not found",
-    "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of AppFlowy and try again.",
+    "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of @:appName and try again.",
     "errorActions": {
       "reportIssue": "Report an issue",
+      "reportIssueOnGithub": "Report an issue on Github",
+      "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
-    }
+    },
+    "menuTitle": "Workspaces",
+    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
+    "createSuccess": "Workspace created successfully",
+    "createFailed": "Failed to create workspace",
+    "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
+    "deleteSuccess": "Workspace deleted successfully",
+    "deleteFailed": "Failed to delete workspace",
+    "openSuccess": "Open workspace successfully",
+    "openFailed": "Failed to open workspace",
+    "renameSuccess": "Workspace renamed successfully",
+    "renameFailed": "Failed to rename workspace",
+    "updateIconSuccess": "Updated workspace icon successfully",
+    "updateIconFailed": "Updated workspace icon failed",
+    "cannotDeleteTheOnlyWorkspace": "Cannot delete the only workspace",
+    "fetchWorkspacesFailed": "Failed to fetch workspaces",
+    "leaveCurrentWorkspace": "Leave workspace",
+    "leaveCurrentWorkspacePrompt": "Are you sure you want to leave the current workspace?"
   },
   "shareAction": {
     "buttonText": "Share",
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "Copy to clipboard",
     "csv": "CSV",
     "copyLink": "Copy Link"
   },
@@ -72,9 +112,14 @@
     "small": "small",
     "medium": "medium",
     "large": "large",
-    "fontSize": "Font Size",
+    "fontSize": "Font size",
     "import": "Import",
-    "moreOptions": "More options"
+    "moreOptions": "More options",
+    "wordCount": "Word count: {}",
+    "charCount": "Character count: {}",
+    "createdAt": "Created: {}",
+    "deleteView": "Delete",
+    "duplicateView": "Duplicate"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -92,7 +137,9 @@
     "openNewTab": "Open in a new tab",
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy Link",
+    "changeIcon": "Change icon",
+    "collapseAllPages": "Collapse all subpages"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -100,6 +147,21 @@
   "newGridText": "New grid",
   "newCalendarText": "New calendar",
   "newBoardText": "New board",
+  "chat": {
+    "newChat": "AI Chat",
+    "inputMessageHint": "Message AppFlowy AI",
+    "unsupportedCloudPrompt": "This feature is only available when using AppFlowy Cloud",
+    "relatedQuestion": "Related",
+    "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
+    "aiServerUnavailable": "🌈 Uh-oh! 🌈. A unicorn ate our response. Please retry!",
+    "clickToRetry": "Click to retry",
+    "regenerateAnswer": "Regenerate",
+    "question1": "How to use Kanban to manage tasks",
+    "question2": "Explain the GTD method",
+    "question3": "Why use Rust",
+    "question4": "Recipe with what's in my kitchen",
+    "aiMistakePrompt": "AI can make mistakes. Check important info."
+  },
   "trash": {
     "text": "Trash",
     "restoreAll": "Restore All",
@@ -123,7 +185,8 @@
       "emptyDescription": "You don't have any deleted file",
       "isDeleted": "is deleted",
       "isRestored": "is restored"
-    }
+    },
+    "confirmDeleteTitle": "Are you sure you want to delete this page permanently?"
   },
   "deletePagePrompt": {
     "text": "This page is in Trash",
@@ -178,18 +241,39 @@
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
     "addBlockBelow": "Add a block below",
-    "urlLaunchAccessory": "Open in browser",
-    "urlCopyAccessory": "Copy URL"
+    "genSummary": "Generate summary"
   },
   "sideBar": {
-    "closeSidebar": "Close side bar",
-    "openSidebar": "Open side bar",
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar",
     "personal": "Personal",
+    "private": "Private",
+    "workspace": "Workspace",
     "favorites": "Favorites",
-    "clickToHidePersonal": "Click to hide personal section",
-    "clickToHideFavorites": "Click to hide favorite section",
+    "clickToHidePrivate": "Click to hide private space\nPages you created here are only visible to you",
+    "clickToHideWorkspace": "Click to hide workspace\nPages you created here are visible to every member",
+    "clickToHidePersonal": "Click to hide personal space",
+    "clickToHideFavorites": "Click to hide favorite space",
     "addAPage": "Add a page",
-    "recent": "Recent"
+    "addAPageToPrivate": "Add a page to private space",
+    "addAPageToWorkspace": "Add a page to workspace",
+    "recent": "Recent",
+    "today": "Today",
+    "thisWeek": "This week",
+    "others": "Others",
+    "justNow": "just now",
+    "minutesAgo": "{count} minutes ago",
+    "lastViewed": "Last viewed",
+    "favoriteAt": "Favorited at",
+    "emptyRecent": "No Recent Documents",
+    "emptyRecentDescription": "As you view documents, they will appear here for easy retrieval",
+    "emptyFavorite": "No Favorite Documents",
+    "emptyFavoriteDescription": "Start exploring and mark documents as favorites. They’ll be listed here for quick access!",
+    "removePageFromRecent": "Remove this page from the Recent?",
+    "removeSuccess": "Removed successfully",
+    "favoriteSpace": "Favorites",
+    "RecentSpace": "Recent",
+    "Spaces": "Spaces"
   },
   "notifications": {
     "export": {
@@ -204,7 +288,8 @@
     "editContact": "Edit Contact"
   },
   "button": {
-    "ok": "OK",
+    "ok": "Ok",
+    "confirm": "Confirm",
     "done": "Done",
     "cancel": "Cancel",
     "signIn": "Sign In",
@@ -227,13 +312,25 @@
     "update": "Update",
     "share": "Share",
     "removeFromFavorites": "Remove from favorites",
+    "removeFromRecent": "Remove from recent",
     "addToFavorites": "Add to favorites",
     "rename": "Rename",
     "helpCenter": "Help Center",
     "add": "Add",
     "yes": "Yes",
-    "Done": "Done",
-    "Cancel": "Cancel"
+    "clear": "Clear",
+    "remove": "Remove",
+    "dontRemove": "Don't remove",
+    "copyLink": "Copy Link",
+    "align": "Align",
+    "login": "Login",
+    "logout": "Log out",
+    "deleteAccount": "Delete account",
+    "back": "Back",
+    "signInGoogle": "Sign in with Google",
+    "signInGithub": "Sign in with Github",
+    "signInDiscord": "Sign in with Discord",
+    "more": "More"
   },
   "label": {
     "welcome": "Welcome!",
@@ -257,6 +354,156 @@
   },
   "settings": {
     "title": "Settings",
+    "accountPage": {
+      "menuLabel": "My account",
+      "title": "My account",
+      "description": "Customize your profile, manage account security and AI API keys, or login into your account.",
+      "general": {
+        "title": "Account name & profile image",
+        "changeProfilePicture": "Change profile picture"
+      },
+      "email": {
+        "title": "Email",
+        "actions": {
+          "change": "Change email"
+        }
+      },
+      "keys": {
+        "title": "AI API Keys",
+        "openAILabel": "OpenAI API key",
+        "openAITooltip": "The OpenAI API key to use for the AI models",
+        "openAIHint": "Input your OpenAI API Key",
+        "stabilityAILabel": "Stability API key",
+        "stabilityAITooltip": "The Stability API key to use for the AI models",
+        "stabilityAIHint": "Input your Stability API Key"
+      },
+      "login": {
+        "title": "Account login",
+        "loginLabel": "Log in",
+        "logoutLabel": "Log out"
+      }
+    },
+    "workspacePage": {
+      "menuLabel": "Workspace",
+      "title": "Workspace",
+      "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
+      "workspaceName": {
+        "title": "Workspace name",
+        "savedMessage": "Saved workspace name",
+        "editTooltip": "Edit workspace name"
+      },
+      "workspaceIcon": {
+        "title": "Workspace icon",
+        "description": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications."
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+        "options": {
+          "system": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        }
+      },
+      "theme": {
+        "title": "Theme",
+        "description": "Select a preset theme, or upload your own custom theme."
+      },
+      "workspaceFont": {
+        "title": "Workspace font"
+      },
+      "textDirection": {
+        "title": "Text direction",
+        "leftToRight": "Left to right",
+        "rightToLeft": "Right to left",
+        "auto": "Auto",
+        "enableRTLItems": "Enable RTL toolbar items"
+      },
+      "layoutDirection": {
+        "title": "Layout direction",
+        "leftToRight": "Left to right",
+        "rightToLeft": "Right to left"
+      },
+      "dateTime": {
+        "title": "Date & time",
+        "example": "{} at {} ({})",
+        "24HourTime": "24-hour time",
+        "dateFormat": {
+          "label": "Date format",
+          "local": "Local",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Friendly",
+          "dmy": "D/M/Y"
+        }
+      },
+      "language": {
+        "title": "Language"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Delete workspace",
+        "content": "Are you sure you want to delete this workspace? This action cannot be undone."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Leave workspace",
+        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it."
+      },
+      "manageWorkspace": {
+        "title": "Manage workspace",
+        "leaveWorkspace": "Leave workspace",
+        "deleteWorkspace": "Delete workspace"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Manage data",
+      "title": "Manage data",
+      "description": "Manage data local storage or Import your existing data into @:appName.",
+      "dataStorage": {
+        "title": "File storage location",
+        "tooltip": "The location where your files are stored",
+        "actions": {
+          "change": "Change path",
+          "open": "Open folder",
+          "openTooltip": "Open current data folder location",
+          "copy": "Copy path",
+          "copiedHint": "Path copied!",
+          "resetTooltip": "Reset to default location"
+        },
+        "resetDialog": {
+          "title": "Are you sure?",
+          "description": "Resetting the path to the default data location will not delete your data. If you want to re-import your current data, you should copy the path of your current location first."
+        }
+      },
+      "importData": {
+        "title": "Import data",
+        "tooltip": "Import data from @:appName backups/data folders",
+        "description": "Copy data from an external @:appName data folder and import it into the current @:appName data folder",
+        "action": "Browse folder"
+      },
+      "encryption": {
+        "title": "Encryption",
+        "tooltip": "Manage how your data is stored and encrypted",
+        "descriptionNoEncryption": "Turning on encryption will encrypt all data. This can not be undone.",
+        "descriptionEncrypted": "Your data is encrypted.",
+        "action": "Encrypt data",
+        "dialog": {
+          "title": "Encrypt all your data?",
+          "description": "Encrypting all your data will keep your data safe and secure. This action can NOT be undone. Are you sure you want to continue?"
+        }
+      },
+      "cache": {
+        "title": "Clear cache",
+        "description": "If you encounter issues with images not loading or fonts not displaying correctly, try clearing your cache. This action will not remove your user data.",
+        "dialog": {
+          "title": "Are you sure?",
+          "description": "Clearing the cache will cause images and fonts to be re-downloaded on load. This action will not remove or modify your data.",
+          "successHint": "Cache cleared!"
+        }
+      }
+    },
+    "common": {
+      "reset": "Reset"
+    },
     "menu": {
       "appearance": "Appearance",
       "language": "Language",
@@ -278,9 +525,12 @@
       "cloudLocal": "Local",
       "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
       "cloudSupabaseAnonKey": "Supabase anon key",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty if the supabase url is not empty",
-      "cloudAppFlowy": "AppFlowy Cloud",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
+      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
+      "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
       "clickToCopy": "Click to copy",
       "selfHostStart": "If you don't have a server, please refer to the",
       "selfHostContent": "document",
@@ -290,6 +540,7 @@
       "cloudWSURLHint": "Input the websocket address of your server",
       "restartApp": "Restart",
       "restartAppTip": "Restart the application for the changes to take effect. Please note that this might log out your current account",
+      "changeServerTip": "After changing the server, you must click the restart button for the changes to take effect",
       "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
       "inputEncryptPrompt": "Please enter your encryption secret for",
       "clickToCopySecret": "Click to copy secret",
@@ -299,25 +550,49 @@
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account",
-      "customPathPrompt": "Storing the AppFlowy data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption"
+      "customPathPrompt": "Storing the @:appName data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
+      "importAppFlowyData": "Import Data from External @:appName Folder",
+      "importingAppFlowyDataTip": "Data import is in progress. Please do not close the app",
+      "importAppFlowyDataDescription": "Copy data from an external @:appName data folder and import it into the current AppFlowy data folder",
+      "importSuccess": "Successfully imported the @:appName data folder",
+      "importFailed": "Importing the @:appName data folder failed",
+      "importGuide": "For further details, please check the referenced document"
     },
     "notifications": {
       "enableNotifications": {
         "label": "Enable notifications",
         "hint": "Turn off to stop local notifications from appearing."
+      },
+      "showNotificationsIcon": {
+        "label": "Show notifications icon",
+        "hint": "Toggle off to hide the notification icon in the sidebar."
       }
     },
     "appearance": {
-      "resetSetting": "Reset this setting",
+      "resetSetting": "Reset",
       "fontFamily": {
         "label": "Font Family",
-        "search": "Search"
+        "search": "Search",
+        "defaultFont": "System"
       },
       "themeMode": {
         "label": "Theme Mode",
         "light": "Light Mode",
         "dark": "Dark Mode",
         "system": "Adapt to System"
+      },
+      "fontScaleFactor": "Font Scale Factor",
+      "documentSettings": {
+        "cursorColor": "Document cursor color",
+        "selectionColor": "Document selection color",
+        "hexEmptyError": "Hex color cannot be empty",
+        "hexLengthError": "Hex value must be 6 digits long",
+        "hexInvalidError": "Invalid hex value",
+        "opacityEmptyError": "Opacity cannot be empty",
+        "opacityRangeError": "Opacity must be between 1 and 100",
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "Apply"
       },
       "layoutDirection": {
         "label": "Layout Direction",
@@ -326,7 +601,7 @@
         "rtl": "RTL"
       },
       "textDirection": {
-        "label": "Default text direction",
+        "label": "Default Text Direction",
         "hint": "Specify whether text should start from left or right as the default.",
         "ltr": "LTR",
         "rtl": "RTL",
@@ -336,8 +611,7 @@
       "themeUpload": {
         "button": "Upload",
         "uploadTheme": "Upload theme",
-        "description": "Upload your own AppFlowy theme using the button below.",
-        "failure": "The theme that was uploaded had an invalid format.",
+        "description": "Upload your own @:appName theme using the button below.",
         "loading": "Please wait while we validate and upload your theme...",
         "uploadSuccess": "Your theme was uploaded successfully",
         "deletionFailure": "Failed to delete the theme. Try to delete it manually.",
@@ -360,14 +634,45 @@
         "twelveHour": "Twelve hour",
         "twentyFourHour": "Twenty four hour"
       },
-      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page"
+      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
+      "enableRTLToolbarItems": "Enable RTL toolbar items",
+      "members": {
+        "title": "Members Settings",
+        "inviteMembers": "Invite Members",
+        "sendInvite": "Send Invite",
+        "copyInviteLink": "Copy Invite Link",
+        "label": "Members",
+        "user": "User",
+        "role": "Role",
+        "removeFromWorkspace": "Remove from Workspace",
+        "owner": "Owner",
+        "guest": "Guest",
+        "member": "Member",
+        "memberHintText": "A member can read, comment, and edit pages. Invite members and guests.",
+        "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
+        "emailInvalidError": "Invalid email, please check and try again",
+        "emailSent": "Email sent, please check the inbox",
+        "members": "members",
+        "membersCount": {
+          "zero": "{} members",
+          "one": "{} member",
+          "other": "{} members"
+        },
+        "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
+        "failedToAddMember": "Failed to add member",
+        "addMemberSuccess": "Member added successfully",
+        "removeMember": "Remove Member",
+        "areYouSureToRemoveMember": "Are you sure you want to remove this member?",
+        "inviteMemberSuccess": "The invitation has been sent successfully",
+        "failedToInviteMember": "Failed to invite member"
+      }
     },
     "files": {
       "copy": "Copy",
       "defaultLocation": "Read files and data storage location",
       "exportData": "Export your data",
       "doubleTapToCopy": "Double tap to copy the path",
-      "restoreLocation": "Restore to AppFlowy default path",
+      "restoreLocation": "Restore to @:appName default path",
       "customizeLocation": "Open another folder",
       "restartApp": "Please restart app for the changes to take effect.",
       "exportDatabase": "Export database",
@@ -379,10 +684,10 @@
       "defineWhereYourDataIsStored": "Define where your data is stored",
       "open": "Open",
       "openFolder": "Open an existing folder",
-      "openFolderDesc": "Read and write it to your existing AppFlowy folder",
+      "openFolderDesc": "Read and write it to your existing @:appName folder",
       "folderHintText": "folder name",
       "location": "Creating a new folder",
-      "locationDesc": "Pick a name for your AppFlowy data folder",
+      "locationDesc": "Pick a name for your @:appName data folder",
       "browser": "Browse",
       "create": "Create",
       "set": "Set",
@@ -393,10 +698,14 @@
       "change": "Change",
       "openLocationTooltips": "Open another data directory",
       "openCurrentDataFolder": "Open current data directory",
-      "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
+      "recoverLocationTooltips": "Reset to @:appName's default data directory",
       "exportFileSuccess": "Export file successfully!",
       "exportFileFail": "Export file failed!",
-      "export": "Export"
+      "export": "Export",
+      "clearCache": "Clear cache",
+      "clearCacheDesc": "If you encounter issues with images not loading or fonts not displaying correctly, try clearing your cache. This action will not remove your user data.",
+      "areYouSureToClearCache": "Are you sure to clear the cache?",
+      "clearCacheSuccess": "Cache cleared successfully!"
     },
     "user": {
       "name": "Name",
@@ -416,22 +725,35 @@
       "shortcutIsAlreadyUsed": "This shortcut is already used for: {conflict}",
       "resetToDefault": "Reset to default keybindings",
       "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
-      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
+      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again",
+      "commands": {
+        "codeBlockNewParagraph": "Insert a new paragraph next to the code block",
+        "codeBlockIndentLines": "Insert two spaces at the line start in code block",
+        "codeBlockOutdentLines": "Delete two spaces at the line start in code block",
+        "codeBlockAddTwoSpaces": "Insert two spaces at the cursor position in code block",
+        "codeBlockSelectAll": "Select all content inside a code block",
+        "codeBlockPasteText": "Paste text in codeblock",
+        "textAlignLeft": "Align text to the left",
+        "textAlignCenter": "Align text to the center",
+        "textAlignRight": "Align text to the right"
+      }
     },
     "mobile": {
       "personalInfo": "Personal Information",
-      "username": "Username",
-      "usernameEmptyError": "Username cannot be empty",
+      "username": "User Name",
+      "usernameEmptyError": "User name cannot be empty",
       "about": "About",
       "pushNotifications": "Push Notifications",
       "support": "Support",
       "joinDiscord": "Join us in Discord",
       "privacyPolicy": "Privacy Policy",
       "userAgreement": "User Agreement",
+      "termsAndConditions": "Terms and Conditions",
       "userprofileError": "Failed to load user profile",
       "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists.",
       "selectLayout": "Select layout",
-      "selectStartingDay": "Select starting day"
+      "selectStartingDay": "Select starting day",
+      "version": "Version"
     }
   },
   "grid": {
@@ -452,7 +774,19 @@
       "filterBy": "Filter by...",
       "typeAValue": "Type a value...",
       "layout": "Layout",
-      "databaseLayout": "Layout"
+      "databaseLayout": "Layout",
+      "viewList": {
+        "zero": "0 views",
+        "one": "{count} view",
+        "other": "{count} views"
+      },
+      "editView": "Edit View",
+      "boardSettings": "Board settings",
+      "calendarSettings": "Calendar settings",
+      "createView": "New view",
+      "duplicateView": "Duplicate view",
+      "deleteView": "Delete view",
+      "numberOfVisibleFields": "{} shown"
     },
     "textFilter": {
       "contains": "Contains",
@@ -482,13 +816,9 @@
       "isComplete": "is complete",
       "isIncomplted": "is incomplete"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Is",
       "isNot": "Is not",
-      "isEmpty": "Is empty",
-      "isNotEmpty": "Is not empty"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contains",
       "doesNotContain": "Does not contain",
       "isEmpty": "Is empty",
@@ -502,7 +832,25 @@
       "onOrAfter": "Is on or after",
       "between": "Is between",
       "empty": "Is empty",
-      "notEmpty": "Is not empty"
+      "notEmpty": "Is not empty",
+      "choicechipPrefix": {
+        "before": "Before",
+        "after": "After",
+        "onOrBefore": "On or before",
+        "onOrAfter": "On or after",
+        "isEmpty": "Is empty",
+        "isNotEmpty": "Is not empty"
+      }
+    },
+    "numberFilter": {
+      "equal": "Equals",
+      "notEqual": "Does not equal",
+      "lessThan": "Is less than",
+      "greaterThan": "Is greater than",
+      "lessThanOrEqualTo": "Is less than or equal to",
+      "greaterThanOrEqualTo": "Is greater than or equal to",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty"
     },
     "field": {
       "hide": "Hide",
@@ -511,16 +859,20 @@
       "insertRight": "Insert Right",
       "duplicate": "Duplicate",
       "delete": "Delete",
+      "wrapCellContent": "Wrap text",
+      "clear": "Clear cells",
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
-      "updatedAtFieldName": "Last modified time",
-      "createdAtFieldName": "Created time",
+      "updatedAtFieldName": "Last modified",
+      "createdAtFieldName": "Created at",
       "numberFieldName": "Numbers",
       "singleSelectFieldName": "Select",
       "multiSelectFieldName": "Multiselect",
       "urlFieldName": "URL",
       "checklistFieldName": "Checklist",
+      "relationFieldName": "Relation",
+      "summaryFieldName": "AI Summary",
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
@@ -550,8 +902,11 @@
       "editProperty": "Edit property",
       "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
       "newColumn": "New Column",
-      "format": "Format"
+      "format": "Format",
+      "reminderOnDateTooltip": "This cell has a scheduled reminder",
+      "optionAlreadyExist": "Option already exists"
     },
     "rowPage": {
       "newField": "Add a new field",
@@ -565,13 +920,20 @@
         "one": "Hide {count} hidden field",
         "many": "Hide {count} hidden fields",
         "other": "Hide {count} hidden fields"
-      }
+      },
+      "openAsFullPage": "Open as full page",
+      "moreRowActions": "More row actions"
     },
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
+      "by": "By",
+      "empty": "No active sorts",
+      "cannotFindCreatableField": "Cannot find a suitable field to sort by",
       "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add sort"
+      "addSort": "Add new sort",
+      "removeSorting": "Would you like to remove sorting?",
+      "fieldInUse": "You are already sorting by this field"
     },
     "row": {
       "duplicate": "Duplicate",
@@ -586,7 +948,8 @@
       "drag": "Drag to move",
       "dragAndClick": "Drag to move, click to open menu",
       "insertRecordAbove": "Insert record above",
-      "insertRecordBelow": "Insert record below"
+      "insertRecordBelow": "Insert record below",
+      "noContent": "No content"
     },
     "selectOption": {
       "create": "Create",
@@ -600,11 +963,11 @@
       "aquaColor": "Aqua",
       "blueColor": "Blue",
       "deleteTag": "Delete tag",
-      "colorPanelTitle": "Colors",
+      "colorPanelTitle": "Color",
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option",
-      "searchOrCreateOption": "Search or create an option...",
-      "createNew": "Create an new",
+      "searchOrCreateOption": "Search for an option or create one",
+      "createNew": "Create a new",
       "orSelectOne": "Or select an option",
       "typeANewOption": "Type a new option",
       "tagName": "Tag name"
@@ -616,8 +979,38 @@
       "hideComplete": "Hide completed tasks",
       "showComplete": "Show all tasks"
     },
+    "url": {
+      "launch": "Open link in browser",
+      "copy": "Copy link to clipboard",
+      "textFieldHint": "Enter a URL",
+      "copiedNotification": "Copied to clipboard!"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Related Database",
+      "relatedDatabasePlaceholder": "None",
+      "inRelatedDatabase": "In",
+      "rowSearchTextFieldPlaceholder": "Search",
+      "noDatabaseSelected": "No database selected, please select one first from the list below:",
+      "emptySearchResult": "No records found",
+      "linkedRowListLabel": "{count} linked rows",
+      "unlinkedRowListLabel": "Link another row"
+    },
     "menuName": "Grid",
-    "referencedGridPrefix": "View of"
+    "referencedGridPrefix": "View of",
+    "calculate": "Calculate",
+    "calculationTypeLabel": {
+      "none": "None",
+      "average": "Average",
+      "max": "Max",
+      "median": "Median",
+      "min": "Min",
+      "sum": "Sum",
+      "count": "Count",
+      "countEmpty": "Count empty",
+      "countEmptyShort": "EMPTY",
+      "countNonEmpty": "Count not empty",
+      "countNonEmptyShort": "FILLED"
+    }
   },
   "document": {
     "menuName": "Document",
@@ -671,6 +1064,8 @@
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
       "fonts": "Fonts",
+      "insertDate": "Insert date",
+      "emoji": "Emoji",
       "toggleList": "Toggle list",
       "quoteList": "Quote list",
       "numberedList": "Numbered list",
@@ -720,14 +1115,22 @@
         "left": "Left",
         "center": "Center",
         "right": "Right",
-        "defaultColor": "Default"
+        "defaultColor": "Default",
+        "depth": "Depth"
       },
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImage": "Add an image"
+        "addAnImage": "Add an image",
+        "imageUploadFailed": "Image upload failed",
+        "errorCode": "Error code"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "The link has been copied to the clipboard",
+        "convertToLink": "Convert to embed link"
       },
       "outline": {
-        "addHeadingToCreateOutline": "Add headings to create a table of contents."
+        "addHeadingToCreateOutline": "Add headings to create a table of contents.",
+        "noMatchHeadings": "No matching headings found."
       },
       "table": {
         "addAfter": "Add after",
@@ -742,7 +1145,29 @@
         "cut": "Cut",
         "paste": "Paste"
       },
-      "action": "Actions"
+      "action": "Actions",
+      "database": {
+        "selectDataSource": "Select data source",
+        "noDataSource": "No data source",
+        "selectADataSource": "Select a data source",
+        "toContinue": "to continue",
+        "newDatabase": "New Database",
+        "linkToDatabase": "Link to Database"
+      },
+      "date": "Date",
+      "video": {
+        "label": "Video",
+        "emptyLabel": "Add a video",
+        "placeholder": "Paste the video link",
+        "copiedToPasteBoard": "The video link has been copied to the clipboard",
+        "insertVideo": "Add video",
+        "invalidVideoUrl": "The source URL is not supported yet.",
+        "invalidVideoUrlYouTube": "YouTube is not supported yet.",
+        "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      }
+    },
+    "outlineBlock": {
+      "placeholder": "Table of Contents"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
@@ -772,12 +1197,16 @@
       "error": {
         "invalidImage": "Invalid image",
         "invalidImageSize": "Image size must be less than 5MB",
-        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, GIF, SVG",
-        "invalidImageUrl": "Invalid image URL"
+        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "Invalid image URL",
+        "noImage": "No such file or directory"
       },
       "embedLink": {
         "label": "Embed link",
         "placeholder": "Paste or type an image link"
+      },
+      "unsplash": {
+        "label": "Unsplash"
       },
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
@@ -785,13 +1214,20 @@
       "saveImageToGallery": "Save image",
       "failedToAddImageToGallery": "Failed to add image to gallery",
       "successToAddImageToGallery": "Image added to gallery successfully",
-      "unableToLoadImage": "Unable to load image"
+      "unableToLoadImage": "Unable to load image",
+      "maximumImageSize": "Maximum supported upload image size is 10MB",
+      "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
+      "imageIsUploading": "Image is uploading"
     },
     "codeBlock": {
       "language": {
         "label": "Language",
-        "placeholder": "Select language"
-      }
+        "placeholder": "Select language",
+        "auto": "Auto"
+      },
+      "copyTooltip": "Copy contents of the code block",
+      "searchLanguageHint": "Search for a language",
+      "codeCopiedSnackbar": "Code copied to clipboard!"
     },
     "inlineLink": {
       "placeholder": "Paste or type a link",
@@ -812,14 +1248,22 @@
       "page": {
         "label": "Link to page",
         "tooltip": "Click to open page"
-      }
+      },
+      "deleted": "Deleted",
+      "deletedContent": "This content does not exist or has been deleted"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
     },
     "errorBlock": {
-      "theBlockIsNotSupported": "The current version does not support this block.",
+      "theBlockIsNotSupported": "Unable to parse the block content",
+      "clickToCopyTheBlockContent": "Click to copy the block content",
       "blockContentHasBeenCopied": "The block content has been copied."
+    },
+    "mobilePageSelector": {
+      "title": "Select page",
+      "failedToLoad": "Failed to load page list",
+      "noPagesFound": "No pages found"
     }
   },
   "board": {
@@ -828,10 +1272,10 @@
       "renameGroupTooltip": "Press to rename group",
       "createNewColumn": "Add a new group",
       "addToColumnTopTooltip": "Add a new card at the top",
+      "addToColumnBottomTooltip": "Add a new card at the bottom",
       "renameColumn": "Rename",
       "hideColumn": "Hide",
-      "groupActions": "Group Actions",
-      "newGroup": "New Group",
+      "newGroup": "New group",
       "deleteColumn": "Delete",
       "deleteColumnConfirmation": "This will delete this group and all the cards in it.\nAre you sure you want to continue?"
     },
@@ -854,12 +1298,15 @@
     "ungroupedItemsTitle": "Click to add to the board",
     "groupBy": "Group by",
     "referencedBoardPrefix": "View of",
+    "notesTooltip": "Notes inside",
     "mobile": {
       "editURL": "Edit URL",
-      "unhideGroup": "Unhide group",
-      "unhideGroupContent": "Are you sure you want to show this group on the board?",
-      "faildToLoad": "Failed to load board view"
-    }
+      "showGroup": "Show group",
+      "showGroupContent": "Are you sure you want to show this group on the board?",
+      "failedToLoad": "Failed to load board view"
+    },
+    "noGroup": "No group by property",
+    "noGroupDesc": "Board views require a property to group by in order to display"
   },
   "calendar": {
     "menuName": "Calendar",
@@ -869,13 +1316,24 @@
       "today": "Today",
       "jumpToday": "Jump to Today",
       "previousMonth": "Previous Month",
-      "nextMonth": "Next Month"
+      "nextMonth": "Next Month",
+      "views": {
+        "day": "Day",
+        "week": "Week",
+        "month": "Month",
+        "year": "Year"
+      }
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "No events yet",
+      "emptyBody": "Press the plus button to create an event on this day."
     },
     "settings": {
       "showWeekNumbers": "Show week numbers",
       "showWeekends": "Show weekends",
       "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by",
+      "changeLayoutDateField": "Change layout field",
       "noDateTitle": "No Date",
       "noDateHint": {
         "zero": "Unscheduled events will show up here",
@@ -884,13 +1342,15 @@
       },
       "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Click to add to the calendar",
-      "name": "Calendar settings"
+      "name": "Calendar settings",
+      "clickToOpen": "Click to open the record"
     },
     "referencedCalendarPrefix": "View of",
-    "quickJumpYear": "Jump to"
+    "quickJumpYear": "Jump to",
+    "duplicateEvent": "Duplicate event"
   },
   "errorDialog": {
-    "title": "AppFlowy Error",
+    "title": "@:appName Error",
     "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
     "github": "View on GitHub"
   },
@@ -957,7 +1417,12 @@
   },
   "inlineActions": {
     "noResults": "No results",
+    "recentPages": "Recent pages",
     "pageReference": "Page reference",
+    "docReference": "Document reference",
+    "boardReference": "Board reference",
+    "calReference": "Calendar reference",
+    "gridReference": "Grid reference",
     "date": "Date",
     "reminder": {
       "groupTitle": "Reminder",
@@ -965,7 +1430,29 @@
     }
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "Change the date and time format in settings"
+    "dateTimeFormatTooltip": "Change the date and time format in settings",
+    "dateFormat": "Date format",
+    "includeTime": "Include time",
+    "isRange": "End date",
+    "timeFormat": "Time format",
+    "clearDate": "Clear date",
+    "reminderLabel": "Reminder",
+    "selectReminder": "Select reminder",
+    "reminderOptions": {
+      "none": "None",
+      "atTimeOfEvent": "Time of event",
+      "fiveMinsBefore": "5 mins before",
+      "tenMinsBefore": "10 mins before",
+      "fifteenMinsBefore": "15 mins before",
+      "thirtyMinsBefore": "30 mins before",
+      "oneHourBefore": "1 hour before",
+      "twoHoursBefore": "2 hours before",
+      "onDayOfEvent": "On day of event",
+      "oneDayBefore": "1 day before",
+      "twoDaysBefore": "2 days before",
+      "oneWeekBefore": "1 week before",
+      "custom": "Custom"
+    }
   },
   "relativeDates": {
     "yesterday": "Yesterday",
@@ -975,6 +1462,9 @@
   },
   "notificationHub": {
     "title": "Notifications",
+    "mobile": {
+      "title": "Updates"
+    },
     "emptyTitle": "All caught up!",
     "emptyBody": "No pending notifications or actions. Enjoy the calm.",
     "tabs": {
@@ -1009,7 +1499,8 @@
     "replace": "Replace",
     "replaceAll": "Replace all",
     "noResult": "No results",
-    "caseSensitive": "Case sensitive"
+    "caseSensitive": "Case sensitive",
+    "searchMore": "Search to find more results"
   },
   "error": {
     "weAreSorry": "We're sorry",
@@ -1018,6 +1509,7 @@
   "editor": {
     "bold": "Bold",
     "bulletedList": "Bulleted List",
+    "bulletedListShortForm": "Bulleted",
     "checkbox": "Checkbox",
     "embedCode": "Embed Code",
     "heading1": "H1",
@@ -1026,9 +1518,12 @@
     "highlight": "Highlight",
     "color": "Color",
     "image": "Image",
+    "date": "Date",
+    "page": "Page",
     "italic": "Italic",
     "link": "Link",
     "numberedList": "Numbered List",
+    "numberedListShortForm": "Numbered",
     "quote": "Quote",
     "strikethrough": "Strikethrough",
     "text": "Text",
@@ -1053,6 +1548,8 @@
     "backgroundColorPurple": "Purple background",
     "backgroundColorPink": "Pink background",
     "backgroundColorRed": "Red background",
+    "backgroundColorLime": "Lime background",
+    "backgroundColorAqua": "Aqua background",
     "done": "Done",
     "cancel": "Cancel",
     "tint1": "Tint 1",
@@ -1100,6 +1597,8 @@
     "copy": "Copy",
     "paste": "Paste",
     "find": "Find",
+    "select": "Select",
+    "selectAll": "Select all",
     "previousMatch": "Previous match",
     "nextMatch": "Next match",
     "closeFind": "Close",
@@ -1113,7 +1612,7 @@
     "upload": "Upload",
     "chooseImage": "Choose an image",
     "loading": "Loading",
-    "imageLoadFailed": "Could not load the image",
+    "imageLoadFailed": "Image load failed",
     "divider": "Divider",
     "table": "Table",
     "colAddBefore": "Add before",
@@ -1126,11 +1625,18 @@
     "rowDuplicate": "Duplicate",
     "colClear": "Clear Content",
     "rowClear": "Clear Content",
-    "slashPlaceHolder": "Type '/' to insert a block, or start typing"
+    "slashPlaceHolder": "Type '/' to insert a block, or start typing",
+    "typeSomething": "Type something...",
+    "toggleListShortForm": "Toggle",
+    "quoteListShortForm": "Quote",
+    "mathEquationShortForm": "Formula",
+    "codeBlockShortForm": "Code"
   },
   "favorite": {
     "noFavorite": "No favorite page",
-    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites"
+    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites",
+    "removeFromSidebar": "Remove from sidebar",
+    "addToSidebar": "Pin to sidebar"
   },
   "cardDetails": {
     "notesPlaceholder": "Enter a / to insert a block, or start typing"
@@ -1150,5 +1656,83 @@
     "date": "Date",
     "addField": "Add field",
     "userIcon": "User icon"
+  },
+  "noLogFiles": "There're no log files",
+  "newSettings": {
+    "myAccount": {
+      "title": "My account",
+      "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "profileLabel": "Account name & Profile image",
+      "profileNamePlaceholder": "Enter your name",
+      "accountSecurity": "Account security",
+      "2FA": "2-Step Authentication",
+      "aiKeys": "AI keys",
+      "accountLogin": "Account Login",
+      "updateNameError": "Failed to update name",
+      "updateIconError": "Failed to update icon",
+      "deleteAccount": {
+        "title": "Delete Account",
+        "subtitle": "Permanently delete your account and all of your data.",
+        "deleteMyAccount": "Delete my account",
+        "dialogTitle": "Delete account",
+        "dialogContent1": "Are you sure you want to permanently delete your account?",
+        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+      }
+    },
+    "workplace": {
+      "name": "Workplace",
+      "title": "Workplace Settings",
+      "subtitle": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+      "workplaceName": "Workplace name",
+      "workplaceNamePlaceholder": "Enter workplace name",
+      "workplaceIcon": "Workplace icon",
+      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications.",
+      "renameError": "Failed to rename workplace",
+      "updateIconError": "Failed to update icon",
+      "chooseAnIcon": "Choose an icon",
+      "appearance": {
+        "name": "Appearance",
+        "themeMode": {
+          "auto": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "language": "Language"
+      }
+    },
+    "syncState": {
+      "syncing": "Syncing",
+      "synced": "Synced",
+      "noNetworkConnected": "No network connected"
+    }
+  },
+  "pageStyle": {
+    "title": "Page style",
+    "layout": "Layout",
+    "coverImage": "Cover image",
+    "pageIcon": "Page icon",
+    "colors": "Colors",
+    "gradient": "Gradient",
+    "backgroundImage": "Background image",
+    "presets": "Presets",
+    "photo": "Photo",
+    "unsplash": "Unsplash",
+    "pageCover": "Page cover",
+    "none": "None",
+    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
+    "openSettings": "Open Settings",
+    "photoPermissionTitle": "@:appName would like to access your photo library",
+    "doNotAllow": "Don't Allow",
+    "image": "Image"
+  },
+  "commandPalette": {
+    "placeholder": "Type to search for views...",
+    "bestMatches": "Best matches",
+    "recentHistory": "Recent history",
+    "navigateHint": "to navigate",
+    "loadingTooltip": "We are looking for results...",
+    "betaLabel": "BETA",
+    "betaTooltip": "We currently only support searching for pages",
+    "fromTrashHint": "From trash"
   }
 }

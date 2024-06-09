@@ -1,6 +1,8 @@
-use collab_database::database::{gen_database_id, gen_row_id};
+use collab_database::database::{gen_database_id, gen_row_id, timestamp};
 use collab_database::rows::CreateRowParams;
-use collab_database::views::{CreateDatabaseParams, DatabaseLayout, LayoutSettings};
+use collab_database::views::{
+  CreateDatabaseParams, CreateViewParams, DatabaseLayout, LayoutSettings,
+};
 
 use crate::entities::FieldType;
 use crate::services::cell::{insert_select_option_cell, insert_text_cell};
@@ -11,20 +13,20 @@ use crate::services::field_settings::default_field_settings_for_fields;
 use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 
 pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
+  let database_id = gen_database_id();
+  let timestamp = timestamp();
+
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Name")
-    .visibility(true)
     .primary(true)
     .build();
 
   let single_select = FieldBuilder::from_field_type(FieldType::SingleSelect)
     .name("Type")
-    .visibility(true)
     .build();
 
   let checkbox_field = FieldBuilder::from_field_type(FieldType::Checkbox)
     .name("Done")
-    .visibility(true)
     .build();
 
   let fields = vec![text_field, single_select, checkbox_field];
@@ -32,29 +34,38 @@ pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
   CreateDatabaseParams {
-    database_id: gen_database_id(),
-    view_id: view_id.to_string(),
-    name: name.to_string(),
-    layout: DatabaseLayout::Grid,
-    layout_settings: Default::default(),
-    filters: vec![],
-    groups: vec![],
-    sorts: vec![],
-    created_rows: vec![
-      CreateRowParams::new(gen_row_id()),
-      CreateRowParams::new(gen_row_id()),
-      CreateRowParams::new(gen_row_id()),
+    database_id: database_id.clone(),
+    inline_view_id: view_id.to_string(),
+    views: vec![CreateViewParams {
+      database_id: database_id.clone(),
+      view_id: view_id.to_string(),
+      name: name.to_string(),
+      layout: DatabaseLayout::Grid,
+      layout_settings: Default::default(),
+      filters: vec![],
+      group_settings: vec![],
+      sorts: vec![],
+      field_settings,
+      created_at: timestamp,
+      modified_at: timestamp,
+      ..Default::default()
+    }],
+    rows: vec![
+      CreateRowParams::new(gen_row_id(), database_id.clone()),
+      CreateRowParams::new(gen_row_id(), database_id.clone()),
+      CreateRowParams::new(gen_row_id(), database_id.clone()),
     ],
     fields,
-    field_settings,
   }
 }
 
 pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
+  let database_id = gen_database_id();
+  let timestamp = timestamp();
+
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Description")
-    .visibility(true)
     .primary(true)
     .build();
   let text_field_id = text_field.id.clone();
@@ -69,13 +80,12 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
     .extend(vec![to_do_option.clone(), doing_option, done_option]);
   let single_select = FieldBuilder::new(FieldType::SingleSelect, single_select_type_option)
     .name("Status")
-    .visibility(true)
     .build();
   let single_select_field_id = single_select.id.clone();
 
   let mut rows = vec![];
   for i in 0..3 {
-    let mut row = CreateRowParams::new(gen_row_id());
+    let mut row = CreateRowParams::new(gen_row_id(), database_id.clone());
     row.cells.insert(
       single_select_field_id.clone(),
       insert_select_option_cell(vec![to_do_option.id.clone()], &single_select),
@@ -95,39 +105,46 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
   layout_settings.insert(DatabaseLayout::Board, BoardLayoutSetting::new().into());
 
   CreateDatabaseParams {
-    database_id: gen_database_id(),
-    view_id: view_id.to_string(),
-    name: name.to_string(),
-    layout: DatabaseLayout::Board,
-    layout_settings,
-    filters: vec![],
-    groups: vec![],
-    sorts: vec![],
-    created_rows: rows,
+    database_id: database_id.clone(),
+    inline_view_id: view_id.to_string(),
+    views: vec![CreateViewParams {
+      database_id,
+      view_id: view_id.to_string(),
+      name: name.to_string(),
+      layout: DatabaseLayout::Board,
+      layout_settings,
+      filters: vec![],
+      group_settings: vec![],
+      sorts: vec![],
+      field_settings,
+      created_at: timestamp,
+      modified_at: timestamp,
+      ..Default::default()
+    }],
+    rows,
     fields,
-    field_settings,
   }
 }
 
 pub fn make_default_calendar(view_id: &str, name: &str) -> CreateDatabaseParams {
+  let database_id = gen_database_id();
+  let timestamp = timestamp();
+
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Title")
-    .visibility(true)
     .primary(true)
     .build();
 
   // date
   let date_field = FieldBuilder::from_field_type(FieldType::DateTime)
     .name("Date")
-    .visibility(true)
     .build();
   let date_field_id = date_field.id.clone();
 
   // multi select
   let multi_select_field = FieldBuilder::from_field_type(FieldType::MultiSelect)
     .name("Tags")
-    .visibility(true)
     .build();
 
   let fields = vec![text_field, date_field, multi_select_field];
@@ -141,16 +158,23 @@ pub fn make_default_calendar(view_id: &str, name: &str) -> CreateDatabaseParams 
   );
 
   CreateDatabaseParams {
-    database_id: gen_database_id(),
-    view_id: view_id.to_string(),
-    name: name.to_string(),
-    layout: DatabaseLayout::Calendar,
-    layout_settings,
-    filters: vec![],
-    groups: vec![],
-    sorts: vec![],
-    created_rows: vec![],
+    database_id: database_id.clone(),
+    inline_view_id: view_id.to_string(),
+    views: vec![CreateViewParams {
+      database_id,
+      view_id: view_id.to_string(),
+      name: name.to_string(),
+      layout: DatabaseLayout::Calendar,
+      layout_settings,
+      filters: vec![],
+      group_settings: vec![],
+      sorts: vec![],
+      field_settings,
+      created_at: timestamp,
+      modified_at: timestamp,
+      ..Default::default()
+    }],
+    rows: vec![],
     fields,
-    field_settings,
   }
 }

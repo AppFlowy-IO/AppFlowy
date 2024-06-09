@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { ReactComponent as LeftSvg } from '$app/assets/arrow-left.svg';
 import { ReactComponent as RightSvg } from '$app/assets/arrow-right.svg';
 import { IconButton } from '@mui/material';
+import './calendar.scss';
 
 function CustomCalendar({
   handleChange,
@@ -14,18 +15,25 @@ function CustomCalendar({
 }: {
   handleChange: (params: { date?: number; endDate?: number }) => void;
   isRange: boolean;
-  timestamp: number;
-  endTimestamp: number;
+  timestamp?: number;
+  endTimestamp?: number;
 }) {
-  const [startDate, setStartDate] = useState<Date | null>(new Date(timestamp * 1000));
-  const [endDate, setEndDate] = useState<Date | null>(new Date(endTimestamp * 1000));
+  const [startDate, setStartDate] = useState<Date | null>(() => {
+    if (!timestamp) return null;
+    return new Date(timestamp * 1000);
+  });
+  const [endDate, setEndDate] = useState<Date | null>(() => {
+    if (!endTimestamp) return null;
+    return new Date(endTimestamp * 1000);
+  });
 
   useEffect(() => {
-    if (!isRange) return;
+    if (!isRange || !endTimestamp) return;
     setEndDate(new Date(endTimestamp * 1000));
   }, [isRange, endTimestamp]);
 
   useEffect(() => {
+    if (!timestamp) return;
     setStartDate(new Date(timestamp * 1000));
   }, [timestamp]);
 
@@ -33,7 +41,7 @@ function CustomCalendar({
     <div className={'flex w-full items-center justify-center'}>
       <DatePicker
         calendarClassName={
-          'appflowy-date-picker-calendar bg-bg-body h-full border-none rounded-none flex w-full items-center justify-center'
+          'appflowy-date-picker-calendar select-none bg-bg-body h-full border-none rounded-none flex w-full items-center justify-center'
         }
         renderCustomHeader={(props: ReactDatePickerCustomHeaderProps) => {
           return (
@@ -56,8 +64,30 @@ function CustomCalendar({
         selected={startDate}
         onChange={(dates) => {
           if (!dates) return;
-          if (isRange) {
-            const [start, end] = dates as [Date | null, Date | null];
+          if (isRange && Array.isArray(dates)) {
+            let start = dates[0] as Date;
+            let end = dates[1] as Date;
+
+            if (!end && start && startDate && endDate) {
+              const currentTime = start.getTime();
+              const startTimeStamp = startDate.getTime();
+              const endTimeStamp = endDate.getTime();
+              const isGreaterThanStart = currentTime > startTimeStamp;
+              const isGreaterThanEnd = currentTime > endTimeStamp;
+              const isLessThanStart = currentTime < startTimeStamp;
+              const isLessThanEnd = currentTime < endTimeStamp;
+              const isEqualsStart = currentTime === startTimeStamp;
+              const isEqualsEnd = currentTime === endTimeStamp;
+
+              if ((isGreaterThanStart && isLessThanEnd) || isGreaterThanEnd) {
+                end = start;
+                start = startDate;
+              } else if (isEqualsStart || isEqualsEnd) {
+                end = start;
+              } else if (isLessThanStart) {
+                end = endDate;
+              }
+            }
 
             setStartDate(start);
             setEndDate(end);

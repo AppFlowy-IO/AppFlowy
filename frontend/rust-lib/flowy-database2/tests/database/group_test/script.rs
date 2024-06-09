@@ -1,8 +1,7 @@
-use collab_database::database::gen_row_id;
 use collab_database::fields::Field;
-use collab_database::rows::{CreateRowParams, RowId};
+use collab_database::rows::RowId;
 
-use flowy_database2::entities::{FieldType, GroupPB, RowMetaPB};
+use flowy_database2::entities::{CreateRowPayloadPB, FieldType, GroupPB, RowMetaPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
@@ -10,7 +9,6 @@ use flowy_database2::services::field::{
   edit_single_select_type_option, SelectOption, SelectTypeOptionSharedAction,
   SingleSelectTypeOption,
 };
-use lib_infra::util::timestamp;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -62,10 +60,9 @@ pub enum GroupScript {
   GroupByField {
     field_id: String,
   },
-  AssertGroupIDName {
+  AssertGroupId {
     group_index: usize,
     group_id: String,
-    group_name: String,
   },
   CreateGroup {
     name: String,
@@ -138,24 +135,21 @@ impl DatabaseGroupTest {
       },
       GroupScript::CreateRow { group_index } => {
         let group = self.group_at_index(group_index).await;
-        let params = CreateRowParams {
-          id: gen_row_id(),
-          timestamp: timestamp(),
-          ..Default::default()
+        let params = CreateRowPayloadPB {
+          view_id: self.view_id.clone(),
+          row_position: Default::default(),
+          group_id: Some(group.group_id),
+          data: Default::default(),
         };
-        let _ = self
-          .editor
-          .create_row(&self.view_id, Some(group.group_id.clone()), params)
-          .await
-          .unwrap();
+        let _ = self.editor.create_row(params).await.unwrap();
       },
       GroupScript::DeleteRow {
         group_index,
         row_index,
       } => {
         let row = self.row_at_index(group_index, row_index).await;
-        let row_id = RowId::from(row.id);
-        self.editor.delete_row(&row_id).await;
+        let row_ids = vec![RowId::from(row.id)];
+        self.editor.delete_rows(&row_ids).await;
       },
       GroupScript::UpdateGroupedCell {
         from_group_index,
@@ -198,7 +192,7 @@ impl DatabaseGroupTest {
         let row_id = RowId::from(self.row_at_index(from_group_index, row_index).await.id);
         self
           .editor
-          .update_cell(&self.view_id, row_id, &field_id, cell)
+          .update_cell(&self.view_id, &row_id, &field_id, cell)
           .await
           .unwrap();
       },
@@ -214,7 +208,7 @@ impl DatabaseGroupTest {
         let cell = match field_type {
           FieldType::URL => insert_url_cell(cell_data, &field),
           FieldType::DateTime => {
-            insert_date_cell(cell_data.parse::<i64>().unwrap(), Some(true), &field)
+            insert_date_cell(cell_data.parse::<i64>().unwrap(), None, Some(true), &field)
           },
           _ => {
             panic!("Unsupported group field type");
@@ -224,7 +218,7 @@ impl DatabaseGroupTest {
         let row_id = RowId::from(self.row_at_index(from_group_index, row_index).await.id);
         self
           .editor
-          .update_cell(&self.view_id, row_id, &field_id, cell)
+          .update_cell(&self.view_id, &row_id, &field_id, cell)
           .await
           .unwrap();
       },
@@ -239,7 +233,6 @@ impl DatabaseGroupTest {
           .move_group(&self.view_id, &from_group.group_id, &to_group.group_id)
           .await
           .unwrap();
-        //
       },
       GroupScript::AssertGroup {
         group_index,
@@ -247,7 +240,6 @@ impl DatabaseGroupTest {
       } => {
         let group = self.group_at_index(group_index).await;
         assert_eq!(group.group_id, group_pb.group_id);
-        assert_eq!(group.group_name, group_pb.group_name);
       },
       GroupScript::UpdateSingleSelectSelectOption { inserted_options } => {
         self
@@ -265,14 +257,12 @@ impl DatabaseGroupTest {
           .await
           .unwrap();
       },
-      GroupScript::AssertGroupIDName {
+      GroupScript::AssertGroupId {
         group_index,
         group_id,
-        group_name,
       } => {
         let group = self.group_at_index(group_index).await;
         assert_eq!(group_id, group.group_id, "group index: {}", group_index);
-        assert_eq!(group_name, group.group_name, "group index: {}", group_index);
       },
       GroupScript::CreateGroup { name } => self
         .editor
@@ -306,14 +296,9 @@ impl DatabaseGroupTest {
     action: impl FnOnce(&mut SingleSelectTypeOption),
   ) {
     let single_select = self.get_single_select_field().await;
-    edit_single_select_type_option(
-      &self.view_id,
-      &single_select.id,
-      self.editor.clone(),
-      action,
-    )
-    .await
-    .unwrap();
+    edit_single_select_type_option(&single_select.id, self.editor.clone(), action)
+      .await
+      .unwrap();
   }
 
   pub async fn get_url_field(&self) -> Field {

@@ -1,36 +1,35 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:styled_widget/styled_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 class QuestionBubble extends StatelessWidget {
-  const QuestionBubble({Key? key}) : super(key: key);
+  const QuestionBubble({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 30,
-      height: 30,
+    return const SizedBox.square(
+      dimension: 36.0,
       child: BubbleActionList(),
     );
   }
 }
 
 class BubbleActionList extends StatefulWidget {
-  const BubbleActionList({Key? key}) : super(key: key);
+  const BubbleActionList({super.key});
 
   @override
   State<BubbleActionList> createState() => _BubbleActionListState();
@@ -61,24 +60,55 @@ class _BubbleActionListState extends State<BubbleActionList> {
     );
     actions.add(FlowyVersionDescription());
 
+    final (color, borderColor, shadowColor, iconColor) =
+        Theme.of(context).isLightMode
+            ? (
+                Colors.white,
+                const Color(0x2D454849),
+                const Color(0x14000000),
+                Colors.black,
+              )
+            : (
+                const Color(0xFF242B37),
+                const Color(0x2DFFFFFF),
+                const Color(0x14000000),
+                Colors.white,
+              );
+
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.topWithRightAligned,
       actions: actions,
       offset: const Offset(0, -8),
       buildChild: (controller) {
-        return FlowyTextButton(
-          '?',
-          tooltip: LocaleKeys.questionBubble_help.tr(),
-          fontWeight: FontWeight.w600,
-          fontColor: fontColor,
-          fillColor: fillColor,
-          hoverColor: Theme.of(context).colorScheme.primary,
-          mainAxisAlignment: MainAxisAlignment.center,
-          radius: Corners.s10Border,
-          onPressed: () {
-            toggle();
-            controller.show();
-          },
+        return FlowyTooltip(
+          message: LocaleKeys.questionBubble_help.tr(),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              child: Container(
+                padding: const EdgeInsets.all(10.0),
+                decoration: ShapeDecoration(
+                  color: color,
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 0.50, color: borderColor),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  shadows: [
+                    BoxShadow(
+                      color: shadowColor,
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: FlowySvg(
+                  FlowySvgs.help_center_s,
+                  color: iconColor,
+                ),
+              ),
+              onTap: () => controller.show(),
+            ),
+          ),
         );
       },
       onClosed: toggle,
@@ -86,26 +116,26 @@ class _BubbleActionListState extends State<BubbleActionList> {
         if (action is BubbleActionWrapper) {
           switch (action.inner) {
             case BubbleAction.whatsNews:
-              _launchURL("https://www.appflowy.io/what-is-new");
+              afLaunchUrlString("https://www.appflowy.io/what-is-new");
               break;
             case BubbleAction.help:
-              _launchURL("https://discord.gg/9Q2xaN37tV");
+              afLaunchUrlString("https://discord.gg/9Q2xaN37tV");
               break;
             case BubbleAction.debug:
               _DebugToast().show();
               break;
             case BubbleAction.shortcuts:
-              _launchURL(
-                "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts",
+              afLaunchUrlString(
+                "https://docs.appflowy.io/docs/appflowy/product/shortcuts",
               );
               break;
             case BubbleAction.markdown:
-              _launchURL(
-                "https://appflowy.gitbook.io/docs/essential-documentation/markdown",
+              afLaunchUrlString(
+                "https://docs.appflowy.io/docs/appflowy/product/markdown",
               );
               break;
             case BubbleAction.github:
-              _launchURL(
+              afLaunchUrlString(
                 'https://github.com/AppFlowy-IO/AppFlowy/issues/new/choose',
               );
               break;
@@ -116,23 +146,14 @@ class _BubbleActionListState extends State<BubbleActionList> {
       },
     );
   }
-
-  _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
 }
 
 class _DebugToast {
   void show() async {
-    var debugInfo = "";
+    String debugInfo = "";
     debugInfo += await _getDeviceInfo();
     debugInfo += await _getDocumentPath();
-    Clipboard.setData(ClipboardData(text: debugInfo));
+    await Clipboard.setData(ClipboardData(text: debugInfo));
 
     showMessageToast(LocaleKeys.questionBubble_debug_success.tr());
   }
@@ -155,7 +176,7 @@ class _DebugToast {
 
 class FlowyVersionDescription extends CustomActionCell {
   @override
-  Widget buildWithContext(BuildContext context) {
+  Widget buildWithContext(BuildContext context, PopoverController controller) {
     return FutureBuilder(
       future: PackageInfo.fromPlatform(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -174,7 +195,6 @@ class FlowyVersionDescription extends CustomActionCell {
           return SizedBox(
             height: 30,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Divider(
@@ -203,9 +223,9 @@ class FlowyVersionDescription extends CustomActionCell {
 enum BubbleAction { whatsNews, help, debug, shortcuts, markdown, github }
 
 class BubbleActionWrapper extends ActionCell {
-  final BubbleAction inner;
-
   BubbleActionWrapper(this.inner);
+
+  final BubbleAction inner;
   @override
   Widget? leftIcon(Color iconColor) => inner.emoji;
 

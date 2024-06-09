@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { NumberField, NumberTypeOption, updateTypeOption } from '$app/components/database/application';
+import { NumberField, NumberTypeOption, updateTypeOption } from '$app/application/database';
 import { Divider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import NumberFormatSelect from '$app/components/database/components/field_types/number/NumberFormatSelect';
@@ -22,8 +22,8 @@ function NumberFieldActions({ field }: { field: NumberField }) {
 
   return (
     <>
-      <div className={'flex flex-col pr-3 pt-1'}>
-        <div className={'mb-2 px-5 text-sm text-text-caption'}>{t('grid.field.format')}</div>
+      <div className={'flex flex-col pt-1'}>
+        <div className={'mb-2 px-4 text-sm text-text-caption'}>{t('grid.field.format')}</div>
         <NumberFormatSelect value={typeOption.format || NumberFormatPB.Num} onChange={onChange} />
       </div>
       <Divider className={'my-2'} />

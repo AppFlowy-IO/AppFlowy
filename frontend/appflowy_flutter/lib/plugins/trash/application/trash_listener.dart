@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:appflowy/core/notification/folder_notification.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/trash.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 typedef TrashUpdatedCallback = void Function(
-  Either<List<TrashPB>, FlowyError> trashOrFailed,
+  FlowyResult<List<TrashPB>, FlowyError> trashOrFailed,
 );
 
 class TrashListener {
@@ -29,7 +30,7 @@ class TrashListener {
 
   void _observableCallback(
     FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case FolderNotification.DidUpdateTrash:
@@ -37,9 +38,9 @@ class TrashListener {
           result.fold(
             (payload) {
               final repeatedTrash = RepeatedTrashPB.fromBuffer(payload);
-              _trashUpdated!(left(repeatedTrash.items));
+              _trashUpdated!(FlowyResult.success(repeatedTrash.items));
             },
-            (error) => _trashUpdated!(right(error)),
+            (error) => _trashUpdated!(FlowyResult.failure(error)),
           );
         }
         break;

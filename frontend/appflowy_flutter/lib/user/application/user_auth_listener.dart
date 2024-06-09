@@ -9,7 +9,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/notification.pb.dart'
     as user;
 import 'package:appflowy_backend/rust_stream.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class UserAuthStateListener {
   void Function(String)? _onInvalidAuth;
@@ -41,7 +41,7 @@ class UserAuthStateListener {
 
   void _userNotificationCallback(
     user.UserNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case user.UserNotification.UserAuthStateChanged:

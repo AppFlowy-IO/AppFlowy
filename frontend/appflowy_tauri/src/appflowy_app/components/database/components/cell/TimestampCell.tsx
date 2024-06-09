@@ -1,5 +1,5 @@
 import React from 'react';
-import { CreatedTimeField, LastEditedTimeField, TimeStampCell } from '$app/components/database/application';
+import { CreatedTimeField, LastEditedTimeField, TimeStampCell } from '$app/application/database';
 
 interface Props {
   field: LastEditedTimeField | CreatedTimeField;

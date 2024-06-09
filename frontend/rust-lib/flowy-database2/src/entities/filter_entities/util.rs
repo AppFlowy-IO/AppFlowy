@@ -1,55 +1,168 @@
 use std::convert::TryInto;
-use std::sync::Arc;
 
 use bytes::Bytes;
-use collab_database::fields::Field;
 
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use lib_infra::box_any::BoxAny;
+use protobuf::ProtobufError;
+use validator::Validate;
 
-use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-  CheckboxFilterPB, ChecklistFilterPB, DateFilterContentPB, DateFilterPB, FieldType,
-  NumberFilterPB, SelectOptionFilterPB, TextFilterPB,
+  CheckboxFilterPB, ChecklistFilterPB, DateFilterPB, FieldType, NumberFilterPB, RelationFilterPB,
+  SelectOptionFilterPB, TextFilterPB,
 };
-use crate::services::field::SelectOptionIds;
-use crate::services::filter::{Filter, FilterType};
+use crate::services::filter::{Filter, FilterChangeset, FilterInner};
 
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, Eq, PartialEq, Copy)]
+#[repr(u8)]
+pub enum FilterType {
+  #[default]
+  Data = 0,
+  And = 1,
+  Or = 2,
+}
+
+impl From<&FilterInner> for FilterType {
+  fn from(value: &FilterInner) -> Self {
+    match value {
+      FilterInner::And { .. } => Self::And,
+      FilterInner::Or { .. } => Self::Or,
+      FilterInner::Data { .. } => Self::Data,
+    }
+  }
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
 pub struct FilterPB {
   #[pb(index = 1)]
   pub id: String,
 
   #[pb(index = 2)]
-  pub field_id: String,
+  pub filter_type: FilterType,
 
   #[pb(index = 3)]
+  pub children: Vec<FilterPB>,
+
+  #[pb(index = 4, one_of)]
+  pub data: Option<FilterDataPB>,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
+pub struct FilterDataPB {
+  #[pb(index = 1)]
+  pub field_id: String,
+
+  #[pb(index = 2)]
   pub field_type: FieldType,
 
-  #[pb(index = 4)]
+  #[pb(index = 3)]
   pub data: Vec<u8>,
 }
 
-impl std::convert::From<&Filter> for FilterPB {
+impl From<&Filter> for FilterPB {
   fn from(filter: &Filter) -> Self {
-    let bytes: Bytes = match filter.field_type {
-      FieldType::RichText => TextFilterPB::from(filter).try_into().unwrap(),
-      FieldType::Number => NumberFilterPB::from(filter).try_into().unwrap(),
-      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-        DateFilterPB::from(filter).try_into().unwrap()
+    match &filter.inner {
+      FilterInner::And { children } | FilterInner::Or { children } => Self {
+        id: filter.id.clone(),
+        filter_type: FilterType::from(&filter.inner),
+        children: children.iter().map(FilterPB::from).collect(),
+        data: None,
       },
-      FieldType::SingleSelect => SelectOptionFilterPB::from(filter).try_into().unwrap(),
-      FieldType::MultiSelect => SelectOptionFilterPB::from(filter).try_into().unwrap(),
-      FieldType::Checklist => ChecklistFilterPB::from(filter).try_into().unwrap(),
-      FieldType::Checkbox => CheckboxFilterPB::from(filter).try_into().unwrap(),
-      FieldType::URL => TextFilterPB::from(filter).try_into().unwrap(),
-    };
-    Self {
-      id: filter.id.clone(),
-      field_id: filter.field_id.clone(),
-      field_type: filter.field_type,
-      data: bytes.to_vec(),
+      FilterInner::Data {
+        field_id,
+        field_type,
+        condition_and_content,
+      } => {
+        let bytes: Result<Bytes, ProtobufError> = match field_type {
+          FieldType::RichText | FieldType::URL => condition_and_content
+            .cloned::<TextFilterPB>()
+            .unwrap()
+            .try_into(),
+          FieldType::Number => condition_and_content
+            .cloned::<NumberFilterPB>()
+            .unwrap()
+            .try_into(),
+          FieldType::DateTime | FieldType::CreatedTime | FieldType::LastEditedTime => {
+            condition_and_content
+              .cloned::<DateFilterPB>()
+              .unwrap()
+              .try_into()
+          },
+          FieldType::SingleSelect | FieldType::MultiSelect => condition_and_content
+            .cloned::<SelectOptionFilterPB>()
+            .unwrap()
+            .try_into(),
+          FieldType::Checklist => condition_and_content
+            .cloned::<ChecklistFilterPB>()
+            .unwrap()
+            .try_into(),
+          FieldType::Checkbox => condition_and_content
+            .cloned::<CheckboxFilterPB>()
+            .unwrap()
+            .try_into(),
+          FieldType::Relation => condition_and_content
+            .cloned::<RelationFilterPB>()
+            .unwrap()
+            .try_into(),
+          FieldType::Summary => condition_and_content
+            .cloned::<TextFilterPB>()
+            .unwrap()
+            .try_into(),
+        };
+
+        Self {
+          id: filter.id.clone(),
+          filter_type: FilterType::Data,
+          children: vec![],
+          data: Some(FilterDataPB {
+            field_id: field_id.clone(),
+            field_type: *field_type,
+            data: bytes.unwrap().to_vec(),
+          }),
+        }
+      },
     }
+  }
+}
+
+impl TryFrom<FilterDataPB> for FilterInner {
+  type Error = ErrorCode;
+
+  fn try_from(value: FilterDataPB) -> Result<Self, Self::Error> {
+    let bytes: &[u8] = value.data.as_ref();
+    let condition_and_content = match value.field_type {
+      FieldType::RichText | FieldType::URL => {
+        BoxAny::new(TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Checkbox => {
+        BoxAny::new(CheckboxFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Number => {
+        BoxAny::new(NumberFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+        BoxAny::new(DateFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::SingleSelect | FieldType::MultiSelect => {
+        BoxAny::new(SelectOptionFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Checklist => {
+        BoxAny::new(ChecklistFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Relation => {
+        BoxAny::new(RelationFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Summary => {
+        BoxAny::new(TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+    };
+
+    Ok(Self::Data {
+      field_id: value.field_id,
+      field_type: value.field_type,
+      condition_and_content,
+    })
   }
 }
 
@@ -59,182 +172,109 @@ pub struct RepeatedFilterPB {
   pub items: Vec<FilterPB>,
 }
 
-impl std::convert::From<Vec<Arc<Filter>>> for RepeatedFilterPB {
-  fn from(filters: Vec<Arc<Filter>>) -> Self {
+impl From<&Vec<Filter>> for RepeatedFilterPB {
+  fn from(filters: &Vec<Filter>) -> Self {
     RepeatedFilterPB {
-      items: filters.into_iter().map(|rev| rev.as_ref().into()).collect(),
+      items: filters.iter().map(|filter| filter.into()).collect(),
     }
   }
 }
 
-impl std::convert::From<Vec<FilterPB>> for RepeatedFilterPB {
+impl From<Vec<FilterPB>> for RepeatedFilterPB {
   fn from(items: Vec<FilterPB>) -> Self {
     Self { items }
   }
 }
 
-#[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct DeleteFilterPayloadPB {
-  #[pb(index = 1)]
-  pub field_id: String,
+#[derive(ProtoBuf, Debug, Default, Clone, Validate)]
+pub struct InsertFilterPB {
+  /// If None, the filter will be the root of a new filter tree
+  #[pb(index = 1, one_of)]
+  #[validate(custom = "crate::entities::utils::validate_filter_id")]
+  pub parent_filter_id: Option<String>,
 
   #[pb(index = 2)]
-  pub field_type: FieldType,
-
-  #[pb(index = 3)]
-  pub filter_id: String,
-
-  #[pb(index = 4)]
-  pub view_id: String,
+  pub data: FilterDataPB,
 }
 
-impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<DeleteFilterParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
-      .0;
-    let field_id = NotEmptyStr::parse(self.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
-
-    let filter_id = NotEmptyStr::parse(self.filter_id)
-      .map_err(|_| ErrorCode::UnexpectedEmpty)?
-      .0;
-
-    let filter_type = FilterType {
-      filter_id: filter_id.clone(),
-      field_id,
-      field_type: self.field_type,
-    };
-
-    Ok(DeleteFilterParams {
-      view_id,
-      filter_id,
-      filter_type,
-    })
-  }
-}
-
-#[derive(Debug)]
-pub struct DeleteFilterParams {
-  pub view_id: String,
+#[derive(ProtoBuf, Debug, Default, Clone, Validate)]
+pub struct UpdateFilterTypePB {
+  #[pb(index = 1)]
+  #[validate(custom = "crate::entities::utils::validate_filter_id")]
   pub filter_id: String,
+
+  #[pb(index = 2)]
   pub filter_type: FilterType,
 }
 
-#[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct UpdateFilterPayloadPB {
+#[derive(ProtoBuf, Debug, Default, Clone, Validate)]
+pub struct UpdateFilterDataPB {
   #[pb(index = 1)]
-  pub field_id: String,
+  #[validate(custom = "crate::entities::utils::validate_filter_id")]
+  pub filter_id: String,
 
   #[pb(index = 2)]
-  pub field_type: FieldType,
-
-  /// Create a new filter if the filter_id is None
-  #[pb(index = 3, one_of)]
-  pub filter_id: Option<String>,
-
-  #[pb(index = 4)]
-  pub data: Vec<u8>,
-
-  #[pb(index = 5)]
-  pub view_id: String,
+  pub data: FilterDataPB,
 }
 
-impl UpdateFilterPayloadPB {
-  #[allow(dead_code)]
-  pub fn new<T: TryInto<Bytes, Error = ::protobuf::ProtobufError>>(
-    view_id: &str,
-    field: &Field,
-    data: T,
-  ) -> Self {
-    let data = data.try_into().unwrap_or_else(|_| Bytes::new());
-    let field_type = FieldType::from(field.field_type);
-    Self {
-      view_id: view_id.to_owned(),
-      field_id: field.id.clone(),
-      field_type,
-      filter_id: None,
-      data: data.to_vec(),
-    }
-  }
+#[derive(ProtoBuf, Debug, Default, Clone, Validate)]
+pub struct DeleteFilterPB {
+  #[pb(index = 1)]
+  #[validate(custom = "crate::entities::utils::validate_filter_id")]
+  pub filter_id: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  pub field_id: String,
 }
 
-impl TryInto<UpdateFilterParams> for UpdateFilterPayloadPB {
+impl TryFrom<InsertFilterPB> for FilterChangeset {
   type Error = ErrorCode;
 
-  fn try_into(self) -> Result<UpdateFilterParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
-      .0;
-
-    let field_id = NotEmptyStr::parse(self.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
-    let filter_id = match self.filter_id {
-      None => None,
-      Some(filter_id) => Some(
-        NotEmptyStr::parse(filter_id)
-          .map_err(|_| ErrorCode::FilterIdIsEmpty)?
-          .0,
-      ),
+  fn try_from(value: InsertFilterPB) -> Result<Self, Self::Error> {
+    let changeset = Self::Insert {
+      parent_filter_id: value.parent_filter_id,
+      data: value.data.try_into()?,
     };
-    let condition;
-    let mut content = "".to_string();
-    let bytes: &[u8] = self.data.as_ref();
 
-    match self.field_type {
-      FieldType::RichText | FieldType::URL => {
-        let filter = TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
-        condition = filter.condition as u8;
-        content = filter.content;
-      },
-      FieldType::Checkbox => {
-        let filter = CheckboxFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
-        condition = filter.condition as u8;
-      },
-      FieldType::Number => {
-        let filter = NumberFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
-        condition = filter.condition as u8;
-        content = filter.content;
-      },
-      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-        let filter = DateFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
-        condition = filter.condition as u8;
-        content = DateFilterContentPB {
-          start: filter.start,
-          end: filter.end,
-          timestamp: filter.timestamp,
-        }
-        .to_string();
-      },
-      FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => {
-        let filter = SelectOptionFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
-        condition = filter.condition as u8;
-        content = SelectOptionIds::from(filter.option_ids).to_string();
-      },
-    }
-
-    Ok(UpdateFilterParams {
-      view_id,
-      field_id,
-      filter_id,
-      field_type: self.field_type,
-      condition: condition as i64,
-      content,
-    })
+    Ok(changeset)
   }
 }
 
-#[derive(Debug)]
-pub struct UpdateFilterParams {
-  pub view_id: String,
-  pub field_id: String,
-  /// Create a new filter if the filter_id is None
-  pub filter_id: Option<String>,
-  pub field_type: FieldType,
-  pub condition: i64,
-  pub content: String,
+impl TryFrom<UpdateFilterDataPB> for FilterChangeset {
+  type Error = ErrorCode;
+
+  fn try_from(value: UpdateFilterDataPB) -> Result<Self, Self::Error> {
+    let changeset = Self::UpdateData {
+      filter_id: value.filter_id,
+      data: value.data.try_into()?,
+    };
+
+    Ok(changeset)
+  }
+}
+
+impl TryFrom<UpdateFilterTypePB> for FilterChangeset {
+  type Error = ErrorCode;
+
+  fn try_from(value: UpdateFilterTypePB) -> Result<Self, Self::Error> {
+    if matches!(value.filter_type, FilterType::Data) {
+      return Err(ErrorCode::InvalidParams);
+    }
+
+    let changeset = Self::UpdateType {
+      filter_id: value.filter_id,
+      filter_type: value.filter_type,
+    };
+    Ok(changeset)
+  }
+}
+
+impl From<DeleteFilterPB> for FilterChangeset {
+  fn from(value: DeleteFilterPB) -> Self {
+    Self::Delete {
+      filter_id: value.filter_id,
+      field_id: value.field_id,
+    }
+  }
 }

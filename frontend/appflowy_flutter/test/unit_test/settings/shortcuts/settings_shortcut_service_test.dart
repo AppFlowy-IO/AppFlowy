@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io' show File;
+
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/shortcuts_model.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter_test/flutter_test.dart';
 // ignore: depend_on_referenced_packages
 import 'package:file/memory.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late SettingsShortcutService service;
@@ -23,7 +24,7 @@ void main() {
          "command":"alt+arrow up"
       },
       {
-         "key":"move the cursor forward one character",
+         "key":"move the cursor backward one character",
          "command":"alt+arrow left"
       },
       {
@@ -117,7 +118,7 @@ void main() {
       commandShortcutEvent.updateCommand(command: newCommand);
 
       //saving the updated shortcuts
-      service.saveAllShortcuts(currentCommandShortcuts);
+      await service.saveAllShortcuts(currentCommandShortcuts);
 
       //now directly fetching the shortcuts from loadShortcuts
       final commandShortcuts = await service.getCustomizeShortcuts();
@@ -134,7 +135,7 @@ void main() {
 
     test('updateCommandShortcuts works properly', () async {
       //updating one of standard command shortcut event.
-      const kKey = "move the cursor forward one character";
+      const kKey = "move the cursor backward one character";
       const oldCommand = "arrow left";
       const newCommand = "alt+arrow left";
       final currentCommandShortcuts = standardCommandShortcutEvents;

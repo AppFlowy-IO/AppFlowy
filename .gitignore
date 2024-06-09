@@ -21,11 +21,8 @@ node_modules
 
 **/resources/proto
 
-!frontend/.vscode/settings.json
-!frontend/.vscode/tasks.json
-!frontend/.vscode/launch.json
-!frontend/.vscode/extensions.json
-!frontend/.vscode/*.code-snippets
+# ignore settings.json
+frontend/.vscode/settings.json
 
 # Commit the highest level pubspec.lock, but ignore the others
 pubspec.lock
@@ -38,8 +35,10 @@ pubspec.lock
 
 **/AppFlowy-Collab/
 
-# ignore the deb filegit
+# ignore generated assets
 frontend/package
 frontend/*.deb
 
 **/Cargo.toml.bak
+
+**/.cargo/**

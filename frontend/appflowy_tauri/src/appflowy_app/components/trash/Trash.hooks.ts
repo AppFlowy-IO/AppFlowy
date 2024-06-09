@@ -1,41 +1,35 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { TrashController } from '$app/stores/effects/workspace/trash/controller';
+import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/appflowy_app/stores/store';
 import { trashActions, trashPBToTrash } from '$app_reducers/trash/slice';
+import { subscribeNotifications } from '$app/application/notification';
+import { FolderNotification } from '@/services/backend';
+import { deleteTrashItem, getTrash, putback, deleteAll, restoreAll } from '$app/application/folder/trash.service';
 
 export function useLoadTrash() {
   const trash = useAppSelector((state) => state.trash.list);
   const dispatch = useAppDispatch();
-  const controller = useMemo(() => {
-    return new TrashController();
-  }, []);
 
   const initializeTrash = useCallback(async () => {
-    const trash = await controller.getTrash();
+    const trash = await getTrash();
 
     dispatch(trashActions.initTrash(trash.map(trashPBToTrash)));
-  }, [controller, dispatch]);
+  }, [dispatch]);
 
-  const subscribeToTrash = useCallback(async () => {
-    await controller.subscribe({
-      onTrashChanged: (trash) => {
-        dispatch(trashActions.onTrashChanged(trash.map(trashPBToTrash)));
+  useEffect(() => {
+    void initializeTrash();
+  }, [initializeTrash]);
+
+  useEffect(() => {
+    const unsubscribePromise = subscribeNotifications({
+      [FolderNotification.DidUpdateTrash]: async (changeset) => {
+        dispatch(trashActions.onTrashChanged(changeset.items.map(trashPBToTrash)));
       },
     });
-  }, [controller, dispatch]);
 
-  useEffect(() => {
-    void (async () => {
-      await initializeTrash();
-      await subscribeToTrash();
-    })();
-  }, [initializeTrash, subscribeToTrash]);
-
-  useEffect(() => {
     return () => {
-      void controller.dispose();
+      void unsubscribePromise.then((fn) => fn());
     };
-  }, [controller]);
+  }, [dispatch]);
 
   return {
     trash,
@@ -45,16 +39,9 @@ export function useLoadTrash() {
 export function useTrashActions() {
   const [restoreAllDialogOpen, setRestoreAllDialogOpen] = useState(false);
   const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const controller = useMemo(() => {
-    return new TrashController();
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      void controller.dispose();
-    };
-  }, [controller]);
+  const [deleteId, setDeleteId] = useState('');
 
   const onClickRestoreAll = () => {
     setRestoreAllDialogOpen(true);
@@ -67,21 +54,22 @@ export function useTrashActions() {
   const closeDialog = () => {
     setRestoreAllDialogOpen(false);
     setDeleteAllDialogOpen(false);
+    setDeleteDialogOpen(false);
+  };
+
+  const onClickDelete = (id: string) => {
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
   };
 
   return {
-    onPutback: async (id: string) => {
-      await controller.putback(id);
-    },
-    onDelete: async (ids: string[]) => {
-      await controller.delete(ids);
-    },
-    onDeleteAll: async () => {
-      await controller.deleteAll();
-    },
-    onRestoreAll: async () => {
-      await controller.restoreAll();
-    },
+    onClickDelete,
+    deleteDialogOpen,
+    deleteId,
+    onPutback: putback,
+    onDelete: deleteTrashItem,
+    onDeleteAll: deleteAll,
+    onRestoreAll: restoreAll,
     onClickRestoreAll,
     onClickDeleteAll,
     restoreAllDialogOpen,

@@ -1,7 +1,7 @@
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
 
-const DATABASE_OBSERVABLE_SOURCE: &str = "Database";
+pub(crate) const DATABASE_OBSERVABLE_SOURCE: &str = "Database";
 
 #[derive(ProtoBuf_Enum, Debug, Default)]
 pub enum DatabaseNotification {
@@ -11,7 +11,7 @@ pub enum DatabaseNotification {
   /// storage.
   DidFetchRow = 19,
   /// Trigger after inserting/deleting/updating a row
-  DidUpdateViewRows = 20,
+  DidUpdateRow = 20,
   /// Trigger when the visibility of the row was changed. For example, updating the filter will trigger the notification
   DidUpdateViewRowsVisibility = 21,
   /// Trigger after inserting/deleting/updating a field
@@ -50,6 +50,8 @@ pub enum DatabaseNotification {
   DidUpdateDatabaseSnapshotState = 85,
   // Trigger when the field setting is changed
   DidUpdateFieldSettings = 86,
+  // Trigger when Calculation changed
+  DidUpdateCalculation = 87,
 }
 
 impl std::convert::From<DatabaseNotification> for i32 {
@@ -62,7 +64,7 @@ impl std::convert::From<i32> for DatabaseNotification {
   fn from(notification: i32) -> Self {
     match notification {
       19 => DatabaseNotification::DidFetchRow,
-      20 => DatabaseNotification::DidUpdateViewRows,
+      20 => DatabaseNotification::DidUpdateRow,
       21 => DatabaseNotification::DidUpdateViewRowsVisibility,
       22 => DatabaseNotification::DidUpdateFields,
       40 => DatabaseNotification::DidUpdateCell,
@@ -80,7 +82,8 @@ impl std::convert::From<i32> for DatabaseNotification {
       82 => DatabaseNotification::DidUpdateDatabaseLayout,
       83 => DatabaseNotification::DidDeleteDatabaseView,
       84 => DatabaseNotification::DidMoveDatabaseViewToTrash,
-      87 => DatabaseNotification::DidUpdateFieldSettings,
+      86 => DatabaseNotification::DidUpdateFieldSettings,
+      87 => DatabaseNotification::DidUpdateCalculation,
       _ => DatabaseNotification::Unknown,
     }
   }

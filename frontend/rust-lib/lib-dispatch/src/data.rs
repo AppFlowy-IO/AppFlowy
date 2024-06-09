@@ -26,6 +26,16 @@ impl<T> AFPluginData<T> {
   }
 }
 
+impl<T> AFPluginData<T>
+where
+  T: validator::Validate,
+{
+  pub fn try_into_inner(self) -> Result<T, ValidationErrors> {
+    self.0.validate()?;
+    Ok(self.0)
+  }
+}
+
 impl<T> ops::Deref for AFPluginData<T> {
   type Target = T;
 

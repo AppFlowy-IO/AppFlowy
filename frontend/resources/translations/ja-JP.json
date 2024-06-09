@@ -12,7 +12,9 @@
     "addBelowTooltip": "クリックして下に追加してください",
     "addAboveCmd": "Alt+クリック",
     "addAboveMacCmd": "Option+クリック",
-    "addAboveTooltip": "上に追加する"
+    "addAboveTooltip": "上に追加する",
+    "dragTooltip": "ドラッグして移動",
+    "openMenuTooltip": "クリックしてメニューを開く"
   },
   "signUp": {
     "buttonText": "新規登録",
@@ -30,24 +32,35 @@
     "loginTitle": "@:appName にログイン",
     "loginButtonText": "ログイン",
     "buttonText": "サインイン",
+    "signingInText": "サインイン中...",
     "forgotPassword": "パスワードをお忘れですか？",
     "emailHint": "メールアドレス",
     "passwordHint": "パスワード",
     "dontHaveAnAccount": "まだアカウントをお持ちではないですか？",
     "repeatPasswordEmptyError": "パスワード（確認用）を空にはできません",
     "unmatchedPasswordError": "パスワード（確認用）が一致しません",
+    "LogInWithGoogle": "Googleでログイン",
+    "LogInWithGithub": "GitHubでログイン",
+    "LogInWithDiscord": "Discordでログイン",
     "loginAsGuestButtonText": "始めましょう"
   },
   "workspace": {
+    "chooseWorkspace": "ワークスベースを選択",
     "create": "ワークスペースを作成する",
     "hint": "ワークスペース",
-    "notFoundError": "ワークスペースがみつかりません"
+    "notFoundError": "ワークスペースがみつかりません",
+    "errorActions": {
+      "reportIssue": "問題を報告",
+      "reportIssueOnGithub": "GitHubで問題を報告",
+      "exportLogFiles": "ログファイルを出力"
+    }
   },
   "shareAction": {
     "buttonText": "共有する",
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
-    "copyLink": "Copy Link"
+    "csv": "CSV",
+    "copyLink": "リンクをコピー"
   },
   "moreAction": {
     "small": "小さい",
@@ -68,10 +81,17 @@
     "rename": "名前を変更",
     "delete": "削除",
     "duplicate": "コピーを作成",
-    "openNewTab": "新しいタブで開く"
+    "unfavorite": "お気に入りから削除",
+    "favorite": "お気に入りに追加",
+    "openNewTab": "新しいタブで開く",
+    "addToFavorites": "お気に入りに追加",
+    "copyLink": "リンクをコピー"
   },
   "blankPageTitle": "空のページ",
   "newPageText": "新しいページ",
+  "newDocumentText": "新しいドキュメント",
+  "newCalendarText": "新しいカレンダー",
+  "newBoardText": "新しいボード",
   "trash": {
     "text": "ごみ箱",
     "restoreAll": "全て復元",
@@ -88,6 +108,11 @@
     "confirmRestoreAll": {
       "title": "ゴミ箱内のすべてのページを復元してもよろしいですか?",
       "caption": "この操作は元に戻すことができません。"
+    },
+    "mobile": {
+      "empty": "ゴミ箱を空にする",
+      "emptyDescription": "削除されたファイルはありません",
+      "isDeleted": "削除済み"
     }
   },
   "deletePagePrompt": {
@@ -144,7 +169,11 @@
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
-    "openSidebar": "Open sidebar"
+    "openSidebar": "Open sidebar",
+    "favorites": "お気に入り",
+    "clickToHideFavorites": "クリックしてお気に入りを隠す",
+    "addAPage": "ページを追加",
+    "recent": "最近"
   },
   "notifications": {
     "export": {
@@ -159,7 +188,9 @@
     "editContact": "連絡先を編集する"
   },
   "button": {
+    "ok": "OK",
     "done": "終わり",
+    "cancel": "キャンセル",
     "signIn": "サインイン",
     "signOut": "サインアウト",
     "complete": "完了",
@@ -171,14 +202,19 @@
     "discard": "破棄",
     "replace": "交換",
     "insertBelow": "下に挿入",
+    "insertAbove": "上に挿入",
     "upload": "アップロード",
     "edit": "編集",
     "delete": "消去",
     "duplicate": "複製",
     "putback": "戻す",
-    "OK": "OK",
-    "Done": "終わり",
-    "Cancel": "キャンセル"
+    "update": "更新",
+    "share": "共有",
+    "removeFromFavorites": "お気に入りから削除",
+    "addToFavorites": "お気に入りへ追加",
+    "rename": "名前を変更",
+    "helpCenter": "ヘルプセンター",
+    "add": "追加"
   },
   "label": {
     "welcome": "ようこそ！",
@@ -193,8 +229,8 @@
       "failedMsg": "サインインが完了したことをブラウザーで確認してください"
     },
     "google": {
-      "title": "GOOGLEでサインイン",
-      "instruction1": "GOOGLEでのサインインを有効にするためには、Webブラウザーを使ってこのアプリケーションを認証する必要があります。",
+      "title": "Googleでサインイン",
+      "instruction1": "Googleでのサインインを有効にするためには、Webブラウザーを使ってこのアプリケーションを認証する必要があります。",
       "instruction2": "アイコンをクリックするか、以下のテキストを選択して、このコードをクリップボードにコピーします。",
       "instruction3": "以下のリンク先をブラウザーで開いて、次のコードを入力します。",
       "instruction4": "登録が完了したら以下のボタンを押してください。"
@@ -207,7 +243,31 @@
       "language": "言語",
       "user": "ユーザー",
       "files": "ファイル",
+      "notifications": "通知",
       "open": "設定",
+      "logout": "ログアウト",
+      "logoutPrompt": "本当にログアウトしますか？",
+      "syncSetting": "設定を同期",
+      "enableSync": "同期を有効可",
+      "enableEncrypt": "暗号化されたデータ",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "Supabase URLは空白にはできません",
+      "cloudSupabaseAnonKey": "Supabase anon key",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "Supabase anon keyは空白にはできません",
+      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowySelfHost": "@:appName Cloud セルフホスト",
+      "appFlowyCloudUrlCanNotBeEmpty": "クラウドURLは空白にはできません",
+      "clickToCopy": "クリックしてコピー",
+      "selfHostStart": "サーバーが準備できていない場合、",
+      "selfHostContent": "ドキュメント",
+      "selfHostEnd": "を参照してセルフホストサーバーのセットアップ手順を確認してください",
+      "cloudURLHint": "サーバーのURLを入力",
+      "cloudWSURL": "Websocket URL",
+      "cloudWSURLHint": "Websocketサーバーのアドレスを入力",
+      "restartApp": "再起動",
+      "clickToCopySecret": "クリックしてシークレットをコピー",
+      "historicalUserList": "ログイン履歴",
       "supabaseSetting": "Supabaseの設定"
     },
     "appearance": {
@@ -223,24 +283,33 @@
       },
       "themeUpload": {
         "button": "アップロード",
-        "description": "下のボタンを使用して、独自のAppFlowyテーマをアップロードします。",
-        "failure": "アップロードされたテーマの形式が無効でした。",
+        "uploadTheme": "テーマをアップロード",
+        "description": "下のボタンを使用して、独自の@:appNameテーマをアップロードします。",
         "loading": "テーマを検証してアップロードするまでお待ちください...",
         "uploadSuccess": "テーマは正常にアップロードされました",
         "deletionFailure": "テーマの削除に失敗しました。手動で削除してみてください。",
         "filePickerDialogTitle": ".flowy_plugin ファイルを選択します",
-        "urlUploadFailure": "URLを開けませんでした: {}"
+        "urlUploadFailure": "URLを開けませんでした: {}",
+        "failure": "アップロードされたテーマの形式が無効でした。"
       },
       "theme": "テーマ",
       "builtInsLabel": "組み込みテーマ",
-      "pluginsLabel": "プラグイン"
+      "pluginsLabel": "プラグイン",
+      "dateFormat": {
+        "label": "日付フォーマット"
+      },
+      "timeFormat": {
+        "label": "時刻フォーマット",
+        "twelveHour": "12時間表記",
+        "twentyFourHour": "24時間表記"
+      }
     },
     "files": {
       "copy": "コピー",
       "defaultLocation": "ファイルの読み取りとデータの保存場所",
       "exportData": "データをエクスポートする",
       "doubleTapToCopy": "ダブルタップしてパスをコピーします",
-      "restoreLocation": "AppFlowyのデフォルトパスに戻す",
+      "restoreLocation": "@:appNameのデフォルトパスに戻す",
       "customizeLocation": "別のフォルダーを開く",
       "restartApp": "変更を有効にするには、アプリを再起動してください。",
       "exportDatabase": "データベースのエクスポート",
@@ -252,10 +321,10 @@
       "defineWhereYourDataIsStored": "データの保存場所を定義する",
       "open": "開ける",
       "openFolder": "既存のフォルダーを開く",
-      "openFolderDesc": "既存のAppFlowyフォルダに読み書きします",
+      "openFolderDesc": "既存の@:appNameフォルダに読み書きします",
       "folderHintText": "フォルダ名",
       "location": "新しいフォルダーの作成",
-      "locationDesc": "AppFlowyデータフォルダーの名前を選択します",
+      "locationDesc": "@:appNameデータフォルダーの名前を選択します",
       "browser": "ブラウズ",
       "create": "作成",
       "set": "設定",
@@ -266,7 +335,7 @@
       "change": "変化",
       "openLocationTooltips": "別のデータ ディレクトリを開く",
       "openCurrentDataFolder": "現在のデータディレクトリを開く",
-      "recoverLocationTooltips": "AppFlowyのデフォルトのデータディレクトリにリセットします",
+      "recoverLocationTooltips": "@:appNameのデフォルトのデータディレクトリにリセットします",
       "exportFileSuccess": "ファイルのエクスポートに成功しました。",
       "exportFileFail": "ファイルのエクスポートに失敗しました!",
       "export": "書き出す"
@@ -275,11 +344,31 @@
       "name": "名前",
       "selectAnIcon": "アイコンを選択してください",
       "pleaseInputYourOpenAIKey": "OpenAI キーを入力してください"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "ショートカット",
+      "command": "コマンド",
+      "keyBinding": "キーバインディング",
+      "addNewCommand": "新しいコマンドを追加",
+      "resetToDefault": "キーバインディングをデフォルトに戻す"
+    },
+    "mobile": {
+      "username": "ユーザー名",
+      "usernameEmptyError": "ユーザー名は空白にはできません",
+      "pushNotifications": "プッシュ通知",
+      "support": "サポート",
+      "privacyPolicy": "プライバシーポリシー",
+      "userAgreement": "ユーザー同意",
+      "termsAndConditions": "利用規約",
+      "version": "バージョン"
     }
   },
   "grid": {
     "deleteView": "このビューを削除してもよろしいですか?",
     "createView": "新しい",
+    "title": {
+      "placeholder": "Untitled"
+    },
     "settings": {
       "filter": "絞り込み",
       "sort": "選別",
@@ -323,13 +412,9 @@
       "isComplete": "完了",
       "isIncomplted": "未完了"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "等しい",
       "isNot": "等しくない",
-      "isEmpty": "空である",
-      "isNotEmpty": "空ではない"
-    },
-    "multiSelectOptionFilter": {
       "contains": "を含む",
       "doesNotContain": "を含まない",
       "isEmpty": "空である",
@@ -547,10 +632,15 @@
     }
   },
   "board": {
-    "menuName": "ボード",
-    "referencedBoardPrefix": "のビュー",
     "column": {
       "createNewCard": "新しい"
+    },
+    "menuName": "ボード",
+    "referencedBoardPrefix": "のビュー",
+    "mobile": {
+      "showGroup": "グループを表示",
+      "showGroupContent": "このグループをボードに表示してもよろしいですか?",
+      "failedToLoad": "ボードビューの読み込みに失敗しました"
     }
   },
   "calendar": {
@@ -575,7 +665,7 @@
     "referencedCalendarPrefix": "のビュー"
   },
   "errorDialog": {
-    "title": "AppFlowyエラー",
+    "title": "@:appNameエラー",
     "howToFixFallback": "ご不便をおかけして申し訳ございません。エラーを説明した issue を GitHub ページに送信してください。",
     "github": "GitHub で見る"
   },

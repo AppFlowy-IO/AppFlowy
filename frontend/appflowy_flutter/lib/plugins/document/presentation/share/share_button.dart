@@ -1,13 +1,15 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/share_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
@@ -26,8 +28,8 @@ class DocumentShareButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DocShareBloc>(param1: view),
-      child: BlocListener<DocShareBloc, DocShareState>(
+      create: (context) => getIt<DocumentShareBloc>(param1: view),
+      child: BlocListener<DocumentShareBloc, DocumentShareState>(
         listener: (context, state) {
           state.mapOrNull(
             finish: (state) {
@@ -38,13 +40,10 @@ class DocumentShareButton extends StatelessWidget {
             },
           );
         },
-        child: BlocBuilder<DocShareBloc, DocShareState>(
-          builder: (context, state) => ConstrainedBox(
-            constraints: const BoxConstraints.expand(
-              height: 30,
-              width: 100,
-            ),
-            child: ShareActionList(view: view),
+        child: BlocBuilder<DocumentShareBloc, DocumentShareState>(
+          builder: (context, state) => SizedBox(
+            height: 32.0,
+            child: IntrinsicWidth(child: ShareActionList(view: view)),
           ),
         ),
       ),
@@ -61,6 +60,12 @@ class DocumentShareButton extends StatelessWidget {
         break;
       case ExportType.Link:
       case ExportType.Text:
+        break;
+      case ExportType.HTML:
+        showSnackBarMessage(
+          context,
+          LocaleKeys.settings_files_exportFileSuccess.tr(),
+        );
         break;
     }
   }
@@ -101,20 +106,23 @@ class ShareActionListState extends State<ShareActionList> {
 
   @override
   Widget build(BuildContext context) {
-    final docShareBloc = context.read<DocShareBloc>();
+    final docShareBloc = context.read<DocumentShareBloc>();
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
       actions: ShareAction.values
           .map((action) => ShareActionWrapper(action))
           .toList(),
-      buildChild: (controller) {
-        return RoundedTextButton(
+      buildChild: (controller) => Listener(
+        onPointerDown: (_) => controller.show(),
+        child: RoundedTextButton(
           title: LocaleKeys.shareAction_buttonText.tr(),
-          onPressed: () => controller.show(),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          onPressed: () {},
+          fontSize: 14.0,
           textColor: Theme.of(context).colorScheme.onPrimary,
-        );
-      },
+        ),
+      ),
       onSelected: (action, controller) async {
         switch (action.inner) {
           case ShareAction.markdown:
@@ -124,8 +132,37 @@ class ShareActionListState extends State<ShareActionList> {
               fileName: '${name.toFileName()}.md',
             );
             if (exportPath != null) {
-              docShareBloc.add(DocShareEvent.shareMarkdown(exportPath));
+              docShareBloc.add(
+                DocumentShareEvent.share(
+                  DocumentShareType.markdown,
+                  exportPath,
+                ),
+              );
             }
+            break;
+          case ShareAction.html:
+            final exportPath = await getIt<FilePickerService>().saveFile(
+              dialogTitle: '',
+              fileName: '${name.toFileName()}.html',
+            );
+            if (exportPath != null) {
+              docShareBloc.add(
+                DocumentShareEvent.share(
+                  DocumentShareType.html,
+                  exportPath,
+                ),
+              );
+            }
+            break;
+          case ShareAction.clipboard:
+            final documentExporter = DocumentExporter(widget.view);
+            final result =
+                await documentExporter.export(DocumentExportType.markdown);
+            result.fold(
+              (markdown) => getIt<ClipboardService>()
+                  .setData(ClipboardServiceData(plainText: markdown)),
+              (error) => showMessageToast(error.msg),
+            );
             break;
         }
         controller.close();
@@ -145,12 +182,14 @@ class ShareActionListState extends State<ShareActionList> {
 
 enum ShareAction {
   markdown,
+  html,
+  clipboard,
 }
 
 class ShareActionWrapper extends ActionCell {
-  final ShareAction inner;
-
   ShareActionWrapper(this.inner);
+
+  final ShareAction inner;
 
   Widget? icon(Color iconColor) => null;
 
@@ -159,6 +198,10 @@ class ShareActionWrapper extends ActionCell {
     switch (inner) {
       case ShareAction.markdown:
         return LocaleKeys.shareAction_markdown.tr();
+      case ShareAction.html:
+        return LocaleKeys.shareAction_html.tr();
+      case ShareAction.clipboard:
+        return LocaleKeys.shareAction_clipboard.tr();
     }
   }
 }

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { ProppertyTypeSvg } from '$app/components/database/components/property/property_type/ProppertyTypeSvg';
 import { MenuItem } from '@mui/material';
-import { Field } from '$app/components/database/application';
+import { Field } from '$app/application/database';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
 import { PropertyTypeMenu } from '$app/components/database/components/property/property_type/PropertyTypeMenu';
 import { FieldType } from '@/services/backend';
@@ -16,19 +16,21 @@ function PropertyTypeSelect({ field, onUpdateFieldType }: Props) {
   const ref = useRef<HTMLLIElement>(null);
 
   return (
-    <div className={'px-1'}>
+    <div>
       <MenuItem
         ref={ref}
         onClick={() => {
           setExpanded(!expanded);
         }}
-        className={'px-23 mx-0'}
+        className={'mx-0 rounded-none px-0'}
       >
-        <ProppertyTypeSvg type={field.type} className='mr-2 text-base' />
-        <span className='flex-1 text-xs font-medium'>
-          <PropertyTypeText type={field.type} />
-        </span>
-        <MoreSvg className={`transform text-base ${expanded ? '' : 'rotate-90'}`} />
+        <div className={'flex w-full items-center px-3'}>
+          <ProppertyTypeSvg type={field.type} className='mr-2 text-base' />
+          <span className='flex-1 text-xs font-medium'>
+            <PropertyTypeText type={field.type} />
+          </span>
+          <MoreSvg className={`transform text-base ${expanded ? '' : 'rotate-90'}`} />
+        </div>
       </MenuItem>
       {expanded && (
         <PropertyTypeMenu

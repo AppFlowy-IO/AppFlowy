@@ -1,15 +1,30 @@
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'package:appflowy/mobile/application/mobile_router.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
-import 'package:appflowy/workspace/application/notifications/notification_service.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
+import 'package:appflowy/workspace/application/notification/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
+import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -51,10 +66,13 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('am', 'ET'),
           Locale('ar', 'SA'),
           Locale('ca', 'ES'),
+          Locale('cs', 'CZ'),
+          Locale('ckb', 'KU'),
           Locale('de', 'DE'),
           Locale('en'),
           Locale('es', 'VE'),
           Locale('eu', 'ES'),
+          Locale('el', 'GR'),
           Locale('fr', 'FR'),
           Locale('fr', 'CA'),
           Locale('hu', 'HU'),
@@ -79,7 +97,6 @@ class InitAppWidgetTask extends LaunchTask {
         path: 'assets/translations',
         fallbackLocale: const Locale('en'),
         useFallbackTranslations: true,
-        saveLocale: false,
         child: app,
       ),
     );
@@ -112,18 +129,27 @@ class ApplicationWidget extends StatefulWidget {
 class _ApplicationWidgetState extends State<ApplicationWidget> {
   late final GoRouter routerConfig;
 
+  final _commandPaletteNotifier = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     super.initState();
-
-    // avoid rebuild routerConfig when the appTheme is changed.
+    // Avoid rebuild routerConfig when the appTheme is changed.
     routerConfig = generateRouter(widget.child);
+  }
+
+  @override
+  void dispose() {
+    _commandPaletteNotifier.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        if (FeatureFlag.search.isOn)
+          BlocProvider<CommandPaletteBloc>(create: (_) => CommandPaletteBloc()),
         BlocProvider<AppearanceSettingsCubit>(
           create: (_) => AppearanceSettingsCubit(
             widget.appearanceSetting,
@@ -137,50 +163,113 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
+        BlocProvider.value(value: getIt<RenameViewBloc>()),
+        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
+        BlocProvider.value(
+          value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
+        ),
       ],
-      child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => MaterialApp.router(
-          builder: overlayManagerBuilder(),
-          debugShowCheckedModeBanner: false,
-          theme: state.lightTheme,
-          darkTheme: state.darkTheme,
-          themeMode: state.themeMode,
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: state.locale,
-          routerConfig: routerConfig,
+      child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
+        listenWhen: (_, curr) => curr.action != null,
+        listener: (context, state) {
+          final action = state.action;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (action?.type == ActionType.openView &&
+                PlatformExtension.isDesktop) {
+              final view = action!.arguments?[ActionArgumentKeys.view];
+              final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
+              if (view != null) {
+                getIt<TabsBloc>().openPlugin(
+                  view.plugin(),
+                  arguments: {PluginArgumentKeys.selection: nodePath},
+                );
+              }
+            } else if (action?.type == ActionType.openRow &&
+                PlatformExtension.isMobile) {
+              final view = action!.arguments?[ActionArgumentKeys.view];
+              if (view != null) {
+                final view = action.arguments?[ActionArgumentKeys.view];
+                final rowId = action.arguments?[ActionArgumentKeys.rowId];
+                AppGlobals.rootNavKey.currentContext?.pushView(view, {
+                  PluginArgumentKeys.rowId: rowId,
+                });
+              }
+            }
+          });
+        },
+        child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+          builder: (context, state) {
+            _setSystemOverlayStyle(state);
+            return MaterialApp.router(
+              builder: (context, child) => MediaQuery(
+                // use the 1.0 as the textScaleFactor to avoid the text size
+                //  affected by the system setting.
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: TextScaler.linear(state.textScaleFactor),
+                ),
+                child: overlayManagerBuilder(
+                  context,
+                  !PlatformExtension.isMobile && FeatureFlag.search.isOn
+                      ? CommandPalette(
+                          notifier: _commandPaletteNotifier,
+                          child: child,
+                        )
+                      : child,
+                ),
+              ),
+              debugShowCheckedModeBanner: false,
+              theme: state.lightTheme,
+              darkTheme: state.darkTheme,
+              themeMode: state.themeMode,
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: state.locale,
+              routerConfig: routerConfig,
+            );
+          },
         ),
       ),
     );
   }
+
+  void _setSystemOverlayStyle(AppearanceSettingsState state) {
+    if (Platform.isAndroid) {
+      SystemUiOverlayStyle style = SystemUiOverlayStyle.dark;
+      final themeMode = state.themeMode;
+      if (themeMode == ThemeMode.dark) {
+        style = SystemUiOverlayStyle.light;
+      } else if (themeMode == ThemeMode.light) {
+        style = SystemUiOverlayStyle.dark;
+      } else {
+        final brightness = Theme.of(context).brightness;
+        // reverse the brightness of the system status bar.
+        style = brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark;
+      }
+
+      SystemChrome.setSystemUIOverlayStyle(
+        style.copyWith(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Colors.transparent,
+        ),
+      );
+    }
+  }
 }
 
 class AppGlobals {
-  // static GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey();
   static GlobalKey<NavigatorState> rootNavKey = GlobalKey();
   static NavigatorState get nav => rootNavKey.currentState!;
+  static BuildContext get context => rootNavKey.currentContext!;
 }
 
 class ApplicationBlocObserver extends BlocObserver {
-  @override
-  // ignore: unnecessary_overrides
-  void onTransition(Bloc bloc, Transition transition) {
-    // Log.debug("[current]: ${transition.currentState} \n\n[next]: ${transition.nextState}");
-    // Log.debug("${transition.nextState}");
-    super.onTransition(bloc, transition);
-  }
-
   @override
   void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
     Log.debug(error);
     super.onError(bloc, error, stackTrace);
   }
-
-  // @override
-  // void onEvent(Bloc bloc, Object? event) {
-  //   Log.debug("$event");
-  //   super.onEvent(bloc, event);
-  // }
 }
 
 Future<AppTheme> appTheme(String themeName) async {

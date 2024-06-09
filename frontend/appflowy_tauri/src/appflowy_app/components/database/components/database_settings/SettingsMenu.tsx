@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import { Menu, MenuItem, MenuProps, Popover } from '@mui/material';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { Menu, MenuProps, Popover } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Properties from '$app/components/database/components/database_settings/Properties';
-import { Field } from '$app/components/database/application';
+import { Field } from '$app/application/database';
 import { FieldVisibility } from '@/services/backend';
-import { updateFieldSetting } from '$app/components/database/application/field/field_service';
+import { updateFieldSetting } from '$app/application/database/field/field_service';
 import { useViewId } from '$app/hooks';
+import KeyboardNavigation from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 
 type SettingsMenuProps = MenuProps;
 
 function SettingsMenu(props: SettingsMenuProps) {
   const viewId = useViewId();
+  const ref = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
   const [propertiesAnchorElPosition, setPropertiesAnchorElPosition] = useState<
     | undefined
@@ -36,24 +38,39 @@ function SettingsMenu(props: SettingsMenuProps) {
     });
   };
 
+  const options = useMemo(() => {
+    return [{ key: 'properties', content: <div data-key={'properties'}>{t('grid.settings.properties')}</div> }];
+  }, [t]);
+
+  const onConfirm = useCallback(
+    (optionKey: string) => {
+      if (optionKey === 'properties') {
+        const target = ref.current?.querySelector(`[data-key=${optionKey}]`) as HTMLElement;
+        const rect = target.getBoundingClientRect();
+
+        setPropertiesAnchorElPosition({
+          top: rect.top,
+          left: rect.left + rect.width,
+        });
+        props.onClose?.({}, 'backdropClick');
+      }
+    },
+    [props]
+  );
+
   return (
     <>
-      <Menu {...props}>
-        <MenuItem
-          onClick={(event) => {
-            const rect = event.currentTarget.getBoundingClientRect();
-
-            setPropertiesAnchorElPosition({
-              top: rect.top,
-              left: rect.left + rect.width,
-            });
-            props.onClose?.({}, 'backdropClick');
+      <Menu {...props} ref={ref} disableRestoreFocus={true}>
+        <KeyboardNavigation
+          onConfirm={onConfirm}
+          onEscape={() => {
+            props.onClose?.({}, 'escapeKeyDown');
           }}
-        >
-          {t('grid.settings.properties')}
-        </MenuItem>
+          options={options}
+        />
       </Menu>
       <Popover
+        keepMounted={false}
         open={openProperties}
         onClose={() => {
           setPropertiesAnchorElPosition(undefined);
@@ -63,6 +80,13 @@ function SettingsMenu(props: SettingsMenuProps) {
         transformOrigin={{
           vertical: 'top',
           horizontal: 'right',
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            props.onClose?.({}, 'escapeKeyDown');
+          }
         }}
       >
         <Properties onItemClick={togglePropertyVisibility} />

@@ -5,7 +5,7 @@ import '../keyboard/keyboard_screen.dart';
 import 'demo_item.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   static List<ListItem> items = [
     SectionHeaderItem('Widget Demos'),

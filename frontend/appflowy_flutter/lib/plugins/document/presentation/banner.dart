@@ -7,13 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class DocumentBanner extends StatelessWidget {
-  final void Function() onRestore;
-  final void Function() onDelete;
   const DocumentBanner({
+    super.key,
     required this.onRestore,
     required this.onDelete,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final void Function() onRestore;
+  final void Function() onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +23,8 @@ class DocumentBanner extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 60),
       child: Container(
         width: double.infinity,
-        color: colorScheme.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         child: FittedBox(
-          alignment: Alignment.center,
           fit: BoxFit.scaleDown,
           child: Row(
             children: [

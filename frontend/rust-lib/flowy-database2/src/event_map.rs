@@ -14,7 +14,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
     .state(database_manager);
   plugin
         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
-        .event(DatabaseEvent::OpenDatabase, get_database_data_handler)
+        .event(DatabaseEvent::GetDatabaseData, get_database_data_handler)
         .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
@@ -27,17 +27,17 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::UpdateField, update_field_handler)
         .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(DatabaseEvent::DeleteField, delete_field_handler)
+        .event(DatabaseEvent::ClearField, clear_field_handler)
         .event(DatabaseEvent::UpdateFieldType, switch_to_field_handler)
         .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
         .event(DatabaseEvent::MoveField, move_field_handler)
-        .event(DatabaseEvent::GetTypeOption, get_field_type_option_data_handler)
         .event(DatabaseEvent::CreateField, create_field_handler)
         // Row
         .event(DatabaseEvent::CreateRow, create_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
         .event(DatabaseEvent::GetRowMeta, get_row_meta_handler)
         .event(DatabaseEvent::UpdateRowMeta, update_row_meta_handler)
-        .event(DatabaseEvent::DeleteRow, delete_row_handler)
+        .event(DatabaseEvent::DeleteRows, delete_rows_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
         .event(DatabaseEvent::MoveRow, move_row_handler)
         // Cell
@@ -47,7 +47,6 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::CreateSelectOption, new_select_option_handler)
         .event(DatabaseEvent::InsertOrUpdateSelectOption, insert_or_update_select_option_handler)
         .event(DatabaseEvent::DeleteSelectOption, delete_select_option_handler)
-        .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
         // Checklist
         .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
@@ -63,6 +62,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::CreateGroup, create_group_handler)
         .event(DatabaseEvent::DeleteGroup, delete_group_handler)
         // Database
+        .event(DatabaseEvent::GetDatabaseMeta, get_database_meta_handler)
         .event(DatabaseEvent::GetDatabases, get_databases_handler)
         // Calendar
         .event(DatabaseEvent::GetAllCalendarEvents, get_calendar_events_handler)
@@ -80,6 +80,17 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
         .event(DatabaseEvent::GetAllFieldSettings, get_all_field_settings_handler)
         .event(DatabaseEvent::UpdateFieldSettings, update_field_settings_handler)
+        // Calculations
+        .event(DatabaseEvent::GetAllCalculations, get_all_calculations_handler)
+        .event(DatabaseEvent::UpdateCalculation, update_calculation_handler)
+        .event(DatabaseEvent::RemoveCalculation, remove_calculation_handler)
+        // Relation
+        .event(DatabaseEvent::GetRelatedDatabaseIds, get_related_database_ids_handler)
+        .event(DatabaseEvent::UpdateRelationCell, update_relation_cell_handler)
+        .event(DatabaseEvent::GetRelatedRowDatas, get_related_row_datas_handler)
+        .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
+        // AI
+        .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -119,7 +130,7 @@ pub enum DatabaseEvent {
   DeleteAllSorts = 6,
 
   #[event(input = "DatabaseViewIdPB")]
-  OpenDatabase = 7,
+  GetDatabaseData = 7,
 
   /// [GetFields] event is used to get the database's fields.
   ///
@@ -153,6 +164,11 @@ pub enum DatabaseEvent {
   #[event(input = "DeleteFieldPayloadPB")]
   DeleteField = 14,
 
+  /// [ClearField] event is used to clear all Cells in a Field. [ClearFieldPayloadPB] is the context that
+  /// is used to clear the field from the Database.
+  #[event(input = "ClearFieldPayloadPB")]
+  ClearField = 15,
+
   /// [UpdateFieldType] event is used to update the current Field's type.
   /// It will insert a new FieldTypeOptionData if the new FieldType doesn't exist before, otherwise
   /// reuse the existing FieldTypeOptionData. You could check the [DatabaseRevisionPad] for more details.
@@ -168,23 +184,15 @@ pub enum DatabaseEvent {
   #[event(input = "DuplicateFieldPayloadPB")]
   DuplicateField = 21,
 
-  /// [MoveItem] event is used to move an item. For the moment, Item has two types defined in
-  /// [MoveItemTypePB].
+  /// [MoveFieldPB] event is used to reorder a field in a view. The
+  /// [MoveFieldPayloadPB] contains the `field_id` of the moved field and its
+  /// new position.
   #[event(input = "MoveFieldPayloadPB")]
   MoveField = 22,
 
-  /// [TypeOptionPathPB] event is used to get the FieldTypeOption data for a specific field type.
-  ///
-  /// Check out the [TypeOptionPB] for more details. If the [FieldTypeOptionData] does exist
-  /// for the target type, the [TypeOptionBuilder] will create the default data for that type.
-  ///
-  /// Return the [TypeOptionPB] if there are no errors.
-  #[event(input = "TypeOptionPathPB", output = "TypeOptionPB")]
-  GetTypeOption = 23,
-
   /// [CreateField] event is used to create a new field with an optional
   /// TypeOptionData.
-  #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
+  #[event(input = "CreateFieldPayloadPB", output = "FieldPB")]
   CreateField = 24,
 
   #[event(input = "DatabaseViewIdPB", output = "FieldPB")]
@@ -195,12 +203,6 @@ pub enum DatabaseEvent {
   #[event(input = "CreateSelectOptionPayloadPB", output = "SelectOptionPB")]
   CreateSelectOption = 30,
 
-  /// [GetSelectOptionCellData] event is used to get the select option data for cell editing.
-  /// [CellIdPB] locate which cell data that will be read from. The return value, [SelectOptionCellDataPB]
-  /// contains the available options and the currently selected options.
-  #[event(input = "CellIdPB", output = "SelectOptionCellDataPB")]
-  GetSelectOptionCellData = 31,
-
   /// [InsertOrUpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
   /// FieldType::SingleSelect or FieldType::MultiSelect.
   ///
@@ -208,10 +210,10 @@ pub enum DatabaseEvent {
   /// For example, DatabaseNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPB]
   /// carries a change that updates the name of the option.
   #[event(input = "RepeatedSelectOptionPayload")]
-  InsertOrUpdateSelectOption = 32,
+  InsertOrUpdateSelectOption = 31,
 
   #[event(input = "RepeatedSelectOptionPayload")]
-  DeleteSelectOption = 33,
+  DeleteSelectOption = 32,
 
   #[event(input = "CreateRowPayloadPB", output = "RowMetaPB")]
   CreateRow = 50,
@@ -221,8 +223,8 @@ pub enum DatabaseEvent {
   #[event(input = "RowIdPB", output = "OptionalRowPB")]
   GetRow = 51,
 
-  #[event(input = "RowIdPB")]
-  DeleteRow = 52,
+  #[event(input = "RepeatedRowIdPB")]
+  DeleteRows = 52,
 
   #[event(input = "RowIdPB")]
   DuplicateRow = 53,
@@ -261,10 +263,10 @@ pub enum DatabaseEvent {
   #[event(input = "ChecklistCellDataChangesetPB")]
   UpdateChecklistCell = 73,
 
-  /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
+  /// [UpdateDateCell] event is used to update a date cell's data. [DateCellChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that
   /// will be used by the `update_cell` function.
-  #[event(input = "DateChangesetPB")]
+  #[event(input = "DateCellChangesetPB")]
   UpdateDateCell = 80,
 
   /// [SetGroupByField] event is used to create a new grouping in a database
@@ -292,6 +294,9 @@ pub enum DatabaseEvent {
 
   #[event(input = "DeleteGroupPayloadPB")]
   DeleteGroup = 115,
+
+  #[event(input = "DatabaseIdPB", output = "DatabaseMetaPB")]
+  GetDatabaseMeta = 119,
 
   /// Returns all the databases
   #[event(output = "RepeatedDatabaseDescriptionPB")]
@@ -338,4 +343,34 @@ pub enum DatabaseEvent {
   /// Updates the field settings for a field in the given view
   #[event(input = "FieldSettingsChangesetPB")]
   UpdateFieldSettings = 162,
+
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedCalculationsPB")]
+  GetAllCalculations = 163,
+
+  #[event(input = "UpdateCalculationChangesetPB")]
+  UpdateCalculation = 164,
+
+  #[event(input = "RemoveCalculationChangesetPB")]
+  RemoveCalculation = 165,
+
+  /// Currently unused. Get a list of database ids that this database relates
+  /// to.
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedDatabaseIdPB")]
+  GetRelatedDatabaseIds = 170,
+
+  /// Updates a relation cell, adding or removing links to rows in another
+  /// database
+  #[event(input = "RelationCellChangesetPB")]
+  UpdateRelationCell = 171,
+
+  /// Get the names of the linked rows in a relation cell.
+  #[event(input = "GetRelatedRowDataPB", output = "RepeatedRelatedRowDataPB")]
+  GetRelatedRowDatas = 172,
+
+  /// Get the names of all the rows in a related database.
+  #[event(input = "DatabaseIdPB", output = "RepeatedRelatedRowDataPB")]
+  GetRelatedDatabaseRows = 173,
+
+  #[event(input = "SummaryRowPB")]
+  SummarizeRow = 174,
 }

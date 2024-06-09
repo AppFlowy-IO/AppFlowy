@@ -14,13 +14,15 @@ const _greater = '>';
 CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
   key: 'format greater to quote',
   character: ' ',
-  handler: (editorState) async => await formatMarkdownSymbol(
+  handler: (editorState) async => formatMarkdownSymbol(
     editorState,
     (node) => node.type != ToggleListBlockKeys.type,
     (_, text, __) => text == _greater,
-    (_, node, delta) => toggleListBlockNode(
-      delta: delta.compose(Delta()..delete(_greater.length)),
-    ),
+    (_, node, delta) => [
+      toggleListBlockNode(
+        delta: delta.compose(Delta()..delete(_greater.length)),
+      ),
+    ],
   ),
 );
 
@@ -58,13 +60,13 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
           )
           ..deleteNode(node)
           ..afterSelection = Selection.collapsed(
-            Position(path: selection.start.path, offset: 0),
+            Position(path: selection.start.path),
           );
       } else if (selection.startIndex == 0) {
         // insert a paragraph block above the current toggle list block
         transaction.insertNode(selection.start.path, paragraphNode());
         transaction.afterSelection = Selection.collapsed(
-          Position(path: selection.start.path.next, offset: 0),
+          Position(path: selection.start.path.next),
         );
       } else {
         // insert a toggle list block below the current toggle list block
@@ -78,7 +80,7 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
             ],
           )
           ..afterSelection = Selection.collapsed(
-            Position(path: selection.start.path.next, offset: 0),
+            Position(path: selection.start.path.next),
           );
       }
     } else {
@@ -90,7 +92,7 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
           paragraphNode(delta: slicedDelta),
         )
         ..afterSelection = Selection.collapsed(
-          Position(path: selection.start.path + [0], offset: 0),
+          Position(path: selection.start.path + [0]),
         );
     }
     await editorState.apply(transaction);
@@ -108,6 +110,7 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
 // toggle the todo list
 final CommandShortcutEvent toggleToggleListCommand = CommandShortcutEvent(
   key: 'toggle the toggle list',
+  getDescription: () => AppFlowyEditorL10n.current.cmdToggleTodoList,
   command: 'ctrl+enter',
   macOSCommand: 'cmd+enter',
   handler: _toggleToggleListCommandHandler,

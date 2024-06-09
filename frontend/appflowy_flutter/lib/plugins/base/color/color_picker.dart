@@ -44,7 +44,6 @@ class FlowyMobileColorPicker extends StatelessWidget {
             ),
             leftIcon: _ColorIcon(
               color: color.color,
-              size: 24.0,
             ),
             leftIconSize: const Size.square(36.0),
             iconPadding: 12.0,
@@ -65,18 +64,14 @@ class FlowyMobileColorPicker extends StatelessWidget {
 }
 
 class _ColorIcon extends StatelessWidget {
-  const _ColorIcon({
-    this.size = 24.0,
-    required this.color,
-  });
+  const _ColorIcon({required this.color});
 
-  final double size;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: size,
+      dimension: 24,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: color,

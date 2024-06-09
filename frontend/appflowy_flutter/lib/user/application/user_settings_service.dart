@@ -1,9 +1,9 @@
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class UserSettingsBackendService {
   Future<AppearanceSettingsPB> getAppearanceSetting() async {
@@ -16,11 +16,11 @@ class UserSettingsBackendService {
     );
   }
 
-  Future<Either<UserSettingPB, FlowyError>> getUserSetting() {
+  Future<FlowyResult<UserSettingPB, FlowyError>> getUserSetting() {
     return UserEventGetUserSetting().send();
   }
 
-  Future<Either<Unit, FlowyError>> setAppearanceSetting(
+  Future<FlowyResult<void, FlowyError>> setAppearanceSetting(
     AppearanceSettingsPB setting,
   ) {
     return UserEventSetAppearanceSetting(setting).send();
@@ -36,16 +36,16 @@ class UserSettingsBackendService {
     );
   }
 
-  Future<Either<FlowyError, Unit>> setDateTimeSettings(
+  Future<FlowyResult<void, FlowyError>> setDateTimeSettings(
     DateTimeSettingsPB settings,
   ) async {
-    return (await UserEventSetDateTimeSettings(settings).send()).swap();
+    return UserEventSetDateTimeSettings(settings).send();
   }
 
-  Future<Either<FlowyError, Unit>> setNotificationSettings(
+  Future<FlowyResult<void, FlowyError>> setNotificationSettings(
     NotificationSettingsPB settings,
   ) async {
-    return (await UserEventSetNotificationSettings(settings).send()).swap();
+    return UserEventSetNotificationSettings(settings).send();
   }
 
   Future<NotificationSettingsPB> getNotificationSettings() async {

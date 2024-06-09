@@ -159,7 +159,9 @@
     "editContact": "Kontaktua editatu"
   },
   "button": {
+    "ok": "OK",
     "done": "Eginda",
+    "cancel": "Ezteztatu",
     "signIn": "Saioa hasi",
     "signOut": "Saioa itxi",
     "complete": "Burututa",
@@ -175,10 +177,7 @@
     "edit": "Editatu",
     "delete": "Ezabatu",
     "duplicate": "Bikoiztu",
-    "putback": "Jarri Atzera",
-    "OK": "OK",
-    "Done": "Eginda",
-    "Cancel": "Ezteztatu"
+    "putback": "Jarri Atzera"
   },
   "label": {
     "welcome": "Ongi etorri!",
@@ -223,13 +222,13 @@
       },
       "themeUpload": {
         "button": "Kargatu",
-        "description": "Kargatu zure AppFlowy gaia beheko botoia erabiliz.",
-        "failure": "Kargatu zen gaiak formatu baliogabea zuen.",
+        "description": "Kargatu zure @:appName gaia beheko botoia erabiliz.",
         "loading": "Mesedez, itxaron zure gaia balioztatzen eta kargatzen dugun bitartean...",
         "uploadSuccess": "Zure gaia behar bezala kargatu da",
         "deletionFailure": "Ezin izan da gaia ezabatu. Saiatu eskuz ezabatzen.",
         "filePickerDialogTitle": "Aukeratu .flowy_plugin fitxategi bat",
-        "urlUploadFailure": "Ezin izan da ireki URLa: {}"
+        "urlUploadFailure": "Ezin izan da ireki URLa: {}",
+        "failure": "Kargatu zen gaiak formatu baliogabea zuen."
       },
       "theme": "Itxura",
       "builtInsLabel": "Eraikitako gaiak",
@@ -240,7 +239,7 @@
       "defaultLocation": "Non gordetzen diren zure datuak",
       "exportData": "Esportatu zure datuak",
       "doubleTapToCopy": "Sakatu birritan bidea kopiatzeko",
-      "restoreLocation": "Berrezarri AppFlowy-ren biden lehenetsira",
+      "restoreLocation": "Berrezarri @:appName-ren biden lehenetsira",
       "customizeLocation": "Beste karpeta bat ireki",
       "restartApp": "Mesedez, berrabiarazi aplikazioa aldaketak indarrean egon daitezen.",
       "exportDatabase": "Datubasea exportatu",
@@ -252,10 +251,10 @@
       "defineWhereYourDataIsStored": "Zure datuak non gordetzen diren zehaztu",
       "open": "Oreki",
       "openFolder": "Ireki karpeta bat",
-      "openFolderDesc": "Irakurri eta idatzi zure AppFlowy karpetan...",
+      "openFolderDesc": "Irakurri eta idatzi zure @:appName karpetan...",
       "folderHintText": "karpetaren izena",
       "location": "Karpeta berria sortzen",
-      "locationDesc": "Aukeratu izen bat AppFlowy datuen karpetarako",
+      "locationDesc": "Aukeratu izen bat @:appName datuen karpetarako",
       "browser": "Bilatu",
       "create": "Sortu",
       "set": "Ezarri",
@@ -266,7 +265,7 @@
       "change": "Aldatu",
       "openLocationTooltips": "Ireki beste datu-direktorio bat",
       "openCurrentDataFolder": "Ireki uneko datuen direktorioa",
-      "recoverLocationTooltips": "Berrezarri AppFlowyren datu-direktorio lehenetsira",
+      "recoverLocationTooltips": "Berrezarri @:appNameren datu-direktorio lehenetsira",
       "exportFileSuccess": "Esportatu fitxategia behar bezala!",
       "exportFileFail": "Ezin izan da esportatu fitxategia!",
       "export": "Esportatu"
@@ -324,13 +323,9 @@
       "isComplete": "osatu da",
       "isIncomplted": "osatu gabe dago"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "da",
       "isNot": "Ez da",
-      "isEmpty": "Hutsa dago",
-      "isNotEmpty": "Ez dago hutsik"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Duen",
       "doesNotContain": "Ez dauka",
       "isEmpty": "Hutsa dago",
@@ -552,10 +547,15 @@
     }
   },
   "board": {
-    "menuName": "Kontseilua",
-    "referencedBoardPrefix": "-ren ikuspegia",
     "column": {
       "createNewCard": "Berria"
+    },
+    "menuName": "Kontseilua",
+    "referencedBoardPrefix": "-ren ikuspegia",
+    "mobile": {
+      "showGroup": "Erakutsi taldea",
+      "showGroupContent": "Ziur talde hau arbelean erakutsi nahi duzula?",
+      "failedToLoad": "Ezin izan da kargatu arbelaren ikuspegia"
     }
   },
   "calendar": {
@@ -580,7 +580,7 @@
     "referencedCalendarPrefix": "-ren ikuspegia"
   },
   "errorDialog": {
-    "title": "AppFlowy errorea",
+    "title": "@:appName errorea",
     "howToFixFallback": "Sentitzen dugu eragozpenak! Bidali zure errorea deskribatzen duen arazo bat gure GitHub orrian.",
     "github": "Ikusi GitHub-en"
   },

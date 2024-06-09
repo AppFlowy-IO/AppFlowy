@@ -12,7 +12,9 @@
     "addBelowTooltip": "انقر للإضافة أدناه",
     "addAboveCmd": "Alt + انقر",
     "addAboveMacCmd": "Option + انقر",
-    "addAboveTooltip": "لإضافة أعلاه"
+    "addAboveTooltip": "لإضافة أعلاه",
+    "dragTooltip": "اسحب للتحريك",
+    "openMenuTooltip": "انقر لفتح القائمة"
   },
   "signUp": {
     "buttonText": "اشتراك",
@@ -24,11 +26,14 @@
     "alreadyHaveAnAccount": "هل لديك حساب؟",
     "emailHint": "بريد إلكتروني",
     "passwordHint": "كلمة المرور",
-    "repeatPasswordHint": "اعد كلمة السر"
+    "repeatPasswordHint": "اعد كلمة السر",
+    "signUpWith": "انشئ حساب باستخدام:"
   },
   "signIn": {
     "loginTitle": "تسجيل الدخول إلى @: appName",
     "loginButtonText": "تسجيل الدخول",
+    "loginStartWithAnonymous": "ابدأ بجلسة خفية",
+    "continueAnonymousUser": "استمر بجلسة خفية",
     "buttonText": "تسجيل الدخول",
     "forgotPassword": "هل نسيت كلمة السر؟",
     "emailHint": "بريد إلكتروني",
@@ -36,17 +41,32 @@
     "dontHaveAnAccount": "ليس لديك حساب؟",
     "repeatPasswordEmptyError": "إعادة كلمة المرور لا يمكن أن تكون فارغة",
     "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور",
-    "loginAsGuestButtonText": "البدء"
+    "syncPromptMessage": "قد تستغرق مزامنة البيانات بعض الوقت. من فضلك لا تغلق هذه الصفحة",
+    "or": "أو",
+    "signInWith": "تسجيل الدخول ب:",
+    "LogInWithGoogle": "تسجيل الدخول عبر جوجل",
+    "LogInWithGithub": "تسجيل الدخول مع جيثب",
+    "LogInWithDiscord": "تسجيل الدخول مع ديسكورد",
+    "loginAsGuestButtonText": "تسجيل دخول كضيف"
   },
   "workspace": {
+    "chooseWorkspace": "اختر مساحة العمل الخاصة بك",
     "create": "قم بإنشاء مساحة عمل",
+    "reset": "إعادة تعيين مساحة العمل",
+    "resetWorkspacePrompt": "ستؤدي إعادة تعيين مساحة العمل إلى حذف جميع الصفحات والبيانات الموجودة بداخلها. هل أنت متأكد أنك تريد إعادة تعيين مساحة العمل؟ وبدلاً من ذلك، يمكنك الاتصال بفريق الدعم لاستعادة مساحة العمل",
     "hint": "مساحة العمل",
-    "notFoundError": "مساحة العمل غير موجودة"
+    "notFoundError": "مساحة العمل غير موجودة",
+    "failedToLoad": "هناك خطأ ما! فشل تحميل مساحة العمل. حاول إغلاق أي مثيل مفتوح لـ @:appName وحاول مرة أخرى.",
+    "errorActions": {
+      "reportIssue": "بلغ عن خطأ",
+      "reachOut": "تواصل مع ديسكورد"
+    }
   },
   "shareAction": {
     "buttonText": "مشاركه",
     "workInProgress": "قريباً",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "نسخ الرابط"
   },
   "moreAction": {
@@ -68,10 +88,19 @@
     "rename": "إعادة تسمية",
     "delete": "يمسح",
     "duplicate": "كرر",
-    "openNewTab": "افتح في علامة تبويب جديدة"
+    "unfavorite": "إزالة من المفضلة",
+    "favorite": "اضافة الى المفضلة",
+    "openNewTab": "افتح في علامة تبويب جديدة",
+    "moveTo": "نقل إلى",
+    "addToFavorites": "اضافة الى المفضلة",
+    "copyLink": "نسخ الرابط"
   },
   "blankPageTitle": "صفحة فارغة",
   "newPageText": "صفحة جديدة",
+  "newDocumentText": "مستند جديد",
+  "newGridText": "شبكة جديدة",
+  "newCalendarText": "تقويم جديد",
+  "newBoardText": "سبورة جديدة",
   "trash": {
     "text": "المهملات",
     "restoreAll": "استعادة الكل",
@@ -88,6 +117,13 @@
     "confirmRestoreAll": {
       "title": "هل أنت متأكد من استعادة جميع الصفحات في المهملات؟",
       "caption": "لا يمكن التراجع عن هذا الإجراء."
+    },
+    "mobile": {
+      "actions": "إجراءات سلة المهملات",
+      "empty": "سلة المهملات فارغة",
+      "emptyDescription": "ليس لديك أي ملفات محذوفة",
+      "isDeleted": "محذوف",
+      "isRestored": "تمت استعادته"
     }
   },
   "deletePagePrompt": {
@@ -109,10 +145,12 @@
     "feedback": "تعليق"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "إزالة وإعادة تسمية والمزيد...",
     "addPageTooltip": "أضف صفحة في الداخل بسرعة",
     "defaultNewPageName": "بدون عنوان",
     "renameDialog": "إعادة تسمية"
   },
+  "noPagesInside": "لا توجد صفحات في الداخل",
   "toolbar": {
     "undo": "الغاء التحميل",
     "redo": "إعادة",
@@ -144,7 +182,13 @@
   },
   "sideBar": {
     "closeSidebar": "إغلاق الشريط الجانبي",
-    "openSidebar": "فتح الشريط الجانبي"
+    "openSidebar": "فتح الشريط الجانبي",
+    "personal": "شخصي",
+    "favorites": "المفضلة",
+    "clickToHidePersonal": "انقر لإخفاء القسم الشخصي",
+    "clickToHideFavorites": "انقر لإخفاء القسم المفضل",
+    "addAPage": "أضف صفحة",
+    "recent": "مؤخرًا"
   },
   "notifications": {
     "export": {
@@ -159,7 +203,9 @@
     "editContact": "تحرير جهة الاتصال"
   },
   "button": {
+    "ok": "حسنا",
     "done": "منتهي",
+    "cancel": "الغاء",
     "signIn": "تسجيل الدخول",
     "signOut": "خروج",
     "complete": "مكتمل",
@@ -171,14 +217,22 @@
     "discard": "تجاهل",
     "replace": "يستبدل",
     "insertBelow": "إدراج أدناه",
+    "insertAbove": "أدخل أعلاه",
     "upload": "رفع",
     "edit": "يحرر",
     "delete": "يمسح",
     "duplicate": "ينسخ",
     "putback": "ضعها بالخلف",
-    "OK": "نعم",
-    "Done": "منتهي",
-    "Cancel": "إلغاء"
+    "update": "تحديث",
+    "share": "مشاركة",
+    "removeFromFavorites": "إزالة من المفضلة",
+    "addToFavorites": "اضافة الى المفضلة",
+    "rename": "إعادة تسمية",
+    "helpCenter": "مركز المساعدة",
+    "add": "اضافة",
+    "yes": "نعم",
+    "back": "خلف",
+    "tryAGain": "حاول ثانية"
   },
   "label": {
     "welcome": "مرحباً!",
@@ -207,12 +261,57 @@
       "language": "لغة",
       "user": "مستخدم",
       "files": "الملفات",
+      "notifications": "إشعارات",
       "open": "أفتح الإعدادات",
-      "supabaseSetting": "إعداد Supabase"
+      "logout": "تسجيل خروج",
+      "logoutPrompt": "هل أنت متأكد من تسجيل الخروج؟",
+      "selfEncryptionLogoutPrompt": "هل أنت متأكد أنك تريد تسجيل الخروج؟ يرجى التأكد من قيامك بنسخ رمز التشفير",
+      "syncSetting": "إعدادات المزامنة",
+      "cloudSettings": "إعدادات السحابة",
+      "enableSync": "تفعيل المزامنة",
+      "enableEncrypt": "تشفير البيانات",
+      "cloudURL": "الرابط الأساسي",
+      "invalidCloudURLScheme": "مخطط غير صالح",
+      "cloudServerType": "خادم سحابي",
+      "cloudServerTypeTip": "يرجى ملاحظة أنه قد يقوم بتسجيل الخروج من حسابك الحالي بعد تبديل الخادم السحابي",
+      "cloudLocal": "محلي",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "رابط Supabase",
+      "cloudSupabaseAnonKey": "مفتاح Supabase الخفي",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "لا يمكن أن يكون المفتاح المجهول فارغًا إذا لم يكن عنوان URL الخاص بـ Supabase فارغًا",
+      "cloudAppFlowy": "سحابة @:appName",
+      "clickToCopy": "انقر للنسخ",
+      "selfHostStart": "إذا لم يكن لديك خادم، يرجى الرجوع إلى",
+      "selfHostContent": "مستند",
+      "selfHostEnd": "للحصول على إرشادات حول كيفية استضافة الخادم الخاص بك ذاتيًا",
+      "cloudURLHint": "أدخل الرابط الأساسي لخادمك",
+      "cloudWSURL": "عنوان Websockey",
+      "cloudWSURLHint": "أدخل عنوان websocket لخادمك",
+      "restartApp": "إعادة تشغيل",
+      "restartAppTip": "أعد تشغيل التطبيق لتصبح التغييرات سارية المفعول. يرجى ملاحظة أن هذا قد يؤدي إلى تسجيل الخروج من حسابك الحالي",
+      "enableEncryptPrompt": "قم بتنشيط التشفير لتأمين بياناتك بهذا السر. قم بتخزينها بأمان؛ بمجرد تمكينه، لا يمكن إيقاف تشغيله. في حالة فقدانها، تصبح بياناتك غير قابلة للاسترداد. انقر للنسخ",
+      "inputEncryptPrompt": "الرجاء إدخال سر التشفير الخاص بك ل",
+      "clickToCopySecret": "انقر لنسخ السر",
+      "configServerSetting": "قم بتكوين إعدادات الخادم الخاص بك",
+      "configServerGuide": "بعد تحديد \"البدء السريع\"، انتقل إلى \"الإعدادات\" ثم \"إعدادات السحابة\" لتهيئة خادمك المستضاف ذاتيًا.",
+      "inputTextFieldHint": "السر الخاصة بك",
+      "historicalUserList": "سجل تسجيل دخول المستخدم",
+      "historicalUserListTooltip": "تعرض هذه القائمة حساباتك المجهولة. يمكنك النقر على الحساب لعرض تفاصيله. يتم إنشاء الحسابات المجهولة بالنقر فوق الزر \"البدء\".",
+      "openHistoricalUser": "انقر لفتح الحساب الخفي",
+      "customPathPrompt": "قد يؤدي تخزين مجلد بيانات @:appName في مجلد متزامن على السحابة مثل Google Drive إلى مخاطر. إذا تم الوصول إلى قاعدة البيانات الموجودة في هذا المجلد أو تعديلها من مواقع متعددة في نفس الوقت، فقد يؤدي ذلك إلى حدوث تعارضات في المزامنة وتلف محتمل للبيانات",
+      "supabaseSetting": "إعداد Supabase",
+      "cloudSetting": "إعداد السحابة"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "تمكين الإشعارات",
+        "hint": "قم بإيقاف تشغيله لمنع ظهور الإشعارات المحلية."
+      }
     },
     "appearance": {
+      "resetSetting": "إعادة ضبط هذا الإعداد",
       "fontFamily": {
-        "label": "خط العائلة",
+        "label": "الخط",
         "search": "يبحث"
       },
       "themeMode": {
@@ -221,26 +320,57 @@
         "dark": "الوضع الداكن",
         "system": "التكيف مع النظام"
       },
+      "layoutDirection": {
+        "label": "اتجاه التخطيط",
+        "hint": "التحكم في تدفق المحتوى على شاشتك، من اليسار إلى اليمين أو من اليمين إلى اليسار.",
+        "ltr": "من اليسار الى اليمين",
+        "rtl": "من اليمين الى اليسار"
+      },
+      "textDirection": {
+        "label": "اتجاه النص الافتراضي",
+        "hint": "حدد ما إذا كان النص يجب أن يبدأ من اليسار أو اليمين كإعداد افتراضي.",
+        "ltr": "من اليسار الى اليمين",
+        "rtl": "من اليمين الى اليسار",
+        "auto": "آلي",
+        "fallback": "نفس اتجاه التخطيط"
+      },
       "themeUpload": {
         "button": "رفع",
-        "description": "قم بتحميل قالب AppFlowy الخاص بك باستخدام الزر أدناه.",
-        "failure": "النسق الذي تم تحميله به تنسيق غير صالح.",
+        "uploadTheme": "تحميل الموضوع",
+        "description": "قم بتحميل قالب @:appName الخاص بك باستخدام الزر أدناه.",
         "loading": "يرجى الانتظار بينما نقوم بالتحقق من صحة السمة الخاصة بك وتحميلها ...",
         "uploadSuccess": "تم تحميل موضوعك بنجاح",
         "deletionFailure": "فشل حذف الموضوع. حاول حذفه يدويًا.",
         "filePickerDialogTitle": "اختر ملف .flowy_plugin",
-        "urlUploadFailure": "فشل فتح عنوان url: {}"
+        "urlUploadFailure": "فشل فتح عنوان url: {}",
+        "failure": "النسق الذي تم تحميله به تنسيق غير صالح."
       },
       "theme": "سمة",
       "builtInsLabel": "ثيمات مدمجة",
-      "pluginsLabel": "الإضافات"
+      "pluginsLabel": "الإضافات",
+      "dateFormat": {
+        "label": "صيغة التاريخ",
+        "local": "محلي",
+        "us": "الولايات المتحدة",
+        "iso": "ISO",
+        "friendly": "سهل الاستخدام",
+        "dmy": "ي/ش/س"
+      },
+      "timeFormat": {
+        "label": "تنسيق الوقت",
+        "twelveHour": " نظام اثنتي عشرة ساعة",
+        "twentyFourHour": "نظام أربع وعشرون ساعة"
+      },
+      "showNamingDialogWhenCreatingPage": "إظهار مربع حوار التسمية عند إنشاء الصفحة",
+      "lightLabel": "فاتح",
+      "darkLabel": "غامق"
     },
     "files": {
-      "copy": "ينسخ",
+      "copy": "انسخ",
       "defaultLocation": "أين يتم تخزين بياناتك الآن",
       "exportData": "قم بتصدير بياناتك",
       "doubleTapToCopy": "انقر نقرًا مزدوجًا لنسخ المسار",
-      "restoreLocation": "استعادة المسار الافتراضي AppFlowy",
+      "restoreLocation": "استعادة المسار الافتراضي @:appName",
       "customizeLocation": "افتح مجلدًا آخر",
       "restartApp": "يرجى إعادة تشغيل التطبيق لتصبح التغييرات سارية المفعول.",
       "exportDatabase": "تصدير قاعدة البيانات",
@@ -252,10 +382,10 @@
       "defineWhereYourDataIsStored": "حدد مكان تخزين بياناتك",
       "open": "يفتح",
       "openFolder": "افتح مجلدًا موجودًا",
-      "openFolderDesc": "اقرأها واكتبها في مجلد AppFlowy الموجود لديك",
+      "openFolderDesc": "اقرأها واكتبها في مجلد @:appName الموجود لديك",
       "folderHintText": "إسم الملف",
       "location": "إنشاء مجلد جديد",
-      "locationDesc": "اختر اسمًا لمجلد بيانات AppFlowy",
+      "locationDesc": "اختر اسمًا لمجلد بيانات @:appName",
       "browser": "تصفح",
       "create": "يخلق",
       "set": "تعيين",
@@ -266,23 +396,56 @@
       "change": "يتغير",
       "openLocationTooltips": "افتح دليل بيانات آخر",
       "openCurrentDataFolder": "افتح دليل البيانات الحالي",
-      "recoverLocationTooltips": "إعادة التعيين إلى دليل البيانات الافتراضي لـ AppFlowy",
+      "recoverLocationTooltips": "إعادة التعيين إلى دليل البيانات الافتراضي لـ @:appName",
       "exportFileSuccess": "تم تصدير الملف بنجاح!",
       "exportFileFail": "فشل تصدير الملف!",
       "export": "يصدّر"
     },
     "user": {
       "name": "اسم",
+      "email": "بريد إلكتروني",
+      "tooltipSelectIcon": "حدد أيقونة",
       "selectAnIcon": "حدد أيقونة",
-      "pleaseInputYourOpenAIKey": "الرجاء إدخال مفتاح OpenAI الخاص بك"
+      "pleaseInputYourOpenAIKey": "الرجاء إدخال مفتاح OpenAI الخاص بك",
+      "pleaseInputYourStabilityAIKey": "يرجى إدخال رمز Stability AI الخاص بك",
+      "clickToLogout": "انقر لتسجيل خروج المستخدم الحالي"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "الاختصارات",
+      "command": "امر",
+      "keyBinding": "ربط المفاتيح",
+      "addNewCommand": "إضافة أمر جديد",
+      "updateShortcutStep": "اضغط على مجموعة المفاتيح المطلوبة ثم اضغط على ENTER",
+      "shortcutIsAlreadyUsed": "هذا الاختصار مستخدم بالفعل لـ: {conflict}",
+      "resetToDefault": "إعادة التعيين إلى روابط المفاتيح الافتراضية",
+      "couldNotLoadErrorMsg": "تعذر تحميل الاختصارات، حاول مرة أخرى",
+      "couldNotSaveErrorMsg": "تعذر حفظ الاختصارات، حاول مرة أخرى"
+    },
+    "mobile": {
+      "personalInfo": "معلومات شخصية",
+      "username": "اسم المستخدم",
+      "usernameEmptyError": "لا يمكن أن يكون اسم المستخدم فارغا",
+      "about": "حول",
+      "pushNotifications": "اشعارات لحظية",
+      "support": "دعم",
+      "joinDiscord": "انضم إلينا على ديسكورد",
+      "privacyPolicy": "سياسة الخصوصية",
+      "userAgreement": "اتفاقية المستخدم",
+      "userprofileError": "فشل تحميل ملف تعريف المستخدم",
+      "userprofileErrorDescription": "يرجى محاولة تسجيل الخروج وتسجيل الدخول مرة أخرى للتحقق مما إذا كانت المشكلة لا تزال قائمة.",
+      "selectLayout": "حدد الشكل",
+      "selectStartingDay": "اختر يوم البدء"
     }
   },
   "grid": {
-    "deleteView": "هل أنت متأكد أنك تريد حذف هذا العرض؟",
+    "deleteView": "هل أنت متأكد من حذف هذه الواجهة؟",
     "createView": "جديد",
+    "title": {
+      "placeholder": "بدون عنوان"
+    },
     "settings": {
-      "filter": "منقي",
-      "sort": "نوع",
+      "filter": "تنقية",
+      "sort": "ترتيب",
       "sortBy": "ترتيب حسب",
       "properties": "ملكيات",
       "reorderPropertiesTooltip": "اسحب لإعادة ترتيب الخصائص",
@@ -316,27 +479,35 @@
       "isChecked": "التحقق",
       "isUnchecked": "لم يتم التحقق منه",
       "choicechipPrefix": {
-        "is": "يكون"
+        "is": "يكون",
+        "da": "بادئة خانة الاختيار"
       }
     },
     "checklistFilter": {
       "isComplete": "كاملة",
       "isIncomplted": "غير مكتمل"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "يكون",
       "isNot": "ليس",
-      "isEmpty": "فارغ",
-      "isNotEmpty": "ليس فارغا"
-    },
-    "multiSelectOptionFilter": {
       "contains": "يتضمن",
       "doesNotContain": "لا يحتوي",
       "isEmpty": "فارغ",
       "isNotEmpty": "ليس فارغا"
     },
+    "dateFilter": {
+      "is": "يكون",
+      "before": "يكون قبل",
+      "after": "يكون بعد",
+      "onOrBefore": "يكون في او قبل",
+      "onOrAfter": "يكون في او بعد",
+      "between": "يتراوح ما بين",
+      "empty": "فارغ",
+      "notEmpty": "ليس فارغا"
+    },
     "field": {
       "hide": "يخفي",
+      "show": "عرض",
       "insertLeft": "أدخل اليسار",
       "insertRight": "أدخل اليمين",
       "duplicate": "ينسخ",
@@ -354,6 +525,7 @@
       "numberFormat": "تنسيق الأرقام",
       "dateFormat": "صيغة التاريخ",
       "includeTime": "أضف الوقت",
+      "isRange": "تاريخ الانتهاء",
       "dateFormatFriendly": "شهر يوم سنه",
       "dateFormatISO": "سنة شهر يوم",
       "dateFormatLocal": "شهر يوم سنه",
@@ -363,27 +535,60 @@
       "invalidTimeFormat": "تنسيق غير صالح",
       "timeFormatTwelveHour": "12 ساعة",
       "timeFormatTwentyFourHour": "24 ساعة",
+      "clearDate": "مسح التاريخ",
+      "dateTime": "الوقت و التاريخ",
+      "startDateTime": "وقت تاريخ البدء",
+      "endDateTime": "وقت تاريخ الانتهاء",
+      "failedToLoadDate": "فشل تحميل قيمة التاريخ",
+      "selectTime": "حدد الوقت",
+      "selectDate": "حدد تاريخ",
+      "visibility": "الظهور",
+      "propertyType": "نوع الملكية",
       "addSelectOption": "أضف خيارًا",
+      "typeANewOption": "اكتب خيارًا جديدًا",
       "optionTitle": "خيارات",
       "addOption": "إضافة خيار",
       "editProperty": "تحرير الملكية",
       "newProperty": "خاصية جديدة",
-      "deleteFieldPromptMessage": "هل أنت متأكد؟ سيتم حذف هذه الخاصية"
+      "deleteFieldPromptMessage": "هل أنت متأكد؟ سيتم حذف هذه الخاصية",
+      "newColumn": "عمود جديد",
+      "format": "شكل"
+    },
+    "rowPage": {
+      "newField": "إضافة حقل جديد",
+      "fieldDragElementTooltip": "انقر لفتح القائمة",
+      "showHiddenFields": {
+        "one": "إظهار {count} حقل",
+        "many": "إظهار {count} الحقول المخفية",
+        "other": "إظهار {count} الحقول المخفية"
+      },
+      "hideHiddenFields": {
+        "one": "إخفاء {count} الحقل المخفي",
+        "many": "إخفاء {count} الحقول المخفية",
+        "other": "إخفاء {count} الحقول المخفية"
+      }
     },
     "sort": {
       "ascending": "تصاعدي",
       "descending": "تنازلي",
+      "deleteAllSorts": "حذف جميع التراتيب",
       "addSort": "أضف نوعًا",
       "deleteSort": "حذف الفرز"
     },
     "row": {
       "duplicate": "مكرره",
       "delete": "يمسح",
+      "titlePlaceholder": "بدون عنوان",
       "textPlaceholder": "فارغ",
       "copyProperty": "نسخ الممتلكات إلى الحافظة",
       "count": "عدد",
       "newRow": "صف جديد",
-      "action": "فعل"
+      "action": "فعل",
+      "add": "انقر فوق إضافة إلى أدناه",
+      "drag": "اسحب للتحريك",
+      "dragAndClick": "اسحب للتحريك، انقر لفتح القائمة",
+      "insertRecordAbove": "أدخل السجل أعلاه",
+      "insertRecordBelow": "أدخل السجل أدناه"
     },
     "selectOption": {
       "create": "يخلق",
@@ -399,10 +604,25 @@
       "deleteTag": "حذف العلامة",
       "colorPanelTitle": "الألوان",
       "panelTitle": "حدد خيارًا أو أنشئ خيارًا",
-      "searchOption": "ابحث عن خيار"
+      "searchOption": "ابحث عن خيار",
+      "searchOrCreateOption": "بحث أو إنشاء خيار...",
+      "createNew": "إنشاء جديد",
+      "orSelectOne": "أو حدد خيارًا",
+      "typeANewOption": "اكتب خيارًا جديدًا",
+      "tagName": "اسم العلامة",
+      "colorPannelTitle": "لوحة الالوان",
+      "pannelTitle": "لوحة الخيارات"
     },
     "checklist": {
-      "addNew": "أضف عنصرًا"
+      "taskHint": "وصف المهمة",
+      "addNew": "أضف عنصرًا",
+      "submitNewTask": "انشئ",
+      "hideComplete": "إخفاء المهام المكتملة",
+      "showComplete": "إظهار كافة المهام"
+    },
+    "url": {
+      "launch": "فتح في المتصفح",
+      "copy": "إنسخ الرابط"
     },
     "menuName": "شبكة",
     "referencedGridPrefix": "نظرا ل"
@@ -425,15 +645,20 @@
       "calendar": {
         "selectACalendarToLinkTo": "حدد تقويمًا للارتباط به",
         "createANewCalendar": "قم بإنشاء تقويم جديد"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "حدد مستندًا للارتباط به"
       }
     },
     "selectionMenu": {
-      "outline": "الخطوط العريضة"
+      "outline": "الخطوط العريضة",
+      "codeBlock": "حقل الكود"
     },
     "plugins": {
       "referencedBoard": "المجلس المشار إليه",
       "referencedGrid": "الشبكة المشار إليها",
       "referencedCalendar": "التقويم المشار إليه",
+      "referencedDocument": "الوثيقة المشار إليها",
       "autoGeneratorMenuItemName": "كاتب OpenAI",
       "autoGeneratorTitleName": "OpenAI: اطلب من الذكاء الاصطناعي كتابة أي شيء ...",
       "autoGeneratorLearnMore": "يتعلم أكثر",
@@ -453,7 +678,13 @@
       "smartEditDisabled": "قم بتوصيل OpenAI في الإعدادات",
       "discardResponse": "هل تريد تجاهل استجابات الذكاء الاصطناعي؟",
       "createInlineMathEquation": "اصنع معادلة",
+      "fonts": "الخطوط",
       "toggleList": "تبديل القائمة",
+      "quoteList": "قائمة الاقتباس",
+      "numberedList": "قائمة مرقمة",
+      "bulletedList": "قائمة نقطية",
+      "todoList": "قائمة مهام",
+      "callout": "استدعاء",
       "cover": {
         "changeCover": "تبديل الغطاء",
         "colors": "الألوان",
@@ -475,10 +706,12 @@
         "couldNotFetchImage": "تعذر جلب الصورة",
         "imageSavingFailed": "فشل حفظ الصورة",
         "addIcon": "إضافة أيقونة",
+        "changeIcon": "تغيير الايقونة",
         "coverRemoveAlert": "ستتم إزالته من الغلاف بعد حذفه.",
         "alertDialogConfirmation": "هل أنت متأكد أنك تريد الاستمرار؟"
       },
       "mathEquation": {
+        "name": "معادلة رياضية",
         "addMathEquation": "أضف معادلة رياضية",
         "editMathEquation": "تحرير المعادلة الرياضية"
       },
@@ -498,11 +731,27 @@
         "defaultColor": "تقصير"
       },
       "image": {
-        "copiedToPasteBoard": "تم نسخ رابط الصورة إلى الحافظة"
+        "copiedToPasteBoard": "تم نسخ رابط الصورة إلى الحافظة",
+        "addAnImage": "أضف صورة"
       },
       "outline": {
         "addHeadingToCreateOutline": "أضف عناوين لإنشاء جدول محتويات."
-      }
+      },
+      "table": {
+        "addAfter": "أضف بعد",
+        "addBefore": "أضف قبل",
+        "delete": "حذف",
+        "clear": "مسح المحتوى",
+        "duplicate": "نسخة طبق الاصل",
+        "bgColor": "لون الخلفية"
+      },
+      "contextMenu": {
+        "copy": "نسخ",
+        "cut": "قطع",
+        "paste": "لصق"
+      },
+      "action": "أجراءات",
+      "autoCompletionMenuItemName": "عنصر قائمة الإكمال التلقائي"
     },
     "textBlock": {
       "placeholder": "اكتب \"/\" للأوامر"
@@ -520,13 +769,35 @@
         "label": "رابط الصورة",
         "placeholder": "أدخل عنوان URL للصورة"
       },
+      "ai": {
+        "label": "إنشاء صورة من OpenAI",
+        "placeholder": "يرجى إدخال الامر الواصف لـ OpenAI لإنشاء الصورة"
+      },
+      "stability_ai": {
+        "label": "إنشاء صورة من Stability AI",
+        "placeholder": "يرجى إدخال المطالبة الخاصة بـ Stability AI لإنشاء الصورة"
+      },
       "support": "الحد الأقصى لحجم الصورة هو 5 ميغا بايت. التنسيقات المدعومة: JPEG ، PNG ، GIF ، SVG",
       "error": {
         "invalidImage": "صورة غير صالحة",
         "invalidImageSize": "يجب أن يكون حجم الصورة أقل من 5 ميغا بايت",
         "invalidImageFormat": "تنسيق الصورة غير مدعوم. التنسيقات المدعومة: JPEG ، PNG ، GIF ، SVG",
         "invalidImageUrl": "عنوان URL للصورة غير صالح"
-      }
+      },
+      "embedLink": {
+        "label": "رابط متضمن",
+        "placeholder": "الصق أو اكتب رابط الصورة"
+      },
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "searchForAnImage": "ابحث عن صورة",
+      "pleaseInputYourOpenAIKey": "يرجى إدخال مفتاح OpenAI الخاص بك في صفحة الإعدادات",
+      "pleaseInputYourStabilityAIKey": "يرجى إدخال مفتاح Stability AI الخاص بك في صفحة الإعدادات",
+      "saveImageToGallery": "احفظ الصورة",
+      "failedToAddImageToGallery": "فشلت إضافة الصورة إلى المعرض",
+      "successToAddImageToGallery": "تمت إضافة الصورة إلى المعرض بنجاح",
+      "unableToLoadImage": "غير قادر على تحميل الصورة"
     },
     "codeBlock": {
       "language": {
@@ -536,26 +807,82 @@
     },
     "inlineLink": {
       "placeholder": "الصق أو اكتب ارتباطًا",
+      "openInNewTab": "فتح في علامة تبويب جديدة",
+      "copyLink": "نسخ الرابط",
+      "removeLink": "إزالة الرابط",
       "url": {
         "label": "URL رابط",
-        "placeholder": "أدخل رابط URL"
+        "placeholder": "أدخل رابط"
       },
       "title": {
         "label": "عنوان الارتباط",
-        "placeholder": "أدخل عنوان الارتباط"
+        "placeholder": "أدخل عنوان الرابط"
       }
+    },
+    "mention": {
+      "placeholder": "اذكر شخص أو صفحة أو تاريخ...",
+      "page": {
+        "label": "رابط إلى الصفحة",
+        "tooltip": "انقر لفتح الصفحة"
+      }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "إعادة تعيين إلى الافتراضي"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "الإصدار الحالي لا يدعم هذا الحقل.",
+      "blockContentHasBeenCopied": "تم نسخ محتوى الحقل."
+    },
+    "data": {
+      "timeHintTextInTwelveHour": "اثنا عشر ساعة",
+      "timeHintTextInTwentyFourHour": "أربع و عشرون ساعة"
     }
   },
   "board": {
-    "menuName": "سبورة",
-    "referencedBoardPrefix": "نظرا ل",
     "column": {
-      "createNewCard": "جديد"
+      "createNewCard": "جديد",
+      "renameGroupTooltip": "اضغط لإعادة تسمية المجموعة",
+      "createNewColumn": "أضف مجموعة جديدة",
+      "addToColumnTopTooltip": "أضف بطاقة جديدة في الأعلى",
+      "addToColumnBottomTooltip": "أضف بطاقة جديدة في الأسفل",
+      "renameColumn": "إعادة تسمية",
+      "hideColumn": "اخفاء",
+      "newGroup": "مجموعة جديدة",
+      "deleteColumn": "مسح",
+      "deleteColumnConfirmation": "سيؤدي هذا إلى حذف هذه المجموعة وجميع البطاقات الموجودة فيها. هل أنت متأكد من الاستمرار؟",
+      "groupActions": "إجراءات المجموعة"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "المجموعات المخفية",
+      "collapseTooltip": "إخفاء المجموعات المخفية",
+      "expandTooltip": "عرض المجموعات المخفية"
+    },
+    "cardDetail": "تفاصيل البطاقة",
+    "cardActions": "إجراءات البطاقة",
+    "cardDuplicated": "تم تكرار البطاقة",
+    "cardDeleted": "تم حذف البطاقة",
+    "showOnCard": "اظهار التفاصيل على البطاقة",
+    "setting": "اعداد",
+    "propertyName": "اسم الخاصية",
+    "menuName": "سبورة",
+    "showUngrouped": "إظهار العناصر غير المجمعة",
+    "ungroupedButtonText": "غير مجمعة",
+    "ungroupedButtonTooltip": "تحتوي على بطاقات لا تنتمي إلى أي مجموعة",
+    "ungroupedItemsTitle": "انقر للإضافة إلى السبورة",
+    "groupBy": "مجموعة من",
+    "referencedBoardPrefix": "نظرا ل",
+    "notesTooltip": "ملاحظات بالداخل",
+    "mobile": {
+      "editURL": "تعديل الرابط",
+      "showGroup": "إظهار المجموعة",
+      "showGroupContent": "هل أنت متأكد من إظهار هذه المجموعة على السبورة؟",
+      "failedToLoad": "فشل تحميل عرض السبورة"
     }
   },
   "calendar": {
     "menuName": "تقويم",
     "defaultNewCalendarTitle": "بدون عنوان",
+    "newEventButtonTooltip": "إضافة حدث جديد",
     "navigation": {
       "today": "اليوم",
       "jumpToday": "انتقل إلى اليوم",
@@ -568,14 +895,16 @@
       "firstDayOfWeek": "اليوم الأول من الأسبوع",
       "layoutDateField": "تقويم التخطيط بواسطة",
       "noDateTitle": "بدون تاريخ",
+      "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
       "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
     },
-    "referencedCalendarPrefix": "نظرا ل"
+    "referencedCalendarPrefix": "نظرا ل",
+    "quickJumpYear": "انتقل إلى"
   },
   "errorDialog": {
-    "title": "خطأ AppFlowy",
+    "title": "خطأ @:appName",
     "howToFixFallback": "نأسف للإزعاج! قم بإرسال مشكلة على صفحة GitHub الخاصة بنا والتي تصف الخطأ الخاص بك.",
     "github": "عرض على جيثب"
   },
@@ -595,5 +924,249 @@
   "views": {
     "deleteContentTitle": "هل أنت متأكد من أنك تريد حذف {pageType}؟",
     "deleteContentCaption": "إذا قمت بحذف {pageType} هذه ، فيمكنك استعادتها من سلة المهملات."
+  },
+  "colors": {
+    "custom": "مخصص",
+    "default": "اساسي",
+    "red": "أحمر",
+    "orange": "برتقالي",
+    "yellow": "أصفر",
+    "green": "أخضر",
+    "blue": "أزرق",
+    "purple": "بنفسجي",
+    "pink": "وردي",
+    "brown": "بني",
+    "gray": "رمادي"
+  },
+  "emoji": {
+    "emojiTab": "رمز تعبيري",
+    "search": "ابحث عن الرموز التعبيرية",
+    "noRecent": "لا توجد رموز تعبيرية حديثة",
+    "noEmojiFound": "لم يتم العثور على رموز تعبيرية",
+    "filter": "منقي",
+    "random": "عشوائي",
+    "selectSkinTone": "حدد لون البشرة",
+    "remove": "إزالة الرموز التعبيرية",
+    "categories": {
+      "smileys": "الوجوه الضاحكة والعاطفة",
+      "people": "الناس والجسم",
+      "animals": "الحيوانات والطبيعة",
+      "food": "طعام شراب",
+      "activities": "أنشطة",
+      "places": "السفر والأماكن",
+      "objects": "أشياء",
+      "symbols": "حرف او رمز",
+      "flags": "أعلام",
+      "nature": "طبيعة",
+      "frequentlyUsed": "تستخدم بشكل متكرر"
+    },
+    "skinTone": {
+      "default": "اساسي",
+      "light": "فاتح",
+      "mediumLight": "فاتح قليلا",
+      "medium": "متوسط",
+      "mediumDark": "متوسطة الظلمة",
+      "dark": "مظلم"
+    }
+  },
+  "inlineActions": {
+    "noResults": "لا نتائج",
+    "pageReference": "مرجع الصفحة",
+    "date": "تاريخ",
+    "reminder": {
+      "groupTitle": "تذكير",
+      "shortKeyword": "يذكر"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "تغيير تنسيق التاريخ والوقت في الإعدادات"
+  },
+  "relativeDates": {
+    "yesterday": "أمس",
+    "today": "اليوم",
+    "tomorrow": "غداً",
+    "oneWeek": "أسبوع"
+  },
+  "notificationHub": {
+    "title": "إشعارات",
+    "mobile": {
+      "title": "تحديثات"
+    },
+    "emptyTitle": "انت على اخر اصدار!",
+    "emptyBody": "لا توجد إخطارات أو إجراءات معلقة. استمتع بالهدوء.",
+    "tabs": {
+      "inbox": "صندوق الوارد",
+      "upcoming": "القادمة"
+    },
+    "actions": {
+      "markAllRead": "اشر عليها بانها قرات",
+      "showAll": "الجميع",
+      "showUnreads": "غير مقروءة"
+    },
+    "filters": {
+      "ascending": "تصاعدي",
+      "descending": "تنازلي",
+      "groupByDate": "ترتيب حسب التاريخ",
+      "showUnreadsOnly": "إظهار الرسائل غير المقروءة فقط",
+      "resetToDefault": "إعادة تعيين إلى الافتراضي"
+    },
+    "empty": "فارغ"
+  },
+  "reminderNotification": {
+    "title": "تذكير",
+    "message": "تذكر أن تتحقق من هذا قبل أن تنسى!",
+    "tooltipDelete": "مسح",
+    "tooltipMarkRead": "ضع إشارة مقروء",
+    "tooltipMarkUnread": "وضع علامة كغير مقروءة"
+  },
+  "findAndReplace": {
+    "find": "البحث",
+    "previousMatch": "المباراة السابقة",
+    "nextMatch": "نتيجة البحث القادمة",
+    "close": "اغلق",
+    "replace": "استبدل",
+    "replaceAll": "استبدال الكل",
+    "noResult": "لا نتائج",
+    "caseSensitive": "دقة الحروف"
+  },
+  "error": {
+    "weAreSorry": "آسفون",
+    "loadingViewError": "نواجه مشكلة في تحميل هذا العرض. يرجى التحقق من اتصالك بالإنترنت، وتحديث التطبيق، ولا تتردد في التواصل مع الفريق إذا استمرت المشكلة."
+  },
+  "editor": {
+    "bold": "عريض",
+    "bulletedList": "قائمة نقطية",
+    "checkbox": "خانة الاختيار",
+    "embedCode": "كود متضمن",
+    "heading1": "رأسية اولى",
+    "heading2": "رأسية ثانية",
+    "heading3": "رأسية ثالثة",
+    "highlight": "ابراز",
+    "color": "لون",
+    "image": "صورة",
+    "italic": "مائل",
+    "link": "رابط",
+    "numberedList": "قائمة مرقمة",
+    "quote": "اقتباس",
+    "strikethrough": "يتوسطه خط",
+    "text": "نص",
+    "underline": "تسطير",
+    "fontColorDefault": "اساسي",
+    "fontColorGray": "رمادي",
+    "fontColorBrown": "بني",
+    "fontColorOrange": "برتقالي",
+    "fontColorYellow": "أصفر",
+    "fontColorGreen": "أخضر",
+    "fontColorBlue": "أزرق",
+    "fontColorPurple": "بنفسجي",
+    "fontColorPink": "وردي",
+    "fontColorRed": "أحمر",
+    "backgroundColorDefault": "الخلفية الافتراضية",
+    "backgroundColorGray": "خلفية رمادية",
+    "backgroundColorBrown": "خلفية بنية",
+    "backgroundColorOrange": "خلفية برتقالية",
+    "backgroundColorYellow": "خلفية صفراء",
+    "backgroundColorGreen": "خلفية خضراء",
+    "backgroundColorBlue": "الخلفية الزرقاء",
+    "backgroundColorPurple": "خلفية بنفسجية",
+    "backgroundColorPink": "خلفية وردية",
+    "backgroundColorRed": "خلفية حمراء",
+    "done": "تم",
+    "cancel": "الغاء",
+    "tint1": "صبغة 1",
+    "tint2": "صبغة 2",
+    "tint3": "صبغة 3",
+    "tint4": "صبغة 4",
+    "tint5": "صبغة 5",
+    "tint6": "صبغة 6",
+    "tint7": "صبغة 7",
+    "tint8": "صبغة 8",
+    "tint9": "صبغة 9",
+    "lightLightTint1": "بنفسجي",
+    "lightLightTint2": "وردي",
+    "lightLightTint3": "وردي فاتح",
+    "lightLightTint4": "برتقالي",
+    "lightLightTint5": "أصفر",
+    "lightLightTint6": "ليموني",
+    "lightLightTint7": "أخضر",
+    "lightLightTint8": "أكوا",
+    "lightLightTint9": "أزرق",
+    "urlHint": "رابط",
+    "mobileHeading1": "عنوان 1",
+    "mobileHeading2": "العنوان 2",
+    "mobileHeading3": "العنوان 3",
+    "textColor": "لون الخط",
+    "backgroundColor": "لون الخلفية",
+    "addYourLink": "أضف الرابط الخاص بك",
+    "openLink": "افتح الرابط",
+    "copyLink": "انسخ الرابط",
+    "removeLink": "إزالة الرابط",
+    "editLink": "تعديل الرابط",
+    "linkText": "نص",
+    "linkTextHint": "الرجاء إدخال النص",
+    "linkAddressHint": "الرجاء إدخال الرابط",
+    "highlightColor": "تسليط الضوء على اللون",
+    "clearHighlightColor": "مسح لون التمييز",
+    "customColor": "لون مخصص",
+    "hexValue": "قيمة سداسية",
+    "opacity": "العتامة",
+    "resetToDefaultColor": "إعادة التعيين إلى اللون الافتراضي",
+    "ltr": "من اليسار الى اليمين",
+    "rtl": "من اليمين الى اليسار",
+    "auto": "آلي",
+    "cut": "قص",
+    "copy": "نسخ",
+    "paste": "لصق",
+    "find": "البحث",
+    "previousMatch": "نتيجة البحث السابقة",
+    "nextMatch": "نتيجة البحث التالية",
+    "closeFind": "اغلاق",
+    "replace": "يستبدل",
+    "replaceAll": "استبدال الكل",
+    "regex": "التعبير العادي",
+    "caseSensitive": "دقة الحروف",
+    "uploadImage": "تحميل الصور",
+    "urlImage": "رابط صورة ",
+    "incorrectLink": "رابط غير صحيح",
+    "upload": "رفع",
+    "chooseImage": "اختر صورة",
+    "loading": "تحميل",
+    "imageLoadFailed": "لا يمكن تحميل الصورة",
+    "divider": "مقسم",
+    "table": "جدول",
+    "colAddBefore": "إضافة قبل",
+    "rowAddBefore": "إضافة قبل",
+    "colAddAfter": "إضافة بعد",
+    "rowAddAfter": "إضافة بعد",
+    "colRemove": "ازالة",
+    "rowRemove": "ازالة",
+    "colDuplicate": "نسخة طبق الاصل",
+    "rowDuplicate": "نسخة طبق الاصل",
+    "colClear": "مسح المحتوى",
+    "rowClear": "مسح المحتوى",
+    "slashPlaceHolder": "اكتب \"/\" لإدراج كتلة، أو ابدأ الكتابة"
+  },
+  "favorite": {
+    "noFavorite": "لا توجد صفحة مفضلة",
+    "noFavoriteHintText": "اسحب الصفحة إلى اليسار لإضافتها إلى المفضلة لديك"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "أدخل / لإدراج كتلة، أو ابدأ في الكتابة"
+  },
+  "blockPlaceholders": {
+    "todoList": "مهام",
+    "bulletList": "قائمة",
+    "numberList": "قائمة",
+    "quote": "اقتباس",
+    "heading": "العنوان {}"
+  },
+  "titleBar": {
+    "pageIcon": "رمز الصفحة",
+    "language": "لغة",
+    "font": "الخط",
+    "actions": "أجراءات",
+    "date": "تاريخ",
+    "addField": "إضافة حقل",
+    "userIcon": "رمز المستخدم"
   }
 }

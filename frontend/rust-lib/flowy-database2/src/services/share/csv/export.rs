@@ -1,10 +1,13 @@
 use collab_database::database::Database;
+use collab_database::fields::Field;
+use collab_database::rows::Cell;
 use indexmap::IndexMap;
 
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
-use crate::services::cell::stringify_cell_data;
+use crate::services::cell::stringify_cell;
+use crate::services::field::{TimestampCellData, TimestampCellDataWrapper};
 
 #[derive(Debug, Clone, Copy)]
 pub enum CSVFormat {
@@ -41,18 +44,32 @@ impl CSVExport {
       field_by_field_id.insert(field.id.clone(), field);
     });
     let rows = database.get_rows_for_view(&inline_view_id);
+
+    let stringify = |cell: &Cell, field: &Field, style: CSVFormat| match style {
+      CSVFormat::Original => stringify_cell(cell, field),
+      CSVFormat::META => serde_json::to_string(cell).unwrap_or_else(|_| "".to_string()),
+    };
+
     for row in rows {
       let cells = field_by_field_id
         .iter()
-        .map(|(field_id, field)| match row.cells.get(field_id) {
-          None => "".to_string(),
-          Some(cell) => {
-            let field_type = FieldType::from(field.field_type);
-            match style {
-              CSVFormat::Original => stringify_cell_data(cell, &field_type, &field_type, field),
-              CSVFormat::META => serde_json::to_string(cell).unwrap_or_else(|_| "".to_string()),
-            }
-          },
+        .map(|(field_id, field)| {
+          let field_type = FieldType::from(field.field_type);
+          match field_type {
+            FieldType::LastEditedTime | FieldType::CreatedTime => {
+              let cell_data = if field_type.is_created_time() {
+                TimestampCellData::new(row.created_at)
+              } else {
+                TimestampCellData::new(row.modified_at)
+              };
+              let cell = Cell::from(TimestampCellDataWrapper::from((field_type, cell_data)));
+              stringify(&cell, field, style)
+            },
+            _ => match row.cells.get(field_id) {
+              None => "".to_string(),
+              Some(cell) => stringify(cell, field, style),
+            },
+          }
         })
         .collect::<Vec<_>>();
 

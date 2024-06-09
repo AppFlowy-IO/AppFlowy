@@ -1,17 +1,19 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/date/date_service.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
+import 'package:appflowy/plugins/inline_actions/service_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 
 final _keywords = [
   LocaleKeys.inlineActions_date.tr().toLowerCase(),
 ];
 
-class DateReferenceService {
+class DateReferenceService extends InlineActionsDelegate {
   DateReferenceService(this.context) {
     // Initialize locale
     _locale = context.locale.toLanguageTag();
@@ -27,7 +29,8 @@ class DateReferenceService {
 
   List<InlineActionsMenuItem> options = [];
 
-  Future<InlineActionsResult> dateReferenceDelegate([
+  @override
+  Future<InlineActionsResult> search([
     String? search,
   ]) async {
     // Checks if Locale has changed since last
@@ -92,8 +95,8 @@ class DateReferenceService {
     final result = await DateService.queryDate(search);
 
     result.fold(
-      (l) {},
       (date) => options.insert(0, _itemFromDate(date)),
+      (_) {},
     );
   }
 

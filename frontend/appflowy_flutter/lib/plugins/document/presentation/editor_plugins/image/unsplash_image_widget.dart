@@ -1,28 +1,42 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:unsplash_client/unsplash_client.dart';
 
+const _accessKeyA = 'YyD-LbW5bVolHWZBq5fWRM_';
+const _accessKeyB = '3ezkG2XchRFjhNTnK9TE';
+const _secretKeyA = '5z4EnxaXjWjWMnuBhc0Ku0u';
+const _secretKeyB = 'YW2bsYCZlO-REZaqmV6A';
+
+enum UnsplashImageType {
+  // the creator name is under the image
+  halfScreen,
+  // the creator name is on the image
+  fullScreen,
+}
+
+typedef OnSelectUnsplashImage = void Function(String url);
+
 class UnsplashImageWidget extends StatefulWidget {
   const UnsplashImageWidget({
     super.key,
+    this.type = UnsplashImageType.halfScreen,
     required this.onSelectUnsplashImage,
   });
 
-  final void Function(String url) onSelectUnsplashImage;
+  final UnsplashImageType type;
+  final OnSelectUnsplashImage onSelectUnsplashImage;
 
   @override
   State<UnsplashImageWidget> createState() => _UnsplashImageWidgetState();
 }
 
 class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
-  final client = UnsplashClient(
+  final unsplash = UnsplashClient(
     settings: const ClientSettings(
       credentials: AppCredentials(
-        // TODO: there're the demo keys, we should replace them with the production keys when releasing and inject them with env file.
-        accessKey: 'YyD-LbW5bVolHWZBq5fWRM_3ezkG2XchRFjhNTnK9TE',
-        secretKey: '5z4EnxaXjWjWMnuBhc0Ku0uYW2bsYCZlO-REZaqmV6A',
+        accessKey: _accessKeyA + _accessKeyB,
+        secretKey: _secretKeyA + _secretKeyB,
       ),
     ),
   );
@@ -35,14 +49,14 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   void initState() {
     super.initState();
 
-    randomPhotos = client.photos
+    randomPhotos = unsplash.photos
         .random(count: 18, orientation: PhotoOrientation.landscape)
         .goAndGet();
   }
 
   @override
   void dispose() {
-    client.close();
+    unsplash.close();
 
     super.dispose();
   }
@@ -52,26 +66,12 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: FlowyTextField(
-                autoFocus: true,
-                hintText: LocaleKeys.document_imageBlock_searchForAnImage.tr(),
-                onChanged: (value) => query = value,
-                onEditingComplete: _search,
-              ),
-            ),
-            const HSpace(4.0),
-            FlowyButton(
-              useIntrinsicWidth: true,
-              text: FlowyText(
-                LocaleKeys.search_label.tr(),
-              ),
-              onTap: _search,
-            ),
-          ],
+        SizedBox(
+          height: 44,
+          child: FlowyMobileSearchTextField(
+            onChanged: (keyword) => query = keyword,
+            onSubmitted: (_) => _search(),
+          ),
         ),
         const VSpace(12.0),
         Expanded(
@@ -87,21 +87,10 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
                   child: CircularProgressIndicator.adaptive(),
                 );
               }
-              return GridView.count(
-                crossAxisCount: 3,
-                mainAxisSpacing: 16.0,
-                crossAxisSpacing: 10.0,
-                childAspectRatio: 4 / 3,
-                children: data
-                    .map(
-                      (photo) => _UnsplashImage(
-                        photo: photo,
-                        onTap: () => widget.onSelectUnsplashImage(
-                          photo.urls.regular.toString(),
-                        ),
-                      ),
-                    )
-                    .toList(),
+              return _UnsplashImages(
+                type: widget.type,
+                photos: data,
+                onSelectUnsplashImage: widget.onSelectUnsplashImage,
               );
             },
           ),
@@ -112,7 +101,7 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
 
   void _search() {
     setState(() {
-      randomPhotos = client.photos
+      randomPhotos = unsplash.photos
           .random(
             count: 18,
             orientation: PhotoOrientation.landscape,
@@ -123,32 +112,144 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   }
 }
 
-class _UnsplashImage extends StatelessWidget {
-  const _UnsplashImage({
-    required this.photo,
-    required this.onTap,
+class _UnsplashImages extends StatefulWidget {
+  const _UnsplashImages({
+    required this.type,
+    required this.photos,
+    required this.onSelectUnsplashImage,
   });
 
-  final Photo photo;
-  final VoidCallback onTap;
+  final UnsplashImageType type;
+  final List<Photo> photos;
+  final OnSelectUnsplashImage onSelectUnsplashImage;
+
+  @override
+  State<_UnsplashImages> createState() => _UnsplashImagesState();
+}
+
+class _UnsplashImagesState extends State<_UnsplashImages> {
+  int _selectedPhotoIndex = -1;
 
   @override
   Widget build(BuildContext context) {
+    final crossAxisCount = switch (widget.type) {
+      UnsplashImageType.halfScreen => 3,
+      UnsplashImageType.fullScreen => 2,
+    };
+    final mainAxisSpacing = switch (widget.type) {
+      UnsplashImageType.halfScreen => 16.0,
+      UnsplashImageType.fullScreen => 16.0,
+    };
+    final crossAxisSpacing = switch (widget.type) {
+      UnsplashImageType.halfScreen => 10.0,
+      UnsplashImageType.fullScreen => 16.0,
+    };
+    return GridView.count(
+      crossAxisCount: crossAxisCount,
+      mainAxisSpacing: mainAxisSpacing,
+      crossAxisSpacing: crossAxisSpacing,
+      childAspectRatio: 4 / 3,
+      children: widget.photos.asMap().entries.map((entry) {
+        final index = entry.key;
+        final photo = entry.value;
+        return _UnsplashImage(
+          type: widget.type,
+          photo: photo,
+          onTap: () {
+            widget.onSelectUnsplashImage(
+              photo.urls.regular.toString(),
+            );
+            setState(() {
+              _selectedPhotoIndex = index;
+            });
+          },
+          isSelected: index == _selectedPhotoIndex,
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _UnsplashImage extends StatelessWidget {
+  const _UnsplashImage({
+    required this.type,
+    required this.photo,
+    required this.onTap,
+    required this.isSelected,
+  });
+
+  final UnsplashImageType type;
+  final Photo photo;
+  final VoidCallback onTap;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final child = switch (type) {
+      UnsplashImageType.halfScreen => _buildHalfScreenImage(context),
+      UnsplashImageType.fullScreen => _buildFullScreenImage(context),
+    };
+
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Image.network(
-              photo.urls.thumb.toString(),
-              fit: BoxFit.cover,
-            ),
+      child: isSelected
+          ? Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: ShapeDecoration(
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(width: 1.50, color: Color(0xFF00BCF0)),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              padding: const EdgeInsets.all(2.0),
+              child: child,
+            )
+          : child,
+    );
+  }
+
+  Widget _buildHalfScreenImage(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Image.network(
+            photo.urls.thumb.toString(),
+            fit: BoxFit.cover,
           ),
-          const HSpace(2.0),
-          FlowyText(
-            'by ${photo.name}',
-            fontSize: 10.0,
+        ),
+        const HSpace(2.0),
+        FlowyText(
+          'by ${photo.name}',
+          fontSize: 10.0,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFullScreenImage(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8.0),
+      child: Stack(
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Image.network(
+                photo.urls.thumb.toString(),
+                fit: BoxFit.cover,
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
+              );
+            },
+          ),
+          Positioned(
+            bottom: 9,
+            left: 10,
+            child: FlowyText.medium(
+              photo.name,
+              fontSize: 13.0,
+              color: Colors.white,
+            ),
           ),
         ],
       ),

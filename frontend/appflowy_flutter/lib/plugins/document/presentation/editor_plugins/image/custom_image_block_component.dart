@@ -1,26 +1,88 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsupport_image_widget.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 
 const kImagePlaceholderKey = 'imagePlaceholderKey';
+
+enum CustomImageType {
+  local,
+  internal, // the images saved in self-host cloud
+  external; // the images linked from network, like unsplash, https://xxx/yyy/zzz.jpg
+
+  static CustomImageType fromIntValue(int value) {
+    switch (value) {
+      case 0:
+        return CustomImageType.local;
+      case 1:
+        return CustomImageType.internal;
+      case 2:
+        return CustomImageType.external;
+      default:
+        throw UnimplementedError();
+    }
+  }
+
+  int toIntValue() {
+    switch (this) {
+      case CustomImageType.local:
+        return 0;
+      case CustomImageType.internal:
+        return 1;
+      case CustomImageType.external:
+        return 2;
+    }
+  }
+}
+
+class CustomImageBlockKeys {
+  const CustomImageBlockKeys._();
+
+  static const String type = 'image';
+
+  /// The align data of a image block.
+  ///
+  /// The value is a String.
+  /// left, center, right
+  static const String align = 'align';
+
+  /// The image src of a image block.
+  ///
+  /// The value is a String.
+  /// It can be a url or a base64 string(web).
+  static const String url = 'url';
+
+  /// The height of a image block.
+  ///
+  /// The value is a double.
+  static const String width = 'width';
+
+  /// The width of a image block.
+  ///
+  /// The value is a double.
+  static const String height = 'height';
+
+  /// The image type of a image block.
+  ///
+  /// The value is a CustomImageType enum.
+  static const String imageType = 'image_type';
+}
 
 typedef CustomImageBlockComponentMenuBuilder = Widget Function(
   Node node,
@@ -48,10 +110,7 @@ class CustomImageBlockComponentBuilder extends BlockComponentBuilder {
       node: node,
       showActions: showActions(node),
       configuration: configuration,
-      actionBuilder: (context, state) => actionBuilder(
-        blockComponentContext,
-        state,
-      ),
+      actionBuilder: (_, state) => actionBuilder(blockComponentContext, state),
       showMenu: showMenu,
       menuBuilder: menuBuilder,
     );
@@ -103,14 +162,16 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
   Widget build(BuildContext context) {
     final node = widget.node;
     final attributes = node.attributes;
-    final src = attributes[ImageBlockKeys.url];
+    final src = attributes[CustomImageBlockKeys.url];
 
     final alignment = AlignmentExtension.fromString(
-      attributes[ImageBlockKeys.align] ?? 'center',
+      attributes[CustomImageBlockKeys.align] ?? 'center',
     );
-    final width = attributes[ImageBlockKeys.width]?.toDouble() ??
+    final width = attributes[CustomImageBlockKeys.width]?.toDouble() ??
         MediaQuery.of(context).size.width;
-    final height = attributes[ImageBlockKeys.height]?.toDouble();
+    final height = attributes[CustomImageBlockKeys.height]?.toDouble();
+    final rawImageType = attributes[CustomImageBlockKeys.imageType] ?? 0;
+    final imageType = CustomImageType.fromIntValue(rawImageType);
 
     final imagePlaceholderKey = node.extraInfos?[kImagePlaceholderKey];
     Widget child;
@@ -119,7 +180,8 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         key: imagePlaceholderKey is GlobalKey ? imagePlaceholderKey : null,
         node: node,
       );
-    } else if (!_checkIfURLIsValid(src)) {
+    } else if (imageType != CustomImageType.internal &&
+        !_checkIfURLIsValid(src)) {
       child = const UnSupportImageWidget();
     } else {
       child = ResizableImage(
@@ -128,30 +190,39 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         height: height,
         editable: editorState.editable,
         alignment: alignment,
+        type: imageType,
         onResize: (width) {
           final transaction = editorState.transaction
             ..updateNode(node, {
-              ImageBlockKeys.width: width,
+              CustomImageBlockKeys.width: width,
             });
           editorState.apply(transaction);
         },
       );
     }
 
-    child = BlockSelectionContainer(
-      node: node,
-      delegate: this,
-      listenable: editorState.selectionNotifier,
-      blockColor: editorState.editorStyle.selectionColor,
-      supportTypes: const [
-        BlockSelectionType.block,
-      ],
-      child: Padding(
+    if (PlatformExtension.isDesktopOrWeb) {
+      child = BlockSelectionContainer(
+        node: node,
+        delegate: this,
+        listenable: editorState.selectionNotifier,
+        blockColor: editorState.editorStyle.selectionColor,
+        supportTypes: const [
+          BlockSelectionType.block,
+        ],
+        child: Padding(
+          key: imageKey,
+          padding: padding,
+          child: child,
+        ),
+      );
+    } else {
+      child = Padding(
         key: imageKey,
         padding: padding,
         child: child,
-      ),
-    );
+      );
+    }
 
     if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
@@ -176,7 +247,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
           child: ValueListenableBuilder<bool>(
             valueListenable: showActionsNotifier,
             builder: (context, value, child) {
-              final url = node.attributes[ImageBlockKeys.url];
+              final url = node.attributes[CustomImageBlockKeys.url];
               return Stack(
                 children: [
                   BlockSelectionContainer(
@@ -202,6 +273,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     } else {
       // show a fixed menu on mobile
       child = MobileBlockActionButtons(
+        showThreeDots: false,
         node: node,
         editorState: editorState,
         extendActionWidgets: _buildExtendActionWidgets(context),
@@ -213,7 +285,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
   }
 
   @override
-  Position start() => Position(path: widget.node.path, offset: 0);
+  Position start() => Position(path: widget.node.path);
 
   @override
   Position end() => Position(path: widget.node.path, offset: 1);
@@ -282,70 +354,46 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
 
   // only used on mobile platform
   List<Widget> _buildExtendActionWidgets(BuildContext context) {
-    final url = widget.node.attributes[ImageBlockKeys.url];
+    final String url = widget.node.attributes[CustomImageBlockKeys.url];
     if (!_checkIfURLIsValid(url)) {
       return [];
     }
 
     return [
-      Row(
-        children: [
-          Expanded(
-            child: BottomSheetActionWidget(
-              svg: FlowySvgs.copy_s,
-              text: LocaleKeys.editor_copyLink.tr(),
-              onTap: () async {
-                context.pop();
-                showSnackBarMessage(
-                  context,
-                  LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
-                );
-                await getIt<ClipboardService>().setPlainText(url);
-              },
-            ),
+      // disable the copy link button if the image is hosted on appflowy cloud
+      // because the url needs the verification token to be accessible
+      if (!url.isAppFlowyCloudUrl)
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.editor_copyLink.tr(),
+          leftIcon: const FlowySvg(
+            FlowySvgs.m_field_copy_s,
           ),
-          const HSpace(8.0),
-          Expanded(
-            child: BottomSheetActionWidget(
-              svg: FlowySvgs.image_placeholder_s,
-              text: LocaleKeys.document_imageBlock_saveImageToGallery.tr(),
-              onTap: () async {
-                context.pop();
-                Uint8List? bytes;
-                if (isURL(url)) {
-                  // network image
-                  final result = await get(Uri.parse(url));
-                  if (result.statusCode == 200) {
-                    bytes = result.bodyBytes;
-                  }
-                } else {
-                  final file = File(url);
-                  bytes = await file.readAsBytes();
-                }
-                if (bytes != null) {
-                  await ImageGallerySaver.saveImage(bytes);
-                  if (context.mounted) {
-                    showSnackBarMessage(
-                      context,
-                      LocaleKeys.document_imageBlock_successToAddImageToGallery
-                          .tr(),
-                    );
-                  }
-                } else {
-                  if (context.mounted) {
-                    showSnackBarMessage(
-                      context,
-                      LocaleKeys.document_imageBlock_failedToAddImageToGallery
-                          .tr(),
-                    );
-                  }
-                }
-              },
-            ),
-          ),
-        ],
+          onTap: () async {
+            context.pop();
+            showSnackBarMessage(
+              context,
+              LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
+            );
+            await getIt<ClipboardService>().setPlainText(url);
+          },
+        ),
+      FlowyOptionTile.text(
+        showTopBorder: false,
+        text: LocaleKeys.document_imageBlock_saveImageToGallery.tr(),
+        leftIcon: const FlowySvg(
+          FlowySvgs.image_placeholder_s,
+          size: Size.square(20),
+        ),
+        onTap: () async {
+          context.pop();
+          showSnackBarMessage(
+            context,
+            LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
+          );
+          await getIt<ClipboardService>().setPlainText(url);
+        },
       ),
-      const VSpace(8),
     ];
   }
 

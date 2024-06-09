@@ -1,6 +1,6 @@
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
+import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,7 +18,7 @@ void main() {
     final fieldInfo = context.singleSelectFieldContext();
     editorBloc = context.makeFieldEditor(
       fieldInfo: fieldInfo,
-    )..add(const FieldEditorEvent.initial());
+    );
 
     await boardResponseFuture();
   });
@@ -38,7 +38,6 @@ void main() {
     blocTest<BoardBloc, BoardState>(
       'assert the number of groups is 1',
       build: () => BoardBloc(
-        view: context.gridView,
         databaseController: DatabaseController(view: context.gridView),
       )..add(
           const BoardEvent.initial(),

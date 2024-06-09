@@ -1,17 +1,16 @@
 part of 'tabs_bloc.dart';
 
 class TabsState {
-  final int currentIndex;
-
-  final List<PageManager> _pageManagers;
-  int get pages => _pageManagers.length;
-  PageManager get currentPageManager => _pageManagers[currentIndex];
-  List<PageManager> get pageManagers => _pageManagers;
-
   TabsState({
     this.currentIndex = 0,
     List<PageManager>? pageManagers,
   }) : _pageManagers = pageManagers ?? [PageManager()];
+
+  final int currentIndex;
+  final List<PageManager> _pageManagers;
+  int get pages => _pageManagers.length;
+  PageManager get currentPageManager => _pageManagers[currentIndex];
+  List<PageManager> get pageManagers => _pageManagers;
 
   /// This opens a new tab given a [Plugin] and a [View].
   ///
@@ -22,7 +21,7 @@ class TabsState {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
     if (selectExistingPlugin == null) {
-      _pageManagers.add(PageManager()..setPlugin(plugin));
+      _pageManagers.add(PageManager()..setPlugin(plugin, true));
 
       return copyWith(newIndex: pages - 1, pageManagers: [..._pageManagers]);
     }
@@ -59,12 +58,12 @@ class TabsState {
   /// If the plugin is already open in a tab, then that tab
   /// will become selected.
   ///
-  TabsState openPlugin({required Plugin plugin}) {
+  TabsState openPlugin({required Plugin plugin, bool setLatest = true}) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
     if (selectExistingPlugin == null) {
       final pageManagers = [..._pageManagers];
-      pageManagers[currentIndex].setPlugin(plugin);
+      pageManagers[currentIndex].setPlugin(plugin, setLatest);
 
       return copyWith(pageManagers: pageManagers);
     }
@@ -99,4 +98,10 @@ class TabsState {
         currentIndex: newIndex ?? currentIndex,
         pageManagers: pageManagers ?? _pageManagers,
       );
+
+  void dispose() {
+    for (final manager in pageManagers) {
+      manager.dispose();
+    }
+  }
 }

@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/trash/src/sizes.dart';
 import 'package:appflowy/plugins/trash/src/trash_header.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -19,7 +20,7 @@ import 'application/trash_bloc.dart';
 import 'src/trash_cell.dart';
 
 class TrashPage extends StatefulWidget {
-  const TrashPage({Key? key}) : super(key: key);
+  const TrashPage({super.key});
 
   @override
   State<TrashPage> createState() => _TrashPageState();
@@ -27,6 +28,13 @@ class TrashPage extends StatefulWidget {
 
 class _TrashPageState extends State<TrashPage> {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     const horizontalPadding = 80.0;
@@ -36,7 +44,6 @@ class _TrashPageState extends State<TrashPage> {
         builder: (context, state) {
           return SizedBox.expand(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _renderTopBar(context, state),
                 const VSpace(32),
@@ -58,7 +65,6 @@ class _TrashPageState extends State<TrashPage> {
         scrollbarPadding: EdgeInsets.only(top: TrashSizes.headerHeight),
         barSize: barSize,
         child: StyledSingleChildScrollView(
-          controller: ScrollController(),
           barSize: barSize,
           axis: Axis.horizontal,
           child: SizedBox(
@@ -97,9 +103,16 @@ class _TrashPageState extends State<TrashPage> {
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr()),
               leftIcon: const FlowySvg(FlowySvgs.restore_s),
-              onTap: () => context.read<TrashBloc>().add(
-                    const TrashEvent.restoreAll(),
-                  ),
+              onTap: () {
+                NavigatorAlertDialog(
+                  title: LocaleKeys.trash_confirmRestoreAll_title.tr(),
+                  confirm: () {
+                    context
+                        .read<TrashBloc>()
+                        .add(const TrashEvent.restoreAll());
+                  },
+                ).show(context);
+              },
             ),
           ),
           const HSpace(6),
@@ -107,8 +120,14 @@ class _TrashPageState extends State<TrashPage> {
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr()),
               leftIcon: const FlowySvg(FlowySvgs.delete_s),
-              onTap: () =>
-                  context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
+              onTap: () {
+                NavigatorAlertDialog(
+                  title: LocaleKeys.trash_confirmDeleteAll_title.tr(),
+                  confirm: () {
+                    context.read<TrashBloc>().add(const TrashEvent.deleteAll());
+                  },
+                ).show(context);
+              },
             ),
           ),
         ],
@@ -134,10 +153,23 @@ class _TrashPageState extends State<TrashPage> {
             child: TrashCell(
               object: object,
               onRestore: () {
-                context.read<TrashBloc>().add(TrashEvent.putback(object.id));
+                NavigatorAlertDialog(
+                  title: LocaleKeys.deletePagePrompt_restore.tr(),
+                  confirm: () {
+                    context
+                        .read<TrashBloc>()
+                        .add(TrashEvent.putback(object.id));
+                  },
+                ).show(context);
               },
-              onDelete: () =>
-                  context.read<TrashBloc>().add(TrashEvent.delete(object)),
+              onDelete: () {
+                NavigatorAlertDialog(
+                  title: LocaleKeys.deletePagePrompt_deletePermanent.tr(),
+                  confirm: () {
+                    context.read<TrashBloc>().add(TrashEvent.delete(object));
+                  },
+                ).show(context);
+              },
             ),
           );
         },

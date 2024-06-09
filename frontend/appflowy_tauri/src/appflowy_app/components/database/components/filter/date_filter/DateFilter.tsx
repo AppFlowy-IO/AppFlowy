@@ -4,7 +4,7 @@ import {
   DateFilterData,
   DateTimeField,
   DateTimeTypeOption,
-} from '$app/components/database/application';
+} from '$app/application/database';
 import { DateFilterConditionPB } from '@/services/backend';
 import CustomCalendar from '$app/components/database/components/field_types/date/CustomCalendar';
 import DateTimeSet from '$app/components/database/components/field_types/date/DateTimeSet';
@@ -27,23 +27,19 @@ function DateFilter({ filter, field, onChange }: Props) {
   const condition = filter.data.condition;
   const isRange = condition === DateFilterConditionPB.DateWithIn;
   const timestamp = useMemo(() => {
-    const now = Date.now() / 1000;
-
     if (isRange) {
-      return filter.data.start ? filter.data.start : now;
+      return filter.data.start;
     }
 
-    return filter.data.timestamp ? filter.data.timestamp : now;
+    return filter.data.timestamp;
   }, [filter.data.start, filter.data.timestamp, isRange]);
 
   const endTimestamp = useMemo(() => {
-    const now = Date.now() / 1000;
-
     if (isRange) {
-      return filter.data.end ? filter.data.end : now;
+      return filter.data.end;
     }
 
-    return now;
+    return;
   }, [filter.data.end, isRange]);
 
   const timeFormat = useMemo(() => {
@@ -64,7 +60,7 @@ function DateFilter({ filter, field, onChange }: Props) {
                 onChange({
                   condition,
                   timestamp: date,
-                  start: date,
+                  start: endDate ? date : undefined,
                   end: endDate,
                 });
               }}
@@ -81,7 +77,7 @@ function DateFilter({ filter, field, onChange }: Props) {
               onChange({
                 condition,
                 timestamp: date,
-                start: date,
+                start: endDate ? date : undefined,
                 end: endDate,
               });
             }}

@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -37,7 +37,6 @@ void main() {
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      fieldType: textField.fieldType,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);
@@ -65,7 +64,6 @@ void main() {
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      fieldType: textField.fieldType,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);
@@ -107,7 +105,6 @@ void main() {
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      fieldType: textField.fieldType,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);
@@ -121,7 +118,7 @@ void main() {
     // create a new filter
     await service.insertTextFilter(
       fieldId: textField.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "A",
     );
     await gridResponseFuture();
@@ -135,7 +132,7 @@ void main() {
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "B",
     );
     await gridResponseFuture();
@@ -145,7 +142,7 @@ void main() {
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "b",
     );
     await gridResponseFuture();
@@ -155,7 +152,7 @@ void main() {
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "C",
     );
     await gridResponseFuture();
@@ -165,7 +162,6 @@ void main() {
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      fieldType: textField.fieldType,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);

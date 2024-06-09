@@ -1,21 +1,21 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_up_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
+    show UserProfilePB;
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
-    show UserProfilePB;
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({
@@ -32,10 +32,10 @@ class SignUpScreen extends StatelessWidget {
       create: (context) => getIt<SignUpBloc>(),
       child: BlocListener<SignUpBloc, SignUpState>(
         listener: (context, state) {
-          state.successOrFail.fold(
-            () => {},
-            (result) => _handleSuccessOrFail(context, result),
-          );
+          final successOrFail = state.successOrFail;
+          if (successOrFail != null) {
+            _handleSuccessOrFail(context, successOrFail);
+          }
         },
         child: const Scaffold(body: SignUpForm()),
       ),
@@ -44,7 +44,7 @@ class SignUpScreen extends StatelessWidget {
 
   void _handleSuccessOrFail(
     BuildContext context,
-    Either<UserProfilePB, FlowyError> result,
+    FlowyResult<UserProfilePB, FlowyError> result,
   ) {
     result.fold(
       (user) => router.pushWorkspaceStartScreen(context, user),
@@ -61,7 +61,6 @@ class SignUpForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.center,
       child: AuthFormContainer(
         children: [
           FlowyLogoTitle(
@@ -80,7 +79,7 @@ class SignUpForm extends StatelessWidget {
           const SignUpPrompt(),
           if (context.read<SignUpBloc>().state.isSubmitting) ...[
             const SizedBox(height: 8),
-            const LinearProgressIndicator(value: null),
+            const LinearProgressIndicator(),
           ],
         ],
       ),
@@ -155,11 +154,7 @@ class PasswordTextField extends StatelessWidget {
           normalBorderColor: Theme.of(context).colorScheme.outline,
           errorBorderColor: Theme.of(context).colorScheme.error,
           cursorColor: Theme.of(context).colorScheme.primary,
-          errorText: context
-              .read<SignUpBloc>()
-              .state
-              .passwordError
-              .fold(() => "", (error) => error),
+          errorText: context.read<SignUpBloc>().state.passwordError ?? '',
           onChanged: (value) => context
               .read<SignUpBloc>()
               .add(SignUpEvent.passwordChanged(value)),
@@ -188,11 +183,7 @@ class RepeatPasswordTextField extends StatelessWidget {
           normalBorderColor: Theme.of(context).colorScheme.outline,
           errorBorderColor: Theme.of(context).colorScheme.error,
           cursorColor: Theme.of(context).colorScheme.primary,
-          errorText: context
-              .read<SignUpBloc>()
-              .state
-              .repeatPasswordError
-              .fold(() => "", (error) => error),
+          errorText: context.read<SignUpBloc>().state.repeatPasswordError ?? '',
           onChanged: (value) => context
               .read<SignUpBloc>()
               .add(SignUpEvent.repeatPasswordChanged(value)),
@@ -219,11 +210,7 @@ class EmailTextField extends StatelessWidget {
           normalBorderColor: Theme.of(context).colorScheme.outline,
           errorBorderColor: Theme.of(context).colorScheme.error,
           cursorColor: Theme.of(context).colorScheme.primary,
-          errorText: context
-              .read<SignUpBloc>()
-              .state
-              .emailError
-              .fold(() => "", (error) => error),
+          errorText: context.read<SignUpBloc>().state.emailError ?? '',
           onChanged: (value) =>
               context.read<SignUpBloc>().add(SignUpEvent.emailChanged(value)),
         );

@@ -6,7 +6,7 @@ use yrs::types::ToJson;
 use yrs::updates::decoder::Decode;
 use yrs::{merge_updates_v1, Array, Doc, Map, MapPrelim, ReadTxn, StateVector, Transact, Update};
 
-use flowy_user_deps::entities::AuthResponse;
+use flowy_user_pub::entities::AuthResponse;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{
@@ -69,7 +69,12 @@ async fn supabase_get_folder_test() {
 
   // let updates = collab_service.get_all_updates(&collab_object).await.unwrap();
   let updates = folder_service
-    .get_folder_doc_state(&user.latest_workspace.id, user.user_id)
+    .get_folder_doc_state(
+      &user.latest_workspace.id,
+      user.user_id,
+      CollabType::Folder,
+      &user.latest_workspace.id,
+    )
     .await
     .unwrap();
   assert_eq!(updates.len(), 2);
@@ -80,20 +85,23 @@ async fn supabase_get_folder_test() {
       .await
       .unwrap();
   }
-  let updates: Vec<Vec<u8>> = folder_service
-    .get_folder_doc_state(&user.latest_workspace.id, user.user_id)
+  let updates = folder_service
+    .get_folder_doc_state(
+      &user.latest_workspace.id,
+      user.user_id,
+      CollabType::Folder,
+      &user.latest_workspace.id,
+    )
     .await
     .unwrap();
 
-  assert_eq!(updates.len(), 1);
   // Other the init sync, try to get the updates from the server.
-  let remote_update = updates.first().unwrap().clone();
   let expected_update = doc
     .transact_mut()
     .encode_state_as_update_v1(&StateVector::default());
 
   // check the update is the same as local document update.
-  assert_eq!(remote_update, expected_update);
+  assert_eq!(updates, expected_update);
 }
 
 /// This async test function checks the behavior of updates duplication in Supabase.
@@ -148,13 +156,15 @@ async fn supabase_duplicate_updates_test() {
     .send_init_sync(&collab_object, 3, vec![])
     .await
     .unwrap();
-  let first_init_sync_update: Vec<u8> = folder_service
-    .get_folder_doc_state(&user.latest_workspace.id, user.user_id)
+  let first_init_sync_update = folder_service
+    .get_folder_doc_state(
+      &user.latest_workspace.id,
+      user.user_id,
+      CollabType::Folder,
+      &user.latest_workspace.id,
+    )
     .await
-    .unwrap()
-    .first()
-    .unwrap()
-    .clone();
+    .unwrap();
 
   // simulate the duplicated updates.
   let merged_update = merge_updates_v1(
@@ -168,13 +178,16 @@ async fn supabase_duplicate_updates_test() {
     .send_init_sync(&collab_object, 4, merged_update)
     .await
     .unwrap();
-  let second_init_sync_update: Vec<u8> = folder_service
-    .get_folder_doc_state(&user.latest_workspace.id, user.user_id)
+  let second_init_sync_update = folder_service
+    .get_folder_doc_state(
+      &user.latest_workspace.id,
+      user.user_id,
+      CollabType::Folder,
+      &user.latest_workspace.id,
+    )
     .await
-    .unwrap()
-    .first()
-    .unwrap()
-    .clone();
+    .unwrap();
+
   let doc_2 = Doc::new();
   assert_eq!(first_init_sync_update.len(), second_init_sync_update.len());
   let map = { doc_2.get_or_insert_map("map") };
@@ -257,16 +270,19 @@ async fn supabase_diff_state_vector_test() {
   // restore the doc with given updates.
   let old_version_doc = Doc::new();
   let map = { old_version_doc.get_or_insert_map("map") };
-  let updates: Vec<Vec<u8>> = folder_service
-    .get_folder_doc_state(&user.latest_workspace.id, user.user_id)
+  let doc_state = folder_service
+    .get_folder_doc_state(
+      &user.latest_workspace.id,
+      user.user_id,
+      CollabType::Folder,
+      &user.latest_workspace.id,
+    )
     .await
     .unwrap();
   {
     let mut txn = old_version_doc.transact_mut();
-    for update in updates {
-      let update = Update::decode_v1(&update).unwrap();
-      txn.apply_update(update);
-    }
+    let update = Update::decode_v1(&doc_state).unwrap();
+    txn.apply_update(update);
   }
   let txn = old_version_doc.transact();
   let json = map.to_json(&txn);

@@ -7,7 +7,7 @@
           "type": "color"
         },
         "100": {
-          "value": "#edeef2",
+          "value": "#dadbdd",
           "type": "color"
         },
         "200": {
@@ -134,7 +134,7 @@
             "type": "color"
           },
           "red": {
-            "value": "#ffe7ee",
+            "value": "#ffdddd",
             "type": "color"
           }
         }
@@ -271,6 +271,10 @@
           },
           "lime": {
             "value": "#394027",
+            "type": "color"
+          },
+          "orange": {
+            "value": "#5E3C3C",
             "type": "color"
           }
         }

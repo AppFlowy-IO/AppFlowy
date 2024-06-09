@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::convert::TryInto;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::entities::*;
 
 use crate::entities::parser::*;
 use crate::errors::ErrorCode;
@@ -19,7 +19,7 @@ pub struct SignInPayloadPB {
   pub name: String,
 
   #[pb(index = 4)]
-  pub auth_type: AuthTypePB,
+  pub auth_type: AuthenticatorPB,
 
   #[pb(index = 5)]
   pub device_id: String,
@@ -53,7 +53,7 @@ pub struct SignUpPayloadPB {
   pub password: String,
 
   #[pb(index = 4)]
-  pub auth_type: AuthTypePB,
+  pub auth_type: AuthenticatorPB,
 
   #[pb(index = 5)]
   pub device_id: String,
@@ -78,6 +78,15 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
 }
 
 #[derive(ProtoBuf, Default)]
+pub struct MagicLinkSignInPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub redirect_to: String,
+}
+
+#[derive(ProtoBuf, Default)]
 pub struct OauthSignInPB {
   /// Use this field to store the third party auth information.
   /// Different auth type has different fields.
@@ -88,7 +97,7 @@ pub struct OauthSignInPB {
   pub map: HashMap<String, String>,
 
   #[pb(index = 2)]
-  pub auth_type: AuthTypePB,
+  pub authenticator: AuthenticatorPB,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -97,7 +106,7 @@ pub struct SignInUrlPayloadPB {
   pub email: String,
 
   #[pb(index = 2)]
-  pub auth_type: AuthTypePB,
+  pub authenticator: AuthenticatorPB,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -173,13 +182,33 @@ pub struct OauthProviderDataPB {
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
-pub enum AuthTypePB {
+pub enum AuthenticatorPB {
   Local = 0,
   Supabase = 1,
-  AFCloud = 2,
+  AppFlowyCloud = 2,
 }
 
-impl Default for AuthTypePB {
+impl From<Authenticator> for AuthenticatorPB {
+  fn from(auth_type: Authenticator) -> Self {
+    match auth_type {
+      Authenticator::Supabase => AuthenticatorPB::Supabase,
+      Authenticator::Local => AuthenticatorPB::Local,
+      Authenticator::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
+    }
+  }
+}
+
+impl From<AuthenticatorPB> for Authenticator {
+  fn from(pb: AuthenticatorPB) -> Self {
+    match pb {
+      AuthenticatorPB::Supabase => Authenticator::Supabase,
+      AuthenticatorPB::Local => Authenticator::Local,
+      AuthenticatorPB::AppFlowyCloud => Authenticator::AppFlowyCloud,
+    }
+  }
+}
+
+impl Default for AuthenticatorPB {
   fn default() -> Self {
     Self::Local
   }
@@ -232,7 +261,7 @@ impl From<UserCredentialsPB> for UserCredentials {
 #[derive(Default, ProtoBuf)]
 pub struct UserStatePB {
   #[pb(index = 1)]
-  pub auth_type: AuthTypePB,
+  pub auth_type: AuthenticatorPB,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]

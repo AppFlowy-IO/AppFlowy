@@ -1,7 +1,7 @@
 import React, { HTMLAttributes } from 'react';
 import PropertyName from '$app/components/database/components/edit_record/record_properties/PropertyName';
 import PropertyValue from '$app/components/database/components/edit_record/record_properties/PropertyValue';
-import { Field } from '$app/components/database/application';
+import { Field } from '$app/application/database';
 import { IconButton, Tooltip } from '@mui/material';
 import { ReactComponent as DragSvg } from '$app/assets/drag.svg';
 import { useTranslation } from 'react-i18next';

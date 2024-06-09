@@ -1,4 +1,6 @@
 // lib/env/env.dart
+// ignore_for_file: prefer_const_declarations
+
 import 'package:envied/envied.dart';
 
 part 'cloud_env_test.g.dart';
@@ -9,21 +11,21 @@ part 'cloud_env_test.g.dart';
 abstract class TestEnv {
   /// AppFlowy Cloud Configuration
   @EnviedField(
-    obfuscate: true,
+    obfuscate: false,
     varName: 'APPFLOWY_CLOUD_URL',
-    defaultValue: '',
+    defaultValue: 'http://localhost',
   )
   static final String afCloudUrl = _TestEnv.afCloudUrl;
 
   // Supabase Configuration:
   @EnviedField(
-    obfuscate: true,
+    obfuscate: false,
     varName: 'SUPABASE_URL',
     defaultValue: '',
   )
   static final String supabaseUrl = _TestEnv.supabaseUrl;
   @EnviedField(
-    obfuscate: true,
+    obfuscate: false,
     varName: 'SUPABASE_ANON_KEY',
     defaultValue: '',
   )

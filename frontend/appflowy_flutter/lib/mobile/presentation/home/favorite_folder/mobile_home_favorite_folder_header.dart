@@ -27,7 +27,6 @@ class _MobileFavoriteFolderHeaderState
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: FlowyButton(

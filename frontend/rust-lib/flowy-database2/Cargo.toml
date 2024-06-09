@@ -6,53 +6,56 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-collab = { version = "0.1.0" }
-collab-database = { version = "0.1.0" }
-collab-entity = { version = "0.1.0" }
+collab = { workspace = true }
+collab-database = { workspace = true }
+collab-entity = { workspace = true }
+collab-plugins = { workspace = true }
 collab-integrate = { workspace = true }
-flowy-database-deps = { workspace = true }
+flowy-database-pub = { workspace = true }
 
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-flowy-notification  = { workspace = true }
+flowy-derive.workspace = true
+flowy-notification = { workspace = true }
 parking_lot.workspace = true
 protobuf.workspace = true
-flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_collab"]}
+flowy-error = { workspace = true, features = [
+    "impl_from_dispatch_error",
+    "impl_from_collab_database",
+] }
 lib-dispatch = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
-flowy-task= { workspace = true }
 bytes.workspace = true
 tracing.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_repr.workspace = true
-lib-infra = { path = "../../../shared-lib/lib-infra" }
-chrono = { workspace = true,  default-features = false, features = ["clock"] }
+lib-infra = { workspace = true }
+chrono = { workspace = true, default-features = false, features = ["clock"] }
 rust_decimal = "1.28.1"
-rusty-money = {version = "0.4.1", features = ["iso"]}
+rusty-money = { version = "0.4.1", features = ["iso"] }
 lazy_static = "1.4.0"
-indexmap = {version = "2.1.0", features = ["serde"]}
-url = { version = "2"}
+indexmap = { version = "2.1.0", features = ["serde"] }
+url = { version = "2" }
 fancy-regex = "0.11.0"
 futures.workspace = true
 dashmap = "5"
 anyhow.workspace = true
 async-stream = "0.3.4"
-rayon = "1.6.1"
+rayon = "1.9.0"
 nanoid = "0.4.0"
 async-trait.workspace = true
 chrono-tz = "0.8.2"
 csv = "1.1.6"
 strum = "0.25"
 strum_macros = "0.25"
-lru.workspace = true
+validator = { version = "0.16.0", features = ["derive"] }
 
 [dev-dependencies]
-event-integration = { path = "../event-integration", default-features = false }
+event-integration-test = { path = "../event-integration-test", default-features = false }
 
 [build-dependencies]
-flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}
+flowy-codegen.workspace = true
 
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]

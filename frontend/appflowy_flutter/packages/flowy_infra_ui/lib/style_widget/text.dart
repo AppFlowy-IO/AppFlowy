@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class FlowyText extends StatelessWidget {
   final String text;
@@ -14,9 +15,14 @@ class FlowyText extends StatelessWidget {
   final bool selectable;
   final String? fontFamily;
   final List<String>? fallbackFontFamily;
+  final double? lineHeight;
+  final bool withTooltip;
+  final StrutStyle? strutStyle;
+  final bool isEmoji;
 
   const FlowyText(
     this.text, {
+    super.key,
     this.overflow = TextOverflow.clip,
     this.fontSize,
     this.fontWeight,
@@ -27,11 +33,15 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
-    Key? key,
-  }) : super(key: key);
+    this.lineHeight,
+    this.withTooltip = false,
+    this.isEmoji = false,
+    this.strutStyle,
+  });
 
   FlowyText.small(
     this.text, {
+    super.key,
     this.overflow,
     this.color,
     this.textAlign,
@@ -40,13 +50,16 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
-    Key? key,
+    this.lineHeight,
+    this.withTooltip = false,
+    this.isEmoji = false,
+    this.strutStyle,
   })  : fontWeight = FontWeight.w400,
-        fontSize = (Platform.isIOS || Platform.isAndroid) ? 14 : 12,
-        super(key: key);
+        fontSize = (Platform.isIOS || Platform.isAndroid) ? 14 : 12;
 
   const FlowyText.regular(
     this.text, {
+    super.key,
     this.fontSize,
     this.overflow,
     this.color,
@@ -56,12 +69,15 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
-    Key? key,
-  })  : fontWeight = FontWeight.w400,
-        super(key: key);
+    this.lineHeight,
+    this.withTooltip = false,
+    this.isEmoji = false,
+    this.strutStyle,
+  }) : fontWeight = FontWeight.w400;
 
   const FlowyText.medium(
     this.text, {
+    super.key,
     this.fontSize,
     this.overflow,
     this.color,
@@ -71,12 +87,15 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
-    Key? key,
-  })  : fontWeight = FontWeight.w500,
-        super(key: key);
+    this.lineHeight,
+    this.withTooltip = false,
+    this.isEmoji = false,
+    this.strutStyle,
+  }) : fontWeight = FontWeight.w500;
 
   const FlowyText.semibold(
     this.text, {
+    super.key,
     this.fontSize,
     this.overflow,
     this.color,
@@ -86,57 +105,102 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
-    Key? key,
-  })  : fontWeight = FontWeight.w600,
-        super(key: key);
+    this.lineHeight,
+    this.withTooltip = false,
+    this.isEmoji = false,
+    this.strutStyle,
+  }) : fontWeight = FontWeight.w600;
 
   // Some emojis are not supported on Linux and Android, fallback to noto color emoji
   const FlowyText.emoji(
     this.text, {
+    super.key,
     this.fontSize,
     this.overflow,
     this.color,
-    this.textAlign,
+    this.textAlign = TextAlign.center,
     this.maxLines = 1,
     this.decoration,
     this.selectable = false,
-    Key? key,
+    this.lineHeight,
+    this.withTooltip = false,
+    this.strutStyle = const StrutStyle(forceStrutHeight: true),
+    this.isEmoji = true,
+    this.fontFamily,
   })  : fontWeight = FontWeight.w400,
-        fontFamily = 'noto color emoji',
-        fallbackFontFamily = null,
-        super(key: key);
+        fallbackFontFamily = null;
 
   @override
   Widget build(BuildContext context) {
+    Widget child;
+
+    var fontFamily = this.fontFamily;
+    var fallbackFontFamily = this.fallbackFontFamily;
+    var fontSize =
+        this.fontSize ?? Theme.of(context).textTheme.bodyMedium!.fontSize!;
+    if (isEmoji && _useNotoColorEmoji) {
+      fontFamily = _loadEmojiFontFamilyIfNeeded();
+      if (fontFamily != null && fallbackFontFamily == null) {
+        fallbackFontFamily = [fontFamily];
+      }
+    }
+
+    if (isEmoji && (_useNotoColorEmoji || Platform.isWindows)) {
+      fontSize = fontSize * 0.8;
+    }
+
+    final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          decoration: decoration,
+          fontFamily: fontFamily,
+          fontFamilyFallback: fallbackFontFamily,
+          height: lineHeight,
+        );
+
     if (selectable) {
-      return SelectableText(
+      child = SelectableText(
         text,
         maxLines: maxLines,
         textAlign: textAlign,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: color,
-              decoration: decoration,
-              fontFamily: fontFamily,
-              fontFamilyFallback: fallbackFontFamily,
-            ),
+        style: textStyle,
       );
     } else {
-      return Text(
+      child = Text(
         text,
         maxLines: maxLines,
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: color,
-              decoration: decoration,
-              fontFamily: fontFamily,
-              fontFamilyFallback: fallbackFontFamily,
-            ),
+        style: textStyle,
+        strutStyle: (Platform.isMacOS || Platform.isLinux) & !isEmoji
+            ? StrutStyle.fromTextStyle(
+                textStyle,
+                forceStrutHeight: true,
+                leadingDistribution: TextLeadingDistribution.even,
+                height: 1.1,
+              )
+            : null,
       );
     }
+
+    if (withTooltip) {
+      child = Tooltip(
+        message: text,
+        child: child,
+      );
+    }
+
+    return child;
   }
+
+  String? _loadEmojiFontFamilyIfNeeded() {
+    if (_useNotoColorEmoji) {
+      return GoogleFonts.notoColorEmoji().fontFamily;
+    }
+
+    return null;
+  }
+
+  bool get _useNotoColorEmoji => Platform.isLinux || Platform.isAndroid;
 }

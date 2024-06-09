@@ -3,14 +3,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class Toggle extends StatelessWidget {
-  final ToggleStyle style;
-  final bool value;
-  final Color? thumbColor;
-  final Color? activeBackgroundColor;
-  final Color? inactiveBackgroundColor;
-  final void Function(bool) onChanged;
-  final EdgeInsets padding;
-
   const Toggle({
     super.key,
     required this.value,
@@ -21,6 +13,14 @@ class Toggle extends StatelessWidget {
     this.inactiveBackgroundColor,
     this.padding = const EdgeInsets.all(8.0),
   });
+
+  final bool value;
+  final void Function(bool) onChanged;
+  final ToggleStyle style;
+  final Color? thumbColor;
+  final Color? activeBackgroundColor;
+  final Color? inactiveBackgroundColor;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {

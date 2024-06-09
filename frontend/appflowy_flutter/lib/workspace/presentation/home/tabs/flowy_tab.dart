@@ -8,14 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class FlowyTab extends StatefulWidget {
-  final PageManager pageManager;
-  final bool isCurrent;
-
   const FlowyTab({
     super.key,
     required this.pageManager,
     required this.isCurrent,
   });
+
+  final PageManager pageManager;
+  final bool isCurrent;
 
   @override
   State<FlowyTab> createState() => _FlowyTabState();
@@ -33,7 +33,7 @@ class _FlowyTabState extends State<FlowyTab> {
         onExit: (_) => _setHovering(),
         child: Container(
           width: HomeSizes.tabBarWidth,
-          height: HomeSizes.tabBarHeigth,
+          height: HomeSizes.tabBarHeight,
           decoration: BoxDecoration(
             color: _getBackgroundColor(),
           ),
@@ -86,7 +86,7 @@ class _FlowyTabState extends State<FlowyTab> {
       return AFThemeExtension.of(context).lightGreyHover;
     }
 
-    return Theme.of(context).colorScheme.surfaceVariant;
+    return Theme.of(context).colorScheme.surfaceContainerHighest;
   }
 
   void _closeTab([TapUpDetails? details]) => context

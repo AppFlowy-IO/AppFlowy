@@ -5,8 +5,12 @@ use collab_database::views::RowOrder;
 
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
+use lib_infra::validator_fn::required_not_empty_str;
+use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
+use crate::entities::position_entities::OrderObjectPositionPB;
 use crate::services::database::{InsertedRow, UpdatedRow};
 
 /// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
@@ -46,7 +50,7 @@ impl From<RowOrder> for RowPB {
   }
 }
 
-#[derive(Debug, Default, Clone, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf, Serialize, Deserialize)]
 pub struct RowMetaPB {
   #[pb(index = 1)]
   pub id: String,
@@ -334,46 +338,45 @@ impl TryInto<RowIdParams> for RowIdPB {
   }
 }
 
-#[derive(ProtoBuf, Default)]
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct RepeatedRowIdPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub row_ids: Vec<String>,
+}
+
+#[derive(ProtoBuf, Default, Validate)]
 pub struct CreateRowPayloadPB {
   #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
   pub view_id: String,
 
-  #[pb(index = 2, one_of)]
-  pub start_row_id: Option<String>,
+  #[pb(index = 2)]
+  pub row_position: OrderObjectPositionPB,
 
   #[pb(index = 3, one_of)]
+  #[validate(custom = "required_not_empty_str")]
   pub group_id: Option<String>,
 
-  #[pb(index = 4, one_of)]
-  pub data: Option<RowDataPB>,
+  #[pb(index = 4)]
+  pub data: HashMap<String, String>,
 }
 
-#[derive(ProtoBuf, Default)]
-pub struct RowDataPB {
-  #[pb(index = 1)]
-  pub cell_data_by_field_id: HashMap<String, String>,
-}
-
-#[derive(Default)]
 pub struct CreateRowParams {
-  pub view_id: String,
-  pub start_row_id: Option<RowId>,
-  pub group_id: Option<String>,
-  pub cell_data_by_field_id: Option<HashMap<String, String>>,
+  pub collab_params: collab_database::rows::CreateRowParams,
+  pub open_after_create: bool,
 }
 
-impl TryInto<CreateRowParams> for CreateRowPayloadPB {
-  type Error = ErrorCode;
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct SummaryRowPB {
+  #[pb(index = 1)]
+  pub view_id: String,
 
-  fn try_into(self) -> Result<CreateRowParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
-    let start_row_id = self.start_row_id.map(RowId::from);
-    Ok(CreateRowParams {
-      view_id: view_id.0,
-      start_row_id,
-      group_id: self.group_id,
-      cell_data_by_field_id: self.data.map(|data| data.cell_data_by_field_id),
-    })
-  }
+  #[pb(index = 2)]
+  pub row_id: String,
+
+  #[pb(index = 3)]
+  pub field_id: String,
 }

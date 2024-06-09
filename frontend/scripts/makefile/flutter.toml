@@ -7,7 +7,6 @@ linux_alias = "appflowy-linux"
 dependencies = ["appflowy-core-release"]
 run_task = { name = [
   "code_generation",
-  "set-app-version",
   "flutter-build",
   "copy-to-product",
 ] }
@@ -16,7 +15,6 @@ script_runner = "@shell"
 [tasks.appflowy-macos-universal]
 run_task = { name = [
   "code_generation",
-  "set-app-version",
   "flutter-build",
   "copy-to-product",
 ] }
@@ -58,7 +56,7 @@ run_task = { name = [
   "code_generation",
   "set-app-version",
   "flutter-build-android",
-  "copy-to-product-mobile",
+  "copy-to-product-android",
 ] }
 script_runner = "@shell"
 
@@ -71,7 +69,6 @@ linux_alias = "appflowy-linux-dev"
 dependencies = ["appflowy-core-dev-ios"]
 run_task = { name = [
   "code_generation",
-  "set-app-version",
   "flutter-build-ios",
 ] }
 script_runner = "@shell"
@@ -80,8 +77,15 @@ script_runner = "@shell"
 dependencies = ["appflowy-core-dev-android"]
 run_task = { name = [
   "code_generation",
-  "set-app-version",
   "flutter-build-android",
+] }
+script_runner = "@shell"
+
+[tasks.appflowy-android-dev-ci]
+dependencies = ["appflowy-core-dev-android-ci"]
+run_task = { name = [
+  "code_generation",
+  "flutter-build-android-ci",
 ] }
 script_runner = "@shell"
 
@@ -89,7 +93,6 @@ script_runner = "@shell"
 dependencies = ["appflowy-core-dev"]
 run_task = { name = [
   "code_generation",
-  "set-app-version",
   "flutter-build",
   "copy-to-product",
 ] }
@@ -99,7 +102,6 @@ script_runner = "@shell"
 dependencies = ["appflowy-core-dev"]
 run_task = { name = [
   "code_generation",
-  "set-app-version",
   "flutter-build",
   "copy-to-product",
 ] }
@@ -108,7 +110,6 @@ run_task = { name = [
 dependencies = ["appflowy-core-dev"]
 run_task = { name = [
   "code_generation",
-  "set-app-version",
   "flutter-build",
   "copy-to-product",
 ] }
@@ -134,6 +135,23 @@ script = [
 
   product=${PRODUCT_NAME}.${PRODUCT_EXT}
   cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/${TARGET_OS}/Build/Products/${FLUTTER_OUTPUT_DIR}/${product} \
+  ${output_path}/${product}
+  """,
+]
+script_runner = "@shell"
+
+[tasks.copy-to-product-android]
+script = [
+  """
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/product/${APP_VERSION}
+  output_path=${product_path}/${TARGET_OS}/${FLUTTER_OUTPUT_DIR}
+  if [ -d "${output_path}" ]; then
+    rm -rf ${output_path}/
+  fi
+  mkdir -p ${output_path}
+
+  product=${PRODUCT_NAME}-arm64-v8a-release.${PRODUCT_EXT}
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
   ${output_path}/${product}
   """,
 ]
@@ -184,21 +202,12 @@ script = [
   mkdir ${output_path}
 
   product= set ${PRODUCT_NAME}
-  glob_cp  ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/${TARGET_OS}/runner/${FLUTTER_OUTPUT_DIR}/**/* \
+  glob_cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/${TARGET_OS}/${BUILD_ARCHS}/runner/${FLUTTER_OUTPUT_DIR}/**/* \
   ${output_path}/${product}
   """,
 ]
 script_runner = "@duckscript"
 
-[tasks.set-app-version]
-script = ["""
-  if is_empty ${APP_VERSION}
-    APP_VERSION = set ${CURRENT_APP_VERSION}
-    set_env APP_VERSION ${CURRENT_APP_VERSION}
-  end
-  echo APP_VERSION: ${APP_VERSION}
-  """]
-script_runner = "@duckscript"
 
 # The following tasks will create an archive that will be used on the GitHub Releases section
 # The archives are created using different compression programs depending on the target OS
@@ -241,7 +250,7 @@ script_runner = "@shell"
 script = ["""
   cd appflowy_flutter/
   flutter pub get
-  flutter build ipa --verbose
+  flutter build ipa --split-debug-info=./ --obfuscate --verbose
   """]
 script_runner = "@shell"
 
@@ -249,7 +258,15 @@ script_runner = "@shell"
 script = ["""
   cd appflowy_flutter/
   flutter pub get
-  flutter build apk --split-per-abi --verbose
+  flutter build apk --split-per-abi --split-debug-info=./ --obfuscate --verbose
+  """]
+script_runner = "@shell"
+
+[tasks.flutter-build-android-ci]
+script = ["""
+  cd appflowy_flutter/
+  flutter pub get
+  flutter build apk --debug
   """]
 script_runner = "@shell"
 

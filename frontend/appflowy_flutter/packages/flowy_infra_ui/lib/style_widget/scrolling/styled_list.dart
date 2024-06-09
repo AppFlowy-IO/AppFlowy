@@ -18,7 +18,7 @@ class StyledListView extends StatefulWidget {
   final IndexedWidgetBuilder itemBuilder;
 
   StyledListView({
-    Key? key,
+    super.key,
     required this.itemBuilder,
     required this.itemCount,
     this.itemExtent,
@@ -26,7 +26,7 @@ class StyledListView extends StatefulWidget {
     this.padding,
     this.barSize,
     this.scrollbarPadding,
-  }) : super(key: key) {
+  }) {
     assert(itemExtent != 0, 'Item extent should never be 0, null is ok.');
   }
 

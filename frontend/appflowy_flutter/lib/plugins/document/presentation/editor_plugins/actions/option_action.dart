@@ -22,7 +22,8 @@ enum OptionAction {
   /// callout background color
   color,
   divider,
-  align;
+  align,
+  depth;
 
   FlowySvgData get svg {
     switch (this) {
@@ -41,7 +42,9 @@ enum OptionAction {
       case OptionAction.divider:
         return const FlowySvgData('editor/divider');
       case OptionAction.align:
-        return FlowySvgs.align_center_s;
+        return FlowySvgs.m_aa_bulleted_list_s;
+      case OptionAction.depth:
+        return FlowySvgs.tag_s;
     }
   }
 
@@ -61,6 +64,8 @@ enum OptionAction {
         return LocaleKeys.document_plugins_optionAction_color.tr();
       case OptionAction.align:
         return LocaleKeys.document_plugins_optionAction_align.tr();
+      case OptionAction.depth:
+        return LocaleKeys.document_plugins_optionAction_depth.tr();
       case OptionAction.divider:
         throw UnsupportedError('Divider does not have description');
     }
@@ -108,9 +113,35 @@ enum OptionAlignType {
   }
 }
 
+enum OptionDepthType {
+  h1(1, 'H1'),
+  h2(2, 'H2'),
+  h3(3, 'H3'),
+  h4(4, 'H4'),
+  h5(5, 'H5'),
+  h6(6, 'H6');
+
+  const OptionDepthType(this.level, this.description);
+
+  final String description;
+  final int level;
+
+  static OptionDepthType fromLevel(int? level) {
+    switch (level) {
+      case 1:
+        return OptionDepthType.h1;
+      case 2:
+        return OptionDepthType.h2;
+      case 3:
+      default:
+        return OptionDepthType.h3;
+    }
+  }
+}
+
 class DividerOptionAction extends CustomActionCell {
   @override
-  Widget buildWithContext(BuildContext context) {
+  Widget buildWithContext(BuildContext context, PopoverController controller) {
     return const Divider(
       height: 1.0,
       thickness: 1.0,
@@ -269,8 +300,7 @@ class ColorOptionAction extends PopoverActionCell {
           colors: colors,
           selected: selectedColor,
           border: Border.all(
-            color: Theme.of(context).colorScheme.onBackground,
-            width: 1,
+            color: AFThemeExtension.of(context).onBackground,
           ),
           onTap: (option, index) async {
             final transaction = editorState.transaction;
@@ -284,6 +314,87 @@ class ColorOptionAction extends PopoverActionCell {
           },
         );
       };
+}
+
+class DepthOptionAction extends PopoverActionCell {
+  DepthOptionAction({required this.editorState});
+
+  final EditorState editorState;
+
+  @override
+  Widget? leftIcon(Color iconColor) {
+    return FlowySvg(
+      OptionAction.depth.svg,
+      size: const Size.square(12),
+    ).padding(all: 2.0);
+  }
+
+  @override
+  String get name => LocaleKeys.document_plugins_optionAction_depth.tr();
+
+  @override
+  PopoverActionCellBuilder get builder =>
+      (context, parentController, controller) {
+        final children = buildDepthOptions(context, (depth) async {
+          await onDepthChanged(depth);
+          controller.close();
+          parentController.close();
+        });
+
+        return SizedBox(
+          width: 42,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: children,
+          ),
+        );
+      };
+
+  List<Widget> buildDepthOptions(
+    BuildContext context,
+    Future<void> Function(OptionDepthType) onTap,
+  ) {
+    return OptionDepthType.values
+        .map((e) => OptionDepthWrapper(e))
+        .map(
+          (e) => HoverButton(
+            onTap: () => onTap(e.inner),
+            itemHeight: ActionListSizes.itemHeight,
+            name: e.name,
+          ),
+        )
+        .toList();
+  }
+
+  OptionDepthType depth(Node node) {
+    final level = node.attributes[OutlineBlockKeys.depth];
+    return OptionDepthType.fromLevel(level);
+  }
+
+  Future<void> onDepthChanged(OptionDepthType depth) async {
+    final selection = editorState.selection;
+    final node = selection != null
+        ? editorState.getNodeAtPath(selection.start.path)
+        : null;
+
+    if (node == null || depth == this.depth(node)) return;
+
+    final transaction = editorState.transaction;
+    transaction.updateNode(
+      node,
+      {OutlineBlockKeys.depth: depth.level},
+    );
+    await editorState.apply(transaction);
+  }
+}
+
+class OptionDepthWrapper extends ActionCell {
+  OptionDepthWrapper(this.inner);
+
+  final OptionDepthType inner;
+
+  @override
+  String get name => inner.description;
 }
 
 class OptionActionWrapper extends ActionCell {

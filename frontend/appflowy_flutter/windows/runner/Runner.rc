@@ -93,7 +93,7 @@ BEGIN
             VALUE "FileDescription", "AppFlowy" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "AppFlowy" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 io.appflowy. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 io.appflowy. All rights reserved." "\0"
             VALUE "OriginalFilename", "AppFlowy.exe" "\0"
             VALUE "ProductName", "AppFlowy" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

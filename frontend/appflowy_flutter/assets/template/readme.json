@@ -73,9 +73,9 @@
           "attributes": { "subtype": "checkbox", "checkbox": true },
           "delta": [
             { "insert": "Click " },
-            { "insert": "+ New Page ", "attributes": { "code": true } },
+            { "insert": "+ New Page", "attributes": { "code": true } },
             {
-              "insert": "button at the bottom of your sidebar to add a new page."
+              "insert": " button at the bottom of your sidebar to add a new page."
             }
           ]
         },

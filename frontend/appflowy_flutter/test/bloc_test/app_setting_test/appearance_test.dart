@@ -36,8 +36,7 @@ void main() {
         AppTheme.fallback,
       ),
       verify: (bloc) {
-        expect(bloc.state.font, builtInFontFamily);
-        expect(bloc.state.monospaceFont, 'SF Mono');
+        expect(bloc.state.font, defaultFontFamily);
         expect(bloc.state.themeMode, ThemeMode.system);
       },
     );

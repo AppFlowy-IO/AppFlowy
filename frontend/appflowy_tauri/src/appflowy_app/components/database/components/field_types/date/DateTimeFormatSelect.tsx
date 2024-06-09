@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Menu, MenuItem } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { DateTimeField } from '$app/components/database/application';
+import { DateTimeField } from '$app/application/database';
 import DateTimeFormat from '$app/components/database/components/field_types/date/DateTimeFormat';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
 
@@ -32,7 +32,15 @@ function DateTimeFormatSelect({ field }: Props) {
           horizontal: 'left',
         }}
         open={open}
+        autoFocus={true}
         anchorEl={ref.current}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            e.stopPropagation();
+            e.preventDefault();
+            setOpen(false);
+          }
+        }}
         onClose={() => setOpen(false)}
         MenuListProps={{
           className: 'px-2',

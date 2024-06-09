@@ -1,10 +1,8 @@
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_context.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart'
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,15 +11,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'home_setting_bloc.freezed.dart';
 
 class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
-  final UserWorkspaceListener _listener;
-  final AppearanceSettingsCubit _appearanceSettingsCubit;
-
   HomeSettingBloc(
-    UserProfilePB user,
     WorkspaceSettingPB workspaceSetting,
     AppearanceSettingsCubit appearanceSettingsCubit,
     double screenWidthPx,
-  )   : _listener = UserWorkspaceListener(userProfile: user),
+  )   : _listener = UserWorkspaceListener(),
         _appearanceSettingsCubit = appearanceSettingsCubit,
         super(
           HomeSettingState.initial(
@@ -30,15 +24,28 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
             screenWidthPx,
           ),
         ) {
+    _dispatch();
+  }
+
+  final UserWorkspaceListener _listener;
+  final AppearanceSettingsCubit _appearanceSettingsCubit;
+
+  @override
+  Future<void> close() async {
+    await _listener.stop();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<HomeSettingEvent>(
       (event, emit) async {
         await event.map(
           initial: (_Initial value) {},
           setEditPanel: (e) async {
-            emit(state.copyWith(panelContext: some(e.editContext)));
+            emit(state.copyWith(panelContext: e.editContext));
           },
           dismissEditPanel: (value) async {
-            emit(state.copyWith(panelContext: none()));
+            emit(state.copyWith(panelContext: null));
           },
           didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
             emit(state.copyWith(workspaceSetting: value.setting));
@@ -92,12 +99,6 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
       },
     );
   }
-
-  @override
-  Future<void> close() async {
-    await _listener.stop();
-    return super.close();
-  }
 }
 
 enum MenuResizeType {
@@ -137,7 +138,7 @@ class HomeSettingEvent with _$HomeSettingEvent {
 @freezed
 class HomeSettingState with _$HomeSettingState {
   const factory HomeSettingState({
-    required Option<EditPanelContext> panelContext,
+    required EditPanelContext? panelContext,
     required WorkspaceSettingPB workspaceSetting,
     required bool unauthorized,
     required bool isMenuCollapsed,
@@ -154,7 +155,7 @@ class HomeSettingState with _$HomeSettingState {
     double screenWidthPx,
   ) {
     return HomeSettingState(
-      panelContext: none(),
+      panelContext: null,
       workspaceSetting: workspaceSetting,
       unauthorized: false,
       isMenuCollapsed: appearanceSettingsState.isMenuCollapsed,

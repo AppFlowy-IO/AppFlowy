@@ -34,6 +34,7 @@ function EditNumberCellInput({
 
   return (
     <Popover
+      disableRestoreFocus={true}
       keepMounted={false}
       open={editing}
       anchorEl={anchorEl}
@@ -54,6 +55,7 @@ function EditNumberCellInput({
             padding: 0,
           },
         }}
+        spellCheck={false}
         autoFocus={true}
         value={value}
         onInput={handleInput}

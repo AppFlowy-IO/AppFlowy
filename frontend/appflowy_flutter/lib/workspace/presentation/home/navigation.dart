@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -14,11 +16,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-typedef NaviAction = void Function();
-
 class NavigationNotifier with ChangeNotifier {
-  List<NavigationItem> navigationItems;
   NavigationNotifier({required this.navigationItems});
+
+  List<NavigationItem> navigationItems;
 
   void update(PageNotifier notifier) {
     if (navigationItems != notifier.plugin.widgetBuilder.navigationItems) {
@@ -29,7 +30,7 @@ class NavigationNotifier with ChangeNotifier {
 }
 
 class FlowyNavigation extends StatelessWidget {
-  const FlowyNavigation({Key? key}) : super(key: key);
+  const FlowyNavigation({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,33 +64,50 @@ class FlowyNavigation extends StatelessWidget {
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
       buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
       builder: (context, state) {
-        if (state.isMenuCollapsed) {
-          return RotationTransition(
-            turns: const AlwaysStoppedAnimation(180 / 360),
-            child: FlowyTooltip(
-              richMessage: sidebarTooltipTextSpan(
-                context,
-                LocaleKeys.sideBar_openSidebar.tr(),
+        if (!PlatformExtension.isWindows && state.isMenuCollapsed) {
+          final color =
+              Theme.of(context).isLightMode ? Colors.white : Colors.black;
+          final textSpan = TextSpan(
+            children: [
+              TextSpan(
+                text: '${LocaleKeys.sideBar_openSidebar.tr()}\n',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .copyWith(color: color),
               ),
-              child: FlowyIconButton(
-                width: 24,
-                hoverColor: Colors.transparent,
-                onPressed: () {
-                  context
+              TextSpan(
+                text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .copyWith(color: Theme.of(context).hintColor),
+              ),
+            ],
+          );
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: RotationTransition(
+              turns: const AlwaysStoppedAnimation(180 / 360),
+              child: FlowyTooltip(
+                richMessage: textSpan,
+                child: Listener(
+                  onPointerDown: (event) => context
                       .read<HomeSettingBloc>()
-                      .add(const HomeSettingEvent.collapseMenu());
-                },
-                iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                icon: FlowySvg(
-                  FlowySvgs.hide_menu_m,
-                  color: Theme.of(context).iconTheme.color,
+                      .add(const HomeSettingEvent.collapseMenu()),
+                  child: FlowyIconButton(
+                    width: 24,
+                    onPressed: () {},
+                    iconPadding: const EdgeInsets.all(4),
+                    icon: const FlowySvg(FlowySvgs.hide_menu_s),
+                  ),
                 ),
               ),
             ),
           );
-        } else {
-          return Container();
         }
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -133,8 +151,9 @@ class FlowyNavigation extends StatelessWidget {
 }
 
 class NaviItemWidget extends StatelessWidget {
+  const NaviItemWidget(this.item, {super.key});
+
   final NavigationItem item;
-  const NaviItemWidget(this.item, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -144,23 +163,10 @@ class NaviItemWidget extends StatelessWidget {
   }
 }
 
-class NaviItemDivider extends StatelessWidget {
-  final Widget child;
-  const NaviItemDivider({super.key, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [child, const Text('/')],
-    );
-  }
-}
-
 class EllipsisNaviItem extends NavigationItem {
+  EllipsisNaviItem({required this.items});
+
   final List<NavigationItem> items;
-  EllipsisNaviItem({
-    required this.items,
-  });
 
   @override
   Widget get leftBarItem => FlowyText.medium(
@@ -182,7 +188,7 @@ TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
           text: "$hintText\n",
         ),
         TextSpan(
-          text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
+          text: Platform.isMacOS ? "⌘+." : "Ctrl+\\",
         ),
       ],
     );

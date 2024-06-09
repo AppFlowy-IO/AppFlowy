@@ -4,9 +4,9 @@ class FlowyCloseButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
   const FlowyCloseButton({
-    Key? key,
+    super.key,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

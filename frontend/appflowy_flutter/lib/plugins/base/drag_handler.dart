@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class DragHandler extends StatelessWidget {
-  const DragHandler({
+class DragHandle extends StatelessWidget {
+  const DragHandle({
     super.key,
   });
 
@@ -10,7 +10,7 @@ class DragHandler extends StatelessWidget {
     return Container(
       height: 4,
       width: 40,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         color: Colors.grey.shade400,
         borderRadius: BorderRadius.circular(2),

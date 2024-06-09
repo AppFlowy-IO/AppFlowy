@@ -1,0 +1,50 @@
+[package]
+name = "flowy-folder"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+collab = { workspace = true }
+collab-folder = { workspace = true }
+collab-document = { workspace = true }
+collab-entity = { workspace = true }
+collab-plugins = { workspace = true }
+collab-integrate = { workspace = true }
+flowy-folder-pub = { workspace = true }
+flowy-search-pub = { workspace = true }
+flowy-sqlite = { workspace = true }
+flowy-derive.workspace = true
+flowy-notification = { workspace = true }
+parking_lot.workspace = true
+unicode-segmentation = "1.10"
+tracing.workspace = true
+flowy-error = { path = "../flowy-error", features = [
+    "impl_from_dispatch_error",
+    "impl_from_collab_folder",
+] }
+lib-dispatch = { workspace = true }
+bytes.workspace = true
+lib-infra = { workspace = true }
+tokio = { workspace = true, features = ["sync"] }
+nanoid = "0.4.0"
+lazy_static = "1.4.0"
+chrono = { workspace = true, default-features = false, features = ["clock"] }
+strum_macros = "0.21"
+protobuf.workspace = true
+uuid.workspace = true
+tokio-stream = { workspace = true, features = ["sync"] }
+serde = { workspace = true, features = ["derive"]}
+serde_json.workspace = true
+validator = "0.16.0"
+async-trait.workspace = true
+
+[build-dependencies]
+flowy-codegen.workspace = true
+
+[features]
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
+web_ts = ["flowy-codegen/ts", "flowy-notification/web_ts"]
+test_helper = []

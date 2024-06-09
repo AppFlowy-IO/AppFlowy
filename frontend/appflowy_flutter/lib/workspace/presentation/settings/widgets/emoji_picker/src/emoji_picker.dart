@@ -82,12 +82,12 @@ typedef EmojiViewBuilder = Widget Function(
 class EmojiPicker extends StatefulWidget {
   /// EmojiPicker for flutter
   const EmojiPicker({
-    Key? key,
+    super.key,
     required this.onEmojiSelected,
     this.onBackspacePressed,
     this.config = const EmojiPickerConfig(),
     this.customWidget,
-  }) : super(key: key);
+  });
 
   /// Custom widget
   final EmojiViewBuilder? customWidget;
@@ -301,7 +301,7 @@ class EmojiPickerState extends State<EmojiPicker> {
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final emojiJson = jsonEncode(emojis);
-    prefs.setString(title, emojiJson);
+    await prefs.setString(title, emojiJson);
   }
 
   // Returns list of recently used emoji from cache
@@ -335,6 +335,6 @@ class EmojiPickerState extends State<EmojiPicker> {
       min(widget.config.recentsLimit, recentEmojiList.length),
     );
     // save locally
-    prefs.setString('recent', jsonEncode(recentEmojiList));
+    await prefs.setString('recent', jsonEncode(recentEmojiList));
   }
 }

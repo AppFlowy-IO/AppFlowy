@@ -1,0 +1,69 @@
+
+[tasks.wasm_build]
+script_runner = "bash"
+script = [
+    """
+    #!/bin/bash
+    BASE_DIR=$(pwd)
+    crates=("lib-dispatch" "flowy-encrypt" "lib-infra" "flowy-notification" "flowy-date" "flowy-error" "collab-integrate" "flowy-document")
+
+    # Iterate over each crate and build it
+    for crate in "${crates[@]}"; do
+      echo "🔥🔥🔥  Building $crate with wasm-pack..."
+      cd "$BASE_DIR/rust-lib/$crate" || { echo "Failed to enter directory $crate"; exit 1; }
+
+      wasm-pack build || { echo "Build failed for $crate"; exit 1; }
+    done
+    """
+]
+
+
+[tasks.web_clean]
+description = "Remove all the building artifacts"
+run_task = { name = [
+    "rust_lib_clean",
+    "rm_macro_build_cache",
+    "rm_rust_generated_files",
+    "rm_web_generated_protobuf_files",
+    "rm_web_generated_event_files",
+    "rm_pkg",
+] }
+
+
+[tasks.rm_pkg]
+private = true
+script = ["""
+cd ${WEB_LIB_PATH}
+rimraf dist pkg
+"""]
+script_runner = "@duckscript"
+
+[tasks.rm_web_generated_protobuf_files]
+private = true
+script = ["""
+  protobuf_file_paths = glob_array ${WEB_BACKEND_SERVICE_PATH}/models
+  if not array_is_empty ${protobuf_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """]
+script_runner = "@duckscript"
+
+
+
+[tasks.rm_web_generated_event_files]
+private = true
+script = ["""
+  event_file_paths = glob_array ${WEB_BACKEND_SERVICE_PATH}/events
+  if not array_is_empty ${event_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${event_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """]
+script_runner = "@duckscript"

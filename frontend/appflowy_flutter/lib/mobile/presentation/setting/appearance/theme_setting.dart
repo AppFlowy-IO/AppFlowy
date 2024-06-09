@@ -1,5 +1,7 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/util/theme_mode_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -34,60 +36,59 @@ class ThemeSetting extends StatelessWidget {
         showMobileBottomSheet(
           context,
           showHeader: true,
-          showCloseButton: true,
           showDragHandle: true,
+          showDivider: false,
           title: LocaleKeys.settings_appearance_themeMode_label.tr(),
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-          builder: (_) {
+          builder: (context) {
+            final themeMode =
+                context.read<AppearanceSettingsCubit>().state.themeMode;
             return Column(
               children: [
-                _ThemeModeRadioListTile(
-                  title: LocaleKeys.settings_appearance_themeMode_system.tr(),
-                  value: ThemeMode.system,
+                FlowyOptionTile.checkbox(
+                  text: LocaleKeys.settings_appearance_themeMode_system.tr(),
+                  leftIcon: const FlowySvg(
+                    FlowySvgs.m_theme_mode_system_s,
+                  ),
+                  isSelected: themeMode == ThemeMode.system,
+                  onTap: () {
+                    context
+                        .read<AppearanceSettingsCubit>()
+                        .setThemeMode(ThemeMode.system);
+                    Navigator.pop(context);
+                  },
                 ),
-                _ThemeModeRadioListTile(
-                  title: LocaleKeys.settings_appearance_themeMode_light.tr(),
-                  value: ThemeMode.light,
+                FlowyOptionTile.checkbox(
+                  showTopBorder: false,
+                  text: LocaleKeys.settings_appearance_themeMode_light.tr(),
+                  leftIcon: const FlowySvg(
+                    FlowySvgs.m_theme_mode_light_s,
+                  ),
+                  isSelected: themeMode == ThemeMode.light,
+                  onTap: () {
+                    context
+                        .read<AppearanceSettingsCubit>()
+                        .setThemeMode(ThemeMode.light);
+                    Navigator.pop(context);
+                  },
                 ),
-                _ThemeModeRadioListTile(
-                  title: LocaleKeys.settings_appearance_themeMode_dark.tr(),
-                  value: ThemeMode.dark,
+                FlowyOptionTile.checkbox(
+                  showTopBorder: false,
+                  text: LocaleKeys.settings_appearance_themeMode_dark.tr(),
+                  leftIcon: const FlowySvg(
+                    FlowySvgs.m_theme_mode_dark_s,
+                  ),
+                  isSelected: themeMode == ThemeMode.dark,
+                  onTap: () {
+                    context
+                        .read<AppearanceSettingsCubit>()
+                        .setThemeMode(ThemeMode.dark);
+                    Navigator.pop(context);
+                  },
                 ),
               ],
             );
           },
         );
-      },
-    );
-  }
-}
-
-class _ThemeModeRadioListTile extends StatelessWidget {
-  const _ThemeModeRadioListTile({
-    required this.title,
-    required this.value,
-  });
-  final String title;
-  final ThemeMode value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return RadioListTile<ThemeMode>(
-      dense: true,
-      contentPadding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-      controlAffinity: ListTileControlAffinity.trailing,
-      title: Text(
-        title,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurface,
-        ),
-      ),
-      groupValue: context.read<AppearanceSettingsCubit>().state.themeMode,
-      value: value,
-      onChanged: (selectedThemeMode) {
-        if (selectedThemeMode == null) return;
-        context.read<AppearanceSettingsCubit>().setThemeMode(selectedThemeMode);
       },
     );
   }

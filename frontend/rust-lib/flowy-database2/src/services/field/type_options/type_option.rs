@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::fmt::Debug;
 
 use bytes::Bytes;
-use collab_database::fields::{Field, TypeOptionData};
+use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
 use protobuf::ProtobufError;
 
@@ -10,28 +10,29 @@ use flowy_error::FlowyResult;
 
 use crate::entities::{
   CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType,
-  MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB,
-  TimestampTypeOptionPB, URLTypeOptionPB,
+  MultiSelectTypeOptionPB, NumberTypeOptionPB, RelationTypeOptionPB, RichTextTypeOptionPB,
+  SingleSelectTypeOptionPB, SummarizationTypeOptionPB, TimestampTypeOptionPB, URLTypeOptionPB,
 };
-use crate::services::cell::{CellDataDecoder, FromCellChangeset, ToCellChangeset};
+use crate::services::cell::CellDataDecoder;
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
+use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, DateFormat, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RichTextTypeOption, SingleSelectTypeOption, TimeFormat, TimestampTypeOption, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RelationTypeOption,
+  RichTextTypeOption, SingleSelectTypeOption, TimestampTypeOption, URLTypeOption,
 };
-use crate::services::filter::FromFilterString;
+use crate::services::filter::{ParseFilterData, PreFillCellsWithFilter};
 use crate::services::sort::SortCondition;
 
-pub trait TypeOption {
-  /// `CellData` represents as the decoded model for current type option. Each of them impl the
-  /// `FromCellString` and `Default` trait. If the cell string can not be decoded into the specified
-  /// cell data type then the default value will be returned.
-  /// For example:
-  ///     FieldType::Checkbox => CheckboxCellData
-  ///     FieldType::Date => DateCellData
-  ///     FieldType::URL => URLCellData
+pub trait TypeOption: From<TypeOptionData> + Into<TypeOptionData> {
+  /// `CellData` represents the decoded model for the current type option. Each of them must
+  /// implement the From<&Cell> trait. If the `Cell` cannot be decoded into this type, the default
+  /// value will be returned.
   ///
-  /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
+  /// Note: Use `StrCellData` for any `TypeOption` whose cell data is simply `String`.
+  ///
+  /// - FieldType::Checkbox => CheckboxCellData
+  /// - FieldType::Date => DateCellData
+  /// - FieldType::URL => URLCellData
   ///
   type CellData: for<'a> From<&'a Cell>
     + TypeOptionCellData
@@ -43,11 +44,10 @@ pub trait TypeOption {
     + Debug
     + 'static;
 
-  /// Represents as the corresponding field type cell changeset.
-  /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
-  /// These two traits are auto implemented for `String`.
+  /// Represents as the corresponding field type cell changeset. Must be able
+  /// to be placed into a `BoxAny`.
   ///
-  type CellChangeset: FromCellChangeset + ToCellChangeset;
+  type CellChangeset: Send + Sync + 'static;
 
   ///  For the moment, the protobuf type only be used in the FFI of `Dart`. If the decoded cell
   /// struct is just a `String`, then use the `StrCellData` as its `CellProtobufType`.
@@ -58,8 +58,8 @@ pub trait TypeOption {
   ///
   type CellProtobufType: TryInto<Bytes, Error = ProtobufError> + Debug;
 
-  /// Represents as the filter configuration for this type option.
-  type CellFilter: FromFilterString + Send + Sync + 'static;
+  /// Represents the filter configuration for this type option.
+  type CellFilter: ParseFilterData + PreFillCellsWithFilter + Clone + Send + Sync + 'static;
 }
 /// This trait providing serialization and deserialization methods for cell data.
 ///
@@ -82,26 +82,18 @@ pub trait TypeOptionCellDataSerde: TypeOption {
 }
 
 /// This trait that provides methods to extend the [TypeOption::CellData] functionalities.
-///
 pub trait TypeOptionCellData {
-  /// Checks if the cell content is considered empty.
-  ///
-  /// Even if a cell is initialized, its content might still be considered empty
-  /// based on certain criteria. e.g. empty text, date, select option, etc.
+  /// Checks if the cell content is considered empty based on certain criteria. e.g. empty text,
+  /// no date selected, no selected options
   fn is_cell_empty(&self) -> bool {
     false
   }
 }
 
 pub trait TypeOptionTransform: TypeOption {
-  /// Returns true if the current `TypeOption` provides custom type option transformation
-  fn transformable(&self) -> bool {
-    false
-  }
-
   /// Transform the TypeOption from one field type to another
-  /// For example, when switching from `checkbox` type-option to `single-select`
-  /// type-option, adding the `Yes` option if the `single-select` type-option doesn't contain it.
+  /// For example, when switching from `Checkbox` type option to `Single-Select`
+  /// type option, adding the `Yes` option if the `Single-select` type-option doesn't contain it.
   /// But the cell content is a string, `Yes`, it's need to do the cell content transform.
   /// The `Yes` string will be transformed to the `Yes` option id.
   ///
@@ -110,29 +102,11 @@ pub trait TypeOptionTransform: TypeOption {
   /// * `old_type_option_field_type`: the FieldType of the passed-in TypeOption
   /// * `old_type_option_data`: the data that can be parsed into corresponding `TypeOption`.
   ///
-  ///
   fn transform_type_option(
     &mut self,
     _old_type_option_field_type: FieldType,
     _old_type_option_data: TypeOptionData,
   ) {
-  }
-
-  /// Transform the cell data from one field type to another
-  ///
-  /// # Arguments
-  ///
-  /// * `cell_str`: the cell string of the current field type
-  /// * `transformed_field_type`: the cell will be transformed to the is field type's cell data.
-  /// current `TypeOption` field type.
-  ///
-  fn transform_type_option_cell(
-    &self,
-    _cell: &Cell,
-    _transformed_field_type: &FieldType,
-    _field: &Field,
-  ) -> Option<<Self as TypeOption>::CellData> {
-    None
   }
 }
 
@@ -140,7 +114,6 @@ pub trait TypeOptionCellDataFilter: TypeOption + CellDataDecoder {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool;
 }
@@ -175,12 +148,12 @@ pub trait TypeOptionCellDataCompare: TypeOption {
   }
 }
 
-pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
+pub fn type_option_data_from_pb<T: Into<Bytes>>(
   bytes: T,
   field_type: &FieldType,
-) -> TypeOptionData {
+) -> Result<TypeOptionData, ProtobufError> {
   let bytes = bytes.into();
-  let result: Result<TypeOptionData, ProtobufError> = match field_type {
+  match field_type {
     FieldType::RichText => {
       RichTextTypeOptionPB::try_from(bytes).map(|pb| RichTextTypeOption::from(pb).into())
     },
@@ -206,9 +179,13 @@ pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
     FieldType::Checklist => {
       ChecklistTypeOptionPB::try_from(bytes).map(|pb| ChecklistTypeOption::from(pb).into())
     },
-  };
-
-  result.unwrap_or_else(|_| default_type_option_data_from_type(field_type))
+    FieldType::Relation => {
+      RelationTypeOptionPB::try_from(bytes).map(|pb| RelationTypeOption::from(pb).into())
+    },
+    FieldType::Summary => {
+      SummarizationTypeOptionPB::try_from(bytes).map(|pb| SummarizationTypeOption::from(pb).into())
+    },
+  }
 }
 
 pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) -> Bytes {
@@ -263,25 +240,37 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
         .try_into()
         .unwrap()
     },
+    FieldType::Relation => {
+      let relation_type_option: RelationTypeOption = type_option.into();
+      RelationTypeOptionPB::from(relation_type_option)
+        .try_into()
+        .unwrap()
+    },
+    FieldType::Summary => {
+      let summarization_type_option: SummarizationTypeOption = type_option.into();
+      SummarizationTypeOptionPB::from(summarization_type_option)
+        .try_into()
+        .unwrap()
+    },
   }
 }
 
-pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionData {
+pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionData {
   match field_type {
     FieldType::RichText => RichTextTypeOption::default().into(),
     FieldType::Number => NumberTypeOption::default().into(),
     FieldType::DateTime => DateTypeOption::default().into(),
     FieldType::LastEditedTime | FieldType::CreatedTime => TimestampTypeOption {
-      field_type: *field_type,
-      date_format: DateFormat::Friendly,
-      time_format: TimeFormat::TwelveHour,
-      include_time: true,
+      field_type,
+      ..Default::default()
     }
     .into(),
     FieldType::SingleSelect => SingleSelectTypeOption::default().into(),
     FieldType::MultiSelect => MultiSelectTypeOption::default().into(),
     FieldType::Checkbox => CheckboxTypeOption::default().into(),
     FieldType::URL => URLTypeOption::default().into(),
-    FieldType::Checklist => ChecklistTypeOption::default().into(),
+    FieldType::Checklist => ChecklistTypeOption.into(),
+    FieldType::Relation => RelationTypeOption::default().into(),
+    FieldType::Summary => SummarizationTypeOption::default().into(),
   }
 }

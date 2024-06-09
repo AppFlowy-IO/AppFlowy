@@ -1,9 +1,9 @@
-import 'package:appflowy/util/platform_extension.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +14,8 @@ enum DraggableHoverPosition {
   center,
   bottom,
 }
+
+const kDraggableViewItemDividerHeight = 2.0;
 
 class DraggableViewItem extends StatefulWidget {
   const DraggableViewItem({
@@ -26,6 +28,7 @@ class DraggableViewItem extends StatefulWidget {
     this.topHighlightColor,
     this.bottomHighlightColor,
     this.onDragging,
+    this.onMove,
   });
 
   final Widget child;
@@ -36,6 +39,7 @@ class DraggableViewItem extends StatefulWidget {
   final Color? topHighlightColor;
   final Color? bottomHighlightColor;
   final void Function(bool isDragging)? onDragging;
+  final void Function(ViewPB from, ViewPB to)? onMove;
 
   @override
   State<DraggableViewItem> createState() => _DraggableViewItemState();
@@ -43,8 +47,7 @@ class DraggableViewItem extends StatefulWidget {
 
 class _DraggableViewItemState extends State<DraggableViewItem> {
   DraggableHoverPosition position = DraggableHoverPosition.none;
-
-  final _dividerHeight = 2.0;
+  final hoverColor = const Color(0xFF00C8FF);
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +61,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     return DraggableItem<ViewPB>(
       data: widget.view,
       onDragging: widget.onDragging,
-      onWillAccept: (data) => true,
+      onWillAcceptWithDetails: (data) => true,
       onMove: (data) {
         final renderBox = context.findRenderObject() as RenderBox;
         final offset = renderBox.globalToLocal(data.offset);
@@ -66,15 +69,13 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
         if (!_shouldAccept(data.data, position)) {
           return;
         }
-        Log.debug(
-          'offset: $offset, position: $position, size: ${renderBox.size}',
-        );
         _updatePosition(position);
       },
       onLeave: (_) => _updatePosition(
         DraggableHoverPosition.none,
       ),
-      onAccept: (data) {
+      onAcceptWithDetails: (details) {
+        final data = details.data;
         _move(
           data,
           widget.view,
@@ -100,29 +101,26 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
         // only show the top border when the draggable item is the first child
         if (widget.isFirstChild)
           Divider(
-            height: _dividerHeight,
-            thickness: _dividerHeight,
+            height: kDraggableViewItemDividerHeight,
+            thickness: kDraggableViewItemDividerHeight,
             color: position == DraggableHoverPosition.top
-                ? widget.topHighlightColor ??
-                    Theme.of(context).colorScheme.secondary
+                ? widget.topHighlightColor ?? hoverColor
                 : Colors.transparent,
           ),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6.0),
             color: position == DraggableHoverPosition.center
-                ? widget.centerHighlightColor ??
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.5)
+                ? widget.centerHighlightColor ?? hoverColor.withOpacity(0.5)
                 : Colors.transparent,
           ),
           child: widget.child,
         ),
         Divider(
-          height: _dividerHeight,
-          thickness: _dividerHeight,
+          height: kDraggableViewItemDividerHeight,
+          thickness: kDraggableViewItemDividerHeight,
           color: position == DraggableHoverPosition.bottom
-              ? widget.bottomHighlightColor ??
-                  Theme.of(context).colorScheme.secondary
+              ? widget.bottomHighlightColor ?? hoverColor
               : Colors.transparent,
         ),
       ],
@@ -137,17 +135,17 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
             top: 0,
             left: 0,
             right: 0,
-            height: _dividerHeight,
+            height: kDraggableViewItemDividerHeight,
             child: Divider(
-              height: _dividerHeight,
-              thickness: _dividerHeight,
+              height: kDraggableViewItemDividerHeight,
+              thickness: kDraggableViewItemDividerHeight,
               color: position == DraggableHoverPosition.top
                   ? widget.topHighlightColor ??
                       Theme.of(context).colorScheme.secondary
                   : Colors.transparent,
             ),
           ),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4.0),
             color: position == DraggableHoverPosition.center
@@ -161,10 +159,10 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
           bottom: 0,
           left: 0,
           right: 0,
-          height: _dividerHeight,
+          height: kDraggableViewItemDividerHeight,
           child: Divider(
-            height: _dividerHeight,
-            thickness: _dividerHeight,
+            height: kDraggableViewItemDividerHeight,
+            thickness: kDraggableViewItemDividerHeight,
             color: position == DraggableHoverPosition.bottom
                 ? widget.bottomHighlightColor ??
                     Theme.of(context).colorScheme.secondary
@@ -191,6 +189,14 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       return;
     }
 
+    if (widget.onMove != null) {
+      widget.onMove?.call(from, to);
+      return;
+    }
+
+    final fromSection = getViewSection(from);
+    final toSection = getViewSection(to);
+
     switch (position) {
       case DraggableHoverPosition.top:
         context.read<ViewBloc>().add(
@@ -198,6 +204,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                 from,
                 to.parentViewId,
                 null,
+                fromSection,
+                toSection,
               ),
             );
         break;
@@ -207,6 +215,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                 from,
                 to.parentViewId,
                 to.id,
+                fromSection,
+                toSection,
               ),
             );
         break;
@@ -216,6 +226,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                 from,
                 to.id,
                 to.childViews.lastOrNull?.id,
+                fromSection,
+                toSection,
               ),
             );
         break;
@@ -253,6 +265,10 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     }
 
     return true;
+  }
+
+  ViewSectionPB? getViewSection(ViewPB view) {
+    return context.read<SidebarSectionsBloc>().getViewSection(view);
   }
 }
 

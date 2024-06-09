@@ -1,19 +1,23 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/home/home.dart';
-import 'package:appflowy/mobile/presentation/home/mobile_folders.dart';
+import 'dart:io';
+
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
-import 'package:appflowy/mobile/presentation/home/recent_folder/mobile_home_recent_views.dart';
+import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
+import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});
@@ -38,10 +42,12 @@ class MobileHomeScreen extends StatelessWidget {
           },
           (error) => null,
         );
-        final userProfile =
-            snapshots.data?[1].fold((error) => null, (userProfilePB) {
-          return userProfilePB as UserProfilePB?;
-        });
+        final userProfile = snapshots.data?[1].fold(
+          (userProfilePB) {
+            return userProfilePB as UserProfilePB?;
+          },
+          (error) => null,
+        );
 
         // In the unlikely case either of the above is null, eg.
         // when a workspace is already open this can happen.
@@ -51,9 +57,12 @@ class MobileHomeScreen extends StatelessWidget {
 
         return Scaffold(
           body: SafeArea(
-            child: MobileHomePage(
-              userProfile: userProfile,
-              workspaceSetting: workspaceSetting,
+            child: Provider.value(
+              value: userProfile,
+              child: MobileHomePage(
+                userProfile: userProfile,
+                workspaceSetting: workspaceSetting,
+              ),
             ),
           ),
         );
@@ -62,7 +71,7 @@ class MobileHomeScreen extends StatelessWidget {
   }
 }
 
-class MobileHomePage extends StatelessWidget {
+class MobileHomePage extends StatefulWidget {
   const MobileHomePage({
     super.key,
     required this.userProfile,
@@ -73,75 +82,81 @@ class MobileHomePage extends StatelessWidget {
   final WorkspaceSettingPB workspaceSetting;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // TODO: header + option icon button
-        // Header
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: MobileHomePageHeader(
-            userProfile: userProfile,
-          ),
-        ),
-        const Divider(),
-
-        // Folder
-        Expanded(
-          child: Scrollbar(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Recent files
-                    const MobileRecentFolder(),
-
-                    // Folders
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: MobileFolders(
-                        user: userProfile,
-                        workspaceSetting: workspaceSetting,
-                        showFavorite: false,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24),
-                      child: _TrashButton(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  State<MobileHomePage> createState() => _MobileHomePageState();
 }
 
-class _TrashButton extends StatelessWidget {
-  const _TrashButton();
+class _MobileHomePageState extends State<MobileHomePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    getIt<MenuSharedState>().addLatestViewListener(_onLatestViewChange);
+  }
+
+  @override
+  void dispose() {
+    getIt<MenuSharedState>().removeLatestViewListener(_onLatestViewChange);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      expand: true,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      leftIcon: FlowySvg(
-        FlowySvgs.m_delete_m,
-        color: Theme.of(context).colorScheme.onSurface,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => UserWorkspaceBloc(userProfile: widget.userProfile)
+            ..add(const UserWorkspaceEvent.initial()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              FavoriteBloc()..add(const FavoriteEvent.initial()),
+        ),
+      ],
+      child: BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
+        buildWhen: (previous, current) =>
+            previous.currentWorkspace?.workspaceId !=
+            current.currentWorkspace?.workspaceId,
+        listener: (context, state) => getIt<CachedRecentService>().reset(),
+        builder: (context, state) {
+          if (state.currentWorkspace == null) {
+            return const SizedBox.shrink();
+          }
+
+          return Column(
+            children: [
+              // Header
+              Padding(
+                padding: EdgeInsets.only(
+                  left: HomeSpaceViewSizes.mHorizontalPadding,
+                  right: 8.0,
+                  top: Platform.isAndroid ? 8.0 : 0.0,
+                ),
+                child: MobileHomePageHeader(
+                  userProfile: widget.userProfile,
+                ),
+              ),
+
+              Expanded(
+                child: BlocProvider(
+                  create: (context) =>
+                      SpaceOrderBloc()..add(const SpaceOrderEvent.initial()),
+                  child: MobileSpaceTab(
+                    userProfile: widget.userProfile,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
-      leftIconSize: const Size.square(24),
-      text: FlowyText.medium(
-        LocaleKeys.trash_text.tr(),
-        fontSize: 18.0,
-      ),
-      onTap: () => context.push(MobileHomeTrashPage.routeName),
     );
+  }
+
+  void _onLatestViewChange() async {
+    final id = getIt<MenuSharedState>().latestOpenView?.id;
+    if (id == null) {
+      return;
+    }
+    await FolderEventSetLatestView(ViewIdPB(value: id)).send();
   }
 }

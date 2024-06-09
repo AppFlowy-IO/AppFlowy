@@ -3,18 +3,32 @@ import 'dart:convert';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'folder_bloc.freezed.dart';
 
-enum FolderCategoryType {
+enum FolderSpaceType {
   favorite,
-  personal,
+  private,
+  public;
+
+  ViewSectionPB get toViewSectionPB {
+    switch (this) {
+      case FolderSpaceType.private:
+        return ViewSectionPB.Private;
+      case FolderSpaceType.public:
+        return ViewSectionPB.Public;
+      case FolderSpaceType.favorite:
+        throw UnimplementedError();
+    }
+  }
 }
 
 class FolderBloc extends Bloc<FolderEvent, FolderState> {
   FolderBloc({
-    required FolderCategoryType type,
+    required FolderSpaceType type,
   }) : super(FolderState.initial(type)) {
     on<FolderEvent>((event, emit) async {
       await event.map(
@@ -25,7 +39,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
         },
         expandOrUnExpand: (e) async {
           final isExpanded = e.isExpanded ?? !state.isExpanded;
-          await _setFolderExpandStatus(e.isExpanded ?? !state.isExpanded);
+          await _setFolderExpandStatus(isExpanded);
           emit(state.copyWith(isExpanded: isExpanded));
         },
       );
@@ -34,10 +48,10 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
 
   Future<void> _setFolderExpandStatus(bool isExpanded) async {
     final result = await getIt<KeyValueStorage>().get(KVKeys.expandedViews);
-    final map = result.fold(
-      () => {},
-      (r) => jsonDecode(r),
-    );
+    var map = {};
+    if (result != null) {
+      map = jsonDecode(result);
+    }
     if (isExpanded) {
       // set expand status to true if it's not expanded
       map[state.type.name] = true;
@@ -50,10 +64,11 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
 
   Future<bool> _getFolderExpandStatus() async {
     return getIt<KeyValueStorage>().get(KVKeys.expandedViews).then((result) {
-      return result.fold(() => true, (r) {
-        final map = jsonDecode(r);
-        return map[state.type.name] ?? true;
-      });
+      if (result == null) {
+        return true;
+      }
+      final map = jsonDecode(result);
+      return map[state.type.name] ?? true;
     });
   }
 }
@@ -69,12 +84,12 @@ class FolderEvent with _$FolderEvent {
 @freezed
 class FolderState with _$FolderState {
   const factory FolderState({
-    required FolderCategoryType type,
+    required FolderSpaceType type,
     required bool isExpanded,
   }) = _FolderState;
 
   factory FolderState.initial(
-    FolderCategoryType type,
+    FolderSpaceType type,
   ) =>
       FolderState(
         type: type,

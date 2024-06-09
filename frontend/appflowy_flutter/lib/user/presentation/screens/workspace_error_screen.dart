@@ -3,7 +3,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
@@ -13,18 +13,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../application/workspace_error_bloc.dart';
 
 class WorkspaceErrorScreen extends StatelessWidget {
+  const WorkspaceErrorScreen({
+    super.key,
+    required this.userFolder,
+    required this.error,
+  });
+
+  final UserFolderPB userFolder;
+  final FlowyError error;
+
   static const routeName = "/WorkspaceErrorScreen";
   // arguments names to used in GoRouter
   static const argError = "error";
   static const argUserFolder = "userFolder";
-
-  final FlowyError error;
-  final UserFolderPB userFolder;
-  const WorkspaceErrorScreen({
-    required this.userFolder,
-    required this.error,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +71,7 @@ class WorkspaceErrorScreen extends StatelessWidget {
                       },
                     );
                   },
+                  idle: () {},
                 );
               },
             ),
@@ -92,7 +94,6 @@ class WorkspaceErrorScreen extends StatelessWidget {
                   width: 500,
                   child: IntrinsicHeight(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: children,
                     ),
                   ),
@@ -107,11 +108,9 @@ class WorkspaceErrorScreen extends StatelessWidget {
 }
 
 class WorkspaceErrorDescription extends StatelessWidget {
+  const WorkspaceErrorDescription({super.key, required this.error});
+
   final FlowyError error;
-  const WorkspaceErrorDescription({
-    required this.error,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +127,6 @@ class WorkspaceErrorDescription extends StatelessWidget {
             FlowyText.medium(
               "Error code: ${state.initialError.code.value.toString()}",
               fontSize: 12,
-              maxLines: 1,
             ),
           ],
         );

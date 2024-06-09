@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Field, fieldService, RowMeta } from '$app/components/database/application';
+import { Field, fieldService, RowMeta } from '$app/application/database';
 import { useDatabase } from '$app/components/database';
 import { FieldVisibility } from '@/services/backend';
 
@@ -10,11 +10,10 @@ import { DragDropContext, Droppable, DropResult, OnDragEndResponder } from 'reac
 import SwitchPropertiesVisible from '$app/components/database/components/edit_record/record_properties/SwitchPropertiesVisible';
 
 interface Props {
-  documentId?: string;
   row: RowMeta;
 }
 
-function RecordProperties({ documentId, row }: Props) {
+function RecordProperties({ row }: Props) {
   const viewId = useViewId();
   const { fields } = useDatabase();
   const fieldId = useMemo(() => {
@@ -44,23 +43,6 @@ function RecordProperties({ documentId, row }: Props) {
     setState(properties);
   }, [properties]);
 
-  // move the field in the database
-  const onMoveProperty = useCallback(
-    async (fieldId: string, prevId?: string) => {
-      const fromIndex = fields.findIndex((field) => field.id === fieldId);
-
-      const prevIndex = prevId ? fields.findIndex((field) => field.id === prevId) : 0;
-      const toIndex = prevIndex > fromIndex ? prevIndex : prevIndex + 1;
-
-      if (fromIndex === toIndex) {
-        return;
-      }
-
-      await fieldService.moveField(viewId, fieldId, fromIndex, toIndex);
-    },
-    [fields, viewId]
-  );
-
   // move the field in the state
   const handleOnDragEnd: OnDragEndResponder = useCallback(
     async (result: DropResult) => {
@@ -72,20 +54,16 @@ function RecordProperties({ documentId, row }: Props) {
         return;
       }
 
+      const newId = properties[newIndex ?? 0].id;
+
       // reorder the properties synchronously to avoid flickering
       const newProperties = fieldService.reorderFields(properties, oldIndex, newIndex ?? 0);
 
       setState(newProperties);
 
-      // find the previous field id
-      const prevIndex = newProperties.findIndex((field) => field.id === draggableId) - 1;
-      const prevId = prevIndex >= 0 ? newProperties[prevIndex].id : undefined;
-
-      // update the order in the database.
-      // why not prevIndex? because the properties was filtered, we need to use the previous id to find the correct index
-      await onMoveProperty(draggableId, prevId);
+      await fieldService.moveField(viewId, draggableId, newId);
     },
-    [onMoveProperty, properties]
+    [properties, viewId]
   );
 
   return (
@@ -94,10 +72,9 @@ function RecordProperties({ documentId, row }: Props) {
         <Droppable droppableId='droppable' type='droppableItem'>
           {(dropProvided) => (
             <PropertyList
-              documentId={documentId}
+              {...dropProvided.droppableProps}
               placeholderNode={dropProvided.placeholder}
               ref={dropProvided.innerRef}
-              {...dropProvided.droppableProps}
               rowId={rowId}
               properties={state}
               openMenuPropertyId={openMenuPropertyId}

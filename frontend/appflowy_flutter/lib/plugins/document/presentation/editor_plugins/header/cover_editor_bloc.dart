@@ -12,20 +12,22 @@ part 'cover_editor_bloc.freezed.dart';
 
 class ChangeCoverPopoverBloc
     extends Bloc<ChangeCoverPopoverEvent, ChangeCoverPopoverState> {
-  final EditorState editorState;
-  final Node node;
-  late final SharedPreferences _prefs;
-  final _initCompleter = Completer<void>();
-
-  ChangeCoverPopoverBloc({
-    required this.editorState,
-    required this.node,
-  }) : super(const ChangeCoverPopoverState.initial()) {
+  ChangeCoverPopoverBloc({required this.editorState, required this.node})
+      : super(const ChangeCoverPopoverState.initial()) {
     SharedPreferences.getInstance().then((prefs) {
       _prefs = prefs;
       _initCompleter.complete();
     });
 
+    _dispatch();
+  }
+
+  final EditorState editorState;
+  final Node node;
+  final _initCompleter = Completer<void>();
+  late final SharedPreferences _prefs;
+
+  void _dispatch() {
     on<ChangeCoverPopoverEvent>((event, emit) async {
       await event.map(
         fetchPickedImagePaths:
@@ -51,7 +53,7 @@ class ChangeCoverPopoverBloc
             final updateImageList = currentState.imageNames
                 .where((path) => path != deleteImage.path)
                 .toList();
-            await _updateImagePathsInStorage(updateImageList);
+            _updateImagePathsInStorage(updateImageList);
             emit(Loaded(updateImageList));
           }
         },
@@ -67,7 +69,7 @@ class ChangeCoverPopoverBloc
                 _removeCoverImageFromNode();
               }
             }
-            await _updateImagePathsInStorage([]);
+            _updateImagePathsInStorage([]);
             emit(const Loaded([]));
           }
         },
@@ -82,14 +84,13 @@ class ChangeCoverPopoverBloc
       return imageNames;
     }
     imageNames.removeWhere((name) => !File(name).existsSync());
-    _prefs.setStringList(kLocalImagesKey, imageNames);
+    unawaited(_prefs.setStringList(kLocalImagesKey, imageNames));
     return imageNames;
   }
 
-  Future<void> _updateImagePathsInStorage(List<String> imagePaths) async {
+  void _updateImagePathsInStorage(List<String> imagePaths) async {
     await _initCompleter.future;
-    _prefs.setStringList(kLocalImagesKey, imagePaths);
-    return;
+    await _prefs.setStringList(kLocalImagesKey, imagePaths);
   }
 
   Future<void> _deleteImageInStorage(String path) async {
@@ -97,14 +98,14 @@ class ChangeCoverPopoverBloc
     await imageFile.delete();
   }
 
-  Future<void> _removeCoverImageFromNode() async {
+  void _removeCoverImageFromNode() {
     final transaction = editorState.transaction;
     transaction.updateNode(node, {
       DocumentHeaderBlockKeys.coverType: CoverType.none.toString(),
       DocumentHeaderBlockKeys.icon:
           node.attributes[DocumentHeaderBlockKeys.icon],
     });
-    return editorState.apply(transaction);
+    editorState.apply(transaction);
   }
 }
 

@@ -77,7 +77,7 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
                     ),
                     fontSize: 14.0,
                     color: widget.textStyle?.color ??
-                        theme.colorScheme.onBackground,
+                        theme.colorScheme.onSurface,
                   ),
                 ),
                 const HSpace(2),
@@ -118,6 +118,12 @@ class _MathInputTextFieldState extends State<MathInputTextField> {
       baseOffset: 0,
       extentOffset: widget.initialText.length,
     );
+  }
+
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
   }
 
   @override

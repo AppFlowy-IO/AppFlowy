@@ -2,9 +2,10 @@
   "appName": "AppFlowy",
   "defaultUsername": "Saya",
   "welcomeText": "Selamat datang di @:appName",
+  "welcomeTo": "Selamat datang di",
   "githubStarText": "Bintangi GitHub",
   "subscribeNewsletterText": "Berlangganan buletin",
-  "letsGoButtonText": "Ayo",
+  "letsGoButtonText": "Mulai",
   "title": "Judul",
   "youCanAlso": "Anda juga bisa",
   "and": "Dan",
@@ -12,7 +13,7 @@
     "addBelowTooltip": "Klik untuk menambahkan di bawah",
     "addAboveCmd": "Alt+klik",
     "addAboveMacCmd": "Opsi+klik",
-    "addAboveTooltip": "untuk menambahkan di atas",
+    "addAboveTooltip": "menambahkan di atas",
     "dragTooltip": "Seret untuk pindahkan",
     "openMenuTooltip": "Klik untuk membuka menu"
   },
@@ -20,13 +21,13 @@
     "buttonText": "Daftar",
     "title": "Daftar ke @:appName",
     "getStartedText": "Mulai",
-    "emptyPasswordError": "Sandi tidak boleh kosong",
-    "repeatPasswordEmptyError": "Sandi ulang tidak boleh kosong",
-    "unmatchedPasswordError": "Sandi ulang tidak sama dengan sandi",
+    "emptyPasswordError": "Kata sandi tidak boleh kosong",
+    "repeatPasswordEmptyError": "Mohon ulangi, sandi tidak boleh kosong",
+    "unmatchedPasswordError": "Kata sandi konfirmasi tidak sesuai dengan kata sandi awal",
     "alreadyHaveAnAccount": "Sudah punya akun?",
-    "emailHint": "Email",
-    "passwordHint": "Sandi",
-    "repeatPasswordHint": "Sandi ulang",
+    "emailHint": "Surat elektronik",
+    "passwordHint": "Kata sandi",
+    "repeatPasswordHint": "Kata sandi ulang",
     "signUpWith": "Daftar menggunakan:"
   },
   "signIn": {
@@ -35,30 +36,31 @@
     "loginStartWithAnonymous": "Mulai dengan sesi anonim",
     "continueAnonymousUser": "Lanjutkan dengan sesi anonim",
     "buttonText": "Masuk",
-    "forgotPassword": "Lupa Sandi?",
-    "emailHint": "Email",
-    "passwordHint": "Sandi",
+    "signingInText": "Sedang masuk",
+    "forgotPassword": "Lupa kata sandi?",
+    "emailHint": "Surat elektronik",
+    "passwordHint": "Kata sandi",
     "dontHaveAnAccount": "Belum punya akun?",
     "repeatPasswordEmptyError": "Sandi ulang tidak boleh kosong",
-    "unmatchedPasswordError": "Sandi ulang tidak sama dengan sandi",
-    "syncPromptMessage": "Menyinkronkan data mungkin memerlukan waktu beberapa saat. Jangan tutup halaman ini",
+    "unmatchedPasswordError": "Kata sandi konfirmasi tidak sesuai dengan kata sandi awal",
+    "syncPromptMessage": "Menyinkronkan data mungkin memerlukan waktu beberapa saat. Mohon jangan tutup halaman ini",
     "or": "ATAU",
+    "signInWith": "Masuk dengan:",
     "LogInWithGoogle": "Masuk dengan Google",
     "LogInWithGithub": "Masuk dengan Github",
     "LogInWithDiscord": "Masuk dengan Discord",
-    "signInWith": "Masuk dengan:",
     "loginAsGuestButtonText": "Memulai"
   },
   "workspace": {
     "chooseWorkspace": "Pilih workspace anda",
     "create": "Buat workspace",
-    "reset": "Mengulang workspace",
-    "resetWorkspacePrompt": "Mengulang workspace akan menghapus semua page dan data di dalamnya. Apakah anda yakin ingin mengulang workspace? Selain itu, anda bisa menghubungi tim support untuk mengembalikan workspace",
-    "hint": "workspace",
-    "notFoundError": "Workspace tidak ditemukan",
-    "failedToLoad": "Ada yang tidak beres! Gagal memuat ruang kerja. Coba tutup semua contoh AppFlowy yang terbuka dan coba lagi.",
+    "reset": "Mengatur ulang area kerja",
+    "resetWorkspacePrompt": "Mengatur ulang area kerja akan menghapus semua halaman dan data di dalamnya. Apakah anda yakin ingin Mengatur ulang area kerja? Selain itu, anda bisa menghubungi tim dukungan untuk mengembalikan area kerja",
+    "hint": "Area kerja",
+    "notFoundError": "Area kerja tidak ditemukan",
+    "failedToLoad": "Ada yang tidak beres! Gagal memuat area kerja. Coba tutup @:appName yang terbuka dan coba lagi.",
     "errorActions": {
-      "reportIssue": "Laporkan isu",
+      "reportIssue": "Melaporkan isu",
       "reachOut": "Hubungi di Discord"
     }
   },
@@ -88,7 +90,7 @@
     "rename": "Ganti nama",
     "delete": "Hapus",
     "duplicate": "Duplikat",
-    "unfavorite": "Menggeluarkan dari favorit",
+    "unfavorite": "Menghapus dari favorit",
     "favorite": "Masukkan ke favorit",
     "openNewTab": "Buka di tab baru",
     "moveTo": "Pindahkan ke",
@@ -99,10 +101,10 @@
   "newPageText": "Halaman baru",
   "newDocumentText": "Dokumen Baru",
   "newGridText": "Grid baru",
-  "newCalendarText": "Kalender baru",
-  "newBoardText": "Board baru",
+  "newCalendarText": "Kalendar baru",
+  "newBoardText": "Papan baru",
   "trash": {
-    "text": "Sampah",
+    "text": "Tempat sampah",
     "restoreAll": "Pulihkan Semua",
     "deleteAll": "Hapus semua",
     "pageHeader": {
@@ -121,7 +123,9 @@
     "mobile": {
       "actions": "Tindakan Sampah",
       "empty": "Tempat Sampah Kosong",
-      "emptyDescription": "Anda tidak memiliki file yang dihapus"
+      "emptyDescription": "Anda tidak memiliki file yang dihapus",
+      "isDeleted": "Telah dihapus",
+      "isRestored": "Telah dipulihkan"
     }
   },
   "deletePagePrompt": {
@@ -150,8 +154,8 @@
   },
   "noPagesInside": "Tidak ada halaman di dalamnya",
   "toolbar": {
-    "undo": "Undo",
-    "redo": "Redo",
+    "undo": "Kembalikan ke sebelumnya",
+    "redo": "Kemblalikan ke setelahnya",
     "bold": "Tebal",
     "italic": "Miring",
     "underline": "Garis bawah",
@@ -224,10 +228,7 @@
     "removeFromFavorites": "Hapus dari favorit",
     "addToFavorites": "Tambahkan ke Favorit",
     "rename": "Ganti nama",
-    "helpCenter": "Pusat Bantuan",
-    "OK": "Ya",
-    "Done": "Selesai",
-    "Cancel": "Batal"
+    "helpCenter": "Pusat Bantuan"
   },
   "label": {
     "welcome": "Selamat datang!",
@@ -308,13 +309,13 @@
       "themeUpload": {
         "button": "Mengunggah",
         "uploadTheme": "Unggah tema",
-        "description": "Unggah tema AppFlowy Anda sendiri menggunakan tombol di bawah ini.",
-        "failure": "Tema yang diunggah memiliki format yang tidak valid.",
+        "description": "Unggah tema @:appName Anda sendiri menggunakan tombol di bawah ini.",
         "loading": "Harap tunggu sementara kami memvalidasi dan mengunggah tema Anda...",
         "uploadSuccess": "Tema Anda berhasil diunggah",
         "deletionFailure": "Gagal menghapus tema. Cobalah untuk menghapusnya secara manual.",
         "filePickerDialogTitle": "Pilih file .flowy_plugin",
-        "urlUploadFailure": "Gagal membuka url: {}"
+        "urlUploadFailure": "Gagal membuka url: {}",
+        "failure": "Tema yang diunggah memiliki format yang tidak valid."
       },
       "theme": "Tema",
       "builtInsLabel": "Tema Bawaan",
@@ -339,7 +340,7 @@
       "defaultLocation": "Baca file dan lokasi penyimpanan data",
       "exportData": "Ekspor data Anda",
       "doubleTapToCopy": "Ketuk dua kali untuk menyalin jalur",
-      "restoreLocation": "Pulihkan ke jalur default AppFlowy",
+      "restoreLocation": "Pulihkan ke jalur default @:appName",
       "customizeLocation": "Buka folder lain",
       "restartApp": "Harap mulai ulang aplikasi agar perubahan diterapkan.",
       "exportDatabase": "Ekspor basis data",
@@ -351,10 +352,10 @@
       "defineWhereYourDataIsStored": "Tentukan di mana data Anda disimpan",
       "open": "Membuka",
       "openFolder": "Buka folder yang ada",
-      "openFolderDesc": "Baca dan tulis ke folder AppFlowy Anda yang sudah ada",
+      "openFolderDesc": "Baca dan tulis ke folder @:appName Anda yang sudah ada",
       "folderHintText": "nama folder",
       "location": "Membuat folder baru",
-      "locationDesc": "Pilih nama untuk folder data AppFlowy Anda",
+      "locationDesc": "Pilih nama untuk folder data @:appName Anda",
       "browser": "Jelajahi",
       "create": "Membuat",
       "set": "Mengatur",
@@ -365,7 +366,7 @@
       "change": "Mengubah",
       "openLocationTooltips": "Buka direktori data lain",
       "openCurrentDataFolder": "Buka direktori data saat ini",
-      "recoverLocationTooltips": "Setel ulang ke direktori data default AppFlowy",
+      "recoverLocationTooltips": "Setel ulang ke direktori data default @:appName",
       "exportFileSuccess": "Ekspor file berhasil!",
       "exportFileFail": "File ekspor gagal!",
       "export": "Ekspor"
@@ -451,13 +452,9 @@
       "isComplete": "selesai",
       "isIncomplted": "tidak lengkap"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Adalah",
       "isNot": "Tidak",
-      "isEmpty": "Kosong",
-      "isNotEmpty": "Tidak kosong"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Mengandung",
       "doesNotContain": "Tidak mengandung",
       "isEmpty": "Kosong",
@@ -761,7 +758,12 @@
     "ungroupedButtonTooltip": "Berisi kartu yang tidak termasuk dalam grup mana pun",
     "ungroupedItemsTitle": "Klik untuk menambahkan ke papan",
     "groupBy": "Kelompokkan berdasarkan",
-    "referencedBoardPrefix": "Pemandangan dari"
+    "referencedBoardPrefix": "Pemandangan dari",
+    "mobile": {
+      "showGroup": "Tampilkan grup",
+      "showGroupContent": "Apakah Anda yakin ingin menampilkan grup ini di papan?",
+      "failedToLoad": "Gagal memuat tampilan papan"
+    }
   },
   "calendar": {
     "menuName": "Kalender",
@@ -786,7 +788,7 @@
     "referencedCalendarPrefix": "Pemandangan dari"
   },
   "errorDialog": {
-    "title": "Kesalahan AppFlowy",
+    "title": "Kesalahan @:appName",
     "howToFixFallback": "Kami mohon maaf atas ketidaknyamanan ini! Kirimkan masalah di halaman GitHub kami yang menjelaskan kesalahan Anda.",
     "github": "Lihat di GitHub"
   },

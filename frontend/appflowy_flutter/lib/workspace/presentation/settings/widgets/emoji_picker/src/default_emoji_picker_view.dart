@@ -1,19 +1,17 @@
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
-import 'emji_picker_config.dart';
 import 'emoji_picker.dart';
 import 'emoji_picker_builder.dart';
-import 'emoji_view_state.dart';
 import 'models/emoji_category_models.dart';
 import 'models/emoji_model.dart';
 
 class DefaultEmojiPickerView extends EmojiPickerBuilder {
   const DefaultEmojiPickerView(
-    EmojiPickerConfig config,
-    EmojiViewState state, {
-    Key? key,
-  }) : super(config, state, key: key);
+    super.config,
+    super.state, {
+    super.key,
+  });
 
   @override
   DefaultEmojiPickerViewState createState() => DefaultEmojiPickerViewState();
@@ -27,6 +25,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   final FocusNode _emojiFocusNode = FocusNode();
   EmojiCategoryGroup searchEmojiList =
       EmojiCategoryGroup(EmojiCategory.SEARCH, <Emoji>[]);
+  final scrollController = ScrollController();
 
   @override
   void initState() {
@@ -72,6 +71,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     _emojiFocusNode.dispose();
     _pageController?.dispose();
     _tabController?.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -91,7 +91,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
         ),
       );
     }
-    return Container();
+    return const SizedBox.shrink();
   }
 
   bool isEmojiSearching() {
@@ -226,8 +226,6 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
 
   Widget _buildPage(double emojiSize, EmojiCategoryGroup emojiCategoryGroup) {
     // Display notice if recent has no entries yet
-    final scrollController = ScrollController();
-
     if (emojiCategoryGroup.category == EmojiCategory.RECENT &&
         emojiCategoryGroup.emoji.isEmpty) {
       return _buildNoRecent();

@@ -5,7 +5,15 @@ import 'package:leak_tracker/leak_tracker.dart';
 
 import '../startup.dart';
 
-bool _enable = false;
+bool enableMemoryLeakDetect = false;
+bool dumpMemoryLeakPerSecond = false;
+
+void dumpMemoryLeak({
+  LeakType type = LeakType.notDisposed,
+}) async {
+  final details = await LeakTracking.collectLeaks();
+  details.dumpDetails(type);
+}
 
 class MemoryLeakDetectorTask extends LaunchTask {
   MemoryLeakDetectorTask();
@@ -14,9 +22,10 @@ class MemoryLeakDetectorTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    if (!kDebugMode || !_enable) {
+    if (!kDebugMode || !enableMemoryLeakDetect) {
       return;
     }
+
     LeakTracking.start();
     LeakTracking.phase = const PhaseSettings(
       leakDiagnosticConfig: LeakDiagnosticConfig(
@@ -24,45 +33,67 @@ class MemoryLeakDetectorTask extends LaunchTask {
         collectStackTraceOnStart: true,
       ),
     );
-    MemoryAllocations.instance.addListener((p0) {
+
+    FlutterMemoryAllocations.instance.addListener((p0) {
       LeakTracking.dispatchObjectEvent(p0.toMap());
     });
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) async {
-      final summary = await LeakTracking.checkLeaks();
-      if (summary.isEmpty) {
-        return;
-      }
-      final details = await LeakTracking.collectLeaks();
-      dumpDetails(LeakType.notDisposed, details);
-      // dumpDetails(LeakType.notGCed, details);
-    });
+
+    // dump memory leak per second if needed
+    if (dumpMemoryLeakPerSecond) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) async {
+        final summary = await LeakTracking.checkLeaks();
+        if (summary.isEmpty) {
+          return;
+        }
+
+        dumpMemoryLeak();
+      });
+    }
   }
 
   @override
   Future<void> dispose() async {
-    if (!kDebugMode || !_enable) {
+    if (!kDebugMode || !enableMemoryLeakDetect) {
       return;
     }
-    _timer?.cancel();
-    _timer = null;
+
+    if (dumpMemoryLeakPerSecond) {
+      _timer?.cancel();
+      _timer = null;
+    }
+
     LeakTracking.stop();
   }
+}
 
-  final _dumpablePackages = [
-    'package:appflowy/',
-  ];
-  void dumpDetails(LeakType type, Leaks leaks) {
+extension on LeakType {
+  String get desc => switch (this) {
+        LeakType.notDisposed => 'not disposed',
+        LeakType.notGCed => 'not GCed',
+        LeakType.gcedLate => 'GCed late'
+      };
+}
+
+final _dumpablePackages = [
+  'package:appflowy/',
+  'package:appflowy_editor/',
+];
+
+extension on Leaks {
+  void dumpDetails(LeakType type) {
     final summary = '${type.desc}: ${switch (type) {
-      LeakType.notDisposed => '${leaks.notDisposed.length}',
-      LeakType.notGCed => '${leaks.notGCed.length}',
-      LeakType.gcedLate => '${leaks.gcedLate.length}'
+      LeakType.notDisposed => '${notDisposed.length}',
+      LeakType.notGCed => '${notGCed.length}',
+      LeakType.gcedLate => '${gcedLate.length}'
     }}';
     debugPrint(summary);
     final details = switch (type) {
-      LeakType.notDisposed => leaks.notDisposed,
-      LeakType.notGCed => leaks.notGCed,
-      LeakType.gcedLate => leaks.gcedLate
+      LeakType.notDisposed => notDisposed,
+      LeakType.notGCed => notGCed,
+      LeakType.gcedLate => gcedLate
     };
+
+    // only dump the code in appflowy
     for (final value in details) {
       final stack = value.context![ContextKeys.startCallstack]! as StackTrace;
       final stackInAppFlowy = stack
@@ -75,10 +106,12 @@ class MemoryLeakDetectorTask extends LaunchTask {
                 _dumpablePackages.any((pkg) => stack.contains(pkg)),
           )
           .join('\n');
+
       // ignore the untreatable leak
       if (stackInAppFlowy.isEmpty) {
         continue;
       }
+
       final object = value.type;
       debugPrint('''
 $object ${type.desc}
@@ -86,12 +119,4 @@ $stackInAppFlowy
 ''');
     }
   }
-}
-
-extension on LeakType {
-  String get desc => switch (this) {
-        LeakType.notDisposed => 'not disposed',
-        LeakType.notGCed => 'not GCed',
-        LeakType.gcedLate => 'GCed late'
-      };
 }

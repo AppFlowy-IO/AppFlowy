@@ -43,10 +43,10 @@
     "unmatchedPasswordError": "Повторний пароль не співпадає з паролем",
     "syncPromptMessage": "Синхронізація даних може зайняти трохи часу. Будь ласка, не закривайте цю сторінку",
     "or": "АБО",
+    "signInWith": "Увійти за допомогою:",
     "LogInWithGoogle": "Увійти за допомогою Google",
     "LogInWithGithub": "Увійти за допомогою Github",
-    "LogInWithDiscord": "Увійти за допомогою Discord",
-    "signInWith": "Увійти за допомогою:"
+    "LogInWithDiscord": "Увійти за допомогою Discord"
   },
   "workspace": {
     "chooseWorkspace": "Виберіть свій робочий простір",
@@ -193,9 +193,9 @@
     "editContact": "Редагувати контакт"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Готово",
-    "Cancel": "Скасувати",
+    "ok": "OK",
+    "done": "Готово",
+    "cancel": "Скасувати",
     "signIn": "Увійти",
     "signOut": "Вийти",
     "complete": "Завершити",
@@ -211,7 +211,6 @@
     "edit": "Редагувати",
     "delete": "Видалити",
     "duplicate": "Дублювати",
-    "done": "Готово",
     "putback": "Повернути"
   },
   "label": {
@@ -282,17 +281,16 @@
         "auto": "АВТО",
         "fallback": "Такий же, як і напрямок макету"
       },
-
       "themeUpload": {
         "button": "Завантажити",
         "uploadTheme": "Завантажити тему",
         "description": "Завантажте свою власну тему AppFlowy, скориставшись кнопкою нижче.",
-        "failure": "Тему, яка була завантажена, має неправильний формат.",
         "loading": "Будь ласка, зачекайте, поки ми перевіряємо та завантажуємо вашу тему...",
         "uploadSuccess": "Вашу тему успішно завантажено",
         "deletionFailure": "Не вдалося видалити тему. Спробуйте видалити її вручну.",
         "filePickerDialogTitle": "Виберіть файл .flowy_plugin",
-        "urlUploadFailure": "Не вдалося відкрити URL: {}"
+        "urlUploadFailure": "Не вдалося відкрити URL: {}",
+        "failure": "Тему, яка була завантажена, має неправильний формат."
       },
       "theme": "Тема",
       "builtInsLabel": "Вбудовані теми",
@@ -348,7 +346,6 @@
       "exportFileFail": "Помилка експорту файлу!",
       "export": "Експорт"
     },
-
     "user": {
       "name": "Ім'я",
       "email": "Електронна пошта",
@@ -417,13 +414,9 @@
       "isComplete": "є завершено",
       "isIncomplted": "є незавершено"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "є",
       "isNot": "не є",
-      "isEmpty": "порожнє",
-      "isNotEmpty": "не порожнє"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Містить",
       "doesNotContain": "Не містить",
       "isEmpty": "порожнє",

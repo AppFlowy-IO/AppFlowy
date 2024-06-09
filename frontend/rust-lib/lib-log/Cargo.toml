@@ -6,16 +6,13 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
 tracing-subscriber = { version = "0.3.17", features = ["registry", "env-filter", "ansi", "json"] }
 tracing-bunyan-formatter = "0.3.9"
-tracing-appender = "0.2.2"
+tracing-appender = "0.2.3"
 tracing-core = "0.1"
 tracing.workspace = true
 serde_json.workspace = true
 serde.workspace = true
 chrono = "0.4"
 lazy_static = "1.4.0"
-
-[features]
-use_bunyan = []
+lib-infra.workspace = true

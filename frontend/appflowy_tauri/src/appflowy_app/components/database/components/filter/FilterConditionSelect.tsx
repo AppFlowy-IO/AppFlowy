@@ -6,7 +6,7 @@ import {
   DateFilterConditionPB,
   FieldType,
   NumberFilterConditionPB,
-  SelectOptionConditionPB,
+  SelectOptionFilterConditionPB,
   TextFilterConditionPB,
 } from '@/services/backend';
 
@@ -30,27 +30,27 @@ function FilterConditionSelect({
       case FieldType.URL:
         return [
           {
-            value: TextFilterConditionPB.Contains,
+            value: TextFilterConditionPB.TextContains,
             text: t('grid.textFilter.contains'),
           },
           {
-            value: TextFilterConditionPB.DoesNotContain,
+            value: TextFilterConditionPB.TextDoesNotContain,
             text: t('grid.textFilter.doesNotContain'),
           },
           {
-            value: TextFilterConditionPB.StartsWith,
+            value: TextFilterConditionPB.TextStartsWith,
             text: t('grid.textFilter.startWith'),
           },
           {
-            value: TextFilterConditionPB.EndsWith,
+            value: TextFilterConditionPB.TextEndsWith,
             text: t('grid.textFilter.endsWith'),
           },
           {
-            value: TextFilterConditionPB.Is,
+            value: TextFilterConditionPB.TextIs,
             text: t('grid.textFilter.is'),
           },
           {
-            value: TextFilterConditionPB.IsNot,
+            value: TextFilterConditionPB.TextIsNot,
             text: t('grid.textFilter.isNot'),
           },
           {
@@ -63,26 +63,51 @@ function FilterConditionSelect({
           },
         ];
       case FieldType.SingleSelect:
+        return [
+          {
+            value: SelectOptionFilterConditionPB.OptionIs,
+            text: t('grid.selectOptionFilter.is'),
+          },
+          {
+            value: SelectOptionFilterConditionPB.OptionIsNot,
+            text: t('grid.selectOptionFilter.isNot'),
+          },
+          {
+            value: SelectOptionFilterConditionPB.OptionIsEmpty,
+            text: t('grid.selectOptionFilter.isEmpty'),
+          },
+          {
+            value: SelectOptionFilterConditionPB.OptionIsNotEmpty,
+            text: t('grid.selectOptionFilter.isNotEmpty'),
+          },
+        ];
       case FieldType.MultiSelect:
         return [
           {
-            value: SelectOptionConditionPB.OptionIs,
-            text: t('grid.singleSelectOptionFilter.is'),
+            value: SelectOptionFilterConditionPB.OptionIs,
+            text: t('grid.selectOptionFilter.is'),
           },
           {
-            value: SelectOptionConditionPB.OptionIsNot,
-            text: t('grid.singleSelectOptionFilter.isNot'),
+            value: SelectOptionFilterConditionPB.OptionIsNot,
+            text: t('grid.selectOptionFilter.isNot'),
           },
           {
-            value: SelectOptionConditionPB.OptionIsEmpty,
-            text: t('grid.singleSelectOptionFilter.isEmpty'),
+            value: SelectOptionFilterConditionPB.OptionContains,
+            text: t('grid.selectOptionFilter.contains'),
           },
           {
-            value: SelectOptionConditionPB.OptionIsNotEmpty,
-            text: t('grid.singleSelectOptionFilter.isNotEmpty'),
+            value: SelectOptionFilterConditionPB.OptionDoesNotContain,
+            text: t('grid.selectOptionFilter.doesNotContain'),
+          },
+          {
+            value: SelectOptionFilterConditionPB.OptionIsEmpty,
+            text: t('grid.selectOptionFilter.isEmpty'),
+          },
+          {
+            value: SelectOptionFilterConditionPB.OptionIsNotEmpty,
+            text: t('grid.selectOptionFilter.isNotEmpty'),
           },
         ];
-
       case FieldType.Number:
         return [
           {
@@ -183,14 +208,12 @@ function FilterConditionSelect({
   }, [fieldType, t]);
 
   return (
-    <div className={'flex justify-between gap-[20px] px-4'}>
+    <div className={'flex items-center justify-between gap-[20px] px-4'}>
       <div className={'flex-1 text-sm text-text-caption'}>{name}</div>
       <ConditionSelect
         conditions={conditions}
         onChange={(e) => {
-          const value = Number(e.target.value);
-
-          onChange(value);
+          onChange(e);
         }}
         value={condition}
       />

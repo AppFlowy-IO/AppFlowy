@@ -3,9 +3,9 @@ use std::convert::TryFrom;
 use std::sync::Weak;
 
 use flowy_database2::DatabaseManager;
-use flowy_document2::manager::DocumentManager;
-use flowy_document2::reminder::{DocumentReminder, DocumentReminderAction};
-use flowy_folder_deps::cloud::Error;
+use flowy_document::manager::DocumentManager;
+use flowy_document::reminder::{DocumentReminder, DocumentReminderAction};
+use flowy_folder_pub::cloud::Error;
 use flowy_user::services::collab_interact::CollabInteract;
 use lib_infra::future::FutureResult;
 
@@ -27,7 +27,7 @@ impl CollabInteract for CollabInteractImpl {
               .handle_reminder_action(DocumentReminderAction::Add { reminder })
               .await;
           },
-          Err(e) => tracing::error!("Failed to convert reminder: {:?}", e),
+          Err(e) => tracing::error!("Failed to add reminder: {:?}", e),
         }
       }
       Ok(())
@@ -56,7 +56,7 @@ impl CollabInteract for CollabInteractImpl {
               .handle_reminder_action(DocumentReminderAction::Update { reminder })
               .await;
           },
-          Err(e) => tracing::error!("Failed to convert reminder: {:?}", e),
+          Err(e) => tracing::error!("Failed to update reminder: {:?}", e),
         }
       }
       Ok(())

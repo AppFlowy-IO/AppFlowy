@@ -1,18 +1,21 @@
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dartz/dartz.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'workspace_bloc.freezed.dart';
 
 class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
+  WorkspaceBloc({required this.userService}) : super(WorkspaceState.initial()) {
+    _dispatch();
+  }
+
   final UserBackendService userService;
-  WorkspaceBloc({
-    required this.userService,
-  }) : super(WorkspaceState.initial()) {
+
+  void _dispatch() {
     on<WorkspaceEvent>(
       (event, emit) async {
         await event.map(
@@ -22,14 +25,16 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
           createWorkspace: (e) async {
             await _createWorkspace(e.name, e.desc, emit);
           },
-          workspacesReveived: (e) async {
+          workspacesReceived: (e) async {
             emit(
               e.workspacesOrFail.fold(
                 (workspaces) => state.copyWith(
                   workspaces: workspaces,
-                  successOrFailure: left(unit),
+                  successOrFailure: FlowyResult.success(null),
                 ),
-                (error) => state.copyWith(successOrFailure: right(error)),
+                (error) => state.copyWith(
+                  successOrFailure: FlowyResult.failure(error),
+                ),
               ),
             );
           },
@@ -43,12 +48,12 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
     emit(
       workspacesOrFailed.fold(
         (workspaces) => state.copyWith(
-          workspaces: workspaces,
-          successOrFailure: left(unit),
+          workspaces: [],
+          successOrFailure: FlowyResult.success(null),
         ),
         (error) {
           Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
+          return state.copyWith(successOrFailure: FlowyResult.failure(error));
         },
       ),
     );
@@ -63,11 +68,11 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
     emit(
       result.fold(
         (workspace) {
-          return state.copyWith(successOrFailure: left(unit));
+          return state.copyWith(successOrFailure: FlowyResult.success(null));
         },
         (error) {
           Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
+          return state.copyWith(successOrFailure: FlowyResult.failure(error));
         },
       ),
     );
@@ -79,8 +84,8 @@ class WorkspaceEvent with _$WorkspaceEvent {
   const factory WorkspaceEvent.initial() = Initial;
   const factory WorkspaceEvent.createWorkspace(String name, String desc) =
       CreateWorkspace;
-  const factory WorkspaceEvent.workspacesReveived(
-    Either<List<WorkspacePB>, FlowyError> workspacesOrFail,
+  const factory WorkspaceEvent.workspacesReceived(
+    FlowyResult<List<WorkspacePB>, FlowyError> workspacesOrFail,
   ) = WorkspacesReceived;
 }
 
@@ -89,12 +94,12 @@ class WorkspaceState with _$WorkspaceState {
   const factory WorkspaceState({
     required bool isLoading,
     required List<WorkspacePB> workspaces,
-    required Either<Unit, FlowyError> successOrFailure,
+    required FlowyResult<void, FlowyError> successOrFailure,
   }) = _WorkspaceState;
 
   factory WorkspaceState.initial() => WorkspaceState(
         isLoading: false,
         workspaces: List.empty(),
-        successOrFailure: left(unit),
+        successOrFailure: FlowyResult.success(null),
       );
 }

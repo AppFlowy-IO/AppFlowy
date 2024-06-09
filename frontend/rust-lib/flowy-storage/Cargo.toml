@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 reqwest = { version = "0.11", features = ["json", "stream"] }
@@ -12,6 +14,10 @@ serde.workspace = true
 async-trait.workspace = true
 bytes.workspace = true
 mime_guess = "2.0"
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
 url = "2.2.2"
 flowy-error = { workspace = true, features = ["impl_from_reqwest"] }
+mime = "0.3.17"
+tokio = { workspace = true, features = ["sync", "io-util"]}
+tracing.workspace = true
+fxhash = "0.2.1"

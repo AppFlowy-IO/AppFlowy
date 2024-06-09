@@ -2,8 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
-import 'package:appflowy/util/platform_extension.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/sign_in_or_logout_button.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -22,43 +23,59 @@ class ThirdPartySignInButtons extends StatelessWidget {
     // When user changes themeMode, it changes the state in AppearanceSettingsCubit, but the themeMode for the MaterialApp won't change, it only got updated(get value from AppearanceSettingsCubit) when user open the app again. Thus, we should get themeMode from AppearanceSettingsCubit rather than MediaQuery.
 
     final themeModeFromCubit =
-        context.read<AppearanceSettingsCubit>().state.themeMode;
+        context.watch<AppearanceSettingsCubit>().state.themeMode;
 
     final isDarkMode = themeModeFromCubit == ThemeMode.system
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
         : themeModeFromCubit == ThemeMode.dark;
 
-    return Column(
-      children: [
-        _ThirdPartySignInButton(
-          key: const Key('signInWithGoogleButton'),
-          icon: FlowySvgs.google_mark_xl,
-          labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
-          onPressed: () {
-            _signInWithGoogle(context);
-          },
-        ),
-        const VSpace(8),
-        _ThirdPartySignInButton(
-          icon: isDarkMode
-              ? FlowySvgs.github_mark_white_xl
-              : FlowySvgs.github_mark_black_xl,
-          labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
-          onPressed: () {
-            _signInWithGithub(context);
-          },
-        ),
-        const VSpace(8),
-        _ThirdPartySignInButton(
-          icon: isDarkMode
-              ? FlowySvgs.discord_mark_white_xl
-              : FlowySvgs.discord_mark_blurple_xl,
-          labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
-          onPressed: () {
-            _signInWithDiscord(context);
-          },
-        ),
-      ],
+    return BlocBuilder<SignInBloc, SignInState>(
+      builder: (context, state) {
+        final (googleText, githubText, discordText) = switch (state.loginType) {
+          LoginType.signIn => (
+              LocaleKeys.signIn_signInWithGoogle.tr(),
+              LocaleKeys.signIn_signInWithGithub.tr(),
+              LocaleKeys.signIn_signInWithDiscord.tr()
+            ),
+          LoginType.signUp => (
+              LocaleKeys.signIn_signUpWithGoogle.tr(),
+              LocaleKeys.signIn_signUpWithGithub.tr(),
+              LocaleKeys.signIn_signUpWithDiscord.tr()
+            ),
+        };
+        return Column(
+          children: [
+            _ThirdPartySignInButton(
+              key: const Key('signInWithGoogleButton'),
+              icon: FlowySvgs.google_mark_xl,
+              labelText: googleText,
+              onPressed: () {
+                _signInWithGoogle(context);
+              },
+            ),
+            const VSpace(8),
+            _ThirdPartySignInButton(
+              icon: isDarkMode
+                  ? FlowySvgs.github_mark_white_xl
+                  : FlowySvgs.github_mark_black_xl,
+              labelText: githubText,
+              onPressed: () {
+                _signInWithGithub(context);
+              },
+            ),
+            const VSpace(8),
+            _ThirdPartySignInButton(
+              icon: isDarkMode
+                  ? FlowySvgs.discord_mark_white_xl
+                  : FlowySvgs.discord_mark_blurple_xl,
+              labelText: discordText,
+              onPressed: () {
+                _signInWithDiscord(context);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -80,7 +97,7 @@ class _ThirdPartySignInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (PlatformExtension.isMobile) {
-      return _MobileSignInButton(
+      return MobileSignInOrLogoutButton(
         icon: icon,
         labelText: labelText,
         onPressed: onPressed,
@@ -137,83 +154,26 @@ class _DesktopSignInButton extends StatelessWidget {
           ),
         ),
         style: ButtonStyle(
-          overlayColor: MaterialStateProperty.resolveWith<Color?>(
+          overlayColor: WidgetStateProperty.resolveWith<Color?>(
             (states) {
-              if (states.contains(MaterialState.hovered)) {
+              if (states.contains(WidgetState.hovered)) {
                 return style.colorScheme.onSecondaryContainer;
               }
               return null;
             },
           ),
-          shape: MaterialStateProperty.all(
+          shape: WidgetStateProperty.all(
             const RoundedRectangleBorder(
               borderRadius: Corners.s6Border,
             ),
           ),
-          side: MaterialStateProperty.all(
+          side: WidgetStateProperty.all(
             BorderSide(
               color: style.dividerColor,
             ),
           ),
         ),
         onPressed: onPressed,
-      ),
-    );
-  }
-}
-
-class _MobileSignInButton extends StatelessWidget {
-  const _MobileSignInButton({
-    required this.icon,
-    required this.labelText,
-    required this.onPressed,
-  });
-
-  final FlowySvgData icon;
-  final String labelText;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context);
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(4),
-          ),
-          border: Border.all(
-            color: style.colorScheme.outline,
-            width: 0.5,
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              // The icon could be in different height as original aspect ratio, we use a fixed sizebox to wrap it to make sure they all occupy the same space.
-              width: 30,
-              height: 30,
-              child: Center(
-                child: SizedBox(
-                  width: 24,
-                  child: FlowySvg(
-                    icon,
-                    blendMode: null,
-                  ),
-                ),
-              ),
-            ),
-            const HSpace(8),
-            Text(
-              labelText,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-          ],
-        ),
       ),
     );
   }

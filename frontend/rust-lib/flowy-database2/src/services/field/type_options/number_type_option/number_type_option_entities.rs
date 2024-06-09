@@ -1,4 +1,4 @@
-use crate::services::cell::{CellBytesCustomParser, CellProtobufBlobParser, DecodedCellData};
+use crate::services::cell::{CellBytesCustomParser, CellProtobufBlobParser};
 use crate::services::field::number_currency::Currency;
 use crate::services::field::{NumberFormat, EXTRACT_NUM_REGEX, START_WITH_DOT_NUM_REGEX};
 use bytes::Bytes;
@@ -105,14 +105,6 @@ impl ToString for NumberCellFormat {
       },
       Some(money) => money.to_string(),
     }
-  }
-}
-
-impl DecodedCellData for NumberCellFormat {
-  type Object = NumberCellFormat;
-
-  fn is_empty(&self) -> bool {
-    self.decimal.is_none()
   }
 }
 

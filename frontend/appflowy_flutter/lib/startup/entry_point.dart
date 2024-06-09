@@ -3,11 +3,9 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
-class FlowyApp implements EntryPoint {
+class AppFlowyApplication implements EntryPoint {
   @override
   Widget create(LaunchConfiguration config) {
-    return SplashScreen(
-      isAnon: config.isAnon,
-    );
+    return SplashScreen(isAnon: config.isAnon);
   }
 }

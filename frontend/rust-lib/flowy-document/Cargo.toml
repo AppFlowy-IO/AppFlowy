@@ -1,0 +1,61 @@
+[package]
+name = "flowy-document"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+collab = { workspace = true }
+collab-document = { workspace = true }
+collab-entity = { workspace = true }
+collab-plugins = { workspace = true }
+collab-integrate = { workspace = true }
+flowy-document-pub = { workspace = true }
+flowy-storage = { workspace = true }
+flowy-derive.workspace = true
+flowy-notification = { workspace = true }
+flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_dispatch_error", "impl_from_collab_document", "impl_from_collab_persistence"] }
+lib-dispatch = { workspace = true }
+lib-infra = { workspace = true }
+validator = { version = "0.16.0", features = ["derive"] }
+protobuf.workspace = true
+bytes.workspace = true
+nanoid = "0.4.0"
+parking_lot.workspace = true
+strum_macros = "0.21"
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+tokio = { workspace = true, features = ["rt"] }
+anyhow.workspace = true
+indexmap = { version = "2.1.0", features = ["serde"] }
+uuid.workspace = true
+futures.workspace = true
+tokio-stream = { workspace = true, features = ["sync"] }
+dashmap = "5"
+scraper = "0.18.0"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }
+
+[dev-dependencies]
+tempfile = "3.4.0"
+tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
+collab-integrate = { workspace = true }
+tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }
+
+[build-dependencies]
+flowy-codegen.workspace = true
+
+[features]
+dart = ["flowy-codegen/dart"]
+tauri_ts = ["flowy-codegen/ts"]
+web_ts = [
+    "flowy-codegen/ts",
+]
+
+# search "Enable/Disable AppFlowy Verbose Log" to find the place that can enable verbose log
+verbose_log = ["collab-document/verbose_log"]

@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 

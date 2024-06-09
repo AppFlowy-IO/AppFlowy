@@ -43,7 +43,7 @@ Node autoCompletionNode({
 }
 
 SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
-  name: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr(),
+  getName: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr,
   iconData: Icons.generating_tokens,
   keywords: ['ai', 'openai' 'writer', 'autogenerator'],
   nodeBuilder: (editorState, _) {
@@ -172,9 +172,7 @@ class _AutoCompletionBlockComponentState
       maxLines: 5,
       focusNode: textFieldFocusNode,
       autoFocus: false,
-      hintTextConstraints: const BoxConstraints(
-        maxHeight: double.infinity,
-      ),
+      hintTextConstraints: const BoxConstraints(),
     );
   }
 
@@ -183,8 +181,6 @@ class _AutoCompletionBlockComponentState
     await editorState.apply(
       transaction,
       options: const ApplyOptions(
-        // disable undo/redo
-        recordRedo: false,
         recordUndo: false,
       ),
     );
@@ -192,14 +188,14 @@ class _AutoCompletionBlockComponentState
 
   Future<void> _onGenerate() async {
     final loading = Loading(context);
-    loading.start();
+    await loading.start();
 
     await _updateEditingText();
 
     final userProfile = await UserBackendService.getCurrentUserProfile()
-        .then((value) => value.toOption().toNullable());
+        .then((value) => value.toNullable());
     if (userProfile == null) {
-      loading.stop();
+      await loading.stop();
       if (mounted) {
         showSnackBarMessage(
           context,
@@ -219,17 +215,18 @@ class _AutoCompletionBlockComponentState
     await openAIRepository.getStreamedCompletions(
       prompt: controller.text,
       onStart: () async {
-        loading.stop();
-        barrierDialog = BarrierDialog(context);
-        barrierDialog?.show();
-        await _makeSurePreviousNodeIsEmptyParagraphNode();
+        await loading.stop();
+        if (mounted) {
+          barrierDialog = BarrierDialog(context);
+          await barrierDialog?.show();
+          await _makeSurePreviousNodeIsEmptyParagraphNode();
+        }
       },
       onProcess: (response) async {
         if (response.choices.isNotEmpty) {
           final text = response.choices.first.text;
           await textRobot.autoInsertText(
             text,
-            inputType: TextRobotInputType.word,
             delay: Duration.zero,
           );
         }
@@ -238,12 +235,14 @@ class _AutoCompletionBlockComponentState
         await barrierDialog?.dismiss();
       },
       onError: (error) async {
-        loading.stop();
-        showSnackBarMessage(
-          context,
-          error.message,
-          showCancel: true,
-        );
+        await loading.stop();
+        if (mounted) {
+          showSnackBarMessage(
+            context,
+            error.message,
+            showCancel: true,
+          );
+        }
       },
     );
     await _updateGenerationCount();
@@ -264,7 +263,7 @@ class _AutoCompletionBlockComponentState
         await _makeSurePreviousNodeIsEmptyParagraphNode();
       }
     }
-    _onExit();
+    return _onExit();
   }
 
   Future<void> _onRewrite() async {
@@ -274,7 +273,7 @@ class _AutoCompletionBlockComponentState
     }
 
     final loading = Loading(context);
-    loading.start();
+    await loading.start();
     // clear previous response
     final selection = startSelection;
     if (selection != null) {
@@ -291,9 +290,9 @@ class _AutoCompletionBlockComponentState
     }
     // generate new response
     final userProfile = await UserBackendService.getCurrentUserProfile()
-        .then((value) => value.toOption().toNullable());
+        .then((value) => value.toNullable());
     if (userProfile == null) {
-      loading.stop();
+      await loading.stop();
       if (mounted) {
         showSnackBarMessage(
           context,
@@ -311,7 +310,7 @@ class _AutoCompletionBlockComponentState
     await openAIRepository.getStreamedCompletions(
       prompt: _rewritePrompt(previousOutput),
       onStart: () async {
-        loading.stop();
+        await loading.stop();
         await _makeSurePreviousNodeIsEmptyParagraphNode();
       },
       onProcess: (response) async {
@@ -319,19 +318,20 @@ class _AutoCompletionBlockComponentState
           final text = response.choices.first.text;
           await textRobot.autoInsertText(
             text,
-            inputType: TextRobotInputType.word,
             delay: Duration.zero,
           );
         }
       },
       onEnd: () async {},
       onError: (error) async {
-        loading.stop();
-        showSnackBarMessage(
-          context,
-          error.message,
-          showCancel: true,
-        );
+        await loading.stop();
+        if (mounted) {
+          showSnackBarMessage(
+            context,
+            error.message,
+            showCancel: true,
+          );
+        }
       },
     );
     await _updateGenerationCount();

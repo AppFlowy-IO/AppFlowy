@@ -1,18 +1,25 @@
+import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-const builtInFontFamily = 'Poppins';
+// the default font family is empty, so we can use the default font family of the platform
+// the system will choose the default font family of the platform
+// iOS: San Francisco
+// Android: Roboto
+// Desktop: Based on the OS
+const defaultFontFamily = '';
+
+const builtInCodeFontFamily = 'RobotoMono';
 
 abstract class BaseAppearance {
   final white = const Color(0xFFFFFFFF);
 
-  final Set<MaterialState> scrollbarInteractiveStates = <MaterialState>{
-    MaterialState.pressed,
-    MaterialState.hovered,
-    MaterialState.dragged,
+  final Set<WidgetState> scrollbarInteractiveStates = <WidgetState>{
+    WidgetState.pressed,
+    WidgetState.hovered,
+    WidgetState.dragged,
   };
 
   TextStyle getFontStyle({
@@ -23,34 +30,32 @@ abstract class BaseAppearance {
     double? letterSpacing,
     double? lineHeight,
   }) {
-    fontSize = fontSize ?? FontSizes.s12;
+    fontSize = fontSize ?? FontSizes.s14;
     fontWeight = fontWeight ??
         (PlatformExtension.isDesktopOrWeb ? FontWeight.w500 : FontWeight.w400);
     letterSpacing = fontSize * (letterSpacing ?? 0.005);
 
     final textStyle = TextStyle(
-      fontFamily: fontFamily,
+      fontFamily: fontFamily.isEmpty ? null : fontFamily,
       fontSize: fontSize,
       color: fontColor,
       fontWeight: fontWeight,
-      fontFamilyFallback: const [builtInFontFamily],
       letterSpacing: letterSpacing,
       height: lineHeight,
     );
 
-    // we embed Poppins font in the app, so we can use it without GoogleFonts
-    if (fontFamily == builtInFontFamily) {
+    if (fontFamily == defaultFontFamily) {
       return textStyle;
     }
 
     try {
-      return GoogleFonts.getFont(
+      return getGoogleFontSafely(
         fontFamily,
         fontSize: fontSize,
-        color: fontColor,
+        fontColor: fontColor,
         fontWeight: fontWeight,
         letterSpacing: letterSpacing,
-        height: lineHeight,
+        lineHeight: lineHeight,
       );
     } catch (e) {
       return textStyle;

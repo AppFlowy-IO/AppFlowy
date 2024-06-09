@@ -6,8 +6,7 @@ class MouseHoverBuilder extends StatefulWidget {
   final bool isClickable;
 
   const MouseHoverBuilder(
-      {Key? key, required this.builder, this.isClickable = false})
-      : super(key: key);
+      {super.key, required this.builder, this.isClickable = false});
 
   final HoverBuilder builder;
 

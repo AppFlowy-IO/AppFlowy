@@ -6,7 +6,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_plain_text.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/material.dart';
+import 'package:string_validator/string_validator.dart';
 
 /// Paste.
 ///
@@ -17,6 +19,7 @@ import 'package:flutter/material.dart';
 ///
 final CommandShortcutEvent customPasteCommand = CommandShortcutEvent(
   key: 'paste the content',
+  getDescription: () => AppFlowyEditorL10n.current.cmdPasteContent,
   command: 'ctrl+v',
   macOSCommand: 'cmd+v',
   handler: _pasteCommandHandler,
@@ -36,6 +39,12 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     final html = data.html;
     final plainText = data.plainText;
     final image = data.image;
+
+    // paste as link preview
+    final result = await _pasteAsLinkPreview(editorState, plainText);
+    if (result) {
+      return;
+    }
 
     // Order:
     // 1. in app json format
@@ -75,3 +84,35 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
 
   return KeyEventResult.handled;
 };
+
+Future<bool> _pasteAsLinkPreview(
+  EditorState editorState,
+  String? text,
+) async {
+  if (text == null || !isURL(text)) {
+    return false;
+  }
+
+  final selection = editorState.selection;
+  if (selection == null ||
+      !selection.isCollapsed ||
+      selection.startIndex != 0) {
+    return false;
+  }
+
+  final node = editorState.getNodeAtPath(selection.start.path);
+  if (node == null ||
+      node.type != ParagraphBlockKeys.type ||
+      node.delta?.toPlainText().isNotEmpty == true) {
+    return false;
+  }
+
+  final transaction = editorState.transaction;
+  transaction.insertNode(
+    selection.start.path,
+    linkPreviewNode(url: text),
+  );
+  await editorState.apply(transaction);
+
+  return true;
+}

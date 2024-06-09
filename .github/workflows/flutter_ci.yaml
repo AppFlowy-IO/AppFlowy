@@ -4,27 +4,29 @@ on:
   push:
     branches:
       - "main"
-      - "develop"
       - "release/*"
     paths:
       - ".github/workflows/flutter_ci.yaml"
-      - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
+      - ".github/actions/flutter_build/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
 
   pull_request:
     branches:
       - "main"
-      - "develop"
       - "release/*"
     paths:
       - ".github/workflows/flutter_ci.yaml"
-      - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
+      - ".github/actions/flutter_build/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
 
 env:
   CARGO_TERM_COLOR: always
-  FLUTTER_VERSION: "3.13.9"
-  RUST_TOOLCHAIN: "1.70"
+  FLUTTER_VERSION: "3.22.0"
+  RUST_TOOLCHAIN: "1.77.2"
   CARGO_MAKE_VERSION: "0.36.6"
 
 concurrency:
@@ -32,28 +34,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  prepare:
+  prepare-linux:
     if: github.event.pull_request.draft != true
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
             target: x86_64-unknown-linux-gnu
-          - os: macos-latest
-            flutter_profile: development-mac-x86_64
-            target: x86_64-apple-darwin
-          - os: windows-latest
-            flutter_profile: development-windows-x86
-            target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
 
     steps:
       # the following step is required to avoid running out of space
       - name: Maximize build space
-        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -61,79 +56,78 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        id: rust_toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Flutter build
+        uses: ./.github/actions/flutter_build
         with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          target: ${{ matrix.target }}
-          override: true
-          profile: minimal
+          os: ${{ matrix.os }}
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
+          flutter_profile: ${{ matrix.flutter_profile }}
 
-      - name: Install flutter
-        id: flutter
-        uses: subosito/flutter-action@v2
+  prepare-windows:
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ windows-latest ]
+        include:
+          - os: windows-latest
+            flutter_profile: development-windows-x86
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Flutter build
+        uses: ./.github/actions/flutter_build
         with:
-          channel: "stable"
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          os: ${{ matrix.os }}
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          DISABLE_CI_TEST_LOG: "true"
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
+          flutter_profile: ${{ matrix.flutter_profile }}
 
-      - uses: Swatinem/rust-cache@v2
+  prepare-macos:
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ macos-latest ]
+        include:
+          - os: macos-latest
+            flutter_profile: development-mac-x86_64
+            target: x86_64-apple-darwin
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Flutter build
+        uses: ./.github/actions/flutter_build
         with:
-          prefix-key: ${{ matrix.os }}
-          workspaces: |
-            frontend/rust-lib
-          cache-all-crates: true
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}, duckscript_cli
-
-      - name: Install prerequisites
-        working-directory: frontend
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-            sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            vcpkg integrate install
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            echo 'do nothing'
-          fi
-          cargo make appflowy-flutter-deps-tools
-        shell: bash
-
-      - name: Build AppFlowy
-        working-directory: frontend
-        run: cargo make --profile ${{ matrix.flutter_profile }} appflowy-core-dev
-
-      - name: Run code generation
-        working-directory: frontend
-        run: cargo make code_generation
-
-      - name: Flutter Analyzer
-        working-directory: frontend/appflowy_flutter
-        run: flutter analyze .
-
-      - name: Compress appflowy_flutter
-        run: |
-          tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ github.run_id }}-${{ matrix.os }}
-          path: appflowy_flutter.tar.gz
+          os: ${{ matrix.os }}
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
+          flutter_profile: ${{ matrix.flutter_profile }}
 
   unit_test:
-    needs: [prepare]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -142,7 +136,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -159,6 +153,7 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -178,7 +173,7 @@ jobs:
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
             sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libmpv-dev mpv
           fi
         shell: bash
 
@@ -194,7 +189,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
@@ -206,6 +201,9 @@ jobs:
         run: cargo make pub_get
 
       - name: Run Flutter unit tests
+        env:
+          DISABLE_EVENT_LOG: true
+          DISABLE_CI_TEST_LOG: "true"
         working-directory: frontend
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
@@ -217,117 +215,12 @@ jobs:
           fi
         shell: bash
 
-      # disable coverage for now as it's not working
-      # - name: Upload coverage to Codecov
-      #   uses: Wandalen/wretry.action@v1.0.36
-      #   with:
-      #     action: codecov/codecov-action@v3
-      #     with: |
-      #       name: appflowy
-      #       flags: appflowy_flutter_unit_test
-      #       fail_ci_if_error: true
-      #       verbose: true
-      #       os: ${{ matrix.os }}
-      #       token: ${{ secrets.CODECOV_TOKEN }}
-      #     attempt_limit: 20
-      #     attempt_delay: 10000
-
-  integration_test:
-    needs: [prepare]
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        include:
-          - os: ubuntu-latest
-            flutter_profile: development-linux-x86_64
-            target: x86_64-unknown-linux-gnu
-          - os: windows-latest
-            flutter_profile: development-windows-x86
-            target: x86_64-pc-windows-msvc
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v2
-
-      - name: Install Rust toolchain
-        id: rust_toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          target: ${{ matrix.target }}
-          override: true
-          profile: minimal
-
-      - name: Install flutter
-        id: flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}
-
-      - name: Install prerequisites
-        working-directory: frontend
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-            sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
-          fi
-        shell: bash
-
-      - name: Enable Flutter Desktop
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            flutter config --enable-linux-desktop
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter config --enable-macos-desktop
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            git config --system core.longpaths true
-            flutter config --enable-windows-desktop
-          fi
-        shell: bash
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ github.run_id }}-${{ matrix.os }}
-
-      - name: Uncompressed appflowy_flutter
-        run: tar -xf appflowy_flutter.tar.gz
-
-      - name: Run flutter pub get
-        working-directory: frontend
-        run: cargo make pub_get
-
-      - name: Run Flutter integration tests
-        working-directory: frontend/appflowy_flutter
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            export DISPLAY=:99
-            sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-            sudo apt-get install network-manager
-            flutter test integration_test/runner.dart -d Linux --coverage
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter test integration_test/runner.dart -d macOS --coverage
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            flutter test integration_test/runner.dart -d Windows --coverage
-          fi
-        shell: bash
-
   cloud_integration_test:
-    needs: [prepare]
-#    if: github.event_name != 'pull_request'
+    needs: [ prepare-linux ]
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -336,33 +229,32 @@ jobs:
 
     steps:
       - name: Checkout appflowy cloud code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
-          depth: 1
-
 
       - name: Prepare appflowy cloud env
         working-directory: AppFlowy-Cloud
         run: |
           # log level
-          cp dev.env .env
+          cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-          sed -i 's/GOTRUE_SMTP_USER=.*/GOTRUE_SMTP_USER=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_USER }}/' .env
-          sed -i 's/GOTRUE_SMTP_PASS=.*/GOTRUE_SMTP_PASS=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_PASS }}/' .env
-          sed -i 's/GOTRUE_SMTP_ADMIN_EMAIL=.*/GOTRUE_SMTP_ADMIN_EMAIL=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_ADMIN_EMAIL }}/' .env
           sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
-          cat .env
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
+        env:
+          BACKEND_VERSION: 0.3.24-amd64
         run: |
+          docker compose down -v --remove-orphans
+          docker compose pull
           docker compose up -d
+          sleep 10
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install flutter
         id: flutter
@@ -370,6 +262,7 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
 
       - uses: taiki-e/install-action@v2
         with:
@@ -381,7 +274,7 @@ jobs:
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
           sudo apt-get update
-          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libmpv-dev mpv
         shell: bash
 
       - name: Enable Flutter Desktop
@@ -389,7 +282,7 @@ jobs:
           flutter config --enable-linux-desktop
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
@@ -397,12 +290,6 @@ jobs:
         run: |
           tar -xf appflowy_flutter.tar.gz
           ls -al
-
-      - name: Enable localhost env
-        working-directory: frontend/appflowy_flutter
-        run: |
-          echo 'APPFLOWY_CLOUD_URL=http://localhost' >> .env
-          dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs
 
       - name: Run flutter pub get
         working-directory: frontend
@@ -414,83 +301,97 @@ jobs:
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           sudo apt-get install network-manager
-          flutter test integration_test/cloud_runner.dart -d Linux --coverage
+          docker ps -a
+          flutter test integration_test/cloud/cloud_runner.dart -d Linux --coverage
         shell: bash
 
-  build:
-    needs: [prepare]
+  # split the integration tests into different machines to minimize the time
+  integration_test_1:
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
-            flutter_profile: development-linux-x86_64
-            target: x86_64-unknown-linux-gnu
-          - os: macos-latest
-            flutter_profile: development-mac-x86_64
-            target: x86_64-apple-darwin
-          - os: windows-latest
-            flutter_profile: development-windows-x86
-            target: x86_64-pc-windows-msvc
+            target: 'x86_64-unknown-linux-gnu'
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        id: rust_toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          target: ${{ matrix.target }}
-          override: true
-          profile: minimal
-
-      - name: Install flutter
-        id: flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}
-
-      - name: Install prerequisites
-        working-directory: frontend
+      - name: Install video dependency
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-            sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
-          fi
+          sudo apt-get update
+          sudo apt-get -y install libmpv-dev mpv
         shell: bash
 
-      - name: Enable Flutter Desktop
+      - name: Flutter Integration Test 1
+        uses: ./.github/actions/flutter_integration_test
+        with:
+          test_path: integration_test/desktop_runner_1.dart
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
+
+  integration_test_2:
+    needs: [ prepare-linux ]
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        include:
+          - os: ubuntu-latest
+            target: 'x86_64-unknown-linux-gnu'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install video dependency
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            flutter config --enable-linux-desktop
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter config --enable-macos-desktop
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            git config --system core.longpaths true
-            flutter config --enable-windows-desktop
-          fi
+          sudo apt-get update
+          sudo apt-get -y install libmpv-dev mpv
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - name: Flutter Integration Test 2
+        uses: ./.github/actions/flutter_integration_test
         with:
-          name: ${{ github.run_id }}-${{ matrix.os }}
+          test_path: integration_test/desktop_runner_2.dart
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
 
-      - name: Uncompressed appflowy_flutter
-        run: tar -xf appflowy_flutter.tar.gz
+  integration_test_3:
+    needs: [ prepare-linux ]
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        include:
+          - os: ubuntu-latest
+            target: 'x86_64-unknown-linux-gnu'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
 
-      - name: Build flutter product
-        working-directory: frontend
+      - name: Install video dependency
         run: |
-          cargo make --profile ${{ matrix.flutter_profile }} appflowy-make-product-dev
+          sudo apt-get update
+          sudo apt-get -y install libmpv-dev mpv
+        shell: bash
+
+      - name: Flutter Integration Test 3
+        uses: ./.github/actions/flutter_integration_test
+        with:
+          test_path: integration_test/desktop_runner_3.dart
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}

@@ -2,9 +2,10 @@
   "appName": "AppFlowy",
   "defaultUsername": "Я",
   "welcomeText": "Добро пожаловать в @:appName",
+  "welcomeTo": "Добро пожаловать в",
   "githubStarText": "Поставить звезду на GitHub",
-  "subscribeNewsletterText": "Подписаться на рассылку",
-  "letsGoButtonText": "Начнём",
+  "subscribeNewsletterText": "Подписаться на новости",
+  "letsGoButtonText": "Быстрый старт",
   "title": "Заголовок",
   "youCanAlso": "Вы также можете",
   "and": "и",
@@ -12,7 +13,7 @@
     "addBelowTooltip": "Нажмите, чтобы добавить ниже",
     "addAboveCmd": "Alt+клик",
     "addAboveMacCmd": "Option+клик",
-    "addAboveTooltip": "добавить выше",
+    "addAboveTooltip": "чтобы добавить выше",
     "dragTooltip": "Перетащите для перемещения",
     "openMenuTooltip": "Нажмите, чтобы открыть меню"
   },
@@ -32,9 +33,10 @@
   "signIn": {
     "loginTitle": "Войти в @:appName",
     "loginButtonText": "Войти",
-    "loginStartWithAnonymous": "Начать анонимный сеанс",
-    "continueAnonymousUser": "Продолжить анонимный сеанс",
+    "loginStartWithAnonymous": "Начать анонимную сессию",
+    "continueAnonymousUser": "Продолжить анонимную сессию",
     "buttonText": "Авторизация",
+    "signingInText": "Вход…",
     "forgotPassword": "Забыли пароль?",
     "emailHint": "Электронная почта",
     "passwordHint": "Пароль",
@@ -43,23 +45,25 @@
     "unmatchedPasswordError": "Пароли не совпадают",
     "syncPromptMessage": "Синхронизация данных может занять некоторое время. Пожалуйста, не закрывайте эту страницу",
     "or": "или",
+    "signInWith": "Войти с помощью:",
     "LogInWithGoogle": "Войти через Google",
     "LogInWithGithub": "Войти через GitHub",
     "LogInWithDiscord": "Войти через Discord",
-    "signInWith": "Войти с помощью:",
     "loginAsGuestButtonText": "Начать"
   },
   "workspace": {
     "chooseWorkspace": "Выберите рабочее пространство",
     "create": "Создать рабочее пространство",
     "reset": "Сбросить рабочее пространство",
-    "resetWorkspacePrompt": "Сброс рабочей области приведет к удалению всех страниц и данных в ней. Вы уверены, что хотите сбросить рабочую область? Также, вы можете обратиться в службу поддержки для восстановления рабочей области.",
+    "resetWorkspacePrompt": "Сброс рабочего пространства приведет к удалению всех страниц и данных внутри него. Вы уверены, что хотите сбросить рабочее пространство? В качестве альтернативы вы можете обратиться в службу поддержки для восстановления рабочего пространства",
     "hint": "рабочее пространство",
     "notFoundError": "Рабочее пространство не найдено",
-    "failedToLoad": "Что-то пошло не так! Не удалось загрузить рабочее пространство. Попробуйте закрыть открытый сеанс AppFlowy и повторите попытку.",
+    "failedToLoad": "Что-то пошло не так! Не удалось загрузить рабочее пространство. Попробуйте закрыть все открытые экземпляры @:appName и повторите попытку.",
     "errorActions": {
       "reportIssue": "Сообщить о проблеме",
-      "reachOut": "Обратитесь в Discord"
+      "reportIssueOnGithub": "Сообщить о проблеме на Github",
+      "exportLogFiles": "Экспорт логов",
+      "reachOut": "Написать в Discord"
     }
   },
   "shareAction": {
@@ -74,8 +78,13 @@
     "medium": "средний",
     "large": "большой",
     "fontSize": "Размер шрифта",
-    "import": "Импортировать",
-    "moreOptions": "Больше вариантов"
+    "import": "Импорт",
+    "moreOptions": "Дополнительные опции",
+    "wordCount": "Количество слов: {}",
+    "charCount": "Количество символов: {}",
+    "createdAt": "Создан в: {}",
+    "deleteView": "Удалить",
+    "duplicateView": "Дублировать"
   },
   "importPanel": {
     "textAndMarkdown": "Текст и Markdown",
@@ -98,13 +107,13 @@
   "blankPageTitle": "Пустая страница",
   "newPageText": "Новая страница",
   "newDocumentText": "Новый документ",
-  "newGridText": "Новая сетка",
+  "newGridText": "Новая таблица",
   "newCalendarText": "Новый календарь",
   "newBoardText": "Новая доска",
   "trash": {
     "text": "Корзина",
     "restoreAll": "Восстановить всё",
-    "deleteAll": "Очистить",
+    "deleteAll": "Удалить всё",
     "pageHeader": {
       "fileName": "Имя файла",
       "lastModified": "Последнее изменение",
@@ -127,27 +136,27 @@
     }
   },
   "deletePagePrompt": {
-    "text": "Эта страница в корзине",
+    "text": "Эта страница находится в корзине",
     "restore": "Восстановить страницу",
     "deletePermanent": "Удалить навсегда"
   },
-  "dialogCreatePageNameHint": "Имя страницы",
+  "dialogCreatePageNameHint": "Название страницы",
   "questionBubble": {
-    "shortcuts": "Комбинации клавиш",
+    "shortcuts": "Горячие клавиши",
     "whatsNew": "Что нового?",
-    "help": "Помощь",
+    "help": "Помощь и поддержка",
     "markdown": "Markdown",
     "debug": {
       "name": "Отладочная информация",
-      "success": "Скопировано в буфер обмена!",
-      "fail": "Не получилось скопировать отладочную информацию в буфер обмена"
+      "success": "Отладочная информация скопирована в буфер обмена!",
+      "fail": "Не удалось скопировать отладочную информацию в буфер обмена"
     },
     "feedback": "Обратная связь"
   },
   "menuAppHeader": {
-    "moreButtonToolTip": "Удалить, переименовать и многое другое...",
+    "moreButtonToolTip": "Удалить, переименовать и другие действия...",
     "addPageTooltip": "Быстрое добавление новой страницы",
-    "defaultNewPageName": "Без заголовка",
+    "defaultNewPageName": "Без названия",
     "renameDialog": "Переименовать"
   },
   "noPagesInside": "Внутри нет страниц",
@@ -176,7 +185,7 @@
     "addNewRow": "Добавить новую строку",
     "openMenu": "Нажмите, чтобы открыть меню",
     "dragRow": "Перетащите для изменения порядка строк",
-    "viewDataBase": "Открыть базу данных",
+    "viewDataBase": "Просмотр базы данных",
     "referencePage": "Ссылки на {name}",
     "addBlockBelow": "Добавьте блок ниже"
   },
@@ -203,7 +212,7 @@
     "editContact": "Редактировать контакт"
   },
   "button": {
-    "ok": "ОК",
+    "ok": "Ок",
     "done": "Готово",
     "cancel": "Отмена",
     "signIn": "Войти",
@@ -229,9 +238,13 @@
     "addToFavorites": "Добавить в избранное",
     "rename": "Переименовать",
     "helpCenter": "Центр помощи",
-    "OK": "ОК",
-    "Cancel": "Отменить",
-    "tryAGain": "Повторить"
+    "add": "Добавить",
+    "yes": "Да",
+    "clear": "Очистить",
+    "remove": "Удалить",
+    "dontRemove": "Не удалять",
+    "copyLink": "Скопировать ссылку",
+    "align": "Выровнять"
   },
   "label": {
     "welcome": "Добро пожаловать!",
@@ -248,7 +261,7 @@
     "google": {
       "title": "Вход через Google",
       "instruction1": "Чтобы импортировать ваши Google Контакты, вам нужно будет авторизоваться через браузер.",
-      "instruction2": "Скопируйте этот код в буфер обмена (нажав на иконку или выделив текст):",
+      "instruction2": "Скопируйте этот код в буфер обмена, нажав на иконку или выбрав текст:",
       "instruction3": "Перейдите по ссылке и введите приведённый выше код:",
       "instruction4": "Нажмите кнопку ниже после завершения регистрации:"
     }
@@ -265,22 +278,55 @@
       "logout": "Выйти",
       "logoutPrompt": "Вы уверены, что хотите выйти?",
       "selfEncryptionLogoutPrompt": "Вы действительно хотите выйти? Убедитесь, что вы скопировали секрет шифрования",
-      "syncSetting": "Настройка синхронизации",
+      "syncSetting": "Настройки синхронизации",
+      "cloudSettings": "Настройки облачного сервера",
       "enableSync": "Включить синхронизацию",
-      "enableEncrypt": "Шифрование данных",
+      "enableEncrypt": "Включить шифрование данных",
+      "cloudURL": "Базовый URL",
+      "invalidCloudURLScheme": "Неверный формат URL",
+      "cloudServerType": "Тип облачного сервера",
+      "cloudServerTypeTip": "Обратите внимание, что после смены облачного сервера может произойти выход из текущего аккаунта",
+      "cloudLocal": "Локально",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "URL-адрес Supabase не может быть пустым.",
+      "cloudSupabaseAnonKey": "Анонимный ключ Supabase",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "Анонимный ключ не может быть пустым, если URL Supabase не пуст",
+      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowySelfHost": "@:appName Cloud на своём сервере",
+      "appFlowyCloudUrlCanNotBeEmpty": "URL облака не может быть пустым.",
+      "clickToCopy": "Нажмите, чтобы скопировать",
+      "selfHostStart": "Если у вас нет сервера, пожалуйста, обратитесь к",
+      "selfHostContent": "документации",
+      "selfHostEnd": "для получения инструкций по самостоятельному размещению собственного сервера",
+      "cloudURLHint": "Введите базовый URL вашего сервера",
+      "cloudWSURL": "URL вебсокета",
+      "cloudWSURLHint": "Введите адрес вебсокета вашего сервера",
+      "restartApp": "Перезапуск",
+      "restartAppTip": "Перезапустите приложение, чтобы изменения вступили в силу. Обратите внимание, что это может привести к выходу из текущего аккаунта",
+      "changeServerTip": "После смены сервера необходимо нажать кнопку перезагрузки, чтобы изменения вступили в силу.",
       "enableEncryptPrompt": "Активируйте шифрование для защиты ваших данных с этим секретом. Храните его безопасно; после включения, он не может быть отключён. В случае потери секрета ваши данные будут также потеряны. Нажмите, чтобы скопировать",
       "inputEncryptPrompt": "Пожалуйста, введите ваш секрет шифрования для",
       "clickToCopySecret": "Нажмите, чтобы скопировать секрет",
+      "configServerSetting": "Настройте параметры вашего сервера",
+      "configServerGuide": "После выбора «Быстрый старт» перейдите в «Настройки», а затем «Настройки облачного сервера», чтобы настроить параметры вашего самостоятельно размещенного сервера.",
       "inputTextFieldHint": "Ваш секрет",
       "historicalUserList": "История входа пользователя",
       "historicalUserListTooltip": "В этом списке отображаются ваши анонимные аккаунты. Вы можете нажать на аккаунт, чтобы посмотреть данные. Анонимный аккаунт создаётся нажатием кнопки «Начать».",
       "openHistoricalUser": "Нажмите, чтобы открыть анонимный аккаунт",
-      "supabaseSetting": "Настройка надбазы"
+      "customPathPrompt": "Хранение папки данных @:appName в папке с облачной синхронизацией, например на Google Диске, может представлять риск. Если база данных в этой папке будет доступна или изменена с нескольких мест одновременно, это может привести к конфликтам синхронизации и потенциальному повреждению данных",
+      "importAppFlowyData": "Импортировать данные из внешней папки @:appName",
+      "importingAppFlowyDataTip": "Выполняется импорт данных. Пожалуйста, не закрывайте приложение",
+      "importAppFlowyDataDescription": "Скопируйте данные из внешней папки данных @:appName и импортируйте их в текущую папку данных @:appName.",
+      "importSuccess": "Папка данных @:appName успешно импортирована",
+      "importFailed": "Не удалось импортировать папку данных @:appName",
+      "importGuide": "Для получения более подробной информации, пожалуйста, проверьте указанный документ.",
+      "supabaseSetting": "Настройка Supabase"
     },
     "notifications": {
       "enableNotifications": {
         "label": "Включить уведомления",
-        "hint": "Выключите, чтобы локальные уведомления не появлялись."
+        "hint": "Отключите, чтобы прекратить появление локальных уведомлений."
       }
     },
     "appearance": {
@@ -295,6 +341,19 @@
         "dark": "Тёмная",
         "system": "Системная"
       },
+      "fontScaleFactor": "Масштаб шрифта",
+      "documentSettings": {
+        "cursorColor": "Цвет курсора в документе",
+        "selectionColor": "Цвет выделения в документе",
+        "hexEmptyError": "HEX-код цвета не может быть пустым",
+        "hexLengthError": "HEX-код цвета должен быть шестизначным",
+        "hexInvalidError": "Неверный HEX-код",
+        "opacityEmptyError": "Прозрачность не может быть пустой",
+        "opacityRangeError": "Прозрачность должна быть от 1 до 100",
+        "app": "Приложение",
+        "flowy": "Flowy",
+        "apply": "Применить"
+      },
       "layoutDirection": {
         "label": "Направление макета",
         "hint": "Управляйте направлением контента слева направо или справа налево.",
@@ -307,18 +366,18 @@
         "ltr": "Слева направо",
         "rtl": "Справа налево",
         "auto": "Авто",
-        "fallback": "То же, что и направление макета"
+        "fallback": "Как в макете"
       },
       "themeUpload": {
         "button": "Загрузить",
         "uploadTheme": "Загрузить тему",
-        "description": "Загрузите собственную тему AppFlowy, используя кнопку ниже.",
-        "failure": "Загруженная тема имеет недопустимый формат.",
+        "description": "Загрузите собственную тему @:appName, используя кнопку ниже.",
         "loading": "Подождите, пока мы проверим и загрузим вашу тему...",
         "uploadSuccess": "Ваша тема была успешно загружена",
         "deletionFailure": "Не удалось удалить тему. Попробуйте удалить её вручную.",
         "filePickerDialogTitle": "Выберите файл .flowy_plugin",
-        "urlUploadFailure": "Не удалось открыть URL: {}"
+        "urlUploadFailure": "Не удалось открыть URL: {}",
+        "failure": "Загруженная тема имеет недопустимый формат."
       },
       "theme": "Тема",
       "builtInsLabel": "Встроенные темы",
@@ -333,17 +392,18 @@
       },
       "timeFormat": {
         "label": "Формат времени",
-        "twelveHour": "Двенадцать часов",
-        "twentyFourHour": "Двадцать четыре часа"
+        "twelveHour": "12Ч",
+        "twentyFourHour": "24Ч"
       },
-      "showNamingDialogWhenCreatingPage": "Показывать диалоговое окно именования при создании страницы"
+      "showNamingDialogWhenCreatingPage": "Показывать диалоговое окно именования при создании страницы",
+      "enableRTLToolbarItems": "Включить режим панели слева-направо"
     },
     "files": {
       "copy": "Копировать",
-      "defaultLocation": "Где сейчас хранятся ваши данные",
+      "defaultLocation": "Путь до хранилища",
       "exportData": "Экспорт данных",
       "doubleTapToCopy": "Нажмите дважды, чтобы скопировать путь",
-      "restoreLocation": "Восстановить путь AppFlowy по умолчанию",
+      "restoreLocation": "Восстановить путь @:appName по умолчанию",
       "customizeLocation": "Выбрать другую папку",
       "restartApp": "Пожалуйста, перезапустите приложение, чтобы изменения вступили в силу.",
       "exportDatabase": "Экспорт базы данных",
@@ -355,10 +415,10 @@
       "defineWhereYourDataIsStored": "Указать хранилище данных",
       "open": "Открыть",
       "openFolder": "Открыть существующую папку",
-      "openFolderDesc": "Чтение и запись в существующую папку AppFlowy ...",
+      "openFolderDesc": "Чтение и запись в существующую папку @:appName ...",
       "folderHintText": "имя папки",
       "location": "Создание новой папки",
-      "locationDesc": "Выбрать имя папки данных AppFlowy",
+      "locationDesc": "Выбрать имя папки данных @:appName",
       "browser": "Обзор",
       "create": "Создать",
       "set": "Установить",
@@ -376,23 +436,23 @@
     },
     "user": {
       "name": "Имя",
-      "email": "Email",
-      "tooltipSelectIcon": "Выбрать иконку",
-      "selectAnIcon": "Выберите иконку",
+      "email": "Электронная почта",
+      "tooltipSelectIcon": "Выберите иконку",
+      "selectAnIcon": "Выбрать иконку",
       "pleaseInputYourOpenAIKey": "Пожалуйста, введите токен OpenAI",
       "pleaseInputYourStabilityAIKey": "Пожалуйста, введите свой токен Stability AI",
       "clickToLogout": "Нажмите, чтобы выйти из текущего аккаунта"
     },
     "shortcuts": {
-      "shortcutsLabel": "Ярлыки",
+      "shortcutsLabel": "Горячие клавиши",
       "command": "Команда",
       "keyBinding": "Привязка клавиш",
       "addNewCommand": "Добавить новую команду",
       "updateShortcutStep": "Нажмите нужную комбинацию клавиш и нажмите Enter.",
-      "shortcutIsAlreadyUsed": "Этот ярлык уже используется для: {conflict}",
-      "resetToDefault": "Сбросить сочетания клавиш по умолчанию",
-      "couldNotLoadErrorMsg": "Не удалось загрузить ярлыки. Попробуйте ещё раз",
-      "couldNotSaveErrorMsg": "Не удалось сохранить ярлыки. Попробуйте ещё раз"
+      "shortcutIsAlreadyUsed": "Это сочетание клавиш уже используется для: {conflict}",
+      "resetToDefault": "Сбросить к стандартным сочетаниям клавиш",
+      "couldNotLoadErrorMsg": "Не удалось загрузить горячие клавиши, попробуйте снова",
+      "couldNotSaveErrorMsg": "Не удалось сохранить горячие клавиши, попробуйте снова"
     },
     "mobile": {
       "personalInfo": "Личная информация",
@@ -404,8 +464,12 @@
       "joinDiscord": "Присоединяйтесь к нам в Discord",
       "privacyPolicy": "Политика Конфиденциальности",
       "userAgreement": "Пользовательское Соглашение",
+      "termsAndConditions": "Условия и положения",
       "userprofileError": "Не удалось загрузить профиль пользователя",
-      "userprofileErrorDescription": "Пожалуйста, попробуйте разлогиниться и войти снова, чтобы проверить, сохранится ли проблема."
+      "userprofileErrorDescription": "Пожалуйста, попробуйте разлогиниться и войти снова, чтобы проверить, сохранится ли проблема.",
+      "selectLayout": "Выбрать раскладку",
+      "selectStartingDay": "Выбрать день начала",
+      "version": "Версия"
     }
   },
   "grid": {
@@ -418,7 +482,7 @@
       "filter": "Фильтр",
       "sort": "Сортировать",
       "sortBy": "Сортировать по",
-      "properties": "Характеристики",
+      "properties": "Свойства",
       "reorderPropertiesTooltip": "Перетащите, чтобы изменить порядок свойств",
       "group": "Группировать",
       "addFilter": "Добавить фильтр",
@@ -427,7 +491,14 @@
       "typeAValue": "Введите значение...",
       "layout": "Вид",
       "databaseLayout": "Вид базы данных",
-      "Properties": "Свойства"
+      "editView": "Редактировать представление",
+      "boardSettings": "Настройки доски",
+      "calendarSettings": "Настройки календаря",
+      "createView": "Новое представление",
+      "duplicateView": "Дублировать представление",
+      "deleteView": "Удалить представление",
+      "numberOfVisibleFields": "{} показано",
+      "viewList": "Представление базы данных"
     },
     "textFilter": {
       "contains": "Содержит",
@@ -457,15 +528,39 @@
       "isComplete": "завершено",
       "isIncomplted": "не завершено"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Является",
       "isNot": "Не является",
+      "contains": "Содержит",
+      "doesNotContain": "Не содержит",
       "isEmpty": "Пусто",
       "isNotEmpty": "Не пусто"
     },
-    "multiSelectOptionFilter": {
-      "contains": "Содержит",
-      "doesNotContain": "Не содержит",
+    "dateFilter": {
+      "is": "Равно",
+      "before": "До",
+      "after": "После",
+      "onOrBefore": "Равно или до",
+      "onOrAfter": "Равно или после",
+      "between": "Между",
+      "empty": "Пусто",
+      "notEmpty": "Не пусто",
+      "choicechipPrefix": {
+        "before": "До",
+        "after": "После",
+        "onOrBefore": "Не позднее",
+        "onOrAfter": "После",
+        "isEmpty": "Пусто",
+        "isNotEmpty": "Не пусто"
+      }
+    },
+    "numberFilter": {
+      "equal": "Равно",
+      "notEqual": "Не равно",
+      "lessThan": "Меньше чем",
+      "greaterThan": "Больше, чем",
+      "lessThanOrEqualTo": "Меньше или равно",
+      "greaterThanOrEqualTo": "Больше или равно",
       "isEmpty": "Пусто",
       "isNotEmpty": "Не пусто"
     },
@@ -486,6 +581,7 @@
       "multiSelectFieldName": "Выбор нескольких",
       "urlFieldName": "URL",
       "checklistFieldName": "To-Do лист",
+      "relationFieldName": "Связь",
       "numberFormat": "Формат числа",
       "dateFormat": "Формат даты",
       "includeTime": "Время",
@@ -500,34 +596,49 @@
       "timeFormatTwelveHour": "12 часов",
       "timeFormatTwentyFourHour": "24 часа",
       "clearDate": "Очистить дату",
+      "dateTime": "Дата и время",
+      "startDateTime": "Начало",
+      "endDateTime": "Конец",
+      "failedToLoadDate": "Ошибка загрузки даты и времени",
+      "selectTime": "Выбор времени",
+      "selectDate": "Выбор даты",
+      "visibility": "Видимость",
+      "propertyType": "Тип свойства",
       "addSelectOption": "Добавить вариант",
+      "typeANewOption": "Ввести вариант",
       "optionTitle": "Варианты",
       "addOption": "Добавить",
       "editProperty": "Редактировать свойство",
       "newProperty": "Новое свойство",
       "deleteFieldPromptMessage": "Вы уверены, что хотите удалить?",
-      "newColumn": "Новый столбец"
+      "newColumn": "Новый столбец",
+      "format": "Формат",
+      "reminderOnDateTooltip": "В этой ячейке есть запланированное напоминание",
+      "optionAlreadyExist": "Вариант уже существует"
     },
     "rowPage": {
       "newField": "Добавить новое поле",
       "fieldDragElementTooltip": "Нажмите, чтобы открыть меню",
       "showHiddenFields": {
         "one": "Показать {} скрытое поле",
-        "many": "Показать {} скрытых поля",
+        "many": "Показать {} скрытых полей",
         "other": "Показать {} скрытых поля"
       },
       "hideHiddenFields": {
         "one": "Скрыть {} скрытое поле",
-        "many": "Скрыто {} скрытых поля",
+        "many": "Скрыто {} скрытых полей",
         "other": "Скрыто {} скрытых поля"
       }
     },
     "sort": {
       "ascending": "По возрастанию",
       "descending": "По убыванию",
+      "by": "По",
+      "empty": "Нет активных сортировок",
+      "cannotFindCreatableField": "Не могу найти подходящее поле для сортировки",
       "deleteAllSorts": "Удалить все сортировки",
       "addSort": "Добавить сортировку",
-      "deleteSort": "Удалить сортировку"
+      "removeSorting": "Убрать сортировку?"
     },
     "row": {
       "duplicate": "Дублировать",
@@ -561,7 +672,9 @@
       "searchOption": "Поиск",
       "searchOrCreateOption": "Найдите или создайте новый...",
       "createNew": "Создать новый",
-      "orSelectOne": "Или выберите"
+      "orSelectOne": "Или выберите",
+      "typeANewOption": "Ввести вариант",
+      "tagName": "Название метки"
     },
     "checklist": {
       "taskHint": "Описание листа",
@@ -570,8 +683,27 @@
       "hideComplete": "Скрыть выполненные задачи",
       "showComplete": "Показать все задачи"
     },
+    "url": {
+      "launch": "Открыть в браузере",
+      "copy": "Скопировать URL"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Связанная база данных",
+      "relatedDatabasePlaceholder": "Пусто",
+      "inRelatedDatabase": "В",
+      "emptySearchResult": "записей не найдено"
+    },
     "menuName": "Сетка",
-    "referencedGridPrefix": "Просмотр"
+    "referencedGridPrefix": "Просмотр",
+    "calculate": "Рассчитать",
+    "calculationTypeLabel": {
+      "none": "Пусто",
+      "average": "Среднее",
+      "max": "Максимум",
+      "median": "Медиана",
+      "min": "Минимум",
+      "sum": "Сумма"
+    }
   },
   "document": {
     "menuName": "Документ",
@@ -606,25 +738,26 @@
       "referencedCalendar": "Связанные календари",
       "referencedDocument": "Связанные документы",
       "autoGeneratorMenuItemName": "OpenAI Генератор",
-      "autoGeneratorTitleName": "OpenAI: попросить AI написать что угодно...",
+      "autoGeneratorTitleName": "OpenAI: попросить ИИ написать что угодно...",
       "autoGeneratorLearnMore": "Узнать больше",
       "autoGeneratorGenerate": "Генерировать",
       "autoGeneratorHintText": "Спросить OpenAI ...",
       "autoGeneratorCantGetOpenAIKey": "Не могу получить токен OpenAI",
       "autoGeneratorRewrite": "Переписать",
-      "smartEdit": "AI-ассистенты",
+      "smartEdit": "ИИ-ассистенты",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "Исправить правописание",
-      "warning": "⚠️ Ответы AI могут быть неправильными или неточными.",
+      "warning": "⚠️ Ответы ИИ могут быть неправильными или неточными.",
       "smartEditSummarize": "Обобщить",
       "smartEditImproveWriting": "Исправить написание",
       "smartEditMakeLonger": "Продолжить",
       "smartEditCouldNotFetchResult": "Не могу получить ответ от OpenAI",
       "smartEditCouldNotFetchKey": "Не могу получить токен OpenAI",
       "smartEditDisabled": "OpenAI",
-      "discardResponse": "Хотите убрать ответы AI?",
+      "discardResponse": "Хотите убрать ответы ИИ?",
       "createInlineMathEquation": "Создать уравнение",
       "fonts": "Шрифты",
+      "emoji": "Эмодзи",
       "toggleList": "Выпадающий список",
       "quoteList": "Список цитат",
       "numberedList": "Нумерованный список",
@@ -657,6 +790,7 @@
         "alertDialogConfirmation": "Вы хотите продолжить?"
       },
       "mathEquation": {
+        "name": "Математическое выражение",
         "addMathEquation": "Добавить математическое выражение",
         "editMathEquation": "Редактировать математическое выражение"
       },
@@ -673,14 +807,21 @@
         "left": "Слева",
         "center": "По центру",
         "right": "Справа",
-        "defaultColor": "Цвет по умолчанию"
+        "defaultColor": "Цвет по умолчанию",
+        "depth": "Глубина"
       },
       "image": {
         "copiedToPasteBoard": "Ссылка на изображение скопирована в буфер обмена",
-        "addAnImage": "Добавить изображение"
+        "addAnImage": "Добавить изображение",
+        "imageUploadFailed": "Не удалось загрузить изображение."
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "Ссылка скопирована в буфер обмена",
+        "convertToLink": "Сделать встроенной ссылкой"
       },
       "outline": {
-        "addHeadingToCreateOutline": "Добавьте заголовки, чтобы создать оглавление."
+        "addHeadingToCreateOutline": "Добавьте заголовки, чтобы создать оглавление.",
+        "noMatchHeadings": "Соответствующие заголовки не найдены."
       },
       "table": {
         "addAfter": "Добавить после",
@@ -695,7 +836,19 @@
         "cut": "Вырезать",
         "paste": "Вставить"
       },
-      "action": "Действие"
+      "action": "Действие",
+      "database": {
+        "selectDataSource": "Выбрать источник данных",
+        "noDataSource": "Нет источника данных",
+        "selectADataSource": "Выбрать источник данных",
+        "toContinue": "чтобы продолжить",
+        "newDatabase": "Новая база данных",
+        "linkToDatabase": "Связать базу данных"
+      },
+      "date": "Дата"
+    },
+    "outlineBlock": {
+      "placeholder": "Оглавление"
     },
     "textBlock": {
       "placeholder": "Введите '/' для команд"
@@ -732,9 +885,19 @@
         "label": "Вставить ссылку",
         "placeholder": "Вставьте или введите ссылку на изображение"
       },
+      "unsplash": {
+        "label": "Unsplash"
+      },
       "searchForAnImage": "Поиск изображения",
       "pleaseInputYourOpenAIKey": "пожалуйста, введите свой токен OpenAI на странице настроек",
-      "pleaseInputYourStabilityAIKey": "пожалуйста, введите свой токен Stability AI на странице настроек"
+      "pleaseInputYourStabilityAIKey": "пожалуйста, введите свой токен Stability AI на странице настроек",
+      "saveImageToGallery": "Сохранить изображение",
+      "failedToAddImageToGallery": "Ошибка добавления изображения в галерею",
+      "successToAddImageToGallery": "Изображение успешно добавлено",
+      "unableToLoadImage": "Ошибка загрузки изображения",
+      "maximumImageSize": "Максимальный поддерживаемый размер загружаемого изображения — 10 МБ.",
+      "uploadImageErrorImageSizeTooBig": "Размер изображения должен быть меньше 10 МБ.",
+      "imageIsUploading": "Изображение загружается"
     },
     "codeBlock": {
       "language": {
@@ -761,7 +924,9 @@
       "page": {
         "label": "Ссылка на страницу",
         "tooltip": "Нажмите, чтобы открыть страницу"
-      }
+      },
+      "deleted": "Удалено",
+      "deletedContent": "Этот контент не существует или был удален"
     },
     "toolbar": {
       "resetToDefaultFont": "Восстановить по умолчанию"
@@ -777,21 +942,40 @@
       "renameGroupTooltip": "Нажмите, чтобы переименовать группу",
       "createNewColumn": "Создать новую группу",
       "addToColumnTopTooltip": "Добавить новую карту сверху",
+      "addToColumnBottomTooltip": "Add a new card at the bottom",
       "renameColumn": "Переименовать",
-      "hideColumn": "Скрыть"
+      "hideColumn": "Скрыть",
+      "newGroup": "Новая группа",
+      "deleteColumn": "Удалить",
+      "deleteColumnConfirmation": "Это удалит колонку и все карточки в ней.\nТочно продолжить?",
+      "groupActions": "Групповые действия"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Скрытые группы",
       "collapseTooltip": "Скрыть скрытые группы",
       "expandTooltip": "Показать скрытые группы"
     },
+    "cardDetail": "Подробности",
+    "cardActions": "Действия",
+    "cardDuplicated": "Карточка дублирована",
+    "cardDeleted": "Карточка удалена",
+    "showOnCard": "Показать на карточке",
+    "setting": "Настройка",
+    "propertyName": "Имя свойства",
     "menuName": "Доска",
     "showUngrouped": "Показать несгруппированные элементы",
     "ungroupedButtonText": "Разгруппировать",
     "ungroupedButtonTooltip": "Содержит карточки, которые не принадлежат ни к одной группе.",
     "ungroupedItemsTitle": "Нажмите, чтобы добавить на доску",
     "groupBy": "Сгруппировать по",
-    "referencedBoardPrefix": "Просмотр"
+    "referencedBoardPrefix": "Просмотр",
+    "notesTooltip": "Заметки",
+    "mobile": {
+      "editURL": "Редактировать URL",
+      "showGroup": "Показать группу",
+      "showGroupContent": "Точно показать эту группу на доске?",
+      "failedToLoad": "Ошибка загрузки доски"
+    }
   },
   "calendar": {
     "menuName": "Календарь",
@@ -803,21 +987,28 @@
       "previousMonth": "Предыдущий месяц",
       "nextMonth": "Следующий месяц"
     },
+    "mobileEventScreen": {
+      "emptyTitle": "Мероприятий пока нет",
+      "emptyBody": "Нажмите кнопку «плюс», чтобы создать событие в этот день."
+    },
     "settings": {
       "showWeekNumbers": "Показывать номера недель",
       "showWeekends": "Показывать выходные",
       "firstDayOfWeek": "Первый день недели",
       "layoutDateField": "Вид календаря",
+      "changeLayoutDateField": "Изменить отображение поля",
       "noDateTitle": "Без даты",
       "noDateHint": {
         "zero": "Здесь будут отображаться незапланированные мероприятия.",
-        "one": "{} незапланированное событие",
-        "other": "{} незапланированные события"
+        "one": "{count} незапланированное событие",
+        "other": "{count} незапланированных события"
       },
+      "unscheduledEventsTitle": "Unscheduled events",
       "clickToAdd": "Нажмите, чтобы добавить в календарь",
       "name": "Макет календаря"
     },
-    "referencedCalendarPrefix": "Вид"
+    "referencedCalendarPrefix": "Вид",
+    "quickJumpYear": "Перейти к"
   },
   "errorDialog": {
     "title": "Ошибка приложения",
@@ -827,7 +1018,7 @@
   "search": {
     "label": "Поиск",
     "placeholder": {
-      "actions": "Поисковые действия..."
+      "actions": "Поиск..."
     }
   },
   "message": {
@@ -888,6 +1079,10 @@
   "inlineActions": {
     "noResults": "Нет результатов",
     "pageReference": "Ссылка на страницу",
+    "docReference": "Ссылка на документ",
+    "boardReference": "Ссылка на доску",
+    "calReference": "Ссылка на календарь",
+    "gridReference": "Ссылка на таблицу",
     "date": "Дата",
     "reminder": {
       "groupTitle": "Напоминание",
@@ -895,7 +1090,29 @@
     }
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "Измените формат даты и времени в настройках"
+    "dateTimeFormatTooltip": "Измените формат даты и времени в настройках",
+    "dateFormat": "Формат даты",
+    "includeTime": "Добавить время",
+    "isRange": "Дата завершения",
+    "timeFormat": "Формат времени",
+    "clearDate": "Очистить дату",
+    "reminderLabel": "Напоминание",
+    "selectReminder": "Выбрать напоминание",
+    "reminderOptions": {
+      "none": "Пусто",
+      "atTimeOfEvent": "Время события",
+      "fiveMinsBefore": "за 5 минут до",
+      "tenMinsBefore": "за 10 минут до этого",
+      "fifteenMinsBefore": "за 15 минут до этого",
+      "thirtyMinsBefore": "за 30 минут до",
+      "oneHourBefore": "за 1 час до",
+      "twoHoursBefore": "за 2 часа до",
+      "onDayOfEvent": "В день мероприятия",
+      "oneDayBefore": "за 1 день до",
+      "twoDaysBefore": "за 2 дня до",
+      "oneWeekBefore": "за 1 неделю до",
+      "custom": "Настраиваемое"
+    }
   },
   "relativeDates": {
     "yesterday": "Вчера",
@@ -905,7 +1122,10 @@
   },
   "notificationHub": {
     "title": "Уведомления",
-    "emptyTitle": "Всё схвачено!",
+    "mobile": {
+      "title": "Обновления"
+    },
+    "emptyTitle": "Всё прочитано!",
     "emptyBody": "Никаких ожидающих уведомлений или действий. Наслаждайтесь спокойствием.",
     "tabs": {
       "inbox": "Входящие",
@@ -922,8 +1142,7 @@
       "groupByDate": "Сгруппировать по дате",
       "showUnreadsOnly": "Показать только непрочитанные",
       "resetToDefault": "Восстановить по умолчанию"
-    },
-    "empty": "Пусто"
+    }
   },
   "reminderNotification": {
     "title": "Напоминание",
@@ -940,7 +1159,8 @@
     "replace": "Заменить",
     "replaceAll": "Заменить всё",
     "noResult": "Нет результатов",
-    "caseSensitive": "С учётом регистра"
+    "caseSensitive": "С учётом регистра",
+    "searchMore": "Выполните поиск, чтобы найти больше результатов"
   },
   "error": {
     "weAreSorry": "Мы сожалеем",
@@ -949,17 +1169,20 @@
   "editor": {
     "bold": "Жирный",
     "bulletedList": "Маркированный список",
+    "bulletedListShortForm": "Маркированный",
     "checkbox": "Чекбокс",
     "embedCode": "Встроенный код",
     "heading1": "H1",
     "heading2": "H2",
-    "heading3": "Н3",
+    "heading3": "H3",
     "highlight": "Выделить",
     "color": "Цвет",
     "image": "Изображение",
+    "date": "Дата",
     "italic": "Курсив",
     "link": "Ссылка",
     "numberedList": "Нумерованный список",
+    "numberedListShortForm": "Пронумерованный",
     "quote": "Цитировать",
     "strikethrough": "Зачёркнутый",
     "text": "Текст",
@@ -1057,13 +1280,35 @@
     "rowDuplicate": "Дублировать",
     "colClear": "Очистить контент",
     "rowClear": "Очистить содержимое строки",
-    "slashPlaceHolder": "Введите '/' чтобы вставить блок, или начните писать."
+    "slashPlaceHolder": "Введите '/' чтобы вставить блок, или начните писать.",
+    "typeSomething": "Введите что-либо...",
+    "toggleListShortForm": "Спойлер",
+    "quoteListShortForm": "Цитата",
+    "mathEquationShortForm": "Формула",
+    "codeBlockShortForm": "Код"
   },
   "favorite": {
-    "noFavorite": "Нет избранной страницы",
+    "noFavorite": "Нет избранных страниц",
     "noFavoriteHintText": "Проведите по странице влево, чтобы добавить ее в избранное."
   },
   "cardDetails": {
     "notesPlaceholder": "Введите '/', чтобы вставить блок, или начните писать"
-  }
+  },
+  "blockPlaceholders": {
+    "todoList": "Сделать",
+    "bulletList": "Маркированный список",
+    "numberList": "Нумерованный список",
+    "quote": "Цитата",
+    "heading": "Заголовок {}"
+  },
+  "titleBar": {
+    "pageIcon": "Иконка страницы",
+    "language": "Язык",
+    "font": "Шрифт",
+    "actions": "Действия",
+    "date": "Дата",
+    "addField": "Добавить поле",
+    "userIcon": "Пользовательская иконка"
+  },
+  "noLogFiles": "Нет файлов журналов"
 }

@@ -7,19 +7,16 @@ import 'package:appflowy/user/domain/auth_state.dart';
 import 'package:appflowy/user/presentation/helpers/helpers.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class SplashScreen extends StatelessWidget {
   /// Root Page of the app.
-  const SplashScreen({
-    super.key,
-    required this.isAnon,
-  });
+  const SplashScreen({super.key, required this.isAnon});
 
   final bool isAnon;
 
@@ -30,7 +27,7 @@ class SplashScreen extends StatelessWidget {
         future: _registerIfNeeded(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return Container();
+            return const SizedBox.shrink();
           }
           return _buildChild(context);
         },
@@ -68,7 +65,7 @@ class SplashScreen extends StatelessWidget {
 
     /// After a user is authenticated, this function checks if encryption is required.
     final result = await UserEventCheckEncryptionSign().send();
-    result.fold(
+    await result.fold(
       (check) async {
         /// If encryption is needed, the user is navigated to the encryption screen.
         /// Otherwise, it fetches the current workspace for the user and navigates them
@@ -94,11 +91,8 @@ class SplashScreen extends StatelessWidget {
   }
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
-    Log.trace(
-      '_handleUnauthenticated -> cloud is enabled: $isAuthEnabled',
-    );
     // replace Splash screen as root page
-    if (isAuthEnabled) {
+    if (isAuthEnabled || PlatformExtension.isMobile) {
       context.go(SignInScreen.routeName);
     } else {
       // if the env is not configured, we will skip to the 'skip login screen'.
@@ -108,7 +102,7 @@ class SplashScreen extends StatelessWidget {
 
   Future<void> _registerIfNeeded() async {
     final result = await UserEventGetUserProfile().send();
-    if (!result.isLeft()) {
+    if (result.isFailure) {
       await getIt<AuthService>().signUpAsGuest();
     }
   }

@@ -16,7 +16,7 @@ function NumberFormatSelect({ value, onChange }: { value: NumberFormatPB; onChan
         onClick={() => {
           setExpanded(!expanded);
         }}
-        className={'flex w-full justify-between'}
+        className={'flex w-full justify-between rounded-none'}
       >
         <div className='flex-1 text-xs font-medium'>{formatText(value)}</div>
         <MoreSvg className={`transform text-base ${expanded ? '' : 'rotate-90'}`} />

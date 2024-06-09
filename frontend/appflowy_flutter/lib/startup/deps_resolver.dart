@@ -6,6 +6,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
+import 'package:appflowy/shared/appflowy_cache_manager.dart';
+import 'package:appflowy/shared/custom_image_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
@@ -16,21 +18,25 @@ import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/user/presentation/router.dart';
-import 'package:appflowy/util/platform_extension.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/settings/appearance/desktop_appearance.dart';
 import 'package:appflowy/workspace/application/settings/appearance/mobile_appearance.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -49,13 +55,13 @@ class DependencyResolver {
     _resolveUserDeps(getIt, mode);
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
-    _resolveDocDeps(getIt);
     _resolveCommonService(getIt, mode);
   }
 }
 
 Future<void> _resolveCloudDeps(GetIt getIt) async {
   final env = await AppFlowyCloudSharedEnv.fromEnv();
+  Log.info("cloud setting: $env");
   getIt.registerFactory<AppFlowyCloudSharedEnv>(() => env);
 
   if (isAppFlowyCloudEnabled) {
@@ -73,28 +79,23 @@ void _resolveCommonService(
   IntegrationMode mode,
 ) async {
   getIt.registerFactory<FilePickerService>(() => FilePicker());
-  if (mode.isTest) {
-    getIt.registerFactory<ApplicationDataStorage>(
-      () => MockApplicationDataStorage(),
-    );
-  } else {
-    getIt.registerFactory<ApplicationDataStorage>(
-      () => ApplicationDataStorage(),
-    );
-  }
+
+  getIt.registerFactory<ApplicationDataStorage>(
+    () => mode.isTest ? MockApplicationDataStorage() : ApplicationDataStorage(),
+  );
 
   getIt.registerFactoryAsync<OpenAIRepository>(
     () async {
       final result = await UserBackendService.getCurrentUserProfile();
       return result.fold(
-        (l) {
-          throw Exception('Failed to get user profile: ${l.msg}');
-        },
-        (r) {
+        (s) {
           return HttpOpenAIRepository(
             client: http.Client(),
-            apiKey: r.openaiKey,
+            apiKey: s.openaiKey,
           );
+        },
+        (e) {
+          throw Exception('Failed to get user profile: ${e.msg}');
         },
       );
     },
@@ -104,14 +105,14 @@ void _resolveCommonService(
     () async {
       final result = await UserBackendService.getCurrentUserProfile();
       return result.fold(
-        (l) {
-          throw Exception('Failed to get user profile: ${l.msg}');
-        },
-        (r) {
+        (s) {
           return HttpStabilityAIRepository(
             client: http.Client(),
-            apiKey: r.stabilityAiKey,
+            apiKey: s.stabilityAiKey,
           );
+        },
+        (e) {
+          throw Exception('Failed to get user profile: ${e.msg}');
         },
       );
     },
@@ -125,6 +126,13 @@ void _resolveCommonService(
   getIt.registerFactory<BaseAppearance>(
     () => PlatformExtension.isMobile ? MobileAppearance() : DesktopAppearance(),
   );
+
+  getIt.registerFactory<FlowyCacheManager>(
+    () => FlowyCacheManager()
+      ..registerCache(TemporaryDirectoryCache())
+      ..registerCache(CustomImageCacheManager())
+      ..registerCache(FeatureFlagCache()),
+  );
 }
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
@@ -132,7 +140,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
     case AuthenticatorType.local:
       getIt.registerFactory<AuthService>(
         () => BackendAuthService(
-          AuthTypePB.Local,
+          AuthenticatorPB.Local,
         ),
       );
       break;
@@ -140,6 +148,8 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
       getIt.registerFactory<AuthService>(() => SupabaseAuthService());
       break;
     case AuthenticatorType.appflowyCloud:
+    case AuthenticatorType.appflowyCloudSelfHost:
+    case AuthenticatorType.appflowyCloudDevelop:
       getIt.registerFactory<AuthService>(() => AppFlowyCloudAuthService());
       break;
   }
@@ -157,6 +167,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   getIt.registerFactory<EditPanelBloc>(() => EditPanelBloc());
   getIt.registerFactory<SplashBloc>(() => SplashBloc());
   getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());
+  getIt.registerLazySingleton<CachedRecentService>(() => CachedRecentService());
 }
 
 void _resolveHomeDeps(GetIt getIt) {
@@ -168,31 +179,25 @@ void _resolveHomeDeps(GetIt getIt) {
     (user, _) => UserListener(userProfile: user),
   );
 
-  getIt.registerFactoryParam<WorkspaceBloc, UserProfilePB, void>(
-    (user, _) => WorkspaceBloc(
-      userService: UserBackendService(userId: user.id),
-    ),
-  );
-
   // share
-  getIt.registerFactoryParam<DocShareBloc, ViewPB, void>(
-    (view, _) => DocShareBloc(view: view),
+  getIt.registerFactoryParam<DocumentShareBloc, ViewPB, void>(
+    (view, _) => DocumentShareBloc(view: view),
   );
 
-  getIt.registerSingleton<NotificationActionBloc>(NotificationActionBloc());
+  getIt.registerSingleton<ActionNavigationBloc>(ActionNavigationBloc());
 
   getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
 
   getIt.registerSingleton<ReminderBloc>(ReminderBloc());
+
+  getIt.registerSingleton<RenameViewBloc>(RenameViewBloc(PopoverController()));
 }
 
 void _resolveFolderDeps(GetIt getIt) {
-  //workspace
+  // Workspace
   getIt.registerFactoryParam<WorkspaceListener, UserProfilePB, String>(
-    (user, workspaceId) => WorkspaceListener(
-      user: user,
-      workspaceId: workspaceId,
-    ),
+    (user, workspaceId) =>
+        WorkspaceListener(user: user, workspaceId: workspaceId),
   );
 
   getIt.registerFactoryParam<ViewBloc, ViewPB, void>(
@@ -201,28 +206,23 @@ void _resolveFolderDeps(GetIt getIt) {
     ),
   );
 
-  //Settings
+  // Settings
   getIt.registerFactoryParam<SettingsDialogBloc, UserProfilePB, void>(
     (user, _) => SettingsDialogBloc(user),
   );
 
-  //User
+  // User
   getIt.registerFactoryParam<SettingsUserViewBloc, UserProfilePB, void>(
     (user, _) => SettingsUserViewBloc(user),
   );
 
-  // trash
+  // Trash
   getIt.registerLazySingleton<TrashService>(() => TrashService());
   getIt.registerLazySingleton<TrashListener>(() => TrashListener());
   getIt.registerFactory<TrashBloc>(
     () => TrashBloc(),
   );
-  getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
-}
 
-void _resolveDocDeps(GetIt getIt) {
-// Doc
-  getIt.registerFactoryParam<DocumentBloc, ViewPB, void>(
-    (view, _) => DocumentBloc(view: view),
-  );
+  // Favorite
+  getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
 }

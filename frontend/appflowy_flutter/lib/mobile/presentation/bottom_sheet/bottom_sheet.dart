@@ -4,7 +4,7 @@ export 'bottom_sheet_drag_handler.dart';
 export 'bottom_sheet_rename_widget.dart';
 export 'bottom_sheet_view_item.dart';
 export 'bottom_sheet_view_item_body.dart';
-export 'bottom_sheet_view_item_header.dart';
 export 'bottom_sheet_view_page.dart';
 export 'default_mobile_action_pane.dart';
 export 'show_mobile_bottom_sheet.dart';
+export 'show_transition_bottom_sheet.dart';

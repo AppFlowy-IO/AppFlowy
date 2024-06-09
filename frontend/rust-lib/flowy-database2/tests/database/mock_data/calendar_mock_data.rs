@@ -3,21 +3,20 @@ use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, Layout
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use strum::IntoEnumIterator;
 
+use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::{FieldBuilder, MultiSelectTypeOption};
 use flowy_database2::services::setting::CalendarLayoutSetting;
 
-use crate::database::database_editor::TestRowBuilder;
-
 // Calendar unit test mock data
 pub fn make_test_calendar() -> DatabaseData {
+  let database_id = gen_database_id();
   let mut fields = vec![];
   let mut rows = vec![];
 
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Name")
-    .visibility(true)
     .primary(true)
     .build();
   fields.push(text_field);
@@ -25,7 +24,6 @@ pub fn make_test_calendar() -> DatabaseData {
   // date
   let date_field = FieldBuilder::from_field_type(FieldType::DateTime)
     .name("Date")
-    .visibility(true)
     .build();
   let date_field_id = date_field.id.clone();
   fields.push(date_field);
@@ -34,7 +32,6 @@ pub fn make_test_calendar() -> DatabaseData {
   let type_option = MultiSelectTypeOption::default();
   let multi_select_field = FieldBuilder::new(FieldType::MultiSelect, type_option)
     .name("Tags")
-    .visibility(true)
     .build();
   fields.push(multi_select_field);
 
@@ -43,7 +40,7 @@ pub fn make_test_calendar() -> DatabaseData {
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Calendar);
 
   for i in 0..5 {
-    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
+    let mut row_builder = TestRowBuilder::new(&database_id, gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -109,9 +106,11 @@ pub fn make_test_calendar() -> DatabaseData {
   let mut layout_settings = LayoutSettings::new();
   layout_settings.insert(DatabaseLayout::Calendar, calendar_setting);
 
+  let inline_view_id = gen_database_view_id();
+
   let view = DatabaseView {
-    id: gen_database_view_id(),
-    database_id: gen_database_id(),
+    database_id: database_id.clone(),
+    id: inline_view_id.clone(),
     name: "".to_string(),
     layout: DatabaseLayout::Calendar,
     layout_settings,
@@ -125,5 +124,11 @@ pub fn make_test_calendar() -> DatabaseData {
     field_settings,
   };
 
-  DatabaseData { view, fields, rows }
+  DatabaseData {
+    database_id,
+    inline_view_id,
+    views: vec![view],
+    fields,
+    rows,
+  }
 }

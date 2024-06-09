@@ -9,69 +9,74 @@ edition = "2018"
 lib-dispatch = { workspace = true }
 lib-log = { workspace = true }
 flowy-user = { workspace = true }
-flowy-user-deps = { workspace = true }
-flowy-folder2 = { workspace = true }
-flowy-folder-deps = { workspace = true }
+flowy-user-pub = { workspace = true }
+flowy-folder = { workspace = true }
+flowy-folder-pub = { workspace = true }
 flowy-database2 = { workspace = true }
-flowy-database-deps = { workspace = true }
+flowy-database-pub = { workspace = true }
 flowy-sqlite = { workspace = true }
-flowy-document2 = { workspace = true }
-flowy-document-deps = { workspace = true }
+flowy-document = { workspace = true }
+flowy-document-pub = { workspace = true }
 flowy-error = { workspace = true }
-flowy-task = { workspace = true }
-flowy-server = { workspace = true }
-flowy-server-config = { workspace = true }
+flowy-server = { workspace = true, features = ["enable_supabase"] }
+flowy-server-pub = { workspace = true }
 flowy-config = { workspace = true }
 flowy-date = { workspace = true }
-collab-integrate = { workspace = true, features = ["supabase_integrate", "appflowy_cloud_integrate", "snapshot_plugin"] }
-flowy-ai = { workspace = true }
-collab-entity = { version = "0.1.0" }
-collab-plugins = { version = "0.1.0" }
-collab = { version = "0.1.0" }
+collab-integrate = { workspace = true }
+flowy-search = { workspace = true }
+collab-entity = { workspace = true }
+collab-plugins = { workspace = true }
+collab = { workspace = true }
 diesel.workspace = true
 uuid.workspace = true
 flowy-storage = { workspace = true }
-client-api = { version = "0.1.0", features = ["collab-sync", "template"] }
+client-api.workspace = true
+flowy-chat = { workspace = true }
+flowy-chat-pub = { workspace = true }
 
 tracing.workspace = true
 futures-core = { version = "0.3", default-features = false }
 bytes.workspace = true
 tokio = { workspace = true, features = ["full"] }
-tokio-stream = { workspace = true, features = ["sync"]}
+tokio-stream = { workspace = true, features = ["sync"] }
 console-subscriber = { version = "0.2", optional = true }
 parking_lot.workspace = true
 anyhow.workspace = true
 base64 = "0.21.5"
 
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
 serde_repr.workspace = true
 futures.workspace = true
 walkdir = "2.4.0"
+sysinfo = "0.30.5"
+semver = "1.0.22"
 
 [features]
-default = ["rev-sqlite"]
 profiling = ["console-subscriber", "tokio/tracing"]
 http_sync = []
 native_sync = []
-use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",
     "flowy-date/dart",
-    "flowy-folder2/dart",
+    "flowy-search/dart",
+    "flowy-folder/dart",
     "flowy-database2/dart",
-    "flowy-document2/dart",
-    "flowy-config/dart",
+    "flowy-chat/dart",
 ]
 ts = [
-    "flowy-user/ts",
-    "flowy-date/ts",
-    "flowy-folder2/ts",
+    "flowy-user/tauri_ts",
+    "flowy-folder/tauri_ts",
+    "flowy-search/tauri_ts",
     "flowy-database2/ts",
-    "flowy-document2/ts",
-    "flowy-config/ts",
+    "flowy-config/tauri_ts",
+    "flowy-chat/tauri_ts",
 ]
-rev-sqlite = ["flowy-user/rev-sqlite"]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
-single_thread = ["lib-dispatch/single_thread"]
+
+# Enable/Disable AppFlowy Verbose Log Configuration
+verbose_log = [
+    "flowy-document/verbose_log",
+    "client-api/sync_verbose_log"
+]

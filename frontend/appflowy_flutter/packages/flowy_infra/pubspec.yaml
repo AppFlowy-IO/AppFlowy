@@ -19,15 +19,15 @@ dependencies:
   uuid: ">=2.2.2"
   bloc: ^8.1.2
   freezed_annotation: ^2.1.0
-  file_picker: ^6.1.1
-  file: ^6.1.4
+  file_picker: ^8.0.2
+  file: ^7.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^2.2.0
-  flutter_lints: ^2.0.1
-  freezed: 2.2.0
+  flutter_lints: ^3.0.1
+  freezed: ^2.4.7
   json_serializable: ^6.5.4
 
 # For information on the generic Dart part of this file, see the

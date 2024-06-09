@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use chrono::{DateTime, Local, Offset};
 use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
@@ -124,17 +124,7 @@ impl TimestampTypeOption {
 impl TypeOptionTransform for TimestampTypeOption {}
 
 impl CellDataDecoder for TimestampTypeOption {
-  fn decode_cell(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    _field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    // Return default data if the type_option_cell_data is not FieldType::CreatedTime nor FieldType::LastEditedTime
-    if !decoded_field_type.is_last_edited_time() && !decoded_field_type.is_created_time() {
-      return Ok(Default::default());
-    }
-
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     self.parse_cell(cell)
   }
 
@@ -148,9 +138,8 @@ impl CellDataDecoder for TimestampTypeOption {
     }
   }
 
-  fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = Self::CellData::from(cell);
-    self.stringify_cell_data(cell_data)
+  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
+    None
   }
 }
 
@@ -170,15 +159,10 @@ impl CellDataChangeset for TimestampTypeOption {
 impl TypeOptionCellDataFilter for TimestampTypeOption {
   fn apply_filter(
     &self,
-    filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
-    cell_data: &<Self as TypeOption>::CellData,
+    _filter: &<Self as TypeOption>::CellFilter,
+    _cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_last_edited_time() && !field_type.is_created_time() {
-      return true;
-    }
-
-    filter.is_visible(cell_data.timestamp)
+    true
   }
 }
 

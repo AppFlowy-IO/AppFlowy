@@ -1,9 +1,11 @@
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
+use collab_entity::CollabType;
 
-use flowy_folder_deps::cloud::{
-  gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
+use flowy_folder_pub::cloud::{
+  gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
+  WorkspaceRecord,
 };
 use lib_infra::future::FutureResult;
 
@@ -54,12 +56,22 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     &self,
     _workspace_id: &str,
     _uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+    _collab_type: CollabType,
+    _object_id: &str,
+  ) -> FutureResult<Vec<u8>, Error> {
     FutureResult::new(async {
       Err(anyhow!(
-        "Local server doesn't support get folder doc state from remote"
+        "Local server doesn't support get collab doc state from remote"
       ))
     })
+  }
+
+  fn batch_create_folder_collab_objects(
+    &self,
+    _workspace_id: &str,
+    _objects: Vec<FolderCollabParams>,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Err(anyhow!("Local server doesn't support create collab")) })
   }
 
   fn service_name(&self) -> String {

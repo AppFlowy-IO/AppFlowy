@@ -1,8 +1,15 @@
 import 'dart:convert';
 
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:collection/collection.dart';
+import 'package:string_validator/string_validator.dart';
 
 class EditorMigration {
   // AppFlowy 0.1.x -> 0.2
@@ -141,7 +148,7 @@ class EditorMigration {
     }
     const backgroundColor = 'backgroundColor';
     if (attributes.containsKey(backgroundColor)) {
-      attributes[AppFlowyRichTextKeys.highlightColor] =
+      attributes[AppFlowyRichTextKeys.backgroundColor] =
           attributes[backgroundColor];
       attributes.remove(backgroundColor);
     }
@@ -151,5 +158,94 @@ class EditorMigration {
       attributes.remove(color);
     }
     return attributes;
+  }
+
+  // Before version 0.5.5, the cover is stored in the document root.
+  // Now, the cover is stored in the view.ext.
+  static void migrateCoverIfNeeded(
+    ViewPB view,
+    EditorState editorState, {
+    bool overwrite = false,
+  }) async {
+    if (view.extra.isNotEmpty && !overwrite) {
+      return;
+    }
+
+    final root = editorState.document.root;
+    final coverType = CoverType.fromString(
+      root.attributes[DocumentHeaderBlockKeys.coverType],
+    );
+    final coverDetails = root.attributes[DocumentHeaderBlockKeys.coverDetails];
+
+    Map extra = {};
+
+    if (coverType == CoverType.none ||
+        coverDetails == null ||
+        coverDetails is! String) {
+      extra = {
+        ViewExtKeys.coverKey: {
+          ViewExtKeys.coverTypeKey: PageStyleCoverImageType.none.toString(),
+          ViewExtKeys.coverValueKey: '',
+        },
+      };
+    } else {
+      switch (coverType) {
+        case CoverType.asset:
+          extra = {
+            ViewExtKeys.coverKey: {
+              ViewExtKeys.coverTypeKey:
+                  PageStyleCoverImageType.builtInImage.toString(),
+              ViewExtKeys.coverValueKey: coverDetails,
+            },
+          };
+          break;
+        case CoverType.color:
+          extra = {
+            ViewExtKeys.coverKey: {
+              ViewExtKeys.coverTypeKey:
+                  PageStyleCoverImageType.pureColor.toString(),
+              ViewExtKeys.coverValueKey: coverDetails,
+            },
+          };
+          break;
+        case CoverType.file:
+          if (isURL(coverDetails)) {
+            if (coverDetails.contains('unsplash')) {
+              extra = {
+                ViewExtKeys.coverKey: {
+                  ViewExtKeys.coverTypeKey:
+                      PageStyleCoverImageType.unsplashImage.toString(),
+                  ViewExtKeys.coverValueKey: coverDetails,
+                },
+              };
+            } else {
+              extra = {
+                ViewExtKeys.coverKey: {
+                  ViewExtKeys.coverTypeKey:
+                      PageStyleCoverImageType.customImage.toString(),
+                  ViewExtKeys.coverValueKey: coverDetails,
+                },
+              };
+            }
+          }
+          break;
+        default:
+      }
+    }
+
+    if (extra.isEmpty) {
+      return;
+    }
+
+    try {
+      final current = view.extra.isNotEmpty ? jsonDecode(view.extra) : {};
+      final merged = mergeMaps(current, extra);
+      await ViewBackendService.updateView(
+        viewId: view.id,
+        extra: jsonEncode(merged),
+      );
+    } catch (e) {
+      Log.error('Failed to migrating cover: $e');
+    }
   }
 }

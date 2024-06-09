@@ -7,7 +7,7 @@ edition = "2018"
 [lib]
 name = "dart_ffi"
 # this value will change depending on the target os
-# default staticlib
+# default static library
 crate-type = ["staticlib"]
 
 
@@ -24,24 +24,35 @@ crossbeam-utils = "0.8.15"
 lazy_static = "1.4.0"
 parking_lot.workspace = true
 tracing.workspace = true
+lib-log.workspace = true
+semver = "1.0.22"
 
 # workspace
 lib-dispatch = { workspace = true }
+
+# Core
 #flowy-core = { workspace = true, features = ["profiling"] }
+#flowy-core = { workspace = true, features = ["verbose_log"] }
 flowy-core = { workspace = true }
-flowy-notification = { workspace = true }
+
+flowy-notification = { workspace = true, features = ["dart"] }
+flowy-document = { workspace = true, features = ["dart"] }
+flowy-config = { workspace = true, features = ["dart"] }
+flowy-user = { workspace = true, features = ["dart"] }
+flowy-date = { workspace = true, features = ["dart"] }
 flowy-server = { workspace = true }
-flowy-server-config = { workspace = true}
+flowy-server-pub = { workspace = true }
 collab-integrate = { workspace = true }
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-derive.workspace = true
 serde_yaml = "0.9.27"
+flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error", "impl_from_appflowy_cloud", "impl_from_reqwest", "impl_from_serde", "dart"] }
 
 [features]
-default = ["dart", "rev-sqlite"]
+default = ["dart"]
 dart = ["flowy-core/dart"]
-rev-sqlite = ["flowy-core/rev-sqlite"]
-http_sync = ["flowy-core/http_sync", "flowy-core/use_bunyan"]
+http_sync = ["flowy-core/http_sync"]
 openssl_vendored = ["flowy-core/openssl_vendored"]
+verbose_log = []
 
 [build-dependencies]
-flowy-codegen = { path = "../../../shared-lib/flowy-codegen", features = ["dart"] }
+flowy-codegen = { workspace = true, features = ["dart"] }

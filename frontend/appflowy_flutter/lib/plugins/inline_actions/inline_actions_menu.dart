@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
 
 abstract class InlineActionsMenuService {
   InlineActionsMenuStyle get style;
@@ -69,7 +70,8 @@ class InlineActionsMenu extends InlineActionsMenuService {
       return;
     }
 
-    const double menuHeight = 200.0;
+    const double menuHeight = 300.0;
+    const double menuWidth = 200.0;
     const Offset menuOffset = Offset(0, 10);
     final Offset editorOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
@@ -93,13 +95,14 @@ class InlineActionsMenu extends InlineActionsMenuService {
     }
 
     // Show on the left
-    if (offset.dx > editorSize.width / 2) {
+    final windowWidth = MediaQuery.of(context).size.width;
+    if (offset.dx > (windowWidth - menuWidth)) {
       alignment = alignment == Alignment.topLeft
           ? Alignment.topRight
           : Alignment.bottomRight;
 
       offset = Offset(
-        editorSize.width - offset.dx,
+        windowWidth - offset.dx,
         offset.dy,
       );
     }
