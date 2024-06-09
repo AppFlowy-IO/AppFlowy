@@ -1,7 +1,5 @@
-import 'dart:async';
+import 'dart:io';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +9,7 @@ import 'package:flutter_link_previewer/flutter_link_previewer.dart'
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ChatTextMessageWidget extends StatefulWidget {
+class ChatTextMessageWidget extends StatelessWidget {
   const ChatTextMessageWidget({
     super.key,
     required this.user,
@@ -22,68 +20,14 @@ class ChatTextMessageWidget extends StatefulWidget {
 
   final User user;
   final String messageUserId;
-  final dynamic text;
+  final String text;
 
   /// Customization options for the [ChatTextMessageWidget].
   final TextMessageOptions options;
 
   @override
-  ChatTextMessageWidgetState createState() => ChatTextMessageWidgetState();
-}
-
-class ChatTextMessageWidgetState extends State<ChatTextMessageWidget> {
-  StreamSubscription<String>? _subscription;
-  String _currentText = "";
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.text is String) {
-      _currentText = widget.text as String;
-    } else if (widget.text is AnswerStream) {
-      _subscribeToStream();
-    }
-  }
-
-  @override
-  void didUpdateWidget(ChatTextMessageWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.text != widget.text) {
-      _unsubscribeFromStream();
-      _subscribeToStream();
-    }
-  }
-
-  @override
-  void dispose() {
-    _unsubscribeFromStream();
-    super.dispose();
-  }
-
-  void _subscribeToStream() {
-    if (widget.text is AnswerStream) {
-      final stream = widget.text as AnswerStream;
-      _subscription?.cancel();
-      _subscription = stream.listen((data) {
-        setState(() {
-          _currentText = _currentText + data;
-        });
-      });
-    }
-  }
-
-  void _unsubscribeFromStream() {
-    _subscription?.cancel();
-    _subscription = null;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (_currentText.isEmpty) {
-      return const ChatAILoading();
-    } else {
-      return _textWidgetBuilder(widget.user, context, _currentText);
-    }
+    return _textWidgetBuilder(user, context, text);
   }
 
   Widget _textWidgetBuilder(
@@ -91,58 +35,30 @@ class ChatTextMessageWidgetState extends State<ChatTextMessageWidget> {
     BuildContext context,
     String text,
   ) {
-    final bodyLinkTextStyle = user.id == widget.messageUserId
-        ? const TextStyle(
-            color: Colors.blue,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.5,
-          )
-        : const TextStyle(
-            color: Colors.lightBlue,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.5,
-          );
-    final bodyTextStyle = user.id == widget.messageUserId
-        ? TextStyle(
-            color: AFThemeExtension.of(context).textColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.5,
-          )
-        : TextStyle(
-            color: AFThemeExtension.of(context).textColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.5,
-          );
-    final boldTextStyle = user.id == widget.messageUserId
-        ? TextStyle(
-            color: AFThemeExtension.of(context).textColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.5,
-          )
-        : TextStyle(
-            color: AFThemeExtension.of(context).textColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.5,
-          );
-    final codeTextStyle = user.id == widget.messageUserId
-        ? TextStyle(
-            color: AFThemeExtension.of(context).textColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.5,
-          )
-        : TextStyle(
-            color: AFThemeExtension.of(context).textColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.5,
-          );
+    const bodyLinkTextStyle = TextStyle(
+      color: Colors.lightBlue,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.5,
+    );
+    final bodyTextStyle = TextStyle(
+      color: AFThemeExtension.of(context).textColor,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.5,
+    );
+    final boldTextStyle = TextStyle(
+      color: AFThemeExtension.of(context).textColor,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.5,
+    );
+    final codeTextStyle = TextStyle(
+      color: AFThemeExtension.of(context).textColor,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.5,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +68,7 @@ class ChatTextMessageWidgetState extends State<ChatTextMessageWidget> {
           bodyTextStyle: bodyTextStyle,
           boldTextStyle: boldTextStyle,
           codeTextStyle: codeTextStyle,
-          options: widget.options,
+          options: options,
           text: text,
         ),
       ],
@@ -199,45 +115,62 @@ class TextMessageText extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) => ParsedText(
-        parse: [
-          ...options.matchers,
-          mailToMatcher(
-            style: bodyLinkTextStyle ??
-                bodyTextStyle.copyWith(
-                  decoration: TextDecoration.underline,
-                ),
-          ),
-          urlMatcher(
-            onLinkPressed: options.onLinkPressed,
-            style: bodyLinkTextStyle ??
-                bodyTextStyle.copyWith(
-                  decoration: TextDecoration.underline,
-                ),
-          ),
-          boldMatcher(
-            style: boldTextStyle ??
-                bodyTextStyle.merge(PatternStyle.bold.textStyle),
-          ),
-          italicMatcher(
-            style: bodyTextStyle.merge(PatternStyle.italic.textStyle),
-          ),
-          lineThroughMatcher(
-            style: bodyTextStyle.merge(PatternStyle.lineThrough.textStyle),
-          ),
-          codeMatcher(
-            style: codeTextStyle ??
-                bodyTextStyle.merge(PatternStyle.code.textStyle),
-          ),
-        ],
-        maxLines: maxLines,
-        overflow: overflow,
-        regexOptions: const RegexOptions(multiLine: true, dotAll: true),
-        selectable: options.isTextSelectable,
-        style: bodyTextStyle,
-        text: text,
-        textWidthBasis: TextWidthBasis.longestLine,
-      );
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: AFThemeExtension.of(context).textColor,
+          height: 1.5,
+        );
+
+    return ParsedText(
+      parse: [
+        ...options.matchers,
+        mailToMatcher(
+          style: bodyLinkTextStyle ??
+              bodyTextStyle.copyWith(
+                decoration: TextDecoration.underline,
+              ),
+        ),
+        urlMatcher(
+          onLinkPressed: options.onLinkPressed,
+          style: bodyLinkTextStyle ??
+              bodyTextStyle.copyWith(
+                decoration: TextDecoration.underline,
+              ),
+        ),
+        boldMatcher(
+          style:
+              boldTextStyle ?? bodyTextStyle.merge(PatternStyle.bold.textStyle),
+        ),
+        italicMatcher(
+          style: bodyTextStyle.merge(PatternStyle.italic.textStyle),
+        ),
+        lineThroughMatcher(
+          style: bodyTextStyle.merge(PatternStyle.lineThrough.textStyle),
+        ),
+        codeMatcher(
+          style:
+              codeTextStyle ?? bodyTextStyle.merge(PatternStyle.code.textStyle),
+        ),
+      ],
+      maxLines: maxLines,
+      overflow: overflow,
+      regexOptions: const RegexOptions(multiLine: true, dotAll: true),
+      selectable: options.isTextSelectable,
+      style: textStyle,
+      text: text,
+      strutStyle: Platform.isMacOS
+          ? StrutStyle.fromTextStyle(
+              textStyle,
+              forceStrutHeight: true,
+              leadingDistribution: TextLeadingDistribution.even,
+              height: 1.5,
+            )
+          : null,
+      textWidthBasis: TextWidthBasis.longestLine,
+    );
+  }
 }
 
 @immutable

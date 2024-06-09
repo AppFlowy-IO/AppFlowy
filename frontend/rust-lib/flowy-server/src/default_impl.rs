@@ -32,10 +32,10 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
 
   fn send_question(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
-    message_type: ChatMessageType,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _message: &str,
+    _message_type: ChatMessageType,
   ) -> FutureResult<ChatMessage, FlowyError> {
     FutureResult::new(async move {
       Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
@@ -44,10 +44,10 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
 
   fn save_answer(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
-    question_id: i64,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _message: &str,
+    _question_id: i64,
   ) -> FutureResult<ChatMessage, FlowyError> {
     FutureResult::new(async move {
       Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
@@ -56,9 +56,9 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
 
   async fn stream_answer(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message_id: i64,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _message_id: i64,
   ) -> Result<StreamAnswer, FlowyError> {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }

@@ -53,15 +53,15 @@ class ContentPlaceholder extends StatelessWidget {
               ),
             ],
           ),
-          Container(
-            width: 140,
-            height: 16.0,
-            margin: const EdgeInsets.only(bottom: 8.0),
-            decoration: BoxDecoration(
-              color: AFThemeExtension.of(context).lightGreyHover,
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-          ),
+          // Container(
+          //   width: 140,
+          //   height: 16.0,
+          //   margin: const EdgeInsets.only(bottom: 8.0),
+          //   decoration: BoxDecoration(
+          //     color: AFThemeExtension.of(context).lightGreyHover,
+          //     borderRadius: BorderRadius.circular(4.0),
+          //   ),
+          // ),
         ],
       ),
     );

@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/ai_message_bubble.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_streaming_error_message.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/user_message_bubble.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -19,12 +18,12 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 import 'presentation/chat_input.dart';
-import 'presentation/chat_loading.dart';
 import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
 import 'presentation/chat_welcome_page.dart';
-import 'presentation/message/text_message.dart';
+import 'presentation/message/ai_text_message.dart';
+import 'presentation/message/user_text_message.dart';
 
 class AIChatUILayout {
   static EdgeInsets get chatPadding =>
@@ -109,7 +108,6 @@ class _AIChatPageState extends State<AIChatPage> {
                 customBottomWidget: buildChatInput(blocContext),
                 user: _user,
                 theme: buildTheme(context),
-                customMessageBuilder: _customMessageBuilder,
                 onEndReached: () async {
                   if (state.hasMorePrevMessage &&
                       state.loadingPreviousStatus !=
@@ -169,21 +167,23 @@ class _AIChatPageState extends State<AIChatPage> {
   }
 
   Widget _buildAITextMessage(BuildContext context, TextMessage message) {
-    final stream = message.metadata?["$AnswerStream"];
-    if (stream is AnswerStream) {
-      // If the message contains a continuously updating answer stream, we will use the stream's text to render
-      // the [ChatTextMessageWidget].
-      return ChatTextMessageWidget(
-        user: message.author,
-        messageUserId: message.id,
-        text: stream,
-        key: ValueKey(message.id),
-      );
-    } else {
+    final isAuthor = message.author.id == _user.id;
+    if (isAuthor) {
       return ChatTextMessageWidget(
         user: message.author,
         messageUserId: message.id,
         text: message.text,
+      );
+    } else {
+      final stream = message.metadata?["$AnswerStream"];
+      final questionId = message.metadata?["question"];
+      return ChatAITextMessageWidget(
+        user: message.author,
+        messageUserId: message.id,
+        text: stream is AnswerStream ? stream : message.text,
+        key: ValueKey(message.id),
+        questionId: questionId,
+        chatId: widget.view.id,
       );
     }
   }
@@ -197,14 +197,6 @@ class _AIChatPageState extends State<AIChatPage> {
     final messageType = onetimeMessageTypeFromMeta(
       message.metadata,
     );
-    if (messageType == OnetimeShotType.serverStreamError) {
-      return ChatStreamingError(
-        message: message,
-        onRetryPressed: () {
-          blocContext.read<ChatBloc>().add(const ChatEvent.retryGenerate());
-        },
-      );
-    }
 
     if (messageType == OnetimeShotType.invalidSendMesssage) {
       return ChatInvalidUserMessage(
@@ -290,24 +282,6 @@ class _AIChatPageState extends State<AIChatPage> {
           ),
         );
       }
-    }
-  }
-
-  Widget _customMessageBuilder(
-    types.CustomMessage message, {
-    required int messageWidth,
-  }) {
-    // iteration custom message type
-    final messageType = onetimeMessageTypeFromMeta(message.metadata);
-    if (messageType == null) {
-      return const SizedBox.shrink();
-    }
-
-    switch (messageType) {
-      case OnetimeShotType.loading:
-        return const ChatAILoading();
-      default:
-        return const SizedBox.shrink();
     }
   }
 

@@ -107,6 +107,6 @@ pub(crate) async fn stop_stream_handler(
   data.validate()?;
 
   let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let message = chat_manager.stop_stream(&data.chat_id).await?;
+  chat_manager.stop_stream(&data.chat_id).await?;
   Ok(())
 }

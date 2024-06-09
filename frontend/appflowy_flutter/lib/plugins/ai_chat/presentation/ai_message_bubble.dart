@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input.dart';
@@ -13,7 +12,6 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -35,30 +33,22 @@ class ChatAIMessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     const padding = EdgeInsets.symmetric(horizontal: _leftPadding);
     final childWithPadding = Padding(padding: padding, child: child);
+    final widget = isMobile
+        ? _wrapPopMenu(childWithPadding)
+        : _wrapHover(childWithPadding);
 
-    return BlocProvider(
-      create: (context) => ChatAIMessageBloc(message: message),
-      child: BlocBuilder<ChatAIMessageBloc, ChatAIMessageState>(
-        builder: (context, state) {
-          final widget = isMobile
-              ? _wrapPopMenu(childWithPadding)
-              : _wrapHover(childWithPadding);
-
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const ChatBorderedCircleAvatar(
-                child: FlowySvg(
-                  FlowySvgs.flowy_ai_chat_logo_s,
-                  size: Size.square(24),
-                ),
-              ),
-              Expanded(child: widget),
-            ],
-          );
-        },
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const ChatBorderedCircleAvatar(
+          child: FlowySvg(
+            FlowySvgs.flowy_ai_chat_logo_s,
+            size: Size.square(24),
+          ),
+        ),
+        Expanded(child: widget),
+      ],
     );
   }
 

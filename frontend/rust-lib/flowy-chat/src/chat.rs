@@ -8,7 +8,7 @@ use crate::persistence::{
 };
 use allo_isolate::Isolate;
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageType, MessageCursor, StreamAnswer, StringOrMessage,
+  ChatCloudService, ChatMessage, ChatMessageType, MessageCursor, StringOrMessage,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
@@ -17,7 +17,7 @@ use lib_infra::isolate_stream::IsolateSink;
 use std::sync::atomic::{AtomicBool, AtomicI64};
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use tracing::{error, info, instrument, trace};
+use tracing::{error, instrument, trace};
 
 enum PrevMessageState {
   HasMore,
@@ -127,7 +127,8 @@ impl Chat {
               Ok(message) => match message {
                 StringOrMessage::Left(s) => {
                   if stop_stream.load(std::sync::atomic::Ordering::Relaxed) {
-                    trace!("Stop streaming message");
+                    send_notification(&chat_id, ChatNotification::FinishStreaming).send();
+                    trace!("[Chat] stop streaming message");
                     let answer = cloud_service
                       .save_answer(
                         &workspace_id,
@@ -140,15 +141,17 @@ impl Chat {
                     break;
                   }
                   stream_buffer.lock().await.push_str(&s);
-                  let _ = text_sink.send(s).await;
+                  let _ = text_sink.send(format!("data:{}", s)).await;
                 },
                 StringOrMessage::Right(answer) => {
-                  trace!("Received final answer: {:?}", answer);
+                  trace!("[Chat] received final answer: {:?}", answer);
+                  send_notification(&chat_id, ChatNotification::FinishStreaming).send();
                   Self::save_answer(uid, &chat_id, &user_service, answer)?;
                 },
               },
               Err(err) => {
-                error!("Failed to stream answer: {}", err);
+                error!("[Chat] failed to stream answer: {}", err);
+                let _ = text_sink.send(format!("error:{}", err)).await;
                 let pb = ChatMessageErrorPB {
                   chat_id: chat_id.clone(),
                   error_message: err.to_string(),
@@ -180,21 +183,20 @@ impl Chat {
 
   fn save_answer(
     uid: i64,
-    chat_id: &String,
+    chat_id: &str,
     user_service: &Arc<dyn ChatUserService>,
     answer: ChatMessage,
   ) -> Result<(), FlowyError> {
     save_chat_message(
       user_service.sqlite_connection(uid)?,
-      &chat_id,
+      chat_id,
       vec![answer.clone()],
     )?;
     let pb = ChatMessagePB::from(answer);
-    send_notification(&chat_id, ChatNotification::DidReceiveChatMessage)
+    send_notification(chat_id, ChatNotification::DidReceiveChatMessage)
       .payload(pb)
       .send();
 
-    send_notification(&chat_id, ChatNotification::FinishAnswerQuestion).send();
     Ok(())
   }
 
@@ -216,7 +218,7 @@ impl Chat {
     before_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
     trace!(
-      "Loading old messages: chat_id={}, limit={}, before_message_id={:?}",
+      "[Chat] Loading messages from disk: chat_id={}, limit={}, before_message_id={:?}",
       self.chat_id,
       limit,
       before_message_id
@@ -226,13 +228,16 @@ impl Chat {
       .await?;
 
     // If the number of messages equals the limit, then no need to load more messages from remote
-    let has_more = !messages.is_empty();
     if messages.len() == limit as usize {
-      return Ok(ChatMessageListPB {
+      let pb = ChatMessageListPB {
         messages,
-        has_more,
+        has_more: true,
         total: 0,
-      });
+      };
+      send_notification(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
+        .payload(pb.clone())
+        .send();
+      return Ok(pb);
     }
 
     if matches!(
@@ -250,7 +255,7 @@ impl Chat {
 
     Ok(ChatMessageListPB {
       messages,
-      has_more,
+      has_more: true,
       total: 0,
     })
   }
@@ -261,7 +266,7 @@ impl Chat {
     after_message_id: Option<i64>,
   ) -> Result<ChatMessageListPB, FlowyError> {
     trace!(
-      "Loading new messages: chat_id={}, limit={}, after_message_id={:?}",
+      "[Chat] Loading new messages: chat_id={}, limit={}, after_message_id={:?}",
       self.chat_id,
       limit,
       after_message_id,
@@ -271,7 +276,7 @@ impl Chat {
       .await?;
 
     trace!(
-      "Loaded local chat messages: chat_id={}, messages={}",
+      "[Chat] Loaded local chat messages: chat_id={}, messages={}",
       self.chat_id,
       messages.len()
     );
@@ -295,7 +300,7 @@ impl Chat {
     after_message_id: Option<i64>,
   ) -> FlowyResult<()> {
     trace!(
-      "Loading chat messages from remote: chat_id={}, limit={}, before_message_id={:?}, after_message_id={:?}",
+      "[Chat] start loading messages from remote: chat_id={}, limit={}, before_message_id={:?}, after_message_id={:?}",
       self.chat_id,
       limit,
       before_message_id,
@@ -338,9 +343,11 @@ impl Chat {
 
           let pb = ChatMessageListPB::from(resp);
           trace!(
-            "Loaded chat messages from remote: chat_id={}, messages={}",
+            "[Chat] Loaded messages from remote: chat_id={}, messages={}, hasMore: {}, cursor:{:?}",
             chat_id,
-            pb.messages.len()
+            pb.messages.len(),
+            pb.has_more,
+            cursor,
           );
           if matches!(cursor, MessageCursor::BeforeMessageId(_)) {
             if pb.has_more {
@@ -375,7 +382,7 @@ impl Chat {
       .await?;
 
     trace!(
-      "Related messages: chat_id={}, message_id={}, messages:{:?}",
+      "[Chat] related messages: chat_id={}, message_id={}, messages:{:?}",
       self.chat_id,
       message_id,
       resp.items

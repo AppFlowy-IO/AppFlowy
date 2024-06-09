@@ -1,5 +1,5 @@
 use allo_isolate::{IntoDart, Isolate};
-use futures::{Sink, SinkExt};
+use futures::Sink;
 use pin_project::pin_project;
 use std::pin::Pin;
 use std::task::{Context, Poll};

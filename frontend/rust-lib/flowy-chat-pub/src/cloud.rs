@@ -7,7 +7,6 @@ use flowy_error::FlowyError;
 use futures::stream::BoxStream;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
-use std::sync::Arc;
 
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
 pub type StreamAnswer = BoxStream<'static, Result<StringOrMessage, AppResponseError>>;

@@ -274,8 +274,16 @@ class AccessoryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isStreaming) {
       return FlowyIconButton(
-        icon: const Icon(Icons.stop_circle),
+        width: 36,
+        icon: FlowySvg(
+          FlowySvgs.ai_stream_stop_s,
+          size: const Size.square(28),
+          color: Theme.of(context).colorScheme.primary,
+        ),
         onPressed: onStopStreaming,
+        radius: BorderRadius.circular(18),
+        fillColor: AFThemeExtension.of(context).lightGreyHover,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
       );
     } else {
       return FlowyIconButton(
