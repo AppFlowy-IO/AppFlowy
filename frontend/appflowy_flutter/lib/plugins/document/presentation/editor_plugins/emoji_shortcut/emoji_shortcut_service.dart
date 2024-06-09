@@ -1,10 +1,12 @@
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_shortcut/emoji_shortcut_builder.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/src/emji_picker_config.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/src/emoji_picker.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_shortcut/emoji_shortcut_builder.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:flowy_infra/size.dart';
 
 CharacterShortcutEvent emojiShortcutCommand(
   BuildContext context, {
@@ -58,6 +60,8 @@ CharacterShortcutEvent emojiShortcutCommand(
           keepEditorFocusNotifier.decrease();
         },
         builder: (context) => Material(
+          borderRadius: Corners.s8Border,
+          elevation: 1,
           child: Align(
             child: Container(
               width: menuWidth,
@@ -74,15 +78,13 @@ CharacterShortcutEvent emojiShortcutCommand(
                   noRecentsStyle: style.textTheme.bodyMedium,
                   noEmojiFoundText: LocaleKeys.emoji_noEmojiFound.tr(),
                 ),
-                customWidget: (config, state) {
-                  return EmojiShortcutPickerView(
-                    config,
-                    state,
-                    editorState,
-                    character,
-                    overlayEntry.remove,
-                  );
-                },
+                customWidget: (config, state) => EmojiShortcutPickerView(
+                  config,
+                  state,
+                  editorState,
+                  character,
+                  overlayEntry.remove,
+                ),
                 onEmojiSelected: (_, emoji) async {},
               ),
             ),
