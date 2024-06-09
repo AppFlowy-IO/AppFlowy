@@ -136,16 +136,20 @@ Future<void> insertEmoji(
   expect(find.byType(EmojiShortcutPickerView), findsOneWidget);
 
   // Perform specific keyboard events to find and insert emoji
-  await FlowyTestKeyboard.simulateKeyDownEvent(tester: tester, [
-    // Type emoji text
-    ...emojiKeys,
+  await FlowyTestKeyboard.simulateKeyDownEvent(
+    tester: tester,
+    withKeyUp: true,
+    [
+      // Type emoji text
+      ...emojiKeys,
 
-    // Press arrow keyboard combination eg: [RIGHT, DOWN, LEFT, UP]
-    ...arrowKeys,
+      // Press arrow keyboard combination eg: [RIGHT, DOWN, LEFT, UP]
+      ...arrowKeys,
 
-    // Press ENTER to insert the emoji and replace text
-    LogicalKeyboardKey.enter,
-  ]);
+      // Press ENTER to insert the emoji and replace text
+      LogicalKeyboardKey.enter,
+    ],
+  );
 
   // Check if typed text is replaced by emoji
   expect(
