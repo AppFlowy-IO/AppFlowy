@@ -109,6 +109,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "allo-isolate"
+version = "0.1.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97b6d794345b06592d0ebeed8e477e41b71e5a0a49df4fc0e4184d5938b99509"
+dependencies = [
+ "atomic",
+ "pin-project",
+]
+
+[[package]]
 name = "alloc-no-stdlib"
 version = "2.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -153,7 +163,7 @@ checksum = "0952808a6c2afd1aa8947271f3a60f1a6763c7b912d210184c5149b5cf147247"
 [[package]]
 name = "app-error"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "anyhow",
  "bincode",
@@ -173,7 +183,7 @@ dependencies = [
 [[package]]
 name = "appflowy-ai-client"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "anyhow",
  "bytes",
@@ -298,6 +308,12 @@ dependencies = [
  "libc",
  "system-deps 6.2.2",
 ]
+
+[[package]]
+name = "atomic"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c59bdb34bc650a32731b31bd8f0829cc15d24a708ee31559e0bb34f2bc320cba"
 
 [[package]]
 name = "atomic_refcell"
@@ -730,7 +746,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "again",
  "anyhow",
@@ -777,7 +793,7 @@ dependencies = [
 [[package]]
 name = "client-websocket"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "futures-channel",
  "futures-util",
@@ -1026,7 +1042,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1051,7 +1067,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-protocol"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1412,7 +1428,7 @@ checksum = "7e962a19be5cfc3f3bf6dd8f61eb50107f356ad6270fbb3ed41476571db78be5"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "anyhow",
  "app-error",
@@ -1854,6 +1870,7 @@ dependencies = [
 name = "flowy-chat"
 version = "0.1.0"
 dependencies = [
+ "allo-isolate",
  "bytes",
  "dashmap",
  "flowy-chat-pub",
@@ -1865,6 +1882,7 @@ dependencies = [
  "futures",
  "lib-dispatch",
  "lib-infra",
+ "log",
  "protobuf",
  "strum_macros 0.21.1",
  "tokio",
@@ -2909,7 +2927,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -2926,7 +2944,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "anyhow",
  "app-error",
@@ -3363,7 +3381,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -3609,11 +3627,13 @@ dependencies = [
 name = "lib-infra"
 version = "0.1.0"
 dependencies = [
+ "allo-isolate",
  "anyhow",
  "async-trait",
  "atomic_refcell",
  "bytes",
  "chrono",
+ "futures",
  "futures-core",
  "md5",
  "pin-project",
@@ -5867,7 +5887,7 @@ dependencies = [
 [[package]]
 name = "shared-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3f55cea9ca386875a1668ef30600c83cd6a1ffe2#3f55cea9ca386875a1668ef30600c83cd6a1ffe2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d0467e7e2e8ee4b925556b5510fb6ed7322dde8c#d0467e7e2e8ee4b925556b5510fb6ed7322dde8c"
 dependencies = [
  "anyhow",
  "app-error",
@@ -5878,6 +5898,7 @@ dependencies = [
  "database-entity",
  "futures",
  "gotrue-entity",
+ "log",
  "pin-project",
  "reqwest",
  "serde",

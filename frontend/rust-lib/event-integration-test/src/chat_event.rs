@@ -43,7 +43,7 @@ impl EventIntegrationTest {
     };
 
     EventBuilder::new(self.clone())
-      .event(ChatEvent::SendMessage)
+      .event(ChatEvent::StreamMessage)
       .payload(payload)
       .async_send()
       .await;

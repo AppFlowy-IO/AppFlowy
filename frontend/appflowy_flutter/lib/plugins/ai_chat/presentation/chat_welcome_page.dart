@@ -20,29 +20,33 @@ class ChatWelcomePage extends StatelessWidget {
   ];
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const FlowySvg(
-          FlowySvgs.flowy_ai_chat_logo_s,
-          size: Size.square(44),
-        ),
-        const SizedBox(height: 40),
-        GridView.builder(
-          shrinkWrap: true,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: isMobile ? 2 : 4,
-            crossAxisSpacing: 6,
-            mainAxisSpacing: 6,
-            childAspectRatio: 16.0 / 9.0,
+    return AnimatedOpacity(
+      opacity: 1.0,
+      duration: const Duration(seconds: 3),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const FlowySvg(
+            FlowySvgs.flowy_ai_chat_logo_s,
+            size: Size.square(44),
           ),
-          itemCount: items.length,
-          itemBuilder: (context, index) => WelcomeQuestion(
-            question: items[index],
-            onSelected: onSelectedQuestion,
+          const SizedBox(height: 40),
+          GridView.builder(
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: isMobile ? 2 : 4,
+              crossAxisSpacing: 6,
+              mainAxisSpacing: 6,
+              childAspectRatio: 16.0 / 9.0,
+            ),
+            itemCount: items.length,
+            itemBuilder: (context, index) => WelcomeQuestion(
+              question: items[index],
+              onSelected: onSelectedQuestion,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

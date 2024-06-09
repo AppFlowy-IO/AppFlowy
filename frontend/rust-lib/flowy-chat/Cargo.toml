@@ -19,12 +19,14 @@ strum_macros = "0.21"
 protobuf.workspace = true
 bytes.workspace = true
 validator = { version = "0.16.0", features = ["derive"] }
-lib-infra = { workspace = true }
+lib-infra = { workspace = true, features = ["isolate_flutter"] }
 flowy-chat-pub.workspace = true
 dashmap = "5.5"
 flowy-sqlite = { workspace = true }
 tokio.workspace = true
 futures.workspace = true
+allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
+log = "0.4.21"
 
 [build-dependencies]
 flowy-codegen.workspace = true

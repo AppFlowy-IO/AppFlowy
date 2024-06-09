@@ -30,6 +30,7 @@ use tokio::sync::RwLock;
 use crate::integrate::server::ServerProvider;
 
 pub struct FolderDepsResolver();
+#[allow(clippy::too_many_arguments)]
 impl FolderDepsResolver {
   pub async fn resolve(
     authenticate_user: Weak<AuthenticateUser>,

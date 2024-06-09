@@ -680,6 +680,14 @@ packages:
       url: "https://github.com/LucasXu0/emoji_mart.git"
     source: git
     version: "1.0.2"
+  flutter_highlight:
+    dependency: transitive
+    description:
+      name: flutter_highlight
+      sha256: "7b96333867aa07e122e245c033b8ad622e4e3a42a1a2372cbb098a2541d8782c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0"
   flutter_link_previewer:
     dependency: transitive
     description:
@@ -1066,7 +1074,7 @@ packages:
     source: hosted
     version: "0.6.0"
   isolates:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: isolates
       sha256: ce89e4141b27b877326d3715be2dceac7a7ba89f3229785816d2d318a75ddf28
@@ -1209,6 +1217,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.2.2"
+  markdown_widget:
+    dependency: "direct main"
+    description:
+      name: markdown_widget
+      sha256: "216dced98962d7699a265344624bc280489d739654585ee881c95563a3252fac"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.2+6"
   matcher:
     dependency: transitive
     description:
