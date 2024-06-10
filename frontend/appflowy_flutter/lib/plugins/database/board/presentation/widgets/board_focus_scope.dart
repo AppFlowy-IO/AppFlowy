@@ -39,14 +39,14 @@ class BoardFocusScope extends ChangeNotifier
     notifyListeners();
   }
 
-  void focusNext() {
+  bool focusNext() {
     _deepCopy();
 
     // if no card is focused, focus on the first card in the board
     if (_focusedCards.isEmpty) {
       _focusFirstCard();
       notifyListeners();
-      return;
+      return true;
     }
 
     final lastFocusedCard = _focusedCards.last;
@@ -58,7 +58,7 @@ class BoardFocusScope extends ChangeNotifier
     if (iterable == null || iterable.isEmpty) {
       _focusFirstCard();
       notifyListeners();
-      return;
+      return true;
     }
 
     if (iterable.length == 1) {
@@ -90,16 +90,18 @@ class BoardFocusScope extends ChangeNotifier
     }
 
     notifyListeners();
+
+    return true;
   }
 
-  void focusPrevious() {
+  bool focusPrevious() {
     _deepCopy();
 
     // if no card is focused, focus on the last card in the board
     if (_focusedCards.isEmpty) {
       _focusLastCard();
       notifyListeners();
-      return;
+      return true;
     }
 
     final lastFocusedCard = _focusedCards.last;
@@ -111,7 +113,7 @@ class BoardFocusScope extends ChangeNotifier
     if (iterable == null || iterable.isEmpty) {
       _focusLastCard();
       notifyListeners();
-      return;
+      return true;
     }
 
     if (iterable.length == 1) {
@@ -143,16 +145,18 @@ class BoardFocusScope extends ChangeNotifier
     }
 
     notifyListeners();
+
+    return true;
   }
 
-  void adjustRangeDown() {
+  bool adjustRangeDown() {
     _deepCopy();
 
     // if no card is focused, focus on the first card in the board
     if (_focusedCards.isEmpty) {
       _focusFirstCard();
       notifyListeners();
-      return;
+      return true;
     }
 
     final firstFocusedCard = _focusedCards.first;
@@ -171,7 +175,7 @@ class BoardFocusScope extends ChangeNotifier
       if (firstGroupIndex == -1 || lastGroupIndex == -1) {
         _focusFirstCard();
         notifyListeners();
-        return;
+        return true;
       }
 
       if (firstGroupIndex < lastGroupIndex) {
@@ -189,7 +193,7 @@ class BoardFocusScope extends ChangeNotifier
         if (firstCardIndex == -1 || lastCardIndex == -1) {
           _focusFirstCard();
           notifyListeners();
-          return;
+          return true;
         }
 
         isExpand = firstCardIndex < lastCardIndex;
@@ -203,7 +207,7 @@ class BoardFocusScope extends ChangeNotifier
       if (groupController == null) {
         _focusFirstCard();
         notifyListeners();
-        return;
+        return true;
       }
 
       final iterable = groupController.items
@@ -236,16 +240,17 @@ class BoardFocusScope extends ChangeNotifier
     }
 
     notifyListeners();
+    return true;
   }
 
-  void adjustRangeUp() {
+  bool adjustRangeUp() {
     _deepCopy();
 
     // if no card is focused, focus on the first card in the board
     if (_focusedCards.isEmpty) {
       _focusLastCard();
       notifyListeners();
-      return;
+      return true;
     }
 
     final firstFocusedCard = _focusedCards.first;
@@ -264,7 +269,7 @@ class BoardFocusScope extends ChangeNotifier
       if (firstGroupIndex == -1 || lastGroupIndex == -1) {
         _focusLastCard();
         notifyListeners();
-        return;
+        return true;
       }
 
       if (firstGroupIndex < lastGroupIndex) {
@@ -282,7 +287,7 @@ class BoardFocusScope extends ChangeNotifier
         if (firstCardIndex == -1 || lastCardIndex == -1) {
           _focusLastCard();
           notifyListeners();
-          return;
+          return true;
         }
 
         isExpand = firstCardIndex > lastCardIndex;
@@ -296,7 +301,7 @@ class BoardFocusScope extends ChangeNotifier
       if (groupController == null) {
         _focusLastCard();
         notifyListeners();
-        return;
+        return true;
       }
 
       final iterable = groupController.items.reversed
@@ -329,12 +334,15 @@ class BoardFocusScope extends ChangeNotifier
     }
 
     notifyListeners();
+
+    return true;
   }
 
-  void clear() {
+  bool clear() {
     _deepCopy();
     _focusedCards.clear();
     notifyListeners();
+    return true;
   }
 
   void _focusFirstCard() {
