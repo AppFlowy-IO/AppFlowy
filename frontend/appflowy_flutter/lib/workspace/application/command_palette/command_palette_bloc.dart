@@ -20,7 +20,6 @@ class CommandPaletteBloc
   CommandPaletteBloc() : super(CommandPaletteState.initial()) {
     _searchListener.start(
       onResultsChanged: _onResultsChanged,
-      onResultsClosed: _onResultsClosed,
     );
 
     _initTrash();
@@ -35,6 +34,7 @@ class CommandPaletteBloc
   final TrashListener _trashListener = TrashListener();
   String? _oldQuery;
   String? _workspaceId;
+  int _messagesReceived = 0;
 
   @override
   Future<void> close() {
@@ -75,10 +75,14 @@ class CommandPaletteBloc
             emit(state.copyWith(query: null, isLoading: false, results: []));
           }
         },
-        resultsChanged: (results, didClose) {
+        resultsChanged: (results, max) {
           if (state.query != _oldQuery) {
             emit(state.copyWith(results: []));
+            _oldQuery = state.query;
+            _messagesReceived = 0;
           }
+
+          _messagesReceived++;
 
           final searchResults = _filterDuplicates(results.items);
           searchResults.sort((a, b) => b.score.compareTo(a.score));
@@ -86,7 +90,7 @@ class CommandPaletteBloc
           emit(
             state.copyWith(
               results: searchResults,
-              isLoading: !didClose,
+              isLoading: _messagesReceived != max,
             ),
           );
         },
@@ -145,10 +149,7 @@ class CommandPaletteBloc
       add(CommandPaletteEvent.performSearch(search: value));
 
   void _onResultsChanged(RepeatedSearchResultPB results) =>
-      add(CommandPaletteEvent.resultsChanged(results: results));
-
-  void _onResultsClosed(RepeatedSearchResultPB results) =>
-      add(CommandPaletteEvent.resultsChanged(results: results, didClose: true));
+      add(CommandPaletteEvent.resultsChanged(results: results, max: 2));
 }
 
 @freezed
@@ -161,7 +162,7 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
 
   const factory CommandPaletteEvent.resultsChanged({
     required RepeatedSearchResultPB results,
-    @Default(false) bool didClose,
+    @Default(1) int max,
   }) = _ResultsChanged;
 
   const factory CommandPaletteEvent.trashChanged({

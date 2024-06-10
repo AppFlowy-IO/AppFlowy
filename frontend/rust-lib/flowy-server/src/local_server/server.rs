@@ -1,3 +1,4 @@
+use flowy_search_pub::cloud::SearchCloudService;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 
@@ -68,6 +69,10 @@ impl AppFlowyServer for LocalServer {
   }
 
   fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
+    None
+  }
+
+  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
     None
   }
 }

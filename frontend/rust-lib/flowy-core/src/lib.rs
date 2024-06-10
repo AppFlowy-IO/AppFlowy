@@ -200,7 +200,8 @@ impl AppFlowyCore {
       )
       .await;
 
-      let search_manager = SearchDepsResolver::resolve(folder_indexer).await;
+      let search_manager =
+        SearchDepsResolver::resolve(folder_indexer, server_provider.clone()).await;
 
       (
         user_manager,
