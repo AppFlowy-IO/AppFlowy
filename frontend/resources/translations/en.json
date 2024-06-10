@@ -330,7 +330,8 @@
     "signInGoogle": "Sign in with Google",
     "signInGithub": "Sign in with Github",
     "signInDiscord": "Sign in with Discord",
-    "more": "More"
+    "more": "More",
+    "close": "Close"
   },
   "label": {
     "welcome": "Welcome!",
@@ -618,6 +619,14 @@
         "itemSix": "yes",
         "itemSeven": "yes",
         "itemEight": "10,000 monthly"
+      },
+      "paymentSuccess": {
+        "title": "You are now on the {} plan!",
+        "description": "Your payment has been successfully processed and your plan is upgraded to AppFlowy {}. You can view your plan details on the Plan page"
+      },
+      "downgradeSuccess": {
+        "title": "You have canceled the {} plan!",
+        "description": "Your plan has been canceled, until the end of the billing cycle you will retain your previous plan benefits."
       }
     },
     "common": {

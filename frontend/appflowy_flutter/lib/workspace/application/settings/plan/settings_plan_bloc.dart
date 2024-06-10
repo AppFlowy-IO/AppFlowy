@@ -27,7 +27,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
     on<SettingsPlanEvent>((event, emit) async {
       await event.when(
-        started: () async {
+        started: (withShowSuccessful) async {
           emit(const SettingsPlanState.loading());
 
           final snapshots = await Future.wait([
@@ -88,8 +88,19 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
               workspaceUsage: usageResult,
               subscription: subscription,
               billingPortal: billingPortal,
+              showSuccessDialog: withShowSuccessful,
             ),
           );
+
+          if (withShowSuccessful) {
+            emit(
+              SettingsPlanState.ready(
+                workspaceUsage: usageResult,
+                subscription: subscription,
+                billingPortal: billingPortal,
+              ),
+            );
+          }
         },
         addSubscription: (plan) async {
           final result = await UserBackendService.createSubscription(
@@ -104,6 +115,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
         },
         cancelSubscription: () async {
           await UserBackendService.cancelSubscription(workspaceId);
+          add(const SettingsPlanEvent.started());
         },
         paymentSuccessful: () {
           final readyState = state.mapOrNull(ready: (state) => state);
@@ -111,8 +123,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             return;
           }
 
-          emit(readyState.copyWith(showSuccessDialog: true));
-          emit(readyState.copyWith(showSuccessDialog: false));
+          add(const SettingsPlanEvent.started(withShowSuccessful: true));
         },
       );
     });
@@ -135,7 +146,9 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
 @freezed
 class SettingsPlanEvent with _$SettingsPlanEvent {
-  const factory SettingsPlanEvent.started() = _Started;
+  const factory SettingsPlanEvent.started({
+    @Default(false) bool withShowSuccessful,
+  }) = _Started;
   const factory SettingsPlanEvent.addSubscription(SubscriptionPlanPB plan) =
       _AddSubscription;
   const factory SettingsPlanEvent.cancelSubscription() = _CancelSubscription;

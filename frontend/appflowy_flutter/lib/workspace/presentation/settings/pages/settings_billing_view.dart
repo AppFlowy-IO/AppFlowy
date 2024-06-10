@@ -8,7 +8,7 @@ import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_com
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,8 +63,9 @@ class SettingsBillingView extends StatelessWidget {
                         onPressed: () => _openPricingDialog(
                           context,
                           workspaceId,
-                          state.subscription.subscriptionPlan,
+                          state.subscription,
                         ),
+                        fontWeight: FontWeight.w500,
                         label: state.subscription.label,
                         buttonLabel: LocaleKeys
                             .settings_billingPage_plan_planButtonLabel
@@ -77,6 +78,7 @@ class SettingsBillingView extends StatelessWidget {
                           label: LocaleKeys
                               .settings_billingPage_plan_billingPeriod
                               .tr(),
+                          fontWeight: FontWeight.w500,
                           buttonLabel: LocaleKeys
                               .settings_billingPage_plan_periodButtonLabel
                               .tr(),
@@ -95,6 +97,7 @@ class SettingsBillingView extends StatelessWidget {
                           label: LocaleKeys
                               .settings_billingPage_paymentDetails_methodLabel
                               .tr(),
+                          fontWeight: FontWeight.w500,
                           buttonLabel: LocaleKeys
                               .settings_billingPage_paymentDetails_methodButtonLabel
                               .tr(),
@@ -113,7 +116,7 @@ class SettingsBillingView extends StatelessWidget {
   void _openPricingDialog(
     BuildContext context,
     String workspaceId,
-    SubscriptionPlanPB plan,
+    WorkspaceSubscriptionPB subscription,
   ) =>
       showDialog(
         context: context,
@@ -122,7 +125,7 @@ class SettingsBillingView extends StatelessWidget {
             ..add(const SettingsPlanEvent.started()),
           child: SettingsPlanComparisonDialog(
             workspaceId: workspaceId,
-            currentPlan: plan,
+            subscription: subscription,
           ),
         ),
       );

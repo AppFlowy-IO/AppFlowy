@@ -61,7 +61,7 @@ class SettingsPlanView extends StatelessWidget {
                 children: [
                   _PlanUsageSummary(
                     usage: state.workspaceUsage,
-                    currentPlan: state.subscription.subscriptionPlan,
+                    subscription: state.subscription,
                   ),
                   _CurrentPlanBox(subscription: state.subscription),
                 ],
@@ -117,7 +117,7 @@ class _CurrentPlanBox extends StatelessWidget {
                       onPressed: () => _openPricingDialog(
                         context,
                         context.read<SettingsPlanBloc>().workspaceId,
-                        subscription.subscriptionPlan,
+                        subscription,
                       ),
                     ),
                     if (subscription.hasCanceled) ...[
@@ -225,7 +225,7 @@ class _CurrentPlanBox extends StatelessWidget {
   void _openPricingDialog(
     BuildContext context,
     String workspaceId,
-    SubscriptionPlanPB plan,
+    WorkspaceSubscriptionPB subscription,
   ) =>
       showDialog(
         context: context,
@@ -233,7 +233,7 @@ class _CurrentPlanBox extends StatelessWidget {
           value: context.read<SettingsPlanBloc>(),
           child: SettingsPlanComparisonDialog(
             workspaceId: workspaceId,
-            currentPlan: plan,
+            subscription: subscription,
           ),
         ),
       );
@@ -274,10 +274,10 @@ class _ProConItem extends StatelessWidget {
 }
 
 class _PlanUsageSummary extends StatelessWidget {
-  const _PlanUsageSummary({required this.usage, required this.currentPlan});
+  const _PlanUsageSummary({required this.usage, required this.subscription});
 
   final WorkspaceUsagePB usage;
-  final SubscriptionPlanPB currentPlan;
+  final WorkspaceSubscriptionPB subscription;
 
   @override
   Widget build(BuildContext context) {
@@ -329,18 +329,18 @@ class _PlanUsageSummary extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _ToggleMore(
-              value: currentPlan == SubscriptionPlanPB.Pro,
+              value: subscription.subscriptionPlan == SubscriptionPlanPB.Pro,
               label:
                   LocaleKeys.settings_planPage_planUsage_memberProToggle.tr(),
-              currentPlan: currentPlan,
+              subscription: subscription,
               badgeLabel: LocaleKeys.settings_planPage_planUsage_proBadge.tr(),
             ),
             const VSpace(8),
             _ToggleMore(
-              value: currentPlan == SubscriptionPlanPB.Pro,
+              value: subscription.subscriptionPlan == SubscriptionPlanPB.Pro,
               label:
                   LocaleKeys.settings_planPage_planUsage_guestCollabToggle.tr(),
-              currentPlan: currentPlan,
+              subscription: subscription,
               badgeLabel: LocaleKeys.settings_planPage_planUsage_proBadge.tr(),
             ),
           ],
@@ -381,13 +381,13 @@ class _ToggleMore extends StatefulWidget {
   const _ToggleMore({
     required this.value,
     required this.label,
-    required this.currentPlan,
+    required this.subscription,
     this.badgeLabel,
   });
 
   final bool value;
   final String label;
-  final SubscriptionPlanPB currentPlan;
+  final WorkspaceSubscriptionPB subscription;
   final String? badgeLabel;
 
   @override
@@ -422,7 +422,7 @@ class _ToggleMoreState extends State<_ToggleMore> {
                     value: context.read<SettingsPlanBloc>(),
                     child: SettingsPlanComparisonDialog(
                       workspaceId: context.read<SettingsPlanBloc>().workspaceId,
-                      currentPlan: widget.currentPlan,
+                      subscription: widget.subscription,
                     ),
                   ),
                 ).then((_) {
