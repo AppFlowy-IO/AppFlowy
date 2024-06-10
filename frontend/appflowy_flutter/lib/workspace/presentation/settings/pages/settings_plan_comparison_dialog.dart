@@ -39,139 +39,147 @@ class _SettingsPlanComparisonDialogState
 
   @override
   Widget build(BuildContext context) {
-    return FlowyDialog(
-      constraints: const BoxConstraints(maxWidth: 784, minWidth: 674),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const FlowyText.semibold(
-                  'Compare & select plan',
-                  fontSize: 24,
-                ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: Navigator.of(context).pop,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: FlowySvg(
-                      FlowySvgs.m_close_m,
-                      size: const Size.square(20),
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Flexible(
-            child: SingleChildScrollView(
-              controller: horizontalController,
-              scrollDirection: Axis.horizontal,
-              child: SingleChildScrollView(
-                controller: verticalController,
-                padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                child: Column(
+    return BlocBuilder<SettingsPlanBloc, SettingsPlanState>(
+      builder: (context, state) {
+        return FlowyDialog(
+          constraints: const BoxConstraints(maxWidth: 784, minWidth: 674),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const VSpace(18),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 248,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const VSpace(22),
-                              const SizedBox(
-                                height: 100,
-                                child: FlowyText.semibold(
-                                  'Plan\nFeatures',
-                                  fontSize: 24,
-                                  maxLines: 2,
-                                  color: Color(0xFF5C3699),
-                                ),
-                              ),
-                              const SizedBox(height: 64),
-                              const SizedBox(height: 56),
-                              ..._planLabels.map(
-                                (e) => _ComparisonCell(
-                                  label: e.label,
-                                  tooltip: e.tooltip,
-                                ),
-                              ),
-                            ],
-                          ),
+                    FlowyText.semibold(
+                      LocaleKeys.settings_comparePlanDialog_title.tr(),
+                      fontSize: 24,
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: Navigator.of(context).pop,
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: FlowySvg(
+                          FlowySvgs.m_close_m,
+                          size: const Size.square(20),
+                          color: Theme.of(context).colorScheme.outline,
                         ),
-                        _PlanTable(
-                          title: LocaleKeys
-                              .settings_comparePlanDialog_freePlan_title
-                              .tr(),
-                          description: LocaleKeys
-                              .settings_comparePlanDialog_freePlan_description
-                              .tr(),
-                          price: LocaleKeys
-                              .settings_comparePlanDialog_freePlan_price
-                              .tr(),
-                          priceInfo: LocaleKeys
-                              .settings_comparePlanDialog_freePlan_priceInfo
-                              .tr(),
-                          cells: _freeLabels,
-                          isCurrent:
-                              widget.currentPlan == SubscriptionPlanPB.None,
-                          canDowngrade:
-                              widget.currentPlan != SubscriptionPlanPB.None,
-                          onSelected: () async {
-                            if (widget.currentPlan == SubscriptionPlanPB.None) {
-                              return;
-                            }
-
-                            context.read<SettingsPlanBloc>().add(
-                                  const SettingsPlanEvent.cancelSubscription(),
-                                );
-                          },
-                        ),
-                        _PlanTable(
-                          title: LocaleKeys
-                              .settings_comparePlanDialog_proPlan_title
-                              .tr(),
-                          description: LocaleKeys
-                              .settings_comparePlanDialog_proPlan_description
-                              .tr(),
-                          price: LocaleKeys
-                              .settings_comparePlanDialog_proPlan_price
-                              .tr(),
-                          priceInfo: LocaleKeys
-                              .settings_comparePlanDialog_proPlan_priceInfo
-                              .tr(),
-                          cells: _proLabels,
-                          isCurrent:
-                              widget.currentPlan == SubscriptionPlanPB.Pro,
-                          canUpgrade:
-                              widget.currentPlan == SubscriptionPlanPB.None,
-                          onSelected: () =>
-                              context.read<SettingsPlanBloc>().add(
-                                    const SettingsPlanEvent.addSubscription(
-                                      SubscriptionPlanPB.Pro,
-                                    ),
-                                  ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
+              Flexible(
+                child: SingleChildScrollView(
+                  controller: horizontalController,
+                  scrollDirection: Axis.horizontal,
+                  child: SingleChildScrollView(
+                    controller: verticalController,
+                    padding:
+                        const EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 250,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const VSpace(22),
+                                  SizedBox(
+                                    height: 100,
+                                    child: FlowyText.semibold(
+                                      LocaleKeys
+                                          .settings_comparePlanDialog_planFeatures
+                                          .tr(),
+                                      fontSize: 24,
+                                      maxLines: 2,
+                                      color: const Color(0xFF5C3699),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 64),
+                                  const SizedBox(height: 56),
+                                  ..._planLabels.map(
+                                    (e) => _ComparisonCell(
+                                      label: e.label,
+                                      tooltip: e.tooltip,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            _PlanTable(
+                              title: LocaleKeys
+                                  .settings_comparePlanDialog_freePlan_title
+                                  .tr(),
+                              description: LocaleKeys
+                                  .settings_comparePlanDialog_freePlan_description
+                                  .tr(),
+                              price: LocaleKeys
+                                  .settings_comparePlanDialog_freePlan_price
+                                  .tr(),
+                              priceInfo: LocaleKeys
+                                  .settings_comparePlanDialog_freePlan_priceInfo
+                                  .tr(),
+                              cells: _freeLabels,
+                              isCurrent:
+                                  widget.currentPlan == SubscriptionPlanPB.None,
+                              canDowngrade:
+                                  widget.currentPlan != SubscriptionPlanPB.None,
+                              onSelected: () async {
+                                if (widget.currentPlan ==
+                                    SubscriptionPlanPB.None) {
+                                  return;
+                                }
+
+                                context.read<SettingsPlanBloc>().add(
+                                      const SettingsPlanEvent
+                                          .cancelSubscription(),
+                                    );
+                              },
+                            ),
+                            _PlanTable(
+                              title: LocaleKeys
+                                  .settings_comparePlanDialog_proPlan_title
+                                  .tr(),
+                              description: LocaleKeys
+                                  .settings_comparePlanDialog_proPlan_description
+                                  .tr(),
+                              price: LocaleKeys
+                                  .settings_comparePlanDialog_proPlan_price
+                                  .tr(),
+                              priceInfo: LocaleKeys
+                                  .settings_comparePlanDialog_proPlan_priceInfo
+                                  .tr(),
+                              cells: _proLabels,
+                              isCurrent:
+                                  widget.currentPlan == SubscriptionPlanPB.Pro,
+                              canUpgrade:
+                                  widget.currentPlan == SubscriptionPlanPB.None,
+                              onSelected: () =>
+                                  context.read<SettingsPlanBloc>().add(
+                                        const SettingsPlanEvent.addSubscription(
+                                          SubscriptionPlanPB.Pro,
+                                        ),
+                                      ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -205,7 +213,7 @@ class _PlanTable extends StatelessWidget {
     final highlightPlan = !isCurrent && !canDowngrade && canUpgrade;
 
     return Container(
-      width: 200,
+      width: 210,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: !highlightPlan
@@ -248,7 +256,23 @@ class _PlanTable extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 12),
                 child: _ActionButton(
+                  label: canUpgrade && !canDowngrade
+                      ? LocaleKeys.settings_comparePlanDialog_actions_upgrade
+                          .tr()
+                      : LocaleKeys.settings_comparePlanDialog_actions_downgrade
+                          .tr(),
                   onPressed: onSelected,
+                  isUpgrade: canUpgrade && !canDowngrade,
+                  useGradientBorder: !isCurrent && canUpgrade,
+                ),
+              ),
+            ] else if (isCurrent) ...[
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: _ActionButton(
+                  label: LocaleKeys.settings_comparePlanDialog_actions_current
+                      .tr(),
+                  onPressed: () {},
                   isUpgrade: canUpgrade && !canDowngrade,
                   useGradientBorder: !isCurrent && canUpgrade,
                 ),
@@ -285,8 +309,7 @@ class _ComparisonCell extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FlowyText.medium(label),
-          const Spacer(),
+          Expanded(child: FlowyText.medium(label)),
           if (tooltip != null)
             FlowyTooltip(
               message: tooltip,
@@ -300,11 +323,13 @@ class _ComparisonCell extends StatelessWidget {
 
 class _ActionButton extends StatelessWidget {
   const _ActionButton({
+    required this.label,
     required this.onPressed,
     required this.isUpgrade,
     this.useGradientBorder = false,
   });
 
+  final String label;
   final VoidCallback onPressed;
   final bool isUpgrade;
   final bool useGradientBorder;
@@ -341,13 +366,7 @@ class _ActionButton extends StatelessWidget {
                   ),
                   child: Center(
                     child: _drawText(
-                      isUpgrade
-                          ? LocaleKeys
-                              .settings_comparePlanDialog_actions_upgrade
-                              .tr()
-                          : LocaleKeys
-                              .settings_comparePlanDialog_actions_downgrade
-                              .tr(),
+                      label,
                       isLM,
                     ),
                   ),

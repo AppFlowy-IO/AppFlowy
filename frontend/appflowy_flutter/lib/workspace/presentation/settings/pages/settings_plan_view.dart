@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/int64_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_usage_ext.dart';
@@ -117,6 +120,19 @@ class _CurrentPlanBox extends StatelessWidget {
                         subscription.subscriptionPlan,
                       ),
                     ),
+                    if (subscription.hasCanceled) ...[
+                      const VSpace(12),
+                      FlowyText(
+                        LocaleKeys
+                            .settings_planPage_planUsage_currentPlan_canceledInfo
+                            .tr(
+                          args: [_canceledDate(context)],
+                        ),
+                        maxLines: 5,
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -194,6 +210,15 @@ class _CurrentPlanBox extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  String _canceledDate(BuildContext context) {
+    final appearance = context.read<AppearanceSettingsCubit>().state;
+    return appearance.dateFormat.formatDate(
+      subscription.canceledAt.toDateTime(),
+      true,
+      appearance.timeFormat,
     );
   }
 
@@ -282,16 +307,19 @@ class _PlanUsageSummary extends StatelessWidget {
                     usage.totalBlobBytesLimit.toInt(),
               ),
             ),
-            // TODO(Mathias): Implement AI Usage once it's ready in backend
             Expanded(
               child: _UsageBox(
-                title:
-                    LocaleKeys.settings_planPage_planUsage_aiResponseLabel.tr(),
-                label:
-                    LocaleKeys.settings_planPage_planUsage_aiResponseUsage.tr(
-                  args: ['750', '1,000'],
+                title: LocaleKeys.settings_planPage_planUsage_collaboratorsLabel
+                    .tr(),
+                label: LocaleKeys.settings_planPage_planUsage_collaboratorsUsage
+                    .tr(
+                  args: [
+                    usage.memberCount.toString(),
+                    usage.memberCountLimit.toString(),
+                  ],
                 ),
-                value: .75,
+                value: usage.totalBlobBytes.toInt() /
+                    usage.totalBlobBytesLimit.toInt(),
               ),
             ),
           ],
@@ -301,7 +329,7 @@ class _PlanUsageSummary extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _ToggleMore(
-              value: false,
+              value: currentPlan == SubscriptionPlanPB.Pro,
               label:
                   LocaleKeys.settings_planPage_planUsage_memberProToggle.tr(),
               currentPlan: currentPlan,
@@ -309,7 +337,7 @@ class _PlanUsageSummary extends StatelessWidget {
             ),
             const VSpace(8),
             _ToggleMore(
-              value: false,
+              value: currentPlan == SubscriptionPlanPB.Pro,
               label:
                   LocaleKeys.settings_planPage_planUsage_guestCollabToggle.tr(),
               currentPlan: currentPlan,
@@ -446,12 +474,12 @@ class _PlanProgressIndicator extends StatelessWidget {
             height: 8,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
+              color: AFThemeExtension.of(context).progressBarBGColor,
               border: Border.all(
                 color: const Color(0xFFDDF1F7).withOpacity(
                   theme.brightness == Brightness.light ? 1 : 0.1,
                 ),
               ),
-              color: AFThemeExtension.of(context).progressBarBGColor,
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),

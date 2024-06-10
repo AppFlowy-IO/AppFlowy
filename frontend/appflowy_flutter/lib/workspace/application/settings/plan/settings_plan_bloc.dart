@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
@@ -20,6 +22,8 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
     required this.workspaceId,
   }) : super(const _Initial()) {
     _service = WorkspaceService(workspaceId: workspaceId);
+    _successListenable = getIt<SubscriptionSuccessListenable>();
+    _successListenable.addListener(_onPaymentSuccessful);
 
     on<SettingsPlanEvent>((event, emit) async {
       await event.when(
@@ -101,12 +105,32 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
         cancelSubscription: () async {
           await UserBackendService.cancelSubscription(workspaceId);
         },
+        paymentSuccessful: () {
+          final readyState = state.mapOrNull(ready: (state) => state);
+          if (readyState == null) {
+            return;
+          }
+
+          emit(readyState.copyWith(showSuccessDialog: true));
+          emit(readyState.copyWith(showSuccessDialog: false));
+        },
       );
     });
   }
 
   late final String workspaceId;
   late final WorkspaceService _service;
+  late final SubscriptionSuccessListenable _successListenable;
+
+  void _onPaymentSuccessful() {
+    add(const SettingsPlanEvent.paymentSuccessful());
+  }
+
+  @override
+  Future<void> close() async {
+    _successListenable.removeListener(_onPaymentSuccessful);
+    return super.close();
+  }
 }
 
 @freezed
@@ -115,6 +139,7 @@ class SettingsPlanEvent with _$SettingsPlanEvent {
   const factory SettingsPlanEvent.addSubscription(SubscriptionPlanPB plan) =
       _AddSubscription;
   const factory SettingsPlanEvent.cancelSubscription() = _CancelSubscription;
+  const factory SettingsPlanEvent.paymentSuccessful() = _PaymentSuccessful;
 }
 
 @freezed
@@ -131,5 +156,6 @@ class SettingsPlanState with _$SettingsPlanState {
     required WorkspaceUsagePB workspaceUsage,
     required WorkspaceSubscriptionPB subscription,
     required BillingPortalPB? billingPortal,
+    @Default(false) bool showSuccessDialog,
   }) = _Ready;
 }

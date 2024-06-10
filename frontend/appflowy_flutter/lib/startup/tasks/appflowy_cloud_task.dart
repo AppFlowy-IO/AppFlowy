@@ -12,6 +12,7 @@ import 'package:appflowy/user/application/auth/auth_error.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_auth_listener.dart';
+import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -93,6 +94,10 @@ class AppFlowyCloudDeepLink {
       return;
     }
 
+    if (_isPaymentSuccessUri(uri)) {
+      return getIt<SubscriptionSuccessListenable>().onPaymentSuccess();
+    }
+
     return _isAuthCallbackDeepLink(uri).fold(
       (_) async {
         final deviceId = await getDeviceId();
@@ -160,6 +165,10 @@ class AppFlowyCloudDeepLink {
         ..code = ErrorCode.MissingAuthField
         ..msg = uri.path,
     );
+  }
+
+  bool _isPaymentSuccessUri(Uri uri) {
+    return uri.host == 'payment-success';
   }
 }
 

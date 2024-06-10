@@ -97,7 +97,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.plan:
         return SettingsPlanView(workspaceId: workspaceId);
       case SettingsPage.billing:
-        return const SettingsBillingView();
+        return SettingsBillingView(workspaceId: workspaceId);
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
       default:

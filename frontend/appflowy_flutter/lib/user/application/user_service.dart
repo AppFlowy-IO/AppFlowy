@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:fixnum/fixnum.dart';
-
-const _deepLinkSubscriptionUrl = 'appflowy-flutter://subscription-callback';
 
 class UserBackendService {
   UserBackendService({required this.userId});
@@ -234,8 +234,7 @@ class UserBackendService {
       ..recurringInterval = RecurringIntervalPB.Month
       ..workspaceSubscriptionPlan = plan
       ..successUrl =
-          'http://$_deepLinkSubscriptionUrl'; // TODO(Mathias): Change once Zack has resolved
-
+          '${getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url}/web/payment-success';
     return UserEventSubscribeWorkspace(request).send();
   }
 
