@@ -40,7 +40,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
   Widget build(BuildContext context) {
     Widget child = widget.workspace.icon.isNotEmpty
         ? Container(
-            width: widget.emojiSize ?? widget.iconSize,
+            width: widget.iconSize,
             alignment: widget.alignment ?? Alignment.center,
             child: FlowyText.emoji(
               widget.workspace.icon,

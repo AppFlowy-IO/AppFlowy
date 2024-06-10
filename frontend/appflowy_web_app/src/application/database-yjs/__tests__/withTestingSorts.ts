@@ -89,3 +89,25 @@ export function withChecklistSort(isAscending: boolean = true) {
 
   return sort;
 }
+
+export function withCreatedAtSort(isAscending: boolean = true) {
+  const sort = new Y.Map() as YDatabaseSort;
+  const sortJSON = isAscending ? sortsJson.sort_asc_created_at : sortsJson.sort_desc_created_at;
+
+  sort.set(YjsDatabaseKey.id, sortJSON.id);
+  sort.set(YjsDatabaseKey.field_id, sortJSON.field_id);
+  sort.set(YjsDatabaseKey.condition, sortJSON.condition === 'asc' ? '0' : '1');
+
+  return sort;
+}
+
+export function withLastModifiedSort(isAscending: boolean = true) {
+  const sort = new Y.Map() as YDatabaseSort;
+  const sortJSON = isAscending ? sortsJson.sort_asc_updated_at : sortsJson.sort_desc_updated_at;
+
+  sort.set(YjsDatabaseKey.id, sortJSON.id);
+  sort.set(YjsDatabaseKey.field_id, sortJSON.field_id);
+  sort.set(YjsDatabaseKey.condition, sortJSON.condition === 'asc' ? '0' : '1');
+
+  return sort;
+}

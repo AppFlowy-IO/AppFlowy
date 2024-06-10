@@ -1,6 +1,6 @@
 import { YjsDatabaseKey } from '@/application/collab.type';
 import { FieldType, useCellSelector, useFieldSelector } from '@/application/database-yjs';
-import { Cell as CellType, CellProps } from '@/components/database/components/cell/cell.type';
+import { Cell as CellType, CellProps } from '@/application/database-yjs/cell.type';
 import { CheckboxCell } from '@/components/database/components/cell/checkbox';
 import { RowCreateModifiedTime } from '@/components/database/components/cell/created-modified';
 import { DateTimeCell } from '@/components/database/components/cell/date';

@@ -19,6 +19,8 @@ if_wasm! {
   }
 }
 
+#[cfg(feature = "isolate_flutter")]
+pub mod isolate_stream;
 pub mod priority_task;
 pub mod ref_map;
 pub mod util;

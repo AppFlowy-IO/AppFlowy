@@ -8,7 +8,7 @@ function Sort({ sortId }: { sortId: string }) {
 
   if (!sort) return null;
   return (
-    <div className={'flex items-center gap-1.5'}>
+    <div data-testid={'sort-condition'} className={'flex items-center gap-1.5'}>
       <div className={'w-[120px] max-w-[250px] overflow-hidden  rounded-full border border-line-divider py-1 px-2 '}>
         <FieldDisplay fieldId={sort.fieldId} />
       </div>

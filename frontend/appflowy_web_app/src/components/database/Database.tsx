@@ -12,7 +12,6 @@ export const Database = memo(
     viewId: string;
     onNavigateToView: (viewId: string) => void;
   }) => {
-    console.log('Database', viewId, iidIndex);
     return (
       <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
         <DatabaseViews iidIndex={iidIndex} onChangeView={onNavigateToView} viewId={viewId} />

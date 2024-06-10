@@ -6,7 +6,7 @@ import {
   useFieldSelector,
   useNavigateToRow,
 } from '@/application/database-yjs';
-import { RelationCell, RelationCellData } from '@/components/database/components/cell/cell.type';
+import { RelationCell, RelationCellData } from '@/application/database-yjs/cell.type';
 import { RelationPrimaryValue } from '@/components/database/components/cell/relation/RelationPrimaryValue';
 import { useGetDatabaseDispatch } from '@/components/database/Database.hooks';
 import React, { useEffect, useMemo, useState } from 'react';

@@ -73,7 +73,7 @@ export function useLayout() {
           return {
             viewId: view.get(YjsFolderKey.id),
             name: view.get(YjsFolderKey.name),
-            icon: icon || '',
+            icon: icon || view.get(YjsFolderKey.layout),
           };
         })
         .slice(1)

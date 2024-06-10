@@ -18,6 +18,7 @@ use collab_integrate::collab_builder::{
 };
 use flowy_chat_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageStream, MessageCursor, RepeatedChatMessage,
+  StreamAnswer,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
@@ -473,6 +474,60 @@ impl ChatCloudService for ServerProvider {
     server
       .chat_service()
       .send_chat_message(&workspace_id, &chat_id, &message, message_type)
+      .await
+  }
+
+  fn send_question(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+    message_type: ChatMessageType,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let message = message.to_string();
+    let server = self.get_server();
+
+    FutureResult::new(async move {
+      server?
+        .chat_service()
+        .send_question(&workspace_id, &chat_id, &message, message_type)
+        .await
+    })
+  }
+
+  fn save_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+    question_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let message = message.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .chat_service()
+        .save_answer(&workspace_id, &chat_id, &message, question_id)
+        .await
+    })
+  }
+
+  async fn stream_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message_id: i64,
+  ) -> Result<StreamAnswer, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let chat_id = chat_id.to_string();
+    let server = self.get_server()?;
+    server
+      .chat_service()
+      .stream_answer(&workspace_id, &chat_id, message_id)
       .await
   }
 

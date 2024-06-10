@@ -18,13 +18,17 @@ class ChatInput extends StatefulWidget {
     required this.onSendPressed,
     required this.chatId,
     this.options = const InputOptions(),
+    required this.isStreaming,
+    required this.onStopStreaming,
   });
 
   final bool? isAttachmentUploading;
   final VoidCallback? onAttachmentPressed;
   final void Function(types.PartialText) onSendPressed;
+  final void Function() onStopStreaming;
   final InputOptions options;
   final String chatId;
+  final bool isStreaming;
 
   @override
   State<ChatInput> createState() => _ChatInputState();
@@ -68,26 +72,23 @@ class _ChatInputState extends State<ChatInput> {
 
   void _handleSendButtonVisibilityModeChange() {
     _textController.removeListener(_handleTextControllerChange);
-    if (widget.options.sendButtonVisibilityMode ==
-        SendButtonVisibilityMode.hidden) {
-      _sendButtonVisible = false;
-    } else if (widget.options.sendButtonVisibilityMode ==
-        SendButtonVisibilityMode.editing) {
-      _sendButtonVisible = _textController.text.trim() != '';
-      _textController.addListener(_handleTextControllerChange);
-    } else {
-      _sendButtonVisible = true;
-    }
+    _sendButtonVisible =
+        _textController.text.trim() != '' || widget.isStreaming;
+    _textController.addListener(_handleTextControllerChange);
   }
 
   void _handleSendPressed() {
-    final trimmedText = _textController.text.trim();
-    if (trimmedText != '') {
-      final partialText = types.PartialText(text: trimmedText);
-      widget.onSendPressed(partialText);
+    if (widget.isStreaming) {
+      widget.onStopStreaming();
+    } else {
+      final trimmedText = _textController.text.trim();
+      if (trimmedText != '') {
+        final partialText = types.PartialText(text: trimmedText);
+        widget.onSendPressed(partialText);
 
-      if (widget.options.inputClearMode == InputClearMode.always) {
-        _textController.clear();
+        if (widget.options.inputClearMode == InputClearMode.always) {
+          _textController.clear();
+        }
       }
     }
   }
@@ -138,6 +139,7 @@ class _ChatInputState extends State<ChatInput> {
       padding: textPadding,
       child: TextField(
         controller: _textController,
+        readOnly: widget.isStreaming,
         focusNode: _inputFocusNode,
         decoration: InputDecoration(
           border: InputBorder.none,
@@ -153,7 +155,6 @@ class _ChatInputState extends State<ChatInput> {
         autocorrect: widget.options.autocorrect,
         autofocus: widget.options.autofocus,
         enableSuggestions: widget.options.enableSuggestions,
-        spellCheckConfiguration: const SpellCheckConfiguration(),
         keyboardType: widget.options.keyboardType,
         textCapitalization: TextCapitalization.sentences,
         maxLines: 10,
@@ -173,8 +174,14 @@ class _ChatInputState extends State<ChatInput> {
         visible: _sendButtonVisible,
         child: Padding(
           padding: buttonPadding,
-          child: SendButton(
-            onPressed: _handleSendPressed,
+          child: AccessoryButton(
+            onSendPressed: () {
+              _handleSendPressed();
+            },
+            onStopStreaming: () {
+              widget.onStopStreaming();
+            },
+            isStreaming: widget.isStreaming,
           ),
         ),
       ),
@@ -184,10 +191,7 @@ class _ChatInputState extends State<ChatInput> {
   @override
   void didUpdateWidget(covariant ChatInput oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.options.sendButtonVisibilityMode !=
-        oldWidget.options.sendButtonVisibilityMode) {
-      _handleSendButtonVisibilityModeChange();
-    }
+    _handleSendButtonVisibilityModeChange();
   }
 
   @override
@@ -211,7 +215,6 @@ class InputOptions {
     this.keyboardType = TextInputType.multiline,
     this.onTextChanged,
     this.onTextFieldTap,
-    this.sendButtonVisibilityMode = SendButtonVisibilityMode.editing,
     this.textEditingController,
     this.autocorrect = true,
     this.autofocus = false,
@@ -230,11 +233,6 @@ class InputOptions {
 
   /// Will be called on [TextField] tap.
   final VoidCallback? onTextFieldTap;
-
-  /// Controls the visibility behavior of the [SendButton] based on the
-  /// [TextField] state inside the [ChatInput] widget.
-  /// Defaults to [SendButtonVisibilityMode.editing].
-  final SendButtonVisibilityMode sendButtonVisibilityMode;
 
   /// Custom [TextEditingController]. If not provided, defaults to the
   /// [InputTextFieldController], which extends [TextEditingController] and has
@@ -260,24 +258,46 @@ class InputOptions {
 final isMobile = defaultTargetPlatform == TargetPlatform.android ||
     defaultTargetPlatform == TargetPlatform.iOS;
 
-class SendButton extends StatelessWidget {
-  const SendButton({required this.onPressed, super.key});
+class AccessoryButton extends StatelessWidget {
+  const AccessoryButton({
+    required this.onSendPressed,
+    required this.onStopStreaming,
+    required this.isStreaming,
+    super.key,
+  });
 
-  final void Function() onPressed;
+  final void Function() onSendPressed;
+  final void Function() onStopStreaming;
+  final bool isStreaming;
 
   @override
   Widget build(BuildContext context) {
-    return FlowyIconButton(
-      width: 36,
-      fillColor: AFThemeExtension.of(context).lightGreyHover,
-      hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      radius: BorderRadius.circular(18),
-      icon: FlowySvg(
-        FlowySvgs.send_s,
-        size: const Size.square(24),
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      onPressed: onPressed,
-    );
+    if (isStreaming) {
+      return FlowyIconButton(
+        width: 36,
+        icon: FlowySvg(
+          FlowySvgs.ai_stream_stop_s,
+          size: const Size.square(28),
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        onPressed: onStopStreaming,
+        radius: BorderRadius.circular(18),
+        fillColor: AFThemeExtension.of(context).lightGreyHover,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+      );
+    } else {
+      return FlowyIconButton(
+        width: 36,
+        fillColor: AFThemeExtension.of(context).lightGreyHover,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        radius: BorderRadius.circular(18),
+        icon: FlowySvg(
+          FlowySvgs.send_s,
+          size: const Size.square(24),
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        onPressed: onSendPressed,
+      );
+    }
   }
 }

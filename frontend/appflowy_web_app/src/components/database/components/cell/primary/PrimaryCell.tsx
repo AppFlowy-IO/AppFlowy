@@ -1,5 +1,5 @@
 import { useNavigateToRow, useRowMetaSelector } from '@/application/database-yjs';
-import { TextCell as CellType, CellProps } from '@/components/database/components/cell/cell.type';
+import { TextCell as CellType, CellProps } from '@/application/database-yjs/cell.type';
 import { TextCell } from '@/components/database/components/cell/text';
 import OpenAction from '@/components/database/components/database-row/OpenAction';
 import { getPlatform } from '@/utils/platform';

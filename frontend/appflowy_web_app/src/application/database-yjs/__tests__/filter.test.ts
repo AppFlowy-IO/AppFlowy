@@ -27,6 +27,7 @@ import {
   filterBy,
 } from '../filter';
 import { expect } from '@jest/globals';
+import * as Y from 'yjs';
 
 describe('Text filter check', () => {
   const text = 'Hello, world!';
@@ -534,6 +535,15 @@ describe('Database filterBy', () => {
 
   it('should return all rows for empty filter', () => {
     const { filters, fields, rowMap } = withTestingData();
+    const result = filterBy(rows, filters, fields, rowMap)
+      .map((row) => row.id)
+      .join(',');
+    expect(result).toBe('1,2,3,4,5,6,7,8,9,10');
+  });
+
+  it('should return all rows for empty rowMap', () => {
+    const { filters, fields } = withTestingData();
+    const rowMap = new Y.Map() as Y.Map<Y.Doc>;
     const result = filterBy(rows, filters, fields, rowMap)
       .map((row) => row.id)
       .join(',');

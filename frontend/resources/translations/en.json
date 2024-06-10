@@ -148,7 +148,7 @@
   "newCalendarText": "New calendar",
   "newBoardText": "New board",
   "chat": {
-    "newChat": "New chat",
+    "newChat": "AI Chat",
     "inputMessageHint": "Message AppFlowy AI",
     "unsupportedCloudPrompt": "This feature is only available when using AppFlowy Cloud",
     "relatedQuestion": "Related",

@@ -8,7 +8,7 @@ import {
   invalidToken,
   setSignInUser,
   setUserWorkspace,
-} from '@/application/services/js-services/storage';
+} from 'src/application/services/js-services/session';
 import { asyncDataDecorator } from '@/application/services/js-services/decorator';
 
 async function getUser() {

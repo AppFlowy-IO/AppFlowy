@@ -6,7 +6,6 @@ import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
-import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -195,13 +194,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             view: view,
           ),
-          const HSpace(16.0),
-          DocumentSyncIndicator(view: view),
-          const HSpace(12.0),
-        ]);
-      } else {
-        actions.addAll([
-          DatabaseSyncIndicator(view: view),
           const HSpace(12.0),
         ]);
       }

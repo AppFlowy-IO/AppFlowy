@@ -6,6 +6,7 @@ on:
       - ".github/workflows/web2_ci.yaml"
       - "frontend/appflowy_web_app/**"
       - "frontend/resources/**"
+
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
@@ -52,8 +53,13 @@ jobs:
         run: |
           pnpm run test:unit
 
-      - name: Generate and post coverage summary
-        working-directory: frontend/appflowy_web_app
-        run: |
-          pnpm run merge-coverage
-      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: cf9245e0-e136-4e21-b0ee-35755fa0c493
+          files: frontend/appflowy_web_app/coverage/jest/lcov.info,frontend/appflowy_web_app/coverage/cypress/lcov.info
+          flags: appflowy_web_app
+          name: frontend/appflowy_web_app
+          fail_ci_if_error: true
+          verbose: true
+

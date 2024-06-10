@@ -5,8 +5,8 @@ import 'package:appflowy/mobile/presentation/database/field/mobile_field_bottom_
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database/domain/field_backend_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/domain/field_backend_service.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';

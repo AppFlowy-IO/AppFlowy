@@ -11,15 +11,3 @@ export const SelectOptionColorMap = {
   [SelectOptionColor.Aqua]: '--tint-aqua',
   [SelectOptionColor.Blue]: '--tint-blue',
 };
-
-export const SelectOptionColorTextMap = {
-  [SelectOptionColor.Purple]: 'purpleColor',
-  [SelectOptionColor.Pink]: 'pinkColor',
-  [SelectOptionColor.LightPink]: 'lightPinkColor',
-  [SelectOptionColor.Orange]: 'orangeColor',
-  [SelectOptionColor.Yellow]: 'yellowColor',
-  [SelectOptionColor.Lime]: 'limeColor',
-  [SelectOptionColor.Green]: 'greenColor',
-  [SelectOptionColor.Aqua]: 'aquaColor',
-  [SelectOptionColor.Blue]: 'blueColor',
-} as const;

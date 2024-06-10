@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class AFCallbackShortcutsProvider {
-  final ValueNotifier<bool> isShortcutsEnabled = ValueNotifier(true);
-}
+typedef AFBindingCallback = bool Function();
 
 class AFCallbackShortcuts extends StatelessWidget {
   const AFCallbackShortcuts({
     super.key,
     required this.bindings,
-    required this.canAcceptEvent,
     required this.child,
   });
 
-  final Map<ShortcutActivator, VoidCallback> bindings;
-  final bool Function(FocusNode node, KeyEvent event) canAcceptEvent;
+  // The bindings for the shortcuts
+  //
+  // The result of the callback will be used to determine if the event is handled
+  final Map<ShortcutActivator, AFBindingCallback> bindings;
   final Widget child;
 
   bool _applyKeyEventBinding(ShortcutActivator activator, KeyEvent event) {
     if (activator.accepts(event, HardwareKeyboard.instance)) {
-      bindings[activator]!.call();
-      return true;
+      return bindings[activator]?.call() ?? false;
     }
     return false;
   }
@@ -31,9 +29,6 @@ class AFCallbackShortcuts extends StatelessWidget {
       canRequestFocus: false,
       skipTraversal: true,
       onKeyEvent: (FocusNode node, KeyEvent event) {
-        if (!canAcceptEvent(node, event)) {
-          return KeyEventResult.ignored;
-        }
         KeyEventResult result = KeyEventResult.ignored;
         for (final ShortcutActivator activator in bindings.keys) {
           result = _applyKeyEventBinding(activator, event)

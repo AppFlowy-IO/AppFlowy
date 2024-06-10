@@ -143,6 +143,9 @@ class FlowyText extends StatelessWidget {
       if (fontFamily != null && fallbackFontFamily == null) {
         fallbackFontFamily = [fontFamily];
       }
+    }
+
+    if (isEmoji && (_useNotoColorEmoji || Platform.isWindows)) {
       fontSize = fontSize * 0.8;
     }
 
@@ -170,7 +173,7 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
-        strutStyle: Platform.isMacOS
+        strutStyle: (Platform.isMacOS || Platform.isLinux) & !isEmoji
             ? StrutStyle.fromTextStyle(
                 textStyle,
                 forceStrutHeight: true,
@@ -199,6 +202,5 @@ class FlowyText extends StatelessWidget {
     return null;
   }
 
-  bool get _useNotoColorEmoji =>
-      Platform.isLinux || Platform.isAndroid || Platform.isWindows;
+  bool get _useNotoColorEmoji => Platform.isLinux || Platform.isAndroid;
 }

@@ -2,7 +2,7 @@ use std::any::Any;
 use std::sync::Arc;
 
 use collab::core::collab::IndexContentReceiver;
-use collab_folder::{View, ViewIcon, ViewLayout};
+use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewLayout};
 use flowy_error::FlowyError;
 
 pub struct IndexableData {
@@ -30,6 +30,7 @@ pub trait IndexManager: Send + Sync {
   fn add_index(&self, data: IndexableData) -> Result<(), FlowyError>;
   fn update_index(&self, data: IndexableData) -> Result<(), FlowyError>;
   fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError>;
+  fn remove_indices_for_workspace(&self, workspace_id: String) -> Result<(), FlowyError>;
   fn is_indexed(&self) -> bool;
 
   fn as_any(&self) -> &dyn Any;
@@ -37,4 +38,10 @@ pub trait IndexManager: Send + Sync {
 
 pub trait FolderIndexManager: IndexManager {
   fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: String);
+  fn index_view_changes(
+    &self,
+    views: Vec<Arc<View>>,
+    changes: Vec<FolderViewChange>,
+    workspace_id: String,
+  );
 }

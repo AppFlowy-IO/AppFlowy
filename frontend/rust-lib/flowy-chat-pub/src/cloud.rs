@@ -1,4 +1,4 @@
-pub use client_api::entity::ai_dto::{RelatedQuestion, RepeatedRelatedQuestion};
+pub use client_api::entity::ai_dto::{RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage};
 pub use client_api::entity::{
   ChatAuthorType, ChatMessage, ChatMessageType, MessageCursor, QAChatMessage, RepeatedChatMessage,
 };
@@ -9,6 +9,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
+pub type StreamAnswer = BoxStream<'static, Result<StringOrMessage, AppResponseError>>;
 #[async_trait]
 pub trait ChatCloudService: Send + Sync + 'static {
   fn create_chat(
@@ -25,6 +26,29 @@ pub trait ChatCloudService: Send + Sync + 'static {
     message: &str,
     message_type: ChatMessageType,
   ) -> Result<ChatMessageStream, FlowyError>;
+
+  fn send_question(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+    message_type: ChatMessageType,
+  ) -> FutureResult<ChatMessage, FlowyError>;
+
+  fn save_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+    question_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError>;
+
+  async fn stream_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message_id: i64,
+  ) -> Result<StreamAnswer, FlowyError>;
 
   fn get_chat_messages(
     &self,

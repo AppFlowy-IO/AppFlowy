@@ -1,5 +1,5 @@
 import { FieldType, parseChecklistData } from '@/application/database-yjs';
-import { CellProps, ChecklistCell as ChecklistCellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, ChecklistCell as ChecklistCellType } from '@/application/database-yjs/cell.type';
 import LinearProgressWithLabel from '@/components/_shared/progress/LinearProgressWithLabel';
 import React, { useMemo } from 'react';
 

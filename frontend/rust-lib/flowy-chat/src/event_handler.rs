@@ -18,10 +18,10 @@ fn upgrade_chat_manager(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn send_chat_message_handler(
-  data: AFPluginData<SendChatPayloadPB>,
+pub(crate) async fn stream_chat_message_handler(
+  data: AFPluginData<StreamChatPayloadPB>,
   chat_manager: AFPluginState<Weak<ChatManager>>,
-) -> Result<(), FlowyError> {
+) -> DataResult<ChatMessagePB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let data = data.into_inner();
   data.validate()?;
@@ -30,10 +30,16 @@ pub(crate) async fn send_chat_message_handler(
     ChatMessageTypePB::System => ChatMessageType::System,
     ChatMessageTypePB::User => ChatMessageType::User,
   };
-  chat_manager
-    .send_chat_message(&data.chat_id, &data.message, message_type)
+
+  let question = chat_manager
+    .stream_chat_message(
+      &data.chat_id,
+      &data.message,
+      message_type,
+      data.text_stream_port,
+    )
     .await?;
-  Ok(())
+  data_result_ok(question)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -90,4 +96,17 @@ pub(crate) async fn get_answer_handler(
     .generate_answer(&data.chat_id, data.message_id)
     .await?;
   data_result_ok(message)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn stop_stream_handler(
+  data: AFPluginData<StopStreamPB>,
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.into_inner();
+  data.validate()?;
+
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  chat_manager.stop_stream(&data.chat_id).await?;
+  Ok(())
 }

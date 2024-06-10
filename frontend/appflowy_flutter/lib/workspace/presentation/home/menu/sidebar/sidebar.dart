@@ -333,7 +333,8 @@ class _SidebarSearchButton extends StatelessWidget {
     return FlowyButton(
       onTap: () => CommandPalette.of(context).toggle(),
       leftIcon: const FlowySvg(FlowySvgs.search_s),
-      iconPadding: 10.0,
+      iconPadding: 12.0,
+      margin: const EdgeInsets.only(left: 8.0),
       text: FlowyText.regular(LocaleKeys.search_label.tr()),
     );
   }
