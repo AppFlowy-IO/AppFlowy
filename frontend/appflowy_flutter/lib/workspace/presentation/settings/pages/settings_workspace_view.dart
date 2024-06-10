@@ -1021,7 +1021,8 @@ class _FontSelectorDropdownState extends State<_FontSelectorDropdown> {
                         const FlowySvg(FlowySvgs.restore_s),
                         const HSpace(4),
                         FlowyText.regular(
-                            LocaleKeys.settings_common_reset.tr()),
+                          LocaleKeys.settings_common_reset.tr(),
+                        ),
                       ],
                     ),
                   ),
