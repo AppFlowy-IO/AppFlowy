@@ -318,8 +318,8 @@ class _PlanUsageSummary extends StatelessWidget {
                     usage.memberCountLimit.toString(),
                   ],
                 ),
-                value: usage.totalBlobBytes.toInt() /
-                    usage.totalBlobBytesLimit.toInt(),
+                value:
+                    usage.memberCount.toInt() / usage.memberCountLimit.toInt(),
               ),
             ),
           ],

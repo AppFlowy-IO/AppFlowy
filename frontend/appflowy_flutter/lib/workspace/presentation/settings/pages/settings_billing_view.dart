@@ -50,6 +50,9 @@ class SettingsBillingView extends StatelessWidget {
               return ErrorWidget.withDetails(message: 'Something went wrong!');
             },
             ready: (state) {
+              final billingPortalEnabled = state.billingPortal != null &&
+                  state.billingPortal!.url.isNotEmpty;
+
               return SettingsBody(
                 title: LocaleKeys.settings_billingPage_title.tr(),
                 children: [
@@ -67,34 +70,37 @@ class SettingsBillingView extends StatelessWidget {
                             .settings_billingPage_plan_planButtonLabel
                             .tr(),
                       ),
-                      SingleSettingAction(
-                        onPressed: () =>
-                            afLaunchUrlString(state.billingPortal!.url),
-                        label: LocaleKeys
-                            .settings_billingPage_plan_billingPeriod
-                            .tr(),
-                        buttonLabel: LocaleKeys
-                            .settings_billingPage_plan_periodButtonLabel
-                            .tr(),
-                      ),
+                      if (billingPortalEnabled)
+                        SingleSettingAction(
+                          onPressed: () =>
+                              afLaunchUrlString(state.billingPortal!.url),
+                          label: LocaleKeys
+                              .settings_billingPage_plan_billingPeriod
+                              .tr(),
+                          buttonLabel: LocaleKeys
+                              .settings_billingPage_plan_periodButtonLabel
+                              .tr(),
+                        ),
                     ],
                   ),
-                  SettingsCategory(
-                    title: LocaleKeys.settings_billingPage_paymentDetails_title
-                        .tr(),
-                    children: [
-                      SingleSettingAction(
-                        onPressed: () =>
-                            afLaunchUrlString(state.billingPortal!.url),
-                        label: LocaleKeys
-                            .settings_billingPage_paymentDetails_methodLabel
-                            .tr(),
-                        buttonLabel: LocaleKeys
-                            .settings_billingPage_paymentDetails_methodButtonLabel
-                            .tr(),
-                      ),
-                    ],
-                  ),
+                  if (billingPortalEnabled)
+                    SettingsCategory(
+                      title: LocaleKeys
+                          .settings_billingPage_paymentDetails_title
+                          .tr(),
+                      children: [
+                        SingleSettingAction(
+                          onPressed: () =>
+                              afLaunchUrlString(state.billingPortal!.url),
+                          label: LocaleKeys
+                              .settings_billingPage_paymentDetails_methodLabel
+                              .tr(),
+                          buttonLabel: LocaleKeys
+                              .settings_billingPage_paymentDetails_methodButtonLabel
+                              .tr(),
+                        ),
+                      ],
+                    ),
                 ],
               );
             },
