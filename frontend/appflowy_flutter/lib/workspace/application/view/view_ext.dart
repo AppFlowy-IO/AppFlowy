@@ -36,6 +36,13 @@ class ViewExtKeys {
 
   // is pinned
   static String isPinnedKey = 'is_pinned';
+
+  // space
+  static String isSpaceKey = 'is_space';
+  static String spaceCreatorKey = 'space_creator';
+  static String spaceCreatedAtKey = 'space_created_at';
+  static String spaceIconKey = 'space_icon';
+  static String spacePermissionKey = 'space_permission';
 }
 
 extension ViewExtension on ViewPB {
@@ -103,6 +110,16 @@ extension ViewExtension on ViewPB {
       };
 
   FlowySvgData get iconData => layout.icon;
+
+  bool get isSpace {
+    try {
+      final ext = jsonDecode(extra);
+      final isSpace = ext[ViewExtKeys.isSpaceKey] ?? false;
+      return isSpace;
+    } catch (e) {
+      return false;
+    }
+  }
 
   bool get isPinned {
     try {

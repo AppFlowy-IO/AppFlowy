@@ -6,6 +6,7 @@ import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_sec
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -34,15 +35,14 @@ class MobileFolders extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) => SidebarSectionsBloc()
-            ..add(
-              SidebarSectionsEvent.initial(
-                user,
-                workspaceId,
-              ),
-            ),
+            ..add(SidebarSectionsEvent.initial(user, workspaceId)),
         ),
         BlocProvider(
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              SpaceBloc()..add(SpaceEvent.initial(user, workspaceId)),
         ),
       ],
       child: BlocListener<UserWorkspaceBloc, UserWorkspaceState>(

@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -13,6 +11,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -21,8 +20,8 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_user.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -32,6 +31,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Home Sidebar is the left side bar of the home page.
@@ -101,6 +101,16 @@ class HomeSideBar extends StatelessWidget {
               create: (_) => SidebarSectionsBloc()
                 ..add(
                   SidebarSectionsEvent.initial(
+                    userProfile,
+                    state.currentWorkspace?.workspaceId ??
+                        workspaceSetting.workspaceId,
+                  ),
+                ),
+            ),
+            BlocProvider(
+              create: (_) => SpaceBloc()
+                ..add(
+                  SpaceEvent.initial(
                     userProfile,
                     state.currentWorkspace?.workspaceId ??
                         workspaceSetting.workspaceId,
@@ -274,6 +284,20 @@ class _SidebarState extends State<_Sidebar> {
                 ),
               ),
             ),
+            // Expanded(
+            //   child: Padding(
+            //     padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
+            //     child: SingleChildScrollView(
+            //       padding: const EdgeInsets.only(right: 6),
+            //       controller: _scrollController,
+            //       physics: const ClampingScrollPhysics(),
+            //       child: SidebarFolder(
+            //         userProfile: widget.userProfile,
+            //         isHoverEnabled: !_isScrolling,
+            //       ),
+            //     ),
+            //   ),
+            // ),
             Expanded(
               child: Padding(
                 padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
@@ -281,7 +305,7 @@ class _SidebarState extends State<_Sidebar> {
                   padding: const EdgeInsets.only(right: 6),
                   controller: _scrollController,
                   physics: const ClampingScrollPhysics(),
-                  child: SidebarFolder(
+                  child: SidebarSpace(
                     userProfile: widget.userProfile,
                     isHoverEnabled: !_isScrolling,
                   ),
