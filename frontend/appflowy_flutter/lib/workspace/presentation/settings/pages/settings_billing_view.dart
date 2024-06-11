@@ -118,7 +118,7 @@ class SettingsBillingView extends StatelessWidget {
     String workspaceId,
     WorkspaceSubscriptionPB subscription,
   ) =>
-      showDialog(
+      showDialog<bool?>(
         context: context,
         builder: (_) => BlocProvider<SettingsPlanBloc>(
           create: (_) => SettingsPlanBloc(workspaceId: workspaceId)
@@ -128,5 +128,11 @@ class SettingsBillingView extends StatelessWidget {
             subscription: subscription,
           ),
         ),
-      );
+      ).then((didChangePlan) {
+        if (didChangePlan == true) {
+          context
+              .read<SettingsBillingBloc>()
+              .add(const SettingsBillingEvent.started());
+        }
+      });
 }

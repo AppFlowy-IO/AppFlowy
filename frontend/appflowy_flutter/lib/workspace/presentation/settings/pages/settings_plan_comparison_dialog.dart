@@ -98,7 +98,10 @@ class _SettingsPlanComparisonDialogState
                   ),
                   const Spacer(),
                   GestureDetector(
-                    onTap: Navigator.of(context).pop,
+                    onTap: () => Navigator.of(context).pop(
+                      currentSubscription.subscriptionPlan !=
+                          widget.subscription.subscriptionPlan,
+                    ),
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: FlowySvg(
@@ -182,32 +185,25 @@ class _SettingsPlanComparisonDialogState
                                 return;
                               }
 
-                              context.read<SettingsPlanBloc>().add(
-                                    const SettingsPlanEvent
-                                        .cancelSubscription(),
-                                  );
-
                               await SettingsAlertDialog(
-                                icon: Center(
-                                  child: SizedBox(
-                                    height: 90,
-                                    width: 90,
-                                    child: FlowySvg(
-                                      FlowySvgs.check_circle_s,
-                                      color:
-                                          AFThemeExtension.of(context).success,
-                                    ),
-                                  ),
-                                ),
                                 title: LocaleKeys
-                                    .settings_comparePlanDialog_downgradeSuccess_title
+                                    .settings_comparePlanDialog_downgradeDialog_title
                                     .tr(args: [currentSubscription.label]),
                                 subtitle: LocaleKeys
-                                    .settings_comparePlanDialog_downgradeSuccess_description
+                                    .settings_comparePlanDialog_downgradeDialog_description
                                     .tr(),
-                                hideCancelButton: true,
-                                confirm: Navigator.of(context).pop,
-                                confirmLabel: LocaleKeys.button_close.tr(),
+                                isDangerous: true,
+                                confirm: () {
+                                  context.read<SettingsPlanBloc>().add(
+                                        const SettingsPlanEvent
+                                            .cancelSubscription(),
+                                      );
+
+                                  Navigator.of(context).pop();
+                                },
+                                confirmLabel: LocaleKeys
+                                    .settings_comparePlanDialog_downgradeDialog_downgradeLabel
+                                    .tr(),
                               ).show(context);
                             },
                           ),

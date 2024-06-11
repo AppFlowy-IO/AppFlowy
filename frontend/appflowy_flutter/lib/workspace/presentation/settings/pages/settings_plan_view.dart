@@ -142,49 +142,11 @@ class _CurrentPlanBox extends StatelessWidget {
                   separatorBuilder: () => const VSpace(4),
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _ProConItem(
-                      label: LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeProOne
-                          .tr(),
+                    ..._getPros(subscription.subscriptionPlan).map(
+                      (s) => _ProConItem(label: s),
                     ),
-                    _ProConItem(
-                      label: LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeProTwo
-                          .tr(),
-                    ),
-                    _ProConItem(
-                      label: LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeProThree
-                          .tr(),
-                    ),
-                    _ProConItem(
-                      label: LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeProFour
-                          .tr(),
-                    ),
-                    _ProConItem(
-                      label: LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeConOne
-                          .tr(),
-                      isPro: false,
-                    ),
-                    _ProConItem(
-                      label: LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeConTwo
-                          .tr(),
-                      isPro: false,
-                    ),
-                    _ProConItem(
-                      label: LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeConThree
-                          .tr(),
-                      isPro: false,
-                    ),
-                    _ProConItem(
-                      label: LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeConFour
-                          .tr(),
-                      isPro: false,
+                    ..._getCons(subscription.subscriptionPlan).map(
+                      (s) => _ProConItem(label: s, isPro: false),
                     ),
                   ],
                 ),
@@ -237,6 +199,50 @@ class _CurrentPlanBox extends StatelessWidget {
           ),
         ),
       );
+
+  List<String> _getPros(SubscriptionPlanPB plan) => switch (plan) {
+        SubscriptionPlanPB.Pro => _proPros(),
+        _ => _freePros(),
+      };
+
+  List<String> _getCons(SubscriptionPlanPB plan) => switch (plan) {
+        SubscriptionPlanPB.Pro => _proCons(),
+        _ => _freeCons(),
+      };
+
+  List<String> _freePros() => [
+        LocaleKeys.settings_planPage_planUsage_currentPlan_freeProOne.tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_freeProTwo.tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_freeProThree.tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_freeProFour.tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_freeProFive.tr(),
+      ];
+  List<String> _freeCons() => [
+        LocaleKeys.settings_planPage_planUsage_currentPlan_freeConOne.tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_freeConTwo.tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_freeConThree.tr(),
+      ];
+
+  List<String> _proPros() => [
+        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProOne
+            .tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProTwo
+            .tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProThree
+            .tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProFour
+            .tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProFive
+            .tr(),
+      ];
+  List<String> _proCons() => [
+        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalConOne
+            .tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalConTwo
+            .tr(),
+        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalConThree
+            .tr(),
+      ];
 }
 
 class _ProConItem extends StatelessWidget {

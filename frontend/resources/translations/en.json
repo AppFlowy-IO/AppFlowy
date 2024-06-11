@@ -514,7 +514,7 @@
         "aiResponseLabel": "AI Responses",
         "aiResponseUsage": "{} of {}",
         "proBadge": "Pro",
-        "memberProToggle": "Up to 10 members",
+        "memberProToggle": "Unlimited members",
         "guestCollabToggle": "10 guest collaborators",
         "aiCredit": {
           "title": "Add AppFlowy AI Credit",
@@ -536,10 +536,18 @@
           "freeProTwo": "Up to 3 members (incl. owner)",
           "freeProThree": "Unlimited guests (view-only)",
           "freeProFour": "Storage 5gb",
-          "freeConOne": "30 day revision history",
-          "freeConTwo": "Guest collaborators (edit access)",
-          "freeConThree": "unlimited storage",
-          "freeConFour": "6 month revision history",
+          "freeProFive": "30 day revision history",
+          "freeConOne": "Guest collaborators (edit access)",
+          "freeConTwo": "Unlimited storage",
+          "freeConThree": "6 month revision history",
+          "professionalProOne": "Collaborative workspace",
+          "professionalProTwo": "Unlimited members",
+          "professionalProThree": "Unlimited guests (view-only)",
+          "professionalProFour": "Unlimited storage",
+          "professionalProFive": "6 month revision history",
+          "professionalConOne": "Unlimited guest collaborators (edit access)",
+          "professionalConTwo": "Unlimited AI responses",
+          "professionalConThree": "1 year revision history",
           "canceledInfo": "Your plan is cancelled, you will be downgraded to the Free plan on {}."
         },
         "deal": {
@@ -624,9 +632,10 @@
         "title": "You are now on the {} plan!",
         "description": "Your payment has been successfully processed and your plan is upgraded to AppFlowy {}. You can view your plan details on the Plan page"
       },
-      "downgradeSuccess": {
-        "title": "You have canceled the {} plan!",
-        "description": "Your plan has been canceled, until the end of the billing cycle you will retain your previous plan benefits."
+      "downgradeDialog": {
+        "title": "Are you sure you want to downgrade your plan?",
+        "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to workspaces and you may need to free up space to meet the storage limits of the Free plan.",
+        "downgradeLabel": "Downgrade plan"
       }
     },
     "common": {
