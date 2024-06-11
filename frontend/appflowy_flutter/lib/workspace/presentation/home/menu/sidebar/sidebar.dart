@@ -129,6 +129,15 @@ class HomeSideBar extends StatelessWidget {
                       ),
                     ),
               ),
+              BlocListener<SpaceBloc, SpaceState>(
+                listenWhen: (p, c) =>
+                    p.lastCreatedPage?.id != c.lastCreatedPage?.id,
+                listener: (context, state) => context.read<TabsBloc>().add(
+                      TabsEvent.openPlugin(
+                        plugin: state.lastCreatedPage!.plugin(),
+                      ),
+                    ),
+              ),
               BlocListener<ActionNavigationBloc, ActionNavigationState>(
                 listenWhen: (_, curr) => curr.action != null,
                 listener: _onNotificationAction,

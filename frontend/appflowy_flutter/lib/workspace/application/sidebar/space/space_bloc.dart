@@ -9,6 +9,7 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -91,6 +92,39 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             await _openSpace(space);
             final isExpanded = await _getSpaceExpandStatus(space);
             emit(state.copyWith(currentSpace: space, isExpanded: isExpanded));
+          },
+          expand: (space, isExpanded) async {
+            await _setSpaceExpandStatus(space, isExpanded);
+            emit(state.copyWith(isExpanded: isExpanded));
+          },
+          createPage: (name, section, index) async {
+            final parentViewId = state.currentSpace?.id;
+            if (parentViewId == null) {
+              return;
+            }
+
+            final result = await ViewBackendService.createView(
+              name: name,
+              layoutType: ViewLayoutPB.Document,
+              parentViewId: parentViewId,
+              index: index,
+            );
+            result.fold(
+              (view) => emit(
+                state.copyWith(
+                  lastCreatedPage: view,
+                  createPageResult: FlowyResult.success(null),
+                ),
+              ),
+              (error) {
+                Log.error('Failed to create root view: $error');
+                emit(
+                  state.copyWith(
+                    createPageResult: FlowyResult.failure(error),
+                  ),
+                );
+              },
+            );
           },
         );
       },
@@ -266,6 +300,12 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
   const factory SpaceEvent.changeIcon(String icon) = _ChangeIcon;
   const factory SpaceEvent.open(ViewPB space) = _Open;
+  const factory SpaceEvent.expand(ViewPB space, bool isExpanded) = _Expand;
+  const factory SpaceEvent.createPage({
+    required String name,
+    required ViewSectionPB viewSection,
+    int? index,
+  }) = _CreatePage;
 }
 
 @freezed
@@ -275,6 +315,8 @@ class SpaceState with _$SpaceState {
     @Default([]) List<ViewPB> spaces,
     @Default(null) ViewPB? currentSpace,
     @Default(true) bool isExpanded,
+    @Default(null) ViewPB? lastCreatedPage,
+    FlowyResult<void, FlowyError>? createPageResult,
   }) = _SpaceState;
 
   factory SpaceState.initial() => const SpaceState();

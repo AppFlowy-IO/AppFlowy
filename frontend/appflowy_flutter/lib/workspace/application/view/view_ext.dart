@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/database/grid/presentation/mobile_grid_page.dar
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -118,6 +119,16 @@ extension ViewExtension on ViewPB {
       return isSpace;
     } catch (e) {
       return false;
+    }
+  }
+
+  SpacePermission get spacePermission {
+    try {
+      final ext = jsonDecode(extra);
+      final permission = ext[ViewExtKeys.spacePermissionKey] ?? 0;
+      return SpacePermission.values[permission];
+    } catch (e) {
+      return SpacePermission.private;
     }
   }
 

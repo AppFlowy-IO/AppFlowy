@@ -3,15 +3,22 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_section_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarSpace extends StatelessWidget {
@@ -46,30 +53,7 @@ class SidebarSpace extends StatelessWidget {
             ),
             const VSpace(16.0),
             // spaces
-            BlocBuilder<SpaceBloc, SpaceState>(
-              builder: (context, state) {
-                final isCollaborativeWorkspace =
-                    context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
-
-                if (state.spaces.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-
-                final currentSpace = state.currentSpace ?? state.spaces.first;
-
-                return Column(
-                  children: [
-                    SidebarSpaceHeader(
-                      isExpanded: true,
-                      space: currentSpace,
-                      onAdded: () {},
-                      onPressed: () {},
-                      onTapMore: () {},
-                    ),
-                  ],
-                );
-              },
-            ),
+            const _Space(),
             const VSpace(200),
           ],
         );
@@ -78,32 +62,122 @@ class SidebarSpace extends StatelessWidget {
   }
 }
 
-class PrivateSectionFolder extends SectionFolder {
-  PrivateSectionFolder({super.key, required super.views})
-      : super(
-          title: LocaleKeys.sideBar_private.tr(),
-          spaceType: FolderSpaceType.private,
-          expandButtonTooltip: LocaleKeys.sideBar_clickToHidePrivate.tr(),
-          addButtonTooltip: LocaleKeys.sideBar_addAPageToPrivate.tr(),
-        );
+class _Space extends StatefulWidget {
+  const _Space({super.key});
+
+  @override
+  State<_Space> createState() => _SpaceState();
 }
 
-class PublicSectionFolder extends SectionFolder {
-  PublicSectionFolder({super.key, required super.views})
-      : super(
-          title: LocaleKeys.sideBar_workspace.tr(),
-          spaceType: FolderSpaceType.public,
-          expandButtonTooltip: LocaleKeys.sideBar_clickToHideWorkspace.tr(),
-          addButtonTooltip: LocaleKeys.sideBar_addAPageToWorkspace.tr(),
-        );
-}
+class _SpaceState extends State<_Space> {
+  final ValueNotifier<bool> isHovered = ValueNotifier(false);
 
-class PersonalSectionFolder extends SectionFolder {
-  PersonalSectionFolder({super.key, required super.views})
-      : super(
-          title: LocaleKeys.sideBar_personal.tr(),
-          spaceType: FolderSpaceType.public,
-          expandButtonTooltip: LocaleKeys.sideBar_clickToHidePersonal.tr(),
-          addButtonTooltip: LocaleKeys.sideBar_addAPage.tr(),
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SpaceBloc, SpaceState>(
+      builder: (context, state) {
+        final isCollaborativeWorkspace =
+            context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
+
+        if (state.spaces.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final currentSpace = state.currentSpace ?? state.spaces.first;
+
+        return MouseRegion(
+          onEnter: (_) => isHovered.value = true,
+          onExit: (_) => isHovered.value = false,
+          child: Column(
+            children: [
+              SidebarSpaceHeader(
+                isExpanded: state.isExpanded,
+                space: currentSpace,
+                onAdded: () => _showCreatePagePopup(context, currentSpace),
+                onPressed: () => context.read<SpaceBloc>().add(
+                      SpaceEvent.expand(
+                        currentSpace,
+                        !state.isExpanded,
+                      ),
+                    ),
+                onTapMore: () {},
+              ),
+              _buildViews(context, state, currentSpace, isHovered),
+            ],
+          ),
         );
+      },
+    );
+  }
+
+  void _showCreatePagePopup(BuildContext context, ViewPB space) {
+    createViewAndShowRenameDialogIfNeeded(
+      context,
+      LocaleKeys.newPageText.tr(),
+      (viewName, _) {
+        if (viewName.isNotEmpty) {
+          context.read<SpaceBloc>().add(
+                SpaceEvent.createPage(
+                  name: viewName,
+                  index: 0,
+                  viewSection:
+                      space.spacePermission == SpacePermission.publicToAll
+                          ? ViewSectionPB.Public
+                          : ViewSectionPB.Private,
+                ),
+              );
+
+          context.read<SpaceBloc>().add(SpaceEvent.expand(space, true));
+        }
+      },
+    );
+  }
+
+  Widget _buildViews(
+    BuildContext context,
+    SpaceState state,
+    ViewPB currentSpace,
+    ValueNotifier<bool> isHovered,
+  ) {
+    if (!state.isExpanded) {
+      return const SizedBox.shrink();
+    }
+
+    return BlocProvider(
+      create: (context) =>
+          ViewBloc(view: currentSpace)..add(const ViewEvent.initial()),
+      child: BlocBuilder<ViewBloc, ViewState>(
+        builder: (context, state) {
+          return Column(
+            children: state.view.childViews
+                .map(
+                  (view) => ViewItem(
+                    key: ValueKey('${currentSpace.id} ${view.id}'),
+                    spaceType: currentSpace.spacePermission ==
+                            SpacePermission.publicToAll
+                        ? FolderSpaceType.public
+                        : FolderSpaceType.private,
+                    isFirstChild: view.id == state.view.childViews.first.id,
+                    view: view,
+                    level: 0,
+                    leftPadding: HomeSpaceViewSizes.leftPadding,
+                    isFeedback: false,
+                    isHovered: isHovered,
+                    onSelected: (viewContext, view) {
+                      if (HardwareKeyboard.instance.isControlPressed) {
+                        context.read<TabsBloc>().openTab(view);
+                      }
+
+                      context.read<TabsBloc>().openPlugin(view);
+                    },
+                    onTertiarySelected: (viewContext, view) =>
+                        context.read<TabsBloc>().openTab(view),
+                  ),
+                )
+                .toList(),
+          );
+        },
+      ),
+    );
+  }
 }

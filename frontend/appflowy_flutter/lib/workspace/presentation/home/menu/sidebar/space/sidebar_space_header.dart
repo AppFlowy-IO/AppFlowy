@@ -42,6 +42,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
     return AppFlowyPopover(
       constraints: const BoxConstraints(maxWidth: 252),
       direction: PopoverDirection.bottomWithLeftAligned,
+      clickHandler: PopoverClickHandler.gestureDetector,
       offset: const Offset(0, 4),
       popupBuilder: (_) => BlocProvider.value(
         value: context.read<SpaceBloc>(),
