@@ -270,7 +270,7 @@ class SignInOutButton extends StatelessWidget {
         create: (context) => getIt<SignInBloc>(),
         child: FlowyDialog(
           constraints: const BoxConstraints(
-            maxHeight: 480,
+            maxHeight: 485,
             maxWidth: 375,
           ),
           child: ScaffoldMessenger(
