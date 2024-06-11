@@ -69,7 +69,7 @@ class DesktopGridSummaryCellSkin extends IEditableSummaryCellSkin {
                     }
                   },
                 ),
-              ).positioned(right: 0, bottom: 0),
+              ).positioned(right: 0, bottom: 10),
             ],
           ),
         );

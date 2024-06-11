@@ -132,6 +132,7 @@ pub fn make_test_grid() -> DatabaseData {
           .build();
         fields.push(relation_field);
       },
+      FieldType::Translate => {},
     }
   }
 

@@ -11,11 +11,13 @@ use flowy_error::FlowyResult;
 use crate::entities::{
   CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType,
   MultiSelectTypeOptionPB, NumberTypeOptionPB, RelationTypeOptionPB, RichTextTypeOptionPB,
-  SingleSelectTypeOptionPB, SummarizationTypeOptionPB, TimestampTypeOptionPB, URLTypeOptionPB,
+  SingleSelectTypeOptionPB, SummarizationTypeOptionPB, TimestampTypeOptionPB,
+  TranslateTypeOptionPB, URLTypeOptionPB,
 };
 use crate::services::cell::CellDataDecoder;
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
+use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
   CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RelationTypeOption,
   RichTextTypeOption, SingleSelectTypeOption, TimestampTypeOption, URLTypeOption,
@@ -185,6 +187,9 @@ pub fn type_option_data_from_pb<T: Into<Bytes>>(
     FieldType::Summary => {
       SummarizationTypeOptionPB::try_from(bytes).map(|pb| SummarizationTypeOption::from(pb).into())
     },
+    FieldType::Translate => {
+      SummarizationTypeOptionPB::try_from(bytes).map(|pb| SummarizationTypeOption::from(pb).into())
+    },
   }
 }
 
@@ -252,6 +257,12 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
         .try_into()
         .unwrap()
     },
+    FieldType::Translate => {
+      let translate_type_option: TranslateTypeOption = type_option.into();
+      TranslateTypeOptionPB::from(translate_type_option)
+        .try_into()
+        .unwrap()
+    },
   }
 }
 
@@ -272,5 +283,6 @@ pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionDa
     FieldType::Checklist => ChecklistTypeOption.into(),
     FieldType::Relation => RelationTypeOption::default().into(),
     FieldType::Summary => SummarizationTypeOption::default().into(),
+    FieldType::Translate => TranslateTypeOption::default().into(),
   }
 }
