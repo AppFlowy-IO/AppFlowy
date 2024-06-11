@@ -81,14 +81,19 @@ class KVKeys {
   /// The value is a double string.
   static const String scaleFactor = 'scaleFactor';
 
-  /// The key for saving the last opened space
+  /// The key for saving the last opened tab (favorite, recent, space etc.)
   ///
   /// The value is a int string.
   static const String lastOpenedSpace = 'lastOpenedSpace';
 
-  /// The key for saving the space order
+  /// The key for saving the space tab order
   ///
   /// The value is a json string with the following format:
   /// [0, 1, 2]
   static const String spaceOrder = 'spaceOrder';
+
+  /// The key for saving the last opened space id (space A, space B)
+  ///
+  /// The value is a string.
+  static const String lastOpenedSpaceId = 'lastOpenedSpaceId';
 }

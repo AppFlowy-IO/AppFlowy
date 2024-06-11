@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
@@ -9,6 +12,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -56,10 +60,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             _initial(userProfile, workspaceId);
 
             final spaces = await _getSpaces();
+            final currentSpace = await _getLastOpenedSpace(spaces);
             emit(
               state.copyWith(
                 spaces: spaces,
-                currentSpace: spaces.firstOrNull,
+                currentSpace: currentSpace,
               ),
             );
           },
@@ -80,7 +85,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             emit(state.copyWith(spaces: [...spaces]));
           },
           changeIcon: (icon) {},
-          open: (space) {},
+          open: (space) {
+            _openSpace(space);
+            emit(state.copyWith(currentSpace: space));
+          },
         );
       },
     );
@@ -184,6 +192,26 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     _listener = null;
 
     _initial(userProfile, workspaceId);
+  }
+
+  Future<ViewPB?> _getLastOpenedSpace(List<ViewPB> spaces) async {
+    if (spaces.isEmpty) {
+      return null;
+    }
+
+    final spaceId =
+        await getIt<KeyValueStorage>().get(KVKeys.lastOpenedSpaceId);
+    if (spaceId == null) {
+      return null;
+    }
+
+    final space =
+        spaces.firstWhereOrNull((e) => e.id == spaceId) ?? spaces.first;
+    return space;
+  }
+
+  Future<void> _openSpace(ViewPB space) async {
+    await getIt<KeyValueStorage>().set(KVKeys.lastOpenedSpaceId, space.id);
   }
 }
 

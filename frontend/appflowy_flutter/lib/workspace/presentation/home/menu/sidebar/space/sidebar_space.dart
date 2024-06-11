@@ -49,12 +49,17 @@ class SidebarSpace extends StatelessWidget {
               builder: (context, state) {
                 final isCollaborativeWorkspace =
                     context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
+
+                if (state.spaces.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+
+                final currentSpace = state.currentSpace ?? state.spaces.first;
+
                 return Column(
                   children: [
                     SidebarSpaceHeader(
-                      title: 'Soulisa Space',
-                      expandButtonTooltip: 'expand Soulisa Space',
-                      addButtonTooltip: 'add a page to Soulisa Space',
+                      space: currentSpace,
                       onAdded: () {},
                       onPressed: () {},
                       isExpanded: true,
