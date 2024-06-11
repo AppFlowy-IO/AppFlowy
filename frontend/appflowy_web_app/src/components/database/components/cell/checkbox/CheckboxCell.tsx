@@ -1,7 +1,7 @@
 import { ReactComponent as CheckboxCheckSvg } from '$icons/16x/check_filled.svg';
 import { ReactComponent as CheckboxUncheckSvg } from '$icons/16x/uncheck.svg';
 import { FieldType } from '@/application/database-yjs';
-import { CellProps, CheckboxCell as CheckboxCellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, CheckboxCell as CheckboxCellType } from '@/application/database-yjs/cell.type';
 
 export function CheckboxCell({ cell, style }: CellProps<CheckboxCellType>) {
   const checked = cell?.data;

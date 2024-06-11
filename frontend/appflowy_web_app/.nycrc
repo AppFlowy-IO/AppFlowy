@@ -1,6 +1,6 @@
 {
   "all": true,
-  "extends": "@istanbuljs/nyc-config-typescript",
+  "extends": "@istanbuljs/nyc-config-babel",
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"
@@ -15,7 +15,8 @@
     "text",
     "html",
     "text-summary",
-    "json"
+    "json",
+    "lcov"
   ],
   "temp-dir": "coverage/.nyc_output",
   "report-dir": "coverage/cypress"

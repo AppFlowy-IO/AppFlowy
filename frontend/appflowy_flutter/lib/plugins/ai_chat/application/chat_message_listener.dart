@@ -28,26 +28,23 @@ class ChatMessageListener {
   ChatNotificationParser? _parser;
 
   ChatMessageCallback? chatMessageCallback;
-  ChatMessageCallback? lastUserSentMessageCallback;
   ChatErrorMessageCallback? chatErrorMessageCallback;
   LatestMessageCallback? latestMessageCallback;
   PrevMessageCallback? prevMessageCallback;
-  void Function()? finishAnswerQuestionCallback;
+  void Function()? finishStreamingCallback;
 
   void start({
     ChatMessageCallback? chatMessageCallback,
     ChatErrorMessageCallback? chatErrorMessageCallback,
     LatestMessageCallback? latestMessageCallback,
     PrevMessageCallback? prevMessageCallback,
-    ChatMessageCallback? lastUserSentMessageCallback,
-    void Function()? finishAnswerQuestionCallback,
+    void Function()? finishStreamingCallback,
   }) {
     this.chatMessageCallback = chatMessageCallback;
     this.chatErrorMessageCallback = chatErrorMessageCallback;
     this.latestMessageCallback = latestMessageCallback;
     this.prevMessageCallback = prevMessageCallback;
-    this.lastUserSentMessageCallback = lastUserSentMessageCallback;
-    this.finishAnswerQuestionCallback = finishAnswerQuestionCallback;
+    this.finishStreamingCallback = finishStreamingCallback;
   }
 
   void _callback(
@@ -59,9 +56,6 @@ class ChatMessageListener {
         case ChatNotification.DidReceiveChatMessage:
           chatMessageCallback?.call(ChatMessagePB.fromBuffer(r));
           break;
-        case ChatNotification.LastUserSentMessage:
-          lastUserSentMessageCallback?.call(ChatMessagePB.fromBuffer(r));
-          break;
         case ChatNotification.StreamChatMessageError:
           chatErrorMessageCallback?.call(ChatMessageErrorPB.fromBuffer(r));
           break;
@@ -71,8 +65,8 @@ class ChatMessageListener {
         case ChatNotification.DidLoadPrevChatMessage:
           prevMessageCallback?.call(ChatMessageListPB.fromBuffer(r));
           break;
-        case ChatNotification.FinishAnswerQuestion:
-          finishAnswerQuestionCallback?.call();
+        case ChatNotification.FinishStreaming:
+          finishStreamingCallback?.call();
           break;
         default:
           break;

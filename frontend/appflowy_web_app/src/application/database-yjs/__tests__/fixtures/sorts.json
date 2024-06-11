@@ -78,5 +78,25 @@
     "field_id": "url_field",
     "condition": "desc",
     "id": "sort_desc_url_field"
+  },
+  "sort_asc_created_at": {
+    "field_id": "created_at_field",
+    "condition": "asc",
+    "id": "sort_asc_created_at"
+  },
+  "sort_desc_created_at": {
+    "field_id": "created_at_field",
+    "condition": "desc",
+    "id": "sort_desc_created_at"
+  },
+  "sort_asc_updated_at": {
+    "field_id": "last_modified_field",
+    "condition": "asc",
+    "id": "sort_asc_updated_at"
+  },
+  "sort_desc_updated_at": {
+    "field_id": "last_modified_field",
+    "condition": "desc",
+    "id": "sort_desc_updated_at"
   }
 }

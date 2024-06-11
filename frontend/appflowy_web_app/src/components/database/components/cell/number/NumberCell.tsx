@@ -5,7 +5,7 @@ import {
   parseNumberTypeOptions,
   FieldType,
 } from '@/application/database-yjs';
-import { CellProps, NumberCell as NumberCellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, NumberCell as NumberCellType } from '@/application/database-yjs/cell.type';
 import React, { useMemo } from 'react';
 import Decimal from 'decimal.js';
 

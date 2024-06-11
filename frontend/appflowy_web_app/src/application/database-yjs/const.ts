@@ -18,7 +18,15 @@ export const getCellData = (rowId: string, fieldId: string, rowMetas: Y.Map<YDoc
 };
 
 export const metaIdFromRowId = (rowId: string) => {
-  const namespace = uuidParse(rowId);
+  let namespace: Uint8Array;
+
+  try {
+    namespace = uuidParse(rowId);
+  } catch (e) {
+    namespace = uuidParse(generateUUID());
+  }
 
   return (key: RowMetaKey) => uuidv5(key, namespace).toString();
 };
+
+export const generateUUID = () => uuidv5(Date.now().toString(), uuidv5.URL);

@@ -1,5 +1,5 @@
 import { parseChecklistData } from '@/application/database-yjs';
-import { CellProps, ChecklistCell as CellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, ChecklistCell as CellType } from '@/application/database-yjs/cell.type';
 import { ChecklistCell } from '@/components/database/components/cell/checklist';
 import React, { useMemo } from 'react';
 import { ReactComponent as CheckboxCheckSvg } from '$icons/16x/check_filled.svg';

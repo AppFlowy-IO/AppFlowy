@@ -1,5 +1,5 @@
 import { ViewLayout, YFolder, YjsFolderKey } from '@/application/collab.type';
-import { createContext, useCallback, useContext } from 'react';
+import { createContext, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 
 export interface Crumb {
@@ -35,15 +35,4 @@ export const useNavigateToView = () => {
 
 export const useCrumbs = () => {
   return useContext(FolderContext)?.crumbs;
-};
-
-export const usePushCrumb = () => {
-  const { setCrumbs } = useContext(FolderContext) || {};
-
-  return useCallback(
-    (crumb: Crumb) => {
-      setCrumbs?.((prevCrumbs) => [...prevCrumbs, crumb]);
-    },
-    [setCrumbs]
-  );
 };

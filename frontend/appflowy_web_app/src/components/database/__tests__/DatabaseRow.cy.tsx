@@ -3,8 +3,8 @@ import { applyYDoc } from '@/application/ydoc/apply';
 import { FolderProvider } from '@/components/_shared/context-provider/FolderProvider';
 import { IdProvider } from '@/components/_shared/context-provider/IdProvider';
 import withAppWrapper from '@/components/app/withAppWrapper';
-import { DatabaseRow } from './DatabaseRow';
-import { DatabaseContextProvider } from './DatabaseContext';
+import { DatabaseRow } from 'src/components/database/DatabaseRow';
+import { DatabaseContextProvider } from 'src/components/database/DatabaseContext';
 import * as Y from 'yjs';
 import '@/components/layout/layout.scss';
 

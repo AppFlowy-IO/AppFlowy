@@ -44,6 +44,13 @@ export default defineConfig({
     istanbul({
       cypress: true,
       requireEnv: false,
+      include: ['src/**/*'],
+      exclude: [
+        '**/__tests__/**/*',
+        'cypress/**/*',
+        'node_modules/**/*',
+        'src/application/services/tauri-services/**/*',
+      ],
     }),
     usePluginImport({
       libraryName: '@mui/icons-material',
@@ -71,7 +78,7 @@ export default defineConfig({
     port: !!process.env.TAURI_PLATFORM ? 5173 : process.env.PORT ? parseInt(process.env.PORT) : 3000,
     strictPort: true,
     watch: {
-      ignored: ['**/__tests__/**', '**/cypress/**', 'node_modules', '**/*.cy.tsx', '**/*.cy.ts', 'cypress'],
+      ignored: ['node_modules'],
     },
     cors: false,
   },
@@ -130,6 +137,16 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ['react', 'react-dom', '@mui/icons-material/ErrorOutline', '@mui/icons-material/CheckCircleOutline'],
+    include: [
+      'react',
+      'react-dom',
+      '@mui/icons-material/ErrorOutline',
+      '@mui/icons-material/CheckCircleOutline',
+      '@mui/icons-material/FunctionsOutlined',
+      'react-katex',
+      // 'react-custom-scrollbars-2',
+      // 'react-window',
+      // 'react-virtualized-auto-sizer',
+    ],
   },
 });

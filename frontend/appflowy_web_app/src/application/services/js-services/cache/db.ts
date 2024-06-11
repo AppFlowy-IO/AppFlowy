@@ -1,8 +1,9 @@
 import { YDoc } from '@/application/collab.type';
 import { databasePrefix } from '@/application/constants';
-import { getAuthInfo } from '@/application/services/js-services/storage';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import * as Y from 'yjs';
+
+const openedSet = new Set<string>();
 
 /**
  * Open the collaboration database, and return a function to close it
@@ -19,6 +20,10 @@ export async function openCollabDB(docName: string): Promise<YDoc> {
   });
 
   provider.on('synced', () => {
+    if (!openedSet.has(name)) {
+      openedSet.add(name);
+    }
+
     resolve(true);
   });
 
@@ -27,9 +32,10 @@ export async function openCollabDB(docName: string): Promise<YDoc> {
   return doc as YDoc;
 }
 
-export function getDBName(id: string, type: string) {
-  const { uuid } = getAuthInfo() || {};
+export function getCollabDBName(id: string, type: string, uuid?: string) {
+  if (!uuid) {
+    return `${type}_${id}`;
+  }
 
-  if (!uuid) throw new Error('No user found');
   return `${uuid}_${type}_${id}`;
 }

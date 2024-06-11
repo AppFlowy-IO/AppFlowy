@@ -93,7 +93,7 @@ where
       vec![],
       false,
     )));
-    let document = Document::create_with_data(collab, default_document_data())?;
+    let document = Document::create_with_data(collab, default_document_data(&view.id))?;
     let encode = document
       .get_collab()
       .lock()

@@ -1,4 +1,4 @@
-import { getCurrentWorkspace } from '@/application/services/js-services/storage';
+import { getCurrentWorkspace } from 'src/application/services/js-services/session';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';

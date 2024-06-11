@@ -1,4 +1,4 @@
-import { DEFAULT_ROW_HEIGHT, useReadOnly, useRowsSelector } from '@/application/database-yjs';
+import { DEFAULT_ROW_HEIGHT, useReadOnly, useRowOrdersSelector } from '@/application/database-yjs';
 
 import { useMemo } from 'react';
 
@@ -15,16 +15,19 @@ export type RenderRow = {
 };
 
 export function useRenderRows() {
-  const rows = useRowsSelector();
+  const rows = useRowOrdersSelector();
   const readOnly = useReadOnly();
 
   const renderRows = useMemo(() => {
-    return [
-      ...rows.map((row) => ({
+    const rowItems =
+      rows?.map((row) => ({
         type: RenderRowType.Row,
         rowId: row.id,
         height: row.height,
-      })),
+      })) ?? [];
+
+    return [
+      ...rowItems,
 
       !readOnly && {
         type: RenderRowType.NewRow,

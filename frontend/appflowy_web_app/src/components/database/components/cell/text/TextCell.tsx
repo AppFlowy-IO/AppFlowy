@@ -1,5 +1,5 @@
 import { useReadOnly } from '@/application/database-yjs';
-import { CellProps, TextCell as TextCellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, TextCell as TextCellType } from '@/application/database-yjs/cell.type';
 import React from 'react';
 
 export function TextCell({ cell, style, placeholder }: CellProps<TextCellType>) {

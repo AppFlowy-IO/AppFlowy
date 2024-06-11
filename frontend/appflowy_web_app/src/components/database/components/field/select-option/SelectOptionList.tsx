@@ -16,8 +16,13 @@ export function SelectOptionList({ fieldId, selectedIds }: { fieldId: string; se
       const isSelected = selectedIds.includes(option.id);
 
       return (
-        <div key={option.id} className={'flex items-center justify-between gap-2'}>
-          <Tag label={option.name} color={SelectOptionColorMap[option.color]} />
+        <div
+          key={option.id}
+          data-testid={'select-option-list'}
+          data-checked={isSelected}
+          className={'flex items-center justify-between gap-2 text-xs'}
+        >
+          <Tag size={'small'} label={option.name} color={SelectOptionColorMap[option.color]} />
           {isSelected && <CheckIcon />}
         </div>
       );

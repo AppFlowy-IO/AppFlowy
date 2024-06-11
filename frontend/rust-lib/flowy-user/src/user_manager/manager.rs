@@ -675,6 +675,9 @@ impl UserManager {
     email: &str,
     redirect_to: &str,
   ) -> Result<(), FlowyError> {
+    self
+      .cloud_services
+      .set_user_authenticator(&Authenticator::AppFlowyCloud);
     let auth_service = self.cloud_services.get_user_service()?;
     auth_service
       .sign_in_with_magic_link(email, redirect_to)
