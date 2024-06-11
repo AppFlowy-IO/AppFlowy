@@ -57,8 +57,6 @@ yrs = "0.18.8"
 # ⚠️⚠️⚠️️
 client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d0467e7e2e8ee4b925556b5510fb6ed7322dde8c" }
 
-
-
 [profile.dev]
 opt-level = 0
 lto = false
