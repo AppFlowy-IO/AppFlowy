@@ -50,7 +50,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               'init workspace, current workspace: ${currentWorkspace?.workspaceId}, '
               'workspaces: ${workspaces.map((e) => e.workspaceId)}, isCollabWorkspaceOn: $isCollabWorkspaceOn',
             );
-            final members = await _fetchMembers(currentWorkspace?.workspaceId);
             if (currentWorkspace != null && result.$3 == true) {
               Log.info('init open workspace: ${currentWorkspace.workspaceId}');
               await _userService.openWorkspace(currentWorkspace.workspaceId);
@@ -61,7 +60,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 workspaces: workspaces,
                 isCollabWorkspaceOn: isCollabWorkspaceOn,
                 actionResult: null,
-                members: members,
               ),
             );
           },
@@ -199,7 +197,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
               (e) => state.currentWorkspace,
             );
-            final members = await _fetchMembers(currentWorkspace?.workspaceId);
 
             result
               ..onSuccess((s) {
@@ -214,7 +211,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
-                members: members,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.open,
                   isLoading: false,
@@ -418,17 +414,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       ..name = workspace.name
       ..createdAtTimestamp = workspace.createTime;
   }
-
-  Future<List<WorkspaceMemberPB>> _fetchMembers(
-    String? workspaceId,
-  ) async {
-    if (workspaceId == null) {
-      return [];
-    }
-    return _userService
-        .getWorkspaceMembers(workspaceId)
-        .fold((s) => s.items, (_) => []);
-  }
 }
 
 @freezed
@@ -491,7 +476,6 @@ class UserWorkspaceState with _$UserWorkspaceState {
     @Default([]) List<UserWorkspacePB> workspaces,
     @Default(null) UserWorkspaceActionResult? actionResult,
     @Default(false) bool isCollabWorkspaceOn,
-    @Default([]) List<WorkspaceMemberPB> members,
   }) = _UserWorkspaceState;
 
   factory UserWorkspaceState.initial() => const UserWorkspaceState();
