@@ -6,25 +6,20 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/magic_link_sign_in_buttons.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_input_field.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_third_party_login.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsAccountView extends StatefulWidget {
@@ -241,60 +236,112 @@ class SignInOutButton extends StatelessWidget {
             fillColor: Theme.of(context).colorScheme.primary,
             hoverColor: const Color(0xFF005483),
             fontHoverColor: Colors.white,
-            onPressed: () => SettingsAlertDialog(
-              title: signIn
-                  ? LocaleKeys.settings_accountPage_login_loginLabel.tr()
-                  : LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
-              subtitle: signIn
-                  ? null
-                  : switch (userProfile.encryptionType) {
-                      EncryptionTypePB.Symmetric => LocaleKeys
-                          .settings_menu_selfEncryptionLogoutPrompt
-                          .tr(),
-                      _ => LocaleKeys.settings_menu_logoutPrompt.tr(),
-                    },
-              implyLeading: signIn,
-              confirm: !signIn
-                  ? () async {
-                      await getIt<AuthService>().signOut();
-                      onAction();
-                    }
-                  : null,
-              children: signIn
-                  ? [
-                      BlocProvider(
-                        create: (context) => getIt<SignInBloc>(),
-                        child: Column(
-                          children: [
-                            const SignInWithMagicLinkButtons(),
-                            if (isAuthEnabled) ...[
-                              const VSpace(20),
-                              Row(
-                                children: [
-                                  const Flexible(child: Divider(thickness: 1)),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    child: FlowyText.regular(
-                                      LocaleKeys.signIn_or.tr(),
-                                    ),
-                                  ),
-                                  const Flexible(child: Divider(thickness: 1)),
-                                ],
-                              ),
-                              const VSpace(10),
-                              SettingThirdPartyLogin(didLogin: onAction),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ]
-                  : null,
-            ).show(context),
+            onPressed: () => _showSignInDialog(context),
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> _showSignInDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (context) => BlocProvider<SignInBloc>(
+        create: (context) => getIt<SignInBloc>(),
+        child: FlowyDialog(
+          constraints: const BoxConstraints(
+            maxHeight: 480,
+            maxWidth: 375,
+          ),
+          child: ScaffoldMessenger(
+            child: Scaffold(
+              body: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: Navigator.of(context).pop,
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Row(
+                              children: [
+                                const FlowySvg(
+                                  FlowySvgs.arrow_back_m,
+                                  size: Size.square(24),
+                                ),
+                                const HSpace(8),
+                                FlowyText.semibold(
+                                  LocaleKeys.button_back.tr(),
+                                  fontSize: 16,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: Navigator.of(context).pop,
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: FlowySvg(
+                              FlowySvgs.m_close_m,
+                              size: const Size.square(20),
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: FlowyText.medium(
+                            signIn
+                                ? LocaleKeys
+                                    .settings_accountPage_login_loginLabel
+                                    .tr()
+                                : LocaleKeys
+                                    .settings_accountPage_login_logoutLabel
+                                    .tr(),
+                            fontSize: 22,
+                            color: Theme.of(context).colorScheme.tertiary,
+                            maxLines: null,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const VSpace(16),
+                    const SignInWithMagicLinkButtons(),
+                    if (isAuthEnabled) ...[
+                      const VSpace(20),
+                      Row(
+                        children: [
+                          const Flexible(child: Divider(thickness: 1)),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                            ),
+                            child: FlowyText.regular(
+                              LocaleKeys.signIn_or.tr(),
+                            ),
+                          ),
+                          const Flexible(child: Divider(thickness: 1)),
+                        ],
+                      ),
+                      const VSpace(10),
+                      SettingThirdPartyLogin(didLogin: onAction),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
