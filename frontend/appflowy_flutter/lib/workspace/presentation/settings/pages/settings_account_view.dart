@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -20,8 +23,6 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsAccountView extends StatefulWidget {
@@ -342,7 +343,7 @@ class _UserProfileSettingState extends State<UserProfileSetting> {
                 iconUrl: widget.iconUrl,
                 name: widget.name,
                 size: 48,
-                fontSize: 24,
+                fontSize: 20,
                 isHovering: isHovering,
               ),
             ),
@@ -351,7 +352,7 @@ class _UserProfileSettingState extends State<UserProfileSetting> {
         const HSpace(16),
         if (!isEditing) ...[
           Padding(
-            padding: const EdgeInsets.only(top: 20),
+            padding: const EdgeInsets.only(top: 12),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

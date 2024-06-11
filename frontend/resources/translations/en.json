@@ -372,10 +372,10 @@
       "keys": {
         "title": "AI API Keys",
         "openAILabel": "OpenAI API key",
-        "openAITooltip": "The OpenAI API key to use for the AI models",
+        "openAITooltip": "You can find your Secret API key on the API key page",
         "openAIHint": "Input your OpenAI API Key",
         "stabilityAILabel": "Stability API key",
-        "stabilityAITooltip": "The Stability API key to use for the AI models",
+        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
         "stabilityAIHint": "Input your Stability API Key"
       },
       "login": {
