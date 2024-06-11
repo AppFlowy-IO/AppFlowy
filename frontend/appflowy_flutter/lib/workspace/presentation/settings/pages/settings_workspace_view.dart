@@ -5,6 +5,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
+import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy/util/font_family_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
@@ -31,6 +32,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/th
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
@@ -837,52 +839,199 @@ class _SelectedModeIndicator extends StatelessWidget {
   }
 }
 
-class _FontSelectorDropdown extends StatelessWidget {
+class _FontSelectorDropdown extends StatefulWidget {
   const _FontSelectorDropdown();
+
+  @override
+  State<_FontSelectorDropdown> createState() => _FontSelectorDropdownState();
+}
+
+class _FontSelectorDropdownState extends State<_FontSelectorDropdown> {
+  late final _options = [defaultFontFamily, ...GoogleFonts.asMap().keys];
+  final _focusNode = FocusNode();
+  final _controller = PopoverController();
+  final _scrollController = ScrollController();
+
+  void _scrollIfNeccessary() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Set scroll position to selected item.
+      final appearance = context.read<AppearanceSettingsCubit>().state;
+      const itemExtent = 32;
+      final index = _options.indexOf(appearance.font);
+      final newPosition = (index * itemExtent).toDouble();
+      if (_scrollController.offset != newPosition) {
+        _scrollController.jumpTo(newPosition);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.close();
+    _focusNode.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final appearance = context.watch<AppearanceSettingsCubit>().state;
-    return SettingsDropdown<String>(
-      key: const Key('FontSelectorDropdown'),
-      actions: [
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => context
-              .read<AppearanceSettingsCubit>()
-              .setFontFamily(defaultFontFamily),
-          child: SizedBox(
-            height: 26,
-            child: FlowyHover(
-              resetHoverOnRebuild: false,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                child: Row(
-                  children: [
-                    const FlowySvg(FlowySvgs.restore_s),
-                    const HSpace(4),
-                    FlowyText.regular(LocaleKeys.settings_common_reset.tr()),
-                  ],
+    return LayoutBuilder(
+      builder: (context, constraints) => AppFlowyPopover(
+        margin: EdgeInsets.zero,
+        controller: _controller,
+        skipTraversal: true,
+        triggerActions: PopoverTriggerFlags.none,
+        onClose: () {
+          _focusNode.unfocus();
+          setState(() {});
+        },
+        direction: PopoverDirection.bottomWithLeftAligned,
+        constraints: BoxConstraints(
+          maxHeight: 150,
+          maxWidth: constraints.maxWidth - 90,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.10),
+              blurRadius: 6,
+            ),
+          ],
+        ),
+        popupBuilder: (_) {
+          _scrollIfNeccessary();
+          return Material(
+            type: MaterialType.transparency,
+            child: ListView.separated(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              itemCount: _options.length,
+              separatorBuilder: (_, __) => const VSpace(4),
+              itemBuilder: (context, index) {
+                final font = _options[index];
+                final isSelected = appearance.font == font;
+                return SizedBox(
+                  height: 28,
+                  child: ListTile(
+                    selected: isSelected,
+                    dense: true,
+                    hoverColor: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.12),
+                    selectedTileColor:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.12),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 6),
+                    minTileHeight: 28,
+                    onTap: () {
+                      context
+                          .read<AppearanceSettingsCubit>()
+                          .setFontFamily(font);
+
+                      // This is a workaround such that when dialog rebuilds due
+                      // to font changing, the font selector won't retain focus.
+                      _focusNode.parent?.requestFocus();
+
+                      _controller.close();
+                    },
+                    title: Text(
+                      font.fontFamilyDisplayName,
+                      style: TextStyle(
+                        color: AFThemeExtension.of(context).textColor,
+                        fontFamily: getGoogleFontSafely(font).fontFamily,
+                      ),
+                    ),
+                    trailing:
+                        isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
+                  ),
+                );
+              },
+            ),
+          );
+        },
+        child: Row(
+          children: [
+            Expanded(
+              child: TapRegion(
+                behavior: HitTestBehavior.translucent,
+                onTapOutside: (_) {
+                  _focusNode.unfocus();
+                  setState(() {});
+                },
+                child: Listener(
+                  onPointerDown: (_) {
+                    _focusNode.requestFocus();
+                    setState(() {});
+                    _controller.show();
+                  },
+                  child: Focus(
+                    focusNode: _focusNode,
+                    includeSemantics: false,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: _focusNode.hasFocus
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outline,
+                        ),
+                        borderRadius: Corners.s8Border,
+                      ),
+                      child: Row(
+                        children: [
+                          const HSpace(18),
+                          Text(
+                            appearance.font.fontFamilyDisplayName,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(fontFamily: appearance.font),
+                          ),
+                          const Spacer(),
+                          const MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Icon(Icons.arrow_drop_down),
+                          ),
+                          const HSpace(10),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      ],
-      onChanged: (font) =>
-          context.read<AppearanceSettingsCubit>().setFontFamily(font),
-      selectedOption: appearance.font,
-      options: [defaultFontFamily, ...GoogleFonts.asMap().keys]
-          .map(
-            (font) => buildDropdownMenuEntry<String>(
-              context,
-              selectedValue: appearance.font,
-              value: font,
-              label: font.fontFamilyDisplayName,
-              fontFamily: font,
+            const HSpace(16),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => context
+                  .read<AppearanceSettingsCubit>()
+                  .setFontFamily(defaultFontFamily),
+              child: SizedBox(
+                height: 26,
+                child: FlowyHover(
+                  resetHoverOnRebuild: false,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    child: Row(
+                      children: [
+                        const FlowySvg(FlowySvgs.restore_s),
+                        const HSpace(4),
+                        FlowyText.regular(
+                          LocaleKeys.settings_common_reset.tr(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
-          )
-          .toList(),
+          ],
+        ),
+      ),
     );
   }
 }

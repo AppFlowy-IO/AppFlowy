@@ -1,8 +1,8 @@
-import 'package:appflowy/shared/google_fonts_extension.dart';
-import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/shared/google_fonts_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
 DropdownMenuEntry<T> buildDropdownMenuEntry<T>(
@@ -33,7 +33,7 @@ DropdownMenuEntry<T> buildDropdownMenuEntry<T>(
     leadingIcon: leadingWidget,
     labelWidget: Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: FlowyText.medium(
+      child: FlowyText.regular(
         label,
         fontSize: 14,
         textAlign: TextAlign.start,
