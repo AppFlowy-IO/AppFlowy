@@ -459,6 +459,47 @@ impl DatabaseManager {
     Ok(())
   }
 
+  #[instrument(level = "debug", skip_all)]
+  pub async fn translate_row(
+    &self,
+    view_id: String,
+    row_id: RowId,
+    field_id: String,
+  ) -> FlowyResult<()> {
+    let database = self.get_database_with_view_id(&view_id).await?;
+    let mut translate_row_content = SummaryRowContent::new();
+    if let Some(row) = database.get_row(&view_id, &row_id) {
+      let fields = database.get_fields(&view_id, None);
+      for field in fields {
+        // When summarizing a row, skip the content in the "AI summary" cell; it does not need to
+        // be summarized.
+        if field.id != field_id {
+          if let Some(cell) = row.cells.get(&field.id) {
+            translate_row_content.insert(field.name.clone(), stringify_cell(cell, &field));
+          }
+        }
+      }
+    }
+
+    // Call the cloud service to summarize the row.
+    trace!(
+      "[AI]:translate row:{}, content:{:?}",
+      row_id,
+      translate_row_content
+    );
+    let response = self
+      .cloud_service
+      .summary_database_row(&self.user.workspace_id()?, &row_id, translate_row_content)
+      .await?;
+    trace!("[AI]:summarize row response: {}", response);
+
+    // Update the cell with the response from the cloud service.
+    database
+      .update_cell_with_changeset(&view_id, &row_id, &field_id, BoxAny::new(response))
+      .await?;
+    Ok(())
+  }
+
   /// Only expose this method for testing
   #[cfg(debug_assertions)]
   pub fn get_cloud_service(&self) -> &Arc<dyn DatabaseCloudService> {

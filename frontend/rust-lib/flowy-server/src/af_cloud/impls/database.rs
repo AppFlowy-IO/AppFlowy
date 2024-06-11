@@ -12,6 +12,7 @@ use tracing::{error, instrument};
 
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
+  TranslateRowContent,
 };
 use lib_infra::future::FutureResult;
 
@@ -138,5 +139,14 @@ where
       let data = try_get_client?.summarize_row(params).await?;
       Ok(data.text)
     })
+  }
+
+  fn translate_database_row(
+    &self,
+    workspace_id: &str,
+    object_id: &str,
+    translate_row: TranslateRowContent,
+  ) -> FutureResult<String, Error> {
+    todo!()
   }
 }

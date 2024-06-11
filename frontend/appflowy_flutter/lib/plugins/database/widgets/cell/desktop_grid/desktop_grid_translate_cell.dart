@@ -1,35 +1,35 @@
-import 'package:appflowy/plugins/database/application/cell/bloc/summary_cell_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/translate_cell_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/summary.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/translate.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-class DesktopGridSummaryCellSkin extends IEditableSummaryCellSkin {
+class DesktopGridTranslateCellSkin extends IEditableTranslateCellSkin {
   @override
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
-    SummaryCellBloc bloc,
+    TranslateCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {
     return ChangeNotifierProvider(
-      create: (_) => SummaryMouseNotifier(),
+      create: (_) => TranslateMouseNotifier(),
       builder: (context, child) {
         return MouseRegion(
           cursor: SystemMouseCursors.click,
           opaque: false,
           onEnter: (p) =>
-              Provider.of<SummaryMouseNotifier>(context, listen: false)
+              Provider.of<TranslateMouseNotifier>(context, listen: false)
                   .onEnter = true,
           onExit: (p) =>
-              Provider.of<SummaryMouseNotifier>(context, listen: false)
+              Provider.of<TranslateMouseNotifier>(context, listen: false)
                   .onEnter = false,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minHeight: 60,
+            constraints: BoxConstraints(
+              minHeight: 40,
             ),
             child: Stack(
               children: [
@@ -56,14 +56,14 @@ class DesktopGridSummaryCellSkin extends IEditableSummaryCellSkin {
                   padding: EdgeInsets.symmetric(
                     horizontal: GridSize.cellVPadding,
                   ),
-                  child: Consumer<SummaryMouseNotifier>(
+                  child: Consumer<TranslateMouseNotifier>(
                     builder: (
                       BuildContext context,
-                      SummaryMouseNotifier notifier,
+                      TranslateMouseNotifier notifier,
                       Widget? child,
                     ) {
                       if (notifier.onEnter) {
-                        return SummaryCellAccessory(
+                        return TranslateCellAccessory(
                           viewId: bloc.cellController.viewId,
                           fieldId: bloc.cellController.fieldId,
                           rowId: bloc.cellController.rowId,
@@ -83,8 +83,8 @@ class DesktopGridSummaryCellSkin extends IEditableSummaryCellSkin {
   }
 }
 
-class SummaryMouseNotifier extends ChangeNotifier {
-  SummaryMouseNotifier();
+class TranslateMouseNotifier extends ChangeNotifier {
+  TranslateMouseNotifier();
 
   bool _onEnter = false;
 
