@@ -28,8 +28,8 @@ class DesktopGridTranslateCellSkin extends IEditableTranslateCellSkin {
               Provider.of<TranslateMouseNotifier>(context, listen: false)
                   .onEnter = false,
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: 40,
+            constraints: const BoxConstraints(
+              minHeight: 60,
             ),
             child: Stack(
               children: [

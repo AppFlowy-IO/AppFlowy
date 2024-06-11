@@ -1,3 +1,5 @@
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,23 +25,24 @@ class TranslateRowBloc extends Bloc<TranslateRowEvent, TranslateRowState> {
       (event, emit) async {
         event.when(
           startTranslate: () {
-            // final params = TranslateRowPB(
-            //   viewId: viewId,
-            //   rowId: rowId,
-            //   fieldId: fieldId,
-            // );
-            // emit(
-            //   state.copyWith(
-            //     loadingState: const LoadingState.loading(),
-            //     error: null,
-            //   ),
-            // );
+            final params = TranslateRowPB(
+              viewId: viewId,
+              rowId: rowId,
+              fieldId: fieldId,
+            );
+            emit(
+              state.copyWith(
+                loadingState: const LoadingState.loading(),
+                error: null,
+              ),
+            );
 
-            // DatabaseEventSummarizeRow(params).send().then(
-            //       (result) => {
-            //         if (!isClosed) add(TranslateRowEvent.finishTranslate(result)),
-            //       },
-            //     );
+            DatabaseEventTranslateRow(params).send().then(
+                  (result) => {
+                    if (!isClosed)
+                      add(TranslateRowEvent.finishTranslate(result)),
+                  },
+                );
           },
           finishTranslate: (result) {
             result.fold(

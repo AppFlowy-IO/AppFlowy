@@ -5,12 +5,16 @@ use flowy_derive::ProtoBuf;
 pub struct TranslateTypeOptionPB {
   #[pb(index = 1)]
   pub auto_fill: bool,
+
+  #[pb(index = 2)]
+  pub language: String,
 }
 
 impl From<TranslateTypeOption> for TranslateTypeOptionPB {
   fn from(value: TranslateTypeOption) -> Self {
     TranslateTypeOptionPB {
       auto_fill: value.auto_fill,
+      language: value.language,
     }
   }
 }
@@ -19,6 +23,7 @@ impl From<TranslateTypeOptionPB> for TranslateTypeOption {
   fn from(value: TranslateTypeOptionPB) -> Self {
     TranslateTypeOption {
       auto_fill: value.auto_fill,
+      language: value.language,
     }
   }
 }

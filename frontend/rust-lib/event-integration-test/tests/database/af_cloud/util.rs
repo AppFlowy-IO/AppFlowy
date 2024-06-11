@@ -129,7 +129,10 @@ fn create_summary_field(name: &str) -> Field {
 
 #[allow(dead_code)]
 fn create_translate_field(name: &str) -> Field {
-  let type_option = TranslateTypeOption { auto_fill: false };
+  let type_option = TranslateTypeOption {
+    auto_fill: false,
+    language: "french".to_string(),
+  };
   FieldBuilder::new(FieldType::Translate, type_option)
     .name(name)
     .build()

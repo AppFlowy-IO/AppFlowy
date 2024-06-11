@@ -7,21 +7,35 @@ use crate::services::field::{
   TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-use collab::core::any_map::AnyMapExtension;
+use collab::core::any_map::{AnyMap, AnyMapExtension};
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use std::cmp::Ordering;
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct TranslateTypeOption {
   pub auto_fill: bool,
+  pub language: String,
+}
+
+impl Default for TranslateTypeOption {
+  fn default() -> Self {
+    Self {
+      auto_fill: false,
+      language: "english".to_string(),
+    }
+  }
 }
 
 impl From<TypeOptionData> for TranslateTypeOption {
   fn from(value: TypeOptionData) -> Self {
     let auto_fill = value.get_bool_value("auto_fill").unwrap_or_default();
-    Self { auto_fill }
+    let language = value.get_str_value("language").unwrap_or_default();
+    Self {
+      auto_fill,
+      language,
+    }
   }
 }
 
@@ -29,6 +43,7 @@ impl From<TranslateTypeOption> for TypeOptionData {
   fn from(value: TranslateTypeOption) -> Self {
     TypeOptionDataBuilder::new()
       .insert_bool_value("auto_fill", value.auto_fill)
+      .insert_str_value("language", value.language)
       .build()
   }
 }

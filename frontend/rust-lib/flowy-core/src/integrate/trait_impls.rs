@@ -22,7 +22,7 @@ use flowy_chat_pub::cloud::{
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
-  TranslateRowContent,
+  TranslateRowContent, TranslateRowResponse,
 };
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
@@ -298,16 +298,16 @@ impl DatabaseCloudService for ServerProvider {
   fn translate_database_row(
     &self,
     workspace_id: &str,
-    object_id: &str,
     translate_row: TranslateRowContent,
-  ) -> FutureResult<String, Error> {
+    language: &str,
+  ) -> FutureResult<TranslateRowResponse, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
-    let object_id = object_id.to_string();
+    let language = language.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .translate_database_row(&workspace_id, &object_id, translate_row)
+        .translate_database_row(&workspace_id, translate_row, &language)
         .await
     })
   }

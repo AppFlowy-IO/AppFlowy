@@ -1,4 +1,5 @@
 use anyhow::Error;
+pub use client_api::entity::ai_dto::TranslateRowResponse;
 use collab::core::collab::DataSource;
 use collab_entity::CollabType;
 use lib_infra::future::FutureResult;
@@ -44,9 +45,9 @@ pub trait DatabaseCloudService: Send + Sync {
   fn translate_database_row(
     &self,
     workspace_id: &str,
-    object_id: &str,
     translate_row: TranslateRowContent,
-  ) -> FutureResult<String, Error>;
+    language: &str,
+  ) -> FutureResult<TranslateRowResponse, Error>;
 }
 
 pub struct DatabaseSnapshot {
