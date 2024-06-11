@@ -383,9 +383,13 @@ class _MobileToolbarState extends State<_MobileToolbar>
     return ValueListenableBuilder(
       valueListenable: cachedKeyboardHeight,
       builder: (_, height, ___) {
+        var paddingHeight = height;
+        if (Platform.isAndroid) {
+          paddingHeight += MediaQuery.of(context).viewPadding.bottom;
+        }
         return AnimatedContainer(
           duration: const Duration(microseconds: 110),
-          height: height,
+          height: paddingHeight,
           child: ValueListenableBuilder(
             valueListenable: showMenuNotifier,
             builder: (_, showingMenu, __) {
