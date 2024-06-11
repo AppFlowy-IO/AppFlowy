@@ -1,10 +1,22 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CreateSpacePopup extends StatelessWidget {
+class CreateSpacePopup extends StatefulWidget {
   const CreateSpacePopup({super.key});
+
+  @override
+  State<CreateSpacePopup> createState() => _CreateSpacePopupState();
+}
+
+class _CreateSpacePopupState extends State<CreateSpacePopup> {
+  String spaceName = '';
+  String spaceIcon = '';
+  SpacePermission spacePermission = SpacePermission.publicToAll;
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +39,31 @@ class CreateSpacePopup extends StatelessWidget {
           const VSpace(16.0),
           const _SpaceIcon(),
           const VSpace(8.0),
-          const _SpaceNameTextField(),
+          _SpaceNameTextField(onChanged: (value) => spaceName = value),
           const VSpace(16.0),
-          const _SpacePermissionSwitch(),
+          _SpacePermissionSwitch(
+            onPermissionChanged: (value) => spacePermission = value,
+          ),
           const VSpace(16.0),
-          const _CancelOrCreateButton(),
+          _CancelOrCreateButton(
+            onCancel: () => Navigator.of(context).pop(),
+            onCreate: () {
+              if (spaceName.isEmpty) {
+                // todo: show error
+                return;
+              }
+
+              context.read<SpaceBloc>().add(
+                    SpaceEvent.create(
+                      name: spaceName,
+                      icon: spaceIcon,
+                      permission: spacePermission,
+                    ),
+                  );
+
+              Navigator.of(context).pop();
+            },
+          ),
         ],
       ),
     );
@@ -39,7 +71,7 @@ class CreateSpacePopup extends StatelessWidget {
 }
 
 class _SpaceIcon extends StatelessWidget {
-  const _SpaceIcon({super.key});
+  const _SpaceIcon();
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +86,9 @@ class _SpaceIcon extends StatelessWidget {
 }
 
 class _SpaceNameTextField extends StatelessWidget {
-  const _SpaceNameTextField({super.key});
+  const _SpaceNameTextField({required this.onChanged});
+
+  final void Function(String name) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -70,15 +104,25 @@ class _SpaceNameTextField extends StatelessWidget {
         const VSpace(6.0),
         FlowyTextField(
           hintText: 'Untitled space',
-          onChanged: (value) {},
+          onChanged: onChanged,
         ),
       ],
     );
   }
 }
 
-class _SpacePermissionSwitch extends StatelessWidget {
-  const _SpacePermissionSwitch({super.key});
+class _SpacePermissionSwitch extends StatefulWidget {
+  const _SpacePermissionSwitch({required this.onPermissionChanged});
+
+  final void Function(SpacePermission permission) onPermissionChanged;
+
+  @override
+  State<_SpacePermissionSwitch> createState() => _SpacePermissionSwitchState();
+}
+
+class _SpacePermissionSwitchState extends State<_SpacePermissionSwitch> {
+  SpacePermission spacePermission = SpacePermission.publicToAll;
+  final popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -92,26 +136,69 @@ class _SpacePermissionSwitch extends StatelessWidget {
           color: Theme.of(context).hintColor,
         ),
         const VSpace(6.0),
-        DecoratedBox(
-          decoration: ShapeDecoration(
-            shape: RoundedRectangleBorder(
-              side: const BorderSide(color: Color(0x1E14171B)),
-              borderRadius: BorderRadius.circular(10),
-            ),
+        AppFlowyPopover(
+          controller: popoverController,
+          direction: PopoverDirection.bottomWithCenterAligned,
+          constraints: const BoxConstraints(maxWidth: 500),
+          offset: const Offset(0, 4),
+          margin: EdgeInsets.zero,
+          decoration: FlowyDecoration.decoration(
+            Theme.of(context).cardColor,
+            Theme.of(context).colorScheme.shadow,
+            borderRadius: 10,
           ),
-          child: const _SpacePermissionButton(
-            permission: SpacePermission.publicToAll,
+          popupBuilder: (_) => _buildPermissionButtons(),
+          child: DecoratedBox(
+            decoration: ShapeDecoration(
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: Color(0x1E14171B)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: _SpacePermissionButton(
+              permission: spacePermission,
+            ),
           ),
         ),
       ],
     );
   }
+
+  Widget _buildPermissionButtons() {
+    return SizedBox(
+      width: 452,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _SpacePermissionButton(
+            permission: SpacePermission.publicToAll,
+            onTap: () => _onPermissionChanged(SpacePermission.publicToAll),
+          ),
+          _SpacePermissionButton(
+            permission: SpacePermission.private,
+            onTap: () => _onPermissionChanged(SpacePermission.private),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onPermissionChanged(SpacePermission permission) {
+    widget.onPermissionChanged(permission);
+
+    setState(() {
+      spacePermission = permission;
+    });
+
+    popoverController.close();
+  }
 }
 
 class _SpacePermissionButton extends StatelessWidget {
-  const _SpacePermissionButton({super.key, required this.permission});
+  const _SpacePermissionButton({required this.permission, this.onTap});
 
   final SpacePermission permission;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +217,6 @@ class _SpacePermissionButton extends StatelessWidget {
 
     return FlowyButton(
       margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-
       radius: BorderRadius.circular(10),
       iconPadding: 16.0,
       leftIcon: FlowySvg(icon),
@@ -147,13 +233,16 @@ class _SpacePermissionButton extends StatelessWidget {
           ),
         ],
       ),
-      // onTap: () {},
+      onTap: onTap,
     );
   }
 }
 
 class _CancelOrCreateButton extends StatelessWidget {
-  const _CancelOrCreateButton({super.key});
+  const _CancelOrCreateButton({required this.onCancel, required this.onCreate});
+
+  final VoidCallback onCancel;
+  final VoidCallback onCreate;
 
   @override
   Widget build(BuildContext context) {
@@ -171,9 +260,7 @@ class _CancelOrCreateButton extends StatelessWidget {
             useIntrinsicWidth: true,
             margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
             text: const FlowyText.regular('Cancel'),
-            onTap: () {
-              Navigator.of(context).pop();
-            },
+            onTap: onCancel,
           ),
         ),
         const HSpace(12.0),
@@ -191,7 +278,7 @@ class _CancelOrCreateButton extends StatelessWidget {
               'Create',
               color: Theme.of(context).colorScheme.onPrimary,
             ),
-            onTap: () {},
+            onTap: onCreate,
           ),
         ),
       ],

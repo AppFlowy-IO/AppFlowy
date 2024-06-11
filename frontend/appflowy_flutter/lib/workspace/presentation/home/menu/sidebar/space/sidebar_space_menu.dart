@@ -97,12 +97,15 @@ class _CreateSpaceButton extends StatelessWidget {
   void _showCreateSpaceDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (_) {
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
           ),
-          child: const CreateSpacePopup(),
+          child: BlocProvider.value(
+            value: context.read<SpaceBloc>(),
+            child: const CreateSpacePopup(),
+          ),
         );
       },
     );
