@@ -44,6 +44,7 @@ class SidebarSpace extends StatelessWidget {
                 );
               },
             ),
+            const VSpace(16.0),
             // spaces
             BlocBuilder<SpaceBloc, SpaceState>(
               builder: (context, state) {
@@ -59,10 +60,11 @@ class SidebarSpace extends StatelessWidget {
                 return Column(
                   children: [
                     SidebarSpaceHeader(
+                      isExpanded: true,
                       space: currentSpace,
                       onAdded: () {},
                       onPressed: () {},
-                      isExpanded: true,
+                      onTapMore: () {},
                     ),
                   ],
                 );

@@ -298,6 +298,7 @@ class _SidebarState extends State<_Sidebar> {
             //     ),
             //   ),
             // ),
+
             Expanded(
               child: Padding(
                 padding: menuHorizontalInset - const EdgeInsets.only(right: 6),

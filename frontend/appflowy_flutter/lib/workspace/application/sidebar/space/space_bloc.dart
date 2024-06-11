@@ -61,10 +61,12 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             final spaces = await _getSpaces();
             final currentSpace = await _getLastOpenedSpace(spaces);
+            final isExpanded = await _getSpaceExpandStatus(currentSpace);
             emit(
               state.copyWith(
                 spaces: spaces,
                 currentSpace: currentSpace,
+                isExpanded: isExpanded,
               ),
             );
           },
@@ -85,9 +87,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             emit(state.copyWith(spaces: [...spaces]));
           },
           changeIcon: (icon) {},
-          open: (space) {
-            _openSpace(space);
-            emit(state.copyWith(currentSpace: space));
+          open: (space) async {
+            await _openSpace(space);
+            final isExpanded = await _getSpaceExpandStatus(space);
+            emit(state.copyWith(currentSpace: space, isExpanded: isExpanded));
           },
         );
       },
@@ -213,6 +216,40 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   Future<void> _openSpace(ViewPB space) async {
     await getIt<KeyValueStorage>().set(KVKeys.lastOpenedSpaceId, space.id);
   }
+
+  Future<void> _setSpaceExpandStatus(ViewPB? space, bool isExpanded) async {
+    if (space == null) {
+      return;
+    }
+
+    final result = await getIt<KeyValueStorage>().get(KVKeys.expandedViews);
+    var map = {};
+    if (result != null) {
+      map = jsonDecode(result);
+    }
+    if (isExpanded) {
+      // set expand status to true if it's not expanded
+      map[space.id] = true;
+    } else {
+      // remove the expand status if it's expanded
+      map.remove(space.id);
+    }
+    await getIt<KeyValueStorage>().set(KVKeys.expandedViews, jsonEncode(map));
+  }
+
+  Future<bool> _getSpaceExpandStatus(ViewPB? space) async {
+    if (space == null) {
+      return false;
+    }
+
+    return getIt<KeyValueStorage>().get(KVKeys.expandedViews).then((result) {
+      if (result == null) {
+        return true;
+      }
+      final map = jsonDecode(result);
+      return map[space.id] ?? true;
+    });
+  }
 }
 
 @freezed
@@ -237,6 +274,7 @@ class SpaceState with _$SpaceState {
     // use root view with space attributes to represent the space
     @Default([]) List<ViewPB> spaces,
     @Default(null) ViewPB? currentSpace,
+    @Default(true) bool isExpanded,
   }) = _SpaceState;
 
   factory SpaceState.initial() => const SpaceState();

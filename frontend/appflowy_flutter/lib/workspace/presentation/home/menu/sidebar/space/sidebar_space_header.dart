@@ -14,12 +14,14 @@ class SidebarSpaceHeader extends StatefulWidget {
     required this.space,
     required this.onPressed,
     required this.onAdded,
+    required this.onTapMore,
     required this.isExpanded,
   });
 
   final ViewPB space;
   final VoidCallback onPressed;
   final VoidCallback onAdded;
+  final VoidCallback onTapMore;
   final bool isExpanded;
 
   @override
@@ -53,38 +55,58 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
           child: FlowyButton(
             onTap: widget.onPressed,
             margin: const EdgeInsets.only(left: 6.0, right: 4.0),
-            rightIcon: ValueListenableBuilder(
-              valueListenable: isHovered,
-              builder: (context, onHover, child) =>
-                  Opacity(opacity: onHover ? 1 : 0, child: child),
-              child: FlowyIconButton(
-                width: 24,
-                iconPadding: const EdgeInsets.all(4.0),
-                icon: const FlowySvg(FlowySvgs.view_item_add_s),
-                onPressed: widget.onAdded,
-              ),
-            ),
+            rightIcon: _buildRightIcon(),
             iconPadding: 10.0,
-            text: Row(
-              children: [
-                FlowyText.emoji(
-                  widget.space.icon.value,
-                  lineHeight: 1.15,
-                ),
-                FlowyText(
-                  widget.space.name,
-                  lineHeight: 1.15,
-                ),
-                const HSpace(4.0),
-                FlowySvg(
-                  widget.isExpanded
-                      ? FlowySvgs.workspace_drop_down_menu_show_s
-                      : FlowySvgs.workspace_drop_down_menu_hide_s,
-                ),
-              ],
-            ),
+            text: _buildChild(),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildChild() {
+    return Row(
+      children: [
+        const FlowySvg(
+          FlowySvgs.space_icon_s,
+          blendMode: null,
+        ),
+        const HSpace(10),
+        FlowyText(
+          widget.space.name,
+          lineHeight: 1.15,
+        ),
+        const HSpace(4.0),
+        FlowySvg(
+          widget.isExpanded
+              ? FlowySvgs.workspace_drop_down_menu_show_s
+              : FlowySvgs.workspace_drop_down_menu_hide_s,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRightIcon() {
+    return ValueListenableBuilder(
+      valueListenable: isHovered,
+      builder: (context, onHover, child) =>
+          Opacity(opacity: onHover ? 1 : 1, child: child),
+      child: Row(
+        children: [
+          FlowyIconButton(
+            width: 24,
+            iconPadding: const EdgeInsets.all(4.0),
+            icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
+            onPressed: widget.onTapMore,
+          ),
+          const HSpace(8.0),
+          FlowyIconButton(
+            width: 24,
+            iconPadding: const EdgeInsets.all(4.0),
+            icon: const FlowySvg(FlowySvgs.view_item_add_s),
+            onPressed: widget.onAdded,
+          ),
+        ],
       ),
     );
   }
