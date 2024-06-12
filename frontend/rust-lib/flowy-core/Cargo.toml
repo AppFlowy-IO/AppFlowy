@@ -24,6 +24,7 @@ flowy-config = { workspace = true }
 flowy-date = { workspace = true }
 collab-integrate = { workspace = true }
 flowy-search = { workspace = true }
+flowy-search-pub = { workspace = true }
 collab-entity = { workspace = true }
 collab-plugins = { workspace = true }
 collab = { workspace = true }

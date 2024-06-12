@@ -525,8 +525,8 @@ impl DatabaseManager {
       .into_iter()
       .map(|value| {
         value
-          .into_iter()
-          .map(|(_k, v)| v.to_string())
+          .into_values()
+          .map(|v| v.to_string())
           .collect::<Vec<String>>()
           .join(", ")
       })

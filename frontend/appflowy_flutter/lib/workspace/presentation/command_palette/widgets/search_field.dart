@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -23,12 +24,24 @@ class SearchField extends StatefulWidget {
 }
 
 class _SearchFieldState extends State<SearchField> {
-  final focusNode = FocusNode();
+  late final FocusNode focusNode;
   late final controller = TextEditingController(text: widget.query);
 
   @override
   void initState() {
     super.initState();
+    focusNode = FocusNode(
+      onKeyEvent: (node, event) {
+        if (node.hasFocus &&
+            event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          node.nextFocus();
+          return KeyEventResult.handled;
+        }
+
+        return KeyEventResult.ignored;
+      },
+    );
     focusNode.requestFocus();
     controller.selection = TextSelection(
       baseOffset: 0,
@@ -75,34 +88,77 @@ class _SearchFieldState extends State<SearchField> {
                   .textTheme
                   .bodySmall!
                   .copyWith(color: Theme.of(context).colorScheme.error),
-              // TODO(Mathias): Remove beta when support document/database search
-              suffix: FlowyTooltip(
-                message: LocaleKeys.commandPalette_betaTooltip.tr(),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 5,
-                    vertical: 1,
+              suffix: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedOpacity(
+                    opacity: controller.text.trim().isNotEmpty ? 1 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Builder(
+                      builder: (context) {
+                        final icon = Container(
+                          padding: const EdgeInsets.all(1),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AFThemeExtension.of(context).lightGreyHover,
+                          ),
+                          child: const FlowySvg(
+                            FlowySvgs.close_s,
+                            size: Size.square(16),
+                          ),
+                        );
+                        if (controller.text.isEmpty) {
+                          return icon;
+                        }
+
+                        return FlowyTooltip(
+                          message:
+                              LocaleKeys.commandPalette_clearSearchTooltip.tr(),
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: controller.text.trim().isNotEmpty
+                                  ? _clearSearch
+                                  : null,
+                              child: icon,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: AFThemeExtension.of(context).lightGreyHover,
-                    borderRadius: BorderRadius.circular(4),
+                  const HSpace(8),
+                  // TODO(Mathias): Remove beta when support database search
+                  FlowyTooltip(
+                    message: LocaleKeys.commandPalette_betaTooltip.tr(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AFThemeExtension.of(context).lightGreyHover,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: FlowyText.semibold(
+                        LocaleKeys.commandPalette_betaLabel.tr(),
+                        fontSize: 11,
+                        lineHeight: 1.2,
+                      ),
+                    ),
                   ),
-                  child: FlowyText.semibold(
-                    LocaleKeys.commandPalette_betaLabel.tr(),
-                    fontSize: 10,
-                  ),
-                ),
+                ],
               ),
               counterText: "",
               focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.transparent),
                 borderRadius: Corners.s8Border,
+                borderSide: BorderSide(color: Colors.transparent),
               ),
               errorBorder: OutlineInputBorder(
+                borderRadius: Corners.s8Border,
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.error,
                 ),
-                borderRadius: Corners.s8Border,
               ),
             ),
             onChanged: (value) => context
@@ -111,7 +167,6 @@ class _SearchFieldState extends State<SearchField> {
           ),
         ),
         if (widget.isLoading) ...[
-          const HSpace(12),
           FlowyTooltip(
             message: LocaleKeys.commandPalette_loadingTooltip.tr(),
             child: const SizedBox(
@@ -124,5 +179,12 @@ class _SearchFieldState extends State<SearchField> {
         ],
       ],
     );
+  }
+
+  void _clearSearch() {
+    controller.clear();
+    context
+        .read<CommandPaletteBloc>()
+        .add(const CommandPaletteEvent.clearSearch());
   }
 }

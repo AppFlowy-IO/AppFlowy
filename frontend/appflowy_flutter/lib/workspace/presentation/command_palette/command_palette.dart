@@ -133,8 +133,7 @@ class CommandPaletteModal extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               SearchField(query: state.query, isLoading: state.isLoading),
-              if ((state.query?.isEmpty ?? true) ||
-                  state.isLoading && state.results.isEmpty) ...[
+              if (state.query?.isEmpty ?? true) ...[
                 const Divider(height: 0),
                 Flexible(
                   child: RecentViewsList(
@@ -150,6 +149,9 @@ class CommandPaletteModal extends StatelessWidget {
                     results: state.results,
                   ),
                 ),
+              ] else if ((state.query?.isNotEmpty ?? false) &&
+                  !state.isLoading) ...[
+                const _NoResultsHint(),
               ],
               _CommandPaletteFooter(
                 shouldShow: state.results.isNotEmpty &&
@@ -159,6 +161,27 @@ class CommandPaletteModal extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _NoResultsHint extends StatelessWidget {
+  const _NoResultsHint();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(height: 0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: FlowyText.regular(
+            LocaleKeys.commandPalette_noResultsHint.tr(),
+            textAlign: TextAlign.left,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -177,6 +200,7 @@ class _CommandPaletteFooter extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
       ),
       child: Row(

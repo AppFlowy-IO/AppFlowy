@@ -1,3 +1,5 @@
+use client_api::entity::search_dto::SearchDocumentResponseItem;
+use flowy_search_pub::cloud::SearchCloudService;
 use flowy_storage::{ObjectIdentity, ObjectStorageService};
 use std::sync::Arc;
 
@@ -599,5 +601,20 @@ impl ChatCloudService for ServerProvider {
         .generate_answer(&workspace_id, &chat_id, question_message_id)
         .await
     })
+  }
+}
+
+#[async_trait]
+impl SearchCloudService for ServerProvider {
+  async fn document_search(
+    &self,
+    workspace_id: &str,
+    query: String,
+  ) -> Result<Vec<SearchDocumentResponseItem>, FlowyError> {
+    let server = self.get_server()?;
+    match server.search_service() {
+      Some(search_service) => search_service.document_search(workspace_id, query).await,
+      None => Err(FlowyError::internal().with_context("SearchCloudService not found")),
+    }
   }
 }

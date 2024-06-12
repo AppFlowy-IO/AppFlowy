@@ -1964,6 +1964,7 @@ dependencies = [
  "flowy-folder",
  "flowy-folder-pub",
  "flowy-search",
+ "flowy-search-pub",
  "flowy-server",
  "flowy-server-pub",
  "flowy-sqlite",
@@ -2253,6 +2254,7 @@ dependencies = [
  "flowy-user",
  "futures",
  "lib-dispatch",
+ "lib-infra",
  "protobuf",
  "serde",
  "serde_json",
@@ -2269,9 +2271,12 @@ dependencies = [
 name = "flowy-search-pub"
 version = "0.1.0"
 dependencies = [
+ "client-api",
  "collab",
  "collab-folder",
  "flowy-error",
+ "futures",
+ "lib-infra",
 ]
 
 [[package]]
@@ -2293,6 +2298,7 @@ dependencies = [
  "flowy-encrypt",
  "flowy-error",
  "flowy-folder-pub",
+ "flowy-search-pub",
  "flowy-server-pub",
  "flowy-storage",
  "flowy-user-pub",

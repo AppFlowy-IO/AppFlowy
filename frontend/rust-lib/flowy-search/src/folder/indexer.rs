@@ -298,12 +298,9 @@ impl IndexManager for FolderIndexManagerImpl {
     let wid = workspace_id.clone();
     af_spawn(async move {
       while let Ok(msg) = rx.recv().await {
-        tracing::warn!("[Indexer] Message received: {:?}", msg);
         match msg {
           IndexContent::Create(value) => match serde_json::from_value::<ViewIndexContent>(value) {
             Ok(view) => {
-              tracing::warn!("[Indexer] CREATE: {:?}", view);
-
               let _ = indexer.add_index(IndexableData {
                 id: view.id,
                 data: view.name,
@@ -316,7 +313,6 @@ impl IndexManager for FolderIndexManagerImpl {
           },
           IndexContent::Update(value) => match serde_json::from_value::<ViewIndexContent>(value) {
             Ok(view) => {
-              tracing::warn!("[Indexer] UPDATE: {:?}", view);
               let _ = indexer.update_index(IndexableData {
                 id: view.id,
                 data: view.name,
@@ -328,7 +324,6 @@ impl IndexManager for FolderIndexManagerImpl {
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
           },
           IndexContent::Delete(ids) => {
-            tracing::warn!("[Indexer] DELETE: {:?}", ids);
             if let Err(e) = indexer.remove_indices(ids) {
               tracing::error!("FolderIndexManager error deserialize: {:?}", e);
             }
@@ -459,7 +454,6 @@ impl FolderIndexManager for FolderIndexManagerImpl {
           }
         },
         FolderViewChange::Deleted { view_ids } => {
-          tracing::warn!("[Indexer] ViewChange Reached Deleted: {:?}", view_ids);
           let _ = self.remove_indices(view_ids);
         },
       };
