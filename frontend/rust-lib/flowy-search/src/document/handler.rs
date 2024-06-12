@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 use flowy_folder::{manager::FolderManager, ViewLayout};
 use flowy_search_pub::cloud::SearchCloudService;
 use lib_infra::async_trait::async_trait;
@@ -59,8 +59,8 @@ impl SearchHandler for DocumentSearchHandler {
     let mut search_results: Vec<SearchResultPB> = vec![];
 
     for result in results {
-      // If there is no View for the result, we don't add it to the results
       if let Some(view) = views.find(|v| v.id == result.object_id) {
+        // If there is no View for the result, we don't add it to the results
         // If possible we will extract the icon to display for the result
         let icon: Option<ResultIconPB> = match view.icon.clone() {
           Some(view_icon) => Some(ResultIconPB::from(view_icon)),
@@ -87,11 +87,9 @@ impl SearchHandler for DocumentSearchHandler {
           preview: result.preview,
         });
       }
-
-      return Ok(search_results);
     }
 
-    Err(FlowyError::internal().with_context("Failed to get view cache in DocumentSearchHandler"))
+    Ok(search_results)
   }
 
   /// Ignore for [DocumentSearchHandler]
