@@ -14,6 +14,7 @@ class GridSize {
   static double get cellVPadding => 10 * scale;
   static double get popoverItemHeight => 26 * scale;
   static double get typeOptionSeparatorHeight => 4 * scale;
+  static double get newPropertyButtonWidth => 140 * scale;
 
   static EdgeInsets get cellContentInsets => EdgeInsets.symmetric(
         horizontal: GridSize.cellHPadding,

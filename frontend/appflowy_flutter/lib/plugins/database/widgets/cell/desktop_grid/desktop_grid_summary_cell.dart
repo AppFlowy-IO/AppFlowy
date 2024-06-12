@@ -27,50 +27,55 @@ class DesktopGridSummaryCellSkin extends IEditableSummaryCellSkin {
           onExit: (p) =>
               Provider.of<SummaryMouseNotifier>(context, listen: false)
                   .onEnter = false,
-          child: Stack(
-            children: [
-              TextField(
-                controller: textEditingController,
-                enabled: false,
-                focusNode: focusNode,
-                onEditingComplete: () => focusNode.unfocus(),
-                onSubmitted: (_) => focusNode.unfocus(),
-                maxLines: null,
-                style: Theme.of(context).textTheme.bodyMedium,
-                textInputAction: TextInputAction.done,
-                decoration: InputDecoration(
-                  contentPadding: GridSize.cellContentInsets,
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  errorBorder: InputBorder.none,
-                  disabledBorder: InputBorder.none,
-                  isDense: true,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: GridSize.headerHeight,
+            ),
+            child: Stack(
+              children: [
+                TextField(
+                  controller: textEditingController,
+                  enabled: false,
+                  focusNode: focusNode,
+                  onEditingComplete: () => focusNode.unfocus(),
+                  onSubmitted: (_) => focusNode.unfocus(),
+                  maxLines: null,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textInputAction: TextInputAction.done,
+                  decoration: InputDecoration(
+                    contentPadding: GridSize.cellContentInsets,
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    isDense: true,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: GridSize.cellVPadding,
-                ),
-                child: Consumer<SummaryMouseNotifier>(
-                  builder: (
-                    BuildContext context,
-                    SummaryMouseNotifier notifier,
-                    Widget? child,
-                  ) {
-                    if (notifier.onEnter) {
-                      return SummaryCellAccessory(
-                        viewId: bloc.cellController.viewId,
-                        fieldId: bloc.cellController.fieldId,
-                        rowId: bloc.cellController.rowId,
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-              ).positioned(right: 0, bottom: 0),
-            ],
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: GridSize.cellVPadding,
+                  ),
+                  child: Consumer<SummaryMouseNotifier>(
+                    builder: (
+                      BuildContext context,
+                      SummaryMouseNotifier notifier,
+                      Widget? child,
+                    ) {
+                      if (notifier.onEnter) {
+                        return SummaryCellAccessory(
+                          viewId: bloc.cellController.viewId,
+                          fieldId: bloc.cellController.fieldId,
+                          rowId: bloc.cellController.rowId,
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                ).positioned(right: 0, bottom: 8),
+              ],
+            ),
           ),
         );
       },

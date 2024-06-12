@@ -241,7 +241,7 @@
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
     "addBlockBelow": "Add a block below",
-    "genSummary": "Generate summary"
+    "aiGenerate": "Generate"
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
@@ -1010,6 +1010,8 @@
       "checklistFieldName": "Checklist",
       "relationFieldName": "Relation",
       "summaryFieldName": "AI Summary",
+      "translateFieldName": "AI Translate",
+      "translateTo": "Translate to",
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",

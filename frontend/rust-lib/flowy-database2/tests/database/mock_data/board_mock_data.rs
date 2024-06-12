@@ -134,6 +134,7 @@ pub fn make_test_board() -> DatabaseData {
           .build();
         fields.push(relation_field);
       },
+      FieldType::Translate => {},
     }
   }
 

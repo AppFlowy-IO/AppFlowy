@@ -122,8 +122,8 @@ lto = false
 incremental = false
 
 [patch.crates-io]
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d0467e7e2e8ee4b925556b5510fb6ed7322dde8c" }
-shared-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d0467e7e2e8ee4b925556b5510fb6ed7322dde8c" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ff4384fbd07a4b7394a9af8c9159cd65715d3471" }
+shared-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ff4384fbd07a4b7394a9af8c9159cd65715d3471" }
 
 # TODO(Lucas.Xu) Upgrade to the latest version of RocksDB once PR(https://github.com/rust-rocksdb/rust-rocksdb/pull/869) is merged.
 # Currently, using the following revision id. This commit is patched to fix the 32-bit build issue and it's checked out from 0.21.0, not 0.22.0.

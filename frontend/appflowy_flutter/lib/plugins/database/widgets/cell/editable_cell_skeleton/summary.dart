@@ -177,7 +177,7 @@ class SummaryButton extends StatelessWidget {
           },
           finish: (_) {
             return FlowyTooltip(
-              message: LocaleKeys.tooltip_genSummary.tr(),
+              message: LocaleKeys.tooltip_aiGenerate.tr(),
               child: Container(
                 width: 26,
                 height: 26,

@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/translate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -118,6 +119,12 @@ class EditableCellBuilder {
           databaseController: databaseController,
           cellContext: cellContext,
           skin: IEditableSummaryCellSkin.fromStyle(style),
+          key: key,
+        ),
+      FieldType.Translate => EditableTranslateCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: IEditableTranslateCellSkin.fromStyle(style),
           key: key,
         ),
       _ => throw UnimplementedError(),

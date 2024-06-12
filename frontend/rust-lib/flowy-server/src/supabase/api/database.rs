@@ -4,6 +4,7 @@ use tokio::sync::oneshot::channel;
 
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
+  TranslateRowContent, TranslateRowResponse,
 };
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
@@ -104,5 +105,14 @@ where
     _summary_row: SummaryRowContent,
   ) -> FutureResult<String, Error> {
     FutureResult::new(async move { Ok("".to_string()) })
+  }
+
+  fn translate_database_row(
+    &self,
+    _workspace_id: &str,
+    _translate_row: TranslateRowContent,
+    _language: &str,
+  ) -> FutureResult<TranslateRowResponse, Error> {
+    FutureResult::new(async move { Ok(TranslateRowResponse::default()) })
   }
 }
