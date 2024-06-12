@@ -22,7 +22,9 @@ final _builtInColors = [
 final _buildInIcons = List.generate(15, (index) => 'space_icon_${index + 1}');
 
 class SpaceIconPopup extends StatefulWidget {
-  const SpaceIconPopup({super.key});
+  const SpaceIconPopup({super.key, required this.onIconChanged});
+
+  final void Function(String icon, int color) onIconChanged;
 
   @override
   State<SpaceIconPopup> createState() => _SpaceIconPopupState();
@@ -30,7 +32,30 @@ class SpaceIconPopup extends StatefulWidget {
 
 class _SpaceIconPopupState extends State<SpaceIconPopup> {
   ValueNotifier<int> selectedColor = ValueNotifier<int>(_builtInColors.first);
-  String selectedIcon = _buildInIcons.first;
+  ValueNotifier<String> selectedIcon =
+      ValueNotifier<String>(_buildInIcons.first);
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.onIconChanged(selectedIcon.value, selectedColor.value);
+
+    selectedColor.addListener(() {
+      widget.onIconChanged(selectedIcon.value, selectedColor.value);
+    });
+
+    selectedIcon.addListener(() {
+      widget.onIconChanged(selectedIcon.value, selectedColor.value);
+    });
+  }
+
+  @override
+  void dispose() {
+    selectedColor.dispose();
+    selectedIcon.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,10 +69,7 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
       constraints: const BoxConstraints(maxWidth: 220),
       margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       direction: PopoverDirection.bottomWithCenterAligned,
-      child: const FlowySvg(
-        FlowySvgs.space_icon_s,
-        blendMode: null,
-      ),
+      child: _buildPreview(),
       popupBuilder: (_) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -73,14 +95,32 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
             valueListenable: selectedColor,
             builder: (_, value, ___) => _Icons(
               selectedColor: value,
-              selectedIcon: selectedIcon,
+              selectedIcon: selectedIcon.value,
               onIconSelected: (icon) {
-                selectedIcon = icon;
+                selectedIcon.value = icon;
               },
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPreview() {
+    return ValueListenableBuilder(
+      valueListenable: selectedColor,
+      builder: (_, color, __) {
+        return ValueListenableBuilder(
+          valueListenable: selectedIcon,
+          builder: (_, icon, __) {
+            return FlowySvg(
+              FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
+              color: Color(color),
+              blendMode: BlendMode.srcOut,
+            );
+          },
+        );
+      },
     );
   }
 }

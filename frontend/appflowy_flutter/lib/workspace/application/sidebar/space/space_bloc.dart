@@ -71,15 +71,25 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               ),
             );
           },
-          create: (name, icon, permission) async {
+          create: (name, icon, iconColor, permission) async {
             final space = await _createSpace(
               name: name,
               icon: icon,
+              iconColor: iconColor,
               permission: permission,
             );
             if (space != null) {
               emit(state.copyWith(spaces: [...state.spaces, space]));
             }
+          },
+          delete: (space) async {
+            final result = await ViewBackendService.delete(viewId: space.id);
+            result.fold((_) {
+              final spaces = state.spaces.where((e) => e.id != space.id);
+              emit(state.copyWith(spaces: [...spaces]));
+            }, (error) {
+              Log.error('Failed to delete space: $error');
+            });
           },
           rename: (space, name) async {
             final newSpace = await _rename(space, name);
@@ -110,12 +120,14 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               index: index,
             );
             result.fold(
-              (view) => emit(
-                state.copyWith(
-                  lastCreatedPage: view,
-                  createPageResult: FlowyResult.success(null),
-                ),
-              ),
+              (view) {
+                emit(
+                  state.copyWith(
+                    lastCreatedPage: view,
+                    createPageResult: FlowyResult.success(null),
+                  ),
+                );
+              },
               (error) {
                 Log.error('Failed to create root view: $error');
                 emit(
@@ -158,6 +170,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   Future<ViewPB?> _createSpace({
     required String name,
     required String icon,
+    required int iconColor,
     required SpacePermission permission,
   }) async {
     final section = switch (permission) {
@@ -175,6 +188,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       final extra = {
         ViewExtKeys.isSpaceKey: true,
         ViewExtKeys.spaceIconKey: icon,
+        ViewExtKeys.spaceIconColorKey: iconColor,
         ViewExtKeys.spacePermissionKey: permission.index,
         ViewExtKeys.spaceCreatedAtKey: DateTime.now().millisecondsSinceEpoch,
       };
@@ -295,6 +309,7 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.create({
     required String name,
     required String icon,
+    required int iconColor,
     required SpacePermission permission,
   }) = _Create;
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
@@ -306,6 +321,7 @@ class SpaceEvent with _$SpaceEvent {
     required ViewSectionPB viewSection,
     int? index,
   }) = _CreatePage;
+  const factory SpaceEvent.delete(ViewPB space) = _Delete;
 }
 
 @freezed

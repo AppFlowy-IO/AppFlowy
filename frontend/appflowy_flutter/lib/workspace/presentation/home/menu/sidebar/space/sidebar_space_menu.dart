@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -58,10 +59,7 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
     return FlowyButton(
       text: FlowyText.regular(space.name),
       iconPadding: 10,
-      leftIcon: const FlowySvg(
-        FlowySvgs.space_icon_s,
-        blendMode: null,
-      ),
+      leftIcon: space.spaceIcon,
       rightIcon: isSelected
           ? const FlowySvg(
               FlowySvgs.workspace_selected_s,
@@ -70,6 +68,7 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
           : null,
       onTap: () {
         context.read<SpaceBloc>().add(SpaceEvent.open(space));
+        PopoverContainer.of(context).close();
       },
     );
   }

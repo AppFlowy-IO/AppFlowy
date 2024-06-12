@@ -43,6 +43,7 @@ class ViewExtKeys {
   static String spaceCreatorKey = 'space_creator';
   static String spaceCreatedAtKey = 'space_created_at';
   static String spaceIconKey = 'space_icon';
+  static String spaceIconColorKey = 'space_icon_color';
   static String spacePermissionKey = 'space_permission';
 }
 
@@ -129,6 +130,24 @@ extension ViewExtension on ViewPB {
       return SpacePermission.values[permission];
     } catch (e) {
       return SpacePermission.private;
+    }
+  }
+
+  FlowySvg get spaceIcon {
+    try {
+      final ext = jsonDecode(extra);
+      final icon = ext[ViewExtKeys.spaceIconKey];
+      final color = ext[ViewExtKeys.spaceIconColorKey];
+      if (icon == null || color == null) {
+        return const FlowySvg(FlowySvgs.space_icon_s, blendMode: null);
+      }
+      return FlowySvg(
+        FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
+        color: Color(color),
+        blendMode: BlendMode.srcOut,
+      );
+    } catch (e) {
+      return const FlowySvg(FlowySvgs.space_icon_s, blendMode: null);
     }
   }
 

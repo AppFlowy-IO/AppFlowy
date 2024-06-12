@@ -94,15 +94,14 @@ class _SpaceState extends State<_Space> {
                 isExpanded: state.isExpanded,
                 space: currentSpace,
                 onAdded: () => _showCreatePagePopup(context, currentSpace),
-                onPressed: () => context.read<SpaceBloc>().add(
-                      SpaceEvent.expand(
-                        currentSpace,
-                        !state.isExpanded,
-                      ),
-                    ),
+                onPressed: () {},
                 onTapMore: () {},
               ),
-              _buildViews(context, state, currentSpace, isHovered),
+              _Pages(
+                key: ValueKey(currentSpace.id),
+                space: currentSpace,
+                isHovered: isHovered,
+              ),
             ],
           ),
         );
@@ -132,31 +131,34 @@ class _SpaceState extends State<_Space> {
       },
     );
   }
+}
 
-  Widget _buildViews(
-    BuildContext context,
-    SpaceState state,
-    ViewPB currentSpace,
-    ValueNotifier<bool> isHovered,
-  ) {
-    if (!state.isExpanded) {
-      return const SizedBox.shrink();
-    }
+class _Pages extends StatelessWidget {
+  const _Pages({
+    super.key,
+    required this.space,
+    required this.isHovered,
+  });
 
+  final ViewPB space;
+  final ValueNotifier<bool> isHovered;
+
+  @override
+  Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          ViewBloc(view: currentSpace)..add(const ViewEvent.initial()),
+          ViewBloc(view: space)..add(const ViewEvent.initial()),
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
           return Column(
             children: state.view.childViews
                 .map(
                   (view) => ViewItem(
-                    key: ValueKey('${currentSpace.id} ${view.id}'),
-                    spaceType: currentSpace.spacePermission ==
-                            SpacePermission.publicToAll
-                        ? FolderSpaceType.public
-                        : FolderSpaceType.private,
+                    key: ValueKey('${space.id} ${view.id}'),
+                    spaceType:
+                        space.spacePermission == SpacePermission.publicToAll
+                            ? FolderSpaceType.public
+                            : FolderSpaceType.private,
                     isFirstChild: view.id == state.view.childViews.first.id,
                     view: view,
                     level: 0,

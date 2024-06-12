@@ -17,6 +17,7 @@ class CreateSpacePopup extends StatefulWidget {
 class _CreateSpacePopupState extends State<CreateSpacePopup> {
   String spaceName = '';
   String spaceIcon = '';
+  int spaceIconColor = 0;
   SpacePermission spacePermission = SpacePermission.publicToAll;
 
   @override
@@ -38,7 +39,12 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
             color: Theme.of(context).hintColor,
           ),
           const VSpace(16.0),
-          const SpaceIconPopup(),
+          SpaceIconPopup(
+            onIconChanged: (icon, iconColor) {
+              spaceIcon = icon;
+              spaceIconColor = iconColor;
+            },
+          ),
           const VSpace(8.0),
           _SpaceNameTextField(onChanged: (value) => spaceName = value),
           const VSpace(16.0),
@@ -58,6 +64,7 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
                     SpaceEvent.create(
                       name: spaceName,
                       icon: spaceIcon,
+                      iconColor: spaceIconColor,
                       permission: spacePermission,
                     ),
                   );
@@ -66,21 +73,6 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
             },
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SpaceIcon extends StatelessWidget {
-  const _SpaceIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.square(
-      dimension: 56.0,
-      child: FlowySvg(
-        FlowySvgs.space_icon_s,
-        blendMode: null,
       ),
     );
   }
