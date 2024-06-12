@@ -30,8 +30,8 @@ class RecentViewTile extends StatelessWidget {
           FlowyText(view.name),
         ],
       ),
-      focusColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+      focusColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
       onTap: () {
         onSelected();
 
