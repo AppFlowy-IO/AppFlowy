@@ -104,7 +104,6 @@ class _SearchFieldState extends State<SearchField> {
                           ),
                           child: const FlowySvg(
                             FlowySvgs.close_s,
-                            blendMode: BlendMode.dst,
                             size: Size.square(16),
                           ),
                         );
@@ -119,15 +118,7 @@ class _SearchFieldState extends State<SearchField> {
                             cursor: SystemMouseCursors.click,
                             child: GestureDetector(
                               onTap: controller.text.trim().isNotEmpty
-                                  ? () {
-                                      controller.clear();
-                                      context.read<CommandPaletteBloc>().add(
-                                            const CommandPaletteEvent
-                                                .searchChanged(
-                                              search: "",
-                                            ),
-                                          );
-                                    }
+                                  ? _clearSearch
                                   : null,
                               child: icon,
                             ),
@@ -188,5 +179,12 @@ class _SearchFieldState extends State<SearchField> {
         ],
       ],
     );
+  }
+
+  void _clearSearch() {
+    controller.clear();
+    context
+        .read<CommandPaletteBloc>()
+        .add(const CommandPaletteEvent.clearSearch());
   }
 }

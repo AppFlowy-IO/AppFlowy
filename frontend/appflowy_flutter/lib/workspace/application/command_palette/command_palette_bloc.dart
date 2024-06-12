@@ -98,6 +98,9 @@ class CommandPaletteBloc
           _workspaceId = workspaceId;
           emit(state.copyWith(results: [], query: '', isLoading: false));
         },
+        clearSearch: () {
+          emit(state.copyWith(results: [], query: '', isLoading: false));
+        },
       );
     });
   }
@@ -176,6 +179,8 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
   const factory CommandPaletteEvent.workspaceChanged({
     @Default(null) String? workspaceId,
   }) = _WorkspaceChanged;
+
+  const factory CommandPaletteEvent.clearSearch() = _ClearSearch;
 }
 
 @freezed
