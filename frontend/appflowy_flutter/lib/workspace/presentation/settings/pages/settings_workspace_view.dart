@@ -637,7 +637,7 @@ class _ThemeDropdown extends StatelessWidget {
             actions: [
               SettingAction(
                 tooltip: 'Upload a custom theme',
-                icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(16)),
+                icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(20)),
                 onPressed: () => Dialogs.show(
                   context,
                   child: BlocProvider<DynamicPluginBloc>.value(
@@ -658,7 +658,10 @@ class _ThemeDropdown extends StatelessWidget {
                 }),
               ),
               SettingAction(
-                icon: const FlowySvg(FlowySvgs.restore_s),
+                icon: const FlowySvg(
+                  FlowySvgs.restore_s,
+                  size: Size.square(20),
+                ),
                 label: LocaleKeys.settings_common_reset.tr(),
                 onPressed: () => context
                     .read<AppearanceSettingsCubit>()
@@ -1018,7 +1021,10 @@ class _FontSelectorDropdownState extends State<_FontSelectorDropdown> {
                         const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     child: Row(
                       children: [
-                        const FlowySvg(FlowySvgs.restore_s),
+                        const FlowySvg(
+                          FlowySvgs.restore_s,
+                          size: Size.square(20),
+                        ),
                         const HSpace(4),
                         FlowyText.regular(
                           LocaleKeys.settings_common_reset.tr(),

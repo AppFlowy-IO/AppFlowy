@@ -71,6 +71,12 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::InviteWorkspaceMember, invite_workspace_member_handler)
     .event(UserEvent::ListWorkspaceInvitations, list_workspace_invitations_handler)
     .event(UserEvent::AcceptWorkspaceInvitation, accept_workspace_invitations_handler)
+    // Billing
+    .event(UserEvent::SubscribeWorkspace, subscribe_workspace_handler)
+    .event(UserEvent::GetWorkspaceSubscriptions, get_workspace_subscriptions_handler)
+    .event(UserEvent::CancelWorkspaceSubscription, cancel_workspace_subscription_handler)
+    .event(UserEvent::GetWorkspaceUsage, get_workspace_usage_handler)
+    .event(UserEvent::GetBillingPortal, get_billing_portal_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -230,6 +236,21 @@ pub enum UserEvent {
 
   #[event(input = "MagicLinkSignInPB", output = "UserProfilePB")]
   MagicLinkSignIn = 50,
+
+  #[event(input = "SubscribeWorkspacePB", output = "PaymentLinkPB")]
+  SubscribeWorkspace = 51,
+
+  #[event(output = "RepeatedWorkspaceSubscriptionPB")]
+  GetWorkspaceSubscriptions = 52,
+
+  #[event(input = "UserWorkspaceIdPB")]
+  CancelWorkspaceSubscription = 53,
+
+  #[event(input = "UserWorkspaceIdPB", output = "WorkspaceUsagePB")]
+  GetWorkspaceUsage = 54,
+
+  #[event(output = "BillingPortalPB")]
+  GetBillingPortal = 55,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

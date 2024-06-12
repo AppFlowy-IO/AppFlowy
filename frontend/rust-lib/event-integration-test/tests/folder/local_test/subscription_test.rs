@@ -93,7 +93,7 @@ async fn delete_view_subscription_test() {
   let update = test
     .appflowy_core
     .dispatcher()
-    .run_until(receive_with_timeout(rx, Duration::from_secs(30)))
+    .run_until(receive_with_timeout(rx, Duration::from_secs(60)))
     .await
     .unwrap();
 

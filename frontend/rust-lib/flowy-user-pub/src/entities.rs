@@ -422,3 +422,29 @@ pub struct WorkspaceInvitation {
   pub status: WorkspaceInvitationStatus,
   pub updated_at: DateTime<Utc>,
 }
+
+pub enum RecurringInterval {
+  Month,
+  Year,
+}
+
+pub enum SubscriptionPlan {
+  None,
+  Pro,
+  Team,
+}
+
+pub struct WorkspaceSubscription {
+  pub workspace_id: String,
+  pub subscription_plan: SubscriptionPlan,
+  pub recurring_interval: RecurringInterval,
+  pub is_active: bool,
+  pub canceled_at: Option<i64>,
+}
+
+pub struct WorkspaceUsage {
+  pub member_count: usize,
+  pub member_count_limit: usize,
+  pub total_blob_bytes: usize,
+  pub total_blob_bytes_limit: usize,
+}
