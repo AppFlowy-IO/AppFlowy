@@ -100,7 +100,8 @@ class _SettingsInputFieldState extends State<SettingsInputField> {
             ],
           ],
         ),
-        const VSpace(8),
+        if (widget.label?.isNotEmpty ?? false || widget.tooltip != null)
+          const VSpace(8),
         SizedBox(
           height: 48,
           child: FlowyTextField(

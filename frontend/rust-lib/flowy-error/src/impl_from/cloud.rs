@@ -21,11 +21,9 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::NotEnoughPermissions => ErrorCode::NotEnoughPermissions,
       AppErrorCode::NetworkError => ErrorCode::HttpError,
       AppErrorCode::PayloadTooLarge => ErrorCode::CloudRequestPayloadTooLarge,
-      AppErrorCode::UserUnAuthorized => match &*error.message {
-        "Workspace Limit Exceeded" => ErrorCode::WorkspaceLimitExceeded,
-        "Workspace Member Limit Exceeded" => ErrorCode::WorkspaceMemberLimitExceeded,
-        _ => ErrorCode::UserUnauthorized,
-      },
+      AppErrorCode::UserUnAuthorized => ErrorCode::UserUnauthorized,
+      AppErrorCode::WorkspaceLimitExceeded => ErrorCode::WorkspaceLimitExceeded,
+      AppErrorCode::WorkspaceMemberLimitExceeded => ErrorCode::WorkspaceMemberLimitExceeded,
       _ => ErrorCode::Internal,
     };
 

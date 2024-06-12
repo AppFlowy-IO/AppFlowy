@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 class WorkspaceService {
@@ -69,5 +70,14 @@ class WorkspaceService {
       ..to = toIndex;
 
     return FolderEventMoveView(payload).send();
+  }
+
+  Future<FlowyResult<WorkspaceUsagePB, FlowyError>> getWorkspaceUsage() {
+    final payload = UserWorkspaceIdPB(workspaceId: workspaceId);
+    return UserEventGetWorkspaceUsage(payload).send();
+  }
+
+  Future<FlowyResult<BillingPortalPB, FlowyError>> getBillingPortal() {
+    return UserEventGetBillingPortal().send();
   }
 }

@@ -17,15 +17,19 @@ use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
-use flowy_database_pub::cloud::{DatabaseCloudService, SummaryRowContent};
+use flowy_database_pub::cloud::{
+  DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
+};
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 
-use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB};
+use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, FieldType};
 use crate::services::cell::stringify_cell;
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
+use crate::services::field::translate_type_option::translate::TranslateTypeOption;
+
 use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
@@ -424,8 +428,6 @@ impl DatabaseManager {
     field_id: String,
   ) -> FlowyResult<()> {
     let database = self.get_database_with_view_id(&view_id).await?;
-
-    //
     let mut summary_row_content = SummaryRowContent::new();
     if let Some(row) = database.get_row(&view_id, &row_id) {
       let fields = database.get_fields(&view_id, None);
@@ -433,6 +435,10 @@ impl DatabaseManager {
         // When summarizing a row, skip the content in the "AI summary" cell; it does not need to
         // be summarized.
         if field.id != field_id {
+          // Don't summarize the summary field.
+          if field.field_type == FieldType::Summary as i64 {
+            continue;
+          }
           if let Some(cell) = row.cells.get(&field.id) {
             summary_row_content.insert(field.name.clone(), stringify_cell(cell, &field));
           }
@@ -455,6 +461,82 @@ impl DatabaseManager {
     // Update the cell with the response from the cloud service.
     database
       .update_cell_with_changeset(&view_id, &row_id, &field_id, BoxAny::new(response))
+      .await?;
+    Ok(())
+  }
+
+  #[instrument(level = "debug", skip_all)]
+  pub async fn translate_row(
+    &self,
+    view_id: String,
+    row_id: RowId,
+    field_id: String,
+  ) -> FlowyResult<()> {
+    let database = self.get_database_with_view_id(&view_id).await?;
+    let mut translate_row_content = TranslateRowContent::new();
+    let mut language = "english".to_string();
+
+    if let Some(row) = database.get_row(&view_id, &row_id) {
+      let fields = database.get_fields(&view_id, None);
+      for field in fields {
+        // When translate a row, skip the content in the "AI Translate" cell; it does not need to
+        // be translated.
+        if field.id != field_id {
+          // Don't translate the translate field.
+          if field.field_type == FieldType::Translate as i64 {
+            continue;
+          }
+
+          if let Some(cell) = row.cells.get(&field.id) {
+            translate_row_content.push(TranslateItem {
+              title: field.name.clone(),
+              content: stringify_cell(cell, &field),
+            })
+          }
+        } else {
+          language = TranslateTypeOption::language_from_type(
+            field
+              .type_options
+              .get(&FieldType::Translate.to_string())
+              .cloned()
+              .map(TranslateTypeOption::from)
+              .unwrap_or_default()
+              .language_type,
+          )
+          .to_string();
+        }
+      }
+    }
+
+    // Call the cloud service to summarize the row.
+    trace!(
+      "[AI]:translate to {}, content:{:?}",
+      language,
+      translate_row_content
+    );
+    let response = self
+      .cloud_service
+      .translate_database_row(&self.user.workspace_id()?, translate_row_content, &language)
+      .await?;
+
+    // Format the response items into a single string
+    let content = response
+      .items
+      .into_iter()
+      .map(|value| {
+        value
+          .into_iter()
+          .map(|(_k, v)| v.to_string())
+          .collect::<Vec<String>>()
+          .join(", ")
+      })
+      .collect::<Vec<String>>()
+      .join(",");
+
+    trace!("[AI]:translate row response: {}", content);
+    // Update the cell with the response from the cloud service.
+    database
+      .update_cell_with_changeset(&view_id, &row_id, &field_id, BoxAny::new(content))
       .await?;
     Ok(())
   }

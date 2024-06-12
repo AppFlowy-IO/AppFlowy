@@ -134,6 +134,10 @@
   "newGridText": "Yeni tablo",
   "newCalendarText": "Yeni takvim",
   "newBoardText": "Yeni pano",
+  "chat": {
+    "relatedQuestion": "İlgili",
+    "serverUnavailable": "Hizmet Geçici Olarak Kullanılamıyor. Lütfen daha sonra tekrar deneyiniz."
+  },
   "trash": {
     "text": "Çöp Kutusu",
     "restoreAll": "Tümünü Geri Yükle",
@@ -228,7 +232,17 @@
     "addAPage": "Sayfa ekle",
     "addAPageToPrivate": "Özel alana sayfa ekle",
     "addAPageToWorkspace": "Çalışma alanına sayfa ekle",
-    "recent": "Son"
+    "recent": "Son",
+    "today": "Bugün",
+    "thisWeek": "Bu Hafta",
+    "others": "Diğerleri",
+    "justNow": "Şu anda",
+    "minutesAgo": "{count} dakika önce",
+    "lastViewed": "Son Görüntülenen",
+    "favoriteAt": "Favorilere Eklendi",
+    "emptyFavorite": "Favori Belge Yok",
+    "removeSuccess": "Başarıyla Kaldırıldı",
+    "favoriteSpace": "Favoriler"
   },
   "notifications": {
     "export": {
@@ -244,6 +258,7 @@
   },
   "button": {
     "ok": "Tamam",
+    "confirm": "Onayla",
     "done": "Bitti",
     "cancel": "İptal",
     "signIn": "Giriş Yap",
@@ -306,6 +321,37 @@
   },
   "settings": {
     "title": "Ayarlar",
+    "accountPage": {
+      "general": {
+        "title": "Hesap adı & profil resmi",
+        "changeProfilePicture": "Profil Resmi Değiştir"
+      },
+      "email": {
+        "title": "Mail",
+        "actions": {
+          "change": "Email Değiş"
+        }
+      },
+      "keys": {
+        "openAIHint": "OpenAI API Anahtarını Gir"
+      },
+      "login": {
+        "loginLabel": "Giriş Yap",
+        "logoutLabel": "Çıkış Yap"
+      }
+    },
+    "workspacePage": {
+      "appearance": {
+        "title": "Görünüm",
+        "options": {
+          "light": "Açık",
+          "dark": "Koyu"
+        }
+      },
+      "theme": {
+        "title": "Tema"
+      }
+    },
     "menu": {
       "appearance": "Görünüm",
       "language": "Dil",
