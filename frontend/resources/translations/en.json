@@ -1756,7 +1756,9 @@
     "privatePermissionDescription": "Only you can access this space",
     "spaceIconBackground": "Background color",
     "spaceIcon": "Icon",
-    "dangerZone": "Danger Zone"
+    "dangerZone": "Danger Zone",
+    "unableToDeleteLastSpace": "Cannot delete the last space",
+    "unableToDeleteSpaceNotCreatedByYou": "Cannot delete a space created by others"
   }
 }
 

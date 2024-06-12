@@ -19,6 +19,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class SidebarSpace extends StatelessWidget {
   const SidebarSpace({
@@ -36,25 +37,28 @@ class SidebarSpace extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (context, value, child) {
-        return Column(
-          children: [
-            const VSpace(4.0),
-            // favorite
-            BlocBuilder<FavoriteBloc, FavoriteState>(
-              builder: (context, state) {
-                if (state.views.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-                return FavoriteFolder(
-                  views: state.views.map((e) => e.item).toList(),
-                );
-              },
-            ),
-            const VSpace(16.0),
-            // spaces
-            const _Space(),
-            const VSpace(200),
-          ],
+        return Provider.value(
+          value: userProfile,
+          child: Column(
+            children: [
+              const VSpace(4.0),
+              // favorite
+              BlocBuilder<FavoriteBloc, FavoriteState>(
+                builder: (context, state) {
+                  if (state.views.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return FavoriteFolder(
+                    views: state.views.map((e) => e.item).toList(),
+                  );
+                },
+              ),
+              const VSpace(16.0),
+              // spaces
+              const _Space(),
+              const VSpace(200),
+            ],
+          ),
         );
       },
     );

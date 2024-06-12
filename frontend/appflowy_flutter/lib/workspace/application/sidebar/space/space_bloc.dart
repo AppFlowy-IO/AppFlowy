@@ -84,18 +84,14 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             }
           },
           delete: (space) async {
+            if (state.spaces.length <= 1) {
+              return;
+            }
             final deletedSpace = space ?? state.currentSpace;
             if (deletedSpace == null) {
               return;
             }
-            final result =
-                await ViewBackendService.delete(viewId: deletedSpace.id);
-            // result.fold((_) {
-            //   final spaces = state.spaces.where((e) => e.id != deletedSpace.id);
-            //   emit(state.copyWith(spaces: [...spaces]));
-            // }, (error) {
-            //   Log.error('Failed to delete space: $error');
-            // });
+            await ViewBackendService.delete(viewId: deletedSpace.id);
           },
           rename: (space, name) async {
             add(SpaceEvent.update(name: name));
