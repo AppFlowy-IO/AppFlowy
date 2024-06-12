@@ -304,6 +304,8 @@ class _SidebarState extends State<_Sidebar> {
 
             _renderFolderOrSpace(menuHorizontalInset),
 
+            _renderUpgradeSpaceButton(menuHorizontalInset),
+
             // trash
             Padding(
               padding: menuHorizontalInset +
@@ -351,6 +353,25 @@ class _SidebarState extends State<_Sidebar> {
                   isHoverEnabled: !_isScrolling,
                 ),
               ),
+            ),
+          );
+  }
+
+  Widget _renderUpgradeSpaceButton(EdgeInsets menuHorizontalInset) {
+    return context.watch<SpaceBloc>().state.spaces.isNotEmpty
+        ? const SizedBox.shrink()
+        : Container(
+            height: 40,
+            padding: menuHorizontalInset,
+            child: FlowyButton(
+              onTap: () {},
+              leftIcon: const Icon(
+                Icons.upgrade_rounded,
+                color: Colors.red,
+              ),
+              leftIconSize: const Size.square(20),
+              iconPadding: 12.0,
+              text: const FlowyText.regular('Upgrade to space'),
             ),
           );
   }
