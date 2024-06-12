@@ -54,7 +54,6 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
           onEnter: (_) => isHovered.value = true,
           onExit: (_) => isHovered.value = false,
           child: FlowyButton(
-            onTap: widget.onPressed,
             margin: const EdgeInsets.only(left: 6.0, right: 4.0),
             rightIcon: _buildRightIcon(),
             iconPadding: 10.0,

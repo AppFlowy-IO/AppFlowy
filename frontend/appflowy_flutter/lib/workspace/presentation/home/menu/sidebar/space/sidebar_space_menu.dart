@@ -95,6 +95,7 @@ class _CreateSpaceButton extends StatelessWidget {
   }
 
   void _showCreateSpaceDialog(BuildContext context) {
+    final spaceBloc = context.read<SpaceBloc>();
     showDialog(
       context: context,
       builder: (_) {
@@ -103,7 +104,7 @@ class _CreateSpaceButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: BlocProvider.value(
-            value: context.read<SpaceBloc>(),
+            value: spaceBloc,
             child: const CreateSpacePopup(),
           ),
         );
