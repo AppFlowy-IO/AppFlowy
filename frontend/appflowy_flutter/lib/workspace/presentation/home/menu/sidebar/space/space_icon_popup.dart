@@ -26,9 +26,13 @@ final _buildInIcons = List.generate(15, (index) => 'space_icon_${index + 1}');
 class SpaceIconPopup extends StatefulWidget {
   const SpaceIconPopup({
     super.key,
+    this.icon,
+    this.iconColor,
     required this.onIconChanged,
   });
 
+  final String? icon;
+  final String? iconColor;
   final void Function(String icon, String color) onIconChanged;
 
   @override
@@ -36,10 +40,10 @@ class SpaceIconPopup extends StatefulWidget {
 }
 
 class _SpaceIconPopupState extends State<SpaceIconPopup> {
-  ValueNotifier<String> selectedColor =
-      ValueNotifier<String>(_builtInColors.first);
-  ValueNotifier<String> selectedIcon =
-      ValueNotifier<String>(_buildInIcons.first);
+  late ValueNotifier<String> selectedColor =
+      ValueNotifier<String>(widget.iconColor ?? _builtInColors.first);
+  late ValueNotifier<String> selectedIcon =
+      ValueNotifier<String>(widget.icon ?? _buildInIcons.first);
 
   @override
   void dispose() {
@@ -62,6 +66,8 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
       direction: PopoverDirection.bottomWithCenterAligned,
       child: _buildPreview(),
       popupBuilder: (_) => SpaceIconPicker(
+        icon: selectedIcon.value,
+        iconColor: selectedColor.value,
         onIconChanged: (icon, iconColor) {
           selectedIcon.value = icon;
           selectedColor.value = iconColor;

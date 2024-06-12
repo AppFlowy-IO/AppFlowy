@@ -1755,7 +1755,8 @@
     "privatePermission": "Private",
     "privatePermissionDescription": "Only you can access this space",
     "spaceIconBackground": "Background color",
-    "spaceIcon": "Icon"
+    "spaceIcon": "Icon",
+    "dangerZone": "Danger Zone"
   }
 }
 

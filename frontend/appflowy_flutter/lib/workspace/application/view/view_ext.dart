@@ -126,14 +126,14 @@ extension ViewExtension on ViewPB {
   SpacePermission get spacePermission {
     try {
       final ext = jsonDecode(extra);
-      final permission = ext[ViewExtKeys.spacePermissionKey] ?? 0;
+      final permission = ext[ViewExtKeys.spacePermissionKey] ?? 1;
       return SpacePermission.values[permission];
     } catch (e) {
       return SpacePermission.private;
     }
   }
 
-  FlowySvg get spaceIcon {
+  FlowySvg get spaceIconSvg {
     try {
       final ext = jsonDecode(extra);
       final icon = ext[ViewExtKeys.spaceIconKey];
@@ -151,13 +151,20 @@ extension ViewExtension on ViewPB {
     }
   }
 
+  String? get spaceIcon {
+    try {
+      final ext = jsonDecode(extra);
+      final icon = ext[ViewExtKeys.spaceIconKey];
+      return icon;
+    } catch (e) {
+      return null;
+    }
+  }
+
   String? get spaceIconColor {
     try {
       final ext = jsonDecode(extra);
       final color = ext[ViewExtKeys.spaceIconColorKey];
-      if (color == null) {
-        return null;
-      }
       return color;
     } catch (e) {
       return null;

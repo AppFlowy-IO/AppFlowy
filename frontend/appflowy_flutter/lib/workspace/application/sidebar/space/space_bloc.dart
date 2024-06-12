@@ -93,36 +93,52 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             });
           },
           rename: (space, name) async {
-            final newSpace = await _rename(space, name);
-            final spaces =
-                state.spaces.map((e) => e.id == space.id ? newSpace : e);
-            final currentSpace = state.currentSpace?.id == space.id
-                ? newSpace
-                : state.currentSpace;
-            emit(
-              state.copyWith(spaces: [...spaces], currentSpace: currentSpace),
-            );
+            add(SpaceEvent.update(name: name));
           },
           changeIcon: (icon, iconColor) async {
-            try {
-              final space = state.currentSpace;
-              if (space == null) {
-                return;
+            add(SpaceEvent.update(icon: icon, iconColor: iconColor));
+          },
+          update: (name, icon, iconColor, permission) async {
+            final space = state.currentSpace;
+            if (space == null) {
+              return;
+            }
+
+            if (name != null) {
+              await _rename(space, name);
+            }
+
+            if (icon != null || iconColor != null || permission != null) {
+              try {
+                final extra = space.extra;
+                final current = extra.isNotEmpty == true
+                    ? jsonDecode(extra)
+                    : <String, dynamic>{};
+                final updated = <String, dynamic>{};
+                if (icon != null) {
+                  updated[ViewExtKeys.spaceIconKey] = icon;
+                }
+                if (iconColor != null) {
+                  updated[ViewExtKeys.spaceIconColorKey] = iconColor;
+                }
+                if (permission != null) {
+                  updated[ViewExtKeys.spacePermissionKey] = permission.index;
+                }
+                final merged = mergeMaps(current, updated);
+                await ViewBackendService.updateView(
+                  viewId: space.id,
+                  extra: jsonEncode(merged),
+                );
+              } catch (e) {
+                Log.error('Failed to migrating cover: $e');
               }
-              final extra = space.extra;
-              final current = extra.isNotEmpty == true
-                  ? jsonDecode(extra)
-                  : <String, dynamic>{};
-              final merged = mergeMaps(current, <String, dynamic>{
-                ViewExtKeys.spaceIconKey: icon,
-                ViewExtKeys.spaceIconColorKey: iconColor,
-              });
-              await ViewBackendService.updateView(
-                viewId: space.id,
-                extra: jsonEncode(merged),
+            }
+
+            if (permission != null) {
+              await ViewBackendService.updateViewsVisibility(
+                [space],
+                permission == SpacePermission.publicToAll,
               );
-            } catch (e) {
-              Log.error('Failed to migrating cover: $e');
             }
           },
           open: (space) async {
@@ -357,6 +373,12 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
   const factory SpaceEvent.changeIcon(String icon, String iconColor) =
       _ChangeIcon;
+  const factory SpaceEvent.update({
+    String? name,
+    String? icon,
+    String? iconColor,
+    SpacePermission? permission,
+  }) = _Update;
   const factory SpaceEvent.open(ViewPB space) = _Open;
   const factory SpaceEvent.expand(ViewPB space, bool isExpanded) = _Expand;
   const factory SpaceEvent.createPage({

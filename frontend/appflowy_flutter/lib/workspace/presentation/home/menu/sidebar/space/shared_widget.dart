@@ -1,120 +1,29 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CreateSpacePopup extends StatefulWidget {
-  const CreateSpacePopup({super.key});
+class SpacePermissionSwitch extends StatefulWidget {
+  const SpacePermissionSwitch({
+    super.key,
+    required this.onPermissionChanged,
+    this.spacePermission,
+  });
 
-  @override
-  State<CreateSpacePopup> createState() => _CreateSpacePopupState();
-}
-
-class _CreateSpacePopupState extends State<CreateSpacePopup> {
-  String spaceName = '';
-  String spaceIcon = '';
-  String spaceIconColor = '';
-  SpacePermission spacePermission = SpacePermission.publicToAll;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-      width: 500,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const FlowyText(
-            'Create new space',
-            fontSize: 18.0,
-          ),
-          const VSpace(4.0),
-          FlowyText.regular(
-            'Separate your tabs for life, work, projects and more',
-            fontSize: 14.0,
-            color: Theme.of(context).hintColor,
-          ),
-          const VSpace(16.0),
-          SpaceIconPopup(
-            onIconChanged: (icon, iconColor) {
-              spaceIcon = icon;
-              spaceIconColor = iconColor;
-            },
-          ),
-          const VSpace(8.0),
-          _SpaceNameTextField(onChanged: (value) => spaceName = value),
-          const VSpace(16.0),
-          _SpacePermissionSwitch(
-            onPermissionChanged: (value) => spacePermission = value,
-          ),
-          const VSpace(16.0),
-          _CancelOrCreateButton(
-            onCancel: () => Navigator.of(context).pop(),
-            onCreate: () {
-              if (spaceName.isEmpty) {
-                // todo: show error
-                return;
-              }
-
-              context.read<SpaceBloc>().add(
-                    SpaceEvent.create(
-                      name: spaceName,
-                      icon: spaceIcon,
-                      iconColor: spaceIconColor,
-                      permission: spacePermission,
-                    ),
-                  );
-
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SpaceNameTextField extends StatelessWidget {
-  const _SpaceNameTextField({required this.onChanged});
-
-  final void Function(String name) onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FlowyText.regular(
-          'Space name',
-          fontSize: 14.0,
-          color: Theme.of(context).hintColor,
-        ),
-        const VSpace(6.0),
-        FlowyTextField(
-          hintText: 'Untitled space',
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
-}
-
-class _SpacePermissionSwitch extends StatefulWidget {
-  const _SpacePermissionSwitch({required this.onPermissionChanged});
-
+  final SpacePermission? spacePermission;
   final void Function(SpacePermission permission) onPermissionChanged;
 
   @override
-  State<_SpacePermissionSwitch> createState() => _SpacePermissionSwitchState();
+  State<SpacePermissionSwitch> createState() => _SpacePermissionSwitchState();
 }
 
-class _SpacePermissionSwitchState extends State<_SpacePermissionSwitch> {
-  SpacePermission spacePermission = SpacePermission.publicToAll;
+class _SpacePermissionSwitchState extends State<SpacePermissionSwitch> {
+  late SpacePermission spacePermission =
+      widget.spacePermission ?? SpacePermission.publicToAll;
   final popoverController = PopoverController();
 
   @override
@@ -124,7 +33,7 @@ class _SpacePermissionSwitchState extends State<_SpacePermissionSwitch> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FlowyText.regular(
-          'Permission',
+          LocaleKeys.space_permission.tr(),
           fontSize: 14.0,
           color: Theme.of(context).hintColor,
         ),
@@ -148,7 +57,7 @@ class _SpacePermissionSwitchState extends State<_SpacePermissionSwitch> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: _SpacePermissionButton(
+            child: SpacePermissionButton(
               permission: spacePermission,
             ),
           ),
@@ -163,11 +72,11 @@ class _SpacePermissionSwitchState extends State<_SpacePermissionSwitch> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _SpacePermissionButton(
+          SpacePermissionButton(
             permission: SpacePermission.publicToAll,
             onTap: () => _onPermissionChanged(SpacePermission.publicToAll),
           ),
-          _SpacePermissionButton(
+          SpacePermissionButton(
             permission: SpacePermission.private,
             onTap: () => _onPermissionChanged(SpacePermission.private),
           ),
@@ -187,8 +96,12 @@ class _SpacePermissionSwitchState extends State<_SpacePermissionSwitch> {
   }
 }
 
-class _SpacePermissionButton extends StatelessWidget {
-  const _SpacePermissionButton({required this.permission, this.onTap});
+class SpacePermissionButton extends StatelessWidget {
+  const SpacePermissionButton({
+    super.key,
+    required this.permission,
+    this.onTap,
+  });
 
   final SpacePermission permission;
   final VoidCallback? onTap;
@@ -197,14 +110,14 @@ class _SpacePermissionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final (title, desc, icon) = switch (permission) {
       SpacePermission.publicToAll => (
-          'Public',
-          'All workspace members with full access',
+          LocaleKeys.space_publicPermission.tr(),
+          LocaleKeys.space_publicPermissionDescription.tr(),
           FlowySvgs.space_permission_public_s
         ),
       SpacePermission.private => (
-          'Private',
-          'Only you can access this space',
-          FlowySvgs.space_permission_public_s
+          LocaleKeys.space_privatePermission.tr(),
+          LocaleKeys.space_privatePermissionDescription.tr(),
+          FlowySvgs.space_permission_private_s
         ),
     };
 
@@ -231,11 +144,17 @@ class _SpacePermissionButton extends StatelessWidget {
   }
 }
 
-class _CancelOrCreateButton extends StatelessWidget {
-  const _CancelOrCreateButton({required this.onCancel, required this.onCreate});
+class SpaceCancelOrCreateButton extends StatelessWidget {
+  const SpaceCancelOrCreateButton({
+    super.key,
+    required this.onCancel,
+    required this.onCreate,
+    required this.rightButtonName,
+  });
 
   final VoidCallback onCancel;
   final VoidCallback onCreate;
+  final String rightButtonName;
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +171,7 @@ class _CancelOrCreateButton extends StatelessWidget {
           child: FlowyButton(
             useIntrinsicWidth: true,
             margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
-            text: const FlowyText.regular('Cancel'),
+            text: FlowyText.regular(LocaleKeys.button_cancel.tr()),
             onTap: onCancel,
           ),
         ),
@@ -268,7 +187,7 @@ class _CancelOrCreateButton extends StatelessWidget {
             useIntrinsicWidth: true,
             margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
             text: FlowyText.regular(
-              'Create',
+              rightButtonName,
               color: Theme.of(context).colorScheme.onPrimary,
             ),
             onTap: onCreate,

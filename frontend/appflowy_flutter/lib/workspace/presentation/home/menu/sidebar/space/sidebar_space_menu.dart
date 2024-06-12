@@ -59,7 +59,7 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
     return FlowyButton(
       text: FlowyText.regular(space.name),
       iconPadding: 10,
-      leftIcon: space.spaceIcon,
+      leftIcon: space.spaceIconSvg,
       rightIcon: isSelected
           ? const FlowySvg(
               FlowySvgs.workspace_selected_s,

@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -7,18 +8,18 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CreateSpacePopup extends StatefulWidget {
-  const CreateSpacePopup({super.key});
+class ManageSpacePopup extends StatefulWidget {
+  const ManageSpacePopup({super.key});
 
   @override
-  State<CreateSpacePopup> createState() => _CreateSpacePopupState();
+  State<ManageSpacePopup> createState() => _ManageSpacePopupState();
 }
 
-class _CreateSpacePopupState extends State<CreateSpacePopup> {
-  String spaceName = '';
-  String spaceIcon = '';
-  String spaceIconColor = '';
-  SpacePermission spacePermission = SpacePermission.publicToAll;
+class _ManageSpacePopupState extends State<ManageSpacePopup> {
+  String? spaceName;
+  String? spaceIcon;
+  String? spaceIconColor;
+  SpacePermission? spacePermission;
 
   @override
   Widget build(BuildContext context) {
@@ -29,43 +30,30 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
         mainAxisSize: MainAxisSize.min,
         children: [
           FlowyText(
-            LocaleKeys.space_createNewSpace.tr(),
+            LocaleKeys.space_manage.tr(),
             fontSize: 18.0,
           ),
-          const VSpace(4.0),
-          FlowyText.regular(
-            LocaleKeys.space_createSpaceDescription.tr(),
-            fontSize: 14.0,
-            color: Theme.of(context).hintColor,
-          ),
           const VSpace(16.0),
-          SizedBox.square(
-            dimension: 56,
-            child: SpaceIconPopup(
-              onIconChanged: (icon, iconColor) {
-                spaceIcon = icon;
-                spaceIconColor = iconColor;
-              },
-            ),
+          _SpaceNameTextField(
+            onNameChanged: (name) => spaceName = name,
+            onIconChanged: (icon, color) {
+              spaceIcon = icon;
+              spaceIconColor = color;
+            },
           ),
-          const VSpace(8.0),
-          _SpaceNameTextField(onChanged: (value) => spaceName = value),
           const VSpace(16.0),
           SpacePermissionSwitch(
+            spacePermission:
+                context.read<SpaceBloc>().state.currentSpace?.spacePermission,
             onPermissionChanged: (value) => spacePermission = value,
           ),
           const VSpace(16.0),
           SpaceCancelOrCreateButton(
-            rightButtonName: LocaleKeys.button_create.tr(),
+            rightButtonName: LocaleKeys.button_save.tr(),
             onCancel: () => Navigator.of(context).pop(),
             onCreate: () {
-              if (spaceName.isEmpty) {
-                // todo: show error
-                return;
-              }
-
               context.read<SpaceBloc>().add(
-                    SpaceEvent.create(
+                    SpaceEvent.update(
                       name: spaceName,
                       icon: spaceIcon,
                       iconColor: spaceIconColor,
@@ -83,12 +71,17 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
 }
 
 class _SpaceNameTextField extends StatelessWidget {
-  const _SpaceNameTextField({required this.onChanged});
+  const _SpaceNameTextField({
+    required this.onNameChanged,
+    required this.onIconChanged,
+  });
 
-  final void Function(String name) onChanged;
+  final void Function(String name) onNameChanged;
+  final void Function(String icon, String color) onIconChanged;
 
   @override
   Widget build(BuildContext context) {
+    final space = context.read<SpaceBloc>().state.currentSpace;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,12 +91,30 @@ class _SpaceNameTextField extends StatelessWidget {
           fontSize: 14.0,
           color: Theme.of(context).hintColor,
         ),
-        const VSpace(6.0),
+        const VSpace(8.0),
         SizedBox(
           height: 40,
-          child: FlowyTextField(
-            hintText: 'Untitled space',
-            onChanged: onChanged,
+          child: Row(
+            children: [
+              SizedBox.square(
+                dimension: 40,
+                child: SpaceIconPopup(
+                  icon: space?.spaceIcon,
+                  iconColor: space?.spaceIconColor,
+                  onIconChanged: onIconChanged,
+                ),
+              ),
+              const HSpace(12),
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: FlowyTextField(
+                    text: space?.name,
+                    onChanged: onNameChanged,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
