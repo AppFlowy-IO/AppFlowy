@@ -4,7 +4,6 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -33,7 +32,7 @@ class SidebarSpace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const sectionPadding = 16.0;
+    // const sectionPadding = 16.0;
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (context, value, child) {
@@ -63,7 +62,7 @@ class SidebarSpace extends StatelessWidget {
 }
 
 class _Space extends StatefulWidget {
-  const _Space({super.key});
+  const _Space();
 
   @override
   State<_Space> createState() => _SpaceState();
@@ -76,8 +75,8 @@ class _SpaceState extends State<_Space> {
   Widget build(BuildContext context) {
     return BlocBuilder<SpaceBloc, SpaceState>(
       builder: (context, state) {
-        final isCollaborativeWorkspace =
-            context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
+        // final isCollaborativeWorkspace =
+        //     context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
 
         if (state.spaces.isEmpty) {
           return const SizedBox.shrink();

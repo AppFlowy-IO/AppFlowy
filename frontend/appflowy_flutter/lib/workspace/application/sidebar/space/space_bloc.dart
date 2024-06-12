@@ -238,12 +238,12 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       );
   }
 
-  void _reset(UserProfilePB userProfile, String workspaceId) {
-    _listener?.stop();
-    _listener = null;
+  // void _reset(UserProfilePB userProfile, String workspaceId) {
+  //   _listener?.stop();
+  //   _listener = null;
 
-    _initial(userProfile, workspaceId);
-  }
+  //   _initial(userProfile, workspaceId);
+  // }
 
   Future<ViewPB?> _getLastOpenedSpace(List<ViewPB> spaces) async {
     if (spaces.isEmpty) {

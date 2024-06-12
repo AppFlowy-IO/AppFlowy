@@ -75,7 +75,7 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
 }
 
 class _CreateSpaceButton extends StatelessWidget {
-  const _CreateSpaceButton({super.key});
+  const _CreateSpaceButton();
 
   @override
   Widget build(BuildContext context) {
