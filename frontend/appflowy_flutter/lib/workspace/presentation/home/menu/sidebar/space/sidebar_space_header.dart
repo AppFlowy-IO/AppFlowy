@@ -3,6 +3,7 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_more_popup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -31,10 +32,12 @@ class SidebarSpaceHeader extends StatefulWidget {
 
 class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
   final isHovered = ValueNotifier(false);
+  final onEditing = ValueNotifier(false);
 
   @override
   void dispose() {
     isHovered.dispose();
+    onEditing.dispose();
     super.dispose();
   }
 
@@ -54,11 +57,23 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
         child: MouseRegion(
           onEnter: (_) => isHovered.value = true,
           onExit: (_) => isHovered.value = false,
-          child: FlowyButton(
-            margin: const EdgeInsets.only(left: 6.0, right: 4.0),
-            rightIcon: _buildRightIcon(),
-            iconPadding: 10.0,
-            text: _buildChild(),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: HomeSizes.workspaceSectionHeight,
+                child: FlowyButton(
+                  margin: const EdgeInsets.only(left: 6.0, right: 4.0),
+                  // rightIcon: _buildRightIcon(),
+                  iconPadding: 10.0,
+                  text: _buildChild(),
+                ),
+              ),
+              Positioned(
+                right: 0,
+                child: _buildRightIcon(),
+              ),
+            ],
           ),
         ),
       ),
@@ -70,9 +85,10 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
       children: [
         SizedBox.square(dimension: 20, child: widget.space.spaceIcon),
         const HSpace(10),
-        FlowyText(
+        FlowyText.medium(
           widget.space.name,
           lineHeight: 1.15,
+          fontSize: 14.0,
         ),
         const HSpace(4.0),
         FlowySvg(
@@ -86,25 +102,27 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
 
   Widget _buildRightIcon() {
     return ValueListenableBuilder(
-      valueListenable: isHovered,
-      builder: (context, onHover, child) =>
-          Opacity(opacity: onHover ? 1 : 1, child: child),
-      child: Row(
-        children: [
-          FlowyIconButton(
-            width: 24,
-            iconPadding: const EdgeInsets.all(4.0),
-            icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
-            onPressed: widget.onTapMore,
-          ),
-          const HSpace(8.0),
-          FlowyIconButton(
-            width: 24,
-            iconPadding: const EdgeInsets.all(4.0),
-            icon: const FlowySvg(FlowySvgs.view_item_add_s),
-            onPressed: widget.onAdded,
-          ),
-        ],
+      valueListenable: onEditing,
+      builder: (context, onEditing, child) => ValueListenableBuilder(
+        valueListenable: isHovered,
+        builder: (context, onHover, child) =>
+            Opacity(opacity: onHover || onEditing ? 1 : 0, child: child),
+        child: Row(
+          children: [
+            SpaceMorePopup(
+              space: widget.space,
+              onEditing: (value) => this.onEditing.value = value,
+              onAction: (_, __) {},
+            ),
+            const HSpace(8.0),
+            FlowyIconButton(
+              width: 24,
+              iconPadding: const EdgeInsets.all(4.0),
+              icon: const FlowySvg(FlowySvgs.view_item_add_s),
+              onPressed: widget.onAdded,
+            ),
+          ],
+        ),
       ),
     );
   }

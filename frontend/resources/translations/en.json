@@ -1734,5 +1734,26 @@
     "betaLabel": "BETA",
     "betaTooltip": "We currently only support searching for pages",
     "fromTrashHint": "From trash"
+  },
+  "space": {
+    "delete": "Delete space",
+    "deleteConfirmation": "Are you sure you want to delete this space?",
+    "deleteConfirmationDescription": "This action cannot be undone, and will remove the pages and data in this space.",
+    "rename": "Rename space",
+    "changeIcon": "Change icon",
+    "manage": "Manage space",
+    "addNewSpace": "Add new space",
+    "collapseAllSubPages": "Collapse all subpages",
+    "createNewSpace": "Create new space",
+    "createSpaceDescription": "Separate your tabs for life, work, project and more",
+    "spaceName": "Space name",
+    "permission": "Permission",
+    "publicPermission": "Public",
+    "publicPermissionDescription": "All workspace members with full access",
+    "privatePermission": "Private",
+    "privatePermissionDescription": "Only you can access this space",
+    "spaceIconBackground": "Background color",
+    "spaceIcon": "Icon"
   }
 }
+
