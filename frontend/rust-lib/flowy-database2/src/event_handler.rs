@@ -656,7 +656,7 @@ pub(crate) async fn set_group_by_field_handler(
   let params: GroupByFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
-    .set_group_by_field(&params.view_id, &params.field_id)
+    .set_group_by_field(&params.view_id, &params.field_id, params.setting_content)
     .await?;
   Ok(())
 }

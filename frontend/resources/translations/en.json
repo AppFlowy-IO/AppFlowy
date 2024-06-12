@@ -1436,6 +1436,7 @@
     "ungroupedButtonTooltip": "Contains cards that don't belong in any group",
     "ungroupedItemsTitle": "Click to add to the board",
     "groupBy": "Group by",
+    "groupCondition": "Group condition",
     "referencedBoardPrefix": "View of",
     "notesTooltip": "Notes inside",
     "mobile": {
@@ -1443,6 +1444,16 @@
       "showGroup": "Show group",
       "showGroupContent": "Are you sure you want to show this group on the board?",
       "failedToLoad": "Failed to load board view"
+    },
+    "dateCondition": {
+      "weekOf": "Week of {} - {}",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "tomorrow": "Tomorrow",
+      "lastSevenDays": "Last 7 days",
+      "nextSevenDays": "Next 7 days",
+      "lastThirtyDays": "Last 30 days",
+      "nextThirtyDays": "Next 30 days"
     },
     "noGroup": "No group by property",
     "noGroupDesc": "Board views require a property to group by in order to display"
