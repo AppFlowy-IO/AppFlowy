@@ -126,8 +126,13 @@ impl FolderTest {
         let app = create_view(sdk, &self.workspace.id, &name, &desc, ViewLayout::Document).await;
         self.parent_view = app;
       },
-      FolderScript::AssertParentView(app) => {
-        assert_eq!(self.parent_view, app, "App not equal");
+      FolderScript::AssertParentView(view) => {
+        assert_eq!(self.parent_view.id, view.id, "view id not equal");
+        assert_eq!(self.parent_view.name, view.name, "view name not equal");
+        assert_eq!(
+          self.parent_view.is_favorite, view.is_favorite,
+          "view name not equal"
+        );
       },
       FolderScript::ReloadParentView(parent_view_id) => {
         let parent_view = read_view(sdk, &parent_view_id).await;

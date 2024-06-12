@@ -32,24 +32,27 @@ class DesktopGridTranslateCellSkin extends IEditableTranslateCellSkin {
               minHeight: GridSize.headerHeight,
             ),
             child: Stack(
+              fit: StackFit.expand,
               children: [
-                TextField(
-                  controller: textEditingController,
-                  enabled: false,
-                  focusNode: focusNode,
-                  onEditingComplete: () => focusNode.unfocus(),
-                  onSubmitted: (_) => focusNode.unfocus(),
-                  maxLines: null,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  textInputAction: TextInputAction.done,
-                  decoration: InputDecoration(
-                    contentPadding: GridSize.cellContentInsets,
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    errorBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none,
-                    isDense: true,
+                Center(
+                  child: TextField(
+                    controller: textEditingController,
+                    readOnly: true,
+                    focusNode: focusNode,
+                    onEditingComplete: () => focusNode.unfocus(),
+                    onSubmitted: (_) => focusNode.unfocus(),
+                    maxLines: null,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textInputAction: TextInputAction.done,
+                    decoration: InputDecoration(
+                      contentPadding: GridSize.cellContentInsets,
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                      isDense: true,
+                    ),
                   ),
                 ),
                 Padding(

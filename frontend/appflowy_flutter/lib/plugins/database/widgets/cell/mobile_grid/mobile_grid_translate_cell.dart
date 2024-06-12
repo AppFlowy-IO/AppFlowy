@@ -32,7 +32,7 @@ class MobileGridTranslateCellSkin extends IEditableTranslateCellSkin {
             children: [
               TextField(
                 controller: textEditingController,
-                enabled: false,
+                readOnly: true,
                 focusNode: focusNode,
                 onEditingComplete: () => focusNode.unfocus(),
                 onSubmitted: (_) => focusNode.unfocus(),

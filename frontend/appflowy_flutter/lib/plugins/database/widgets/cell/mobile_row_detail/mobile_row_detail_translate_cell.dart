@@ -16,6 +16,7 @@ class MobileRowDetailTranslateCellSkin extends IEditableTranslateCellSkin {
     return Column(
       children: [
         TextField(
+          readOnly: true,
           controller: textEditingController,
           focusNode: focusNode,
           onEditingComplete: () => focusNode.unfocus(),
