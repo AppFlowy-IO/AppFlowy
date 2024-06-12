@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use appflowy_cloud_billing_client::WorkspaceSubscriptionClient;
+use appflowy_cloud_billing_client::BillingClient;
 use client_api::entity::workspace_dto::{
   CreateWorkspaceMember, CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset,
   WorkspaceMemberInvitation,
@@ -491,7 +491,7 @@ where
     FutureResult::new(async move {
       let subscription_plan = to_workspace_subscription_plan(workspace_subscription_plan)?;
       let client = try_get_client?;
-      let payment_link = client
+      let payment_link = BillingClient::from(client.as_ref())
         .create_subscription(
           &workspace_id,
           to_recurring_interval(recurring_interval),
@@ -507,7 +507,7 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let workspace_subscriptions = client
+      let workspace_subscriptions = BillingClient::from(client.as_ref())
         .list_subscription()
         .await?
         .into_iter()
@@ -521,7 +521,9 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      client.cancel_subscription(&workspace_id).await?;
+      BillingClient::from(client.as_ref())
+        .cancel_subscription(&workspace_id)
+        .await?;
       Ok(())
     })
   }
@@ -530,8 +532,9 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let usage =
-        WorkspaceSubscriptionClient::get_workspace_usage(client.as_ref(), &workspace_id).await?;
+      let usage = BillingClient::from(client.as_ref())
+        .get_workspace_usage(&workspace_id)
+        .await?;
       Ok(WorkspaceUsage {
         member_count: usage.member_count,
         member_count_limit: usage.member_count_limit,
@@ -545,7 +548,9 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let url = client.get_portal_session_link().await?;
+      let url = BillingClient::from(client.as_ref())
+        .get_portal_session_link()
+        .await?;
       Ok(url)
     })
   }

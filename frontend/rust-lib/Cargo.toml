@@ -76,7 +76,7 @@ uuid = { version = "1.5.0", features = ["serde", "v4", "v5"] }
 serde_repr = "0.1"
 parking_lot = "0.12"
 futures = "0.3.29"
-tokio = "1.34.0"
+tokio = "1.38.0"
 tokio-stream = "0.1.14"
 async-trait = "0.1.74"
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
@@ -95,7 +95,7 @@ yrs = "0.18.8"
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
 client-api = { version = "0.2" }
-appflowy-cloud-billing-client = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client", rev = "48ab2cc33302caf3bb158636817a4010b1fa711e" }
+appflowy-cloud-billing-client = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client", rev = "9f9c2d1ad180987a31d18c6c067a56a5fa1f6da6" }
 
 [profile.dev]
 opt-level = 1
