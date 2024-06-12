@@ -20,6 +20,7 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_user.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
@@ -159,6 +160,13 @@ class HomeSideBar extends StatelessWidget {
                     context
                         .read<FavoriteBloc>()
                         .add(const FavoriteEvent.fetchFavorites());
+                    context.read<SpaceBloc>().add(
+                          SpaceEvent.reset(
+                            userProfile,
+                            state.currentWorkspace?.workspaceId ??
+                                workspaceSetting.workspaceId,
+                          ),
+                        );
                   }
                 },
               ),
@@ -293,35 +301,8 @@ class _SidebarState extends State<_Sidebar> {
                 ),
               ),
             ),
-            // Expanded(
-            //   child: Padding(
-            //     padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
-            //     child: SingleChildScrollView(
-            //       padding: const EdgeInsets.only(right: 6),
-            //       controller: _scrollController,
-            //       physics: const ClampingScrollPhysics(),
-            //       child: SidebarFolder(
-            //         userProfile: widget.userProfile,
-            //         isHoverEnabled: !_isScrolling,
-            //       ),
-            //     ),
-            //   ),
-            // ),
 
-            Expanded(
-              child: Padding(
-                padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(right: 6),
-                  controller: _scrollController,
-                  physics: const ClampingScrollPhysics(),
-                  child: SidebarSpace(
-                    userProfile: widget.userProfile,
-                    isHoverEnabled: !_isScrolling,
-                  ),
-                ),
-              ),
-            ),
+            _renderFolderOrSpace(menuHorizontalInset),
 
             // trash
             Padding(
@@ -340,6 +321,38 @@ class _SidebarState extends State<_Sidebar> {
         ),
       ),
     );
+  }
+
+  Widget _renderFolderOrSpace(EdgeInsets menuHorizontalInset) {
+    return context.watch<SpaceBloc>().state.spaces.isEmpty
+        ? Expanded(
+            child: Padding(
+              padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(right: 6),
+                controller: _scrollController,
+                physics: const ClampingScrollPhysics(),
+                child: SidebarFolder(
+                  userProfile: widget.userProfile,
+                  isHoverEnabled: !_isScrolling,
+                ),
+              ),
+            ),
+          )
+        : Expanded(
+            child: Padding(
+              padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(right: 6),
+                controller: _scrollController,
+                physics: const ClampingScrollPhysics(),
+                child: SidebarSpace(
+                  userProfile: widget.userProfile,
+                  isHoverEnabled: !_isScrolling,
+                ),
+              ),
+            ),
+          );
   }
 
   void _onScrollChanged() {

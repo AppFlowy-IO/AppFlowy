@@ -192,6 +192,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               ),
             );
           },
+          reset: (userProfile, workspaceId) async {
+            _reset(userProfile, workspaceId);
+
+            add(SpaceEvent.initial(userProfile, workspaceId));
+          },
         );
       },
     );
@@ -297,12 +302,12 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       );
   }
 
-  // void _reset(UserProfilePB userProfile, String workspaceId) {
-  //   _listener?.stop();
-  //   _listener = null;
+  void _reset(UserProfilePB userProfile, String workspaceId) {
+    _listener?.stop();
+    _listener = null;
 
-  //   _initial(userProfile, workspaceId);
-  // }
+    _initial(userProfile, workspaceId);
+  }
 
   Future<ViewPB?> _getLastOpenedSpace(List<ViewPB> spaces) async {
     if (spaces.isEmpty) {
@@ -389,6 +394,10 @@ class SpaceEvent with _$SpaceEvent {
   }) = _CreatePage;
   const factory SpaceEvent.delete(ViewPB? space) = _Delete;
   const factory SpaceEvent.didReceiveSpaceUpdate() = _DidReceiveSpaceUpdate;
+  const factory SpaceEvent.reset(
+    UserProfilePB userProfile,
+    String workspaceId,
+  ) = _Reset;
 }
 
 @freezed
