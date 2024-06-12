@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -25,6 +22,8 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -234,23 +233,12 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
 
   void _setSystemOverlayStyle(AppearanceSettingsState state) {
     if (Platform.isAndroid) {
-      SystemUiOverlayStyle style = SystemUiOverlayStyle.dark;
-      final themeMode = state.themeMode;
-      if (themeMode == ThemeMode.dark) {
-        style = SystemUiOverlayStyle.light;
-      } else if (themeMode == ThemeMode.light) {
-        style = SystemUiOverlayStyle.dark;
-      } else {
-        final brightness = Theme.of(context).brightness;
-        // reverse the brightness of the system status bar.
-        style = brightness == Brightness.dark
-            ? SystemUiOverlayStyle.light
-            : SystemUiOverlayStyle.dark;
-      }
-
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.edgeToEdge,
+        overlays: [],
+      );
       SystemChrome.setSystemUIOverlayStyle(
-        style.copyWith(
-          statusBarColor: Colors.transparent,
+        const SystemUiOverlayStyle(
           systemNavigationBarColor: Colors.transparent,
         ),
       );
