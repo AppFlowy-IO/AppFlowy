@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpacePermissionSwitch extends StatefulWidget {
   const SpacePermissionSwitch({
@@ -144,17 +145,19 @@ class SpacePermissionButton extends StatelessWidget {
   }
 }
 
-class SpaceCancelOrCreateButton extends StatelessWidget {
-  const SpaceCancelOrCreateButton({
+class SpaceCancelOrConfirmButton extends StatelessWidget {
+  const SpaceCancelOrConfirmButton({
     super.key,
     required this.onCancel,
-    required this.onCreate,
-    required this.rightButtonName,
+    required this.onConfirm,
+    required this.confirmButtonName,
+    this.confirmButtonColor,
   });
 
   final VoidCallback onCancel;
-  final VoidCallback onCreate;
-  final String rightButtonName;
+  final VoidCallback onConfirm;
+  final String confirmButtonName;
+  final Color? confirmButtonColor;
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +181,7 @@ class SpaceCancelOrCreateButton extends StatelessWidget {
         const HSpace(12.0),
         DecoratedBox(
           decoration: ShapeDecoration(
-            color: Theme.of(context).colorScheme.primary,
+            color: confirmButtonColor ?? Theme.of(context).colorScheme.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -187,13 +190,56 @@ class SpaceCancelOrCreateButton extends StatelessWidget {
             useIntrinsicWidth: true,
             margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
             text: FlowyText.regular(
-              rightButtonName,
+              confirmButtonName,
               color: Theme.of(context).colorScheme.onPrimary,
             ),
-            onTap: onCreate,
+            onTap: onConfirm,
           ),
         ),
       ],
+    );
+  }
+}
+
+class DeleteSpacePopup extends StatelessWidget {
+  const DeleteSpacePopup({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 12.0,
+        horizontal: 20.0,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FlowyText(
+            LocaleKeys.space_deleteConfirmation.tr(),
+            fontSize: 14.0,
+          ),
+          const VSpace(16.0),
+          FlowyText.regular(
+            LocaleKeys.space_deleteConfirmationDescription.tr(),
+            fontSize: 12.0,
+            color: Theme.of(context).hintColor,
+            maxLines: 3,
+            lineHeight: 1.4,
+          ),
+          const VSpace(20.0),
+          SpaceCancelOrConfirmButton(
+            onCancel: () => Navigator.of(context).pop(),
+            onConfirm: () {
+              context.read<SpaceBloc>().add(const SpaceEvent.delete(null));
+              Navigator.of(context).pop();
+            },
+            confirmButtonName: LocaleKeys.space_delete.tr(),
+            confirmButtonColor: Theme.of(context).colorScheme.error,
+          ),
+          const VSpace(8.0),
+        ],
+      ),
     );
   }
 }

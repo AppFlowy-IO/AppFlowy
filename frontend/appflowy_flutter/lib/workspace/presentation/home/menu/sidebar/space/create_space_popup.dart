@@ -55,10 +55,10 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
             onPermissionChanged: (value) => spacePermission = value,
           ),
           const VSpace(16.0),
-          SpaceCancelOrCreateButton(
-            rightButtonName: LocaleKeys.button_create.tr(),
+          SpaceCancelOrConfirmButton(
+            confirmButtonName: LocaleKeys.button_create.tr(),
             onCancel: () => Navigator.of(context).pop(),
-            onCreate: () {
+            onConfirm: () {
               if (spaceName.isEmpty) {
                 // todo: show error
                 return;

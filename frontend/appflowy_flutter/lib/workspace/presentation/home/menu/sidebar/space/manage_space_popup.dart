@@ -48,10 +48,10 @@ class _ManageSpacePopupState extends State<ManageSpacePopup> {
             onPermissionChanged: (value) => spacePermission = value,
           ),
           const VSpace(16.0),
-          SpaceCancelOrCreateButton(
-            rightButtonName: LocaleKeys.button_save.tr(),
+          SpaceCancelOrConfirmButton(
+            confirmButtonName: LocaleKeys.button_save.tr(),
             onCancel: () => Navigator.of(context).pop(),
-            onCreate: () {
+            onConfirm: () {
               context.read<SpaceBloc>().add(
                     SpaceEvent.update(
                       name: spaceName,

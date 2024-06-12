@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/manage_space_popup.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_more_popup.dart';
@@ -149,6 +150,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
       case SpaceMoreActionType.collapseAllPages:
         break;
       case SpaceMoreActionType.delete:
+        _showDeleteSpaceDialog(context);
         break;
       case SpaceMoreActionType.divider:
         break;
@@ -178,6 +180,24 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
           child: BlocProvider.value(
             value: spaceBloc,
             child: const ManageSpacePopup(),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDeleteSpaceDialog(BuildContext context) {
+    final spaceBloc = context.read<SpaceBloc>();
+    showDialog(
+      context: context,
+      builder: (_) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: BlocProvider.value(
+            value: spaceBloc,
+            child: const SizedBox(width: 440, child: DeleteSpacePopup()),
           ),
         );
       },

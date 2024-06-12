@@ -84,13 +84,18 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             }
           },
           delete: (space) async {
-            final result = await ViewBackendService.delete(viewId: space.id);
-            result.fold((_) {
-              final spaces = state.spaces.where((e) => e.id != space.id);
-              emit(state.copyWith(spaces: [...spaces]));
-            }, (error) {
-              Log.error('Failed to delete space: $error');
-            });
+            final deletedSpace = space ?? state.currentSpace;
+            if (deletedSpace == null) {
+              return;
+            }
+            final result =
+                await ViewBackendService.delete(viewId: deletedSpace.id);
+            // result.fold((_) {
+            //   final spaces = state.spaces.where((e) => e.id != deletedSpace.id);
+            //   emit(state.copyWith(spaces: [...spaces]));
+            // }, (error) {
+            //   Log.error('Failed to delete space: $error');
+            // });
           },
           rename: (space, name) async {
             add(SpaceEvent.update(name: name));
@@ -386,7 +391,7 @@ class SpaceEvent with _$SpaceEvent {
     required ViewSectionPB viewSection,
     int? index,
   }) = _CreatePage;
-  const factory SpaceEvent.delete(ViewPB space) = _Delete;
+  const factory SpaceEvent.delete(ViewPB? space) = _Delete;
   const factory SpaceEvent.didReceiveSpaceUpdate() = _DidReceiveSpaceUpdate;
 }
 
