@@ -17,7 +17,9 @@ use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
-use flowy_database_pub::cloud::{DatabaseCloudService, SummaryRowContent};
+use flowy_database_pub::cloud::{
+  DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
+};
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
@@ -27,7 +29,7 @@ use crate::services::cell::stringify_cell;
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
-use crate::services::field::SingleSelectTypeOption;
+
 use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
@@ -469,34 +471,40 @@ impl DatabaseManager {
     field_id: String,
   ) -> FlowyResult<()> {
     let database = self.get_database_with_view_id(&view_id).await?;
-    let mut translate_row_content = SummaryRowContent::new();
+    let mut translate_row_content = TranslateRowContent::new();
     let mut language = "english".to_string();
 
     if let Some(row) = database.get_row(&view_id, &row_id) {
       let fields = database.get_fields(&view_id, None);
       for field in fields {
-        // When summarizing a row, skip the content in the "AI summary" cell; it does not need to
-        // be summarized.
+        // When translate a row, skip the content in the "AI Translate" cell; it does not need to
+        // be translated.
         if field.id != field_id {
           if let Some(cell) = row.cells.get(&field.id) {
-            translate_row_content.insert(field.name.clone(), stringify_cell(cell, &field));
+            translate_row_content.push(TranslateItem {
+              title: field.name.clone(),
+              content: stringify_cell(cell, &field),
+            })
           }
         } else {
-          language = field
-            .type_options
-            .get(&FieldType::Translate.to_string())
-            .cloned()
-            .map(|t| TranslateTypeOption::from(t))
-            .unwrap_or_default()
-            .language;
+          language = TranslateTypeOption::language_from_type(
+            field
+              .type_options
+              .get(&FieldType::Translate.to_string())
+              .cloned()
+              .map(TranslateTypeOption::from)
+              .unwrap_or_default()
+              .language_type,
+          )
+          .to_string();
         }
       }
     }
 
     // Call the cloud service to summarize the row.
     trace!(
-      "[AI]:translate row:{}, content:{:?}",
-      row_id,
+      "[AI]:translate to {}, content:{:?}",
+      language,
       translate_row_content
     );
     let response = self
@@ -511,7 +519,7 @@ impl DatabaseManager {
       .map(|value| {
         value
           .into_iter()
-          .map(|(_k, v)| format!("{}", v))
+          .map(|(_k, v)| v.to_string())
           .collect::<Vec<String>>()
           .join(", ")
       })

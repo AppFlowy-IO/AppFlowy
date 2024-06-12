@@ -131,7 +131,7 @@ fn create_summary_field(name: &str) -> Field {
 fn create_translate_field(name: &str) -> Field {
   let type_option = TranslateTypeOption {
     auto_fill: false,
-    language: "french".to_string(),
+    language_type: 2,
   };
   FieldBuilder::new(FieldType::Translate, type_option)
     .name(name)

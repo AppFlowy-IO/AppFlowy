@@ -7,7 +7,7 @@ use crate::services::field::{
   TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-use collab::core::any_map::{AnyMap, AnyMapExtension};
+use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -16,14 +16,27 @@ use std::cmp::Ordering;
 #[derive(Debug, Clone)]
 pub struct TranslateTypeOption {
   pub auto_fill: bool,
-  pub language: String,
+  /// Use [TranslateTypeOption::language_from_type] to get the language name
+  pub language_type: i64,
+}
+
+impl TranslateTypeOption {
+  pub fn language_from_type(language_type: i64) -> &'static str {
+    match language_type {
+      0 => "Chinese",
+      1 => "English",
+      2 => "French",
+      3 => "German",
+      _ => "English",
+    }
+  }
 }
 
 impl Default for TranslateTypeOption {
   fn default() -> Self {
     Self {
       auto_fill: false,
-      language: "english".to_string(),
+      language_type: 1,
     }
   }
 }
@@ -31,10 +44,10 @@ impl Default for TranslateTypeOption {
 impl From<TypeOptionData> for TranslateTypeOption {
   fn from(value: TypeOptionData) -> Self {
     let auto_fill = value.get_bool_value("auto_fill").unwrap_or_default();
-    let language = value.get_str_value("language").unwrap_or_default();
+    let language = value.get_i64_value("language").unwrap_or_default();
     Self {
       auto_fill,
-      language,
+      language_type: language,
     }
   }
 }
@@ -43,7 +56,7 @@ impl From<TranslateTypeOption> for TypeOptionData {
   fn from(value: TranslateTypeOption) -> Self {
     TypeOptionDataBuilder::new()
       .insert_bool_value("auto_fill", value.auto_fill)
-      .insert_str_value("language", value.language)
+      .insert_i64_value("language", value.language_type)
       .build()
   }
 }

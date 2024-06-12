@@ -188,7 +188,7 @@ pub fn type_option_data_from_pb<T: Into<Bytes>>(
       SummarizationTypeOptionPB::try_from(bytes).map(|pb| SummarizationTypeOption::from(pb).into())
     },
     FieldType::Translate => {
-      SummarizationTypeOptionPB::try_from(bytes).map(|pb| SummarizationTypeOption::from(pb).into())
+      TranslateTypeOptionPB::try_from(bytes).map(|pb| TranslateTypeOption::from(pb).into())
     },
   }
 }

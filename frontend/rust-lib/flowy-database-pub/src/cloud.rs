@@ -1,5 +1,5 @@
 use anyhow::Error;
-pub use client_api::entity::ai_dto::TranslateRowResponse;
+pub use client_api::entity::ai_dto::{TranslateItem, TranslateRowResponse};
 use collab::core::collab::DataSource;
 use collab_entity::CollabType;
 use lib_infra::future::FutureResult;
@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 pub type CollabDocStateByOid = HashMap<String, DataSource>;
 pub type SummaryRowContent = HashMap<String, String>;
-pub type TranslateRowContent = HashMap<String, String>;
+pub type TranslateRowContent = Vec<TranslateItem>;
 /// A trait for database cloud service.
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
 /// [flowy-server] crate for more information.

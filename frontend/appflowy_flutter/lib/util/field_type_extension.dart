@@ -43,6 +43,12 @@ extension FieldTypeExtension on FieldType {
         _ => throw UnimplementedError(),
       };
 
+  FlowySvgData? get rightIcon => switch (this) {
+        FieldType.Summary => FlowySvgs.ai_indicator_s,
+        FieldType.Translate => FlowySvgs.ai_indicator_s,
+        _ => null,
+      };
+
   Color get mobileIconBackgroundColor => switch (this) {
         FieldType.RichText => const Color(0xFFBECCFF),
         FieldType.Number => const Color(0xFFCABDFF),

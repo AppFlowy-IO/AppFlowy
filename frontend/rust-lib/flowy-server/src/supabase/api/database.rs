@@ -109,9 +109,9 @@ where
 
   fn translate_database_row(
     &self,
-    workspace_id: &str,
-    translate_row: TranslateRowContent,
-    language: &str,
+    _workspace_id: &str,
+    _translate_row: TranslateRowContent,
+    _language: &str,
   ) -> FutureResult<TranslateRowResponse, Error> {
     FutureResult::new(async move { Ok(TranslateRowResponse::default()) })
   }

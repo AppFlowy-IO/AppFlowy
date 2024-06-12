@@ -123,7 +123,8 @@ class _TranslateCellState extends GridEditableTextCell<EditableTranslateCell> {
         !cellBloc.isClosed &&
         cellBloc.state.content != _textEditingController.text.trim()) {
       cellBloc.add(
-          TranslateCellEvent.updateCell(_textEditingController.text.trim()));
+        TranslateCellEvent.updateCell(_textEditingController.text.trim()),
+      );
     }
     return super.focusChanged();
   }
@@ -177,7 +178,7 @@ class TranslateButton extends StatelessWidget {
           },
           finish: (_) {
             return FlowyTooltip(
-              message: LocaleKeys.tooltip_genSummary.tr(),
+              message: LocaleKeys.tooltip_aiGenerate.tr(),
               child: Container(
                 width: 26,
                 height: 26,
