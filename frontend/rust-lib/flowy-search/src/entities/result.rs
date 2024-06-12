@@ -1,5 +1,6 @@
 use collab_folder::{IconType, ViewIcon};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_folder::entities::ViewIconPB;
 
 use super::IndexTypePB;
 
@@ -122,6 +123,15 @@ impl From<ViewIcon> for ResultIconPB {
   fn from(val: ViewIcon) -> Self {
     ResultIconPB {
       ty: val.ty.into(),
+      value: val.value,
+    }
+  }
+}
+
+impl From<ViewIconPB> for ResultIconPB {
+  fn from(val: ViewIconPB) -> Self {
+    ResultIconPB {
+      ty: IconType::from(val.ty).into(),
       value: val.value,
     }
   }
