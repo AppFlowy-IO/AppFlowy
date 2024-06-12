@@ -1,5 +1,7 @@
 use anyhow::Error;
-use client_api::entity::ai_dto::{SummarizeRowData, SummarizeRowParams};
+use client_api::entity::ai_dto::{
+  SummarizeRowData, SummarizeRowParams, TranslateRowData, TranslateRowParams,
+};
 use client_api::entity::QueryCollabResult::{Failed, Success};
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
@@ -12,6 +14,7 @@ use tracing::{error, instrument};
 
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
+  TranslateRowContent, TranslateRowResponse,
 };
 use lib_infra::future::FutureResult;
 
@@ -137,6 +140,28 @@ where
       };
       let data = try_get_client?.summarize_row(params).await?;
       Ok(data.text)
+    })
+  }
+
+  fn translate_database_row(
+    &self,
+    workspace_id: &str,
+    translate_row: TranslateRowContent,
+    language: &str,
+  ) -> FutureResult<TranslateRowResponse, Error> {
+    let language = language.to_string();
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    FutureResult::new(async move {
+      let data = TranslateRowData {
+        cells: translate_row,
+        language,
+        include_header: false,
+      };
+
+      let params = TranslateRowParams { workspace_id, data };
+      let data = try_get_client?.translate_row(params).await?;
+      Ok(data)
     })
   }
 }

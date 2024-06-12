@@ -1703,8 +1703,9 @@ pub async fn update_field_type_option_fn(
         update.update_type_options(|type_options_update| {
           event!(
             tracing::Level::TRACE,
-            "insert type option to field type: {:?}",
-            field_type
+            "insert type option to field type: {:?}, {:?}",
+            field_type,
+            type_option_data
           );
           type_options_update.insert(&field_type.to_string(), type_option_data);
         });

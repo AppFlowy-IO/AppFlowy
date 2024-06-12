@@ -215,6 +215,14 @@ impl EventIntegrationTest {
       .await;
   }
 
+  pub async fn translate_row(&self, data: TranslateRowPB) {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::TranslateRow)
+      .payload(data)
+      .async_send()
+      .await;
+  }
+
   pub async fn create_row(
     &self,
     view_id: &str,

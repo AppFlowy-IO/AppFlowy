@@ -84,5 +84,9 @@ CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
       padding: padding,
       textStyle: textStyle,
     ),
+    FieldType.Translate: SummaryCardCellStyle(
+      padding: padding,
+      textStyle: textStyle,
+    ),
   };
 }

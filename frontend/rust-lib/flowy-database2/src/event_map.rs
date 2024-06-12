@@ -91,6 +91,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
         // AI
         .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
+        .event(DatabaseEvent::TranslateRow, translate_row_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -373,4 +374,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "SummaryRowPB")]
   SummarizeRow = 174,
+
+  #[event(input = "TranslateRowPB")]
+  TranslateRow = 175,
 }

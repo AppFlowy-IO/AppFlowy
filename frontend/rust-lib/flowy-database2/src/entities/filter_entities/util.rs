@@ -109,6 +109,10 @@ impl From<&Filter> for FilterPB {
             .cloned::<TextFilterPB>()
             .unwrap()
             .try_into(),
+          FieldType::Translate => condition_and_content
+            .cloned::<TextFilterPB>()
+            .unwrap()
+            .try_into(),
         };
 
         Self {
@@ -154,6 +158,9 @@ impl TryFrom<FilterDataPB> for FilterInner {
         BoxAny::new(RelationFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
       },
       FieldType::Summary => {
+        BoxAny::new(TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Translate => {
         BoxAny::new(TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
       },
     };

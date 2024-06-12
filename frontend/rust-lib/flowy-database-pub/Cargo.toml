@@ -10,3 +10,4 @@ lib-infra = { workspace = true }
 collab-entity = { workspace = true }
 collab = { workspace = true }
 anyhow.workspace = true
+client-api = { workspace = true }

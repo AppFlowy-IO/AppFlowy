@@ -1104,3 +1104,16 @@ pub(crate) async fn summarize_row_handler(
     .await?;
   Ok(())
 }
+
+pub(crate) async fn translate_row_handler(
+  data: AFPluginData<TranslateRowPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let data = data.try_into_inner()?;
+  let row_id = RowId::from(data.row_id);
+  manager
+    .translate_row(data.view_id, row_id, data.field_id)
+    .await?;
+  Ok(())
+}
