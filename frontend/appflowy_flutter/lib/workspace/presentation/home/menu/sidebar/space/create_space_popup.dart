@@ -17,7 +17,7 @@ class CreateSpacePopup extends StatefulWidget {
 class _CreateSpacePopupState extends State<CreateSpacePopup> {
   String spaceName = '';
   String spaceIcon = '';
-  int spaceIconColor = 0;
+  String spaceIconColor = '';
   SpacePermission spacePermission = SpacePermission.publicToAll;
 
   @override

@@ -1,11 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_action_type.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpaceMorePopup extends StatelessWidget {
   const SpaceMorePopup({
@@ -99,12 +102,18 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
     PopoverController controller,
   ) {
     final child = _buildActionButton(context, null);
+    final spaceBloc = context.read<SpaceBloc>();
+    final color = spaceBloc.state.currentSpace?.spaceIconColor;
 
     return AppFlowyPopover(
-      constraints: BoxConstraints.loose(const Size(364, 356)),
+      constraints: BoxConstraints.loose(const Size(216, 256)),
       clickHandler: PopoverClickHandler.gestureDetector,
-      popupBuilder: (_) => FlowyIconPicker(
-        onSelected: (result) => onTap(controller, result),
+      popupBuilder: (_) => SpaceIconPicker(
+        iconColor: color,
+        skipFirstNotification: true,
+        onIconChanged: (icon, color) {
+          onTap(controller, (icon, color));
+        },
       ),
       child: child,
     );

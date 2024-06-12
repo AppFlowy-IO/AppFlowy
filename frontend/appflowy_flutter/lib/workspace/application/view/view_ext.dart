@@ -143,11 +143,24 @@ extension ViewExtension on ViewPB {
       }
       return FlowySvg(
         FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
-        color: Color(color),
+        color: Color(int.parse(color)),
         blendMode: BlendMode.srcOut,
       );
     } catch (e) {
       return const FlowySvg(FlowySvgs.space_icon_s, blendMode: null);
+    }
+  }
+
+  String? get spaceIconColor {
+    try {
+      final ext = jsonDecode(extra);
+      final color = ext[ViewExtKeys.spaceIconColorKey];
+      if (color == null) {
+        return null;
+      }
+      return color;
+    } catch (e) {
+      return null;
     }
   }
 

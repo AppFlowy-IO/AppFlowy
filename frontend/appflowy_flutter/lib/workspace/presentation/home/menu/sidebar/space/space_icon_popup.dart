@@ -1,54 +1,45 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 
 final _builtInColors = [
-  0xFFA34AFD,
-  0xFFFB006D,
-  0xFF00C8FF,
-  0xFFFFBA00,
-  0xFFF254BC,
-  0xFF2AC985,
-  0xFFAAD93D,
-  0xFF535CE4,
-  0xFF808080,
-  0xFFD2515F,
-  0xFF409BF8,
-  0xFFFF8933,
+  '0xFFA34AFD',
+  '0xFFFB006D',
+  '0xFF00C8FF',
+  '0xFFFFBA00',
+  '0xFFF254BC',
+  '0xFF2AC985',
+  '0xFFAAD93D',
+  '0xFF535CE4',
+  '0xFF808080',
+  '0xFFD2515F',
+  '0xFF409BF8',
+  '0xFFFF8933',
 ];
 
 final _buildInIcons = List.generate(15, (index) => 'space_icon_${index + 1}');
 
 class SpaceIconPopup extends StatefulWidget {
-  const SpaceIconPopup({super.key, required this.onIconChanged});
+  const SpaceIconPopup({
+    super.key,
+    required this.onIconChanged,
+  });
 
-  final void Function(String icon, int color) onIconChanged;
+  final void Function(String icon, String color) onIconChanged;
 
   @override
   State<SpaceIconPopup> createState() => _SpaceIconPopupState();
 }
 
 class _SpaceIconPopupState extends State<SpaceIconPopup> {
-  ValueNotifier<int> selectedColor = ValueNotifier<int>(_builtInColors.first);
+  ValueNotifier<String> selectedColor =
+      ValueNotifier<String>(_builtInColors.first);
   ValueNotifier<String> selectedIcon =
       ValueNotifier<String>(_buildInIcons.first);
-
-  @override
-  void initState() {
-    super.initState();
-
-    widget.onIconChanged(selectedIcon.value, selectedColor.value);
-
-    selectedColor.addListener(() {
-      widget.onIconChanged(selectedIcon.value, selectedColor.value);
-    });
-
-    selectedIcon.addListener(() {
-      widget.onIconChanged(selectedIcon.value, selectedColor.value);
-    });
-  }
 
   @override
   void dispose() {
@@ -70,38 +61,12 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
       margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       direction: PopoverDirection.bottomWithCenterAligned,
       child: _buildPreview(),
-      popupBuilder: (_) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FlowyText.regular(
-            'Background color',
-            color: Theme.of(context).hintColor,
-          ),
-          const VSpace(8.0),
-          _Colors(
-            selectedColor: selectedColor.value,
-            onColorSelected: (color) {
-              selectedColor.value = color;
-            },
-          ),
-          const VSpace(12.0),
-          FlowyText.regular(
-            'Icon',
-            color: Theme.of(context).hintColor,
-          ),
-          const VSpace(8.0),
-          ValueListenableBuilder(
-            valueListenable: selectedColor,
-            builder: (_, value, ___) => _Icons(
-              selectedColor: value,
-              selectedIcon: selectedIcon.value,
-              onIconSelected: (icon) {
-                selectedIcon.value = icon;
-              },
-            ),
-          ),
-        ],
+      popupBuilder: (_) => SpaceIconPicker(
+        onIconChanged: (icon, iconColor) {
+          selectedIcon.value = icon;
+          selectedColor.value = iconColor;
+          widget.onIconChanged(icon, iconColor);
+        },
       ),
     );
   }
@@ -115,12 +80,98 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
           builder: (_, icon, __) {
             return FlowySvg(
               FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
-              color: Color(color),
+              color: Color(int.parse(color)),
               blendMode: BlendMode.srcOut,
             );
           },
         );
       },
+    );
+  }
+}
+
+class SpaceIconPicker extends StatefulWidget {
+  const SpaceIconPicker({
+    super.key,
+    required this.onIconChanged,
+    this.skipFirstNotification = false,
+    this.icon,
+    this.iconColor,
+  });
+
+  final bool skipFirstNotification;
+  final void Function(String icon, String color) onIconChanged;
+  final String? icon;
+  final String? iconColor;
+
+  @override
+  State<SpaceIconPicker> createState() => _SpaceIconPickerState();
+}
+
+class _SpaceIconPickerState extends State<SpaceIconPicker> {
+  late ValueNotifier<String> selectedColor =
+      ValueNotifier<String>(widget.iconColor ?? _builtInColors.first);
+  late ValueNotifier<String> selectedIcon =
+      ValueNotifier<String>(widget.icon ?? _buildInIcons.first);
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (!widget.skipFirstNotification) {
+      widget.onIconChanged(selectedIcon.value, selectedColor.value);
+    }
+
+    selectedColor.addListener(() {
+      widget.onIconChanged(selectedIcon.value, selectedColor.value);
+    });
+
+    selectedIcon.addListener(() {
+      widget.onIconChanged(selectedIcon.value, selectedColor.value);
+    });
+  }
+
+  @override
+  void dispose() {
+    selectedColor.dispose();
+    selectedIcon.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FlowyText.regular(
+          LocaleKeys.space_spaceIconBackground.tr(),
+          color: Theme.of(context).hintColor,
+        ),
+        const VSpace(10.0),
+        _Colors(
+          selectedColor: selectedColor.value,
+          onColorSelected: (color) {
+            selectedColor.value = color;
+          },
+        ),
+        const VSpace(12.0),
+        FlowyText.regular(
+          LocaleKeys.space_spaceIcon.tr(),
+          color: Theme.of(context).hintColor,
+        ),
+        const VSpace(10.0),
+        ValueListenableBuilder(
+          valueListenable: selectedColor,
+          builder: (_, value, ___) => _Icons(
+            selectedColor: value,
+            selectedIcon: selectedIcon.value,
+            onIconSelected: (icon) {
+              selectedIcon.value = icon;
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -131,15 +182,15 @@ class _Colors extends StatefulWidget {
     required this.onColorSelected,
   });
 
-  final int selectedColor;
-  final void Function(int color) onColorSelected;
+  final String selectedColor;
+  final void Function(String color) onColorSelected;
 
   @override
   State<_Colors> createState() => _ColorsState();
 }
 
 class _ColorsState extends State<_Colors> {
-  late int selectedColor = widget.selectedColor;
+  late String selectedColor = widget.selectedColor;
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +224,7 @@ class _ColorsState extends State<_Colors> {
                 : null,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: Color(color),
+                color: Color(int.parse(color)),
                 borderRadius: BorderRadius.circular(20.0),
               ),
             ),
@@ -191,7 +242,7 @@ class _Icons extends StatefulWidget {
     required this.onIconSelected,
   });
 
-  final int selectedColor;
+  final String selectedColor;
   final String selectedIcon;
   final void Function(String color) onIconSelected;
 
@@ -220,7 +271,7 @@ class _IconsState extends State<_Icons> {
           },
           child: FlowySvg(
             FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
-            color: Color(widget.selectedColor),
+            color: Color(int.parse(widget.selectedColor)),
             blendMode: BlendMode.srcOut,
           ),
         );

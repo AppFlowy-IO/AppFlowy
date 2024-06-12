@@ -16,6 +16,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'space_bloc.freezed.dart';
 
@@ -95,9 +96,35 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             final newSpace = await _rename(space, name);
             final spaces =
                 state.spaces.map((e) => e.id == space.id ? newSpace : e);
-            emit(state.copyWith(spaces: [...spaces]));
+            final currentSpace = state.currentSpace?.id == space.id
+                ? newSpace
+                : state.currentSpace;
+            emit(
+              state.copyWith(spaces: [...spaces], currentSpace: currentSpace),
+            );
           },
-          changeIcon: (icon) {},
+          changeIcon: (icon, iconColor) async {
+            try {
+              final space = state.currentSpace;
+              if (space == null) {
+                return;
+              }
+              final extra = space.extra;
+              final current = extra.isNotEmpty == true
+                  ? jsonDecode(extra)
+                  : <String, dynamic>{};
+              final merged = mergeMaps(current, <String, dynamic>{
+                ViewExtKeys.spaceIconKey: icon,
+                ViewExtKeys.spaceIconColorKey: iconColor,
+              });
+              await ViewBackendService.updateView(
+                viewId: space.id,
+                extra: jsonEncode(merged),
+              );
+            } catch (e) {
+              Log.error('Failed to migrating cover: $e');
+            }
+          },
           open: (space) async {
             await _openSpace(space);
             final isExpanded = await _getSpaceExpandStatus(space);
@@ -138,6 +165,16 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               },
             );
           },
+          didReceiveSpaceUpdate: () async {
+            final spaces = await _getSpaces();
+            final currentSpace = await _getLastOpenedSpace(spaces);
+            emit(
+              state.copyWith(
+                spaces: spaces,
+                currentSpace: currentSpace,
+              ),
+            );
+          },
         );
       },
     );
@@ -170,7 +207,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   Future<ViewPB?> _createSpace({
     required String name,
     required String icon,
-    required int iconColor,
+    required String iconColor,
     required SpacePermission permission,
   }) async {
     final section = switch (permission) {
@@ -203,12 +240,15 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     });
   }
 
-  Future<ViewPB> _rename(ViewPB view, String name) async {
+  Future<ViewPB> _rename(ViewPB space, String name) async {
     final result =
-        await ViewBackendService.updateView(viewId: view.id, name: name);
-    return result.fold((space) => space, (error) {
+        await ViewBackendService.updateView(viewId: space.id, name: name);
+    return result.fold((_) {
+      space.freeze();
+      return space.rebuild((b) => b.name = name);
+    }, (error) {
       Log.error('Failed to rename space: $error');
-      return view;
+      return space;
     });
   }
 
@@ -234,7 +274,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       user: userProfile,
       workspaceId: workspaceId,
     )..start(
-        sectionChanged: (result) {},
+        sectionChanged: (result) async {
+          add(const SpaceEvent.didReceiveSpaceUpdate());
+        },
       );
   }
 
@@ -309,11 +351,12 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.create({
     required String name,
     required String icon,
-    required int iconColor,
+    required String iconColor,
     required SpacePermission permission,
   }) = _Create;
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
-  const factory SpaceEvent.changeIcon(String icon) = _ChangeIcon;
+  const factory SpaceEvent.changeIcon(String icon, String iconColor) =
+      _ChangeIcon;
   const factory SpaceEvent.open(ViewPB space) = _Open;
   const factory SpaceEvent.expand(ViewPB space, bool isExpanded) = _Expand;
   const factory SpaceEvent.createPage({
@@ -322,6 +365,7 @@ class SpaceEvent with _$SpaceEvent {
     int? index,
   }) = _CreatePage;
   const factory SpaceEvent.delete(ViewPB space) = _Delete;
+  const factory SpaceEvent.didReceiveSpaceUpdate() = _DidReceiveSpaceUpdate;
 }
 
 @freezed
