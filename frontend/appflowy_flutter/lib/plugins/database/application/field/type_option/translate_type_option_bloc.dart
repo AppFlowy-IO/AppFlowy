@@ -57,14 +57,24 @@ class TranslateTypeOptionState with _$TranslateTypeOptionState {
 
 String languageTypeToLanguage(TranslateLanguagePB langaugeType) {
   switch (langaugeType) {
-    case TranslateLanguagePB.Chinese:
-      return 'Chinese';
+    case TranslateLanguagePB.SimplifiedChinese:
+      return 'Simplified Chinese';
+    case TranslateLanguagePB.TraditionalChinese:
+      return 'Traditional Chinese';
     case TranslateLanguagePB.English:
       return 'English';
     case TranslateLanguagePB.French:
       return 'French';
     case TranslateLanguagePB.German:
       return 'German';
+    case TranslateLanguagePB.Spanish:
+      return 'Spanish';
+    case TranslateLanguagePB.Hindi:
+      return 'Hindi';
+    case TranslateLanguagePB.Portuguese:
+      return 'Portuguese';
+    case TranslateLanguagePB.StandardArabic:
+      return 'Standard Arabic';
     default:
       Log.error('Unknown language type: $langaugeType');
       return 'English';

@@ -96,7 +96,7 @@ class SelectLanguageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 40,
+      height: 30,
       child: FlowyButton(text: FlowyText(language)),
     );
   }

@@ -23,10 +23,15 @@ pub struct TranslateTypeOption {
 impl TranslateTypeOption {
   pub fn language_from_type(language_type: i64) -> &'static str {
     match language_type {
-      0 => "Chinese",
+      0 => "Traditional Chinese",
       1 => "English",
       2 => "French",
       3 => "German",
+      4 => "Hindi",
+      5 => "Spanish",
+      6 => "Portuguese",
+      7 => "Standard Arabic",
+      8 => "Simplified Chinese",
       _ => "English",
     }
   }
