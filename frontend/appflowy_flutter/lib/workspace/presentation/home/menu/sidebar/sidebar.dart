@@ -364,7 +364,9 @@ class _SidebarState extends State<_Sidebar> {
             height: 40,
             padding: menuHorizontalInset,
             child: FlowyButton(
-              onTap: () {},
+              onTap: () {
+                context.read<SpaceBloc>().add(const SpaceEvent.migrate());
+              },
               leftIcon: const Icon(
                 Icons.upgrade_rounded,
                 color: Colors.red,

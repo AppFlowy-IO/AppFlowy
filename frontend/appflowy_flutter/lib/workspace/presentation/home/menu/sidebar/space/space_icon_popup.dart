@@ -6,7 +6,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 
-final _builtInColors = [
+final builtInSpaceColors = [
   '0xFFA34AFD',
   '0xFFFB006D',
   '0xFF00C8FF',
@@ -21,7 +21,8 @@ final _builtInColors = [
   '0xFFFF8933',
 ];
 
-final _buildInIcons = List.generate(15, (index) => 'space_icon_${index + 1}');
+final builtInSpaceIcons =
+    List.generate(15, (index) => 'space_icon_${index + 1}');
 
 class SpaceIconPopup extends StatefulWidget {
   const SpaceIconPopup({
@@ -41,9 +42,9 @@ class SpaceIconPopup extends StatefulWidget {
 
 class _SpaceIconPopupState extends State<SpaceIconPopup> {
   late ValueNotifier<String> selectedColor =
-      ValueNotifier<String>(widget.iconColor ?? _builtInColors.first);
+      ValueNotifier<String>(widget.iconColor ?? builtInSpaceColors.first);
   late ValueNotifier<String> selectedIcon =
-      ValueNotifier<String>(widget.icon ?? _buildInIcons.first);
+      ValueNotifier<String>(widget.icon ?? builtInSpaceIcons.first);
 
   @override
   void dispose() {
@@ -116,9 +117,9 @@ class SpaceIconPicker extends StatefulWidget {
 
 class _SpaceIconPickerState extends State<SpaceIconPicker> {
   late ValueNotifier<String> selectedColor =
-      ValueNotifier<String>(widget.iconColor ?? _builtInColors.first);
+      ValueNotifier<String>(widget.iconColor ?? builtInSpaceColors.first);
   late ValueNotifier<String> selectedIcon =
-      ValueNotifier<String>(widget.icon ?? _buildInIcons.first);
+      ValueNotifier<String>(widget.icon ?? builtInSpaceIcons.first);
 
   @override
   void initState() {
@@ -204,7 +205,7 @@ class _ColorsState extends State<_Colors> {
       shrinkWrap: true,
       crossAxisCount: 6,
       mainAxisSpacing: 4.0,
-      children: _builtInColors.map((color) {
+      children: builtInSpaceColors.map((color) {
         return GestureDetector(
           onTap: () {
             setState(() {
@@ -266,7 +267,7 @@ class _IconsState extends State<_Icons> {
       crossAxisCount: 5,
       mainAxisSpacing: 8.0,
       crossAxisSpacing: 12.0,
-      children: _buildInIcons.map((icon) {
+      children: builtInSpaceIcons.map((icon) {
         return GestureDetector(
           onTap: () {
             setState(() {

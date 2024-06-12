@@ -4,10 +4,12 @@ import 'dart:convert';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -197,12 +199,16 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             add(SpaceEvent.initial(userProfile, workspaceId));
           },
+          migrate: () async {
+            await migrate();
+          },
         );
       },
     );
   }
 
   late WorkspaceService _workspaceService;
+  String? _workspaceId;
   WorkspaceSectionsListener? _listener;
 
   @override
@@ -291,6 +297,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
   void _initial(UserProfilePB userProfile, String workspaceId) {
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
+    _workspaceId = workspaceId;
 
     _listener = WorkspaceSectionsListener(
       user: userProfile,
@@ -362,6 +369,60 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       return map[space.id] ?? true;
     });
   }
+
+  Future<void> migrate() async {
+    if (_workspaceId == null) {
+      return;
+    }
+    try {
+      final userId =
+          await UserBackendService.getCurrentUserProfile().getOrThrow();
+      final service = UserBackendService(userId: userId.id);
+      final members =
+          await service.getWorkspaceMembers(_workspaceId!).getOrThrow();
+      // only one member in the workspace, migrate it immediately
+      if (members.items.length == 1) {
+        // create a new public space and a new private space
+        // move all the views in the workspace to the new public/private space
+        final publicViews =
+            await _workspaceService.getPublicViews().getOrThrow();
+        final privateViews =
+            await _workspaceService.getPrivateViews().getOrThrow();
+        final publicSpace = await _createSpace(
+          name: 'shared',
+          icon: builtInSpaceIcons.first,
+          iconColor: builtInSpaceColors.first,
+          permission: SpacePermission.publicToAll,
+        );
+        final privateSpace = await _createSpace(
+          name: 'private',
+          icon: builtInSpaceIcons.last,
+          iconColor: builtInSpaceColors.last,
+          permission: SpacePermission.private,
+        );
+        if (publicSpace != null) {
+          for (final view in publicViews) {
+            await ViewBackendService.moveViewV2(
+              viewId: view.id,
+              newParentId: publicSpace.id,
+              prevViewId: view.parentViewId,
+            );
+          }
+        }
+        if (privateSpace != null) {
+          for (final view in privateViews) {
+            await ViewBackendService.moveViewV2(
+              viewId: view.id,
+              newParentId: privateSpace.id,
+              prevViewId: view.parentViewId,
+            );
+          }
+        }
+      } else {}
+    } catch (e) {
+      Log.error('migrate space error: $e');
+    }
+  }
 }
 
 @freezed
@@ -398,6 +459,7 @@ class SpaceEvent with _$SpaceEvent {
     UserProfilePB userProfile,
     String workspaceId,
   ) = _Reset;
+  const factory SpaceEvent.migrate() = _Migrate;
 }
 
 @freezed
