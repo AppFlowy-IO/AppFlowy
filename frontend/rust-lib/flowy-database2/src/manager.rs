@@ -428,8 +428,6 @@ impl DatabaseManager {
     field_id: String,
   ) -> FlowyResult<()> {
     let database = self.get_database_with_view_id(&view_id).await?;
-
-    //
     let mut summary_row_content = SummaryRowContent::new();
     if let Some(row) = database.get_row(&view_id, &row_id) {
       let fields = database.get_fields(&view_id, None);
@@ -437,6 +435,10 @@ impl DatabaseManager {
         // When summarizing a row, skip the content in the "AI summary" cell; it does not need to
         // be summarized.
         if field.id != field_id {
+          // Don't summarize the summary field.
+          if field.field_type == FieldType::Summary as i64 {
+            continue;
+          }
           if let Some(cell) = row.cells.get(&field.id) {
             summary_row_content.insert(field.name.clone(), stringify_cell(cell, &field));
           }
@@ -480,6 +482,11 @@ impl DatabaseManager {
         // When translate a row, skip the content in the "AI Translate" cell; it does not need to
         // be translated.
         if field.id != field_id {
+          // Don't translate the translate field.
+          if field.field_type == FieldType::Translate as i64 {
+            continue;
+          }
+
           if let Some(cell) = row.cells.get(&field.id) {
             translate_row_content.push(TranslateItem {
               title: field.name.clone(),

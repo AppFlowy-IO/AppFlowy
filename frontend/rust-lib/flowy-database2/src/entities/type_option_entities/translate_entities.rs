@@ -30,20 +30,30 @@ impl From<TranslateTypeOptionPB> for TranslateTypeOption {
 #[derive(Clone, Debug, Copy, ProtoBuf_Enum, Default)]
 #[repr(i64)]
 pub enum TranslateLanguagePB {
-  Chinese = 0,
+  TraditionalChinese = 0,
   #[default]
   English = 1,
   French = 2,
   German = 3,
+  Hindi = 4,
+  Spanish = 5,
+  Portuguese = 6,
+  StandardArabic = 7,
+  SimplifiedChinese = 8,
 }
 
 impl From<i64> for TranslateLanguagePB {
   fn from(data: i64) -> Self {
     match data {
-      0 => TranslateLanguagePB::Chinese,
+      0 => TranslateLanguagePB::TraditionalChinese,
       1 => TranslateLanguagePB::English,
       2 => TranslateLanguagePB::French,
       3 => TranslateLanguagePB::German,
+      4 => TranslateLanguagePB::Hindi,
+      5 => TranslateLanguagePB::Spanish,
+      6 => TranslateLanguagePB::Portuguese,
+      7 => TranslateLanguagePB::StandardArabic,
+      8 => TranslateLanguagePB::SimplifiedChinese,
       _ => TranslateLanguagePB::English,
     }
   }
