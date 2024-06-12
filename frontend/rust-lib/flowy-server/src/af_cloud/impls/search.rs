@@ -9,6 +9,11 @@ pub(crate) struct AFCloudSearchCloudServiceImpl<T> {
   pub inner: T,
 }
 
+// The limit of what the score should be for results, used to
+// filter out irrelevant results.
+const SCORE_LIMIT: f64 = 0.8;
+const DEFAULT_PREVIEW: u32 = 80;
+
 #[async_trait]
 impl<T> SearchCloudService for AFCloudSearchCloudServiceImpl<T>
 where
@@ -20,7 +25,16 @@ where
     query: String,
   ) -> Result<Vec<SearchDocumentResponseItem>, FlowyError> {
     let client = self.inner.try_get_client()?;
-    let result = client.search_documents(workspace_id, &query, 10, 0).await?;
+    let result = client
+      .search_documents(workspace_id, &query, 10, DEFAULT_PREVIEW)
+      .await?;
+
+    // Filter out irrelevant results
+    let result = result
+      .into_iter()
+      .filter(|r| r.score < SCORE_LIMIT)
+      .collect();
+
     Ok(result)
   }
 }

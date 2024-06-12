@@ -1,21 +1,29 @@
 use std::sync::Arc;
 
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_folder::manager::FolderManager;
 use flowy_search_pub::cloud::SearchCloudService;
 use lib_infra::async_trait::async_trait;
 
 use crate::{
-  entities::{IndexTypePB, SearchFilterPB, SearchResultPB},
+  entities::{IndexTypePB, ResultIconPB, ResultIconTypePB, SearchFilterPB, SearchResultPB},
   services::manager::{SearchHandler, SearchType},
 };
 
 pub struct DocumentSearchHandler {
   pub cloud_service: Arc<dyn SearchCloudService>,
+  pub folder_manager: Arc<FolderManager>,
 }
 
 impl DocumentSearchHandler {
-  pub fn new(cloud_service: Arc<dyn SearchCloudService>) -> Self {
-    Self { cloud_service }
+  pub fn new(
+    cloud_service: Arc<dyn SearchCloudService>,
+    folder_manager: Arc<FolderManager>,
+  ) -> Self {
+    Self {
+      cloud_service,
+      folder_manager,
+    }
   }
 }
 
@@ -45,20 +53,51 @@ impl SearchHandler for DocumentSearchHandler {
       .document_search(&workspace_id, query)
       .await?;
 
-    Ok(
-      results
-        .into_iter()
-        .map(|result| SearchResultPB {
-          index_type: IndexTypePB::Document,
-          view_id: result.object_id.clone(),
-          id: result.object_id,
-          data: result.preview.unwrap_or_default(),
-          icon: None,
-          score: result.score,
-          workspace_id: result.workspace_id,
-        })
-        .collect::<Vec<SearchResultPB>>(),
-    )
+    // Grab view cache from MutexFolder
+    let mutex_folder = self.folder_manager.get_mutex_folder();
+    if let Some(folder) = mutex_folder.read().as_ref() {
+      let mut views = folder.views.get_all_views().into_iter();
+
+      return Ok(
+        results
+          .into_iter()
+          .map(|result| {
+            let view = views.find(|v| v.id == result.object_id);
+
+            // If possible we will extract the icon to display for the result
+            let icon: Option<ResultIconPB> = match view.clone() {
+              Some(view) => {
+                if let Some(view_icon) = view.icon.clone() {
+                  Some(ResultIconPB::from(view_icon))
+                } else {
+                  let view_layout_ty: i64 = view.layout.clone().into();
+                  Some(ResultIconPB {
+                    ty: ResultIconTypePB::Icon,
+                    value: view_layout_ty.to_string(),
+                  })
+                }
+              },
+              None => None,
+            };
+
+            SearchResultPB {
+              index_type: IndexTypePB::Document,
+              view_id: result.object_id.clone(),
+              id: result.object_id.clone(),
+              data: view.map_or(result.preview.unwrap_or_default(), |v| v.name.clone()),
+              icon,
+              // We reverse the score, the cloud search score is based on
+              // 1 being the worst result, and closer to 0 being good result, that is
+              // the opposite of current folder search.
+              score: 1.0 - result.score,
+              workspace_id: result.workspace_id,
+            }
+          })
+          .collect::<Vec<SearchResultPB>>(),
+      );
+    }
+
+    Err(FlowyError::internal().with_context("Failed to get view cache in DocumentSearchHandler"))
   }
 
   /// Ignore for [DocumentSearchHandler]

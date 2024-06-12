@@ -75,6 +75,7 @@ impl SearchManager {
         let res = handler.perform_search(q, f).await;
 
         let items = res.unwrap_or_default();
+
         let notification = SearchResultNotificationPB {
           items,
           sends: max as u64,

@@ -21,6 +21,7 @@ flowy-notification.workspace = true
 flowy-sqlite.workspace = true
 flowy-user.workspace = true
 flowy-search-pub.workspace = true
+flowy-folder = { workspace = true }
 
 bytes.workspace = true
 futures.workspace = true
