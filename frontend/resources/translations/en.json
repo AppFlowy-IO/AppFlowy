@@ -30,6 +30,7 @@
     "passwordHint": "Password",
     "repeatPasswordHint": "Repeat password",
     "signUpWith": "Sign up with:"
+
   },
   "signIn": {
     "loginTitle": "Login to @:appName",
@@ -330,7 +331,8 @@
     "signInGoogle": "Sign in with Google",
     "signInGithub": "Sign in with Github",
     "signInDiscord": "Sign in with Discord",
-    "more": "More"
+    "more": "More",
+    "create": "Create"
   },
   "label": {
     "welcome": "Welcome!",

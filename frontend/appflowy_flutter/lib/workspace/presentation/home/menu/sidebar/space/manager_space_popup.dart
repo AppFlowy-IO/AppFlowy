@@ -1,9 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
@@ -30,25 +28,22 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FlowyText(
-            LocaleKeys.space_createNewSpace.tr(),
+          const FlowyText(
+            'Create new space',
             fontSize: 18.0,
           ),
           const VSpace(4.0),
           FlowyText.regular(
-            LocaleKeys.space_createSpaceDescription.tr(),
+            'Separate your tabs for life, work, projects and more',
             fontSize: 14.0,
             color: Theme.of(context).hintColor,
           ),
           const VSpace(16.0),
-          SizedBox.square(
-            dimension: 56,
-            child: SpaceIconPopup(
-              onIconChanged: (icon, iconColor) {
-                spaceIcon = icon;
-                spaceIconColor = iconColor;
-              },
-            ),
+          SpaceIconPopup(
+            onIconChanged: (icon, iconColor) {
+              spaceIcon = icon;
+              spaceIconColor = iconColor;
+            },
           ),
           const VSpace(8.0),
           _SpaceNameTextField(onChanged: (value) => spaceName = value),
@@ -95,7 +90,7 @@ class _SpaceNameTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FlowyText.regular(
-          LocaleKeys.space_spaceName.tr(),
+          'Space name',
           fontSize: 14.0,
           color: Theme.of(context).hintColor,
         ),
@@ -129,7 +124,7 @@ class _SpacePermissionSwitchState extends State<_SpacePermissionSwitch> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FlowyText.regular(
-          LocaleKeys.space_permission.tr(),
+          'Permission',
           fontSize: 14.0,
           color: Theme.of(context).hintColor,
         ),
@@ -202,14 +197,14 @@ class _SpacePermissionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final (title, desc, icon) = switch (permission) {
       SpacePermission.publicToAll => (
-          LocaleKeys.space_publicPermission.tr(),
-          LocaleKeys.space_publicPermissionDescription.tr(),
+          'Public',
+          'All workspace members with full access',
           FlowySvgs.space_permission_public_s
         ),
       SpacePermission.private => (
-          LocaleKeys.space_privatePermission.tr(),
-          LocaleKeys.space_privatePermissionDescription.tr(),
-          FlowySvgs.space_permission_private_s
+          'Private',
+          'Only you can access this space',
+          FlowySvgs.space_permission_public_s
         ),
     };
 
@@ -273,7 +268,7 @@ class _CancelOrCreateButton extends StatelessWidget {
             useIntrinsicWidth: true,
             margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
             text: FlowyText.regular(
-              LocaleKeys.button_create.tr(),
+              'Create',
               color: Theme.of(context).colorScheme.onPrimary,
             ),
             onTap: onCreate,
