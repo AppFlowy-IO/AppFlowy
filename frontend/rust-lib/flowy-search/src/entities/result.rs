@@ -31,6 +31,9 @@ pub struct SearchResultPB {
 
   #[pb(index = 7)]
   pub workspace_id: String,
+
+  #[pb(index = 8, one_of)]
+  pub preview: Option<String>,
 }
 
 impl SearchResultPB {
@@ -43,6 +46,7 @@ impl SearchResultPB {
       icon: self.icon.clone(),
       score,
       workspace_id: self.workspace_id.clone(),
+      preview: self.preview.clone(),
     }
   }
 }

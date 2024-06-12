@@ -1726,13 +1726,15 @@
     "image": "Image"
   },
   "commandPalette": {
-    "placeholder": "Type to search for views...",
+    "placeholder": "Type to search...",
     "bestMatches": "Best matches",
     "recentHistory": "Recent history",
     "navigateHint": "to navigate",
     "loadingTooltip": "We are looking for results...",
     "betaLabel": "BETA",
-    "betaTooltip": "We currently only support searching for pages",
-    "fromTrashHint": "From trash"
+    "betaTooltip": "We currently only support searching for pages and content in documents",
+    "fromTrashHint": "From trash",
+    "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
+    "clearSearchTooltip": "Clear search field"
   }
 }

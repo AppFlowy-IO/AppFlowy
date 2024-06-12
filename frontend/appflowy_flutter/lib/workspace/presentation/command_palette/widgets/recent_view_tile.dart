@@ -26,7 +26,7 @@ class RecentViewTile extends StatelessWidget {
       title: Row(
         children: [
           icon,
-          const HSpace(4),
+          const HSpace(6),
           FlowyText(view.name),
         ],
       ),

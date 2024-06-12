@@ -129,6 +129,10 @@ class CommandPaletteBloc
     final res = [...results];
 
     for (final item in results) {
+      if (item.data.trim().isEmpty) {
+        continue;
+      }
+
       final duplicateIndex = currentItems.indexWhere((a) => a.id == item.id);
       if (duplicateIndex == -1) {
         continue;

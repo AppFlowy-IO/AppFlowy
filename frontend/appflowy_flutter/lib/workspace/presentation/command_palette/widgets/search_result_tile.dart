@@ -31,7 +31,10 @@ class SearchResultTile extends StatelessWidget {
       dense: true,
       title: Row(
         children: [
-          if (icon != null) ...[icon, const HSpace(6)],
+          if (icon != null) ...[
+            SizedBox(width: 24, child: icon),
+            const HSpace(6),
+          ],
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
