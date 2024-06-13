@@ -362,7 +362,8 @@ class _SidebarState extends State<_Sidebar> {
   }
 
   Widget _renderUpgradeSpaceButton(EdgeInsets menuHorizontalInset) {
-    return !context.watch<SpaceBloc>().state.shouldShowUpgradeDialog
+    return !context.watch<SpaceBloc>().state.shouldShowUpgradeDialog ||
+            !context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
         ? const SizedBox.shrink()
         : Container(
             height: 40,

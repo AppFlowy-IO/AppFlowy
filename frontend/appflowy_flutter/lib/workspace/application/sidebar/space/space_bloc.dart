@@ -396,6 +396,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       final isOwner = members.items
           .any((e) => e.role == AFRolePB.Owner && e.email == user.email);
 
+      if (members.items.isEmpty) {
+        return true;
+      }
+
       // only one member in the workspace, migrate it immediately
       // only the owner can migrate the public space
       if (members.items.length == 1 || isOwner) {
@@ -404,7 +408,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         final publicViews =
             await _workspaceService.getPublicViews().getOrThrow();
         final publicSpace = await _createSpace(
-          name: 'shared',
+          name: 'Shared',
           icon: builtInSpaceIcons.first,
           iconColor: builtInSpaceColors.first,
           permission: SpacePermission.publicToAll,
@@ -427,7 +431,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       final privateViews =
           await _workspaceService.getPrivateViews().getOrThrow();
       final privateSpace = await _createSpace(
-        name: 'private',
+        name: 'Private',
         icon: builtInSpaceIcons.last,
         iconColor: builtInSpaceColors.last,
         permission: SpacePermission.private,
