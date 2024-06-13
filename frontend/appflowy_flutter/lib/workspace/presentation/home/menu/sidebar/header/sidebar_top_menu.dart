@@ -70,13 +70,14 @@ class SidebarTopMenu extends StatelessWidget {
       children: [
         TextSpan(
           text: '${LocaleKeys.sideBar_closeSidebar.tr()}\n',
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: color),
+          style:
+              Theme.of(context).tooltipTheme.textStyle!.copyWith(color: color),
         ),
         TextSpan(
           text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
           style: Theme.of(context)
-              .textTheme
-              .bodyMedium!
+              .tooltipTheme
+              .textStyle!
               .copyWith(color: Theme.of(context).hintColor),
         ),
       ],
