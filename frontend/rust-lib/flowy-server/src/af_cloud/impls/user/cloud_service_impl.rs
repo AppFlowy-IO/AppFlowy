@@ -1,11 +1,10 @@
-use appflowy_cloud_billing_client::entities::{
-  RecurringInterval, SubscriptionPlan, WorkspaceSubscriptionStatus,
-};
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use appflowy_cloud_billing_client::BillingClient;
+use client_api::entity::billing_dto::{
+  SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionPlan, WorkspaceSubscriptionStatus,
+};
 use client_api::entity::workspace_dto::{
   CreateWorkspaceMember, CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset,
   WorkspaceMemberInvitation,
@@ -491,7 +490,7 @@ where
     FutureResult::new(async move {
       let subscription_plan = to_workspace_subscription_plan(workspace_subscription_plan)?;
       let client = try_get_client?;
-      let payment_link = BillingClient::from(client.as_ref())
+      let payment_link = client
         .create_subscription(
           &workspace_id,
           to_recurring_interval(recurring_interval),
@@ -507,7 +506,7 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let workspace_subscriptions = BillingClient::from(client.as_ref())
+      let workspace_subscriptions = client
         .list_subscription()
         .await?
         .into_iter()
@@ -521,9 +520,7 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      BillingClient::from(client.as_ref())
-        .cancel_subscription(&workspace_id)
-        .await?;
+      client.cancel_subscription(&workspace_id).await?;
       Ok(())
     })
   }
@@ -532,9 +529,7 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let usage = BillingClient::from(client.as_ref())
-        .get_workspace_usage(&workspace_id)
-        .await?;
+      let usage = client.get_billing_workspace_usage(&workspace_id).await?;
       Ok(WorkspaceUsage {
         member_count: usage.member_count,
         member_count_limit: usage.member_count_limit,
@@ -548,9 +543,7 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let url = BillingClient::from(client.as_ref())
-        .get_portal_session_link()
-        .await?;
+      let url = client.get_portal_session_link().await?;
       Ok(url)
     })
   }
@@ -651,10 +644,16 @@ fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, FlowyErr
   })
 }
 
-fn to_recurring_interval(r: flowy_user_pub::entities::RecurringInterval) -> RecurringInterval {
+fn to_recurring_interval(
+  r: flowy_user_pub::entities::RecurringInterval,
+) -> client_api::entity::billing_dto::RecurringInterval {
   match r {
-    flowy_user_pub::entities::RecurringInterval::Month => RecurringInterval::Month,
-    flowy_user_pub::entities::RecurringInterval::Year => RecurringInterval::Year,
+    flowy_user_pub::entities::RecurringInterval::Month => {
+      client_api::entity::billing_dto::RecurringInterval::Month
+    },
+    flowy_user_pub::entities::RecurringInterval::Year => {
+      client_api::entity::billing_dto::RecurringInterval::Year
+    },
   }
 }
 
@@ -675,22 +674,19 @@ fn to_workspace_subscription(s: WorkspaceSubscriptionStatus) -> WorkspaceSubscri
   WorkspaceSubscription {
     workspace_id: s.workspace_id,
     subscription_plan: match s.workspace_plan {
-      appflowy_cloud_billing_client::entities::WorkspaceSubscriptionPlan::Pro => {
-        flowy_user_pub::entities::SubscriptionPlan::Pro
-      },
-      appflowy_cloud_billing_client::entities::WorkspaceSubscriptionPlan::Team => {
-        flowy_user_pub::entities::SubscriptionPlan::Team
-      },
+      WorkspaceSubscriptionPlan::Pro => flowy_user_pub::entities::SubscriptionPlan::Pro,
+      WorkspaceSubscriptionPlan::Team => flowy_user_pub::entities::SubscriptionPlan::Team,
       _ => flowy_user_pub::entities::SubscriptionPlan::None,
     },
     recurring_interval: match s.recurring_interval {
-      RecurringInterval::Month => flowy_user_pub::entities::RecurringInterval::Month,
-      RecurringInterval::Year => flowy_user_pub::entities::RecurringInterval::Year,
+      client_api::entity::billing_dto::RecurringInterval::Month => {
+        flowy_user_pub::entities::RecurringInterval::Month
+      },
+      client_api::entity::billing_dto::RecurringInterval::Year => {
+        flowy_user_pub::entities::RecurringInterval::Year
+      },
     },
-    is_active: matches!(
-      s.subscription_status,
-      appflowy_cloud_billing_client::entities::SubscriptionStatus::Active
-    ),
+    is_active: matches!(s.subscription_status, SubscriptionStatus::Active),
     canceled_at: s.canceled_at,
   }
 }
