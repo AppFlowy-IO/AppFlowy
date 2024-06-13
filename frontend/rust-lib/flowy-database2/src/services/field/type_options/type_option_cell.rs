@@ -450,7 +450,16 @@ impl<'a> TypeOptionCellExt<'a> {
             self.cell_data_cache.clone(),
           )
         }),
-      FieldType::Time => self.field.get_type_option::<TimeTypeOption>(field_type),
+      FieldType::Time => self
+        .field
+        .get_type_option::<TimeTypeOption>(field_type)
+        .map(|type_option| {
+          TypeOptionCellDataHandlerImpl::new_with_boxed(
+            type_option,
+            field_type,
+            self.cell_data_cache.clone(),
+          )
+        }),
       FieldType::Translate => self
         .field
         .get_type_option::<TranslateTypeOption>(field_type)

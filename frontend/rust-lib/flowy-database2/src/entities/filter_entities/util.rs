@@ -109,7 +109,10 @@ impl From<&Filter> for FilterPB {
             .cloned::<TextFilterPB>()
             .unwrap()
             .try_into(),
-          FieldType::Time => condition_and_content.cloned::<TimeFilterPB>(),
+          FieldType::Time => condition_and_content
+            .cloned::<TimeFilterPB>()
+            .unwrap()
+            .try_into(),
           FieldType::Translate => condition_and_content
             .cloned::<TextFilterPB>()
             .unwrap()

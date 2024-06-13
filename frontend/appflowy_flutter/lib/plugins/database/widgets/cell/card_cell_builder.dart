@@ -15,6 +15,7 @@ import 'card_cell_skeleton/summary_card_cell.dart';
 import 'card_cell_skeleton/text_card_cell.dart';
 import 'card_cell_skeleton/time_card_cell.dart';
 import 'card_cell_skeleton/timestamp_card_cell.dart';
+import 'card_cell_skeleton/translate_card_cell.dart';
 import 'card_cell_skeleton/url_card_cell.dart';
 
 typedef CardCellStyleMap = Map<FieldType, CardCellStyle>;

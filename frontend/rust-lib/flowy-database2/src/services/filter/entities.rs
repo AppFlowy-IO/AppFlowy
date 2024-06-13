@@ -372,6 +372,7 @@ impl<'a> From<&'a Filter> for FilterMap {
             },
             FieldType::Time => {
               let filter = condition_and_content.cloned::<TimeFilterPB>()?;
+              (filter.condition as u8, filter.content)
             },
             FieldType::Translate => {
               let filter = condition_and_content.cloned::<TextFilterPB>()?;
