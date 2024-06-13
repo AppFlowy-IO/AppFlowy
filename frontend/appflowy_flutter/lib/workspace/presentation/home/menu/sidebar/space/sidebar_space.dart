@@ -85,25 +85,25 @@ class _SpaceState extends State<_Space> {
 
         final currentSpace = state.currentSpace ?? state.spaces.first;
 
-        return MouseRegion(
-          onEnter: (_) => isHovered.value = true,
-          onExit: (_) => isHovered.value = false,
-          child: Column(
-            children: [
-              SidebarSpaceHeader(
-                isExpanded: state.isExpanded,
-                space: currentSpace,
-                onAdded: () => _showCreatePagePopup(context, currentSpace),
-                onPressed: () {},
-                onTapMore: () {},
-              ),
-              _Pages(
+        return Column(
+          children: [
+            SidebarSpaceHeader(
+              isExpanded: state.isExpanded,
+              space: currentSpace,
+              onAdded: () => _showCreatePagePopup(context, currentSpace),
+              onPressed: () {},
+              onTapMore: () {},
+            ),
+            MouseRegion(
+              onEnter: (_) => isHovered.value = true,
+              onExit: (_) => isHovered.value = false,
+              child: _Pages(
                 key: ValueKey(currentSpace.id),
                 space: currentSpace,
                 isHovered: isHovered,
               ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
