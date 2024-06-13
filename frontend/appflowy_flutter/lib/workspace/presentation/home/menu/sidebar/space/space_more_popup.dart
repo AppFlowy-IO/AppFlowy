@@ -69,9 +69,8 @@ class SpaceMorePopup extends StatelessWidget {
       SpaceMoreActionType.rename,
       SpaceMoreActionType.changeIcon,
       SpaceMoreActionType.manage,
-      // SpaceMoreActionType.divider,
-      // SpaceMoreActionType.addNewSpace,
-      // SpaceMoreActionType.collapseAllPages,
+      SpaceMoreActionType.divider,
+      SpaceMoreActionType.addNewSpace,
       SpaceMoreActionType.divider,
       SpaceMoreActionType.delete,
     ];

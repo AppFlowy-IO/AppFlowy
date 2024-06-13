@@ -20,16 +20,14 @@ class SidebarSpaceHeader extends StatefulWidget {
   const SidebarSpaceHeader({
     super.key,
     required this.space,
-    required this.onPressed,
     required this.onAdded,
-    required this.onTapMore,
+    required this.onCreateNewSpace,
     required this.isExpanded,
   });
 
   final ViewPB space;
-  final VoidCallback onPressed;
   final VoidCallback onAdded;
-  final VoidCallback onTapMore;
+  final VoidCallback onCreateNewSpace;
   final bool isExpanded;
 
   @override
@@ -155,6 +153,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
         _showManageSpaceDialog(context);
         break;
       case SpaceMoreActionType.addNewSpace:
+        widget.onCreateNewSpace();
         break;
       case SpaceMoreActionType.collapseAllPages:
         break;
