@@ -332,7 +332,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     final spaceId =
         await getIt<KeyValueStorage>().get(KVKeys.lastOpenedSpaceId);
     if (spaceId == null) {
-      return null;
+      return spaces.first;
     }
 
     final space =
