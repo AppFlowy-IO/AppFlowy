@@ -13,7 +13,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_ic
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -380,6 +380,12 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       final service = UserBackendService(userId: userId.id);
       final members =
           await service.getWorkspaceMembers(_workspaceId!).getOrThrow();
+      final isOwner =
+          members.items.firstWhere((e) => e.role == AFRolePB.Owner) == userId;
+      if (!isOwner) {
+        return;
+      }
+
       // only one member in the workspace, migrate it immediately
       if (members.items.length == 1) {
         // create a new public space and a new private space

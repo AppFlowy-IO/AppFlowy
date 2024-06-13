@@ -326,7 +326,11 @@ class _SidebarState extends State<_Sidebar> {
   }
 
   Widget _renderFolderOrSpace(EdgeInsets menuHorizontalInset) {
-    return context.watch<SpaceBloc>().state.spaces.isEmpty
+    // there's no space or the workspace is not collaborative,
+    // show the folder section (Workspace, Private, Personal)
+    // otherwise, show the space
+    return context.watch<SpaceBloc>().state.spaces.isEmpty ||
+            !context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
         ? Expanded(
             child: Padding(
               padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
@@ -373,7 +377,10 @@ class _SidebarState extends State<_Sidebar> {
               ),
               leftIconSize: const Size.square(20),
               iconPadding: 12.0,
-              text: const FlowyText.regular('Upgrade to space'),
+              text: const FlowyText.regular(
+                'Enable Spaces for your workspace',
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           );
   }
