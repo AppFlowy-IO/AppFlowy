@@ -1,9 +1,9 @@
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/translate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/translate.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import '../row/accessory/cell_accessory.dart';
@@ -18,6 +18,7 @@ import 'editable_cell_skeleton/relation.dart';
 import 'editable_cell_skeleton/select_option.dart';
 import 'editable_cell_skeleton/summary.dart';
 import 'editable_cell_skeleton/text.dart';
+import 'editable_cell_skeleton/time.dart';
 import 'editable_cell_skeleton/timestamp.dart';
 import 'editable_cell_skeleton/url.dart';
 
@@ -121,6 +122,12 @@ class EditableCellBuilder {
           skin: IEditableSummaryCellSkin.fromStyle(style),
           key: key,
         ),
+      FieldType.Time => EditableTimeCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: IEditableTimeCellSkin.fromStyle(style),
+          key: key,
+        ),
       FieldType.Translate => EditableTranslateCell(
           databaseController: databaseController,
           cellContext: cellContext,
@@ -211,6 +218,12 @@ class EditableCellBuilder {
           databaseController: databaseController,
           cellContext: cellContext,
           skin: skinMap.relationSkin!,
+          key: key,
+        ),
+      FieldType.Time => EditableTimeCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: skinMap.timeSkin!,
           key: key,
         ),
       _ => throw UnimplementedError(),
@@ -368,6 +381,7 @@ class EditableCellSkinMap {
     this.textSkin,
     this.urlSkin,
     this.relationSkin,
+    this.timeSkin,
   });
 
   final IEditableCheckboxCellSkin? checkboxSkin;
@@ -379,6 +393,7 @@ class EditableCellSkinMap {
   final IEditableTextCellSkin? textSkin;
   final IEditableURLCellSkin? urlSkin;
   final IEditableRelationCellSkin? relationSkin;
+  final IEditableTimeCellSkin? timeSkin;
 
   bool has(FieldType fieldType) {
     return switch (fieldType) {
@@ -394,6 +409,7 @@ class EditableCellSkinMap {
       FieldType.Number => numberSkin != null,
       FieldType.RichText => textSkin != null,
       FieldType.URL => urlSkin != null,
+      FieldType.Time => timeSkin != null,
       _ => throw UnimplementedError(),
     };
   }

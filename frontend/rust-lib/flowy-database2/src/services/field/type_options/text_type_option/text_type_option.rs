@@ -79,14 +79,15 @@ impl CellDataDecoder for RichTextTypeOption {
       | FieldType::SingleSelect
       | FieldType::MultiSelect
       | FieldType::Checkbox
-      | FieldType::URL => Some(StringCellData::from(stringify_cell(cell, field))),
+      | FieldType::URL
+      | FieldType::Summary
+      | FieldType::Translate
+      | FieldType::Time
+      | FieldType::Tag => Some(StringCellData::from(stringify_cell(cell, field))),
       FieldType::Checklist
       | FieldType::LastEditedTime
       | FieldType::CreatedTime
       | FieldType::Relation => None,
-      FieldType::Summary => Some(StringCellData::from(stringify_cell(cell, field))),
-      FieldType::Translate => Some(StringCellData::from(stringify_cell(cell, field))),
-      FieldType::Tag => Some(StringCellData::from(stringify_cell(cell, field))),
     }
   }
 

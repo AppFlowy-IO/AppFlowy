@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/database/grid/presentation/mobile_grid_page.dar
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,14 @@ class ViewExtKeys {
 
   // is pinned
   static String isPinnedKey = 'is_pinned';
+
+  // space
+  static String isSpaceKey = 'is_space';
+  static String spaceCreatorKey = 'space_creator';
+  static String spaceCreatedAtKey = 'space_created_at';
+  static String spaceIconKey = 'space_icon';
+  static String spaceIconColorKey = 'space_icon_color';
+  static String spacePermissionKey = 'space_permission';
 }
 
 extension ViewExtension on ViewPB {
@@ -103,6 +112,64 @@ extension ViewExtension on ViewPB {
       };
 
   FlowySvgData get iconData => layout.icon;
+
+  bool get isSpace {
+    try {
+      final ext = jsonDecode(extra);
+      final isSpace = ext[ViewExtKeys.isSpaceKey] ?? false;
+      return isSpace;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  SpacePermission get spacePermission {
+    try {
+      final ext = jsonDecode(extra);
+      final permission = ext[ViewExtKeys.spacePermissionKey] ?? 1;
+      return SpacePermission.values[permission];
+    } catch (e) {
+      return SpacePermission.private;
+    }
+  }
+
+  FlowySvg get spaceIconSvg {
+    try {
+      final ext = jsonDecode(extra);
+      final icon = ext[ViewExtKeys.spaceIconKey];
+      final color = ext[ViewExtKeys.spaceIconColorKey];
+      if (icon == null || color == null) {
+        return const FlowySvg(FlowySvgs.space_icon_s, blendMode: null);
+      }
+      return FlowySvg(
+        FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
+        color: Color(int.parse(color)),
+        blendMode: BlendMode.srcOut,
+      );
+    } catch (e) {
+      return const FlowySvg(FlowySvgs.space_icon_s, blendMode: null);
+    }
+  }
+
+  String? get spaceIcon {
+    try {
+      final ext = jsonDecode(extra);
+      final icon = ext[ViewExtKeys.spaceIconKey];
+      return icon;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String? get spaceIconColor {
+    try {
+      final ext = jsonDecode(extra);
+      final color = ext[ViewExtKeys.spaceIconColorKey];
+      return color;
+    } catch (e) {
+      return null;
+    }
+  }
 
   bool get isPinned {
     try {

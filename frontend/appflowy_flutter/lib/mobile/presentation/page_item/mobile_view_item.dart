@@ -296,30 +296,29 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     final icon = widget.view.icon.value.isNotEmpty
         ? FlowyText.emoji(
             widget.view.icon.value,
-            fontSize: 20.0,
+            fontSize: 18.0,
           )
         : Opacity(
             opacity: 0.7,
-            child: SizedBox.square(
-              dimension: 18.0,
-              child: widget.view.defaultIcon(),
-            ),
+            child: widget.view.defaultIcon(),
           );
-    return icon;
+    return SizedBox(width: 18.0, child: icon);
   }
 
   // > button or · button
   // show > if the view is expandable.
   // show · if the view can't contain child views.
   Widget _buildLeftIcon() {
+    const rightPadding = 6.0;
     if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
-      return HSpace(widget.leftPadding);
+      return HSpace(widget.leftPadding + rightPadding);
     }
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.only(right: 6.0, top: 6.0, bottom: 6.0),
+        padding:
+            const EdgeInsets.only(right: rightPadding, top: 6.0, bottom: 6.0),
         child: FlowySvg(
           widget.isExpanded ? FlowySvgs.m_expand_s : FlowySvgs.m_collapse_s,
           blendMode: null,

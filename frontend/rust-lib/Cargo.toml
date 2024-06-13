@@ -94,8 +94,7 @@ yrs = "0.18.8"
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { version = "0.2" }
-appflowy-cloud-billing-client = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client", rev = "9f9c2d1ad180987a31d18c6c067a56a5fa1f6da6" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "9d3d28ad8937712cc688c20be7c0ee6e4d14a168" }
 
 [profile.dev]
 opt-level = 1
@@ -122,9 +121,6 @@ lto = false
 incremental = false
 
 [patch.crates-io]
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "44ffc45c50e7fe362bd3f5ab4c7452e045d6b358" }
-shared-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ff4384fbd07a4b7394a9af8c9159cd65715d3471" }
-
 # TODO(Lucas.Xu) Upgrade to the latest version of RocksDB once PR(https://github.com/rust-rocksdb/rust-rocksdb/pull/869) is merged.
 # Currently, using the following revision id. This commit is patched to fix the 32-bit build issue and it's checked out from 0.21.0, not 0.22.0.
 rocksdb = { git = "https://github.com/LucasXu0/rust-rocksdb", rev = "21cf4a23ec131b9d82dc94e178fe8efc0c147b09" }

@@ -331,6 +331,7 @@
     "signInGithub": "Sign in with Github",
     "signInDiscord": "Sign in with Discord",
     "more": "More",
+    "create": "Create",
     "close": "Close"
   },
   "label": {
@@ -1010,6 +1011,7 @@
       "checklistFieldName": "Checklist",
       "relationFieldName": "Relation",
       "summaryFieldName": "AI Summary",
+      "timeFieldName": "Time",
       "translateFieldName": "AI Translate",
       "tagFieldName": "AI Tags",
       "translateTo": "Translate to",
@@ -1887,5 +1889,30 @@
     "fromTrashHint": "From trash",
     "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
     "clearSearchTooltip": "Clear search field"
+  },
+  "space": {
+    "delete": "Delete space",
+    "deleteConfirmation": "Are you sure you want to delete this space?",
+    "deleteConfirmationDescription": "This action cannot be undone, and will remove the pages and data in this space.",
+    "rename": "Rename space",
+    "changeIcon": "Change icon",
+    "manage": "Manage space",
+    "addNewSpace": "Add new space",
+    "collapseAllSubPages": "Collapse all subpages",
+    "createNewSpace": "Create new space",
+    "createSpaceDescription": "Separate your tabs for life, work, project and more",
+    "spaceName": "Space name",
+    "permission": "Permission",
+    "publicPermission": "Public",
+    "publicPermissionDescription": "All workspace members with full access",
+    "privatePermission": "Private",
+    "privatePermissionDescription": "Only you can access this space",
+    "spaceIconBackground": "Background color",
+    "spaceIcon": "Icon",
+    "dangerZone": "Danger Zone",
+    "unableToDeleteLastSpace": "Cannot delete the last space",
+    "unableToDeleteSpaceNotCreatedByYou": "Cannot delete a space created by others",
+    "enableSpacesForYourWorkspace": "Enable spaces for your workspace",
+    "title": "Spaces"
   }
 }

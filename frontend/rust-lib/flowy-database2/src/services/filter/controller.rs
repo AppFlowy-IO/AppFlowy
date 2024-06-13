@@ -303,6 +303,10 @@ impl FilterController {
               let filter = condition_and_content.cloned::<ChecklistFilterPB>().unwrap();
               filter.get_compliant_cell(field)
             },
+            FieldType::Time => {
+              let filter = condition_and_content.cloned::<TimeFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
             _ => (None, false),
           };
 

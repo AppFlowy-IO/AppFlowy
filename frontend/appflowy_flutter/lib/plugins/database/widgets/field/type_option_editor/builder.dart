@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/tag.dart';
+import 'package:flutter/material.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/translate.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flutter/material.dart';
 
 import 'checkbox.dart';
 import 'checklist.dart';
@@ -15,8 +15,10 @@ import 'relation.dart';
 import 'rich_text.dart';
 import 'single_select.dart';
 import 'summary.dart';
+import 'time.dart';
 import 'timestamp.dart';
 import 'url.dart';
+import 'tag.dart';
 
 typedef TypeOptionDataCallback = void Function(Uint8List typeOptionData);
 
@@ -35,6 +37,7 @@ abstract class TypeOptionEditorFactory {
       FieldType.Checklist => const ChecklistTypeOptionEditorFactory(),
       FieldType.Relation => const RelationTypeOptionEditorFactory(),
       FieldType.Summary => const SummaryTypeOptionEditorFactory(),
+      FieldType.Time => const TimeTypeOptionEditorFactory(),
       FieldType.Translate => const TranslateTypeOptionEditorFactory(),
       FieldType.Tag => const TagTypeOptionEditorFactory(),
       _ => throw UnimplementedError(),

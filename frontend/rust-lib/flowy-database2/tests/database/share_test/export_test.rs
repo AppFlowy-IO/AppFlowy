@@ -83,6 +83,7 @@ async fn export_and_then_import_meta_csv_test() {
           FieldType::CreatedTime => {},
           FieldType::Relation => {},
           FieldType::Summary => {},
+          FieldType::Time => {},
           FieldType::Translate => {},
           FieldType::Tag => {},
         }
@@ -168,6 +169,7 @@ async fn history_database_import_test() {
           FieldType::CreatedTime => {},
           FieldType::Relation => {},
           FieldType::Summary => {},
+          FieldType::Time => {},
           FieldType::Translate => {},
           FieldType::Tag => {},
         }

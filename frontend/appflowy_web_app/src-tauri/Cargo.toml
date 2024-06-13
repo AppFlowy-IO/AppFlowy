@@ -52,7 +52,7 @@ collab-user = { version = "0.2" }
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { version = "0.2" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "9d3d28ad8937712cc688c20be7c0ee6e4d14a168" }
 
 [dependencies]
 serde_json.workspace = true
@@ -114,6 +114,3 @@ collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFl
 collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3a58d95" }
 collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3a58d95" }
 collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3a58d95" }
-
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "44ffc45c50e7fe362bd3f5ab4c7452e045d6b358" }
-shared-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ff4384fbd07a4b7394a9af8c9159cd65715d3471" }

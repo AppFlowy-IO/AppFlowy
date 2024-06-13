@@ -145,6 +145,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
 
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(364, 356)),
+      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (_) => FlowyIconPicker(
         onSelected: (result) => onTap(controller, result),
