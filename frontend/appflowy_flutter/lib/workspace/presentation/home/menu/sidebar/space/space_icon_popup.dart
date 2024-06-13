@@ -29,12 +29,14 @@ class SpaceIconPopup extends StatefulWidget {
     super.key,
     this.icon,
     this.iconColor,
+    this.cornerRadius = 16,
     required this.onIconChanged,
   });
 
   final String? icon;
   final String? iconColor;
   final void Function(String icon, String color) onIconChanged;
+  final double cornerRadius;
 
   @override
   State<SpaceIconPopup> createState() => _SpaceIconPopupState();
@@ -93,7 +95,7 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
                 valueListenable: selectedIcon,
                 builder: (_, icon, __) {
                   final child = ClipRRect(
-                    borderRadius: BorderRadius.circular(16.0),
+                    borderRadius: BorderRadius.circular(widget.cornerRadius),
                     child: FlowySvg(
                       FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
                       color: Color(int.parse(color)),
