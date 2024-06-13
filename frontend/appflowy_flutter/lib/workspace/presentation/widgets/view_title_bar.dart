@@ -3,6 +3,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -153,6 +154,8 @@ class _ViewTitleState extends State<_ViewTitle> {
                 const HSpace(4.0),
               ],
             );
+          } else if (widget.view.isSpace) {
+            return _buildSpaceTitle(context, state);
           } else if (isEditable) {
             return _buildEditableViewTitle(context, state);
           } else {
@@ -160,6 +163,14 @@ class _ViewTitleState extends State<_ViewTitle> {
           }
         },
       ),
+    );
+  }
+
+  Widget _buildSpaceTitle(BuildContext context, ViewTitleState state) {
+    return Container(
+      alignment: Alignment.center,
+      margin: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: _buildIconAndName(state, false),
     );
   }
 
@@ -171,7 +182,6 @@ class _ViewTitleState extends State<_ViewTitle> {
         child: FlowyButton(
           useIntrinsicWidth: true,
           margin: const EdgeInsets.symmetric(horizontal: 6.0),
-          onTap: () {},
           text: _buildIconAndName(state, false),
         ),
       ),
@@ -219,6 +229,15 @@ class _ViewTitleState extends State<_ViewTitle> {
               fontSize: 14.0,
             ),
             const HSpace(4.0),
+          ],
+          if (state.view?.isSpace == true &&
+              state.view?.spaceIconSvg != null) ...[
+            SpaceIcon(
+              dimension: 14,
+              space: state.view!,
+              cornerRadius: 4,
+            ),
+            const HSpace(6.0),
           ],
           Opacity(
             opacity: isEditable ? 1.0 : 0.5,

@@ -91,6 +91,7 @@ class SidebarTopMenu extends StatelessWidget {
           child: FlowyTooltip(
             richMessage: textSpan,
             child: Listener(
+              behavior: HitTestBehavior.translucent,
               onPointerDown: (_) => context
                   .read<HomeSettingBloc>()
                   .add(const HomeSettingEvent.collapseMenu()),

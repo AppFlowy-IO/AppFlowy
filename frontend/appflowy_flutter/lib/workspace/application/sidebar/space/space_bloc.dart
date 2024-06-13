@@ -69,6 +69,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               publicViews: publicViews,
               privateViews: privateViews,
             );
+
             final currentSpace = await _getLastOpenedSpace(spaces);
             final isExpanded = await _getSpaceExpandStatus(currentSpace);
             emit(
@@ -79,6 +80,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 shouldShowUpgradeDialog: shouldShowUpgradeDialog,
               ),
             );
+
+            if (shouldShowUpgradeDialog) {
+              add(const SpaceEvent.migrate());
+            }
           },
           create: (name, icon, iconColor, permission) async {
             final space = await _createSpace(
