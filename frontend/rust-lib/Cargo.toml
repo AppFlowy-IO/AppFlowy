@@ -122,7 +122,7 @@ lto = false
 incremental = false
 
 [patch.crates-io]
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d1c586ee56ee1f0a04c0364a80ab5eee6ef0e685" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "44ffc45c50e7fe362bd3f5ab4c7452e045d6b358" }
 shared-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ff4384fbd07a4b7394a9af8c9159cd65715d3471" }
 
 # TODO(Lucas.Xu) Upgrade to the latest version of RocksDB once PR(https://github.com/rust-rocksdb/rust-rocksdb/pull/869) is merged.

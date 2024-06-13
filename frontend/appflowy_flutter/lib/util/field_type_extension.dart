@@ -23,6 +23,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Relation => LocaleKeys.grid_field_relationFieldName.tr(),
         FieldType.Summary => LocaleKeys.grid_field_summaryFieldName.tr(),
         FieldType.Translate => LocaleKeys.grid_field_translateFieldName.tr(),
+        FieldType.Tag => LocaleKeys.grid_field_tagFieldName.tr(),
         _ => throw UnimplementedError(),
       };
 
@@ -40,12 +41,14 @@ extension FieldTypeExtension on FieldType {
         FieldType.Relation => FlowySvgs.relation_s,
         FieldType.Summary => FlowySvgs.ai_summary_s,
         FieldType.Translate => FlowySvgs.ai_translate_s,
+        FieldType.Tag => FlowySvgs.ai_tag_s,
         _ => throw UnimplementedError(),
       };
 
   FlowySvgData? get rightIcon => switch (this) {
         FieldType.Summary => FlowySvgs.ai_indicator_s,
         FieldType.Translate => FlowySvgs.ai_indicator_s,
+        FieldType.Tag => FlowySvgs.ai_indicator_s,
         _ => null,
       };
 
@@ -63,6 +66,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Relation => const Color(0xFFFDEDA7),
         FieldType.Summary => const Color(0xFFBECCFF),
         FieldType.Translate => const Color(0xFFBECCFF),
+        FieldType.Tag => const Color(0xFFBECCFF),
         _ => throw UnimplementedError(),
       };
 
@@ -81,6 +85,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Relation => const Color(0xFFFDEDA7),
         FieldType.Summary => const Color(0xFF6859A7),
         FieldType.Translate => const Color(0xFF6859A7),
+        FieldType.Tag => const Color(0xFF6859A7),
         _ => throw UnimplementedError(),
       };
 }
