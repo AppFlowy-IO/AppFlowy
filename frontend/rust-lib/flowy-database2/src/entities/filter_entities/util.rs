@@ -10,7 +10,7 @@ use validator::Validate;
 
 use crate::entities::{
   CheckboxFilterPB, ChecklistFilterPB, DateFilterPB, FieldType, NumberFilterPB, RelationFilterPB,
-  SelectOptionFilterPB, TextFilterPB,
+  SelectOptionFilterPB, TextFilterPB, TimeFilterPB,
 };
 use crate::services::filter::{Filter, FilterChangeset, FilterInner};
 
@@ -109,6 +109,10 @@ impl From<&Filter> for FilterPB {
             .cloned::<TextFilterPB>()
             .unwrap()
             .try_into(),
+          FieldType::Time => condition_and_content
+            .cloned::<TimeFilterPB>()
+            .unwrap()
+            .try_into(),
           FieldType::Translate => condition_and_content
             .cloned::<TextFilterPB>()
             .unwrap()
@@ -159,6 +163,9 @@ impl TryFrom<FilterDataPB> for FilterInner {
       },
       FieldType::Summary => {
         BoxAny::new(TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Time => {
+        BoxAny::new(TimeFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
       },
       FieldType::Translate => {
         BoxAny::new(TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)

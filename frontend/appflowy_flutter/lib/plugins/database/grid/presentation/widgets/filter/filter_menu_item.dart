@@ -8,6 +8,7 @@ import 'choicechip/number.dart';
 import 'choicechip/select_option/select_option.dart';
 import 'choicechip/text.dart';
 import 'choicechip/url.dart';
+import 'choicechip/time.dart';
 import 'filter_info.dart';
 
 class FilterMenuItem extends StatelessWidget {
@@ -22,12 +23,15 @@ class FilterMenuItem extends StatelessWidget {
       FieldType.DateTime => DateFilterChoicechip(filterInfo: filterInfo),
       FieldType.MultiSelect =>
         SelectOptionFilterChoicechip(filterInfo: filterInfo),
-      FieldType.Number => NumberFilterChoiceChip(filterInfo: filterInfo),
+      FieldType.Number =>
+        NumberFilterChoiceChip(filterInfo: filterInfo),
       FieldType.RichText => TextFilterChoicechip(filterInfo: filterInfo),
       FieldType.SingleSelect =>
         SelectOptionFilterChoicechip(filterInfo: filterInfo),
       FieldType.URL => URLFilterChoiceChip(filterInfo: filterInfo),
       FieldType.Checklist => ChecklistFilterChoicechip(filterInfo: filterInfo),
+      FieldType.Time =>
+        TimeFilterChoiceChip(filterInfo: filterInfo),
       _ => const SizedBox(),
     };
   }

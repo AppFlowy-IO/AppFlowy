@@ -10,7 +10,7 @@ use flowy_database2::services::field::translate_type_option::translate::Translat
 use flowy_database2::services::field::{
   ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
   NumberFormat, NumberTypeOption, RelationTypeOption, SelectOption, SelectOptionColor,
-  SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
+  SingleSelectTypeOption, TimeFormat, TimeTypeOption, TimestampTypeOption,
 };
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
@@ -133,6 +133,13 @@ pub fn make_test_grid() -> DatabaseData {
           .build();
         fields.push(relation_field);
       },
+      FieldType::Time => {
+        let type_option = TimeTypeOption;
+        let time_field = FieldBuilder::new(field_type, type_option)
+          .name("Estimated time")
+          .build();
+        fields.push(time_field);
+      },
       FieldType::Translate => {
         let type_option = TranslateTypeOption {
           auto_fill: false,
@@ -168,6 +175,7 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::Checklist => {
               row_builder.insert_checklist_cell(vec![("First thing".to_string(), false)])
             },
+            FieldType::Time => row_builder.insert_time_cell(75),
             _ => "".to_owned(),
           };
         }

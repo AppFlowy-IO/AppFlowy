@@ -30,7 +30,6 @@
     "passwordHint": "Password",
     "repeatPasswordHint": "Repeat password",
     "signUpWith": "Sign up with:"
-
   },
   "signIn": {
     "loginTitle": "Login to @:appName",
@@ -1012,6 +1011,7 @@
       "checklistFieldName": "Checklist",
       "relationFieldName": "Relation",
       "summaryFieldName": "AI Summary",
+      "timeFieldName": "Time",
       "translateFieldName": "AI Translate",
       "translateTo": "Translate to",
       "numberFormat": "Number format",
@@ -1915,4 +1915,3 @@
     "title": "Spaces"
   }
 }
-

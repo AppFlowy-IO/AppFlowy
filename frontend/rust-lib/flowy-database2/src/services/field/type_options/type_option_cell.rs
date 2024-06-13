@@ -14,9 +14,9 @@ use crate::services::field::summary_type_option::summary::SummarizationTypeOptio
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimestampTypeOption, TypeOption,
-  TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
-  TypeOptionTransform, URLTypeOption,
+  RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
+  TimestampTypeOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
 };
 use crate::services::sort::SortCondition;
 
@@ -450,6 +450,16 @@ impl<'a> TypeOptionCellExt<'a> {
             self.cell_data_cache.clone(),
           )
         }),
+      FieldType::Time => self
+        .field
+        .get_type_option::<TimeTypeOption>(field_type)
+        .map(|type_option| {
+          TypeOptionCellDataHandlerImpl::new_with_boxed(
+            type_option,
+            field_type,
+            self.cell_data_cache.clone(),
+          )
+        }),
       FieldType::Translate => self
         .field
         .get_type_option::<TranslateTypeOption>(field_type)
@@ -563,6 +573,9 @@ fn get_type_option_transform_handler(
     },
     FieldType::Summary => Box::new(SummarizationTypeOption::from(type_option_data))
       as Box<dyn TypeOptionTransformHandler>,
+    FieldType::Time => {
+      Box::new(TimeTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
+    },
     FieldType::Translate => {
       Box::new(TranslateTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },

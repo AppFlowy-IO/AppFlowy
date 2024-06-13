@@ -127,6 +127,11 @@ class GridCreateFilterBloc
           fieldId: fieldId,
           condition: NumberFilterConditionPB.Equal,
         );
+      case FieldType.Time:
+        return _filterBackendSvc.insertTimeFilter(
+          fieldId: fieldId,
+          condition: NumberFilterConditionPB.Equal,
+        );
       case FieldType.RichText:
         return _filterBackendSvc.insertTextFilter(
           fieldId: fieldId,
