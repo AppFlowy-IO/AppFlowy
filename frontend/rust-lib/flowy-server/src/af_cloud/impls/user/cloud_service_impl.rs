@@ -10,7 +10,8 @@ use client_api::entity::workspace_dto::{
   WorkspaceMemberInvitation,
 };
 use client_api::entity::{
-  AFRole, AFWorkspace, AFWorkspaceInvitation, AuthProvider, CollabParams, CreateCollabParams,
+  AFRole, AFWorkspace, AFWorkspaceInvitation, AuthProvider, CollabParams,
+  CreateCollabParams, QueryWorkspaceMember,
 };
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
@@ -499,6 +500,34 @@ where
         )
         .await?;
       Ok(payment_link)
+    })
+  }
+
+  fn get_workspace_member_info(
+    &self,
+    workspace_id: &str,
+    uid: i64,
+  ) -> FutureResult<WorkspaceMember, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id = workspace_id.to_string();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let params = QueryWorkspaceMember {
+        workspace_id: workspace_id.to_string(),
+        uid,
+      };
+      let member = client.get_workspace_member(params).await?;
+      let role = match member.role {
+        AFRole::Owner => Role::Owner,
+        AFRole::Member => Role::Member,
+        AFRole::Guest => Role::Guest,
+      };
+      Ok(WorkspaceMember {
+        email: member.email,
+        role,
+        name: member.name,
+        avatar_url: member.avatar_url,
+      })
     })
   }
 

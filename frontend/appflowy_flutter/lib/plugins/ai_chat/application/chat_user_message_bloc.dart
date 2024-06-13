@@ -1,5 +1,7 @@
-import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,9 +15,23 @@ class ChatUserMessageBloc
   }) : super(ChatUserMessageState.initial(message)) {
     on<ChatUserMessageEvent>(
       (event, emit) async {
-        await event.when(
-          initial: () async {},
-          update: (userProfile, deviceId, states) {},
+        event.when(
+          initial: () {
+            final payload =
+                WorkspaceMemberIdPB(uid: Int64.parseInt(message.author.id));
+            UserEventGetMemberInfo(payload).send().then((result) {
+              if (!isClosed) {
+                result.fold((member) {
+                  add(ChatUserMessageEvent.didReceiveMemberInfo(member));
+                }, (err) {
+                  Log.error("Error getting member info: $err");
+                });
+              }
+            });
+          },
+          didReceiveMemberInfo: (WorkspaceMemberPB memberInfo) {
+            emit(state.copyWith(member: memberInfo));
+          },
         );
       },
     );
@@ -25,11 +41,9 @@ class ChatUserMessageBloc
 @freezed
 class ChatUserMessageEvent with _$ChatUserMessageEvent {
   const factory ChatUserMessageEvent.initial() = Initial;
-  const factory ChatUserMessageEvent.update(
-    UserProfilePB userProfile,
-    String deviceId,
-    DocumentAwarenessStatesPB states,
-  ) = Update;
+  const factory ChatUserMessageEvent.didReceiveMemberInfo(
+    WorkspaceMemberPB memberInfo,
+  ) = _MemberInfo;
 }
 
 @freezed
