@@ -204,6 +204,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "appflowy-cloud-billing-client"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client?rev=9f9c2d1ad180987a31d18c6c067a56a5fa1f6da6#9f9c2d1ad180987a31d18c6c067a56a5fa1f6da6"
+dependencies = [
+ "client-api",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "shared-entity",
+ "tokio",
+ "yrs",
+]
+
+[[package]]
 name = "appflowy_tauri"
 version = "0.0.0"
 dependencies = [
@@ -1330,7 +1344,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa 1.0.6",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -2211,6 +2225,7 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
+ "flowy-folder",
  "flowy-notification",
  "flowy-search-pub",
  "flowy-sqlite",
@@ -2247,6 +2262,7 @@ name = "flowy-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "appflowy-cloud-billing-client",
  "bytes",
  "chrono",
  "client-api",
@@ -4814,7 +4830,7 @@ checksum = "c55e02e35260070b6f716a2423c2ff1c3bb1642ddca6f99e1f26d06268a0e2d2"
 dependencies = [
  "bytes",
  "heck 0.4.1",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "log",
  "multimap",
  "once_cell",
@@ -4835,7 +4851,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efb6c9a1dd1def8e2124d17e83a20af56f1570d6c2d2bd9e266ccb768df3840e"
 dependencies = [
  "anyhow",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.47",
@@ -6744,9 +6760,9 @@ checksum = "c7c4ceeeca15c8384bbc3e011dbd8fccb7f068a440b752b7d9b32ceb0ca0e2e8"
 
 [[package]]
 name = "tokio"
-version = "1.36.0"
+version = "1.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61285f6515fa018fb2d1e46eb21223fff441ee8db5d0f1435e8ab4f5cdb80931"
+checksum = "ba4f4a02a7a80d6f274636f0aa95c7e383b912d41fe721a31f29e29698585a4a"
 dependencies = [
  "backtrace",
  "bytes",
@@ -6764,9 +6780,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-macros"
-version = "2.2.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b8a1e28f2deaa14e508979454cb3a223b10b938b45af148bc0986de36f1923b"
+checksum = "5f5ae998a069d4b5aba8ee9dad856af7d520c3699e6159b185c2acd48155d39a"
 dependencies = [
  "proc-macro2",
  "quote",
