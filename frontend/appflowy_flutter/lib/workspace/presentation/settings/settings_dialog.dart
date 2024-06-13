@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_billing_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_data_view.dart';
@@ -24,14 +25,12 @@ class SettingsDialog extends StatelessWidget {
     required this.dismissDialog,
     required this.didLogout,
     required this.restartApp,
-    required this.workspaceId,
   }) : super(key: ValueKey(user.id));
 
   final VoidCallback dismissDialog;
   final VoidCallback didLogout;
   final VoidCallback restartApp;
   final UserProfilePB user;
-  final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +60,11 @@ class SettingsDialog extends StatelessWidget {
                   ),
                   Expanded(
                     child: getSettingsView(
+                      context
+                          .read<UserWorkspaceBloc>()
+                          .state
+                          .currentWorkspace!
+                          .workspaceId,
                       context.read<SettingsDialogBloc>().state.page,
                       context.read<SettingsDialogBloc>().state.userProfile,
                     ),
@@ -74,7 +78,11 @@ class SettingsDialog extends StatelessWidget {
     );
   }
 
-  Widget getSettingsView(SettingsPage page, UserProfilePB user) {
+  Widget getSettingsView(
+    String workspaceId,
+    SettingsPage page,
+    UserProfilePB user,
+  ) {
     switch (page) {
       case SettingsPage.account:
         return SettingsAccountView(
