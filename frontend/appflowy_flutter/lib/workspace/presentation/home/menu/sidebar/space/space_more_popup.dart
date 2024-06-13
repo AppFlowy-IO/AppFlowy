@@ -163,7 +163,7 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
           rightIcon: inner.rightIcon,
           iconPadding: 10.0,
           text: SizedBox(
-            height: 18.0,
+            // height: 16.0,
             child: FlowyText.regular(
               inner.name,
               color: inner == SpaceMoreActionType.delete
