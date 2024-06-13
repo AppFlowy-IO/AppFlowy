@@ -1911,7 +1911,8 @@
     "dangerZone": "Danger Zone",
     "unableToDeleteLastSpace": "Cannot delete the last space",
     "unableToDeleteSpaceNotCreatedByYou": "Cannot delete a space created by others",
-    "enableSpacesForYourWorkspace": "Enable spaces for your workspace"
+    "enableSpacesForYourWorkspace": "Enable spaces for your workspace",
+    "title": "Spaces"
   }
 }
 
