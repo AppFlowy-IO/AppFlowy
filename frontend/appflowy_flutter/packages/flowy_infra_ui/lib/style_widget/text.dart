@@ -178,7 +178,7 @@ class FlowyText extends StatelessWidget {
                 textStyle,
                 forceStrutHeight: true,
                 leadingDistribution: TextLeadingDistribution.even,
-                height: 1.1,
+                height: lineHeight ?? 1.1,
               )
             : null,
       );

@@ -17,6 +17,7 @@ class WorkspaceService {
     String? desc,
     int? index,
     ViewLayoutPB? layout,
+    bool? setAsCurrent,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = workspaceId
@@ -30,6 +31,10 @@ class WorkspaceService {
 
     if (index != null) {
       payload.index = index;
+    }
+
+    if (setAsCurrent != null) {
+      payload.setAsCurrent = setAsCurrent;
     }
 
     return FolderEventCreateView(payload).send();
