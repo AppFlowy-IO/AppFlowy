@@ -495,6 +495,10 @@ impl FieldType {
     s.to_string()
   }
 
+  pub fn is_ai_field(&self) -> bool {
+    matches!(self, FieldType::Summary | FieldType::Translate)
+  }
+
   pub fn is_number(&self) -> bool {
     matches!(self, FieldType::Number)
   }

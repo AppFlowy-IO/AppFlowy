@@ -435,8 +435,7 @@ impl DatabaseManager {
         // When summarizing a row, skip the content in the "AI summary" cell; it does not need to
         // be summarized.
         if field.id != field_id {
-          // Don't summarize the summary field.
-          if field.field_type == FieldType::Summary as i64 {
+          if FieldType::from(field.field_type).is_ai_field() {
             continue;
           }
           if let Some(cell) = row.cells.get(&field.id) {
@@ -482,8 +481,7 @@ impl DatabaseManager {
         // When translate a row, skip the content in the "AI Translate" cell; it does not need to
         // be translated.
         if field.id != field_id {
-          // Don't translate the translate field.
-          if field.field_type == FieldType::Translate as i64 {
+          if FieldType::from(field.field_type).is_ai_field() {
             continue;
           }
 
