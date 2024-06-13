@@ -10,15 +10,12 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy/util/string_extension.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -247,59 +244,6 @@ class MobileViewCard extends StatelessWidget {
     }
 
     return date;
-  }
-
-  Future<void> _showActionSheet(BuildContext context) async {
-    final viewBloc = context.read<ViewBloc>();
-    final favoriteBloc = context.read<FavoriteBloc>();
-    final recentViewsBloc = context.read<RecentViewsBloc?>();
-    await showMobileBottomSheet(
-      context,
-      showDragHandle: true,
-      showDivider: false,
-      backgroundColor: AFThemeExtension.of(context).background,
-      useRootNavigator: true,
-      builder: (context) {
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: viewBloc),
-            BlocProvider.value(value: favoriteBloc),
-            if (recentViewsBloc != null)
-              BlocProvider.value(value: recentViewsBloc),
-          ],
-          child: BlocBuilder<ViewBloc, ViewState>(
-            builder: (context, state) {
-              return MobileViewItemBottomSheet(
-                view: viewBloc.state.view,
-                actions: _buildActions(state.view),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  List<MobileViewItemBottomSheetBodyAction> _buildActions(ViewPB view) {
-    switch (type) {
-      case MobileViewCardType.recent:
-        return [
-          view.isFavorite
-              ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
-              : MobileViewItemBottomSheetBodyAction.addToFavorites,
-          MobileViewItemBottomSheetBodyAction.divider,
-          if (view.layout != ViewLayoutPB.Chat)
-            MobileViewItemBottomSheetBodyAction.duplicate,
-          MobileViewItemBottomSheetBodyAction.divider,
-          MobileViewItemBottomSheetBodyAction.removeFromRecent,
-        ];
-      case MobileViewCardType.favorite:
-        return [
-          MobileViewItemBottomSheetBodyAction.removeFromFavorites,
-          MobileViewItemBottomSheetBodyAction.divider,
-          MobileViewItemBottomSheetBodyAction.duplicate,
-        ];
-    }
   }
 }
 

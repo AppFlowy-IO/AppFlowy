@@ -32,11 +32,12 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
             LocaleKeys.space_createNewSpace.tr(),
             fontSize: 18.0,
           ),
-          const VSpace(4.0),
+          const VSpace(6.0),
           FlowyText.regular(
             LocaleKeys.space_createSpaceDescription.tr(),
             fontSize: 14.0,
             color: Theme.of(context).hintColor,
+            maxLines: 2,
           ),
           const VSpace(16.0),
           SizedBox.square(
@@ -50,11 +51,11 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
           ),
           const VSpace(8.0),
           _SpaceNameTextField(onChanged: (value) => spaceName = value),
-          const VSpace(16.0),
+          const VSpace(20.0),
           SpacePermissionSwitch(
             onPermissionChanged: (value) => spacePermission = value,
           ),
-          const VSpace(16.0),
+          const VSpace(20.0),
           SpaceCancelOrConfirmButton(
             confirmButtonName: LocaleKeys.button_create.tr(),
             onCancel: () => Navigator.of(context).pop(),

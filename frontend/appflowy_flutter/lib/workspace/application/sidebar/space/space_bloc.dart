@@ -256,7 +256,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       viewSection: section,
       setAsCurrent: false,
     );
-    return result.fold((space) async {
+    return await result.fold((space) async {
       Log.info('Space created: $space');
       final extra = {
         ViewExtKeys.isSpaceKey: true,

@@ -83,6 +83,7 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
     return StatefulBuilder(
       builder: (context, setState) {
         return MouseRegion(
+          cursor: SystemMouseCursors.click,
           onEnter: (event) => setState(() => onHover = true),
           onExit: (event) => setState(() => onHover = false),
           child: ValueListenableBuilder(
