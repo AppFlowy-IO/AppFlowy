@@ -73,6 +73,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
                   // rightIcon: _buildRightIcon(),
                   iconPadding: 10.0,
                   text: _buildChild(),
+                  rightIcon: const HSpace(60.0),
                 ),
               ),
               Positioned(
@@ -95,10 +96,13 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
           cornerRadius: 6.0,
         ),
         const HSpace(10),
-        FlowyText.medium(
-          widget.space.name,
-          lineHeight: 1.15,
-          fontSize: 14.0,
+        Flexible(
+          child: FlowyText.medium(
+            widget.space.name,
+            lineHeight: 1.15,
+            fontSize: 14.0,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         const HSpace(4.0),
         FlowySvg(
