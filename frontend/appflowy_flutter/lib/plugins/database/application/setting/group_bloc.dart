@@ -49,9 +49,7 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
     on<DatabaseGroupEvent>(
       (event, emit) async {
         await event.when(
-          initial: () {
-            _startListening();
-          },
+          initial: () async => _startListening(),
           didReceiveFieldUpdate: (fieldInfos) {
             emit(
               state.copyWith(
