@@ -10,7 +10,19 @@ import 'package:collection/collection.dart';
 
 class FavoriteService {
   Future<FlowyResult<RepeatedFavoriteViewPB, FlowyError>> readFavorites() {
-    return FolderEventReadFavorites().send();
+    final result = FolderEventReadFavorites().send();
+    return result.then((result) {
+      return result.fold(
+        (favoriteViews) {
+          return FlowyResult.success(
+            RepeatedFavoriteViewPB(
+              items: favoriteViews.items.where((e) => !e.item.isSpace),
+            ),
+          );
+        },
+        (error) => FlowyResult.failure(error),
+      );
+    });
   }
 
   Future<FlowyResult<void, FlowyError>> toggleFavorite(
