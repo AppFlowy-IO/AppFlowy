@@ -79,18 +79,46 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
   }
 
   Widget _buildPreview() {
-    return ValueListenableBuilder(
-      valueListenable: selectedColor,
-      builder: (_, color, __) {
-        return ValueListenableBuilder(
-          valueListenable: selectedIcon,
-          builder: (_, icon, __) {
-            return FlowySvg(
-              FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
-              color: Color(int.parse(color)),
-              blendMode: BlendMode.srcOut,
-            );
-          },
+    bool onHover = false;
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return MouseRegion(
+          onEnter: (event) => setState(() => onHover = true),
+          onExit: (event) => setState(() => onHover = false),
+          child: ValueListenableBuilder(
+            valueListenable: selectedColor,
+            builder: (_, color, __) {
+              return ValueListenableBuilder(
+                valueListenable: selectedIcon,
+                builder: (_, icon, __) {
+                  final child = ClipRRect(
+                    borderRadius: BorderRadius.circular(16.0),
+                    child: FlowySvg(
+                      FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
+                      color: Color(int.parse(color)),
+                      blendMode: BlendMode.srcOut,
+                    ),
+                  );
+                  if (onHover) {
+                    return Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Opacity(opacity: 0.2, child: child),
+                        ),
+                        const Center(
+                          child: FlowySvg(
+                            FlowySvgs.view_item_rename_s,
+                            size: Size.square(20),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return child;
+                },
+              );
+            },
+          ),
         );
       },
     );
@@ -276,10 +304,13 @@ class _IconsState extends State<_Icons> {
 
             widget.onIconSelected(icon);
           },
-          child: FlowySvg(
-            FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
-            color: Color(int.parse(widget.selectedColor)),
-            blendMode: BlendMode.srcOut,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: FlowySvg(
+              FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
+              color: Color(int.parse(widget.selectedColor)),
+              blendMode: BlendMode.srcOut,
+            ),
           ),
         );
       }).toList(),

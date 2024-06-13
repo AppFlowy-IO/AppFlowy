@@ -13,10 +13,12 @@ class SpacePermissionSwitch extends StatefulWidget {
     super.key,
     required this.onPermissionChanged,
     this.spacePermission,
+    this.showArrow = false,
   });
 
   final SpacePermission? spacePermission;
   final void Function(SpacePermission permission) onPermissionChanged;
+  final bool showArrow;
 
   @override
   State<SpacePermissionSwitch> createState() => _SpacePermissionSwitchState();
@@ -54,11 +56,12 @@ class _SpacePermissionSwitchState extends State<SpacePermissionSwitch> {
           child: DecoratedBox(
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
-                side: const BorderSide(color: Color(0x1E14171B)),
+                side: BorderSide(color: Theme.of(context).colorScheme.outline),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
             child: SpacePermissionButton(
+              showArrow: true,
               permission: spacePermission,
             ),
           ),
@@ -102,10 +105,12 @@ class SpacePermissionButton extends StatelessWidget {
     super.key,
     required this.permission,
     this.onTap,
+    this.showArrow = false,
   });
 
   final SpacePermission permission;
   final VoidCallback? onTap;
+  final bool showArrow;
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +132,9 @@ class SpacePermissionButton extends StatelessWidget {
       radius: BorderRadius.circular(10),
       iconPadding: 16.0,
       leftIcon: FlowySvg(icon),
-      rightIcon: const FlowySvg(FlowySvgs.space_permission_dropdown_s),
+      rightIcon: showArrow
+          ? const FlowySvg(FlowySvgs.space_permission_dropdown_s)
+          : null,
       text: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -189,6 +196,7 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
           child: FlowyButton(
             useIntrinsicWidth: true,
             margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
+            radius: BorderRadius.circular(8),
             text: FlowyText.regular(
               confirmButtonName,
               color: Theme.of(context).colorScheme.onPrimary,

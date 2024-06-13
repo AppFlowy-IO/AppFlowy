@@ -96,4 +96,9 @@ class KVKeys {
   ///
   /// The value is a string.
   static const String lastOpenedSpaceId = 'lastOpenedSpaceId';
+
+  /// The key for saving the upgrade space tag
+  ///
+  /// The value is a boolean string
+  static const String hasUpgradedSpace = 'hasUpgradedSpace060';
 }

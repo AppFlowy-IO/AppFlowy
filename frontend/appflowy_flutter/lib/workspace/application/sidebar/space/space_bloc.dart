@@ -63,7 +63,12 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           initial: (userProfile, workspaceId) async {
             _initial(userProfile, workspaceId);
 
-            final spaces = await _getSpaces();
+            final (spaces, publicViews, privateViews) = await _getSpaces();
+            final shouldShowUpgradeDialog = await this.shouldShowUpgradeDialog(
+              spaces: spaces,
+              publicViews: publicViews,
+              privateViews: privateViews,
+            );
             final currentSpace = await _getLastOpenedSpace(spaces);
             final isExpanded = await _getSpaceExpandStatus(currentSpace);
             emit(
@@ -71,6 +76,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 spaces: spaces,
                 currentSpace: currentSpace,
                 isExpanded: isExpanded,
+                shouldShowUpgradeDialog: shouldShowUpgradeDialog,
               ),
             );
           },
@@ -83,6 +89,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
             if (space != null) {
               emit(state.copyWith(spaces: [...state.spaces, space]));
+              add(SpaceEvent.open(space));
             }
           },
           delete: (space) async {
@@ -185,7 +192,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           didReceiveSpaceUpdate: () async {
-            final spaces = await _getSpaces();
+            final (spaces, _, _) = await _getSpaces();
             final currentSpace = await _getLastOpenedSpace(spaces);
             emit(
               state.copyWith(
@@ -200,7 +207,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             add(SpaceEvent.initial(userProfile, workspaceId));
           },
           migrate: () async {
-            await migrate();
+            final result = await migrate();
+            emit(state.copyWith(shouldShowUpgradeDialog: !result));
           },
         );
       },
@@ -218,10 +226,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     return super.close();
   }
 
-  Future<List<ViewPB>> _getSpaces() async {
+  Future<(List<ViewPB>, List<ViewPB>, List<ViewPB>)> _getSpaces() async {
     final sectionViews = await _getSectionViews();
     if (sectionViews == null || sectionViews.views.isEmpty) {
-      return [];
+      return (<ViewPB>[], <ViewPB>[], <ViewPB>[]);
     }
     final publicViews = sectionViews.publicViews;
     final privateViews = sectionViews.privateViews;
@@ -229,7 +237,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     final publicSpaces = publicViews.where((e) => e.isSpace);
     final privateSpaces = privateViews.where((e) => e.isSpace);
 
-    return [...publicSpaces, ...privateSpaces];
+    return ([...publicSpaces, ...privateSpaces], publicViews, privateViews);
   }
 
   Future<ViewPB?> _createSpace({
@@ -370,44 +378,38 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     });
   }
 
-  Future<void> migrate() async {
+  Future<bool> migrate() async {
     if (_workspaceId == null) {
-      return;
+      return false;
     }
     try {
-      final userId =
+      final user =
           await UserBackendService.getCurrentUserProfile().getOrThrow();
-      final service = UserBackendService(userId: userId.id);
+      final service = UserBackendService(userId: user.id);
       final members =
           await service.getWorkspaceMembers(_workspaceId!).getOrThrow();
-      final isOwner =
-          members.items.firstWhere((e) => e.role == AFRolePB.Owner) == userId;
-      if (!isOwner) {
-        return;
-      }
+      final isOwner = members.items
+          .any((e) => e.role == AFRolePB.Owner && e.email == user.email);
 
       // only one member in the workspace, migrate it immediately
-      if (members.items.length == 1) {
+      // only the owner can migrate the public space
+      if (members.items.length == 1 || isOwner) {
         // create a new public space and a new private space
         // move all the views in the workspace to the new public/private space
         final publicViews =
             await _workspaceService.getPublicViews().getOrThrow();
-        final privateViews =
-            await _workspaceService.getPrivateViews().getOrThrow();
         final publicSpace = await _createSpace(
           name: 'shared',
           icon: builtInSpaceIcons.first,
           iconColor: builtInSpaceColors.first,
           permission: SpacePermission.publicToAll,
         );
-        final privateSpace = await _createSpace(
-          name: 'private',
-          icon: builtInSpaceIcons.last,
-          iconColor: builtInSpaceColors.last,
-          permission: SpacePermission.private,
-        );
+
         if (publicSpace != null) {
-          for (final view in publicViews) {
+          for (final view in publicViews.reversed) {
+            if (view.isSpace) {
+              continue;
+            }
             await ViewBackendService.moveViewV2(
               viewId: view.id,
               newParentId: publicSpace.id,
@@ -415,19 +417,54 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           }
         }
-        if (privateSpace != null) {
-          for (final view in privateViews) {
-            await ViewBackendService.moveViewV2(
-              viewId: view.id,
-              newParentId: privateSpace.id,
-              prevViewId: view.parentViewId,
-            );
+      }
+      // create a new private space
+      final privateViews =
+          await _workspaceService.getPrivateViews().getOrThrow();
+      final privateSpace = await _createSpace(
+        name: 'private',
+        icon: builtInSpaceIcons.last,
+        iconColor: builtInSpaceColors.last,
+        permission: SpacePermission.private,
+      );
+      if (privateSpace != null) {
+        for (final view in privateViews.reversed) {
+          if (view.isSpace) {
+            continue;
           }
+          await ViewBackendService.moveViewV2(
+            viewId: view.id,
+            newParentId: privateSpace.id,
+            prevViewId: view.parentViewId,
+          );
         }
-      } else {}
+      }
+
+      return true;
     } catch (e) {
       Log.error('migrate space error: $e');
+      return false;
     }
+  }
+
+  Future<bool> shouldShowUpgradeDialog({
+    required List<ViewPB> spaces,
+    required List<ViewPB> publicViews,
+    required List<ViewPB> privateViews,
+  }) async {
+    final publicSpaces =
+        spaces.where((e) => e.spacePermission == SpacePermission.publicToAll);
+    if (publicSpaces.isEmpty && publicViews.isNotEmpty) {
+      return true;
+    }
+
+    final privateSpaces =
+        spaces.where((e) => e.spacePermission == SpacePermission.private);
+    if (privateSpaces.isEmpty && privateViews.isNotEmpty) {
+      return true;
+    }
+
+    return false;
   }
 }
 
@@ -477,6 +514,7 @@ class SpaceState with _$SpaceState {
     @Default(true) bool isExpanded,
     @Default(null) ViewPB? lastCreatedPage,
     FlowyResult<void, FlowyError>? createPageResult,
+    @Default(false) bool shouldShowUpgradeDialog,
   }) = _SpaceState;
 
   factory SpaceState.initial() => const SpaceState();

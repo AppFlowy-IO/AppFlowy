@@ -111,6 +111,7 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
 
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(216, 256)),
+      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (_) => SpaceIconPicker(
         iconColor: color,

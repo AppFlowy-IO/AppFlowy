@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -69,13 +70,17 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
               message: LocaleKeys.space_privatePermissionDescription.tr(),
               child: const FlowySvg(
                 FlowySvgs.space_lock_s,
-                blendMode: null,
               ),
             ),
         ],
       ),
       iconPadding: 10,
-      leftIcon: space.spaceIconSvg,
+      leftIcon: SpaceIcon(
+        dimension: 20,
+        space: space,
+        cornerRadius: 6.0,
+      ),
+      leftIconSize: const Size.square(20),
       rightIcon: isSelected
           ? const FlowySvg(
               FlowySvgs.workspace_selected_s,
@@ -100,7 +105,6 @@ class _CreateSpaceButton extends StatelessWidget {
       iconPadding: 10,
       leftIcon: const FlowySvg(
         FlowySvgs.space_add_s,
-        blendMode: null,
       ),
       onTap: () {
         PopoverContainer.of(context).close();
