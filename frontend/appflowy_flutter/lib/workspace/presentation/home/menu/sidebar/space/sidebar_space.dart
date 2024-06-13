@@ -79,9 +79,6 @@ class _SpaceState extends State<_Space> {
   Widget build(BuildContext context) {
     return BlocBuilder<SpaceBloc, SpaceState>(
       builder: (context, state) {
-        // final isCollaborativeWorkspace =
-        //     context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
-
         if (state.spaces.isEmpty) {
           return const SizedBox.shrink();
         }

@@ -1235,11 +1235,12 @@ pub(crate) fn get_workspace_public_view_pbs(workspace_id: &str, folder: &Folder)
     .into_iter()
     .map(|view| {
       // Get child views
-      let child_views = folder
+      let mut child_views: Vec<Arc<View>> = folder
         .views
         .get_views_belong_to(&view.id)
         .into_iter()
         .collect();
+      child_views.retain(|view| !trash_ids.contains(&view.id));
       view_pb_with_child_views(view, child_views)
     })
     .collect()
@@ -1284,11 +1285,12 @@ pub(crate) fn get_workspace_private_view_pbs(workspace_id: &str, folder: &Folder
     .into_iter()
     .map(|view| {
       // Get child views
-      let child_views = folder
+      let mut child_views: Vec<Arc<View>> = folder
         .views
         .get_views_belong_to(&view.id)
         .into_iter()
         .collect();
+      child_views.retain(|view| !trash_ids.contains(&view.id));
       view_pb_with_child_views(view, child_views)
     })
     .collect()
