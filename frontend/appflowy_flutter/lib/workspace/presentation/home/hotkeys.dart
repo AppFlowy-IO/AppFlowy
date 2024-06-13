@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
@@ -9,7 +11,6 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:scaled_app/scaled_app.dart';
@@ -54,13 +55,24 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
   final windowSizeManager = WindowSizeManager();
 
   late final items = [
-    // Collapse sidebar menu
+    // Collapse sidebar menu (using slash)
     HotKeyItem(
       hotKey: HotKey(
-        Platform.isMacOS ? KeyCode.period : KeyCode.backslash,
+        KeyCode.backslash,
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
-        // Set hotkey scope (default is HotKeyScope.system)
-        scope: HotKeyScope.inapp, // Set as inapp-wide hotkey.
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => context
+          .read<HomeSettingBloc>()
+          .add(const HomeSettingEvent.collapseMenu()),
+    ),
+
+    // Collapse sidebar menu (using .)
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.period,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => context
           .read<HomeSettingBloc>()

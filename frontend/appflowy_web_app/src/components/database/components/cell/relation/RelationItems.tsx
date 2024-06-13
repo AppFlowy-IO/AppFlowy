@@ -6,29 +6,27 @@ import {
   useFieldSelector,
   useNavigateToRow,
 } from '@/application/database-yjs';
-import { useId } from '@/components/_shared/context-provider/IdProvider';
-import { AFConfigContext } from '@/components/app/AppConfig';
-import { RelationCell, RelationCellData } from '@/components/database/components/cell/cell.type';
+import { RelationCell, RelationCellData } from '@/application/database-yjs/cell.type';
 import { RelationPrimaryValue } from '@/components/database/components/cell/relation/RelationPrimaryValue';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { useGetDatabaseDispatch } from '@/components/database/Database.hooks';
+import React, { useEffect, useMemo, useState } from 'react';
 
 function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: string; style?: React.CSSProperties }) {
   const { field } = useFieldSelector(fieldId);
   const currentDatabaseId = useDatabase()?.get(YjsDatabaseKey.id);
-  const workspaceId = useId()?.workspaceId;
+  const { onOpenDatabase, onCloseDatabase } = useGetDatabaseDispatch();
   const rowIds = useMemo(() => {
     return (cell.data?.toJSON() as RelationCellData) ?? [];
   }, [cell.data]);
   const databaseId = rowIds.length > 0 && field ? parseRelationTypeOption(field).database_id : undefined;
-  const databaseService = useContext(AFConfigContext)?.service?.databaseService;
   const [databasePrimaryFieldId, setDatabasePrimaryFieldId] = useState<string | undefined>(undefined);
   const [rows, setRows] = useState<DatabaseContextState['rowDocMap'] | null>();
 
   const navigateToRow = useNavigateToRow();
 
   useEffect(() => {
-    if (!workspaceId || !databaseId || !rowIds.length) return;
-    void databaseService?.getDatabase(workspaceId, databaseId, rowIds).then(({ databaseDoc: doc, rows }) => {
+    if (!databaseId || !rowIds.length) return;
+    void onOpenDatabase({ databaseId, rowIds }).then(({ databaseDoc: doc, rows }) => {
       const fields = doc
         .getMap(YjsEditorKey.data_section)
         .get(YjsEditorKey.database)
@@ -42,15 +40,15 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
 
       setRows(rows);
     });
-  }, [workspaceId, databaseId, databaseService, rowIds]);
+  }, [onOpenDatabase, databaseId, rowIds, onCloseDatabase]);
 
   useEffect(() => {
     return () => {
       if (currentDatabaseId !== databaseId && databaseId) {
-        void databaseService?.closeDatabase(databaseId);
+        onCloseDatabase(databaseId);
       }
     };
-  }, [currentDatabaseId, databaseId, databaseService]);
+  }, [databaseId, currentDatabaseId, onCloseDatabase]);
 
   return (
     <div style={style} className={'relation-cell flex w-full items-center gap-2'}>

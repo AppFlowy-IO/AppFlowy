@@ -10,6 +10,8 @@ use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
 use client_api::{Client, ClientConfiguration};
+use flowy_chat_pub::cloud::ChatCloudService;
+use flowy_search_pub::cloud::SearchCloudService;
 use flowy_storage::ObjectStorageService;
 use rand::Rng;
 use semver::Version;
@@ -31,10 +33,13 @@ use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::af_cloud::impls::{
-  AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
-  AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
+  AFCloudChatCloudServiceImpl, AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl,
+  AFCloudFileStorageServiceImpl, AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
 };
+
 use crate::AppFlowyServer;
+
+use super::impls::AFCloudSearchCloudServiceImpl;
 
 pub(crate) type AFCloudClient = Client;
 
@@ -214,6 +219,13 @@ impl AppFlowyServer for AppFlowyCloudServer {
     })
   }
 
+  fn chat_service(&self) -> Arc<dyn ChatCloudService> {
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
+    Arc::new(AFCloudChatCloudServiceImpl { inner: server })
+  }
+
   fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {
     Some(self.ws_client.subscribe_connect_state())
   }
@@ -245,6 +257,14 @@ impl AppFlowyServer for AppFlowyCloudServer {
       client: self.get_client(),
     };
     Some(Arc::new(AFCloudFileStorageServiceImpl::new(client)))
+  }
+
+  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
+
+    Some(Arc::new(AFCloudSearchCloudServiceImpl { inner: server }))
   }
 }
 

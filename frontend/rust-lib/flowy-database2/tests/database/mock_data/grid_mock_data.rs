@@ -6,6 +6,7 @@ use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, T
 use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
+use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
 use flowy_database2::services::field::{
   ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
   NumberFormat, NumberTypeOption, RelationTypeOption, SelectOption, SelectOptionColor,
@@ -138,6 +139,16 @@ pub fn make_test_grid() -> DatabaseData {
           .name("Estimated time")
           .build();
         fields.push(time_field);
+      },
+      FieldType::Translate => {
+        let type_option = TranslateTypeOption {
+          auto_fill: false,
+          language_type: 0,
+        };
+        let translate_field = FieldBuilder::new(field_type, type_option)
+          .name("AI translate")
+          .build();
+        fields.push(translate_field);
       },
     }
   }

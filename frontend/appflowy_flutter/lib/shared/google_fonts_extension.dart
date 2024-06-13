@@ -6,7 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 const _defaultFontFamilies = [
   defaultFontFamily,
   builtInCodeFontFamily,
-  fallbackFontFamily,
 ];
 
 // if the font family is not available, google fonts packages will throw an exception

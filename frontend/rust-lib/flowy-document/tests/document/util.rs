@@ -115,7 +115,7 @@ pub fn setup_log() {
 pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocument>, String) {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
-  let data = default_document_data();
+  let data = default_document_data(&doc_id);
   let uid = test.user_service.user_id().unwrap();
   // create a document
   test
@@ -123,6 +123,7 @@ pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocumen
     .await
     .unwrap();
 
+  test.open_document(&doc_id).await.unwrap();
   let document = test.get_document(&doc_id).await.unwrap();
 
   (test, document, data.page_id)

@@ -282,6 +282,7 @@ impl FilterInner {
       FieldType::Checkbox => BoxAny::new(CheckboxFilterPB::parse(condition as u8, content)),
       FieldType::Relation => BoxAny::new(RelationFilterPB::parse(condition as u8, content)),
       FieldType::Summary => BoxAny::new(TextFilterPB::parse(condition as u8, content)),
+      FieldType::Translate => BoxAny::new(TextFilterPB::parse(condition as u8, content)),
       FieldType::Time => BoxAny::new(TimeFilterPB::parse(condition as u8, content)),
     };
 
@@ -371,6 +372,9 @@ impl<'a> From<&'a Filter> for FilterMap {
             },
             FieldType::Time => {
               let filter = condition_and_content.cloned::<TimeFilterPB>()?;
+            },
+            FieldType::Translate => {
+              let filter = condition_and_content.cloned::<TextFilterPB>()?;
               (filter.condition as u8, filter.content)
             },
           };

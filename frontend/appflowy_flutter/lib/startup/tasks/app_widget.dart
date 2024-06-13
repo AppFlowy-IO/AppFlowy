@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/application/notification/notification_service
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy_backend/log.dart';
@@ -175,8 +176,12 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
             if (action?.type == ActionType.openView &&
                 PlatformExtension.isDesktop) {
               final view = action!.arguments?[ActionArgumentKeys.view];
+              final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
               if (view != null) {
-                AppGlobals.rootNavKey.currentContext?.pushView(view);
+                getIt<TabsBloc>().openPlugin(
+                  view.plugin(),
+                  arguments: {PluginArgumentKeys.selection: nodePath},
+                );
               }
             } else if (action?.type == ActionType.openRow &&
                 PlatformExtension.isMobile) {
@@ -228,23 +233,12 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
 
   void _setSystemOverlayStyle(AppearanceSettingsState state) {
     if (Platform.isAndroid) {
-      SystemUiOverlayStyle style = SystemUiOverlayStyle.dark;
-      final themeMode = state.themeMode;
-      if (themeMode == ThemeMode.dark) {
-        style = SystemUiOverlayStyle.light;
-      } else if (themeMode == ThemeMode.light) {
-        style = SystemUiOverlayStyle.dark;
-      } else {
-        final brightness = Theme.of(context).brightness;
-        // reverse the brightness of the system status bar.
-        style = brightness == Brightness.dark
-            ? SystemUiOverlayStyle.light
-            : SystemUiOverlayStyle.dark;
-      }
-
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.edgeToEdge,
+        overlays: [],
+      );
       SystemChrome.setSystemUIOverlayStyle(
-        style.copyWith(
-          statusBarColor: Colors.transparent,
+        const SystemUiOverlayStyle(
           systemNavigationBarColor: Colors.transparent,
         ),
       );

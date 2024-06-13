@@ -28,6 +28,7 @@ type CustomElement = {
   data?: unknown;
   blockId?: string;
   textId?: string;
+  relationId?: string;
 };
 
 type CustomText = { text: string } & EditorInlineAttributes;

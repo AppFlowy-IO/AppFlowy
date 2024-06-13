@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -10,7 +12,6 @@ import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -115,10 +116,7 @@ class Body extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       child: PlatformExtension.isMobile
-          ? const FlowySvg(
-              FlowySvgs.flowy_logo_xl,
-              blendMode: null,
-            )
+          ? const FlowySvg(FlowySvgs.flowy_logo_xl, blendMode: null)
           : const _DesktopSplashBody(),
     );
   }

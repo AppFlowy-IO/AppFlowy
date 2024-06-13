@@ -9,8 +9,7 @@ import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,7 +22,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SidebarTopMenu extends StatelessWidget {
   const SidebarTopMenu({
     super.key,
+    required this.isSidebarOnHover,
   });
+
+  final ValueNotifier<bool> isSidebarOnHover;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +55,7 @@ class SidebarTopMenu extends StatelessWidget {
         : FlowySvgs.flowy_logo_text_xl;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 12.0, left: 4),
+      padding: const EdgeInsets.only(top: 12.0, left: 8),
       child: FlowySvg(
         svgData,
         size: const Size(92, 17),
@@ -80,17 +82,27 @@ class SidebarTopMenu extends StatelessWidget {
       ],
     );
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 12.0),
-      child: FlowyTooltip(
-        richMessage: textSpan,
-        child: FlowyIconButton(
-          width: 24,
-          onPressed: () => context
-              .read<HomeSettingBloc>()
-              .add(const HomeSettingEvent.collapseMenu()),
-          iconPadding: const EdgeInsets.all(2),
-          icon: const FlowySvg(FlowySvgs.hide_menu_s),
+    return ValueListenableBuilder(
+      valueListenable: isSidebarOnHover,
+      builder: (_, value, ___) => Opacity(
+        opacity: value ? 1 : 0,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 12.0, right: 6.0),
+          child: FlowyTooltip(
+            richMessage: textSpan,
+            child: Listener(
+              onPointerDown: (_) => context
+                  .read<HomeSettingBloc>()
+                  .add(const HomeSettingEvent.collapseMenu()),
+              child: FlowyHover(
+                child: Container(
+                  width: 24,
+                  padding: const EdgeInsets.all(4),
+                  child: const FlowySvg(FlowySvgs.hide_menu_s),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

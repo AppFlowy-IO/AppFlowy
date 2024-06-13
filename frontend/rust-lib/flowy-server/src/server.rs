@@ -1,16 +1,19 @@
 use client_api::ws::ConnectState;
 use client_api::ws::WSConnectStateReceiver;
 use client_api::ws::WebSocketChannel;
+use flowy_search_pub::cloud::SearchCloudService;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::ServerCollabMessage;
+use flowy_chat_pub::cloud::ChatCloudService;
 use parking_lot::RwLock;
 use tokio_stream::wrappers::WatchStream;
 #[cfg(feature = "enable_supabase")]
 use {collab_entity::CollabObject, collab_plugins::cloud_storage::RemoteCollabStorage};
 
+use crate::default_impl::DefaultChatCloudServiceImpl;
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
@@ -93,6 +96,14 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   ///
   /// An `Arc` wrapping the `DocumentCloudService` interface.
   fn document_service(&self) -> Arc<dyn DocumentCloudService>;
+
+  fn chat_service(&self) -> Arc<dyn ChatCloudService> {
+    Arc::new(DefaultChatCloudServiceImpl)
+  }
+
+  /// Bridge for the Cloud AI Search features
+  ///
+  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>>;
 
   /// Manages collaborative objects within a remote storage system. This includes operations such as
   /// checking storage status, retrieving updates and snapshots, and dispatching updates. The service

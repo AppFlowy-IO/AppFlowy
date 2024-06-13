@@ -1,7 +1,11 @@
+use appflowy_cloud_billing_client::entities::{
+  RecurringInterval, SubscriptionPlan, WorkspaceSubscriptionStatus,
+};
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::anyhow;
+use appflowy_cloud_billing_client::BillingClient;
 use client_api::entity::workspace_dto::{
   CreateWorkspaceMember, CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset,
   WorkspaceMemberInvitation,
@@ -20,6 +24,7 @@ use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, User
 use flowy_user_pub::entities::{
   AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
   UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  WorkspaceSubscription, WorkspaceUsage,
 };
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -348,10 +353,7 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id: workspace_id.clone(),
-        inner: QueryCollab {
-          object_id,
-          collab_type: CollabType::UserAwareness,
-        },
+        inner: QueryCollab::new(object_id, CollabType::UserAwareness),
       };
       let resp = try_get_client?.get_collab(params).await?;
       check_request_workspace_id_is_match(
@@ -381,10 +383,10 @@ where
     FutureResult::new(async move {
       let client = try_get_client?;
       let params = CreateCollabParams {
-        workspace_id: collab_object.workspace_id.clone(),
-        object_id: collab_object.object_id.clone(),
+        workspace_id: collab_object.workspace_id,
+        object_id: collab_object.object_id,
+        collab_type: collab_object.collab_type,
         encoded_collab_v1: data,
-        collab_type: collab_object.collab_type.clone(),
       };
       client.create_collab(params).await?;
       Ok(())
@@ -401,10 +403,12 @@ where
     FutureResult::new(async move {
       let params = objects
         .into_iter()
-        .map(|object| CollabParams {
-          object_id: object.object_id,
-          encoded_collab_v1: object.encoded_collab,
-          collab_type: object.collab_type,
+        .map(|object| {
+          CollabParams::new(
+            object.object_id,
+            u8::from(object.collab_type).into(),
+            object.encoded_collab,
+          )
         })
         .collect::<Vec<_>>();
       try_get_client?
@@ -472,6 +476,82 @@ where
       let client = try_get_client?;
       client.leave_workspace(&workspace_id).await?;
       Ok(())
+    })
+  }
+
+  fn subscribe_workspace(
+    &self,
+    workspace_id: String,
+    recurring_interval: flowy_user_pub::entities::RecurringInterval,
+    workspace_subscription_plan: flowy_user_pub::entities::SubscriptionPlan,
+    success_url: String,
+  ) -> FutureResult<String, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id = workspace_id.to_string();
+    FutureResult::new(async move {
+      let subscription_plan = to_workspace_subscription_plan(workspace_subscription_plan)?;
+      let client = try_get_client?;
+      let payment_link = BillingClient::from(client.as_ref())
+        .create_subscription(
+          &workspace_id,
+          to_recurring_interval(recurring_interval),
+          subscription_plan,
+          &success_url,
+        )
+        .await?;
+      Ok(payment_link)
+    })
+  }
+
+  fn get_workspace_subscriptions(&self) -> FutureResult<Vec<WorkspaceSubscription>, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let workspace_subscriptions = BillingClient::from(client.as_ref())
+        .list_subscription()
+        .await?
+        .into_iter()
+        .map(to_workspace_subscription)
+        .collect();
+      Ok(workspace_subscriptions)
+    })
+  }
+
+  fn cancel_workspace_subscription(&self, workspace_id: String) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      BillingClient::from(client.as_ref())
+        .cancel_subscription(&workspace_id)
+        .await?;
+      Ok(())
+    })
+  }
+
+  fn get_workspace_usage(&self, workspace_id: String) -> FutureResult<WorkspaceUsage, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let usage = BillingClient::from(client.as_ref())
+        .get_workspace_usage(&workspace_id)
+        .await?;
+      Ok(WorkspaceUsage {
+        member_count: usage.member_count,
+        member_count_limit: usage.member_count_limit,
+        total_blob_bytes: usage.total_blob_bytes,
+        total_blob_bytes_limit: usage.total_blob_bytes_limit,
+      })
+    })
+  }
+
+  fn get_billing_portal_url(&self) -> FutureResult<String, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let url = BillingClient::from(client.as_ref())
+        .get_portal_session_link()
+        .await?;
+      Ok(url)
     })
   }
 }
@@ -569,4 +649,48 @@ fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, FlowyErr
   Ok(AFCloudOAuthParams {
     sign_in_url: sign_in_url.to_string(),
   })
+}
+
+fn to_recurring_interval(r: flowy_user_pub::entities::RecurringInterval) -> RecurringInterval {
+  match r {
+    flowy_user_pub::entities::RecurringInterval::Month => RecurringInterval::Month,
+    flowy_user_pub::entities::RecurringInterval::Year => RecurringInterval::Year,
+  }
+}
+
+fn to_workspace_subscription_plan(
+  s: flowy_user_pub::entities::SubscriptionPlan,
+) -> Result<SubscriptionPlan, FlowyError> {
+  match s {
+    flowy_user_pub::entities::SubscriptionPlan::Pro => Ok(SubscriptionPlan::Pro),
+    flowy_user_pub::entities::SubscriptionPlan::Team => Ok(SubscriptionPlan::Team),
+    flowy_user_pub::entities::SubscriptionPlan::None => Err(FlowyError::new(
+      ErrorCode::InvalidParams,
+      "Invalid subscription plan",
+    )),
+  }
+}
+
+fn to_workspace_subscription(s: WorkspaceSubscriptionStatus) -> WorkspaceSubscription {
+  WorkspaceSubscription {
+    workspace_id: s.workspace_id,
+    subscription_plan: match s.workspace_plan {
+      appflowy_cloud_billing_client::entities::WorkspaceSubscriptionPlan::Pro => {
+        flowy_user_pub::entities::SubscriptionPlan::Pro
+      },
+      appflowy_cloud_billing_client::entities::WorkspaceSubscriptionPlan::Team => {
+        flowy_user_pub::entities::SubscriptionPlan::Team
+      },
+      _ => flowy_user_pub::entities::SubscriptionPlan::None,
+    },
+    recurring_interval: match s.recurring_interval {
+      RecurringInterval::Month => flowy_user_pub::entities::RecurringInterval::Month,
+      RecurringInterval::Year => flowy_user_pub::entities::RecurringInterval::Year,
+    },
+    is_active: matches!(
+      s.subscription_status,
+      appflowy_cloud_billing_client::entities::SubscriptionStatus::Active
+    ),
+    canceled_at: s.canceled_at,
+  }
 }

@@ -33,8 +33,9 @@ class ViewFavoriteButton extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(6),
                 child: FlowySvg(
-                  isFavorite ? FlowySvgs.unfavorite_s : FlowySvgs.favorite_s,
+                  isFavorite ? FlowySvgs.favorited_s : FlowySvgs.favorite_s,
                   size: const Size.square(18),
+                  blendMode: isFavorite ? null : BlendMode.srcIn,
                 ),
               ),
             ),

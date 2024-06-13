@@ -78,6 +78,9 @@ function createPredicate(conditions: ((row: Row) => boolean)[]) {
 
 export function filterBy(rows: Row[], filters: YDatabaseFilters, fields: YDatabaseFields, rowMetas: Y.Map<YDoc>) {
   const filterArray = filters.toArray();
+
+  if (filterArray.length === 0 || rowMetas.size === 0 || fields.size === 0) return rows;
+
   const conditions = filterArray.map((filter) => {
     return (row: { id: string }) => {
       const fieldId = filter.get(YjsDatabaseKey.field_id);
@@ -141,6 +144,18 @@ export function textFilterCheck(data: string, content: string, condition: TextFi
 }
 
 export function numberFilterCheck(data: string, content: string, condition: number) {
+  if (isNaN(Number(data)) || isNaN(Number(content)) || data === '' || content === '') {
+    if (condition === NumberFilterCondition.NumberIsEmpty) {
+      return data === '';
+    }
+
+    if (condition === NumberFilterCondition.NumberIsNotEmpty) {
+      return data !== '';
+    }
+
+    return false;
+  }
+
   const decimal = new Decimal(data).toNumber();
   const filterDecimal = new Decimal(content).toNumber();
 
@@ -157,10 +172,6 @@ export function numberFilterCheck(data: string, content: string, condition: numb
       return decimal < filterDecimal;
     case NumberFilterCondition.LessThanOrEqualTo:
       return decimal <= filterDecimal;
-    case NumberFilterCondition.NumberIsEmpty:
-      return data === '';
-    case NumberFilterCondition.NumberIsNotEmpty:
-      return data !== '';
     default:
       return false;
   }
@@ -188,6 +199,14 @@ export function checklistFilterCheck(data: string, content: string, condition: n
 }
 
 export function selectOptionFilterCheck(data: string, content: string, condition: number) {
+  if (SelectOptionFilterCondition.OptionIsEmpty === condition) {
+    return data === '';
+  }
+
+  if (SelectOptionFilterCondition.OptionIsNotEmpty === condition) {
+    return data !== '';
+  }
+
   const selectedOptionIds = data.split(',');
   const filterOptionIds = content.split(',');
 
@@ -207,14 +226,6 @@ export function selectOptionFilterCheck(data: string, content: string, condition
     // Ensure at least one of the filterOptionIds is not included in selectedOptionIds
     case SelectOptionFilterCondition.OptionDoesNotContain:
       return some(filterOptionIds, (option) => !selectedOptionIds.includes(option));
-
-    // Ensure selectedOptionIds is empty
-    case SelectOptionFilterCondition.OptionIsEmpty:
-      return selectedOptionIds.length === 0;
-
-    // Ensure selectedOptionIds is not empty
-    case SelectOptionFilterCondition.OptionIsNotEmpty:
-      return selectedOptionIds.length !== 0;
 
     // Default case, if no conditions match
     default:

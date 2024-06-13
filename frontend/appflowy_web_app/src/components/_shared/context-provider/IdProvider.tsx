@@ -3,7 +3,6 @@ import { useContext, createContext } from 'react';
 export const IdContext = createContext<IdProviderProps | null>(null);
 
 interface IdProviderProps {
-  workspaceId: string;
   objectId: string;
 }
 

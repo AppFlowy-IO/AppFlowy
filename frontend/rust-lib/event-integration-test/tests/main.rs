@@ -6,3 +6,5 @@ mod folder;
 // mod search;
 mod user;
 pub mod util;
+
+mod chat;

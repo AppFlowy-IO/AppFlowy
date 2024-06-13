@@ -30,6 +30,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
 use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
+use flowy_sqlite::kv::StorePreferences;
 use parking_lot::RwLock;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
@@ -50,15 +51,17 @@ pub struct FolderManager {
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
   pub(crate) folder_indexer: Arc<dyn FolderIndexManager>,
+  pub(crate) store_preferences: Arc<StorePreferences>,
 }
 
 impl FolderManager {
-  pub async fn new(
+  pub fn new(
     user: Arc<dyn FolderUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
     folder_indexer: Arc<dyn FolderIndexManager>,
+    store_preferences: Arc<StorePreferences>,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
     let manager = Self {
@@ -68,6 +71,7 @@ impl FolderManager {
       operation_handlers,
       cloud_service,
       folder_indexer,
+      store_preferences,
     };
 
     Ok(manager)
@@ -796,7 +800,10 @@ impl FolderManager {
     if let Some(view) = &view {
       let view_layout: ViewLayout = view.layout.clone().into();
       if let Some(handle) = self.operation_handlers.get(&view_layout) {
-        let _ = handle.open_view(view_id).await;
+        info!("Open view: {}", view.id);
+        if let Err(err) = handle.open_view(view_id).await {
+          error!("Open view error: {:?}", err);
+        }
       }
     }
 
@@ -1193,6 +1200,14 @@ impl FolderManager {
       .into_iter()
       .filter(|id| !my_private_view_ids.contains(id))
       .collect()
+  }
+
+  pub fn remove_indices_for_workspace(&self, workspace_id: String) -> FlowyResult<()> {
+    self
+      .folder_indexer
+      .remove_indices_for_workspace(workspace_id)?;
+
+    Ok(())
   }
 }
 

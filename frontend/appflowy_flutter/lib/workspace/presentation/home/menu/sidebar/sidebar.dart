@@ -11,6 +11,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -21,6 +22,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -95,11 +97,21 @@ class HomeSideBar extends StatelessWidget {
         }
         return MultiBlocProvider(
           providers: [
-            BlocProvider(create: (_) => getIt<ActionNavigationBloc>()),
+            BlocProvider.value(value: getIt<ActionNavigationBloc>()),
             BlocProvider(
               create: (_) => SidebarSectionsBloc()
                 ..add(
                   SidebarSectionsEvent.initial(
+                    userProfile,
+                    state.currentWorkspace?.workspaceId ??
+                        workspaceSetting.workspaceId,
+                  ),
+                ),
+            ),
+            BlocProvider(
+              create: (_) => SpaceBloc()
+                ..add(
+                  SpaceEvent.initial(
                     userProfile,
                     state.currentWorkspace?.workspaceId ??
                         workspaceSetting.workspaceId,
@@ -115,6 +127,15 @@ class HomeSideBar extends StatelessWidget {
                 listener: (context, state) => context.read<TabsBloc>().add(
                       TabsEvent.openPlugin(
                         plugin: state.lastCreatedRootView!.plugin(),
+                      ),
+                    ),
+              ),
+              BlocListener<SpaceBloc, SpaceState>(
+                listenWhen: (p, c) =>
+                    p.lastCreatedPage?.id != c.lastCreatedPage?.id,
+                listener: (context, state) => context.read<TabsBloc>().add(
+                      TabsEvent.openPlugin(
+                        plugin: state.lastCreatedPage!.plugin(),
                       ),
                     ),
               ),
@@ -139,6 +160,13 @@ class HomeSideBar extends StatelessWidget {
                     context
                         .read<FavoriteBloc>()
                         .add(const FavoriteEvent.fetchFavorites());
+                    context.read<SpaceBloc>().add(
+                          SpaceEvent.reset(
+                            userProfile,
+                            state.currentWorkspace?.workspaceId ??
+                                workspaceSetting.workspaceId,
+                          ),
+                        );
                   }
                 },
               ),
@@ -189,7 +217,9 @@ class _Sidebar extends StatefulWidget {
 class _SidebarState extends State<_Sidebar> {
   final _scrollController = ScrollController();
   Timer? _scrollDebounce;
-  bool isScrolling = false;
+  bool _isScrolling = false;
+  final _isHovered = ValueNotifier(false);
+  final _scrollOffset = ValueNotifier<double>(0);
 
   @override
   void initState() {
@@ -202,47 +232,106 @@ class _SidebarState extends State<_Sidebar> {
     _scrollDebounce?.cancel();
     _scrollController.removeListener(_onScrollChanged);
     _scrollController.dispose();
+    _scrollOffset.dispose();
+    _isHovered.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 12);
+    const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 8);
     final userState = context.read<UserWorkspaceBloc>().state;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        border: Border(
-          right: BorderSide(color: Theme.of(context).dividerColor),
+    return MouseRegion(
+      onEnter: (_) => _isHovered.value = true,
+      onExit: (_) => _isHovered.value = false,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          border: Border(
+            right: BorderSide(color: Theme.of(context).dividerColor),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // top menu
+            Padding(
+              padding: menuHorizontalInset,
+              child: SidebarTopMenu(
+                isSidebarOnHover: _isHovered,
+              ),
+            ),
+            // user or workspace, setting
+            Container(
+              height: HomeSizes.workspaceSectionHeight,
+              padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
+              child:
+                  // if the workspaces are empty, show the user profile instead
+                  userState.isCollabWorkspaceOn &&
+                          userState.workspaces.isNotEmpty
+                      ? SidebarWorkspace(userProfile: widget.userProfile)
+                      : SidebarUser(userProfile: widget.userProfile),
+            ),
+            if (FeatureFlag.search.isOn) ...[
+              const VSpace(6),
+              Container(
+                padding: menuHorizontalInset,
+                height: HomeSizes.searchSectionHeight,
+                child: const _SidebarSearchButton(),
+              ),
+            ],
+            const VSpace(6.0),
+            // new page button
+            const SidebarNewPageButton(),
+            // scrollable document list
+            const VSpace(12.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ValueListenableBuilder(
+                valueListenable: _scrollOffset,
+                builder: (_, offset, child) {
+                  return Opacity(
+                    opacity: offset > 0 ? 1 : 0,
+                    child: child,
+                  );
+                },
+                child: const Divider(
+                  color: Color(0x141F2329),
+                  height: 0.5,
+                ),
+              ),
+            ),
+
+            _renderFolderOrSpace(menuHorizontalInset),
+
+            _renderUpgradeSpaceButton(menuHorizontalInset),
+
+            // trash
+            Padding(
+              padding: menuHorizontalInset +
+                  const EdgeInsets.symmetric(horizontal: 4.0),
+              child: const Divider(height: 0.5, color: Color(0x141F2329)),
+            ),
+            const VSpace(8),
+            Padding(
+              padding: menuHorizontalInset +
+                  const EdgeInsets.symmetric(horizontal: 4.0),
+              child: const SidebarFooter(),
+            ),
+            const VSpace(14),
+          ],
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // top menu
-          const Padding(padding: menuHorizontalInset, child: SidebarTopMenu()),
-          // user or workspace, setting
-          Container(
-            height: HomeSizes.workspaceSectionHeight,
-            padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
-            child:
-                // if the workspaces are empty, show the user profile instead
-                userState.isCollabWorkspaceOn && userState.workspaces.isNotEmpty
-                    ? SidebarWorkspace(userProfile: widget.userProfile)
-                    : SidebarUser(userProfile: widget.userProfile),
-          ),
-          if (FeatureFlag.search.isOn) ...[
-            const VSpace(6),
-            Container(
-              padding: menuHorizontalInset,
-              height: HomeSizes.searchSectionHeight,
-              child: const _SidebarSearchButton(),
-            ),
-          ],
-          // new page button
-          const SidebarNewPageButton(),
-          // scrollable document list
-          Expanded(
+    );
+  }
+
+  Widget _renderFolderOrSpace(EdgeInsets menuHorizontalInset) {
+    // there's no space or the workspace is not collaborative,
+    // show the folder section (Workspace, Private, Personal)
+    // otherwise, show the space
+    return context.watch<SpaceBloc>().state.spaces.isEmpty ||
+            !context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
+        ? Expanded(
             child: Padding(
               padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
               child: SingleChildScrollView(
@@ -251,39 +340,64 @@ class _SidebarState extends State<_Sidebar> {
                 physics: const ClampingScrollPhysics(),
                 child: SidebarFolder(
                   userProfile: widget.userProfile,
-                  isHoverEnabled: !isScrolling,
+                  isHoverEnabled: !_isScrolling,
                 ),
               ),
             ),
-          ),
-          const VSpace(10),
-          // trash
-          const Padding(
+          )
+        : Expanded(
+            child: Padding(
+              padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(right: 6),
+                controller: _scrollController,
+                physics: const ClampingScrollPhysics(),
+                child: SidebarSpace(
+                  userProfile: widget.userProfile,
+                  isHoverEnabled: !_isScrolling,
+                ),
+              ),
+            ),
+          );
+  }
+
+  Widget _renderUpgradeSpaceButton(EdgeInsets menuHorizontalInset) {
+    return !context.watch<SpaceBloc>().state.shouldShowUpgradeDialog
+        ? const SizedBox.shrink()
+        : Container(
+            height: 40,
             padding: menuHorizontalInset,
-            child: Divider(height: 1.0, color: Color(0x141F2329)),
-          ),
-          const VSpace(14),
-          const Padding(
-            padding: menuHorizontalInset,
-            child: SidebarFooter(),
-          ),
-          const VSpace(10),
-        ],
-      ),
-    );
+            child: FlowyButton(
+              onTap: () {
+                context.read<SpaceBloc>().add(const SpaceEvent.migrate());
+              },
+              leftIcon: const Icon(
+                Icons.upgrade_rounded,
+                color: Colors.red,
+              ),
+              leftIconSize: const Size.square(20),
+              iconPadding: 12.0,
+              text: FlowyText.regular(
+                LocaleKeys.space_enableSpacesForYourWorkspace.tr(),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          );
   }
 
   void _onScrollChanged() {
-    setState(() => isScrolling = true);
+    setState(() => _isScrolling = true);
 
     _scrollDebounce?.cancel();
     _scrollDebounce =
         Timer(const Duration(milliseconds: 300), _setScrollStopped);
+
+    _scrollOffset.value = _scrollController.offset;
   }
 
   void _setScrollStopped() {
     if (mounted) {
-      setState(() => isScrolling = false);
+      setState(() => _isScrolling = false);
     }
   }
 }
@@ -296,7 +410,8 @@ class _SidebarSearchButton extends StatelessWidget {
     return FlowyButton(
       onTap: () => CommandPalette.of(context).toggle(),
       leftIcon: const FlowySvg(FlowySvgs.search_s),
-      iconPadding: 10.0,
+      iconPadding: 12.0,
+      margin: const EdgeInsets.only(left: 8.0),
       text: FlowyText.regular(LocaleKeys.search_label.tr()),
     );
   }

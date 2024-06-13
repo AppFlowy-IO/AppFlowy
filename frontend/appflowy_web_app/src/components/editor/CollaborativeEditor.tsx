@@ -30,6 +30,7 @@ function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
 
   useEffect(() => {
     if (!editor) return;
+
     editor.connect();
     setIsConnected(true);
 

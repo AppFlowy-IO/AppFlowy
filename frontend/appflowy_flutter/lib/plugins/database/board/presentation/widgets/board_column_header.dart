@@ -30,6 +30,7 @@ class BoardColumnHeader extends StatefulWidget {
 
 class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   final FocusNode _focusNode = FocusNode();
+  final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   late final TextEditingController _controller =
       TextEditingController.fromValue(
@@ -54,6 +55,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _keyboardListenerFocusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -149,7 +151,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   Widget _buildTextField(BuildContext context) {
     return Expanded(
       child: KeyboardListener(
-        focusNode: FocusNode(),
+        focusNode: _keyboardListenerFocusNode,
         onKeyEvent: (event) {
           if ([LogicalKeyboardKey.enter, LogicalKeyboardKey.escape]
               .contains(event.logicalKey)) {

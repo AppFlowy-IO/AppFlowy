@@ -53,8 +53,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "0c79b870586f4bc5c23b61b327c51fe6a8856b47"
-      resolved-ref: "0c79b870586f4bc5c23b61b327c51fe6a8856b47"
+      ref: d73e8893d1f1b06566ebed5868698be75c6b7f93
+      resolved-ref: d73e8893d1f1b06566ebed5868698be75c6b7f93
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "2.5.1"
@@ -120,6 +120,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  bitsdojo_window:
+    dependency: "direct main"
+    description:
+      name: bitsdojo_window
+      sha256: "88ef7765dafe52d97d7a3684960fb5d003e3151e662c18645c1641c22b873195"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.6"
+  bitsdojo_window_linux:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_linux
+      sha256: "9519c0614f98be733e0b1b7cb15b827007886f6fe36a4fb62cf3d35b9dd578ab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.4"
+  bitsdojo_window_macos:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_macos
+      sha256: f7c5be82e74568c68c5b8449e2c5d8fd12ec195ecd70745a7b9c0f802bb0268f
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.4"
+  bitsdojo_window_platform_interface:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_platform_interface
+      sha256: "65daa015a0c6dba749bdd35a0f092e7a8ba8b0766aa0480eb3ef808086f6e27c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
+  bitsdojo_window_windows:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_windows
+      sha256: fa982cf61ede53f483e50b257344a1c250af231a3cdc93a7064dd6dc0d720b68
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.6"
   bloc:
     dependency: "direct main"
     description:
@@ -393,6 +433,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.1"
+  diffutil_dart:
+    dependency: transitive
+    description:
+      name: diffutil_dart
+      sha256: "5e74883aedf87f3b703cb85e815bdc1ed9208b33501556e4a8a5572af9845c81"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
   dotted_border:
     dependency: "direct main"
     description:
@@ -595,13 +643,21 @@ packages:
     source: git
     version: "3.3.1"
   flutter_chat_types:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_chat_types
       sha256: e285b588f6d19d907feb1f6d912deaf22e223656769c34093b64e1c59b094fb9
       url: "https://pub.dev"
     source: hosted
     version: "3.6.2"
+  flutter_chat_ui:
+    dependency: "direct main"
+    description:
+      name: flutter_chat_ui
+      sha256: "40fb37acc328dd179eadc3d67bf8bd2d950dc0da34464aa8d48e8707e0234c09"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.6.13"
   flutter_colorpicker:
     dependency: "direct main"
     description:
@@ -624,6 +680,14 @@ packages:
       url: "https://github.com/LucasXu0/emoji_mart.git"
     source: git
     version: "1.0.2"
+  flutter_highlight:
+    dependency: transitive
+    description:
+      name: flutter_highlight
+      sha256: "7b96333867aa07e122e245c033b8ad622e4e3a42a1a2372cbb098a2541d8782c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0"
   flutter_link_previewer:
     dependency: transitive
     description:
@@ -661,6 +725,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.2"
+  flutter_parsed_text:
+    dependency: transitive
+    description:
+      name: flutter_parsed_text
+      sha256: "529cf5793b7acdf16ee0f97b158d0d4ba0bf06e7121ef180abe1a5b59e32c1e2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -969,14 +1041,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.0"
-  intl_utils:
-    dependency: transitive
-    description:
-      name: intl_utils
-      sha256: c2b1f5c72c25512cbeef5ab015c008fc50fe7e04813ba5541c25272300484bf4
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.8.7"
   io:
     dependency: transitive
     description:
@@ -1002,7 +1066,7 @@ packages:
     source: hosted
     version: "0.6.0"
   isolates:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: isolates
       sha256: ce89e4141b27b877326d3715be2dceac7a7ba89f3229785816d2d318a75ddf28
@@ -1145,6 +1209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.2.2"
+  markdown_widget:
+    dependency: "direct main"
+    description:
+      name: markdown_widget
+      sha256: "216dced98962d7699a265344624bc280489d739654585ee881c95563a3252fac"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.2+6"
   matcher:
     dependency: transitive
     description:
@@ -1473,6 +1545,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.2"
+  photo_view:
+    dependency: transitive
+    description:
+      name: photo_view
+      sha256: "1fc3d970a91295fbd1364296575f854c9863f225505c28c46e0a03e48960c75e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.15.0"
   pixel_snap:
     dependency: transitive
     description:
@@ -1689,6 +1769,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.9"
+  scroll_to_index:
+    dependency: transitive
+    description:
+      name: scroll_to_index
+      sha256: b707546e7500d9f070d63e5acf74fd437ec7eeeb68d3412ef7b0afada0b4f176
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
   scrollable_positioned_list:
     dependency: "direct main"
     description:
@@ -1810,6 +1898,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  shimmer:
+    dependency: "direct main"
+    description:
+      name: shimmer
+      sha256: "5f88c883a22e9f9f299e5ba0e4f7e6054857224976a5d9f839d4ebdc94a14ac9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   simple_gesture_detector:
     dependency: transitive
     description:
@@ -2096,22 +2192,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
-  universal_html:
-    dependency: transitive
-    description:
-      name: universal_html
-      sha256: "56536254004e24d9d8cfdb7dbbf09b74cf8df96729f38a2f5c238163e3d58971"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.4"
-  universal_io:
-    dependency: transitive
-    description:
-      name: universal_io
-      sha256: "1722b2dcc462b4b2f3ee7d188dad008b6eb4c40bbd03a3de451d82c78bba9aad"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.2"
   universal_platform:
     dependency: transitive
     description:
@@ -2357,10 +2437,10 @@ packages:
     dependency: "direct main"
     description:
       name: window_manager
-      sha256: b3c895bdf936c77b83c5254bec2e6b3f066710c1f89c38b20b8acc382b525494
+      sha256: "8699323b30da4cdbe2aa2e7c9de567a6abd8a97d9a5c850a3c86dcd0b34bbfbf"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.8"
+    version: "0.3.9"
   xdg_directories:
     dependency: transitive
     description:

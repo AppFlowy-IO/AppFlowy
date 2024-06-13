@@ -10,7 +10,9 @@ export function useViewsIdSelector() {
   const meta = folder?.get(YjsFolderKey.meta);
 
   useEffect(() => {
-    if (!views) return;
+    if (!views) {
+      return;
+    }
 
     const trashUid = trash ? Array.from(trash.keys())[0] : null;
     const userTrash = trashUid ? trash?.get(trashUid) : null;

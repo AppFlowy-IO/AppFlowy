@@ -59,6 +59,7 @@ AppDir:
       - libwayland-cursor0:amd64
       - libwayland-client0:amd64
       - libwayland-egl1:amd64
+      - libmpv-dev:amd64
       - mpv:amd64
   files:
     include: []

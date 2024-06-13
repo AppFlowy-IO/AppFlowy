@@ -2,7 +2,7 @@ import { CollabType } from '@/application/collab.type';
 import { ClientAPI } from '@appflowyinc/client-api-wasm';
 import { UserProfile, UserWorkspace } from '@/application/user.type';
 import { AFCloudConfig } from '@/application/services/services.type';
-import { invalidToken, readTokenStr, writeToken } from '@/application/services/js-services/storage';
+import { invalidToken, readTokenStr, writeToken } from 'src/application/services/js-services/session';
 
 let client: ClientAPI;
 
@@ -93,10 +93,10 @@ export async function batchGetCollab(
     }))
   )) as unknown as Map<string, { doc_state: number[] }>;
 
-  const result: Record<string, Uint8Array> = {};
+  const result: Record<string, number[]> = {};
 
   res.forEach((value, key) => {
-    result[key] = new Uint8Array(value.doc_state);
+    result[key] = value.doc_state;
   });
   return result;
 }

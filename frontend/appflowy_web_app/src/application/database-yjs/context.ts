@@ -1,5 +1,4 @@
 import { YDatabase, YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
-import { Row } from '@/application/database-yjs/selector';
 import { createContext, useContext } from 'react';
 import * as Y from 'yjs';
 
@@ -64,25 +63,11 @@ export const useDatabaseView = () => {
   const database = useDatabase();
   const viewId = useViewId();
 
-  return viewId ? database.get(YjsDatabaseKey.views)?.get(viewId) : undefined;
+  return viewId ? database?.get(YjsDatabaseKey.views)?.get(viewId) : undefined;
 };
 
 export function useDatabaseFields() {
   const database = useDatabase();
 
   return database.get(YjsDatabaseKey.fields);
-}
-
-export interface RowsState {
-  rowOrders: Row[];
-}
-
-export const RowsContext = createContext<RowsState | null>(null);
-
-export function useRowsContext() {
-  return useContext(RowsContext);
-}
-
-export function useRows() {
-  return useRowsContext()?.rowOrders;
 }

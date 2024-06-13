@@ -8,6 +8,7 @@ pub mod summary_type_option;
 pub mod text_type_option;
 pub mod time_type_option;
 pub mod timestamp_type_option;
+pub mod translate_type_option;
 mod type_option;
 mod type_option_cell;
 mod url_type_option;

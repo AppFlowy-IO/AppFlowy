@@ -32,14 +32,14 @@ jobs:
       #     swap-size-mb: 1024
       #     remove-dotnet: 'true'
 
-      # # the following step is required to avoid running out of space
-      # - name: Maximize build space
-      #   run: |
-      #     sudo rm -rf /usr/share/dotnet
-      #     sudo rm -rf /opt/ghc
-      #     sudo rm -rf "/usr/local/share/boost"
-      #     sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-      #     sudo docker image prune --all --force
+      # the following step is required to avoid running out of space
+      - name: Maximize build space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
 
       - name: Checkout source code
         uses: actions/checkout@v4

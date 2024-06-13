@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/translate.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import '../row/accessory/cell_accessory.dart';
@@ -17,9 +18,9 @@ import 'editable_cell_skeleton/relation.dart';
 import 'editable_cell_skeleton/select_option.dart';
 import 'editable_cell_skeleton/summary.dart';
 import 'editable_cell_skeleton/text.dart';
+import 'editable_cell_skeleton/time.dart';
 import 'editable_cell_skeleton/timestamp.dart';
 import 'editable_cell_skeleton/url.dart';
-import 'editable_cell_skeleton/time.dart';
 
 enum EditableCellStyle {
   desktopGrid,
@@ -125,6 +126,12 @@ class EditableCellBuilder {
           databaseController: databaseController,
           cellContext: cellContext,
           skin: IEditableTimeCellSkin.fromStyle(style),
+          key: key,
+        ),
+      FieldType.Translate => EditableTranslateCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: IEditableTranslateCellSkin.fromStyle(style),
           key: key,
         ),
       _ => throw UnimplementedError(),

@@ -94,7 +94,6 @@ dependencies:
     git:
       url: https://github.com/Xazin/flutter_calendar_view
       ref: "6fe0c98"
-  window_manager: ^0.3.4
   http: ^1.0.0
   path: ^1.8.3
   mocktail: ^1.0.1
@@ -119,6 +118,7 @@ dependencies:
   # TODO: Consider implementing custom package
   # to gather notification handling for all platforms
   local_notifier: ^0.1.5
+
   app_links: ^3.5.0
   flutter_slidable: ^3.0.0
   image_picker: ^1.0.4
@@ -135,9 +135,20 @@ dependencies:
   numerus: ^2.1.2
   flutter_animate: ^4.5.0
   permission_handler: ^11.3.1
+  flutter_chat_ui: ^1.6.13
+  flutter_chat_types: ^3.6.2
   scaled_app: ^2.3.0
   auto_size_text_field: ^2.2.3
   reorderable_tabbar: ^1.0.6
+  shimmer: ^3.0.0
+  isolates: ^3.0.3+8
+  markdown_widget: ^2.3.2+6
+
+  # Window Manager for MacOS and Linux
+  window_manager: ^0.3.9
+
+  # BitsDojo Window for Windows
+  bitsdojo_window: ^0.1.6
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -174,7 +185,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "0c79b870586f4bc5c23b61b327c51fe6a8856b47"
+      ref: "d73e8893d1f1b06566ebed5868698be75c6b7f93"
 
   sheet:
     git:

@@ -137,6 +137,8 @@ class FieldController {
   List<FieldInfo> get fieldInfos => [..._fieldNotifier.fieldInfos];
   List<FilterInfo> get filterInfos => [..._filterNotifier?.filters ?? []];
   List<SortInfo> get sortInfos => [..._sortNotifier?.sorts ?? []];
+  List<GroupSettingPB> get groupSettings =>
+      _groupConfigurationByFieldId.entries.map((e) => e.value).toList();
 
   FieldInfo? getField(String fieldId) {
     return _fieldNotifier.fieldInfos

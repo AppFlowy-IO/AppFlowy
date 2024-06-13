@@ -10,18 +10,16 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy/util/string_extension.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
@@ -63,21 +61,32 @@ class MobileViewCard extends StatelessWidget {
       ],
       child: BlocBuilder<RecentViewBloc, RecentViewState>(
         builder: (context, state) {
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTapUp: (_) => context.pushView(view),
-            onLongPressUp: () => _showActionSheet(context),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(child: _buildDescription(context, state)),
-                const HSpace(20.0),
-                SizedBox(
-                  width: 84,
-                  height: 60,
-                  child: _buildCover(context, state),
-                ),
+          return Slidable(
+            endActionPane: buildEndActionPane(
+              context,
+              [
+                MobilePaneActionType.more,
+                context.watch<ViewBloc>().state.view.isFavorite
+                    ? MobilePaneActionType.removeFromFavorites
+                    : MobilePaneActionType.addToFavorites,
               ],
+              cardType: type,
+            ),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapUp: (_) => context.pushView(view),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(child: _buildDescription(context, state)),
+                  const HSpace(20.0),
+                  SizedBox(
+                    width: 84,
+                    height: 60,
+                    child: _buildCover(context, state),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -235,59 +244,6 @@ class MobileViewCard extends StatelessWidget {
     }
 
     return date;
-  }
-
-  Future<void> _showActionSheet(BuildContext context) async {
-    final viewBloc = context.read<ViewBloc>();
-    final favoriteBloc = context.read<FavoriteBloc>();
-    final recentViewsBloc = context.read<RecentViewsBloc?>();
-    await showMobileBottomSheet(
-      context,
-      showDragHandle: true,
-      showDivider: false,
-      backgroundColor: AFThemeExtension.of(context).background,
-      useRootNavigator: true,
-      builder: (context) {
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: viewBloc),
-            BlocProvider.value(value: favoriteBloc),
-            if (recentViewsBloc != null)
-              BlocProvider.value(value: recentViewsBloc),
-          ],
-          child: BlocBuilder<ViewBloc, ViewState>(
-            builder: (context, state) {
-              final isFavorite = state.view.isFavorite;
-              return MobileViewItemBottomSheet(
-                view: viewBloc.state.view,
-                actions: _buildActions(isFavorite),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  List<MobileViewItemBottomSheetBodyAction> _buildActions(bool isFavorite) {
-    switch (type) {
-      case MobileViewCardType.recent:
-        return [
-          isFavorite
-              ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
-              : MobileViewItemBottomSheetBodyAction.addToFavorites,
-          MobileViewItemBottomSheetBodyAction.divider,
-          MobileViewItemBottomSheetBodyAction.duplicate,
-          MobileViewItemBottomSheetBodyAction.divider,
-          MobileViewItemBottomSheetBodyAction.removeFromRecent,
-        ];
-      case MobileViewCardType.favorite:
-        return [
-          MobileViewItemBottomSheetBodyAction.removeFromFavorites,
-          MobileViewItemBottomSheetBodyAction.divider,
-          MobileViewItemBottomSheetBodyAction.duplicate,
-        ];
-    }
   }
 }
 

@@ -1,5 +1,6 @@
 use collab_folder::{IconType, ViewIcon};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_folder::entities::ViewIconPB;
 
 use super::IndexTypePB;
 
@@ -31,6 +32,9 @@ pub struct SearchResultPB {
 
   #[pb(index = 7)]
   pub workspace_id: String,
+
+  #[pb(index = 8, one_of)]
+  pub preview: Option<String>,
 }
 
 impl SearchResultPB {
@@ -43,6 +47,7 @@ impl SearchResultPB {
       icon: self.icon.clone(),
       score,
       workspace_id: self.workspace_id.clone(),
+      preview: self.preview.clone(),
     }
   }
 }
@@ -118,6 +123,15 @@ impl From<ViewIcon> for ResultIconPB {
   fn from(val: ViewIcon) -> Self {
     ResultIconPB {
       ty: val.ty.into(),
+      value: val.value,
+    }
+  }
+}
+
+impl From<ViewIconPB> for ResultIconPB {
+  fn from(val: ViewIconPB) -> Self {
+    ResultIconPB {
+      ty: IconType::from(val.ty).into(),
       value: val.value,
     }
   }

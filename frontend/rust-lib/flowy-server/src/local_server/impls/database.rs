@@ -6,6 +6,7 @@ use yrs::{Any, MapPrelim};
 
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
+  TranslateRowContent, TranslateRowResponse,
 };
 use lib_infra::future::FutureResult;
 
@@ -84,5 +85,15 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
   ) -> FutureResult<String, Error> {
     // TODO(lucas): local ai
     FutureResult::new(async move { Ok("".to_string()) })
+  }
+
+  fn translate_database_row(
+    &self,
+    _workspace_id: &str,
+    _translate_row: TranslateRowContent,
+    _language: &str,
+  ) -> FutureResult<TranslateRowResponse, Error> {
+    // TODO(lucas): local ai
+    FutureResult::new(async move { Ok(TranslateRowResponse::default()) })
   }
 }

@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/document/application/document_appearance_cubit.
 import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
-import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -37,13 +36,13 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
-  FlowySvgData get icon => FlowySvgs.document_s;
+  FlowySvgData get icon => FlowySvgs.icon_document_s;
 
   @override
   PluginType get pluginType => PluginType.document;
 
   @override
-  ViewLayoutPB? get layoutType => ViewLayoutPB.Document;
+  ViewLayoutPB get layoutType => ViewLayoutPB.Document;
 }
 
 class DocumentPlugin extends Plugin {
@@ -107,7 +106,10 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   EdgeInsets get contentPadding => EdgeInsets.zero;
 
   @override
-  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
+  Widget buildWidget({
+    required PluginContext context,
+    required bool shrinkWrap,
+  }) {
     notifier.isDeleted.addListener(() {
       final deletedView = notifier.isDeleted.value;
       if (deletedView != null && deletedView.hasIndex()) {
@@ -121,7 +123,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
         builder: (_, state) => DocumentPage(
           key: ValueKey(view.id),
           view: view,
-          onDeleted: () => context?.onDeleted(view, deletedViewIndex),
+          onDeleted: () => context.onDeleted?.call(view, deletedViewIndex),
           initialSelection: initialSelection,
         ),
       ),
@@ -145,13 +147,8 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
               ? [
                   DocumentCollaborators(
                     key: ValueKey('collaborators_${view.id}'),
-                    width: 150,
+                    width: 120,
                     height: 32,
-                    view: view,
-                  ),
-                  const HSpace(16),
-                  DocumentSyncIndicator(
-                    key: ValueKey('sync_state_${view.id}'),
                     view: view,
                   ),
                   const HSpace(16),

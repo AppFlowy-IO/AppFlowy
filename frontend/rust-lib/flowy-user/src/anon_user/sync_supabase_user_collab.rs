@@ -170,6 +170,7 @@ fn sync_view(
           }
         }
       },
+      ViewLayout::Chat => {},
     }
 
     tokio::task::yield_now().await;
@@ -357,6 +358,7 @@ fn collab_type_from_view_layout(view_layout: &ViewLayout) -> CollabType {
   match view_layout {
     ViewLayout::Document => CollabType::Document,
     ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => CollabType::Database,
+    ViewLayout::Chat => CollabType::Unknown,
   }
 }
 

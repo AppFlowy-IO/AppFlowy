@@ -6,8 +6,8 @@ import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
-import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -154,7 +154,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
       (view) {
         final plugin = view.plugin(arguments: widget.arguments ?? const {})
           ..init();
-        return plugin.widgetBuilder.buildWidget(shrinkWrap: false);
+        return plugin.widgetBuilder.buildWidget(
+          shrinkWrap: false,
+          context: PluginContext(userProfile: state.userProfilePB),
+        );
       },
       (error) {
         return FlowyMobileStateContainer.error(
@@ -191,13 +194,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             view: view,
           ),
-          const HSpace(16.0),
-          DocumentSyncIndicator(view: view),
-          const HSpace(12.0),
-        ]);
-      } else {
-        actions.addAll([
-          DatabaseSyncIndicator(view: view),
           const HSpace(12.0),
         ]);
       }

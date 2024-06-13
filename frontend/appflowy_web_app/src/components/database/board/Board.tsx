@@ -16,7 +16,7 @@ export function Board() {
   }
 
   return (
-    <div className={'grid-board flex w-full flex-1 flex-col'}>
+    <div className={'database-board flex w-full flex-1 flex-col'}>
       {groups.map((groupId) => (
         <Group key={groupId} groupId={groupId} />
       ))}

@@ -109,8 +109,9 @@ impl From<&Filter> for FilterPB {
             .cloned::<TextFilterPB>()
             .unwrap()
             .try_into(),
-          FieldType::Time => condition_and_content
-            .cloned::<TimeFilterPB>()
+          FieldType::Time => condition_and_content.cloned::<TimeFilterPB>(),
+          FieldType::Translate => condition_and_content
+            .cloned::<TextFilterPB>()
             .unwrap()
             .try_into(),
         };
@@ -162,6 +163,9 @@ impl TryFrom<FilterDataPB> for FilterInner {
       },
       FieldType::Time => {
         BoxAny::new(TimeFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Translate => {
+        BoxAny::new(TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
       },
     };
 

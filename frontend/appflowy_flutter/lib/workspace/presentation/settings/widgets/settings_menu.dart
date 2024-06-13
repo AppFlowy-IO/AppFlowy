@@ -99,6 +99,22 @@ class SettingsMenu extends StatelessWidget {
                     icon: const Icon(Icons.cut),
                     changeSelectedPage: changeSelectedPage,
                   ),
+                  if (FeatureFlag.planBilling.isOn) ...[
+                    SettingsMenuElement(
+                      page: SettingsPage.plan,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_planPage_menuLabel.tr(),
+                      icon: const FlowySvg(FlowySvgs.settings_plan_m),
+                      changeSelectedPage: changeSelectedPage,
+                    ),
+                    SettingsMenuElement(
+                      page: SettingsPage.billing,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_billingPage_menuLabel.tr(),
+                      icon: const FlowySvg(FlowySvgs.settings_billing_m),
+                      changeSelectedPage: changeSelectedPage,
+                    ),
+                  ],
                   if (kDebugMode)
                     SettingsMenuElement(
                       // no need to translate this page

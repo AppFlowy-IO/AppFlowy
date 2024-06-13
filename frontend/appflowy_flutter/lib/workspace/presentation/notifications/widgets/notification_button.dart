@@ -4,7 +4,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
-import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/notifications/notification_dialog.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -43,9 +42,10 @@ class NotificationButton extends StatelessWidget {
                       popupBuilder: (_) =>
                           NotificationDialog(views: views, mutex: mutex),
                       child: SizedBox.square(
-                        dimension: HomeSizes.workspaceSectionHeight,
+                        dimension: 24.0,
                         child: FlowyButton(
                           useIntrinsicWidth: true,
+                          margin: EdgeInsets.zero,
                           text:
                               _buildNotificationIcon(context, state.hasUnreads),
                         ),
@@ -62,8 +62,11 @@ class NotificationButton extends StatelessWidget {
   Widget _buildNotificationIcon(BuildContext context, bool hasUnreads) {
     return Stack(
       children: [
-        const FlowySvg(
-          FlowySvgs.notification_s,
+        const Center(
+          child: FlowySvg(
+            FlowySvgs.notification_s,
+            opacity: 0.7,
+          ),
         ),
         if (hasUnreads)
           Positioned(

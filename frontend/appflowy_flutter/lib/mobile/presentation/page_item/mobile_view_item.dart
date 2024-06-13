@@ -1,16 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/page_item/mobile_view_item_add_button.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -270,17 +265,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       ),
     ];
 
-    // hover action
-
-    // ··· more action button
-    children.add(_buildViewMoreButton(context));
-    // only support add button for document layout
-    if (!widget.isFeedback && widget.view.layout == ViewLayoutPB.Document) {
-      // + button
-
-      children.add(_buildViewAddButton(context));
-    }
-
     Widget child = InkWell(
       borderRadius: BorderRadius.circular(4.0),
       onTap: () => widget.onSelected(widget.view),
@@ -312,117 +296,38 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     final icon = widget.view.icon.value.isNotEmpty
         ? FlowyText.emoji(
             widget.view.icon.value,
-            fontSize: 20.0,
+            fontSize: 18.0,
           )
-        : SizedBox.square(
-            dimension: 18.0,
+        : Opacity(
+            opacity: 0.7,
             child: widget.view.defaultIcon(),
           );
-    return icon;
+    return SizedBox(width: 18.0, child: icon);
   }
 
   // > button or · button
   // show > if the view is expandable.
   // show · if the view can't contain child views.
   Widget _buildLeftIcon() {
+    const rightPadding = 6.0;
     if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
-      return HSpace(widget.leftPadding);
+      return HSpace(widget.leftPadding + rightPadding);
     }
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.only(right: 6.0, top: 6.0, bottom: 6.0),
+        padding:
+            const EdgeInsets.only(right: rightPadding, top: 6.0, bottom: 6.0),
         child: FlowySvg(
-                 widget.isExpanded 
-                   ? FlowySvgs.m_expand_s
-                   : FlowySvgs.m_collapse_s,
-                blendMode: null,
-              ),
+          widget.isExpanded ? FlowySvgs.m_expand_s : FlowySvgs.m_collapse_s,
+          blendMode: null,
+        ),
       ),
       onTap: () {
         context
             .read<ViewBloc>()
             .add(ViewEvent.setIsExpanded(!widget.isExpanded));
-      },
-    );
-  }
-
-  // + button
-  Widget _buildViewAddButton(BuildContext context) {
-    return MobileViewAddButton(
-      onPressed: () {
-        final title = widget.view.name;
-        showMobileBottomSheet(
-          context,
-          showHeader: true,
-          title: title,
-          showDragHandle: true,
-          showCloseButton: true,
-          useRootNavigator: true,
-          builder: (sheetContext) {
-            return AddNewPageWidgetBottomSheet(
-              view: widget.view,
-              onAction: (layout) {
-                Navigator.of(sheetContext).pop();
-                context.read<ViewBloc>().add(
-                      ViewEvent.createView(
-                        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                        layout,
-                        section: widget.spaceType != FolderSpaceType.favorite
-                            ? widget.spaceType.toViewSectionPB
-                            : null,
-                      ),
-                    );
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // + button
-  Widget _buildViewMoreButton(BuildContext context) {
-    return MobileViewMoreButton(onPressed: () => _showMoreActions(context));
-  }
-
-  Future<void> _showMoreActions(BuildContext context) async {
-    final viewBloc = context.read<ViewBloc>();
-    final favoriteBloc = context.read<FavoriteBloc>();
-    await showMobileBottomSheet(
-      context,
-      showHeader: true,
-      title: widget.view.name,
-      showDragHandle: true,
-      showCloseButton: true,
-      useRootNavigator: true,
-      builder: (context) {
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: viewBloc),
-            BlocProvider.value(value: favoriteBloc),
-          ],
-          child: BlocBuilder<ViewBloc, ViewState>(
-            builder: (context, state) {
-              final isFavorite = state.view.isFavorite;
-              return MobileViewItemBottomSheet(
-                view: viewBloc.state.view,
-                actions: [
-                  isFavorite
-                      ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
-                      : MobileViewItemBottomSheetBodyAction.addToFavorites,
-                  MobileViewItemBottomSheetBodyAction.divider,
-                  MobileViewItemBottomSheetBodyAction.rename,
-                  MobileViewItemBottomSheetBodyAction.divider,
-                  MobileViewItemBottomSheetBodyAction.duplicate,
-                  MobileViewItemBottomSheetBodyAction.divider,
-                  MobileViewItemBottomSheetBodyAction.delete,
-                ],
-              );
-            },
-          ),
-        );
       },
     );
   }

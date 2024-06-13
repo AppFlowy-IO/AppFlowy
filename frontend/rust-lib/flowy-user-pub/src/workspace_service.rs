@@ -10,4 +10,7 @@ pub trait UserWorkspaceService: Send + Sync {
     &self,
     ids_by_database_id: HashMap<String, Vec<String>>,
   ) -> FlowyResult<()>;
+
+  /// Removes local indexes when a workspace is left/deleted
+  fn did_delete_workspace(&self, workspace_id: String) -> FlowyResult<()>;
 }

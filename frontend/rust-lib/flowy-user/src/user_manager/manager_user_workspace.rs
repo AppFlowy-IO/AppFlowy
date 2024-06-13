@@ -11,10 +11,13 @@ use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{
   Role, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  WorkspaceSubscription, WorkspaceUsage,
 };
 use lib_dispatch::prelude::af_spawn;
 
-use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB, UserWorkspacePB};
+use crate::entities::{
+  RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, UserWorkspacePB,
+};
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::data_import::{
@@ -261,7 +264,11 @@ impl UserManager {
     // delete workspace from local sqlite db
     let uid = self.user_id()?;
     let conn = self.db_connection(uid)?;
-    delete_user_workspaces(conn, workspace_id)
+    delete_user_workspaces(conn, workspace_id)?;
+
+    self
+      .user_workspace_service
+      .did_delete_workspace(workspace_id.to_string())
   }
 
   #[instrument(level = "info", skip(self), err)]
@@ -275,6 +282,11 @@ impl UserManager {
     let uid = self.user_id()?;
     let conn = self.db_connection(uid)?;
     delete_user_workspaces(conn, workspace_id)?;
+
+    self
+      .user_workspace_service
+      .did_delete_workspace(workspace_id.to_string())?;
+
     Ok(())
   }
 
@@ -407,6 +419,65 @@ impl UserManager {
       .reset_workspace(collab_object)
       .await?;
     Ok(())
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn subscribe_workspace(
+    &self,
+    workspace_subscription: SubscribeWorkspacePB,
+  ) -> FlowyResult<String> {
+    let payment_link = self
+      .cloud_services
+      .get_user_service()?
+      .subscribe_workspace(
+        workspace_subscription.workspace_id,
+        workspace_subscription.recurring_interval.into(),
+        workspace_subscription.workspace_subscription_plan.into(),
+        workspace_subscription.success_url,
+      )
+      .await?;
+
+    Ok(payment_link)
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn get_workspace_subscriptions(&self) -> FlowyResult<Vec<WorkspaceSubscription>> {
+    let res = self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_subscriptions()
+      .await?;
+    Ok(res)
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn cancel_workspace_subscription(&self, workspace_id: String) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .cancel_workspace_subscription(workspace_id)
+      .await?;
+    Ok(())
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn get_workspace_usage(&self, workspace_id: String) -> FlowyResult<WorkspaceUsage> {
+    let workspace_usage = self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_usage(workspace_id)
+      .await?;
+    Ok(workspace_usage)
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn get_billing_portal_url(&self) -> FlowyResult<String> {
+    let url = self
+      .cloud_services
+      .get_user_service()?
+      .get_billing_portal_url()
+      .await?;
+    Ok(url)
   }
 }
 

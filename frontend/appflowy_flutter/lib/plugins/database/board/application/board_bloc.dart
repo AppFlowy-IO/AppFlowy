@@ -16,8 +16,10 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:intl/intl.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:calendar_view/calendar_view.dart';
 
 import '../../application/database_controller.dart';
 import '../../application/field/field_controller.dart';
@@ -527,6 +529,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       return "No ${field.name}";
     }
 
+    final groupSettings = databaseController.fieldController.groupSettings
+        .firstWhereOrNull((gs) => gs.fieldId == field.id);
+
     switch (field.fieldType) {
       case FieldType.SingleSelect:
         final options =
@@ -547,33 +552,61 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       case FieldType.URL:
         return group.groupId;
       case FieldType.DateTime:
-        // Assume DateCondition::Relative as there isn't an option for this
-        // right now.
+        final config = groupSettings?.content != null
+            ? DateGroupConfigurationPB.fromBuffer(groupSettings!.content)
+            : DateGroupConfigurationPB();
         final dateFormat = DateFormat("y/MM/dd");
         try {
           final targetDateTime = dateFormat.parseLoose(group.groupId);
-          final targetDateTimeDay = DateTime(
-            targetDateTime.year,
-            targetDateTime.month,
-            targetDateTime.day,
-          );
-          final now = DateTime.now();
-          final nowDay = DateTime(
-            now.year,
-            now.month,
-            now.day,
-          );
-          final diff = targetDateTimeDay.difference(nowDay).inDays;
-          return switch (diff) {
-            0 => "Today",
-            -1 => "Yesterday",
-            1 => "Tomorrow",
-            -7 => "Last 7 days",
-            2 => "Next 7 days",
-            -30 => "Last 30 days",
-            8 => "Next 30 days",
-            _ => DateFormat("MMM y").format(targetDateTimeDay)
-          };
+          switch (config.condition) {
+            case DateConditionPB.Day:
+              return DateFormat("MMM dd, y").format(targetDateTime);
+            case DateConditionPB.Week:
+              final beginningOfWeek = targetDateTime
+                  .subtract(Duration(days: targetDateTime.weekday - 1));
+              final endOfWeek = targetDateTime.add(
+                Duration(days: DateTime.daysPerWeek - targetDateTime.weekday),
+              );
+
+              final beginningOfWeekFormat =
+                  beginningOfWeek.year != endOfWeek.year
+                      ? "MMM dd y"
+                      : "MMM dd";
+              final endOfWeekFormat = beginningOfWeek.month != endOfWeek.month
+                  ? "MMM dd y"
+                  : "dd y";
+
+              return LocaleKeys.board_dateCondition_weekOf.tr(
+                args: [
+                  DateFormat(beginningOfWeekFormat).format(beginningOfWeek),
+                  DateFormat(endOfWeekFormat).format(endOfWeek),
+                ],
+              );
+            case DateConditionPB.Month:
+              return DateFormat("MMM y").format(targetDateTime);
+            case DateConditionPB.Year:
+              return DateFormat("y").format(targetDateTime);
+            case DateConditionPB.Relative:
+              final targetDateTimeDay = DateTime(
+                targetDateTime.year,
+                targetDateTime.month,
+                targetDateTime.day,
+              );
+              final nowDay = DateTime.now().withoutTime;
+              final diff = targetDateTimeDay.difference(nowDay).inDays;
+              return switch (diff) {
+                0 => LocaleKeys.board_dateCondition_today.tr(),
+                -1 => LocaleKeys.board_dateCondition_yesterday.tr(),
+                1 => LocaleKeys.board_dateCondition_tomorrow.tr(),
+                -7 => LocaleKeys.board_dateCondition_lastSevenDays.tr(),
+                2 => LocaleKeys.board_dateCondition_nextSevenDays.tr(),
+                -30 => LocaleKeys.board_dateCondition_lastThirtyDays.tr(),
+                8 => LocaleKeys.board_dateCondition_nextThirtyDays.tr(),
+                _ => DateFormat("MMM y").format(targetDateTimeDay)
+              };
+            default:
+              return "";
+          }
         } on FormatException {
           return "";
         }

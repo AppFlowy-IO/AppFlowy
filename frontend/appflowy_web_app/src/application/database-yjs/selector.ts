@@ -14,19 +14,17 @@ import {
   useDatabaseView,
   useIsDatabaseRowPage,
   useRowDocMap,
-  useRows,
   useViewId,
 } from '@/application/database-yjs/context';
 import { filterBy, parseFilter } from '@/application/database-yjs/filter';
 import { groupByField } from '@/application/database-yjs/group';
 import { sortBy } from '@/application/database-yjs/sort';
 import { useViewsIdSelector } from '@/application/folder-yjs';
-import { useId } from '@/components/_shared/context-provider/IdProvider';
-import { parseYDatabaseCellToCell } from '@/components/database/components/cell/cell.parse';
-import { DateTimeCell } from '@/components/database/components/cell/cell.type';
-import dayjs from 'dayjs';
+import { parseYDatabaseCellToCell } from '@/application/database-yjs/cell.parse';
+import { DateTimeCell } from '@/application/database-yjs/cell.type';
+import * as dayjs from 'dayjs';
 import { throttle } from 'lodash-es';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Y from 'yjs';
 import { CalendarLayoutSetting, FieldType, FieldVisibility, Filter, RowMetaKey, SortCondition } from './database.type';
 
@@ -44,10 +42,10 @@ export interface Row {
 
 const defaultVisible = [FieldVisibility.AlwaysShown, FieldVisibility.HideWhenEmpty];
 
-export function useDatabaseViewsSelector() {
+export function useDatabaseViewsSelector(iidIndex: string) {
   const database = useDatabase();
-  const { objectId: currentViewId } = useId();
   const { viewsId: visibleViewsId, views: folderViews } = useViewsIdSelector();
+
   const views = database?.get(YjsDatabaseKey.views);
   const [viewIds, setViewIds] = useState<string[]>([]);
   const childViews = useMemo(() => {
@@ -58,16 +56,31 @@ export function useDatabaseViewsSelector() {
     if (!views) return;
 
     const observerEvent = () => {
-      setViewIds(
-        Array.from(views.keys()).filter((id) => {
-          const view = folderViews?.get(id);
+      const viewsObj = views.toJSON();
 
-          return (
-            visibleViewsId.includes(id) &&
-            (view?.get(YjsFolderKey.bid) === currentViewId || view?.get(YjsFolderKey.id) === currentViewId)
-          );
-        })
-      );
+      const viewsSorted = Object.entries(viewsObj).sort((a, b) => {
+        const [, viewA] = a;
+        const [, viewB] = b;
+
+        return Number(viewB.created_at) - Number(viewA.created_at);
+      });
+
+      const viewsId = [];
+
+      for (const viewItem of viewsSorted) {
+        const [key] = viewItem;
+        const view = folderViews?.get(key);
+
+        if (
+          visibleViewsId.includes(key) &&
+          view &&
+          (view.get(YjsFolderKey.bid) === iidIndex || view.get(YjsFolderKey.id) === iidIndex)
+        ) {
+          viewsId.push(key);
+        }
+      }
+
+      setViewIds(viewsId);
     };
 
     observerEvent();
@@ -76,7 +89,7 @@ export function useDatabaseViewsSelector() {
     return () => {
       views.unobserve(observerEvent);
     };
-  }, [visibleViewsId, views, folderViews, currentViewId]);
+  }, [visibleViewsId, views, folderViews, iidIndex]);
 
   return {
     childViews,
@@ -131,12 +144,6 @@ export function useFieldsSelector(visibilitys: FieldVisibility[] = defaultVisibl
   }, [database, viewId, visibilitys]);
 
   return columns;
-}
-
-export function useRowsSelector() {
-  const rowOrders = useRows();
-
-  return useMemo(() => rowOrders ?? [], [rowOrders]);
 }
 
 export function useFieldSelector(fieldId: string) {
@@ -387,7 +394,7 @@ export function useRowsByGroup(groupId: string) {
     if (!fieldId || !rowOrders || !rows) return;
 
     const onConditionsChange = () => {
-      if (rows.size !== rowOrders?.length) return;
+      if (rows.size < rowOrders?.length) return;
 
       const newResult = new Map<string, Row[]>();
 
@@ -440,7 +447,7 @@ export function useRowOrdersSelector() {
 
     if (!originalRowOrders || !rows) return;
 
-    if (originalRowOrders.length !== rows.size && !isDatabaseRowPage) return;
+    if (originalRowOrders.length > rows.size && !isDatabaseRowPage) return;
     if (sorts?.length === 0 && filters?.length === 0) {
       setRowOrders(originalRowOrders);
       return;
@@ -675,7 +682,7 @@ export function useCalendarLayoutSetting() {
 
 export function usePrimaryFieldId() {
   const database = useDatabase();
-  const [primaryFieldId, setPrimaryFieldId] = React.useState<string | null>(null);
+  const [primaryFieldId, setPrimaryFieldId] = useState<string | null>(null);
 
   useEffect(() => {
     const fields = database?.get(YjsDatabaseKey.fields);

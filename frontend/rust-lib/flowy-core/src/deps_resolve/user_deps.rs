@@ -59,4 +59,12 @@ impl UserWorkspaceService for UserWorkspaceServiceImpl {
       .await?;
     Ok(())
   }
+
+  fn did_delete_workspace(&self, workspace_id: String) -> FlowyResult<()> {
+    self
+      .folder_manager
+      .remove_indices_for_workspace(workspace_id)?;
+
+    Ok(())
+  }
 }

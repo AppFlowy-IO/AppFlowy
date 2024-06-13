@@ -59,13 +59,6 @@ class SearchListener {
           (err) => Log.error(err),
         );
         break;
-      case SearchNotification.DidCloseResults:
-        result.fold(
-          (payload) => _updateDidCloseNotifier?.value =
-              RepeatedSearchResultPB.fromBuffer(payload),
-          (err) => Log.error(err),
-        );
-        break;
       default:
         break;
     }

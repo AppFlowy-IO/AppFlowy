@@ -1,15 +1,15 @@
-import { CollabOrigin, CollabType, YDatabase, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
-import {
-  batchCollabs,
-  getCollabStorage,
-  getCollabStorageWithAPICall,
-  getUserWorkspace,
-} from '@/application/services/js-services/storage';
+import { CollabType, YDatabase, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { batchCollab, getCollab } from '@/application/services/js-services/cache';
+import { StrategyType } from '@/application/services/js-services/cache/types';
+import { batchFetchCollab, fetchCollab } from '@/application/services/js-services/fetch';
+import { getCurrentWorkspace } from 'src/application/services/js-services/session';
 import { DatabaseService } from '@/application/services/services.type';
 import * as Y from 'yjs';
 
 export class JSDatabaseService implements DatabaseService {
   private loadedDatabaseId: Set<string> = new Set();
+
+  private loadedWorkspaceId: Set<string> = new Set();
 
   private cacheDatabaseRowDocMap: Map<string, Y.Doc> = new Map();
 
@@ -17,14 +17,51 @@ export class JSDatabaseService implements DatabaseService {
     //
   }
 
-  async getDatabase(
-    workspaceId: string,
-    databaseId: string,
-    rowIds?: string[]
-  ): Promise<{
+  currentWorkspace() {
+    return getCurrentWorkspace();
+  }
+
+  async getWorkspaceDatabases(): Promise<{ views: string[]; database_id: string }[]> {
+    const workspace = await this.currentWorkspace();
+
+    if (!workspace) {
+      throw new Error('Workspace database not found');
+    }
+
+    const isLoaded = this.loadedWorkspaceId.has(workspace.id);
+
+    const workspaceDatabase = await getCollab(
+      () => {
+        return fetchCollab(workspace.id, workspace.workspaceDatabaseId, CollabType.WorkspaceDatabase);
+      },
+      {
+        collabId: workspace.workspaceDatabaseId,
+        collabType: CollabType.WorkspaceDatabase,
+      },
+      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK
+    );
+
+    if (!isLoaded) {
+      this.loadedWorkspaceId.add(workspace.id);
+    }
+
+    return workspaceDatabase.getMap(YjsEditorKey.data_section).get(YjsEditorKey.workspace_database).toJSON() as {
+      views: string[];
+      database_id: string;
+    }[];
+  }
+
+  async openDatabase(databaseId: string): Promise<{
     databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
   }> {
+    const workspace = await this.currentWorkspace();
+
+    if (!workspace) {
+      throw new Error('Workspace database not found');
+    }
+
+    const workspaceId = workspace.id;
     const isLoaded = this.loadedDatabaseId.has(databaseId);
 
     const rootRowsDoc =
@@ -39,13 +76,18 @@ export class JSDatabaseService implements DatabaseService {
 
     const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
 
-    let databaseDoc: YDoc | undefined = undefined;
+    const databaseDoc = await getCollab(
+      () => {
+        return fetchCollab(workspaceId, databaseId, CollabType.Database);
+      },
+      {
+        collabId: databaseId,
+        collabType: CollabType.Database,
+      },
+      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK
+    );
 
-    if (isLoaded) {
-      databaseDoc = (await getCollabStorage(databaseId, CollabType.Database)).doc;
-    } else {
-      databaseDoc = await getCollabStorageWithAPICall(workspaceId, databaseId, CollabType.Database);
-    }
+    if (!isLoaded) this.loadedDatabaseId.add(databaseId);
 
     const database = databaseDoc.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database) as YDatabase;
     const viewId = database.get(YjsDatabaseKey.metas)?.get(YjsDatabaseKey.iid)?.toString();
@@ -58,129 +100,55 @@ export class JSDatabaseService implements DatabaseService {
       throw new Error('Database rows not found');
     }
 
-    const ids = rowIds ? rowIds : rowOrdersIds.map((item) => item.id);
+    const rowsParams = rowOrdersIds.map((item) => ({
+      collabId: item.id,
+      collabType: CollabType.DatabaseRow,
+    }));
 
-    if (isLoaded) {
-      for (const id of ids) {
-        const { doc } = await getCollabStorage(id, CollabType.DatabaseRow);
-
+    void batchCollab(
+      () => {
+        return batchFetchCollab(workspaceId, rowsParams);
+      },
+      rowsParams,
+      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK,
+      (id: string, doc: YDoc) => {
         if (!rowsFolder.has(id)) {
           rowsFolder.set(id, doc);
         }
       }
-    } else {
-      void this.loadDatabaseRows(workspaceId, ids, (id, row) => {
-        if (!rowsFolder.has(id)) {
-          rowsFolder.set(id, row);
-        }
-      });
-    }
+    );
 
-    this.loadedDatabaseId.add(databaseId);
+    // Update rows if there are new rows added after the database has been loaded
+    rowOrders?.observe((event) => {
+      if (event.changes.added.size > 0) {
+        const rowIds = rowOrders.toJSON() as {
+          id: string;
+        }[];
 
-    if (!rowIds) {
-      // Update rows if new rows are added
-      rowOrders?.observe((event) => {
-        if (event.changes.added.size > 0) {
-          const rowIds = rowOrders.toJSON() as {
-            id: string;
-          }[];
+        const params = rowIds.map((item) => ({
+          collabId: item.id,
+          collabType: CollabType.DatabaseRow,
+        }));
 
-          console.log('Update rows', rowIds);
-          void this.loadDatabaseRows(
-            workspaceId,
-            rowIds.map((item) => item.id),
-            (rowId: string, rowDoc) => {
-              if (!rowsFolder.has(rowId)) {
-                rowsFolder.set(rowId, rowDoc);
-              }
+        void batchCollab(
+          () => {
+            return batchFetchCollab(workspaceId, params);
+          },
+          params,
+          StrategyType.CACHE_AND_NETWORK,
+          (id: string, doc: YDoc) => {
+            if (!rowsFolder.has(id)) {
+              rowsFolder.set(id, doc);
             }
-          );
-        }
-      });
-    }
+          }
+        );
+      }
+    });
 
     return {
       databaseDoc,
       rows: rowsFolder,
     };
-  }
-
-  async openDatabase(
-    workspaceId: string,
-    viewId: string,
-    rowIds?: string[]
-  ): Promise<{
-    databaseDoc: YDoc;
-    rows: Y.Map<YDoc>;
-  }> {
-    const userWorkspace = await getUserWorkspace();
-
-    if (!userWorkspace) {
-      throw new Error('User workspace not found');
-    }
-
-    const workspaceDatabaseId = userWorkspace.workspaces.find(
-      (workspace) => workspace.id === workspaceId
-    )?.workspaceDatabaseId;
-
-    if (!workspaceDatabaseId) {
-      throw new Error('Workspace database not found');
-    }
-
-    const workspaceDatabase = await getCollabStorageWithAPICall(
-      workspaceId,
-      workspaceDatabaseId,
-      CollabType.WorkspaceDatabase
-    );
-
-    const databases = workspaceDatabase
-      .getMap(YjsEditorKey.data_section)
-      .get(YjsEditorKey.workspace_database)
-      .toJSON() as {
-      views: string[];
-      database_id: string;
-    }[];
-
-    const databaseMeta = databases.find((item) => {
-      return item.views.some((databaseViewId: string) => databaseViewId === viewId);
-    });
-
-    if (!databaseMeta) {
-      throw new Error('Database not found');
-    }
-
-    const { databaseDoc, rows } = await this.getDatabase(workspaceId, databaseMeta.database_id, rowIds);
-
-    const handleUpdate = (update: Uint8Array, origin: CollabOrigin) => {
-      if (origin === CollabOrigin.LocalSync) {
-        // Send the update to the server
-        console.log('update', update);
-      }
-    };
-
-    databaseDoc.on('update', handleUpdate);
-    console.log('Database loaded', rows.toJSON());
-
-    return {
-      databaseDoc,
-      rows,
-    };
-  }
-
-  async loadDatabaseRows(workspaceId: string, rowIds: string[], rowCallback: (rowId: string, rowDoc: YDoc) => void) {
-    try {
-      await batchCollabs(
-        workspaceId,
-        rowIds.map((id) => ({
-          object_id: id,
-          collab_type: CollabType.DatabaseRow,
-        })),
-        rowCallback
-      );
-    } catch (e) {
-      console.error(e);
-    }
   }
 
   async closeDatabase(databaseId: string) {

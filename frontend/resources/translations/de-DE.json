@@ -47,7 +47,6 @@
     "unmatchedPasswordError": "Passwörter stimmen nicht überein",
     "syncPromptMessage": "Synchronisation kann ein paar Minuten dauern. Diese Seite bitte nicht schließen",
     "or": "ODER",
-    "signInWith": "Anmeldeoptionen:",
     "signInWithGoogle": "Mit Google anmelden",
     "signInWithGithub": "Mit Github anmelden",
     "signInWithDiscord": "Mit Discord anmelden",
@@ -148,6 +147,21 @@
   "newGridText": "Neues Raster",
   "newCalendarText": "Neuer Kalender",
   "newBoardText": "Neues Board",
+  "chat": {
+    "newChat": "Neuer Chat",
+    "inputMessageHint": "Nachricht an AppFlowy AI",
+    "unsupportedCloudPrompt": "Diese Funktion ist nur bei Verwendung der AppFlowy Cloud verfügbar",
+    "relatedQuestion": "Verwandt",
+    "serverUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
+    "aiServerUnavailable": "Beim Generieren einer Antwort ist ein Fehler aufgetreten.",
+    "clickToRetry": "Erneut versuchen",
+    "regenerateAnswer": "Regenerieren",
+    "question1": "Wie verwendet man Kanban zur Aufgabenverwaltung?",
+    "question2": "Erkläre mir die GTD-Methode",
+    "question3": "Warum sollte ich Rust verwenden?",
+    "question4": "Gebe mir ein Rezept mit dem, was in meiner Küche ist",
+    "aiMistakePrompt": "KI kann Fehler machen. Überprüfe wichtige Informationen."
+  },
   "trash": {
     "text": "Papierkorb",
     "restoreAll": "Alles wiederherstellen",
@@ -249,6 +263,19 @@
     "today": "Heute",
     "thisWeek": "Diese Woche",
     "others": "Andere",
+    "justNow": "soeben",
+    "minutesAgo": "vor {count} Minuten",
+    "lastViewed": "Zuletzt angesehen",
+    "favoriteAt": "Zu Favoriten hinzugefügt bei",
+    "emptyRecent": "Keine aktuellen Dokumente",
+    "emptyRecentDescription": "Kürzlich aufgerufene Dokumente werden hier, zur vereinfachten Auffindbarkeit, angezeigt.",
+    "emptyFavorite": "Keine favorisierten Dokumente",
+    "emptyFavoriteDescription": "Beginne mit der Erkundung und markiere Dokumente als Favoriten. Diese werden hier für den schnellen Zugriff aufgelistet!",
+    "removePageFromRecent": "Diese Seite aus „Zuletzt angesehen“ entfernen?",
+    "removeSuccess": "Erfolgreich entfernt",
+    "favoriteSpace": "Favoriten",
+    "RecentSpace": "Zuletzt angesehen",
+    "Spaces": "Gemeinsam genutzte Bereiche",
     "public": "Öffentlich",
     "clickToHidePublic": "Hier klicken, um den öffentlichen Bereich auszublenden.\nHier erstellte Seiten sind für jedes Mitglied sichtbar.",
     "addAPageToPublic": "Eine Seite zum öffentlichen Bereich hinzufügen."
@@ -290,6 +317,7 @@
     "update": "Update",
     "share": "Teilen",
     "removeFromFavorites": "Aus den Favoriten entfernen",
+    "removeFromRecent": "Aus „Zuletzt angesehen“ entfernen",
     "addToFavorites": "Zu den Favoriten hinzufügen",
     "rename": "Umbenennen",
     "helpCenter": "Hilfe Center",
@@ -539,6 +567,10 @@
       "enableNotifications": {
         "label": "Benachrichtigungen aktivieren",
         "hint": "Wenn diese Funktion ausgeschaltet ist, werden keine lokalen Benachrichtigungen mehr angezeigt."
+      },
+      "showNotificationsIcon": {
+        "label": "Benachrichtigungssymbol anzeigen",
+        "hint": "Deaktiviere diese Option, um das Benachrichtigungssymbol in der Seitenleiste auszublenden."
       }
     },
     "appearance": {
@@ -1128,7 +1160,17 @@
         "newDatabase": "Neue Datenbank",
         "linkToDatabase": "Verknüpfung zur Datenbank"
       },
-      "date": "Datum"
+      "date": "Datum",
+      "video": {
+        "label": "Video",
+        "emptyLabel": "Video hinzufügen",
+        "placeholder": "Videolink einfügen",
+        "copiedToPasteBoard": "Der Videolink wurde in die Zwischenablage kopiert",
+        "insertVideo": "Video hinzufügen",
+        "invalidVideoUrl": "Die Quell-URL wird noch nicht unterstützt.",
+        "invalidVideoUrlYouTube": "YouTube wird noch nicht unterstützt.",
+        "supportedFormats": "Unterstützte Formate: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      }
     },
     "outlineBlock": {
       "placeholder": "Inhaltsverzeichnis"

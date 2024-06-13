@@ -58,9 +58,8 @@ class EditorStyleCustomizer {
           DefaultAppearanceSettings.getDefaultSelectionColor(context),
       defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
-        lineHeight: 1.2,
-        applyHeightToFirstAscent: true,
-        applyHeightToLastDescent: true,
+        // applyHeightToFirstAscent: true,
+        // applyHeightToLastDescent: true,
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
           color: afThemeExtension.onBackground,
@@ -106,6 +105,7 @@ class EditorStyleCustomizer {
     final textScaleFactor =
         context.read<AppearanceSettingsCubit>().state.textScaleFactor;
     final baseTextStyle = this.baseTextStyle(fontFamily);
+
     return EditorStyle.mobile(
       padding: padding,
       defaultTextDirection: defaultTextDirection,
@@ -237,8 +237,7 @@ class EditorStyleCustomizer {
     try {
       return getGoogleFontSafely(fontFamily, fontWeight: fontWeight);
     } on Exception {
-      if ([defaultFontFamily, fallbackFontFamily, builtInCodeFontFamily]
-          .contains(fontFamily)) {
+      if ([defaultFontFamily, builtInCodeFontFamily].contains(fontFamily)) {
         return TextStyle(fontFamily: fontFamily, fontWeight: fontWeight);
       }
 

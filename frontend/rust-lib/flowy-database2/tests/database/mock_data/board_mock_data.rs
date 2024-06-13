@@ -140,6 +140,7 @@ pub fn make_test_board() -> DatabaseData {
           .build();
         fields.push(time_field);
       },
+      FieldType::Translate => {},
     }
   }
 

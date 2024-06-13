@@ -3,6 +3,7 @@ import { EditorElementProps, HeadingNode, OutlineNode } from '@/components/edito
 import React, { forwardRef, memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlate } from 'slate-react';
+import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 
 export const Outline = memo(
   forwardRef<HTMLDivElement, EditorElementProps<OutlineNode>>(({ node, children, className, ...attributes }, ref) => {
@@ -22,7 +23,10 @@ export const Outline = memo(
       const element = document.getElementById(id);
 
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        void smoothScrollIntoViewIfNeeded(element, {
+          behavior: 'smooth',
+          block: 'center',
+        });
       }
     }, []);
 
@@ -32,7 +36,14 @@ export const Outline = memo(
         const { text, level } = heading.data as { text: string; level: number };
 
         return (
-          <div onClick={() => jumpToHeading(heading)} className={`my-1 ml-4 `} key={`${level}-${index}`}>
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              jumpToHeading(heading);
+            }}
+            className={`my-1 ml-4 `}
+            key={`${level}-${index}`}
+          >
             <div className={'cursor-pointer rounded px-2 underline hover:text-content-blue-400'}>{text}</div>
 
             <div className={'ml-2'}>{children}</div>

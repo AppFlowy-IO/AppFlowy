@@ -53,10 +53,11 @@ function TextFilterMenu({ filter }: { filter: TextFilter }) {
   }, [filter.condition]);
 
   return (
-    <div className={'flex flex-col gap-2 p-2'}>
+    <div className={'flex flex-col gap-2 p-2'} data-testid='text-filter'>
       <FieldMenuTitle fieldId={filter.fieldId} selectedConditionText={selectedCondition?.text ?? ''} />
       {displayTextField && (
         <TextField
+          data-testid='text-filter-input'
           disabled={readOnly}
           spellCheck={false}
           inputProps={{

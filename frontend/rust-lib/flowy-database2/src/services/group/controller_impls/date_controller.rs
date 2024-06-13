@@ -6,7 +6,7 @@ use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
-use flowy_error::FlowyResult;
+use flowy_error::{internal_error, FlowyResult};
 
 use crate::entities::{
   FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
@@ -27,13 +27,13 @@ pub struct DateGroupConfiguration {
 }
 
 impl DateGroupConfiguration {
-  fn from_json(s: &str) -> Result<Self, serde_json::Error> {
+  pub fn from_json(s: &str) -> Result<Self, serde_json::Error> {
     serde_json::from_str(s)
   }
 
   #[allow(dead_code)]
-  fn to_json(&self) -> Result<String, serde_json::Error> {
-    serde_json::to_string(self)
+  pub fn to_json(&self) -> FlowyResult<String> {
+    serde_json::to_string(self).map_err(internal_error)
   }
 }
 

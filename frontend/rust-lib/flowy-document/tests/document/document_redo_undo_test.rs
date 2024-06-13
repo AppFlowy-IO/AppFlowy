@@ -10,7 +10,7 @@ async fn undo_redo_test() {
   let test = DocumentTest::new();
 
   let doc_id: String = gen_document_id();
-  let data = default_document_data();
+  let data = default_document_data(&doc_id);
 
   // create a document
   _ = test
@@ -22,6 +22,7 @@ async fn undo_redo_test() {
     .await;
 
   // open a document
+  test.open_document(&doc_id).await.unwrap();
   let document = test.get_document(&doc_id).await.unwrap();
   let document = document.lock();
   let page_block = document.get_block(&data.page_id).unwrap();

@@ -3,6 +3,7 @@ use crate::{
   services::manager::{SearchHandler, SearchType},
 };
 use flowy_error::FlowyResult;
+use lib_infra::async_trait::async_trait;
 use std::sync::Arc;
 
 use super::indexer::FolderIndexManagerImpl;
@@ -17,12 +18,13 @@ impl FolderSearchHandler {
   }
 }
 
+#[async_trait]
 impl SearchHandler for FolderSearchHandler {
   fn search_type(&self) -> SearchType {
     SearchType::Folder
   }
 
-  fn perform_search(
+  async fn perform_search(
     &self,
     query: String,
     filter: Option<SearchFilterPB>,

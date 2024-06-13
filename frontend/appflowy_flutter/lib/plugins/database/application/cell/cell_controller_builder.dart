@@ -17,6 +17,7 @@ typedef URLCellController = CellController<URLCellDataPB, String>;
 typedef RelationCellController = CellController<RelationCellDataPB, String>;
 typedef SummaryCellController = CellController<String, String>;
 typedef TimeCellController = CellController<TimeCellDataPB, String>;
+typedef TranslateCellController = CellController<String, String>;
 
 CellController makeCellController(
   DatabaseController databaseController,
@@ -153,6 +154,18 @@ CellController makeCellController(
         rowCache: rowCache,
         cellDataLoader: CellDataLoader(
           parser: TimeCellDataParser(),
+          reloadOnFieldChange: true,
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+    case FieldType.Translate:
+      return TranslateCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
+          parser: StringCellDataParser(),
           reloadOnFieldChange: true,
         ),
         cellDataPersistence: TextCellDataPersistence(),

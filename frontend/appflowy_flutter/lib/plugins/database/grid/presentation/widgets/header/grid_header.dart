@@ -151,7 +151,10 @@ class _CellTrailing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: GridSize.trailHeaderPadding,
+      constraints: BoxConstraints(
+        maxWidth: GridSize.newPropertyButtonWidth,
+        minHeight: GridSize.headerHeight,
+      ),
       margin: EdgeInsets.only(right: GridSize.scrollBarSize + Insets.m),
       decoration: BoxDecoration(
         border: Border(

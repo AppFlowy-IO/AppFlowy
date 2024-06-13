@@ -45,6 +45,7 @@ class _EmbedUrl extends StatefulWidget {
 
 class _EmbedUrlState extends State<_EmbedUrl> {
   bool isUrlValid = true;
+  bool isYouTubeError = false;
   String inputText = '';
 
   @override
@@ -60,10 +61,17 @@ class _EmbedUrlState extends State<_EmbedUrl> {
         if (!isUrlValid) ...[
           const VSpace(8),
           FlowyText(
-            LocaleKeys.document_plugins_video_invalidVideoUrl.tr(),
+            isYouTubeError
+                ? LocaleKeys.document_plugins_video_invalidVideoUrlYouTube.tr()
+                : LocaleKeys.document_plugins_video_invalidVideoUrl.tr(),
             color: Theme.of(context).colorScheme.error,
           ),
         ],
+        const VSpace(8),
+        FlowyText(
+          LocaleKeys.document_plugins_video_supportedFormats.tr(),
+          color: Theme.of(context).hintColor,
+        ),
         const VSpace(8),
         SizedBox(
           width: 160,
@@ -86,6 +94,7 @@ class _EmbedUrlState extends State<_EmbedUrl> {
       return widget.onSubmit(inputText);
     }
 
+    isYouTubeError = youtubeUrlRegex.hasMatch(inputText);
     setState(() => isUrlValid = false);
   }
 
