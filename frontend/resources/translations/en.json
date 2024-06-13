@@ -1910,7 +1910,8 @@
     "spaceIcon": "Icon",
     "dangerZone": "Danger Zone",
     "unableToDeleteLastSpace": "Cannot delete the last space",
-    "unableToDeleteSpaceNotCreatedByYou": "Cannot delete a space created by others"
+    "unableToDeleteSpaceNotCreatedByYou": "Cannot delete a space created by others",
+    "enableSpacesForYourWorkspace": "Enable spaces for your workspace"
   }
 }
 

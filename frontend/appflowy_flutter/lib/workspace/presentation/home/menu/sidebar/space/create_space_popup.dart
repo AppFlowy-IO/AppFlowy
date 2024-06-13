@@ -60,11 +60,6 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
             confirmButtonName: LocaleKeys.button_create.tr(),
             onCancel: () => Navigator.of(context).pop(),
             onConfirm: () {
-              if (spaceName.isEmpty) {
-                // todo: show error
-                return;
-              }
-
               context.read<SpaceBloc>().add(
                     SpaceEvent.create(
                       name: spaceName,

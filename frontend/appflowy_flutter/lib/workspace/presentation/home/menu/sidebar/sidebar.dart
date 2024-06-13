@@ -377,8 +377,8 @@ class _SidebarState extends State<_Sidebar> {
               ),
               leftIconSize: const Size.square(20),
               iconPadding: 12.0,
-              text: const FlowyText.regular(
-                'Enable Spaces for your workspace',
+              text: FlowyText.regular(
+                LocaleKeys.space_enableSpacesForYourWorkspace.tr(),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
