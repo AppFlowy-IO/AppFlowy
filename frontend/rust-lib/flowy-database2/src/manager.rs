@@ -18,7 +18,8 @@ use tracing::{event, instrument, trace};
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
 use flowy_database_pub::cloud::{
-  DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
+  DatabaseCloudService, SummaryRowContent, TagItem, TagRowContent, TranslateItem,
+  TranslateRowContent,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
@@ -28,6 +29,7 @@ use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, FieldType};
 use crate::services::cell::stringify_cell;
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
+use crate::services::field::tag_type_option::tag::{TagOption, TagTypeOption};
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 
 use crate::services::field_settings::default_field_settings_by_layout_map;
@@ -506,7 +508,6 @@ impl DatabaseManager {
       }
     }
 
-    // Call the cloud service to summarize the row.
     trace!(
       "[AI]:translate to {}, content:{:?}",
       language,
@@ -533,6 +534,59 @@ impl DatabaseManager {
 
     trace!("[AI]:translate row response: {}", content);
     // Update the cell with the response from the cloud service.
+    database
+      .update_cell_with_changeset(&view_id, &row_id, &field_id, BoxAny::new(content))
+      .await?;
+    Ok(())
+  }
+
+  #[instrument(level = "debug", skip_all)]
+  pub async fn tag_row(&self, view_id: String, row_id: RowId, field_id: String) -> FlowyResult<()> {
+    let database = self.get_database_with_view_id(&view_id).await?;
+    let mut tag_row = TagRowContent {
+      existing_tags: vec![],
+      items: vec![],
+      num_tags: 5,
+    };
+    if let Some(row) = database.get_row(&view_id, &row_id) {
+      let fields = database.get_fields(&view_id, None);
+      for field in fields {
+        if field.id != field_id {
+          if FieldType::from(field.field_type).is_ai_field() {
+            continue;
+          }
+
+          if let Some(cell) = row.cells.get(&field.id) {
+            tag_row.items.push(TagItem {
+              title: field.name.clone(),
+              content: stringify_cell(cell, &field),
+            })
+          }
+        } else {
+          tag_row.existing_tags.extend(
+            field
+              .type_options
+              .get(&FieldType::Tag.to_string())
+              .cloned()
+              .map(TagTypeOption::from)
+              .unwrap_or_default()
+              .tags
+              .into_iter()
+              .map(|tag| tag.text)
+              .collect(),
+          )
+        }
+      }
+    }
+
+    let response = self
+      .cloud_service
+      .tag_database_row(&self.user.workspace_id()?, tag_row)
+      .await?;
+
+    // Format the response items into a single string
+    let content = response.tags.map(|v| v).collect::<Vec<String>>().join(", ");
+    trace!("[AI]:tag row response: {}", content);
     database
       .update_cell_with_changeset(&view_id, &row_id, &field_id, BoxAny::new(content))
       .await?;

@@ -450,6 +450,7 @@ pub enum FieldType {
   Relation = 10,
   Summary = 11,
   Translate = 12,
+  Tag = 13,
 }
 
 impl Display for FieldType {
@@ -491,12 +492,16 @@ impl FieldType {
       FieldType::Relation => "Relation",
       FieldType::Summary => "Summarize",
       FieldType::Translate => "Translate",
+      FieldType::Tag => "Tag",
     };
     s.to_string()
   }
 
   pub fn is_ai_field(&self) -> bool {
-    matches!(self, FieldType::Summary | FieldType::Translate)
+    matches!(
+      self,
+      FieldType::Summary | FieldType::Translate | FieldType::Tag
+    )
   }
 
   pub fn is_number(&self) -> bool {

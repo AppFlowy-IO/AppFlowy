@@ -6,6 +6,7 @@ use collab_database::fields::Field;
 use collab_database::rows::Row;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
+use flowy_database2::services::field::tag_type_option::tag::TagTypeOption;
 use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
 use flowy_database2::services::field::{
   FieldBuilder, NumberFormat, NumberTypeOption, SelectOption, SelectOptionColor,
@@ -63,6 +64,7 @@ fn create_fields() -> Vec<Field> {
       FieldType::SingleSelect => fields.push(create_single_select_field("Status")),
       FieldType::Summary => fields.push(create_summary_field("AI summary")),
       FieldType::Translate => fields.push(create_translate_field("AI Translate")),
+      FieldType::Tag => fields.push(create_tag_field("AI Tag")),
       _ => {},
     }
   }
@@ -134,6 +136,14 @@ fn create_translate_field(name: &str) -> Field {
     language_type: 2,
   };
   FieldBuilder::new(FieldType::Translate, type_option)
+    .name(name)
+    .build()
+}
+
+#[allow(dead_code)]
+fn create_tag_field(name: &str) -> Field {
+  let type_option = TagTypeOption::default();
+  FieldBuilder::new(FieldType::Tag, type_option)
     .name(name)
     .build()
 }

@@ -1,9 +1,10 @@
 use anyhow::Error;
+use client_api::entity::ai_dto::TagRowResponse;
 use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent, TagRowContent,
   TranslateRowContent, TranslateRowResponse,
 };
 use lib_dispatch::prelude::af_spawn;
@@ -114,5 +115,13 @@ where
     _language: &str,
   ) -> FutureResult<TranslateRowResponse, Error> {
     FutureResult::new(async move { Ok(TranslateRowResponse::default()) })
+  }
+
+  fn tag_database_row(
+    &self,
+    workspace_id: &str,
+    tag_row: TagRowContent,
+  ) -> FutureResult<TagRowResponse, Error> {
+    FutureResult::new(async move { Ok(TagRowResponse::default()) })
   }
 }

@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
-use client_api::entity::ai_dto::RepeatedRelatedQuestion;
+use client_api::entity::ai_dto::{RepeatedRelatedQuestion, TagRowResponse};
 use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
 
@@ -23,7 +23,7 @@ use flowy_chat_pub::cloud::{
   StreamAnswer,
 };
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent, TagRowContent,
   TranslateRowContent, TranslateRowResponse,
 };
 use flowy_document::deps::DocumentData;
@@ -310,6 +310,21 @@ impl DatabaseCloudService for ServerProvider {
       server?
         .database_service()
         .translate_database_row(&workspace_id, translate_row, &language)
+        .await
+    })
+  }
+
+  fn tag_database_row(
+    &self,
+    workspace_id: &str,
+    tag_row: TagRowContent,
+  ) -> FutureResult<TagRowResponse, Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .database_service()
+        .tag_database_row(&workspace_id, tag_row)
         .await
     })
   }

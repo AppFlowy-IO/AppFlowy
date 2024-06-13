@@ -1,6 +1,7 @@
 use anyhow::Error;
 use client_api::entity::ai_dto::{
-  SummarizeRowData, SummarizeRowParams, TranslateRowData, TranslateRowParams,
+  SummarizeRowData, SummarizeRowParams, TagRowData, TagRowParams, TagRowResponse, TranslateRowData,
+  TranslateRowParams,
 };
 use client_api::entity::QueryCollabResult::{Failed, Success};
 use client_api::entity::{QueryCollab, QueryCollabParams};
@@ -13,7 +14,7 @@ use std::sync::Arc;
 use tracing::{error, instrument};
 
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent, TagRowContent,
   TranslateRowContent, TranslateRowResponse,
 };
 use lib_infra::future::FutureResult;
@@ -161,6 +162,21 @@ where
 
       let params = TranslateRowParams { workspace_id, data };
       let data = try_get_client?.translate_row(params).await?;
+      Ok(data)
+    })
+  }
+
+  fn tag_database_row(
+    &self,
+    workspace_id: &str,
+    tag_row: TagRowContent,
+  ) -> FutureResult<TagRowResponse, Error> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    FutureResult::new(async move {
+      let data = tag_row;
+      let params = TagRowParams { workspace_id, data };
+      let data = try_get_client?.tag_row(params).await?;
       Ok(data)
     })
   }

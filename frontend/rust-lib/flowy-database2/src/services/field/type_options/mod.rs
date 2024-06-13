@@ -5,6 +5,7 @@ pub mod number_type_option;
 pub mod relation_type_option;
 pub mod selection_type_option;
 pub mod summary_type_option;
+pub mod tag_type_option;
 pub mod text_type_option;
 pub mod timestamp_type_option;
 pub mod translate_type_option;

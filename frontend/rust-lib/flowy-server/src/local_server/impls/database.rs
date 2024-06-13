@@ -1,11 +1,12 @@
 use anyhow::Error;
+use client_api::entity::ai_dto::TagRowResponse;
 use collab::preclude::Collab;
 use collab_entity::define::{DATABASE, DATABASE_ROW_DATA, WORKSPACE_DATABASES};
 use collab_entity::CollabType;
 use yrs::{Any, MapPrelim};
 
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent, TagRowContent,
   TranslateRowContent, TranslateRowResponse,
 };
 use lib_infra::future::FutureResult;
@@ -95,5 +96,13 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
   ) -> FutureResult<TranslateRowResponse, Error> {
     // TODO(lucas): local ai
     FutureResult::new(async move { Ok(TranslateRowResponse::default()) })
+  }
+
+  fn tag_database_row(
+    &self,
+    workspace_id: &str,
+    tag_row: TagRowContent,
+  ) -> FutureResult<TagRowResponse, Error> {
+    FutureResult::new(async move { Ok(TagRowResponse::default()) })
   }
 }

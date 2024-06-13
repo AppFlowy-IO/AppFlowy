@@ -11,6 +11,7 @@ use lib_infra::box_any::BoxAny;
 use crate::entities::FieldType;
 use crate::services::cell::{CellCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob};
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
+use crate::services::field::tag_type_option::tag::TagTypeOption;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
@@ -460,6 +461,18 @@ impl<'a> TypeOptionCellExt<'a> {
             self.cell_data_cache.clone(),
           )
         }),
+      FieldType::Tag => {
+        self
+          .field
+          .get_type_option::<TagTypeOption>(field_type)
+          .map(|type_option| {
+            TypeOptionCellDataHandlerImpl::new_with_boxed(
+              type_option,
+              field_type,
+              self.cell_data_cache.clone(),
+            )
+          })
+      },
     }
   }
 
@@ -565,6 +578,9 @@ fn get_type_option_transform_handler(
       as Box<dyn TypeOptionTransformHandler>,
     FieldType::Translate => {
       Box::new(TranslateTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
+    },
+    FieldType::Tag => {
+      Box::new(TagTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },
   }
 }
