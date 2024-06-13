@@ -171,6 +171,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
       title: LocaleKeys.space_rename.tr(),
       value: widget.space.name,
       autoSelectAllText: true,
+      hintText: LocaleKeys.space_spaceName.tr(),
       onConfirm: (name, _) {
         context.read<SpaceBloc>().add(SpaceEvent.rename(widget.space, name));
       },
