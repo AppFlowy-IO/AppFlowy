@@ -127,6 +127,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
             const HSpace(8.0),
             FlowyIconButton(
               width: 24,
+              tooltipText: LocaleKeys.sideBar_addAPage.tr(),
               iconPadding: const EdgeInsets.all(4.0),
               icon: const FlowySvg(FlowySvgs.view_item_add_s),
               onPressed: widget.onAdded,

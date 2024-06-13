@@ -40,6 +40,7 @@ class SpaceMorePopup extends StatelessWidget {
         return FlowyIconButton(
           width: 24,
           icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
+          tooltipText: LocaleKeys.space_manage.tr(),
           onPressed: () {
             onEditing(true);
             popover.show();
