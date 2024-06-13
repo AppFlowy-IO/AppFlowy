@@ -27,6 +27,7 @@ import 'package:appflowy/workspace/application/settings/appearance/desktop_appea
 import 'package:appflowy/workspace/application/settings/appearance/mobile_appearance.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
+import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -168,6 +169,9 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   getIt.registerFactory<SplashBloc>(() => SplashBloc());
   getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());
   getIt.registerLazySingleton<CachedRecentService>(() => CachedRecentService());
+  getIt.registerLazySingleton<SubscriptionSuccessListenable>(
+    () => SubscriptionSuccessListenable(),
+  );
 }
 
 void _resolveHomeDeps(GetIt getIt) {

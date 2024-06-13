@@ -774,3 +774,64 @@ pub async fn leave_workspace_handler(
   manager.leave_workspace(&workspace_id).await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn subscribe_workspace_handler(
+  params: AFPluginData<SubscribeWorkspacePB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<PaymentLinkPB, FlowyError> {
+  let params = params.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  let payment_link = manager.subscribe_workspace(params).await?;
+  data_result_ok(PaymentLinkPB { payment_link })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_workspace_subscriptions_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<RepeatedWorkspaceSubscriptionPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let subs = manager
+    .get_workspace_subscriptions()
+    .await?
+    .into_iter()
+    .map(WorkspaceSubscriptionPB::from)
+    .collect::<Vec<_>>();
+  data_result_ok(RepeatedWorkspaceSubscriptionPB { items: subs })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn cancel_workspace_subscription_handler(
+  param: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let workspace_id = param.into_inner().workspace_id;
+  let manager = upgrade_manager(manager)?;
+  manager.cancel_workspace_subscription(workspace_id).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_workspace_usage_handler(
+  param: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<WorkspaceUsagePB, FlowyError> {
+  let workspace_id = param.into_inner().workspace_id;
+  let manager = upgrade_manager(manager)?;
+  let workspace_usage = manager.get_workspace_usage(workspace_id).await?;
+  data_result_ok(WorkspaceUsagePB {
+    member_count: workspace_usage.member_count as u64,
+    member_count_limit: workspace_usage.member_count_limit as u64,
+    total_blob_bytes: workspace_usage.total_blob_bytes as u64,
+    total_blob_bytes_limit: workspace_usage.total_blob_bytes_limit as u64,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_billing_portal_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<BillingPortalPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let url = manager.get_billing_portal_url().await?;
+  data_result_ok(BillingPortalPB { url })
+}

@@ -242,7 +242,7 @@
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
     "addBlockBelow": "Add a block below",
-    "genSummary": "Generate summary"
+    "aiGenerate": "Generate"
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
@@ -332,7 +332,8 @@
     "signInGithub": "Sign in with Github",
     "signInDiscord": "Sign in with Discord",
     "more": "More",
-    "create": "Create"
+    "create": "Create",
+    "close": "Close"
   },
   "label": {
     "welcome": "Welcome!",
@@ -373,10 +374,10 @@
       "keys": {
         "title": "AI API Keys",
         "openAILabel": "OpenAI API key",
-        "openAITooltip": "The OpenAI API key to use for the AI models",
+        "openAITooltip": "You can find your Secret API key on the API key page",
         "openAIHint": "Input your OpenAI API Key",
         "stabilityAILabel": "Stability API key",
-        "stabilityAITooltip": "The Stability API key to use for the AI models",
+        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
         "stabilityAIHint": "Input your Stability API Key"
       },
       "login": {
@@ -501,6 +502,142 @@
           "description": "Clearing the cache will cause images and fonts to be re-downloaded on load. This action will not remove or modify your data.",
           "successHint": "Cache cleared!"
         }
+      }
+    },
+    "planPage": {
+      "menuLabel": "Plan",
+      "title": "Pricing plan",
+      "planUsage": {
+        "title": "Plan usage summary",
+        "storageLabel": "Storage",
+        "storageUsage": "{} of {} GB",
+        "collaboratorsLabel": "Collaborators",
+        "collaboratorsUsage": "{} of {}",
+        "aiResponseLabel": "AI Responses",
+        "aiResponseUsage": "{} of {}",
+        "proBadge": "Pro",
+        "memberProToggle": "Unlimited members",
+        "guestCollabToggle": "10 guest collaborators",
+        "aiCredit": {
+          "title": "Add AppFlowy AI Credit",
+          "price": "5$",
+          "priceDescription": "for 1,000 credits",
+          "purchase": "Purchase AI",
+          "info": "Add 1,000 Ai credits per workspace and seamlessly integrate customizable AI into your workflow for smarter, faster results with up to:",
+          "infoItemOne": "10,000 responses per database",
+          "infoItemTwo": "1,000 responses per workspace"
+        },
+        "currentPlan": {
+          "bannerLabel": "Current plan",
+          "freeTitle": "Free",
+          "proTitle": "Pro",
+          "teamTitle": "Team",
+          "freeInfo": "Perfect for individuals or small teams up to 3.",
+          "upgrade": "Compare &\n Upgrade",
+          "freeProOne": "Collaborative workspace",
+          "freeProTwo": "Up to 3 members (incl. owner)",
+          "freeProThree": "Unlimited guests (view-only)",
+          "freeProFour": "Storage 5gb",
+          "freeProFive": "30 day revision history",
+          "freeConOne": "Guest collaborators (edit access)",
+          "freeConTwo": "Unlimited storage",
+          "freeConThree": "6 month revision history",
+          "professionalProOne": "Collaborative workspace",
+          "professionalProTwo": "Unlimited members",
+          "professionalProThree": "Unlimited guests (view-only)",
+          "professionalProFour": "Unlimited storage",
+          "professionalProFive": "6 month revision history",
+          "professionalConOne": "Unlimited guest collaborators (edit access)",
+          "professionalConTwo": "Unlimited AI responses",
+          "professionalConThree": "1 year revision history",
+          "canceledInfo": "Your plan is cancelled, you will be downgraded to the Free plan on {}."
+        },
+        "deal": {
+          "bannerLabel": "New year deal!",
+          "title": "Grow your team!",
+          "info": "Upgrade and save 10% off Pro and Team plans! Boost your workspace productivity with powerful new features including Appflowy Ai.",
+          "viewPlans": "View plans"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "Billing",
+      "title": "Billing",
+      "plan": {
+        "title": "Plan",
+        "freeLabel": "Free",
+        "proLabel": "Pro",
+        "planButtonLabel": "Change plan",
+        "billingPeriod": "Billing period",
+        "periodButtonLabel": "Edit period"
+      },
+      "paymentDetails": {
+        "title": "Payment details",
+        "methodLabel": "Payment method",
+        "methodButtonLabel": "Edit method"
+      }
+    },
+    "comparePlanDialog": {
+      "title": "Compare & select plan",
+      "planFeatures": "Plan\nFeatures",
+      "actions": {
+        "upgrade": "Upgrade",
+        "downgrade": "Downgrade",
+        "current": "Current"
+      },
+      "freePlan": {
+        "title": "Free",
+        "description": "For organizing every corner of your work & life.",
+        "price": "$0",
+        "priceInfo": "free forever"
+      },
+      "proPlan": {
+        "title": "Professional",
+        "description": "A palce for small groups to plan & get organized.",
+        "price": "$10 /month",
+        "priceInfo": "billed annually"
+      },
+      "planLabels": {
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Guests",
+        "tooltipThree": "Guests have read-only permission to the specifically shared content",
+        "itemFour": "Guest collaborators",
+        "tooltipFour": "Guest collaborators are billed as one seat",
+        "itemFive": "Storage",
+        "itemSix": "Real-time collaboration",
+        "itemSeven": "Mobile app",
+        "itemEight": "AI Responses",
+        "tooltipEight": "Lifetime means the number of responses never reset"
+      },
+      "freeLabels": {
+        "itemOne": "charged per workspace",
+        "itemTwo": "3",
+        "itemThree": "",
+        "itemFour": "0",
+        "itemFive": "5 GB",
+        "itemSix": "yes",
+        "itemSeven": "yes",
+        "itemEight": "1,000 lifetime"
+      },
+      "proLabels": {
+        "itemOne": "charged per workspace",
+        "itemTwo": "up to 10",
+        "itemThree": "",
+        "itemFour": "10 guests billed as one seat",
+        "itemFive": "unlimited",
+        "itemSix": "yes",
+        "itemSeven": "yes",
+        "itemEight": "10,000 monthly"
+      },
+      "paymentSuccess": {
+        "title": "You are now on the {} plan!",
+        "description": "Your payment has been successfully processed and your plan is upgraded to AppFlowy {}. You can view your plan details on the Plan page"
+      },
+      "downgradeDialog": {
+        "title": "Are you sure you want to downgrade your plan?",
+        "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to workspaces and you may need to free up space to meet the storage limits of the Free plan.",
+        "downgradeLabel": "Downgrade plan"
       }
     },
     "common": {
@@ -875,6 +1012,8 @@
       "checklistFieldName": "Checklist",
       "relationFieldName": "Relation",
       "summaryFieldName": "AI Summary",
+      "translateFieldName": "AI Translate",
+      "translateTo": "Translate to",
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
@@ -1299,6 +1438,7 @@
     "ungroupedButtonTooltip": "Contains cards that don't belong in any group",
     "ungroupedItemsTitle": "Click to add to the board",
     "groupBy": "Group by",
+    "groupCondition": "Group condition",
     "referencedBoardPrefix": "View of",
     "notesTooltip": "Notes inside",
     "mobile": {
@@ -1306,6 +1446,16 @@
       "showGroup": "Show group",
       "showGroupContent": "Are you sure you want to show this group on the board?",
       "failedToLoad": "Failed to load board view"
+    },
+    "dateCondition": {
+      "weekOf": "Week of {} - {}",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "tomorrow": "Tomorrow",
+      "lastSevenDays": "Last 7 days",
+      "nextSevenDays": "Next 7 days",
+      "lastThirtyDays": "Last 30 days",
+      "nextThirtyDays": "Next 30 days"
     },
     "noGroup": "No group by property",
     "noGroupDesc": "Board views require a property to group by in order to display"
@@ -1728,14 +1878,16 @@
     "image": "Image"
   },
   "commandPalette": {
-    "placeholder": "Type to search for views...",
+    "placeholder": "Type to search...",
     "bestMatches": "Best matches",
     "recentHistory": "Recent history",
     "navigateHint": "to navigate",
     "loadingTooltip": "We are looking for results...",
     "betaLabel": "BETA",
-    "betaTooltip": "We currently only support searching for pages",
-    "fromTrashHint": "From trash"
+    "betaTooltip": "We currently only support searching for pages and content in documents",
+    "fromTrashHint": "From trash",
+    "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
+    "clearSearchTooltip": "Clear search field"
   },
   "space": {
     "delete": "Delete space",

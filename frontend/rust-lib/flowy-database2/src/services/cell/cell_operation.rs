@@ -262,6 +262,9 @@ impl<'a> CellBuilder<'a> {
           FieldType::Summary => {
             cells.insert(field_id, insert_text_cell(cell_str, field));
           },
+          FieldType::Translate => {
+            cells.insert(field_id, insert_text_cell(cell_str, field));
+          },
         }
       }
     }

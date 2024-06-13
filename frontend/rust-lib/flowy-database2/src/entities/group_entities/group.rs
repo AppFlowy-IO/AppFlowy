@@ -5,8 +5,10 @@ use flowy_error::ErrorCode;
 use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::RowMetaPB;
+use crate::entities::{FieldType, RowMetaPB};
 use crate::services::group::{GroupChangeset, GroupData, GroupSetting};
+
+use super::group_config_json_to_pb;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GroupSettingPB {
@@ -15,13 +17,18 @@ pub struct GroupSettingPB {
 
   #[pb(index = 2)]
   pub field_id: String,
+
+  #[pb(index = 3)]
+  pub content: Vec<u8>,
 }
 
 impl std::convert::From<&GroupSetting> for GroupSettingPB {
   fn from(rev: &GroupSetting) -> Self {
+    let field_type = FieldType::from(rev.field_type);
     GroupSettingPB {
       id: rev.id.clone(),
       field_id: rev.field_id.clone(),
+      content: group_config_json_to_pb(rev.content.clone(), &field_type).to_vec(),
     }
   }
 }
@@ -105,6 +112,9 @@ pub struct GroupByFieldPayloadPB {
 
   #[pb(index = 2)]
   pub view_id: String,
+
+  #[pb(index = 3)]
+  pub setting_content: Vec<u8>,
 }
 
 impl TryInto<GroupByFieldParams> for GroupByFieldPayloadPB {
@@ -118,13 +128,18 @@ impl TryInto<GroupByFieldParams> for GroupByFieldPayloadPB {
       .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
-    Ok(GroupByFieldParams { field_id, view_id })
+    Ok(GroupByFieldParams {
+      field_id,
+      view_id,
+      setting_content: self.setting_content,
+    })
   }
 }
 
 pub struct GroupByFieldParams {
   pub field_id: String,
   pub view_id: String,
+  pub setting_content: Vec<u8>,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone, Validate)]

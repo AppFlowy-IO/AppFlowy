@@ -26,12 +26,12 @@ class RecentViewTile extends StatelessWidget {
       title: Row(
         children: [
           icon,
-          const HSpace(4),
+          const HSpace(6),
           FlowyText(view.name),
         ],
       ),
-      focusColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+      focusColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
       onTap: () {
         onSelected();
 

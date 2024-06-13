@@ -3,8 +3,9 @@ use flowy_derive::ProtoBuf_Enum;
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
 pub enum IndexTypePB {
   View = 0,
-  DocumentBlock = 1,
-  DatabaseRow = 2,
+  Document = 1,
+  DocumentBlock = 2,
+  DatabaseRow = 3,
 }
 
 impl Default for IndexTypePB {

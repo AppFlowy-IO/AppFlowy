@@ -1,6 +1,7 @@
 use client_api::ws::ConnectState;
 use client_api::ws::WSConnectStateReceiver;
 use client_api::ws::WebSocketChannel;
+use flowy_search_pub::cloud::SearchCloudService;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 
@@ -99,6 +100,10 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   fn chat_service(&self) -> Arc<dyn ChatCloudService> {
     Arc::new(DefaultChatCloudServiceImpl)
   }
+
+  /// Bridge for the Cloud AI Search features
+  ///
+  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>>;
 
   /// Manages collaborative objects within a remote storage system. This includes operations such as
   /// checking storage status, retrieving updates and snapshots, and dispatching updates. The service

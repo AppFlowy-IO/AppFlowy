@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:app_links/app_links.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -10,6 +12,7 @@ import 'package:appflowy/user/application/auth/auth_error.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_auth_listener.dart';
+import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -17,7 +20,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
-import 'package:flutter/material.dart';
 import 'package:url_protocol/url_protocol.dart';
 
 class AppFlowyCloudDeepLink {
@@ -92,6 +94,10 @@ class AppFlowyCloudDeepLink {
       return;
     }
 
+    if (_isPaymentSuccessUri(uri)) {
+      return getIt<SubscriptionSuccessListenable>().onPaymentSuccess();
+    }
+
     return _isAuthCallbackDeepLink(uri).fold(
       (_) async {
         final deviceId = await getDeviceId();
@@ -159,6 +165,10 @@ class AppFlowyCloudDeepLink {
         ..code = ErrorCode.MissingAuthField
         ..msg = uri.path,
     );
+  }
+
+  bool _isPaymentSuccessUri(Uri uri) {
+    return uri.host == 'payment-success';
   }
 }
 

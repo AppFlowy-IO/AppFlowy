@@ -21,10 +21,12 @@ flowy-notification.workspace = true
 flowy-sqlite.workspace = true
 flowy-user.workspace = true
 flowy-search-pub.workspace = true
+flowy-folder = { workspace = true }
 
 bytes.workspace = true
 futures.workspace = true
 lib-dispatch.workspace = true
+lib-infra = { workspace = true }
 protobuf.workspace = true
 serde.workspace = true
 serde_json.workspace = true

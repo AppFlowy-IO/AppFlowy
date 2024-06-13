@@ -1,9 +1,10 @@
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 

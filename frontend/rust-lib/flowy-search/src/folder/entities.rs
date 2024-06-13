@@ -30,6 +30,7 @@ impl From<FolderIndexData> for SearchResultPB {
       score: 0.0,
       icon,
       workspace_id: data.workspace_id,
+      preview: None,
     }
   }
 }

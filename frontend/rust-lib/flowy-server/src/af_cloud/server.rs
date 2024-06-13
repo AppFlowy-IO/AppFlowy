@@ -11,6 +11,7 @@ use client_api::ws::{
 };
 use client_api::{Client, ClientConfiguration};
 use flowy_chat_pub::cloud::ChatCloudService;
+use flowy_search_pub::cloud::SearchCloudService;
 use flowy_storage::ObjectStorageService;
 use rand::Rng;
 use semver::Version;
@@ -37,6 +38,8 @@ use crate::af_cloud::impls::{
 };
 
 use crate::AppFlowyServer;
+
+use super::impls::AFCloudSearchCloudServiceImpl;
 
 pub(crate) type AFCloudClient = Client;
 
@@ -254,6 +257,14 @@ impl AppFlowyServer for AppFlowyCloudServer {
       client: self.get_client(),
     };
     Some(Arc::new(AFCloudFileStorageServiceImpl::new(client)))
+  }
+
+  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
+
+    Some(Arc::new(AFCloudSearchCloudServiceImpl { inner: server }))
   }
 }
 

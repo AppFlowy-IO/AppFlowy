@@ -17,6 +17,7 @@ class MobileRowDetailSummaryCellSkin extends IEditableSummaryCellSkin {
       children: [
         TextField(
           controller: textEditingController,
+          readOnly: true,
           focusNode: focusNode,
           onEditingComplete: () => focusNode.unfocus(),
           onSubmitted: (_) => focusNode.unfocus(),

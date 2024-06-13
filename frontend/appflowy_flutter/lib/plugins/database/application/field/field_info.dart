@@ -1,5 +1,6 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'field_info.freezed.dart';
 
@@ -87,6 +88,15 @@ class FieldInfo with _$FieldInfo {
         return true;
       default:
         return false;
+    }
+  }
+
+  List<ProtobufEnum> get groupConditions {
+    switch (field.fieldType) {
+      case FieldType.DateTime:
+        return DateConditionPB.values;
+      default:
+        return [];
     }
   }
 }

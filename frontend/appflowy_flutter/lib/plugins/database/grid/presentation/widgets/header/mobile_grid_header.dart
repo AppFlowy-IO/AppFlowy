@@ -196,7 +196,10 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200,
+      constraints: BoxConstraints(
+        maxWidth: GridSize.newPropertyButtonWidth,
+        minHeight: GridSize.headerHeight,
+      ),
       decoration: _getDecoration(context),
       child: FlowyButton(
         margin: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
