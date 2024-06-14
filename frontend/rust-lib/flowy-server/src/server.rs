@@ -2,7 +2,6 @@ use client_api::ws::ConnectState;
 use client_api::ws::WSConnectStateReceiver;
 use client_api::ws::WebSocketChannel;
 use flowy_search_pub::cloud::SearchCloudService;
-use flowy_storage::ObjectStorageCloudService;
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -17,6 +16,7 @@ use crate::default_impl::DefaultChatCloudServiceImpl;
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_storage_pub::cloud::ObjectStorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
 use flowy_user_pub::entities::UserTokenState;
 

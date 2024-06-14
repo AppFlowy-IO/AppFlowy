@@ -1,5 +1,5 @@
-use crate::{ObjectIdentity, ObjectValue};
 use flowy_error::FlowyError;
+use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue};
 use std::path::Path;
 use tokio::io::AsyncReadExt;
 use tracing::info;

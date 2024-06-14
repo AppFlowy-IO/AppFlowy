@@ -12,7 +12,6 @@ use client_api::ws::{
 use client_api::{Client, ClientConfiguration};
 use flowy_chat_pub::cloud::ChatCloudService;
 use flowy_search_pub::cloud::SearchCloudService;
-use flowy_storage::ObjectStorageCloudService;
 use rand::Rng;
 use semver::Version;
 use tokio::select;
@@ -28,6 +27,7 @@ use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_storage_pub::cloud::ObjectStorageCloudService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;

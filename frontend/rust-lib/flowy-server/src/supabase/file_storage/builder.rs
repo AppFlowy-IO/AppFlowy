@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use anyhow::Error;
-use flowy_storage::StorageObject;
+use flowy_storage_pub::cloud::StorageObject;
 use hyper::header::CONTENT_TYPE;
 use reqwest::header::IntoHeaderName;
 use reqwest::multipart::{Form, Part};

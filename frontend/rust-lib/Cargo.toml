@@ -31,6 +31,7 @@ members = [
     "flowy-search-pub",
     "flowy-chat",
     "flowy-chat-pub",
+    "flowy-storage-pub",
 ]
 resolver = "2"
 
@@ -59,6 +60,7 @@ flowy-server-pub = { workspace = true, path = "flowy-server-pub" }
 flowy-config = { workspace = true, path = "flowy-config" }
 flowy-encrypt = { workspace = true, path = "flowy-encrypt" }
 flowy-storage = { workspace = true, path = "flowy-storage" }
+flowy-storage-pub = { workspace = true, path = "flowy-storage-pub" }
 flowy-search = { workspace = true, path = "flowy-search" }
 flowy-search-pub = { workspace = true, path = "flowy-search-pub" }
 collab-integrate = { workspace = true, path = "collab-integrate" }

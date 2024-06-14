@@ -1,6 +1,5 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
-use flowy_storage::{ObjectIdentity, ObjectStorageCloudService};
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -34,7 +33,7 @@ use flowy_folder_pub::cloud::{
 };
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
-use flowy_storage::ObjectValue;
+use flowy_storage_pub::cloud::{ObjectIdentity, ObjectStorageCloudService, ObjectValue};
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
 use lib_infra::async_trait::async_trait;
@@ -59,15 +58,16 @@ impl ObjectStorageCloudService for ServerProvider {
     })
   }
 
-  fn delete_object(&self, url: String) -> FutureResult<(), FlowyError> {
+  fn delete_object(&self, url: &str) -> FutureResult<(), FlowyError> {
     let server = self.get_server();
+    let url = url.to_string();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.delete_object(url).await
+      storage.delete_object(&url).await
     })
   }
 
-  fn get_object(&self, url: String) -> FutureResult<flowy_storage::ObjectValue, FlowyError> {
+  fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError> {
     let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;

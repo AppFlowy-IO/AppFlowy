@@ -2,7 +2,6 @@
 
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
-use flowy_storage::ObjectStorageCloudService;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
@@ -18,6 +17,9 @@ use flowy_folder::manager::FolderManager;
 use flowy_server::af_cloud::define::ServerUser;
 
 use flowy_sqlite::kv::StorePreferences;
+use flowy_storage::manager::StorageManager;
+use flowy_storage_pub::cloud::ObjectStorageCloudService;
+use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::entities::UserConfig;
 use flowy_user::user_manager::UserManager;
@@ -59,6 +61,7 @@ pub struct AppFlowyCore {
   pub store_preference: Arc<StorePreferences>,
   pub search_manager: Arc<SearchManager>,
   pub chat_manager: Arc<ChatManager>,
+  pub storage_manager: Arc<StorageManager>,
 }
 
 impl AppFlowyCore {
@@ -140,7 +143,9 @@ impl AppFlowyCore {
       collab_builder,
       search_manager,
       chat_manager,
+      storage_manager,
     ) = async {
+      let storage_manager = Arc::new(StorageManager::new(server_provider.clone()));
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
@@ -164,7 +169,7 @@ impl AppFlowyCore {
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageCloudService>)),
+        Arc::downgrade(&(storage_manager.clone() as Arc<dyn StorageService>)),
       );
 
       let chat_manager =
@@ -216,6 +221,7 @@ impl AppFlowyCore {
         collab_builder,
         search_manager,
         chat_manager,
+        storage_manager,
       )
     }
     .await;
@@ -267,6 +273,7 @@ impl AppFlowyCore {
       store_preference,
       search_manager,
       chat_manager,
+      storage_manager,
     }
   }
 

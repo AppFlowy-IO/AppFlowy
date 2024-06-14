@@ -20,7 +20,8 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_storage::ObjectStorageCloudService;
+use flowy_storage_pub::cloud::{ObjectIdentity, ObjectStorageCloudService, ObjectValue};
+use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
@@ -174,27 +175,20 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
 }
 
 pub struct DocumentTestFileStorageService;
-impl ObjectStorageCloudService for DocumentTestFileStorageService {
-  fn get_object_url(
+impl StorageService for DocumentTestFileStorageService {
+  fn upload_object(
     &self,
-    _object_id: flowy_storage::ObjectIdentity,
+    workspace_id: &str,
+    local_file_path: &str,
   ) -> FutureResult<String, FlowyError> {
     todo!()
   }
 
-  fn put_object(
-    &self,
-    _url: String,
-    _object_value: flowy_storage::ObjectValue,
-  ) -> FutureResult<(), FlowyError> {
+  fn delete_object(&self, url: String, local_file_path: String) -> FlowyResult<()> {
     todo!()
   }
 
-  fn delete_object(&self, _url: String) -> FutureResult<(), FlowyError> {
-    todo!()
-  }
-
-  fn get_object(&self, _url: String) -> FutureResult<flowy_storage::ObjectValue, FlowyError> {
+  fn download_object(&self, url: String, local_file_path: String) -> FlowyResult<()> {
     todo!()
   }
 }

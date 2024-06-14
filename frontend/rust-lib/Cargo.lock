@@ -1753,6 +1753,7 @@ dependencies = [
  "flowy-server-pub",
  "flowy-sqlite",
  "flowy-storage",
+ "flowy-storage-pub",
  "flowy-user",
  "flowy-user-pub",
  "futures",
@@ -1879,7 +1880,7 @@ dependencies = [
  "flowy-document-pub",
  "flowy-error",
  "flowy-notification",
- "flowy-storage",
+ "flowy-storage-pub",
  "futures",
  "getrandom 0.2.10",
  "indexmap 2.1.0",
@@ -2092,6 +2093,7 @@ dependencies = [
  "flowy-search-pub",
  "flowy-server-pub",
  "flowy-storage",
+ "flowy-storage-pub",
  "flowy-user-pub",
  "futures",
  "futures-util",
@@ -2158,16 +2160,29 @@ dependencies = [
  "bytes",
  "flowy-error",
  "flowy-sqlite",
+ "flowy-storage-pub",
  "fxhash",
  "lib-infra",
- "mime",
  "mime_guess",
- "reqwest",
  "serde",
  "serde_json",
  "tokio",
  "tracing",
  "url",
+]
+
+[[package]]
+name = "flowy-storage-pub"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "flowy-error",
+ "lib-infra",
+ "mime",
+ "mime_guess",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

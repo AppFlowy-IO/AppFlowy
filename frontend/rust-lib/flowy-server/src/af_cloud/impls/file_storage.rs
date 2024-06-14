@@ -1,5 +1,5 @@
 use flowy_error::FlowyError;
-use flowy_storage::{ObjectIdentity, ObjectStorageCloudService, ObjectValue};
+use flowy_storage_pub::cloud::{ObjectIdentity, ObjectStorageCloudService, ObjectValue};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::AFServer;
@@ -36,7 +36,8 @@ where
     })
   }
 
-  fn delete_object(&self, url: String) -> FutureResult<(), FlowyError> {
+  fn delete_object(&self, url: &str) -> FutureResult<(), FlowyError> {
+    let url = url.to_string();
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
