@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -75,6 +76,8 @@ class _Space extends StatefulWidget {
 
 class _SpaceState extends State<_Space> {
   final ValueNotifier<bool> isHovered = ValueNotifier(false);
+  final PropertyValueNotifier<bool> isExpandedNotifier =
+      PropertyValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
@@ -93,12 +96,14 @@ class _SpaceState extends State<_Space> {
               space: currentSpace,
               onAdded: () => _showCreatePagePopup(context, currentSpace),
               onCreateNewSpace: () => _showCreateSpaceDialog(context),
+              onCollapseAllPages: () => isExpandedNotifier.value = true,
             ),
             MouseRegion(
               onEnter: (_) => isHovered.value = true,
               onExit: (_) => isHovered.value = false,
               child: _Pages(
                 key: ValueKey(currentSpace.id),
+                isExpandedNotifier: isExpandedNotifier,
                 space: currentSpace,
                 isHovered: isHovered,
               ),
@@ -156,10 +161,12 @@ class _Pages extends StatelessWidget {
     super.key,
     required this.space,
     required this.isHovered,
+    required this.isExpandedNotifier,
   });
 
   final ViewPB space;
   final ValueNotifier<bool> isHovered;
+  final PropertyValueNotifier<bool> isExpandedNotifier;
 
   @override
   Widget build(BuildContext context) {
@@ -183,6 +190,7 @@ class _Pages extends StatelessWidget {
                     leftPadding: HomeSpaceViewSizes.leftPadding,
                     isFeedback: false,
                     isHovered: isHovered,
+                    isExpandedNotifier: isExpandedNotifier,
                     onSelected: (viewContext, view) {
                       if (HardwareKeyboard.instance.isControlPressed) {
                         context.read<TabsBloc>().openTab(view);

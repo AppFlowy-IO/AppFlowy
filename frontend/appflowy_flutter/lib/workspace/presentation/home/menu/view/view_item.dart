@@ -19,6 +19,7 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -58,6 +59,7 @@ class ViewItem extends StatelessWidget {
     this.leftIconBuilder,
     this.rightIconsBuilder,
     this.shouldLoadChildViews = true,
+    this.isExpandedNotifier,
   });
 
   final ViewPB view;
@@ -109,6 +111,7 @@ class ViewItem extends StatelessWidget {
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
   final bool shouldLoadChildViews;
+  final PropertyValueNotifier<bool>? isExpandedNotifier;
 
   @override
   Widget build(BuildContext context) {
@@ -144,6 +147,7 @@ class ViewItem extends StatelessWidget {
             shouldRenderChildren: shouldRenderChildren,
             leftIconBuilder: leftIconBuilder,
             rightIconsBuilder: rightIconsBuilder,
+            isExpandedNotifier: isExpandedNotifier,
           );
         },
       ),
@@ -153,7 +157,7 @@ class ViewItem extends StatelessWidget {
 
 bool _isDragging = false;
 
-class InnerViewItem extends StatelessWidget {
+class InnerViewItem extends StatefulWidget {
   const InnerViewItem({
     super.key,
     required this.view,
@@ -176,6 +180,7 @@ class InnerViewItem extends StatelessWidget {
     this.shouldRenderChildren = true,
     required this.leftIconBuilder,
     required this.rightIconsBuilder,
+    this.isExpandedNotifier,
   });
 
   final ViewPB view;
@@ -204,46 +209,67 @@ class InnerViewItem extends StatelessWidget {
   final ViewItemLeftIconBuilder? leftIconBuilder;
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
+  final PropertyValueNotifier<bool>? isExpandedNotifier;
+
+  @override
+  State<InnerViewItem> createState() => _InnerViewItemState();
+}
+
+class _InnerViewItemState extends State<InnerViewItem> {
+  @override
+  void initState() {
+    super.initState();
+    widget.isExpandedNotifier?.addListener(_collapseAllPages);
+  }
+
+  @override
+  void dispose() {
+    widget.isExpandedNotifier?.removeListener(_collapseAllPages);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget child = SingleInnerViewItem(
-      view: view,
-      parentView: parentView,
-      level: level,
-      showActions: showActions,
-      spaceType: spaceType,
-      onSelected: onSelected,
-      onTertiarySelected: onTertiarySelected,
-      isExpanded: isExpanded,
-      isDraggable: isDraggable,
-      leftPadding: leftPadding,
-      isFeedback: isFeedback,
-      height: height,
-      isPlaceholder: isPlaceholder,
-      isHovered: isHovered,
-      leftIconBuilder: leftIconBuilder,
-      rightIconsBuilder: rightIconsBuilder,
+      view: widget.view,
+      parentView: widget.parentView,
+      level: widget.level,
+      showActions: widget.showActions,
+      spaceType: widget.spaceType,
+      onSelected: widget.onSelected,
+      onTertiarySelected: widget.onTertiarySelected,
+      isExpanded: widget.isExpanded,
+      isDraggable: widget.isDraggable,
+      leftPadding: widget.leftPadding,
+      isFeedback: widget.isFeedback,
+      height: widget.height,
+      isPlaceholder: widget.isPlaceholder,
+      isHovered: widget.isHovered,
+      leftIconBuilder: widget.leftIconBuilder,
+      rightIconsBuilder: widget.rightIconsBuilder,
     );
 
     // if the view is expanded and has child views, render its child views
-    if (isExpanded && shouldRenderChildren && childViews.isNotEmpty) {
-      final children = childViews.map((childView) {
+    if (widget.isExpanded &&
+        widget.shouldRenderChildren &&
+        widget.childViews.isNotEmpty) {
+      final children = widget.childViews.map((childView) {
         return ViewItem(
-          key: ValueKey('${spaceType.name} ${childView.id}'),
-          parentView: view,
-          spaceType: spaceType,
-          isFirstChild: childView.id == childViews.first.id,
+          key: ValueKey('${widget.spaceType.name} ${childView.id}'),
+          parentView: widget.view,
+          spaceType: widget.spaceType,
+          isFirstChild: childView.id == widget.childViews.first.id,
           view: childView,
-          level: level + 1,
-          onSelected: onSelected,
-          onTertiarySelected: onTertiarySelected,
-          isDraggable: isDraggable,
-          leftPadding: leftPadding,
-          isFeedback: isFeedback,
-          isPlaceholder: isPlaceholder,
-          isHovered: isHovered,
-          leftIconBuilder: leftIconBuilder,
-          rightIconsBuilder: rightIconsBuilder,
+          level: widget.level + 1,
+          onSelected: widget.onSelected,
+          onTertiarySelected: widget.onTertiarySelected,
+          isDraggable: widget.isDraggable,
+          leftPadding: widget.leftPadding,
+          isFeedback: widget.isFeedback,
+          isPlaceholder: widget.isPlaceholder,
+          isHovered: widget.isHovered,
+          leftIconBuilder: widget.leftIconBuilder,
+          rightIconsBuilder: widget.rightIconsBuilder,
         );
       }).toList();
 
@@ -257,15 +283,15 @@ class InnerViewItem extends StatelessWidget {
     }
 
     // wrap the child with DraggableItem if isDraggable is true
-    if ((isDraggable || isPlaceholder) &&
-        !isReferencedDatabaseView(view, parentView)) {
+    if ((widget.isDraggable || widget.isPlaceholder) &&
+        !isReferencedDatabaseView(widget.view, widget.parentView)) {
       child = DraggableViewItem(
-        isFirstChild: isFirstChild,
-        view: view,
+        isFirstChild: widget.isFirstChild,
+        view: widget.view,
         onDragging: (isDragging) {
           _isDragging = isDragging;
         },
-        onMove: isPlaceholder
+        onMove: widget.isPlaceholder
             ? (from, to) => _moveViewCrossSection(context, from, to)
             : null,
         feedback: (context) {
@@ -278,17 +304,17 @@ class InnerViewItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: ViewItem(
-              view: view,
-              parentView: parentView,
-              spaceType: spaceType,
-              level: level,
-              onSelected: onSelected,
-              onTertiarySelected: onTertiarySelected,
+              view: widget.view,
+              parentView: widget.parentView,
+              spaceType: widget.spaceType,
+              level: widget.level,
+              onSelected: widget.onSelected,
+              onTertiarySelected: widget.onTertiarySelected,
               isDraggable: false,
-              leftPadding: leftPadding,
+              leftPadding: widget.leftPadding,
               isFeedback: true,
-              leftIconBuilder: leftIconBuilder,
-              rightIconsBuilder: rightIconsBuilder,
+              leftIconBuilder: widget.leftIconBuilder,
+              rightIconsBuilder: widget.rightIconsBuilder,
             ),
           );
         },
@@ -305,18 +331,24 @@ class InnerViewItem extends StatelessWidget {
     return child;
   }
 
+  void _collapseAllPages() {
+    if (widget.isExpandedNotifier?.value == true) {
+      context.read<ViewBloc>().add(const ViewEvent.collapseAllPages());
+    }
+  }
+
   void _moveViewCrossSection(
     BuildContext context,
     ViewPB from,
     ViewPB to,
   ) {
-    if (isReferencedDatabaseView(view, parentView)) {
+    if (isReferencedDatabaseView(widget.view, widget.parentView)) {
       return;
     }
-    final fromSection = spaceType == FolderSpaceType.public
+    final fromSection = widget.spaceType == FolderSpaceType.public
         ? ViewSectionPB.Private
         : ViewSectionPB.Public;
-    final toSection = spaceType == FolderSpaceType.public
+    final toSection = widget.spaceType == FolderSpaceType.public
         ? ViewSectionPB.Public
         : ViewSectionPB.Private;
     context.read<ViewBloc>().add(
@@ -331,7 +363,7 @@ class InnerViewItem extends StatelessWidget {
     context.read<ViewBloc>().add(
           ViewEvent.updateViewVisibility(
             from,
-            spaceType == FolderSpaceType.public,
+            widget.spaceType == FolderSpaceType.public,
           ),
         );
   }
