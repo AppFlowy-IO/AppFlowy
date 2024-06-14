@@ -103,7 +103,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
                   FlowySvgs.three_dots_s,
                   size: const Size.square(18),
                   color: isHovering
-                      ? Theme.of(context).colorScheme.onSecondary
+                      ? Theme.of(context).colorScheme.onSurface
                       : Theme.of(context).iconTheme.color,
                 ),
               ),
