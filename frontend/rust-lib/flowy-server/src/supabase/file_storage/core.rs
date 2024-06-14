@@ -10,7 +10,7 @@ use url::Url;
 use flowy_encrypt::{decrypt_data, encrypt_data};
 use flowy_error::FlowyError;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
-use flowy_storage::{FileStoragePlan, ObjectStorageService};
+use flowy_storage::{FileStoragePlan, ObjectStorageCloudService};
 use lib_infra::future::FutureResult;
 
 use crate::supabase::file_storage::builder::StorageRequestBuilder;
@@ -26,7 +26,7 @@ pub struct SupabaseFileStorage {
   storage_plan: Arc<dyn FileStoragePlan>,
 }
 
-impl ObjectStorageService for SupabaseFileStorage {
+impl ObjectStorageCloudService for SupabaseFileStorage {
   fn get_object_url(
     &self,
     _object_id: flowy_storage::ObjectIdentity,

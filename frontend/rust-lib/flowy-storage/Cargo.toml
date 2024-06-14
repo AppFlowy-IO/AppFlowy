@@ -18,6 +18,7 @@ lib-infra = { workspace = true }
 url = "2.2.2"
 flowy-error = { workspace = true, features = ["impl_from_reqwest"] }
 mime = "0.3.17"
-tokio = { workspace = true, features = ["sync", "io-util"]}
+tokio = { workspace = true, features = ["sync", "io-util"] }
 tracing.workspace = true
 fxhash = "0.2.1"
+flowy-sqlite.workspace = true

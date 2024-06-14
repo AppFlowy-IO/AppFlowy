@@ -1,5 +1,5 @@
 use flowy_search_pub::cloud::SearchCloudService;
-use flowy_storage::ObjectStorageService;
+use flowy_storage::ObjectStorageCloudService;
 use std::sync::Arc;
 
 use parking_lot::RwLock;
@@ -68,7 +68,7 @@ impl AppFlowyServer for LocalServer {
     Arc::new(LocalServerDocumentCloudServiceImpl())
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageCloudService>> {
     None
   }
 

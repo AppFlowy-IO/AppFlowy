@@ -20,7 +20,7 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_storage::ObjectStorageService;
+use flowy_storage::ObjectStorageCloudService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
@@ -32,7 +32,8 @@ impl DocumentTest {
   pub fn new() -> Self {
     let user = FakeUser::new();
     let cloud_service = Arc::new(LocalTestDocumentCloudServiceImpl());
-    let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn ObjectStorageService>;
+    let file_storage =
+      Arc::new(DocumentTestFileStorageService) as Arc<dyn ObjectStorageCloudService>;
     let document_snapshot = Arc::new(DocumentTestSnapshot);
 
     let builder = Arc::new(AppFlowyCollabBuilder::new(
@@ -173,7 +174,7 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
 }
 
 pub struct DocumentTestFileStorageService;
-impl ObjectStorageService for DocumentTestFileStorageService {
+impl ObjectStorageCloudService for DocumentTestFileStorageService {
   fn get_object_url(
     &self,
     _object_id: flowy_storage::ObjectIdentity,

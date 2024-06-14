@@ -2,7 +2,7 @@
 
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
-use flowy_storage::ObjectStorageService;
+use flowy_storage::ObjectStorageCloudService;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
@@ -164,7 +164,7 @@ impl AppFlowyCore {
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
+        Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageCloudService>)),
       );
 
       let chat_manager =

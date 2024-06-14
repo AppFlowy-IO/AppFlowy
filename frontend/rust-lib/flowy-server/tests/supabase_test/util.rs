@@ -1,4 +1,4 @@
-use flowy_storage::ObjectStorageService;
+use flowy_storage::ObjectStorageCloudService;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -63,7 +63,7 @@ pub fn folder_service() -> Arc<dyn FolderCloudService> {
 }
 
 #[allow(dead_code)]
-pub fn file_storage_service() -> Arc<dyn ObjectStorageService> {
+pub fn file_storage_service() -> Arc<dyn ObjectStorageCloudService> {
   let encryption_impl: Arc<dyn AppFlowyEncryption> = Arc::new(EncryptionImpl::new(None));
   let config = SupabaseConfiguration::from_env().unwrap();
   Arc::new(

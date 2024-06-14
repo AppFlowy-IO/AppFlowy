@@ -2,7 +2,7 @@ use client_api::ws::ConnectState;
 use client_api::ws::WSConnectStateReceiver;
 use client_api::ws::WebSocketChannel;
 use flowy_search_pub::cloud::SearchCloudService;
-use flowy_storage::ObjectStorageService;
+use flowy_storage::ObjectStorageCloudService;
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -144,7 +144,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     Ok(None)
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>>;
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageCloudService>>;
 }
 
 pub struct EncryptionImpl {

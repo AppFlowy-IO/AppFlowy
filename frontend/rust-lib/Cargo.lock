@@ -2157,6 +2157,7 @@ dependencies = [
  "async-trait",
  "bytes",
  "flowy-error",
+ "flowy-sqlite",
  "fxhash",
  "lib-infra",
  "mime",

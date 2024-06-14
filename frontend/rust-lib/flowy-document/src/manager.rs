@@ -22,7 +22,7 @@ use tracing::{event, instrument};
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_storage::ObjectStorageService;
+use flowy_storage::ObjectStorageCloudService;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
@@ -53,7 +53,7 @@ pub struct DocumentManager {
   documents: Arc<DashMap<String, Arc<MutexDocument>>>,
   removing_documents: Arc<DashMap<String, Arc<MutexDocument>>>,
   cloud_service: Arc<dyn DocumentCloudService>,
-  storage_service: Weak<dyn ObjectStorageService>,
+  storage_service: Weak<dyn ObjectStorageCloudService>,
   snapshot_service: Arc<dyn DocumentSnapshotService>,
 }
 
@@ -62,7 +62,7 @@ impl DocumentManager {
     user_service: Arc<dyn DocumentUserService>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
-    storage_service: Weak<dyn ObjectStorageService>,
+    storage_service: Weak<dyn ObjectStorageCloudService>,
     snapshot_service: Arc<dyn DocumentSnapshotService>,
   ) -> Self {
     Self {
@@ -334,7 +334,6 @@ impl DocumentManager {
     let url = storage_service.get_object_url(object_identity).await?;
 
     let clone_url = url.clone();
-
     match is_async {
       false => storage_service.put_object(clone_url, object_value).await?,
       true => {
@@ -424,7 +423,7 @@ impl DocumentManager {
     }
   }
 
-  fn storage_service_upgrade(&self) -> FlowyResult<Arc<dyn ObjectStorageService>> {
+  fn storage_service_upgrade(&self) -> FlowyResult<Arc<dyn ObjectStorageCloudService>> {
     let storage_service = self.storage_service.upgrade().ok_or_else(|| {
       FlowyError::internal().with_context("The file storage service is already dropped")
     })?;
@@ -438,7 +437,7 @@ impl DocumentManager {
   }
   /// Only expose this method for testing
   #[cfg(debug_assertions)]
-  pub fn get_file_storage_service(&self) -> &Weak<dyn ObjectStorageService> {
+  pub fn get_file_storage_service(&self) -> &Weak<dyn ObjectStorageCloudService> {
     &self.storage_service
   }
 

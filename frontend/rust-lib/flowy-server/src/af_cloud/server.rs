@@ -12,7 +12,7 @@ use client_api::ws::{
 use client_api::{Client, ClientConfiguration};
 use flowy_chat_pub::cloud::ChatCloudService;
 use flowy_search_pub::cloud::SearchCloudService;
-use flowy_storage::ObjectStorageService;
+use flowy_storage::ObjectStorageCloudService;
 use rand::Rng;
 use semver::Version;
 use tokio::select;
@@ -252,7 +252,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     Ok(channel.map(|c| (c, connect_state_recv, self.ws_client.is_connected())))
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageCloudService>> {
     let client = AFServerImpl {
       client: self.get_client(),
     };

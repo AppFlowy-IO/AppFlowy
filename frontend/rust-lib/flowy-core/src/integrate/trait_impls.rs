@@ -1,6 +1,6 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
-use flowy_storage::{ObjectIdentity, ObjectStorageService};
+use flowy_storage::{ObjectIdentity, ObjectStorageCloudService};
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -42,7 +42,7 @@ use lib_infra::future::FutureResult;
 
 use crate::integrate::server::{Server, ServerProvider};
 
-impl ObjectStorageService for ServerProvider {
+impl ObjectStorageCloudService for ServerProvider {
   fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
     let server = self.get_server();
     FutureResult::new(async move {

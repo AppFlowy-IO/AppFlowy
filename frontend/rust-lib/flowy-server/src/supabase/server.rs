@@ -1,5 +1,5 @@
 use flowy_search_pub::cloud::SearchCloudService;
-use flowy_storage::ObjectStorageService;
+use flowy_storage::ObjectStorageCloudService;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
@@ -188,12 +188,12 @@ impl AppFlowyServer for SupabaseServer {
     )))
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageCloudService>> {
     self
       .file_storage
       .read()
       .clone()
-      .map(|s| s as Arc<dyn ObjectStorageService>)
+      .map(|s| s as Arc<dyn ObjectStorageCloudService>)
   }
 
   fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {

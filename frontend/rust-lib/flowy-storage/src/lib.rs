@@ -1,18 +1,11 @@
-if_native! {
-  mod native;
-  pub use native::*;
-}
-
-if_wasm! {
-  mod wasm;
-  pub use wasm::*;
-}
+mod manager;
+mod native;
 
 use bytes::Bytes;
+pub use native::*;
 
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
-use lib_infra::{conditional_send_sync_trait, if_native, if_wasm};
 use mime::Mime;
 
 pub struct ObjectIdentity {
@@ -26,49 +19,46 @@ pub struct ObjectValue {
   pub raw: Bytes,
   pub mime: Mime,
 }
-conditional_send_sync_trait! {
-  "Provides a service for object storage. The trait includes methods for CRUD operations on storage objects.";
-  ObjectStorageService {
-    /// Creates a new storage object.
-    ///
-    /// # Parameters
-    /// - `url`: url of the object to be created.
-    ///
-    /// # Returns
-    /// - `Ok()`
-    /// - `Err(Error)`: An error occurred during the operation.
-    fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError>;
+pub trait ObjectStorageCloudService: Send + Sync {
+  /// Creates a new storage object.
+  ///
+  /// # Parameters
+  /// - `url`: url of the object to be created.
+  ///
+  /// # Returns
+  /// - `Ok()`
+  /// - `Err(Error)`: An error occurred during the operation.
+  fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError>;
 
-    /// Creates a new storage object.
-    ///
-    /// # Parameters
-    /// - `url`: url of the object to be created.
-    ///
-    /// # Returns
-    /// - `Ok()`
-    /// - `Err(Error)`: An error occurred during the operation.
-    fn put_object(&self, url: String, object_value: ObjectValue) -> FutureResult<(), FlowyError>;
+  /// Creates a new storage object.
+  ///
+  /// # Parameters
+  /// - `url`: url of the object to be created.
+  ///
+  /// # Returns
+  /// - `Ok()`
+  /// - `Err(Error)`: An error occurred during the operation.
+  fn put_object(&self, url: String, object_value: ObjectValue) -> FutureResult<(), FlowyError>;
 
-    /// Deletes a storage object by its URL.
-    ///
-    /// # Parameters
-    /// - `url`: url of the object to be deleted.
-    ///
-    /// # Returns
-    /// - `Ok()`
-    /// - `Err(Error)`: An error occurred during the operation.
-    fn delete_object(&self, url: String) -> FutureResult<(), FlowyError>;
+  /// Deletes a storage object by its URL.
+  ///
+  /// # Parameters
+  /// - `url`: url of the object to be deleted.
+  ///
+  /// # Returns
+  /// - `Ok()`
+  /// - `Err(Error)`: An error occurred during the operation.
+  fn delete_object(&self, url: String) -> FutureResult<(), FlowyError>;
 
-    /// Fetches a storage object by its URL.
-    ///
-    /// # Parameters
-    /// - `url`: url of the object
-    ///
-    /// # Returns
-    /// - `Ok(File)`: The returned file object.
-    /// - `Err(Error)`: An error occurred during the operation.
-    fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError>;
-  }
+  /// Fetches a storage object by its URL.
+  ///
+  /// # Parameters
+  /// - `url`: url of the object
+  ///
+  /// # Returns
+  /// - `Ok(File)`: The returned file object.
+  /// - `Err(Error)`: An error occurred during the operation.
+  fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError>;
 }
 
 pub trait FileStoragePlan: Send + Sync + 'static {

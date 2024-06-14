@@ -1,5 +1,5 @@
 use flowy_error::FlowyError;
-use flowy_storage::{ObjectIdentity, ObjectStorageService, ObjectValue};
+use flowy_storage::{ObjectIdentity, ObjectStorageCloudService, ObjectValue};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::AFServer;
@@ -12,7 +12,7 @@ impl<T> AFCloudFileStorageServiceImpl<T> {
   }
 }
 
-impl<T> ObjectStorageService for AFCloudFileStorageServiceImpl<T>
+impl<T> ObjectStorageCloudService for AFCloudFileStorageServiceImpl<T>
 where
   T: AFServer,
 {
