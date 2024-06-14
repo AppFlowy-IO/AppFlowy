@@ -326,11 +326,12 @@ class _SidebarState extends State<_Sidebar> {
   }
 
   Widget _renderFolderOrSpace(EdgeInsets menuHorizontalInset) {
+    final spaceState = context.read<SpaceBloc>().state;
+    final workspaceState = context.read<UserWorkspaceBloc>().state;
     // there's no space or the workspace is not collaborative,
     // show the folder section (Workspace, Private, Personal)
     // otherwise, show the space
-    return context.watch<SpaceBloc>().state.spaces.isEmpty ||
-            !context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
+    return spaceState.spaces.isEmpty || !workspaceState.isCollabWorkspaceOn
         ? Expanded(
             child: Padding(
               padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
@@ -362,7 +363,10 @@ class _SidebarState extends State<_Sidebar> {
   }
 
   Widget _renderUpgradeSpaceButton(EdgeInsets menuHorizontalInset) {
-    return !context.watch<SpaceBloc>().state.shouldShowUpgradeDialog
+    final spaceState = context.watch<SpaceBloc>().state;
+    final workspaceState = context.read<UserWorkspaceBloc>().state;
+    return !spaceState.shouldShowUpgradeDialog ||
+            !workspaceState.isCollabWorkspaceOn
         ? const SizedBox.shrink()
         : Container(
             height: 40,

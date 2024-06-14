@@ -72,15 +72,15 @@ class FlowyNavigation extends StatelessWidget {
               TextSpan(
                 text: '${LocaleKeys.sideBar_openSidebar.tr()}\n',
                 style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
+                    .tooltipTheme
+                    .textStyle!
                     .copyWith(color: color),
               ),
               TextSpan(
                 text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
                 style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
+                    .tooltipTheme
+                    .textStyle!
                     .copyWith(color: Theme.of(context).hintColor),
               ),
             ],

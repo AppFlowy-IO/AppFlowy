@@ -254,7 +254,7 @@
     "clickToHideWorkspace": "Click to hide workspace\nPages you created here are visible to every member",
     "clickToHidePersonal": "Click to hide personal space",
     "clickToHideFavorites": "Click to hide favorite space",
-    "addAPage": "Add a page",
+    "addAPage": "Add a new page",
     "addAPageToPrivate": "Add a page to private space",
     "addAPageToWorkspace": "Add a page to workspace",
     "recent": "Recent",
@@ -1912,6 +1912,7 @@
     "unableToDeleteLastSpace": "Cannot delete the last space",
     "unableToDeleteSpaceNotCreatedByYou": "Cannot delete a space created by others",
     "enableSpacesForYourWorkspace": "Enable spaces for your workspace",
-    "title": "Spaces"
+    "title": "Spaces",
+    "defaultSpaceName": "General"
   }
 }

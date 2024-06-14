@@ -99,6 +99,7 @@ class _SpaceNameTextField extends StatelessWidget {
               SizedBox.square(
                 dimension: 40,
                 child: SpaceIconPopup(
+                  cornerRadius: 12,
                   icon: space?.spaceIcon,
                   iconColor: space?.spaceIconColor,
                   onIconChanged: onIconChanged,

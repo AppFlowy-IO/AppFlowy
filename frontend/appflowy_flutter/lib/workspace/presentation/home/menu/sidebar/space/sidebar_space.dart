@@ -10,6 +10,7 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -79,33 +80,47 @@ class _SpaceState extends State<_Space> {
   Widget build(BuildContext context) {
     return BlocBuilder<SpaceBloc, SpaceState>(
       builder: (context, state) {
-        // final isCollaborativeWorkspace =
-        //     context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
-
         if (state.spaces.isEmpty) {
           return const SizedBox.shrink();
         }
 
         final currentSpace = state.currentSpace ?? state.spaces.first;
 
-        return MouseRegion(
-          onEnter: (_) => isHovered.value = true,
-          onExit: (_) => isHovered.value = false,
-          child: Column(
-            children: [
-              SidebarSpaceHeader(
-                isExpanded: state.isExpanded,
-                space: currentSpace,
-                onAdded: () => _showCreatePagePopup(context, currentSpace),
-                onPressed: () {},
-                onTapMore: () {},
-              ),
-              _Pages(
+        return Column(
+          children: [
+            SidebarSpaceHeader(
+              isExpanded: state.isExpanded,
+              space: currentSpace,
+              onAdded: () => _showCreatePagePopup(context, currentSpace),
+              onCreateNewSpace: () => _showCreateSpaceDialog(context),
+            ),
+            MouseRegion(
+              onEnter: (_) => isHovered.value = true,
+              onExit: (_) => isHovered.value = false,
+              child: _Pages(
                 key: ValueKey(currentSpace.id),
                 space: currentSpace,
                 isHovered: isHovered,
               ),
-            ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showCreateSpaceDialog(BuildContext context) {
+    final spaceBloc = context.read<SpaceBloc>();
+    showDialog(
+      context: context,
+      builder: (_) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: BlocProvider.value(
+            value: spaceBloc,
+            child: const CreateSpacePopup(),
           ),
         );
       },
