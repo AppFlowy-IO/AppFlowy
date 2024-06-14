@@ -23,6 +23,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_migration.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -304,14 +305,14 @@ class _SidebarState extends State<_Sidebar> {
 
             _renderFolderOrSpace(menuHorizontalInset),
 
-            _renderUpgradeSpaceButton(menuHorizontalInset),
-
             // trash
             Padding(
               padding: menuHorizontalInset +
                   const EdgeInsets.symmetric(horizontal: 4.0),
               child: const Divider(height: 0.5, color: Color(0x141F2329)),
             ),
+            const VSpace(8),
+            _renderUpgradeSpaceButton(menuHorizontalInset),
             const VSpace(8),
             Padding(
               padding: menuHorizontalInset +
@@ -368,24 +369,14 @@ class _SidebarState extends State<_Sidebar> {
     return !spaceState.shouldShowUpgradeDialog ||
             !workspaceState.isCollabWorkspaceOn
         ? const SizedBox.shrink()
-        : Container(
-            height: 40,
-            padding: menuHorizontalInset,
-            child: FlowyButton(
-              onTap: () {
-                context.read<SpaceBloc>().add(const SpaceEvent.migrate());
-              },
-              leftIcon: const Icon(
-                Icons.upgrade_rounded,
-                color: Colors.red,
-              ),
-              leftIconSize: const Size.square(20),
-              iconPadding: 12.0,
-              text: FlowyText.regular(
-                LocaleKeys.space_enableSpacesForYourWorkspace.tr(),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+        : Padding(
+            padding: menuHorizontalInset +
+                const EdgeInsets.only(
+                  left: 4.0,
+                  right: 4.0,
+                  top: 8.0,
+                ),
+            child: const SpaceMigration(),
           );
   }
 
