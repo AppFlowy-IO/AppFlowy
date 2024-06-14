@@ -95,8 +95,11 @@ class _FavoriteViews extends StatelessWidget {
     return Scrollbar(
       child: ListView.separated(
         key: const PageStorageKey('favorite_views_page_storage_key'),
-        padding: const EdgeInsets.symmetric(
-          horizontal: HomeSpaceViewSizes.mHorizontalPadding,
+        padding: EdgeInsets.only(
+          left: HomeSpaceViewSizes.mHorizontalPadding,
+          right: HomeSpaceViewSizes.mHorizontalPadding,
+          bottom: HomeSpaceViewSizes.mVerticalPadding +
+              MediaQuery.of(context).padding.bottom,
         ),
         itemBuilder: (context, index) {
           final view = favoriteViews[index];

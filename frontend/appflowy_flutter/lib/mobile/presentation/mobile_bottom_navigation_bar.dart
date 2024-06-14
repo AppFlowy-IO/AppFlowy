@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -46,22 +49,40 @@ class MobileBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLightMode = Theme.of(context).isLightMode;
+    final backgroundColor = isLightMode
+        ? Colors.white.withOpacity(0.95)
+        : const Color(0x0023262b).withOpacity(0.95);
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: Theme(
-        data: Theme.of(context).copyWith(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-        ),
-        child: BottomNavigationBar(
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          enableFeedback: false,
-          type: BottomNavigationBarType.fixed,
-          elevation: 0,
-          items: _items,
-          currentIndex: navigationShell.currentIndex,
-          onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
+      extendBody: true,
+      bottomNavigationBar: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: 2,
+            sigmaY: 2,
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: isLightMode
+                  ? Border(
+                      top: BorderSide(color: Theme.of(context).dividerColor),
+                    )
+                  : null,
+              color: backgroundColor,
+            ),
+            child: BottomNavigationBar(
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              enableFeedback: false,
+              type: BottomNavigationBarType.fixed,
+              elevation: 0,
+              items: _items,
+              backgroundColor: Colors.transparent,
+              currentIndex: navigationShell.currentIndex,
+              onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
+            ),
+          ),
         ),
       ),
     );

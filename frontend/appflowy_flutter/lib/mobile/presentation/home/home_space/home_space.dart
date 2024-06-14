@@ -28,9 +28,12 @@ class _MobileHomeSpaceState extends State<MobileHomeSpace>
     return Scrollbar(
       child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: HomeSpaceViewSizes.mHorizontalPadding,
-            vertical: HomeSpaceViewSizes.mVerticalPadding,
+          padding: EdgeInsets.only(
+            left: HomeSpaceViewSizes.mHorizontalPadding,
+            right: HomeSpaceViewSizes.mHorizontalPadding,
+            top: HomeSpaceViewSizes.mVerticalPadding,
+            bottom: HomeSpaceViewSizes.mVerticalPadding +
+                MediaQuery.of(context).padding.bottom,
           ),
           child: MobileFolders(
             user: widget.userProfile,

@@ -21,8 +21,8 @@ class MobileSpaceTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final baseStyle = Theme.of(context).textTheme.bodyMedium;
     final labelStyle = baseStyle?.copyWith(
-      fontWeight: FontWeight.w500,
-      fontSize: 15.0,
+      fontWeight: FontWeight.w600,
+      fontSize: 16.0,
     );
     final unselectedLabelStyle = baseStyle?.copyWith(
       fontWeight: FontWeight.w400,

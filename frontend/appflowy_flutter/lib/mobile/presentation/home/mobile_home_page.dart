@@ -57,6 +57,7 @@ class MobileHomeScreen extends StatelessWidget {
 
         return Scaffold(
           body: SafeArea(
+            bottom: false,
             child: Provider.value(
               value: userProfile,
               child: MobileHomePage(
