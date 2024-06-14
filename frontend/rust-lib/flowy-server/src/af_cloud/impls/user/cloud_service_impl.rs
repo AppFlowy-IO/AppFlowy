@@ -10,8 +10,8 @@ use client_api::entity::workspace_dto::{
   WorkspaceMemberInvitation,
 };
 use client_api::entity::{
-  AFRole, AFWorkspace, AFWorkspaceInvitation, AuthProvider, CollabParams,
-  CreateCollabParams, QueryWorkspaceMember,
+  AFRole, AFWorkspace, AFWorkspaceInvitation, AuthProvider, CollabParams, CreateCollabParams,
+  QueryWorkspaceMember,
 };
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
