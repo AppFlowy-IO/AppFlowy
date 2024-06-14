@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -12,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:markdown_widget/markdown_widget.dart';
+
+import 'selectable_highlight.dart';
 
 class ChatAITextMessageWidget extends StatelessWidget {
   const ChatAITextMessageWidget({
@@ -132,16 +135,28 @@ class ChatAITextMessageWidget extends StatelessWidget {
           ),
         ),
         PreConfig(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .surfaceContainerHighest
-                .withOpacity(0.6),
-            borderRadius: const BorderRadius.all(
-              Radius.circular(8.0),
-            ),
-          ),
+          builder: (code, language) {
+            return ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: 800,
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+                child: SelectableHighlightView(
+                  code,
+                  language: language,
+                  theme: getHightlineTheme(context),
+                  padding: const EdgeInsets.all(14),
+                  textStyle: TextStyle(
+                    color: AFThemeExtension.of(context).textColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            );
+          },
         ),
         PConfig(
           textStyle: TextStyle(
@@ -166,6 +181,51 @@ class ChatAITextMessageWidget extends StatelessWidget {
       ],
     );
   }
+}
+
+Map<String, TextStyle> getHightlineTheme(BuildContext context) {
+  return {
+    'root': TextStyle(
+      color: const Color(0xffabb2bf),
+      backgroundColor:
+          Theme.of(context).isLightMode ? Colors.white : Colors.black38,
+    ),
+    'comment':
+        const TextStyle(color: Color(0xff5c6370), fontStyle: FontStyle.italic),
+    'quote':
+        const TextStyle(color: Color(0xff5c6370), fontStyle: FontStyle.italic),
+    'doctag': const TextStyle(color: Color(0xffc678dd)),
+    'keyword': const TextStyle(color: Color(0xffc678dd)),
+    'formula': const TextStyle(color: Color(0xffc678dd)),
+    'section': const TextStyle(color: Color(0xffe06c75)),
+    'name': const TextStyle(color: Color(0xffe06c75)),
+    'selector-tag': const TextStyle(color: Color(0xffe06c75)),
+    'deletion': const TextStyle(color: Color(0xffe06c75)),
+    'subst': const TextStyle(color: Color(0xffe06c75)),
+    'literal': const TextStyle(color: Color(0xff56b6c2)),
+    'string': const TextStyle(color: Color(0xff98c379)),
+    'regexp': const TextStyle(color: Color(0xff98c379)),
+    'addition': const TextStyle(color: Color(0xff98c379)),
+    'attribute': const TextStyle(color: Color(0xff98c379)),
+    'meta-string': const TextStyle(color: Color(0xff98c379)),
+    'built_in': const TextStyle(color: Color(0xffe6c07b)),
+    'attr': const TextStyle(color: Color(0xffd19a66)),
+    'variable': const TextStyle(color: Color(0xffd19a66)),
+    'template-variable': const TextStyle(color: Color(0xffd19a66)),
+    'type': const TextStyle(color: Color(0xffd19a66)),
+    'selector-class': const TextStyle(color: Color(0xffd19a66)),
+    'selector-attr': const TextStyle(color: Color(0xffd19a66)),
+    'selector-pseudo': const TextStyle(color: Color(0xffd19a66)),
+    'number': const TextStyle(color: Color(0xffd19a66)),
+    'symbol': const TextStyle(color: Color(0xff61aeee)),
+    'bullet': const TextStyle(color: Color(0xff61aeee)),
+    'link': const TextStyle(color: Color(0xff61aeee)),
+    'meta': const TextStyle(color: Color(0xff61aeee)),
+    'selector-id': const TextStyle(color: Color(0xff61aeee)),
+    'title': const TextStyle(color: Color(0xff61aeee)),
+    'emphasis': const TextStyle(fontStyle: FontStyle.italic),
+    'strong': const TextStyle(fontWeight: FontWeight.bold),
+  };
 }
 
 class ChatH1Config extends HeadingConfig {
