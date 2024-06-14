@@ -1087,6 +1087,7 @@
       "action": "Action",
       "add": "Click add to below",
       "drag": "Drag to move",
+      "deleteRowPrompt": "Are you sure you want to delete this row? This action cannot be undone",
       "dragAndClick": "Drag to move, click to open menu",
       "insertRecordAbove": "Insert record above",
       "insertRecordBelow": "Insert record below",

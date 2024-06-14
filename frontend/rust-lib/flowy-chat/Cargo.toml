@@ -18,7 +18,7 @@ uuid.workspace = true
 strum_macros = "0.21"
 protobuf.workspace = true
 bytes.workspace = true
-validator = { version = "0.16.0", features = ["derive"] }
+validator = { workspace = true, features = ["derive"] }
 lib-infra = { workspace = true, features = ["isolate_flutter"] }
 flowy-chat-pub.workspace = true
 dashmap = "5.5"
