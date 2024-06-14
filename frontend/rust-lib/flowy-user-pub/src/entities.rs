@@ -384,11 +384,33 @@ pub enum UserTokenState {
 }
 
 // Workspace Role
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
 pub enum Role {
-  Owner,
-  Member,
-  Guest,
+  Owner = 0,
+  Member = 1,
+  Guest = 2,
+}
+
+impl From<i32> for Role {
+  fn from(value: i32) -> Self {
+    match value {
+      0 => Role::Owner,
+      1 => Role::Member,
+      2 => Role::Guest,
+      _ => Role::Guest,
+    }
+  }
+}
+
+impl From<Role> for i32 {
+  fn from(value: Role) -> Self {
+    match value {
+      Role::Owner => 0,
+      Role::Member => 1,
+      Role::Guest => 2,
+    }
+  }
 }
 
 pub struct WorkspaceMember {

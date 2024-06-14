@@ -88,6 +88,7 @@ collab-database = { version = "0.2" }
 collab-plugins = { version = "0.2" }
 collab-user = { version = "0.2" }
 yrs = "0.18.8"
+validator = { version = "0.16.1", features = ["derive"] }
 
 # Please using the following command to update the revision id
 # Current directory: frontend

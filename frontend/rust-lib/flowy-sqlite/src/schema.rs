@@ -67,11 +67,24 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    workspace_members_table (email, workspace_id) {
+        email -> Text,
+        role -> Integer,
+        name -> Text,
+        avatar_url -> Nullable<Text>,
+        uid -> BigInt,
+        workspace_id -> Text,
+        updated_at -> Timestamp,
+    }
+}
+
 diesel::allow_tables_to_appear_in_same_query!(
-  chat_message_table,
-  chat_table,
-  collab_snapshot,
-  user_data_migration_records,
-  user_table,
-  user_workspace_table,
+    chat_message_table,
+    chat_table,
+    collab_snapshot,
+    user_data_migration_records,
+    user_table,
+    user_workspace_table,
+    workspace_members_table,
 );
