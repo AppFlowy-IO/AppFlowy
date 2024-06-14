@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/application/document_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_collaborators_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/collaborator_avater_stack.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -7,6 +8,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:string_validator/string_validator.dart';
 
 class DocumentCollaborators extends StatelessWidget {
   const DocumentCollaborators({
@@ -66,24 +68,66 @@ class DocumentCollaborators extends StatelessWidget {
                   ),
                 );
               },
-              avatars: collaborators
-                  .map(
-                    (c) => FlowyTooltip(
-                      message: c.userName,
-                      child: CircleAvatar(
-                        backgroundColor: c.cursorColor.tryToColor(),
-                        child: FlowyText(
-                          c.userName.characters.firstOrNull ?? ' ',
-                          fontSize: fontSize,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
+              avatars: [
+                ...collaborators.map(
+                  (c) => _UserAvatar(fontSize: fontSize, user: c, width: width),
+                ),
+              ],
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _UserAvatar extends StatelessWidget {
+  const _UserAvatar({
+    this.fontSize,
+    required this.user,
+    required this.width,
+  });
+
+  final DocumentAwarenessMetadata user;
+  final double? fontSize;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget child;
+    if (isURL(user.userAvatar)) {
+      child = _buildUrlAvatar(context);
+    } else {
+      child = _buildNameAvatar(context);
+    }
+    return FlowyTooltip(
+      message: user.userName,
+      child: child,
+    );
+  }
+
+  Widget _buildNameAvatar(BuildContext context) {
+    return CircleAvatar(
+      backgroundColor: user.cursorColor.tryToColor(),
+      child: FlowyText(
+        user.userName.characters.firstOrNull ?? ' ',
+        fontSize: fontSize,
+        color: Colors.black,
+      ),
+    );
+  }
+
+  Widget _buildUrlAvatar(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(width),
+      child: CircleAvatar(
+        backgroundColor: user.cursorColor.tryToColor(),
+        child: Image.network(
+          user.userAvatar,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildNameAvatar(context),
+        ),
       ),
     );
   }
