@@ -71,6 +71,7 @@ class SpaceMorePopup extends StatelessWidget {
       SpaceMoreActionType.manage,
       SpaceMoreActionType.divider,
       SpaceMoreActionType.addNewSpace,
+      SpaceMoreActionType.collapseAllPages,
       SpaceMoreActionType.divider,
       SpaceMoreActionType.delete,
     ];
@@ -155,7 +156,7 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
       height: 34,
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Opacity(
-        opacity: disable ? 0.5 : 1.0,
+        opacity: disable ? 0.3 : 1.0,
         child: FlowyButton(
           disable: disable,
           margin: const EdgeInsets.symmetric(horizontal: 6),
