@@ -1,6 +1,7 @@
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/shared/empty_placeholder.dart';
 import 'package:appflowy/mobile/presentation/home/shared/mobile_view_card.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
@@ -92,6 +93,9 @@ class _FavoriteViews extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final borderColor = Theme.of(context).isLightMode
+        ? const Color(0xFFE9E9EC)
+        : const Color(0x1AFFFFFF);
     return Scrollbar(
       child: ListView.separated(
         key: const PageStorageKey('favorite_views_page_storage_key'),
@@ -108,7 +112,7 @@ class _FavoriteViews extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: Theme.of(context).dividerColor,
+                  color: borderColor,
                   width: 0.5,
                 ),
               ),

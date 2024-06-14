@@ -65,7 +65,7 @@ class _RecentViews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final borderColor = Theme.of(context).isLightMode
-        ? const Color(0x00e2e2e4)
+        ? const Color(0xFFE9E9EC)
         : const Color(0x1AFFFFFF);
     return SlidableAutoCloseBehavior(
       child: Scrollbar(
