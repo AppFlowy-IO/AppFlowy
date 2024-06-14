@@ -5,9 +5,7 @@ use crate::manager::ChatUserService;
 use crate::notification::{send_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use allo_isolate::Isolate;
-use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageType, MessageCursor, StringOrMessage,
-};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
@@ -122,30 +120,14 @@ impl Chat {
         Ok(mut stream) => {
           while let Some(message) = stream.next().await {
             match message {
-              Ok(message) => match message {
-                StringOrMessage::Left(s) => {
-                  if stop_stream.load(std::sync::atomic::Ordering::Relaxed) {
-                    send_notification(&chat_id, ChatNotification::FinishStreaming).send();
-                    trace!("[Chat] stop streaming message");
-                    let answer = cloud_service
-                      .save_answer(
-                        &workspace_id,
-                        &chat_id,
-                        &stream_buffer.lock().await,
-                        question_id,
-                      )
-                      .await?;
-                    Self::save_answer(uid, &chat_id, &user_service, answer)?;
-                    break;
-                  }
-                  stream_buffer.lock().await.push_str(&s);
-                  let _ = text_sink.send(format!("data:{}", s)).await;
-                },
-                StringOrMessage::Right(answer) => {
-                  trace!("[Chat] received final answer: {:?}", answer);
-                  send_notification(&chat_id, ChatNotification::FinishStreaming).send();
-                  Self::save_answer(uid, &chat_id, &user_service, answer)?;
-                },
+              Ok(message) => {
+                if stop_stream.load(std::sync::atomic::Ordering::Relaxed) {
+                  trace!("[Chat] stop streaming message");
+                  break;
+                }
+                let s = String::from_utf8(message.to_vec()).unwrap_or_default();
+                stream_buffer.lock().await.push_str(&s);
+                let _ = text_sink.send(format!("data:{}", s)).await;
               },
               Err(err) => {
                 error!("[Chat] failed to stream answer: {}", err);
@@ -172,6 +154,18 @@ impl Chat {
             .send();
         },
       }
+
+      send_notification(&chat_id, ChatNotification::FinishStreaming).send();
+      let answer = cloud_service
+        .save_answer(
+          &workspace_id,
+          &chat_id,
+          &stream_buffer.lock().await,
+          question_id,
+        )
+        .await?;
+      Self::save_answer(uid, &chat_id, &user_service, answer)?;
+
       Ok::<(), FlowyError>(())
     });
 

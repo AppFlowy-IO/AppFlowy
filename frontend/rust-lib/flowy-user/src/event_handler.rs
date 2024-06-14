@@ -835,3 +835,13 @@ pub async fn get_billing_portal_handler(
   let url = manager.get_billing_portal_url().await?;
   data_result_ok(BillingPortalPB { url })
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_workspace_member_info(
+  param: AFPluginData<WorkspaceMemberIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<WorkspaceMemberPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let member = manager.get_workspace_member_info(param.uid).await?;
+  data_result_ok(member.into())
+}

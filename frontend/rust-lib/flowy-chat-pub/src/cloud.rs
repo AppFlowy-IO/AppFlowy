@@ -1,3 +1,4 @@
+use bytes::Bytes;
 pub use client_api::entity::ai_dto::{RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage};
 pub use client_api::entity::{
   ChatAuthorType, ChatMessage, ChatMessageType, MessageCursor, QAChatMessage, RepeatedChatMessage,
@@ -9,7 +10,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
-pub type StreamAnswer = BoxStream<'static, Result<StringOrMessage, AppResponseError>>;
+pub type StreamAnswer = BoxStream<'static, Result<Bytes, AppResponseError>>;
 #[async_trait]
 pub trait ChatCloudService: Send + Sync + 'static {
   fn create_chat(

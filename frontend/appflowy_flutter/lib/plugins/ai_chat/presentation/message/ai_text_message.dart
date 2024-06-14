@@ -134,7 +134,10 @@ class ChatAITextMessageWidget extends StatelessWidget {
         PreConfig(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withOpacity(0.6),
             borderRadius: const BorderRadius.all(
               Radius.circular(8.0),
             ),
@@ -156,7 +159,10 @@ class ChatAITextMessageWidget extends StatelessWidget {
             height: 1.5,
           ),
         ),
-        BlockquoteConfig.darkConfig,
+        BlockquoteConfig(
+          sideColor: AFThemeExtension.of(context).lightGreyHover,
+          textColor: AFThemeExtension.of(context).textColor,
+        ),
       ],
     );
   }

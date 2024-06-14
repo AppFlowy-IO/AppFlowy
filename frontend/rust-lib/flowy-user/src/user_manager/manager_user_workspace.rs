@@ -479,6 +479,17 @@ impl UserManager {
       .await?;
     Ok(url)
   }
+
+  #[instrument(level = "debug", skip(self), err)]
+  pub async fn get_workspace_member_info(&self, uid: i64) -> FlowyResult<WorkspaceMember> {
+    let workspace_id = self.get_session()?.user_workspace.id.clone();
+    let member = self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_member_info(&workspace_id, uid)
+      .await?;
+    Ok(member)
+  }
 }
 
 /// This method is used to save one user workspace to the SQLite database

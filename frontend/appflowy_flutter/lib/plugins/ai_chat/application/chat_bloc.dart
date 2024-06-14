@@ -377,6 +377,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         "chatId": chatId,
       },
       id: streamMessageId,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
       text: '',
     );
   }
@@ -393,7 +394,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       author: User(id: message.authorId),
       id: messageId,
       text: message.content,
-      createdAt: message.createdAt.toInt(),
+      createdAt: message.createdAt.toInt() * 1000,
     );
   }
 }
