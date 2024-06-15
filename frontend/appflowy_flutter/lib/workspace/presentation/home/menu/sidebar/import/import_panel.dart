@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/application/settings/share/import_service.dar
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_from_notion_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/importer/notion_importer.dart';
+import 'package:appflowy/workspace/application/sidebar/background_task_notification/background_task_notification_bloc.dart';
 
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 
 import 'importer/custom_parsers/subpage_import_parser.dart';
@@ -138,11 +140,19 @@ class _ImportPanelState extends State<ImportPanel> {
               final notionImporter = NotionImporter(
                 parentViewId: widget.parentViewId,
               );
-              await notionImporter.importFromNotion(type, path);
-              importCallback(null, ImportFromNotionType.markdownZip, '', null);
               if (context.mounted) {
-                  FlowyOverlay.pop(context);
-                }
+                FlowyOverlay.pop(context);
+              }
+              // await notionImporter.importFromNotion(type, path);
+              if (context.mounted) {
+                getIt<BackgroundTaskNotificationBloc>().add(
+                      BackgroundTaskNotificationEvent.addNewTask(
+                          task: Task(
+                              onCancel: () => {},
+                              displayMessage: "Importing page from notion ",
+                              taskFunction: notionImporter.importFromNotion,args: [type,path],),), //TODO fix args make optional
+                    );
+              }
               widget.importCallback(null, ImportFromNotionType.markdownZip, '', null);
             }
           },

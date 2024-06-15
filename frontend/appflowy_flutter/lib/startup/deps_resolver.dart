@@ -26,6 +26,7 @@ import 'package:appflowy/workspace/application/settings/appearance/base_appearan
 import 'package:appflowy/workspace/application/settings/appearance/desktop_appearance.dart';
 import 'package:appflowy/workspace/application/settings/appearance/mobile_appearance.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/application/sidebar/background_task_notification/background_task_notification_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -229,4 +230,6 @@ void _resolveFolderDeps(GetIt getIt) {
 
   // Favorite
   getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
+
+  getIt.registerLazySingleton<BackgroundTaskNotificationBloc>(() => BackgroundTaskNotificationBloc());
 }

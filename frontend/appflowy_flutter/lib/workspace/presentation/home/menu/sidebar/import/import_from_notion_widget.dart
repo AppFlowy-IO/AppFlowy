@@ -140,10 +140,11 @@ class NotionImportTips extends StatelessWidget {
                 ),
                 onTap: () async {
                   final path = await showFilePicker(type);
-                  await callback(type, path);
                   if (context.mounted) {
                     FlowyOverlay.pop(context);
                   }
+                  await callback(type, path);
+                  
                 },
               ),
             ),

@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
+import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
@@ -41,17 +42,19 @@ class NotionImporter {
   final markdownImageRegex = RegExp(r'^!\[[^\]]*\]\((.*?)\)');
   final fileRegex = RegExp(r'\[([^\]]*)\]\(([^\)]*)\)');
 
-  Future<void> importFromNotion(ImportFromNotionType type, String path) async {
+  Future<void> importFromNotion(ImportFromNotionType type, String path,
+      CancelableCompleter completer) async {
     switch (type) {
       case ImportFromNotionType.markdownZip:
-        await _importFromMarkdownZip(path);
+        await _importFromMarkdownZip(path, completer);
         break;
     }
     return;
   }
 
   //For detailed explaination of working of this import feature - https://github.com/AppFlowy-IO/AppFlowy/pull/3146
-  Future<void> _importFromMarkdownZip(String path) async {
+  Future<void> _importFromMarkdownZip(
+      String path, CancelableCompleter completer) async {
     final zip = File(path);
     final bytes = await zip.readAsBytes();
     final files = ZipDecoder().decodeBytes(bytes);
@@ -101,6 +104,7 @@ class NotionImporter {
       final List<PageToImport> files = [];
       final List<ArchiveFile> images = [];
       final List<ArchiveFile> folders = [];
+      final List<ArchiveFile> filesToRemove = [];
       // This for loop gets all the markdown files at a level
       for (int i = 0; i < unzipFiles.length; i++) {
         if (unzipFiles[i].isFile &&
@@ -115,7 +119,7 @@ class NotionImporter {
         }
       }
       if (files.isEmpty) {
-        return;
+        continue;
       }
       // This for loop gets all the assets at a level
       for (int i = 0; i < unzipFiles.length; i++) {
@@ -134,6 +138,11 @@ class NotionImporter {
           //folders are of no use so they are stored here and will be deleted
           //unzipfiles
           folders.add(unzipFiles[i]);
+        } else if (unzipFiles[i].isFile &&
+            ['.pdf', '.docx', '.doc', '.pptx', '.ppt', '.xlsx', '.xls']
+                .contains(p.extension(unzipFiles[i].name))) {
+          //handle case where there are fiels like pDF,docx etc whichare not currently supported
+          filesToRemove.add(unzipFiles[i]);
         }
       }
       levels.add(Level(assetsAtThelevel: images, pagesAtTheLevel: files));
@@ -147,6 +156,9 @@ class NotionImporter {
       for (final element in images) {
         unzipFiles.remove(element);
       }
+      for (final element in filesToRemove) {
+        unzipFiles.remove(element);
+      }
     }
     final int noOfLevels = levels.length;
     // This for loop will iterate through the levels starting from the last level and import all the pages at that level
@@ -157,6 +169,7 @@ class NotionImporter {
       for (final file in filesAtLevel) {
         final name = p.basenameWithoutExtension(file.page.name);
         final String? pageID = await _createPage(
+          false,
           parentViewId,
           file.page,
           imagesAtlevel,
@@ -166,6 +179,14 @@ class NotionImporter {
           return;
         }
         nameToId[name] = pageID;
+        // await Future.delayed(Duration(seconds: 7));
+        if (completer.isCanceled) {
+          print('Import Cancelled');
+          for (var i in nameToId.keys) {
+            await ViewBackendService.deleteView(viewId: nameToId[i]!);
+          }
+          return;
+        }
       }
     }
     // In the end we will import the main page after we have imported all the
@@ -173,6 +194,7 @@ class NotionImporter {
     final mainPageName = p.basenameWithoutExtension(mainpage.name);
 
     final String? pageID = await _createPage(
+      true,
       parentViewId,
       mainpage,
       mainpageAssets,
@@ -195,35 +217,58 @@ class NotionImporter {
         await ViewBackendService.moveViewV2(
           viewId: viewId!,
           newParentId: parentID!,
-          prevViewId: parentViewId,
+          prevViewId: null,
         );
       }
     }
   }
 
   Future<String?> _createPage(
+    bool isMainPage,
     String parentViewId,
     ArchiveFile file,
     List<ArchiveFile> images,
     Map<String, String> nameToID,
   ) async {
-    final name = p.basenameWithoutExtension(file.name);
+    String name = p.basenameWithoutExtension(file.name);
     final markdownContents = utf8.decode(file.content as Uint8List);
     final processedMarkdownFile = await _preProcessMarkdownFile(
       markdownContents,
       images,
       nameToID,
     );
-    final data = documentDataFrom(
+    final data =  documentDataFrom(
       ImportType.markdownOrText,
       processedMarkdownFile,
     );
-    final result = await ViewBackendService.createView(
+    
+    if (isMainPage) {
+      final result = await ViewBackendService.createView(
+        layoutType: ViewLayoutPB.Document,
+        name: name,
+        parentViewId: parentViewId,
+        initialDataBytes: data,
+      );
+      if (result.isSuccess) {
+        return result.fold((s) => s, (f) => null)!.id;
+      }
+      return null;
+    }
+    print("Name of page is - $name");
+    final id = name.replaceAll(' ', '_')+DateTime.now().millisecondsSinceEpoch.toString();
+    final result = await ViewBackendService.createOrphanView(
+      viewId: id,
       layoutType: ViewLayoutPB.Document,
       name: name,
-      parentViewId: parentViewId,
       initialDataBytes: data,
     );
+    print('Result of creating orphan view is ${result.fold((s) => s, (f) => null)!.info_}');
+    // final result = await ViewBackendService.createView(
+    //   layoutType: ViewLayoutPB.Document,
+    //   name: name,
+    //   parentViewId: parentViewId,
+    //   initialDataBytes: data,
+    // );
     if (result.isSuccess) {
       return result.fold((s) => s, (f) => null)!.id;
     }
@@ -245,7 +290,6 @@ class NotionImporter {
     Iterable<ArchiveFile> images,
     Map<String, String> nameToID,
   ) async {
-
     final lines = markdown.split('\n');
     final result = <String>[];
     for (final line in lines) {

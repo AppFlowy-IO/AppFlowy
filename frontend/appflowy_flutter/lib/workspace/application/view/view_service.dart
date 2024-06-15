@@ -70,7 +70,7 @@ class ViewBackendService {
   /// view will not be shown in the view list unless it is attached to a parent view that is shown in
   /// the view list.
   static Future<FlowyResult<ViewPB, FlowyError>> createOrphanView({
-    required String viewId,
+    String? viewId,
     required ViewLayoutPB layoutType,
     required String name,
     String? desc,
@@ -79,12 +79,24 @@ class ViewBackendService {
     /// Currently, only support create document with initial data.
     List<int>? initialDataBytes,
   }) {
-    final payload = CreateOrphanViewPayloadPB.create()
+    final payload;
+    if(viewId != null) {
+       payload = CreateOrphanViewPayloadPB.create()
       ..viewId = viewId
       ..name = name
       ..desc = desc ?? ""
       ..layout = layoutType
       ..initialData = initialDataBytes ?? [];
+    }
+    else{
+      payload = CreateOrphanViewPayloadPB.create()
+      ..viewId = ''
+      ..name = name
+      ..desc = desc ?? ""
+      ..layout = layoutType
+      ..initialData = initialDataBytes ?? [];
+    }
+    
 
     return FolderEventCreateOrphanView(payload).send();
   }

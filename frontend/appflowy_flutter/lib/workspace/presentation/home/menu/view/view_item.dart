@@ -28,6 +28,8 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../application/sidebar/background_task_notification/background_task_notification_bloc.dart';
+
 typedef ViewItemOnSelected = void Function(BuildContext context, ViewPB view);
 typedef ViewItemLeftIconBuilder = Widget Function(
   BuildContext context,
