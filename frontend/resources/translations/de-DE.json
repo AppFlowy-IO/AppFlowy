@@ -241,9 +241,9 @@
     "viewDataBase": "Datenbank ansehen",
     "referencePage": "Auf diesen {Name} wird verwiesen",
     "addBlockBelow": "Einen Block hinzufügen",
-    "genSummary": "Zusammenfassung generieren",
     "urlLaunchAccessory": "Im Browser öffnen",
-    "urlCopyAccessory": "Webadresse kopieren."
+    "urlCopyAccessory": "Webadresse kopieren.",
+    "genSummary": "Zusammenfassung generieren"
   },
   "sideBar": {
     "closeSidebar": "Seitenleiste schließen",
