@@ -1914,6 +1914,10 @@
     "unableToDeleteSpaceNotCreatedByYou": "Cannot delete a space created by others",
     "enableSpacesForYourWorkspace": "Enable spaces for your workspace",
     "title": "Spaces",
-    "defaultSpaceName": "General"
+    "defaultSpaceName": "General",
+    "upgradeSpaceTitle": "Enable Spaces for your workspace",
+    "upgradeSpaceDescription": "Create multiple public and private spaces to better organize your work.",
+    "upgrade": "Upgrade",
+    "upgradeYourSpace": "Upgrade your space"
   }
 }

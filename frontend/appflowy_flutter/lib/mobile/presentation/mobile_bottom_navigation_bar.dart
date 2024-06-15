@@ -52,15 +52,15 @@ class MobileBottomNavigationBar extends StatelessWidget {
     final isLightMode = Theme.of(context).isLightMode;
     final backgroundColor = isLightMode
         ? Colors.white.withOpacity(0.95)
-        : const Color(0x0023262b).withOpacity(0.95);
+        : const Color(0xFF23262B).withOpacity(0.95);
     return Scaffold(
       body: navigationShell,
       extendBody: true,
       bottomNavigationBar: ClipRRect(
         child: BackdropFilter(
           filter: ImageFilter.blur(
-            sigmaX: 2,
-            sigmaY: 2,
+            sigmaX: 3,
+            sigmaY: 3,
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(
