@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'tasknotification.dart';
 
 class BackGroundTaskNotifactionBox extends StatefulWidget {
-  BackGroundTaskNotifactionBox();
+  const BackGroundTaskNotifactionBox();
 
   @override
   State<BackGroundTaskNotifactionBox> createState() =>
@@ -22,11 +22,8 @@ class _BackGroundTaskNotifactionBoxState
         BackgroundTaskNotificationState>(
       bloc: context.read<BackgroundTaskNotificationBloc>(),
       builder: (context, state) {
-        print("stae: ${state}");
         if (state.taskNotifications.isEmpty) {
-          // Return an empty SizedBox if there are no task notifications
-          print("NO task notifications");
-          return SizedBox.shrink();
+          return const SizedBox.shrink();
         } else {
           return Container(
             constraints: const BoxConstraints(
@@ -40,7 +37,8 @@ class _BackGroundTaskNotifactionBoxState
               itemCount: state.taskNotifications.length,
               itemBuilder: (context, index) {
                 final taskNotification = state.taskNotifications[index];
-                return TaskNotificationWidget(taskNotification: taskNotification);
+                return TaskNotificationWidget(
+                    taskNotification: taskNotification,);
               },
             ),
           );
@@ -51,15 +49,15 @@ class _BackGroundTaskNotifactionBoxState
 }
 
 class TaskActionButton extends StatefulWidget {
-  TaskActionButton({
+  const TaskActionButton({
     super.key,
     required this.buttontext,
     required this.task,
     required this.buttonTextColor,
   });
-  String buttontext;
-  TaskNotification task;
-  Color buttonTextColor;
+  final String buttontext;
+  final TaskNotification task;
+  final Color buttonTextColor;
 
   @override
   State<TaskActionButton> createState() => _TaskActionButtonState();
@@ -73,12 +71,16 @@ class _TaskActionButtonState extends State<TaskActionButton> {
       onTap: () {
         if (widget.task.status == TaskStatus.inProgress) {
           getIt<BackgroundTaskNotificationBloc>().add(
-              BackgroundTaskNotificationEvent.taskCancelled(
-                  taskID: widget.task.taskId));
+            BackgroundTaskNotificationEvent.taskCancelled(
+              taskID: widget.task.taskId,
+            ),
+          );
         } else if (widget.task.status == TaskStatus.completed) {
           getIt<BackgroundTaskNotificationBloc>().add(
-              BackgroundTaskNotificationEvent.removeTaskFromList(
-                  taskID: widget.task.taskId));
+            BackgroundTaskNotificationEvent.removeTaskFromList(
+              taskID: widget.task.taskId,
+            ),
+          );
         }
       },
       child: MouseRegion(
@@ -88,10 +90,8 @@ class _TaskActionButtonState extends State<TaskActionButton> {
           widget.buttontext,
           color: widget.buttonTextColor,
           fontWeight: FontWeight.bold,
-          decoration: _isHovered
-              ? TextDecoration.underline
-              : TextDecoration.none,
-
+          decoration:
+              _isHovered ? TextDecoration.underline : TextDecoration.none,
         ),
       ),
     );

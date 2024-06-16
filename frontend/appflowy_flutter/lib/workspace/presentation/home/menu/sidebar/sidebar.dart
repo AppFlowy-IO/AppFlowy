@@ -10,8 +10,6 @@ import 'package:appflowy/workspace/application/command_palette/command_palette_b
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/background_task_notification/background_task_notification_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -19,12 +17,6 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/background_task_notification/background_task_notifications.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
@@ -129,6 +121,8 @@ class HomeSideBar extends StatelessWidget {
                   ),
                 ),
             ),
+            BlocProvider(
+                  create: (_) => getIt<BackgroundTaskNotificationBloc>()),
           ],
           child: MultiBlocListener(
             listeners: [
@@ -150,10 +144,6 @@ class HomeSideBar extends StatelessWidget {
                       ),
                     ),
               ),
-              BlocListener<NotificationActionBloc, NotificationActionState>(
-                  listenWhen: (_, curr) => curr.action != null,
-                  listener: _onNotificationAction,
-                ),
               BlocListener<ActionNavigationBloc, ActionNavigationState>(
                 listenWhen: (_, curr) => curr.action != null,
                 listener: _onNotificationAction,
@@ -334,12 +324,6 @@ class _SidebarState extends State<_Sidebar> {
             padding: menuHorizontalInset,
             child: BackGroundTaskNotifactionBox(),
           ),
-          // trash
-          const Padding(
-            padding: menuHorizontalInset,
-            child: SidebarTrashButton(),
-          ),
-          const VSpace(10),
           // new page button
           const SidebarNewPageButton(),
             Padding(

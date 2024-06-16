@@ -18,7 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 
 import 'importer/custom_parsers/subpage_import_parser.dart';
@@ -103,7 +102,7 @@ class _ImportPanelState extends State<ImportPanel> {
         child: GridView.count(
           childAspectRatio: 1 / .2,
           crossAxisCount: 2,
-          children: importCards
+          children: importCards,
         ),
       ),
     );
@@ -150,7 +149,7 @@ class _ImportPanelState extends State<ImportPanel> {
                           task: Task(
                               onCancel: () => {},
                               displayMessage: "Importing page from notion ",
-                              taskFunction: notionImporter.importFromNotion,args: [type,path],),), //TODO fix args make optional
+                              taskFunction: notionImporter.importFromNotion,args: [type,path],),),
                     );
               }
               widget.importCallback(null, ImportFromNotionType.markdownZip, '', null);

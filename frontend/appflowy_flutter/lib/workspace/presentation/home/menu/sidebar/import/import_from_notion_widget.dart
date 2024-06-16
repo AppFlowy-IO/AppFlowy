@@ -126,7 +126,6 @@ class NotionImportTips extends StatelessWidget {
           horizontal: 20.0,
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(type.tooltips),

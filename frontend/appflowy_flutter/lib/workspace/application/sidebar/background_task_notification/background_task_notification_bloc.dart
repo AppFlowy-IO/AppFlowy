@@ -29,21 +29,22 @@ enum TaskStatus {
 }
 
 class TaskNotificationList extends Equatable {
+  const TaskNotificationList(this.taskNotifications);
   final List<TaskNotification> taskNotifications;
-  TaskNotificationList(this.taskNotifications);
+
   @override
   List<Object?> get props => [taskNotifications];
 }
 
 class TaskNotification extends Equatable {
-  TaskNotification({
+  const TaskNotification({
     required this.message,
     required this.status,
     required this.taskId,
   });
-  String message;
-  TaskStatus status;
-  String taskId;
+  final String message;
+  final TaskStatus status;
+  final String taskId;
   @override
   List<Object?> get props => [message, status, taskId];
 }
@@ -63,14 +64,13 @@ class BackgroundTaskNotificationBloc extends Bloc<
           );
           final List<TaskNotification> newTaskNotifications = [
             ...state.taskNotifications,
-            taskNotification
+            taskNotification,
           ];
           emit(
             state.copyWith(
               taskNotifications: newTaskNotifications,
             ),
           );
-          print("**** ADD NEW TASK *** $state");
           _streamController.add(task);
         },
         taskCompleted: (e) async {
@@ -79,19 +79,20 @@ class BackgroundTaskNotificationBloc extends Bloc<
 
           for (final taskNotification in state.taskNotifications) {
             if (taskNotification.taskId == taskID) {
-              updatedTaskNotifications.add(TaskNotification(
+              updatedTaskNotifications.add(
+                TaskNotification(
                   message: taskNotification.message,
                   status: TaskStatus.completed,
-                  taskId: taskNotification.taskId));
+                  taskId: taskNotification.taskId,
+                ),
+              );
             } else {
               updatedTaskNotifications.add(taskNotification);
             }
           }
-
           emit(
             state.copyWith(taskNotifications: updatedTaskNotifications),
           );
-          print("**** TASK COMPLETED *** $state");
         },
         taskCancelled: (e) async {
           final taskID = e;
@@ -111,7 +112,6 @@ class BackgroundTaskNotificationBloc extends Bloc<
               updatedTaskNotifications.add(taskNotification);
             }
           }
-
 
           emit(
             state.copyWith(taskNotifications: updatedTaskNotifications),
@@ -145,9 +145,9 @@ class BackgroundTaskNotificationBloc extends Bloc<
       functionArgs.add(completer);
       final operation = CancelableOperation.fromFuture(
         Function.apply(event.taskFunction, functionArgs),
-        onCancel: ()=>completer.operation.cancel(),
+        onCancel: () => completer.operation.cancel(),
       );
-      
+
       operations[event.taskId] = operation;
       operation.value.then((value) {
         add(
@@ -156,8 +156,6 @@ class BackgroundTaskNotificationBloc extends Bloc<
           ),
         );
       }).catchError((error) {
-        //TODO: add erro rstate
-        print("****** ERRO R IN BLOC BACKGROUNF TASK **");
         add(
           BackgroundTaskNotificationEvent.taskCancelled(
             taskID: event.taskId,
@@ -176,7 +174,6 @@ class BackgroundTaskNotificationBloc extends Bloc<
 
   @override
   Future<void> close() async {
-    print("*** CANCEL EVENT *** NOOOOO!!!!");
     await _streamController.close(); // Close the stream controller
     await super.close(); // Call the parent close method
   }
@@ -184,21 +181,25 @@ class BackgroundTaskNotificationBloc extends Bloc<
 
 @freezed
 class BackgroundTaskNotificationEvent with _$BackgroundTaskNotificationEvent {
-  const factory BackgroundTaskNotificationEvent.addNewTask(
-      {required Task task}) = AddNewTask;
-  const factory BackgroundTaskNotificationEvent.taskCompleted(
-      {required String taskID}) = TaskCompleted;
-  const factory BackgroundTaskNotificationEvent.taskCancelled(
-      {required String taskID}) = TaskCancelled;
-  const factory BackgroundTaskNotificationEvent.removeTaskFromList(
-      {required String taskID}) = RemoveTaskFromList;
+  const factory BackgroundTaskNotificationEvent.addNewTask({
+    required Task task,
+  }) = AddNewTask;
+  const factory BackgroundTaskNotificationEvent.taskCompleted({
+    required String taskID,
+  }) = TaskCompleted;
+  const factory BackgroundTaskNotificationEvent.taskCancelled({
+    required String taskID,
+  }) = TaskCancelled;
+  const factory BackgroundTaskNotificationEvent.removeTaskFromList({
+    required String taskID,
+  }) = RemoveTaskFromList;
 }
 
 @freezed
 class BackgroundTaskNotificationState with _$BackgroundTaskNotificationState {
-  const factory BackgroundTaskNotificationState(
-          {required List<TaskNotification> taskNotifications}) =
-      _BackgroundTaskNotificationState;
+  const factory BackgroundTaskNotificationState({
+    required List<TaskNotification> taskNotifications,
+  }) = _BackgroundTaskNotificationState;
 
   factory BackgroundTaskNotificationState.initial() =>
       const BackgroundTaskNotificationState(

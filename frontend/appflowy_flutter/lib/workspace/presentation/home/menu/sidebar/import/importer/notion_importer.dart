@@ -181,7 +181,6 @@ class NotionImporter {
         nameToId[name] = pageID;
         // await Future.delayed(Duration(seconds: 7));
         if (completer.isCanceled) {
-          print('Import Cancelled');
           for (var i in nameToId.keys) {
             await ViewBackendService.deleteView(viewId: nameToId[i]!);
           }
@@ -254,7 +253,6 @@ class NotionImporter {
       }
       return null;
     }
-    print("Name of page is - $name");
     final id = name.replaceAll(' ', '_')+DateTime.now().millisecondsSinceEpoch.toString();
     final result = await ViewBackendService.createOrphanView(
       viewId: id,
@@ -262,7 +260,6 @@ class NotionImporter {
       name: name,
       initialDataBytes: data,
     );
-    print('Result of creating orphan view is ${result.fold((s) => s, (f) => null)!.info_}');
     // final result = await ViewBackendService.createView(
     //   layoutType: ViewLayoutPB.Document,
     //   name: name,
