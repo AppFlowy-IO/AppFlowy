@@ -22,7 +22,7 @@ const List<FieldType> _supportedFieldTypes = [
   FieldType.CreatedTime,
   FieldType.Relation,
   FieldType.Summary,
-  FieldType.Time,
+  // FieldType.Time,
   FieldType.Translate,
 ];
 
