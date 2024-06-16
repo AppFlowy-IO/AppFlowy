@@ -680,7 +680,7 @@
       "cloudWSURL": "Websocket URL",
       "cloudWSURLHint": "Input the websocket address of your server",
       "restartApp": "Restart",
-      "restartAppTip": "Restart the application for the changes to take effect. Please note that this might log out your current account",
+      "restartAppTip": "Restart the application for the changes to take effect. Please note that this might log out your current account.",
       "changeServerTip": "After changing the server, you must click the restart button for the changes to take effect",
       "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
       "inputEncryptPrompt": "Please enter your encryption secret for",
