@@ -359,7 +359,6 @@
     "accountPage": {
       "menuLabel": "My account",
       "title": "My account",
-      "description": "Customize your profile, manage account security and AI API keys, or login into your account.",
       "general": {
         "title": "Account name & profile image",
         "changeProfilePicture": "Change profile picture"
