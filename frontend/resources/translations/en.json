@@ -790,7 +790,7 @@
         "owner": "Owner",
         "guest": "Guest",
         "member": "Member",
-        "memberHintText": "A member can read, comment, and edit pages. Invite members and guests.",
+        "memberHintText": "A member can read and edit pages",
         "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
         "emailInvalidError": "Invalid email, please check and try again",
         "emailSent": "Email sent, please check the inbox",
