@@ -113,6 +113,7 @@ dependencies:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
       ref: "4a5cac"
+  markdown: ^7.2.2
 
   # Notifications
   # TODO: Consider implementing custom package
