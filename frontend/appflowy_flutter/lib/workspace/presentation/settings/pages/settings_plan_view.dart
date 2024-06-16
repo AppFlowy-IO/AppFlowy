@@ -105,16 +105,17 @@ class _CurrentPlanBox extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const VSpace(4),
                     FlowyText.semibold(
                       subscription.label,
                       fontSize: 24,
+                      color: AFThemeExtension.of(context).strongText,
                     ),
-                    const VSpace(4),
+                    const VSpace(8),
                     FlowyText.regular(
-                      LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeInfo
-                          .tr(),
+                      subscription.info,
                       fontSize: 16,
+                      color: AFThemeExtension.of(context).strongText,
                       maxLines: 3,
                     ),
                     const VSpace(16),
@@ -270,7 +271,7 @@ class _ProConItem extends StatelessWidget {
           height: 24,
           width: 24,
           child: FlowySvg(
-            isPro ? FlowySvgs.check_s : FlowySvgs.close_s,
+            isPro ? FlowySvgs.check_m : FlowySvgs.close_s,
             color: isPro ? null : const Color(0xFF900000),
           ),
         ),
@@ -279,7 +280,8 @@ class _ProConItem extends StatelessWidget {
           child: FlowyText.regular(
             label,
             fontSize: 12,
-            maxLines: 2,
+            color: AFThemeExtension.of(context).strongText,
+            maxLines: 3,
           ),
         ),
       ],
@@ -380,7 +382,7 @@ class _UsageBox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FlowyText.regular(
+        FlowyText.medium(
           title,
           fontSize: 11,
           color: AFThemeExtension.of(context).secondaryTextColor,
@@ -451,7 +453,11 @@ class _ToggleMoreState extends State<_ToggleMore> {
           },
         ),
         const HSpace(10),
-        FlowyText.regular(widget.label, fontSize: 14),
+        FlowyText.regular(
+          widget.label,
+          fontSize: 14,
+          color: AFThemeExtension.of(context).strongText,
+        ),
         if (widget.badgeLabel != null && widget.badgeLabel!.isNotEmpty) ...[
           const HSpace(10),
           SizedBox(

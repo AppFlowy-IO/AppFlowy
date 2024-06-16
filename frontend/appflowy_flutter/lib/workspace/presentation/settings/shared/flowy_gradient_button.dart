@@ -71,7 +71,7 @@ class _FlowyGradientButtonState extends State<FlowyGradientButton> {
                   ),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
             child: FlowyText(
               widget.label,
               fontSize: 16,

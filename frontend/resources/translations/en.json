@@ -531,7 +531,9 @@
           "freeTitle": "Free",
           "proTitle": "Pro",
           "teamTitle": "Team",
-          "freeInfo": "Perfect for individuals or small teams up to 3.",
+          "freeInfo": "Perfect for individuals or small teams up to 3 members.",
+          "proInfo": "Perfect for small and medium teams up to 10 members.",
+          "teamInfo": "Perfect for all productive and well-organized teams..",
           "upgrade": "Compare &\n Upgrade",
           "freeProOne": "Collaborative workspace",
           "freeProTwo": "Up to 3 members (incl. owner)",
@@ -579,9 +581,11 @@
     "comparePlanDialog": {
       "title": "Compare & select plan",
       "planFeatures": "Plan\nFeatures",
+      "current": "Current",
       "actions": {
         "upgrade": "Upgrade",
         "downgrade": "Downgrade",
+        "downgradeDisabledTooltip": "You will automatically downgrade at the end of the billing cycle",
         "current": "Current"
       },
       "freePlan": {
@@ -592,7 +596,7 @@
       },
       "proPlan": {
         "title": "Professional",
-        "description": "A palce for small groups to plan & get organized.",
+        "description": "A place for small groups to plan & get organized.",
         "price": "$10 /month",
         "priceInfo": "billed annually"
       },
