@@ -113,7 +113,6 @@ class SettingsWorkspaceView extends StatelessWidget {
                     LocaleKeys.settings_workspacePage_theme_description.tr(),
                 children: const [
                   _ThemeDropdown(),
-                  SettingsDashedDivider(),
                   _DocumentCursorColorSetting(),
                   _DocumentSelectionColorSetting(),
                 ],
@@ -126,14 +125,15 @@ class SettingsWorkspaceView extends StatelessWidget {
                     currentFont:
                         context.read<AppearanceSettingsCubit>().state.font,
                   ),
-                ],
-              ),
-              SettingsCategory(
-                title:
-                    LocaleKeys.settings_workspacePage_textDirection_title.tr(),
-                children: const [
-                  TextDirectionSelect(),
-                  EnableRTLItemsSwitcher(),
+                  const SettingsDashedDivider(),
+                  SettingsCategory(
+                    title: LocaleKeys.settings_workspacePage_textDirection_title
+                        .tr(),
+                    children: const [
+                      TextDirectionSelect(),
+                      EnableRTLItemsSwitcher(),
+                    ],
+                  ),
                 ],
               ),
               SettingsCategory(
