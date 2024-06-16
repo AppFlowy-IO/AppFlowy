@@ -10,15 +10,21 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_categor
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
 
 class SettingsBillingView extends StatelessWidget {
-  const SettingsBillingView({super.key, required this.workspaceId});
+  const SettingsBillingView({
+    super.key,
+    required this.workspaceId,
+    required this.user,
+  });
 
   final String workspaceId;
+  final UserProfilePB user;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +69,7 @@ class SettingsBillingView extends StatelessWidget {
                         onPressed: () => _openPricingDialog(
                           context,
                           workspaceId,
+                          user.id,
                           state.subscription,
                         ),
                         fontWeight: FontWeight.w500,
@@ -116,13 +123,15 @@ class SettingsBillingView extends StatelessWidget {
   void _openPricingDialog(
     BuildContext context,
     String workspaceId,
+    Int64 userId,
     WorkspaceSubscriptionPB subscription,
   ) =>
       showDialog<bool?>(
         context: context,
         builder: (_) => BlocProvider<SettingsPlanBloc>(
-          create: (_) => SettingsPlanBloc(workspaceId: workspaceId)
-            ..add(const SettingsPlanEvent.started()),
+          create: (_) =>
+              SettingsPlanBloc(workspaceId: workspaceId, userId: user.id)
+                ..add(const SettingsPlanEvent.started()),
           child: SettingsPlanComparisonDialog(
             workspaceId: workspaceId,
             subscription: subscription,

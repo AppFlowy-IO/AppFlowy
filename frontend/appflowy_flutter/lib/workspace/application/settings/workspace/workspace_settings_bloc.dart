@@ -118,7 +118,7 @@ class WorkspaceSettingsBloc
     String workspaceId,
   ) async {
     final data = QueryWorkspacePB()..workspaceId = workspaceId;
-    final result = await UserEventGetWorkspaceMember(data).send();
+    final result = await UserEventGetWorkspaceMembers(data).send();
     return result.fold(
       (s) => s.items,
       (e) {

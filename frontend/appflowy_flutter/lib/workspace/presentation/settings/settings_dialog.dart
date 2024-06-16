@@ -56,6 +56,10 @@ class SettingsDialog extends StatelessWidget {
                           .add(SettingsDialogEvent.setSelectedPage(index)),
                       currentPage:
                           context.read<SettingsDialogBloc>().state.page,
+                      member: context
+                          .read<UserWorkspaceBloc>()
+                          .state
+                          .currentWorkspaceMember,
                     ),
                   ),
                   Expanded(
@@ -103,9 +107,9 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.member:
         return WorkspaceMembersPage(userProfile: user);
       case SettingsPage.plan:
-        return SettingsPlanView(workspaceId: workspaceId);
+        return SettingsPlanView(workspaceId: workspaceId, user: user);
       case SettingsPage.billing:
-        return SettingsBillingView(workspaceId: workspaceId);
+        return SettingsBillingView(workspaceId: workspaceId, user: user);
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
       default:

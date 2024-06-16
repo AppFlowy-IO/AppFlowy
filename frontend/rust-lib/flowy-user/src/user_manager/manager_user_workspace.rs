@@ -362,6 +362,19 @@ impl UserManager {
     Ok(members)
   }
 
+  pub async fn get_workspace_member(
+    &self,
+    workspace_id: String,
+    uid: i64,
+  ) -> FlowyResult<WorkspaceMember> {
+    let member = self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_member(workspace_id, uid)
+      .await?;
+    Ok(member)
+  }
+
   pub async fn update_workspace_member(
     &self,
     user_email: String,

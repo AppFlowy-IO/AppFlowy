@@ -264,7 +264,7 @@ class _PlanTable extends StatelessWidget {
   final String price;
   final String priceInfo;
 
-  final List<String> cells;
+  final List<_CellItem> cells;
   final bool isCurrent;
   final VoidCallback onSelected;
   final bool canUpgrade;
@@ -316,7 +316,9 @@ class _PlanTable extends StatelessWidget {
             ),
             if (canUpgrade || canDowngrade) ...[
               Padding(
-                padding: const EdgeInsets.only(left: 12),
+                padding: EdgeInsets.only(
+                  left: 12 + (canUpgrade && !canDowngrade ? 12 : 0),
+                ),
                 child: _ActionButton(
                   label: canUpgrade && !canDowngrade
                       ? LocaleKeys.settings_comparePlanDialog_actions_upgrade
@@ -328,21 +330,16 @@ class _PlanTable extends StatelessWidget {
                   useGradientBorder: !isCurrent && canUpgrade,
                 ),
               ),
-            ] else if (isCurrent) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: _ActionButton(
-                  label: LocaleKeys.settings_comparePlanDialog_actions_current
-                      .tr(),
-                  onPressed: () {},
-                  isUpgrade: canUpgrade && !canDowngrade,
-                  useGradientBorder: !isCurrent && canUpgrade,
-                ),
-              ),
             ] else ...[
               const SizedBox(height: 56),
             ],
-            ...cells.map((e) => _ComparisonCell(label: e)),
+            ...cells.map(
+              (cell) => _ComparisonCell(
+                label: cell.label,
+                icon: cell.icon,
+                isHighlighted: highlightPlan,
+              ),
+            ),
           ],
         ),
       ),
@@ -351,15 +348,23 @@ class _PlanTable extends StatelessWidget {
 }
 
 class _ComparisonCell extends StatelessWidget {
-  const _ComparisonCell({required this.label, this.tooltip});
+  const _ComparisonCell({
+    required this.label,
+    this.icon,
+    this.tooltip,
+    this.isHighlighted = false,
+  });
 
   final String label;
+  final FlowySvgs? icon;
   final String? tooltip;
+  final bool isHighlighted;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12) +
+          EdgeInsets.only(left: isHighlighted ? 12 : 0),
       height: 36,
       decoration: BoxDecoration(
         border: Border(
@@ -371,7 +376,12 @@ class _ComparisonCell extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(child: FlowyText.medium(label)),
+          Expanded(
+            child: FlowyText.medium(
+              label,
+              lineHeight: 1.2,
+            ),
+          ),
           if (tooltip != null)
             FlowyTooltip(
               message: tooltip,
@@ -415,7 +425,7 @@ class _ActionButton extends StatelessWidget {
                   height: gradientBorder ? 36 : 40,
                   width: gradientBorder ? 148 : 152,
                   decoration: BoxDecoration(
-                    color: gradientBorder
+                    color: useGradientBorder
                         ? Theme.of(context).cardColor
                         : Colors.transparent,
                     border: Border.all(
@@ -445,6 +455,7 @@ class _ActionButton extends StatelessWidget {
     final child = FlowyText(
       text,
       fontSize: 14,
+      lineHeight: 1.2,
       fontWeight: useGradientBorder ? FontWeight.w600 : FontWeight.w500,
     );
 
@@ -507,10 +518,10 @@ class _Heading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 165,
+      width: 175,
       height: height,
       child: Padding(
-        padding: EdgeInsets.only(left: horizontalInset),
+        padding: EdgeInsets.only(left: horizontalInset + (!isPrimary ? 12 : 0)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -525,6 +536,7 @@ class _Heading extends StatelessWidget {
                 description!,
                 fontSize: 12,
                 maxLines: 3,
+                lineHeight: 1.5,
               ),
             ],
           ],
@@ -571,24 +583,63 @@ final _planLabels = [
   ),
 ];
 
-final _freeLabels = [
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemOne.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemTwo.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemThree.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemEight.tr(),
+class _CellItem {
+  const _CellItem(this.label, {this.icon});
+
+  final String label;
+  final FlowySvgs? icon;
+}
+
+final List<_CellItem> _freeLabels = [
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemOne.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemTwo.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemThree.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemEight.tr(),
+  ),
 ];
 
-final _proLabels = [
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemOne.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemTwo.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemThree.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemEight.tr(),
+final List<_CellItem> _proLabels = [
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemOne.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemTwo.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemThree.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemEight.tr(),
+  ),
 ];

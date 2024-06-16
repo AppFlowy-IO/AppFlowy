@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/presentation/settings/shared/flowy_gradient_b
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -21,15 +22,22 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsPlanView extends StatelessWidget {
-  const SettingsPlanView({super.key, required this.workspaceId});
+  const SettingsPlanView({
+    super.key,
+    required this.workspaceId,
+    required this.user,
+  });
 
   final String workspaceId;
+  final UserProfilePB user;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsPlanBloc>(
-      create: (context) => SettingsPlanBloc(workspaceId: workspaceId)
-        ..add(const SettingsPlanEvent.started()),
+      create: (context) => SettingsPlanBloc(
+        workspaceId: workspaceId,
+        userId: user.id,
+      )..add(const SettingsPlanEvent.started()),
       child: BlocBuilder<SettingsPlanBloc, SettingsPlanState>(
         builder: (context, state) {
           return state.map(
