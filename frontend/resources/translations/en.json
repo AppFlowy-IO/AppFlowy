@@ -408,10 +408,12 @@
       },
       "theme": {
         "title": "Theme",
-        "description": "Select a preset theme, or upload your own custom theme."
+        "description": "Select a preset theme, or upload your own custom theme.",
+        "uploadCustomThemeTooltip": "Upload a custom theme"
       },
       "workspaceFont": {
-        "title": "Workspace font"
+        "title": "Workspace font",
+        "noFontHint": "No font found, try another term."
       },
       "textDirection": {
         "title": "Text direction",

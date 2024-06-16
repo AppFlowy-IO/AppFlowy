@@ -121,7 +121,12 @@ class SettingsWorkspaceView extends StatelessWidget {
               SettingsCategory(
                 title:
                     LocaleKeys.settings_workspacePage_workspaceFont_title.tr(),
-                children: const [_FontSelectorDropdown()],
+                children: [
+                  _FontSelectorDropdown(
+                    currentFont:
+                        context.read<AppearanceSettingsCubit>().state.font,
+                  ),
+                ],
               ),
               SettingsCategory(
                 title:
@@ -636,7 +641,9 @@ class _ThemeDropdown extends StatelessWidget {
             key: const Key('ThemeSelectorDropdown'),
             actions: [
               SettingAction(
-                tooltip: 'Upload a custom theme',
+                tooltip: LocaleKeys
+                    .settings_workspacePage_theme_uploadCustomThemeTooltip
+                    .tr(),
                 icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(20)),
                 onPressed: () => Dialogs.show(
                   context,
@@ -843,7 +850,9 @@ class _SelectedModeIndicator extends StatelessWidget {
 }
 
 class _FontSelectorDropdown extends StatefulWidget {
-  const _FontSelectorDropdown();
+  const _FontSelectorDropdown({required this.currentFont});
+
+  final String currentFont;
 
   @override
   State<_FontSelectorDropdown> createState() => _FontSelectorDropdownState();
@@ -853,18 +862,23 @@ class _FontSelectorDropdownState extends State<_FontSelectorDropdown> {
   late final _options = [defaultFontFamily, ...GoogleFonts.asMap().keys];
   final _focusNode = FocusNode();
   final _controller = PopoverController();
-  final _scrollController = ScrollController();
+  late final ScrollController _scrollController;
+  final _textController = TextEditingController();
 
-  void _scrollIfNeccessary() {
+  @override
+  void initState() {
+    super.initState();
+    const itemExtent = 32;
+    final index = _options.indexOf(widget.currentFont);
+    final newPosition = (index * itemExtent).toDouble();
+    _scrollController = ScrollController(initialScrollOffset: newPosition);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Set scroll position to selected item.
-      final appearance = context.read<AppearanceSettingsCubit>().state;
-      const itemExtent = 32;
-      final index = _options.indexOf(appearance.font);
-      final newPosition = (index * itemExtent).toDouble();
-      if (_scrollController.offset != newPosition) {
-        _scrollController.jumpTo(newPosition);
-      }
+      _textController.text = context
+          .read<AppearanceSettingsCubit>()
+          .state
+          .font
+          .fontFamilyDisplayName;
     });
   }
 
@@ -873,6 +887,7 @@ class _FontSelectorDropdownState extends State<_FontSelectorDropdown> {
     _controller.close();
     _focusNode.dispose();
     _scrollController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
@@ -904,57 +919,14 @@ class _FontSelectorDropdownState extends State<_FontSelectorDropdown> {
             ),
           ],
         ),
-        popupBuilder: (_) {
-          _scrollIfNeccessary();
-          return Material(
-            type: MaterialType.transparency,
-            child: ListView.separated(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              itemCount: _options.length,
-              separatorBuilder: (_, __) => const VSpace(4),
-              itemBuilder: (context, index) {
-                final font = _options[index];
-                final isSelected = appearance.font == font;
-                return SizedBox(
-                  height: 28,
-                  child: ListTile(
-                    selected: isSelected,
-                    dense: true,
-                    hoverColor: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.12),
-                    selectedTileColor:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.12),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 6),
-                    minTileHeight: 28,
-                    onTap: () {
-                      context
-                          .read<AppearanceSettingsCubit>()
-                          .setFontFamily(font);
-
-                      // This is a workaround such that when dialog rebuilds due
-                      // to font changing, the font selector won't retain focus.
-                      _focusNode.parent?.requestFocus();
-
-                      _controller.close();
-                    },
-                    title: Text(
-                      font.fontFamilyDisplayName,
-                      style: TextStyle(
-                        color: AFThemeExtension.of(context).textColor,
-                        fontFamily: getGoogleFontSafely(font).fontFamily,
-                      ),
-                    ),
-                    trailing:
-                        isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
-                  ),
-                );
-              },
-            ),
-          );
-        },
+        popupBuilder: (_) => _FontListPopup(
+          currentFont: appearance.font,
+          scrollController: _scrollController,
+          controller: _controller,
+          options: _options,
+          textController: _textController,
+          focusNode: _focusNode,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -970,36 +942,43 @@ class _FontSelectorDropdownState extends State<_FontSelectorDropdown> {
                     setState(() {});
                     _controller.show();
                   },
-                  child: Focus(
+                  child: FlowyTextField(
+                    autoFocus: false,
                     focusNode: _focusNode,
-                    includeSemantics: false,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: _focusNode.hasFocus
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.outline,
+                    controller: _textController,
+                    decoration: InputDecoration(
+                      suffixIcon: const MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: Icon(Icons.arrow_drop_down),
+                      ),
+                      counterText: '',
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 18,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
                         ),
                         borderRadius: Corners.s8Border,
                       ),
-                      child: Row(
-                        children: [
-                          const HSpace(18),
-                          Text(
-                            appearance.font.fontFamilyDisplayName,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(fontFamily: appearance.font),
-                          ),
-                          const Spacer(),
-                          const MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: Icon(Icons.arrow_drop_down),
-                          ),
-                          const HSpace(10),
-                        ],
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        borderRadius: Corners.s8Border,
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        borderRadius: Corners.s8Border,
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        borderRadius: Corners.s8Border,
                       ),
                     ),
                   ),
@@ -1037,6 +1016,145 @@ class _FontSelectorDropdownState extends State<_FontSelectorDropdown> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FontListPopup extends StatefulWidget {
+  const _FontListPopup({
+    required this.controller,
+    required this.scrollController,
+    required this.options,
+    required this.currentFont,
+    required this.textController,
+    required this.focusNode,
+  });
+
+  final ScrollController scrollController;
+  final List<String> options;
+  final String currentFont;
+  final TextEditingController textController;
+  final FocusNode focusNode;
+  final PopoverController controller;
+
+  @override
+  State<_FontListPopup> createState() => _FontListPopupState();
+}
+
+class _FontListPopupState extends State<_FontListPopup> {
+  late List<String> _filteredOptions = widget.options;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.textController.addListener(_onTextFieldChanged);
+  }
+
+  void _onTextFieldChanged() {
+    final value = widget.textController.text;
+
+    if (value.trim().isEmpty) {
+      _filteredOptions = widget.options;
+    } else {
+      if (value.fontFamilyDisplayName ==
+          widget.currentFont.fontFamilyDisplayName) {
+        return;
+      }
+
+      _filteredOptions = widget.options
+          .where(
+            (f) =>
+                f.toLowerCase().contains(value.trim().toLowerCase()) ||
+                f.fontFamilyDisplayName
+                    .toLowerCase()
+                    .contains(value.trim().fontFamilyDisplayName.toLowerCase()),
+          )
+          .toList();
+
+      // Default font family is "", but the display name is "System",
+      // which means it's hard compared to other font families to find this one.
+      if (!_filteredOptions.contains(defaultFontFamily) &&
+          'system'.contains(value.trim().toLowerCase())) {
+        _filteredOptions.insert(0, defaultFontFamily);
+      }
+    }
+
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    widget.textController.removeListener(_onTextFieldChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_filteredOptions.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: FlowyText.medium(
+                LocaleKeys.settings_workspacePage_workspaceFont_noFontHint.tr(),
+              ),
+            ),
+          Flexible(
+            child: ListView.separated(
+              shrinkWrap: _filteredOptions.length < 10,
+              controller: widget.scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              itemCount: _filteredOptions.length,
+              separatorBuilder: (_, __) => const VSpace(4),
+              itemBuilder: (context, index) {
+                final font = _filteredOptions[index];
+                final isSelected = widget.currentFont == font;
+                return SizedBox(
+                  height: 28,
+                  child: ListTile(
+                    selected: isSelected,
+                    dense: true,
+                    hoverColor: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.12),
+                    selectedTileColor:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.12),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 6),
+                    minTileHeight: 28,
+                    onTap: () {
+                      context
+                          .read<AppearanceSettingsCubit>()
+                          .setFontFamily(font);
+
+                      widget.textController.text = font.fontFamilyDisplayName;
+
+                      // This is a workaround such that when dialog rebuilds due
+                      // to font changing, the font selector won't retain focus.
+                      widget.focusNode.parent?.requestFocus();
+
+                      widget.controller.close();
+                    },
+                    title: Text(
+                      font.fontFamilyDisplayName,
+                      style: TextStyle(
+                        color: AFThemeExtension.of(context).textColor,
+                        fontFamily: getGoogleFontSafely(font).fontFamily,
+                      ),
+                    ),
+                    trailing:
+                        isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
