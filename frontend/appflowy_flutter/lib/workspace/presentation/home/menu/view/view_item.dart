@@ -60,7 +60,6 @@ class ViewItem extends StatelessWidget {
     this.rightIconsBuilder,
     this.shouldLoadChildViews = true,
     this.isExpandedNotifier,
-    this.extendBuilder,
   });
 
   final ViewPB view;
@@ -114,8 +113,6 @@ class ViewItem extends StatelessWidget {
   final bool shouldLoadChildViews;
   final PropertyValueNotifier<bool>? isExpandedNotifier;
 
-  final List<Widget> Function(ViewPB view)? extendBuilder;
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -151,7 +148,6 @@ class ViewItem extends StatelessWidget {
             leftIconBuilder: leftIconBuilder,
             rightIconsBuilder: rightIconsBuilder,
             isExpandedNotifier: isExpandedNotifier,
-            extendBuilder: extendBuilder,
           );
         },
       ),
@@ -185,7 +181,6 @@ class InnerViewItem extends StatefulWidget {
     required this.leftIconBuilder,
     required this.rightIconsBuilder,
     this.isExpandedNotifier,
-    required this.extendBuilder,
   });
 
   final ViewPB view;
@@ -215,7 +210,6 @@ class InnerViewItem extends StatefulWidget {
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
   final PropertyValueNotifier<bool>? isExpandedNotifier;
-  final List<Widget> Function(ViewPB view)? extendBuilder;
 
   @override
   State<InnerViewItem> createState() => _InnerViewItemState();
@@ -253,7 +247,6 @@ class _InnerViewItemState extends State<InnerViewItem> {
       isHovered: widget.isHovered,
       leftIconBuilder: widget.leftIconBuilder,
       rightIconsBuilder: widget.rightIconsBuilder,
-      extendBuilder: widget.extendBuilder,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -277,7 +270,6 @@ class _InnerViewItemState extends State<InnerViewItem> {
           isHovered: widget.isHovered,
           leftIconBuilder: widget.leftIconBuilder,
           rightIconsBuilder: widget.rightIconsBuilder,
-          extendBuilder: widget.extendBuilder,
         );
       }).toList();
 
@@ -323,7 +315,6 @@ class _InnerViewItemState extends State<InnerViewItem> {
               isFeedback: true,
               leftIconBuilder: widget.leftIconBuilder,
               rightIconsBuilder: widget.rightIconsBuilder,
-              extendBuilder: widget.extendBuilder,
             ),
           );
         },
@@ -398,7 +389,6 @@ class SingleInnerViewItem extends StatefulWidget {
     this.isHovered,
     required this.leftIconBuilder,
     required this.rightIconsBuilder,
-    required this.extendBuilder,
   });
 
   final ViewPB view;
@@ -422,8 +412,6 @@ class SingleInnerViewItem extends StatefulWidget {
   final ValueNotifier<bool>? isHovered;
   final ViewItemLeftIconBuilder? leftIconBuilder;
   final ViewItemRightIconsBuilder? rightIconsBuilder;
-
-  final List<Widget> Function(ViewPB view)? extendBuilder;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -465,10 +453,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   }
 
   Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
-    final name = FlowyText.regular(
-      widget.view.name,
-      overflow: TextOverflow.ellipsis,
-    );
     final children = [
       const HSpace(2),
       // expand icon or placeholder
@@ -478,16 +462,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       _buildViewIconButton(),
       const HSpace(6),
       // title
-      widget.extendBuilder != null
-          ? Expanded(
-              child: Row(
-                children: [
-                  name,
-                  ...widget.extendBuilder!(widget.view),
-                ],
-              ),
-            )
-          : Expanded(child: name),
+      Expanded(
+        child: FlowyText.regular(
+          widget.view.name,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
     ];
 
     // hover action
