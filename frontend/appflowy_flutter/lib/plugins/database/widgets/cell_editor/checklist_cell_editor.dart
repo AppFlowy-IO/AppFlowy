@@ -187,8 +187,12 @@ class _ChecklistItemState extends State<ChecklistItem> {
     super.didUpdateWidget(oldWidget);
     if (widget.task.data.name != oldWidget.task.data.name) {
       final selection = _textController.selection;
-      _textController.text = widget.task.data.name;
-      _textController.selection = selection;
+      // Ensure the selection offset is within the new text bounds
+      int offset = selection.start;
+      if (offset > widget.task.data.name.length) {
+        offset = widget.task.data.name.length;
+      }
+      _textController.selection = TextSelection.collapsed(offset: offset);
     }
   }
 
@@ -270,7 +274,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
                         hintText: LocaleKeys.grid_checklist_taskHint.tr(),
                       ),
                       textInputAction: widget.onSubmitted == null
-                          ? TextInputAction.next
+                          ? TextInputAction.done
                           : null,
                       onChanged: (text) {
                         if (_textController.value.composing.isCollapsed) {
@@ -454,8 +458,7 @@ class _DeleteTaskButtonState extends State<_DeleteTaskButton> {
       statesController: _materialStatesController,
       child: FlowySvg(
         FlowySvgs.delete_s,
-        color: _materialStatesController.value
-                    .contains(WidgetState.hovered) ||
+        color: _materialStatesController.value.contains(WidgetState.hovered) ||
                 _materialStatesController.value.contains(WidgetState.focused)
             ? Theme.of(context).colorScheme.error
             : null,

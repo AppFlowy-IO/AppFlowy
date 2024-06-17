@@ -45,7 +45,7 @@ impl TaskStore {
   }
 
   pub(crate) fn next_task_id(&self) -> TaskId {
-    let _ = self.task_id_counter.fetch_add(1, SeqCst);
-    self.task_id_counter.load(SeqCst)
+    let old = self.task_id_counter.fetch_add(1, SeqCst);
+    old + 1
   }
 }
