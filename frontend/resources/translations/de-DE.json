@@ -241,9 +241,10 @@
     "viewDataBase": "Datenbank ansehen",
     "referencePage": "Auf diesen {Name} wird verwiesen",
     "addBlockBelow": "Einen Block hinzufügen",
-    "genSummary": "Zusammenfassung generieren",
+    "aiGenerate": "Generieren",
     "urlLaunchAccessory": "Im Browser öffnen",
-    "urlCopyAccessory": "Webadresse kopieren."
+    "urlCopyAccessory": "Webadresse kopieren.",
+    "genSummary": "Zusammenfassung generieren"
   },
   "sideBar": {
     "closeSidebar": "Seitenleiste schließen",
@@ -335,7 +336,9 @@
     "signInGoogle": "Mit einem Google Benutzerkonto anmelden",
     "signInGithub": "Mit einem Github Benutzerkonto anmelden",
     "signInDiscord": "Mit einem Discord Benutzerkonto anmelden",
-    "more": "Mehr"
+    "more": "Mehr",
+    "create": "Erstellen",
+    "close": "Schließen"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -504,6 +507,140 @@
           "description": "Durch das Leeren des Caches werden Bilder und Schriftarten beim Laden erneut heruntergeladen. Deine Daten werden durch diese Aktion weder entfernt noch geändert.",
           "successHint": "Cache geleert!"
         }
+      }
+    },
+    "planPage": {
+      "menuLabel": "Abonnement",
+      "title": "Tarifplan",
+      "planUsage": {
+        "title": "Zusammenfassung der Plannutzung",
+        "storageLabel": "Speicher",
+        "storageUsage": "{} von {} GB",
+        "collaboratorsLabel": "Nutzer",
+        "collaboratorsUsage": "{} von {}",
+        "aiResponseLabel": "KI-Antworten",
+        "aiResponseUsage": "{} von {}",
+        "proBadge": "Pro",
+        "memberProToggle": "Unbegrenzte Mitgliederzahl",
+        "guestCollabToggle": "10 Gastnutzer",
+        "aiCredit": {
+          "title": "AppFlowy AI-Guthaben hinzufügen",
+          "price": "5 $",
+          "priceDescription": "für 1.000 Credits",
+          "purchase": "KI kaufen",
+          "info": "Füge 1.000 KI-Credits pro Arbeitsbereich hinzu und integriere anpassbare KI nahtlos in deinen Arbeitsablauf für intelligentere, schnellere Ergebnisse mit bis zu:",
+          "infoItemOne": "10.000 Antworten pro Datenbank",
+          "infoItemTwo": "1.000 Antworten pro Arbeitsbereich"
+        },
+        "currentPlan": {
+          "bannerLabel": "Derzeitiger Plan",
+          "freeTitle": "Frei",
+          "proTitle": "Pro",
+          "teamTitle": "Team",
+          "freeInfo": "Perfekt für Einzelpersonen oder kleine Teams mit bis zu 3 Personen.",
+          "upgrade": "Vergleichen &\n Upgraden",
+          "freeProOne": "Gemeinsamer Arbeitsbereich",
+          "freeProTwo": "Bis zu 3 Mitglieder (inkl. Eigentümer)",
+          "freeProThree": "Unbegrenzte Anzahl an Gästen (nur anzeigen)",
+          "freeProFour": "Speicher 5 GB",
+          "freeProFive": "30 Tage Änderungshistorie",
+          "freeConOne": "Gastnutzer (Bearbeitungszugriff)",
+          "freeConTwo": "Unbegrenzter Speicherplatz",
+          "freeConThree": "6 Monate Änderungshistorie",
+          "professionalProOne": "Gemeinsamer Arbeitsbereich",
+          "professionalProTwo": "Unbegrenzte Mitgliederzahl",
+          "professionalProThree": "Unbegrenzte Anzahl an Gästen (nur anzeigen)",
+          "professionalProFour": "Unbegrenzter Speicherplatz",
+          "professionalProFive": "6 Monate Änderungshistorie",
+          "professionalConOne": "Unbegrenzte Anzahl an Gastnutzern (Bearbeitungszugriff)",
+          "professionalConTwo": "Unbegrenzte KI-Antworten",
+          "professionalConThree": "1 Jahr Änderungshistorie",
+          "canceledInfo": "Dein Plan wurde gekündigt und du wirst am {} auf den kostenlosen Plan herabgestuft."
+        },
+        "deal": {
+          "bannerLabel": "Neujahrsangebot!",
+          "title": "Erweiter dein Team!",
+          "info": "Upgrade und spare 10 % auf Pro- und Team-Pläne! Steiger die Produktivität deines Arbeitsplatzes mit leistungsstarken neuen Funktionen, einschließlich AppFlowy AI.",
+          "viewPlans": "Pläne anzeigen"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "Abrechnung",
+      "title": "Abrechnung",
+      "plan": {
+        "title": "Abonnement",
+        "freeLabel": "Frei",
+        "proLabel": "Pro",
+        "planButtonLabel": "Plan ändern",
+        "billingPeriod": "Abrechnungszeitraum",
+        "periodButtonLabel": "Zeitraum bearbeiten"
+      },
+      "paymentDetails": {
+        "title": "Zahlungsdetails",
+        "methodLabel": "Zahlungsmethode",
+        "methodButtonLabel": "Zahlungsmethode bearbeiten"
+      }
+    },
+    "comparePlanDialog": {
+      "title": "Plan vergleichen und auswählen",
+      "planFeatures": "Plan\nMerkmale",
+      "actions": {
+        "upgrade": "Hochstufen",
+        "downgrade": "Herabstufen",
+        "current": "Aktuell"
+      },
+      "freePlan": {
+        "title": "Frei",
+        "description": "Zur Organisation jeder Facette deiner Arbeit und deines Lebens.",
+        "price": "0 $",
+        "priceInfo": "für immer frei"
+      },
+      "proPlan": {
+        "title": "Professionell",
+        "description": "Ein Ort für kleine Gruppen zum Planen und Organisieren.",
+        "price": "10 $/Monat",
+        "priceInfo": "jährlich abgerechnet"
+      },
+      "planLabels": {
+        "itemOne": "Arbeitsbereiche",
+        "itemTwo": "Mitglieder",
+        "itemThree": "Gäste",
+        "tooltipThree": "Gäste haben nur Leseberechtigung für die freigegebenen Inhalte.",
+        "itemFour": "Gastnutzer",
+        "tooltipFour": "Gastnutzer werden als eine Lizenz abgerechnet",
+        "itemFive": "Speicher",
+        "itemSix": "Zusammenarbeit in Echtzeit",
+        "itemSeven": "Mobile Applikation",
+        "itemEight": "KI-Antworten",
+        "tooltipEight": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird"
+      },
+      "freeLabels": {
+        "itemOne": "Verrechnung pro Arbeitsplatz",
+        "itemTwo": "3",
+        "itemFour": "0",
+        "itemFive": "5 GB",
+        "itemSix": "Ja",
+        "itemSeven": "Ja",
+        "itemEight": "1.000 Lebenszeit"
+      },
+      "proLabels": {
+        "itemOne": "Verrechnung pro Arbeitsplatz",
+        "itemTwo": "bis zu 10",
+        "itemFour": "10 Gäste werden als eine Lizenz abgerechnet",
+        "itemFive": "unbegrenzt",
+        "itemSix": "Ja",
+        "itemSeven": "Ja",
+        "itemEight": "10.000 monatlich"
+      },
+      "paymentSuccess": {
+        "title": "Du bist jetzt im {}-Plan!",
+        "description": "Deine Zahlung wurde erfolgreich verarbeitet und dein Plan wurde auf AppFlowy {} aktualisiert. Du kannst deine Plandetails auf der Tarifplanseite anzeigen."
+      },
+      "downgradeDialog": {
+        "title": "Möchtest du deinen Plan wirklich herabstufen?",
+        "description": "Wenn du deinen Plan herabstufst, wirst du zum kostenlosen Plan zurückgesetzt. Mitglieder verlieren möglicherweise den Zugriff auf Arbeitsbereiche und du musst möglicherweise Speicherplatz freigeben, um die Speicherbeschränkungen des kostenlosen Plans einzuhalten.",
+        "downgradeLabel": "Plan herabstufen"
       }
     },
     "common": {
@@ -879,6 +1016,9 @@
       "checklistFieldName": "Checkliste",
       "relationFieldName": "Beziehung",
       "summaryFieldName": "KI-Zusammenfassung",
+      "timeFieldName": "Zeit",
+      "translateFieldName": "KI-Übersetzung",
+      "translateTo": "Übersetzen ins",
       "numberFormat": "Zahlenformat",
       "dateFormat": "Datumsformat",
       "includeTime": "Zeitangabe",
@@ -952,6 +1092,7 @@
       "action": "Aktion",
       "add": "Klicken, um unten hinzuzufügen",
       "drag": "Ziehen, um zu verschieben",
+      "deleteRowPrompt": "Möchtest du diese Zeile wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "dragAndClick": "Ziehen, um zu verschieben. Klicke, um das Menü zu öffnen",
       "insertRecordAbove": "Füge Datensatz oben ein",
       "insertRecordBelow": "Füge Datensatz unten ein",
@@ -1304,6 +1445,7 @@
     "ungroupedButtonTooltip": "Enthält Karten, die keiner Gruppe zugeordnet sind",
     "ungroupedItemsTitle": "Klicke, um dem Board hinzuzufügen",
     "groupBy": "Gruppiert nach",
+    "groupCondition": "Gruppenbedingung",
     "referencedBoardPrefix": "Sicht von",
     "notesTooltip": "Notizen vorhanden",
     "mobile": {
@@ -1311,6 +1453,16 @@
       "showGroup": "Zeige die Gruppe",
       "showGroupContent": "Sicher, dass diese Gruppe auf dem Board angezeigt werden soll?",
       "failedToLoad": "Boardansicht konnte nicht geladen werden"
+    },
+    "dateCondition": {
+      "weekOf": "Woche {} - {}",
+      "today": "Heute",
+      "yesterday": "Gestern",
+      "tomorrow": "Morgen",
+      "lastSevenDays": "Letzten 7 Tage",
+      "nextSevenDays": "Nächste 7 Tage",
+      "lastThirtyDays": "Letzte 30 Tage",
+      "nextThirtyDays": "Nächste 30 Tage"
     },
     "noGroup": "Keine Gruppierung nach Eigenschaft",
     "noGroupDesc": "Board-Ansichten benötigen eine Eigenschaft zum Gruppieren, um angezeigt zu werden"
@@ -1740,6 +1892,38 @@
     "loadingTooltip": "Wir suchen nach Ergebnissen ...",
     "betaLabel": "BETA",
     "betaTooltip": "Wir unterstützen derzeit nur die Suche nach Seiten",
-    "fromTrashHint": "Aus dem Mülleimer"
+    "fromTrashHint": "Aus dem Mülleimer",
+    "noResultsHint": "Wir haben nicht gefunden, wonach du suchst. Versuche es mit einer Suche nach einem anderen Begriff.",
+    "clearSearchTooltip": "Suchfeld leeren"
+  },
+  "space": {
+    "delete": "Bereich löschen",
+    "deleteConfirmation": "Möchtest du diesen Bereich wirklich löschen?",
+    "deleteConfirmationDescription": "Diese Aktion kann nicht rückgängig gemacht werden und entfernt die Seiten und Daten in diesem Bereich.",
+    "rename": "Bereich umbenennen",
+    "changeIcon": "Symbol ändern",
+    "manage": "Bereich verwalten",
+    "addNewSpace": "Neuen Bereich hinzufügen",
+    "collapseAllSubPages": "Alle Unterseiten ausblenden",
+    "createNewSpace": "Neuen Bereich erstellen",
+    "createSpaceDescription": "Trenne deine Tabs für Leben, Arbeit, Projekte und mehr",
+    "spaceName": "Name des Bereichs",
+    "permission": "Erlaubnis",
+    "publicPermission": "Öffentlich",
+    "publicPermissionDescription": "Alle Arbeitsbereich-Mitglieder mit Vollzugriff",
+    "privatePermission": "Privat",
+    "privatePermissionDescription": "Nur du hast Zugriff auf diesen Bereich",
+    "spaceIconBackground": "Hintergrundfarbe",
+    "spaceIcon": "Symbol",
+    "dangerZone": "Gefahrenzone",
+    "unableToDeleteLastSpace": "Der letzte Bereich kann nicht gelöscht werden",
+    "unableToDeleteSpaceNotCreatedByYou": "Ein von anderen erstellter Bereich kann nicht gelöscht werden",
+    "enableSpacesForYourWorkspace": "Aktiviere Bereiche für deinen Arbeitsbereich",
+    "title": "Gemeinsam genutzte Bereiche",
+    "defaultSpaceName": "Allgemein",
+    "upgradeSpaceTitle": "Aktiviere Bereiche für deinen Arbeitsbereich",
+    "upgradeSpaceDescription": "Erstelle mehrere öffentliche und private Bereiche, um deine Arbeit besser zu organisieren.",
+    "upgrade": "Hochstufen",
+    "upgradeYourSpace": "Upgrade deinen Bereich"
   }
 }
