@@ -43,7 +43,7 @@ void main() {
       );
 
       await tester.openSettingsPage(SettingsPage.plan);
-      await tester.pumpAndSettle();
+      await tester.pumpUntilNotFound(find.byType(CircularProgressIndicator));
 
       final freeSubscription = WorkspaceSubscriptionPB(
         workspaceId: '-',
@@ -52,8 +52,14 @@ void main() {
       );
 
       // We know the initial fetch went well or was handled correctly,
-      // if the free label is displayed
+      // if the free label is displayed and upgrade button
       expect(find.text(freeSubscription.label), findsOneWidget);
+      expect(
+        find.text(
+          LocaleKeys.settings_planPage_planUsage_currentPlan_upgrade.tr(),
+        ),
+        findsOneWidget,
+      );
 
       await tester.tap(
         find.text(

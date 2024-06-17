@@ -247,7 +247,7 @@ class UserBackendService implements IUserBackendService {
   ) {
     final request = SubscribeWorkspacePB()
       ..workspaceId = workspaceId
-      ..recurringInterval = RecurringIntervalPB.Month
+      ..recurringInterval = RecurringIntervalPB.Year
       ..workspaceSubscriptionPlan = plan
       ..successUrl =
           '${getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url}/web/payment-success';

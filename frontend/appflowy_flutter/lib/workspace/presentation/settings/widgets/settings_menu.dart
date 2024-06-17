@@ -27,7 +27,6 @@ class SettingsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("MemberRole(${member?.role.isOwner})");
     // Column > Expanded for full size no matter the content
     return Column(
       children: [
