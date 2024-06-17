@@ -182,6 +182,22 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             await _openSpace(space);
             final isExpanded = await _getSpaceExpandStatus(space);
             emit(state.copyWith(currentSpace: space, isExpanded: isExpanded));
+
+            // open the first page by default
+            if (space.childViews.isNotEmpty) {
+              final firstPage = space.childViews.first;
+              emit(
+                state.copyWith(
+                  lastCreatedPage: firstPage,
+                ),
+              );
+            } else {
+              emit(
+                state.copyWith(
+                  lastCreatedPage: ViewPB(),
+                ),
+              );
+            }
           },
           expand: (space, isExpanded) async {
             await _setSpaceExpandStatus(space, isExpanded);

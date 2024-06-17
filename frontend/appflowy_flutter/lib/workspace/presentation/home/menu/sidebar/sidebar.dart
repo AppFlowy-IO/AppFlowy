@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
@@ -134,11 +135,23 @@ class HomeSideBar extends StatelessWidget {
               BlocListener<SpaceBloc, SpaceState>(
                 listenWhen: (p, c) =>
                     p.lastCreatedPage?.id != c.lastCreatedPage?.id,
-                listener: (context, state) => context.read<TabsBloc>().add(
-                      TabsEvent.openPlugin(
-                        plugin: state.lastCreatedPage!.plugin(),
-                      ),
-                    ),
+                listener: (context, state) {
+                  final page = state.lastCreatedPage;
+                  if (page == null || page.id.isEmpty) {
+                    // open the blank page
+                    context.read<TabsBloc>().add(
+                          TabsEvent.openPlugin(
+                            plugin: BlankPagePlugin(),
+                          ),
+                        );
+                  } else {
+                    context.read<TabsBloc>().add(
+                          TabsEvent.openPlugin(
+                            plugin: state.lastCreatedPage!.plugin(),
+                          ),
+                        );
+                  }
+                },
               ),
               BlocListener<ActionNavigationBloc, ActionNavigationState>(
                 listenWhen: (_, curr) => curr.action != null,
