@@ -29,6 +29,7 @@ void main() {
       await tester.expectToSeeHomePageWithGetStartedPage();
 
       await tester.openSettings();
+      await tester.pumpAndSettle();
 
       // Make sure the SettingsMenuElement button for billing
       // is scrolled into view
