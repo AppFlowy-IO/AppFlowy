@@ -214,20 +214,32 @@ class DeleteSpacePopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final space = context.read<SpaceBloc>().state.currentSpace;
+    final name = space != null ? space.name : '';
     return Padding(
       padding: const EdgeInsets.symmetric(
-        vertical: 12.0,
+        vertical: 20.0,
         horizontal: 20.0,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FlowyText(
-            LocaleKeys.space_deleteConfirmation.tr(),
-            fontSize: 14.0,
+          Row(
+            children: [
+              FlowyText(
+                LocaleKeys.space_deleteConfirmation.tr() + name,
+                fontSize: 14.0,
+              ),
+              const Spacer(),
+              FlowyButton(
+                useIntrinsicWidth: true,
+                text: const FlowySvg(FlowySvgs.upgrade_close_s),
+                onTap: () => Navigator.of(context).pop(),
+              ),
+            ],
           ),
-          const VSpace(16.0),
+          const VSpace(8.0),
           FlowyText.regular(
             LocaleKeys.space_deleteConfirmationDescription.tr(),
             fontSize: 12.0,
@@ -245,7 +257,6 @@ class DeleteSpacePopup extends StatelessWidget {
             confirmButtonName: LocaleKeys.space_delete.tr(),
             confirmButtonColor: Theme.of(context).colorScheme.error,
           ),
-          const VSpace(8.0),
         ],
       ),
     );
