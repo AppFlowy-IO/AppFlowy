@@ -666,20 +666,6 @@ pub async fn get_workspace_members_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn get_workspace_member_handler(
-  data: AFPluginData<QueryWorkspacePB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<WorkspaceMemberPB, FlowyError> {
-  let data = data.try_into_inner()?;
-  let manager = upgrade_manager(manager)?;
-  let uid = manager.get_session()?.user_id;
-
-  let member = manager.get_workspace_member(data.workspace_id, uid).await?;
-
-  data_result_ok(WorkspaceMemberPB::from(member))
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn update_workspace_member_handler(
   data: AFPluginData<UpdateWorkspaceMemberPB>,
   manager: AFPluginState<Weak<UserManager>>,

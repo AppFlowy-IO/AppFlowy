@@ -57,14 +57,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             }
 
             WorkspaceMemberPB? currentWorkspaceMember;
-            if (currentWorkspace != null) {
-              final workspaceMemberResult = await _userService
-                  .getWorkspaceMember(currentWorkspace.workspaceId);
-              currentWorkspaceMember = workspaceMemberResult.fold(
-                (s) => s,
-                (e) => null,
-              );
-            }
+            final workspaceMemberResult =
+                await _userService.getWorkspaceMember();
+            currentWorkspaceMember = workspaceMemberResult.fold(
+              (s) => s,
+              (e) => null,
+            );
 
             emit(
               state.copyWith(
@@ -212,14 +210,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
 
             WorkspaceMemberPB? currentWorkspaceMember;
-            if (currentWorkspace != null) {
-              final workspaceMemberResult = await _userService
-                  .getWorkspaceMember(currentWorkspace.workspaceId);
-              currentWorkspaceMember = workspaceMemberResult.fold(
-                (s) => s,
-                (e) => null,
-              );
-            }
+            final workspaceMemberResult =
+                await _userService.getWorkspaceMember();
+            currentWorkspaceMember = workspaceMemberResult.fold(
+              (s) => s,
+              (e) => null,
+            );
 
             result
               ..onSuccess((s) {

@@ -233,12 +233,11 @@ class UserBackendService implements IUserBackendService {
     return UserEventGetWorkspaceSubscriptions().send();
   }
 
-  Future<FlowyResult<WorkspaceMemberPB, FlowyError>> getWorkspaceMember(
-    String workspaceId,
-  ) async {
-    final data = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
+  Future<FlowyResult<WorkspaceMemberPB, FlowyError>>
+      getWorkspaceMember() async {
+    final data = WorkspaceMemberIdPB.create()..uid = userId;
 
-    return UserEventGetWorkspaceMember(data).send();
+    return UserEventGetMemberInfo(data).send();
   }
 
   @override

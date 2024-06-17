@@ -60,7 +60,6 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetMemberInfo, get_workspace_member_info)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
     .event(UserEvent::GetWorkspaceMembers, get_workspace_members_handler)
-    .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
       // Workspace
     .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
@@ -256,9 +255,6 @@ pub enum UserEvent {
 
   #[event(input = "WorkspaceMemberIdPB", output = "WorkspaceMemberPB")]
   GetMemberInfo = 56,
-
-  #[event(input = "UserWorkspaceIdPB", output = "WorkspaceMemberPB")]
-  GetWorkspaceMember = 57,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
