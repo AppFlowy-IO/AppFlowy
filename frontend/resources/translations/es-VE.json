@@ -320,7 +320,6 @@
     "accountPage": {
       "menuLabel": "Mi cuenta",
       "title": "Mi cuenta",
-      "description": "Personaliza tu perfil, administra la seguridad de la cuenta y las claves API de IA, o inicia sesión en tu cuenta.",
       "general": {
         "title": "Nombre de cuenta e imagen de perfil",
         "changeProfilePicture": "Cambiar"
@@ -344,7 +343,8 @@
         "title": "Inicio de sesión en la cuenta",
         "loginLabel": "Inicio de sesión",
         "logoutLabel": "Cerrar sesión"
-      }
+      },
+      "description": "Personaliza tu perfil, administra la seguridad de la cuenta y las claves API de IA, o inicia sesión en tu cuenta."
     },
     "menu": {
       "appearance": "Apariencia",

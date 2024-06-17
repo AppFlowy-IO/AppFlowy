@@ -365,7 +365,6 @@
     "accountPage": {
       "menuLabel": "Mein Konto",
       "title": "Mein Konto",
-      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an.",
       "general": {
         "title": "Kontoname und Profilbild",
         "changeProfilePicture": "Profilbild ändern"
@@ -389,7 +388,8 @@
         "title": "Kontoanmeldung",
         "loginLabel": "Anmeldung",
         "logoutLabel": "Ausloggen"
-      }
+      },
+      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an."
     },
     "workspacePage": {
       "menuLabel": "Arbeitsbereich",
@@ -415,10 +415,12 @@
       },
       "theme": {
         "title": "Design",
-        "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch."
+        "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch.",
+        "uploadCustomThemeTooltip": "Benutzerdefiniertes Design hochladen"
       },
       "workspaceFont": {
-        "title": "Schriftart"
+        "title": "Schriftart",
+        "noFontHint": "Keine Schriftart gefunden. Versuche es mit einem anderen Suchbegriff."
       },
       "textDirection": {
         "title": "Textrichtung",
@@ -538,6 +540,8 @@
           "proTitle": "Pro",
           "teamTitle": "Team",
           "freeInfo": "Perfekt für Einzelpersonen oder kleine Teams mit bis zu 3 Personen.",
+          "proInfo": "Perfekt für kleine und mittlere Teams mit bis zu 10 Mitgliedern.",
+          "teamInfo": "Perfekt für alle produktiven und gut organisierten Teams.",
           "upgrade": "Vergleichen &\n Upgraden",
           "freeProOne": "Gemeinsamer Arbeitsbereich",
           "freeProTwo": "Bis zu 3 Mitglieder (inkl. Eigentümer)",
@@ -585,9 +589,11 @@
     "comparePlanDialog": {
       "title": "Plan vergleichen und auswählen",
       "planFeatures": "Plan\nMerkmale",
+      "current": "Aktuell",
       "actions": {
         "upgrade": "Hochstufen",
         "downgrade": "Herabstufen",
+        "downgradeDisabledTooltip": "Am Ende des Abrechnungszeitraums erfolgt automatisch ein Downgrade",
         "current": "Aktuell"
       },
       "freePlan": {
@@ -782,6 +788,7 @@
       "members": {
         "title": "Mitglieder-Einstellungen",
         "inviteMembers": "Mitglieder einladen",
+        "inviteHint": "Einladung per E-Mail",
         "sendInvite": "Einladung senden",
         "copyInviteLink": "Kopiere Einladungslink",
         "label": "Mitglieder",

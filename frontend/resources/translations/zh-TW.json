@@ -318,7 +318,6 @@
     "accountPage": {
       "menuLabel": "我的帳號",
       "title": "我的帳號",
-      "description": "自訂您的個人資料、管理帳戶安全性和 AI API 金鑰，或登入您的帳號",
       "general": {
         "title": "帳號名稱和個人資料圖片",
         "changeProfilePicture": "更改個人資料圖片"
@@ -342,7 +341,8 @@
         "title": "帳號登入",
         "loginLabel": "登入",
         "logoutLabel": "登出"
-      }
+      },
+      "description": "自訂您的個人資料、管理帳戶安全性和 AI API 金鑰，或登入您的帳號"
     },
     "menu": {
       "appearance": "外觀",
