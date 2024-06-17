@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
@@ -78,6 +79,18 @@ class _SpaceState extends State<_Space> {
   final ValueNotifier<bool> isHovered = ValueNotifier(false);
   final PropertyValueNotifier<bool> isExpandedNotifier =
       PropertyValueNotifier(false);
+
+  @override
+  void initState() {
+    super.initState();
+    switchToTheNextSpace.addListener(_switchToNextSpace);
+  }
+
+  @override
+  void dispose() {
+    switchToTheNextSpace.removeListener(_switchToNextSpace);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,6 +166,10 @@ class _SpaceState extends State<_Space> {
         }
       },
     );
+  }
+
+  void _switchToNextSpace() {
+    context.read<SpaceBloc>().add(const SpaceEvent.switchToNextSpace());
   }
 }
 

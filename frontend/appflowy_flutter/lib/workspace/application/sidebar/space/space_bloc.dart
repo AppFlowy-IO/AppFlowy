@@ -215,6 +215,21 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             final result = await migrate();
             emit(state.copyWith(shouldShowUpgradeDialog: !result));
           },
+          switchToNextSpace: () async {
+            final spaces = state.spaces;
+            if (spaces.isEmpty) {
+              return;
+            }
+
+            final currentSpace = state.currentSpace;
+            if (currentSpace == null) {
+              return;
+            }
+            final currentIndex = spaces.indexOf(currentSpace);
+            final nextIndex = (currentIndex + 1) % spaces.length;
+            final nextSpace = spaces[nextIndex];
+            add(SpaceEvent.open(nextSpace));
+          },
         );
       },
     );
@@ -518,6 +533,7 @@ class SpaceEvent with _$SpaceEvent {
     String workspaceId,
   ) = _Reset;
   const factory SpaceEvent.migrate() = _Migrate;
+  const factory SpaceEvent.switchToNextSpace() = _SwitchToNextSpace;
 }
 
 @freezed
