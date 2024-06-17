@@ -82,7 +82,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
 
             if (shouldShowUpgradeDialog) {
-              // add(const SpaceEvent.migrate());
+              add(const SpaceEvent.migrate());
             }
           },
           create: (name, icon, iconColor, permission) async {
