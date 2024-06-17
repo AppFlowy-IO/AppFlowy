@@ -1892,7 +1892,7 @@
   },
   "space": {
     "delete": "Delete",
-    "deleteConfirmation": "Delete: {Space Name}",
+    "deleteConfirmation": "Delete: ",
     "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to Trash.",
     "rename": "Rename Space",
     "changeIcon": "Change icon",

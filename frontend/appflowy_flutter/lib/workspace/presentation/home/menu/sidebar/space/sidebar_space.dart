@@ -111,16 +111,17 @@ class _SpaceState extends State<_Space> {
               onCreateNewSpace: () => _showCreateSpaceDialog(context),
               onCollapseAllPages: () => isExpandedNotifier.value = true,
             ),
-            MouseRegion(
-              onEnter: (_) => isHovered.value = true,
-              onExit: (_) => isHovered.value = false,
-              child: _Pages(
-                key: ValueKey(currentSpace.id),
-                isExpandedNotifier: isExpandedNotifier,
-                space: currentSpace,
-                isHovered: isHovered,
+            if (state.isExpanded)
+              MouseRegion(
+                onEnter: (_) => isHovered.value = true,
+                onExit: (_) => isHovered.value = false,
+                child: _Pages(
+                  key: ValueKey(currentSpace.id),
+                  isExpandedNotifier: isExpandedNotifier,
+                  space: currentSpace,
+                  isHovered: isHovered,
+                ),
               ),
-            ),
           ],
         );
       },
