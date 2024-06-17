@@ -76,7 +76,7 @@ class DesktopAppearance extends BaseAppearance {
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.any(scrollbarInteractiveStates.contains)) {
-            return theme.shader7;
+            return theme.shader3;
           }
           return theme.shader5;
         }),
@@ -102,6 +102,7 @@ class DesktopAppearance extends BaseAppearance {
       indicatorColor: theme.main1,
       cardColor: theme.input,
       colorScheme: colorScheme,
+
       extensions: [
         AFThemeExtension(
           warning: theme.yellow,
