@@ -58,8 +58,6 @@ class EditorStyleCustomizer {
           DefaultAppearanceSettings.getDefaultSelectionColor(context),
       defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
-        // applyHeightToFirstAscent: true,
-        // applyHeightToLastDescent: true,
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
           color: afThemeExtension.onBackground,
