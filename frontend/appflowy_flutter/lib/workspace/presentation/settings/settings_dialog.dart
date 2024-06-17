@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/settings_custom
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_notifications_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -71,6 +72,10 @@ class SettingsDialog extends StatelessWidget {
                           .workspaceId,
                       context.read<SettingsDialogBloc>().state.page,
                       context.read<SettingsDialogBloc>().state.userProfile,
+                      context
+                          .read<UserWorkspaceBloc>()
+                          .state
+                          .currentWorkspaceMember,
                     ),
                   ),
                 ],
@@ -86,6 +91,7 @@ class SettingsDialog extends StatelessWidget {
     String workspaceId,
     SettingsPage page,
     UserProfilePB user,
+    WorkspaceMemberPB? member,
   ) {
     switch (page) {
       case SettingsPage.account:
@@ -95,7 +101,10 @@ class SettingsDialog extends StatelessWidget {
           didLogin: dismissDialog,
         );
       case SettingsPage.workspace:
-        return SettingsWorkspaceView(userProfile: user);
+        return SettingsWorkspaceView(
+          userProfile: user,
+          workspaceMember: member,
+        );
       case SettingsPage.manageData:
         return SettingsManageDataView(userProfile: user);
       case SettingsPage.notifications:

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -44,14 +46,18 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SettingsWorkspaceView extends StatelessWidget {
-  const SettingsWorkspaceView({super.key, required this.userProfile});
+  const SettingsWorkspaceView({
+    super.key,
+    required this.userProfile,
+    this.workspaceMember,
+  });
 
   final UserProfilePB userProfile;
+  final WorkspaceMemberPB? workspaceMember;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +93,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                 SettingsCategory(
                   title: LocaleKeys.settings_workspacePage_workspaceName_title
                       .tr(),
-                  children: const [_WorkspaceNameSetting()],
+                  children: [_WorkspaceNameSetting(member: workspaceMember)],
                 ),
                 SettingsCategory(
                   title: LocaleKeys.settings_workspacePage_workspaceIcon_title
@@ -97,7 +103,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                       .tr(),
                   children: [
                     _WorkspaceIconSetting(
-                      enableEdit: state.myRole.isOwner,
+                      enableEdit: workspaceMember?.role.isOwner ?? false,
                       workspace: state.workspace,
                     ),
                   ],
@@ -163,14 +169,14 @@ class SettingsWorkspaceView extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   onPressed: () => SettingsAlertDialog(
-                    title: state.myRole.isOwner
+                    title: workspaceMember?.role.isOwner ?? false
                         ? LocaleKeys
                             .settings_workspacePage_deleteWorkspacePrompt_title
                             .tr()
                         : LocaleKeys
                             .settings_workspacePage_leaveWorkspacePrompt_title
                             .tr(),
-                    subtitle: state.myRole.isOwner
+                    subtitle: workspaceMember?.role.isOwner ?? false
                         ? LocaleKeys
                             .settings_workspacePage_deleteWorkspacePrompt_content
                             .tr()
@@ -180,7 +186,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                     isDangerous: true,
                     confirm: () {
                       context.read<WorkspaceSettingsBloc>().add(
-                            state.myRole.isOwner
+                            workspaceMember?.role.isOwner ?? false
                                 ? const WorkspaceSettingsEvent.deleteWorkspace()
                                 : const WorkspaceSettingsEvent.leaveWorkspace(),
                           );
@@ -188,7 +194,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                     },
                   ).show(context),
                   isDangerous: true,
-                  buttonLabel: state.myRole.isOwner
+                  buttonLabel: workspaceMember?.role.isOwner ?? false
                       ? LocaleKeys
                           .settings_workspacePage_manageWorkspace_deleteWorkspace
                           .tr()
@@ -206,7 +212,9 @@ class SettingsWorkspaceView extends StatelessWidget {
 }
 
 class _WorkspaceNameSetting extends StatefulWidget {
-  const _WorkspaceNameSetting();
+  const _WorkspaceNameSetting({this.member});
+
+  final WorkspaceMemberPB? member;
 
   @override
   State<_WorkspaceNameSetting> createState() => _WorkspaceNameSettingState();
@@ -214,31 +222,8 @@ class _WorkspaceNameSetting extends StatefulWidget {
 
 class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
   final TextEditingController workspaceNameController = TextEditingController();
-  late final FocusNode focusNode;
-  bool isEditing = false;
-
-  @override
-  void initState() {
-    super.initState();
-    focusNode = FocusNode(
-      onKeyEvent: (_, event) {
-        if (event is KeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.escape &&
-            isEditing &&
-            mounted) {
-          setState(() => isEditing = false);
-          return KeyEventResult.handled;
-        }
-
-        return KeyEventResult.ignored;
-      },
-    )..addListener(() {
-        if (!focusNode.hasFocus && isEditing && mounted) {
-          _saveWorkspaceName(name: workspaceNameController.text);
-          setState(() => isEditing = false);
-        }
-      });
-  }
+  final focusNode = FocusNode();
+  Timer? _debounce;
 
   @override
   void dispose() {
@@ -257,69 +242,44 @@ class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
         }
       },
       builder: (_, state) {
-        if (isEditing) {
-          return Flexible(
-            child: SettingsInputField(
-              textController: workspaceNameController,
-              value: workspaceNameController.text,
-              focusNode: focusNode..requestFocus(),
-              onCancel: () => setState(() => isEditing = false),
-              onSave: (_) {
-                _saveWorkspaceName(name: workspaceNameController.text);
-                setState(() => isEditing = false);
-              },
+        if (widget.member == null || !widget.member!.role.isOwner) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2.5),
+            child: FlowyText.regular(
+              workspaceNameController.text,
+              fontSize: 14,
             ),
           );
         }
 
-        return Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2.5),
-              child: FlowyText.regular(
-                workspaceNameController.text,
-                fontSize: 14,
-              ),
-            ),
-            if (state.myRole.isOwner) ...[
-              const HSpace(4),
-              FlowyTooltip(
-                message: LocaleKeys
-                    .settings_workspacePage_workspaceName_editTooltip
-                    .tr(),
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => setState(() => isEditing = true),
-                  child: const FlowyHover(
-                    resetHoverOnRebuild: false,
-                    child: Padding(
-                      padding: EdgeInsets.all(4),
-                      child: FlowySvg(FlowySvgs.edit_s),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ],
+        return Flexible(
+          child: SettingsInputField(
+            textController: workspaceNameController,
+            value: workspaceNameController.text,
+            focusNode: focusNode,
+            onSave: (_) =>
+                _saveWorkspaceName(name: workspaceNameController.text),
+            onChanged: _debounceSaveName,
+            hideActions: true,
+          ),
         );
       },
     );
   }
 
-  void _saveWorkspaceName({
-    required String name,
-  }) {
-    if (name.isNotEmpty) {
-      context.read<WorkspaceSettingsBloc>().add(
-            WorkspaceSettingsEvent.updateWorkspaceName(name),
-          );
+  void _debounceSaveName(String name) {
+    _debounce?.cancel();
+    _debounce = Timer(
+      const Duration(milliseconds: 300),
+      () => _saveWorkspaceName(name: name),
+    );
+  }
 
-      if (context.mounted) {
-        showSnackBarMessage(
-          context,
-          LocaleKeys.settings_workspacePage_workspaceName_savedMessage.tr(),
-        );
-      }
+  void _saveWorkspaceName({required String name}) {
+    if (name.isNotEmpty) {
+      context
+          .read<WorkspaceSettingsBloc>()
+          .add(WorkspaceSettingsEvent.updateWorkspaceName(name));
     }
   }
 }
