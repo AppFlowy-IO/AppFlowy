@@ -1918,6 +1918,8 @@
     "upgradeSpaceTitle": "Enable Spaces for your workspace",
     "upgradeSpaceDescription": "Create multiple public and private spaces to better organize your work.",
     "upgrade": "Upgrade",
-    "upgradeYourSpace": "Upgrade your space"
+    "upgradeYourSpace": "Upgrade your space",
+    "quicklySwitch": "Quickly switch to the next space"
+
   }
 }
