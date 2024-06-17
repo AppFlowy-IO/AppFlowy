@@ -1,5 +1,5 @@
 import 'package:appflowy/mobile/presentation/home/shared/empty_placeholder.dart';
-import 'package:appflowy/mobile/presentation/home/shared/mobile_view_card.dart';
+import 'package:appflowy/mobile/presentation/home/shared/mobile_page_card.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/recent/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -37,7 +37,7 @@ class _MobileRecentSpaceState extends State<MobileRecentSpace>
 
           if (recentViews.isEmpty) {
             return const Center(
-              child: EmptySpacePlaceholder(type: MobileViewCardType.recent),
+              child: EmptySpacePlaceholder(type: MobilePageCardType.recent),
             );
           }
 
@@ -89,11 +89,11 @@ class _RecentViews extends StatelessWidget {
                   ),
                 ),
               ),
-              child: MobileViewCard(
+              child: MobileViewPage(
                 key: ValueKey(sectionView.item.id),
                 view: sectionView.item,
                 timestamp: sectionView.timestamp,
-                type: MobileViewCardType.recent,
+                type: MobilePageCardType.recent,
               ),
             );
           },
