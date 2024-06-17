@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/home/shared/mobile_view_card.dart';
+import 'package:appflowy/mobile/presentation/home/shared/mobile_page_card.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_slide_action_button.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
@@ -23,7 +23,7 @@ enum MobilePaneActionType {
 
   MobileSlideActionButton actionButton(
     BuildContext context, {
-    MobileViewCardType? cardType,
+    MobilePageCardType? cardType,
     FolderSpaceType? spaceType,
   }) {
     switch (this) {
@@ -133,13 +133,13 @@ enum MobilePaneActionType {
 
   List<MobileViewItemBottomSheetBodyAction> _buildActions(
     ViewPB view, {
-    MobileViewCardType? cardType,
+    MobilePageCardType? cardType,
   }) {
     final isFavorite = view.isFavorite;
 
     if (cardType != null) {
       switch (cardType) {
-        case MobileViewCardType.recent:
+        case MobilePageCardType.recent:
           return [
             isFavorite
                 ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
@@ -150,7 +150,7 @@ enum MobilePaneActionType {
             MobileViewItemBottomSheetBodyAction.divider,
             MobileViewItemBottomSheetBodyAction.removeFromRecent,
           ];
-        case MobileViewCardType.favorite:
+        case MobilePageCardType.favorite:
           return [
             isFavorite
                 ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
@@ -179,7 +179,7 @@ ActionPane buildEndActionPane(
   BuildContext context,
   List<MobilePaneActionType> actions, {
   bool needSpace = true,
-  MobileViewCardType? cardType,
+  MobilePageCardType? cardType,
   FolderSpaceType? spaceType,
 }) {
   return ActionPane(

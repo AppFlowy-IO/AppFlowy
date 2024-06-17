@@ -55,7 +55,6 @@ extension ViewMoreActionTypeExtension on SpaceMoreActionType {
   Widget get rightIcon {
     switch (this) {
       case SpaceMoreActionType.changeIcon:
-        return const FlowySvg(FlowySvgs.view_item_right_arrow_s);
       case SpaceMoreActionType.rename:
       case SpaceMoreActionType.collapseAllPages:
       case SpaceMoreActionType.divider:

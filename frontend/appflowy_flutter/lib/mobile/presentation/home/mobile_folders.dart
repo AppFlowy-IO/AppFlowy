@@ -42,8 +42,8 @@ class MobileFolders extends StatelessWidget {
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
         ),
         BlocProvider(
-          create: (_) =>
-              SpaceBloc()..add(SpaceEvent.initial(user, workspaceId)),
+          create: (_) => SpaceBloc()
+            ..add(SpaceEvent.initial(user, workspaceId, openFirstPage: false)),
         ),
       ],
       child: BlocListener<UserWorkspaceBloc, UserWorkspaceState>(

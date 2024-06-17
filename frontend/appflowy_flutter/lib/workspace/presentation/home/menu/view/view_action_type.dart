@@ -82,7 +82,6 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
     switch (this) {
       case ViewMoreActionType.changeIcon:
       case ViewMoreActionType.moveTo:
-        return const FlowySvg(FlowySvgs.view_item_right_arrow_s);
       case ViewMoreActionType.favorite:
       case ViewMoreActionType.unFavorite:
       case ViewMoreActionType.duplicate:

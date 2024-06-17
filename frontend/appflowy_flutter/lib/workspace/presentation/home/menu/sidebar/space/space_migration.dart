@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -22,7 +23,9 @@ class _SpaceMigrationState extends State<SpaceMigration> {
       padding: const EdgeInsets.all(12),
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
-        color: const Color(0x66F5EAFF),
+        color: Theme.of(context).isLightMode
+            ? const Color(0x66F5EAFF)
+            : const Color(0x1AFFFFFF),
         shape: RoundedRectangleBorder(
           side: const BorderSide(
             strokeAlign: BorderSide.strokeAlignOutside,
@@ -127,13 +130,6 @@ class _MigrationTitle extends StatelessWidget {
             LocaleKeys.space_upgradeSpaceTitle.tr(),
             maxLines: 3,
             lineHeight: 1.2,
-          ),
-        ),
-        GestureDetector(
-          onTap: onClose,
-          child: const Padding(
-            padding: EdgeInsets.only(top: 3.0),
-            child: FlowySvg(FlowySvgs.upgrade_close_s),
           ),
         ),
       ],
