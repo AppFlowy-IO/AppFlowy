@@ -1,6 +1,6 @@
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/shared/empty_placeholder.dart';
-import 'package:appflowy/mobile/presentation/home/shared/mobile_view_card.dart';
+import 'package:appflowy/mobile/presentation/home/shared/mobile_page_card.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
@@ -69,7 +69,7 @@ class _MobileFavoriteSpaceState extends State<MobileFavoriteSpace>
 
               if (favoriteState.views.isEmpty) {
                 return const EmptySpacePlaceholder(
-                  type: MobileViewCardType.favorite,
+                  type: MobilePageCardType.favorite,
                 );
               }
 
@@ -117,11 +117,11 @@ class _FavoriteViews extends StatelessWidget {
                 ),
               ),
             ),
-            child: MobileViewCard(
+            child: MobileViewPage(
               key: ValueKey(view.item.id),
               view: view.item,
               timestamp: view.timestamp,
-              type: MobileViewCardType.favorite,
+              type: MobilePageCardType.favorite,
             ),
           );
         },

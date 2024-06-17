@@ -29,18 +29,18 @@ import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:time/time.dart';
 
-enum MobileViewCardType {
+enum MobilePageCardType {
   recent,
   favorite;
 
   String get lastOperationHintText => switch (this) {
-        MobileViewCardType.recent => LocaleKeys.sideBar_lastViewed.tr(),
-        MobileViewCardType.favorite => LocaleKeys.sideBar_favoriteAt.tr(),
+        MobilePageCardType.recent => LocaleKeys.sideBar_lastViewed.tr(),
+        MobilePageCardType.favorite => LocaleKeys.sideBar_favoriteAt.tr(),
       };
 }
 
-class MobileViewCard extends StatelessWidget {
-  const MobileViewCard({
+class MobileViewPage extends StatelessWidget {
+  const MobileViewPage({
     super.key,
     required this.view,
     this.timestamp,
@@ -49,7 +49,7 @@ class MobileViewCard extends StatelessWidget {
 
   final ViewPB view;
   final Int64? timestamp;
-  final MobileViewCardType type;
+  final MobilePageCardType type;
 
   @override
   Widget build(BuildContext context) {

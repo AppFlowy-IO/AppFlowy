@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
@@ -48,13 +49,23 @@ class SidebarNewPageButton extends StatelessWidget {
               context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
                   ? ViewSectionPB.Private
                   : ViewSectionPB.Public;
-          context.read<SidebarSectionsBloc>().add(
-                SidebarSectionsEvent.createRootViewInSection(
-                  name: viewName,
-                  viewSection: section,
-                  index: 0,
-                ),
-              );
+          final spaceState = context.read<SpaceBloc>().state;
+          if (spaceState.spaces.isNotEmpty) {
+            context.read<SpaceBloc>().add(
+                  SpaceEvent.createPage(
+                    name: viewName,
+                    index: 0,
+                  ),
+                );
+          } else {
+            context.read<SidebarSectionsBloc>().add(
+                  SidebarSectionsEvent.createRootViewInSection(
+                    name: viewName,
+                    viewSection: section,
+                    index: 0,
+                  ),
+                );
+          }
         }
       },
     );

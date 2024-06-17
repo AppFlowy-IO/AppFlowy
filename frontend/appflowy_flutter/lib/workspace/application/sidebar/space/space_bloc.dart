@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -16,6 +17,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -60,7 +62,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     on<SpaceEvent>(
       (event, emit) async {
         await event.when(
-          initial: (userProfile, workspaceId) async {
+          initial: (userProfile, workspaceId, openFirstPage) async {
             _initial(userProfile, workspaceId);
 
             final (spaces, publicViews, privateViews) = await _getSpaces();
@@ -84,8 +86,20 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             if (shouldShowUpgradeDialog) {
               add(const SpaceEvent.migrate());
             }
+
+            if (openFirstPage) {
+              if (currentSpace != null) {
+                add(SpaceEvent.open(currentSpace));
+              }
+            }
           },
-          create: (name, icon, iconColor, permission) async {
+          create: (
+            name,
+            icon,
+            iconColor,
+            permission,
+            createNewPageByDefault,
+          ) async {
             final space = await _createSpace(
               name: name,
               icon: icon,
@@ -93,8 +107,22 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               permission: permission,
             );
             if (space != null) {
-              emit(state.copyWith(spaces: [...state.spaces, space]));
+              emit(
+                state.copyWith(
+                  spaces: [...state.spaces, space],
+                  currentSpace: space,
+                ),
+              );
               add(SpaceEvent.open(space));
+
+              if (createNewPageByDefault) {
+                add(
+                  SpaceEvent.createPage(
+                    name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                    index: 0,
+                  ),
+                );
+              }
             }
           },
           delete: (space) async {
@@ -160,12 +188,28 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             await _openSpace(space);
             final isExpanded = await _getSpaceExpandStatus(space);
             emit(state.copyWith(currentSpace: space, isExpanded: isExpanded));
+
+            // open the first page by default
+            if (space.childViews.isNotEmpty) {
+              final firstPage = space.childViews.first;
+              emit(
+                state.copyWith(
+                  lastCreatedPage: firstPage,
+                ),
+              );
+            } else {
+              emit(
+                state.copyWith(
+                  lastCreatedPage: ViewPB(),
+                ),
+              );
+            }
           },
           expand: (space, isExpanded) async {
             await _setSpaceExpandStatus(space, isExpanded);
             emit(state.copyWith(isExpanded: isExpanded));
           },
-          createPage: (name, section, index) async {
+          createPage: (name, index) async {
             final parentViewId = state.currentSpace?.id;
             if (parentViewId == null) {
               return;
@@ -209,11 +253,32 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           reset: (userProfile, workspaceId) async {
             _reset(userProfile, workspaceId);
 
-            add(SpaceEvent.initial(userProfile, workspaceId));
+            add(
+              SpaceEvent.initial(
+                userProfile,
+                workspaceId,
+                openFirstPage: true,
+              ),
+            );
           },
           migrate: () async {
             final result = await migrate();
             emit(state.copyWith(shouldShowUpgradeDialog: !result));
+          },
+          switchToNextSpace: () async {
+            final spaces = state.spaces;
+            if (spaces.isEmpty) {
+              return;
+            }
+
+            final currentSpace = state.currentSpace;
+            if (currentSpace == null) {
+              return;
+            }
+            final currentIndex = spaces.indexOf(currentSpace);
+            final nextIndex = (currentIndex + 1) % spaces.length;
+            final nextSpace = spaces[nextIndex];
+            add(SpaceEvent.open(nextSpace));
           },
         );
       },
@@ -410,7 +475,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         // only migrate the public space if there are any public views
         if (publicViews.isNotEmpty) {
           final publicSpace = await _createSpace(
-            name: 'General',
+            name: 'Shared',
             icon: builtInSpaceIcons.first,
             iconColor: builtInSpaceColors.first,
             permission: SpacePermission.publicToAll,
@@ -487,13 +552,15 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.initial(
     UserProfilePB userProfile,
-    String workspaceId,
-  ) = _Initial;
+    String workspaceId, {
+    required bool openFirstPage,
+  }) = _Initial;
   const factory SpaceEvent.create({
     required String name,
     required String icon,
     required String iconColor,
     required SpacePermission permission,
+    required bool createNewPageByDefault,
   }) = _Create;
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
   const factory SpaceEvent.changeIcon(String icon, String iconColor) =
@@ -508,7 +575,6 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.expand(ViewPB space, bool isExpanded) = _Expand;
   const factory SpaceEvent.createPage({
     required String name,
-    required ViewSectionPB viewSection,
     int? index,
   }) = _CreatePage;
   const factory SpaceEvent.delete(ViewPB? space) = _Delete;
@@ -518,6 +584,7 @@ class SpaceEvent with _$SpaceEvent {
     String workspaceId,
   ) = _Reset;
   const factory SpaceEvent.migrate() = _Migrate;
+  const factory SpaceEvent.switchToNextSpace() = _SwitchToNextSpace;
 }
 
 @freezed

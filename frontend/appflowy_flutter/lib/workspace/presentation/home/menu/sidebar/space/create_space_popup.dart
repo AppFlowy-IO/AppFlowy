@@ -50,7 +50,13 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
             ),
           ),
           const VSpace(8.0),
-          _SpaceNameTextField(onChanged: (value) => spaceName = value),
+          _SpaceNameTextField(
+            onChanged: (value) => spaceName = value,
+            onSubmitted: (value) {
+              spaceName = value;
+              _createSpace();
+            },
+          ),
           const VSpace(20.0),
           SpacePermissionSwitch(
             onPermissionChanged: (value) => spacePermission = value,
@@ -59,29 +65,36 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
           SpaceCancelOrConfirmButton(
             confirmButtonName: LocaleKeys.button_create.tr(),
             onCancel: () => Navigator.of(context).pop(),
-            onConfirm: () {
-              context.read<SpaceBloc>().add(
-                    SpaceEvent.create(
-                      name: spaceName,
-                      icon: spaceIcon,
-                      iconColor: spaceIconColor,
-                      permission: spacePermission,
-                    ),
-                  );
-
-              Navigator.of(context).pop();
-            },
+            onConfirm: () => _createSpace(),
           ),
         ],
       ),
     );
   }
+
+  void _createSpace() {
+    context.read<SpaceBloc>().add(
+          SpaceEvent.create(
+            name: spaceName,
+            icon: spaceIcon,
+            iconColor: spaceIconColor,
+            permission: spacePermission,
+            createNewPageByDefault: true,
+          ),
+        );
+
+    Navigator.of(context).pop();
+  }
 }
 
 class _SpaceNameTextField extends StatelessWidget {
-  const _SpaceNameTextField({required this.onChanged});
+  const _SpaceNameTextField({
+    required this.onChanged,
+    required this.onSubmitted,
+  });
 
   final void Function(String name) onChanged;
+  final void Function(String name) onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -98,8 +111,9 @@ class _SpaceNameTextField extends StatelessWidget {
         SizedBox(
           height: 40,
           child: FlowyTextField(
-            text: LocaleKeys.space_defaultSpaceName.tr(),
+            hintText: LocaleKeys.space_spaceName.tr(),
             onChanged: onChanged,
+            onSubmitted: onSubmitted,
           ),
         ),
       ],

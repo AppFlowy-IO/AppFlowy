@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/manage_space_popup.dart';
@@ -13,6 +16,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -70,7 +74,6 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
                 height: HomeSizes.workspaceSectionHeight,
                 child: FlowyButton(
                   margin: const EdgeInsets.only(left: 6.0, right: 4.0),
-                  // rightIcon: _buildRightIcon(),
                   iconPadding: 10.0,
                   text: _buildChild(),
                   rightIcon: const HSpace(60.0),
@@ -88,29 +91,49 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
   }
 
   Widget _buildChild() {
-    return Row(
+    final color = Theme.of(context).isLightMode ? Colors.white : Colors.black;
+    final textSpan = TextSpan(
       children: [
-        SpaceIcon(
-          dimension: 20,
-          space: widget.space,
-          cornerRadius: 6.0,
+        TextSpan(
+          text: '${LocaleKeys.space_quicklySwitch.tr()}\n',
+          style:
+              Theme.of(context).tooltipTheme.textStyle!.copyWith(color: color),
         ),
-        const HSpace(10),
-        Flexible(
-          child: FlowyText.medium(
-            widget.space.name,
-            lineHeight: 1.15,
-            fontSize: 14.0,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const HSpace(4.0),
-        FlowySvg(
-          widget.isExpanded
-              ? FlowySvgs.workspace_drop_down_menu_show_s
-              : FlowySvgs.workspace_drop_down_menu_hide_s,
+        TextSpan(
+          text: Platform.isMacOS ? '⌘+O' : 'Ctrl+O',
+          style: Theme.of(context)
+              .tooltipTheme
+              .textStyle!
+              .copyWith(color: Theme.of(context).hintColor),
         ),
       ],
+    );
+    return FlowyTooltip(
+      richMessage: textSpan,
+      child: Row(
+        children: [
+          SpaceIcon(
+            dimension: 20,
+            space: widget.space,
+            cornerRadius: 6.0,
+          ),
+          const HSpace(10),
+          Flexible(
+            child: FlowyText.medium(
+              widget.space.name,
+              lineHeight: 1.15,
+              fontSize: 14.0,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const HSpace(4.0),
+          FlowySvg(
+            widget.isExpanded
+                ? FlowySvgs.workspace_drop_down_menu_show_s
+                : FlowySvgs.workspace_drop_down_menu_hide_s,
+          ),
+        ],
+      ),
     );
   }
 

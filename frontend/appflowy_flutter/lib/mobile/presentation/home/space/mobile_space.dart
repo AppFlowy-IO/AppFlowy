@@ -42,10 +42,6 @@ class _MobileSpaceState extends State<MobileSpace> {
                       SpaceEvent.createPage(
                         name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                         index: 0,
-                        viewSection: currentSpace.spacePermission ==
-                                SpacePermission.publicToAll
-                            ? ViewSectionPB.Public
-                            : ViewSectionPB.Private,
                       ),
                     );
                 context.read<SpaceBloc>().add(
