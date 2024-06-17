@@ -86,6 +86,7 @@ class _SettingsPlanComparisonDialogState
       child: FlowyDialog(
         constraints: const BoxConstraints(maxWidth: 784, minWidth: 674),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
@@ -120,8 +121,11 @@ class _SettingsPlanComparisonDialogState
                 scrollDirection: Axis.horizontal,
                 child: SingleChildScrollView(
                   controller: verticalController,
-                  padding:
-                      const EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                  padding: const EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    bottom: 24,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +140,7 @@ class _SettingsPlanComparisonDialogState
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const VSpace(22),
+                                const VSpace(26),
                                 SizedBox(
                                   height: 100,
                                   child: FlowyText.semibold(
@@ -178,6 +182,7 @@ class _SettingsPlanComparisonDialogState
                             canDowngrade:
                                 currentSubscription.subscriptionPlan !=
                                     SubscriptionPlanPB.None,
+                            currentCanceled: currentSubscription.hasCanceled,
                             onSelected: () async {
                               if (currentSubscription.subscriptionPlan ==
                                       SubscriptionPlanPB.None ||
@@ -225,6 +230,7 @@ class _SettingsPlanComparisonDialogState
                                 SubscriptionPlanPB.Pro,
                             canUpgrade: currentSubscription.subscriptionPlan ==
                                 SubscriptionPlanPB.None,
+                            currentCanceled: currentSubscription.hasCanceled,
                             onSelected: () =>
                                 context.read<SettingsPlanBloc>().add(
                                       const SettingsPlanEvent.addSubscription(
@@ -257,6 +263,7 @@ class _PlanTable extends StatelessWidget {
     required this.onSelected,
     this.canUpgrade = false,
     this.canDowngrade = false,
+    this.currentCanceled = false,
   });
 
   final String title;
@@ -264,11 +271,12 @@ class _PlanTable extends StatelessWidget {
   final String price;
   final String priceInfo;
 
-  final List<String> cells;
+  final List<_CellItem> cells;
   final bool isCurrent;
   final VoidCallback onSelected;
   final bool canUpgrade;
   final bool canDowngrade;
+  final bool currentCanceled;
 
   @override
   Widget build(BuildContext context) {
@@ -291,8 +299,9 @@ class _PlanTable extends StatelessWidget {
           ? const EdgeInsets.only(top: 4)
           : const EdgeInsets.all(4),
       child: Container(
-        clipBehavior: Clip.antiAlias,
-        padding: const EdgeInsets.symmetric(vertical: 18),
+        padding: isCurrent
+            ? const EdgeInsets.only(bottom: 22)
+            : const EdgeInsets.symmetric(vertical: 22),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
           color: Theme.of(context).cardColor,
@@ -301,48 +310,55 @@ class _PlanTable extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (isCurrent) const _CurrentBadge(),
             _Heading(
               title: title,
               description: description,
               isPrimary: !highlightPlan,
-              horizontalInset: 12,
             ),
             _Heading(
               title: price,
               description: priceInfo,
               isPrimary: !highlightPlan,
               height: 64,
-              horizontalInset: 12,
             ),
             if (canUpgrade || canDowngrade) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: _ActionButton(
-                  label: canUpgrade && !canDowngrade
-                      ? LocaleKeys.settings_comparePlanDialog_actions_upgrade
-                          .tr()
-                      : LocaleKeys.settings_comparePlanDialog_actions_downgrade
-                          .tr(),
-                  onPressed: onSelected,
-                  isUpgrade: canUpgrade && !canDowngrade,
-                  useGradientBorder: !isCurrent && canUpgrade,
-                ),
-              ),
-            ] else if (isCurrent) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: _ActionButton(
-                  label: LocaleKeys.settings_comparePlanDialog_actions_current
-                      .tr(),
-                  onPressed: () {},
-                  isUpgrade: canUpgrade && !canDowngrade,
-                  useGradientBorder: !isCurrent && canUpgrade,
+              Opacity(
+                opacity: canDowngrade && currentCanceled ? 0.5 : 1,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 12 + (canUpgrade && !canDowngrade ? 12 : 0),
+                  ),
+                  child: _ActionButton(
+                    label: canUpgrade && !canDowngrade
+                        ? LocaleKeys.settings_comparePlanDialog_actions_upgrade
+                            .tr()
+                        : LocaleKeys
+                            .settings_comparePlanDialog_actions_downgrade
+                            .tr(),
+                    onPressed: !canUpgrade && canDowngrade && currentCanceled
+                        ? null
+                        : onSelected,
+                    tooltip: !canUpgrade && canDowngrade && currentCanceled
+                        ? LocaleKeys
+                            .settings_comparePlanDialog_actions_downgradeDisabledTooltip
+                            .tr()
+                        : null,
+                    isUpgrade: canUpgrade && !canDowngrade,
+                    useGradientBorder: !isCurrent && canUpgrade,
+                  ),
                 ),
               ),
             ] else ...[
               const SizedBox(height: 56),
             ],
-            ...cells.map((e) => _ComparisonCell(label: e)),
+            ...cells.map(
+              (cell) => _ComparisonCell(
+                label: cell.label,
+                icon: cell.icon,
+                isHighlighted: highlightPlan,
+              ),
+            ),
           ],
         ),
       ),
@@ -350,16 +366,48 @@ class _PlanTable extends StatelessWidget {
   }
 }
 
-class _ComparisonCell extends StatelessWidget {
-  const _ComparisonCell({required this.label, this.tooltip});
-
-  final String label;
-  final String? tooltip;
+class _CurrentBadge extends StatelessWidget {
+  const _CurrentBadge();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      margin: const EdgeInsets.only(left: 12),
+      height: 22,
+      width: 72,
+      decoration: BoxDecoration(
+        color: const Color(0xFF4F3F5F),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Center(
+        child: FlowyText.medium(
+          LocaleKeys.settings_comparePlanDialog_current.tr(),
+          fontSize: 12,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class _ComparisonCell extends StatelessWidget {
+  const _ComparisonCell({
+    required this.label,
+    this.icon,
+    this.tooltip,
+    this.isHighlighted = false,
+  });
+
+  final String label;
+  final FlowySvgData? icon;
+  final String? tooltip;
+  final bool isHighlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12) +
+          EdgeInsets.only(left: isHighlighted ? 12 : 0),
       height: 36,
       decoration: BoxDecoration(
         border: Border(
@@ -371,7 +419,16 @@ class _ComparisonCell extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(child: FlowyText.medium(label)),
+          if (icon != null) ...[
+            FlowySvg(icon!),
+          ] else ...[
+            Expanded(
+              child: FlowyText.medium(
+                label,
+                lineHeight: 1.2,
+              ),
+            ),
+          ],
           if (tooltip != null)
             FlowyTooltip(
               message: tooltip,
@@ -386,13 +443,15 @@ class _ComparisonCell extends StatelessWidget {
 class _ActionButton extends StatelessWidget {
   const _ActionButton({
     required this.label,
+    this.tooltip,
     required this.onPressed,
     required this.isUpgrade,
     this.useGradientBorder = false,
   });
 
   final String label;
-  final VoidCallback onPressed;
+  final String? tooltip;
+  final VoidCallback? onPressed;
   final bool isUpgrade;
   final bool useGradientBorder;
 
@@ -405,31 +464,36 @@ class _ActionButton extends StatelessWidget {
       height: 56,
       child: Row(
         children: [
-          GestureDetector(
-            onTap: onPressed,
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: _drawGradientBorder(
-                isLM: isLM,
-                child: Container(
-                  height: gradientBorder ? 36 : 40,
-                  width: gradientBorder ? 148 : 152,
-                  decoration: BoxDecoration(
-                    color: gradientBorder
-                        ? Theme.of(context).cardColor
-                        : Colors.transparent,
-                    border: Border.all(
-                      color: gradientBorder
-                          ? Colors.transparent
-                          : AFThemeExtension.of(context).textColor,
+          FlowyTooltip(
+            message: tooltip,
+            child: GestureDetector(
+              onTap: onPressed,
+              child: MouseRegion(
+                cursor: onPressed != null
+                    ? SystemMouseCursors.click
+                    : MouseCursor.defer,
+                child: _drawGradientBorder(
+                  isLM: isLM,
+                  child: Container(
+                    height: gradientBorder ? 36 : 40,
+                    width: gradientBorder ? 148 : 152,
+                    decoration: BoxDecoration(
+                      color: useGradientBorder
+                          ? Theme.of(context).cardColor
+                          : Colors.transparent,
+                      border: Border.all(
+                        color: gradientBorder
+                            ? Colors.transparent
+                            : AFThemeExtension.of(context).textColor,
+                      ),
+                      borderRadius:
+                          BorderRadius.circular(gradientBorder ? 14 : 16),
                     ),
-                    borderRadius:
-                        BorderRadius.circular(gradientBorder ? 14 : 16),
-                  ),
-                  child: Center(
-                    child: _drawText(
-                      label,
-                      isLM,
+                    child: Center(
+                      child: _drawText(
+                        label,
+                        isLM,
+                      ),
                     ),
                   ),
                 ),
@@ -445,6 +509,7 @@ class _ActionButton extends StatelessWidget {
     final child = FlowyText(
       text,
       fontSize: 14,
+      lineHeight: 1.2,
       fontWeight: useGradientBorder ? FontWeight.w600 : FontWeight.w500,
     );
 
@@ -495,29 +560,29 @@ class _Heading extends StatelessWidget {
     this.description,
     this.isPrimary = true,
     this.height = 100,
-    this.horizontalInset = 0,
   });
 
   final String title;
   final String? description;
   final bool isPrimary;
   final double height;
-  final double horizontalInset;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 165,
+      width: 175,
       height: height,
       child: Padding(
-        padding: EdgeInsets.only(left: horizontalInset),
+        padding: EdgeInsets.only(left: 12 + (!isPrimary ? 12 : 0)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FlowyText.semibold(
               title,
               fontSize: 24,
-              color: isPrimary ? null : const Color(0xFF5C3699),
+              color: isPrimary
+                  ? AFThemeExtension.of(context).strongText
+                  : const Color(0xFF5C3699),
             ),
             if (description != null && description!.isNotEmpty) ...[
               const VSpace(4),
@@ -525,6 +590,7 @@ class _Heading extends StatelessWidget {
                 description!,
                 fontSize: 12,
                 maxLines: 3,
+                lineHeight: 1.5,
               ),
             ],
           ],
@@ -571,24 +637,67 @@ final _planLabels = [
   ),
 ];
 
-final _freeLabels = [
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemOne.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemTwo.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemThree.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
-  LocaleKeys.settings_comparePlanDialog_freeLabels_itemEight.tr(),
+class _CellItem {
+  const _CellItem(this.label, {this.icon});
+
+  final String label;
+  final FlowySvgData? icon;
+}
+
+final List<_CellItem> _freeLabels = [
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemOne.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemTwo.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemThree.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
+    icon: FlowySvgs.check_m,
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
+    icon: FlowySvgs.check_m,
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_freeLabels_itemEight.tr(),
+  ),
 ];
 
-final _proLabels = [
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemOne.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemTwo.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemThree.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
-  LocaleKeys.settings_comparePlanDialog_proLabels_itemEight.tr(),
+final List<_CellItem> _proLabels = [
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemOne.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemTwo.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemThree.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
+    icon: FlowySvgs.check_m,
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
+    icon: FlowySvgs.check_m,
+  ),
+  _CellItem(
+    LocaleKeys.settings_comparePlanDialog_proLabels_itemEight.tr(),
+  ),
 ];

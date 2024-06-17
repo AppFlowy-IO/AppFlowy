@@ -27,6 +27,7 @@ class SettingsInputField extends StatefulWidget {
     this.onSave,
     this.onCancel,
     this.hideActions = false,
+    this.onChanged,
   });
 
   final String? label;
@@ -47,14 +48,16 @@ class SettingsInputField extends StatefulWidget {
   ///
   final bool hideActions;
 
-  final Function(String)? onSave;
+  final void Function(String)? onSave;
 
   /// The action to be performed when the cancel button is pressed.
   ///
   /// If null the button will **NOT** be disabled! Instead it will
   /// reset the input to the original value.
   ///
-  final Function()? onCancel;
+  final void Function()? onCancel;
+
+  final void Function(String)? onChanged;
 
   @override
   State<SettingsInputField> createState() => _SettingsInputFieldState();
@@ -127,7 +130,10 @@ class _SettingsInputFieldState extends State<SettingsInputField> {
                     ),
                   ),
             onSubmitted: widget.onSave,
-            onChanged: (_) => setState(() {}),
+            onChanged: (_) {
+              widget.onChanged?.call(controller.text);
+              setState(() {});
+            },
           ),
         ),
         if (!widget.hideActions &&

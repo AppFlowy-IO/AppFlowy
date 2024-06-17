@@ -59,7 +59,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
                                                                         // instead
     .event(UserEvent::GetMemberInfo, get_workspace_member_info)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
-    .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
+    .event(UserEvent::GetWorkspaceMembers, get_workspace_members_handler)
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
       // Workspace
     .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
@@ -206,7 +206,7 @@ pub enum UserEvent {
   UpdateWorkspaceMember = 39,
 
   #[event(input = "QueryWorkspacePB", output = "RepeatedWorkspaceMemberPB")]
-  GetWorkspaceMember = 40,
+  GetWorkspaceMembers = 40,
 
   #[event(input = "ImportAppFlowyDataPB")]
   ImportAppFlowyDataFolder = 41,

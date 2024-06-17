@@ -58,7 +58,6 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
         builder: (context, state) {
           return SettingsBody(
             title: LocaleKeys.settings_accountPage_title.tr(),
-            description: LocaleKeys.settings_accountPage_description.tr(),
             children: [
               SettingsCategory(
                 title: LocaleKeys.settings_accountPage_general_title.tr(),

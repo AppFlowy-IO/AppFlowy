@@ -359,7 +359,6 @@
     "accountPage": {
       "menuLabel": "My account",
       "title": "My account",
-      "description": "Customize your profile, manage account security and AI API keys, or login into your account.",
       "general": {
         "title": "Account name & profile image",
         "changeProfilePicture": "Change profile picture"
@@ -390,9 +389,7 @@
       "title": "Workspace",
       "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
       "workspaceName": {
-        "title": "Workspace name",
-        "savedMessage": "Saved workspace name",
-        "editTooltip": "Edit workspace name"
+        "title": "Workspace name"
       },
       "workspaceIcon": {
         "title": "Workspace icon",
@@ -409,10 +406,12 @@
       },
       "theme": {
         "title": "Theme",
-        "description": "Select a preset theme, or upload your own custom theme."
+        "description": "Select a preset theme, or upload your own custom theme.",
+        "uploadCustomThemeTooltip": "Upload a custom theme"
       },
       "workspaceFont": {
-        "title": "Workspace font"
+        "title": "Workspace font",
+        "noFontHint": "No font found, try another term."
       },
       "textDirection": {
         "title": "Text direction",
@@ -531,7 +530,9 @@
           "freeTitle": "Free",
           "proTitle": "Pro",
           "teamTitle": "Team",
-          "freeInfo": "Perfect for individuals or small teams up to 3.",
+          "freeInfo": "Perfect for individuals or small teams up to 3 members.",
+          "proInfo": "Perfect for small and medium teams up to 10 members.",
+          "teamInfo": "Perfect for all productive and well-organized teams..",
           "upgrade": "Compare &\n Upgrade",
           "freeProOne": "Collaborative workspace",
           "freeProTwo": "Up to 3 members (incl. owner)",
@@ -579,9 +580,11 @@
     "comparePlanDialog": {
       "title": "Compare & select plan",
       "planFeatures": "Plan\nFeatures",
+      "current": "Current",
       "actions": {
         "upgrade": "Upgrade",
         "downgrade": "Downgrade",
+        "downgradeDisabledTooltip": "You will automatically downgrade at the end of the billing cycle",
         "current": "Current"
       },
       "freePlan": {
@@ -592,7 +595,7 @@
       },
       "proPlan": {
         "title": "Professional",
-        "description": "A palce for small groups to plan & get organized.",
+        "description": "A place for small groups to plan & get organized.",
         "price": "$10 /month",
         "priceInfo": "billed annually"
       },
@@ -677,7 +680,7 @@
       "cloudWSURL": "Websocket URL",
       "cloudWSURLHint": "Input the websocket address of your server",
       "restartApp": "Restart",
-      "restartAppTip": "Restart the application for the changes to take effect. Please note that this might log out your current account",
+      "restartAppTip": "Restart the application for the changes to take effect. Please note that this might log out your current account.",
       "changeServerTip": "After changing the server, you must click the restart button for the changes to take effect",
       "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
       "inputEncryptPrompt": "Please enter your encryption secret for",
@@ -775,10 +778,11 @@
       "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
       "enableRTLToolbarItems": "Enable RTL toolbar items",
       "members": {
-        "title": "Members Settings",
-        "inviteMembers": "Invite Members",
-        "sendInvite": "Send Invite",
-        "copyInviteLink": "Copy Invite Link",
+        "title": "Members settings",
+        "inviteMembers": "Invite members",
+        "inviteHint": "Invite by email",
+        "sendInvite": "Send invite",
+        "copyInviteLink": "Copy invite link",
         "label": "Members",
         "user": "User",
         "role": "Role",
@@ -786,7 +790,7 @@
         "owner": "Owner",
         "guest": "Guest",
         "member": "Member",
-        "memberHintText": "A member can read, comment, and edit pages. Invite members and guests.",
+        "memberHintText": "A member can read and edit pages",
         "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
         "emailInvalidError": "Invalid email, please check and try again",
         "emailSent": "Email sent, please check the inbox",

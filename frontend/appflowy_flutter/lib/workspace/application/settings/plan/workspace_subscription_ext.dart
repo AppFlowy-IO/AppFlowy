@@ -13,4 +13,14 @@ extension SubscriptionLabels on WorkspaceSubscriptionPB {
           LocaleKeys.settings_planPage_planUsage_currentPlan_teamTitle.tr(),
         _ => 'N/A',
       };
+
+  String get info => switch (subscriptionPlan) {
+        SubscriptionPlanPB.None =>
+          LocaleKeys.settings_planPage_planUsage_currentPlan_freeInfo.tr(),
+        SubscriptionPlanPB.Pro =>
+          LocaleKeys.settings_planPage_planUsage_currentPlan_proInfo.tr(),
+        SubscriptionPlanPB.Team =>
+          LocaleKeys.settings_planPage_planUsage_currentPlan_teamInfo.tr(),
+        _ => 'N/A',
+      };
 }

@@ -650,7 +650,7 @@ pub async fn delete_workspace_member_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn get_workspace_member_handler(
+pub async fn get_workspace_members_handler(
   data: AFPluginData<QueryWorkspacePB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<RepeatedWorkspaceMemberPB, FlowyError> {

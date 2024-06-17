@@ -72,6 +72,7 @@ class FlowyColorScheme {
     required this.icon,
     required this.text,
     required this.secondaryText,
+    required this.strongText,
     required this.input,
     required this.hint,
     required this.primary,
@@ -123,6 +124,7 @@ class FlowyColorScheme {
   final Color icon;
   final Color text;
   final Color secondaryText;
+  final Color strongText;
   final Color input;
   final Color hint;
   final Color primary;

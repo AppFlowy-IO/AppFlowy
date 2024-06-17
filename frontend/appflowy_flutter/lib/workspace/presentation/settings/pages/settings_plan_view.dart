@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/presentation/settings/shared/flowy_gradient_b
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -21,15 +22,22 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsPlanView extends StatelessWidget {
-  const SettingsPlanView({super.key, required this.workspaceId});
+  const SettingsPlanView({
+    super.key,
+    required this.workspaceId,
+    required this.user,
+  });
 
   final String workspaceId;
+  final UserProfilePB user;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsPlanBloc>(
-      create: (context) => SettingsPlanBloc(workspaceId: workspaceId)
-        ..add(const SettingsPlanEvent.started()),
+      create: (context) => SettingsPlanBloc(
+        workspaceId: workspaceId,
+        userId: user.id,
+      )..add(const SettingsPlanEvent.started()),
       child: BlocBuilder<SettingsPlanBloc, SettingsPlanState>(
         builder: (context, state) {
           return state.map(
@@ -97,16 +105,17 @@ class _CurrentPlanBox extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const VSpace(4),
                     FlowyText.semibold(
                       subscription.label,
                       fontSize: 24,
+                      color: AFThemeExtension.of(context).strongText,
                     ),
-                    const VSpace(4),
+                    const VSpace(8),
                     FlowyText.regular(
-                      LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_freeInfo
-                          .tr(),
+                      subscription.info,
                       fontSize: 16,
+                      color: AFThemeExtension.of(context).strongText,
                       maxLines: 3,
                     ),
                     const VSpace(16),
@@ -262,7 +271,7 @@ class _ProConItem extends StatelessWidget {
           height: 24,
           width: 24,
           child: FlowySvg(
-            isPro ? FlowySvgs.check_s : FlowySvgs.close_s,
+            isPro ? FlowySvgs.check_m : FlowySvgs.close_s,
             color: isPro ? null : const Color(0xFF900000),
           ),
         ),
@@ -271,7 +280,8 @@ class _ProConItem extends StatelessWidget {
           child: FlowyText.regular(
             label,
             fontSize: 12,
-            maxLines: 2,
+            color: AFThemeExtension.of(context).strongText,
+            maxLines: 3,
           ),
         ),
       ],
@@ -372,7 +382,7 @@ class _UsageBox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FlowyText.regular(
+        FlowyText.medium(
           title,
           fontSize: 11,
           color: AFThemeExtension.of(context).secondaryTextColor,
@@ -443,7 +453,11 @@ class _ToggleMoreState extends State<_ToggleMore> {
           },
         ),
         const HSpace(10),
-        FlowyText.regular(widget.label, fontSize: 14),
+        FlowyText.regular(
+          widget.label,
+          fontSize: 14,
+          color: AFThemeExtension.of(context).strongText,
+        ),
         if (widget.badgeLabel != null && widget.badgeLabel!.isNotEmpty) ...[
           const HSpace(10),
           SizedBox(

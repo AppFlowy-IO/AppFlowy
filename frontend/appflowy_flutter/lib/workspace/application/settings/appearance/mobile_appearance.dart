@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
 // ThemeData in mobile
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flutter/material.dart';
 
 class MobileAppearance extends BaseAppearance {
   static const _primaryColor = Color(0xFF00BCF0); //primary 100
@@ -250,6 +251,7 @@ class MobileAppearance extends BaseAppearance {
           tint9: theme.tint9,
           textColor: theme.text,
           secondaryTextColor: theme.secondaryText,
+          strongText: theme.strongText,
           greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
           lightGreyHover: theme.hoverBG3,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_billing_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_data_view.dart';
@@ -13,6 +14,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/settings_custom
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_notifications_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,14 +26,12 @@ class SettingsDialog extends StatelessWidget {
     required this.dismissDialog,
     required this.didLogout,
     required this.restartApp,
-    required this.workspaceId,
   }) : super(key: ValueKey(user.id));
 
   final VoidCallback dismissDialog;
   final VoidCallback didLogout;
   final VoidCallback restartApp;
   final UserProfilePB user;
-  final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -57,12 +57,25 @@ class SettingsDialog extends StatelessWidget {
                           .add(SettingsDialogEvent.setSelectedPage(index)),
                       currentPage:
                           context.read<SettingsDialogBloc>().state.page,
+                      member: context
+                          .read<UserWorkspaceBloc>()
+                          .state
+                          .currentWorkspaceMember,
                     ),
                   ),
                   Expanded(
                     child: getSettingsView(
+                      context
+                          .read<UserWorkspaceBloc>()
+                          .state
+                          .currentWorkspace!
+                          .workspaceId,
                       context.read<SettingsDialogBloc>().state.page,
                       context.read<SettingsDialogBloc>().state.userProfile,
+                      context
+                          .read<UserWorkspaceBloc>()
+                          .state
+                          .currentWorkspaceMember,
                     ),
                   ),
                 ],
@@ -74,7 +87,12 @@ class SettingsDialog extends StatelessWidget {
     );
   }
 
-  Widget getSettingsView(SettingsPage page, UserProfilePB user) {
+  Widget getSettingsView(
+    String workspaceId,
+    SettingsPage page,
+    UserProfilePB user,
+    WorkspaceMemberPB? member,
+  ) {
     switch (page) {
       case SettingsPage.account:
         return SettingsAccountView(
@@ -83,7 +101,10 @@ class SettingsDialog extends StatelessWidget {
           didLogin: dismissDialog,
         );
       case SettingsPage.workspace:
-        return SettingsWorkspaceView(userProfile: user);
+        return SettingsWorkspaceView(
+          userProfile: user,
+          workspaceMember: member,
+        );
       case SettingsPage.manageData:
         return SettingsManageDataView(userProfile: user);
       case SettingsPage.notifications:
@@ -95,9 +116,9 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.member:
         return WorkspaceMembersPage(userProfile: user);
       case SettingsPage.plan:
-        return SettingsPlanView(workspaceId: workspaceId);
+        return SettingsPlanView(workspaceId: workspaceId, user: user);
       case SettingsPage.billing:
-        return SettingsBillingView(workspaceId: workspaceId);
+        return SettingsBillingView(workspaceId: workspaceId, user: user);
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
       default:

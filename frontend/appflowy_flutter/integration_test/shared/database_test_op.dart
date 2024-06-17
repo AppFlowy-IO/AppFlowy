@@ -130,12 +130,12 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await openPage('v020', layout: ViewLayoutPB.Grid);
   }
 
-  Future<void> hoverOnFirstRowOfGrid() async {
+  Future<void> hoverOnFirstRowOfGrid([Future<void> Function()? onHover]) async {
     final findRow = find.byType(GridRow);
     expect(findRow, findsWidgets);
 
     final firstRow = findRow.first;
-    await hoverOnWidget(firstRow);
+    await hoverOnWidget(firstRow, onHover: onHover);
   }
 
   Future<void> editCell({
@@ -876,11 +876,13 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapRowMenuButtonInGrid() async {
+    expect(find.byType(RowMenuButton), findsOneWidget);
     await tapButton(find.byType(RowMenuButton));
   }
 
   /// Should call [tapRowMenuButtonInGrid] first.
   Future<void> tapDeleteOnRowMenu() async {
+    expect(find.text(LocaleKeys.grid_row_delete.tr()), findsOneWidget);
     await tapButtonWithName(LocaleKeys.grid_row_delete.tr());
   }
 
