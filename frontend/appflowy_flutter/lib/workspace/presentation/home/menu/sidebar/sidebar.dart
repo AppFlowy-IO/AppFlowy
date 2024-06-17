@@ -117,6 +117,7 @@ class HomeSideBar extends StatelessWidget {
                     userProfile,
                     state.currentWorkspace?.workspaceId ??
                         workspaceSetting.workspaceId,
+                    openFirstPage: false,
                   ),
                 ),
             ),
@@ -164,23 +165,27 @@ class HomeSideBar extends StatelessWidget {
                   if (actionType == UserWorkspaceActionType.create ||
                       actionType == UserWorkspaceActionType.delete ||
                       actionType == UserWorkspaceActionType.open) {
-                    context.read<SidebarSectionsBloc>().add(
-                          SidebarSectionsEvent.reload(
-                            userProfile,
-                            state.currentWorkspace?.workspaceId ??
-                                workspaceSetting.workspaceId,
-                          ),
-                        );
+                    if (context.read<SpaceBloc>().state.spaces.isEmpty) {
+                      context.read<SidebarSectionsBloc>().add(
+                            SidebarSectionsEvent.reload(
+                              userProfile,
+                              state.currentWorkspace?.workspaceId ??
+                                  workspaceSetting.workspaceId,
+                            ),
+                          );
+                    } else {
+                      context.read<SpaceBloc>().add(
+                            SpaceEvent.reset(
+                              userProfile,
+                              state.currentWorkspace?.workspaceId ??
+                                  workspaceSetting.workspaceId,
+                            ),
+                          );
+                    }
+
                     context
                         .read<FavoriteBloc>()
                         .add(const FavoriteEvent.fetchFavorites());
-                    context.read<SpaceBloc>().add(
-                          SpaceEvent.reset(
-                            userProfile,
-                            state.currentWorkspace?.workspaceId ??
-                                workspaceSetting.workspaceId,
-                          ),
-                        );
                   }
                 },
               ),

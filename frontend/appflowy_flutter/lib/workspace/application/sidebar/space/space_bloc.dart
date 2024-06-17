@@ -62,7 +62,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     on<SpaceEvent>(
       (event, emit) async {
         await event.when(
-          initial: (userProfile, workspaceId) async {
+          initial: (userProfile, workspaceId, openFirstPage) async {
             _initial(userProfile, workspaceId);
 
             final (spaces, publicViews, privateViews) = await _getSpaces();
@@ -85,6 +85,12 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             if (shouldShowUpgradeDialog) {
               add(const SpaceEvent.migrate());
+            }
+
+            if (openFirstPage) {
+              if (currentSpace != null) {
+                add(SpaceEvent.open(currentSpace));
+              }
             }
           },
           create: (
@@ -247,7 +253,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           reset: (userProfile, workspaceId) async {
             _reset(userProfile, workspaceId);
 
-            add(SpaceEvent.initial(userProfile, workspaceId));
+            add(
+              SpaceEvent.initial(
+                userProfile,
+                workspaceId,
+                openFirstPage: true,
+              ),
+            );
           },
           migrate: () async {
             final result = await migrate();
@@ -540,8 +552,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.initial(
     UserProfilePB userProfile,
-    String workspaceId,
-  ) = _Initial;
+    String workspaceId, {
+    required bool openFirstPage,
+  }) = _Initial;
   const factory SpaceEvent.create({
     required String name,
     required String icon,
