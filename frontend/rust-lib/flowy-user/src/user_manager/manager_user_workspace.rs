@@ -533,7 +533,7 @@ impl UserManager {
     let member = self
       .cloud_services
       .get_user_service()?
-      .get_workspace_member_info(&workspace_id, uid)
+      .get_workspace_member_info(workspace_id, uid)
       .await?;
 
     let record = WorkspaceMemberTable {
