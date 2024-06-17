@@ -54,7 +54,6 @@ class SidebarNewPageButton extends StatelessWidget {
             context.read<SpaceBloc>().add(
                   SpaceEvent.createPage(
                     name: viewName,
-                    viewSection: section,
                     index: 0,
                   ),
                 );

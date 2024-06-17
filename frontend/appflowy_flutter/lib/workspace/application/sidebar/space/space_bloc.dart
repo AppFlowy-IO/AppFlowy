@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -16,6 +17,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -85,7 +87,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               add(const SpaceEvent.migrate());
             }
           },
-          create: (name, icon, iconColor, permission) async {
+          create: (
+            name,
+            icon,
+            iconColor,
+            permission,
+            createNewPageByDefault,
+          ) async {
             final space = await _createSpace(
               name: name,
               icon: icon,
@@ -93,8 +101,22 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               permission: permission,
             );
             if (space != null) {
-              emit(state.copyWith(spaces: [...state.spaces, space]));
+              emit(
+                state.copyWith(
+                  spaces: [...state.spaces, space],
+                  currentSpace: space,
+                ),
+              );
               add(SpaceEvent.open(space));
+
+              if (createNewPageByDefault) {
+                add(
+                  SpaceEvent.createPage(
+                    name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                    index: 0,
+                  ),
+                );
+              }
             }
           },
           delete: (space) async {
@@ -165,7 +187,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             await _setSpaceExpandStatus(space, isExpanded);
             emit(state.copyWith(isExpanded: isExpanded));
           },
-          createPage: (name, section, index) async {
+          createPage: (name, index) async {
             final parentViewId = state.currentSpace?.id;
             if (parentViewId == null) {
               return;
@@ -425,7 +447,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         // only migrate the public space if there are any public views
         if (publicViews.isNotEmpty) {
           final publicSpace = await _createSpace(
-            name: 'General',
+            name: 'Shared',
             icon: builtInSpaceIcons.first,
             iconColor: builtInSpaceColors.first,
             permission: SpacePermission.publicToAll,
@@ -509,6 +531,7 @@ class SpaceEvent with _$SpaceEvent {
     required String icon,
     required String iconColor,
     required SpacePermission permission,
+    required bool createNewPageByDefault,
   }) = _Create;
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
   const factory SpaceEvent.changeIcon(String icon, String iconColor) =
@@ -523,7 +546,6 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.expand(ViewPB space, bool isExpanded) = _Expand;
   const factory SpaceEvent.createPage({
     required String name,
-    required ViewSectionPB viewSection,
     int? index,
   }) = _CreatePage;
   const factory SpaceEvent.delete(ViewPB? space) = _Delete;

@@ -155,10 +155,6 @@ class _SpaceState extends State<_Space> {
                 SpaceEvent.createPage(
                   name: viewName,
                   index: 0,
-                  viewSection:
-                      space.spacePermission == SpacePermission.publicToAll
-                          ? ViewSectionPB.Public
-                          : ViewSectionPB.Private,
                 ),
               );
 
