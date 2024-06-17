@@ -383,7 +383,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     });
   }
 
-  Future<bool> migrate() async {
+  Future<bool> migrate({bool auto = true}) async {
     if (_workspaceId == null) {
       return false;
     }
@@ -407,45 +407,51 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         // move all the views in the workspace to the new public/private space
         final publicViews =
             await _workspaceService.getPublicViews().getOrThrow();
-        final publicSpace = await _createSpace(
-          name: 'Shared',
-          icon: builtInSpaceIcons.first,
-          iconColor: builtInSpaceColors.first,
-          permission: SpacePermission.publicToAll,
-        );
+        // only migrate the public space if there are any public views
+        if (publicViews.isNotEmpty) {
+          final publicSpace = await _createSpace(
+            name: 'General',
+            icon: builtInSpaceIcons.first,
+            iconColor: builtInSpaceColors.first,
+            permission: SpacePermission.publicToAll,
+          );
 
-        if (publicSpace != null) {
-          for (final view in publicViews.reversed) {
-            if (view.isSpace) {
-              continue;
+          if (publicSpace != null) {
+            for (final view in publicViews.reversed) {
+              if (view.isSpace) {
+                continue;
+              }
+              await ViewBackendService.moveViewV2(
+                viewId: view.id,
+                newParentId: publicSpace.id,
+                prevViewId: view.parentViewId,
+              );
             }
-            await ViewBackendService.moveViewV2(
-              viewId: view.id,
-              newParentId: publicSpace.id,
-              prevViewId: view.parentViewId,
-            );
           }
         }
       }
       // create a new private space
       final privateViews =
           await _workspaceService.getPrivateViews().getOrThrow();
-      final privateSpace = await _createSpace(
-        name: 'Private',
-        icon: builtInSpaceIcons.last,
-        iconColor: builtInSpaceColors.last,
-        permission: SpacePermission.private,
-      );
-      if (privateSpace != null) {
-        for (final view in privateViews.reversed) {
-          if (view.isSpace) {
-            continue;
+      // only migrate the private space if there are any private views
+      if (privateViews.isNotEmpty) {
+        final privateSpace = await _createSpace(
+          name: 'Private',
+          icon: builtInSpaceIcons.last,
+          iconColor: builtInSpaceColors.last,
+          permission: SpacePermission.private,
+        );
+        if (privateSpace != null) {
+          for (final view in privateViews.reversed) {
+            if (view.isSpace) {
+              continue;
+            }
+            await ViewBackendService.moveViewV2(
+              viewId: view.id,
+              newParentId: privateSpace.id,
+              prevViewId: view.parentViewId,
+            );
           }
-          await ViewBackendService.moveViewV2(
-            viewId: view.id,
-            newParentId: privateSpace.id,
-            prevViewId: view.parentViewId,
-          );
         }
       }
 
