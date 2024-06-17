@@ -1924,6 +1924,7 @@
     "upgradeSpaceTitle": "Aktiviere Bereiche für deinen Arbeitsbereich",
     "upgradeSpaceDescription": "Erstelle mehrere öffentliche und private Bereiche, um deine Arbeit besser zu organisieren.",
     "upgrade": "Hochstufen",
-    "upgradeYourSpace": "Upgrade deinen Bereich"
+    "upgradeYourSpace": "Upgrade deinen Bereich",
+    "quicklySwitch": "Schnell zum nächsten Bereich wechseln"
   }
 }
