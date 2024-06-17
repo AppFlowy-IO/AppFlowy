@@ -33,6 +33,7 @@ class BlockActionBottomSheet extends StatelessWidget {
             FlowySvgs.arrow_up_s,
             size: Size.square(20),
           ),
+          showTopBorder: false,
           onTap: () => onAction(BlockActionBottomSheetType.insertAbove),
         ),
         FlowyOptionTile.text(
@@ -48,7 +49,7 @@ class BlockActionBottomSheet extends StatelessWidget {
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.button_duplicate.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.m_field_copy_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_duplicate_s),
           onTap: () => onAction(BlockActionBottomSheetType.duplicate),
         ),
 

@@ -9,7 +9,7 @@ edition = "2018"
 flowy-derive.workspace = true
 flowy-sqlite = { workspace = true }
 flowy-encrypt = { workspace = true }
-flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_sqlite", "impl_from_collab_folder", "impl_from_collab_persistence"] }
+flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_sqlite", "impl_from_collab_folder", "impl_from_collab_persistence", "impl_from_collab_document"] }
 flowy-folder-pub = { workspace = true }
 lib-infra = { workspace = true }
 flowy-notification = { workspace = true }
@@ -39,7 +39,6 @@ parking_lot.workspace = true
 strum = "0.25"
 strum_macros = "0.25.2"
 tokio = { workspace = true, features = ["rt"] }
-validator = "0.16.0"
 unicode-segmentation = "1.10"
 fancy-regex = "0.11.0"
 uuid.workspace = true
@@ -47,6 +46,7 @@ chrono = { workspace = true, default-features = false, features = ["clock"] }
 base64 = "^0.21"
 tokio-stream = "0.1.14"
 semver = "1.0.22"
+validator = { workspace = true, features = ["derive"] }
 
 [dev-dependencies]
 nanoid = "0.4.0"

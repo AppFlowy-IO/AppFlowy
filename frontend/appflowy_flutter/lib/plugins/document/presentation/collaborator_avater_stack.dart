@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
+import 'package:flutter/material.dart';
 
 class CollaboratorAvatarStack extends StatelessWidget {
   const CollaboratorAvatarStack({
@@ -31,14 +30,14 @@ class CollaboratorAvatarStack extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = this.settings ??
         RestrictedPositions(
-          maxCoverage: 0.3,
-          minCoverage: 0.2,
+          maxCoverage: 0.4,
+          minCoverage: 0.3,
           align: StackAlign.right,
           laying: StackLaying.first,
         );
 
     final border = BorderSide(
-      color: borderColor ?? Theme.of(context).colorScheme.onPrimary,
+      color: borderColor ?? Theme.of(context).dividerColor,
       width: borderWidth ?? 2.0,
     );
 

@@ -67,7 +67,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               chatId: state.view.id,
               limit: Int64(10),
             );
-            ChatEventLoadNextMessage(payload).send();
+            ChatEventLoadNextMessage(payload).send().then(
+              (result) {
+                result.fold((list) {
+                  if (!isClosed) {
+                    final messages =
+                        list.messages.map(_createTextMessage).toList();
+                    add(ChatEvent.didLoadLatestMessages(messages));
+                  }
+                }, (err) {
+                  Log.error("Failed to load messages: $err");
+                });
+              },
+            );
           },
           startLoadingPrevMessage: () async {
             Int64? beforeMessageId;
@@ -377,6 +389,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         "chatId": chatId,
       },
       id: streamMessageId,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
       text: '',
     );
   }
@@ -393,7 +406,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       author: User(id: message.authorId),
       id: messageId,
       text: message.content,
-      createdAt: message.createdAt.toInt(),
+      createdAt: message.createdAt.toInt() * 1000,
     );
   }
 }

@@ -15,9 +15,9 @@ class CreateSpacePopup extends StatefulWidget {
 }
 
 class _CreateSpacePopupState extends State<CreateSpacePopup> {
-  String spaceName = '';
-  String spaceIcon = '';
-  String spaceIconColor = '';
+  String spaceName = LocaleKeys.space_defaultSpaceName.tr();
+  String spaceIcon = builtInSpaceIcons.first;
+  String spaceIconColor = builtInSpaceColors.first;
   SpacePermission spacePermission = SpacePermission.publicToAll;
 
   @override
@@ -98,7 +98,7 @@ class _SpaceNameTextField extends StatelessWidget {
         SizedBox(
           height: 40,
           child: FlowyTextField(
-            hintText: 'Untitled space',
+            text: LocaleKeys.space_defaultSpaceName.tr(),
             onChanged: onChanged,
           ),
         ),

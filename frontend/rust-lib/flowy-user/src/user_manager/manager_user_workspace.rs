@@ -1,9 +1,10 @@
+use chrono::{Duration, NaiveDateTime, Utc};
 use std::convert::TryFrom;
 use std::sync::Arc;
 
 use collab_entity::{CollabObject, CollabType};
 use collab_integrate::CollabKVDB;
-use tracing::{error, info, instrument, warn};
+use tracing::{error, info, instrument, trace, warn};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
@@ -22,6 +23,9 @@ use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::data_import::{
   generate_import_data, upload_collab_objects_data, ImportedFolder, ImportedSource,
+};
+use crate::services::sqlite_sql::member_sql::{
+  select_workspace_member, upsert_workspace_member, WorkspaceMemberTable,
 };
 use crate::services::sqlite_sql::workspace_sql::{
   get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op, UserWorkspaceTable,
@@ -492,6 +496,60 @@ impl UserManager {
       .await?;
     Ok(url)
   }
+
+  #[instrument(level = "debug", skip(self), err)]
+  pub async fn get_workspace_member_info(&self, uid: i64) -> FlowyResult<WorkspaceMember> {
+    let workspace_id = self.get_session()?.user_workspace.id.clone();
+    let db = self.authenticate_user.get_sqlite_connection(uid)?;
+    // Can opt in using memory cache
+    if let Ok(member_record) = select_workspace_member(db, &workspace_id, uid) {
+      if is_older_than_n_minutes(member_record.updated_at, 10) {
+        self
+          .get_workspace_member_info_from_remote(&workspace_id, uid)
+          .await?;
+      }
+
+      return Ok(WorkspaceMember {
+        email: member_record.email,
+        role: member_record.role.into(),
+        name: member_record.name,
+        avatar_url: member_record.avatar_url,
+      });
+    }
+
+    let member = self
+      .get_workspace_member_info_from_remote(&workspace_id, uid)
+      .await?;
+
+    Ok(member)
+  }
+
+  async fn get_workspace_member_info_from_remote(
+    &self,
+    workspace_id: &str,
+    uid: i64,
+  ) -> FlowyResult<WorkspaceMember> {
+    trace!("get workspace member info from remote: {}", workspace_id);
+    let member = self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_member_info(&workspace_id, uid)
+      .await?;
+
+    let record = WorkspaceMemberTable {
+      email: member.email.clone(),
+      role: member.role.clone().into(),
+      name: member.name.clone(),
+      avatar_url: member.avatar_url.clone(),
+      uid,
+      workspace_id: workspace_id.to_string(),
+      updated_at: Utc::now().naive_utc(),
+    };
+
+    let db = self.authenticate_user.get_sqlite_connection(uid)?;
+    upsert_workspace_member(db, record)?;
+    Ok(member)
+  }
 }
 
 /// This method is used to save one user workspace to the SQLite database
@@ -600,4 +658,12 @@ pub fn delete_user_workspaces(mut conn: DBConnection, workspace_id: &str) -> Flo
     warn!("expected to delete 1 row, but deleted {} rows", n);
   }
   Ok(())
+}
+
+fn is_older_than_n_minutes(updated_at: NaiveDateTime, minutes: i64) -> bool {
+  let current_time: NaiveDateTime = Utc::now().naive_utc();
+  match current_time.checked_sub_signed(Duration::minutes(minutes)) {
+    Some(five_minutes_ago) => updated_at < five_minutes_ago,
+    None => false,
+  }
 }

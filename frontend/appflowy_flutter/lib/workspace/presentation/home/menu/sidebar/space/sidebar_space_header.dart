@@ -20,16 +20,16 @@ class SidebarSpaceHeader extends StatefulWidget {
   const SidebarSpaceHeader({
     super.key,
     required this.space,
-    required this.onPressed,
     required this.onAdded,
-    required this.onTapMore,
+    required this.onCreateNewSpace,
+    required this.onCollapseAllPages,
     required this.isExpanded,
   });
 
   final ViewPB space;
-  final VoidCallback onPressed;
   final VoidCallback onAdded;
-  final VoidCallback onTapMore;
+  final VoidCallback onCreateNewSpace;
+  final VoidCallback onCollapseAllPages;
   final bool isExpanded;
 
   @override
@@ -73,6 +73,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
                   // rightIcon: _buildRightIcon(),
                   iconPadding: 10.0,
                   text: _buildChild(),
+                  rightIcon: const HSpace(60.0),
                 ),
               ),
               Positioned(
@@ -95,10 +96,13 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
           cornerRadius: 6.0,
         ),
         const HSpace(10),
-        FlowyText.medium(
-          widget.space.name,
-          lineHeight: 1.15,
-          fontSize: 14.0,
+        Flexible(
+          child: FlowyText.medium(
+            widget.space.name,
+            lineHeight: 1.15,
+            fontSize: 14.0,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         const HSpace(4.0),
         FlowySvg(
@@ -127,6 +131,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
             const HSpace(8.0),
             FlowyIconButton(
               width: 24,
+              tooltipText: LocaleKeys.sideBar_addAPage.tr(),
               iconPadding: const EdgeInsets.all(4.0),
               icon: const FlowySvg(FlowySvgs.view_item_add_s),
               onPressed: widget.onAdded,
@@ -150,8 +155,10 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
         _showManageSpaceDialog(context);
         break;
       case SpaceMoreActionType.addNewSpace:
+        widget.onCreateNewSpace();
         break;
       case SpaceMoreActionType.collapseAllPages:
+        widget.onCollapseAllPages();
         break;
       case SpaceMoreActionType.delete:
         _showDeleteSpaceDialog(context);
@@ -166,6 +173,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
       title: LocaleKeys.space_rename.tr(),
       value: widget.space.name,
       autoSelectAllText: true,
+      hintText: LocaleKeys.space_spaceName.tr(),
       onConfirm: (name, _) {
         context.read<SpaceBloc>().add(SpaceEvent.rename(widget.space, name));
       },

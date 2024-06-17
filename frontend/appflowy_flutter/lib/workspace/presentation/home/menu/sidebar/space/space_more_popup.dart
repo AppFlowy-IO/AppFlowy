@@ -40,6 +40,7 @@ class SpaceMorePopup extends StatelessWidget {
         return FlowyIconButton(
           width: 24,
           icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
+          tooltipText: LocaleKeys.space_manage.tr(),
           onPressed: () {
             onEditing(true);
             popover.show();
@@ -68,9 +69,9 @@ class SpaceMorePopup extends StatelessWidget {
       SpaceMoreActionType.rename,
       SpaceMoreActionType.changeIcon,
       SpaceMoreActionType.manage,
-      // SpaceMoreActionType.divider,
-      // SpaceMoreActionType.addNewSpace,
-      // SpaceMoreActionType.collapseAllPages,
+      SpaceMoreActionType.divider,
+      SpaceMoreActionType.addNewSpace,
+      SpaceMoreActionType.collapseAllPages,
       SpaceMoreActionType.divider,
       SpaceMoreActionType.delete,
     ];
@@ -155,7 +156,7 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
       height: 34,
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Opacity(
-        opacity: disable ? 0.5 : 1.0,
+        opacity: disable ? 0.3 : 1.0,
         child: FlowyButton(
           disable: disable,
           margin: const EdgeInsets.symmetric(horizontal: 6),
@@ -163,7 +164,7 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
           rightIcon: inner.rightIcon,
           iconPadding: 10.0,
           text: SizedBox(
-            height: 18.0,
+            // height: 16.0,
             child: FlowyText.regular(
               inner.name,
               color: inner == SpaceMoreActionType.delete

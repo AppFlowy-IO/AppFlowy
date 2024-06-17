@@ -69,6 +69,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               publicViews: publicViews,
               privateViews: privateViews,
             );
+
             final currentSpace = await _getLastOpenedSpace(spaces);
             final isExpanded = await _getSpaceExpandStatus(currentSpace);
             emit(
@@ -79,6 +80,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 shouldShowUpgradeDialog: shouldShowUpgradeDialog,
               ),
             );
+
+            if (shouldShowUpgradeDialog) {
+              // add(const SpaceEvent.migrate());
+            }
           },
           create: (name, icon, iconColor, permission) async {
             final space = await _createSpace(
@@ -391,6 +396,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       final isOwner = members.items
           .any((e) => e.role == AFRolePB.Owner && e.email == user.email);
 
+      if (members.items.isEmpty) {
+        return true;
+      }
+
       // only one member in the workspace, migrate it immediately
       // only the owner can migrate the public space
       if (members.items.length == 1 || isOwner) {
@@ -399,7 +408,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         final publicViews =
             await _workspaceService.getPublicViews().getOrThrow();
         final publicSpace = await _createSpace(
-          name: 'shared',
+          name: 'Shared',
           icon: builtInSpaceIcons.first,
           iconColor: builtInSpaceColors.first,
           permission: SpacePermission.publicToAll,
@@ -422,7 +431,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       final privateViews =
           await _workspaceService.getPrivateViews().getOrThrow();
       final privateSpace = await _createSpace(
-        name: 'private',
+        name: 'Private',
         icon: builtInSpaceIcons.last,
         iconColor: builtInSpaceColors.last,
         permission: SpacePermission.private,

@@ -29,7 +29,8 @@ class ChatUserMessageBubble extends StatelessWidget {
         Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return BlocProvider(
-      create: (context) => ChatUserMessageBloc(message: message),
+      create: (context) => ChatUserMessageBloc(message: message)
+        ..add(const ChatUserMessageEvent.initial()),
       child: BlocBuilder<ChatUserMessageBloc, ChatUserMessageState>(
         builder: (context, state) {
           return Row(

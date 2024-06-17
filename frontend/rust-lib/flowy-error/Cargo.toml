@@ -13,7 +13,7 @@ protobuf.workspace = true
 bytes.workspace = true
 anyhow.workspace = true
 thiserror = "1.0"
-validator = "0.16.0"
+validator.workspace = true
 tokio = { workspace = true, features = ["sync", "rt"] }
 
 fancy-regex = { version = "0.11.0" }

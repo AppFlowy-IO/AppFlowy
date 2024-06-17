@@ -177,6 +177,12 @@ pub struct UserWorkspaceIdPB {
   pub workspace_id: String,
 }
 
+#[derive(ProtoBuf, Default, Clone)]
+pub struct WorkspaceMemberIdPB {
+  #[pb(index = 1)]
+  pub uid: i64,
+}
+
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct CreateWorkspacePB {
   #[pb(index = 1)]

@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -52,7 +53,17 @@ class RowActionMenu extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(action.text, overflow: TextOverflow.ellipsis),
         onTap: () {
-          action.performAction(context, viewId, rowId);
+          if (action == RowAction.delete) {
+            NavigatorOkCancelDialog(
+              message: LocaleKeys.grid_row_deleteRowPrompt.tr(),
+              onOkPressed: () {
+                action.performAction(context, viewId, rowId);
+              },
+            ).show(context);
+          } else {
+            action.performAction(context, viewId, rowId);
+          }
+
           PopoverContainer.of(context).close();
         },
         leftIcon: icon,

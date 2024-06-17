@@ -520,6 +520,34 @@ where
     })
   }
 
+  fn get_workspace_member_info(
+    &self,
+    workspace_id: &str,
+    uid: i64,
+  ) -> FutureResult<WorkspaceMember, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id = workspace_id.to_string();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let params = QueryWorkspaceMember {
+        workspace_id: workspace_id.to_string(),
+        uid,
+      };
+      let member = client.get_workspace_member(params).await?;
+      let role = match member.role {
+        AFRole::Owner => Role::Owner,
+        AFRole::Member => Role::Member,
+        AFRole::Guest => Role::Guest,
+      };
+      Ok(WorkspaceMember {
+        email: member.email,
+        role,
+        name: member.name,
+        avatar_url: member.avatar_url,
+      })
+    })
+  }
+
   fn get_workspace_subscriptions(&self) -> FutureResult<Vec<WorkspaceSubscription>, FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {

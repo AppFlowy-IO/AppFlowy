@@ -18,6 +18,7 @@ class ViewTitleBloc extends Bloc<ViewTitleEvent, ViewTitleState> {
               state.copyWith(
                 name: view.name,
                 icon: view.icon.value,
+                view: view,
               ),
             );
 
@@ -27,16 +28,18 @@ class ViewTitleBloc extends Bloc<ViewTitleEvent, ViewTitleState> {
                   ViewTitleEvent.updateNameOrIcon(
                     view.name,
                     view.icon.value,
+                    view,
                   ),
                 );
               },
             );
           },
-          updateNameOrIcon: (name, icon) async {
+          updateNameOrIcon: (name, icon, view) async {
             emit(
               state.copyWith(
                 name: name,
                 icon: icon,
+                view: view,
               ),
             );
           },
@@ -58,8 +61,11 @@ class ViewTitleBloc extends Bloc<ViewTitleEvent, ViewTitleState> {
 @freezed
 class ViewTitleEvent with _$ViewTitleEvent {
   const factory ViewTitleEvent.initial() = Initial;
-  const factory ViewTitleEvent.updateNameOrIcon(String name, String icon) =
-      UpdateNameOrIcon;
+  const factory ViewTitleEvent.updateNameOrIcon(
+    String name,
+    String icon,
+    ViewPB? view,
+  ) = UpdateNameOrIcon;
 }
 
 @freezed
@@ -67,6 +73,7 @@ class ViewTitleState with _$ViewTitleState {
   const factory ViewTitleState({
     required String name,
     required String icon,
+    @Default(null) ViewPB? view,
   }) = _ViewTitleState;
 
   factory ViewTitleState.initial() => const ViewTitleState(name: '', icon: '');

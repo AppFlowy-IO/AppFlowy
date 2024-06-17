@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/recent/recent_listener.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -65,8 +66,20 @@ class CachedRecentService {
     ).send();
   }
 
-  Future<FlowyResult<RepeatedRecentViewPB, FlowyError>> _readRecentViews() =>
-      FolderEventReadRecentViews().send();
+  Future<FlowyResult<RepeatedRecentViewPB, FlowyError>>
+      _readRecentViews() async {
+    final result = await FolderEventReadRecentViews().send();
+    return result.fold(
+      (recentViews) {
+        return FlowyResult.success(
+          RepeatedRecentViewPB(
+            items: recentViews.items.where((e) => !e.item.isSpace),
+          ),
+        );
+      },
+      (error) => FlowyResult.failure(error),
+    );
+  }
 
   bool _isInitialized = false;
 

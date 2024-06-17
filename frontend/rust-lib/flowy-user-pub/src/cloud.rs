@@ -1,7 +1,6 @@
 use collab_entity::{CollabObject, CollabType};
 use flowy_error::{internal_error, ErrorCode, FlowyError};
 use lib_infra::box_any::BoxAny;
-use lib_infra::conditional_send_sync_trait;
 use lib_infra::future::FutureResult;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -53,12 +52,7 @@ impl Display for UserCloudConfig {
   }
 }
 
-conditional_send_sync_trait! {
-  "This trait is intended for implementation by providers that offer cloud-based services for users.
-  It includes methods for handling authentication tokens, enabling/disabling synchronization,
-  setting network reachability, managing encryption secrets, and accessing user-specific cloud services.";
-
-  UserCloudServiceProvider {
+pub trait UserCloudServiceProvider: Send + Sync {
   /// Sets the authentication token for the cloud service.
   ///
   /// # Arguments
@@ -113,8 +107,8 @@ conditional_send_sync_trait! {
   /// # Returns
   /// A `String` representing the service URL.
   fn service_url(&self) -> String;
-  }
 }
+
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
 #[allow(unused_variables)]
@@ -283,6 +277,14 @@ pub trait UserCloudService: Send + Sync + 'static {
     workspace_subscription_plan: SubscriptionPlan,
     success_url: String,
   ) -> FutureResult<String, FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
+  fn get_workspace_member_info(
+    &self,
+    workspace_id: &str,
+    uid: i64,
+  ) -> FutureResult<WorkspaceMember, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
