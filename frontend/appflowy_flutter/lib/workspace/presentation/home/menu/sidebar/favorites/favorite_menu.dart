@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_more_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_pin_action.dart';
@@ -36,9 +37,6 @@ class FavoriteMenu extends StatelessWidget {
             FavoriteMenuBloc()..add(const FavoriteMenuEvent.initial()),
         child: BlocBuilder<FavoriteMenuBloc, FavoriteMenuState>(
           builder: (context, state) {
-            if (state.views.isEmpty) {
-              return const SizedBox.shrink();
-            }
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -52,7 +50,10 @@ class FavoriteMenu extends StatelessWidget {
                   },
                 ),
                 const VSpace(12),
-                _buildViews(context, state),
+                _FavoriteGroups(
+                  minWidth: minWidth,
+                  state: state,
+                ),
               ],
             );
           },
@@ -60,8 +61,67 @@ class FavoriteMenu extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildViews(BuildContext context, FavoriteMenuState state) {
+class _FavoriteGroupedViews extends StatelessWidget {
+  const _FavoriteGroupedViews({
+    required this.views,
+  });
+
+  final List<ViewPB> views;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: views
+          .map(
+            (e) => ViewItem(
+              key: ValueKey(e.id),
+              view: e,
+              spaceType: FolderSpaceType.favorite,
+              level: 0,
+              onSelected: (_, view) {
+                context.read<TabsBloc>().openPlugin(view);
+                PopoverContainer.maybeOf(context)?.close();
+              },
+              isFeedback: false,
+              isDraggable: false,
+              shouldRenderChildren: false,
+              extendBuilder: (view) => view.isPinned
+                  ? [
+                      const HSpace(4.0),
+                      const FlowySvg(
+                        FlowySvgs.favorite_pin_s,
+                        blendMode: null,
+                      ),
+                    ]
+                  : [],
+              leftIconBuilder: (_, __) => const HSpace(4.0),
+              rightIconsBuilder: (_, view) => [
+                FavoriteMoreActions(view: view),
+                const HSpace(6.0),
+                FavoritePinAction(view: view),
+                const HSpace(4.0),
+              ],
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class _FavoriteGroups extends StatelessWidget {
+  const _FavoriteGroups({
+    required this.minWidth,
+    required this.state,
+  });
+
+  final double minWidth;
+  final FavoriteMenuState state;
+
+  @override
+  Widget build(BuildContext context) {
     final today = _buildGroups(
       context,
       state.todayViews,
@@ -131,40 +191,10 @@ class FavoriteMenu extends StatelessWidget {
             ),
           ),
         const VSpace(2),
-        _buildGroupedViews(context, views),
+        _FavoriteGroupedViews(views: views),
         const VSpace(8),
       ],
     ];
-  }
-
-  Widget _buildGroupedViews(BuildContext context, List<ViewPB> views) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: views
-          .map(
-            (e) => ViewItem(
-              key: ValueKey(e.id),
-              view: e,
-              spaceType: FolderSpaceType.favorite,
-              level: 0,
-              onSelected: (_, view) {
-                context.read<TabsBloc>().openPlugin(view);
-                PopoverContainer.maybeOf(context)?.close();
-              },
-              isFeedback: false,
-              isDraggable: false,
-              shouldRenderChildren: false,
-              leftIconBuilder: (_, __) => const HSpace(4.0),
-              rightIconsBuilder: (_, view) => [
-                FavoriteMoreActions(view: view),
-                const HSpace(6.0),
-                FavoritePinAction(view: view),
-                const HSpace(4.0),
-              ],
-            ),
-          )
-          .toList(),
-    );
   }
 }
 

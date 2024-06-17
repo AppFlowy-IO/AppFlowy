@@ -231,6 +231,14 @@ pub trait UserCloudService: Send + Sync + 'static {
     FutureResult::new(async { Ok(vec![]) })
   }
 
+  fn get_workspace_member(
+    &self,
+    workspace_id: String,
+    uid: i64,
+  ) -> FutureResult<WorkspaceMember, FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
   fn get_user_awareness_doc_state(
     &self,
     uid: i64,

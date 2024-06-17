@@ -156,7 +156,7 @@ class CommandPaletteBloc
       add(CommandPaletteEvent.performSearch(search: value));
 
   void _onResultsChanged(RepeatedSearchResultPB results) =>
-      add(CommandPaletteEvent.resultsChanged(results: results, max: 2));
+      add(CommandPaletteEvent.resultsChanged(results: results));
 }
 
 @freezed

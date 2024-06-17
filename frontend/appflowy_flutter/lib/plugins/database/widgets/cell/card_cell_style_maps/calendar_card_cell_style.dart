@@ -1,6 +1,8 @@
-import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/summary_card_cell.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
+
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/summary_card_cell.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/translate_card_cell.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import '../card_cell_builder.dart';
 import '../card_cell_skeleton/checkbox_card_cell.dart';
@@ -84,7 +86,7 @@ CardCellStyleMap desktopCalendarCardCellStyleMap(BuildContext context) {
       padding: padding,
       textStyle: textStyle,
     ),
-    FieldType.Translate: SummaryCardCellStyle(
+    FieldType.Translate: TranslateCardCellStyle(
       padding: padding,
       textStyle: textStyle,
     ),

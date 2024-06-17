@@ -13,6 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbserver.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_plan_bloc.freezed.dart';
@@ -20,8 +21,10 @@ part 'settings_plan_bloc.freezed.dart';
 class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
   SettingsPlanBloc({
     required this.workspaceId,
+    required Int64 userId,
   }) : super(const _Initial()) {
     _service = WorkspaceService(workspaceId: workspaceId);
+    _userService = UserBackendService(userId: userId);
     _successListenable = getIt<SubscriptionSuccessListenable>();
     _successListenable.addListener(_onPaymentSuccessful);
 
@@ -103,7 +106,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
           }
         },
         addSubscription: (plan) async {
-          final result = await UserBackendService.createSubscription(
+          final result = await _userService.createSubscription(
             workspaceId,
             SubscriptionPlanPB.Pro,
           );
@@ -114,7 +117,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
           );
         },
         cancelSubscription: () async {
-          await UserBackendService.cancelSubscription(workspaceId);
+          await _userService.cancelSubscription(workspaceId);
           add(const SettingsPlanEvent.started());
         },
         paymentSuccessful: () {
@@ -131,6 +134,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
   late final String workspaceId;
   late final WorkspaceService _service;
+  late final IUserBackendService _userService;
   late final SubscriptionSuccessListenable _successListenable;
 
   void _onPaymentSuccessful() {

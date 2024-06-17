@@ -51,16 +51,10 @@ class WorkspaceSettingsBloc
                 currentWorkspaceInList.workspaceId,
               );
 
-              final role = members
-                      .firstWhereOrNull((e) => e.email == userProfile.email)
-                      ?.role ??
-                  AFRolePB.Guest;
-
               emit(
                 state.copyWith(
                   workspace: currentWorkspaceInList,
                   members: members,
-                  myRole: role,
                 ),
               );
             } catch (e) {
@@ -118,7 +112,7 @@ class WorkspaceSettingsBloc
     String workspaceId,
   ) async {
     final data = QueryWorkspacePB()..workspaceId = workspaceId;
-    final result = await UserEventGetWorkspaceMember(data).send();
+    final result = await UserEventGetWorkspaceMembers(data).send();
     return result.fold(
       (s) => s.items,
       (e) {
@@ -150,7 +144,6 @@ class WorkspaceSettingsState with _$WorkspaceSettingsState {
   const factory WorkspaceSettingsState({
     @Default(null) UserWorkspacePB? workspace,
     @Default([]) List<WorkspaceMemberPB> members,
-    @Default(AFRolePB.Guest) AFRolePB myRole,
     @Default(false) bool deleteWorkspace,
     @Default(false) bool leaveWorkspace,
   }) = _WorkspaceSettingsState;

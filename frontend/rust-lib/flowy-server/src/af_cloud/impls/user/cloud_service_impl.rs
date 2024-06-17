@@ -339,6 +339,23 @@ where
     })
   }
 
+  fn get_workspace_member(
+    &self,
+    workspace_id: String,
+    uid: i64,
+  ) -> FutureResult<WorkspaceMember, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let query = QueryWorkspaceMember {
+        workspace_id: workspace_id.clone(),
+        uid,
+      };
+      let member = client.get_workspace_member(query).await?;
+      Ok(from_af_workspace_member(member))
+    })
+  }
+
   #[instrument(level = "debug", skip_all)]
   fn get_user_awareness_doc_state(
     &self,

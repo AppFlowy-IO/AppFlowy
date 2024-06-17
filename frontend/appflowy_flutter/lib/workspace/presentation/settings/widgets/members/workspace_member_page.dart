@@ -143,6 +143,8 @@ class _InviteMemberState extends State<_InviteMember> {
                   height: 48.0,
                 ),
                 child: FlowyTextField(
+                  hintText:
+                      LocaleKeys.settings_appearance_members_inviteHint.tr(),
                   controller: _emailController,
                   onEditingComplete: _inviteMember,
                 ),

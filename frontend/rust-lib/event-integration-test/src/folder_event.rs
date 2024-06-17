@@ -85,7 +85,7 @@ impl EventIntegrationTest {
 
   pub async fn get_workspace_members(&self, workspace_id: &str) -> Vec<WorkspaceMemberPB> {
     EventBuilder::new(self.clone())
-      .event(UserEvent::GetWorkspaceMember)
+      .event(UserEvent::GetWorkspaceMembers)
       .payload(QueryWorkspacePB {
         workspace_id: workspace_id.to_string(),
       })

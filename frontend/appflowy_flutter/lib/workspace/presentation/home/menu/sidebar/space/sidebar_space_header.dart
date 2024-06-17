@@ -16,6 +16,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,15 +54,8 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      constraints: const BoxConstraints(maxWidth: 252),
-      direction: PopoverDirection.bottomWithLeftAligned,
-      clickHandler: PopoverClickHandler.gestureDetector,
-      offset: const Offset(0, 4),
-      popupBuilder: (_) => BlocProvider.value(
-        value: context.read<SpaceBloc>(),
-        child: const SidebarSpaceMenu(),
-      ),
+    return ValueListenableBuilder(
+      valueListenable: isHovered,
       child: SizedBox(
         height: HomeSizes.workspaceSectionHeight,
         child: MouseRegion(
@@ -70,13 +64,28 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              SizedBox(
-                height: HomeSizes.workspaceSectionHeight,
-                child: FlowyButton(
-                  margin: const EdgeInsets.only(left: 6.0, right: 4.0),
-                  iconPadding: 10.0,
-                  text: _buildChild(),
-                  rightIcon: const HSpace(60.0),
+              Positioned(
+                left: 3,
+                top: 3,
+                bottom: 3,
+                child: SizedBox(
+                  height: HomeSizes.workspaceSectionHeight,
+                  child: AppFlowyPopover(
+                    constraints: const BoxConstraints(maxWidth: 252),
+                    direction: PopoverDirection.bottomWithLeftAligned,
+                    clickHandler: PopoverClickHandler.gestureDetector,
+                    offset: const Offset(0, 4),
+                    popupBuilder: (_) => BlocProvider.value(
+                      value: context.read<SpaceBloc>(),
+                      child: const SidebarSpaceMenu(),
+                    ),
+                    child: FlowyButton(
+                      useIntrinsicWidth: true,
+                      margin: const EdgeInsets.only(left: 3.0, right: 4.0),
+                      iconPadding: 10.0,
+                      text: _buildChild(),
+                    ),
+                  ),
                 ),
               ),
               Positioned(
@@ -87,6 +96,22 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
           ),
         ),
       ),
+      builder: (context, isHovered, child) {
+        final style = HoverStyle(
+          hoverColor: isHovered
+              ? Theme.of(context).colorScheme.secondary
+              : Colors.transparent,
+        );
+        return GestureDetector(
+          onTap: () => context
+              .read<SpaceBloc>()
+              .add(SpaceEvent.expand(widget.space, !widget.isExpanded)),
+          child: FlowyHoverContainer(
+            style: style,
+            child: child!,
+          ),
+        );
+      },
     );
   }
 

@@ -22,6 +22,10 @@ class FlowyTooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (message == null && richMessage == null) {
+      return child ?? const SizedBox.shrink();
+    }
+
     final isLightMode = Theme.of(context).brightness == Brightness.light;
     return Tooltip(
       margin: margin,

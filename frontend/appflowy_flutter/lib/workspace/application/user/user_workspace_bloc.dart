@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -10,7 +12,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -54,11 +55,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               Log.info('init open workspace: ${currentWorkspace.workspaceId}');
               await _userService.openWorkspace(currentWorkspace.workspaceId);
             }
+
+            WorkspaceMemberPB? currentWorkspaceMember;
+            final workspaceMemberResult =
+                await _userService.getWorkspaceMember();
+            currentWorkspaceMember = workspaceMemberResult.fold(
+              (s) => s,
+              (e) => null,
+            );
+
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
                 workspaces: workspaces,
                 isCollabWorkspaceOn: isCollabWorkspaceOn,
+                currentWorkspaceMember: currentWorkspaceMember,
                 actionResult: null,
               ),
             );
@@ -198,6 +209,14 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               (e) => state.currentWorkspace,
             );
 
+            WorkspaceMemberPB? currentWorkspaceMember;
+            final workspaceMemberResult =
+                await _userService.getWorkspaceMember();
+            currentWorkspaceMember = workspaceMemberResult.fold(
+              (s) => s,
+              (e) => null,
+            );
+
             result
               ..onSuccess((s) {
                 Log.info(
@@ -211,6 +230,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
+                currentWorkspaceMember: currentWorkspaceMember,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.open,
                   isLoading: false,
@@ -474,6 +494,7 @@ class UserWorkspaceState with _$UserWorkspaceState {
   const factory UserWorkspaceState({
     @Default(null) UserWorkspacePB? currentWorkspace,
     @Default([]) List<UserWorkspacePB> workspaces,
+    @Default(null) WorkspaceMemberPB? currentWorkspaceMember,
     @Default(null) UserWorkspaceActionResult? actionResult,
     @Default(false) bool isCollabWorkspaceOn,
   }) = _UserWorkspaceState;
