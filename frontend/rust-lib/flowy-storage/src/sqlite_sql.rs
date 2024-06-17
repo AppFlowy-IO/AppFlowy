@@ -4,14 +4,15 @@ use flowy_sqlite::{
   diesel, AsChangeset, DBConnection, ExpressionMethods, Identifiable, Insertable,
   OptionalExtension, QueryDsl, Queryable, RunQueryDsl,
 };
+use tracing::warn;
 
 #[derive(Queryable, Insertable, AsChangeset, Identifiable, Debug)]
 #[diesel(table_name = upload_file_table)]
 #[diesel(primary_key(upload_id))]
 pub struct UploadFileTable {
+  pub upload_id: String,
   pub workspace_id: String,
   pub file_id: String,
-  pub upload_id: String,
   pub parent_dir: String,
   pub local_file_path: String,
   pub content_type: String,
@@ -49,7 +50,7 @@ pub fn insert_upload_part(
   Ok(())
 }
 
-pub fn get_latest_upload_part(
+pub fn select_latest_upload_part(
   mut conn: DBConnection,
   upload_id: &str,
 ) -> FlowyResult<Option<UploadFilePartTable>> {
@@ -61,7 +62,7 @@ pub fn get_latest_upload_part(
   Ok(result)
 }
 
-pub fn get_upload_parts(
+pub fn select_upload_parts(
   mut conn: DBConnection,
   upload_id: &str,
 ) -> FlowyResult<Vec<UploadFilePartTable>> {
@@ -86,10 +87,13 @@ pub fn delete_upload_file(mut conn: DBConnection, upload_id: &str) -> FlowyResul
     )
     .execute(&mut *conn)?;
 
-    diesel::delete(
+    if let Err(err) = diesel::delete(
       upload_file_part::dsl::upload_file_part.filter(upload_file_part::upload_id.eq(upload_id)),
     )
-    .execute(&mut *conn)?;
+    .execute(&mut *conn)
+    {
+      warn!("Failed to delete upload parts: {:?}", err)
+    }
 
     Ok::<_, FlowyError>(())
   })?;

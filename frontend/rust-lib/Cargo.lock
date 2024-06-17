@@ -2170,17 +2170,20 @@ dependencies = [
  "anyhow",
  "async-trait",
  "bytes",
+ "chrono",
  "flowy-error",
  "flowy-sqlite",
  "flowy-storage-pub",
  "fxhash",
  "lib-infra",
  "mime_guess",
+ "rand 0.8.5",
  "serde",
  "serde_json",
  "tokio",
  "tracing",
  "url",
+ "uuid",
 ]
 
 [[package]]

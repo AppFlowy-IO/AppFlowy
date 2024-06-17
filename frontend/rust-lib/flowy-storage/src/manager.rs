@@ -2,13 +2,10 @@ use crate::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
 use crate::sqlite_sql::{
   delete_upload_file, insert_upload_file, insert_upload_part, UploadFilePartTable, UploadFileTable,
 };
-use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
-use flowy_storage_pub::storage::{
-  CompletedPartRequest, CreateUploadResponse, StorageService, UploadPartResponse,
-};
+use flowy_storage_pub::storage::{CompletedPartRequest, StorageService, UploadPartResponse};
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 use std::path::Path;

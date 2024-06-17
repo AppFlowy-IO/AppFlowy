@@ -1,3 +1,3 @@
-mod chunked_byte;
+pub mod chunked_byte;
 pub mod manager;
-mod sqlite_sql;
+pub mod sqlite_sql;

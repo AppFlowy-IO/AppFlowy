@@ -11,13 +11,16 @@ async-trait.workspace = true
 bytes.workspace = true
 lib-infra = { workspace = true }
 url = "2.2.2"
-flowy-error = { workspace = true, features = ["impl_from_reqwest"] }
+flowy-error = { workspace = true, features = ["impl_from_reqwest", "impl_from_sqlite"] }
 tokio = { workspace = true, features = ["sync", "io-util"] }
 tracing.workspace = true
 flowy-sqlite.workspace = true
 mime_guess = "2.0.4"
 fxhash = "0.2.1"
 anyhow = "1.0.86"
+chrono = "0.4.33"
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["io-util", "test-util"] }
+tokio = { workspace = true, features = ["full"] }
+uuid = "1.6.1"
+rand = { version = "0.8", features = ["std_rng"] }

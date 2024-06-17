@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use bytes::Bytes;
 use std::ops::Deref;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use tokio::io::AsyncReadExt;
 
 pub const MIN_CHUNK_SIZE: usize = 5 * 1024 * 1024; // 5 MB
