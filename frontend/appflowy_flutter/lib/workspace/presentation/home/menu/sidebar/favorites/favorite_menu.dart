@@ -62,6 +62,21 @@ class FavoriteMenu extends StatelessWidget {
   }
 
   Widget _buildViews(BuildContext context, FavoriteMenuState state) {
+    final today = _buildGroups(
+      context,
+      state.todayViews,
+      LocaleKeys.sideBar_today.tr(),
+    );
+    final thisWeek = _buildGroups(
+      context,
+      state.thisWeekViews,
+      LocaleKeys.sideBar_thisWeek.tr(),
+    );
+    final others = _buildGroups(
+      context,
+      state.otherViews,
+      LocaleKeys.sideBar_others.tr(),
+    );
     return Container(
       width: minWidth - 2 * _kHorizontalPadding,
       constraints: const BoxConstraints(
@@ -72,21 +87,26 @@ class FavoriteMenu extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ..._buildGroups(
-              context,
-              state.todayViews,
-              LocaleKeys.sideBar_today.tr(),
-            ),
-            ..._buildGroups(
-              context,
-              state.thisWeekViews,
-              LocaleKeys.sideBar_thisWeek.tr(),
-            ),
-            ..._buildGroups(
-              context,
-              state.otherViews,
-              LocaleKeys.sideBar_others.tr(),
-            ),
+            if (today.isNotEmpty) ...[
+              ...today,
+              const VSpace(8),
+              const Divider(height: 1),
+              const VSpace(8),
+            ],
+            if (thisWeek.isNotEmpty) ...[
+              ...thisWeek,
+              const VSpace(8),
+              const Divider(height: 1),
+              const VSpace(8),
+            ],
+            ...others.isNotEmpty && (today.isNotEmpty || thisWeek.isNotEmpty)
+                ? others
+                : _buildGroups(
+                    context,
+                    state.otherViews,
+                    LocaleKeys.sideBar_others.tr(),
+                    showHeader: false,
+                  ),
           ],
         ),
       ),
@@ -96,22 +116,22 @@ class FavoriteMenu extends StatelessWidget {
   List<Widget> _buildGroups(
     BuildContext context,
     List<ViewPB> views,
-    String title,
-  ) {
+    String title, {
+    bool showHeader = true,
+  }) {
     return [
       if (views.isNotEmpty) ...[
-        SizedBox(
-          height: 24,
-          child: FlowyText(
-            title,
-            fontSize: 12.0,
-            color: Theme.of(context).hintColor,
+        if (showHeader)
+          SizedBox(
+            height: 24,
+            child: FlowyText(
+              title,
+              fontSize: 12.0,
+              color: Theme.of(context).hintColor,
+            ),
           ),
-        ),
         const VSpace(2),
         _buildGroupedViews(context, views),
-        const VSpace(8),
-        const Divider(height: 1),
         const VSpace(8),
       ],
     ];
