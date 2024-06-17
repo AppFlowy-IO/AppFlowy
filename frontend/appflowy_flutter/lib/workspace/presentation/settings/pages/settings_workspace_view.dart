@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
