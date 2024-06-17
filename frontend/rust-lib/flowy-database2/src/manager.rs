@@ -573,7 +573,7 @@ impl DatabaseManager {
               .tags
               .into_iter()
               .map(|tag| tag.text)
-              .collect(),
+              .collect::<Vec<String>>(),
           )
         }
       }
@@ -585,7 +585,7 @@ impl DatabaseManager {
       .await?;
 
     // Format the response items into a single string
-    let content = response.tags.map(|v| v).collect::<Vec<String>>().join(", ");
+    let content = response.tags.join(", ");
     trace!("[AI]:tag row response: {}", content);
     database
       .update_cell_with_changeset(&view_id, &row_id, &field_id, BoxAny::new(content))

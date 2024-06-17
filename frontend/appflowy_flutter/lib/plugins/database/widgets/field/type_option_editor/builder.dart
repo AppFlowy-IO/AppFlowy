@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:appflowy/plugins/database/widgets/field/type_option_editor/tag.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/translate.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';

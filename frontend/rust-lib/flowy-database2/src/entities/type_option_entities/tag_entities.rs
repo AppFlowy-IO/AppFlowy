@@ -27,10 +27,27 @@ impl From<TagOption> for TagItemPB {
   }
 }
 
+impl From<TagItemPB> for TagOption {
+  fn from(value: TagItemPB) -> Self {
+    Self {
+      color: value.color,
+      text: value.text,
+    }
+  }
+}
+
 impl From<TagTypeOption> for TagTypeOptionPB {
   fn from(value: TagTypeOption) -> Self {
     Self {
       tags: value.tags.into_iter().map(TagItemPB::from).collect(),
+    }
+  }
+}
+
+impl From<TagTypeOptionPB> for TagTypeOption {
+  fn from(value: TagTypeOptionPB) -> Self {
+    Self {
+      tags: value.tags.into_iter().map(TagOption::from).collect(),
     }
   }
 }

@@ -27,8 +27,8 @@ pub struct TagOption {
 
 impl From<AnyMap> for TagOption {
   fn from(value: AnyMap) -> Self {
-    let color = value.get_string("color").unwrap_or_default();
-    let text = value.get_string("text").unwrap_or_default();
+    let color = value.get_str_value("color").unwrap_or_default();
+    let text = value.get_str_value("text").unwrap_or_default();
     Self { color, text }
   }
 }
@@ -36,8 +36,8 @@ impl From<AnyMap> for TagOption {
 impl From<TagOption> for AnyMap {
   fn from(value: TagOption) -> Self {
     let mut map = AnyMap::new();
-    map.insert_string("color", value.color);
-    map.insert_string("text", value.text);
+    map.insert_str_value("color", value.color);
+    map.insert_str_value("text", value.text);
     map
   }
 }

@@ -18,6 +18,7 @@ typedef RelationCellController = CellController<RelationCellDataPB, String>;
 typedef SummaryCellController = CellController<String, String>;
 typedef TimeCellController = CellController<TimeCellDataPB, String>;
 typedef TranslateCellController = CellController<String, String>;
+typedef TagCellController = CellController<String, String>;
 
 CellController makeCellController(
   DatabaseController databaseController,
