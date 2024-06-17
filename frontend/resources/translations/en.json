@@ -149,8 +149,8 @@
   "newBoardText": "New board",
   "chat": {
     "newChat": "AI Chat",
-    "inputMessageHint": "Message AppFlowy AI",
-    "unsupportedCloudPrompt": "This feature is only available when using AppFlowy Cloud",
+    "inputMessageHint": "Message @:appName AI",
+    "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
     "relatedQuestion": "Related",
     "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
     "aiServerUnavailable": "🌈 Uh-oh! 🌈. A unicorn ate our response. Please retry!",
@@ -518,7 +518,7 @@
         "memberProToggle": "Unlimited members",
         "guestCollabToggle": "10 guest collaborators",
         "aiCredit": {
-          "title": "Add AppFlowy AI Credit",
+          "title": "Add @:appName AI Credit",
           "price": "5$",
           "priceDescription": "for 1,000 credits",
           "purchase": "Purchase AI",
@@ -554,7 +554,7 @@
         "deal": {
           "bannerLabel": "New year deal!",
           "title": "Grow your team!",
-          "info": "Upgrade and save 10% off Pro and Team plans! Boost your workspace productivity with powerful new features including Appflowy AI.",
+          "info": "Upgrade and save 10% off Pro and Team plans! Boost your workspace productivity with powerful new features including @:appName AI.",
           "viewPlans": "View plans"
         }
       }
@@ -629,7 +629,7 @@
       },
       "paymentSuccess": {
         "title": "You are now on the {} plan!",
-        "description": "Your payment has been successfully processed and your plan is upgraded to AppFlowy {}. You can view your plan details on the Plan page"
+        "description": "Your payment has been successfully processed and your plan is upgraded to @:appName {}. You can view your plan details on the Plan page"
       },
       "downgradeDialog": {
         "title": "Are you sure you want to downgrade your plan?",

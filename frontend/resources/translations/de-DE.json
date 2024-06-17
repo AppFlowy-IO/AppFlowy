@@ -149,8 +149,8 @@
   "newBoardText": "Neues Board",
   "chat": {
     "newChat": "Neuer Chat",
-    "inputMessageHint": "Nachricht an AppFlowy AI",
-    "unsupportedCloudPrompt": "Diese Funktion ist nur bei Verwendung der AppFlowy Cloud verfügbar",
+    "inputMessageHint": "Nachricht an @:appName AI",
+    "unsupportedCloudPrompt": "Diese Funktion ist nur bei Verwendung der @:appName Cloud verfügbar",
     "relatedQuestion": "Verwandt",
     "serverUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
     "aiServerUnavailable": "Beim Generieren einer Antwort ist ein Fehler aufgetreten.",
@@ -524,7 +524,7 @@
         "memberProToggle": "Unbegrenzte Mitgliederzahl",
         "guestCollabToggle": "10 Gastnutzer",
         "aiCredit": {
-          "title": "AppFlowy AI-Guthaben hinzufügen",
+          "title": "@:appName AI-Guthaben hinzufügen",
           "price": "5 $",
           "priceDescription": "für 1.000 Credits",
           "purchase": "KI kaufen",
@@ -560,7 +560,7 @@
         "deal": {
           "bannerLabel": "Neujahrsangebot!",
           "title": "Erweiter dein Team!",
-          "info": "Upgrade und spare 10 % auf Pro- und Team-Pläne! Steiger die Produktivität deines Arbeitsplatzes mit leistungsstarken neuen Funktionen, einschließlich AppFlowy AI.",
+          "info": "Upgrade und spare 10 % auf Pro- und Team-Pläne! Steiger die Produktivität deines Arbeitsplatzes mit leistungsstarken neuen Funktionen, einschließlich @:appName AI.",
           "viewPlans": "Pläne anzeigen"
         }
       }
@@ -635,7 +635,7 @@
       },
       "paymentSuccess": {
         "title": "Du bist jetzt im {}-Plan!",
-        "description": "Deine Zahlung wurde erfolgreich verarbeitet und dein Plan wurde auf AppFlowy {} aktualisiert. Du kannst deine Plandetails auf der Tarifplanseite anzeigen."
+        "description": "Deine Zahlung wurde erfolgreich verarbeitet und dein Plan wurde auf @:appName {} aktualisiert. Du kannst deine Plandetails auf der Tarifplanseite anzeigen."
       },
       "downgradeDialog": {
         "title": "Möchtest du deinen Plan wirklich herabstufen?",
