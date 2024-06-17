@@ -15,6 +15,7 @@ use url::Url;
 
 use crate::supabase::file_storage::{DeleteObjects, FileOptions, NewBucket, RequestBody};
 
+#[allow(dead_code)]
 pub struct StorageRequestBuilder {
   pub url: Url,
   headers: HeaderMap,

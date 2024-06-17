@@ -1,5 +1,7 @@
+use client_api::entity::CreateUploadRequest;
 use flowy_error::FlowyError;
-use flowy_storage_pub::cloud::{ObjectIdentity, ObjectStorageCloudService, ObjectValue};
+use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
+use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::AFServer;
@@ -12,7 +14,7 @@ impl<T> AFCloudFileStorageServiceImpl<T> {
   }
 }
 
-impl<T> ObjectStorageCloudService for AFCloudFileStorageServiceImpl<T>
+impl<T> StorageCloudService for AFCloudFileStorageServiceImpl<T>
 where
   T: AFServer,
 {
@@ -56,5 +58,52 @@ where
         mime,
       })
     })
+  }
+
+  fn create_upload(
+    &self,
+    workspace_id: &str,
+    file_id: &str,
+    parent_dir: &str,
+    content_type: &str,
+  ) -> FutureResult<CreateUploadResponse, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let parent_dir = parent_dir.to_string();
+    let content_type = content_type.to_string();
+    let file_id = file_id.to_string();
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let req = CreateUploadRequest {
+        file_id,
+        parent_dir,
+        content_type,
+      };
+      let resp = client.create_upload(&workspace_id, req).await?;
+      Ok(resp)
+    })
+  }
+
+  fn upload_part(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    upload_id: &str,
+    file_id: &str,
+    part_number: i32,
+    body: Vec<u8>,
+  ) -> FutureResult<UploadPartResponse, FlowyError> {
+    todo!()
+  }
+
+  fn complete_upload(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    upload_id: &str,
+    file_id: &str,
+    parts: Vec<CompletedPartRequest>,
+  ) -> FutureResult<(), FlowyError> {
+    todo!()
   }
 }

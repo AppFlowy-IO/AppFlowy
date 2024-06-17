@@ -33,7 +33,8 @@ use flowy_folder_pub::cloud::{
 };
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
-use flowy_storage_pub::cloud::{ObjectIdentity, ObjectStorageCloudService, ObjectValue};
+use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
+use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
 use lib_infra::async_trait::async_trait;
@@ -41,7 +42,7 @@ use lib_infra::future::FutureResult;
 
 use crate::integrate::server::{Server, ServerProvider};
 
-impl ObjectStorageCloudService for ServerProvider {
+impl StorageCloudService for ServerProvider {
   fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
     let server = self.get_server();
     FutureResult::new(async move {
@@ -72,6 +73,76 @@ impl ObjectStorageCloudService for ServerProvider {
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
       storage.get_object(url).await
+    })
+  }
+
+  fn create_upload(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    file_id: &str,
+    content_type: &str,
+  ) -> FutureResult<CreateUploadResponse, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let parent_dir = parent_dir.to_string();
+    let content_type = content_type.to_string();
+    let file_id = file_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage
+        .create_upload(&workspace_id, &parent_dir, &file_id, &content_type)
+        .await
+    })
+  }
+
+  fn upload_part(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    upload_id: &str,
+    file_id: &str,
+    part_number: i32,
+    body: Vec<u8>,
+  ) -> FutureResult<UploadPartResponse, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let parent_dir = parent_dir.to_string();
+    let upload_id = upload_id.to_string();
+    let file_id = file_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage
+        .upload_part(
+          &workspace_id,
+          &parent_dir,
+          &upload_id,
+          &file_id,
+          part_number,
+          body,
+        )
+        .await
+    })
+  }
+
+  fn complete_upload(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    upload_id: &str,
+    file_id: &str,
+    parts: Vec<CompletedPartRequest>,
+  ) -> FutureResult<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let parent_dir = parent_dir.to_string();
+    let upload_id = upload_id.to_string();
+    let file_id = file_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage
+        .complete_upload(&workspace_id, &parent_dir, &upload_id, &file_id, parts)
+        .await
     })
   }
 }

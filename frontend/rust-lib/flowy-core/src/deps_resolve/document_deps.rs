@@ -8,7 +8,7 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_storage_pub::cloud::ObjectStorageCloudService;
+use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 

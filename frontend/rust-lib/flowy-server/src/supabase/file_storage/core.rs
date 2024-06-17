@@ -1,4 +1,4 @@
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
 
 use anyhow::{anyhow, Error};
 use url::Url;

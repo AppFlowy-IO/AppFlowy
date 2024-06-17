@@ -18,7 +18,7 @@ use flowy_server::af_cloud::define::ServerUser;
 
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::manager::StorageManager;
-use flowy_storage_pub::cloud::ObjectStorageCloudService;
+use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::entities::UserConfig;
@@ -32,6 +32,7 @@ use lib_log::stream_log::StreamLogSender;
 use module::make_plugins;
 
 use crate::config::AppFlowyCoreConfig;
+use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
 use crate::integrate::log::init_log;
@@ -145,7 +146,8 @@ impl AppFlowyCore {
       chat_manager,
       storage_manager,
     ) = async {
-      let storage_manager = Arc::new(StorageManager::new(server_provider.clone()));
+      let storage_manager =
+        FileStorageResolver::resolve(Arc::downgrade(&authenticate_user), server_provider.clone());
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(

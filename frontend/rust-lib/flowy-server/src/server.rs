@@ -16,7 +16,7 @@ use crate::default_impl::DefaultChatCloudServiceImpl;
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
-use flowy_storage_pub::cloud::ObjectStorageCloudService;
+use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
 use flowy_user_pub::entities::UserTokenState;
 
@@ -144,7 +144,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     Ok(None)
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageCloudService>>;
+  fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>>;
 }
 
 pub struct EncryptionImpl {

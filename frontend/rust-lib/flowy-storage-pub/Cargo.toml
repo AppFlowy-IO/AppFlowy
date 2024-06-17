@@ -14,3 +14,4 @@ mime = "0.3.17"
 flowy-error = { workspace = true, features = ["impl_from_reqwest"] }
 bytes.workspace = true
 mime_guess = "2.0.4"
+client-api-entity = { workspace = true }

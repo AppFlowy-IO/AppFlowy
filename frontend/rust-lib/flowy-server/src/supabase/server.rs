@@ -10,7 +10,7 @@ use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
-use flowy_storage_pub::cloud::ObjectStorageCloudService;
+use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
 
 use crate::supabase::api::{
@@ -18,7 +18,7 @@ use crate::supabase::api::{
   SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl, SupabaseDocumentServiceImpl,
   SupabaseFolderServiceImpl, SupabaseServerServiceImpl, SupabaseUserServiceImpl,
 };
-use crate::supabase::file_storage::FileStoragePlanImpl;
+
 use crate::{AppFlowyEncryption, AppFlowyServer};
 
 /// https://www.pgbouncer.org/features.html
@@ -62,6 +62,7 @@ pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
   device_id: String,
+  #[allow(dead_code)]
   uid: Arc<RwLock<Option<i64>>>,
   collab_update_sender: Arc<CollabUpdateSenderByOid>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
@@ -163,7 +164,7 @@ impl AppFlowyServer for SupabaseServer {
     )))
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageCloudService>> {
+  fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>> {
     None
   }
 

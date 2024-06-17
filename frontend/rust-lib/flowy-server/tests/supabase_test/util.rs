@@ -1,4 +1,3 @@
-use flowy_storage::ObjectStorageCloudService;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -16,10 +15,8 @@ use flowy_server::supabase::api::{
   SupabaseFolderServiceImpl, SupabaseServerServiceImpl, SupabaseUserServiceImpl,
 };
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
-use flowy_server::supabase::file_storage::core::SupabaseFileStorage;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
-use flowy_storage::{FileStoragePlan, StorageObject};
 use flowy_user_pub::cloud::UserCloudService;
 use lib_infra::future::FutureResult;
 
@@ -163,19 +160,3 @@ pub fn third_party_sign_up_param(uuid: String) -> HashMap<String, String> {
 }
 
 pub struct TestFileStoragePlan;
-
-impl FileStoragePlan for TestFileStoragePlan {
-  fn storage_size(&self) -> FutureResult<u64, FlowyError> {
-    // 1 GB
-    FutureResult::new(async { Ok(1024 * 1024 * 1024) })
-  }
-
-  fn maximum_file_size(&self) -> FutureResult<u64, FlowyError> {
-    // 5 MB
-    FutureResult::new(async { Ok(5 * 1024 * 1024) })
-  }
-
-  fn check_upload_object(&self, _object: &StorageObject) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-}

@@ -27,7 +27,7 @@ use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use flowy_storage_pub::cloud::ObjectStorageCloudService;
+use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
@@ -252,7 +252,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     Ok(channel.map(|c| (c, connect_state_recv, self.ws_client.is_connected())))
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageCloudService>> {
+  fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>> {
     let client = AFServerImpl {
       client: self.get_client(),
     };

@@ -20,7 +20,6 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_storage_pub::cloud::{ObjectIdentity, ObjectStorageCloudService, ObjectValue};
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
@@ -33,8 +32,7 @@ impl DocumentTest {
   pub fn new() -> Self {
     let user = FakeUser::new();
     let cloud_service = Arc::new(LocalTestDocumentCloudServiceImpl());
-    let file_storage =
-      Arc::new(DocumentTestFileStorageService) as Arc<dyn ObjectStorageCloudService>;
+    let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn StorageService>;
     let document_snapshot = Arc::new(DocumentTestSnapshot);
 
     let builder = Arc::new(AppFlowyCollabBuilder::new(
@@ -178,17 +176,17 @@ pub struct DocumentTestFileStorageService;
 impl StorageService for DocumentTestFileStorageService {
   fn upload_object(
     &self,
-    workspace_id: &str,
-    local_file_path: &str,
+    _workspace_id: &str,
+    _local_file_path: &str,
   ) -> FutureResult<String, FlowyError> {
     todo!()
   }
 
-  fn delete_object(&self, url: String, local_file_path: String) -> FlowyResult<()> {
+  fn delete_object(&self, _url: String, _local_file_path: String) -> FlowyResult<()> {
     todo!()
   }
 
-  fn download_object(&self, url: String, local_file_path: String) -> FlowyResult<()> {
+  fn download_object(&self, _url: String, _local_file_path: String) -> FlowyResult<()> {
     todo!()
   }
 }

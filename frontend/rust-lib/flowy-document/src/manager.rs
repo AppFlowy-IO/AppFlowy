@@ -14,8 +14,7 @@ use collab_entity::CollabType;
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;
-use tokio::io::AsyncWriteExt;
-use tracing::{error, trace};
+use tracing::trace;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
@@ -327,7 +326,7 @@ impl DocumentManager {
     &self,
     workspace_id: String,
     local_file_path: &str,
-    is_async: bool,
+    _is_async: bool,
   ) -> FlowyResult<String> {
     let storage_service = self.storage_service_upgrade()?;
     let url = storage_service

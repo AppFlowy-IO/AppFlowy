@@ -17,3 +17,7 @@ tracing.workspace = true
 flowy-sqlite.workspace = true
 mime_guess = "2.0.4"
 fxhash = "0.2.1"
+anyhow = "1.0.86"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["io-util", "test-util"] }
