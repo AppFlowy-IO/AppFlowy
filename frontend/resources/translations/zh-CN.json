@@ -154,7 +154,7 @@
   "newBoardText": "新建看板",
   "chat": {
     "newChat": "AI 对话",
-    "unsupportedCloudPrompt": "该功能仅在使用 AppFlowy Cloud 时可用",
+    "unsupportedCloudPrompt": "该功能仅在使用 @:appName Cloud 时可用",
     "relatedQuestion": "相关问题",
     "serverUnavailable": "服务暂时不可用，请稍后再试",
     "clickToRetry": "点击重试",

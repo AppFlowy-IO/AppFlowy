@@ -689,7 +689,7 @@
       "customPathPrompt": "Storing the @:appName data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
       "importAppFlowyData": "Import Data from External @:appName Folder",
       "importingAppFlowyDataTip": "Data import is in progress. Please do not close the app",
-      "importAppFlowyDataDescription": "Copy data from an external @:appName data folder and import it into the current AppFlowy data folder",
+      "importAppFlowyDataDescription": "Copy data from an external @:appName data folder and import it into the current @:appName data folder",
       "importSuccess": "Successfully imported the @:appName data folder",
       "importFailed": "Importing the @:appName data folder failed",
       "importGuide": "For further details, please check the referenced document"
