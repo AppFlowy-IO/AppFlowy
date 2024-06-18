@@ -1,3 +1,6 @@
+#![allow(clippy::all)]
+#![allow(unknown_lints)]
+#![allow(unused_attributes)]
 use std::sync::Weak;
 
 use anyhow::{anyhow, Error};
@@ -12,6 +15,7 @@ struct ObjectEncryption {
 }
 
 impl ObjectEncryption {
+  #[allow(dead_code)]
   fn new(encryption: Weak<dyn AppFlowyEncryption>) -> Self {
     Self { encryption }
   }

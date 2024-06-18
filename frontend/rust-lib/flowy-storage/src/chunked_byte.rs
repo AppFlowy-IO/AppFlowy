@@ -4,7 +4,9 @@ use std::ops::Deref;
 use std::path::Path;
 use tokio::io::AsyncReadExt;
 
-pub const MIN_CHUNK_SIZE: usize = 5 * 1024 * 1024; // 5 MB
+/// In Amazon S3, the minimum chunk size for multipart uploads is 5 MB,except for the last part,
+/// which can be smaller.(https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html)
+pub const MIN_CHUNK_SIZE: usize = 5 * 1024 * 1024; // Minimum Chunk Size 5 MB
 pub struct ChunkedBytes {
   pub data: Bytes,
   pub chunk_size: i32,

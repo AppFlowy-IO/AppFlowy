@@ -20,22 +20,10 @@ pub trait StorageService: Send + Sync {
     local_file_path: &str,
   ) -> FutureResult<(), FlowyError>;
 
-  fn upload_part(
+  fn resume_upload(
     &self,
     workspace_id: &str,
     parent_dir: &str,
-    upload_id: &str,
     file_id: &str,
-    part_number: i32,
-    body: Vec<u8>,
-  ) -> FutureResult<UploadPartResponse, FlowyError>;
-
-  fn complete_upload(
-    &self,
-    workspace_id: &str,
-    parent_dir: &str,
-    upload_id: &str,
-    file_id: &str,
-    parts: Vec<CompletedPartRequest>,
   ) -> FutureResult<(), FlowyError>;
 }

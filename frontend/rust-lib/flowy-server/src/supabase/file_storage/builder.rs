@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use anyhow::Error;
 use flowy_storage_pub::cloud::StorageObject;
 use hyper::header::CONTENT_TYPE;
@@ -9,6 +7,7 @@ use reqwest::{
   header::{HeaderMap, HeaderValue},
   Client, Method, RequestBuilder,
 };
+use std::borrow::Cow;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use url::Url;
@@ -24,6 +23,7 @@ pub struct StorageRequestBuilder {
   body: RequestBody,
 }
 
+#[allow(dead_code)]
 impl StorageRequestBuilder {
   pub fn new(url: Url, headers: HeaderMap, client: Client) -> Self {
     Self {

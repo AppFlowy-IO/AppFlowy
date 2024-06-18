@@ -1,5 +1,3 @@
-use flowy_chat::manager::{ChatManager, ChatUserService};
-use flowy_chat_pub::cloud::ChatCloudService;
 use flowy_error::FlowyError;
 use flowy_sqlite::DBConnection;
 use flowy_storage::manager::{StorageManager, StorageUserService};

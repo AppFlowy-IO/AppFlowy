@@ -1,9 +1,8 @@
-use flowy_sqlite::schema::collab_snapshot::timestamp;
-use flowy_sqlite::{Connection, Database, SqliteConnection};
+use flowy_sqlite::Database;
 use flowy_storage::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
 use flowy_storage::sqlite_sql::{
-  delete_upload_file, insert_upload_file, insert_upload_part, select_latest_upload_part,
-  select_upload_file, select_upload_parts, UploadFilePartTable, UploadFileTable,
+  batch_select_upload_file, delete_upload_file, insert_upload_file, insert_upload_part,
+  select_latest_upload_part, select_upload_parts, UploadFilePartTable, UploadFileTable,
 };
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
@@ -26,7 +25,7 @@ async fn test_insert_new_upload() {
 
   // test insert one upload file record
   let mut upload_ids = vec![];
-  for i in 0..5 {
+  for _i in 0..5 {
     let upload_id = uuid::Uuid::new_v4().to_string();
     let local_file_path = create_temp_file_with_random_content(8 * 1024 * 1024).unwrap();
     let upload_file =
@@ -42,7 +41,7 @@ async fn test_insert_new_upload() {
 
   // select
   let conn = db.get_connection().unwrap();
-  let records = select_upload_file(conn, 100).unwrap();
+  let records = batch_select_upload_file(conn, 100).unwrap();
 
   assert_eq!(records.len(), 5);
   // compare the upload id order is the same as upload_ids
@@ -55,7 +54,7 @@ async fn test_insert_new_upload() {
   }
 
   let conn = db.get_connection().unwrap();
-  let records = select_upload_file(conn, 100).unwrap();
+  let records = batch_select_upload_file(conn, 100).unwrap();
   assert!(records.is_empty());
 }
 

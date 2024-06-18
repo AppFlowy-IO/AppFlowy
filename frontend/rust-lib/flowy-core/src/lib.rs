@@ -18,7 +18,7 @@ use flowy_server::af_cloud::define::ServerUser;
 
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::manager::StorageManager;
-use flowy_storage_pub::cloud::StorageCloudService;
+
 use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::entities::UserConfig;
@@ -171,7 +171,7 @@ impl AppFlowyCore {
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        Arc::downgrade(&(storage_manager.clone() as Arc<dyn StorageService>)),
+        Arc::downgrade(&storage_manager.storage_service),
       );
 
       let chat_manager =

@@ -41,8 +41,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    upload_file_table (upload_id) {
-        upload_id -> Text,
+    upload_file_table (workspace_id, file_id, parent_dir) {
         workspace_id -> Text,
         file_id -> Text,
         parent_dir -> Text,
@@ -50,6 +49,7 @@ diesel::table! {
         content_type -> Text,
         chunk_size -> Integer,
         num_chunk -> Integer,
+        upload_id -> Text,
         created_at -> BigInt,
     }
 }

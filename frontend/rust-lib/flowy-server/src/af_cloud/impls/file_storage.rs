@@ -86,23 +86,23 @@ where
 
   fn upload_part(
     &self,
-    workspace_id: &str,
-    parent_dir: &str,
-    upload_id: &str,
-    file_id: &str,
-    part_number: i32,
-    body: Vec<u8>,
+    _workspace_id: &str,
+    _parent_dir: &str,
+    _upload_id: &str,
+    _file_id: &str,
+    _part_number: i32,
+    _body: Vec<u8>,
   ) -> FutureResult<UploadPartResponse, FlowyError> {
     todo!()
   }
 
   fn complete_upload(
     &self,
-    workspace_id: &str,
-    parent_dir: &str,
-    upload_id: &str,
-    file_id: &str,
-    parts: Vec<CompletedPartRequest>,
+    _workspace_id: &str,
+    _parent_dir: &str,
+    _upload_id: &str,
+    _file_id: &str,
+    _parts: Vec<CompletedPartRequest>,
   ) -> FutureResult<(), FlowyError> {
     todo!()
   }
