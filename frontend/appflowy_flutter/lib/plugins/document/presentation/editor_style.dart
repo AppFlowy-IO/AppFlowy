@@ -208,7 +208,7 @@ class EditorStyleCustomizer {
       selectionMenuItemIconColor: afThemeExtension.onBackground,
       selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
-      selectionMenuItemSelectedColor: theme.hoverColor,
+      selectionMenuItemSelectedColor: afThemeExtension.greyHover,
     );
   }
 
