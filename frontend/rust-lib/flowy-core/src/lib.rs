@@ -144,8 +144,11 @@ impl AppFlowyCore {
       chat_manager,
       storage_manager,
     ) = async {
-      let storage_manager =
-        FileStorageResolver::resolve(Arc::downgrade(&authenticate_user), server_provider.clone());
+      let storage_manager = FileStorageResolver::resolve(
+        Arc::downgrade(&authenticate_user),
+        server_provider.clone(),
+        &user_config.storage_path,
+      );
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(

@@ -11,17 +11,24 @@ impl FileStorageResolver {
   pub fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
     cloud_service: Arc<dyn StorageCloudService>,
+    root: &str,
   ) -> Arc<StorageManager> {
-    let user_service = FileStorageServiceImpl(authenticate_user);
+    let user_service = FileStorageServiceImpl {
+      user: authenticate_user,
+      root_dir: root.to_owned(),
+    };
     Arc::new(StorageManager::new(cloud_service, Arc::new(user_service)))
   }
 }
 
-struct FileStorageServiceImpl(Weak<AuthenticateUser>);
+struct FileStorageServiceImpl {
+  user: Weak<AuthenticateUser>,
+  root_dir: String,
+}
 impl FileStorageServiceImpl {
   fn upgrade_user(&self) -> Result<Arc<AuthenticateUser>, FlowyError> {
     let user = self
-      .0
+      .user
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?;
     Ok(user)
@@ -39,5 +46,9 @@ impl StorageUserService for FileStorageServiceImpl {
 
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {
     self.upgrade_user()?.get_sqlite_connection(uid)
+  }
+
+  fn get_application_root_dir(&self) -> &str {
+    &self.root_dir
   }
 }

@@ -13,19 +13,21 @@ use flowy_storage_pub::storage::{CompletedPartRequest, StorageService, UploadPar
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 use std::io::ErrorKind;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use tokio::sync::{mpsc, watch, RwLock};
 
+use crate::file_cache::FileTempStorage;
 use tracing::{debug, error, info, instrument, trace};
 
 pub trait StorageUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
+  fn get_application_root_dir(&self) -> &str;
 }
 
 pub struct StorageManager {
@@ -39,10 +41,16 @@ impl StorageManager {
     cloud_service: Arc<dyn StorageCloudService>,
     user_service: Arc<dyn StorageUserService>,
   ) -> Self {
+    let temp_storage_path = PathBuf::from(format!(
+      "{}/cache_files",
+      user_service.get_application_root_dir()
+    ));
+    let temp_storage = Arc::new(FileTempStorage::new(temp_storage_path));
     let (notifier, notifier_rx) = watch::channel(Signal::Proceed);
     let storage_service = Arc::new(StorageServiceImpl {
       cloud_service,
       user_service: user_service.clone(),
+      temp_storage,
     });
 
     let uploader = Arc::new(FileUploader::new(storage_service.clone(), notifier));
@@ -90,6 +98,7 @@ async fn prepare_upload_task(
 pub struct StorageServiceImpl {
   cloud_service: Arc<dyn StorageCloudService>,
   user_service: Arc<dyn StorageUserService>,
+  temp_storage: Arc<FileTempStorage>,
 }
 
 impl StorageService for StorageServiceImpl {
@@ -171,7 +180,7 @@ impl StorageService for StorageServiceImpl {
     &self,
     workspace_id: &str,
     parent_dir: &str,
-    local_file_path: &str,
+    file_path: &str,
   ) -> FutureResult<String, FlowyError> {
     if workspace_id.is_empty() {
       return FutureResult::new(async {
@@ -185,7 +194,7 @@ impl StorageService for StorageServiceImpl {
       });
     }
 
-    if local_file_path.is_empty() {
+    if file_path.is_empty() {
       return FutureResult::new(async {
         Err(FlowyError::internal().with_context("local file path is empty"))
       });
@@ -193,11 +202,21 @@ impl StorageService for StorageServiceImpl {
 
     let workspace_id = workspace_id.to_string();
     let parent_dir = parent_dir.to_string();
-    let local_file_path = local_file_path.to_string();
+    let file_path = file_path.to_string();
     let cloud_service = self.cloud_service.clone();
     let user_service = self.user_service.clone();
+    let temp_storage = self.temp_storage.clone();
 
     FutureResult::new(async move {
+      let local_file_path = temp_storage
+        .create_temp_file_from_existing(Path::new(&file_path))
+        .await
+        .map_err(|err| {
+          error!("[File] create temp file failed: {}", err);
+          FlowyError::internal()
+            .with_context(format!("create temp file for upload file failed: {}", err))
+        })?;
+
       // 1. read file and chunk it base on CHUNK_SIZE. We use MIN_CHUNK_SIZE as the minimum chunk size
       let chunked_bytes = ChunkedBytes::from_file(&local_file_path, MIN_CHUNK_SIZE as i32).await?;
       let ext = Path::new(&local_file_path)
@@ -234,7 +253,15 @@ impl StorageService for StorageServiceImpl {
 
       // 3. start uploading
       tokio::spawn(async move {
-        if let Err(err) = start_upload(&cloud_service, &user_service, chunked_bytes, record).await {
+        if let Err(err) = start_upload(
+          &cloud_service,
+          &user_service,
+          &temp_storage,
+          chunked_bytes,
+          record,
+        )
+        .await
+        {
           error!("[File] start upload failed: {}", err);
         }
       });
@@ -253,6 +280,7 @@ impl StorageService for StorageServiceImpl {
     let parent_dir = parent_dir.to_string();
     let cloud_service = self.cloud_service.clone();
     let user_service = self.user_service.clone();
+    let temp_storage = self.temp_storage.clone();
 
     FutureResult::new(async move {
       // Gathering the upload record and parts from the sqlite database.
@@ -276,7 +304,14 @@ impl StorageService for StorageServiceImpl {
       };
 
       if let Some((upload_file, parts)) = record {
-        resume_upload(&cloud_service, &user_service, upload_file, parts).await?;
+        resume_upload(
+          &cloud_service,
+          &user_service,
+          &temp_storage,
+          upload_file,
+          parts,
+        )
+        .await?;
       } else {
         error!("[File] resume upload failed: record not found");
       }
@@ -289,6 +324,7 @@ impl StorageService for StorageServiceImpl {
 async fn start_upload(
   cloud_service: &Arc<dyn StorageCloudService>,
   user_service: &Arc<dyn StorageUserService>,
+  temp_storage: &Arc<FileTempStorage>,
   chunked_bytes: ChunkedBytes,
   mut upload_file: UploadFileTable,
 ) -> FlowyResult<()> {
@@ -382,10 +418,8 @@ async fn start_upload(
   complete_upload(
     &cloud_service,
     &user_service,
-    &upload_file.workspace_id,
-    &upload_file.parent_dir,
-    &upload_file.upload_id,
-    &upload_file.file_id,
+    temp_storage,
+    &upload_file,
     completed_parts,
   )
   .await?;
@@ -398,6 +432,7 @@ async fn start_upload(
 async fn resume_upload(
   cloud_service: &Arc<dyn StorageCloudService>,
   user_service: &Arc<dyn StorageUserService>,
+  temp_storage: &Arc<FileTempStorage>,
   upload_file: UploadFileTable,
   parts: Vec<UploadFilePartTable>,
 ) -> FlowyResult<()> {
@@ -413,7 +448,14 @@ async fn resume_upload(
     Ok(mut chunked_bytes) => {
       // When there were any parts already uploaded, skip those parts by setting the current offset.
       chunked_bytes.set_current_offset(parts.len() as i32);
-      start_upload(cloud_service, user_service, chunked_bytes, upload_file).await?;
+      start_upload(
+        cloud_service,
+        user_service,
+        temp_storage,
+        chunked_bytes,
+        upload_file,
+      )
+      .await?;
     },
     Err(err) => {
       //
@@ -474,21 +516,31 @@ async fn upload_part(
 async fn complete_upload(
   cloud_service: &Arc<dyn StorageCloudService>,
   user_service: &Arc<dyn StorageUserService>,
-  workspace_id: &str,
-  parent_dir: &str,
-  upload_id: &str,
-  file_id: &str,
+  temp_storage: &Arc<FileTempStorage>,
+  upload_file: &UploadFileTable,
   parts: Vec<CompletedPartRequest>,
 ) -> Result<(), FlowyError> {
   match cloud_service
-    .complete_upload(&workspace_id, &parent_dir, &upload_id, &file_id, parts)
+    .complete_upload(
+      &upload_file.workspace_id,
+      &upload_file.parent_dir,
+      &upload_file.upload_id,
+      &upload_file.file_id,
+      parts,
+    )
     .await
   {
     Ok(_) => {
-      info!("[File] completed upload file: {}", upload_id);
+      info!("[File] completed upload file: {}", upload_file.upload_id);
       trace!("[File] delete upload record from sqlite");
       let conn = user_service.sqlite_connection(user_service.user_id()?)?;
-      delete_upload_file(conn, &upload_id)?;
+      delete_upload_file(conn, &upload_file.upload_id)?;
+      if let Err(err) = temp_storage
+        .delete_temp_file(&upload_file.local_file_path)
+        .await
+      {
+        error!("[File] delete temp file failed: {}", err);
+      }
     },
     Err(err) => {
       error!("[File] complete upload failed: {}", err);
