@@ -387,7 +387,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
         children: [
           if (widget.command.keybindings.isNotEmpty) ...[
             ..._toParts(widget.command.keybindings.first).map(
-              (key) => _KeyBadge(keyLabel: key),
+              (key) => KeyBadge(keyLabel: key),
             ),
           ] else ...[
             const SizedBox(height: 24),
@@ -460,8 +460,9 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
   }
 }
 
-class _KeyBadge extends StatelessWidget {
-  const _KeyBadge({required this.keyLabel});
+@visibleForTesting
+class KeyBadge extends StatelessWidget {
+  const KeyBadge({super.key, required this.keyLabel});
 
   final String keyLabel;
 
