@@ -99,7 +99,7 @@ class SettingsMenu extends StatelessWidget {
                     page: SettingsPage.shortcuts,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_shortcutsPage_menuLabel.tr(),
-                    icon: const Icon(Icons.cut),
+                    icon: const FlowySvg(FlowySvgs.settings_shortcuts_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   if (FeatureFlag.planBilling.isOn &&
