@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/checklist_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -62,23 +62,24 @@ class _ChecklistItemsState extends State<ChecklistItems> {
     if (showIncompleteOnly) {
       tasks.removeWhere((task) => task.isSelected);
     }
-    final children = tasks
-        .mapIndexed(
-          (index, task) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2.0),
-            child: ChecklistItem(
-              key: ValueKey(task.data.id),
-              task: task,
-              autofocus: widget.state.newTask && index == tasks.length - 1,
-              onSubmitted: () {
-                if (index == tasks.length - 1) {
-                  widget.bloc.add(const ChecklistCellEvent.createNewTask(""));
-                }
-              },
-            ),
-          ),
-        )
-        .toList();
+    // final children = tasks
+    //     .mapIndexed(
+    //       (index, task) => Padding(
+    //         padding: const EdgeInsets.symmetric(vertical: 2.0),
+    //         child: ChecklistItem(
+    //           key: ValueKey('${task.data.id}$index'),
+    //           task: task,
+    //           autofocus: widget.state.newTask && index == tasks.length - 1,
+    //           onSubmitted: () {
+    //             if (index == tasks.length - 1) {
+    //               // create a new task under the last task if the users press enter
+    //               widget.bloc.add(const ChecklistCellEvent.createNewTask(''));
+    //             }
+    //           },
+    //         ),
+    //       ),
+    //     )
+    //     .toList();
     return Align(
       alignment: AlignmentDirectional.centerStart,
       child: Column(
@@ -116,10 +117,45 @@ class _ChecklistItemsState extends State<ChecklistItems> {
             ),
           ),
           const VSpace(2.0),
-          ...children,
+          _ChecklistCellEditors(tasks: tasks),
           ChecklistItemControl(cellNotifer: widget.cellContainerNotifier),
         ],
       ),
+    );
+  }
+}
+
+class _ChecklistCellEditors extends StatelessWidget {
+  const _ChecklistCellEditors({
+    required this.tasks,
+  });
+
+  final List<ChecklistSelectOption> tasks;
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<ChecklistCellBloc>();
+    final state = bloc.state;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ...tasks.mapIndexed(
+          (index, task) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2.0),
+            child: ChecklistItem(
+              key: ValueKey('${task.data.id}$index'),
+              task: task,
+              autofocus: state.newTask && index == tasks.length - 1,
+              onSubmitted: () {
+                if (index == tasks.length - 1) {
+                  // create a new task under the last task if the users press enter
+                  bloc.add(const ChecklistCellEvent.createNewTask(''));
+                }
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
