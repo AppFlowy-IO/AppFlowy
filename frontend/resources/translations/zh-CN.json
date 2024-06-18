@@ -361,7 +361,130 @@
       },
       "keys": {
         "title": "AI API 密钥",
-        "openAILabel": "OpenAI API 密钥"
+        "openAILabel": "OpenAI API 密钥",
+        "openAIHint": "输入你的 OpenAI API Key",
+        "stabilityAILabel": "Stability API key",
+        "stabilityAIHint": "输入你的 Stability API Key"
+      },
+      "login": {
+        "title": "登录账户",
+        "loginLabel": "登录",
+        "logoutLabel": "退出登录"
+      }
+    },
+    "workspacePage": {
+      "menuLabel": "工作区",
+      "title": "工作区",
+      "description": "自定义你的工作区外观、主题、字体、文本布局、日期/时间格式和语言。",
+      "workspaceName": {
+        "title": "工作区名称",
+        "savedMessage": "已保存的工作区名称",
+        "editTooltip": "编辑工作区名称"
+      },
+      "workspaceIcon": {
+        "title": "工作区图标",
+        "description": "上传图片或使用表情符号到你的工作区。图标将显示在您的侧边栏和通知中。"
+      },
+      "appearance": {
+        "title": "外观",
+        "description": "自定义你的工作区外观、主题、字体、文本布局、日期、时间和语言。",
+        "options": {
+          "system": "自动",
+          "light": "明亮",
+          "dark": "黑暗"
+        }
+      },
+      "theme": {
+        "title": "主题",
+        "description": "选择预设主题，或上传你自己的自定义主题。"
+      },
+      "workspaceFont": {
+        "title": "工作区字体"
+      },
+      "textDirection": {
+        "title": "文字方向",
+        "leftToRight": "从左到右",
+        "rightToLeft": "从右到左",
+        "auto": "自动"
+      },
+      "layoutDirection": {
+        "title": "布局方向",
+        "leftToRight": "从左到右",
+        "rightToLeft": "从右到左"
+      },
+      "dateTime": {
+        "title": "日期 & 时间",
+        "24HourTime": "24 小时制",
+        "dateFormat": {
+          "label": "日期格式",
+          "dmy": "日/月/年"
+        }
+      },
+      "language": {
+        "title": "语言"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "删除工作区",
+        "content": "你确定要删除此工作区吗？此操作无法撤消。"
+      },
+      "leaveWorkspacePrompt": {
+        "title": "离开工作区",
+        "content": "你确定要离开此工作区吗？你将无法访问其中的所有页面和数据。"
+      },
+      "manageWorkspace": {
+        "title": "管理工作区",
+        "leaveWorkspace": "离开工作区",
+        "deleteWorkspace": "删除工作区"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "管理数据",
+      "title": "管理数据",
+      "description": "管理数据本地存储或将现有数据导入@:appName 。",
+      "dataStorage": {
+        "title": "文件存储位置",
+        "tooltip": "你的文件存储位置",
+        "actions": {
+          "change": "更改路径",
+          "open": "打开文件夹",
+          "openTooltip": "打开当前数据文件夹位置",
+          "copy": "复制路径",
+          "copiedHint": "路径已复制！",
+          "resetTooltip": "重置为默认位置"
+        },
+        "resetDialog": {
+          "description": "将数据路径重置为默认位置不会删除你的数据。如果你想重新导入当前数据，你应该先复制当前位置的路径。"
+        }
+      },
+      "importData": {
+        "title": "导入数据",
+        "tooltip": "从 @:appName 备份/数据文件夹导入数据",
+        "action": "浏览文件夹"
+      },
+      "encryption": {
+        "title": "加密",
+        "tooltip": "管理你的数据存储和加密方式",
+        "descriptionNoEncryption": "开启加密将会加密所有数据。此操作无法撤消。",
+        "descriptionEncrypted": "你的数据已加密。",
+        "action": "加密数据",
+        "dialog": {
+          "description": "加密所有数据将保证数据安全。此操作无法撤消。您确定要继续吗？"
+        }
+      },
+      "cache": {
+        "title": "清除缓存",
+        "description": "如果你遇到图片无法加载或字体无法正确显示的问题，请尝试清除缓存。此操作不会删除你的用户数据。",
+        "dialog": {
+          "description": "清除缓存会导致加载时重新下载图像和字体。此操作不会删除或修改你的数据。",
+          "successHint": "缓存已清除！"
+        }
+      }
+    },
+    "planPage": {
+      "planUsage": {
+        "currentPlan": {
+          "freeTitle": "免费"
+        }
       }
     },
     "menu": {
@@ -788,6 +911,7 @@
       "action": "执行",
       "add": "点击添加到下方",
       "drag": "拖动以移动",
+      "deleteRowPrompt": "您确定要删除此行吗？此操作无法撤消",
       "dragAndClick": "拖拽移动，点击打开菜单",
       "insertRecordAbove": "在上方插入记录",
       "insertRecordBelow": "点击添加到下方"
@@ -825,6 +949,9 @@
       "copy": "将链接复制到剪贴板",
       "textFieldHint": "输入 URL",
       "copiedNotification": "已复制到剪贴板！"
+    },
+    "relation": {
+      "rowSearchTextFieldPlaceholder": "搜索"
     },
     "menuName": "网格",
     "referencedGridPrefix": "视图",
@@ -987,7 +1114,14 @@
         "newDatabase": "新建数据库",
         "linkToDatabase": "链接至数据库"
       },
-      "date": "日期"
+      "date": "日期",
+      "video": {
+        "label": "视频",
+        "emptyLabel": "添加视频",
+        "placeholder": "粘贴视频链接",
+        "copiedToPasteBoard": "视频链接已复制到剪贴板",
+        "insertVideo": "添加视频"
+      }
     },
     "outlineBlock": {
       "placeholder": "目录"
@@ -1121,6 +1255,15 @@
       "unhideGroup": "显示隐藏的组",
       "unhideGroupContent": "您确定要在看板上显示该组吗？",
       "faildToLoad": "无法加载看板视图"
+    },
+    "dateCondition": {
+      "today": "今天",
+      "yesterday": "昨天",
+      "tomorrow": "明天",
+      "lastSevenDays": "过去 7 天",
+      "nextSevenDays": "未来 7 天",
+      "lastThirtyDays": "过去 30 天",
+      "nextThirtyDays": "未来 30 天"
     }
   },
   "calendar": {
@@ -1131,7 +1274,13 @@
       "today": "今天",
       "jumpToday": "跳转到今天",
       "previousMonth": "上一月",
-      "nextMonth": "下一月"
+      "nextMonth": "下一月",
+      "views": {
+        "day": "天",
+        "week": "周",
+        "month": "月",
+        "year": "年"
+      }
     },
     "settings": {
       "showWeekNumbers": "显示周数",
@@ -1223,7 +1372,18 @@
     }
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "在设置中更改日期和时间格式"
+    "dateTimeFormatTooltip": "在设置中更改日期和时间格式",
+    "reminderOptions": {
+      "fiveMinsBefore": "5 分钟以前",
+      "tenMinsBefore": "10 分钟以前",
+      "fifteenMinsBefore": "15 分钟以前",
+      "thirtyMinsBefore": "30 分钟以前",
+      "oneHourBefore": "1 小时以前",
+      "twoHoursBefore": "2 小时以前",
+      "oneDayBefore": "1 天以前",
+      "twoDaysBefore": "2 天以前",
+      "oneWeekBefore": "1 周以前"
+    }
   },
   "relativeDates": {
     "yesterday": "昨天",
@@ -1411,5 +1571,48 @@
     "date": "日期",
     "addField": "添加字段",
     "userIcon": "用户图标"
+  },
+  "newSettings": {
+    "myAccount": {
+      "title": "我的账户",
+      "subtitle": "自定义您的个人资料，管理账户安全，设置 AI keys，或登录您的账户。",
+      "profileLabel": "帐户名称 & 头像",
+      "profileNamePlaceholder": "输入你的名字",
+      "accountSecurity": "帐户安全",
+      "2FA": "两步验证",
+      "aiKeys": "AI keys",
+      "accountLogin": "登录账户",
+      "updateNameError": "更新名称失败",
+      "updateIconError": "更新图标失败",
+      "deleteAccount": {
+        "title": "删除帐户",
+        "subtitle": "永久删除你的帐户和所有数据。",
+        "deleteMyAccount": "删除我的账户",
+        "dialogTitle": "删除帐户",
+        "dialogContent1": "你确定要永久删除您的帐户吗？",
+        "dialogContent2": "此操作无法撤消，并且将删除所有团队空间的访问权限，删除你的整个帐户（包括私人工作区），并将你从所有共享工作区中删除。"
+      }
+    },
+    "workplace": {
+      "updateIconError": "图标更新失败",
+      "chooseAnIcon": "选择一个图标",
+      "appearance": {
+        "name": "外观",
+        "themeMode": {
+          "auto": "自动",
+          "light": "明亮",
+          "dark": "黑暗"
+        },
+        "language": "语言"
+      }
+    }
+  },
+  "pageStyle": {
+    "pageIcon": "页面图标",
+    "openSettings": "打开设置",
+    "image": "图像"
+  },
+  "commandPalette": {
+    "placeholder": "输入你要搜索的内容..."
   }
 }
