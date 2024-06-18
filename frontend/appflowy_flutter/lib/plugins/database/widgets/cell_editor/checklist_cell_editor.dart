@@ -208,13 +208,20 @@ class _ChecklistItemState extends State<ChecklistItem> {
       },
       actions: {
         _SelectTaskIntent: CallbackAction<_SelectTaskIntent>(
-          onInvoke: (_SelectTaskIntent intent) => context
-              .read<ChecklistCellBloc>()
-              .add(ChecklistCellEvent.selectTask(widget.task.data.id)),
+          onInvoke: (_SelectTaskIntent intent) {
+            // Log.debug("checklist widget on enter");
+            context
+                .read<ChecklistCellBloc>()
+                .add(ChecklistCellEvent.selectTask(widget.task.data.id));
+            return;
+          },
         ),
         _EndEditingTaskIntent: CallbackAction<_EndEditingTaskIntent>(
-          onInvoke: (_EndEditingTaskIntent intent) =>
-              _textFieldFocusNode.unfocus(),
+          onInvoke: (_EndEditingTaskIntent intent) {
+            // Log.debug("checklist widget on escape");
+            _textFieldFocusNode.unfocus();
+            return;
+          },
         ),
       },
       shortcuts: {
@@ -274,7 +281,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
                         hintText: LocaleKeys.grid_checklist_taskHint.tr(),
                       ),
                       textInputAction: widget.onSubmitted == null
-                          ? TextInputAction.done
+                          ? TextInputAction.next
                           : null,
                       onChanged: (text) {
                         if (_textController.value.composing.isCollapsed) {
@@ -282,12 +289,14 @@ class _ChecklistItemState extends State<ChecklistItem> {
                         }
                       },
                       onSubmitted: (description) {
-                        _submitUpdateTaskDescription(description);
                         if (widget.onSubmitted != null) {
+                          // Log.debug("checklist widget on submitted");
                           widget.onSubmitted?.call();
                         } else {
+                          // Log.debug("checklist widget Focus next task");
                           Actions.invoke(context, const NextFocusIntent());
                         }
+                        _submitUpdateTaskDescription(description);
                       },
                     );
                   },

@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart'
 import 'package:appflowy/plugins/database/application/cell/bloc/checklist_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -73,10 +72,7 @@ class _ChecklistItemsState extends State<ChecklistItems> {
               autofocus: widget.state.newTask && index == tasks.length - 1,
               onSubmitted: () {
                 if (index == tasks.length - 1) {
-                  Log.debug("Create new task: $index");
                   widget.bloc.add(const ChecklistCellEvent.createNewTask(""));
-                } else {
-                  Log.debug("Focus next task");
                 }
               },
             ),
