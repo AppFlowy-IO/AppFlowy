@@ -1,6 +1,6 @@
 use crate::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use bytes::Bytes;
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 use mime::Mime;
 
@@ -44,6 +44,12 @@ pub trait StorageCloudService: Send + Sync {
   /// - `Ok(File)`: The returned file object.
   /// - `Err(Error)`: An error occurred during the operation.
   fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError>;
+  fn get_object_url_v1(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    file_id: &str,
+  ) -> FlowyResult<String>;
 
   fn create_upload(
     &self,

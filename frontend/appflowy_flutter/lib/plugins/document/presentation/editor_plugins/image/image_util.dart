@@ -49,9 +49,11 @@ Future<(String? path, String? errorMessage)> saveImageToCloudStorage(
     );
   }
   final documentService = DocumentService();
+  Log.debug("Uploading image local path: $localImagePath");
   final result = await documentService.uploadFile(
     localFilePath: localImagePath,
-    isAsync: false,
+    // TODO(lucas): replace with actual documentId
+    documentId: "temp",
   );
   return result.fold(
     (s) async {

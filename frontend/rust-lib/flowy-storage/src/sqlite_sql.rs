@@ -99,7 +99,7 @@ pub fn batch_select_upload_file(
   let results = upload_file_table::dsl::upload_file_table
     .order(upload_file_table::created_at.desc())
     .limit(limit.into())
-    .load::<UploadFileTable>(&mut *conn)?;
+    .load::<UploadFileTable>(&mut conn)?;
   Ok(results)
 }
 

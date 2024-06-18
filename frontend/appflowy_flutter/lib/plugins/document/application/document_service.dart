@@ -114,6 +114,7 @@ class DocumentService {
   /// Upload a file to the cloud storage.
   Future<FlowyResult<UploadedFilePB, FlowyError>> uploadFile({
     required String localFilePath,
+    required String documentId,
     bool isAsync = true,
   }) async {
     final workspace = await FolderEventReadCurrentWorkspace().send();
@@ -121,7 +122,7 @@ class DocumentService {
       final payload = UploadFileParamsPB(
         workspaceId: l.id,
         localFilePath: localFilePath,
-        isAsync: isAsync,
+        documentId: documentId,
       );
       final result = await DocumentEventUploadFile(payload).send();
       return result;

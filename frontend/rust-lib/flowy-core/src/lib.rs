@@ -18,8 +18,6 @@ use flowy_server::af_cloud::define::ServerUser;
 
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::manager::StorageManager;
-
-use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::entities::UserConfig;
 use flowy_user::user_manager::UserManager;

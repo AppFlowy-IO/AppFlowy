@@ -27,7 +27,7 @@ use flowy_database_pub::cloud::{
 };
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
@@ -74,6 +74,17 @@ impl StorageCloudService for ServerProvider {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
       storage.get_object(url).await
     })
+  }
+
+  fn get_object_url_v1(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    file_id: &str,
+  ) -> FlowyResult<String> {
+    let server = self.get_server()?;
+    let storage = server.file_storage().ok_or(FlowyError::internal())?;
+    storage.get_object_url_v1(workspace_id, parent_dir, file_id)
   }
 
   fn create_upload(

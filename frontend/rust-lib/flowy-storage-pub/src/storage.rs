@@ -18,7 +18,7 @@ pub trait StorageService: Send + Sync {
     workspace_id: &str,
     parent_dir: &str,
     local_file_path: &str,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> FutureResult<String, FlowyError>;
 
   fn resume_upload(
     &self,

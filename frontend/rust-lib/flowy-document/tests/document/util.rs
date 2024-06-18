@@ -20,7 +20,7 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_storage_pub::storage::{CompletedPartRequest, StorageService, UploadPartResponse};
+use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
@@ -195,29 +195,15 @@ impl StorageService for DocumentTestFileStorageService {
     _workspace_id: &str,
     _parent_dir: &str,
     _local_file_path: &str,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<String, FlowyError> {
     todo!()
   }
 
-  fn upload_part(
+  fn resume_upload(
     &self,
     _workspace_id: &str,
     _parent_dir: &str,
-    _upload_id: &str,
     _file_id: &str,
-    _part_number: i32,
-    _body: Vec<u8>,
-  ) -> FutureResult<UploadPartResponse, FlowyError> {
-    todo!()
-  }
-
-  fn complete_upload(
-    &self,
-    _workspace_id: &str,
-    _parent_dir: &str,
-    _upload_id: &str,
-    _file_id: &str,
-    _parts: Vec<CompletedPartRequest>,
   ) -> FutureResult<(), FlowyError> {
     todo!()
   }

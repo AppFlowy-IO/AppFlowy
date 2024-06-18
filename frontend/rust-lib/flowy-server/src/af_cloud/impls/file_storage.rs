@@ -1,5 +1,5 @@
-use client_api::entity::CreateUploadRequest;
-use flowy_error::FlowyError;
+use client_api::entity::{CompleteUploadRequest, CreateUploadRequest};
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use lib_infra::future::FutureResult;
@@ -60,11 +60,22 @@ where
     })
   }
 
+  fn get_object_url_v1(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    file_id: &str,
+  ) -> FlowyResult<String> {
+    let client = self.0.try_get_client()?;
+    let url = client.get_blob_url_v1(workspace_id, parent_dir, file_id);
+    Ok(url)
+  }
+
   fn create_upload(
     &self,
     workspace_id: &str,
-    file_id: &str,
     parent_dir: &str,
+    file_id: &str,
     content_type: &str,
   ) -> FutureResult<CreateUploadResponse, FlowyError> {
     let workspace_id = workspace_id.to_string();
@@ -86,24 +97,58 @@ where
 
   fn upload_part(
     &self,
-    _workspace_id: &str,
-    _parent_dir: &str,
-    _upload_id: &str,
-    _file_id: &str,
-    _part_number: i32,
-    _body: Vec<u8>,
+    workspace_id: &str,
+    parent_dir: &str,
+    upload_id: &str,
+    file_id: &str,
+    part_number: i32,
+    body: Vec<u8>,
   ) -> FutureResult<UploadPartResponse, FlowyError> {
-    todo!()
+    let workspace_id = workspace_id.to_string();
+    let parent_dir = parent_dir.to_string();
+    let upload_id = upload_id.to_string();
+    let file_id = file_id.to_string();
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let resp = client
+        .upload_part(
+          &workspace_id,
+          &parent_dir,
+          &file_id,
+          &upload_id,
+          part_number,
+          body,
+        )
+        .await?;
+
+      Ok(resp)
+    })
   }
 
   fn complete_upload(
     &self,
-    _workspace_id: &str,
-    _parent_dir: &str,
-    _upload_id: &str,
-    _file_id: &str,
-    _parts: Vec<CompletedPartRequest>,
+    workspace_id: &str,
+    parent_dir: &str,
+    upload_id: &str,
+    file_id: &str,
+    parts: Vec<CompletedPartRequest>,
   ) -> FutureResult<(), FlowyError> {
-    todo!()
+    let workspace_id = workspace_id.to_string();
+    let parent_dir = parent_dir.to_string();
+    let upload_id = upload_id.to_string();
+    let file_id = file_id.to_string();
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let request = CompleteUploadRequest {
+        file_id,
+        parent_dir,
+        upload_id,
+        parts,
+      };
+      client.complete_upload(&workspace_id, request).await?;
+      Ok(())
+    })
   }
 }

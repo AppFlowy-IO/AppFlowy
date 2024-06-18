@@ -1,7 +1,9 @@
 use anyhow::anyhow;
 use bytes::Bytes;
+use std::fmt::Display;
 use std::ops::Deref;
 use std::path::Path;
+
 use tokio::io::AsyncReadExt;
 
 /// In Amazon S3, the minimum chunk size for multipart uploads is 5 MB,except for the last part,
@@ -19,6 +21,16 @@ impl Deref for ChunkedBytes {
 
   fn deref(&self) -> &Self::Target {
     &self.data
+  }
+}
+
+impl Display for ChunkedBytes {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(
+      f,
+      "ChunkedBytes: chunk_size: {}, offsets: {:?}, current_offset: {}",
+      self.chunk_size, self.offsets, self.current_offset
+    )
   }
 }
 
@@ -55,7 +67,7 @@ impl ChunkedBytes {
   pub async fn from_file<P: AsRef<Path>>(
     file_path: P,
     chunk_size: i32,
-  ) -> Result<Self, anyhow::Error> {
+  ) -> Result<Self, tokio::io::Error> {
     let mut file = tokio::fs::File::open(file_path).await?;
     let mut buffer = Vec::new();
     file.read_to_end(&mut buffer).await?;

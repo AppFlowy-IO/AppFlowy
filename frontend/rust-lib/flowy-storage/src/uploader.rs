@@ -1,6 +1,3 @@
-use crate::manager::StorageUserService;
-use flowy_error::FlowyError;
-use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_storage_pub::storage::StorageService;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
@@ -8,7 +5,7 @@ use std::sync::atomic::{AtomicBool, AtomicU8};
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tokio::sync::{watch, RwLock};
-use tracing::{debug, error};
+use tracing::debug;
 
 #[derive(Clone)]
 pub enum Signal {
@@ -24,6 +21,12 @@ pub struct FileUploader {
   max_concurrent_uploads: u8,
   current_uploads: AtomicU8,
   pause_sync: AtomicBool,
+}
+
+impl Drop for FileUploader {
+  fn drop(&mut self) {
+    let _ = self.notifier.send(Signal::Stop);
+  }
 }
 
 impl FileUploader {

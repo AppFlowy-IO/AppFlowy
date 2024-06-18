@@ -325,12 +325,12 @@ impl DocumentManager {
   pub async fn upload_file(
     &self,
     workspace_id: String,
+    document_id: &str,
     local_file_path: &str,
-    _is_async: bool,
   ) -> FlowyResult<String> {
     let storage_service = self.storage_service_upgrade()?;
     let url = storage_service
-      .upload_object(&workspace_id, local_file_path)
+      .create_upload(&workspace_id, document_id, local_file_path)
       .await?;
     Ok(url)
   }
