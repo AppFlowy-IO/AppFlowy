@@ -411,6 +411,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       emojiMenuItem,
       autoGeneratorMenuItem,
       dateMenuItem,
+      videoBlockItem(LocaleKeys.document_plugins_video_label.tr()),
     ];
   }
 
