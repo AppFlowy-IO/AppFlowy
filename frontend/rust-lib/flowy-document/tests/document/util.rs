@@ -20,8 +20,10 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_storage_pub::chunked_byte::ChunkedBytes;
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
+use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 pub struct DocumentTest {
@@ -192,19 +194,23 @@ impl StorageService for DocumentTestFileStorageService {
 
   fn create_upload(
     &self,
-    _workspace_id: &str,
-    _parent_dir: &str,
-    _local_file_path: &str,
+    workspace_id: &str,
+    parent_dir: &str,
+    local_file_path: &str,
   ) -> FutureResult<String, FlowyError> {
     todo!()
   }
 
-  fn resume_upload(
+  async fn start_upload(&self, chunks: &ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError> {
+    todo!()
+  }
+
+  async fn resume_upload(
     &self,
-    _workspace_id: &str,
-    _parent_dir: &str,
-    _file_id: &str,
-  ) -> FutureResult<(), FlowyError> {
+    workspace_id: &str,
+    parent_dir: &str,
+    file_id: &str,
+  ) -> Result<(), FlowyError> {
     todo!()
   }
 }

@@ -6,7 +6,7 @@ use flowy_sqlite::{
 };
 use tracing::warn;
 
-#[derive(Queryable, Insertable, AsChangeset, Identifiable, Debug)]
+#[derive(Queryable, Insertable, AsChangeset, Identifiable, Debug, Clone)]
 #[diesel(table_name = upload_file_table)]
 #[diesel(primary_key(workspace_id, parent_dir, file_id))]
 pub struct UploadFileTable {

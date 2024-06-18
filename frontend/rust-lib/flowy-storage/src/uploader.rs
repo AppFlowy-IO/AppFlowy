@@ -1,11 +1,16 @@
+use crate::sqlite_sql::UploadFileTable;
+use crate::uploader::UploadTask::BackgroundTask;
+use flowy_storage_pub::chunked_byte::ChunkedBytes;
 use flowy_storage_pub::storage::StorageService;
+use lib_infra::box_any::BoxAny;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
+use std::fmt::Display;
 use std::sync::atomic::{AtomicBool, AtomicU8};
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tokio::sync::{watch, RwLock};
-use tracing::debug;
+use tracing::{debug, trace};
 
 #[derive(Clone)]
 pub enum Signal {
@@ -14,10 +19,28 @@ pub enum Signal {
   ProceedAfterMillis(u64),
 }
 
-pub struct FileUploader {
+pub struct UploadTaskQueue {
+  tasks: RwLock<BinaryHeap<UploadTask>>,
   notifier: watch::Sender<Signal>,
+}
+
+impl UploadTaskQueue {
+  pub fn new(notifier: watch::Sender<Signal>) -> Self {
+    Self {
+      tasks: Default::default(),
+      notifier,
+    }
+  }
+  pub async fn queue_task(&self, task: UploadTask) {
+    trace!("[File] Queued task: {}", task);
+    self.tasks.write().await.push(task);
+    let _ = self.notifier.send(Signal::Proceed);
+  }
+}
+
+pub struct FileUploader {
   storage_service: Arc<dyn StorageService>,
-  queue: RwLock<BinaryHeap<UploadTask>>,
+  queue: Arc<UploadTaskQueue>,
   max_concurrent_uploads: u8,
   current_uploads: AtomicU8,
   pause_sync: AtomicBool,
@@ -25,37 +48,27 @@ pub struct FileUploader {
 
 impl Drop for FileUploader {
   fn drop(&mut self) {
-    let _ = self.notifier.send(Signal::Stop);
+    let _ = self.queue.notifier.send(Signal::Stop);
   }
 }
 
 impl FileUploader {
-  pub fn new(storage_service: Arc<dyn StorageService>, notifier: watch::Sender<Signal>) -> Self {
+  pub fn new(storage_service: Arc<dyn StorageService>, queue: Arc<UploadTaskQueue>) -> Self {
     Self {
       storage_service,
-      notifier,
-      queue: Default::default(),
+      queue,
       max_concurrent_uploads: 3,
       current_uploads: Default::default(),
       pause_sync: Default::default(),
     }
   }
 
-  pub async fn queue_task(&self, task: UploadTask) {
-    self.queue.write().await.push(task);
-    let _ = self.notifier.send(Signal::Proceed);
-  }
-
   pub async fn queue_tasks(&self, tasks: Vec<UploadTask>) {
-    let mut queue_lock = self.queue.write().await;
+    let mut queue_lock = self.queue.tasks.write().await;
     for task in tasks {
       queue_lock.push(task);
     }
-    let _ = self.notifier.send(Signal::Proceed);
-  }
-
-  pub async fn clear(&self) {
-    self.queue.write().await.clear();
+    let _ = self.queue.notifier.send(Signal::Proceed);
   }
 
   pub async fn pause(&self) {
@@ -68,7 +81,7 @@ impl FileUploader {
     self
       .pause_sync
       .store(false, std::sync::atomic::Ordering::SeqCst);
-    let _ = self.notifier.send(Signal::Proceed);
+    let _ = self.queue.notifier.send(Signal::Proceed);
   }
 
   pub async fn process_next(&self) -> Option<()> {
@@ -87,22 +100,21 @@ impl FileUploader {
     self
       .current_uploads
       .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-    let task = self.queue.write().await.pop()?;
-    match &task {
-      UploadTask::Task {
-        local_file_path,
-        workspace_id,
-        parent_dir,
-        ..
-      } => {
-        let result = self
-          .storage_service
-          .create_upload(workspace_id, parent_dir, local_file_path)
-          .await;
+    let task = self.queue.tasks.write().await.pop()?;
+    match task {
+      UploadTask::Task { chunks, record } => {
+        let record = BoxAny::new(record);
+        let result = self.storage_service.start_upload(&chunks, &record).await;
         match result {
-          Ok(_) => debug!("Uploaded file: {}", local_file_path),
+          Ok(_) => {},
           Err(_) => {
-            self.queue.write().await.push(task);
+            let record = record.unbox_or_error().unwrap();
+            self
+              .queue
+              .tasks
+              .write()
+              .await
+              .push(UploadTask::Task { chunks, record });
           },
         }
       },
@@ -110,16 +122,21 @@ impl FileUploader {
         workspace_id,
         parent_dir,
         file_id,
-        ..
+        created_at,
       } => {
         let result = self
           .storage_service
-          .resume_upload(workspace_id, parent_dir, file_id)
+          .resume_upload(&workspace_id, &parent_dir, &file_id)
           .await;
         match result {
           Ok(_) => debug!("Resumed upload for file: {}", file_id),
           Err(_) => {
-            self.queue.write().await.push(task);
+            self.queue.tasks.write().await.push(BackgroundTask {
+              workspace_id,
+              parent_dir,
+              file_id,
+              created_at,
+            });
           },
         }
       },
@@ -127,7 +144,7 @@ impl FileUploader {
     self
       .current_uploads
       .fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
-    let _ = self.notifier.send(Signal::ProceedAfterMillis(2000));
+    let _ = self.queue.notifier.send(Signal::ProceedAfterMillis(2000));
     None
   }
 }
@@ -163,10 +180,8 @@ impl FileUploaderRunner {
 
 pub enum UploadTask {
   Task {
-    local_file_path: String,
-    workspace_id: String,
-    parent_dir: String,
-    created_at: i64,
+    chunks: ChunkedBytes,
+    record: UploadFileTable,
   },
   BackgroundTask {
     workspace_id: String,
@@ -176,6 +191,15 @@ pub enum UploadTask {
   },
 }
 
+impl Display for UploadTask {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    match self {
+      Self::Task { record, .. } => write!(f, "Task: {}", record.local_file_path),
+      Self::BackgroundTask { file_id, .. } => write!(f, "BackgroundTask: {}", file_id),
+    }
+  }
+}
+
 impl UploadTask {}
 
 impl Eq for UploadTask {}
@@ -183,16 +207,9 @@ impl Eq for UploadTask {}
 impl PartialEq for UploadTask {
   fn eq(&self, other: &Self) -> bool {
     match (self, other) {
-      (
-        Self::Task {
-          local_file_path: lhs,
-          ..
-        },
-        Self::Task {
-          local_file_path: rhs,
-          ..
-        },
-      ) => lhs == rhs,
+      (Self::Task { record: lhs, .. }, Self::Task { record: rhs, .. }) => {
+        lhs.local_file_path == rhs.local_file_path
+      },
       (
         Self::BackgroundTask {
           workspace_id: l_workspace_id,
@@ -219,14 +236,9 @@ impl PartialOrd for UploadTask {
 impl Ord for UploadTask {
   fn cmp(&self, other: &Self) -> Ordering {
     match (self, other) {
-      (
-        Self::Task {
-          created_at: lhs, ..
-        },
-        Self::Task {
-          created_at: rhs, ..
-        },
-      ) => lhs.cmp(rhs),
+      (Self::Task { record: lhs, .. }, Self::Task { record: rhs, .. }) => {
+        lhs.created_at.cmp(&rhs.created_at)
+      },
       (_, Self::Task { .. }) => Ordering::Less,
       (Self::Task { .. }, _) => Ordering::Greater,
       (

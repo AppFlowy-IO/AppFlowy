@@ -15,3 +15,5 @@ flowy-error = { workspace = true, features = ["impl_from_reqwest"] }
 bytes.workspace = true
 mime_guess = "2.0.4"
 client-api-entity = { workspace = true }
+tokio = { workspace = true, features = ["sync", "io-util"] }
+anyhow = "1.0.86"

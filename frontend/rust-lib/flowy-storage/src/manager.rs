@@ -1,26 +1,25 @@
-use crate::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
+use crate::file_cache::FileTempStorage;
 use crate::sqlite_sql::{
   batch_select_upload_file, delete_upload_file, insert_upload_file, insert_upload_part,
   select_upload_file, select_upload_parts, update_upload_file_upload_id, UploadFilePartTable,
   UploadFileTable,
 };
-use crate::uploader::{FileUploader, FileUploaderRunner, Signal, UploadTask};
-
+use crate::uploader::{FileUploader, FileUploaderRunner, Signal, UploadTask, UploadTaskQueue};
+use async_trait::async_trait;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
+use flowy_storage_pub::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, StorageService, UploadPartResponse};
+use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
+use std::any::Any;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
-
 use tokio::sync::{mpsc, watch, RwLock};
-
-use crate::file_cache::FileTempStorage;
 use tracing::{debug, error, info, instrument, trace};
 
 pub trait StorageUserService: Send + Sync + 'static {
@@ -47,13 +46,16 @@ impl StorageManager {
     ));
     let temp_storage = Arc::new(FileTempStorage::new(temp_storage_path));
     let (notifier, notifier_rx) = watch::channel(Signal::Proceed);
+
+    let task_queue = Arc::new(UploadTaskQueue::new(notifier));
     let storage_service = Arc::new(StorageServiceImpl {
       cloud_service,
       user_service: user_service.clone(),
       temp_storage,
+      task_queue: task_queue.clone(),
     });
 
-    let uploader = Arc::new(FileUploader::new(storage_service.clone(), notifier));
+    let uploader = Arc::new(FileUploader::new(storage_service.clone(), task_queue));
     tokio::spawn(FileUploaderRunner::run(
       Arc::downgrade(&uploader),
       notifier_rx,
@@ -99,8 +101,10 @@ pub struct StorageServiceImpl {
   cloud_service: Arc<dyn StorageCloudService>,
   user_service: Arc<dyn StorageUserService>,
   temp_storage: Arc<FileTempStorage>,
+  task_queue: Arc<UploadTaskQueue>,
 }
 
+#[async_trait]
 impl StorageService for StorageServiceImpl {
   fn upload_object(
     &self,
@@ -203,9 +207,10 @@ impl StorageService for StorageServiceImpl {
     let workspace_id = workspace_id.to_string();
     let parent_dir = parent_dir.to_string();
     let file_path = file_path.to_string();
-    let cloud_service = self.cloud_service.clone();
-    let user_service = self.user_service.clone();
     let temp_storage = self.temp_storage.clone();
+    let task_queue = self.task_queue.clone();
+    let user_service = self.user_service.clone();
+    let cloud_service = self.cloud_service.clone();
 
     FutureResult::new(async move {
       let local_file_path = temp_storage
@@ -217,107 +222,124 @@ impl StorageService for StorageServiceImpl {
             .with_context(format!("create temp file for upload file failed: {}", err))
         })?;
 
-      // 1. read file and chunk it base on CHUNK_SIZE. We use MIN_CHUNK_SIZE as the minimum chunk size
-      let chunked_bytes = ChunkedBytes::from_file(&local_file_path, MIN_CHUNK_SIZE as i32).await?;
-      let ext = Path::new(&local_file_path)
-        .extension()
-        .and_then(std::ffi::OsStr::to_str)
-        .unwrap_or("")
-        .to_owned();
-      let content_type = mime_guess::from_path(&local_file_path)
-        .first_or_octet_stream()
-        .to_string();
-      let num_of_chunk = chunked_bytes.offsets.len();
-      let file_id = format!("{}.{}", fxhash::hash(&chunked_bytes.data).to_string(), ext);
-      let record = UploadFileTable {
-        workspace_id,
-        file_id,
-        upload_id: "".to_string(),
-        parent_dir,
-        local_file_path,
-        content_type,
-        chunk_size: chunked_bytes.chunk_size,
-        num_chunk: num_of_chunk as i32,
-        created_at: timestamp(),
-      };
+      // 1. create a file record and chunk the file
+      let (chunks, record) =
+        create_upload_record(workspace_id, parent_dir, local_file_path).await?;
 
       // 2. save the record to sqlite
       let conn = user_service.sqlite_connection(user_service.user_id()?)?;
       insert_upload_file(conn, &record)?;
 
+      // 3. generate url for given file
       let url = cloud_service.get_object_url_v1(
         &record.workspace_id,
         &record.parent_dir,
         &record.file_id,
       )?;
 
-      // 3. start uploading
-      tokio::spawn(async move {
-        if let Err(err) = start_upload(
-          &cloud_service,
-          &user_service,
-          &temp_storage,
-          chunked_bytes,
-          record,
-        )
-        .await
-        {
-          error!("[File] start upload failed: {}", err);
-        }
-      });
-      Ok(url)
+      task_queue
+        .queue_task(UploadTask::Task { chunks, record })
+        .await;
+
+      Ok::<_, FlowyError>(url)
     })
   }
 
-  fn resume_upload(
-    &self,
-    workspace_id: &str,
-    parent_dir: &str,
-    file_id: &str,
-  ) -> FutureResult<(), FlowyError> {
-    let file_id = file_id.to_string();
-    let workspace_id = workspace_id.to_string();
-    let parent_dir = parent_dir.to_string();
+  async fn start_upload(&self, chunks: &ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError> {
     let cloud_service = self.cloud_service.clone();
     let user_service = self.user_service.clone();
     let temp_storage = self.temp_storage.clone();
 
-    FutureResult::new(async move {
-      // Gathering the upload record and parts from the sqlite database.
-      let record = {
-        let mut conn = user_service.sqlite_connection(user_service.user_id()?)?;
-        conn.immediate_transaction(|conn| {
-          Ok::<_, FlowyError>(
-            // When resuming an upload, check if the upload_id is empty.
-            // If the upload_id is empty, the upload has likely not been created yet.
-            // If the upload_id is not empty, verify which parts have already been uploaded.
-            select_upload_file(conn, &workspace_id, &parent_dir, &file_id)?.and_then(|record| {
-              if record.upload_id.is_empty() {
-                Some((record, vec![]))
-              } else {
-                let parts = select_upload_parts(conn, &record.upload_id).unwrap_or_default();
-                Some((record, parts))
-              }
-            }),
-          )
-        })?
-      };
+    let file_record = record.downcast_ref::<UploadFileTable>().ok_or_else(|| {
+      FlowyError::internal().with_context("failed to downcast record to UploadFileTable")
+    })?;
 
-      if let Some((upload_file, parts)) = record {
-        resume_upload(
-          &cloud_service,
-          &user_service,
-          &temp_storage,
-          upload_file,
-          parts,
-        )
-        .await?;
-      } else {
-        error!("[File] resume upload failed: record not found");
-      }
-      Ok(())
-    })
+    if let Err(err) = start_upload(
+      &cloud_service,
+      &user_service,
+      &temp_storage,
+      chunks,
+      file_record,
+    )
+    .await
+    {
+      error!("[File] start upload failed: {}", err);
+    }
+    Ok(())
   }
+
+  async fn resume_upload(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    file_id: &str,
+  ) -> Result<(), FlowyError> {
+    // Gathering the upload record and parts from the sqlite database.
+    let record = {
+      let mut conn = self
+        .user_service
+        .sqlite_connection(self.user_service.user_id()?)?;
+      conn.immediate_transaction(|conn| {
+        Ok::<_, FlowyError>(
+          // When resuming an upload, check if the upload_id is empty.
+          // If the upload_id is empty, the upload has likely not been created yet.
+          // If the upload_id is not empty, verify which parts have already been uploaded.
+          select_upload_file(conn, &workspace_id, &parent_dir, &file_id)?.and_then(|record| {
+            if record.upload_id.is_empty() {
+              Some((record, vec![]))
+            } else {
+              let parts = select_upload_parts(conn, &record.upload_id).unwrap_or_default();
+              Some((record, parts))
+            }
+          }),
+        )
+      })?
+    };
+
+    if let Some((upload_file, parts)) = record {
+      resume_upload(
+        &self.cloud_service,
+        &self.user_service,
+        &self.temp_storage,
+        upload_file,
+        parts,
+      )
+      .await?;
+    } else {
+      error!("[File] resume upload failed: record not found");
+    }
+    Ok(())
+  }
+}
+
+async fn create_upload_record(
+  workspace_id: String,
+  parent_dir: String,
+  local_file_path: String,
+) -> FlowyResult<(ChunkedBytes, UploadFileTable)> {
+  // read file and chunk it base on CHUNK_SIZE. We use MIN_CHUNK_SIZE as the minimum chunk size
+  let chunked_bytes = ChunkedBytes::from_file(&local_file_path, MIN_CHUNK_SIZE as i32).await?;
+  let ext = Path::new(&local_file_path)
+    .extension()
+    .and_then(std::ffi::OsStr::to_str)
+    .unwrap_or("")
+    .to_owned();
+  let content_type = mime_guess::from_path(&local_file_path)
+    .first_or_octet_stream()
+    .to_string();
+  let file_id = format!("{}.{}", fxhash::hash(&chunked_bytes.data).to_string(), ext);
+  let record = UploadFileTable {
+    workspace_id,
+    file_id,
+    upload_id: "".to_string(),
+    parent_dir,
+    local_file_path,
+    content_type,
+    chunk_size: chunked_bytes.chunk_size,
+    num_chunk: chunked_bytes.offsets.len() as i32,
+    created_at: timestamp(),
+  };
+  Ok((chunked_bytes, record))
 }
 
 #[instrument(level = "debug", skip_all, err)]
@@ -325,9 +347,10 @@ async fn start_upload(
   cloud_service: &Arc<dyn StorageCloudService>,
   user_service: &Arc<dyn StorageUserService>,
   temp_storage: &Arc<FileTempStorage>,
-  chunked_bytes: ChunkedBytes,
-  mut upload_file: UploadFileTable,
+  chunked_bytes: &ChunkedBytes,
+  upload_file: &UploadFileTable,
 ) -> FlowyResult<()> {
+  let mut upload_file = upload_file.clone();
   if upload_file.upload_id.is_empty() {
     // 1. create upload
     trace!(
@@ -452,8 +475,8 @@ async fn resume_upload(
         cloud_service,
         user_service,
         temp_storage,
-        chunked_bytes,
-        upload_file,
+        &chunked_bytes,
+        &upload_file,
       )
       .await?;
     },

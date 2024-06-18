@@ -2190,6 +2190,7 @@ dependencies = [
 name = "flowy-storage-pub"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "async-trait",
  "bytes",
  "client-api-entity",
@@ -2199,6 +2200,7 @@ dependencies = [
  "mime_guess",
  "serde",
  "serde_json",
+ "tokio",
 ]
 
 [[package]]
