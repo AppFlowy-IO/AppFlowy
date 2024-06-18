@@ -99,6 +99,7 @@ class _SettingsShortcutsViewState extends State<SettingsShortcutsView> {
                       ),
                     ] else ...[
                       ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: filtered.length,
                         itemBuilder: (context, index) => ShortcutSettingTile(
@@ -198,7 +199,7 @@ class _ResetButton extends StatelessWidget {
               ),
               const HSpace(6),
               SizedBox(
-                height: 20,
+                height: 16,
                 child: FlowyText.regular(
                   LocaleKeys.settings_shortcutsPage_actions_resetDefault.tr(),
                   color: AFThemeExtension.of(context).strongText,
