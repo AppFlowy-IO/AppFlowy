@@ -187,8 +187,12 @@ class _ChecklistItemState extends State<ChecklistItem> {
     super.didUpdateWidget(oldWidget);
     if (widget.task.data.name != oldWidget.task.data.name) {
       final selection = _textController.selection;
-      _textController.text = widget.task.data.name;
-      _textController.selection = selection;
+      // Ensure the selection offset is within the new text bounds
+      int offset = selection.start;
+      if (offset > widget.task.data.name.length) {
+        offset = widget.task.data.name.length;
+      }
+      _textController.selection = TextSelection.collapsed(offset: offset);
     }
   }
 
@@ -204,13 +208,20 @@ class _ChecklistItemState extends State<ChecklistItem> {
       },
       actions: {
         _SelectTaskIntent: CallbackAction<_SelectTaskIntent>(
-          onInvoke: (_SelectTaskIntent intent) => context
-              .read<ChecklistCellBloc>()
-              .add(ChecklistCellEvent.selectTask(widget.task.data.id)),
+          onInvoke: (_SelectTaskIntent intent) {
+            // Log.debug("checklist widget on enter");
+            context
+                .read<ChecklistCellBloc>()
+                .add(ChecklistCellEvent.selectTask(widget.task.data.id));
+            return;
+          },
         ),
         _EndEditingTaskIntent: CallbackAction<_EndEditingTaskIntent>(
-          onInvoke: (_EndEditingTaskIntent intent) =>
-              _textFieldFocusNode.unfocus(),
+          onInvoke: (_EndEditingTaskIntent intent) {
+            // Log.debug("checklist widget on escape");
+            _textFieldFocusNode.unfocus();
+            return;
+          },
         ),
       },
       shortcuts: {
@@ -278,12 +289,14 @@ class _ChecklistItemState extends State<ChecklistItem> {
                         }
                       },
                       onSubmitted: (description) {
-                        _submitUpdateTaskDescription(description);
                         if (widget.onSubmitted != null) {
+                          // Log.debug("checklist widget on submitted");
                           widget.onSubmitted?.call();
                         } else {
+                          // Log.debug("checklist widget Focus next task");
                           Actions.invoke(context, const NextFocusIntent());
                         }
+                        _submitUpdateTaskDescription(description);
                       },
                     );
                   },
@@ -454,8 +467,7 @@ class _DeleteTaskButtonState extends State<_DeleteTaskButton> {
       statesController: _materialStatesController,
       child: FlowySvg(
         FlowySvgs.delete_s,
-        color: _materialStatesController.value
-                    .contains(WidgetState.hovered) ||
+        color: _materialStatesController.value.contains(WidgetState.hovered) ||
                 _materialStatesController.value.contains(WidgetState.focused)
             ? Theme.of(context).colorScheme.error
             : null,

@@ -34,7 +34,8 @@ impl TaskQueue {
     match self.index_tasks.entry(task.handler_id.clone()) {
       Entry::Occupied(entry) => {
         let mut list = entry.get().borrow_mut();
-        assert!(list
+
+        debug_assert!(list
           .peek()
           .map(|old_id| pending_task.id >= old_id.id)
           .unwrap_or(true));

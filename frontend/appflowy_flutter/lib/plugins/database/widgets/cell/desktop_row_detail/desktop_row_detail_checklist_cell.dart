@@ -70,10 +70,11 @@ class _ChecklistItemsState extends State<ChecklistItems> {
               key: ValueKey(task.data.id),
               task: task,
               autofocus: widget.state.newTask && index == tasks.length - 1,
-              onSubmitted: index == tasks.length - 1
-                  ? () => widget.bloc
-                      .add(const ChecklistCellEvent.createNewTask(""))
-                  : null,
+              onSubmitted: () {
+                if (index == tasks.length - 1) {
+                  widget.bloc.add(const ChecklistCellEvent.createNewTask(""));
+                }
+              },
             ),
           ),
         )
