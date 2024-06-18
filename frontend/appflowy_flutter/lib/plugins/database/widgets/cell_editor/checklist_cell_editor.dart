@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
@@ -14,10 +11,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../application/cell/bloc/checklist_cell_bloc.dart';
-
 import 'checklist_progress_bar.dart';
 
 class ChecklistCellEditor extends StatefulWidget {
@@ -209,7 +207,6 @@ class _ChecklistItemState extends State<ChecklistItem> {
       actions: {
         _SelectTaskIntent: CallbackAction<_SelectTaskIntent>(
           onInvoke: (_SelectTaskIntent intent) {
-            // Log.debug("checklist widget on enter");
             context
                 .read<ChecklistCellBloc>()
                 .add(ChecklistCellEvent.selectTask(widget.task.data.id));
@@ -218,7 +215,6 @@ class _ChecklistItemState extends State<ChecklistItem> {
         ),
         _EndEditingTaskIntent: CallbackAction<_EndEditingTaskIntent>(
           onInvoke: (_EndEditingTaskIntent intent) {
-            // Log.debug("checklist widget on escape");
             _textFieldFocusNode.unfocus();
             return;
           },
@@ -290,10 +286,8 @@ class _ChecklistItemState extends State<ChecklistItem> {
                       },
                       onSubmitted: (description) {
                         if (widget.onSubmitted != null) {
-                          // Log.debug("checklist widget on submitted");
                           widget.onSubmitted?.call();
                         } else {
-                          // Log.debug("checklist widget Focus next task");
                           Actions.invoke(context, const NextFocusIntent());
                         }
                         _submitUpdateTaskDescription(description);
