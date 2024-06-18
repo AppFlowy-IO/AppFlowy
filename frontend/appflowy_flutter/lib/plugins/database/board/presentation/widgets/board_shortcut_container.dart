@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/board/application/board_actions_bloc.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/shared/callback_shortcuts.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -147,7 +150,14 @@ class BoardShortcutContainer extends StatelessWidget {
     if (focusScope.value.length != 1) {
       return false;
     }
-    context.read<BoardBloc>().add(BoardEvent.deleteCards(focusScope.value));
+
+    NavigatorOkCancelDialog(
+      message: LocaleKeys.grid_row_deleteCardPrompt.tr(),
+      onOkPressed: () {
+        context.read<BoardBloc>().add(BoardEvent.deleteCards(focusScope.value));
+      },
+    ).show(context);
+
     return true;
   }
 
