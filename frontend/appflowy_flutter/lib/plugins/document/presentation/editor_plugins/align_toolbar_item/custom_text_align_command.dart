@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 
 final List<CommandShortcutEvent> customTextAlignCommands = [
   customTextLeftAlignCommand,
@@ -21,7 +22,7 @@ final List<CommandShortcutEvent> customTextAlignCommands = [
 final CommandShortcutEvent customTextLeftAlignCommand = CommandShortcutEvent(
   key: 'Align text to the left',
   command: 'ctrl+shift+l',
-  getDescription: LocaleKeys.settings_shortcuts_commands_textAlignLeft.tr,
+  getDescription: LocaleKeys.settings_shortcutsPage_commands_textAlignLeft.tr,
   handler: (editorState) => _textAlignHandler(editorState, leftAlignmentKey),
 );
 
@@ -36,7 +37,7 @@ final CommandShortcutEvent customTextLeftAlignCommand = CommandShortcutEvent(
 final CommandShortcutEvent customTextCenterAlignCommand = CommandShortcutEvent(
   key: 'Align text to the center',
   command: 'ctrl+shift+e',
-  getDescription: LocaleKeys.settings_shortcuts_commands_textAlignCenter.tr,
+  getDescription: LocaleKeys.settings_shortcutsPage_commands_textAlignCenter.tr,
   handler: (editorState) => _textAlignHandler(editorState, centerAlignmentKey),
 );
 
@@ -51,7 +52,7 @@ final CommandShortcutEvent customTextCenterAlignCommand = CommandShortcutEvent(
 final CommandShortcutEvent customTextRightAlignCommand = CommandShortcutEvent(
   key: 'Align text to the right',
   command: 'ctrl+shift+r',
-  getDescription: LocaleKeys.settings_shortcuts_commands_textAlignRight.tr,
+  getDescription: LocaleKeys.settings_shortcutsPage_commands_textAlignRight.tr,
   handler: (editorState) => _textAlignHandler(editorState, rightAlignmentKey),
 );
 
