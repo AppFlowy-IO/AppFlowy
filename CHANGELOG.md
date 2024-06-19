@@ -1,4 +1,20 @@
 # Release Notes
+## Version 0.6.0 - 19/06/2024
+### New Features
+- Introduced the "Space" feature to help you organize your pages more efficiently.
+### Bug Fixes
+- Resolved shortcut conflicts on the board page.
+- Resolved an issue where underscores could cause the editor to freeze.
+
+## Version 0.5.9 - 06/06/2024
+### New Features
+- Revamped the sidebar for both Desktop and Mobile.
+- Added support for embedding videos in documents.
+- Introduced a hotkey (Cmd/Ctrl + 0) to reset the app scale.
+- Supported searching the workspace by page title.
+### Bug Fixes
+- Fixed the issue preventing the use of Backspace to delete words in Kanban boards.
+
 ## Version 0.5.8 - 05/20/2024
 ### New Features
 - Improvement to the Callout block to insert new lines
