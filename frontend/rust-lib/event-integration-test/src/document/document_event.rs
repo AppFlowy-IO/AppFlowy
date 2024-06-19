@@ -49,6 +49,19 @@ impl DocumentEventTest {
     guard.encode_collab().unwrap()
   }
 
+  pub async fn get_encoded_collab(&self, doc_id: &str) -> EncodedCollabPB {
+    let core = &self.event_test;
+    let payload = OpenDocumentPayloadPB {
+      document_id: doc_id.to_string(),
+    };
+    EventBuilder::new(core.clone())
+      .event(DocumentEvent::GetDocEncodedCollab)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<EncodedCollabPB>()
+  }
+
   pub async fn create_document(&self) -> ViewPB {
     let core = &self.event_test;
     let current_workspace = core.get_current_workspace().await;
