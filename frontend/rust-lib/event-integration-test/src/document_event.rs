@@ -64,6 +64,7 @@ impl EventIntegrationTest {
 
     view
   }
+
   pub async fn open_document(&self, doc_id: String) -> OpenDocumentData {
     let payload = OpenDocumentPayloadPB {
       document_id: doc_id.clone(),
