@@ -7,10 +7,10 @@ import 'package:appflowy/workspace/presentation/settings/pages/settings_account_
 import 'package:appflowy/workspace/presentation/settings/pages/settings_billing_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_data_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/feature_flag_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_page.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_customize_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_notifications_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';

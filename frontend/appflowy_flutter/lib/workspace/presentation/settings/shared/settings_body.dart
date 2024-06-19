@@ -30,6 +30,7 @@ class SettingsBody extends StatelessWidget {
           SettingsHeader(title: title, description: description),
           Flexible(
             child: SeparatedColumn(
+              mainAxisSize: MainAxisSize.min,
               separatorBuilder: () => autoSeparate
                   ? const SettingsCategorySpacer()
                   : const VSpace(16),
