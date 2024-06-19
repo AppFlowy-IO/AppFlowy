@@ -14,12 +14,12 @@ use flowy_storage_pub::storage::{CompletedPartRequest, StorageService, UploadPar
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
-use std::any::Any;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::sync::{mpsc, watch, RwLock};
+use tokio::sync::watch;
 use tracing::{debug, error, info, instrument, trace};
 
 pub trait StorageUserService: Send + Sync + 'static {
@@ -31,7 +31,6 @@ pub trait StorageUserService: Send + Sync + 'static {
 
 pub struct StorageManager {
   pub storage_service: Arc<dyn StorageService>,
-  stop_tx: Arc<RwLock<Option<mpsc::Sender<()>>>>,
   uploader: Arc<FileUploader>,
 }
 
@@ -63,6 +62,8 @@ impl StorageManager {
 
     let cloned_uploader = uploader.clone();
     tokio::spawn(async move {
+      // Start uploading after 30 seconds
+      tokio::time::sleep(Duration::from_secs(30)).await;
       if let Err(err) = prepare_upload_task(cloned_uploader, user_service).await {
         error!("prepare upload task failed: {}", err);
       }
@@ -70,8 +71,15 @@ impl StorageManager {
 
     Self {
       storage_service,
-      stop_tx: Arc::new(RwLock::new(None)),
       uploader,
+    }
+  }
+
+  pub fn update_network(&self, reachable: bool) {
+    if reachable {
+      self.uploader.resume();
+    } else {
+      self.uploader.pause();
     }
   }
 }
@@ -90,6 +98,7 @@ async fn prepare_upload_task(
       file_id: upload_file.file_id,
       parent_dir: upload_file.parent_dir,
       created_at: upload_file.created_at,
+      retry_count: 0,
     })
     .collect::<Vec<_>>();
   info!("prepare upload task: {}", tasks.len());
@@ -238,7 +247,11 @@ impl StorageService for StorageServiceImpl {
       )?;
 
       task_queue
-        .queue_task(UploadTask::Task { chunks, record })
+        .queue_task(UploadTask::Task {
+          chunks,
+          record,
+          retry_count: 0,
+        })
         .await;
 
       Ok::<_, FlowyError>(url)

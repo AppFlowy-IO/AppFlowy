@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Context;
-use tracing::event;
+use tracing::{event, trace};
 
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -9,6 +9,7 @@ use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::{FolderInitDataSource, FolderManager};
+use flowy_storage::manager::StorageManager;
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserProfile, UserWorkspace};
@@ -23,8 +24,7 @@ pub(crate) struct UserStatusCallbackImpl {
   pub(crate) database_manager: Arc<DatabaseManager>,
   pub(crate) document_manager: Arc<DocumentManager>,
   pub(crate) server_provider: Arc<ServerProvider>,
-  #[allow(dead_code)]
-  pub(crate) config: AppFlowyCoreConfig,
+  pub(crate) storage_manager: Arc<StorageManager>,
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
@@ -213,6 +213,8 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   }
 
   fn did_update_network(&self, reachable: bool) {
+    trace!("Notify did update network: reachable: {}", reachable);
     self.collab_builder.update_network(reachable);
+    self.storage_manager.update_network(reachable);
   }
 }

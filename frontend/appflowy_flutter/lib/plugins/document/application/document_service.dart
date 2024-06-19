@@ -115,7 +115,6 @@ class DocumentService {
   Future<FlowyResult<UploadedFilePB, FlowyError>> uploadFile({
     required String localFilePath,
     required String documentId,
-    bool isAsync = true,
   }) async {
     final workspace = await FolderEventReadCurrentWorkspace().send();
     return workspace.fold((l) async {

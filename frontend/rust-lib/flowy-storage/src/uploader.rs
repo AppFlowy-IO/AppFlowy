@@ -16,7 +16,7 @@ use tracing::{debug, trace};
 pub enum Signal {
   Stop,
   Proceed,
-  ProceedAfterMillis(u64),
+  ProceedAfterSecs(u64),
 }
 
 pub struct UploadTaskQueue {
@@ -71,17 +71,17 @@ impl FileUploader {
     let _ = self.queue.notifier.send(Signal::Proceed);
   }
 
-  pub async fn pause(&self) {
+  pub fn pause(&self) {
     self
       .pause_sync
       .store(true, std::sync::atomic::Ordering::SeqCst);
   }
 
-  pub async fn resume(&self) {
+  pub fn resume(&self) {
     self
       .pause_sync
       .store(false, std::sync::atomic::Ordering::SeqCst);
-    let _ = self.queue.notifier.send(Signal::Proceed);
+    let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(3));
   }
 
   pub async fn process_next(&self) -> Option<()> {
@@ -97,24 +97,34 @@ impl FileUploader {
       return None;
     }
 
+    let task = self.queue.tasks.write().await.pop()?;
+    if task.retry_count() > 5 {
+      // If the task has been retried more than 5 times, we should not retry it anymore.
+      let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(2));
+    }
+
     self
       .current_uploads
       .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-    let task = self.queue.tasks.write().await.pop()?;
+
     match task {
-      UploadTask::Task { chunks, record } => {
+      UploadTask::Task {
+        chunks,
+        record,
+        mut retry_count,
+      } => {
         let record = BoxAny::new(record);
         let result = self.storage_service.start_upload(&chunks, &record).await;
         match result {
           Ok(_) => {},
           Err(_) => {
             let record = record.unbox_or_error().unwrap();
-            self
-              .queue
-              .tasks
-              .write()
-              .await
-              .push(UploadTask::Task { chunks, record });
+            retry_count += 1;
+            self.queue.tasks.write().await.push(UploadTask::Task {
+              chunks,
+              record,
+              retry_count,
+            });
           },
         }
       },
@@ -123,6 +133,7 @@ impl FileUploader {
         parent_dir,
         file_id,
         created_at,
+        mut retry_count,
       } => {
         let result = self
           .storage_service
@@ -131,11 +142,13 @@ impl FileUploader {
         match result {
           Ok(_) => debug!("Resumed upload for file: {}", file_id),
           Err(_) => {
+            retry_count += 1;
             self.queue.tasks.write().await.push(BackgroundTask {
               workspace_id,
               parent_dir,
               file_id,
               created_at,
+              retry_count,
             });
           },
         }
@@ -144,7 +157,7 @@ impl FileUploader {
     self
       .current_uploads
       .fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
-    let _ = self.queue.notifier.send(Signal::ProceedAfterMillis(2000));
+    let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(2));
     None
   }
 }
@@ -166,8 +179,8 @@ impl FileUploaderRunner {
           Signal::Proceed => {
             uploader.process_next().await;
           },
-          Signal::ProceedAfterMillis(millis) => {
-            tokio::time::sleep(Duration::from_millis(millis)).await;
+          Signal::ProceedAfterSecs(secs) => {
+            tokio::time::sleep(Duration::from_secs(secs)).await;
             uploader.process_next().await;
           },
         }
@@ -182,13 +195,24 @@ pub enum UploadTask {
   Task {
     chunks: ChunkedBytes,
     record: UploadFileTable,
+    retry_count: u8,
   },
   BackgroundTask {
     workspace_id: String,
     file_id: String,
     parent_dir: String,
     created_at: i64,
+    retry_count: u8,
   },
+}
+
+impl UploadTask {
+  pub fn retry_count(&self) -> u8 {
+    match self {
+      Self::Task { retry_count, .. } => *retry_count,
+      Self::BackgroundTask { retry_count, .. } => *retry_count,
+    }
+  }
 }
 
 impl Display for UploadTask {
@@ -199,9 +223,6 @@ impl Display for UploadTask {
     }
   }
 }
-
-impl UploadTask {}
-
 impl Eq for UploadTask {}
 
 impl PartialEq for UploadTask {

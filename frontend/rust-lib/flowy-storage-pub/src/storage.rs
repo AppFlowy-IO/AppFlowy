@@ -4,7 +4,6 @@ pub use client_api_entity::{CompletedPartRequest, CreateUploadResponse, UploadPa
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
-use std::any::Any;
 
 #[async_trait]
 pub trait StorageService: Send + Sync {

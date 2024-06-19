@@ -51,6 +51,7 @@ impl FileTempStorage {
   }
 
   /// Creates a temporary file from bytes and a specified file name.
+  #[allow(dead_code)]
   pub async fn create_temp_file_from_bytes(
     &self,
     file_name: &str,
@@ -63,6 +64,7 @@ impl FileTempStorage {
   }
 
   /// Writes data to the specified temporary file.
+  #[allow(dead_code)]
   pub async fn write_to_temp_file(&self, file_path: &Path, data: &[u8]) -> io::Result<()> {
     let mut file = File::create(file_path).await?;
     file.write_all(data).await?;
@@ -70,6 +72,7 @@ impl FileTempStorage {
   }
 
   /// Reads data from the specified temporary file.
+  #[allow(dead_code)]
   pub async fn read_from_temp_file(&self, file_path: &Path) -> io::Result<Vec<u8>> {
     let mut file = File::open(file_path).await?;
     let mut data = Vec::new();
