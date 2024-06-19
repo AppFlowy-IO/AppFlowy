@@ -12,6 +12,7 @@ import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../desktop/board/board_hide_groups_test.dart';
+
 import 'base.dart';
 import 'common_operations.dart';
 
@@ -31,6 +32,14 @@ extension AppFlowySettings on WidgetTester {
     final button = find.byWidgetPredicate(
       (widget) => widget is SettingsMenuElement && widget.page == page,
     );
+
+    await scrollUntilVisible(
+      button,
+      0,
+      scrollable: find.findSettingsMenuScrollable(),
+    );
+    await pump();
+
     expect(button, findsOneWidget);
     await tapButton(button);
     return;
