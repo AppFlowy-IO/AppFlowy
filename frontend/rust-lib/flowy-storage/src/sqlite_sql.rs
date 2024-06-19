@@ -30,6 +30,24 @@ pub struct UploadFilePartTable {
   pub part_num: i32,
 }
 
+pub fn is_upload_file_exist(
+  conn: &mut SqliteConnection,
+  workspace_id: &str,
+  parent_dir: &str,
+  file_id: &str,
+) -> FlowyResult<bool> {
+  let result = upload_file_table::dsl::upload_file_table
+    .filter(
+      upload_file_table::workspace_id
+        .eq(workspace_id)
+        .and(upload_file_table::parent_dir.eq(parent_dir))
+        .and(upload_file_table::file_id.eq(file_id)),
+    )
+    .first::<UploadFileTable>(conn)
+    .optional()?;
+  Ok(result.is_some())
+}
+
 pub fn insert_upload_file(
   mut conn: DBConnection,
   upload_file: &UploadFileTable,

@@ -54,7 +54,7 @@ yrs = "0.18.8"
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "0aa6e2b9f05a17426d82ff6a1773c19c6d1b22bd" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "6262816043efeede8823d7a7ea252083adf407e9" }
 
 [profile.dev]
 opt-level = 0

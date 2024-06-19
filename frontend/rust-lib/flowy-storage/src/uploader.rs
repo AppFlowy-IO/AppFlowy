@@ -10,7 +10,7 @@ use std::sync::atomic::{AtomicBool, AtomicU8};
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tokio::sync::{watch, RwLock};
-use tracing::{debug, trace};
+use tracing::{info, trace};
 
 #[derive(Clone)]
 pub enum Signal {
@@ -127,18 +127,19 @@ impl FileUploader {
         mut retry_count,
       } => {
         let record = BoxAny::new(record);
-        let result = self.storage_service.start_upload(&chunks, &record).await;
-        match result {
-          Ok(_) => {},
-          Err(_) => {
-            let record = record.unbox_or_error().unwrap();
-            retry_count += 1;
-            self.queue.tasks.write().await.push(UploadTask::Task {
-              chunks,
-              record,
-              retry_count,
-            });
-          },
+        if let Err(err) = self.storage_service.start_upload(&chunks, &record).await {
+          info!(
+            "Failed to upload file: {}, retry_count:{}",
+            err, retry_count
+          );
+
+          let record = record.unbox_or_error().unwrap();
+          retry_count += 1;
+          self.queue.tasks.write().await.push(UploadTask::Task {
+            chunks,
+            record,
+            retry_count,
+          });
         }
       },
       UploadTask::BackgroundTask {
@@ -148,22 +149,23 @@ impl FileUploader {
         created_at,
         mut retry_count,
       } => {
-        let result = self
+        if let Err(err) = self
           .storage_service
           .resume_upload(&workspace_id, &parent_dir, &file_id)
-          .await;
-        match result {
-          Ok(_) => debug!("Resumed upload for file: {}", file_id),
-          Err(_) => {
-            retry_count += 1;
-            self.queue.tasks.write().await.push(BackgroundTask {
-              workspace_id,
-              parent_dir,
-              file_id,
-              created_at,
-              retry_count,
-            });
-          },
+          .await
+        {
+          info!(
+            "Failed to resume upload file: {}, retry_count:{}",
+            err, retry_count
+          );
+          retry_count += 1;
+          self.queue.tasks.write().await.push(BackgroundTask {
+            workspace_id,
+            parent_dir,
+            file_id,
+            created_at,
+            retry_count,
+          });
         }
       },
     }

@@ -436,10 +436,10 @@ async fn start_upload(
   while let Some((index, chunk_bytes)) = iter.next() {
     let part_number = index as i32 + 1;
     trace!(
-      "[File] {} uploading part: {}, len:{}",
+      "[File] {} uploading part: {}, len:{}KB",
       upload_file.file_id,
       part_number,
-      chunk_bytes.len(),
+      chunk_bytes.len() / 1000,
     );
     // start uploading parts
     match upload_part(
