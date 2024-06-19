@@ -16,7 +16,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nanoid/nanoid.dart';
+
 import 'chat_message_listener.dart';
+
 part 'chat_bloc.freezed.dart';
 
 const sendMessageErrorKey = "sendMessageError";

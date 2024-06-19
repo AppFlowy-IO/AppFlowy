@@ -2,7 +2,7 @@
 Type=Application
 Name=AppFlowy
 Icon=/usr/share/icons/hicolor/scalable/apps/appflowy.svg
-Exec=env GDK_GL=gles /usr/bin/AppFlowy %U
+Exec=/usr/bin/AppFlowy %U
 Categories=Network;Productivity;
 Keywords=Notes
 Terminal=false
