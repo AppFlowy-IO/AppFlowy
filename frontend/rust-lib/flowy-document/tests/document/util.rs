@@ -209,9 +209,9 @@ impl StorageService for DocumentTestFileStorageService {
 
   async fn resume_upload(
     &self,
-    workspace_id: &str,
-    parent_dir: &str,
-    file_id: &str,
+    _workspace_id: &str,
+    _parent_dir: &str,
+    _file_id: &str,
   ) -> Result<(), FlowyError> {
     todo!()
   }

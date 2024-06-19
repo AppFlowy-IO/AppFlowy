@@ -1,9 +1,11 @@
 use crate::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
+use async_trait::async_trait;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 use mime::Mime;
 
+#[async_trait]
 pub trait StorageCloudService: Send + Sync {
   /// Creates a new storage object.
   ///
@@ -51,15 +53,15 @@ pub trait StorageCloudService: Send + Sync {
     file_id: &str,
   ) -> FlowyResult<String>;
 
-  fn create_upload(
+  async fn create_upload(
     &self,
     workspace_id: &str,
     parent_dir: &str,
     file_id: &str,
     content_type: &str,
-  ) -> FutureResult<CreateUploadResponse, FlowyError>;
+  ) -> Result<CreateUploadResponse, FlowyError>;
 
-  fn upload_part(
+  async fn upload_part(
     &self,
     workspace_id: &str,
     parent_dir: &str,
@@ -67,16 +69,16 @@ pub trait StorageCloudService: Send + Sync {
     file_id: &str,
     part_number: i32,
     body: Vec<u8>,
-  ) -> FutureResult<UploadPartResponse, FlowyError>;
+  ) -> Result<UploadPartResponse, FlowyError>;
 
-  fn complete_upload(
+  async fn complete_upload(
     &self,
     workspace_id: &str,
     parent_dir: &str,
     upload_id: &str,
     file_id: &str,
     parts: Vec<CompletedPartRequest>,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> Result<(), FlowyError>;
 }
 
 pub trait FileStoragePlan: Send + Sync + 'static {
