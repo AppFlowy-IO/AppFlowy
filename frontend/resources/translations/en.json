@@ -369,15 +369,6 @@
           "change": "Change email"
         }
       },
-      "keys": {
-        "title": "AI API Keys",
-        "openAILabel": "OpenAI API key",
-        "openAITooltip": "You can find your Secret API key on the API key page",
-        "openAIHint": "Input your OpenAI API Key",
-        "stabilityAILabel": "Stability API key",
-        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
-        "stabilityAIHint": "Input your Stability API Key"
-      },
       "login": {
         "title": "Account login",
         "loginLabel": "Log in",
@@ -610,6 +601,19 @@
       },
       "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
       "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
+    },
+    "aiPage": {
+      "title": "AI Settings",
+      "menuLabel": "AI Settings",
+      "keys": {
+        "title": "AI API Keys",
+        "openAILabel": "OpenAI API key",
+        "openAITooltip": "You can find your Secret API key on the API key page",
+        "openAIHint": "Input your OpenAI API Key",
+        "stabilityAILabel": "Stability API key",
+        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
+        "stabilityAIHint": "Input your Stability API Key"
+      }
     },
     "planPage": {
       "menuLabel": "Plan",
