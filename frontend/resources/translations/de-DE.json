@@ -1100,6 +1100,7 @@
       "add": "Klicken, um unten hinzuzufügen",
       "drag": "Ziehen, um zu verschieben",
       "deleteRowPrompt": "Möchtest du diese Zeile wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteCardPrompt": "Möchtest du diese Karte wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "dragAndClick": "Ziehen, um zu verschieben. Klicke, um das Menü zu öffnen",
       "insertRecordAbove": "Füge Datensatz oben ein",
       "insertRecordBelow": "Füge Datensatz unten ein",
