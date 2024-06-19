@@ -1,9 +1,9 @@
 use flowy_sqlite::Database;
-use flowy_storage::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
 use flowy_storage::sqlite_sql::{
   batch_select_upload_file, delete_upload_file, insert_upload_file, insert_upload_part,
   select_latest_upload_part, select_upload_parts, UploadFilePartTable, UploadFileTable,
 };
+use flowy_storage_pub::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use std::env::temp_dir;
@@ -101,8 +101,8 @@ async fn test_upload_part_test() {
   assert_eq!(part.part_num, 2);
 
   // get all existing parts
-  let conn = db.get_connection().unwrap();
-  let parts = select_upload_parts(conn, &upload_id).unwrap();
+  let mut conn = db.get_connection().unwrap();
+  let parts = select_upload_parts(&mut *conn, &upload_id).unwrap();
   assert_eq!(parts.len(), 2);
   assert_eq!(parts[0].part_num, 1);
   assert_eq!(parts[1].part_num, 2);
@@ -111,8 +111,8 @@ async fn test_upload_part_test() {
   let conn = db.get_connection().unwrap();
   delete_upload_file(conn, &upload_id).unwrap();
 
-  let conn = db.get_connection().unwrap();
-  let parts = select_upload_parts(conn, &upload_id).unwrap();
+  let mut conn = db.get_connection().unwrap();
+  let parts = select_upload_parts(&mut *conn, &upload_id).unwrap();
   assert!(parts.is_empty())
 }
 
