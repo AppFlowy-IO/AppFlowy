@@ -41,7 +41,7 @@ impl UploadTaskQueue {
 pub struct FileUploader {
   storage_service: Arc<dyn StorageService>,
   queue: Arc<UploadTaskQueue>,
-  max_concurrent_uploads: u8,
+  max_uploads: u8,
   current_uploads: AtomicU8,
   pause_sync: AtomicBool,
 }
@@ -57,7 +57,7 @@ impl FileUploader {
     Self {
       storage_service,
       queue,
-      max_concurrent_uploads: 3,
+      max_uploads: 3,
       current_uploads: Default::default(),
       pause_sync: Default::default(),
     }
@@ -90,10 +90,21 @@ impl FileUploader {
       return None;
     }
 
-    let current_uploads = self
+    trace!(
+      "[File] Max concurrent uploads: {}, current: {}",
+      self.max_uploads,
+      self
+        .current_uploads
+        .load(std::sync::atomic::Ordering::SeqCst)
+    );
+
+    if self
       .current_uploads
-      .load(std::sync::atomic::Ordering::SeqCst);
-    if current_uploads >= self.max_concurrent_uploads {
+      .load(std::sync::atomic::Ordering::SeqCst)
+      >= self.max_uploads
+    {
+      // If the current uploads count is greater than or equal to the max uploads, do not proceed.
+      let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(10));
       return None;
     }
 
@@ -101,8 +112,10 @@ impl FileUploader {
     if task.retry_count() > 5 {
       // If the task has been retried more than 5 times, we should not retry it anymore.
       let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(2));
+      return None;
     }
 
+    // increment the current uploads count
     self
       .current_uploads
       .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
@@ -177,11 +190,15 @@ impl FileUploaderRunner {
         match value {
           Signal::Stop => break,
           Signal::Proceed => {
-            uploader.process_next().await;
+            tokio::spawn(async move {
+              uploader.process_next().await;
+            });
           },
           Signal::ProceedAfterSecs(secs) => {
             tokio::time::sleep(Duration::from_secs(secs)).await;
-            uploader.process_next().await;
+            tokio::spawn(async move {
+              uploader.process_next().await;
+            });
           },
         }
       } else {
@@ -218,7 +235,7 @@ impl UploadTask {
 impl Display for UploadTask {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
-      Self::Task { record, .. } => write!(f, "Task: {}", record.local_file_path),
+      Self::Task { record, .. } => write!(f, "Task: {}", record.file_id),
       Self::BackgroundTask { file_id, .. } => write!(f, "BackgroundTask: {}", file_id),
     }
   }

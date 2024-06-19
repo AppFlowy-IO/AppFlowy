@@ -10,7 +10,10 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use flowy_storage_pub::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
-use flowy_storage_pub::storage::{CompletedPartRequest, StorageService, UploadPartResponse};
+use flowy_storage_pub::storage::{
+  CompletedPartRequest, CreatedUpload, StorageService, UploadPartResponse, UploadResult,
+  UploadStatus,
+};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
@@ -32,6 +35,13 @@ pub trait StorageUserService: Send + Sync + 'static {
 pub struct StorageManager {
   pub storage_service: Arc<dyn StorageService>,
   uploader: Arc<FileUploader>,
+  broadcast: tokio::sync::broadcast::Sender<UploadResult>,
+}
+
+impl Drop for StorageManager {
+  fn drop(&mut self) {
+    info!("[File] StorageManager is dropped");
+  }
 }
 
 impl StorageManager {
@@ -45,13 +55,14 @@ impl StorageManager {
     ));
     let temp_storage = Arc::new(FileTempStorage::new(temp_storage_path));
     let (notifier, notifier_rx) = watch::channel(Signal::Proceed);
-
+    let (broadcast, _) = tokio::sync::broadcast::channel::<UploadResult>(100);
     let task_queue = Arc::new(UploadTaskQueue::new(notifier));
     let storage_service = Arc::new(StorageServiceImpl {
       cloud_service,
       user_service: user_service.clone(),
       temp_storage,
       task_queue: task_queue.clone(),
+      upload_status_notifier: broadcast.clone(),
     });
 
     let uploader = Arc::new(FileUploader::new(storage_service.clone(), task_queue));
@@ -60,27 +71,34 @@ impl StorageManager {
       notifier_rx,
     ));
 
-    let cloned_uploader = uploader.clone();
+    let weak_uploader = Arc::downgrade(&uploader);
     tokio::spawn(async move {
       // Start uploading after 30 seconds
       tokio::time::sleep(Duration::from_secs(30)).await;
-      if let Err(err) = prepare_upload_task(cloned_uploader, user_service).await {
-        error!("prepare upload task failed: {}", err);
+      if let Some(uploader) = weak_uploader.upgrade() {
+        if let Err(err) = prepare_upload_task(uploader, user_service).await {
+          error!("prepare upload task failed: {}", err);
+        }
       }
     });
 
     Self {
       storage_service,
       uploader,
+      broadcast,
     }
   }
 
-  pub fn update_network(&self, reachable: bool) {
+  pub fn update_network_reachable(&self, reachable: bool) {
     if reachable {
       self.uploader.resume();
     } else {
       self.uploader.pause();
     }
+  }
+
+  pub fn subscribe_upload_result(&self) -> tokio::sync::broadcast::Receiver<UploadResult> {
+    self.broadcast.subscribe()
   }
 }
 
@@ -111,6 +129,7 @@ pub struct StorageServiceImpl {
   user_service: Arc<dyn StorageUserService>,
   temp_storage: Arc<FileTempStorage>,
   task_queue: Arc<UploadTaskQueue>,
+  upload_status_notifier: tokio::sync::broadcast::Sender<UploadResult>,
 }
 
 #[async_trait]
@@ -194,7 +213,7 @@ impl StorageService for StorageServiceImpl {
     workspace_id: &str,
     parent_dir: &str,
     file_path: &str,
-  ) -> FutureResult<String, FlowyError> {
+  ) -> FutureResult<CreatedUpload, FlowyError> {
     if workspace_id.is_empty() {
       return FutureResult::new(async {
         Err(FlowyError::internal().with_context("workspace id is empty"))
@@ -245,6 +264,7 @@ impl StorageService for StorageServiceImpl {
         &record.parent_dir,
         &record.file_id,
       )?;
+      let file_id = record.file_id.clone();
 
       task_queue
         .queue_task(UploadTask::Task {
@@ -254,25 +274,22 @@ impl StorageService for StorageServiceImpl {
         })
         .await;
 
-      Ok::<_, FlowyError>(url)
+      Ok::<_, FlowyError>(CreatedUpload { url, file_id })
     })
   }
 
   async fn start_upload(&self, chunks: &ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError> {
-    let cloud_service = self.cloud_service.clone();
-    let user_service = self.user_service.clone();
-    let temp_storage = self.temp_storage.clone();
-
     let file_record = record.downcast_ref::<UploadFileTable>().ok_or_else(|| {
       FlowyError::internal().with_context("failed to downcast record to UploadFileTable")
     })?;
 
     if let Err(err) = start_upload(
-      &cloud_service,
-      &user_service,
-      &temp_storage,
+      &self.cloud_service,
+      &self.user_service,
+      &self.temp_storage,
       chunks,
       file_record,
+      self.upload_status_notifier.clone(),
     )
     .await
     {
@@ -316,6 +333,7 @@ impl StorageService for StorageServiceImpl {
         &self.temp_storage,
         upload_file,
         parts,
+        self.upload_status_notifier.clone(),
       )
       .await?;
     } else {
@@ -362,6 +380,7 @@ async fn start_upload(
   temp_storage: &Arc<FileTempStorage>,
   chunked_bytes: &ChunkedBytes,
   upload_file: &UploadFileTable,
+  notifier: tokio::sync::broadcast::Sender<UploadResult>,
 ) -> FlowyResult<()> {
   let mut upload_file = upload_file.clone();
   if upload_file.upload_id.is_empty() {
@@ -399,6 +418,11 @@ async fn start_upload(
     // temporary store the upload_id
     upload_file.upload_id = create_upload_resp.upload_id;
   }
+
+  let _ = notifier.send(UploadResult {
+    file_id: upload_file.file_id.clone(),
+    status: UploadStatus::InProgress,
+  });
 
   // 3. start uploading parts
   trace!(
@@ -457,6 +481,7 @@ async fn start_upload(
     temp_storage,
     &upload_file,
     completed_parts,
+    notifier,
   )
   .await?;
 
@@ -471,6 +496,7 @@ async fn resume_upload(
   temp_storage: &Arc<FileTempStorage>,
   upload_file: UploadFileTable,
   parts: Vec<UploadFilePartTable>,
+  notifier: tokio::sync::broadcast::Sender<UploadResult>,
 ) -> FlowyResult<()> {
   trace!(
     "[File] resume upload for workspace: {}, parent_dir: {}, file_id: {}, local_file_path:{}",
@@ -490,6 +516,7 @@ async fn resume_upload(
         temp_storage,
         &chunked_bytes,
         &upload_file,
+        notifier,
       )
       .await?;
     },
@@ -513,7 +540,7 @@ async fn resume_upload(
   Ok(())
 }
 
-#[instrument(level = "debug", skip_all, err)]
+#[instrument(level = "debug", skip_all)]
 async fn upload_part(
   cloud_service: &Arc<dyn StorageCloudService>,
   user_service: &Arc<dyn StorageUserService>,
@@ -555,6 +582,7 @@ async fn complete_upload(
   temp_storage: &Arc<FileTempStorage>,
   upload_file: &UploadFileTable,
   parts: Vec<CompletedPartRequest>,
+  notifier: tokio::sync::broadcast::Sender<UploadResult>,
 ) -> Result<(), FlowyError> {
   match cloud_service
     .complete_upload(
@@ -569,6 +597,11 @@ async fn complete_upload(
     Ok(_) => {
       info!("[File] completed upload file: {}", upload_file.upload_id);
       trace!("[File] delete upload record from sqlite");
+      let _ = notifier.send(UploadResult {
+        file_id: upload_file.file_id.clone(),
+        status: UploadStatus::Finish,
+      });
+
       let conn = user_service.sqlite_connection(user_service.user_id()?)?;
       delete_upload_file(conn, &upload_file.upload_id)?;
       if let Err(err) = temp_storage

@@ -16,7 +16,6 @@ use flowy_user_pub::entities::{Authenticator, UserProfile, UserWorkspace};
 use lib_infra::future::{to_fut, Fut};
 
 use crate::integrate::server::{Server, ServerProvider};
-use crate::AppFlowyCoreConfig;
 
 pub(crate) struct UserStatusCallbackImpl {
   pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -215,6 +214,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   fn did_update_network(&self, reachable: bool) {
     trace!("Notify did update network: reachable: {}", reachable);
     self.collab_builder.update_network(reachable);
-    self.storage_manager.update_network(reachable);
+    self.storage_manager.update_network_reachable(reachable);
   }
 }

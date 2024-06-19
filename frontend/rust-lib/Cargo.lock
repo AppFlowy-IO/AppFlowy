@@ -1530,6 +1530,7 @@ dependencies = [
  "flowy-server",
  "flowy-server-pub",
  "flowy-storage",
+ "flowy-storage-pub",
  "flowy-user",
  "flowy-user-pub",
  "futures",

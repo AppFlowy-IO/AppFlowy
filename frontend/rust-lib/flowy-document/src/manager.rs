@@ -331,7 +331,8 @@ impl DocumentManager {
     let storage_service = self.storage_service_upgrade()?;
     let url = storage_service
       .create_upload(&workspace_id, document_id, local_file_path)
-      .await?;
+      .await?
+      .url;
     Ok(url)
   }
 
