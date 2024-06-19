@@ -24,6 +24,7 @@ flowy-server-pub = { workspace = true }
 flowy-notification = { workspace = true }
 anyhow.workspace = true
 flowy-storage = { workspace = true }
+flowy-storage-pub = { workspace = true }
 flowy-search = { workspace = true }
 semver = "1.0.23"
 

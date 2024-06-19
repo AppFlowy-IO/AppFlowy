@@ -1,7 +1,5 @@
-use std::borrow::Cow;
-
 use anyhow::Error;
-use flowy_storage::StorageObject;
+use flowy_storage_pub::cloud::StorageObject;
 use hyper::header::CONTENT_TYPE;
 use reqwest::header::IntoHeaderName;
 use reqwest::multipart::{Form, Part};
@@ -9,12 +7,14 @@ use reqwest::{
   header::{HeaderMap, HeaderValue},
   Client, Method, RequestBuilder,
 };
+use std::borrow::Cow;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use url::Url;
 
 use crate::supabase::file_storage::{DeleteObjects, FileOptions, NewBucket, RequestBody};
 
+#[allow(dead_code)]
 pub struct StorageRequestBuilder {
   pub url: Url,
   headers: HeaderMap,
@@ -23,6 +23,7 @@ pub struct StorageRequestBuilder {
   body: RequestBody,
 }
 
+#[allow(dead_code)]
 impl StorageRequestBuilder {
   pub fn new(url: Url, headers: HeaderMap, client: Client) -> Self {
     Self {

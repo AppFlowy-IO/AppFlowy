@@ -2,7 +2,6 @@ use client_api::ws::ConnectState;
 use client_api::ws::WSConnectStateReceiver;
 use client_api::ws::WebSocketChannel;
 use flowy_search_pub::cloud::SearchCloudService;
-use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -17,6 +16,7 @@ use crate::default_impl::DefaultChatCloudServiceImpl;
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
 use flowy_user_pub::entities::UserTokenState;
 
@@ -144,7 +144,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     Ok(None)
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>>;
+  fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>>;
 }
 
 pub struct EncryptionImpl {

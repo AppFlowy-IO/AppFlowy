@@ -1,0 +1,19 @@
+[package]
+name = "flowy-storage-pub"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lib-infra.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+async-trait.workspace = true
+mime = "0.3.17"
+flowy-error = { workspace = true, features = ["impl_from_reqwest"] }
+bytes.workspace = true
+mime_guess = "2.0.4"
+client-api-entity = { workspace = true }
+tokio = { workspace = true, features = ["sync", "io-util"] }
+anyhow = "1.0.86"
