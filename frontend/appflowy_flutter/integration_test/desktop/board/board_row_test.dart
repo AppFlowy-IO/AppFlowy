@@ -29,6 +29,7 @@ void main() {
         },
       );
       await tester.tapButtonWithName(LocaleKeys.button_delete.tr());
+      await tester.tapOKButton();
       expect(find.text(name), findsNothing);
     });
 
