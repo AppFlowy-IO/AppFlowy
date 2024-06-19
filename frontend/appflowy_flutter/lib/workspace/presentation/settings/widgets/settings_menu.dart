@@ -98,8 +98,8 @@ class SettingsMenu extends StatelessWidget {
                   SettingsMenuElement(
                     page: SettingsPage.shortcuts,
                     selectedPage: currentPage,
-                    label: LocaleKeys.settings_shortcuts_shortcutsLabel.tr(),
-                    icon: const Icon(Icons.cut),
+                    label: LocaleKeys.settings_shortcutsPage_menuLabel.tr(),
+                    icon: const FlowySvg(FlowySvgs.settings_shortcuts_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   if (FeatureFlag.planBilling.isOn &&
