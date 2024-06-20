@@ -73,12 +73,14 @@ pub struct PublishViewMeta {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PublishViewPayload {
   pub meta: PublishViewMeta,
+  /// The doc_state of the encoded collab.
   pub data: Vec<u8>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PublishInfoResponse {
   pub view_id: String,
+  /// one part of publish url: /{namespace}/{publish_name}
   pub publish_name: String,
   pub namespace: Option<String>,
 }
