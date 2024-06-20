@@ -147,6 +147,7 @@ dependencies:
 
   # BitsDojo Window for Windows
   bitsdojo_window: ^0.1.6
+
   flutter_highlight: ^0.7.0
 
 dev_dependencies:
