@@ -19,6 +19,7 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -84,11 +85,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               ),
             );
 
-            if (shouldShowUpgradeDialog) {
-              if (!integrationMode().isTest) {
-                add(const SpaceEvent.migrate());
-              }
-            }
+            // if (shouldShowUpgradeDialog) {
+            //   if (!integrationMode().isTest) {
+            add(const SpaceEvent.migrate());
+            //   }
+            // }
 
             if (openFirstPage) {
               if (currentSpace != null) {
@@ -325,6 +326,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     required String icon,
     required String iconColor,
     required SpacePermission permission,
+    String? viewId,
   }) async {
     final section = switch (permission) {
       SpacePermission.publicToAll => ViewSectionPB.Public,
@@ -335,6 +337,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       name: name,
       viewSection: section,
       setAsCurrent: false,
+      viewId: viewId,
     );
     return await result.fold((space) async {
       Log.info('Space created: $space');
@@ -491,11 +494,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           return true;
         }
 
+        final viewId = fixedUuid(user.id.toInt(), UuidType.publicSpace);
         final publicSpace = await _createSpace(
           name: 'Shared',
           icon: builtInSpaceIcons.first,
           iconColor: builtInSpaceColors.first,
           permission: SpacePermission.publicToAll,
+          viewId: viewId,
         );
 
         Log.info('migrating: created a new public space: ${publicSpace?.id}');
@@ -508,7 +513,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             await ViewBackendService.moveViewV2(
               viewId: view.id,
               newParentId: publicSpace.id,
-              prevViewId: view.parentViewId,
+              prevViewId: null,
             );
             Log.info(
               'migrating: migrate ${view.name}(${view.id}) to public space(${publicSpace.id})',
@@ -518,6 +523,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       }
 
       // create a new private space
+      final viewId = fixedUuid(user.id.toInt(), UuidType.privateSpace);
       var privateViews = await _workspaceService.getPrivateViews().getOrThrow();
       // if there is already a private space, don't migrate the private space
       final containsPrivateSpace = privateViews.any(
@@ -533,6 +539,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         icon: builtInSpaceIcons.last,
         iconColor: builtInSpaceColors.last,
         permission: SpacePermission.private,
+        viewId: viewId,
       );
       Log.info('migrating: created a new private space: ${privateSpace?.id}');
 
@@ -544,7 +551,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           await ViewBackendService.moveViewV2(
             viewId: view.id,
             newParentId: privateSpace.id,
-            prevViewId: view.parentViewId,
+            prevViewId: null,
           );
           Log.info(
             'migrating: migrate ${view.name}(${view.id}) to private space(${privateSpace.id})',

@@ -198,7 +198,7 @@ dependency_overrides:
       ref: e44458d
       path: sheet
 
-  uuid: ^4.1.0
+  uuid: ^4.4.0
 
   flutter_cache_manager:
     git:
