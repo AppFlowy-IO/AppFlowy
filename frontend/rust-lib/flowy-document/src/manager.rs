@@ -11,8 +11,8 @@ use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
-use collab_plugins::CollabKVDB;
 use collab_plugins::local_storage::kv::PersistenceError;
+use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;
 use tracing::trace;
@@ -75,8 +75,7 @@ impl DocumentManager {
     }
   }
 
-  /// In order to support the requirement of automatically publishing sub-documents in publishing requirements,
-  /// we need to read binary data from disk instead of reading from the open document.
+  /// Get the encoded collab of the document.
   pub async fn encode_collab(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
     let doc_state = DataSource::Disk;
     let uid = self.user_service.user_id()?;
@@ -85,7 +84,9 @@ impl DocumentManager {
       .await?;
 
     let collab = collab.lock();
-    collab.encode_collab_v1(|_| Ok::<(), PersistenceError>(())).map_err(internal_error)
+    collab
+      .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+      .map_err(internal_error)
   }
 
   pub async fn initialize(&self, _uid: i64) -> FlowyResult<()> {
