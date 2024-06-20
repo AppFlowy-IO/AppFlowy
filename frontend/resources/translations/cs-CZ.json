@@ -382,17 +382,6 @@
       "pleaseInputYourStabilityAIKey": "Prosím vložte svůj Stability AI klíč",
       "clickToLogout": "Klin"
     },
-    "shortcuts": {
-      "shortcutsLabel": "Klávesové zkratky",
-      "command": "Příkaz",
-      "keyBinding": "Přiřazená klávesa",
-      "addNewCommand": "Přidat nový příkaz",
-      "updateShortcutStep": "Stiskněte požadovanou kombinaci kláves a stiskněte ENTER",
-      "shortcutIsAlreadyUsed": "Tato zkratka je již použita pro: @@",
-      "resetToDefault": "Obnovit výchozí klávesové zkratky",
-      "couldNotLoadErrorMsg": "Nepodařilo se načíst klávesové zkratky, zkuste to znovu",
-      "couldNotSaveErrorMsg": "Nepodařilo seuložit klávesové zkta"
-    },
     "mobile": {
       "personalInfo": "Osobní informace",
       "username": "Uživatelské jméno",
@@ -405,6 +394,17 @@
       "userAgreement": "Uživatels",
       "userprofileError": "Nepodařilo se načíst uživatelský profil",
       "userprofileErrorDescription": "Prosím zkuste se odhlásit a znovu přihlásit a zkontrolujte, zda problém přetrvává"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Klávesové zkratky",
+      "command": "Příkaz",
+      "keyBinding": "Přiřazená klávesa",
+      "addNewCommand": "Přidat nový příkaz",
+      "updateShortcutStep": "Stiskněte požadovanou kombinaci kláves a stiskněte ENTER",
+      "shortcutIsAlreadyUsed": "Tato zkratka je již použita pro: @@",
+      "resetToDefault": "Obnovit výchozí klávesové zkratky",
+      "couldNotLoadErrorMsg": "Nepodařilo se načíst klávesové zkratky, zkuste to znovu",
+      "couldNotSaveErrorMsg": "Nepodařilo seuložit klávesové zkta"
     }
   },
   "grid": {

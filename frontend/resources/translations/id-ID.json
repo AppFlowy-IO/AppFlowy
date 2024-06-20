@@ -380,17 +380,6 @@
       "pleaseInputYourStabilityAIKey": "Masukkan kunci Stability AI anda",
       "clickToLogout": "Klik untuk keluar dari pengguna saat ini"
     },
-    "shortcuts": {
-      "shortcutsLabel": "Pintasan",
-      "command": "Perintah",
-      "keyBinding": "Keybindin",
-      "addNewCommand": "Tambah Perintah Baru",
-      "updateShortcutStep": "Tekan kombinasi tombol yang diinginkan dan tekan ENTER",
-      "shortcutIsAlreadyUsed": "Pintasan ini sudah digunakan untuk: {conflict}",
-      "resetToDefault": "Mengatur ulang ke keybinding default",
-      "couldNotLoadErrorMsg": "Tidak dapat memuat pintasan, Coba lagi",
-      "couldNotSaveErrorMsg": "Tidak dapat menyimpan pintasan, Coba lagi"
-    },
     "mobile": {
       "personalInfo": "Informasi pribadi",
       "username": "Nama Pengguna",
@@ -401,6 +390,17 @@
       "joinDiscord": "Bergabunglah dengan kami di Discord",
       "privacyPolicy": "Kebijakan Privasi",
       "userAgreement": "Perjanjian Pengguna"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Pintasan",
+      "command": "Perintah",
+      "keyBinding": "Keybindin",
+      "addNewCommand": "Tambah Perintah Baru",
+      "updateShortcutStep": "Tekan kombinasi tombol yang diinginkan dan tekan ENTER",
+      "shortcutIsAlreadyUsed": "Pintasan ini sudah digunakan untuk: {conflict}",
+      "resetToDefault": "Mengatur ulang ke keybinding default",
+      "couldNotLoadErrorMsg": "Tidak dapat memuat pintasan, Coba lagi",
+      "couldNotSaveErrorMsg": "Tidak dapat menyimpan pintasan, Coba lagi"
     }
   },
   "grid": {
