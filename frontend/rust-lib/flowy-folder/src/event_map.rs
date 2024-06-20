@@ -42,6 +42,11 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ReadCurrentWorkspaceViews, get_current_workspace_views_handler)
     .event(FolderEvent::UpdateViewVisibilityStatus, update_view_visibility_status_handler)
     .event(FolderEvent::GetViewAncestors, get_view_ancestors_handler)
+    .event(FolderEvent::PublishView, publish_view_handler)
+    .event(FolderEvent::GetPublishInfo, get_publish_info_handler)
+    .event(FolderEvent::UnpublishViews, unpublish_views_handler)
+    .event(FolderEvent::SetPublishNamespace, set_publish_namespace_handler)
+    .event(FolderEvent::GetPublishNamespace, get_publish_namespace_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -176,4 +181,19 @@ pub enum FolderEvent {
   /// Return the ancestors of the view
   #[event(input = "ViewIdPB", output = "RepeatedViewPB")]
   GetViewAncestors = 42,
+
+  #[event(input = "PublishViewParamsPB")]
+  PublishView = 43,
+
+  #[event(input = "ViewIdPB", output = "PublishInfoResponsePB")]
+  GetPublishInfo = 44,
+
+  #[event(output = "PublishNamespacePB")]
+  GetPublishNamespace = 45,
+
+  #[event(input = "SetPublishNamespacePayloadPB")]
+  SetPublishNamespace = 46,
+
+  #[event(input = "UnpublishViewsPayloadPB")]
+  UnpublishViews = 47,
 }

@@ -2,8 +2,8 @@ use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
   CreateViewParams, CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, MoveNestedViewParams,
-  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, ViewPB, ViewSectionPB,
-  WorkspacePB, WorkspaceSettingPB,
+  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, ViewLayoutPB, ViewPB,
+  ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -12,6 +12,7 @@ use crate::manager_observer::{
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
 };
+use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
 use crate::share::ImportParams;
 use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
@@ -28,9 +29,13 @@ use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfi
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
+use flowy_folder_pub::entities::{
+  PublishInfoResponse, PublishViewInfo, PublishViewMeta, PublishViewMetaData, PublishViewPayload,
+};
 use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::StorePreferences;
+use futures::future;
 use parking_lot::RwLock;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
@@ -861,6 +866,192 @@ impl FolderManager {
     );
     self.send_update_recent_views_notification().await;
     Ok(())
+  }
+
+  /// The view will be published to the web with the specified view id.
+  /// The [publish_name] is the [view name] + [view id] when currently published
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn publish_view(&self, view_id: &str, publish_name: Option<String>) -> FlowyResult<()> {
+    let view = self
+      .with_folder(|| None, |folder| folder.views.get_view(view_id))
+      .ok_or_else(|| FlowyError::record_not_found().with_context("Can't find the view"))?;
+
+    let layout = view.layout.clone();
+
+    if layout != ViewLayout::Document {
+      return Err(FlowyError::new(
+        ErrorCode::NotSupportYet,
+        "Only document view can be published".to_string(),
+      ));
+    }
+
+    // Get the view payload and its child views recursively
+    let payload = self
+      .get_batch_publish_payload(view_id, publish_name)
+      .await?;
+
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .publish_view(workspace_id.as_str(), payload)
+      .await?;
+    Ok(())
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn unpublish_views(&self, view_ids: Vec<String>) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .unpublish_views(workspace_id.as_str(), view_ids)
+      .await?;
+    Ok(())
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn get_publish_info(&self, view_id: &str) -> FlowyResult<PublishInfoResponse> {
+    let publish_info = self.cloud_service.get_publish_info(view_id).await?;
+    Ok(publish_info)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn set_publish_namespace(&self, namespace: String) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .set_publish_namespace(workspace_id.as_str(), namespace.as_str())
+      .await?;
+    Ok(())
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn get_publish_namespace(&self) -> FlowyResult<String> {
+    let workspace_id = self.user.workspace_id()?;
+    let namespace = self
+      .cloud_service
+      .get_publish_namespace(workspace_id.as_str())
+      .await?;
+    Ok(namespace)
+  }
+
+  /// Get the publishing payload of the view with the given view id.
+  /// The publishing payload contains the view data and its child views(not recursively).
+  pub async fn get_batch_publish_payload(
+    &self,
+    view_id: &str,
+    publish_name: Option<String>,
+  ) -> FlowyResult<Vec<PublishViewPayload>> {
+    let mut stack = vec![view_id.to_string()];
+    let mut payloads = Vec::new();
+
+    while let Some(current_view_id) = stack.pop() {
+      let view = match self.get_view_pb(&current_view_id).await {
+        Ok(view) => view,
+        Err(_) => continue,
+      };
+
+      // Only document view can be published
+      let layout = if view.layout == ViewLayoutPB::Document {
+        ViewLayout::Document
+      } else {
+        continue;
+      };
+
+      // Only support set the publish_name for the current view, not for the child views
+      let publish_name = if current_view_id == view_id {
+        publish_name.clone()
+      } else {
+        None
+      };
+
+      let payload = self
+        .get_publish_payload(&current_view_id, publish_name, layout)
+        .await;
+
+      if let Ok(payload) = payload {
+        payloads.push(payload);
+      }
+
+      // Add the child views to the stack
+      for child in &view.child_views {
+        stack.push(child.id.clone());
+      }
+    }
+
+    Ok(payloads)
+  }
+
+  async fn build_publish_views(&self, view_id: &str) -> Option<PublishViewInfo> {
+    let view_pb = self.get_view_pb(view_id).await.ok()?;
+
+    let mut child_views_futures = vec![];
+
+    for child in &view_pb.child_views {
+      let future = self.build_publish_views(&child.id);
+      child_views_futures.push(future);
+    }
+
+    let child_views = future::join_all(child_views_futures)
+      .await
+      .into_iter()
+      .flatten()
+      .collect::<Vec<PublishViewInfo>>();
+
+    let view_child_views = if child_views.is_empty() {
+      None
+    } else {
+      Some(child_views)
+    };
+
+    let view = view_pb_to_publish_view(&view_pb);
+
+    let view = PublishViewInfo {
+      child_views: view_child_views,
+      ..view
+    };
+
+    Some(view)
+  }
+  async fn get_publish_payload(
+    &self,
+    view_id: &str,
+    publish_name: Option<String>,
+    layout: ViewLayout,
+  ) -> FlowyResult<PublishViewPayload> {
+    let handler = self.get_handler(&layout)?;
+    let encoded_collab = handler.encoded_collab_v1(view_id, layout).await?;
+    let view = self
+      .with_folder(|| None, |folder| folder.views.get_view(view_id))
+      .ok_or_else(|| FlowyError::record_not_found().with_context("Can't find the view"))?;
+    let publish_name = publish_name.unwrap_or_else(|| generate_publish_name(&view.id, &view.name));
+
+    let child_views = self
+      .build_publish_views(view_id)
+      .await
+      .map(|v| v.child_views.map_or(vec![], |c| c))
+      .map_or(vec![], |c| c);
+
+    let ancestor_views = self
+      .get_view_ancestors_pb(view_id)
+      .await?
+      .iter()
+      .map(view_pb_to_publish_view)
+      .collect::<Vec<PublishViewInfo>>();
+
+    let view_pb = self.get_view_pb(view_id).await?;
+    let metadata = PublishViewMetaData {
+      view: view_pb_to_publish_view(&view_pb),
+      child_views,
+      ancestor_views,
+    };
+    let meta = PublishViewMeta {
+      view_id: view.id.clone(),
+      publish_name,
+      metadata,
+    };
+
+    let data = Vec::from(encoded_collab.doc_state);
+    Ok(PublishViewPayload { meta, data })
   }
 
   // Used by toggle_favorites to send notification to frontend, after the favorite status of view has been changed.It sends two distinct notifications: one to correctly update the concerned view's is_favorite status, and another to update the list of favorites that is to be displayed.

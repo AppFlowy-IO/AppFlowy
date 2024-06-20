@@ -12,6 +12,7 @@ collab = { workspace = true }
 collab-entity = { workspace = true }
 uuid.workspace = true
 anyhow.workspace = true
+serde = { version = "1.0.202", features = ["derive"] }
 
 [dev-dependencies]
 tokio.workspace = true
