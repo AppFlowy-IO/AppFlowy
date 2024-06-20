@@ -45,6 +45,7 @@ impl EventIntegrationTest {
       set_as_current: true,
       index: None,
       section: None,
+      view_id: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -76,6 +77,7 @@ impl EventIntegrationTest {
       set_as_current: true,
       index: None,
       section: None,
+      view_id: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -102,6 +104,7 @@ impl EventIntegrationTest {
       set_as_current: true,
       index: None,
       section: None,
+      view_id: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
