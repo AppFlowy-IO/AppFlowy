@@ -105,12 +105,7 @@ class SettingsManageDataView extends StatelessWidget {
                 title: LocaleKeys.settings_manageDataPage_importData_title.tr(),
                 tooltip:
                     LocaleKeys.settings_manageDataPage_importData_tooltip.tr(),
-                children: const [
-                  SingleSettingAction(
-                    label: 'Copy data from an external AppFlowy data folder',
-                    buttonLabel: 'Browse file',
-                  ),
-                ],
+                children: const [_ImportDataField()],
               ),
               if (kDebugMode) ...[
                 SettingsCategory(
@@ -295,6 +290,7 @@ class _ImportDataFieldState extends State<_ImportDataField> {
           return SingleSettingAction(
             label:
                 LocaleKeys.settings_manageDataPage_importData_description.tr(),
+            labelMaxLines: 2,
             buttonLabel:
                 LocaleKeys.settings_manageDataPage_importData_action.tr(),
             onPressed: () async {
@@ -456,7 +452,7 @@ class _DataPathActions extends StatelessWidget {
           label:
               LocaleKeys.settings_manageDataPage_dataStorage_actions_open.tr(),
           icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(20)),
-          onPressed: () => afLaunchUrlString('file://$currentPath'),
+          onPressed: () => afLaunchUrl(Uri.file(currentPath)),
         ),
       ],
     );
