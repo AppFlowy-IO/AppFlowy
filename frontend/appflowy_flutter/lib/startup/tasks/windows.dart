@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -11,7 +10,6 @@ import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:scaled_app/scaled_app.dart';
-import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
 class InitAppWindowTask extends LaunchTask with WindowListener {
@@ -72,12 +70,6 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
       });
     }
 
-    // Support tray functionality only on MacOS for now
-    if (PlatformExtension.isMacOS) {
-      await trayManager.setIcon('assets/images/tray_icon.png');
-      await trayManager.setContextMenu(_getTrayMenu());
-    }
-
     unawaited(
       windowSizeManager.getScaleFactor().then(
             (v) => ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => v,
@@ -107,24 +99,6 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
 
     final position = await windowManager.getPosition();
     return windowSizeManager.setPosition(position);
-  }
-
-  Menu _getTrayMenu() {
-    // TODO(Mathias): Localize menu?
-    return Menu(
-      items: [
-        MenuItem(
-          key: 'exit_app',
-          label: 'Quit AppFlowy',
-          onClick: (_) {
-            // Can consider improving behavior to complete tasks like
-            // synching or HTTP requests, before exiting the application
-            // to avoid data loss.
-            exit(0);
-          },
-        ),
-      ],
-    );
   }
 
   @override

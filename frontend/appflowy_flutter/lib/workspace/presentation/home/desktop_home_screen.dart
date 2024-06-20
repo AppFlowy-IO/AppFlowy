@@ -30,36 +30,16 @@ import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sized_context/sized_context.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:tray_manager/tray_manager.dart';
-import 'package:window_manager/window_manager.dart';
 
 import '../widgets/edit_panel/edit_panel.dart';
 
 import 'home_layout.dart';
 import 'home_stack.dart';
 
-class DesktopHomeScreen extends StatefulWidget {
+class DesktopHomeScreen extends StatelessWidget {
   const DesktopHomeScreen({super.key});
 
   static const routeName = '/DesktopHomeScreen';
-
-  @override
-  State<DesktopHomeScreen> createState() => _DesktopHomeScreenState();
-}
-
-class _DesktopHomeScreenState extends State<DesktopHomeScreen>
-    with TrayListener {
-  @override
-  void initState() {
-    super.initState();
-    trayManager.addListener(this);
-  }
-
-  @override
-  void dispose() {
-    trayManager.removeListener(this);
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -320,17 +300,6 @@ class _DesktopHomeScreenState extends State<DesktopHomeScreen>
             .animate(layout.animDuration, Curves.easeOutQuad),
       ],
     );
-  }
-
-  @override
-  void onTrayIconMouseDown() async {
-    await windowManager.show();
-    await windowManager.focus();
-  }
-
-  @override
-  void onTrayIconRightMouseDown() async {
-    await trayManager.popUpContextMenu();
   }
 }
 
