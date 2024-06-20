@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,7 +20,7 @@ void main() {
       final toggleFinder = find.byType(Toggle).first;
 
       // Defaults to enabled
-      Switch toggleWidget = tester.widget(toggleFinder);
+      Toggle toggleWidget = tester.widget(toggleFinder);
       expect(toggleWidget.value, true);
 
       // Disable
