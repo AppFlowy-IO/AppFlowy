@@ -31,6 +31,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
@@ -300,6 +301,65 @@ impl FolderCloudService for ServerProvider {
       .get_server()
       .map(|provider| provider.folder_service().service_name())
       .unwrap_or_default()
+  }
+
+  fn publish_view(
+    &self,
+    workspace_id: &str,
+    payload: Vec<PublishViewPayload>,
+  ) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .publish_view(&workspace_id, payload)
+        .await
+    })
+  }
+
+  fn unpublish_views(&self, workspace_id: &str, view_ids: Vec<String>) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .unpublish_views(&workspace_id, view_ids)
+        .await
+    })
+  }
+
+  fn get_publish_info(&self, view_id: &str) -> FutureResult<PublishInfoResponse, Error> {
+    let view_id = view_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move { server?.folder_service().get_publish_info(&view_id).await })
+  }
+
+  fn set_publish_namespace(
+    &self,
+    workspace_id: &str,
+    new_namespace: &str,
+  ) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let new_namespace = new_namespace.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .set_publish_namespace(&workspace_id, &new_namespace)
+        .await
+    })
+  }
+
+  fn get_publish_namespace(&self, workspace_id: &str) -> FutureResult<String, Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .get_publish_namespace(&workspace_id)
+        .await
+    })
   }
 }
 

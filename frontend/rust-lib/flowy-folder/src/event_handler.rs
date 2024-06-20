@@ -394,3 +394,58 @@ pub(crate) async fn update_view_visibility_status_handler(
   folder.set_views_visibility(params.view_ids, params.is_public);
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn publish_view_handler(
+  data: AFPluginData<PublishViewParamsPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params = data.into_inner();
+  folder
+    .publish_view(params.view_id.as_str(), params.publish_name)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn unpublish_views_handler(
+  data: AFPluginData<UnpublishViewsPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params = data.into_inner();
+  folder.unpublish_views(params.view_ids).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn get_publish_info_handler(
+  data: AFPluginData<ViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<PublishInfoResponsePB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_id = data.into_inner().value;
+  let info = folder.get_publish_info(&view_id).await?;
+  data_result_ok(PublishInfoResponsePB::from(info))
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn set_publish_namespace_handler(
+  data: AFPluginData<SetPublishNamespacePayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let namespace = data.into_inner().new_namespace;
+  folder.set_publish_namespace(namespace).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn get_publish_namespace_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<PublishNamespacePB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let namespace = folder.get_publish_namespace().await?;
+  data_result_ok(PublishNamespacePB { namespace })
+}

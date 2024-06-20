@@ -1,4 +1,5 @@
 use bytes::Bytes;
+use collab::entity::EncodedCollab;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_chat::chat_manager::ChatManager;
@@ -200,6 +201,21 @@ impl FolderOperationHandler for DocumentFolderOperation {
     })
   }
 
+  fn encoded_collab_v1(
+    &self,
+    view_id: &str,
+    layout: ViewLayout,
+  ) -> FutureResult<EncodedCollab, FlowyError> {
+    debug_assert_eq!(layout, ViewLayout::Document);
+    let view_id = view_id.to_string();
+    let manager = self.0.clone();
+    FutureResult::new(async move {
+      let encoded_collab = manager.encode_collab(&view_id).await?;
+
+      Ok(encoded_collab)
+    })
+  }
+
   /// Create a view with built-in data.
   fn create_built_in_view(
     &self,
@@ -285,6 +301,15 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       }
       Ok(())
     })
+  }
+
+  fn encoded_collab_v1(
+    &self,
+    _view_id: &str,
+    _layout: ViewLayout,
+  ) -> FutureResult<EncodedCollab, FlowyError> {
+    // Database view doesn't support collab
+    FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
 
   fn duplicate_view(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
@@ -545,6 +570,15 @@ impl FolderOperationHandler for ChatFolderOperation {
     _name: &str,
     _path: String,
   ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Err(FlowyError::not_support()) })
+  }
+
+  fn encoded_collab_v1(
+    &self,
+    _view_id: &str,
+    _layout: ViewLayout,
+  ) -> FutureResult<EncodedCollab, FlowyError> {
+    // Chat view doesn't support collab
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
 }
