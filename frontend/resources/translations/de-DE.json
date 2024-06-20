@@ -241,9 +241,9 @@
     "viewDataBase": "Datenbank ansehen",
     "referencePage": "Auf diesen {Name} wird verwiesen",
     "addBlockBelow": "Einen Block hinzufügen",
-    "genSummary": "Zusammenfassung generieren",
     "urlLaunchAccessory": "Im Browser öffnen",
-    "urlCopyAccessory": "Webadresse kopieren."
+    "urlCopyAccessory": "Webadresse kopieren.",
+    "genSummary": "Zusammenfassung generieren"
   },
   "sideBar": {
     "closeSidebar": "Seitenleiste schließen",
@@ -362,7 +362,6 @@
     "accountPage": {
       "menuLabel": "Mein Konto",
       "title": "Mein Konto",
-      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an.",
       "general": {
         "title": "Kontoname und Profilbild",
         "changeProfilePicture": "Profilbild ändern"
@@ -386,7 +385,8 @@
         "title": "Kontoanmeldung",
         "loginLabel": "Anmeldung",
         "logoutLabel": "Ausloggen"
-      }
+      },
+      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an."
     },
     "workspacePage": {
       "menuLabel": "Arbeitsbereich",
@@ -722,6 +722,23 @@
       "pleaseInputYourStabilityAIKey": "Bitte gebe den Stability AI Schlüssel ein",
       "clickToLogout": "Klicken, um den aktuellen Nutzer auszulogen"
     },
+    "mobile": {
+      "personalInfo": "Persönliche Informationen",
+      "username": "Nutzername",
+      "usernameEmptyError": "Der Nutzername darf nicht leer sein",
+      "about": "Über",
+      "pushNotifications": "Push Benachrichtigungen",
+      "support": "Support",
+      "joinDiscord": "Komm zu uns auf Discord",
+      "privacyPolicy": "Datenschutz",
+      "userAgreement": "Nutzungsbedingungen",
+      "termsAndConditions": "Geschäftsbedingungen",
+      "userprofileError": "Das Nutzerprofil konnte nicht geladen werden",
+      "userprofileErrorDescription": "Bitte abmelden und wieder anmelden, um zu prüfen ob das Problem weiterhin bestehen bleibt.",
+      "selectLayout": "Layout auswählen",
+      "selectStartingDay": "Ersten Tag auswählen",
+      "version": "Version"
+    },
     "shortcuts": {
       "shortcutsLabel": "Tastenkürzel",
       "command": "Befehl",
@@ -743,23 +760,6 @@
         "textAlignCenter": "Text zentriert ausrichten",
         "textAlignRight": "Text rechtsbündig ausrichten"
       }
-    },
-    "mobile": {
-      "personalInfo": "Persönliche Informationen",
-      "username": "Nutzername",
-      "usernameEmptyError": "Der Nutzername darf nicht leer sein",
-      "about": "Über",
-      "pushNotifications": "Push Benachrichtigungen",
-      "support": "Support",
-      "joinDiscord": "Komm zu uns auf Discord",
-      "privacyPolicy": "Datenschutz",
-      "userAgreement": "Nutzungsbedingungen",
-      "termsAndConditions": "Geschäftsbedingungen",
-      "userprofileError": "Das Nutzerprofil konnte nicht geladen werden",
-      "userprofileErrorDescription": "Bitte abmelden und wieder anmelden, um zu prüfen ob das Problem weiterhin bestehen bleibt.",
-      "selectLayout": "Layout auswählen",
-      "selectStartingDay": "Ersten Tag auswählen",
-      "version": "Version"
     }
   },
   "grid": {

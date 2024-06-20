@@ -410,17 +410,6 @@
       "pleaseInputYourStabilityAIKey": "يرجى إدخال رمز Stability AI الخاص بك",
       "clickToLogout": "انقر لتسجيل خروج المستخدم الحالي"
     },
-    "shortcuts": {
-      "shortcutsLabel": "الاختصارات",
-      "command": "امر",
-      "keyBinding": "ربط المفاتيح",
-      "addNewCommand": "إضافة أمر جديد",
-      "updateShortcutStep": "اضغط على مجموعة المفاتيح المطلوبة ثم اضغط على ENTER",
-      "shortcutIsAlreadyUsed": "هذا الاختصار مستخدم بالفعل لـ: {conflict}",
-      "resetToDefault": "إعادة التعيين إلى روابط المفاتيح الافتراضية",
-      "couldNotLoadErrorMsg": "تعذر تحميل الاختصارات، حاول مرة أخرى",
-      "couldNotSaveErrorMsg": "تعذر حفظ الاختصارات، حاول مرة أخرى"
-    },
     "mobile": {
       "personalInfo": "معلومات شخصية",
       "username": "اسم المستخدم",
@@ -435,6 +424,17 @@
       "userprofileErrorDescription": "يرجى محاولة تسجيل الخروج وتسجيل الدخول مرة أخرى للتحقق مما إذا كانت المشكلة لا تزال قائمة.",
       "selectLayout": "حدد الشكل",
       "selectStartingDay": "اختر يوم البدء"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "الاختصارات",
+      "command": "امر",
+      "keyBinding": "ربط المفاتيح",
+      "addNewCommand": "إضافة أمر جديد",
+      "updateShortcutStep": "اضغط على مجموعة المفاتيح المطلوبة ثم اضغط على ENTER",
+      "shortcutIsAlreadyUsed": "هذا الاختصار مستخدم بالفعل لـ: {conflict}",
+      "resetToDefault": "إعادة التعيين إلى روابط المفاتيح الافتراضية",
+      "couldNotLoadErrorMsg": "تعذر تحميل الاختصارات، حاول مرة أخرى",
+      "couldNotSaveErrorMsg": "تعذر حفظ الاختصارات، حاول مرة أخرى"
     }
   },
   "grid": {
