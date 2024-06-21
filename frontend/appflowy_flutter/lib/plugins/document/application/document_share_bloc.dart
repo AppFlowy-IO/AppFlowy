@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -35,16 +37,41 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
           );
         },
         publish: (url) async {
-          emit(state.copyWith(isPublished: true));
+          // todo: optimize the logic
+          const spaceName = 'appflowy';
+          final name = '${view.name}-${uuid()}';
+
+          // set space name
+          try {
+            await ViewBackendService.setPublishNameSpace(spaceName)
+                .getOrThrow();
+            await ViewBackendService.publish(view, name: name).getOrThrow();
+          } catch (e) {
+            Log.error('publish error: $e');
+          }
+
+          emit(
+            state.copyWith(
+              isPublished: true,
+              url: 'https://test.appflowy.io/$spaceName/$name',
+            ),
+          );
         },
         unPublish: () async {
-          emit(state.copyWith(isPublished: false));
+          await ViewBackendService.unpublish(view);
+          emit(
+            state.copyWith(
+              isPublished: false,
+              url: '',
+            ),
+          );
         },
       );
     });
   }
 
   final ViewPB view;
+
   late final exporter = DocumentExporter(view);
 
   Future<FlowyResult<ExportDataPB, FlowyError>> _export(
@@ -124,10 +151,12 @@ class DocumentShareState with _$DocumentShareState {
     FlowyResult<ExportDataPB, FlowyError>? exportResult,
     required bool isPublished,
     FlowyResult<void, FlowyError>? publishResult,
+    required String url,
   }) = _DocumentShareState;
 
   factory DocumentShareState.initial() => const DocumentShareState(
         isLoading: false,
         isPublished: false,
+        url: '',
       );
 }

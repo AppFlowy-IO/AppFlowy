@@ -271,4 +271,31 @@ class ViewBackendService {
     );
     return FolderEventUpdateViewVisibilityStatus(payload).send();
   }
+
+  static Future<FlowyResult<void, FlowyError>> publish(
+    ViewPB view, {
+    String? name,
+  }) async {
+    final payload = PublishViewParamsPB()..viewId = view.id;
+
+    if (name != null) {
+      payload.publishName = name;
+    }
+
+    return FolderEventPublishView(payload).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> unpublish(
+    ViewPB view,
+  ) async {
+    final payload = UnpublishViewsPayloadPB(viewIds: [view.id]);
+    return FolderEventUnpublishViews(payload).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> setPublishNameSpace(
+    String name,
+  ) async {
+    final payload = SetPublishNamespacePayloadPB()..newNamespace = name;
+    return FolderEventSetPublishNamespace(payload).send();
+  }
 }
