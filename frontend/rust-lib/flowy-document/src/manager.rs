@@ -75,8 +75,7 @@ impl DocumentManager {
     }
   }
 
-  /// In order to support the requirement of automatically publishing sub-documents in publishing requirements,
-  /// we need to read binary data from disk instead of reading from the open document.
+  /// Get the encoded collab of the document.
   pub async fn encode_collab(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
     let doc_state = DataSource::Disk;
     let uid = self.user_service.user_id()?;
