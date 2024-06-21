@@ -14,7 +14,7 @@ part 'document_share_bloc.freezed.dart';
 class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
   DocumentShareBloc({
     required this.view,
-  }) : super(const DocumentShareState.initial()) {
+  }) : super(DocumentShareState.initial()) {
     on<DocumentShareEvent>((event, emit) async {
       await event.when(
         share: (type, path) async {
@@ -23,7 +23,9 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
             return;
           }
 
-          emit(const DocumentShareState.loading());
+          emit(
+            state.copyWith(isLoading: true),
+          );
 
           final exporter = DocumentExporter(view);
           final FlowyResult<ExportDataPB, FlowyError> result =
@@ -46,7 +48,12 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
             );
           });
 
-          emit(DocumentShareState.finish(result));
+          emit(
+            state.copyWith(
+              isLoading: false,
+              exportResult: result,
+            ),
+          );
         },
       );
     });
@@ -93,15 +100,20 @@ enum DocumentShareType {
 
 @freezed
 class DocumentShareEvent with _$DocumentShareEvent {
-  const factory DocumentShareEvent.share(DocumentShareType type, String? path) =
-      Share;
+  const factory DocumentShareEvent.share(
+    DocumentShareType type,
+    String? path,
+  ) = Share;
 }
 
 @freezed
 class DocumentShareState with _$DocumentShareState {
-  const factory DocumentShareState.initial() = _Initial;
-  const factory DocumentShareState.loading() = _Loading;
-  const factory DocumentShareState.finish(
-    FlowyResult<ExportDataPB, FlowyError> successOrFail,
-  ) = _Finish;
+  const factory DocumentShareState({
+    required bool isLoading,
+    FlowyResult<ExportDataPB, FlowyError>? exportResult,
+  }) = _DocumentShareState;
+
+  factory DocumentShareState.initial() => const DocumentShareState(
+        isLoading: false,
+      );
 }
