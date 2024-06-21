@@ -33,14 +33,12 @@ class DocumentShareButton extends StatelessWidget {
       create: (context) => getIt<DocumentShareBloc>(param1: view),
       child: BlocListener<DocumentShareBloc, DocumentShareState>(
         listener: (context, state) {
-          state.mapOrNull(
-            finish: (state) {
-              state.successOrFail.fold(
-                (data) => _handleExportData(context, data),
-                _handleExportError,
-              );
-            },
-          );
+          if (state.isLoading == false && state.exportResult != null) {
+            state.exportResult!.fold(
+              (data) => _handleExportData(context, data),
+              _handleExportError,
+            );
+          }
         },
         child: BlocBuilder<DocumentShareBloc, DocumentShareState>(
           builder: (context, state) => SizedBox(
