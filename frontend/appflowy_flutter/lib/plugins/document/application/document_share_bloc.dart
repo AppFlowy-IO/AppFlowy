@@ -42,20 +42,33 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
           final name = '${view.name}-${uuid()}';
 
           // set space name
+
+          FlowyResult<void, FlowyError>? result;
           try {
             await ViewBackendService.setPublishNameSpace(spaceName)
                 .getOrThrow();
-            await ViewBackendService.publish(view, name: name).getOrThrow();
+            result = await ViewBackendService.publish(view, name: name);
+
+            emit(
+              state.copyWith(
+                isPublished: true,
+                publishResult: result,
+                url: 'https://test.appflowy.io/$spaceName/$name',
+              ),
+            );
           } catch (e) {
             Log.error('publish error: $e');
-          }
 
-          emit(
-            state.copyWith(
-              isPublished: true,
-              url: 'https://test.appflowy.io/$spaceName/$name',
-            ),
-          );
+            emit(
+              state.copyWith(
+                isPublished: false,
+                publishResult: FlowyResult.failure(
+                  FlowyError(msg: 'publish error: $e'),
+                ),
+                url: '',
+              ),
+            );
+          }
         },
         unPublish: () async {
           await ViewBackendService.unpublish(view);

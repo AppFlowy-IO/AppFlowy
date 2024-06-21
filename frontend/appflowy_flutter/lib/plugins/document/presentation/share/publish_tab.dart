@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -13,29 +14,45 @@ class PublishTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return context.watch<DocumentShareBloc>().state.isPublished
-        ? _PublishedWidget(
-            onUnPublish: () {
-              context
-                  .read<DocumentShareBloc>()
-                  .add(const DocumentShareEvent.unPublish());
-            },
-            onVisitSite: () {},
-          )
-        : _UnPublishWidget(
-            onPublish: () => context
-                .read<DocumentShareBloc>()
-                .add(const DocumentShareEvent.publish('')),
+    return BlocConsumer<DocumentShareBloc, DocumentShareState>(
+      listener: (context, state) {
+        if (state.publishResult != null) {
+          state.publishResult!.fold(
+            (value) => showSnackBarMessage(context, 'Published successfully'),
+            (error) =>
+                showSnackBarMessage(context, 'Failed to publish: $error'),
           );
+        }
+      },
+      builder: (context, state) {
+        return state.isPublished
+            ? _PublishedWidget(
+                url: state.url,
+                onVisitSite: () {},
+                onUnPublish: () {
+                  context
+                      .read<DocumentShareBloc>()
+                      .add(const DocumentShareEvent.unPublish());
+                },
+              )
+            : _UnPublishWidget(
+                onPublish: () => context
+                    .read<DocumentShareBloc>()
+                    .add(const DocumentShareEvent.publish('')),
+              );
+      },
+    );
   }
 }
 
 class _PublishedWidget extends StatefulWidget {
   const _PublishedWidget({
+    required this.url,
     required this.onVisitSite,
     required this.onUnPublish,
   });
 
+  final String url;
   final VoidCallback onVisitSite;
   final VoidCallback onUnPublish;
 
@@ -45,6 +62,12 @@ class _PublishedWidget extends StatefulWidget {
 
 class _PublishedWidgetState extends State<_PublishedWidget> {
   final controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.text = widget.url;
+  }
 
   @override
   void dispose() {
@@ -195,7 +218,6 @@ class _PublishUrl extends StatelessWidget {
       child: FlowyTextField(
         autoFocus: false,
         controller: controller,
-        text: 'http:/appflowy.com/vinh/open-positions',
         suffixIcon: _buildCopyLinkIcon(),
       ),
     );
