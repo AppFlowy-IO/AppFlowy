@@ -106,7 +106,12 @@
     "html": "HTML",
     "clipboard": "Copy to clipboard",
     "csv": "CSV",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy Link",
+    "publishToTheWeb": "Publish to the web",
+    "publishToTheWebHint": "Publish a static website of this page and control who see it",
+    "publish": "Publish",
+    "unPublish": "UnPublish",
+    "visitSite": "Visit site"
   },
   "moreAction": {
     "small": "small",
