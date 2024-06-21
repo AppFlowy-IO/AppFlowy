@@ -149,6 +149,7 @@ dependencies:
   bitsdojo_window: ^0.1.6
 
   flutter_highlight: ^0.7.0
+  custom_sliding_segmented_control: ^1.8.3
 
 dev_dependencies:
   flutter_lints: ^3.0.1
