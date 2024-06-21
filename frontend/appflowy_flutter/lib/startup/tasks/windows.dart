@@ -64,11 +64,6 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
         await windowManager.show();
         await windowManager.focus();
 
-        if (PlatformExtension.isWindows) {
-          // Hide title bar on Windows, we implement a custom solution elsewhere
-          await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-        }
-
         if (position != null) {
           await windowManager.setPosition(position);
         }

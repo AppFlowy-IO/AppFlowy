@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -22,8 +24,6 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -164,9 +164,6 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
         ),
         BlocProvider.value(value: getIt<RenameViewBloc>()),
         BlocProvider.value(value: getIt<ActionNavigationBloc>()),
-        BlocProvider.value(
-          value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
-        ),
       ],
       child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
         listenWhen: (_, curr) => curr.action != null,

@@ -1,6 +1,5 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
-use flowy_storage::{ObjectIdentity, ObjectStorageService};
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -28,13 +27,14 @@ use flowy_database_pub::cloud::{
 };
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
-use flowy_storage::ObjectValue;
+use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
+use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
 use lib_infra::async_trait::async_trait;
@@ -42,7 +42,8 @@ use lib_infra::future::FutureResult;
 
 use crate::integrate::server::{Server, ServerProvider};
 
-impl ObjectStorageService for ServerProvider {
+#[async_trait]
+impl StorageCloudService for ServerProvider {
   fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
     let server = self.get_server();
     FutureResult::new(async move {
@@ -59,20 +60,84 @@ impl ObjectStorageService for ServerProvider {
     })
   }
 
-  fn delete_object(&self, url: String) -> FutureResult<(), FlowyError> {
+  fn delete_object(&self, url: &str) -> FutureResult<(), FlowyError> {
     let server = self.get_server();
+    let url = url.to_string();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.delete_object(url).await
+      storage.delete_object(&url).await
     })
   }
 
-  fn get_object(&self, url: String) -> FutureResult<flowy_storage::ObjectValue, FlowyError> {
+  fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError> {
     let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
       storage.get_object(url).await
     })
+  }
+
+  fn get_object_url_v1(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    file_id: &str,
+  ) -> FlowyResult<String> {
+    let server = self.get_server()?;
+    let storage = server.file_storage().ok_or(FlowyError::internal())?;
+    storage.get_object_url_v1(workspace_id, parent_dir, file_id)
+  }
+
+  async fn create_upload(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    file_id: &str,
+    content_type: &str,
+  ) -> Result<CreateUploadResponse, FlowyError> {
+    let server = self.get_server();
+    let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+    storage
+      .create_upload(workspace_id, parent_dir, file_id, content_type)
+      .await
+  }
+
+  async fn upload_part(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    upload_id: &str,
+    file_id: &str,
+    part_number: i32,
+    body: Vec<u8>,
+  ) -> Result<UploadPartResponse, FlowyError> {
+    let server = self.get_server();
+    let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+    storage
+      .upload_part(
+        workspace_id,
+        parent_dir,
+        upload_id,
+        file_id,
+        part_number,
+        body,
+      )
+      .await
+  }
+
+  async fn complete_upload(
+    &self,
+    workspace_id: &str,
+    parent_dir: &str,
+    upload_id: &str,
+    file_id: &str,
+    parts: Vec<CompletedPartRequest>,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server();
+    let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+    storage
+      .complete_upload(workspace_id, parent_dir, upload_id, file_id, parts)
+      .await
   }
 }
 

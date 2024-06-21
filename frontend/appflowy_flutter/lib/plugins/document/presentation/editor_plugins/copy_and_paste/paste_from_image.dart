@@ -53,13 +53,6 @@ extension PasteFromImage on EditorState {
       await File(copyToPath).writeAsBytes(imageBytes);
       final String? path;
 
-      if (context.mounted) {
-        showSnackBarMessage(
-          context,
-          LocaleKeys.document_imageBlock_imageIsUploading.tr(),
-        );
-      }
-
       if (isLocalMode) {
         path = await saveImageToLocalStorage(copyToPath);
       } else {

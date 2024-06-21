@@ -20,8 +20,10 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_storage::ObjectStorageService;
+use flowy_storage_pub::chunked_byte::ChunkedBytes;
+use flowy_storage_pub::storage::{CreatedUpload, StorageService};
 use lib_infra::async_trait::async_trait;
+use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 pub struct DocumentTest {
@@ -32,7 +34,7 @@ impl DocumentTest {
   pub fn new() -> Self {
     let user = FakeUser::new();
     let cloud_service = Arc::new(LocalTestDocumentCloudServiceImpl());
-    let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn ObjectStorageService>;
+    let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn StorageService>;
     let document_snapshot = Arc::new(DocumentTestSnapshot);
 
     let builder = Arc::new(AppFlowyCollabBuilder::new(
@@ -173,27 +175,44 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
 }
 
 pub struct DocumentTestFileStorageService;
-impl ObjectStorageService for DocumentTestFileStorageService {
-  fn get_object_url(
+
+#[async_trait]
+impl StorageService for DocumentTestFileStorageService {
+  fn upload_object(
     &self,
-    _object_id: flowy_storage::ObjectIdentity,
+    _workspace_id: &str,
+    _local_file_path: &str,
   ) -> FutureResult<String, FlowyError> {
     todo!()
   }
 
-  fn put_object(
+  fn delete_object(&self, _url: String, _local_file_path: String) -> FlowyResult<()> {
+    todo!()
+  }
+
+  fn download_object(&self, _url: String, _local_file_path: String) -> FlowyResult<()> {
+    todo!()
+  }
+
+  fn create_upload(
     &self,
-    _url: String,
-    _object_value: flowy_storage::ObjectValue,
-  ) -> FutureResult<(), FlowyError> {
+    _workspace_id: &str,
+    _parent_dir: &str,
+    _local_file_path: &str,
+  ) -> FutureResult<CreatedUpload, flowy_error::FlowyError> {
     todo!()
   }
 
-  fn delete_object(&self, _url: String) -> FutureResult<(), FlowyError> {
+  async fn start_upload(&self, _chunks: &ChunkedBytes, _record: &BoxAny) -> Result<(), FlowyError> {
     todo!()
   }
 
-  fn get_object(&self, _url: String) -> FutureResult<flowy_storage::ObjectValue, FlowyError> {
+  async fn resume_upload(
+    &self,
+    _workspace_id: &str,
+    _parent_dir: &str,
+    _file_id: &str,
+  ) -> Result<(), FlowyError> {
     todo!()
   }
 }
