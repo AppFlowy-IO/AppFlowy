@@ -258,6 +258,9 @@ pub struct CreateViewPayloadPB {
   // The view in private section will only be shown in the user's private view list.
   #[pb(index = 10, one_of)]
   pub section: Option<ViewSectionPB>,
+
+  #[pb(index = 11, one_of)]
+  pub view_id: Option<String>,
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
@@ -313,7 +316,8 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
     let parent_view_id = ViewIdentify::parse(self.parent_view_id)?.0;
-    let view_id = gen_view_id().to_string();
+    // if view_id is not provided, generate a new view_id
+    let view_id = self.view_id.unwrap_or_else(|| gen_view_id().to_string());
 
     Ok(CreateViewParams {
       parent_view_id,

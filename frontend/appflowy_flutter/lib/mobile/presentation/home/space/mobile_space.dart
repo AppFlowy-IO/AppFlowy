@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/space/mobile_space_header.dart';
 import 'package:appflowy/mobile/presentation/home/space/mobile_space_menu.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -22,6 +23,18 @@ class MobileSpace extends StatefulWidget {
 }
 
 class _MobileSpaceState extends State<MobileSpace> {
+  @override
+  void initState() {
+    super.initState();
+    createNewPageNotifier.addListener(_createNewPage);
+  }
+
+  @override
+  void dispose() {
+    createNewPageNotifier.removeListener(_createNewPage);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SpaceBloc, SpaceState>(
@@ -80,6 +93,14 @@ class _MobileSpaceState extends State<MobileSpace> {
         );
       },
     );
+  }
+
+  void _createNewPage() {
+    context.read<SpaceBloc>().add(
+          SpaceEvent.createPage(
+            name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+          ),
+        );
   }
 }
 
