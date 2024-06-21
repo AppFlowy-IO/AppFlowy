@@ -14,7 +14,7 @@ part 'document_share_bloc.freezed.dart';
 class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
   DocumentShareBloc({
     required this.view,
-  }) : super(const DocumentShareState.initial()) {
+  }) : super(DocumentShareState.initial()) {
     on<DocumentShareEvent>((event, emit) async {
       await event.when(
         share: (type, path) async {
@@ -23,36 +23,52 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
             return;
           }
 
-          emit(const DocumentShareState.loading());
+          emit(state.copyWith(isLoading: true));
 
-          final exporter = DocumentExporter(view);
-          final FlowyResult<ExportDataPB, FlowyError> result =
-              await exporter.export(type.exportType).then((value) {
-            return value.fold(
-              (s) {
-                if (path != null) {
-                  switch (type) {
-                    case DocumentShareType.markdown:
-                      return FlowyResult.success(_saveMarkdownToPath(s, path));
-                    case DocumentShareType.html:
-                      return FlowyResult.success(_saveHTMLToPath(s, path));
-                    default:
-                      break;
-                  }
-                }
-                return FlowyResult.failure(FlowyError());
-              },
-              (f) => FlowyResult.failure(f),
-            );
-          });
+          final result = await _export(type, path);
 
-          emit(DocumentShareState.finish(result));
+          emit(
+            state.copyWith(
+              isLoading: false,
+              exportResult: result,
+            ),
+          );
+        },
+        publish: (url) async {
+          emit(state.copyWith(isPublished: true));
+        },
+        unPublish: () async {
+          emit(state.copyWith(isPublished: false));
         },
       );
     });
   }
 
   final ViewPB view;
+  late final exporter = DocumentExporter(view);
+
+  Future<FlowyResult<ExportDataPB, FlowyError>> _export(
+    DocumentShareType type,
+    String? path,
+  ) async {
+    final result = await exporter.export(type.exportType);
+    return result.fold(
+      (s) {
+        if (path != null) {
+          switch (type) {
+            case DocumentShareType.markdown:
+              return FlowySuccess(_saveMarkdownToPath(s, path));
+            case DocumentShareType.html:
+              return FlowySuccess(_saveHTMLToPath(s, path));
+            default:
+              break;
+          }
+        }
+        return FlowyResult.failure(FlowyError());
+      },
+      (f) => FlowyResult.failure(f),
+    );
+  }
 
   ExportDataPB _saveMarkdownToPath(String markdown, String path) {
     File(path).writeAsStringSync(markdown);
@@ -93,15 +109,25 @@ enum DocumentShareType {
 
 @freezed
 class DocumentShareEvent with _$DocumentShareEvent {
-  const factory DocumentShareEvent.share(DocumentShareType type, String? path) =
-      Share;
+  const factory DocumentShareEvent.share(
+    DocumentShareType type,
+    String? path,
+  ) = _Share;
+  const factory DocumentShareEvent.publish(String url) = _Publish;
+  const factory DocumentShareEvent.unPublish() = _UnPublish;
 }
 
 @freezed
 class DocumentShareState with _$DocumentShareState {
-  const factory DocumentShareState.initial() = _Initial;
-  const factory DocumentShareState.loading() = _Loading;
-  const factory DocumentShareState.finish(
-    FlowyResult<ExportDataPB, FlowyError> successOrFail,
-  ) = _Finish;
+  const factory DocumentShareState({
+    required bool isLoading,
+    FlowyResult<ExportDataPB, FlowyError>? exportResult,
+    required bool isPublished,
+    FlowyResult<void, FlowyError>? publishResult,
+  }) = _DocumentShareState;
+
+  factory DocumentShareState.initial() => const DocumentShareState(
+        isLoading: false,
+        isPublished: false,
+      );
 }

@@ -73,8 +73,7 @@ class _AppFlowyMobileToolbarState extends State<AppFlowyMobileToolbar> {
         ValueListenableBuilder(
           valueListenable: isKeyboardShow,
           builder: (context, isKeyboardShow, __) {
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 110),
+            return SizedBox(
               // only adding padding when the keyboard is triggered by editor
               height: isKeyboardShow && widget.editorState.selection != null
                   ? widget.toolbarHeight
@@ -383,37 +382,26 @@ class _MobileToolbarState extends State<_MobileToolbar>
     return ValueListenableBuilder(
       valueListenable: cachedKeyboardHeight,
       builder: (_, height, ___) {
-        var paddingHeight = height;
-        if (Platform.isAndroid) {
-          // use the viewInsets to get the keyboard height on Android
-          paddingHeight = MediaQuery.of(context).viewInsets.bottom;
-          // if the padding height is 0 and the keyboard height is not 0,
-          //  use the keyboard height
-          if (paddingHeight == 0 && height != 0) {
-            paddingHeight = height + MediaQuery.of(context).viewPadding.bottom;
-          }
-        }
-        debugPrint('Keyboard height: $paddingHeight');
-        return AnimatedContainer(
-          duration: const Duration(microseconds: 110),
-          height: paddingHeight,
-          child: ValueListenableBuilder(
-            valueListenable: showMenuNotifier,
-            builder: (_, showingMenu, __) {
-              return AnimatedContainer(
-                duration: const Duration(microseconds: 110),
-                height: height,
-                child: (showingMenu && selectedMenuIndex != null)
-                    ? widget.toolbarItems[selectedMenuIndex!].menuBuilder?.call(
-                          context,
-                          widget.editorState,
-                          this,
-                        ) ??
-                        const SizedBox.shrink()
-                    : const SizedBox.shrink(),
-              );
-            },
-          ),
+        return ValueListenableBuilder(
+          valueListenable: showMenuNotifier,
+          builder: (_, showingMenu, __) {
+            var paddingHeight = height;
+            if (Platform.isAndroid) {
+              paddingHeight =
+                  height + MediaQuery.of(context).viewPadding.bottom;
+            }
+            return SizedBox(
+              height: paddingHeight,
+              child: (showingMenu && selectedMenuIndex != null)
+                  ? widget.toolbarItems[selectedMenuIndex!].menuBuilder?.call(
+                        context,
+                        widget.editorState,
+                        this,
+                      ) ??
+                      const SizedBox.shrink()
+                  : const SizedBox.shrink(),
+            );
+          },
         );
       },
     );

@@ -252,6 +252,7 @@ pub async fn create_view(
     set_as_current: true,
     index: None,
     section: None,
+    view_id: None,
   };
   EventBuilder::new(sdk.clone())
     .event(CreateView)

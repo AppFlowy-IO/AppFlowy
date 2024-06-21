@@ -394,6 +394,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  custom_sliding_segmented_control:
+    dependency: "direct main"
+    description:
+      name: custom_sliding_segmented_control
+      sha256: "53c3e931c3ae1f696085d1ec70ac8e934da836595a9b7d9b88fdd0fcbf2a5574"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.8.3"
   dart_style:
     dependency: transitive
     description:
@@ -2174,10 +2182,10 @@ packages:
     dependency: "direct overridden"
     description:
       name: uuid
-      sha256: cd210a09f7c18cbe5a02511718e0334de6559871052c90a90c0cca46a4aa81c8
+      sha256: "814e9e88f21a176ae1359149021870e87f7cddaf633ab678a5d2b0bff7fd1ba8"
       url: "https://pub.dev"
     source: hosted
-    version: "4.3.3"
+    version: "4.4.0"
   value_layout_builder:
     dependency: transitive
     description:
