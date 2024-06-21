@@ -63,6 +63,11 @@ impl UserPaths {
   pub(crate) fn user_data_dir(&self, uid: i64) -> String {
     format!("{}/{}", self.root, uid)
   }
+
+  /// The root directory of the application
+  pub(crate) fn root(&self) -> &str {
+    &self.root
+  }
 }
 
 impl UserDBPath for UserPaths {

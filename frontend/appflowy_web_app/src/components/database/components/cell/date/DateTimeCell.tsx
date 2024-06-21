@@ -1,5 +1,6 @@
+import { FieldType } from '@/application/database-yjs';
 import { useDateTypeCellDispatcher } from '@/components/database/components/cell/Cell.hooks';
-import { CellProps, DateTimeCell as DateTimeCellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, DateTimeCell as DateTimeCellType } from '@/application/database-yjs/cell.type';
 import React, { useMemo } from 'react';
 import { ReactComponent as ReminderSvg } from '$icons/16x/clock_alarm.svg';
 
@@ -20,11 +21,12 @@ export function DateTimeCell({ cell, fieldId, style, placeholder }: CellProps<Da
   }, [cell, getDateTimeStr]);
 
   const dateStr = useMemo(() => {
-    return [startDateTime, endDateTime].filter(Boolean).join(' -> ');
+    return [startDateTime, endDateTime].filter(Boolean).join(' - ');
   }, [startDateTime, endDateTime]);
 
   const hasReminder = !!cell?.reminderId;
 
+  if (cell?.fieldType !== FieldType.DateTime) return null;
   if (!cell?.data)
     return placeholder ? (
       <div style={style} className={'text-text-placeholder'}>

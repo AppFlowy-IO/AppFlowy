@@ -77,11 +77,12 @@ pub struct UploadFileParamsPB {
   pub workspace_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_valid_path")]
-  pub local_file_path: String,
+  #[validate(custom = "required_not_empty_str")]
+  pub document_id: String,
 
   #[pb(index = 3)]
-  pub is_async: bool,
+  #[validate(custom = "required_valid_path")]
+  pub local_file_path: String,
 }
 
 #[derive(Default, ProtoBuf, Validate)]

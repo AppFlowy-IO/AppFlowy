@@ -5,21 +5,27 @@ use super::notifier::{SearchNotifier, SearchResultChanged, SearchResultReceiverR
 use crate::entities::{SearchFilterPB, SearchResultNotificationPB, SearchResultPB};
 use flowy_error::FlowyResult;
 use lib_dispatch::prelude::af_spawn;
-use tokio::{sync::broadcast, task::spawn_blocking};
+use lib_infra::async_trait::async_trait;
+use tokio::sync::broadcast;
+
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum SearchType {
   Folder,
+  Document,
 }
 
+#[async_trait]
 pub trait SearchHandler: Send + Sync + 'static {
   /// returns the type of search this handler is responsible for
   fn search_type(&self) -> SearchType;
+
   /// performs a search and returns the results
-  fn perform_search(
+  async fn perform_search(
     &self,
     query: String,
     filter: Option<SearchFilterPB>,
   ) -> FlowyResult<Vec<SearchResultPB>>;
+
   /// returns the number of indexed objects
   fn index_count(&self) -> u64;
 }
@@ -57,25 +63,22 @@ impl SearchManager {
     filter: Option<SearchFilterPB>,
     channel: Option<String>,
   ) {
-    let mut sends: usize = 0;
     let max: usize = self.handlers.len();
     let handlers = self.handlers.clone();
-
     for (_, handler) in handlers {
       let q = query.clone();
       let f = filter.clone();
       let ch = channel.clone();
       let notifier = self.notifier.clone();
 
-      spawn_blocking(move || {
-        let res = handler.perform_search(q, f);
-        sends += 1;
+      af_spawn(async move {
+        let res = handler.perform_search(q, f).await;
 
-        let close = sends == max;
         let items = res.unwrap_or_default();
+
         let notification = SearchResultNotificationPB {
           items,
-          closed: close,
+          sends: max as u64,
           channel: ch,
         };
 

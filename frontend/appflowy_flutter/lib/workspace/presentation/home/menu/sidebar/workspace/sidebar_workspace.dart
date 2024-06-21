@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -49,9 +48,9 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
               ),
             ),
             UserSettingButton(userProfile: widget.userProfile),
-            const HSpace(8),
+            const HSpace(8.0),
             const NotificationButton(),
-            const HSpace(4),
+            const HSpace(12.0),
           ],
         );
       },
@@ -201,16 +200,18 @@ class _SidebarSwitchWorkspaceButtonState
       },
       child: FlowyButton(
         margin: EdgeInsets.zero,
-        text: Row(
-          children: [
-            const HSpace(6.0),
-            SizedBox(
-              width: 16.0,
-              child: WorkspaceIcon(
+        text: SizedBox(
+          height: 30,
+          child: Row(
+            children: [
+              const HSpace(4.0),
+              WorkspaceIcon(
                 workspace: widget.currentWorkspace,
-                iconSize: 16,
-                fontSize: 10,
+                iconSize: 24,
+                fontSize: 16,
+                emojiSize: 18,
                 enableEdit: false,
+                borderRadius: 8.0,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
                         widget.currentWorkspace.workspaceId,
@@ -218,25 +219,18 @@ class _SidebarSwitchWorkspaceButtonState
                       ),
                     ),
               ),
-            ),
-            const HSpace(10),
-            Flexible(
-              child: FlowyText.medium(
-                widget.currentWorkspace.name,
-                overflow: TextOverflow.ellipsis,
-                withTooltip: true,
+              const HSpace(8),
+              Flexible(
+                child: FlowyText.medium(
+                  widget.currentWorkspace.name,
+                  overflow: TextOverflow.ellipsis,
+                  withTooltip: true,
+                  fontSize: 15.0,
+                ),
               ),
-            ),
-            const HSpace(4),
-            ValueListenableBuilder(
-              valueListenable: _isWorkSpaceMenuExpanded,
-              builder: (context, value, _) => FlowySvg(
-                value
-                    ? FlowySvgs.workspace_drop_down_menu_hide_s
-                    : FlowySvgs.workspace_drop_down_menu_show_s,
-              ),
-            ),
-          ],
+              const HSpace(4),
+            ],
+          ),
         ),
       ),
     );

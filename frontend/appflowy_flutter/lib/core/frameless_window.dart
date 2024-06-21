@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/window_title_bar.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CocoaWindowChannel {
@@ -102,19 +103,31 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
       return const SizedBox.shrink();
     }
 
+    final color = Theme.of(context).isLightMode ? Colors.white : Colors.black;
+    final textSpan = TextSpan(
+      children: [
+        TextSpan(
+          text: '${LocaleKeys.sideBar_openSidebar.tr()}\n',
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: color),
+        ),
+        TextSpan(
+          text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .copyWith(color: Theme.of(context).hintColor),
+        ),
+      ],
+    );
+
     return FlowyTooltip(
-      richMessage: TextSpan(
-        children: [
-          TextSpan(text: '${LocaleKeys.sideBar_closeSidebar.tr()}\n'),
-          const TextSpan(text: 'Ctrl+\\'),
-        ],
-      ),
+      richMessage: textSpan,
       child: FlowyIconButton(
         hoverColor: Colors.transparent,
         onPressed: () => context
             .read<HomeSettingBloc>()
             .add(const HomeSettingEvent.collapseMenu()),
-        iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+        iconPadding: const EdgeInsets.all(4.0),
         icon: context.read<HomeSettingBloc>().state.isMenuCollapsed
             ? const FlowySvg(FlowySvgs.show_menu_s)
             : const FlowySvg(FlowySvgs.hide_menu_m),

@@ -1,17 +1,17 @@
 import 'dart:io';
 
-import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -65,23 +65,42 @@ class FlowyNavigation extends StatelessWidget {
       buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
       builder: (context, state) {
         if (!PlatformExtension.isWindows && state.isMenuCollapsed) {
-          return RotationTransition(
-            turns: const AlwaysStoppedAnimation(180 / 360),
-            child: FlowyTooltip(
-              richMessage: sidebarTooltipTextSpan(
-                context,
-                LocaleKeys.sideBar_openSidebar.tr(),
+          final color =
+              Theme.of(context).isLightMode ? Colors.white : Colors.black;
+          final textSpan = TextSpan(
+            children: [
+              TextSpan(
+                text: '${LocaleKeys.sideBar_openSidebar.tr()}\n',
+                style: Theme.of(context)
+                    .tooltipTheme
+                    .textStyle!
+                    .copyWith(color: color),
               ),
-              child: FlowyIconButton(
-                width: 24,
-                hoverColor: Colors.transparent,
-                onPressed: () => context
-                    .read<HomeSettingBloc>()
-                    .add(const HomeSettingEvent.collapseMenu()),
-                iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                icon: FlowySvg(
-                  FlowySvgs.hide_menu_m,
-                  color: Theme.of(context).iconTheme.color,
+              TextSpan(
+                text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
+                style: Theme.of(context)
+                    .tooltipTheme
+                    .textStyle!
+                    .copyWith(color: Theme.of(context).hintColor),
+              ),
+            ],
+          );
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: RotationTransition(
+              turns: const AlwaysStoppedAnimation(180 / 360),
+              child: FlowyTooltip(
+                richMessage: textSpan,
+                child: Listener(
+                  onPointerDown: (event) => context
+                      .read<HomeSettingBloc>()
+                      .add(const HomeSettingEvent.collapseMenu()),
+                  child: FlowyIconButton(
+                    width: 24,
+                    onPressed: () {},
+                    iconPadding: const EdgeInsets.all(4),
+                    icon: const FlowySvg(FlowySvgs.hide_menu_s),
+                  ),
                 ),
               ),
             ),

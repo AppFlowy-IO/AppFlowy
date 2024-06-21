@@ -1,37 +1,56 @@
-import { CoverType, YDoc } from '@/application/collab.type';
-import { useBlockCover } from '@/components/document/document_header/useBlockCover';
+import { showColorsForImage } from '@/components/document/document_header/utils';
 import { renderColor } from '@/utils/color';
 import React, { useCallback } from 'react';
-import DefaultImage from './default_cover.jpg';
 
-function DocumentCover({ doc }: { doc: YDoc }) {
-  const { cover } = useBlockCover(doc);
+function DocumentCover({
+  coverValue,
+  coverType,
+  onTextColor,
+}: {
+  coverValue?: string;
+  coverType?: string;
+  onTextColor: (color: string) => void;
+}) {
   const renderCoverColor = useCallback((color: string) => {
     return (
       <div
         style={{
-          backgroundColor: renderColor(color),
+          background: renderColor(color),
         }}
         className={`h-full w-full`}
       />
     );
   }, []);
 
-  const renderCoverImage = useCallback((url: string) => {
-    return <img draggable={false} src={url} alt={''} className={'h-full w-full object-cover'} />;
-  }, []);
+  const renderCoverImage = useCallback(
+    (url: string) => {
+      return (
+        <img
+          onLoad={(e) => {
+            void showColorsForImage(e.currentTarget).then((res) => {
+              onTextColor(res);
+            });
+          }}
+          draggable={false}
+          src={url}
+          alt={''}
+          className={'h-full w-full object-cover'}
+        />
+      );
+    },
+    [onTextColor]
+  );
 
-  const { cover_selection_type: type, cover_selection: value = '' } = cover || {};
+  if (!coverType || !coverValue) {
+    return null;
+  }
 
-  return value ? (
-    <div className={`relative mb-[-80px] flex h-[255px] w-full`}>
-      <>
-        {type === CoverType.Asset ? renderCoverImage(DefaultImage) : null}
-        {type === CoverType.Color ? renderCoverColor(value) : null}
-        {type === CoverType.Image ? renderCoverImage(value) : null}
-      </>
+  return (
+    <div className={'relative flex h-[255px] w-full max-sm:h-[180px]'}>
+      {coverType === 'color' && renderCoverColor(coverValue)}
+      {(coverType === 'custom' || coverType === 'built_in') && renderCoverImage(coverValue)}
     </div>
-  ) : null;
+  );
 }
 
 export default DocumentCover;

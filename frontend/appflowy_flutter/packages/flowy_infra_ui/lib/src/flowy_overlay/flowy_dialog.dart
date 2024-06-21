@@ -52,7 +52,7 @@ class FlowyDialog extends StatelessWidget {
       title: title,
       shape: shape ??
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      clipBehavior: Clip.hardEdge,
+      clipBehavior: Clip.antiAliasWithSaveLayer,
       children: [
         Material(
           type: MaterialType.transparency,

@@ -1,3 +1,4 @@
+use flowy_chat::manager::ChatManager;
 use std::sync::Weak;
 
 use flowy_database2::DatabaseManager;
@@ -13,6 +14,7 @@ pub fn make_plugins(
   user_session: Weak<UserManager>,
   document_manager2: Weak<DocumentManager2>,
   search_manager: Weak<SearchManager>,
+  chat_manager: Weak<ChatManager>,
 ) -> Vec<AFPlugin> {
   let store_preferences = user_session
     .upgrade()
@@ -25,6 +27,7 @@ pub fn make_plugins(
   let config_plugin = flowy_config::event_map::init(store_preferences);
   let date_plugin = flowy_date::event_map::init();
   let search_plugin = flowy_search::event_map::init(search_manager);
+  let chat_plugin = flowy_chat::event_map::init(chat_manager);
   vec![
     user_plugin,
     folder_plugin,
@@ -33,5 +36,6 @@ pub fn make_plugins(
     config_plugin,
     date_plugin,
     search_plugin,
+    chat_plugin,
   ]
 }

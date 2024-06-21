@@ -3,6 +3,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -33,6 +34,7 @@ class ViewTitleBar extends StatelessWidget {
             return const SizedBox.shrink();
           }
           return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             child: SizedBox(
               height: 24,
               child: Row(children: _buildViewTitles(context, ancestors)),
@@ -152,6 +154,8 @@ class _ViewTitleState extends State<_ViewTitle> {
                 const HSpace(4.0),
               ],
             );
+          } else if (widget.view.isSpace) {
+            return _buildSpaceTitle(context, state);
           } else if (isEditable) {
             return _buildEditableViewTitle(context, state);
           } else {
@@ -162,13 +166,24 @@ class _ViewTitleState extends State<_ViewTitle> {
     );
   }
 
+  Widget _buildSpaceTitle(BuildContext context, ViewTitleState state) {
+    return Container(
+      alignment: Alignment.center,
+      margin: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: _buildIconAndName(state, false),
+    );
+  }
+
   Widget _buildUnEditableViewTitle(BuildContext context, ViewTitleState state) {
     return Listener(
       onPointerDown: (_) => context.read<TabsBloc>().openPlugin(widget.view),
-      child: FlowyButton(
-        useIntrinsicWidth: true,
-        onTap: () {},
-        text: _buildIconAndName(state),
+      child: SizedBox(
+        height: 32.0,
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          margin: const EdgeInsets.symmetric(horizontal: 6.0),
+          text: _buildIconAndName(state, false),
+        ),
       ),
     );
   }
@@ -193,15 +208,18 @@ class _ViewTitleState extends State<_ViewTitle> {
           emoji: state.icon,
         );
       },
-      child: FlowyButton(
-        useIntrinsicWidth: true,
-        margin: const EdgeInsets.symmetric(horizontal: 6.0),
-        text: _buildIconAndName(state),
+      child: SizedBox(
+        height: 32.0,
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          margin: const EdgeInsets.symmetric(horizontal: 6.0),
+          text: _buildIconAndName(state, true),
+        ),
       ),
     );
   }
 
-  Widget _buildIconAndName(ViewTitleState state) {
+  Widget _buildIconAndName(ViewTitleState state, bool isEditable) {
     return SingleChildScrollView(
       child: Row(
         children: [
@@ -210,10 +228,19 @@ class _ViewTitleState extends State<_ViewTitle> {
               state.icon,
               fontSize: 14.0,
             ),
+            const HSpace(4.0),
+          ],
+          if (state.view?.isSpace == true &&
+              state.view?.spaceIconSvg != null) ...[
+            SpaceIcon(
+              dimension: 14,
+              space: state.view!,
+              cornerRadius: 4,
+            ),
             const HSpace(6.0),
           ],
-          ConstrainedBox(
-            constraints: const BoxConstraints(),
+          Opacity(
+            opacity: isEditable ? 1.0 : 0.5,
             child: FlowyText.regular(
               state.name,
               overflow: TextOverflow.ellipsis,

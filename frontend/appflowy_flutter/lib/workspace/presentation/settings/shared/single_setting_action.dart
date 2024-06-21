@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -65,6 +66,7 @@ class SingleSettingAction extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
             fillColor:
                 isDangerous ? null : Theme.of(context).colorScheme.primary,
+            radius: Corners.s12Border,
             hoverColor: isDangerous ? null : const Color(0xFF005483),
             fontColor: isDangerous ? Theme.of(context).colorScheme.error : null,
             fontHoverColor: Colors.white,

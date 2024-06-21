@@ -2,7 +2,6 @@ import Placeholder from '@/components/editor/components/blocks/text/Placeholder'
 import { useSlateStatic } from 'slate-react';
 import { useStartIcon } from './StartIcon.hooks';
 import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
-
 import React, { forwardRef, memo, useMemo } from 'react';
 
 export const Text = memo(
@@ -11,13 +10,13 @@ export const Text = memo(
       const { hasStartIcon, renderIcon } = useStartIcon(node);
       const editor = useSlateStatic();
       const isEmpty = editor.isEmpty(node);
-      const className = useMemo(
-        () =>
-          `text-element relative my-1 flex w-full whitespace-pre-wrap break-all px-1 ${classNameProp ?? ''} ${
-            hasStartIcon ? 'has-start-icon' : ''
-          }`,
-        [classNameProp, hasStartIcon]
-      );
+      const className = useMemo(() => {
+        const classList = ['text-element', 'relative', 'flex', 'w-full', 'whitespace-pre-wrap', 'break-all', 'px-1'];
+
+        if (classNameProp) classList.push(classNameProp);
+        if (hasStartIcon) classList.push('has-start-icon');
+        return classList.join(' ');
+      }, [classNameProp, hasStartIcon]);
 
       return (
         <span {...attributes} ref={ref} className={className}>
@@ -27,5 +26,6 @@ export const Text = memo(
         </span>
       );
     }
-  )
+  ),
+  (prevProps, nextProps) => JSON.stringify(prevProps.node) === JSON.stringify(nextProps.node)
 );

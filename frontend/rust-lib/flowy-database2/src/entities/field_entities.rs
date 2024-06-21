@@ -449,6 +449,8 @@ pub enum FieldType {
   CreatedTime = 9,
   Relation = 10,
   Summary = 11,
+  Translate = 12,
+  Time = 13,
 }
 
 impl Display for FieldType {
@@ -489,8 +491,14 @@ impl FieldType {
       FieldType::CreatedTime => "Created time",
       FieldType::Relation => "Relation",
       FieldType::Summary => "Summarize",
+      FieldType::Translate => "Translate",
+      FieldType::Time => "Time",
     };
     s.to_string()
+  }
+
+  pub fn is_ai_field(&self) -> bool {
+    matches!(self, FieldType::Summary | FieldType::Translate)
   }
 
   pub fn is_number(&self) -> bool {
@@ -539,6 +547,10 @@ impl FieldType {
 
   pub fn is_relation(&self) -> bool {
     matches!(self, FieldType::Relation)
+  }
+
+  pub fn is_time(&self) -> bool {
+    matches!(self, FieldType::Time)
   }
 
   pub fn can_be_group(&self) -> bool {

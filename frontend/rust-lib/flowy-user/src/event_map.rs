@@ -57,9 +57,9 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
       // Workspace member
     .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler) // deprecated, use invite
                                                                         // instead
-
+    .event(UserEvent::GetMemberInfo, get_workspace_member_info)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
-    .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
+    .event(UserEvent::GetWorkspaceMembers, get_workspace_members_handler)
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
       // Workspace
     .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
@@ -71,6 +71,13 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::InviteWorkspaceMember, invite_workspace_member_handler)
     .event(UserEvent::ListWorkspaceInvitations, list_workspace_invitations_handler)
     .event(UserEvent::AcceptWorkspaceInvitation, accept_workspace_invitations_handler)
+    // Billing
+    .event(UserEvent::SubscribeWorkspace, subscribe_workspace_handler)
+    .event(UserEvent::GetWorkspaceSubscriptions, get_workspace_subscriptions_handler)
+    .event(UserEvent::CancelWorkspaceSubscription, cancel_workspace_subscription_handler)
+    .event(UserEvent::GetWorkspaceUsage, get_workspace_usage_handler)
+    .event(UserEvent::GetBillingPortal, get_billing_portal_handler)
+
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -199,7 +206,7 @@ pub enum UserEvent {
   UpdateWorkspaceMember = 39,
 
   #[event(input = "QueryWorkspacePB", output = "RepeatedWorkspaceMemberPB")]
-  GetWorkspaceMember = 40,
+  GetWorkspaceMembers = 40,
 
   #[event(input = "ImportAppFlowyDataPB")]
   ImportAppFlowyDataFolder = 41,
@@ -230,6 +237,24 @@ pub enum UserEvent {
 
   #[event(input = "MagicLinkSignInPB", output = "UserProfilePB")]
   MagicLinkSignIn = 50,
+
+  #[event(input = "SubscribeWorkspacePB", output = "PaymentLinkPB")]
+  SubscribeWorkspace = 51,
+
+  #[event(output = "RepeatedWorkspaceSubscriptionPB")]
+  GetWorkspaceSubscriptions = 52,
+
+  #[event(input = "UserWorkspaceIdPB")]
+  CancelWorkspaceSubscription = 53,
+
+  #[event(input = "UserWorkspaceIdPB", output = "WorkspaceUsagePB")]
+  GetWorkspaceUsage = 54,
+
+  #[event(output = "BillingPortalPB")]
+  GetBillingPortal = 55,
+
+  #[event(input = "WorkspaceMemberIdPB", output = "WorkspaceMemberPB")]
+  GetMemberInfo = 56,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

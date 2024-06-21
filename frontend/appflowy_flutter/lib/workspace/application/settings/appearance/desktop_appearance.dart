@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flutter/material.dart';
 
 class DesktopAppearance extends BaseAppearance {
   @override
@@ -76,7 +77,7 @@ class DesktopAppearance extends BaseAppearance {
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.any(scrollbarInteractiveStates.contains)) {
-            return theme.shader7;
+            return theme.shader3;
           }
           return theme.shader5;
         }),
@@ -102,6 +103,7 @@ class DesktopAppearance extends BaseAppearance {
       indicatorColor: theme.main1,
       cardColor: theme.input,
       colorScheme: colorScheme,
+
       extensions: [
         AFThemeExtension(
           warning: theme.yellow,
@@ -117,6 +119,7 @@ class DesktopAppearance extends BaseAppearance {
           tint9: theme.tint9,
           textColor: theme.text,
           secondaryTextColor: theme.secondaryText,
+          strongText: theme.strongText,
           greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
           lightGreyHover: theme.hoverBG3,

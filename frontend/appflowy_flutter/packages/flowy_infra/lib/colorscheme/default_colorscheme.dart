@@ -6,19 +6,20 @@ const _white = Color(0xFFFFFFFF);
 const _lightHover = Color(0xFFe0f8FF);
 const _lightSelector = Color(0xFFf2fcFF);
 const _lightBg1 = Color(0xFFf7f8fc);
-const _lightBg2 = Color(0xFFedeef2);
+const _lightBg2 = Color(0x0F1F2329);
 const _lightShader1 = Color(0xFF333333);
 const _lightShader3 = Color(0xFF828282);
 const _lightShader5 = Color(0xFFe0e0e0);
 const _lightShader6 = Color(0xFFf2f2f2);
 const _lightMain1 = Color(0xFF00bcf0);
 const _lightTint9 = Color(0xFFe1fbFF);
-const _darkShader1 = Color(0xE5FFFFFF);
+const _darkShader1 = Color(0xFF131720);
 const _darkShader2 = Color(0xFF1A202C);
 const _darkShader3 = Color(0xFF363D49);
 const _darkShader5 = Color(0xFFBBC3CD);
 const _darkShader6 = Color(0xFFF2F2F2);
-const _darkMain1 = Color(0x19FFFFFF);
+const _darkMain1 = Color(0xFF00BCF0);
+const _darkMain2 = Color(0xFF00BCF0);
 const _darkInput = Color(0xFF282E3A);
 
 class DefaultColorScheme extends FlowyColorScheme {
@@ -59,6 +60,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           icon: _lightShader1,
           text: _lightShader1,
           secondaryText: const Color(0xFF4f4f4f),
+          strongText: Colors.black,
           input: _white,
           hint: _lightShader3,
           primary: _lightMain1,
@@ -103,7 +105,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           tint7: const Color(0x5900BD2A),
           tint8: const Color(0x80008890),
           tint9: const Color(0x4d0029FF),
-          main1: _darkMain1,
+          main1: _darkMain2,
           main2: const Color(0xFF00B7EA),
           shadow: const Color(0xFF0F131C),
           sidebarBg: const Color(0xFF232B38),
@@ -112,14 +114,15 @@ class DefaultColorScheme extends FlowyColorScheme {
           icon: _darkShader5,
           text: _darkShader5,
           secondaryText: _darkShader5,
+          strongText: Colors.white,
           input: _darkInput,
           hint: const Color(0xFF59647a),
-          primary: _darkMain1,
+          primary: _darkMain2,
           onPrimary: _darkShader1,
-          hoverBG1: _darkMain1,
+          hoverBG1: const Color(0x1AFFFFFF),
           hoverBG2: _darkMain1,
           hoverBG3: _darkShader3,
-          hoverFG: _darkShader1,
+          hoverFG: const Color(0xE5FFFFFF),
           questionBubbleBG: _darkShader3,
           progressBarBGColor: _darkShader3,
           toolbarColor: _darkInput,

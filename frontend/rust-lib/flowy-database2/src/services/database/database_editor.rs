@@ -136,20 +136,37 @@ impl DatabaseEditor {
     self.database.lock().fields.get_field(field_id)
   }
 
-  pub async fn set_group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
+  pub async fn set_group_by_field(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    data: Vec<u8>,
+  ) -> FlowyResult<()> {
+    let old_group_settings: Vec<GroupSetting>;
+    let mut setting_content = "".to_string();
     {
       let database = self.database.lock();
       let field = database.fields.get_field(field_id);
+      old_group_settings = database.get_all_group_setting(view_id);
       if let Some(field) = field {
-        let group_setting = default_group_setting(&field);
+        let field_type = FieldType::from(field.field_type);
+        setting_content = group_config_pb_to_json_str(data, &field_type)?;
+        let mut group_setting = default_group_setting(&field);
+        group_setting.content = setting_content.clone();
         database.views.update_database_view(view_id, |view| {
           view.set_groups(vec![group_setting.into()]);
         });
       }
     }
 
+    let old_group_setting = old_group_settings.iter().find(|g| g.field_id == field_id);
+    let has_same_content =
+      old_group_setting.is_some() && old_group_setting.unwrap().content == setting_content;
+
     let view_editor = self.database_views.get_view_editor(view_id).await?;
-    view_editor.v_initialize_new_group(field_id).await?;
+    if !view_editor.is_grouping_field(field_id).await || !has_same_content {
+      view_editor.v_initialize_new_group(field_id).await?;
+    }
     Ok(())
   }
 
@@ -1703,8 +1720,9 @@ pub async fn update_field_type_option_fn(
         update.update_type_options(|type_options_update| {
           event!(
             tracing::Level::TRACE,
-            "insert type option to field type: {:?}",
-            field_type
+            "insert type option to field type: {:?}, {:?}",
+            field_type,
+            type_option_data
           );
           type_options_update.insert(&field_type.to_string(), type_option_data);
         });

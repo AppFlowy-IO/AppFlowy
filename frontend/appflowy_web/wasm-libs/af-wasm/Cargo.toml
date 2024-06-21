@@ -21,7 +21,6 @@ tokio-stream.workspace = true
 
 af-user.workspace = true
 af-persistence.workspace = true
-flowy-storage = { workspace = true }
 flowy-notification = { workspace = true, features = ["web_ts"] }
 flowy-user-pub = { workspace = true }
 flowy-server = { workspace = true }

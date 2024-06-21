@@ -1,4 +1,4 @@
-use flowy_storage::ObjectStorageService;
+use flowy_search_pub::cloud::SearchCloudService;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
@@ -10,6 +10,7 @@ use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
+use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::UserCloudService;
 
 use crate::supabase::api::{
@@ -17,8 +18,7 @@ use crate::supabase::api::{
   SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl, SupabaseDocumentServiceImpl,
   SupabaseFolderServiceImpl, SupabaseServerServiceImpl, SupabaseUserServiceImpl,
 };
-use crate::supabase::file_storage::core::SupabaseFileStorage;
-use crate::supabase::file_storage::FileStoragePlanImpl;
+
 use crate::{AppFlowyEncryption, AppFlowyServer};
 
 /// https://www.pgbouncer.org/features.html
@@ -62,10 +62,10 @@ pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
   device_id: String,
+  #[allow(dead_code)]
   uid: Arc<RwLock<Option<i64>>>,
   collab_update_sender: Arc<CollabUpdateSenderByOid>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
-  file_storage: Arc<RwLock<Option<Arc<SupabaseFileStorage>>>>,
   encryption: Weak<dyn AppFlowyEncryption>,
 }
 
@@ -86,23 +86,11 @@ impl SupabaseServer {
     } else {
       None
     };
-    let file_storage = if enable_sync {
-      let plan = FileStoragePlanImpl::new(
-        Arc::downgrade(&uid),
-        restful_postgres.as_ref().map(Arc::downgrade),
-      );
-      Some(Arc::new(
-        SupabaseFileStorage::new(&config, encryption.clone(), Arc::new(plan)).unwrap(),
-      ))
-    } else {
-      None
-    };
     Self {
       config,
       device_id,
       collab_update_sender,
       restful_postgres: Arc::new(RwLock::new(restful_postgres)),
-      file_storage: Arc::new(RwLock::new(file_storage)),
       encryption,
       uid,
     }
@@ -118,19 +106,8 @@ impl AppFlowyServer for SupabaseServer {
         let postgres = RESTfulPostgresServer::new(self.config.clone(), self.encryption.clone());
         *self.restful_postgres.write() = Some(Arc::new(postgres));
       }
-
-      if self.file_storage.read().is_none() {
-        let plan = FileStoragePlanImpl::new(
-          Arc::downgrade(&self.uid),
-          self.restful_postgres.read().as_ref().map(Arc::downgrade),
-        );
-        let file_storage =
-          SupabaseFileStorage::new(&self.config, self.encryption.clone(), Arc::new(plan)).unwrap();
-        *self.file_storage.write() = Some(Arc::new(file_storage));
-      }
     } else {
       *self.restful_postgres.write() = None;
-      *self.file_storage.write() = None;
     }
   }
 
@@ -187,11 +164,11 @@ impl AppFlowyServer for SupabaseServer {
     )))
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
-    self
-      .file_storage
-      .read()
-      .clone()
-      .map(|s| s as Arc<dyn ObjectStorageService>)
+  fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>> {
+    None
+  }
+
+  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+    None
   }
 }

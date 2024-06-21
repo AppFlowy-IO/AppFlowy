@@ -3,21 +3,24 @@ name = "flowy-storage"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[lib]
-crate-type = ["cdylib", "rlib"]
-
 [dependencies]
-reqwest = { version = "0.11", features = ["json", "stream"] }
+flowy-storage-pub.workspace = true
 serde_json.workspace = true
 serde.workspace = true
 async-trait.workspace = true
 bytes.workspace = true
-mime_guess = "2.0"
 lib-infra = { workspace = true }
 url = "2.2.2"
-flowy-error = { workspace = true, features = ["impl_from_reqwest"] }
-mime = "0.3.17"
-tokio = { workspace = true, features = ["sync", "io-util"]}
+flowy-error = { workspace = true, features = ["impl_from_reqwest", "impl_from_sqlite"] }
+tokio = { workspace = true, features = ["sync", "io-util"] }
 tracing.workspace = true
+flowy-sqlite.workspace = true
+mime_guess = "2.0.4"
 fxhash = "0.2.1"
+anyhow = "1.0.86"
+chrono = "0.4.33"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
+uuid = "1.6.1"
+rand = { version = "0.8", features = ["std_rng"] }

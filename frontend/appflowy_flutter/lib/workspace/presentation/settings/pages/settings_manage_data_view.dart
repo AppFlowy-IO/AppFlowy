@@ -59,7 +59,10 @@ class SettingsManageDataView extends StatelessWidget {
                       tooltip: LocaleKeys
                           .settings_manageDataPage_dataStorage_actions_resetTooltip
                           .tr(),
-                      icon: const FlowySvg(FlowySvgs.restore_s),
+                      icon: const FlowySvg(
+                        FlowySvgs.restore_s,
+                        size: Size.square(20),
+                      ),
                       label: LocaleKeys.settings_common_reset.tr(),
                       onPressed: () => SettingsAlertDialog(
                         title: LocaleKeys
@@ -492,7 +495,7 @@ class _DataPathActions extends StatelessWidget {
               .tr(),
           label:
               LocaleKeys.settings_manageDataPage_dataStorage_actions_open.tr(),
-          icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(16)),
+          icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(20)),
           onPressed: () => afLaunchUrlString('file://$currentPath'),
         ),
       ],

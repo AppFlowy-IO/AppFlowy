@@ -1,4 +1,4 @@
-import { CellProps, TextCell } from '@/components/database/components/cell/cell.type';
+import { CellProps, TextCell } from '@/application/database-yjs/cell.type';
 import { TextField } from '@mui/material';
 import React from 'react';
 

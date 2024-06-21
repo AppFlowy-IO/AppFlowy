@@ -88,6 +88,10 @@ impl AuthenticateUser {
     PathBuf::from(self.user_paths.user_data_dir(uid)).join("indexes")
   }
 
+  pub fn get_application_root_dir(&self) -> &str {
+    self.user_paths.root()
+  }
+
   pub fn close_db(&self) -> FlowyResult<()> {
     let session = self.get_session()?;
     info!("Close db for user: {}", session.user_id);

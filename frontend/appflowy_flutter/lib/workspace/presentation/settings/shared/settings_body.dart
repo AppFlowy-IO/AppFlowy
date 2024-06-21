@@ -9,11 +9,13 @@ class SettingsBody extends StatelessWidget {
     super.key,
     required this.title,
     this.description,
+    this.autoSeparate = true,
     required this.children,
   });
 
   final String title;
   final String? description;
+  final bool autoSeparate;
   final List<Widget> children;
 
   @override
@@ -28,7 +30,10 @@ class SettingsBody extends StatelessWidget {
           SettingsHeader(title: title, description: description),
           Flexible(
             child: SeparatedColumn(
-              separatorBuilder: () => const SettingsCategorySpacer(),
+              mainAxisSize: MainAxisSize.min,
+              separatorBuilder: () => autoSeparate
+                  ? const SettingsCategorySpacer()
+                  : const VSpace(16),
               crossAxisAlignment: CrossAxisAlignment.start,
               children: children,
             ),

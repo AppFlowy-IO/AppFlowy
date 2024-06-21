@@ -64,15 +64,13 @@
     "alreadyHaveAnAccount": "Du hast bereits ein Konto?",
     "logIn": "Anmeldung",
     "generalError": "Etwas ist schiefgelaufen. Bitte versuche es später noch einmal",
-    "limitRateError": "Aus Sicherheitsgründen kannst du nur alle 60 Sekunden einen Authentifizierungslink anfordern",
-    "LogInWithGoogle": "Mit Google-Account anmelden",
-    "LogInWithGithub": "Mit GitHub-Account anmelden",
-    "LogInWithDiscord": "Mit Discord-Account anmelden"
+    "limitRateError": "Aus Sicherheitsgründen kannst du nur alle 60 Sekunden einen Authentifizierungslink anfordern"
   },
   "workspace": {
     "chooseWorkspace": "Arbeitsbereich wählen",
     "create": "Arbeitsbereich erstellen",
     "reset": "Arbeitsbereich zurücksetzen",
+    "renameWorkspace": "Arbeitsbereich umbenennen",
     "resetWorkspacePrompt": "Das Zurücksetzen des Arbeitsbereiches löscht alle enthaltenen Seiten und Daten. Bist du sicher, dass du den Arbeitsbereich zurücksetzen möchtest? ",
     "hint": "Arbeitsbereich",
     "notFoundError": "Arbeitsbereich nicht gefunden",
@@ -139,7 +137,9 @@
     "openNewTab": "In einem neuen Tab öffnen",
     "moveTo": "Verschieben nach",
     "addToFavorites": "Zu Favoriten hinzufügen",
-    "copyLink": "Link kopieren"
+    "copyLink": "Link kopieren",
+    "changeIcon": "Symbol ändern",
+    "collapseAllPages": "Alle Seiten einklappen"
   },
   "blankPageTitle": "Leere Seite",
   "newPageText": "Neue Seite",
@@ -147,6 +147,21 @@
   "newGridText": "Neues Raster",
   "newCalendarText": "Neuer Kalender",
   "newBoardText": "Neues Board",
+  "chat": {
+    "newChat": "Neuer Chat",
+    "inputMessageHint": "Nachricht an AppFlowy AI",
+    "unsupportedCloudPrompt": "Diese Funktion ist nur bei Verwendung der AppFlowy Cloud verfügbar",
+    "relatedQuestion": "Verwandt",
+    "serverUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
+    "aiServerUnavailable": "Beim Generieren einer Antwort ist ein Fehler aufgetreten.",
+    "clickToRetry": "Erneut versuchen",
+    "regenerateAnswer": "Regenerieren",
+    "question1": "Wie verwendet man Kanban zur Aufgabenverwaltung?",
+    "question2": "Erkläre mir die GTD-Methode",
+    "question3": "Warum sollte ich Rust verwenden?",
+    "question4": "Gebe mir ein Rezept mit dem, was in meiner Küche ist",
+    "aiMistakePrompt": "KI kann Fehler machen. Überprüfe wichtige Informationen."
+  },
   "trash": {
     "text": "Papierkorb",
     "restoreAll": "Alles wiederherstellen",
@@ -245,6 +260,22 @@
     "addAPageToPrivate": "Eine Seite zum privaten Bereich hinzufügen.",
     "addAPageToWorkspace": "Eine Seite zum Arbeitsbereich hinzufügen",
     "recent": "Zuletzt",
+    "today": "Heute",
+    "thisWeek": "Diese Woche",
+    "others": "Andere",
+    "justNow": "soeben",
+    "minutesAgo": "vor {count} Minuten",
+    "lastViewed": "Zuletzt angesehen",
+    "favoriteAt": "Zu Favoriten hinzugefügt bei",
+    "emptyRecent": "Keine aktuellen Dokumente",
+    "emptyRecentDescription": "Kürzlich aufgerufene Dokumente werden hier, zur vereinfachten Auffindbarkeit, angezeigt.",
+    "emptyFavorite": "Keine favorisierten Dokumente",
+    "emptyFavoriteDescription": "Beginne mit der Erkundung und markiere Dokumente als Favoriten. Diese werden hier für den schnellen Zugriff aufgelistet!",
+    "removePageFromRecent": "Diese Seite aus „Zuletzt angesehen“ entfernen?",
+    "removeSuccess": "Erfolgreich entfernt",
+    "favoriteSpace": "Favoriten",
+    "RecentSpace": "Zuletzt angesehen",
+    "Spaces": "Gemeinsam genutzte Bereiche",
     "public": "Öffentlich",
     "clickToHidePublic": "Hier klicken, um den öffentlichen Bereich auszublenden.\nHier erstellte Seiten sind für jedes Mitglied sichtbar.",
     "addAPageToPublic": "Eine Seite zum öffentlichen Bereich hinzufügen."
@@ -286,6 +317,7 @@
     "update": "Update",
     "share": "Teilen",
     "removeFromFavorites": "Aus den Favoriten entfernen",
+    "removeFromRecent": "Aus „Zuletzt angesehen“ entfernen",
     "addToFavorites": "Zu den Favoriten hinzufügen",
     "rename": "Umbenennen",
     "helpCenter": "Hilfe Center",
@@ -302,7 +334,8 @@
     "back": "Zurück",
     "signInGoogle": "Mit einem Google Benutzerkonto anmelden",
     "signInGithub": "Mit einem Github Benutzerkonto anmelden",
-    "signInDiscord": "Mit einem Discord Benutzerkonto anmelden"
+    "signInDiscord": "Mit einem Discord Benutzerkonto anmelden",
+    "more": "Mehr"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -534,6 +567,10 @@
       "enableNotifications": {
         "label": "Benachrichtigungen aktivieren",
         "hint": "Wenn diese Funktion ausgeschaltet ist, werden keine lokalen Benachrichtigungen mehr angezeigt."
+      },
+      "showNotificationsIcon": {
+        "label": "Benachrichtigungssymbol anzeigen",
+        "hint": "Deaktiviere diese Option, um das Benachrichtigungssymbol in der Seitenleiste auszublenden."
       }
     },
     "appearance": {
@@ -1123,7 +1160,17 @@
         "newDatabase": "Neue Datenbank",
         "linkToDatabase": "Verknüpfung zur Datenbank"
       },
-      "date": "Datum"
+      "date": "Datum",
+      "video": {
+        "label": "Video",
+        "emptyLabel": "Video hinzufügen",
+        "placeholder": "Videolink einfügen",
+        "copiedToPasteBoard": "Der Videolink wurde in die Zwischenablage kopiert",
+        "insertVideo": "Video hinzufügen",
+        "invalidVideoUrl": "Die Quell-URL wird noch nicht unterstützt.",
+        "invalidVideoUrlYouTube": "YouTube wird noch nicht unterstützt.",
+        "supportedFormats": "Unterstützte Formate: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      }
     },
     "outlineBlock": {
       "placeholder": "Inhaltsverzeichnis"
@@ -1276,7 +1323,13 @@
       "today": "Heute",
       "jumpToday": "Springe zu Heute",
       "previousMonth": "Vorheriger Monat",
-      "nextMonth": "Nächster Monat"
+      "nextMonth": "Nächster Monat",
+      "views": {
+        "day": "Tag",
+        "week": "Woche",
+        "month": "Monat",
+        "year": "Jahr"
+      }
     },
     "mobileEventScreen": {
       "emptyTitle": "Noch keine Events",
@@ -1296,7 +1349,8 @@
       },
       "unscheduledEventsTitle": "Ungeplante Events",
       "clickToAdd": "Klicken Sie, um es zum Kalender hinzuzufügen",
-      "name": "Kalendereinstellungen"
+      "name": "Kalendereinstellungen",
+      "clickToOpen": "Hier klicken, um den Eintrag zu öffnen"
     },
     "referencedCalendarPrefix": "Sicht von",
     "quickJumpYear": "Spring zu",
@@ -1587,7 +1641,9 @@
   },
   "favorite": {
     "noFavorite": "Leere Favoritenseite",
-    "noFavoriteHintText": "Nach links wischen, um es den Favoriten hinzuzufügen"
+    "noFavoriteHintText": "Nach links wischen, um es den Favoriten hinzuzufügen",
+    "removeFromSidebar": "Aus der Seitenleiste entfernen",
+    "addToSidebar": "An Seitenleiste anheften"
   },
   "cardDetails": {
     "notesPlaceholder": "'/'-Taste, um einen Block einzufügen oder Text eingeben"
@@ -1640,6 +1696,7 @@
       "workplaceIconSubtitle": "Lade ein Bild hoch oder verwende ein Emoji für deinen Arbeitsbereich. Das Symbol wird in deiner Seitenleiste und in deinen Benachrichtigungen angezeigt.",
       "renameError": "Umbenennen des Arbeitsbereiches fehlgeschlagen",
       "updateIconError": "Symbol konnte nicht aktualisiert werden",
+      "chooseAnIcon": "Symbol auswählen",
       "appearance": {
         "name": "Aussehen",
         "themeMode": {

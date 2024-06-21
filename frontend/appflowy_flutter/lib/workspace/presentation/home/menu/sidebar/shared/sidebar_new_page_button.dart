@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
@@ -18,20 +19,20 @@ class SidebarNewPageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       height: HomeSizes.newPageSectionHeight,
       child: FlowyButton(
         onTap: () async => _createNewPage(context),
         leftIcon: const FlowySvg(
-          FlowySvgs.new_app_s,
+          FlowySvgs.new_app_m,
           blendMode: null,
         ),
-        iconPadding: 10.0,
-        text: SizedBox(
-          height: 18.0,
-          child: FlowyText.regular(
-            LocaleKeys.newPageText.tr(),
-          ),
+        leftIconSize: const Size.square(24.0),
+        margin: const EdgeInsets.only(left: 4.0),
+        iconPadding: 8.0,
+        text: FlowyText.regular(
+          LocaleKeys.newPageText.tr(),
+          lineHeight: 1.15,
         ),
       ),
     );
@@ -48,13 +49,23 @@ class SidebarNewPageButton extends StatelessWidget {
               context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
                   ? ViewSectionPB.Private
                   : ViewSectionPB.Public;
-          context.read<SidebarSectionsBloc>().add(
-                SidebarSectionsEvent.createRootViewInSection(
-                  name: viewName,
-                  viewSection: section,
-                  index: 0,
-                ),
-              );
+          final spaceState = context.read<SpaceBloc>().state;
+          if (spaceState.spaces.isNotEmpty) {
+            context.read<SpaceBloc>().add(
+                  SpaceEvent.createPage(
+                    name: viewName,
+                    index: 0,
+                  ),
+                );
+          } else {
+            context.read<SidebarSectionsBloc>().add(
+                  SidebarSectionsEvent.createRootViewInSection(
+                    name: viewName,
+                    viewSection: section,
+                    index: 0,
+                  ),
+                );
+          }
         }
       },
     );

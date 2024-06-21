@@ -41,15 +41,16 @@ void main() {
       await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
-      await tester.hoverOnFirstRowOfGrid();
+      await tester.hoverOnFirstRowOfGrid(() async {
+        // Open the row menu and then click the delete
+        await tester.tapRowMenuButtonInGrid();
+        await tester.pumpAndSettle();
+        await tester.tapDeleteOnRowMenu();
+        await tester.pumpAndSettle();
 
-      // Open the row menu and then click the delete
-      await tester.tapRowMenuButtonInGrid();
-      await tester.tapDeleteOnRowMenu();
-
-      // 3 initial rows - 1 deleted
-      await tester.assertNumberOfRowsInGridPage(2);
-      await tester.pumpAndSettle();
+        // 3 initial rows - 1 deleted
+        await tester.assertNumberOfRowsInGridPage(2);
+      });
     });
 
     testWidgets('check number of row indicator in the initial grid',

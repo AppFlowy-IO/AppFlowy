@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database/domain/group_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -22,6 +23,7 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
             viewId,
             databaseController.fieldController.fieldInfos,
             databaseController.databaseLayoutSetting!.board,
+            databaseController.fieldController.groupSettings,
           ),
         ) {
     _dispatch();
@@ -47,15 +49,24 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
     on<DatabaseGroupEvent>(
       (event, emit) async {
         await event.when(
-          initial: () {
-            _startListening();
-          },
+          initial: () async => _startListening(),
           didReceiveFieldUpdate: (fieldInfos) {
-            emit(state.copyWith(fieldInfos: fieldInfos));
+            emit(
+              state.copyWith(
+                fieldInfos: fieldInfos,
+                groupSettings:
+                    _databaseController.fieldController.groupSettings,
+              ),
+            );
           },
-          setGroupByField: (String fieldId, FieldType fieldType) async {
+          setGroupByField: (
+            String fieldId,
+            FieldType fieldType, [
+            List<int>? settingContent,
+          ]) async {
             final result = await _groupBackendSvc.groupByField(
               fieldId: fieldId,
+              settingContent: settingContent ?? [],
             );
             result.fold((l) => null, (err) => Log.error(err));
           },
@@ -96,8 +107,9 @@ class DatabaseGroupEvent with _$DatabaseGroupEvent {
   const factory DatabaseGroupEvent.initial() = _Initial;
   const factory DatabaseGroupEvent.setGroupByField(
     String fieldId,
-    FieldType fieldType,
-  ) = _DatabaseGroupEvent;
+    FieldType fieldType, [
+    @Default([]) List<int> settingContent,
+  ]) = _DatabaseGroupEvent;
   const factory DatabaseGroupEvent.didReceiveFieldUpdate(
     List<FieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
@@ -112,16 +124,19 @@ class DatabaseGroupState with _$DatabaseGroupState {
     required String viewId,
     required List<FieldInfo> fieldInfos,
     required BoardLayoutSettingPB layoutSettings,
+    required List<GroupSettingPB> groupSettings,
   }) = _DatabaseGroupState;
 
   factory DatabaseGroupState.initial(
     String viewId,
     List<FieldInfo> fieldInfos,
     BoardLayoutSettingPB layoutSettings,
+    List<GroupSettingPB> groupSettings,
   ) =>
       DatabaseGroupState(
         viewId: viewId,
         fieldInfos: fieldInfos,
         layoutSettings: layoutSettings,
+        groupSettings: groupSettings,
       );
 }

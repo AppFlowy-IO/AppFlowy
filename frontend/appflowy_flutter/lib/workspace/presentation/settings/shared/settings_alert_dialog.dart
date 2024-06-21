@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
@@ -10,6 +11,7 @@ import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 class SettingsAlertDialog extends StatefulWidget {
   const SettingsAlertDialog({
     super.key,
+    this.icon,
     required this.title,
     this.subtitle,
     this.children,
@@ -21,6 +23,7 @@ class SettingsAlertDialog extends StatefulWidget {
     this.implyLeading = false,
   });
 
+  final Widget? icon;
   final String title;
   final String? subtitle;
   final List<Widget>? children;
@@ -86,6 +89,10 @@ class _SettingsAlertDialogState extends State<SettingsAlertDialog> {
               ),
             ],
           ),
+          if (widget.icon != null) ...[
+            widget.icon!,
+            const VSpace(16),
+          ],
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -168,6 +175,7 @@ class _Actions extends StatelessWidget {
               fontColor: AFThemeExtension.of(context).textColor,
               fillColor: Colors.transparent,
               hoverColor: Colors.transparent,
+              radius: Corners.s12Border,
               onPressed: () {
                 cancel?.call();
                 Navigator.of(context).pop();
@@ -187,6 +195,7 @@ class _Actions extends StatelessWidget {
                 horizontal: 24,
                 vertical: 12,
               ),
+              radius: Corners.s12Border,
               fontColor: isDangerous ? Colors.white : null,
               fontHoverColor: Colors.white,
               fillColor: isDangerous

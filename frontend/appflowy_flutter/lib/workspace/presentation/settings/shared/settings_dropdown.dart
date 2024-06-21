@@ -1,9 +1,9 @@
-import 'package:appflowy/shared/google_fonts_extension.dart';
-import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
-import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/flutter/af_dropdown_menu.dart';
+import 'package:appflowy/shared/google_fonts_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -53,10 +53,10 @@ class _SettingsDropdownState<T> extends State<SettingsDropdown<T>> {
             expandedInsets: widget.expandWidth ? EdgeInsets.zero : null,
             initialSelection: widget.selectedOption,
             dropdownMenuEntries: widget.options,
-            textStyle: Theme.of(context)
-                .textTheme
-                .bodyLarge
-                ?.copyWith(fontFamily: fontFamilyUsed),
+            textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontFamily: fontFamilyUsed,
+                  fontWeight: FontWeight.w400,
+                ),
             menuStyle: MenuStyle(
               maximumSize:
                   const WidgetStatePropertyAll(Size(double.infinity, 250)),

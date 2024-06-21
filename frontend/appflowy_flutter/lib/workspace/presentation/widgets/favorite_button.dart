@@ -20,7 +20,7 @@ class ViewFavoriteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<FavoriteBloc, FavoriteState>(
       builder: (context, state) {
-        final isFavorite = state.views.any((v) => v.id == view.id);
+        final isFavorite = state.views.any((v) => v.item.id == view.id);
         return Listener(
           onPointerDown: (_) =>
               context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view)),
@@ -33,8 +33,9 @@ class ViewFavoriteButton extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(6),
                 child: FlowySvg(
-                  isFavorite ? FlowySvgs.unfavorite_s : FlowySvgs.favorite_s,
+                  isFavorite ? FlowySvgs.favorited_s : FlowySvgs.favorite_s,
                   size: const Size.square(18),
+                  blendMode: isFavorite ? null : BlendMode.srcIn,
                 ),
               ),
             ),

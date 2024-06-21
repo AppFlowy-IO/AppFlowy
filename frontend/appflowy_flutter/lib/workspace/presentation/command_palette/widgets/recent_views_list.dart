@@ -24,7 +24,7 @@ class RecentViewsList extends StatelessWidget {
         builder: (context, state) {
           // We remove duplicates by converting the list to a set first
           final List<ViewPB> recentViews =
-              state.views.reversed.toSet().toList();
+              state.views.reversed.map((e) => e.item).toSet().toList();
 
           return ListView.separated(
             shrinkWrap: true,
@@ -52,7 +52,7 @@ class RecentViewsList extends StatelessWidget {
                   : FlowySvg(view.iconData, size: const Size.square(20));
 
               return RecentViewTile(
-                icon: icon,
+                icon: SizedBox(width: 24, child: icon),
                 view: view,
                 onSelected: onSelected,
               );

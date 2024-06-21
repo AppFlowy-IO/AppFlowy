@@ -215,6 +215,14 @@ impl EventIntegrationTest {
       .await;
   }
 
+  pub async fn translate_row(&self, data: TranslateRowPB) {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::TranslateRow)
+      .payload(data)
+      .async_send()
+      .await;
+  }
+
   pub async fn create_row(
     &self,
     view_id: &str,
@@ -436,12 +444,18 @@ impl EventIntegrationTest {
       .error()
   }
 
-  pub async fn set_group_by_field(&self, view_id: &str, field_id: &str) -> Option<FlowyError> {
+  pub async fn set_group_by_field(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    setting_content: Vec<u8>,
+  ) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::SetGroupByField)
       .payload(GroupByFieldPayloadPB {
         field_id: field_id.to_string(),
         view_id: view_id.to_string(),
+        setting_content,
       })
       .async_send()
       .await
@@ -641,6 +655,12 @@ impl<'a> TestRowBuilder<'a> {
       .cell_build
       .insert_checklist_cell(&checklist_field.id, options);
     checklist_field.id.clone()
+  }
+
+  pub fn insert_time_cell(&mut self, time: i64) -> String {
+    let time_field = self.field_with_type(&FieldType::Time);
+    self.cell_build.insert_number_cell(&time_field.id, time);
+    time_field.id.clone()
   }
 
   pub fn field_with_type(&self, field_type: &FieldType) -> Field {

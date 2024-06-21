@@ -1,0 +1,37 @@
+[package]
+name = "flowy-chat"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-derive.workspace = true
+flowy-notification = { workspace = true }
+flowy-error = { path = "../flowy-error", features = [
+    "impl_from_dispatch_error",
+    "impl_from_collab_folder",
+] }
+lib-dispatch = { workspace = true }
+tracing.workspace = true
+uuid.workspace = true
+strum_macros = "0.21"
+protobuf.workspace = true
+bytes.workspace = true
+validator = { workspace = true, features = ["derive"] }
+lib-infra = { workspace = true, features = ["isolate_flutter"] }
+flowy-chat-pub.workspace = true
+dashmap = "5.5"
+flowy-sqlite = { workspace = true }
+tokio.workspace = true
+futures.workspace = true
+allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
+log = "0.4.21"
+
+[build-dependencies]
+flowy-codegen.workspace = true
+
+[features]
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
+web_ts = ["flowy-codegen/ts", "flowy-notification/web_ts"]

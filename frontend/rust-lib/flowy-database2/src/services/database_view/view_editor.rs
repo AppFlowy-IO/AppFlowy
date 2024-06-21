@@ -401,15 +401,12 @@ impl DatabaseViewEditor {
 
   /// Called when the user changes the grouping field
   pub async fn v_initialize_new_group(&self, field_id: &str) -> FlowyResult<()> {
-    let is_grouping_field = self.is_grouping_field(field_id).await;
-    if !is_grouping_field {
-      self.v_group_by_field(field_id).await?;
-
-      if let Some(view) = self.delegate.get_view(&self.view_id).await {
-        let setting = database_view_setting_pb_from_view(view);
-        notify_did_update_setting(&self.view_id, setting).await;
-      }
+    if let Some(view) = self.delegate.get_view(&self.view_id).await {
+      let setting = database_view_setting_pb_from_view(view);
+      notify_did_update_setting(&self.view_id, setting).await;
     }
+
+    self.v_group_by_field(field_id).await?;
     Ok(())
   }
 

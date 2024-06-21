@@ -2,7 +2,7 @@ use crate::manager::{FolderInitDataSource, FolderManager};
 use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
 use collab::core::collab::DataSource;
-use collab_entity::CollabType;
+use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::{Folder, FolderNotify, UserId};
 use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
@@ -118,18 +118,7 @@ impl FolderManager {
     self
       .folder_indexer
       .set_index_content_receiver(index_content_rx, workspace_id.clone());
-
-    // Index all views in the folder if needed
-    if !self.folder_indexer.is_indexed() {
-      let views = folder.views.get_all_views();
-      let folder_indexer = self.folder_indexer.clone();
-
-      // We spawn a blocking task to index all views in the folder
-      let wid = workspace_id.clone();
-      spawn_blocking(move || {
-        folder_indexer.index_all_views(views, wid);
-      });
-    }
+    self.handle_index_folder(workspace_id.clone(), &folder);
 
     *self.mutex_folder.write() = Some(folder);
 
@@ -156,6 +145,7 @@ impl FolderManager {
       &weak_mutex_folder,
       Arc::downgrade(&self.user),
     );
+
     Ok(())
   }
 
@@ -191,5 +181,57 @@ impl FolderManager {
       Some(folder_notifier),
       folder_data,
     ))
+  }
+
+  fn handle_index_folder(&self, workspace_id: String, folder: &Folder) {
+    let mut index_all = true;
+
+    let encoded_collab = self
+      .store_preferences
+      .get_object::<EncodedCollab>(&workspace_id);
+
+    if let Some(encoded_collab) = encoded_collab {
+      if let Ok(changes) = folder.calculate_view_changes(encoded_collab) {
+        let folder_indexer = self.folder_indexer.clone();
+
+        let views = folder.views.get_all_views();
+        let wid = workspace_id.clone();
+
+        if !changes.is_empty() && !views.is_empty() {
+          spawn_blocking(move || {
+            // We index the changes
+            folder_indexer.index_view_changes(views, changes, wid);
+          });
+          index_all = false;
+        }
+      }
+    }
+
+    if index_all {
+      let views = folder.views.get_all_views();
+      let folder_indexer = self.folder_indexer.clone();
+      let wid = workspace_id.clone();
+
+      // We spawn a blocking task to index all views in the folder
+      spawn_blocking(move || {
+        // We remove old indexes just in case
+        let _ = folder_indexer.remove_indices_for_workspace(wid.clone());
+
+        // We index all views from the workspace
+        folder_indexer.index_all_views(views, wid);
+      });
+    }
+
+    self.save_collab_to_preferences(folder);
+  }
+
+  fn save_collab_to_preferences(&self, folder: &Folder) {
+    let encoded_collab = folder.encode_collab_v1();
+
+    if let Ok(encoded) = encoded_collab {
+      let _ = self
+        .store_preferences
+        .set_object(&folder.get_workspace_id(), encoded);
+    }
   }
 }

@@ -1,7 +1,6 @@
 use bytes::Bytes;
+use flowy_storage_pub::cloud::ObjectValueSupabase;
 use serde::{Deserialize, Serialize};
-
-use flowy_storage::ObjectValueSupabase;
 
 use crate::supabase;
 

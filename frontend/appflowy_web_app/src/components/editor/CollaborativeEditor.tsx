@@ -1,8 +1,5 @@
-import { CollabOrigin, YjsFolderKey } from '@/application/collab.type';
-import { useViewSelector } from '@/application/folder-yjs';
+import { CollabOrigin } from '@/application/collab.type';
 import { withYjs, YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
-import { useId } from '@/components/_shared/context-provider/IdProvider';
-import { CustomEditor } from '@/components/editor/command';
 import EditorEditable from '@/components/editor/Editable';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { withPlugins } from '@/components/editor/plugins';
@@ -13,10 +10,7 @@ import * as Y from 'yjs';
 
 const defaultInitialValue: Descendant[] = [];
 
-function CollaborativeEditor({ doc, includeRoot = true }: { doc: Y.Doc; includeRoot?: boolean }) {
-  const viewId = useId()?.objectId || '';
-  const { view } = useViewSelector(viewId);
-  const title = includeRoot ? view?.get(YjsFolderKey.name) : undefined;
+function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
   const context = useEditorContext();
   // if readOnly, collabOrigin is Local, otherwise RemoteSync
   const localOrigin = context.readOnly ? CollabOrigin.Local : CollabOrigin.LocalSync;
@@ -27,16 +21,16 @@ function CollaborativeEditor({ doc, includeRoot = true }: { doc: Y.Doc; includeR
         withReact(
           withYjs(createEditor(), doc, {
             localOrigin,
-            includeRoot,
           })
         )
       ) as YjsEditor),
-    [doc, localOrigin, includeRoot]
+    [doc, localOrigin]
   );
-  const [connected, setIsConnected] = useState(false);
+  const [, setIsConnected] = useState(false);
 
   useEffect(() => {
     if (!editor) return;
+
     editor.connect();
     setIsConnected(true);
 
@@ -44,11 +38,6 @@ function CollaborativeEditor({ doc, includeRoot = true }: { doc: Y.Doc; includeR
       editor.disconnect();
     };
   }, [editor]);
-
-  useEffect(() => {
-    if (!editor || !connected || title === undefined) return;
-    CustomEditor.setDocumentTitle(editor, title);
-  }, [editor, title, connected]);
 
   return (
     <Slate editor={editor} initialValue={defaultInitialValue}>

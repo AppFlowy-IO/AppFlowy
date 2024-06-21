@@ -1,4 +1,4 @@
-use flowy_storage::ObjectStorageService;
+use flowy_search_pub::cloud::SearchCloudService;
 use std::sync::Arc;
 
 use parking_lot::RwLock;
@@ -8,6 +8,7 @@ use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_storage_pub::cloud::StorageCloudService;
 // use flowy_user::services::database::{
 //   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
 // };
@@ -67,7 +68,11 @@ impl AppFlowyServer for LocalServer {
     Arc::new(LocalServerDocumentCloudServiceImpl())
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>> {
+    None
+  }
+
+  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
     None
   }
 }

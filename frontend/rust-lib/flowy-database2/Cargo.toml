@@ -47,7 +47,7 @@ chrono-tz = "0.8.2"
 csv = "1.1.6"
 strum = "0.25"
 strum_macros = "0.25"
-validator = { version = "0.16.0", features = ["derive"] }
+validator = { workspace = true, features = ["derive"] }
 
 [dev-dependencies]
 event-integration-test = { path = "../event-integration-test", default-features = false }

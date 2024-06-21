@@ -55,11 +55,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               Log.info('init open workspace: ${currentWorkspace.workspaceId}');
               await _userService.openWorkspace(currentWorkspace.workspaceId);
             }
+
+            WorkspaceMemberPB? currentWorkspaceMember;
+            final workspaceMemberResult =
+                await _userService.getWorkspaceMember();
+            currentWorkspaceMember = workspaceMemberResult.fold(
+              (s) => s,
+              (e) => null,
+            );
+
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
                 workspaces: workspaces,
                 isCollabWorkspaceOn: isCollabWorkspaceOn,
+                currentWorkspaceMember: currentWorkspaceMember,
                 actionResult: null,
               ),
             );
@@ -199,6 +209,14 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               (e) => state.currentWorkspace,
             );
 
+            WorkspaceMemberPB? currentWorkspaceMember;
+            final workspaceMemberResult =
+                await _userService.getWorkspaceMember();
+            currentWorkspaceMember = workspaceMemberResult.fold(
+              (s) => s,
+              (e) => null,
+            );
+
             result
               ..onSuccess((s) {
                 Log.info(
@@ -212,6 +230,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
+                currentWorkspaceMember: currentWorkspaceMember,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.open,
                   isLoading: false,
@@ -475,6 +494,7 @@ class UserWorkspaceState with _$UserWorkspaceState {
   const factory UserWorkspaceState({
     @Default(null) UserWorkspacePB? currentWorkspace,
     @Default([]) List<UserWorkspacePB> workspaces,
+    @Default(null) WorkspaceMemberPB? currentWorkspaceMember,
     @Default(null) UserWorkspaceActionResult? actionResult,
     @Default(false) bool isCollabWorkspaceOn,
   }) = _UserWorkspaceState;

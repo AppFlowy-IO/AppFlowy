@@ -1,7 +1,10 @@
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_pub::entities::{Role, WorkspaceInvitation, WorkspaceMember};
+use flowy_user_pub::entities::{
+  RecurringInterval, Role, SubscriptionPlan, WorkspaceInvitation, WorkspaceMember,
+  WorkspaceSubscription,
+};
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -14,6 +17,9 @@ pub struct WorkspaceMemberPB {
 
   #[pb(index = 3)]
   pub role: AFRolePB,
+
+  #[pb(index = 4, one_of)]
+  pub avatar_url: Option<String>,
 }
 
 impl From<WorkspaceMember> for WorkspaceMemberPB {
@@ -22,6 +28,7 @@ impl From<WorkspaceMember> for WorkspaceMemberPB {
       email: value.email,
       name: value.name,
       role: value.role.into(),
+      avatar_url: value.avatar_url,
     }
   }
 }
@@ -170,6 +177,12 @@ pub struct UserWorkspaceIdPB {
   pub workspace_id: String,
 }
 
+#[derive(ProtoBuf, Default, Clone)]
+pub struct WorkspaceMemberIdPB {
+  #[pb(index = 1)]
+  pub uid: i64,
+}
+
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct CreateWorkspacePB {
   #[pb(index = 1)]
@@ -196,4 +209,137 @@ pub struct ChangeWorkspaceIconPB {
 
   #[pb(index = 2)]
   pub new_icon: String,
+}
+
+#[derive(ProtoBuf, Default, Clone, Validate, Debug)]
+pub struct SubscribeWorkspacePB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub recurring_interval: RecurringIntervalPB,
+
+  #[pb(index = 3)]
+  pub workspace_subscription_plan: SubscriptionPlanPB,
+
+  #[pb(index = 4)]
+  pub success_url: String,
+}
+
+#[derive(ProtoBuf_Enum, Clone, Default, Debug)]
+pub enum RecurringIntervalPB {
+  #[default]
+  Month = 0,
+  Year = 1,
+}
+
+impl From<RecurringIntervalPB> for RecurringInterval {
+  fn from(r: RecurringIntervalPB) -> Self {
+    match r {
+      RecurringIntervalPB::Month => RecurringInterval::Month,
+      RecurringIntervalPB::Year => RecurringInterval::Year,
+    }
+  }
+}
+
+impl From<RecurringInterval> for RecurringIntervalPB {
+  fn from(r: RecurringInterval) -> Self {
+    match r {
+      RecurringInterval::Month => RecurringIntervalPB::Month,
+      RecurringInterval::Year => RecurringIntervalPB::Year,
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Clone, Default, Debug)]
+pub enum SubscriptionPlanPB {
+  #[default]
+  None = 0,
+  Pro = 1,
+  Team = 2,
+}
+
+impl From<SubscriptionPlanPB> for SubscriptionPlan {
+  fn from(value: SubscriptionPlanPB) -> Self {
+    match value {
+      SubscriptionPlanPB::Pro => SubscriptionPlan::Pro,
+      SubscriptionPlanPB::Team => SubscriptionPlan::Team,
+      SubscriptionPlanPB::None => SubscriptionPlan::None,
+    }
+  }
+}
+
+impl From<SubscriptionPlan> for SubscriptionPlanPB {
+  fn from(value: SubscriptionPlan) -> Self {
+    match value {
+      SubscriptionPlan::Pro => SubscriptionPlanPB::Pro,
+      SubscriptionPlan::Team => SubscriptionPlanPB::Team,
+      SubscriptionPlan::None => SubscriptionPlanPB::None,
+    }
+  }
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct PaymentLinkPB {
+  #[pb(index = 1)]
+  pub payment_link: String,
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct RepeatedWorkspaceSubscriptionPB {
+  #[pb(index = 1)]
+  pub items: Vec<WorkspaceSubscriptionPB>,
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct WorkspaceSubscriptionPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub subscription_plan: SubscriptionPlanPB,
+
+  #[pb(index = 3)]
+  pub recurring_interval: RecurringIntervalPB,
+
+  #[pb(index = 4)]
+  pub is_active: bool,
+
+  #[pb(index = 5)]
+  pub has_canceled: bool,
+
+  #[pb(index = 6)]
+  pub canceled_at: i64, // value is valid only if has_canceled is true
+}
+
+impl From<WorkspaceSubscription> for WorkspaceSubscriptionPB {
+  fn from(s: WorkspaceSubscription) -> Self {
+    Self {
+      workspace_id: s.workspace_id,
+      subscription_plan: s.subscription_plan.into(),
+      recurring_interval: s.recurring_interval.into(),
+      is_active: s.is_active,
+      has_canceled: s.canceled_at.is_some(),
+      canceled_at: s.canceled_at.unwrap_or_default(),
+    }
+  }
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct WorkspaceUsagePB {
+  #[pb(index = 1)]
+  pub member_count: u64,
+  #[pb(index = 2)]
+  pub member_count_limit: u64,
+  #[pb(index = 3)]
+  pub total_blob_bytes: u64,
+  #[pb(index = 4)]
+  pub total_blob_bytes_limit: u64,
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct BillingPortalPB {
+  #[pb(index = 1)]
+  pub url: String,
 }

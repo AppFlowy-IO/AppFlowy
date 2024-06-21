@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -8,7 +10,6 @@ import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'mobile_create_field_screen.dart';
@@ -28,6 +29,7 @@ const mobileSupportedFieldTypes = [
   FieldType.CreatedTime,
   FieldType.Checkbox,
   FieldType.Checklist,
+  // FieldType.Time,
 ];
 
 Future<FieldType?> showFieldTypeGridBottomSheet(

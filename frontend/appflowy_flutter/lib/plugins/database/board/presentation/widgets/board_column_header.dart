@@ -32,6 +32,7 @@ class BoardColumnHeader extends StatefulWidget {
 
 class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   final FocusNode _focusNode = FocusNode();
+  final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   late final TextEditingController _controller =
       TextEditingController.fromValue(
@@ -56,6 +57,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _keyboardListenerFocusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -170,7 +172,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
 
         return Expanded(
           child: KeyboardListener(
-            focusNode: FocusNode(),
+            focusNode: _keyboardListenerFocusNode,
             onKeyEvent: (event) {
               if ([LogicalKeyboardKey.enter, LogicalKeyboardKey.escape]
                   .contains(event.logicalKey)) {
@@ -197,17 +199,6 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                isDense: true,
               ),
             ),
           ),

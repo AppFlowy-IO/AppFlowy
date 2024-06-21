@@ -60,4 +60,10 @@ class FilterInfo {
         ? NumberFilterPB.fromBuffer(filter.data.data)
         : null;
   }
+
+  TimeFilterPB? timeFilter() {
+    return filter.data.fieldType == FieldType.Time
+        ? TimeFilterPB.fromBuffer(filter.data.data)
+        : null;
+  }
 }

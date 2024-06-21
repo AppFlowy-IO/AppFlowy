@@ -1,18 +1,21 @@
+import 'package:flutter/widgets.dart';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/relation_card_cell.dart';
-import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/timestamp_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:flutter/widgets.dart';
 
 import 'card_cell_skeleton/card_cell.dart';
 import 'card_cell_skeleton/checkbox_card_cell.dart';
 import 'card_cell_skeleton/checklist_card_cell.dart';
 import 'card_cell_skeleton/date_card_cell.dart';
 import 'card_cell_skeleton/number_card_cell.dart';
+import 'card_cell_skeleton/relation_card_cell.dart';
 import 'card_cell_skeleton/select_option_card_cell.dart';
 import 'card_cell_skeleton/summary_card_cell.dart';
 import 'card_cell_skeleton/text_card_cell.dart';
+import 'card_cell_skeleton/time_card_cell.dart';
+import 'card_cell_skeleton/timestamp_card_cell.dart';
+import 'card_cell_skeleton/translate_card_cell.dart';
 import 'card_cell_skeleton/url_card_cell.dart';
 
 typedef CardCellStyleMap = Map<FieldType, CardCellStyle>;
@@ -93,6 +96,18 @@ class CardCellBuilder {
           cellContext: cellContext,
         ),
       FieldType.Summary => SummaryCardCell(
+          key: key,
+          style: isStyleOrNull(style),
+          databaseController: databaseController,
+          cellContext: cellContext,
+        ),
+      FieldType.Time => TimeCardCell(
+          key: key,
+          style: isStyleOrNull(style),
+          databaseController: databaseController,
+          cellContext: cellContext,
+        ),
+      FieldType.Translate => TranslateCardCell(
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,

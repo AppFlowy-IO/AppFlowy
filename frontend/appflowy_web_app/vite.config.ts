@@ -6,6 +6,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import usePluginImport from 'vite-plugin-importer';
 import { totalBundleSize } from 'vite-plugin-total-bundle-size';
 import path from 'path';
+import istanbul from 'vite-plugin-istanbul';
 
 const resourcesPath = path.resolve(__dirname, '../resources');
 const isDev = process.env.NODE_ENV === 'development';
@@ -40,6 +41,17 @@ export default defineConfig({
         },
       },
     }),
+    istanbul({
+      cypress: true,
+      requireEnv: false,
+      include: ['src/**/*'],
+      exclude: [
+        '**/__tests__/**/*',
+        'cypress/**/*',
+        'node_modules/**/*',
+        'src/application/services/tauri-services/**/*',
+      ],
+    }),
     usePluginImport({
       libraryName: '@mui/icons-material',
       libraryDirectory: '',
@@ -66,13 +78,13 @@ export default defineConfig({
     port: !!process.env.TAURI_PLATFORM ? 5173 : process.env.PORT ? parseInt(process.env.PORT) : 3000,
     strictPort: true,
     watch: {
-      ignored: ['**/__tests__/**'],
+      ignored: ['node_modules'],
     },
     cors: false,
   },
   envPrefix: ['AF', 'TAURI_'],
   esbuild: {
-    drop: isDev ? [] : ['console', 'debugger'],
+    pure: !isDev ? ['console.log', 'console.debug', 'console.info', 'console.trace'] : [],
   },
   build: !!process.env.TAURI_PLATFORM
     ? {
@@ -125,6 +137,16 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ['@mui/material/Tooltip'],
+    include: [
+      'react',
+      'react-dom',
+      '@mui/icons-material/ErrorOutline',
+      '@mui/icons-material/CheckCircleOutline',
+      '@mui/icons-material/FunctionsOutlined',
+      'react-katex',
+      // 'react-custom-scrollbars-2',
+      // 'react-window',
+      // 'react-virtualized-auto-sizer',
+    ],
   },
 });

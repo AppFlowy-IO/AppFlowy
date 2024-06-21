@@ -1,6 +1,26 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    chat_message_table (message_id) {
+        message_id -> BigInt,
+        chat_id -> Text,
+        content -> Text,
+        created_at -> BigInt,
+        author_type -> BigInt,
+        author_id -> Text,
+        reply_message_id -> Nullable<BigInt>,
+    }
+}
+
+diesel::table! {
+    chat_table (chat_id) {
+        chat_id -> Text,
+        created_at -> BigInt,
+        name -> Text,
+    }
+}
+
+diesel::table! {
     collab_snapshot (id) {
         id -> Text,
         object_id -> Text,
@@ -9,6 +29,28 @@ diesel::table! {
         collab_type -> Text,
         timestamp -> BigInt,
         data -> Binary,
+    }
+}
+
+diesel::table! {
+    upload_file_part (upload_id, e_tag) {
+        upload_id -> Text,
+        e_tag -> Text,
+        part_num -> Integer,
+    }
+}
+
+diesel::table! {
+    upload_file_table (workspace_id, file_id, parent_dir) {
+        workspace_id -> Text,
+        file_id -> Text,
+        parent_dir -> Text,
+        local_file_path -> Text,
+        content_type -> Text,
+        chunk_size -> Integer,
+        num_chunk -> Integer,
+        upload_id -> Text,
+        created_at -> BigInt,
     }
 }
 
@@ -47,9 +89,26 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    workspace_members_table (email, workspace_id) {
+        email -> Text,
+        role -> Integer,
+        name -> Text,
+        avatar_url -> Nullable<Text>,
+        uid -> BigInt,
+        workspace_id -> Text,
+        updated_at -> Timestamp,
+    }
+}
+
 diesel::allow_tables_to_appear_in_same_query!(
-  collab_snapshot,
-  user_data_migration_records,
-  user_table,
-  user_workspace_table,
+    chat_message_table,
+    chat_table,
+    collab_snapshot,
+    upload_file_part,
+    upload_file_table,
+    user_data_migration_records,
+    user_table,
+    user_workspace_table,
+    workspace_members_table,
 );

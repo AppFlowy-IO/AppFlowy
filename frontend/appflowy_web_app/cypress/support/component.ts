@@ -14,6 +14,7 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
+import '@cypress/code-coverage/support';
 import './commands';
 import './document';
 // Alternatively you can use CommonJS syntax:
@@ -31,11 +32,40 @@ declare global {
     interface Chainable {
       mount: typeof mount;
       mockAPI: () => void;
+      mockDatabase: () => void;
+      mockCurrentWorkspace: () => void;
+      mockGetWorkspaceDatabases: () => void;
+      mockDocument: (id: string) => void;
+      clickOutside: () => void;
+      getTestingSelector: (testId: string) => Chainable<JQuery<HTMLElement>>;
     }
   }
 }
 
 Cypress.Commands.add('mount', mount);
 
+Cypress.Commands.add('getTestingSelector', (testId: string) => {
+  return cy.get(`[data-testid="${testId}"]`);
+});
+
+Cypress.Commands.add('clickOutside', () => {
+  cy.document().then((doc) => {
+    // [0, 0] is the top left corner of the window
+    const x = 0;
+    const y = 0;
+
+    const evt = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+      clientX: x,
+      clientY: y,
+    });
+
+    // Dispatch the event
+    doc.elementFromPoint(x, y)?.dispatchEvent(evt);
+  });
+});
 // Example use:
 // cy.mount(<MyComponent />)
+

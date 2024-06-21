@@ -1,5 +1,6 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:flutter/material.dart';
+
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 
 import 'choicechip/checkbox.dart';
 import 'choicechip/checklist/checklist.dart';
@@ -28,6 +29,8 @@ class FilterMenuItem extends StatelessWidget {
         SelectOptionFilterChoicechip(filterInfo: filterInfo),
       FieldType.URL => URLFilterChoiceChip(filterInfo: filterInfo),
       FieldType.Checklist => ChecklistFilterChoicechip(filterInfo: filterInfo),
+      // FieldType.Time =>
+      //   TimeFilterChoiceChip(filterInfo: filterInfo),
       _ => const SizedBox(),
     };
   }

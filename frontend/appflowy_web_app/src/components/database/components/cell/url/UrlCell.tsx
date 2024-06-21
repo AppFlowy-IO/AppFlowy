@@ -1,5 +1,5 @@
 import { useReadOnly } from '@/application/database-yjs';
-import { CellProps, UrlCell as UrlCellType } from '@/components/database/components/cell/cell.type';
+import { CellProps, UrlCell as UrlCellType } from '@/application/database-yjs/cell.type';
 import { openUrl, processUrl } from '@/utils/url';
 import React, { useMemo } from 'react';
 
@@ -30,9 +30,10 @@ export function UrlCell({ cell, style, placeholder }: CellProps<UrlCellType>) {
   return (
     <div
       style={style}
-      onClick={() => {
+      onClick={(e) => {
         if (!isUrl || !cell) return;
         if (readOnly) {
+          e.stopPropagation();
           void openUrl(cell.data, '_blank');
         }
       }}

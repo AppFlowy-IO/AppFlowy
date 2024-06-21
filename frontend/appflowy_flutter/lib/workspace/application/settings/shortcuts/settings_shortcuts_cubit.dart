@@ -18,7 +18,27 @@ class ShortcutsState with _$ShortcutsState {
   }) = _ShortcutsState;
 }
 
-enum ShortcutsStatus { initial, updating, success, failure }
+enum ShortcutsStatus {
+  initial,
+  updating,
+  success,
+  failure;
+
+  /// Helper getter for when the [ShortcutsStatus] signifies
+  /// that the shortcuts have not been loaded yet.
+  ///
+  bool get isLoading => [initial, updating].contains(this);
+
+  /// Helper getter for when the [ShortcutsStatus] signifies
+  /// a failure by itself being [ShortcutsStatus.failure]
+  ///
+  bool get isFailure => this == ShortcutsStatus.failure;
+
+  /// Helper getter for when the [ShortcutsStatus] signifies
+  /// a success by itself being [ShortcutsStatus.success]
+  ///
+  bool get isSuccess => this == ShortcutsStatus.success;
+}
 
 class ShortcutsCubit extends Cubit<ShortcutsState> {
   ShortcutsCubit(this.service) : super(const ShortcutsState());
@@ -56,44 +76,31 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       emit(
         state.copyWith(
           status: ShortcutsStatus.failure,
-          error: LocaleKeys.settings_shortcuts_couldNotLoadErrorMsg.tr(),
+          error: LocaleKeys.settings_shortcutsPage_couldNotLoadErrorMsg.tr(),
         ),
       );
     }
   }
 
   Future<void> updateAllShortcuts() async {
-    emit(
-      state.copyWith(
-        status: ShortcutsStatus.updating,
-        error: '',
-      ),
-    );
+    emit(state.copyWith(status: ShortcutsStatus.updating, error: ''));
+
     try {
       await service.saveAllShortcuts(state.commandShortcutEvents);
-      emit(
-        state.copyWith(
-          status: ShortcutsStatus.success,
-          error: '',
-        ),
-      );
+      emit(state.copyWith(status: ShortcutsStatus.success, error: ''));
     } catch (e) {
       emit(
         state.copyWith(
           status: ShortcutsStatus.failure,
-          error: LocaleKeys.settings_shortcuts_couldNotSaveErrorMsg.tr(),
+          error: LocaleKeys.settings_shortcutsPage_couldNotSaveErrorMsg.tr(),
         ),
       );
     }
   }
 
   Future<void> resetToDefault() async {
-    emit(
-      state.copyWith(
-        status: ShortcutsStatus.updating,
-        error: '',
-      ),
-    );
+    emit(state.copyWith(status: ShortcutsStatus.updating, error: ''));
+
     try {
       await service.saveAllShortcuts(defaultCommandShortcutEvents);
       await fetchShortcuts();
@@ -101,7 +108,7 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       emit(
         state.copyWith(
           status: ShortcutsStatus.failure,
-          error: LocaleKeys.settings_shortcuts_couldNotSaveErrorMsg.tr(),
+          error: LocaleKeys.settings_shortcutsPage_couldNotSaveErrorMsg.tr(),
         ),
       );
     }
@@ -110,16 +117,20 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
   /// Checks if the new command is conflicting with other shortcut
   /// We also check using the key, whether this command is a codeblock
   /// shortcut, if so we only check a conflict with other codeblock shortcut.
-  String getConflict(CommandShortcutEvent currentShortcut, String command) {
+  CommandShortcutEvent? getConflict(
+    CommandShortcutEvent currentShortcut,
+    String command,
+  ) {
     // check if currentShortcut is a codeblock shortcut.
     final isCodeBlockCommand = currentShortcut.isCodeBlockCommand;
 
     for (final e in state.commandShortcutEvents) {
       if (e.command == command && e.isCodeBlockCommand == isCodeBlockCommand) {
-        return e.key;
+        return e;
       }
     }
-    return '';
+
+    return null;
   }
 }
 

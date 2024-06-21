@@ -94,7 +94,9 @@ class SelectOptionTag extends StatelessWidget {
       color: AFThemeExtension.of(context).textColor,
       textAlign: textAlign,
     );
+
     return Container(
+      height: 20,
       padding: onRemove == null ? padding : padding.copyWith(right: 2.0),
       decoration: BoxDecoration(
         color: optionColor,
@@ -122,4 +124,3 @@ class SelectOptionTag extends StatelessWidget {
     );
   }
 }
-

@@ -93,9 +93,12 @@ class _GridFieldCellState extends State<GridFieldCell> {
                 onFieldInserted: widget.onFieldInsertedOnEitherSide,
               );
             },
-            child: FieldCellButton(
-              field: widget.fieldInfo.field,
-              onTap: widget.onTap,
+            child: SizedBox(
+              height: 40,
+              child: FieldCellButton(
+                field: widget.fieldInfo.field,
+                onTap: widget.onTap,
+              ),
             ),
           );
 
@@ -217,6 +220,12 @@ class FieldCellButton extends StatelessWidget {
         field.fieldType.svgData,
         color: Theme.of(context).iconTheme.color,
       ),
+      rightIcon: field.fieldType.rightIcon != null
+          ? FlowySvg(
+              field.fieldType.rightIcon!,
+              blendMode: null,
+            )
+          : null,
       radius: radius,
       text: FlowyText.medium(
         field.name,

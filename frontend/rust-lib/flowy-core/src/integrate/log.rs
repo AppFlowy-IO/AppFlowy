@@ -52,6 +52,8 @@ pub fn create_log_filter(level: String, with_crates: Vec<String>, platform: Plat
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_infra={}", level));
   filters.push(format!("flowy_search={}", level));
+  filters.push(format!("flowy_chat={}", level));
+  filters.push(format!("flowy_storage={}", level));
   // Enable the frontend logs. DO NOT DISABLE.
   // These logs are essential for debugging and verifying frontend behavior.
   filters.push(format!("dart_ffi={}", level));

@@ -16,6 +16,8 @@ import 'package:scaled_app/scaled_app.dart';
 
 typedef KeyDownHandler = void Function(HotKey hotKey);
 
+ValueNotifier<int> switchToTheNextSpace = ValueNotifier(0);
+
 /// Helper class that utilizes the global [HotKeyManager] to easily
 /// add a [HotKey] with different handlers.
 ///
@@ -54,13 +56,24 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
   final windowSizeManager = WindowSizeManager();
 
   late final items = [
-    // Collapse sidebar menu
+    // Collapse sidebar menu (using slash)
     HotKeyItem(
       hotKey: HotKey(
-        Platform.isMacOS ? KeyCode.period : KeyCode.backslash,
+        KeyCode.backslash,
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
-        // Set hotkey scope (default is HotKeyScope.system)
-        scope: HotKeyScope.inapp, // Set as inapp-wide hotkey.
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => context
+          .read<HomeSettingBloc>()
+          .add(const HomeSettingEvent.collapseMenu()),
+    ),
+
+    // Collapse sidebar menu (using .)
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.period,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => context
           .read<HomeSettingBloc>()
@@ -141,6 +154,26 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
       keyDownHandler: (_) => _scaleWithStep(-0.1),
     ),
 
+    // Reset app scaling
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.digit0,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => _scaleToSize(1),
+    ),
+
+    // Switch to the next space
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.keyO,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => switchToTheNextSpace.value++,
+    ),
+
     // Open settings dialog
     openSettingsHotKey(context, widget.userProfile),
   ];
@@ -182,7 +215,11 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
 
     Log.info('scale the app from $currentScaleFactor to $textScale');
 
-    ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => textScale;
-    await windowSizeManager.setScaleFactor(textScale);
+    await _scaleToSize(textScale);
+  }
+
+  Future<void> _scaleToSize(double size) async {
+    ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => size;
+    await windowSizeManager.setScaleFactor(size);
   }
 }

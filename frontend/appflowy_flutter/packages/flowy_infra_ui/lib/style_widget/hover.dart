@@ -97,7 +97,13 @@ class _FlowyHoverState extends State<FlowyHover> {
         child: child,
       );
     } else {
-      return Container(color: style.backgroundColor, child: child);
+      return Container(
+        decoration: BoxDecoration(
+          color: style.backgroundColor,
+          borderRadius: style.borderRadius,
+        ),
+        child: child,
+      );
     }
   }
 }

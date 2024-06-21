@@ -57,6 +57,7 @@ class SettingListTile extends StatelessWidget {
             icon: FlowySvg(
               FlowySvgs.restore_s,
               color: Theme.of(context).iconTheme.color,
+              size: const Size.square(20),
             ),
             iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
             tooltipText: resetTooltipText ??

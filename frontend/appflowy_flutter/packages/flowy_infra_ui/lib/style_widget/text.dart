@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import 'package:google_fonts/google_fonts.dart';
+
 class FlowyText extends StatelessWidget {
   final String text;
   final TextOverflow? overflow;
@@ -18,6 +20,7 @@ class FlowyText extends StatelessWidget {
   final bool withTooltip;
   final StrutStyle? strutStyle;
   final TextDirection? textDirection;
+  final bool isEmoji;
 
   const FlowyText(
     this.text, {
@@ -34,6 +37,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.isEmoji = false,
     this.strutStyle,
     this.textDirection,
   });
@@ -51,6 +55,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.isEmoji = false,
     this.strutStyle,
     this.textDirection,
   })  : fontWeight = FontWeight.w400,
@@ -70,6 +75,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.isEmoji = false,
     this.strutStyle,
     this.textDirection,
   }) : fontWeight = FontWeight.w400;
@@ -88,6 +94,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.isEmoji = false,
     this.strutStyle,
     this.textDirection,
   }) : fontWeight = FontWeight.w500;
@@ -106,6 +113,7 @@ class FlowyText extends StatelessWidget {
     this.fallbackFontFamily,
     this.lineHeight,
     this.withTooltip = false,
+    this.isEmoji = false,
     this.strutStyle,
     this.textDirection,
   }) : fontWeight = FontWeight.w600;
@@ -125,13 +133,29 @@ class FlowyText extends StatelessWidget {
     this.withTooltip = false,
     this.strutStyle = const StrutStyle(forceStrutHeight: true),
     this.textDirection,
+    this.isEmoji = true,
+    this.fontFamily,
   })  : fontWeight = FontWeight.w400,
-        fontFamily = 'noto color emoji',
         fallbackFontFamily = null;
 
   @override
   Widget build(BuildContext context) {
     Widget child;
+
+    var fontFamily = this.fontFamily;
+    var fallbackFontFamily = this.fallbackFontFamily;
+    var fontSize =
+        this.fontSize ?? Theme.of(context).textTheme.bodyMedium!.fontSize!;
+    if (isEmoji && _useNotoColorEmoji) {
+      fontFamily = _loadEmojiFontFamilyIfNeeded();
+      if (fontFamily != null && fallbackFontFamily == null) {
+        fallbackFontFamily = [fontFamily];
+      }
+    }
+
+    if (isEmoji && (_useNotoColorEmoji || Platform.isWindows)) {
+      fontSize = fontSize * 0.8;
+    }
 
     final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
           fontSize: fontSize,
@@ -144,13 +168,14 @@ class FlowyText extends StatelessWidget {
         );
 
     if (selectable) {
-      child = SelectableText(
-        text,
-        maxLines: maxLines,
-        textAlign: textAlign,
-        strutStyle: strutStyle,
-        style: textStyle,
+      child = IntrinsicHeight(
+        child: SelectableText(
+          text,
+          maxLines: maxLines,
+          textAlign: textAlign,
+          style: textStyle,
         textDirection: textDirection,
+        ),
       );
     } else {
       child = Text(
@@ -160,6 +185,14 @@ class FlowyText extends StatelessWidget {
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
         textDirection: textDirection,
+        strutStyle: (Platform.isMacOS || Platform.isLinux) & !isEmoji
+            ? StrutStyle.fromTextStyle(
+                textStyle,
+                forceStrutHeight: true,
+                leadingDistribution: TextLeadingDistribution.even,
+                height: lineHeight ?? 1.1,
+              )
+            : null,
       );
     }
 
@@ -172,4 +205,14 @@ class FlowyText extends StatelessWidget {
 
     return child;
   }
+
+  String? _loadEmojiFontFamilyIfNeeded() {
+    if (_useNotoColorEmoji) {
+      return GoogleFonts.notoColorEmoji().fontFamily;
+    }
+
+    return null;
+  }
+
+  bool get _useNotoColorEmoji => Platform.isLinux || Platform.isAndroid;
 }

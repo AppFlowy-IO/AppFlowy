@@ -63,31 +63,48 @@ class ViewMoreActionButton extends StatelessWidget {
 
   List<ViewMoreActionType> _buildActionTypes() {
     final List<ViewMoreActionType> actionTypes = [];
-    switch (spaceType) {
-      case FolderSpaceType.favorite:
+
+    if (spaceType == FolderSpaceType.favorite) {
+      actionTypes.addAll([
+        ViewMoreActionType.unFavorite,
+        ViewMoreActionType.divider,
+        ViewMoreActionType.rename,
+        ViewMoreActionType.openInNewTab,
+      ]);
+    } else {
+      actionTypes.add(
+        view.isFavorite
+            ? ViewMoreActionType.unFavorite
+            : ViewMoreActionType.favorite,
+      );
+
+      actionTypes.addAll([
+        ViewMoreActionType.divider,
+        ViewMoreActionType.rename,
+      ]);
+
+      // Chat doesn't change icon and duplicate
+      if (view.layout != ViewLayoutPB.Chat) {
         actionTypes.addAll([
-          ViewMoreActionType.unFavorite,
-          ViewMoreActionType.divider,
-          ViewMoreActionType.rename,
-          ViewMoreActionType.openInNewTab,
-        ]);
-        break;
-      default:
-        actionTypes.addAll([
-          view.isFavorite
-              ? ViewMoreActionType.unFavorite
-              : ViewMoreActionType.favorite,
-          ViewMoreActionType.divider,
-          ViewMoreActionType.rename,
           ViewMoreActionType.changeIcon,
           ViewMoreActionType.duplicate,
-          ViewMoreActionType.delete,
-          ViewMoreActionType.divider,
-          ViewMoreActionType.collapseAllPages,
-          ViewMoreActionType.divider,
-          ViewMoreActionType.openInNewTab,
         ]);
+      }
+
+      actionTypes.addAll([
+        ViewMoreActionType.delete,
+        ViewMoreActionType.divider,
+      ]);
+
+      // Chat doesn't change collapse
+      if (view.layout != ViewLayoutPB.Chat) {
+        actionTypes.add(ViewMoreActionType.collapseAllPages);
+        actionTypes.add(ViewMoreActionType.divider);
+      }
+
+      actionTypes.add(ViewMoreActionType.openInNewTab);
     }
+
     return actionTypes;
   }
 }
@@ -128,6 +145,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
 
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(364, 356)),
+      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (_) => FlowyIconPicker(
         onSelected: (result) => onTap(controller, result),

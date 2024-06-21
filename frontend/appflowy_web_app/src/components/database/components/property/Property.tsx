@@ -1,12 +1,13 @@
 import { YjsDatabaseKey } from '@/application/collab.type';
 import { FieldType, useCellSelector, useFieldSelector } from '@/application/database-yjs';
-import { Cell as CellType, CellProps, TextCell } from '@/components/database/components/cell/cell.type';
+import { Cell as CellType, CellProps } from '@/application/database-yjs/cell.type';
 import { CheckboxCell } from '@/components/database/components/cell/checkbox';
 import { RowCreateModifiedTime } from '@/components/database/components/cell/created-modified';
 import { DateTimeCell } from '@/components/database/components/cell/date';
 import { NumberCell } from '@/components/database/components/cell/number';
 import { RelationCell } from '@/components/database/components/cell/relation';
 import { SelectOptionCell } from '@/components/database/components/cell/select-option';
+import { TextCell } from '@/components/database/components/cell/text';
 import { UrlCell } from '@/components/database/components/cell/url';
 import PropertyWrapper from '@/components/database/components/property/PropertyWrapper';
 import { TextProperty } from '@/components/database/components/property/text';
@@ -42,6 +43,8 @@ export function Property({ fieldId, rowId }: { fieldId: string; rowId: string })
         return ChecklistProperty;
       case FieldType.Relation:
         return RelationCell;
+      case FieldType.RichText:
+        return TextCell;
       default:
         return TextProperty;
     }
@@ -53,10 +56,6 @@ export function Property({ fieldId, rowId }: { fieldId: string; rowId: string })
     }),
     []
   );
-
-  if (fieldType === FieldType.RichText) {
-    return <TextProperty cell={cell as TextCell} fieldId={fieldId} rowId={rowId} />;
-  }
 
   if (fieldType === FieldType.CreatedTime || fieldType === FieldType.LastEditedTime) {
     const attrName = fieldType === FieldType.CreatedTime ? YjsDatabaseKey.created_at : YjsDatabaseKey.last_modified;

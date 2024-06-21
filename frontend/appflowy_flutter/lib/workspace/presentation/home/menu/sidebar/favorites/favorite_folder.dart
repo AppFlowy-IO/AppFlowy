@@ -82,7 +82,12 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
       return [];
     }
 
-    return context.read<FavoriteBloc>().state.pinnedViews.map(
+    return context
+        .read<FavoriteBloc>()
+        .state
+        .pinnedViews
+        .map((e) => e.item)
+        .map(
           (view) => ViewItem(
             key: ValueKey(
               '${FolderSpaceType.favorite.name} ${view.id}',
@@ -104,6 +109,7 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
               const HSpace(4.0),
             ],
             shouldRenderChildren: false,
+            shouldLoadChildViews: false,
             onTertiarySelected: (_, view) =>
                 context.read<TabsBloc>().openTab(view),
             onSelected: (_, view) {
@@ -128,15 +134,22 @@ class FavoriteHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      onTap: onPressed,
-      margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 7.0),
-      leftIcon: const FlowySvg(
-        FlowySvgs.favorite_header_icon_s,
-        blendMode: null,
+    return SizedBox(
+      height: HomeSizes.newPageSectionHeight,
+      child: FlowyButton(
+        onTap: onPressed,
+        margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 3.0),
+        leftIcon: const FlowySvg(
+          FlowySvgs.favorite_header_icon_m,
+          blendMode: null,
+        ),
+        leftIconSize: const Size.square(24.0),
+        iconPadding: 8.0,
+        text: FlowyText.regular(
+          LocaleKeys.sideBar_favorites.tr(),
+          lineHeight: 1.15,
+        ),
       ),
-      iconPadding: 10.0,
-      text: FlowyText.regular(LocaleKeys.sideBar_favorites.tr()),
     );
   }
 }
@@ -147,6 +160,7 @@ class FavoriteMoreButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final favoriteBloc = context.watch<FavoriteBloc>();
+    final tabsBloc = context.read<TabsBloc>();
     final unpinnedViews = favoriteBloc.state.unpinnedViews;
     // only show the more button if there are unpinned views
     if (unpinnedViews.isEmpty) {
@@ -164,19 +178,24 @@ class FavoriteMoreButton extends StatelessWidget {
         borderRadius: 10.0,
       ),
       popupBuilder: (_) {
-        return BlocProvider.value(
-          value: favoriteBloc,
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: favoriteBloc),
+            BlocProvider.value(value: tabsBloc),
+          ],
           child: const FavoriteMenu(minWidth: minWidth),
         );
       },
       margin: EdgeInsets.zero,
       child: FlowyButton(
         onTap: () {},
-        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
+        margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 7.0),
         leftIcon: const FlowySvg(
           FlowySvgs.workspace_three_dots_s,
         ),
-        text: FlowyText.regular(LocaleKeys.button_more.tr()),
+        text: FlowyText.regular(
+          LocaleKeys.button_more.tr(),
+        ),
       ),
     );
   }

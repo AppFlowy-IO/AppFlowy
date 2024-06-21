@@ -1,5 +1,11 @@
-import { currencyFormaterMap, NumberFormat, useFieldSelector, parseNumberTypeOptions } from '@/application/database-yjs';
-import { CellProps, NumberCell as NumberCellType } from '@/components/database/components/cell/cell.type';
+import {
+  currencyFormaterMap,
+  NumberFormat,
+  useFieldSelector,
+  parseNumberTypeOptions,
+  FieldType,
+} from '@/application/database-yjs';
+import { CellProps, NumberCell as NumberCellType } from '@/application/database-yjs/cell.type';
 import React, { useMemo } from 'react';
 import Decimal from 'decimal.js';
 
@@ -15,7 +21,7 @@ export function NumberCell({ cell, fieldId, style, placeholder }: CellProps<Numb
   }, []);
 
   const value = useMemo(() => {
-    if (!cell) return '';
+    if (!cell || cell.fieldType !== FieldType.Number) return '';
     const numberFormater = currencyFormaterMap[format];
 
     if (!numberFormater) return cell.data;

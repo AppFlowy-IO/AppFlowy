@@ -9,7 +9,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use nanoid::nanoid;
-use parking_lot::RwLock;
+use parking_lot::{Mutex, RwLock};
 use semver::Version;
 use tokio::select;
 use tokio::time::sleep;
@@ -24,6 +24,7 @@ use lib_dispatch::runtime::AFPluginRuntime;
 
 use crate::user_event::TestNotificationSender;
 
+mod chat_event;
 pub mod database_event;
 pub mod document;
 pub mod document_event;
@@ -36,7 +37,7 @@ pub struct EventIntegrationTest {
   pub authenticator: Arc<RwLock<AuthenticatorPB>>,
   pub appflowy_core: AppFlowyCore,
   #[allow(dead_code)]
-  cleaner: Arc<Cleaner>,
+  cleaner: Arc<Mutex<Cleaner>>,
   pub notification_sender: TestNotificationSender,
 }
 
@@ -51,10 +52,26 @@ impl EventIntegrationTest {
     Self::new_with_user_data_path(temp_dir, name.to_string()).await
   }
 
+  pub async fn new_with_config(config: AppFlowyCoreConfig) -> Self {
+    let clean_path = config.storage_path.clone();
+    let inner = init_core(config).await;
+    let notification_sender = TestNotificationSender::new();
+    let authenticator = Arc::new(RwLock::new(AuthenticatorPB::Local));
+    register_notification_sender(notification_sender.clone());
+
+    // In case of dropping the runtime that runs the core, we need to forget the dispatcher
+    std::mem::forget(inner.dispatcher());
+    Self {
+      appflowy_core: inner,
+      authenticator,
+      notification_sender,
+      cleaner: Arc::new(Mutex::new(Cleaner::new(PathBuf::from(clean_path)))),
+    }
+  }
+
   pub async fn new_with_user_data_path(path_buf: PathBuf, name: String) -> Self {
     let path = path_buf.to_str().unwrap().to_string();
     let device_id = uuid::Uuid::new_v4().to_string();
-
     let config = AppFlowyCoreConfig::new(
       Version::new(0, 5, 8),
       path.clone(),
@@ -71,20 +88,11 @@ impl EventIntegrationTest {
         // "lib_dispatch".to_string(),
       ],
     );
+    Self::new_with_config(config).await
+  }
 
-    let inner = init_core(config).await;
-    let notification_sender = TestNotificationSender::new();
-    let authenticator = Arc::new(RwLock::new(AuthenticatorPB::Local));
-    register_notification_sender(notification_sender.clone());
-
-    // In case of dropping the runtime that runs the core, we need to forget the dispatcher
-    std::mem::forget(inner.dispatcher());
-    Self {
-      appflowy_core: inner,
-      authenticator,
-      notification_sender,
-      cleaner: Arc::new(Cleaner(path_buf)),
-    }
+  pub fn set_no_cleanup(&mut self) {
+    self.cleaner.lock().should_clean = false;
   }
 
   pub fn instance_name(&self) -> String {
@@ -172,11 +180,18 @@ impl std::ops::Deref for EventIntegrationTest {
   }
 }
 
-pub struct Cleaner(PathBuf);
+#[derive(Clone)]
+pub struct Cleaner {
+  dir: PathBuf,
+  should_clean: bool,
+}
 
 impl Cleaner {
   pub fn new(dir: PathBuf) -> Self {
-    Cleaner(dir)
+    Self {
+      dir,
+      should_clean: true,
+    }
   }
 
   fn cleanup(dir: &PathBuf) {
@@ -186,6 +201,8 @@ impl Cleaner {
 
 impl Drop for Cleaner {
   fn drop(&mut self) {
-    Self::cleanup(&self.0)
+    if self.should_clean {
+      Self::cleanup(&self.dir)
+    }
   }
 }
