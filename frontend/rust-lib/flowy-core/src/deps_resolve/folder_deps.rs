@@ -183,6 +183,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     &self,
     user_id: i64,
     view_id: &str,
+    _parent_view_id: &str,
     _name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
@@ -303,6 +304,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     &self,
     _user_id: i64,
     view_id: &str,
+    parent_view_id: &str,
     name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
@@ -332,10 +334,17 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         };
         let name = name.to_string();
         let database_view_id = view_id.to_string();
+        let database_parent_view_id = parent_view_id.to_string();
 
         FutureResult::new(async move {
           database_manager
-            .create_linked_view(name, layout.into(), params.database_id, database_view_id)
+            .create_linked_view(
+              name,
+              layout.into(),
+              params.database_id,
+              database_view_id,
+              database_parent_view_id,
+            )
             .await?;
           Ok(())
         })
@@ -505,6 +514,7 @@ impl FolderOperationHandler for ChatFolderOperation {
     &self,
     _user_id: i64,
     _view_id: &str,
+    _parent_view_id: &str,
     _name: &str,
     _data: Vec<u8>,
     _layout: ViewLayout,

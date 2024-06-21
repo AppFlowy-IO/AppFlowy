@@ -389,6 +389,7 @@ impl FolderManager {
         .create_view_with_view_data(
           user_id,
           &params.view_id,
+          &params.parent_view_id,
           &params.name,
           params.initial_data.clone(),
           view_layout.clone(),

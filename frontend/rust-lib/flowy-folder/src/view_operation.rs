@@ -64,6 +64,7 @@ pub trait FolderOperationHandler {
     &self,
     user_id: i64,
     view_id: &str,
+    parent_view_id: &str,
     name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
