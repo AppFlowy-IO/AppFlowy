@@ -30,7 +30,8 @@ class DocumentShareButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DocumentShareBloc>(param1: view),
+      create: (context) => getIt<DocumentShareBloc>(param1: view)
+        ..add(const DocumentShareEvent.initial()),
       child: BlocListener<DocumentShareBloc, DocumentShareState>(
         listener: (context, state) {
           if (state.isLoading == false && state.exportResult != null) {

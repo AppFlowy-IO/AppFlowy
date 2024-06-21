@@ -279,6 +279,13 @@ class ViewBackendService {
     return FolderEventUpdateViewVisibilityStatus(payload).send();
   }
 
+  static Future<FlowyResult<PublishInfoResponsePB, FlowyError>> getPublishInfo(
+    ViewPB view,
+  ) async {
+    final payload = ViewIdPB()..value = view.id;
+    return FolderEventGetPublishInfo(payload).send();
+  }
+
   static Future<FlowyResult<void, FlowyError>> publish(
     ViewPB view, {
     String? name,
@@ -288,7 +295,6 @@ class ViewBackendService {
     if (name != null) {
       payload.publishName = name;
     }
-
     return FolderEventPublishView(payload).send();
   }
 
@@ -304,5 +310,10 @@ class ViewBackendService {
   ) async {
     final payload = SetPublishNamespacePayloadPB()..newNamespace = name;
     return FolderEventSetPublishNamespace(payload).send();
+  }
+
+  static Future<FlowyResult<PublishNamespacePB, FlowyError>>
+      getPublishNameSpace() async {
+    return FolderEventGetPublishNamespace().send();
   }
 }

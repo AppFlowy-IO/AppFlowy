@@ -13,12 +13,27 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'document_share_bloc.freezed.dart';
 
+const _url = 'https://test.appflowy.io';
+
 class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
   DocumentShareBloc({
     required this.view,
   }) : super(DocumentShareState.initial()) {
     on<DocumentShareEvent>((event, emit) async {
       await event.when(
+        initial: () async {
+          final publishInfo = await ViewBackendService.getPublishInfo(view);
+          publishInfo.fold((s) {
+            emit(
+              state.copyWith(
+                isPublished: true,
+                url: '$_url/${s.namespace}/${s.publishName}',
+              ),
+            );
+          }, (f) {
+            emit(state.copyWith(isPublished: false, url: ''));
+          });
+        },
         share: (type, path) async {
           if (DocumentShareType.unimplemented.contains(type)) {
             Log.error('DocumentShareType $type is not implemented');
@@ -38,22 +53,25 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
         },
         publish: (url) async {
           // todo: optimize the logic
-          const spaceName = 'appflowy';
-          final name = '${view.name}-${uuid()}';
+          const prefix = 'appflowy';
+          final name = '${view.name}-${uuid()}'.substring(0, 19);
 
           // set space name
 
-          FlowyResult<void, FlowyError>? result;
           try {
-            await ViewBackendService.setPublishNameSpace(spaceName)
-                .getOrThrow();
-            result = await ViewBackendService.publish(view, name: name);
+            final nameSpace =
+                await ViewBackendService.getPublishNameSpace().getOrThrow();
+            if (nameSpace.namespace != prefix) {
+              await ViewBackendService.setPublishNameSpace(prefix).getOrThrow();
+            }
+
+            final result = await ViewBackendService.publish(view, name: name);
 
             emit(
               state.copyWith(
                 isPublished: true,
                 publishResult: result,
-                url: 'https://test.appflowy.io/$spaceName/$name',
+                url: '$_url/${nameSpace.namespace}/$name',
               ),
             );
           } catch (e) {
@@ -75,6 +93,7 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
           emit(
             state.copyWith(
               isPublished: false,
+              publishResult: null,
               url: '',
             ),
           );
@@ -149,6 +168,7 @@ enum DocumentShareType {
 
 @freezed
 class DocumentShareEvent with _$DocumentShareEvent {
+  const factory DocumentShareEvent.initial() = _Initial;
   const factory DocumentShareEvent.share(
     DocumentShareType type,
     String? path,
