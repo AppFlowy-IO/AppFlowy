@@ -51,32 +51,36 @@ class _ShareMenuState extends State<ShareMenu> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CustomSlidingSegmentedControl<ShareMenuTab>(
-          initialValue: selectedTab,
-          curve: Curves.linear,
-          padding: 0,
-          innerPadding: const EdgeInsets.all(3.0),
-          children: children,
-          decoration: BoxDecoration(
-            color: const Color(0xFFEEF0F3),
-            borderRadius: BorderRadius.circular(8),
+        SizedBox(
+          height: 34,
+          child: CustomSlidingSegmentedControl<ShareMenuTab>(
+            initialValue: selectedTab,
+            curve: Curves.linear,
+            padding: 0,
+            fixedWidth: 128,
+            innerPadding: const EdgeInsets.all(3.0),
+            children: children,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEEF0F3),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            thumbDecoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x141F2225),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            onValueChanged: (v) {
+              setState(() {
+                selectedTab = v;
+              });
+            },
           ),
-          thumbDecoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x141F2225),
-                blurRadius: 8,
-                offset: Offset(0, 2),
-              ),
-            ],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          onValueChanged: (v) {
-            setState(() {
-              selectedTab = v;
-            });
-          },
         ),
         _buildTab(context),
       ],
@@ -108,13 +112,10 @@ class _Segment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textColor = isSelected ? null : Theme.of(context).hintColor;
-    return SizedBox(
-      width: 128,
-      child: FlowyText(
-        title,
-        textAlign: TextAlign.center,
-        color: textColor,
-      ),
+    return FlowyText(
+      title,
+      textAlign: TextAlign.center,
+      color: textColor,
     );
   }
 }

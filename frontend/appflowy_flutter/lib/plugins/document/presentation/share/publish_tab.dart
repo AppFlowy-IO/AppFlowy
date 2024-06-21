@@ -1,25 +1,31 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PublishTab extends StatefulWidget {
+class PublishTab extends StatelessWidget {
   const PublishTab({super.key});
 
   @override
-  State<PublishTab> createState() => _PublishTabState();
-}
-
-class _PublishTabState extends State<PublishTab> {
-  bool isPublished = false;
-
-  @override
   Widget build(BuildContext context) {
-    return isPublished
-        ? _PublishedWidget(onUnPublish: () {}, onVisitSite: () {})
-        : _UnPublishWidget(onPublish: () => setState(() => isPublished = true));
+    return context.watch<DocumentShareBloc>().state.isPublished
+        ? _PublishedWidget(
+            onUnPublish: () {
+              context
+                  .read<DocumentShareBloc>()
+                  .add(const DocumentShareEvent.unPublish());
+            },
+            onVisitSite: () {},
+          )
+        : _UnPublishWidget(
+            onPublish: () => context
+                .read<DocumentShareBloc>()
+                .add(const DocumentShareEvent.publish('')),
+          );
   }
 }
 
