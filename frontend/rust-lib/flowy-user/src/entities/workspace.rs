@@ -99,17 +99,6 @@ pub struct AcceptWorkspaceInvitationPB {
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
-pub struct AddWorkspaceMemberPB {
-  #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
-  pub workspace_id: String,
-
-  #[pb(index = 2)]
-  #[validate(email)]
-  pub email: String,
-}
-
-#[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct QueryWorkspacePB {
   #[pb(index = 1)]
   #[validate(custom = "required_not_empty_str")]
