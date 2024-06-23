@@ -159,13 +159,14 @@ class HttpOpenAIRepository implements AIRepository {
   }
 
   @override
-  Future<void> streamCompletetion(
-      {required String text,
-      required CompletionTypePB completionType,
-      required Future<void> Function() onStart,
-      required Future<void> Function(String text) onProcess,
-      required Future<void> Function() onEnd,
-      required void Function(AIError error) onError}) {
+  Future<void> streamCompletetion({
+    required String text,
+    required CompletionTypePB completionType,
+    required Future<void> Function() onStart,
+    required Future<void> Function(String text) onProcess,
+    required Future<void> Function() onEnd,
+    required void Function(AIError error) onError,
+  }) {
     throw UnimplementedError();
   }
 }

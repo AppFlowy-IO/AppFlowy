@@ -101,9 +101,9 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
 
   async fn stream_complete(
     &self,
-    workspace_id: &str,
-    text: &str,
-    complete_type: CompletionType,
+    _workspace_id: &str,
+    _text: &str,
+    _complete_type: CompletionType,
   ) -> Result<StreamComplete, FlowyError> {
     Err(FlowyError::not_support().with_context("complete text is not supported in local server."))
   }
