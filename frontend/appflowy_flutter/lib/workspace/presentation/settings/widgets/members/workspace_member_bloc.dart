@@ -200,8 +200,6 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
   const factory WorkspaceMemberEvent.getWorkspaceMembers() =
       GetWorkspaceMembers;
   const factory WorkspaceMemberEvent.addWorkspaceMember(String email) =
-      AddWorkspaceMember;
-  const factory WorkspaceMemberEvent.inviteWorkspaceMember(String email) =
       InviteWorkspaceMember;
   const factory WorkspaceMemberEvent.removeWorkspaceMember(String email) =
       RemoveWorkspaceMember;

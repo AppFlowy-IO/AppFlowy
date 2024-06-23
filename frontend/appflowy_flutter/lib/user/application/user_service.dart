@@ -175,16 +175,6 @@ class UserBackendService implements IUserBackendService {
     return UserEventGetWorkspaceMembers(data).send();
   }
 
-  Future<FlowyResult<void, FlowyError>> addWorkspaceMember(
-    String workspaceId,
-    String email,
-  ) async {
-    final data = AddWorkspaceMemberPB()
-      ..workspaceId = workspaceId
-      ..email = email;
-    return UserEventAddWorkspaceMember(data).send();
-  }
-
   Future<FlowyResult<void, FlowyError>> inviteWorkspaceMember(
     String workspaceId,
     String email, {
