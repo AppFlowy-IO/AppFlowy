@@ -533,7 +533,7 @@ impl UserManager {
 
   pub async fn get_workspace_settings(&self, workspace_id: &str) -> FlowyResult<UseAISettingPB> {
     let cloud_service = self.cloud_services.get_user_service()?;
-    let settings = cloud_service.get_workspace_setting(&workspace_id).await?;
+    let settings = cloud_service.get_workspace_setting(workspace_id).await?;
 
     let uid = self.user_id()?;
     let conn = self.db_connection(uid)?;

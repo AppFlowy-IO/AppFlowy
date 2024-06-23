@@ -1,14 +1,14 @@
 use crate::chat_manager::ChatUserService;
 use crate::entities::{CompleteTextPB, CompleteTextTaskPB, CompletionTypePB};
 use allo_isolate::Isolate;
-use bytes::Bytes;
+
 use dashmap::DashMap;
-use flowy_chat_pub::cloud::{ChatCloudService, CompletionType, StreamComplete};
+use flowy_chat_pub::cloud::{ChatCloudService, CompletionType};
 use flowy_error::{FlowyError, FlowyResult};
-use futures::future::err;
+
 use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
-use std::sync::atomic::AtomicBool;
+
 use std::sync::{Arc, Weak};
 use tokio::select;
 use tracing::{error, trace};
@@ -38,7 +38,7 @@ impl AITools {
     let workspace_id = self
       .user_service
       .upgrade()
-      .ok_or_else(|| FlowyError::internal())?
+      .ok_or_else(FlowyError::internal)?
       .workspace_id()?;
     let (tx, rx) = tokio::sync::mpsc::channel(1);
     let task = ToolTask::new(workspace_id, complete, self.cloud_service.clone(), rx);
@@ -51,7 +51,7 @@ impl AITools {
 
   pub async fn cancel_complete_task(&self, task_id: &str) {
     if let Some(entry) = self.tasks.remove(task_id) {
-      let _ = entry.1.send(());
+      let _ = entry.1.send(()).await;
     }
   }
 }
@@ -94,7 +94,7 @@ impl ToolTask {
             CompletionTypePB::MakeLonger => CompletionType::MakeLonger,
             CompletionTypePB::ContinueWriting => CompletionType::ContinueWriting,
           };
-          let _ = sink.send(format!("start:",)).await;
+          let _ = sink.send("start:".to_string()).await;
           match cloud_service
             .stream_complete(&self.workspace_id, &self.context.text, complete_type)
             .await
@@ -113,7 +113,7 @@ impl ToolTask {
                      },
                      Some(Err(error)) => {
                        error!("stream error: {}", error);
-                       let _ = sink.send(format!("error:{}", error.to_string())).await;
+                       let _ = sink.send(format!("error:{}", error)).await;
                        return;
                       },
                      None => {
@@ -126,7 +126,7 @@ impl ToolTask {
             },
             Err(error) => {
               error!("stream complete error: {}", error);
-              let _ = sink.send(format!("error:{}", error.to_string())).await;
+              let _ = sink.send(format!("error:{}", error)).await;
             },
           }
         },
