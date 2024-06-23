@@ -1,12 +1,13 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/text_robot.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/util/learn_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
+import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -16,7 +17,6 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class AutoCompletionBlockKeys {
@@ -208,12 +208,10 @@ class _AutoCompletionBlockComponentState
 
     final textRobot = TextRobot(editorState: editorState);
     BarrierDialog? barrierDialog;
-    final openAIRepository = HttpOpenAIRepository(
-      client: http.Client(),
-      apiKey: userProfile.openaiKey,
-    );
-    await openAIRepository.getStreamedCompletions(
-      prompt: controller.text,
+    final aiRepository = AppFlowyAIService();
+    await aiRepository.streamCompletetion(
+      text: controller.text,
+      completionType: CompletionTypePB.ContinueWriting,
       onStart: () async {
         await loading.stop();
         if (mounted) {
@@ -222,14 +220,11 @@ class _AutoCompletionBlockComponentState
           await _makeSurePreviousNodeIsEmptyParagraphNode();
         }
       },
-      onProcess: (response) async {
-        if (response.choices.isNotEmpty) {
-          final text = response.choices.first.text;
-          await textRobot.autoInsertText(
-            text,
-            delay: Duration.zero,
-          );
-        }
+      onProcess: (text) async {
+        await textRobot.autoInsertText(
+          text,
+          delay: Duration.zero,
+        );
       },
       onEnd: () async {
         await barrierDialog?.dismiss();
@@ -303,24 +298,19 @@ class _AutoCompletionBlockComponentState
       return;
     }
     final textRobot = TextRobot(editorState: editorState);
-    final openAIRepository = HttpOpenAIRepository(
-      client: http.Client(),
-      apiKey: userProfile.openaiKey,
-    );
-    await openAIRepository.getStreamedCompletions(
-      prompt: _rewritePrompt(previousOutput),
+    final aiResposity = AppFlowyAIService();
+    await aiResposity.streamCompletetion(
+      text: _rewritePrompt(previousOutput),
+      completionType: CompletionTypePB.ContinueWriting,
       onStart: () async {
         await loading.stop();
         await _makeSurePreviousNodeIsEmptyParagraphNode();
       },
-      onProcess: (response) async {
-        if (response.choices.isNotEmpty) {
-          final text = response.choices.first.text;
-          await textRobot.autoInsertText(
-            text,
-            delay: Duration.zero,
-          );
-        }
+      onProcess: (text) async {
+        await textRobot.autoInsertText(
+          text,
+          delay: Duration.zero,
+        );
       },
       onEnd: () async {},
       onError: (error) async {

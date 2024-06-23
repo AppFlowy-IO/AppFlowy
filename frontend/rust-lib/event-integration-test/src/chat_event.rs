@@ -1,8 +1,8 @@
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 use flowy_chat::entities::{
-  ChatMessageListPB, ChatMessageTypePB, LoadNextChatMessagePB, LoadPrevChatMessagePB,
-  SendChatPayloadPB,
+  ChatMessageListPB, ChatMessageTypePB, CompleteTextPB, CompleteTextTaskPB, CompletionTypePB,
+  LoadNextChatMessagePB, LoadPrevChatMessagePB, SendChatPayloadPB,
 };
 use flowy_chat::event_map::ChatEvent;
 use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
@@ -85,5 +85,23 @@ impl EventIntegrationTest {
       .async_send()
       .await
       .parse::<ChatMessageListPB>()
+  }
+
+  pub async fn complete_text(
+    &self,
+    text: &str,
+    completion_type: CompletionTypePB,
+  ) -> CompleteTextTaskPB {
+    let payload = CompleteTextPB {
+      text: text.to_string(),
+      completion_type,
+      stream_port: 0,
+    };
+    EventBuilder::new(self.clone())
+      .event(ChatEvent::CompleteText)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<CompleteTextTaskPB>()
   }
 }

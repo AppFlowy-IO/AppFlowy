@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
-use client_api::entity::ai_dto::RepeatedRelatedQuestion;
+use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
 
@@ -19,7 +19,7 @@ use collab_integrate::collab_builder::{
 };
 use flowy_chat_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageStream, MessageCursor, RepeatedChatMessage,
-  StreamAnswer,
+  StreamAnswer, StreamComplete,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
@@ -673,6 +673,21 @@ impl ChatCloudService for ServerProvider {
         .generate_answer(&workspace_id, &chat_id, question_message_id)
         .await
     })
+  }
+
+  async fn stream_complete(
+    &self,
+    workspace_id: &str,
+    text: &str,
+    complete_type: CompletionType,
+  ) -> Result<StreamComplete, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let text = text.to_string();
+    let server = self.get_server()?;
+    server
+      .chat_service()
+      .stream_complete(&workspace_id, &text, complete_type)
+      .await
   }
 }
 

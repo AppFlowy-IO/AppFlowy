@@ -8,7 +8,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -153,7 +152,6 @@ class _AISearchToggle extends StatelessWidget {
               return const CircularProgressIndicator.adaptive();
             } else {
               return Toggle(
-                style: ToggleStyle.big,
                 value: state.enableSearchIndexing,
                 onChanged: (_) {
                   context.read<SettingsAIBloc>().add(

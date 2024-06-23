@@ -17,8 +17,8 @@ pub trait ChatUserService: Send + Sync + 'static {
 }
 
 pub struct ChatManager {
-  cloud_service: Arc<dyn ChatCloudService>,
-  user_service: Arc<dyn ChatUserService>,
+  pub(crate) cloud_service: Arc<dyn ChatCloudService>,
+  pub(crate) user_service: Arc<dyn ChatUserService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
 }
 

@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
@@ -103,8 +103,8 @@ Future<AppFlowyEditor> setUpOpenAITesting(WidgetTester tester) async {
 }
 
 Future<void> mockOpenAIRepository() async {
-  await getIt.unregister<OpenAIRepository>();
-  getIt.registerFactoryAsync<OpenAIRepository>(
+  await getIt.unregister<AIRepository>();
+  getIt.registerFactoryAsync<AIRepository>(
     () => Future.value(
       MockOpenAIRepository(),
     ),
