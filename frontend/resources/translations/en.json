@@ -469,8 +469,8 @@
       "importData": {
         "title": "Import data",
         "tooltip": "Import data from @:appName backups/data folders",
-        "description": "Copy data from an external @:appName data folder and import it into the current @:appName data folder",
-        "action": "Browse folder"
+        "description": "Copy data from an external @:appName data folder",
+        "action": "Browse file"
       },
       "encryption": {
         "title": "Encryption",
@@ -485,7 +485,7 @@
       },
       "cache": {
         "title": "Clear cache",
-        "description": "If you encounter issues with images not loading or fonts not displaying correctly, try clearing your cache. This action will not remove your user data.",
+        "description": "Clear app cache, this can help resolve issues like images or fonts not loading. This will not affect your data.",
         "dialog": {
           "title": "Are you sure?",
           "description": "Clearing the cache will cause images and fonts to be re-downloaded on load. This action will not remove or modify your data.",

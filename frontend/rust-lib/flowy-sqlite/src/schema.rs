@@ -33,6 +33,28 @@ diesel::table! {
 }
 
 diesel::table! {
+    upload_file_part (upload_id, e_tag) {
+        upload_id -> Text,
+        e_tag -> Text,
+        part_num -> Integer,
+    }
+}
+
+diesel::table! {
+    upload_file_table (workspace_id, file_id, parent_dir) {
+        workspace_id -> Text,
+        file_id -> Text,
+        parent_dir -> Text,
+        local_file_path -> Text,
+        content_type -> Text,
+        chunk_size -> Integer,
+        num_chunk -> Integer,
+        upload_id -> Text,
+        created_at -> BigInt,
+    }
+}
+
+diesel::table! {
     user_data_migration_records (id) {
         id -> Integer,
         migration_name -> Text,
@@ -84,6 +106,8 @@ diesel::allow_tables_to_appear_in_same_query!(
     chat_message_table,
     chat_table,
     collab_snapshot,
+    upload_file_part,
+    upload_file_table,
     user_data_migration_records,
     user_table,
     user_workspace_table,

@@ -385,8 +385,15 @@ class _MobileToolbarState extends State<_MobileToolbar>
       builder: (_, height, ___) {
         var paddingHeight = height;
         if (Platform.isAndroid) {
-          paddingHeight += MediaQuery.of(context).viewPadding.bottom;
+          // use the viewInsets to get the keyboard height on Android
+          paddingHeight = MediaQuery.of(context).viewInsets.bottom;
+          // if the padding height is 0 and the keyboard height is not 0,
+          //  use the keyboard height
+          if (paddingHeight == 0 && height != 0) {
+            paddingHeight = height + MediaQuery.of(context).viewPadding.bottom;
+          }
         }
+        debugPrint('Keyboard height: $paddingHeight');
         return AnimatedContainer(
           duration: const Duration(microseconds: 110),
           height: paddingHeight,

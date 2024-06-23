@@ -15,6 +15,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -191,20 +192,23 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             final isExpanded = await _getSpaceExpandStatus(space);
             emit(state.copyWith(currentSpace: space, isExpanded: isExpanded));
 
-            // open the first page by default
-            if (space.childViews.isNotEmpty) {
-              final firstPage = space.childViews.first;
-              emit(
-                state.copyWith(
-                  lastCreatedPage: firstPage,
-                ),
-              );
-            } else {
-              emit(
-                state.copyWith(
-                  lastCreatedPage: ViewPB(),
-                ),
-              );
+            // don't open the page automatically on mobile
+            if (PlatformExtension.isDesktop) {
+              // open the first page by default
+              if (space.childViews.isNotEmpty) {
+                final firstPage = space.childViews.first;
+                emit(
+                  state.copyWith(
+                    lastCreatedPage: firstPage,
+                  ),
+                );
+              } else {
+                emit(
+                  state.copyWith(
+                    lastCreatedPage: ViewPB(),
+                  ),
+                );
+              }
             }
           },
           expand: (space, isExpanded) async {

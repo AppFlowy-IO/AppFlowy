@@ -147,6 +147,7 @@ dependencies:
 
   # BitsDojo Window for Windows
   bitsdojo_window: ^0.1.6
+
   flutter_highlight: ^0.7.0
 
 dev_dependencies:
@@ -184,7 +185,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "d6388a4"
+      ref: "64c0be8"
 
   appflowy_editor_plugins:
     git:

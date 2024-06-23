@@ -31,7 +31,6 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_s
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -417,7 +416,6 @@ class EnableRTLItemsSwitcher extends StatelessWidget {
         ),
         const HSpace(16),
         Toggle(
-          style: ToggleStyle.big,
           value: context
               .watch<AppearanceSettingsCubit>()
               .state
@@ -564,7 +562,6 @@ class _TimeFormatSwitcher extends StatelessWidget {
         ),
         const HSpace(16),
         Toggle(
-          style: ToggleStyle.big,
           value: context.watch<AppearanceSettingsCubit>().state.timeFormat ==
               UserTimeFormatPB.TwentyFourHour,
           onChanged: (value) =>
