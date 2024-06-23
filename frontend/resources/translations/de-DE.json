@@ -241,9 +241,10 @@
     "viewDataBase": "Datenbank ansehen",
     "referencePage": "Auf diesen {Name} wird verwiesen",
     "addBlockBelow": "Einen Block hinzufügen",
-    "genSummary": "Zusammenfassung generieren",
+    "aiGenerate": "Generieren",
     "urlLaunchAccessory": "Im Browser öffnen",
-    "urlCopyAccessory": "Webadresse kopieren."
+    "urlCopyAccessory": "Webadresse kopieren.",
+    "genSummary": "Zusammenfassung generieren"
   },
   "sideBar": {
     "closeSidebar": "Seitenleiste schließen",
@@ -335,7 +336,9 @@
     "signInGoogle": "Mit einem Google Benutzerkonto anmelden",
     "signInGithub": "Mit einem Github Benutzerkonto anmelden",
     "signInDiscord": "Mit einem Discord Benutzerkonto anmelden",
-    "more": "Mehr"
+    "more": "Mehr",
+    "create": "Erstellen",
+    "close": "Schließen"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -362,7 +365,6 @@
     "accountPage": {
       "menuLabel": "Mein Konto",
       "title": "Mein Konto",
-      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an.",
       "general": {
         "title": "Kontoname und Profilbild",
         "changeProfilePicture": "Profilbild ändern"
@@ -386,7 +388,8 @@
         "title": "Kontoanmeldung",
         "loginLabel": "Anmeldung",
         "logoutLabel": "Ausloggen"
-      }
+      },
+      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an."
     },
     "workspacePage": {
       "menuLabel": "Arbeitsbereich",
@@ -412,10 +415,12 @@
       },
       "theme": {
         "title": "Design",
-        "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch."
+        "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch.",
+        "uploadCustomThemeTooltip": "Eigenes Farbschema hochladen"
       },
       "workspaceFont": {
-        "title": "Schriftart"
+        "title": "Schriftart",
+        "noFontHint": "Schriftart nicht gefunden. Versuche es mit anderen Begriffen"
       },
       "textDirection": {
         "title": "Textrichtung",
@@ -504,6 +509,42 @@
           "description": "Durch das Leeren des Caches werden Bilder und Schriftarten beim Laden erneut heruntergeladen. Deine Daten werden durch diese Aktion weder entfernt noch geändert.",
           "successHint": "Cache geleert!"
         }
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "Tastenkürzel",
+      "title": "Tastenkürzel",
+      "editBindingHint": "Neue Tastenkobination festlegen",
+      "searchHint": "Suchen",
+      "resetDialog": {
+        "title": "Standardeinstellungen",
+        "description": "Wenn du fortfährst, werden sämtliche Tastenkürzel unwiederruflich auf die Standardeinstellungen zurück gesetzt. Bist du sicher?",
+        "buttonLabel": "Zurücksetzen"
+      },
+      "conflictDialog": {
+        "title": "{} wird bereits verwendet.",
+        "descriptionPrefix": "Dieses Tastenkürzel wird bereits verwendet von: ",
+        "descriptionSuffix": ". Diese Zuweisung wird {} ersetzen. ",
+        "confirmLabel": "Bestätigen"
+      },
+      "editTooltip": "Drücken um Tastenkürzel zu bearbeiten",
+      "keybindings": {
+        "toggleToDoList": "ToDo Liste (de)aktivieren",
+        "insertNewParagraphInCodeblock": "Neuen Absatz hinzufügen",
+        "pasteInCodeblock": "Codeblock von Zwischenablage einfügen",
+        "selectAllCodeblock": "Alles auswählen",
+        "copy": "Auswahl kopieren",
+        "paste": "Inhalt aus Zwischenablage einfügen",
+        "cut": "Auswahl ausschneiden",
+        "alignLeft": "Text links fixierem",
+        "alignCenter": "Text zentrieren",
+        "alignRight": "Text rechts fixierem",
+        "undo": "Rückgängig machen",
+        "redo": "Wiederherstellen",
+        "backspace": "Löschen",
+        "deleteLeftWord": "Linkes Wort löschen",
+        "deleteLeftSentence": "Linken Satz löschen",
+        "delete": "Rechten Buchstaben löschen"
       }
     },
     "common": {
@@ -722,6 +763,23 @@
       "pleaseInputYourStabilityAIKey": "Bitte gebe den Stability AI Schlüssel ein",
       "clickToLogout": "Klicken, um den aktuellen Nutzer auszulogen"
     },
+    "mobile": {
+      "personalInfo": "Persönliche Informationen",
+      "username": "Nutzername",
+      "usernameEmptyError": "Der Nutzername darf nicht leer sein",
+      "about": "Über",
+      "pushNotifications": "Push Benachrichtigungen",
+      "support": "Support",
+      "joinDiscord": "Komm zu uns auf Discord",
+      "privacyPolicy": "Datenschutz",
+      "userAgreement": "Nutzungsbedingungen",
+      "termsAndConditions": "Geschäftsbedingungen",
+      "userprofileError": "Das Nutzerprofil konnte nicht geladen werden",
+      "userprofileErrorDescription": "Bitte abmelden und wieder anmelden, um zu prüfen ob das Problem weiterhin bestehen bleibt.",
+      "selectLayout": "Layout auswählen",
+      "selectStartingDay": "Ersten Tag auswählen",
+      "version": "Version"
+    },
     "shortcuts": {
       "shortcutsLabel": "Tastenkürzel",
       "command": "Befehl",
@@ -743,23 +801,6 @@
         "textAlignCenter": "Text zentriert ausrichten",
         "textAlignRight": "Text rechtsbündig ausrichten"
       }
-    },
-    "mobile": {
-      "personalInfo": "Persönliche Informationen",
-      "username": "Nutzername",
-      "usernameEmptyError": "Der Nutzername darf nicht leer sein",
-      "about": "Über",
-      "pushNotifications": "Push Benachrichtigungen",
-      "support": "Support",
-      "joinDiscord": "Komm zu uns auf Discord",
-      "privacyPolicy": "Datenschutz",
-      "userAgreement": "Nutzungsbedingungen",
-      "termsAndConditions": "Geschäftsbedingungen",
-      "userprofileError": "Das Nutzerprofil konnte nicht geladen werden",
-      "userprofileErrorDescription": "Bitte abmelden und wieder anmelden, um zu prüfen ob das Problem weiterhin bestehen bleibt.",
-      "selectLayout": "Layout auswählen",
-      "selectStartingDay": "Ersten Tag auswählen",
-      "version": "Version"
     }
   },
   "grid": {
