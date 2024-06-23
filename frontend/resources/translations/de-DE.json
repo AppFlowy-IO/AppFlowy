@@ -544,7 +544,9 @@
         "backspace": "Löschen",
         "deleteLeftWord": "Linkes Wort löschen",
         "deleteLeftSentence": "Linken Satz löschen",
-        "delete": "Rechten Buchstaben löschen"
+        "delete": "Rechten Buchstaben löschen",
+        "deleteMacOS": "Linken Buchstaben löschen",
+        "deleteRightWord": "Rechtes Wort löschen"
       }
     },
     "common": {
