@@ -13,7 +13,7 @@ use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
 use tokio_stream::wrappers::WatchStream;
-use tracing::debug;
+use tracing::{debug, info};
 
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
@@ -84,6 +84,7 @@ impl UserCloudServiceProvider for ServerProvider {
   }
 
   fn set_ai_model(&self, ai_model: &str) -> Result<(), FlowyError> {
+    info!("Set AI model: {}", ai_model);
     let server = self.get_server()?;
     server.set_ai_model(ai_model)?;
     Ok(())

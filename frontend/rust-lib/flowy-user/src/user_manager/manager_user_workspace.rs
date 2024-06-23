@@ -520,6 +520,10 @@ impl UserManager {
       .send();
 
     if let Some(ai_model) = ai_model {
+      if let Err(err) = self.cloud_services.set_ai_model(&ai_model) {
+        error!("Set ai model failed: {}", err);
+      }
+
       let conn = self.db_connection(uid)?;
       let params = UpdateUserProfileParams::new(uid).with_ai_model(&ai_model);
       upsert_user_profile_change(uid, conn, UserTableChangeset::new(params))?;

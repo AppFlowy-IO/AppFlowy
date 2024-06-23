@@ -407,7 +407,7 @@ impl AIModelPB {
       AIModelPB::DefaultModel => "default-model",
       AIModelPB::GPT35 => "gpt-3.5-turbo",
       AIModelPB::GPT4o => "gpt-4o",
-      AIModelPB::Claude3Sonnet => "claude-3-sonnet-20240229",
+      AIModelPB::Claude3Sonnet => "claude-3-sonnet",
       AIModelPB::Claude3Opus => "claude-3-opus",
       AIModelPB::LocalAIModel => "local",
     }
