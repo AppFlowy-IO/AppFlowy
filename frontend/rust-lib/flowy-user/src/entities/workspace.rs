@@ -1,6 +1,8 @@
+use std::str::FromStr;
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_user_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
 use flowy_user_pub::entities::{
   RecurringInterval, Role, SubscriptionPlan, WorkspaceInvitation, WorkspaceMember,
   WorkspaceSubscription,
@@ -342,4 +344,87 @@ pub struct WorkspaceUsagePB {
 pub struct BillingPortalPB {
   #[pb(index = 1)]
   pub url: String,
+}
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct UseAISettingPB {
+  #[pb(index = 1)]
+  pub disable_search_indexing: bool,
+
+  #[pb(index = 2)]
+  pub ai_model: AIModelPB,
+}
+
+impl From<AFWorkspaceSettings> for UseAISettingPB {
+  fn from(value: AFWorkspaceSettings) -> Self {
+    Self {
+      disable_search_indexing: value.disable_search_indexing,
+      ai_model: AIModelPB::from_str(&value.ai_model).unwrap_or_default(),
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct UpdateUserWorkspaceSettingPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2, one_of)]
+  pub disable_search_indexing: Option<bool>,
+
+  #[pb(index = 3, one_of)]
+  pub ai_model: Option<AIModelPB>,
+}
+
+impl From<UpdateUserWorkspaceSettingPB> for AFWorkspaceSettingsChange {
+  fn from(value: UpdateUserWorkspaceSettingPB) -> Self {
+    let mut change = AFWorkspaceSettingsChange::new();
+    if let Some(disable_search_indexing) = value.disable_search_indexing {
+      change = change.disable_search_indexing(disable_search_indexing);
+    }
+    if let Some(ai_model) = value.ai_model {
+      change = change.ai_model(ai_model.to_str().to_string());
+    }
+    change
+  }
+}
+
+#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default)]
+pub enum AIModelPB {
+  #[default]
+  DefaultModel = 0,
+  GPT35 = 1,
+  GPT4o = 2,
+  Claude3Sonnet = 3,
+  Claude3Opus = 4,
+  LocalAIModel = 5,
+}
+
+impl AIModelPB {
+  pub fn to_str(&self) -> &str {
+    match self {
+      AIModelPB::DefaultModel => "default-model",
+      AIModelPB::GPT35 => "gpt-3.5-turbo",
+      AIModelPB::GPT4o => "gpt-4o",
+      AIModelPB::Claude3Sonnet => "claude-3-sonnet-20240229",
+      AIModelPB::Claude3Opus => "claude-3-opus",
+      AIModelPB::LocalAIModel => "local",
+    }
+  }
+}
+
+impl FromStr for AIModelPB {
+  type Err = anyhow::Error;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    match s {
+      "gpt-3.5-turbo" => Ok(AIModelPB::GPT35),
+      "gpt-4o" => Ok(AIModelPB::GPT4o),
+      "claude-3-sonnet" => Ok(AIModelPB::Claude3Sonnet),
+      "claude-3-opus" => Ok(AIModelPB::Claude3Opus),
+      "local" => Ok(AIModelPB::LocalAIModel),
+      _ => Ok(AIModelPB::DefaultModel),
+    }
+  }
 }

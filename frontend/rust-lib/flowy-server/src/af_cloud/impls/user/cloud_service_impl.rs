@@ -10,8 +10,8 @@ use client_api::entity::workspace_dto::{
   WorkspaceMemberInvitation,
 };
 use client_api::entity::{
-  AFRole, AFWorkspace, AFWorkspaceInvitation, AuthProvider, CollabParams, CreateCollabParams,
-  QueryWorkspaceMember,
+  AFRole, AFWorkspace, AFWorkspaceInvitation, AFWorkspaceSettings, AFWorkspaceSettingsChange,
+  AuthProvider, CollabParams, CreateCollabParams, QueryWorkspaceMember,
 };
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
@@ -591,6 +591,35 @@ where
       let client = try_get_client?;
       let url = client.get_portal_session_link().await?;
       Ok(url)
+    })
+  }
+
+  fn get_workspace_setting(
+    &self,
+    workspace_id: &str,
+  ) -> FutureResult<AFWorkspaceSettings, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let settings = client.get_workspace_settings(&workspace_id).await?;
+      Ok(settings)
+    })
+  }
+
+  fn update_workspace_setting(
+    &self,
+    workspace_id: &str,
+    workspace_settings: AFWorkspaceSettingsChange,
+  ) -> FutureResult<AFWorkspaceSettings, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let settings = client
+        .update_workspace_settings(&workspace_id, &workspace_settings)
+        .await?;
+      Ok(settings)
     })
   }
 }

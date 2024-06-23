@@ -1,3 +1,4 @@
+pub use client_api::entity::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
 use collab_entity::{CollabObject, CollabType};
 use flowy_error::{internal_error, ErrorCode, FlowyError};
 use lib_infra::box_any::BoxAny;
@@ -61,6 +62,7 @@ pub trait UserCloudServiceProvider: Send + Sync {
   /// # Returns
   /// A `Result` which is `Ok` if the token is successfully set, or a `FlowyError` otherwise.
   fn set_token(&self, token: &str) -> Result<(), FlowyError>;
+  fn set_ai_model(&self, ai_model: &str) -> Result<(), FlowyError>;
 
   /// Subscribes to the state of the authentication token.
   ///
@@ -301,6 +303,21 @@ pub trait UserCloudService: Send + Sync + 'static {
   }
 
   fn get_billing_portal_url(&self) -> FutureResult<String, FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
+  fn get_workspace_setting(
+    &self,
+    workspace_id: &str,
+  ) -> FutureResult<AFWorkspaceSettings, FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
+  fn update_workspace_setting(
+    &self,
+    workspace_id: &str,
+    workspace_settings: AFWorkspaceSettingsChange,
+  ) -> FutureResult<AFWorkspaceSettings, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 }

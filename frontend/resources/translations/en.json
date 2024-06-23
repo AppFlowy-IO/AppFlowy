@@ -606,6 +606,10 @@
       "title": "AI Settings",
       "menuLabel": "AI Settings",
       "keys": {
+        "enableAISearchTitle": "AI Search",
+        "aiSettingsDescription": "Select or configure Ai models used on AppFlowy. For best performance we recommend using the default model options",
+        "loginToEnableAIFeature": "AI features are only enabled after logging in with AppFlowy Cloud. If you don't have an AppFlowy account, go to 'My Account' to sign up",
+        "llmModel": "Language Model",
         "title": "AI API Keys",
         "openAILabel": "OpenAI API key",
         "openAITooltip": "You can find your Secret API key on the API key page",

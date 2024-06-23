@@ -33,6 +33,9 @@ pub struct UserProfilePB {
 
   #[pb(index = 10)]
   pub stability_ai_key: String,
+
+  #[pb(index = 11)]
+  pub ai_model: String,
 }
 
 impl From<UserProfile> for UserProfilePB {
@@ -52,6 +55,7 @@ impl From<UserProfile> for UserProfilePB {
       authenticator: user_profile.authenticator.into(),
       workspace_id: user_profile.workspace_id,
       stability_ai_key: user_profile.stability_ai_key,
+      ai_model: user_profile.ai_model,
     }
   }
 }

@@ -83,6 +83,12 @@ impl UserCloudServiceProvider for ServerProvider {
     Ok(())
   }
 
+  fn set_ai_model(&self, ai_model: &str) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server.set_ai_model(ai_model)?;
+    Ok(())
+  }
+
   fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
     let server = self.get_server().ok()?;
     server.subscribe_token_state()

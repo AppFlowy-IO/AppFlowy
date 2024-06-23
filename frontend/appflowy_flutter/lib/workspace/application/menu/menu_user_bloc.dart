@@ -13,7 +13,7 @@ part 'menu_user_bloc.freezed.dart';
 class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   MenuUserBloc(this.userProfile)
       : _userListener = UserListener(userProfile: userProfile),
-        _userWorkspaceListener = UserWorkspaceListener(),
+        _userWorkspaceListener = FolderListener(),
         _userService = UserBackendService(userId: userProfile.id),
         super(MenuUserState.initial(userProfile)) {
     _dispatch();
@@ -21,7 +21,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 
   final UserBackendService _userService;
   final UserListener _userListener;
-  final UserWorkspaceListener _userWorkspaceListener;
+  final FolderListener _userWorkspaceListener;
   final UserProfilePB userProfile;
 
   @override

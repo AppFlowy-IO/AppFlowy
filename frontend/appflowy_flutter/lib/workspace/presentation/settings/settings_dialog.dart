@@ -1,3 +1,4 @@
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/startup/startup.dart';
@@ -14,8 +15,6 @@ import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/f
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_notifications_view.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -115,7 +114,11 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.shortcuts:
         return const SettingsShortcutsView();
       case SettingsPage.ai:
-        return SettingsAIView(userProfile: user);
+        if (user.authenticator == AuthenticatorPB.AppFlowyCloud) {
+          return SettingsAIView(userProfile: user);
+        } else {
+          return const AIFeatureOnlySupportedWhenUsingAppFlowyCloud();
+        }
       case SettingsPage.member:
         return WorkspaceMembersPage(userProfile: user);
       case SettingsPage.plan:
