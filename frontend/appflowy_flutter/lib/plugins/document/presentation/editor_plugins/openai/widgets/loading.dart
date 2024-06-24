@@ -54,5 +54,5 @@ class BarrierDialog {
         ),
       );
 
-  Future<void> dismiss() async => Navigator.of(loadingContext).pop();
+  void dismiss() => Navigator.of(loadingContext).pop();
 }

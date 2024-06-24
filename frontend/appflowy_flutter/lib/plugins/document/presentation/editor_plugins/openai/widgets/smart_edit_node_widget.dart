@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
@@ -8,11 +9,10 @@ import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
@@ -407,7 +407,7 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
       });
     }
     final aiResitory = await getIt.getAsync<AIRepository>();
-    await aiResitory.streamCompletetion(
+    await aiResitory.streamCompletion(
       text: content,
       completionType: completionTypeFromInt(action),
       onStart: () async {

@@ -16,7 +16,7 @@ abstract class AIRepository {
     bool useAction = false,
   });
 
-  Future<void> streamCompletetion({
+  Future<void> streamCompletion({
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,

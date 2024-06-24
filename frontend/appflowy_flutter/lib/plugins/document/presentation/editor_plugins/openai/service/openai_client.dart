@@ -159,7 +159,7 @@ class HttpOpenAIRepository implements AIRepository {
   }
 
   @override
-  Future<void> streamCompletetion({
+  Future<void> streamCompletion({
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,

@@ -185,15 +185,11 @@ class _AutoCompletionBlockComponentState
   }
 
   Future<void> _onGenerate() async {
-    final loading = Loading(context);
-    loading.start();
-
     await _updateEditingText();
 
     final userProfile = await UserBackendService.getCurrentUserProfile()
         .then((value) => value.toNullable());
     if (userProfile == null) {
-      loading.stop();
       if (mounted) {
         showSnackBarMessage(
           context,
@@ -207,11 +203,10 @@ class _AutoCompletionBlockComponentState
     final textRobot = TextRobot(editorState: editorState);
     BarrierDialog? barrierDialog;
     final aiRepository = AppFlowyAIService();
-    await aiRepository.streamCompletetion(
+    await aiRepository.streamCompletion(
       text: controller.text,
       completionType: CompletionTypePB.ContinueWriting,
       onStart: () async {
-        loading.stop();
         if (mounted) {
           barrierDialog = BarrierDialog(context);
           barrierDialog?.show();
@@ -225,10 +220,10 @@ class _AutoCompletionBlockComponentState
         );
       },
       onEnd: () async {
-        await barrierDialog?.dismiss();
+        barrierDialog?.dismiss();
       },
       onError: (error) async {
-        loading.stop();
+        barrierDialog?.dismiss();
         if (mounted) {
           showSnackBarMessage(
             context,
@@ -265,8 +260,6 @@ class _AutoCompletionBlockComponentState
       return;
     }
 
-    final loading = Loading(context);
-    loading.start();
     // clear previous response
     final selection = startSelection;
     if (selection != null) {
@@ -285,7 +278,6 @@ class _AutoCompletionBlockComponentState
     final userProfile = await UserBackendService.getCurrentUserProfile()
         .then((value) => value.toNullable());
     if (userProfile == null) {
-      loading.stop();
       if (mounted) {
         showSnackBarMessage(
           context,
@@ -297,11 +289,10 @@ class _AutoCompletionBlockComponentState
     }
     final textRobot = TextRobot(editorState: editorState);
     final aiResposity = AppFlowyAIService();
-    await aiResposity.streamCompletetion(
+    await aiResposity.streamCompletion(
       text: _rewritePrompt(previousOutput),
       completionType: CompletionTypePB.ContinueWriting,
       onStart: () async {
-        loading.stop();
         await _makeSurePreviousNodeIsEmptyParagraphNode();
       },
       onProcess: (text) async {
@@ -312,7 +303,6 @@ class _AutoCompletionBlockComponentState
       },
       onEnd: () async {},
       onError: (error) async {
-        loading.stop();
         if (mounted) {
           showSnackBarMessage(
             context,

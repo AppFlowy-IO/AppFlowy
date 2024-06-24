@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:isolate';
 import 'dart:ffi';
+import 'dart:isolate';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
@@ -36,7 +36,7 @@ class AppFlowyAIService implements AIRepository {
   }
 
   @override
-  Future<CompletionStream> streamCompletetion({
+  Future<CompletionStream> streamCompletion({
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
