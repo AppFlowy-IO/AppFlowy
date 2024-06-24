@@ -836,7 +836,7 @@ impl FolderManager {
 
       let duplicated_view = self.create_view_with_params(duplicate_params).await?;
 
-      if is_source_view && include_children {
+      if include_children {
         let child_views = self.get_views_belong_to(&current_view_id).await?;
         // reverse the child views to keep the order
         for child_view in child_views.iter().rev() {
