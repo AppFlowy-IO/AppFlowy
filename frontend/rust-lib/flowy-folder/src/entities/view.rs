@@ -3,7 +3,7 @@ use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
-use collab_folder::{View, ViewLayout};
+use collab_folder::{RepeatedViewIdentifier, View, ViewIcon, ViewLayout};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -308,6 +308,12 @@ pub struct CreateViewParams {
   pub index: Option<u32>,
   // The section of the view.
   pub section: Option<ViewSectionPB>,
+  // The icon of the view.
+  pub icon: Option<ViewIcon>,
+  // The child views of the view.
+  pub children: RepeatedViewIdentifier,
+  // The extra data of the view.
+  pub extra: Option<String>,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -330,6 +336,9 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       set_as_current: self.set_as_current,
       index: self.index,
       section: self.section,
+      icon: None,
+      children: Default::default(),
+      extra: None,
     })
   }
 }
@@ -352,6 +361,9 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       set_as_current: false,
       index: None,
       section: None,
+      icon: None,
+      children: Default::default(),
+      extra: None,
     })
   }
 }

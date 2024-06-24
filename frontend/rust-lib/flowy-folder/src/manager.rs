@@ -779,6 +779,58 @@ impl FolderManager {
       set_as_current: true,
       index,
       section: Some(section),
+      extra: view.extra.clone(),
+      icon: view.icon.clone(),
+      children: Default::default(),
+    };
+
+    self.create_view_with_params(duplicate_params).await?;
+    Ok(())
+  }
+
+  async fn duplicate_view_with_parent_id(
+    &self,
+    view_id: &str,
+    parent_view_id: &str,
+  ) -> Result<(), FlowyError> {
+    let view = self
+      .with_folder(|| None, |folder| folder.views.get_view(view_id))
+      .ok_or_else(|| FlowyError::record_not_found().with_context("Can't duplicate the view"))?;
+
+    let handler = self.get_handler(&view.layout)?;
+    let view_data = handler.duplicate_view(&view.id).await?;
+
+    // get the current view index in the parent view, because we need to insert the duplicated view below the current view.
+    let index = if let Some((_, __, views)) = self.get_view_relation(&view.parent_view_id).await {
+      views.iter().position(|id| id == view_id).map(|i| i as u32)
+    } else {
+      None
+    };
+
+    let is_private = self.with_folder(
+      || false,
+      |folder| folder.is_view_in_section(Section::Private, &view.id),
+    );
+    let section = if is_private {
+      ViewSectionPB::Private
+    } else {
+      ViewSectionPB::Public
+    };
+
+    let duplicate_params = CreateViewParams {
+      parent_view_id: view.parent_view_id.clone(),
+      name: format!("{} (copy)", &view.name),
+      desc: view.desc.clone(),
+      layout: view.layout.clone().into(),
+      initial_data: view_data.to_vec(),
+      view_id: gen_view_id().to_string(),
+      meta: Default::default(),
+      set_as_current: false,
+      index,
+      section: Some(section),
+      extra: view.extra.clone(),
+      icon: view.icon.clone(),
+      children: Default::default(),
     };
 
     self.create_view_with_params(duplicate_params).await?;
@@ -1004,6 +1056,9 @@ impl FolderManager {
       set_as_current: false,
       index: None,
       section: None,
+      extra: None,
+      icon: None,
+      children: Default::default(),
     };
 
     let view = create_view(self.user.user_id()?, params, import_data.view_layout);
