@@ -49,7 +49,6 @@ impl FolderManager {
       index: None,
       section: Some(ViewSectionPB::Public),
       icon: None,
-      children: Default::default(),
       extra: None,
     };
     self.create_view_with_params(params).await.unwrap();

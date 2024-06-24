@@ -126,6 +126,8 @@ impl EventIntegrationTest {
         set_as_current: false,
         index: None,
         section: None,
+        icon: view.icon,
+        extra: view.extra,
       })
       .collect::<Vec<_>>();
 

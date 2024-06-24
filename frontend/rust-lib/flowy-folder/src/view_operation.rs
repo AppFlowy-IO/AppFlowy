@@ -127,7 +127,6 @@ pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout
     parent_view_id: params.parent_view_id,
     name: params.name,
     desc: params.desc,
-    children: params.children,
     created_at: time,
     is_favorite: false,
     layout,
@@ -136,5 +135,6 @@ pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout
     last_edited_time: 0,
     last_edited_by: Some(uid),
     extra: params.extra,
+    children: Default::default(),
   }
 }

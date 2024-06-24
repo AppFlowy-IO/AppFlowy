@@ -138,8 +138,15 @@ class ViewBackendService {
 
   static Future<FlowyResult<void, FlowyError>> duplicate({
     required ViewPB view,
+    required bool openAfterDuplicate,
+    // should include children views
+    required bool includeChildren,
   }) {
-    return FolderEventDuplicateView(view).send();
+    final payload = DuplicateViewPayloadPB.create()
+      ..viewId = view.id
+      ..openAfterDuplicate = openAfterDuplicate
+      ..includeChildren = includeChildren;
+    return FolderEventDuplicateView(payload).send();
   }
 
   static Future<FlowyResult<void, FlowyError>> favorite({

@@ -310,8 +310,6 @@ pub struct CreateViewParams {
   pub section: Option<ViewSectionPB>,
   // The icon of the view.
   pub icon: Option<ViewIcon>,
-  // The child views of the view.
-  pub children: RepeatedViewIdentifier,
   // The extra data of the view.
   pub extra: Option<String>,
 }
@@ -337,7 +335,6 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       index: self.index,
       section: self.section,
       icon: None,
-      children: Default::default(),
       extra: None,
     })
   }
@@ -362,7 +359,6 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       index: None,
       section: None,
       icon: None,
-      children: Default::default(),
       extra: None,
     })
   }
@@ -576,6 +572,40 @@ pub struct UpdateViewVisibilityStatusPayloadPB {
 
   #[pb(index = 2)]
   pub is_public: bool,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct DuplicateViewPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub open_after_duplicate: bool,
+
+  #[pb(index = 3)]
+  pub include_children: bool,
+}
+
+#[derive(Debug)]
+pub struct DuplicateViewParams {
+  pub view_id: String,
+
+  pub open_after_duplicate: bool,
+
+  pub include_children: bool,
+}
+
+impl TryInto<DuplicateViewParams> for DuplicateViewPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<DuplicateViewParams, Self::Error> {
+    let view_id = ViewIdentify::parse(self.view_id)?.0;
+    Ok(DuplicateViewParams {
+      view_id,
+      open_after_duplicate: self.open_after_duplicate,
+      include_children: self.include_children,
+    })
+  }
 }
 
 // impl<'de> Deserialize<'de> for ViewDataType {
