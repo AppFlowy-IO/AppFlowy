@@ -165,8 +165,6 @@ pub async fn create_upload_file_record(
   let file_id = fxhash::hash(&chunked_bytes.data).to_string();
 
   // Create UploadFileTable record
-  
-
   UploadFileTable {
     workspace_id,
     file_id,

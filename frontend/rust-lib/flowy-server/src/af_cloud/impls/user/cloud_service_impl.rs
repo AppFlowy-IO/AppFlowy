@@ -6,8 +6,7 @@ use client_api::entity::billing_dto::{
   SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionPlan, WorkspaceSubscriptionStatus,
 };
 use client_api::entity::workspace_dto::{
-  CreateWorkspaceMember, CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset,
-  WorkspaceMemberInvitation,
+  CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset, WorkspaceMemberInvitation,
 };
 use client_api::entity::{
   AFRole, AFWorkspace, AFWorkspaceInvitation, AFWorkspaceSettings, AFWorkspaceSettingsChange,
@@ -219,28 +218,6 @@ where
     FutureResult::new(async move {
       let workspaces = try_get_client?.get_workspaces().await?;
       to_user_workspaces(workspaces.0)
-    })
-  }
-
-  #[allow(deprecated)]
-  fn add_workspace_member(
-    &self,
-    user_email: String,
-    workspace_id: String,
-  ) -> FutureResult<(), FlowyError> {
-    let try_get_client = self.server.try_get_client();
-    FutureResult::new(async move {
-      // TODO(zack): add_workspace_members will be deprecated after finishing the invite logic. Don't forget to remove the #[allow(deprecated)]
-      try_get_client?
-        .add_workspace_members(
-          workspace_id,
-          vec![CreateWorkspaceMember {
-            email: user_email,
-            role: AFRole::Member,
-          }],
-        )
-        .await?;
-      Ok(())
     })
   }
 

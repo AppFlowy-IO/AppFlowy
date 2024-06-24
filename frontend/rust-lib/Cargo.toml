@@ -93,7 +93,7 @@ validator = { version = "0.16.1", features = ["derive"] }
 
 # Please using the following command to update the revision id
 # Current directory: frontend
-# Run the script.add_workspace_members:
+# Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
 client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d61524d63605aa010afa6a734cbbe4fb4cd68ea1" }

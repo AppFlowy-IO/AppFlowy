@@ -182,7 +182,7 @@ async fn af_cloud_different_open_same_workspace_test() {
     }
 
     client_1
-      .add_workspace_member(&owner_profile.workspace_id, &client_profile.email)
+      .add_workspace_member(&owner_profile.workspace_id, &client)
       .await;
     clients.push((client, client_profile));
   }

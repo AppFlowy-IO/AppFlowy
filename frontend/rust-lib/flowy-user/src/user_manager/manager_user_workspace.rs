@@ -329,20 +329,6 @@ impl UserManager {
     Ok(())
   }
 
-  // deprecated, use invite instead
-  pub async fn add_workspace_member(
-    &self,
-    user_email: String,
-    workspace_id: String,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_services
-      .get_user_service()?
-      .add_workspace_member(user_email, workspace_id)
-      .await?;
-    Ok(())
-  }
-
   pub async fn remove_workspace_member(
     &self,
     user_email: String,

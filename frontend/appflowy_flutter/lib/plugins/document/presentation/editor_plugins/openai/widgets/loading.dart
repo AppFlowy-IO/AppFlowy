@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class Loading {
@@ -6,22 +8,24 @@ class Loading {
   BuildContext? loadingContext;
   final BuildContext context;
 
-  Future<void> start() async => showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          loadingContext = context;
-          return const SimpleDialog(
-            elevation: 0.0,
-            backgroundColor:
-                Colors.transparent, // can change this to your preferred color
-            children: [
-              Center(
-                child: CircularProgressIndicator(),
-              ),
-            ],
-          );
-        },
+  void start() => unawaited(
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            loadingContext = context;
+            return const SimpleDialog(
+              elevation: 0.0,
+              backgroundColor:
+                  Colors.transparent, // can change this to your preferred color
+              children: [
+                Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ],
+            );
+          },
+        ),
       );
 
   Future<void> stop() async {
@@ -38,14 +42,16 @@ class BarrierDialog {
   late BuildContext loadingContext;
   final BuildContext context;
 
-  Future<void> show() async => showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        barrierColor: Colors.transparent,
-        builder: (BuildContext context) {
-          loadingContext = context;
-          return const SizedBox.shrink();
-        },
+  void show() => unawaited(
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          barrierColor: Colors.transparent,
+          builder: (BuildContext context) {
+            loadingContext = context;
+            return const SizedBox.shrink();
+          },
+        ),
       );
 
   Future<void> dismiss() async => Navigator.of(loadingContext).pop();
