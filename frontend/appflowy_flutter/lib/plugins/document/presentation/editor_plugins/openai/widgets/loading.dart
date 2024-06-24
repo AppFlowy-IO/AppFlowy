@@ -28,7 +28,7 @@ class Loading {
         ),
       );
 
-  Future<void> stop() async {
+  void stop() {
     if (loadingContext != null) {
       Navigator.of(loadingContext!).pop();
       loadingContext = null;
@@ -54,5 +54,5 @@ class BarrierDialog {
         ),
       );
 
-  Future<void> dismiss() async => Navigator.of(loadingContext).pop();
+  void dismiss() => Navigator.of(loadingContext).pop();
 }

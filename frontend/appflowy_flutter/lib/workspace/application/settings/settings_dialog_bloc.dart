@@ -13,12 +13,13 @@ enum SettingsPage {
   account,
   workspace,
   manageData,
+  shortcuts,
+  ai,
   plan,
   billing,
   // OLD
   notifications,
   cloud,
-  shortcuts,
   member,
   featureFlags,
 }

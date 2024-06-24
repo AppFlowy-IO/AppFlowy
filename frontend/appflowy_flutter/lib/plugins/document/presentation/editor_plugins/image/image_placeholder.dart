@@ -90,7 +90,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
               UploadImageType.local,
               UploadImageType.url,
               UploadImageType.unsplash,
-              UploadImageType.openAI,
+              // UploadImageType.openAI,
               UploadImageType.stabilityAI,
             ],
             onSelectedLocalImage: (path) {

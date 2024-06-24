@@ -24,6 +24,7 @@ pub struct UserTable {
   pub(crate) encryption_type: String,
   pub(crate) stability_ai_key: String,
   pub(crate) updated_at: i64,
+  pub(crate) ai_model: String,
 }
 
 impl UserTable {
@@ -49,6 +50,7 @@ impl From<(UserProfile, Authenticator)> for UserTable {
       encryption_type,
       stability_ai_key: user_profile.stability_ai_key,
       updated_at: user_profile.updated_at,
+      ai_model: user_profile.ai_model,
     }
   }
 }
@@ -67,6 +69,7 @@ impl From<UserTable> for UserProfile {
       encryption_type: EncryptionType::from_str(&table.encryption_type).unwrap_or_default(),
       stability_ai_key: table.stability_ai_key,
       updated_at: table.updated_at,
+      ai_model: table.ai_model,
     }
   }
 }
@@ -83,6 +86,7 @@ pub struct UserTableChangeset {
   pub encryption_type: Option<String>,
   pub token: Option<String>,
   pub stability_ai_key: Option<String>,
+  pub ai_model: Option<String>,
 }
 
 impl UserTableChangeset {
@@ -101,6 +105,7 @@ impl UserTableChangeset {
       encryption_type,
       token: params.token,
       stability_ai_key: params.stability_ai_key,
+      ai_model: params.ai_model,
     }
   }
 
@@ -116,6 +121,7 @@ impl UserTableChangeset {
       encryption_type: Some(encryption_type),
       token: Some(user_profile.token),
       stability_ai_key: Some(user_profile.stability_ai_key),
+      ai_model: Some(user_profile.ai_model),
     }
   }
 }

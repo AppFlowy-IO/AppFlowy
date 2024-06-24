@@ -369,15 +369,6 @@
           "change": "Change email"
         }
       },
-      "keys": {
-        "title": "AI API Keys",
-        "openAILabel": "OpenAI API key",
-        "openAITooltip": "You can find your Secret API key on the API key page",
-        "openAIHint": "Input your OpenAI API Key",
-        "stabilityAILabel": "Stability API key",
-        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
-        "stabilityAIHint": "Input your Stability API Key"
-      },
       "login": {
         "title": "Account login",
         "loginLabel": "Log in",
@@ -610,6 +601,23 @@
       },
       "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
       "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
+    },
+    "aiPage": {
+      "title": "AI Settings",
+      "menuLabel": "AI Settings",
+      "keys": {
+        "enableAISearchTitle": "AI Search",
+        "aiSettingsDescription": "Select or configure Ai models used on AppFlowy. For best performance we recommend using the default model options",
+        "loginToEnableAIFeature": "AI features are only enabled after logging in with AppFlowy Cloud. If you don't have an AppFlowy account, go to 'My Account' to sign up",
+        "llmModel": "Language Model",
+        "title": "AI API Keys",
+        "openAILabel": "OpenAI API key",
+        "openAITooltip": "You can find your Secret API key on the API key page",
+        "openAIHint": "Input your OpenAI API Key",
+        "stabilityAILabel": "Stability API key",
+        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
+        "stabilityAIHint": "Input your Stability API Key"
+      }
     },
     "planPage": {
       "menuLabel": "Plan",
@@ -1295,6 +1303,7 @@
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",
+      "appflowyAIEditDisabled": "Sign in to enable AI features",
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
       "fonts": "Fonts",

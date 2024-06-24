@@ -31,7 +31,6 @@ members = [
     "flowy-search-pub",
     "flowy-chat",
     "flowy-chat-pub",
-    "flowy-storage-pub",
 ]
 resolver = "2"
 
@@ -97,8 +96,8 @@ validator = { version = "0.16.1", features = ["derive"] }
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "6262816043efeede8823d7a7ea252083adf407e9" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "6262816043efeede8823d7a7ea252083adf407e9" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d61524d63605aa010afa6a734cbbe4fb4cd68ea1" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d61524d63605aa010afa6a734cbbe4fb4cd68ea1" }
 
 [profile.dev]
 opt-level = 1

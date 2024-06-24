@@ -171,6 +171,7 @@ pub struct UserProfile {
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
   pub encryption_type: EncryptionType,
   pub updated_at: i64,
+  pub ai_model: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default, Eq, PartialEq)]
@@ -249,6 +250,7 @@ where
       encryption_type: value.encryption_type(),
       stability_ai_key,
       updated_at: value.updated_at(),
+      ai_model: "".to_string(),
     }
   }
 }
@@ -264,6 +266,7 @@ pub struct UpdateUserProfileParams {
   pub stability_ai_key: Option<String>,
   pub encryption_sign: Option<String>,
   pub token: Option<String>,
+  pub ai_model: Option<String>,
 }
 
 impl UpdateUserProfileParams {
@@ -315,6 +318,11 @@ impl UpdateUserProfileParams {
       EncryptionType::SelfEncryption(sign) => sign,
     };
     self.encryption_sign = Some(sign);
+    self
+  }
+
+  pub fn with_ai_model(mut self, ai_model: &str) -> Self {
+    self.ai_model = Some(ai_model.to_owned());
     self
   }
 

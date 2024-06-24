@@ -1,18 +1,18 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/util/learn_more_action.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
@@ -229,32 +229,15 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeaderWidget(context),
+        FlowyText.medium(
+          action.name,
+          fontSize: 14,
+        ),
+        // _buildHeaderWidget(context),
         const Space(0, 10),
         _buildResultWidget(context),
         const Space(0, 10),
         _buildInputFooterWidget(context),
-      ],
-    );
-  }
-
-  Widget _buildHeaderWidget(BuildContext context) {
-    return Row(
-      children: [
-        FlowyText.medium(
-          '${LocaleKeys.document_plugins_openAI.tr()}: ${action.name}',
-          fontSize: 14,
-        ),
-        const Spacer(),
-        FlowyButton(
-          useIntrinsicWidth: true,
-          text: FlowyText.regular(
-            LocaleKeys.document_plugins_autoGeneratorLearnMore.tr(),
-          ),
-          onTap: () async {
-            await openLearnMorePage();
-          },
-        ),
       ],
     );
   }
@@ -423,45 +406,33 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
         result = "";
       });
     }
-    final openAIRepository = await getIt.getAsync<OpenAIRepository>();
-
-    var lines = content.split('\n\n');
-    if (action == SmartEditAction.summarize) {
-      lines = [lines.join('\n')];
-    }
-    for (var i = 0; i < lines.length; i++) {
-      final element = lines[i];
-      await openAIRepository.getStreamedCompletions(
-        useAction: true,
-        prompt: action.prompt(element),
-        onStart: () async {
-          setState(() {
-            loading = false;
-          });
-        },
-        onProcess: (response) async {
-          setState(() {
-            if (response.choices.first.text != '\n') {
-              result += response.choices.first.text;
-            }
-          });
-        },
-        onEnd: () async {
-          setState(() {
-            if (i != lines.length - 1) {
-              result += '\n';
-            }
-          });
-        },
-        onError: (error) async {
-          showSnackBarMessage(
-            context,
-            error.message,
-            showCancel: true,
-          );
-          await _onExit();
-        },
-      );
-    }
+    final aiResitory = await getIt.getAsync<AIRepository>();
+    await aiResitory.streamCompletion(
+      text: content,
+      completionType: completionTypeFromInt(action),
+      onStart: () async {
+        setState(() {
+          loading = false;
+        });
+      },
+      onProcess: (text) async {
+        setState(() {
+          result += text;
+        });
+      },
+      onEnd: () async {
+        setState(() {
+          result += '\n';
+        });
+      },
+      onError: (error) async {
+        showSnackBarMessage(
+          context,
+          error.message,
+          showCancel: true,
+        );
+        await _onExit();
+      },
+    );
   }
 }
