@@ -98,6 +98,7 @@ pub struct AcceptWorkspaceInvitationPB {
   pub invite_id: String,
 }
 
+// Deprecated
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct AddWorkspaceMemberPB {
   #[pb(index = 1)]

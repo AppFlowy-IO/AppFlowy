@@ -54,9 +54,6 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::SetNotificationSettings, set_notification_settings)
     .event(UserEvent::GetNotificationSettings, get_notification_settings)
     .event(UserEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
-      // Workspace member
-    .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler) // deprecated, use invite
-                                                                        // instead
     .event(UserEvent::GetMemberInfo, get_workspace_member_info)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
     .event(UserEvent::GetWorkspaceMembers, get_workspace_members_handler)
@@ -196,6 +193,7 @@ pub enum UserEvent {
   #[event(output = "NotificationSettingsPB")]
   GetNotificationSettings = 36,
 
+  // Deprecated
   #[event(input = "AddWorkspaceMemberPB")]
   AddWorkspaceMember = 37,
 
