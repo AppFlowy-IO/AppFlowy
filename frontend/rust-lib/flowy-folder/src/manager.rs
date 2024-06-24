@@ -778,7 +778,7 @@ impl FolderManager {
     }
 
     let filtered_view_ids = self.with_folder(
-      || vec![],
+      || Vec::new(),
       |folder| self.get_view_ids_should_be_filtered(folder),
     );
 
@@ -805,7 +805,7 @@ impl FolderManager {
           views
             .iter()
             .filter(|id| filtered_view_ids.contains(id))
-            .position(|id| id.to_string() == current_view_id)
+            .position(|id| *id == current_view_id)
             .map(|i| i as u32)
         });
 
