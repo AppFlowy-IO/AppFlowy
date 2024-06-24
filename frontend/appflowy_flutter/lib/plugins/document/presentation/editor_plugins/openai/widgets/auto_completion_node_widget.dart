@@ -452,23 +452,9 @@ class AutoCompletionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        FlowyText.medium(
-          LocaleKeys.document_plugins_autoGeneratorTitleName.tr(),
-          fontSize: 14,
-        ),
-        const Spacer(),
-        FlowyButton(
-          useIntrinsicWidth: true,
-          text: FlowyText.regular(
-            LocaleKeys.document_plugins_autoGeneratorLearnMore.tr(),
-          ),
-          onTap: () async {
-            await openLearnMorePage();
-          },
-        ),
-      ],
+    return FlowyText.medium(
+      LocaleKeys.document_plugins_autoGeneratorTitleName.tr(),
+      fontSize: 14,
     );
   }
 }

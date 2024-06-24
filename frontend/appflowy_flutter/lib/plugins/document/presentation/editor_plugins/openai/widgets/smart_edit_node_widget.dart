@@ -230,32 +230,15 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeaderWidget(context),
-        const Space(0, 10),
-        _buildResultWidget(context),
-        const Space(0, 10),
-        _buildInputFooterWidget(context),
-      ],
-    );
-  }
-
-  Widget _buildHeaderWidget(BuildContext context) {
-    return Row(
-      children: [
         FlowyText.medium(
           action.name,
           fontSize: 14,
         ),
-        const Spacer(),
-        FlowyButton(
-          useIntrinsicWidth: true,
-          text: FlowyText.regular(
-            LocaleKeys.document_plugins_autoGeneratorLearnMore.tr(),
-          ),
-          onTap: () async {
-            await openLearnMorePage();
-          },
-        ),
+        // _buildHeaderWidget(context),
+        const Space(0, 10),
+        _buildResultWidget(context),
+        const Space(0, 10),
+        _buildInputFooterWidget(context),
       ],
     );
   }
