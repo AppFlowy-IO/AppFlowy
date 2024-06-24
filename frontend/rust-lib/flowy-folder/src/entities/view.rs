@@ -3,7 +3,7 @@ use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
-use collab_folder::{RepeatedViewIdentifier, View, ViewIcon, ViewLayout};
+use collab_folder::{View, ViewIcon, ViewLayout};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
