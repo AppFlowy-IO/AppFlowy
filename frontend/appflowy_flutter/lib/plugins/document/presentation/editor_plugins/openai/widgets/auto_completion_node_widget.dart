@@ -188,7 +188,7 @@ class _AutoCompletionBlockComponentState
 
   Future<void> _onGenerate() async {
     final loading = Loading(context);
-    await loading.start();
+    loading.start();
 
     await _updateEditingText();
 
@@ -218,7 +218,7 @@ class _AutoCompletionBlockComponentState
         await loading.stop();
         if (mounted) {
           barrierDialog = BarrierDialog(context);
-          await barrierDialog?.show();
+          barrierDialog?.show();
           await _makeSurePreviousNodeIsEmptyParagraphNode();
         }
       },
@@ -273,7 +273,7 @@ class _AutoCompletionBlockComponentState
     }
 
     final loading = Loading(context);
-    await loading.start();
+    loading.start();
     // clear previous response
     final selection = startSelection;
     if (selection != null) {
