@@ -32,6 +32,7 @@ members = [
     "flowy-chat",
     "flowy-chat-pub",
     "flowy-storage-pub",
+    "flowy-sidecar",
 ]
 resolver = "2"
 
