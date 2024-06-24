@@ -777,6 +777,11 @@ impl FolderManager {
       ));
     }
 
+    let filtered_view_ids = self.with_folder(
+      || vec![],
+      |folder| self.get_view_ids_should_be_filtered(folder),
+    );
+
     // only apply the `open_after_duplicated` and the `include_children` to the first view
     let mut is_source_view = true;
     // use a stack to duplicate the view and its children
@@ -799,7 +804,8 @@ impl FolderManager {
         .and_then(|(_, _, views)| {
           views
             .iter()
-            .position(|id| id == &current_view_id)
+            .filter(|id| filtered_view_ids.contains(id))
+            .position(|id| id.to_string() == current_view_id)
             .map(|i| i as u32)
         });
 
@@ -840,7 +846,10 @@ impl FolderManager {
         let child_views = self.get_views_belong_to(&current_view_id).await?;
         // reverse the child views to keep the order
         for child_view in child_views.iter().rev() {
-          stack.push((child_view.id.clone(), duplicated_view.id.clone()));
+          // skip the view_id should be filtered and the child_view is the duplicated view
+          if !filtered_view_ids.contains(&child_view.id) {
+            stack.push((child_view.id.clone(), duplicated_view.id.clone()));
+          }
         }
       }
 

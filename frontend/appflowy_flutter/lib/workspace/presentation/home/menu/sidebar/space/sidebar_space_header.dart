@@ -212,6 +212,8 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
         _showDeleteSpaceDialog(context);
         break;
       case SpaceMoreActionType.duplicate:
+        context.read<SpaceBloc>().add(const SpaceEvent.duplicate());
+        break;
       case SpaceMoreActionType.divider:
         break;
     }

@@ -291,6 +291,18 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             final nextSpace = spaces[nextIndex];
             add(SpaceEvent.open(nextSpace));
           },
+          duplicate: () async {
+            final currentSpace = state.currentSpace;
+            if (currentSpace == null) {
+              return;
+            }
+            await ViewBackendService.duplicate(
+              view: currentSpace,
+              openAfterDuplicate: false,
+              includeChildren: true,
+            );
+            add(const SpaceEvent.didReceiveSpaceUpdate());
+          },
         );
       },
     );
@@ -606,6 +618,7 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
   const factory SpaceEvent.changeIcon(String icon, String iconColor) =
       _ChangeIcon;
+  const factory SpaceEvent.duplicate() = _Duplicate;
   const factory SpaceEvent.update({
     String? name,
     String? icon,
