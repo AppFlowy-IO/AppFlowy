@@ -193,7 +193,7 @@ class _AutoCompletionBlockComponentState
     final userProfile = await UserBackendService.getCurrentUserProfile()
         .then((value) => value.toNullable());
     if (userProfile == null) {
-      await loading.stop();
+      loading.stop();
       if (mounted) {
         showSnackBarMessage(
           context,
@@ -211,7 +211,7 @@ class _AutoCompletionBlockComponentState
       text: controller.text,
       completionType: CompletionTypePB.ContinueWriting,
       onStart: () async {
-        await loading.stop();
+        loading.stop();
         if (mounted) {
           barrierDialog = BarrierDialog(context);
           barrierDialog?.show();
@@ -228,7 +228,7 @@ class _AutoCompletionBlockComponentState
         await barrierDialog?.dismiss();
       },
       onError: (error) async {
-        await loading.stop();
+        loading.stop();
         if (mounted) {
           showSnackBarMessage(
             context,
@@ -285,7 +285,7 @@ class _AutoCompletionBlockComponentState
     final userProfile = await UserBackendService.getCurrentUserProfile()
         .then((value) => value.toNullable());
     if (userProfile == null) {
-      await loading.stop();
+      loading.stop();
       if (mounted) {
         showSnackBarMessage(
           context,
@@ -301,7 +301,7 @@ class _AutoCompletionBlockComponentState
       text: _rewritePrompt(previousOutput),
       completionType: CompletionTypePB.ContinueWriting,
       onStart: () async {
-        await loading.stop();
+        loading.stop();
         await _makeSurePreviousNodeIsEmptyParagraphNode();
       },
       onProcess: (text) async {
@@ -312,7 +312,7 @@ class _AutoCompletionBlockComponentState
       },
       onEnd: () async {},
       onError: (error) async {
-        await loading.stop();
+        loading.stop();
         if (mounted) {
           showSnackBarMessage(
             context,
