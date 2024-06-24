@@ -476,8 +476,8 @@ async fn start_upload(
 
   // mark it as completed
   complete_upload(
-    &cloud_service,
-    &user_service,
+    cloud_service,
+    user_service,
     temp_storage,
     &upload_file,
     completed_parts,
