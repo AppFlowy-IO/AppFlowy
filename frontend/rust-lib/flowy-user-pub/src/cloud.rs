@@ -178,15 +178,6 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Deletes a workspace owned by the user.
   fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError>;
 
-  // Deprecated, use invite instead
-  fn add_workspace_member(
-    &self,
-    user_email: String,
-    workspace_id: String,
-  ) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-
   fn invite_workspace_member(
     &self,
     invitee_email: String,

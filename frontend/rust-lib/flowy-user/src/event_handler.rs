@@ -624,19 +624,6 @@ pub async fn update_reminder_event_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn add_workspace_member_handler(
-  data: AFPluginData<AddWorkspaceMemberPB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let data = data.try_into_inner()?;
-  let manager = upgrade_manager(manager)?;
-  manager
-    .add_workspace_member(data.email, data.workspace_id)
-    .await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn delete_workspace_member_handler(
   data: AFPluginData<RemoveWorkspaceMemberPB>,
   manager: AFPluginState<Weak<UserManager>>,
