@@ -491,7 +491,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           ? Expanded(
               child: Row(
                 children: [
-                  name,
+                  Flexible(child: name),
                   ...widget.extendBuilder!(widget.view),
                 ],
               ),
