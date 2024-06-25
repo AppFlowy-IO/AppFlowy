@@ -8,12 +8,14 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -401,6 +403,76 @@ class SpacePages extends StatelessWidget {
                 .toList(),
           );
         },
+      ),
+    );
+  }
+}
+
+class SpaceSearchField extends StatefulWidget {
+  const SpaceSearchField({
+    super.key,
+    required this.width,
+    required this.onSearch,
+  });
+
+  final double width;
+  final void Function(BuildContext context, String text) onSearch;
+
+  @override
+  State<SpaceSearchField> createState() => _SpaceSearchFieldState();
+}
+
+class _SpaceSearchFieldState extends State<SpaceSearchField> {
+  final focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    focusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 30,
+      width: widget.width,
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(
+            width: 1.20,
+            strokeAlign: BorderSide.strokeAlignOutside,
+            color: Color(0xFF00BCF0),
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: CupertinoSearchTextField(
+        onChanged: (text) => widget.onSearch(context, text),
+        padding: EdgeInsets.zero,
+        focusNode: focusNode,
+        placeholder: LocaleKeys.search_label.tr(),
+        prefixIcon: const FlowySvg(FlowySvgs.magnifier_s),
+        prefixInsets: const EdgeInsets.only(left: 12.0, right: 8.0),
+        suffixIcon: const Icon(Icons.close),
+        suffixInsets: const EdgeInsets.only(right: 8.0),
+        itemSize: 16.0,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+        ),
+        placeholderStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).hintColor,
+              fontWeight: FontWeight.w400,
+            ),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w400,
+            ),
       ),
     );
   }

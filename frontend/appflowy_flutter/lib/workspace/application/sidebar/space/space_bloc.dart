@@ -463,7 +463,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
   Future<bool> _getSpaceExpandStatus(ViewPB? space) async {
     if (space == null) {
-      return false;
+      return true;
     }
 
     return getIt<KeyValueStorage>().get(KVKeys.expandedViews).then((result) {
