@@ -1,10 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -116,6 +117,106 @@ void main() {
         ]);
       });
     });
+
+    testWidgets('paste bulleted list in numbered list', (tester) async {
+      const inAppJson =
+          '{"document":{"type":"page","children":[{"type":"bulleted_list","children":[{"type":"bulleted_list","data":{"delta":[{"insert":"World"}]}}],"data":{"delta":[{"insert":"Hello"}]}}]}}';
+
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      // create a new document
+      await tester.createNewPageWithNameUnderParent();
+
+      final editorState = tester.editor.getCurrentEditorState();
+      final transaction = editorState.transaction;
+      // Insert two numbered list nodes, with one child for parent one.
+      // 1. Parent One
+      //   a.
+      // 2. Parent Two
+      transaction.insertNodes(
+        [0],
+        [
+          Node(
+            type: NumberedListBlockKeys.type,
+            attributes: {
+              'delta': [
+                {"insert": "Parent One"},
+              ],
+            },
+            children: [Node(type: NumberedListBlockKeys.type)],
+          ),
+          Node(
+            type: NumberedListBlockKeys.type,
+            attributes: {
+              'delta': [
+                {"insert": "Parent Two"},
+              ],
+            },
+          ),
+        ],
+      );
+
+      // Set the selection to the child of Parent one.
+      transaction.afterSelection = Selection.collapsed(Position(path: [0, 0]));
+
+      await editorState.apply(transaction);
+      await tester.pumpAndSettle();
+
+      // mock the clipboard
+      await getIt<ClipboardService>().setData(
+        const ClipboardServiceData(inAppJson: inAppJson),
+      );
+
+      // paste the text
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyV,
+        isControlPressed: Platform.isLinux || Platform.isWindows,
+        isMetaPressed: Platform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      //   await tester.pasteContent(
+      //     inAppJson: inAppJson,
+      //     beforeTest: (editorState) async {
+      //       final transaction = editorState.transaction;
+
+      //       // Insert two numbered list nodes.
+      //       transaction.insertNodes(
+      //         [0],
+      //         [
+      //           Node(
+      //             type: NumberedListBlockKeys.type,
+      //             attributes: {
+      //               'delta': [
+      //                 {"insert": "Parent One"},
+      //               ],
+      //             },
+      //             children: [Node(type: NumberedListBlockKeys.type)],
+      //           ),
+      //           Node(
+      //             type: NumberedListBlockKeys.type,
+      //             attributes: {
+      //               'delta': [
+      //                 {"insert": "Parent Two"},
+      //               ],
+      //             },
+      //           ),
+      //         ],
+      //       );
+
+      //       transaction.afterSelection =
+      //           Selection.collapsed(Position(path: [0, 0]));
+
+      //       await editorState.apply(transaction);
+      //     },
+      //     (editorState) {
+      //       debugPrint(editorState.document.toJson().toString());
+      //       debugPrint(editorState.getNodeAtPath([0, 0])!.toJson().toString());
+      //       expect(editorState.document.root.children.length, 3);
+      //     },
+      //   );
+    });
   });
 
   testWidgets('paste image(png) from memory', (tester) async {
@@ -210,42 +311,33 @@ void main() {
   testWidgets('paste the html content contains section', (tester) async {
     const html =
         '''<meta charset='utf-8'><section style="margin: 0px 8px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgba(255, 255, 255, 0.6); font-family: system-ui, -apple-system, &quot;system-ui&quot;, &quot;Helvetica Neue&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei UI&quot;, &quot;Microsoft YaHei&quot;, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: 0.544px; orphans: 2; text-align: justify; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(25, 25, 25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><span style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgb(0, 160, 113);"><strong style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important;">AppFlowy</strong></span></section><section style="margin: 0px 8px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgba(255, 255, 255, 0.6); font-family: system-ui, -apple-system, &quot;system-ui&quot;, &quot;Helvetica Neue&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei UI&quot;, &quot;Microsoft YaHei&quot;, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: 0.544px; orphans: 2; text-align: justify; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(25, 25, 25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><span style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgb(0, 160, 113);"><strong style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important;">Hello World</strong></span></section>''';
-    await tester.pasteContent(
-      html: html,
-      (editorState) {
-        expect(editorState.document.root.children.length, 2);
-        final node1 = editorState.getNodeAtPath([0])!;
-        final node2 = editorState.getNodeAtPath([1])!;
-        expect(node1.type, ParagraphBlockKeys.type);
-        expect(node2.type, ParagraphBlockKeys.type);
-      },
-    );
+    await tester.pasteContent(html: html, (editorState) {
+      expect(editorState.document.root.children.length, 2);
+      final node1 = editorState.getNodeAtPath([0])!;
+      final node2 = editorState.getNodeAtPath([1])!;
+      expect(node1.type, ParagraphBlockKeys.type);
+      expect(node2.type, ParagraphBlockKeys.type);
+    });
   });
 
   testWidgets('paste the html from google translation', (tester) async {
     const html =
         '''<meta charset='utf-8'><section style="margin: 0px 8px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgba(255, 255, 255, 0.6); font-family: system-ui, -apple-system, &quot;system-ui&quot;, &quot;Helvetica Neue&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei UI&quot;, &quot;Microsoft YaHei&quot;, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: 0.544px; orphans: 2; text-align: justify; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(25, 25, 25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><span style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgb(0, 160, 113);"><strong style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;">new force</font></font></strong></span></section><section style="margin: 0px 8px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgba(255, 255, 255, 0.6); font-family: system-ui, -apple-system, &quot;system-ui&quot;, &quot;Helvetica Neue&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei UI&quot;, &quot;Microsoft YaHei&quot;, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: 0.544px; orphans: 2; text-align: justify; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(25, 25, 25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><span style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgb(0, 160, 113);"><strong style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;">Assessment focus: potential motivations, empathy</font></font></strong></span></section><section style="margin: 0px 8px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgba(255, 255, 255, 0.6); font-family: system-ui, -apple-system, &quot;system-ui&quot;, &quot;Helvetica Neue&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei UI&quot;, &quot;Microsoft YaHei&quot;, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: 0.544px; orphans: 2; text-align: justify; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(25, 25, 25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><br style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important;"></section><section style="margin: 0px 8px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgba(255, 255, 255, 0.6); font-family: system-ui, -apple-system, &quot;system-ui&quot;, &quot;Helvetica Neue&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei UI&quot;, &quot;Microsoft YaHei&quot;, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: 0.544px; orphans: 2; text-align: justify; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(25, 25, 25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;">➢Personality characteristics and potential motivations:</font></font></section><section style="margin: 0px 8px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgba(255, 255, 255, 0.6); font-family: system-ui, -apple-system, &quot;system-ui&quot;, &quot;Helvetica Neue&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei UI&quot;, &quot;Microsoft YaHei&quot;, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: 0.544px; orphans: 2; text-align: justify; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(25, 25, 25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;">-Reflection of self-worth</font></font></section><section style="margin: 0px 8px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgba(255, 255, 255, 0.6); font-family: system-ui, -apple-system, &quot;system-ui&quot;, &quot;Helvetica Neue&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei UI&quot;, &quot;Microsoft YaHei&quot;, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: 0.544px; orphans: 2; text-align: justify; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(25, 25, 25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;">-Need to be respected</font></font></section><section style="margin: 0px 8px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgba(255, 255, 255, 0.6); font-family: system-ui, -apple-system, &quot;system-ui&quot;, &quot;Helvetica Neue&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei UI&quot;, &quot;Microsoft YaHei&quot;, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: 0.544px; orphans: 2; text-align: justify; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(25, 25, 25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;">-Have a unique definition of success</font></font></section><section style="margin: 0px 8px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important; color: rgba(255, 255, 255, 0.6); font-family: system-ui, -apple-system, &quot;system-ui&quot;, &quot;Helvetica Neue&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei UI&quot;, &quot;Microsoft YaHei&quot;, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: 0.544px; orphans: 2; text-align: justify; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(25, 25, 25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;"><font style="margin: 0px; padding: 0px; outline: 0px; max-width: 100%; box-sizing: border-box !important; overflow-wrap: break-word !important; vertical-align: inherit;">-Be true to your own lifestyle</font></font></section>''';
-    await tester.pasteContent(
-      html: html,
-      (editorState) {
-        expect(editorState.document.root.children.length, 8);
-      },
-    );
+    await tester.pasteContent(html: html, (editorState) {
+      expect(editorState.document.root.children.length, 8);
+    });
   });
 
   testWidgets(
     'auto convert url to link preview block',
-    (widgetTester) async {
+    (tester) async {
       const url = 'https://appflowy.io';
-      await widgetTester.pasteContent(
-        plainText: url,
-        (editorState) {
-          expect(editorState.document.root.children.length, 2);
-          final node = editorState.getNodeAtPath([0])!;
-          expect(node.type, LinkPreviewBlockKeys.type);
-          expect(node.attributes[LinkPreviewBlockKeys.url], url);
-        },
-      );
+      await tester.pasteContent(plainText: url, (editorState) {
+        expect(editorState.document.root.children.length, 2);
+        final node = editorState.getNodeAtPath([0])!;
+        expect(node.type, LinkPreviewBlockKeys.type);
+        expect(node.attributes[LinkPreviewBlockKeys.url], url);
+      });
     },
   );
 }
@@ -256,6 +348,7 @@ extension on WidgetTester {
     Future<void> Function(EditorState editorState)? beforeTest,
     String? plainText,
     String? html,
+    String? inAppJson,
     (String, Uint8List?)? image,
   }) async {
     await initializeAppFlowy();
@@ -271,6 +364,7 @@ extension on WidgetTester {
       ClipboardServiceData(
         plainText: plainText,
         html: html,
+        inAppJson: inAppJson,
         image: image,
       ),
     );
