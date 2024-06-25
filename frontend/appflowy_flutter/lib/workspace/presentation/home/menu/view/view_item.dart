@@ -62,6 +62,7 @@ class ViewItem extends StatelessWidget {
     this.isExpandedNotifier,
     this.extendBuilder,
     this.disableSelectedStatus,
+    this.shouldIgnoreView,
   });
 
   final ViewPB view;
@@ -117,7 +118,11 @@ class ViewItem extends StatelessWidget {
 
   final List<Widget> Function(ViewPB view)? extendBuilder;
 
+  // disable the selected status of the view item
   final bool? disableSelectedStatus;
+
+  // ignore the views when rendering the child views
+  final bool Function(ViewPB view)? shouldIgnoreView;
 
   @override
   Widget build(BuildContext context) {
@@ -132,10 +137,17 @@ class ViewItem extends StatelessWidget {
         listener: (context, state) =>
             context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
+          // filter the child views that should be ignored
+          var childViews = state.view.childViews;
+          if (shouldIgnoreView != null) {
+            childViews = childViews
+                .where((childView) => !shouldIgnoreView!(childView))
+                .toList();
+          }
           return InnerViewItem(
             view: state.view,
             parentView: parentView,
-            childViews: state.view.childViews,
+            childViews: childViews,
             spaceType: spaceType,
             level: level,
             leftPadding: leftPadding,
@@ -156,6 +168,7 @@ class ViewItem extends StatelessWidget {
             rightIconsBuilder: rightIconsBuilder,
             isExpandedNotifier: isExpandedNotifier,
             extendBuilder: extendBuilder,
+            shouldIgnoreView: shouldIgnoreView,
           );
         },
       ),
@@ -191,6 +204,7 @@ class InnerViewItem extends StatefulWidget {
     this.isExpandedNotifier,
     required this.extendBuilder,
     this.disableSelectedStatus,
+    required this.shouldIgnoreView,
   });
 
   final ViewPB view;
@@ -222,6 +236,7 @@ class InnerViewItem extends StatefulWidget {
 
   final PropertyValueNotifier<bool>? isExpandedNotifier;
   final List<Widget> Function(ViewPB view)? extendBuilder;
+  final bool Function(ViewPB view)? shouldIgnoreView;
 
   @override
   State<InnerViewItem> createState() => _InnerViewItemState();
@@ -261,6 +276,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
       rightIconsBuilder: widget.rightIconsBuilder,
       extendBuilder: widget.extendBuilder,
       disableSelectedStatus: widget.disableSelectedStatus,
+      shouldIgnoreView: widget.shouldIgnoreView,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -286,6 +302,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
           leftIconBuilder: widget.leftIconBuilder,
           rightIconsBuilder: widget.rightIconsBuilder,
           extendBuilder: widget.extendBuilder,
+          shouldIgnoreView: widget.shouldIgnoreView,
         );
       }).toList();
 
@@ -339,6 +356,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
               leftIconBuilder: widget.leftIconBuilder,
               rightIconsBuilder: widget.rightIconsBuilder,
               extendBuilder: widget.extendBuilder,
+              shouldIgnoreView: widget.shouldIgnoreView,
             ),
           );
         },
@@ -384,6 +402,7 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.rightIconsBuilder,
     required this.extendBuilder,
     required this.disableSelectedStatus,
+    required this.shouldIgnoreView,
   });
 
   final ViewPB view;
@@ -410,6 +429,7 @@ class SingleInnerViewItem extends StatefulWidget {
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
   final List<Widget> Function(ViewPB view)? extendBuilder;
+  final bool Function(ViewPB view)? shouldIgnoreView;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();

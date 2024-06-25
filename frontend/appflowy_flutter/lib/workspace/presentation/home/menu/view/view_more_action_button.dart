@@ -55,7 +55,7 @@ class ViewMoreActionButton extends StatelessWidget {
     final actionTypes = _buildActionTypes();
     return actionTypes
         .map(
-          (e) => ViewMoreActionTypeWrapper(e, (controller, data) {
+          (e) => ViewMoreActionTypeWrapper(e, view, (controller, data) {
             onEditing(false);
             onAction(e, data);
             controller.close();
@@ -114,9 +114,14 @@ class ViewMoreActionButton extends StatelessWidget {
 }
 
 class ViewMoreActionTypeWrapper extends CustomActionCell {
-  ViewMoreActionTypeWrapper(this.inner, this.onTap);
+  ViewMoreActionTypeWrapper(
+    this.inner,
+    this.sourceView,
+    this.onTap,
+  );
 
   final ViewMoreActionType inner;
+  final ViewPB sourceView;
   final void Function(PopoverController controller, dynamic data) onTap;
 
   @override
@@ -184,6 +189,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
         }
 
         return MovePageMenu(
+          sourceView: sourceView,
           userProfile: userProfile,
           workspaceId: workspaceId,
           onSelected: (view) {

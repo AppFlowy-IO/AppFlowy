@@ -9,11 +9,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class MovePageMenu extends StatefulWidget {
   const MovePageMenu({
     super.key,
+    required this.sourceView,
     required this.userProfile,
     required this.workspaceId,
     required this.onSelected,
   });
 
+  final ViewPB sourceView;
   final UserProfilePB userProfile;
   final String workspaceId;
   final void Function(ViewPB view) onSelected;
@@ -24,7 +26,7 @@ class MovePageMenu extends StatefulWidget {
 
 class _MovePageMenuState extends State<MovePageMenu> {
   final isExpandedNotifier = PropertyValueNotifier(true);
-  final isHoveredNotifier = ValueNotifier(false);
+  final isHoveredNotifier = ValueNotifier(true);
 
   @override
   void dispose() {
@@ -59,21 +61,26 @@ class _MovePageMenuState extends State<MovePageMenu> {
                 ),
               ),
               Expanded(
-                child: MouseRegion(
-                  onEnter: (_) => isHoveredNotifier.value = true,
-                  onExit: (_) => isHoveredNotifier.value = false,
-                  child: SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    child: SpacePages(
-                      space: space,
-                      isHovered: isHoveredNotifier,
-                      isExpandedNotifier: isExpandedNotifier,
-                      // hide the hover status and disable the editing actions
-                      disableSelectedStatus: true,
-                      // hide the ... and + buttons
-                      rightIconsBuilder: (context, view) => [],
-                      onSelected: (_, view) => widget.onSelected(view),
-                    ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: SpacePages(
+                    key: ValueKey(space.id),
+                    space: space,
+                    isHovered: isHoveredNotifier,
+                    isExpandedNotifier: isExpandedNotifier,
+                    // ignore the source view and database view, don't render it in the list.
+
+                    shouldIgnoreView: (view) {
+                      if (view.layout != ViewLayoutPB.Document) {
+                        return true;
+                      }
+                      return view.id == widget.sourceView.id;
+                    },
+                    // hide the hover status and disable the editing actions
+                    disableSelectedStatus: true,
+                    // hide the ... and + buttons
+                    rightIconsBuilder: (context, view) => [],
+                    onSelected: (_, view) => widget.onSelected(view),
                   ),
                 ),
               ),

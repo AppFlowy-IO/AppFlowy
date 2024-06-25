@@ -348,6 +348,7 @@ class SpacePages extends StatelessWidget {
     this.rightIconsBuilder,
     this.disableSelectedStatus = false,
     this.onTertiarySelected,
+    this.shouldIgnoreView,
   });
 
   final ViewPB space;
@@ -357,6 +358,7 @@ class SpacePages extends StatelessWidget {
   final ViewItemRightIconsBuilder? rightIconsBuilder;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
+  final bool Function(ViewPB view)? shouldIgnoreView;
 
   @override
   Widget build(BuildContext context) {
@@ -365,9 +367,16 @@ class SpacePages extends StatelessWidget {
           ViewBloc(view: space)..add(const ViewEvent.initial()),
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
+          // filter the child views that should be ignored
+          var childViews = state.view.childViews;
+          if (shouldIgnoreView != null) {
+            childViews = childViews
+                .where((childView) => !shouldIgnoreView!(childView))
+                .toList();
+          }
           return Column(
             mainAxisSize: MainAxisSize.min,
-            children: state.view.childViews
+            children: childViews
                 .map(
                   (view) => ViewItem(
                     key: ValueKey('${space.id} ${view.id}'),
@@ -375,7 +384,7 @@ class SpacePages extends StatelessWidget {
                         space.spacePermission == SpacePermission.publicToAll
                             ? FolderSpaceType.public
                             : FolderSpaceType.private,
-                    isFirstChild: view.id == state.view.childViews.first.id,
+                    isFirstChild: view.id == childViews.first.id,
                     view: view,
                     level: 0,
                     leftPadding: HomeSpaceViewSizes.leftPadding,
@@ -386,6 +395,7 @@ class SpacePages extends StatelessWidget {
                     rightIconsBuilder: rightIconsBuilder,
                     onSelected: onSelected,
                     onTertiarySelected: onTertiarySelected,
+                    shouldIgnoreView: shouldIgnoreView,
                   ),
                 )
                 .toList(),
