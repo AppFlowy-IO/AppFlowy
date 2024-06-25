@@ -1,8 +1,27 @@
 import { useAppLanguage } from '@/components/app/useAppLanguage';
-import React, { createContext, useEffect, useMemo, useState } from 'react';
-import { AFService } from '@/application/services/services.type';
+import React, { createContext, useEffect, useState } from 'react';
+import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { getService } from '@/application/services';
-import { useAppSelector } from '@/stores/store';
+
+const defaultConfig: AFServiceConfig = {
+  cloudConfig: {
+    baseURL: import.meta.env.AF_BASE_URL
+      ? import.meta.env.AF_BASE_URL
+      : import.meta.env.DEV
+      ? 'https://test.appflowy.cloud'
+      : 'https://beta.appflowy.cloud',
+    gotrueURL: import.meta.env.AF_GOTRUE_URL
+      ? import.meta.env.AF_GOTRUE_URL
+      : import.meta.env.DEV
+      ? 'https://test.appflowy.cloud/gotrue'
+      : 'https://beta.appflowy.cloud/gotrue',
+    wsURL: import.meta.env.AF_WS_URL
+      ? import.meta.env.AF_WS_URL
+      : import.meta.env.DEV
+      ? 'wss://test.appflowy.cloud/ws/v1'
+      : 'wss://beta.appflowy.cloud/ws/v1',
+  },
+};
 
 export const AFConfigContext = createContext<
   | {
@@ -12,7 +31,7 @@ export const AFConfigContext = createContext<
 >(undefined);
 
 function AppConfig({ children }: { children: React.ReactNode }) {
-  const appConfig = useAppSelector((state) => state.app.appConfig);
+  const [appConfig] = useState<AFServiceConfig>(defaultConfig);
   const [service, setService] = useState<AFService>();
 
   useAppLanguage();
@@ -24,14 +43,15 @@ function AppConfig({ children }: { children: React.ReactNode }) {
     })();
   }, [appConfig]);
 
-  const config = useMemo(
-    () => ({
-      service,
-    }),
-    [service]
+  return (
+    <AFConfigContext.Provider
+      value={{
+        service,
+      }}
+    >
+      {children}
+    </AFConfigContext.Provider>
   );
-
-  return <AFConfigContext.Provider value={config}>{children}</AFConfigContext.Provider>;
 }
 
 export default AppConfig;

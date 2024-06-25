@@ -1,27 +1,14 @@
-import toast from 'react-hot-toast';
-
-const commonOptions = {
-  style: {
-    background: 'var(--bg-base)',
-    color: 'var(--text-title)',
-    shadows: 'var(--shadow)',
-  },
-};
-
 export const notify = {
   success: (message: string) => {
-    toast.success(message, commonOptions);
+    window.toast.success(message);
   },
   error: (message: string) => {
-    toast.error(message, commonOptions);
-  },
-  loading: (message: string) => {
-    toast.loading(message, commonOptions);
+    window.toast.error(message);
   },
   info: (message: string) => {
-    toast(message, commonOptions);
+    window.toast.info(message);
   },
   clear: () => {
-    toast.dismiss();
+    window.toast.clear();
   },
 };

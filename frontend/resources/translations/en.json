@@ -2027,5 +2027,8 @@
     "upgradeYourSpace": "Create multiple Spaces",
     "quicklySwitch": "Quickly switch to the next space",
     "duplicate": "Duplicate Space"
+  },
+  "publish": {
+    "hasNotBeenPublished": "This page hasn't been published yet"
   }
 }
