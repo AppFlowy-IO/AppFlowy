@@ -53,30 +53,6 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: isHovered,
-      child: SizedBox(
-        height: HomeSizes.workspaceSectionHeight,
-        child: MouseRegion(
-          onEnter: (_) => isHovered.value = true,
-          onExit: (_) => isHovered.value = false,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned(
-                left: 3,
-                top: 3,
-                bottom: 3,
-                child: SpacePopup(
-                  child: _buildChild(),
-                ),
-              ),
-              Positioned(
-                right: 4,
-                child: _buildRightIcon(),
-              ),
-            ],
-          ),
-        ),
-      ),
       builder: (context, isHovered, child) {
         final style = HoverStyle(
           hoverColor: isHovered
@@ -89,10 +65,41 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
               .add(SpaceEvent.expand(widget.space, !widget.isExpanded)),
           child: FlowyHoverContainer(
             style: style,
-            child: child!,
+            child: _buildSpaceName(),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSpaceName() {
+    return SizedBox(
+      height: HomeSizes.workspaceSectionHeight,
+      child: MouseRegion(
+        onEnter: (_) => isHovered.value = true,
+        onExit: (_) => isHovered.value = false,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            ValueListenableBuilder(
+              valueListenable: onEditing,
+              builder: (context, onEditing, child) => Positioned(
+                left: 3,
+                top: 3,
+                bottom: 3,
+                right: isHovered.value || onEditing ? 66 : 0,
+                child: SpacePopup(
+                  child: _buildChild(),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 4,
+              child: _buildRightIcon(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
