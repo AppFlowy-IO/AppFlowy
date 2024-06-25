@@ -41,8 +41,7 @@ class RestartButton extends StatelessWidget {
           SizedBox(
             height: 42,
             child: FlowyTextButton(
-              LocaleKeys.settings_manageDataPage_dataStorage_actions_change
-                  .tr(),
+              LocaleKeys.settings_menu_restartApp.tr(),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               fontWeight: FontWeight.w600,
               radius: BorderRadius.circular(12),

@@ -1,4 +1,4 @@
-use flowy_chat::manager::ChatManager;
+use flowy_chat::chat_manager::ChatManager;
 use std::sync::Weak;
 
 use flowy_database2::DatabaseManager;

@@ -1,9 +1,11 @@
+use std::str::FromStr;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Error;
 use client_api::collab_sync::ServerCollabMessage;
+use client_api::entity::ai_dto::AIModel;
 use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
@@ -124,6 +126,11 @@ impl AppFlowyServer for AppFlowyCloudServer {
       .client
       .restore_token(token)
       .map_err(|err| Error::new(FlowyError::unauthorized().with_context(err)))
+  }
+
+  fn set_ai_model(&self, ai_model: &str) -> Result<(), Error> {
+    self.client.set_ai_model(AIModel::from_str(ai_model)?);
+    Ok(())
   }
 
   fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {

@@ -46,7 +46,6 @@ void main() {
       await tester.ime.insertText(inputContent);
       expect(find.text(inputContent, findRichText: true), findsOneWidget);
 
-      // TODO(nathan): remove the await
       // 6 seconds for data sync
       await tester.waitForSeconds(6);
 

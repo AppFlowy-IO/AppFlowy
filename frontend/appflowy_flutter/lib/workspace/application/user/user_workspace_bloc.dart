@@ -29,9 +29,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
         await event.when(
           initial: () async {
             _listener.start(
-              didUpdateUserWorkspaces: (workspaces) =>
+              onUserWorkspaceListUpdated: (workspaces) =>
                   add(UserWorkspaceEvent.updateWorkspaces(workspaces)),
-              didUpdateUserWorkspace: (workspace) {
+              onUserWorkspaceUpdated: (workspace) {
                 // If currentWorkspace is updated, eg. Icon or Name, we should notify
                 // the UI to render the updated information.
                 final currentWorkspace = state.currentWorkspace;
