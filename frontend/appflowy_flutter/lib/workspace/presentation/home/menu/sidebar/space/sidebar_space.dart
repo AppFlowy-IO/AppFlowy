@@ -1,26 +1,20 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -115,7 +109,7 @@ class _SpaceState extends State<_Space> {
               MouseRegion(
                 onEnter: (_) => isHovered.value = true,
                 onExit: (_) => isHovered.value = false,
-                child: _Pages(
+                child: SpacePages(
                   key: ValueKey(currentSpace.id),
                   isExpandedNotifier: isExpandedNotifier,
                   space: currentSpace,
@@ -167,59 +161,5 @@ class _SpaceState extends State<_Space> {
 
   void _switchToNextSpace() {
     context.read<SpaceBloc>().add(const SpaceEvent.switchToNextSpace());
-  }
-}
-
-class _Pages extends StatelessWidget {
-  const _Pages({
-    super.key,
-    required this.space,
-    required this.isHovered,
-    required this.isExpandedNotifier,
-  });
-
-  final ViewPB space;
-  final ValueNotifier<bool> isHovered;
-  final PropertyValueNotifier<bool> isExpandedNotifier;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          ViewBloc(view: space)..add(const ViewEvent.initial()),
-      child: BlocBuilder<ViewBloc, ViewState>(
-        builder: (context, state) {
-          return Column(
-            children: state.view.childViews
-                .map(
-                  (view) => ViewItem(
-                    key: ValueKey('${space.id} ${view.id}'),
-                    spaceType:
-                        space.spacePermission == SpacePermission.publicToAll
-                            ? FolderSpaceType.public
-                            : FolderSpaceType.private,
-                    isFirstChild: view.id == state.view.childViews.first.id,
-                    view: view,
-                    level: 0,
-                    leftPadding: HomeSpaceViewSizes.leftPadding,
-                    isFeedback: false,
-                    isHovered: isHovered,
-                    isExpandedNotifier: isExpandedNotifier,
-                    onSelected: (viewContext, view) {
-                      if (HardwareKeyboard.instance.isControlPressed) {
-                        context.read<TabsBloc>().openTab(view);
-                      }
-
-                      context.read<TabsBloc>().openPlugin(view);
-                    },
-                    onTertiarySelected: (viewContext, view) =>
-                        context.read<TabsBloc>().openTab(view),
-                  ),
-                )
-                .toList(),
-          );
-        },
-      ),
-    );
   }
 }

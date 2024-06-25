@@ -52,7 +52,7 @@ class ViewItem extends StatelessWidget {
     this.isDraggable = true,
     required this.isFeedback,
     this.height = HomeSpaceViewSizes.viewHeight,
-    this.isHoverEnabled = true,
+    this.isHoverEnabled = false,
     this.isPlaceholder = false,
     this.isHovered,
     this.shouldRenderChildren = true,
@@ -61,6 +61,7 @@ class ViewItem extends StatelessWidget {
     this.shouldLoadChildViews = true,
     this.isExpandedNotifier,
     this.extendBuilder,
+    this.showActions,
   });
 
   final ViewPB view;
@@ -116,6 +117,8 @@ class ViewItem extends StatelessWidget {
 
   final List<Widget> Function(ViewPB view)? extendBuilder;
 
+  final bool? showActions;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -136,7 +139,7 @@ class ViewItem extends StatelessWidget {
             spaceType: spaceType,
             level: level,
             leftPadding: leftPadding,
-            showActions: state.isEditing,
+            showActions: showActions ?? state.isEditing,
             isExpanded: state.isExpanded,
             onSelected: onSelected,
             onTertiarySelected: onTertiarySelected,

@@ -1,6 +1,15 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -258,6 +267,126 @@ class DeleteSpacePopup extends StatelessWidget {
             confirmButtonColor: Theme.of(context).colorScheme.error,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class SpacePopup extends StatelessWidget {
+  const SpacePopup({
+    super.key,
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: HomeSizes.workspaceSectionHeight,
+      child: AppFlowyPopover(
+        constraints: const BoxConstraints(maxWidth: 260),
+        direction: PopoverDirection.bottomWithLeftAligned,
+        clickHandler: PopoverClickHandler.gestureDetector,
+        offset: const Offset(0, 4),
+        popupBuilder: (_) => BlocProvider.value(
+          value: context.read<SpaceBloc>(),
+          child: const SidebarSpaceMenu(),
+        ),
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          margin: const EdgeInsets.only(left: 3.0, right: 4.0),
+          iconPadding: 10.0,
+          text: child,
+        ),
+      ),
+    );
+  }
+}
+
+class CurrentSpace extends StatelessWidget {
+  const CurrentSpace({
+    super.key,
+    required this.space,
+  });
+
+  final ViewPB space;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SpaceIcon(
+          dimension: 20,
+          space: space,
+          cornerRadius: 6.0,
+        ),
+        const HSpace(10),
+        Flexible(
+          child: FlowyText.medium(
+            space.name,
+            fontSize: 14.0,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const HSpace(4.0),
+        const FlowySvg(
+          FlowySvgs.workspace_drop_down_menu_show_s,
+        ),
+      ],
+    );
+  }
+}
+
+class SpacePages extends StatelessWidget {
+  const SpacePages({
+    super.key,
+    required this.space,
+    required this.isHovered,
+    required this.isExpandedNotifier,
+    this.showActions,
+    this.rightIconsBuilder,
+  });
+
+  final ViewPB space;
+  final ValueNotifier<bool> isHovered;
+  final PropertyValueNotifier<bool> isExpandedNotifier;
+  final bool? showActions;
+  final ViewItemRightIconsBuilder? rightIconsBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          ViewBloc(view: space)..add(const ViewEvent.initial()),
+      child: BlocBuilder<ViewBloc, ViewState>(
+        builder: (context, state) {
+          return Column(
+            children: state.view.childViews
+                .map(
+                  (view) => ViewItem(
+                    key: ValueKey('${space.id} ${view.id}'),
+                    spaceType:
+                        space.spacePermission == SpacePermission.publicToAll
+                            ? FolderSpaceType.public
+                            : FolderSpaceType.private,
+                    isFirstChild: view.id == state.view.childViews.first.id,
+                    view: view,
+                    level: 0,
+                    leftPadding: HomeSpaceViewSizes.leftPadding,
+                    isFeedback: false,
+                    isHovered: isHovered,
+                    isExpandedNotifier: isExpandedNotifier,
+                    rightIconsBuilder: rightIconsBuilder,
+                    showActions: showActions,
+                    onSelected: (viewContext, view) {
+                      // todo:
+                    },
+                  ),
+                )
+                .toList(),
+          );
+        },
       ),
     );
   }
