@@ -1,91 +1,19 @@
 use crate::error::{Error, ReadError, RemoteError};
-use crate::parser::{Call, MessageReader, RequestId};
+use crate::parser::{Call, MessageReader};
 use crate::plugin::RpcCtx;
-use crate::rpc_peer::{RawPeer, Response, RpcState};
-use serde::de::{DeserializeOwned, Error as SerdeError};
+use crate::rpc_peer::{RawPeer, RpcState};
+use serde::de::DeserializeOwned;
 use serde_json::Value;
 
 use std::io::{BufRead, Write};
 
+use crate::rpc_object::RpcObject;
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 use tracing::{error, trace};
 
 const MAX_IDLE_WAIT: Duration = Duration::from_millis(5);
-#[derive(Debug, Clone)]
-pub struct RpcObject(pub Value);
-
-impl RpcObject {
-  /// Returns the 'id' of the underlying object, if present.
-  pub fn get_id(&self) -> Option<RequestId> {
-    self.0.get("id").and_then(Value::as_u64)
-  }
-
-  /// Returns the 'method' field of the underlying object, if present.
-  pub fn get_method(&self) -> Option<&str> {
-    self.0.get("method").and_then(Value::as_str)
-  }
-
-  /// Returns `true` if this object looks like an RPC response;
-  /// that is, if it has an 'id' field and does _not_ have a 'method'
-  /// field.
-  pub fn is_response(&self) -> bool {
-    self.0.get("id").is_some() && self.0.get("method").is_none()
-  }
-
-  /// Converts the underlying `Value` into an RPC response object.
-  /// The caller should verify that the object is a response before calling this method.
-  /// # Errors
-  /// If the `Value` is not a well-formed response object, this returns a `String` containing an
-  /// error message. The caller should print this message and exit.
-  pub fn into_response(mut self) -> Result<Response, String> {
-    let _ = self
-      .get_id()
-      .ok_or("Response requires 'id' field.".to_string())?;
-
-    if self.0.get("result").is_some() == self.0.get("error").is_some() {
-      return Err("RPC response must contain exactly one of 'error' or 'result' fields.".into());
-    }
-    let result = self.0.as_object_mut().and_then(|obj| obj.remove("result"));
-
-    match result {
-      Some(r) => Ok(Ok(r)),
-      None => {
-        let error = self
-          .0
-          .as_object_mut()
-          .and_then(|obj| obj.remove("error"))
-          .unwrap();
-        Err(format!("Error handling response: {:?}", error))
-      },
-    }
-  }
-
-  /// Converts the underlying `Value` into either an RPC notification or request.
-  pub fn into_rpc<R>(self) -> Result<Call<R>, serde_json::Error>
-  where
-    R: DeserializeOwned,
-  {
-    let id = self.get_id();
-    match id {
-      Some(id) => match serde_json::from_value::<R>(self.0) {
-        Ok(resp) => Ok(Call::Request(id, resp)),
-        Err(err) => Ok(Call::InvalidRequest(id, err.into())),
-      },
-      None => match self.0.get("message").and_then(|value| value.as_str()) {
-        None => Err(serde_json::Error::missing_field("message")),
-        Some(s) => Ok(Call::Message(s.to_string().into())),
-      },
-    }
-  }
-}
-
-impl From<Value> for RpcObject {
-  fn from(v: Value) -> RpcObject {
-    RpcObject(v)
-  }
-}
 
 pub trait Handler {
   type Request: DeserializeOwned;
@@ -198,15 +126,10 @@ impl<W: Write + Send> RpcLoop<W> {
 
       loop {
         let _guard = PanicGuard(&peer);
-        let read_result = next_read(&peer, handler, &ctx);
+        let read_result = next_read(&peer, &ctx);
         let json = match read_result {
           Ok(json) => json,
           Err(err) => {
-            // finish idle work before disconnecting;
-            // this is mostly useful for integration tests.
-            if let Some(idle_token) = peer.try_get_idle() {
-              handler.idle(&ctx, idle_token);
-            }
             peer.disconnect();
             return err;
           },
@@ -244,34 +167,25 @@ impl<W: Write + Send> RpcLoop<W> {
   }
 }
 
-/// Returns the next read result, checking for idle work when no
-/// result is available.
-fn next_read<W, H>(peer: &RawPeer<W>, handler: &mut H, ctx: &RpcCtx) -> Result<RpcObject, ReadError>
+/// retrieves the next available read result from a peer, performing idle work if no result is
+/// immediately available.
+fn next_read<W>(peer: &RawPeer<W>, _ctx: &RpcCtx) -> Result<RpcObject, ReadError>
 where
   W: Write + Send,
-  H: Handler,
 {
   loop {
+    // Continuously checks if there is a result available from the peer using
     if let Some(result) = peer.try_get_rx() {
       return result;
     }
-    // handle timers before general idle work
+
     let time_to_next_timer = match peer.check_timers() {
-      Some(Ok(token)) => {
-        do_idle(handler, ctx, token);
-        continue;
-      },
+      Some(Ok(_token)) => continue,
       Some(Err(duration)) => Some(duration),
       None => None,
     };
 
-    if let Some(idle_token) = peer.try_get_idle() {
-      do_idle(handler, ctx, idle_token);
-      continue;
-    }
-
-    // we don't want to block indefinitely if there's no current idle work,
-    // because idle work could be scheduled from another thread.
+    // Ensures the function does not block indefinitely by setting a maximum wait time
     let idle_timeout = time_to_next_timer
       .unwrap_or(MAX_IDLE_WAIT)
       .min(MAX_IDLE_WAIT);
@@ -281,5 +195,3 @@ where
     }
   }
 }
-
-fn do_idle<H: Handler>(_handler: &mut H, _ctx: &RpcCtx, _token: usize) {}

@@ -26,29 +26,27 @@ impl From<i64> for PluginId {
 pub trait Callback: Send {
   fn call(self: Box<Self>, result: Result<Value, Error>);
 }
-
-/// The `Peer` trait represents the interface for the other side of the RPC
-/// channel. It is intended to be used behind a pointer, a trait object.
+/// The `Peer` trait defines the interface for the opposite side of the RPC channel,
+/// designed to be used behind a pointer or as a trait object.
 pub trait Peer: Send + 'static {
+  /// Clones the peer into a boxed trait object.
   fn box_clone(&self) -> Box<dyn Peer>;
 
+  /// Sends an RPC notification to the peer with the specified method and parameters.
   fn send_rpc_notification(&self, method: &str, params: &Value);
+
+  /// Sends an asynchronous RPC request to the peer and executes the provided callback upon completion.
   fn send_rpc_request_async(&self, method: &str, params: &Value, f: Box<dyn Callback>);
-  /// Sends a request (synchronous RPC) to the peer, and waits for the result.
+
+  /// Sends a synchronous RPC request to the peer and waits for the result.
+  /// Returns the result of the request or an error.
   fn send_rpc_request(&self, method: &str, params: &Value) -> Result<Value, Error>;
-  /// Determines whether an incoming request (or notification) is
-  /// pending. This is intended to reduce latency for bulk operations
-  /// done in the background.
+
+  /// Checks if there is an incoming request pending, intended to reduce latency for bulk operations done in the background.
   fn request_is_pending(&self) -> bool;
 
-  fn schedule_idle(&self, token: usize);
-  /// Like `schedule_idle`, with the guarantee that the handler's `idle`
-  /// fn will not be called _before_ the provided `Instant`.
-  ///
-  /// # Note
-  ///
-  /// This is not intended as a high-fidelity timer. Regular RPC messages
-  /// will always take priority over an idle task.
+  /// Schedules a timer to execute the handler's `idle` function after the specified `Instant`.
+  /// Note: This is not a high-fidelity timer. Regular RPC messages will always take priority over idle tasks.
   fn schedule_timer(&self, after: Instant, token: usize);
 }
 
@@ -85,7 +83,6 @@ impl Plugin {
 
 pub struct PluginInfo {
   pub name: String,
-  // pub absolute_chat_model_path: String,
   pub exec_path: String,
 }
 

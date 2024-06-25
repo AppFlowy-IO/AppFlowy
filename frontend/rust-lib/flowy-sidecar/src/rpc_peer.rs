@@ -1,6 +1,6 @@
 use crate::error::{Error, ReadError, RemoteError};
 use crate::plugin::{Callback, Peer, PluginId};
-use crate::rpc_loop::RpcObject;
+use crate::rpc_object::RpcObject;
 use parking_lot::{Condvar, Mutex};
 use serde::{de, ser, Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::{json, Value};
@@ -52,7 +52,6 @@ pub struct RpcState<W: Write> {
   writer: Mutex<W>,
   id: AtomicUsize,
   pending: Mutex<BTreeMap<usize, ResponseHandler>>,
-  idle_queue: Mutex<VecDeque<usize>>,
   timers: Mutex<BinaryHeap<Timer>>,
   needs_exit: AtomicBool,
   is_blocking: AtomicBool,
@@ -66,7 +65,6 @@ impl<W: Write> RpcState<W> {
       writer: Mutex::new(writer),
       id: AtomicUsize::new(0),
       pending: Mutex::new(BTreeMap::new()),
-      idle_queue: Mutex::new(VecDeque::new()),
       timers: Mutex::new(BinaryHeap::new()),
       needs_exit: AtomicBool::new(false),
       is_blocking: Default::default(),
@@ -112,10 +110,6 @@ impl<W: Write + Send + 'static> Peer for RawPeer<W> {
     !queue.is_empty()
   }
 
-  fn schedule_idle(&self, token: usize) {
-    self.0.idle_queue.lock().push_back(token);
-  }
-
   fn schedule_timer(&self, after: Instant, token: usize) {
     self.0.timers.lock().push(Timer {
       fire_after: after,
@@ -143,6 +137,7 @@ impl<W: Write> RawPeer<W> {
   }
 
   fn send_rpc(&self, method: &str, params: &Value, rh: ResponseHandler) {
+    trace!("[RPC] call method: {} params: {:?}", method, params);
     let id = self.0.id.fetch_add(1, Ordering::Relaxed);
     {
       let mut pending = self.0.pending.lock();
@@ -197,15 +192,16 @@ impl<W: Write> RawPeer<W> {
     self.0.rx_cvar.notify_one();
   }
 
-  pub(crate) fn try_get_idle(&self) -> Option<usize> {
-    self.0.idle_queue.lock().pop_front()
-  }
-
-  /// Checks status of the most imminent timer. If that timer has expired,
-  /// returns `Some(Ok(_))`, with the corresponding token.
-  /// If a timer exists but has not expired, returns `Some(Err(_))`,
-  /// with the error value being the `Duration` until the timer is ready.
+  /// Checks the status of the most imminent timer.
+  ///
+  /// If the timer has expired, returns `Some(Ok(_))` with the corresponding token.
+  /// If a timer exists but has not expired, returns `Some(Err(_))` with the `Duration` until the timer is ready.
   /// Returns `None` if no timers are registered.
+  ///
+  /// # Returns
+  /// - `Some(Ok(usize))`: If the timer has expired, with the corresponding token.
+  /// - `Some(Err(Duration))`: If a timer exists but hasn't expired, with the time remaining until it is ready.
+  /// - `None`: If no timers are registered.
   pub(crate) fn check_timers(&self) -> Option<Result<usize, Duration>> {
     let mut timers = self.0.timers.lock();
     match timers.peek() {

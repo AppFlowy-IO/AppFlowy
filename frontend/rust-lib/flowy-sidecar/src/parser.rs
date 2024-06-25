@@ -1,5 +1,5 @@
 use crate::error::{ReadError, RemoteError};
-use crate::rpc_loop::RpcObject;
+use crate::rpc_object::RpcObject;
 use serde_json::{json, Value};
 use std::io::BufRead;
 
