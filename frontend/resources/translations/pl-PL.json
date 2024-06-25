@@ -381,6 +381,17 @@
       "pleaseInputYourStabilityAIKey": "wprowadź swój klucz Stability AI",
       "clickToLogout": "Kliknij, aby wylogować bieżącego użytkownika"
     },
+    "shortcuts": {
+      "shortcutsLabel": "Skróty",
+      "command": "Polecenie",
+      "keyBinding": "Skróty klawiszowe",
+      "addNewCommand": "Dodaj nowe polecenie",
+      "updateShortcutStep": "Naciśnij żądaną kombinację klawiszy i naciśnij ENTER",
+      "shortcutIsAlreadyUsed": "Ten skrót jest już używany w przypadku: {conflict}",
+      "resetToDefault": "Przywróć domyślne skróty klawiszowe",
+      "couldNotLoadErrorMsg": "Nie udało się wczytać skrótów. Spróbuj ponownie",
+      "couldNotSaveErrorMsg": "Nie udało się zapisać skrótów. Spróbuj ponownie"
+    },
     "mobile": {
       "personalInfo": "Informacje Osobiste",
       "username": "Nazwa użytkownika",
@@ -393,17 +404,6 @@
       "userAgreement": "Regulamin Użytkowania",
       "userprofileError": "Nie udało się wczytać profilu użytkownika",
       "userprofileErrorDescription": "Spróbuj wylogować się i zalogować ponownie, aby zobaczyć czy problem nadal występuje."
-    },
-    "shortcuts": {
-      "shortcutsLabel": "Skróty",
-      "command": "Polecenie",
-      "keyBinding": "Skróty klawiszowe",
-      "addNewCommand": "Dodaj nowe polecenie",
-      "updateShortcutStep": "Naciśnij żądaną kombinację klawiszy i naciśnij ENTER",
-      "shortcutIsAlreadyUsed": "Ten skrót jest już używany w przypadku: {conflict}",
-      "resetToDefault": "Przywróć domyślne skróty klawiszowe",
-      "couldNotLoadErrorMsg": "Nie udało się wczytać skrótów. Spróbuj ponownie",
-      "couldNotSaveErrorMsg": "Nie udało się zapisać skrótów. Spróbuj ponownie"
     }
   },
   "grid": {

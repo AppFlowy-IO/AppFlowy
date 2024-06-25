@@ -241,10 +241,9 @@
     "viewDataBase": "Datenbank ansehen",
     "referencePage": "Auf diesen {Name} wird verwiesen",
     "addBlockBelow": "Einen Block hinzufügen",
-    "aiGenerate": "Erzeugen",
+    "genSummary": "Zusammenfassung generieren",
     "urlLaunchAccessory": "Im Browser öffnen",
-    "urlCopyAccessory": "Webadresse kopieren.",
-    "genSummary": "Zusammenfassung generieren"
+    "urlCopyAccessory": "Webadresse kopieren."
   },
   "sideBar": {
     "closeSidebar": "Seitenleiste schließen",
@@ -336,9 +335,7 @@
     "signInGoogle": "Mit einem Google Benutzerkonto anmelden",
     "signInGithub": "Mit einem Github Benutzerkonto anmelden",
     "signInDiscord": "Mit einem Discord Benutzerkonto anmelden",
-    "more": "Mehr",
-    "create": "Erstellen",
-    "close": "Schließen"
+    "more": "Mehr"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -365,6 +362,7 @@
     "accountPage": {
       "menuLabel": "Mein Konto",
       "title": "Mein Konto",
+      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an.",
       "general": {
         "title": "Kontoname und Profilbild",
         "changeProfilePicture": "Profilbild ändern"
@@ -388,8 +386,7 @@
         "title": "Kontoanmeldung",
         "loginLabel": "Anmeldung",
         "logoutLabel": "Ausloggen"
-      },
-      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an."
+      }
     },
     "workspacePage": {
       "menuLabel": "Arbeitsbereich",
@@ -415,12 +412,10 @@
       },
       "theme": {
         "title": "Design",
-        "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch.",
-        "uploadCustomThemeTooltip": "Ein benutzerdefiniertes Theme hochladen"
+        "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch."
       },
       "workspaceFont": {
-        "title": "Schriftart",
-        "noFontHint": "Keine Schriftart gefunden, versuchen Sie einen anderen Begriff."
+        "title": "Schriftart"
       },
       "textDirection": {
         "title": "Textrichtung",
@@ -509,148 +504,6 @@
           "description": "Durch das Leeren des Caches werden Bilder und Schriftarten beim Laden erneut heruntergeladen. Deine Daten werden durch diese Aktion weder entfernt noch geändert.",
           "successHint": "Cache geleert!"
         }
-      }
-    },
-    "shortcutsPage": {
-      "menuLabel": "Tastenkombinationen",
-      "title": "Shortcuts",
-      "editBindingHint": "Neue Verknüpfung eingeben",
-      "searchHint": "Suchen",
-      "actions": {
-        "resetDefault": "Standardeinstellung zurücksetzen"
-      },
-      "errorPage": {
-        "message": "Shortcuts konnten nicht geladen werden: {}",
-        "howToFix": "Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, melden Sie es bitte auf GitHub."
-      },
-      "resetDialog": {
-        "title": "Shortcuts zurücksetzen",
-        "description": "Dies wird alle Ihre Shortcuts auf die Standardeinstellungen zurücksetzen, dies kann nicht rückgängig gemacht werden, sind Sie sicher, dass Sie fortfahren möchten?",
-        "buttonLabel": "Zurücksetzen"
-      },
-      "conflictDialog": {
-        "title": "{} ist derzeit in Verwendung",
-        "descriptionPrefix": "Diese Tastenkombination wird derzeit verwendet von ",
-        "descriptionSuffix": ". Wenn Sie diese Tastaturbelegung ersetzen, wird sie aus {} entfernt.",
-        "confirmLabel": "Weiter"
-      },
-      "editTooltip": "Zum Starten der Bearbeitung der Tastaturbelegung drücken.",
-      "keybindings": {
-        "insertNewParagraphInCodeblock": "Neuen Absatz einfügen",
-        "pasteInCodeblock": "In Codeblock einfügen",
-        "selectAllCodeblock": "Alles auswählen",
-        "indentLineCodeblock": "Zwei Leerzeichen am Zeilenanfang einfügen",
-        "outdentLineCodeblock": "Zwei Leerzeichen am Zeilenanfang löschen",
-        "twoSpacesCursorCodeblock": "Zwei Leerzeichen am Cursor einfügen",
-        "copy": "Auswahl kopieren",
-        "paste": "Inhalt einfügen",
-        "cut": "Auswahl ausschneiden",
-        "alignLeft": "Text links ausrichten",
-        "alignCenter": "Text zentriert ausrichten",
-        "alignRight": "Text rechts ausrichten",
-        "undo": "Undo",
-        "redo": "Redo",
-        "convertToParagraph": "Block in Absatz umwandeln",
-        "backspace": "Löschen",
-        "deleteLeftWord": "Linkes Wort löschen",
-        "deleteLeftSentence": "Linken Satz löschen",
-        "delete": "Rechtes Zeichen löschen",
-        "deleteMacOS": "Linkes Zeichen löschen",
-        "deleteRightWord": "Rechtes Wort löschen",
-        "moveCursorLeft": "Cursor nach links bewegen",
-        "moveCursorBeginning": "Cursor an den Zeilenanfang bewegen",
-        "moveCursorLeftWord": "Cursor ein Wort nach links bewegen",
-        "moveCursorLeftSelect": "Auswählen und Cursor nach links bewegen",
-        "moveCursorBeginSelect": "Auswählen und Cursor an den Zeilenanfang bewegen",
-        "moveCursorLeftWordSelect": "Auswählen und Cursor ein Wort nach links bewegen",
-        "moveCursorRight": "Cursor nach rechts bewegen",
-        "moveCursorEnd": "Cursor an das Zeilenende bewegen",
-        "moveCursorRightWord": "Cursor ein Wort nach rechts bewegen",
-        "moveCursorRightSelect": "Auswählen und Cursor nach rechts bewegen",
-        "moveCursorEndSelect": "Auswählen und Cursor an das Zeilenende bewegen"
-      },
-      "commands": {
-        "codeBlockAddTwoSpaces": "Einfügen von zwei Leerzeichen an der Cursorposition im Codeblock",
-        "codeBlockPasteText": "Text in Codeblock einfügen",
-        "textAlignLeft": "Text nach links ausrichten",
-        "textAlignCenter": "Text nach rechts ausrichten"
-      },
-      "couldNotLoadErrorMsg": "Konnte keine Shortcuts laden, versuchen Sie es erneut",
-      "couldNotSaveErrorMsg": "Shortcuts konnten nicht gespeichert werden, versuchen Sie es erneut"
-    },
-    "planPage": {
-      "menuLabel": "Plan",
-      "planUsage": {
-        "storageLabel": "Speicher",
-        "storageUsage": "{} von {} GB"
-      }
-    },
-    "billingPage": {
-      "paymentDetails": {
-        "methodLabel": "Zahlungsmethode",
-        "methodButtonLabel": "Zahlungsmethode bearbeiten"
-      }
-    },
-    "comparePlanDialog": {
-      "title": "Plan vergleichen & auswählen",
-      "planFeatures": "Plan\nFeatures",
-      "current": "Aktuell",
-      "actions": {
-        "upgrade": "Upgrade",
-        "downgrade": "Downgrade",
-        "downgradeDisabledTooltip": "Sie werden am Ende des Abrechnungszeitraums automatisch downgegradet",
-        "current": "Aktuell"
-      },
-      "freePlan": {
-        "title": "Kostenlos",
-        "description": "Für die Organisation jeder Ecke Ihres Lebens und Ihrer Arbeit.",
-        "price": "0€",
-        "priceInfo": "free forever"
-      },
-      "proPlan": {
-        "title": "Professionell",
-        "price": "$10 /Monat",
-        "priceInfo": "jährlich abgerechnet"
-      },
-      "planLabels": {
-        "itemOne": "Arbeitsbereiche",
-        "itemTwo": "Mitglieder",
-        "itemThree": "Gäste",
-        "tooltipThree": "Gäste haben nur Leserechte für die speziell freigegebenen Inhalte",
-        "itemFour": "Gäste",
-        "tooltipFour": "Gäste werden als ein Sitzplatz abgerechnet",
-        "itemFive": "Speicher",
-        "itemSix": "Zusammenarbeit in Echtzeit",
-        "itemSeven": "Mobile App",
-        "itemEight": "AI-Antworten",
-        "tooltipEight": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird."
-      },
-      "freeLabels": {
-        "itemOne": "pro Arbeitsbereich berechnet",
-        "itemTwo": "3",
-        "itemFour": "0",
-        "itemFive": "5 GB",
-        "itemSix": "ja",
-        "itemSeven": "ja",
-        "itemEight": "1.000 lebenslang"
-      },
-      "proLabels": {
-        "itemOne": "pro Arbeitsbereich berechnet",
-        "itemTwo": "bis zu 10",
-        "itemFour": "10 Gäste werden als ein Sitzplatz berechnet",
-        "itemFive": "unbegrenzt",
-        "itemSix": "ja",
-        "itemSeven": "ja",
-        "itemEight": "10.000 monatlich"
-      },
-      "paymentSuccess": {
-        "title": "Sie sind jetzt im {} Plan!",
-        "description": "Ihre Zahlung wurde erfolgreich verarbeitet und Ihr Plan wurde auf AppFlowy {} aktualisiert. Sie können die Details Ihres Plans auf der Seite \"Plan\" einsehen"
-      },
-      "downgradeDialog": {
-        "title": "Sind Sie sicher, dass Sie Ihren Plan downgraden wollen?",
-        "description": "Wenn Sie Ihren Plan herabstufen, kehren Sie zum kostenlosen Plan zurück. Mitglieder können den Zugang zu Arbeitsbereichen verlieren und Sie müssen möglicherweise Speicherplatz freigeben, um die Speichergrenzen des kostenlosen Tarifs einzuhalten.",
-        "downgradeLabel": "Downgrade Plan"
       }
     },
     "common": {
@@ -792,7 +645,6 @@
       "members": {
         "title": "Mitglieder-Einstellungen",
         "inviteMembers": "Mitglieder einladen",
-        "inviteHint": "Per E-Mail einladen",
         "sendInvite": "Einladung senden",
         "copyInviteLink": "Kopiere Einladungslink",
         "label": "Mitglieder",
@@ -870,23 +722,6 @@
       "pleaseInputYourStabilityAIKey": "Bitte gebe den Stability AI Schlüssel ein",
       "clickToLogout": "Klicken, um den aktuellen Nutzer auszulogen"
     },
-    "mobile": {
-      "personalInfo": "Persönliche Informationen",
-      "username": "Nutzername",
-      "usernameEmptyError": "Der Nutzername darf nicht leer sein",
-      "about": "Über",
-      "pushNotifications": "Push Benachrichtigungen",
-      "support": "Support",
-      "joinDiscord": "Komm zu uns auf Discord",
-      "privacyPolicy": "Datenschutz",
-      "userAgreement": "Nutzungsbedingungen",
-      "termsAndConditions": "Geschäftsbedingungen",
-      "userprofileError": "Das Nutzerprofil konnte nicht geladen werden",
-      "userprofileErrorDescription": "Bitte abmelden und wieder anmelden, um zu prüfen ob das Problem weiterhin bestehen bleibt.",
-      "selectLayout": "Layout auswählen",
-      "selectStartingDay": "Ersten Tag auswählen",
-      "version": "Version"
-    },
     "shortcuts": {
       "shortcutsLabel": "Tastenkürzel",
       "command": "Befehl",
@@ -908,6 +743,23 @@
         "textAlignCenter": "Text zentriert ausrichten",
         "textAlignRight": "Text rechtsbündig ausrichten"
       }
+    },
+    "mobile": {
+      "personalInfo": "Persönliche Informationen",
+      "username": "Nutzername",
+      "usernameEmptyError": "Der Nutzername darf nicht leer sein",
+      "about": "Über",
+      "pushNotifications": "Push Benachrichtigungen",
+      "support": "Support",
+      "joinDiscord": "Komm zu uns auf Discord",
+      "privacyPolicy": "Datenschutz",
+      "userAgreement": "Nutzungsbedingungen",
+      "termsAndConditions": "Geschäftsbedingungen",
+      "userprofileError": "Das Nutzerprofil konnte nicht geladen werden",
+      "userprofileErrorDescription": "Bitte abmelden und wieder anmelden, um zu prüfen ob das Problem weiterhin bestehen bleibt.",
+      "selectLayout": "Layout auswählen",
+      "selectStartingDay": "Ersten Tag auswählen",
+      "version": "Version"
     }
   },
   "grid": {
@@ -1027,9 +879,6 @@
       "checklistFieldName": "Checkliste",
       "relationFieldName": "Beziehung",
       "summaryFieldName": "KI-Zusammenfassung",
-      "timeFieldName": "Zeit",
-      "translateFieldName": "AI-Übersetzen",
-      "translateTo": "Übersetzen in",
       "numberFormat": "Zahlenformat",
       "dateFormat": "Datumsformat",
       "includeTime": "Zeitangabe",
@@ -1103,8 +952,6 @@
       "action": "Aktion",
       "add": "Klicken, um unten hinzuzufügen",
       "drag": "Ziehen, um zu verschieben",
-      "deleteRowPrompt": "Sind Sie sicher, dass Sie diese Zeile löschen wollen? Diese Aktion kann nicht rückgängig gemacht werden",
-      "deleteCardPrompt": "Sind Sie sicher, dass Sie diese Karte löschen wollen? Diese Aktion kann nicht rückgängig gemacht werden",
       "dragAndClick": "Ziehen, um zu verschieben. Klicke, um das Menü zu öffnen",
       "insertRecordAbove": "Füge Datensatz oben ein",
       "insertRecordBelow": "Füge Datensatz unten ein",
@@ -1464,16 +1311,6 @@
       "showGroup": "Zeige die Gruppe",
       "showGroupContent": "Sicher, dass diese Gruppe auf dem Board angezeigt werden soll?",
       "failedToLoad": "Boardansicht konnte nicht geladen werden"
-    },
-    "dateCondition": {
-      "weekOf": "Woche von {} - {}",
-      "today": "Heute",
-      "yesterday": "Gestern",
-      "tomorrow": "Morgen",
-      "lastSevenDays": "Letzte 7 Tage",
-      "nextSevenDays": "Nächste 7 Tage",
-      "lastThirtyDays": "Letzte 30 Tage",
-      "nextThirtyDays": "Nächste 30 Tage"
     },
     "noGroup": "Keine Gruppierung nach Eigenschaft",
     "noGroupDesc": "Board-Ansichten benötigen eine Eigenschaft zum Gruppieren, um angezeigt zu werden"
@@ -1903,38 +1740,6 @@
     "loadingTooltip": "Wir suchen nach Ergebnissen ...",
     "betaLabel": "BETA",
     "betaTooltip": "Wir unterstützen derzeit nur die Suche nach Seiten",
-    "fromTrashHint": "Aus dem Mülleimer",
-    "noResultsHint": "Wir haben nicht gefunden, wonach Sie gesucht haben. Versuchen Sie, nach einem anderen Begriff zu suchen.",
-    "clearSearchTooltip": "Suchfeld löschen"
-  },
-  "space": {
-    "delete": "Löschen",
-    "deleteConfirmation": "Löschen:",
-    "deleteConfirmationDescription": "Alle Seiten innerhalb dieses Space werden gelöscht und in den Papierkorb verschoben.",
-    "rename": "Space umbennen",
-    "changeIcon": "Symbol ändern",
-    "manage": "Space verwalten",
-    "addNewSpace": "Space erstellen",
-    "collapseAllSubPages": "Alle Unterseiten einklappen",
-    "createNewSpace": "Einen neuen Space schaffen",
-    "createSpaceDescription": "Erstellen Sie mehrere öffentliche und private Bereiche, um Ihre Arbeit besser zu organisieren.",
-    "spaceName": "Space name",
-    "permission": "Berechtigung",
-    "publicPermission": "Öffentlich",
-    "publicPermissionDescription": "Alle Mitglieder des Arbeitsbereichs mit Vollzugriff",
-    "privatePermission": "Privat",
-    "privatePermissionDescription": "Nur Sie haben Zugang zu diesem Space",
-    "spaceIconBackground": "Hintergrundfarbe",
-    "spaceIcon": "Symbol",
-    "dangerZone": "Gefahrenzone",
-    "unableToDeleteLastSpace": "Der letzte Space kann nicht gelöscht werden",
-    "unableToDeleteSpaceNotCreatedByYou": "Von anderen erstellte Spaces können nicht gelöscht werden",
-    "enableSpacesForYourWorkspace": "Spaces für Ihren Arbeitsbereich aktivieren",
-    "title": "Spaces",
-    "defaultSpaceName": "Allgemein",
-    "upgradeSpaceTitle": "Spaces freigeben",
-    "upgradeSpaceDescription": "Erstellen Sie mehrere öffentliche und private Spaces, um Ihren Arbeitsbereich besser zu organisieren.",
-    "upgrade": "Update",
-    "upgradeYourSpace": "Mehrere Spaces erstellen"
+    "fromTrashHint": "Aus dem Mülleimer"
   }
 }

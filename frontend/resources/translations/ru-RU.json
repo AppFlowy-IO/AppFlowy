@@ -443,6 +443,17 @@
       "pleaseInputYourStabilityAIKey": "Пожалуйста, введите свой токен Stability AI",
       "clickToLogout": "Нажмите, чтобы выйти из текущего аккаунта"
     },
+    "shortcuts": {
+      "shortcutsLabel": "Горячие клавиши",
+      "command": "Команда",
+      "keyBinding": "Привязка клавиш",
+      "addNewCommand": "Добавить новую команду",
+      "updateShortcutStep": "Нажмите нужную комбинацию клавиш и нажмите Enter.",
+      "shortcutIsAlreadyUsed": "Это сочетание клавиш уже используется для: {conflict}",
+      "resetToDefault": "Сбросить к стандартным сочетаниям клавиш",
+      "couldNotLoadErrorMsg": "Не удалось загрузить горячие клавиши, попробуйте снова",
+      "couldNotSaveErrorMsg": "Не удалось сохранить горячие клавиши, попробуйте снова"
+    },
     "mobile": {
       "personalInfo": "Личная информация",
       "username": "Имя пользователя",
@@ -459,17 +470,6 @@
       "selectLayout": "Выбрать раскладку",
       "selectStartingDay": "Выбрать день начала",
       "version": "Версия"
-    },
-    "shortcuts": {
-      "shortcutsLabel": "Горячие клавиши",
-      "command": "Команда",
-      "keyBinding": "Привязка клавиш",
-      "addNewCommand": "Добавить новую команду",
-      "updateShortcutStep": "Нажмите нужную комбинацию клавиш и нажмите Enter.",
-      "shortcutIsAlreadyUsed": "Это сочетание клавиш уже используется для: {conflict}",
-      "resetToDefault": "Сбросить к стандартным сочетаниям клавиш",
-      "couldNotLoadErrorMsg": "Не удалось загрузить горячие клавиши, попробуйте снова",
-      "couldNotSaveErrorMsg": "Не удалось сохранить горячие клавиши, попробуйте снова"
     }
   },
   "grid": {

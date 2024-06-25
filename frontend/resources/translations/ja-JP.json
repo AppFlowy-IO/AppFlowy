@@ -345,6 +345,13 @@
       "selectAnIcon": "アイコンを選択してください",
       "pleaseInputYourOpenAIKey": "OpenAI キーを入力してください"
     },
+    "shortcuts": {
+      "shortcutsLabel": "ショートカット",
+      "command": "コマンド",
+      "keyBinding": "キーバインディング",
+      "addNewCommand": "新しいコマンドを追加",
+      "resetToDefault": "キーバインディングをデフォルトに戻す"
+    },
     "mobile": {
       "username": "ユーザー名",
       "usernameEmptyError": "ユーザー名は空白にはできません",
@@ -354,13 +361,6 @@
       "userAgreement": "ユーザー同意",
       "termsAndConditions": "利用規約",
       "version": "バージョン"
-    },
-    "shortcuts": {
-      "shortcutsLabel": "ショートカット",
-      "command": "コマンド",
-      "keyBinding": "キーバインディング",
-      "addNewCommand": "新しいコマンドを追加",
-      "resetToDefault": "キーバインディングをデフォルトに戻す"
     }
   },
   "grid": {

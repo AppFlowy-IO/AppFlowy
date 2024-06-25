@@ -432,6 +432,17 @@
       "pleaseInputYourStabilityAIKey": "Veuillez saisir votre clé de Stability AI",
       "clickToLogout": "Cliquez pour déconnecter l'utilisateur actuel"
     },
+    "shortcuts": {
+      "shortcutsLabel": "Raccourcis",
+      "command": "Commande",
+      "keyBinding": "Racourcis clavier",
+      "addNewCommand": "Ajouter une Nouvelle Commande",
+      "updateShortcutStep": "Appuyez sur la combinaison de touches souhaitée et appuyez sur ENTER",
+      "shortcutIsAlreadyUsed": "Ce raccourci est déjà utilisé pour : {conflict}",
+      "resetToDefault": "Réinitialiser les raccourcis clavier par défaut",
+      "couldNotLoadErrorMsg": "Impossible de charger les raccourcis, réessayez",
+      "couldNotSaveErrorMsg": "Impossible d'enregistrer les raccourcis. Réessayez"
+    },
     "mobile": {
       "personalInfo": "Informations personnelles",
       "username": "Nom d'utilisateur",
@@ -448,17 +459,6 @@
       "selectLayout": "Sélectionner la mise en page",
       "selectStartingDay": "Sélectionnez le jour de début",
       "version": "Version"
-    },
-    "shortcuts": {
-      "shortcutsLabel": "Raccourcis",
-      "command": "Commande",
-      "keyBinding": "Racourcis clavier",
-      "addNewCommand": "Ajouter une Nouvelle Commande",
-      "updateShortcutStep": "Appuyez sur la combinaison de touches souhaitée et appuyez sur ENTER",
-      "shortcutIsAlreadyUsed": "Ce raccourci est déjà utilisé pour : {conflict}",
-      "resetToDefault": "Réinitialiser les raccourcis clavier par défaut",
-      "couldNotLoadErrorMsg": "Impossible de charger les raccourcis, réessayez",
-      "couldNotSaveErrorMsg": "Impossible d'enregistrer les raccourcis. Réessayez"
     }
   },
   "grid": {

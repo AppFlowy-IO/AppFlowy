@@ -425,23 +425,6 @@
       "pleaseInputYourStabilityAIKey": "insira sua chave Stability AI",
       "clickToLogout": "Clique para sair do usuário atual"
     },
-    "mobile": {
-      "personalInfo": "Informações pessoais",
-      "username": "Nome de usuário",
-      "usernameEmptyError": "O nome de usuário não pode ficar vazio",
-      "about": "Sobre",
-      "pushNotifications": "Notificações via push",
-      "support": "Apoiar",
-      "joinDiscord": "Junte-se a nós no Discord",
-      "privacyPolicy": "Política de Privacidade",
-      "userAgreement": "Termo de Acordo do Usuário",
-      "termsAndConditions": "Termos e Condições",
-      "userprofileError": "Falha ao carregar o perfil do usuário",
-      "userprofileErrorDescription": "Tente sair e fazer login novamente para verificar se o problema ainda persiste.",
-      "selectLayout": "Selecione o layout",
-      "selectStartingDay": "Selecione o dia de início",
-      "version": "Versão"
-    },
     "shortcuts": {
       "shortcutsLabel": "Atalhos",
       "command": "Comando",
@@ -462,6 +445,23 @@
         "textAlignRight": "Alinhar texto à direita",
         "codeBlockDeleteTwoSpaces": "Bloco de código: excluir dois espaços no início da linha"
       }
+    },
+    "mobile": {
+      "personalInfo": "Informações pessoais",
+      "username": "Nome de usuário",
+      "usernameEmptyError": "O nome de usuário não pode ficar vazio",
+      "about": "Sobre",
+      "pushNotifications": "Notificações via push",
+      "support": "Apoiar",
+      "joinDiscord": "Junte-se a nós no Discord",
+      "privacyPolicy": "Política de Privacidade",
+      "userAgreement": "Termo de Acordo do Usuário",
+      "termsAndConditions": "Termos e Condições",
+      "userprofileError": "Falha ao carregar o perfil do usuário",
+      "userprofileErrorDescription": "Tente sair e fazer login novamente para verificar se o problema ainda persiste.",
+      "selectLayout": "Selecione o layout",
+      "selectStartingDay": "Selecione o dia de início",
+      "version": "Versão"
     }
   },
   "grid": {

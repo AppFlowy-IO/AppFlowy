@@ -320,6 +320,7 @@
     "accountPage": {
       "menuLabel": "Mi cuenta",
       "title": "Mi cuenta",
+      "description": "Personaliza tu perfil, administra la seguridad de la cuenta y las claves API de IA, o inicia sesión en tu cuenta.",
       "general": {
         "title": "Nombre de cuenta e imagen de perfil",
         "changeProfilePicture": "Cambiar"
@@ -343,8 +344,7 @@
         "title": "Inicio de sesión en la cuenta",
         "loginLabel": "Inicio de sesión",
         "logoutLabel": "Cerrar sesión"
-      },
-      "description": "Personaliza tu perfil, administra la seguridad de la cuenta y las claves API de IA, o inicia sesión en tu cuenta."
+      }
     },
     "menu": {
       "appearance": "Apariencia",
@@ -555,23 +555,6 @@
       "pleaseInputYourStabilityAIKey": "por favor ingrese su clave de estabilidad AI",
       "clickToLogout": "Haga clic para cerrar la sesión del usuario actual."
     },
-    "mobile": {
-      "personalInfo": "Informacion personal",
-      "username": "Nombre de usuario",
-      "usernameEmptyError": "El nombre de usuario no puede estar vacío",
-      "about": "Acerca de",
-      "pushNotifications": "Notificaciones ",
-      "support": "Soporte",
-      "joinDiscord": "Únete a nosotros en Discord",
-      "privacyPolicy": "política de privacidad",
-      "userAgreement": "Acuerdo del Usuario",
-      "termsAndConditions": "Términos y condiciones",
-      "userprofileError": "No se pudo cargar el perfil de usuario",
-      "userprofileErrorDescription": "Intente cerrar sesión y volver a iniciarla para comprobar si el problema persiste.",
-      "selectLayout": "Seleccionar diseño",
-      "selectStartingDay": "Seleccione el día de inicio",
-      "version": "Versión"
-    },
     "shortcuts": {
       "shortcutsLabel": "Atajos",
       "command": "Commando",
@@ -592,6 +575,23 @@
         "textAlignCenter": "Alinear el texto al centro",
         "textAlignRight": "Alinear el texto a la derecha"
       }
+    },
+    "mobile": {
+      "personalInfo": "Informacion personal",
+      "username": "Nombre de usuario",
+      "usernameEmptyError": "El nombre de usuario no puede estar vacío",
+      "about": "Acerca de",
+      "pushNotifications": "Notificaciones ",
+      "support": "Soporte",
+      "joinDiscord": "Únete a nosotros en Discord",
+      "privacyPolicy": "política de privacidad",
+      "userAgreement": "Acuerdo del Usuario",
+      "termsAndConditions": "Términos y condiciones",
+      "userprofileError": "No se pudo cargar el perfil de usuario",
+      "userprofileErrorDescription": "Intente cerrar sesión y volver a iniciarla para comprobar si el problema persiste.",
+      "selectLayout": "Seleccionar diseño",
+      "selectStartingDay": "Seleccione el día de inicio",
+      "version": "Versión"
     }
   },
   "grid": {
