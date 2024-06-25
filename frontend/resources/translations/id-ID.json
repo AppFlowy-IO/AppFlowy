@@ -380,17 +380,6 @@
       "pleaseInputYourStabilityAIKey": "Masukkan kunci Stability AI anda",
       "clickToLogout": "Klik untuk keluar dari pengguna saat ini"
     },
-    "mobile": {
-      "personalInfo": "Informasi pribadi",
-      "username": "Nama Pengguna",
-      "usernameEmptyError": "Nama pengguna tidak boleh kosong",
-      "about": "Tentang",
-      "pushNotifications": "Pemberitahuan Dorong",
-      "support": "Dukungan",
-      "joinDiscord": "Bergabunglah dengan kami di Discord",
-      "privacyPolicy": "Kebijakan Privasi",
-      "userAgreement": "Perjanjian Pengguna"
-    },
     "shortcuts": {
       "shortcutsLabel": "Pintasan",
       "command": "Perintah",
@@ -401,6 +390,17 @@
       "resetToDefault": "Mengatur ulang ke keybinding default",
       "couldNotLoadErrorMsg": "Tidak dapat memuat pintasan, Coba lagi",
       "couldNotSaveErrorMsg": "Tidak dapat menyimpan pintasan, Coba lagi"
+    },
+    "mobile": {
+      "personalInfo": "Informasi pribadi",
+      "username": "Nama Pengguna",
+      "usernameEmptyError": "Nama pengguna tidak boleh kosong",
+      "about": "Tentang",
+      "pushNotifications": "Pemberitahuan Dorong",
+      "support": "Dukungan",
+      "joinDiscord": "Bergabunglah dengan kami di Discord",
+      "privacyPolicy": "Kebijakan Privasi",
+      "userAgreement": "Perjanjian Pengguna"
     }
   },
   "grid": {

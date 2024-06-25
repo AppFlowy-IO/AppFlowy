@@ -385,6 +385,10 @@
       "selectAnIcon": "Seleccioneu una icona",
       "pleaseInputYourOpenAIKey": "si us plau, introduïu la vostra clau OpenAI"
     },
+    "shortcuts": {
+      "command": "Comandament",
+      "addNewCommand": "Afegeix una comanda nova"
+    },
     "mobile": {
       "personalInfo": "Informació personal",
       "username": "Nom d'usuari",
@@ -398,10 +402,6 @@
       "userprofileError": "No s'ha pogut carregar el perfil d'usuari",
       "selectStartingDay": "Seleccioneu el dia d'inici",
       "version": "Versió"
-    },
-    "shortcuts": {
-      "command": "Comandament",
-      "addNewCommand": "Afegeix una comanda nova"
     }
   },
   "grid": {

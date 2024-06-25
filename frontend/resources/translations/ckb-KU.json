@@ -484,6 +484,17 @@
       "pleaseInputYourStabilityAIKey": "تکایە جێگیری کلیلی  AI ـەکەت بنووسە",
       "clickToLogout": "بۆ دەرچوون لە بەکارهێنەری ئێستا کلیک بکە"
     },
+    "shortcuts": {
+      "shortcutsLabel": "کورتە ڕێگاکان",
+      "command": "فەرمان",
+      "keyBinding": "کورتکراوەکانی تەختەکلیل",
+      "addNewCommand": "زیاد کردنی فەرمانێکی نوێ",
+      "updateShortcutStep": "تێکەڵەی کلیلی دڵخواز داگرە و ENTER داگرە",
+      "shortcutIsAlreadyUsed": "ئەم کورتە ڕێگایە پێشتر بۆ: {conflict} بەکارهاتووە.",
+      "resetToDefault": "گەڕاندنەوە بۆ کلیلەکانی بنه‌ڕه‌ت",
+      "couldNotLoadErrorMsg": "کورتە ڕێگاکان نەتوانرا باربکرێن، تکایە دووبارە هەوڵبدەرەوە",
+      "couldNotSaveErrorMsg": "کورتە ڕێگاکان نەتوانرا پاشەکەوت بکرێن، تکایە دووبارە هەوڵبدەرەوە"
+    },
     "mobile": {
       "personalInfo": "زانیاری کەسی",
       "username": "ناوی بەکارهێنەر",
@@ -500,17 +511,6 @@
       "selectLayout": "نەخشە هەڵبژێرە",
       "selectStartingDay": "ڕۆژی دەستپێکردنەکەت هەڵبژێرە",
       "version": "وەشان"
-    },
-    "shortcuts": {
-      "shortcutsLabel": "کورتە ڕێگاکان",
-      "command": "فەرمان",
-      "keyBinding": "کورتکراوەکانی تەختەکلیل",
-      "addNewCommand": "زیاد کردنی فەرمانێکی نوێ",
-      "updateShortcutStep": "تێکەڵەی کلیلی دڵخواز داگرە و ENTER داگرە",
-      "shortcutIsAlreadyUsed": "ئەم کورتە ڕێگایە پێشتر بۆ: {conflict} بەکارهاتووە.",
-      "resetToDefault": "گەڕاندنەوە بۆ کلیلەکانی بنه‌ڕه‌ت",
-      "couldNotLoadErrorMsg": "کورتە ڕێگاکان نەتوانرا باربکرێن، تکایە دووبارە هەوڵبدەرەوە",
-      "couldNotSaveErrorMsg": "کورتە ڕێگاکان نەتوانرا پاشەکەوت بکرێن، تکایە دووبارە هەوڵبدەرەوە"
     }
   },
   "grid": {
