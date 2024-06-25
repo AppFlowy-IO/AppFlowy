@@ -525,6 +525,7 @@
       },
       "resetDialog": {
         "title": "Tastenkürzel zurücksetzen",
+        "description": "Dadurch werden alle deine Tastenbelegungen auf die Standardeinstellungen zurückgesetzt. Du kannst das später nicht rückgängig machen. Bist du sicher, dass du fortfahren möchtest?",
         "buttonLabel": "Zurücksetzen"
       },
       "conflictDialog": {
@@ -532,6 +533,24 @@
         "descriptionPrefix": "Diese Tastenkombination wird derzeit von {} verwendet",
         "descriptionSuffix": ". Wenn du dieses Tastenkürzel ersetzt, wird diese Kombination von {} entfernt.",
         "confirmLabel": "Fortfahren"
+      },
+      "editTooltip": "Drücke, um die Tastenbelegung zu bearbeiten",
+      "keybindings": {
+        "toggleToDoList": "To-Do-Liste umschalten",
+        "insertNewParagraphInCodeblock": "Neuen Absatz einfügen",
+        "pasteInCodeblock": "In Codeblock einfügen",
+        "selectAllCodeblock": "Alles auswählen",
+        "indentLineCodeblock": "Zwei Leerzeichen am Zeilenanfang einfügen",
+        "outdentLineCodeblock": "Zwei Leerzeichen am Zeilenanfang löschen",
+        "twoSpacesCursorCodeblock": "Zwei Leerzeichen an der Cursorposition einfügen",
+        "copy": "Auswahl kopieren",
+        "paste": "Inhalt einfügen",
+        "cut": "Auswahl ausschneiden",
+        "alignLeft": "Text linksbündig ausrichten",
+        "alignCenter": "Text zentriert ausrichten",
+        "alignRight": "Text rechtsbündig ausrichten",
+        "undo": "Rückgängig machen",
+        "redo": "Wiederholen"
       },
       "couldNotLoadErrorMsg": "Konnte Tastenkürzeln nicht laden, versuche es erneut",
       "couldNotSaveErrorMsg": "Konnte Tastenkürzel nicht speichern, versuche es erneut"
