@@ -141,7 +141,8 @@ class CommandPaletteModal extends StatelessWidget {
                   ),
                 ),
               ],
-              if (state.results.isNotEmpty) ...[
+              if (state.results.isNotEmpty &&
+                  (state.query?.isNotEmpty ?? false)) ...[
                 const Divider(height: 0),
                 Flexible(
                   child: SearchResultsList(
