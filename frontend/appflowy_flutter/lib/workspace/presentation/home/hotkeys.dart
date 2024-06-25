@@ -35,8 +35,14 @@ class HotKeyItem {
   final HotKey hotKey;
   final KeyDownHandler? keyDownHandler;
 
-  void register() =>
-      hotKeyManager.register(hotKey, keyDownHandler: keyDownHandler);
+  Future<void> register() async {
+    // Register the hot key if it's not already registered
+    if (hotKeyManager.registeredHotKeyList
+        .any((e) => e.identifier == hotKey.identifier)) {
+      return;
+    }
+    await hotKeyManager.register(hotKey, keyDownHandler: keyDownHandler);
+  }
 }
 
 class HomeHotKeys extends StatefulWidget {
@@ -60,7 +66,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Collapse sidebar menu (using slash)
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.slash,
+        key: LogicalKeyboardKey.backslash,
         modifiers: [
           Platform.isMacOS ? HotKeyModifier.meta : HotKeyModifier.control,
         ],
