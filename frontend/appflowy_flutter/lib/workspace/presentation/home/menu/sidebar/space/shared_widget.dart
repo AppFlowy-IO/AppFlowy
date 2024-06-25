@@ -317,6 +317,7 @@ class CurrentSpace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SpaceIcon(
           dimension: 20,
