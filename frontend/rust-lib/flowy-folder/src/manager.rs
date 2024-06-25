@@ -777,10 +777,9 @@ impl FolderManager {
       ));
     }
 
-    let filtered_view_ids = self.with_folder(
-      || Vec::new(),
-      |folder| self.get_view_ids_should_be_filtered(folder),
-    );
+    let filtered_view_ids = self.with_folder(Vec::new, |folder| {
+      self.get_view_ids_should_be_filtered(folder)
+    });
 
     // only apply the `open_after_duplicated` and the `include_children` to the first view
     let mut is_source_view = true;
