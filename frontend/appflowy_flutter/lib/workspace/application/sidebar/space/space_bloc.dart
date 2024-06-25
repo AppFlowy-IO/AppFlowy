@@ -310,6 +310,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
   late WorkspaceService _workspaceService;
   String? _workspaceId;
+  late UserProfilePB userProfile;
   WorkspaceSectionsListener? _listener;
 
   @override
@@ -401,6 +402,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   void _initial(UserProfilePB userProfile, String workspaceId) {
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
     _workspaceId = workspaceId;
+    this.userProfile = userProfile;
 
     _listener = WorkspaceSectionsListener(
       user: userProfile,
@@ -461,7 +463,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
   Future<bool> _getSpaceExpandStatus(ViewPB? space) async {
     if (space == null) {
-      return false;
+      return true;
     }
 
     return getIt<KeyValueStorage>().get(KVKeys.expandedViews).then((result) {
