@@ -32,7 +32,7 @@ function CollabView({ doc }: CollabViewProps) {
       doc: YDoc;
       navigateToView?: (viewId: string) => Promise<void>;
       loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
-      getViewRowsMap?: (rowIds: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+      getViewRowsMap?: (viewId: string, rowIds: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
       loadView?: (id: string) => Promise<YDoc>;
     } & ViewMetaProps
   >;

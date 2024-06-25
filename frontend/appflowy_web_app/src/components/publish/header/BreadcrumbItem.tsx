@@ -4,6 +4,7 @@ import { ReactComponent as DocumentSvg } from '$icons/16x/document.svg';
 import { ReactComponent as GridSvg } from '$icons/16x/grid.svg';
 import { ViewLayout } from '@/application/collab.type';
 import { usePublishContext } from '@/application/publish';
+import { notify } from '@/components/_shared/notify';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -43,9 +44,13 @@ function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disable
   return (
     <div
       className={`flex items-center gap-1 ${!disableClick ? 'cursor-pointer' : 'flex-1 overflow-hidden'}`}
-      onClick={() => {
+      onClick={async () => {
         if (disableClick) return;
-        onNavigateToView?.(viewId);
+        try {
+          await onNavigateToView?.(viewId);
+        } catch (e) {
+          notify.error(t('publish.hasNotBeenPublished'));
+        }
       }}
     >
       {renderCrumbIcon(icon)}
