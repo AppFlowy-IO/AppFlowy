@@ -288,8 +288,8 @@ class _AutoCompletionBlockComponentState
       return;
     }
     final textRobot = TextRobot(editorState: editorState);
-    final aiResposity = AppFlowyAIService();
-    await aiResposity.streamCompletion(
+    final aiService = AppFlowyAIService();
+    await aiService.streamCompletion(
       text: _rewritePrompt(previousOutput),
       completionType: CompletionTypePB.ContinueWriting,
       onStart: () async {

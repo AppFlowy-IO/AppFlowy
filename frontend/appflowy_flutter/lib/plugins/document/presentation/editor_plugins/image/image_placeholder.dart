@@ -216,12 +216,16 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       // don't limit the image size for local mode.
       path = await saveImageToLocalStorage(url);
     } else {
+      final documentId = context.read<DocumentBloc>().documentId;
+      if (documentId.isEmpty) {
+        return;
+      }
       // else we should save the image to cloud storage
       setState(() {
         showLoading = true;
         this.errorMessage = null;
       });
-      (path, errorMessage) = await saveImageToCloudStorage(url);
+      (path, errorMessage) = await saveImageToCloudStorage(url, documentId);
       setState(() {
         showLoading = false;
         this.errorMessage = errorMessage;
