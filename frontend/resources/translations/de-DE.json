@@ -375,6 +375,11 @@
           "change": "E-Mail ändern"
         }
       },
+      "login": {
+        "title": "Kontoanmeldung",
+        "loginLabel": "Anmeldung",
+        "logoutLabel": "Ausloggen"
+      },
       "keys": {
         "title": "KI API-Schlüssel",
         "openAILabel": "OpenAI API-Schlüssel",
@@ -383,11 +388,6 @@
         "stabilityAILabel": "Stability API-Schlüssel",
         "stabilityAITooltip": "Der für die KI-Modelle zu verwendende Stability API-Schlüssel",
         "stabilityAIHint": "Stability API-Schlüssel eingeben"
-      },
-      "login": {
-        "title": "Kontoanmeldung",
-        "loginLabel": "Anmeldung",
-        "logoutLabel": "Ausloggen"
       },
       "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an."
     },
@@ -509,6 +509,48 @@
           "description": "Durch das Leeren des Caches werden Bilder und Schriftarten beim Laden erneut heruntergeladen. Deine Daten werden durch diese Aktion weder entfernt noch geändert.",
           "successHint": "Cache geleert!"
         }
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "Tastenkürzel",
+      "title": "Tastenkürzel",
+      "editBindingHint": "Neues Tastenkürzel eingeben",
+      "searchHint": "Suche",
+      "actions": {
+        "resetDefault": "Auf Standard zurücksetzen"
+      },
+      "errorPage": {
+        "message": "Ladend der Tastenkürzel fehlgeschlagen: {}",
+        "howToFix": "Versuche es bitte erneut. Falls das Problem weiterhin besteht, kontaktiere uns bitte auf GitHub."
+      },
+      "resetDialog": {
+        "title": "Tastenkürzel zurücksetzen",
+        "buttonLabel": "Zurücksetzen"
+      },
+      "conflictDialog": {
+        "title": "{} wird bereits verwendet",
+        "descriptionPrefix": "Diese Tastenkombination wird derzeit von {} verwendet",
+        "descriptionSuffix": ". Wenn du dieses Tastenkürzel ersetzt, wird diese Kombination von {} entfernt.",
+        "confirmLabel": "Fortfahren"
+      },
+      "couldNotLoadErrorMsg": "Konnte Tastenkürzeln nicht laden, versuche es erneut",
+      "couldNotSaveErrorMsg": "Konnte Tastenkürzel nicht speichern, versuche es erneut"
+    },
+    "aiPage": {
+      "title": "KI Einstellungen",
+      "menuLabel": "KI Einstellungen",
+      "keys": {
+        "enableAISearchTitle": "KI Suche",
+        "aiSettingsDescription": "Konfiguriere und wähle KI Modelle aus, die von AppFlowy verwendet werden. Für die beste Leistung empfehlen wir die Standard Modelle",
+        "loginToEnableAIFeature": "KI Funktionen sind nur aktiv, nachdem du dich in der AppFlowy Cloud eingeloggt hast. Falls du kein AppFlowy Konto hast, navigiere zu \"Mein Konto\", um dich zu registrieren",
+        "llmModel": "Sprachmodell",
+        "title": "KI API Schlüssel",
+        "openAILabel": "OpenAI API Schlüssel",
+        "openAITooltip": "Du kannst deinen geheimen API Schlüssel auf der API Schlüssel Seite finden",
+        "openAIHint": "OpenAI API Schlüssel eingeben",
+        "stabilityAILabel": "Stability API Schlüssel",
+        "stabilityAITooltip": "Dein Stability API Schlüssel, um deine Anfragen zu authentifizieren",
+        "stabilityAIHint": "Stability API Schlüssel eingeben"
       }
     },
     "planPage": {
@@ -866,6 +908,23 @@
       "pleaseInputYourStabilityAIKey": "Bitte gebe den Stability AI Schlüssel ein",
       "clickToLogout": "Klicken, um den aktuellen Nutzer auszulogen"
     },
+    "mobile": {
+      "personalInfo": "Persönliche Informationen",
+      "username": "Nutzername",
+      "usernameEmptyError": "Der Nutzername darf nicht leer sein",
+      "about": "Über",
+      "pushNotifications": "Push Benachrichtigungen",
+      "support": "Support",
+      "joinDiscord": "Komm zu uns auf Discord",
+      "privacyPolicy": "Datenschutz",
+      "userAgreement": "Nutzungsbedingungen",
+      "termsAndConditions": "Geschäftsbedingungen",
+      "userprofileError": "Das Nutzerprofil konnte nicht geladen werden",
+      "userprofileErrorDescription": "Bitte abmelden und wieder anmelden, um zu prüfen ob das Problem weiterhin bestehen bleibt.",
+      "selectLayout": "Layout auswählen",
+      "selectStartingDay": "Ersten Tag auswählen",
+      "version": "Version"
+    },
     "shortcuts": {
       "shortcutsLabel": "Tastenkürzel",
       "command": "Befehl",
@@ -887,23 +946,6 @@
         "textAlignCenter": "Text zentriert ausrichten",
         "textAlignRight": "Text rechtsbündig ausrichten"
       }
-    },
-    "mobile": {
-      "personalInfo": "Persönliche Informationen",
-      "username": "Nutzername",
-      "usernameEmptyError": "Der Nutzername darf nicht leer sein",
-      "about": "Über",
-      "pushNotifications": "Push Benachrichtigungen",
-      "support": "Support",
-      "joinDiscord": "Komm zu uns auf Discord",
-      "privacyPolicy": "Datenschutz",
-      "userAgreement": "Nutzungsbedingungen",
-      "termsAndConditions": "Geschäftsbedingungen",
-      "userprofileError": "Das Nutzerprofil konnte nicht geladen werden",
-      "userprofileErrorDescription": "Bitte abmelden und wieder anmelden, um zu prüfen ob das Problem weiterhin bestehen bleibt.",
-      "selectLayout": "Layout auswählen",
-      "selectStartingDay": "Ersten Tag auswählen",
-      "version": "Version"
     }
   },
   "grid": {
@@ -1216,6 +1258,7 @@
       "smartEditCouldNotFetchResult": "Das Ergebnis konnte nicht von OpenAI abgerufen werden",
       "smartEditCouldNotFetchKey": "Der OpenAI-Schlüssel konnte nicht abgerufen werden",
       "smartEditDisabled": "OpenAI in den Einstellungen verbinden",
+      "appflowyAIEditDisabled": "Einloggen um KI Features zu aktivieren",
       "discardResponse": "Möchten Sie die KI-Antworten verwerfen?",
       "createInlineMathEquation": "Formel erstellen",
       "fonts": "Schriftarten",

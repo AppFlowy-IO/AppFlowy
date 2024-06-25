@@ -622,6 +622,23 @@
       "pleaseInputYourStabilityAIKey": "Veuillez saisir votre clé de Stability AI",
       "clickToLogout": "Cliquez pour déconnecter l'utilisateur actuel"
     },
+    "mobile": {
+      "personalInfo": "Informations personnelles",
+      "username": "Nom d'utilisateur",
+      "usernameEmptyError": "Le nom d'utilisateur ne peut pas être vide",
+      "about": "À propos",
+      "pushNotifications": "Notifications push",
+      "support": "Support",
+      "joinDiscord": "Rejoignez-nous sur Discord",
+      "privacyPolicy": "Politique de Confidentialité",
+      "userAgreement": "Accord de l'utilisateur",
+      "termsAndConditions": "Termes et conditions",
+      "userprofileError": "Échec du chargement du profil utilisateur",
+      "userprofileErrorDescription": "Veuillez essayer de vous déconnecter et de vous reconnecter pour vérifier si le problème persiste.",
+      "selectLayout": "Sélectionner la mise en page",
+      "selectStartingDay": "Sélectionnez le jour de début",
+      "version": "Version"
+    },
     "shortcuts": {
       "shortcutsLabel": "Raccourcis",
       "command": "Commande",
@@ -642,23 +659,6 @@
         "textAlignRight": "Aligner le texte à droite",
         "codeBlockDeleteTwoSpaces": "Supprimez deux espaces au début de la ligne dans le bloc de code"
       }
-    },
-    "mobile": {
-      "personalInfo": "Informations personnelles",
-      "username": "Nom d'utilisateur",
-      "usernameEmptyError": "Le nom d'utilisateur ne peut pas être vide",
-      "about": "À propos",
-      "pushNotifications": "Notifications push",
-      "support": "Support",
-      "joinDiscord": "Rejoignez-nous sur Discord",
-      "privacyPolicy": "Politique de Confidentialité",
-      "userAgreement": "Accord de l'utilisateur",
-      "termsAndConditions": "Termes et conditions",
-      "userprofileError": "Échec du chargement du profil utilisateur",
-      "userprofileErrorDescription": "Veuillez essayer de vous déconnecter et de vous reconnecter pour vérifier si le problème persiste.",
-      "selectLayout": "Sélectionner la mise en page",
-      "selectStartingDay": "Sélectionnez le jour de début",
-      "version": "Version"
     }
   },
   "grid": {

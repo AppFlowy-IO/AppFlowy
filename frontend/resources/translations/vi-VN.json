@@ -469,11 +469,6 @@
       "pleaseInputYourStabilityAIKey": "vui lòng nhập khóa Stability AI của bạn",
       "clickToLogout": "Nhấn để đăng xuất"
     },
-    "shortcuts": {
-      "shortcutsLabel": "Phím tắt",
-      "updateShortcutStep": "Nhấn tổ hợp phím mong muốn và nhấn ENTER",
-      "shortcutIsAlreadyUsed": "Phím tắt này đã được sử dụng cho: {conflict}"
-    },
     "mobile": {
       "personalInfo": "Thông tin cá nhân",
       "username": "Tên người dùng ",
@@ -490,6 +485,11 @@
       "selectLayout": "Chọn bố cục",
       "selectStartingDay": "Chọn ngày bắt đầu",
       "version": "Phiên bản"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Phím tắt",
+      "updateShortcutStep": "Nhấn tổ hợp phím mong muốn và nhấn ENTER",
+      "shortcutIsAlreadyUsed": "Phím tắt này đã được sử dụng cho: {conflict}"
     }
   },
   "grid": {

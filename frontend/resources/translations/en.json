@@ -607,7 +607,7 @@
       "menuLabel": "AI Settings",
       "keys": {
         "enableAISearchTitle": "AI Search",
-        "aiSettingsDescription": "Select or configure Ai models used on AppFlowy. For best performance we recommend using the default model options",
+        "aiSettingsDescription": "Select or configure AI models used on AppFlowy. For best performance we recommend using the default model options",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with AppFlowy Cloud. If you don't have an AppFlowy account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
         "title": "AI API Keys",
@@ -732,7 +732,6 @@
       "freeLabels": {
         "itemOne": "charged per workspace",
         "itemTwo": "3",
-        "itemThree": "",
         "itemFour": "0",
         "itemFive": "5 GB",
         "itemSix": "yes",
@@ -742,7 +741,6 @@
       "proLabels": {
         "itemOne": "charged per workspace",
         "itemTwo": "up to 10",
-        "itemThree": "",
         "itemFour": "10 guests billed as one seat",
         "itemFive": "unlimited",
         "itemSix": "yes",

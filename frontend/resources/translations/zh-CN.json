@@ -358,17 +358,17 @@
           "change": "更改邮箱"
         }
       },
+      "login": {
+        "title": "登录账户",
+        "loginLabel": "登录",
+        "logoutLabel": "退出登录"
+      },
       "keys": {
         "title": "AI API 密钥",
         "openAILabel": "OpenAI API 密钥",
         "openAIHint": "输入你的 OpenAI API Key",
         "stabilityAILabel": "Stability API key",
         "stabilityAIHint": "输入你的 Stability API Key"
-      },
-      "login": {
-        "title": "登录账户",
-        "loginLabel": "登录",
-        "logoutLabel": "退出登录"
       }
     },
     "workspacePage": {
@@ -684,6 +684,23 @@
       "pleaseInputYourStabilityAIKey": "请输入您的 Stability AI 密钥",
       "clickToLogout": "点击退出当前用户"
     },
+    "mobile": {
+      "personalInfo": "个人信息",
+      "username": "用户名",
+      "usernameEmptyError": "用户名不能为空",
+      "about": "关于",
+      "pushNotifications": "推送通知",
+      "support": "支持",
+      "joinDiscord": "在 Discord 中加入我们",
+      "privacyPolicy": "隐私政策",
+      "userAgreement": "用户协议",
+      "termsAndConditions": "条款和条件",
+      "userprofileError": "无法加载用户配置文件",
+      "userprofileErrorDescription": "请尝试注销并重新登录以检查问题是否仍然存在。",
+      "selectLayout": "选择布局",
+      "selectStartingDay": "选择开始日期",
+      "version": "版本"
+    },
     "shortcuts": {
       "shortcutsLabel": "快捷方式",
       "command": "指令",
@@ -704,23 +721,6 @@
         "textAlignRight": "右对齐文本",
         "codeBlockDeleteTwoSpaces": "删除代码块中行首的两个空格"
       }
-    },
-    "mobile": {
-      "personalInfo": "个人信息",
-      "username": "用户名",
-      "usernameEmptyError": "用户名不能为空",
-      "about": "关于",
-      "pushNotifications": "推送通知",
-      "support": "支持",
-      "joinDiscord": "在 Discord 中加入我们",
-      "privacyPolicy": "隐私政策",
-      "userAgreement": "用户协议",
-      "termsAndConditions": "条款和条件",
-      "userprofileError": "无法加载用户配置文件",
-      "userprofileErrorDescription": "请尝试注销并重新登录以检查问题是否仍然存在。",
-      "selectLayout": "选择布局",
-      "selectStartingDay": "选择开始日期",
-      "version": "版本"
     }
   },
   "grid": {
