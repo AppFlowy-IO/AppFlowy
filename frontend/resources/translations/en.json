@@ -2020,6 +2020,7 @@
     "upgradeSpaceDescription": "Create multiple public and private Spaces to better organize your workspace.",
     "upgrade": "Update",
     "upgradeYourSpace": "Create multiple Spaces",
-    "quicklySwitch": "Quickly switch to the next space"
+    "quicklySwitch": "Quickly switch to the next space",
+    "duplicate": "Duplicate Space"
   }
 }

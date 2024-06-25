@@ -131,6 +131,8 @@ impl EventIntegrationTest {
         set_as_current: false,
         index: None,
         section: None,
+        icon: view.icon,
+        extra: view.extra,
       })
       .collect::<Vec<_>>();
 
@@ -235,6 +237,7 @@ impl EventIntegrationTest {
       set_as_current: false,
       index: None,
       section: None,
+      view_id: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -298,6 +301,7 @@ impl ViewTest {
       set_as_current: true,
       index: None,
       section: None,
+      view_id: None,
     };
 
     let view = EventBuilder::new(sdk.clone())
