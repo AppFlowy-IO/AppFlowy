@@ -1,5 +1,11 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 
+final _listTypes = [
+  BulletedListBlockKeys.type,
+  TodoListBlockKeys.type,
+  NumberedListBlockKeys.type,
+];
+
 extension PasteNodes on EditorState {
   Future<void> pasteSingleLineNode(Node insertedNode) async {
     final selection = await deleteSelectionIfNeeded();
@@ -27,6 +33,19 @@ extension PasteNodes on EditorState {
           path: path,
           offset: offset,
         ),
+      );
+    } else if (_listTypes.contains(node.type)) {
+      final convertedNode = insertedNode.copyWith(type: node.type);
+      final path = selection.start.path;
+      transaction
+        ..insertNode(path, convertedNode)
+        ..deleteNodesAtPath(path);
+
+      // Set the afterSelection to the last child of the inserted node
+      final lastChildPath = calculatePath(path, [convertedNode]);
+      final lastChildOffset = calculateLength([convertedNode]);
+      transaction.afterSelection = Selection.collapsed(
+        Position(path: lastChildPath, offset: lastChildOffset),
       );
     } else if (insertedDelta != null) {
       // if the node is not empty, insert the delta from inserted node after the selection.
