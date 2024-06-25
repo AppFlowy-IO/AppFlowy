@@ -1,9 +1,9 @@
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
-  CreateViewParams, CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, MoveNestedViewParams,
-  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, ViewPB, ViewSectionPB,
-  WorkspacePB, WorkspaceSettingPB,
+  CreateViewParams, CreateWorkspaceParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
+  MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams,
+  ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -743,46 +743,119 @@ impl FolderManager {
   }
 
   /// Duplicate the view with the given view id.
+  ///
+  /// Including the view data (icon, cover, extra) and the child views.
   #[tracing::instrument(level = "debug", skip(self), err)]
-  pub(crate) async fn duplicate_view(&self, view_id: &str) -> Result<(), FlowyError> {
+  pub(crate) async fn duplicate_view(&self, params: DuplicateViewParams) -> Result<(), FlowyError> {
     let view = self
-      .with_folder(|| None, |folder| folder.views.get_view(view_id))
+      .with_folder(|| None, |folder| folder.views.get_view(&params.view_id))
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can't duplicate the view"))?;
+    self
+      .duplicate_view_with_parent_id(
+        &view.id,
+        &view.parent_view_id,
+        params.open_after_duplicate,
+        params.include_children,
+      )
+      .await
+  }
 
-    let handler = self.get_handler(&view.layout)?;
-    let view_data = handler.duplicate_view(&view.id).await?;
+  /// Duplicate the view with the given view id and parent view id.
+  ///
+  /// If the view id is the same as the parent view id, it will return an error.
+  /// If the view id is not found, it will return an error.
+  pub(crate) async fn duplicate_view_with_parent_id(
+    &self,
+    view_id: &str,
+    parent_view_id: &str,
+    open_after_duplicated: bool,
+    include_children: bool,
+  ) -> Result<(), FlowyError> {
+    if view_id == parent_view_id {
+      return Err(FlowyError::new(
+        ErrorCode::Internal,
+        format!("Can't duplicate the view({}) to itself", view_id),
+      ));
+    }
 
-    // get the current view index in the parent view, because we need to insert the duplicated view below the current view.
-    let index = if let Some((_, __, views)) = self.get_view_relation(&view.parent_view_id).await {
-      views.iter().position(|id| id == view_id).map(|i| i as u32)
-    } else {
-      None
-    };
+    let filtered_view_ids = self.with_folder(Vec::new, |folder| {
+      self.get_view_ids_should_be_filtered(folder)
+    });
 
-    let is_private = self.with_folder(
-      || false,
-      |folder| folder.is_view_in_section(Section::Private, &view.id),
-    );
-    let section = if is_private {
-      ViewSectionPB::Private
-    } else {
-      ViewSectionPB::Public
-    };
+    // only apply the `open_after_duplicated` and the `include_children` to the first view
+    let mut is_source_view = true;
+    // use a stack to duplicate the view and its children
+    let mut stack = vec![(view_id.to_string(), parent_view_id.to_string())];
 
-    let duplicate_params = CreateViewParams {
-      parent_view_id: view.parent_view_id.clone(),
-      name: format!("{} (copy)", &view.name),
-      desc: view.desc.clone(),
-      layout: view.layout.clone().into(),
-      initial_data: view_data.to_vec(),
-      view_id: gen_view_id().to_string(),
-      meta: Default::default(),
-      set_as_current: true,
-      index,
-      section: Some(section),
-    };
+    while let Some((current_view_id, current_parent_id)) = stack.pop() {
+      let view = self
+        .with_folder(|| None, |folder| folder.views.get_view(&current_view_id))
+        .ok_or_else(|| {
+          FlowyError::record_not_found()
+            .with_context(format!("Can't duplicate the view({})", view_id))
+        })?;
 
-    self.create_view_with_params(duplicate_params).await?;
+      let handler = self.get_handler(&view.layout)?;
+      let view_data = handler.duplicate_view(&view.id).await?;
+
+      let index = self
+        .get_view_relation(&current_parent_id)
+        .await
+        .and_then(|(_, _, views)| {
+          views
+            .iter()
+            .filter(|id| filtered_view_ids.contains(id))
+            .position(|id| *id == current_view_id)
+            .map(|i| i as u32)
+        });
+
+      let section = self.with_folder(
+        || ViewSectionPB::Private,
+        |folder| {
+          if folder.is_view_in_section(Section::Private, &view.id) {
+            ViewSectionPB::Private
+          } else {
+            ViewSectionPB::Public
+          }
+        },
+      );
+
+      let name = if is_source_view {
+        format!("{} (copy)", &view.name)
+      } else {
+        view.name.clone()
+      };
+      let duplicate_params = CreateViewParams {
+        parent_view_id: current_parent_id.clone(),
+        name,
+        desc: view.desc.clone(),
+        layout: view.layout.clone().into(),
+        initial_data: view_data.to_vec(),
+        view_id: gen_view_id().to_string(),
+        meta: Default::default(),
+        set_as_current: is_source_view && open_after_duplicated,
+        index,
+        section: Some(section),
+        extra: view.extra.clone(),
+        icon: view.icon.clone(),
+      };
+
+      let duplicated_view = self.create_view_with_params(duplicate_params).await?;
+
+      if include_children {
+        let child_views = self.get_views_belong_to(&current_view_id).await?;
+        // reverse the child views to keep the order
+        for child_view in child_views.iter().rev() {
+          // skip the view_id should be filtered and the child_view is the duplicated view
+          if !filtered_view_ids.contains(&child_view.id) {
+            stack.push((child_view.id.clone(), duplicated_view.id.clone()));
+          }
+        }
+      }
+
+      is_source_view = false
+    }
+
     Ok(())
   }
 
@@ -1005,6 +1078,8 @@ impl FolderManager {
       set_as_current: false,
       index: None,
       section: None,
+      extra: None,
+      icon: None,
     };
 
     let view = create_view(self.user.user_id()?, params, import_data.view_layout);

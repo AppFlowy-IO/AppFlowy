@@ -20,6 +20,7 @@ flowy-derive = { path = "../../rust-lib/build-tool/flowy-derive" }
 flowy-codegen = { path = "../../rust-lib/build-tool/flowy-codegen" }
 flowy-document = { path = "../../rust-lib/flowy-document" }
 flowy-folder = { path = "../../rust-lib/flowy-folder" }
+flowy-storage = { path = "../../rust-lib/flowy-storage" }
 lib-infra = { path = "../../rust-lib/lib-infra" }
 bytes = { version = "1.5" }
 protobuf = { version = "2.28.0" }
@@ -54,7 +55,7 @@ yrs = "0.18.8"
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "6262816043efeede8823d7a7ea252083adf407e9" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d61524d63605aa010afa6a734cbbe4fb4cd68ea1" }
 
 [profile.dev]
 opt-level = 0
@@ -67,10 +68,10 @@ opt-level = 3
 codegen-units = 1
 
 [patch.crates-io]
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6febf0397e66ebf0a281980a2e7602d7af00c975" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }

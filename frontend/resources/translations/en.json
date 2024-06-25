@@ -369,15 +369,6 @@
           "change": "Change email"
         }
       },
-      "keys": {
-        "title": "AI API Keys",
-        "openAILabel": "OpenAI API key",
-        "openAITooltip": "You can find your Secret API key on the API key page",
-        "openAIHint": "Input your OpenAI API Key",
-        "stabilityAILabel": "Stability API key",
-        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
-        "stabilityAIHint": "Input your Stability API Key"
-      },
       "login": {
         "title": "Account login",
         "loginLabel": "Log in",
@@ -478,8 +469,8 @@
       "importData": {
         "title": "Import data",
         "tooltip": "Import data from @:appName backups/data folders",
-        "description": "Copy data from an external @:appName data folder and import it into the current @:appName data folder",
-        "action": "Browse folder"
+        "description": "Copy data from an external @:appName data folder",
+        "action": "Browse file"
       },
       "encryption": {
         "title": "Encryption",
@@ -494,7 +485,7 @@
       },
       "cache": {
         "title": "Clear cache",
-        "description": "If you encounter issues with images not loading or fonts not displaying correctly, try clearing your cache. This action will not remove your user data.",
+        "description": "Clear app cache, this can help resolve issues like images or fonts not loading. This will not affect your data.",
         "dialog": {
           "title": "Are you sure?",
           "description": "Clearing the cache will cause images and fonts to be re-downloaded on load. This action will not remove or modify your data.",
@@ -610,6 +601,23 @@
       },
       "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
       "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
+    },
+    "aiPage": {
+      "title": "AI Settings",
+      "menuLabel": "AI Settings",
+      "keys": {
+        "enableAISearchTitle": "AI Search",
+        "aiSettingsDescription": "Select or configure Ai models used on AppFlowy. For best performance we recommend using the default model options",
+        "loginToEnableAIFeature": "AI features are only enabled after logging in with AppFlowy Cloud. If you don't have an AppFlowy account, go to 'My Account' to sign up",
+        "llmModel": "Language Model",
+        "title": "AI API Keys",
+        "openAILabel": "OpenAI API key",
+        "openAITooltip": "You can find your Secret API key on the API key page",
+        "openAIHint": "Input your OpenAI API Key",
+        "stabilityAILabel": "Stability API key",
+        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
+        "stabilityAIHint": "Input your Stability API Key"
+      }
     },
     "planPage": {
       "menuLabel": "Plan",
@@ -1295,6 +1303,7 @@
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",
+      "appflowyAIEditDisabled": "Sign in to enable AI features",
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
       "fonts": "Fonts",
@@ -2011,6 +2020,7 @@
     "upgradeSpaceDescription": "Create multiple public and private Spaces to better organize your workspace.",
     "upgrade": "Update",
     "upgradeYourSpace": "Create multiple Spaces",
-    "quicklySwitch": "Quickly switch to the next space"
+    "quicklySwitch": "Quickly switch to the next space",
+    "duplicate": "Duplicate Space"
   }
 }

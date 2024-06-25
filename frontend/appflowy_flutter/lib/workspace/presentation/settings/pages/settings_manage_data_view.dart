@@ -22,7 +22,6 @@ import 'package:appflowy/workspace/presentation/settings/widgets/files/settings_
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -288,65 +287,22 @@ class _ImportDataFieldState extends State<_ImportDataField> {
           (_) => _showToast(LocaleKeys.settings_menu_importFailed.tr()),
         ),
         builder: (context, state) {
-          return DottedBorder(
-            radius: const Radius.circular(8),
-            dashPattern: const [2, 2],
-            borderType: BorderType.RRect,
-            color: Theme.of(context).colorScheme.primary,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  // When dragging files are enabled
-                  // FlowyText.regular('Drag file here or'),
-                  // const VSpace(8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 42,
-                        child: FlowyTextButton(
-                          LocaleKeys.settings_manageDataPage_importData_action
-                              .tr(),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                          fontWeight: FontWeight.w600,
-                          radius: BorderRadius.circular(12),
-                          fillColor: Theme.of(context).colorScheme.primary,
-                          hoverColor: const Color(0xFF005483),
-                          fontHoverColor: Colors.white,
-                          onPressed: () async {
-                            final path = await getIt<FilePickerService>()
-                                .getDirectoryPath();
-                            if (path == null || !context.mounted) {
-                              return;
-                            }
+          return SingleSettingAction(
+            label:
+                LocaleKeys.settings_manageDataPage_importData_description.tr(),
+            labelMaxLines: 2,
+            buttonLabel:
+                LocaleKeys.settings_manageDataPage_importData_action.tr(),
+            onPressed: () async {
+              final path = await getIt<FilePickerService>().getDirectoryPath();
+              if (path == null || !context.mounted) {
+                return;
+              }
 
-                            context.read<SettingFileImportBloc>().add(
-                                  SettingFileImportEvent
-                                      .importAppFlowyDataFolder(
-                                    path,
-                                  ),
-                                );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const VSpace(8),
-                  FlowyText.regular(
-                    LocaleKeys.settings_manageDataPage_importData_description
-                        .tr(),
-                    // 'Supported filetypes:\nCSV, Notion, Text, and Markdown',
-                    maxLines: 3,
-                    lineHeight: 1.5,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
+              context
+                  .read<SettingFileImportBloc>()
+                  .add(SettingFileImportEvent.importAppFlowyDataFolder(path));
+            },
           );
         },
       ),
@@ -496,7 +452,7 @@ class _DataPathActions extends StatelessWidget {
           label:
               LocaleKeys.settings_manageDataPage_dataStorage_actions_open.tr(),
           icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(20)),
-          onPressed: () => afLaunchUrlString('file://$currentPath'),
+          onPressed: () => afLaunchUrl(Uri.file(currentPath)),
         ),
       ],
     );

@@ -1,11 +1,12 @@
 use std::convert::TryInto;
+use std::str::FromStr;
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
-use crate::entities::AuthenticatorPB;
+use crate::entities::{AIModelPB, AuthenticatorPB};
 use crate::errors::ErrorCode;
 
 use super::parser::UserStabilityAIKey;
@@ -56,6 +57,9 @@ pub struct UserProfilePB {
 
   #[pb(index = 11)]
   pub stability_ai_key: String,
+
+  #[pb(index = 12)]
+  pub ai_model: AIModelPB,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -88,6 +92,7 @@ impl From<UserProfile> for UserProfilePB {
       encryption_type: encryption_ty,
       workspace_id: user_profile.workspace_id,
       stability_ai_key: user_profile.stability_ai_key,
+      ai_model: AIModelPB::from_str(&user_profile.ai_model).unwrap_or_default(),
     }
   }
 }
@@ -199,6 +204,7 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       encryption_sign: None,
       token: None,
       stability_ai_key,
+      ai_model: None,
     })
   }
 }

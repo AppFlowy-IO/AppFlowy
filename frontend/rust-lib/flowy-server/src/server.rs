@@ -46,6 +46,10 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     Ok(())
   }
 
+  fn set_ai_model(&self, _ai_model: &str) -> Result<(), Error> {
+    Ok(())
+  }
+
   fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
     None
   }

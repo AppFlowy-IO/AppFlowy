@@ -314,12 +314,12 @@ impl StorageService for StorageServiceImpl {
           // When resuming an upload, check if the upload_id is empty.
           // If the upload_id is empty, the upload has likely not been created yet.
           // If the upload_id is not empty, verify which parts have already been uploaded.
-          select_upload_file(conn, &workspace_id, &parent_dir, &file_id)?.and_then(|record| {
+          select_upload_file(conn, workspace_id, parent_dir, file_id)?.map(|record| {
             if record.upload_id.is_empty() {
-              Some((record, vec![]))
+              (record, vec![])
             } else {
               let parts = select_upload_parts(conn, &record.upload_id).unwrap_or_default();
-              Some((record, parts))
+              (record, parts)
             }
           }),
         )
@@ -358,7 +358,7 @@ async fn create_upload_record(
   let content_type = mime_guess::from_path(&local_file_path)
     .first_or_octet_stream()
     .to_string();
-  let file_id = format!("{}.{}", fxhash::hash(&chunked_bytes.data).to_string(), ext);
+  let file_id = format!("{}.{}", fxhash::hash(&chunked_bytes.data), ext);
   let record = UploadFileTable {
     workspace_id,
     file_id,
@@ -430,10 +430,10 @@ async fn start_upload(
     upload_file.file_id,
     chunked_bytes.iter().count()
   );
-  let mut iter = chunked_bytes.iter().enumerate();
+  let iter = chunked_bytes.iter().enumerate();
   let mut completed_parts = Vec::new();
 
-  while let Some((index, chunk_bytes)) = iter.next() {
+  for (index, chunk_bytes) in iter {
     let part_number = index as i32 + 1;
     trace!(
       "[File] {} uploading part: {}, len:{}KB",
@@ -443,8 +443,8 @@ async fn start_upload(
     );
     // start uploading parts
     match upload_part(
-      &cloud_service,
-      &user_service,
+      cloud_service,
+      user_service,
       &upload_file.workspace_id,
       &upload_file.parent_dir,
       &upload_file.upload_id,
@@ -476,8 +476,8 @@ async fn start_upload(
 
   // mark it as completed
   complete_upload(
-    &cloud_service,
-    &user_service,
+    cloud_service,
+    user_service,
     temp_storage,
     &upload_file,
     completed_parts,
@@ -540,6 +540,7 @@ async fn resume_upload(
   Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 #[instrument(level = "debug", skip_all)]
 async fn upload_part(
   cloud_service: &Arc<dyn StorageCloudService>,
@@ -553,10 +554,10 @@ async fn upload_part(
 ) -> Result<UploadPartResponse, FlowyError> {
   let resp = cloud_service
     .upload_part(
-      &workspace_id,
-      &parent_dir,
-      &upload_id,
-      &file_id,
+      workspace_id,
+      parent_dir,
+      upload_id,
+      file_id,
       part_number,
       body,
     )

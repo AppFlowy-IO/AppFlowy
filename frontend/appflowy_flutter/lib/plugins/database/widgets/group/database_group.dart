@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -74,7 +73,6 @@ class DatabaseGroupList extends StatelessWidget {
                         value: !state.layoutSettings.hideUngroupedColumn,
                         onChanged: (value) =>
                             _updateLayoutSettings(state.layoutSettings, value),
-                        style: ToggleStyle.big,
                         padding: EdgeInsets.zero,
                       ),
                     ],

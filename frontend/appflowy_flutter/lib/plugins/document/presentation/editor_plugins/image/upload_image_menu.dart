@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/embed_image_url_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/open_ai_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/stability_ai_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_file_widget.dart';
@@ -19,7 +18,7 @@ enum UploadImageType {
   url,
   unsplash,
   stabilityAI,
-  openAI,
+  // openAI,
   color;
 
   String get description {
@@ -30,8 +29,8 @@ enum UploadImageType {
         return LocaleKeys.document_imageBlock_embedLink_label.tr();
       case UploadImageType.unsplash:
         return LocaleKeys.document_imageBlock_unsplash_label.tr();
-      case UploadImageType.openAI:
-        return LocaleKeys.document_imageBlock_ai_label.tr();
+      // case UploadImageType.openAI:
+      //   return LocaleKeys.document_imageBlock_ai_label.tr();
       case UploadImageType.stabilityAI:
         return LocaleKeys.document_imageBlock_stability_ai_label.tr();
       case UploadImageType.color:
@@ -186,23 +185,23 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
             ),
           ),
         );
-      case UploadImageType.openAI:
-        return supportOpenAI
-            ? Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  constraints: constraints,
-                  child: OpenAIImageWidget(
-                    onSelectNetworkImage: widget.onSelectedAIImage,
-                  ),
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: FlowyText(
-                  LocaleKeys.document_imageBlock_pleaseInputYourOpenAIKey.tr(),
-                ),
-              );
+      // case UploadImageType.openAI:
+      //   return supportOpenAI
+      //       ? Expanded(
+      //           child: Container(
+      //             padding: const EdgeInsets.all(8.0),
+      //             constraints: constraints,
+      //             child: OpenAIImageWidget(
+      //               onSelectNetworkImage: widget.onSelectedAIImage,
+      //             ),
+      //           ),
+      //         )
+      //       : Padding(
+      //           padding: const EdgeInsets.all(8.0),
+      //           child: FlowyText(
+      //             LocaleKeys.document_imageBlock_pleaseInputYourOpenAIKey.tr(),
+      //           ),
+      //         );
       case UploadImageType.stabilityAI:
         return supportStabilityAI
             ? Expanded(
