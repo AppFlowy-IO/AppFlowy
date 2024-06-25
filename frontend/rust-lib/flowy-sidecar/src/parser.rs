@@ -1,8 +1,7 @@
 use crate::error::{ReadError, RemoteError};
 use crate::rpc_loop::RpcObject;
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::io::BufRead;
-use tracing::trace;
 
 #[derive(Debug, Default)]
 pub struct MessageReader(String);
@@ -31,12 +30,15 @@ impl MessageReader {
   /// This should not be called directly unless you are writing tests.
   #[doc(hidden)]
   pub fn parse(&self, s: &str) -> Result<RpcObject, ReadError> {
-    trace!("parsing message: {}", s);
-    let val = serde_json::from_str::<Value>(s)?;
-    if !val.is_object() {
-      Err(ReadError::NotObject(s.to_string()))
-    } else {
-      Ok(val.into())
+    match serde_json::from_str::<Value>(s) {
+      Ok(val) => {
+        if !val.is_object() {
+          Err(ReadError::NotObject(s.to_string()))
+        } else {
+          Ok(val.into())
+        }
+      },
+      Err(_) => Ok(RpcObject(json!({"message": s.to_string()}))),
     }
   }
 }
@@ -51,4 +53,25 @@ pub enum Call<R> {
   /// A malformed request: the request contained an id, but could
   /// not be parsed. The client will receive an error.
   InvalidRequest(RequestId, RemoteError),
+}
+
+pub trait ResponseParser {
+  type ValueType;
+  fn parse_response(json: serde_json::Value) -> Result<Self::ValueType, RemoteError>;
+}
+
+pub struct ChatResponseParser;
+impl ResponseParser for ChatResponseParser {
+  type ValueType = String;
+
+  fn parse_response(json: Value) -> Result<Self::ValueType, RemoteError> {
+    if json.is_object() {
+      if let Some(message) = json.get("data") {
+        if let Some(message) = message.as_str() {
+          return Ok(message.to_string());
+        }
+      }
+    }
+    return Err(RemoteError::InvalidResponse(json));
+  }
 }

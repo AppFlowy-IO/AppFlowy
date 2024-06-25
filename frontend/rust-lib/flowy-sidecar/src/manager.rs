@@ -1,12 +1,13 @@
 use crate::error::{ReadError, RemoteError};
+use crate::parser::ResponseParser;
 use crate::plugin::{start_plugin_process, Plugin, PluginId, PluginInfo, RpcCtx};
 use crate::rpc_loop::Handler;
 use crate::rpc_peer::PluginCommand;
 use anyhow::{anyhow, Result};
-use parking_lot::{Mutex, RwLock};
+use parking_lot::Mutex;
 use serde_json::{json, Value};
 use std::io;
-use std::sync::atomic::{AtomicI64, AtomicU8, Ordering};
+use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 use tracing::{trace, warn};
 
@@ -32,14 +33,9 @@ impl SidecarManager {
     Ok(plugin_id)
   }
 
-  pub async fn kill_plugin(&self, id: PluginId) -> Result<()> {
-    let state = self.state.lock();
-    let plugin = state
-      .plugins
-      .iter()
-      .find(|p| p.id == id)
-      .ok_or(anyhow!("plugin not found"))?;
-    plugin.shutdown()
+  pub async fn remove_plugin(&self, id: PluginId) -> Result<()> {
+    let mut state = self.state.lock();
+    state.plugin_disconnect(id, Ok(()));
     Ok(())
   }
 
@@ -55,15 +51,21 @@ impl SidecarManager {
     Ok(())
   }
 
-  pub fn send_request(&self, id: PluginId, method: &str, request: Value) -> Result<()> {
+  pub fn send_request<P: ResponseParser>(
+    &self,
+    id: PluginId,
+    method: &str,
+    request: Value,
+  ) -> Result<P::ValueType> {
     let state = self.state.lock();
     let plugin = state
       .plugins
       .iter()
       .find(|p| p.id == id)
       .ok_or(anyhow!("plugin not found"))?;
-    plugin.send_request(method, &request)?;
-    Ok(())
+    let resp = plugin.send_request(method, &request)?;
+    let value = P::parse_response(resp)?;
+    Ok(value)
   }
 }
 
@@ -75,7 +77,7 @@ impl SidecarState {
   pub fn plugin_connect(&mut self, plugin: Result<Plugin, io::Error>) {
     match plugin {
       Ok(plugin) => {
-        warn!("plugin connected: {:?}", plugin.id);
+        trace!("plugin connected: {:?}", plugin.id);
         self.plugins.push(plugin);
       },
       Err(err) => {
@@ -84,8 +86,10 @@ impl SidecarState {
     }
   }
 
-  pub fn plugin_exit(&mut self, id: PluginId, error: Result<(), ReadError>) {
-    warn!("plugin {:?} exited with result {:?}", id, error);
+  pub fn plugin_disconnect(&mut self, id: PluginId, error: Result<(), ReadError>) {
+    if let Err(err) = error {
+      warn!("[RPC] plugin {:?} exited with result {:?}", id, err);
+    }
     let running_idx = self.plugins.iter().position(|p| p.id == id);
     if let Some(idx) = running_idx {
       let plugin = self.plugins.remove(idx);
@@ -110,7 +114,7 @@ impl WeakSidecarState {
 
   pub fn plugin_exit(&self, plugin: PluginId, error: Result<(), ReadError>) {
     if let Some(core) = self.upgrade() {
-      core.lock().plugin_exit(plugin, error)
+      core.lock().plugin_disconnect(plugin, error)
     }
   }
 }
@@ -118,7 +122,7 @@ impl WeakSidecarState {
 impl Handler for WeakSidecarState {
   type Request = PluginCommand<String>;
 
-  fn handle_request(&mut self, ctx: &RpcCtx, rpc: Self::Request) -> Result<Value, RemoteError> {
+  fn handle_request(&mut self, _ctx: &RpcCtx, rpc: Self::Request) -> Result<Value, RemoteError> {
     trace!("handling request: {:?}", rpc.cmd);
     Ok(json!({}))
   }

@@ -2,11 +2,11 @@ use crate::error::{Error, ReadError, RemoteError};
 use crate::parser::{Call, MessageReader, RequestId};
 use crate::plugin::RpcCtx;
 use crate::rpc_peer::{RawPeer, Response, RpcState};
-use serde::de::DeserializeOwned;
+use serde::de::{DeserializeOwned, Error as SerdeError};
 use serde_json::Value;
 
 use std::io::{BufRead, Write};
-use std::sync::atomic::Ordering;
+
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
@@ -34,17 +34,11 @@ impl RpcObject {
     self.0.get("id").is_some() && self.0.get("method").is_none()
   }
 
-  /// Attempts to convert the underlying `Value` into an RPC response
-  /// object, and returns the result.
-  ///
-  /// The caller is expected to verify that the object is a response
-  /// before calling this method.
-  ///
+  /// Converts the underlying `Value` into an RPC response object.
+  /// The caller should verify that the object is a response before calling this method.
   /// # Errors
-  ///
-  /// If the `Value` is not a well formed response object, this will
-  /// return a `String` containing an error message. The caller should
-  /// print this message and exit.
+  /// If the `Value` is not a well-formed response object, this returns a `String` containing an
+  /// error message. The caller should print this message and exit.
   pub fn into_response(mut self) -> Result<Response, String> {
     let _ = self
       .get_id()
@@ -68,13 +62,7 @@ impl RpcObject {
     }
   }
 
-  /// Attempts to convert the underlying `Value` into either an RPC
-  /// notification or request.
-  ///
-  /// # Errors
-  ///
-  /// Returns a `serde_json::Error` if the `Value` cannot be converted
-  /// to one of the expected types.
+  /// Converts the underlying `Value` into either an RPC notification or request.
   pub fn into_rpc<R>(self) -> Result<Call<R>, serde_json::Error>
   where
     R: DeserializeOwned,
@@ -85,7 +73,10 @@ impl RpcObject {
         Ok(resp) => Ok(Call::Request(id, resp)),
         Err(err) => Ok(Call::InvalidRequest(id, err.into())),
       },
-      None => Ok(Call::Message(self.0)),
+      None => match self.0.get("message").and_then(|value| value.as_str()) {
+        None => Err(serde_json::Error::missing_field("message")),
+        Some(s) => Ok(Call::Message(s.to_string().into())),
+      },
     }
   }
 }
@@ -138,25 +129,16 @@ impl<W: Write + Send> RpcLoop<W> {
     self.peer.clone()
   }
 
-  /// Starts the event loop, reading lines from the reader until EOF,
-  /// or an error occurs.
+  /// Starts the event loop, reading lines from the reader until EOF or an error occurs.
   ///
-  /// Returns `Ok()` in the EOF case, otherwise returns the
-  /// underlying `ReadError`.
+  /// Returns `Ok()` if EOF is reached, otherwise returns the underlying `ReadError`.
   ///
   /// # Note:
-  /// The reader is supplied via a closure, as basically a workaround
-  /// so that the reader doesn't have to be `Send`. Internally, the
-  /// main loop starts a separate thread for I/O, and at startup that
-  /// thread calls the given closure.
-  ///
-  /// Calls to the handler happen on the caller's thread.
-  ///
-  /// Calls to the handler are guaranteed to preserve the order as
-  /// they appear on on the channel. At the moment, there is no way
-  /// for there to be more than one incoming request to be outstanding.
+  /// The reader is provided via a closure to avoid needing `Send`. The main loop runs on a separate I/O thread that calls this closure at startup.
+  /// Calls to the handler occur on the caller's thread and maintain the order from the channel. Currently, there can only be one outstanding incoming request.
   pub fn mainloop<R, BufferReadFn, H>(
     &mut self,
+    plugin_name: &str,
     buffer_read_fn: BufferReadFn,
     handler: &mut H,
   ) -> Result<(), ReadError>
@@ -189,13 +171,9 @@ impl<W: Write + Send> RpcLoop<W> {
           let json = match self.reader.next(&mut stream) {
             Ok(json) => json,
             Err(err) => {
-              // When the data can't be parsed into JSON. It means the data is not in the correct format.
-              // Probably the data comes from other stdout.
               if self.peer.0.is_blocking() {
                 self.peer.disconnect();
               }
-
-              error!("[RPC] failed to parse JSON: {:?}", err);
               self.peer.put_rpc_object(Err(err));
               break;
             },
@@ -237,16 +215,21 @@ impl<W: Write + Send> RpcLoop<W> {
         match json.into_rpc::<H::Request>() {
           Ok(Call::Request(id, cmd)) => {
             // Handle request sent from the client. For example from python executable.
+            trace!("[RPC] received request: {}", id);
             let result = handler.handle_request(&ctx, cmd);
             peer.respond(result, id);
           },
-          Ok(Call::InvalidRequest(id, err)) => peer.respond(Err(err), id),
+          Ok(Call::InvalidRequest(id, err)) => {
+            trace!("[RPC] received invalid request: {}", id);
+            peer.respond(Err(err), id)
+          },
           Err(err) => {
+            error!("[RPC] error parsing message: {:?}", err);
             peer.disconnect();
             return ReadError::UnknownRequest(err);
           },
           Ok(Call::Message(msg)) => {
-            trace!("[RPC] received message: {}", msg);
+            trace!("[RPC {}]: {}", plugin_name, msg);
           },
         }
       }
@@ -299,4 +282,4 @@ where
   }
 }
 
-fn do_idle<H: Handler>(handler: &mut H, ctx: &RpcCtx, token: usize) {}
+fn do_idle<H: Handler>(_handler: &mut H, _ctx: &RpcCtx, _token: usize) {}

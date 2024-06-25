@@ -41,6 +41,9 @@ pub enum RemoteError {
   /// clients.
   #[error("Invalid request: {0:?}")]
   InvalidRequest(Option<Value>),
+
+  #[error("Invalid response: {0}")]
+  InvalidResponse(Value),
   /// A custom error, defined by the client.
   #[error("Custom error: {message}")]
   Custom {
@@ -134,20 +137,18 @@ impl Serialize for RemoteError {
   where
     S: Serializer,
   {
-    let (code, message, data) = match *self {
-      RemoteError::InvalidRequest(ref d) => (-32600, "Invalid request", d),
+    let (code, message, data) = match self {
+      RemoteError::InvalidRequest(ref d) => (-32600, "Invalid request".to_string(), d.clone()),
       RemoteError::Custom {
         code,
         ref message,
         ref data,
-      } => (code, message.as_ref(), data),
-      RemoteError::Unknown(_) => panic!(
-        "The 'Unknown' error variant is \
-                 not intended for client use."
-      ),
+      } => (*code, message.clone(), data.clone()),
+      RemoteError::Unknown(_) => {
+        panic!("The 'Unknown' error variant is not intended for client use.")
+      },
+      RemoteError::InvalidResponse(s) => (-1, "Invalid response".to_string(), Some(s.clone())),
     };
-    let message = message.to_owned();
-    let data = data.to_owned();
     let err = ErrorHelper {
       code,
       message,

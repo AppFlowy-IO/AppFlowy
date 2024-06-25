@@ -84,6 +84,17 @@ impl<W: Write + Send + 'static> Peer for RawPeer<W> {
   fn box_clone(&self) -> Box<dyn Peer> {
     Box::new((*self).clone())
   }
+  fn send_rpc_notification(&self, method: &str, params: &Value) {
+    if let Err(e) = self.send(&json!({
+        "method": method,
+        "params": params,
+    })) {
+      error!(
+        "send error on send_rpc_notification method {}: {}",
+        method, e
+      );
+    }
+  }
 
   fn send_rpc_request_async(&self, method: &str, params: &Value, f: Box<dyn Callback>) {
     self.send_rpc(method, params, ResponseHandler::Callback(f));
@@ -132,7 +143,6 @@ impl<W: Write> RawPeer<W> {
   }
 
   fn send_rpc(&self, method: &str, params: &Value, rh: ResponseHandler) {
-    trace!("[RPC] method:{} params: {:?}", method, params);
     let id = self.0.id.fetch_add(1, Ordering::Relaxed);
     {
       let mut pending = self.0.pending.lock();

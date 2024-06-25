@@ -2,13 +2,12 @@ use crate::error::Error;
 use crate::manager::WeakSidecarState;
 use crate::rpc_loop::RpcLoop;
 
-use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::io::BufReader;
-use std::path::PathBuf;
+
 use std::process::{Child, Stdio};
-use std::sync::Arc;
+
 use std::thread;
 use std::time::Instant;
 use tracing::{error, info};
@@ -32,6 +31,8 @@ pub trait Callback: Send {
 /// channel. It is intended to be used behind a pointer, a trait object.
 pub trait Peer: Send + 'static {
   fn box_clone(&self) -> Box<dyn Peer>;
+
+  fn send_rpc_notification(&self, method: &str, params: &Value);
   fn send_rpc_request_async(&self, method: &str, params: &Value, f: Box<dyn Callback>);
   /// Sends a request (synchronous RPC) to the peer, and waits for the result.
   fn send_rpc_request(&self, method: &str, params: &Value) -> Result<Value, Error>;
@@ -110,9 +111,8 @@ pub(crate) async fn start_plugin_process(
           let mut looper = RpcLoop::new(child_stdin);
           let peer: RpcPeer = Box::new(looper.get_raw_peer());
           let name = plugin_info.name.clone();
-          if let Err(err) = peer.send_rpc_request("ping", &Value::Array(Vec::new())) {
-            error!("plugin {} failed to respond to ping: {:?}", name, err);
-          }
+          peer.send_rpc_notification("ping", &Value::Array(Vec::new()));
+
           let plugin = Plugin {
             peer,
             process: child,
@@ -123,7 +123,11 @@ pub(crate) async fn start_plugin_process(
           state.plugin_connect(Ok(plugin));
           let _ = tx.send(());
           let mut state = state;
-          let err = looper.mainloop(|| BufReader::new(child_stdout), &mut state);
+          let err = looper.mainloop(
+            &plugin_info.name,
+            || BufReader::new(child_stdout),
+            &mut state,
+          );
           state.plugin_exit(id, err);
         },
         Err(err) => {
