@@ -2,6 +2,7 @@ import { BlockData, BlockType, InlineBlockType, YjsEditorKey } from '@/applicati
 import { BulletedList } from '@/components/editor/components/blocks/bulleted-list';
 import { Callout } from '@/components/editor/components/blocks/callout';
 import { CodeBlock } from '@/components/editor/components/blocks/code';
+import { DatabaseBlock } from '@/components/editor/components/blocks/database';
 import { DividerNode } from '@/components/editor/components/blocks/divider';
 import { Heading } from '@/components/editor/components/blocks/heading';
 import { ImageBlock } from '@/components/editor/components/blocks/image';
@@ -25,7 +26,6 @@ import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
 import React, { FC, memo, Suspense, useMemo } from 'react';
 import { RenderElementProps } from 'slate-react';
-import { DatabaseBlock } from 'src/components/editor/components/blocks/database';
 import isEqual from 'lodash-es/isEqual';
 
 export const Element = memo(
