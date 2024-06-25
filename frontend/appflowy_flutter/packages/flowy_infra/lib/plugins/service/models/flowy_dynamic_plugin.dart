@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:file/memory.dart';
 import 'package:flowy_infra/colorscheme/colorscheme.dart';
 import 'package:flowy_infra/plugins/service/models/exceptions.dart';
@@ -123,8 +125,9 @@ class FlowyDynamicPlugin {
     late final FlowyColorScheme darkTheme;
 
     try {
-      lightTheme = FlowyColorScheme.fromJson(
-          await jsonDecode(await light.readAsString()));
+      lightTheme = FlowyColorScheme.fromJsonSoft(
+        await jsonDecode(await light.readAsString()),
+      );
     } catch (e) {
       throw PluginCompilationException(
         'The light theme json file is not valid.',
@@ -132,8 +135,10 @@ class FlowyDynamicPlugin {
     }
 
     try {
-      darkTheme = FlowyColorScheme.fromJson(
-          await jsonDecode(await dark.readAsString()));
+      darkTheme = FlowyColorScheme.fromJsonSoft(
+        await jsonDecode(await dark.readAsString()),
+        Brightness.dark,
+      );
     } catch (e) {
       throw PluginCompilationException(
         'The dark theme json file is not valid.',
