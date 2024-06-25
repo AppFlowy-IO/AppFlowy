@@ -77,7 +77,7 @@ class CommandPaletteBloc
         },
         resultsChanged: (results, max) {
           if (state.query != _oldQuery) {
-            emit(state.copyWith(results: []));
+            emit(state.copyWith(results: [], isLoading: true));
             _oldQuery = state.query;
             _messagesReceived = 0;
           }
@@ -169,7 +169,7 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
 
   const factory CommandPaletteEvent.resultsChanged({
     required RepeatedSearchResultPB results,
-    @Default(1) int max,
+    @Default(2) int max,
   }) = _ResultsChanged;
 
   const factory CommandPaletteEvent.trashChanged({
