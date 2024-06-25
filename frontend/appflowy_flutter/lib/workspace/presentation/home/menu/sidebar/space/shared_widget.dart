@@ -344,15 +344,19 @@ class SpacePages extends StatelessWidget {
     required this.space,
     required this.isHovered,
     required this.isExpandedNotifier,
-    this.showActions,
+    required this.onSelected,
     this.rightIconsBuilder,
+    this.disableSelectedStatus = false,
+    this.onTertiarySelected,
   });
 
   final ViewPB space;
   final ValueNotifier<bool> isHovered;
   final PropertyValueNotifier<bool> isExpandedNotifier;
-  final bool? showActions;
+  final bool disableSelectedStatus;
   final ViewItemRightIconsBuilder? rightIconsBuilder;
+  final ViewItemOnSelected onSelected;
+  final ViewItemOnSelected? onTertiarySelected;
 
   @override
   Widget build(BuildContext context) {
@@ -362,6 +366,7 @@ class SpacePages extends StatelessWidget {
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
           return Column(
+            mainAxisSize: MainAxisSize.min,
             children: state.view.childViews
                 .map(
                   (view) => ViewItem(
@@ -376,12 +381,11 @@ class SpacePages extends StatelessWidget {
                     leftPadding: HomeSpaceViewSizes.leftPadding,
                     isFeedback: false,
                     isHovered: isHovered,
+                    disableSelectedStatus: disableSelectedStatus,
                     isExpandedNotifier: isExpandedNotifier,
                     rightIconsBuilder: rightIconsBuilder,
-                    showActions: showActions,
-                    onSelected: (viewContext, view) {
-                      // todo:
-                    },
+                    onSelected: onSelected,
+                    onTertiarySelected: onTertiarySelected,
                   ),
                 )
                 .toList(),

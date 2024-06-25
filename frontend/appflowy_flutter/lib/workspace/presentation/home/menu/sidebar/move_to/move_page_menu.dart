@@ -1,5 +1,6 @@
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +11,12 @@ class MovePageMenu extends StatefulWidget {
     super.key,
     required this.userProfile,
     required this.workspaceId,
+    required this.onSelected,
   });
 
   final UserProfilePB userProfile;
   final String workspaceId;
+  final void Function(ViewPB view) onSelected;
 
   @override
   State<MovePageMenu> createState() => _MovePageMenuState();
@@ -55,18 +58,22 @@ class _MovePageMenuState extends State<MovePageMenu> {
                   space: space,
                 ),
               ),
-              MouseRegion(
-                onEnter: (_) => isHoveredNotifier.value = true,
-                onExit: (_) => isHoveredNotifier.value = false,
-                child: SingleChildScrollView(
-                  child: SpacePages(
-                    space: space,
-                    isHovered: isHoveredNotifier,
-                    isExpandedNotifier: isExpandedNotifier,
-                    // hide the hover status and disable the editing actions
-                    showActions: false,
-                    // hide the ... and + buttons
-                    rightIconsBuilder: (context, view) => [],
+              Expanded(
+                child: MouseRegion(
+                  onEnter: (_) => isHoveredNotifier.value = true,
+                  onExit: (_) => isHoveredNotifier.value = false,
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: SpacePages(
+                      space: space,
+                      isHovered: isHoveredNotifier,
+                      isExpandedNotifier: isExpandedNotifier,
+                      // hide the hover status and disable the editing actions
+                      disableSelectedStatus: true,
+                      // hide the ... and + buttons
+                      rightIconsBuilder: (context, view) => [],
+                      onSelected: (_, view) => widget.onSelected(view),
+                    ),
                   ),
                 ),
               ),

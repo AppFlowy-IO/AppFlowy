@@ -186,6 +186,9 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
         return MovePageMenu(
           userProfile: userProfile,
           workspaceId: workspaceId,
+          onSelected: (view) {
+            onTap(controller, view);
+          },
         );
       },
       child: child,

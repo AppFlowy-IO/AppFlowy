@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -114,6 +116,14 @@ class _SpaceState extends State<_Space> {
                   isExpandedNotifier: isExpandedNotifier,
                   space: currentSpace,
                   isHovered: isHovered,
+                  onSelected: (context, view) {
+                    if (HardwareKeyboard.instance.isControlPressed) {
+                      context.read<TabsBloc>().openTab(view);
+                    }
+                    context.read<TabsBloc>().openPlugin(view);
+                  },
+                  onTertiarySelected: (context, view) =>
+                      context.read<TabsBloc>().openTab(view),
                 ),
               ),
           ],
