@@ -11,6 +11,7 @@ enum SpaceMoreActionType {
   divider,
   addNewSpace,
   manage,
+  duplicate,
 }
 
 extension ViewMoreActionTypeExtension on SpaceMoreActionType {
@@ -28,6 +29,8 @@ extension ViewMoreActionTypeExtension on SpaceMoreActionType {
         return LocaleKeys.space_addNewSpace.tr();
       case SpaceMoreActionType.manage:
         return LocaleKeys.space_manage.tr();
+      case SpaceMoreActionType.duplicate:
+        return LocaleKeys.space_duplicate.tr();
       case SpaceMoreActionType.divider:
         return '';
     }
@@ -47,6 +50,8 @@ extension ViewMoreActionTypeExtension on SpaceMoreActionType {
         return const FlowySvg(FlowySvgs.space_add_s);
       case SpaceMoreActionType.manage:
         return const FlowySvg(FlowySvgs.space_manage_s);
+      case SpaceMoreActionType.duplicate:
+        return const FlowySvg(FlowySvgs.duplicate_s);
       case SpaceMoreActionType.divider:
         return const SizedBox.shrink();
     }
@@ -61,6 +66,7 @@ extension ViewMoreActionTypeExtension on SpaceMoreActionType {
       case SpaceMoreActionType.delete:
       case SpaceMoreActionType.addNewSpace:
       case SpaceMoreActionType.manage:
+      case SpaceMoreActionType.duplicate:
         return const SizedBox.shrink();
     }
   }

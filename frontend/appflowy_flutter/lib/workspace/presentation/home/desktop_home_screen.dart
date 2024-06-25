@@ -72,7 +72,10 @@ class DesktopHomeScreen extends StatelessWidget {
           child: MultiBlocProvider(
             key: ValueKey(userProfile.id),
             providers: [
-              BlocProvider<ReminderBloc>.value(value: getIt<ReminderBloc>()),
+              BlocProvider.value(
+                value: getIt<ReminderBloc>()
+                  ..add(const ReminderEvent.started()),
+              ),
               BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
               BlocProvider<HomeBloc>(
                 create: (_) =>

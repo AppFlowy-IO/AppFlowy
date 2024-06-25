@@ -36,6 +36,7 @@ pub struct UserProfilePB {
     pub encryption_sign: ::std::string::String,
     pub workspace_id: ::std::string::String,
     pub stability_ai_key: ::std::string::String,
+    pub ai_model: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -289,6 +290,32 @@ impl UserProfilePB {
     pub fn take_stability_ai_key(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.stability_ai_key, ::std::string::String::new())
     }
+
+    // string ai_model = 11;
+
+
+    pub fn get_ai_model(&self) -> &str {
+        &self.ai_model
+    }
+    pub fn clear_ai_model(&mut self) {
+        self.ai_model.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ai_model(&mut self, v: ::std::string::String) {
+        self.ai_model = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_ai_model(&mut self) -> &mut ::std::string::String {
+        &mut self.ai_model
+    }
+
+    // Take field
+    pub fn take_ai_model(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.ai_model, ::std::string::String::new())
+    }
 }
 
 impl ::protobuf::Message for UserProfilePB {
@@ -334,6 +361,9 @@ impl ::protobuf::Message for UserProfilePB {
                 10 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.stability_ai_key)?;
                 },
+                11 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.ai_model)?;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -376,6 +406,9 @@ impl ::protobuf::Message for UserProfilePB {
         if !self.stability_ai_key.is_empty() {
             my_size += ::protobuf::rt::string_size(10, &self.stability_ai_key);
         }
+        if !self.ai_model.is_empty() {
+            my_size += ::protobuf::rt::string_size(11, &self.ai_model);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -411,6 +444,9 @@ impl ::protobuf::Message for UserProfilePB {
         }
         if !self.stability_ai_key.is_empty() {
             os.write_string(10, &self.stability_ai_key)?;
+        }
+        if !self.ai_model.is_empty() {
+            os.write_string(11, &self.ai_model)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -500,6 +536,11 @@ impl ::protobuf::Message for UserProfilePB {
                 |m: &UserProfilePB| { &m.stability_ai_key },
                 |m: &mut UserProfilePB| { &mut m.stability_ai_key },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "ai_model",
+                |m: &UserProfilePB| { &m.ai_model },
+                |m: &mut UserProfilePB| { &mut m.ai_model },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<UserProfilePB>(
                 "UserProfilePB",
                 fields,
@@ -526,6 +567,7 @@ impl ::protobuf::Clear for UserProfilePB {
         self.encryption_sign.clear();
         self.workspace_id.clear();
         self.stability_ai_key.clear();
+        self.ai_model.clear();
         self.unknown_fields.clear();
     }
 }
@@ -593,7 +635,7 @@ impl ::protobuf::reflect::ProtobufValue for EncryptionTypePB {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\nuser.proto\x1a\nauth.proto\"\xc7\x02\n\rUserProfilePB\x12\x0e\n\x02i\
+    \n\nuser.proto\x1a\nauth.proto\"\xe2\x02\n\rUserProfilePB\x12\x0e\n\x02i\
     d\x18\x01\x20\x01(\x03R\x02id\x12\x14\n\x05email\x18\x02\x20\x01(\tR\x05\
     email\x12\x12\n\x04name\x18\x03\x20\x01(\tR\x04name\x12\x14\n\x05token\
     \x18\x04\x20\x01(\tR\x05token\x12\x19\n\x08icon_url\x18\x05\x20\x01(\tR\
@@ -601,8 +643,9 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \rauthenticator\x18\x07\x20\x01(\x0e2\x10.AuthenticatorPBR\rauthenticato\
     r\x12'\n\x0fencryption_sign\x18\x08\x20\x01(\tR\x0eencryptionSign\x12!\n\
     \x0cworkspace_id\x18\t\x20\x01(\tR\x0bworkspaceId\x12(\n\x10stability_ai\
-    _key\x18\n\x20\x01(\tR\x0estabilityAiKey*3\n\x10EncryptionTypePB\x12\x10\
-    \n\x0cNoEncryption\x10\0\x12\r\n\tSymmetric\x10\x01b\x06proto3\
+    _key\x18\n\x20\x01(\tR\x0estabilityAiKey\x12\x19\n\x08ai_model\x18\x0b\
+    \x20\x01(\tR\x07aiModel*3\n\x10EncryptionTypePB\x12\x10\n\x0cNoEncryptio\
+    n\x10\0\x12\r\n\tSymmetric\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

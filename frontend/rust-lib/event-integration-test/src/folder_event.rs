@@ -7,7 +7,7 @@ use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{entities::*, ViewLayout};
 use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
-  AcceptWorkspaceInvitationPB, AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
+  AcceptWorkspaceInvitationPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
   RepeatedWorkspaceInvitationPB, RepeatedWorkspaceMemberPB, WorkspaceMemberInvitationPB,
   WorkspaceMemberPB,
 };
@@ -19,21 +19,6 @@ use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
-  pub async fn add_workspace_member(&self, workspace_id: &str, email: &str) {
-    if let Some(err) = EventBuilder::new(self.clone())
-      .event(UserEvent::AddWorkspaceMember)
-      .payload(AddWorkspaceMemberPB {
-        workspace_id: workspace_id.to_string(),
-        email: email.to_string(),
-      })
-      .async_send()
-      .await
-      .error()
-    {
-      panic!("Add workspace member failed: {:?}", err);
-    }
-  }
-
   pub async fn invite_workspace_member(&self, workspace_id: &str, email: &str, role: Role) {
     EventBuilder::new(self.clone())
       .event(UserEvent::InviteWorkspaceMember)
@@ -43,6 +28,26 @@ impl EventIntegrationTest {
         role: role.into(),
       })
       .async_send()
+      .await;
+  }
+
+  // convenient function to add workspace member by inviting and accepting the invitation
+  pub async fn add_workspace_member(&self, workspace_id: &str, other: &EventIntegrationTest) {
+    let other_email = other.get_user_profile().await.unwrap().email;
+
+    self
+      .invite_workspace_member(workspace_id, &other_email, Role::Member)
+      .await;
+
+    let invitations = other.list_workspace_invitations().await;
+    let target_invi = invitations
+      .items
+      .into_iter()
+      .find(|i| i.workspace_id == workspace_id)
+      .unwrap();
+
+    other
+      .accept_workspace_invitation(&target_invi.invite_id)
       .await;
   }
 
@@ -126,6 +131,8 @@ impl EventIntegrationTest {
         set_as_current: false,
         index: None,
         section: None,
+        icon: view.icon,
+        extra: view.extra,
       })
       .collect::<Vec<_>>();
 
@@ -230,6 +237,7 @@ impl EventIntegrationTest {
       set_as_current: false,
       index: None,
       section: None,
+      view_id: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -293,6 +301,7 @@ impl ViewTest {
       set_as_current: true,
       index: None,
       section: None,
+      view_id: None,
     };
 
     let view = EventBuilder::new(sdk.clone())

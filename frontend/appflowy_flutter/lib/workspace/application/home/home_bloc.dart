@@ -9,12 +9,12 @@ part 'home_bloc.freezed.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc(WorkspaceSettingPB workspaceSetting)
-      : _workspaceListener = UserWorkspaceListener(),
+      : _workspaceListener = FolderListener(),
         super(HomeState.initial(workspaceSetting)) {
     _dispatch(workspaceSetting);
   }
 
-  final UserWorkspaceListener _workspaceListener;
+  final FolderListener _workspaceListener;
 
   @override
   Future<void> close() async {

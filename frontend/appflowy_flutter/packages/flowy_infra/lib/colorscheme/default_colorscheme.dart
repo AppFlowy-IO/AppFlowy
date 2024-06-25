@@ -126,7 +126,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           questionBubbleBG: _darkShader3,
           progressBarBGColor: _darkShader3,
           toolbarColor: _darkInput,
-          toggleButtonBGColor: _darkShader1,
+          toggleButtonBGColor: const Color(0xFF828282),
           calendarWeekendBGColor: _darkShader1,
           gridRowCountColor: _darkShader5,
         );

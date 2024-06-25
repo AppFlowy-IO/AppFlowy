@@ -15,7 +15,7 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
     WorkspaceSettingPB workspaceSetting,
     AppearanceSettingsCubit appearanceSettingsCubit,
     double screenWidthPx,
-  )   : _listener = UserWorkspaceListener(),
+  )   : _listener = FolderListener(),
         _appearanceSettingsCubit = appearanceSettingsCubit,
         super(
           HomeSettingState.initial(
@@ -27,7 +27,7 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
     _dispatch();
   }
 
-  final UserWorkspaceListener _listener;
+  final FolderListener _listener;
   final AppearanceSettingsCubit _appearanceSettingsCubit;
 
   @override

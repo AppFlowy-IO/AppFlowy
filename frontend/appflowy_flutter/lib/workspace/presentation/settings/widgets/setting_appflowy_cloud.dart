@@ -10,7 +10,6 @@ import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc
 import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
@@ -317,7 +316,6 @@ class AppFlowyCloudEnableSync extends StatelessWidget {
             FlowyText.medium(LocaleKeys.settings_menu_enableSync.tr()),
             const Spacer(),
             Toggle(
-              style: ToggleStyle.big,
               value: state.setting.enableSync,
               onChanged: (value) => context
                   .read<AppFlowyCloudSettingBloc>()

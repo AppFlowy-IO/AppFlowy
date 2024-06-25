@@ -102,6 +102,16 @@ class SettingsMenu extends StatelessWidget {
                     icon: const FlowySvg(FlowySvgs.settings_shortcuts_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
+                  SettingsMenuElement(
+                    page: SettingsPage.ai,
+                    selectedPage: currentPage,
+                    label: LocaleKeys.settings_aiPage_menuLabel.tr(),
+                    icon: const FlowySvg(
+                      FlowySvgs.ai_summary_generate_s,
+                      size: Size.square(24),
+                    ),
+                    changeSelectedPage: changeSelectedPage,
+                  ),
                   if (FeatureFlag.planBilling.isOn &&
                       userProfile.authenticator ==
                           AuthenticatorPB.AppFlowyCloud &&

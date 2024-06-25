@@ -6,12 +6,11 @@ use client_api::entity::billing_dto::{
   SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionPlan, WorkspaceSubscriptionStatus,
 };
 use client_api::entity::workspace_dto::{
-  CreateWorkspaceMember, CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset,
-  WorkspaceMemberInvitation,
+  CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset, WorkspaceMemberInvitation,
 };
 use client_api::entity::{
-  AFRole, AFWorkspace, AFWorkspaceInvitation, AuthProvider, CollabParams, CreateCollabParams,
-  QueryWorkspaceMember,
+  AFRole, AFWorkspace, AFWorkspaceInvitation, AFWorkspaceSettings, AFWorkspaceSettingsChange,
+  AuthProvider, CollabParams, CreateCollabParams, QueryWorkspaceMember,
 };
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
@@ -219,28 +218,6 @@ where
     FutureResult::new(async move {
       let workspaces = try_get_client?.get_workspaces().await?;
       to_user_workspaces(workspaces.0)
-    })
-  }
-
-  #[allow(deprecated)]
-  fn add_workspace_member(
-    &self,
-    user_email: String,
-    workspace_id: String,
-  ) -> FutureResult<(), FlowyError> {
-    let try_get_client = self.server.try_get_client();
-    FutureResult::new(async move {
-      // TODO(zack): add_workspace_members will be deprecated after finishing the invite logic. Don't forget to remove the #[allow(deprecated)]
-      try_get_client?
-        .add_workspace_members(
-          workspace_id,
-          vec![CreateWorkspaceMember {
-            email: user_email,
-            role: AFRole::Member,
-          }],
-        )
-        .await?;
-      Ok(())
     })
   }
 
@@ -591,6 +568,35 @@ where
       let client = try_get_client?;
       let url = client.get_portal_session_link().await?;
       Ok(url)
+    })
+  }
+
+  fn get_workspace_setting(
+    &self,
+    workspace_id: &str,
+  ) -> FutureResult<AFWorkspaceSettings, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let settings = client.get_workspace_settings(&workspace_id).await?;
+      Ok(settings)
+    })
+  }
+
+  fn update_workspace_setting(
+    &self,
+    workspace_id: &str,
+    workspace_settings: AFWorkspaceSettingsChange,
+  ) -> FutureResult<AFWorkspaceSettings, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let settings = client
+        .update_workspace_settings(&workspace_id, &workspace_settings)
+        .await?;
+      Ok(settings)
     })
   }
 }

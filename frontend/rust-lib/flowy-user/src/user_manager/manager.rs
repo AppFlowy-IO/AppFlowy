@@ -169,6 +169,10 @@ impl UserManager {
           error!("Set token failed: {}", err);
         }
 
+        if let Err(err) = self.cloud_services.set_ai_model(&user.ai_model) {
+          error!("Set ai model failed: {}", err);
+        }
+
         // Subscribe the token state
         let weak_cloud_services = Arc::downgrade(&self.cloud_services);
         let weak_authenticate_user = Arc::downgrade(&self.authenticate_user);
@@ -804,7 +808,7 @@ fn current_authenticator() -> Authenticator {
   }
 }
 
-fn upsert_user_profile_change(
+pub fn upsert_user_profile_change(
   uid: i64,
   mut conn: DBConnection,
   changeset: UserTableChangeset,

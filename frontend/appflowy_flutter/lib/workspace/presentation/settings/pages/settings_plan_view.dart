@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/int64_extension.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
@@ -12,7 +13,6 @@ import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_com
 import 'package:appflowy/workspace/presentation/settings/shared/flowy_gradient_button.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -62,19 +62,17 @@ class SettingsPlanView extends StatelessWidget {
 
               return ErrorWidget.withDetails(message: 'Something went wrong!');
             },
-            ready: (state) {
-              return SettingsBody(
-                autoSeparate: false,
-                title: LocaleKeys.settings_planPage_title.tr(),
-                children: [
-                  _PlanUsageSummary(
-                    usage: state.workspaceUsage,
-                    subscription: state.subscription,
-                  ),
-                  _CurrentPlanBox(subscription: state.subscription),
-                ],
-              );
-            },
+            ready: (state) => SettingsBody(
+              autoSeparate: false,
+              title: LocaleKeys.settings_planPage_title.tr(),
+              children: [
+                _PlanUsageSummary(
+                  usage: state.workspaceUsage,
+                  subscription: state.subscription,
+                ),
+                _CurrentPlanBox(subscription: state.subscription),
+              ],
+            ),
           );
         },
       ),
@@ -266,13 +264,16 @@ class _ProConItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 24,
-          width: 24,
+          width: 18,
           child: FlowySvg(
-            isPro ? FlowySvgs.check_m : FlowySvgs.close_s,
-            color: isPro ? null : const Color(0xFF900000),
+            isPro ? FlowySvgs.check_m : FlowySvgs.close_error_s,
+            size: const Size.square(18),
+            color: isPro
+                ? AFThemeExtension.of(context).strongText
+                : const Color(0xFF900000),
           ),
         ),
         const HSpace(4),
@@ -415,7 +416,7 @@ class _ToggleMoreState extends State<_ToggleMore> {
 
   @override
   Widget build(BuildContext context) {
-    final isLM = Brightness.light == Theme.of(context).brightness;
+    final isLM = Theme.of(context).isLightMode;
     final primaryColor =
         isLM ? const Color(0xFF653E8C) : const Color(0xFFE8E2EE);
     final secondaryColor =
@@ -426,7 +427,6 @@ class _ToggleMoreState extends State<_ToggleMore> {
         Toggle(
           value: toggleValue,
           padding: EdgeInsets.zero,
-          style: ToggleStyle.big,
           onChanged: (_) {
             setState(() => toggleValue = !toggleValue);
 
