@@ -12,6 +12,9 @@ pub struct SearchResultNotificationPB {
 
   #[pb(index = 3, one_of)]
   pub channel: Option<String>,
+
+  #[pb(index = 4)]
+  pub query: String,
 }
 
 #[derive(ProtoBuf_Enum, Debug, Default)]

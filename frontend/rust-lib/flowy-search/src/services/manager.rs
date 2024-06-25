@@ -72,7 +72,7 @@ impl SearchManager {
       let notifier = self.notifier.clone();
 
       af_spawn(async move {
-        let res = handler.perform_search(q, f).await;
+        let res = handler.perform_search(q.clone(), f).await;
 
         let items = res.unwrap_or_default();
 
@@ -80,6 +80,7 @@ impl SearchManager {
           items,
           sends: max as u64,
           channel: ch,
+          query: q,
         };
 
         let _ = notifier.send(SearchResultChanged::SearchResultUpdate(notification));

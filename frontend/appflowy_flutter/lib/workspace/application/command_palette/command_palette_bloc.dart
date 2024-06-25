@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/command_palette/search_listener.dart';
 import 'package:appflowy/workspace/application/command_palette/search_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -40,6 +41,7 @@ class CommandPaletteBloc
   Future<void> close() {
     _trashListener.close();
     _searchListener.stop();
+    _debounceOnChanged?.cancel();
     return super.close();
   }
 
@@ -75,11 +77,15 @@ class CommandPaletteBloc
             emit(state.copyWith(query: null, isLoading: false, results: []));
           }
         },
-        resultsChanged: (results, max) {
+        resultsChanged: (results) {
           if (state.query != _oldQuery) {
             emit(state.copyWith(results: [], isLoading: true));
             _oldQuery = state.query;
             _messagesReceived = 0;
+          }
+
+          if (state.query != results.query) {
+            return;
           }
 
           _messagesReceived++;
@@ -90,7 +96,7 @@ class CommandPaletteBloc
           emit(
             state.copyWith(
               results: searchResults,
-              isLoading: _messagesReceived != max,
+              isLoading: _messagesReceived != results.sends.toInt(),
             ),
           );
         },
@@ -155,7 +161,7 @@ class CommandPaletteBloc
   void _performSearch(String value) =>
       add(CommandPaletteEvent.performSearch(search: value));
 
-  void _onResultsChanged(RepeatedSearchResultPB results) =>
+  void _onResultsChanged(SearchResultNotificationPB results) =>
       add(CommandPaletteEvent.resultsChanged(results: results));
 }
 
@@ -168,8 +174,7 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
       _PerformSearch;
 
   const factory CommandPaletteEvent.resultsChanged({
-    required RepeatedSearchResultPB results,
-    @Default(2) int max,
+    required SearchResultNotificationPB results,
   }) = _ResultsChanged;
 
   const factory CommandPaletteEvent.trashChanged({

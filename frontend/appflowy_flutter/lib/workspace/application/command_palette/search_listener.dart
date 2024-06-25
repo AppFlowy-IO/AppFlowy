@@ -4,8 +4,7 @@ import 'dart:typed_data';
 import 'package:appflowy/core/notification/search_notification.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/notification.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/notification.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 
@@ -23,14 +22,15 @@ class SearchListener {
   ///
   final String? channel;
 
-  PublishNotifier<RepeatedSearchResultPB>? _updateNotifier = PublishNotifier();
-  PublishNotifier<RepeatedSearchResultPB>? _updateDidCloseNotifier =
+  PublishNotifier<SearchResultNotificationPB>? _updateNotifier =
+      PublishNotifier();
+  PublishNotifier<SearchResultNotificationPB>? _updateDidCloseNotifier =
       PublishNotifier();
   SearchNotificationListener? _listener;
 
   void start({
-    void Function(RepeatedSearchResultPB)? onResultsChanged,
-    void Function(RepeatedSearchResultPB)? onResultsClosed,
+    void Function(SearchResultNotificationPB)? onResultsChanged,
+    void Function(SearchResultNotificationPB)? onResultsClosed,
   }) {
     if (onResultsChanged != null) {
       _updateNotifier?.addPublishListener(onResultsChanged);
@@ -55,7 +55,7 @@ class SearchListener {
       case SearchNotification.DidUpdateResults:
         result.fold(
           (payload) => _updateNotifier?.value =
-              RepeatedSearchResultPB.fromBuffer(payload),
+              SearchResultNotificationPB.fromBuffer(payload),
           (err) => Log.error(err),
         );
         break;
