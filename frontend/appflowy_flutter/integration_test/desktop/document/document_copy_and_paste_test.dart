@@ -122,100 +122,47 @@ void main() {
       const inAppJson =
           '{"document":{"type":"page","children":[{"type":"bulleted_list","children":[{"type":"bulleted_list","data":{"delta":[{"insert":"World"}]}}],"data":{"delta":[{"insert":"Hello"}]}}]}}';
 
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
+      await tester.pasteContent(
+        inAppJson: inAppJson,
+        beforeTest: (editorState) async {
+          final transaction = editorState.transaction;
+          // Insert two numbered list nodes
+          // 1. Parent One
+          // 2.
+          transaction.insertNodes(
+            [0],
+            [
+              Node(
+                type: NumberedListBlockKeys.type,
+                attributes: {
+                  'delta': [
+                    {"insert": "One"},
+                  ],
+                },
+              ),
+              Node(
+                type: NumberedListBlockKeys.type,
+                attributes: {'delta': []},
+              ),
+            ],
+          );
 
-      // create a new document
-      await tester.createNewPageWithNameUnderParent();
+          // Set the selection to the second numbered list node (which has empty delta)
+          transaction.afterSelection = Selection.collapsed(Position(path: [1]));
 
-      final editorState = tester.editor.getCurrentEditorState();
-      final transaction = editorState.transaction;
-      // Insert two numbered list nodes, with one child for parent one.
-      // 1. Parent One
-      //   a.
-      // 2. Parent Two
-      transaction.insertNodes(
-        [0],
-        [
-          Node(
-            type: NumberedListBlockKeys.type,
-            attributes: {
-              'delta': [
-                {"insert": "Parent One"},
-              ],
-            },
-            children: [Node(type: NumberedListBlockKeys.type)],
-          ),
-          Node(
-            type: NumberedListBlockKeys.type,
-            attributes: {
-              'delta': [
-                {"insert": "Parent Two"},
-              ],
-            },
-          ),
-        ],
+          await editorState.apply(transaction);
+          await tester.pumpAndSettle();
+        },
+        (editorState) {
+          final secondNode = editorState.getNodeAtPath([1]);
+          expect(secondNode?.delta?.toPlainText(), 'Hello');
+          expect(secondNode?.children.length, 1);
+
+          final childNode = secondNode?.children.first;
+          expect(childNode?.delta?.toPlainText(), 'World');
+          expect(childNode?.type, BulletedListBlockKeys.type);
+        },
       );
-
-      // Set the selection to the child of Parent one.
-      transaction.afterSelection = Selection.collapsed(Position(path: [0, 0]));
-
-      await editorState.apply(transaction);
-      await tester.pumpAndSettle();
-
-      // mock the clipboard
-      await getIt<ClipboardService>().setData(
-        const ClipboardServiceData(inAppJson: inAppJson),
-      );
-
-      // paste the text
-      await tester.simulateKeyEvent(
-        LogicalKeyboardKey.keyV,
-        isControlPressed: Platform.isLinux || Platform.isWindows,
-        isMetaPressed: Platform.isMacOS,
-      );
-      await tester.pumpAndSettle();
-
-      //   await tester.pasteContent(
-      //     inAppJson: inAppJson,
-      //     beforeTest: (editorState) async {
-      //       final transaction = editorState.transaction;
-
-      //       // Insert two numbered list nodes.
-      //       transaction.insertNodes(
-      //         [0],
-      //         [
-      //           Node(
-      //             type: NumberedListBlockKeys.type,
-      //             attributes: {
-      //               'delta': [
-      //                 {"insert": "Parent One"},
-      //               ],
-      //             },
-      //             children: [Node(type: NumberedListBlockKeys.type)],
-      //           ),
-      //           Node(
-      //             type: NumberedListBlockKeys.type,
-      //             attributes: {
-      //               'delta': [
-      //                 {"insert": "Parent Two"},
-      //               ],
-      //             },
-      //           ),
-      //         ],
-      //       );
-
-      //       transaction.afterSelection =
-      //           Selection.collapsed(Position(path: [0, 0]));
-
-      //       await editorState.apply(transaction);
-      //     },
-      //     (editorState) {
-      //       debugPrint(editorState.document.toJson().toString());
-      //       debugPrint(editorState.getNodeAtPath([0, 0])!.toJson().toString());
-      //       expect(editorState.document.root.children.length, 3);
-      //     },
-      //   );
     });
   });
 
