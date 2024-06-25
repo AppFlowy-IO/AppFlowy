@@ -1,5 +1,4 @@
-import { YDoc, YFolder, YjsEditorKey } from '@/application/collab.type';
-import { withTestingYDoc } from '@/application/slate-yjs/__tests__/withTestingYjsEditor';
+import { YDoc } from '@/application/collab.type';
 import { applyYDoc } from '@/application/ydoc/apply';
 import withAppWrapper from '@/components/app/withAppWrapper';
 import { DatabaseRow } from 'src/components/database/DatabaseRow';
