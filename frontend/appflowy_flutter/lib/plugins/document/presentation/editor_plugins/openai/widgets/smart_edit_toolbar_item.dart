@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -32,7 +33,7 @@ class SmartEditActionList extends StatefulWidget {
 }
 
 class _SmartEditActionListState extends State<SmartEditActionList> {
-  bool isOpenAIEnabled = false;
+  bool isAIEnabled = false;
 
   @override
   void initState() {
@@ -40,8 +41,9 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
 
     UserBackendService.getCurrentUserProfile().then((value) {
       setState(() {
-        isOpenAIEnabled = value.fold(
-          (s) => s.openaiKey.isNotEmpty,
+        isAIEnabled = value.fold(
+          (userProfile) =>
+              userProfile.authenticator == AuthenticatorPB.AppFlowyCloud,
           (_) => false,
         );
       });
@@ -60,9 +62,9 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
         keepEditorFocusNotifier.increase();
         return FlowyIconButton(
           hoverColor: Colors.transparent,
-          tooltipText: isOpenAIEnabled
+          tooltipText: isAIEnabled
               ? LocaleKeys.document_plugins_smartEdit.tr()
-              : LocaleKeys.document_plugins_smartEditDisabled.tr(),
+              : LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
           preferBelow: false,
           icon: const Icon(
             Icons.lightbulb_outline,
@@ -70,12 +72,12 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
             color: Colors.white,
           ),
           onPressed: () {
-            if (isOpenAIEnabled) {
+            if (isAIEnabled) {
               controller.show();
             } else {
               showSnackBarMessage(
                 context,
-                LocaleKeys.document_plugins_smartEditDisabled.tr(),
+                LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
                 showCancel: true,
               );
             }

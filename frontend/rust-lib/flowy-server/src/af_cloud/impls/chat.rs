@@ -1,11 +1,11 @@
 use crate::af_cloud::AFServer;
-use client_api::entity::ai_dto::RepeatedRelatedQuestion;
+use client_api::entity::ai_dto::{CompleteTextParams, CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::{
   CreateAnswerMessageParams, CreateChatMessageParams, CreateChatParams, MessageCursor,
   RepeatedChatMessage,
 };
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageStream, ChatMessageType, StreamAnswer,
+  ChatCloudService, ChatMessage, ChatMessageStream, ChatMessageType, StreamAnswer, StreamComplete,
 };
 use flowy_error::FlowyError;
 use futures_util::StreamExt;
@@ -186,5 +186,24 @@ where
         .map_err(FlowyError::from)?;
       Ok(resp)
     })
+  }
+
+  async fn stream_complete(
+    &self,
+    workspace_id: &str,
+    text: &str,
+    completion_type: CompletionType,
+  ) -> Result<StreamComplete, FlowyError> {
+    let params = CompleteTextParams {
+      text: text.to_string(),
+      completion_type,
+    };
+    let stream = self
+      .inner
+      .try_get_client()?
+      .stream_completion_text(workspace_id, params)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(stream.boxed())
   }
 }

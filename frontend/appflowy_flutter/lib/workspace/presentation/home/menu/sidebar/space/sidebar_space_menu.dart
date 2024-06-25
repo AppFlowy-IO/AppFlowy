@@ -63,7 +63,12 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
     return FlowyButton(
       text: Row(
         children: [
-          FlowyText.regular(space.name),
+          Flexible(
+            child: FlowyText.regular(
+              space.name,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           const HSpace(6.0),
           if (space.spacePermission == SpacePermission.private)
             FlowyTooltip(

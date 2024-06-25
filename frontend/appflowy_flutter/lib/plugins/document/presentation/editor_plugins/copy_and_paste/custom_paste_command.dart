@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/editor_state_paste_node_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_html.dart';
@@ -9,10 +10,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
 
-/// Paste.
-///
 /// - support
 ///   - desktop
 ///   - web
@@ -68,8 +68,18 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     }
 
     if (image != null && image.$2?.isNotEmpty == true) {
+      final documentBloc =
+          editorState.document.root.context?.read<DocumentBloc>();
+      final documentId = documentBloc?.documentId;
+      if (documentId == null || documentId.isEmpty) {
+        return;
+      }
       await editorState.deleteSelectionIfNeeded();
-      final result = await editorState.pasteImage(image.$1, image.$2!);
+      final result = await editorState.pasteImage(
+        image.$1,
+        image.$2!,
+        documentId,
+      );
       if (result) {
         return;
       }

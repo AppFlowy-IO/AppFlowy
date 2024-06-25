@@ -7,13 +7,10 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/manage_space_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_action_type.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_more_popup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -56,46 +53,6 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: isHovered,
-      child: SizedBox(
-        height: HomeSizes.workspaceSectionHeight,
-        child: MouseRegion(
-          onEnter: (_) => isHovered.value = true,
-          onExit: (_) => isHovered.value = false,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned(
-                left: 3,
-                top: 3,
-                bottom: 3,
-                child: SizedBox(
-                  height: HomeSizes.workspaceSectionHeight,
-                  child: AppFlowyPopover(
-                    constraints: const BoxConstraints(maxWidth: 252),
-                    direction: PopoverDirection.bottomWithLeftAligned,
-                    clickHandler: PopoverClickHandler.gestureDetector,
-                    offset: const Offset(0, 4),
-                    popupBuilder: (_) => BlocProvider.value(
-                      value: context.read<SpaceBloc>(),
-                      child: const SidebarSpaceMenu(),
-                    ),
-                    child: FlowyButton(
-                      useIntrinsicWidth: true,
-                      margin: const EdgeInsets.only(left: 3.0, right: 4.0),
-                      iconPadding: 10.0,
-                      text: _buildChild(),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: 4,
-                child: _buildRightIcon(),
-              ),
-            ],
-          ),
-        ),
-      ),
       builder: (context, isHovered, child) {
         final style = HoverStyle(
           hoverColor: isHovered
@@ -108,10 +65,41 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
               .add(SpaceEvent.expand(widget.space, !widget.isExpanded)),
           child: FlowyHoverContainer(
             style: style,
-            child: child!,
+            child: _buildSpaceName(),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSpaceName() {
+    return SizedBox(
+      height: HomeSizes.workspaceSectionHeight,
+      child: MouseRegion(
+        onEnter: (_) => isHovered.value = true,
+        onExit: (_) => isHovered.value = false,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            ValueListenableBuilder(
+              valueListenable: onEditing,
+              builder: (context, onEditing, child) => Positioned(
+                left: 3,
+                top: 3,
+                bottom: 3,
+                right: isHovered.value || onEditing ? 66 : 0,
+                child: SpacePopup(
+                  child: _buildChild(),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 4,
+              child: _buildRightIcon(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -135,29 +123,8 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
     );
     return FlowyTooltip(
       richMessage: textSpan,
-      child: Row(
-        children: [
-          SpaceIcon(
-            dimension: 20,
-            space: widget.space,
-            cornerRadius: 6.0,
-          ),
-          const HSpace(10),
-          Flexible(
-            child: FlowyText.medium(
-              widget.space.name,
-              lineHeight: 1.15,
-              fontSize: 14.0,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const HSpace(4.0),
-          FlowySvg(
-            widget.isExpanded
-                ? FlowySvgs.workspace_drop_down_menu_show_s
-                : FlowySvgs.workspace_drop_down_menu_hide_s,
-          ),
-        ],
+      child: CurrentSpace(
+        space: widget.space,
       ),
     );
   }
@@ -210,6 +177,9 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
         break;
       case SpaceMoreActionType.delete:
         _showDeleteSpaceDialog(context);
+        break;
+      case SpaceMoreActionType.duplicate:
+        context.read<SpaceBloc>().add(const SpaceEvent.duplicate());
         break;
       case SpaceMoreActionType.divider:
         break;
