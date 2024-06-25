@@ -39,8 +39,6 @@ CommandShortcutEventHandler _copyCommandHandler = (editorState) {
   // html
   final html = documentToHTML(document);
 
-  debugPrint(editorState.document.toJson().toString());
-
   () async {
     await getIt<ClipboardService>().setData(
       ClipboardServiceData(
