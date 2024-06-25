@@ -1143,12 +1143,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-utils"
-version = "0.8.16"
+version = "0.8.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a22b2d63d4d1dc0b7f1b6b2747dd0088008a9be28b6ddf0b1e7d335e3037294"
-dependencies = [
- "cfg-if",
-]
+checksum = "22ec99545bb0ed0ea7bb9b8e1e9122ea386ff8a48c0922e43f36d45ab09e0e80"
 
 [[package]]
 name = "crunchy"
@@ -2158,12 +2155,15 @@ name = "flowy-sidecar"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "crossbeam-utils",
  "ctor",
  "dotenv",
  "encoding_rs",
+ "log",
  "memchr",
  "once_cell",
  "os_pipe 1.2.0",
+ "parking_lot 0.12.1",
  "serde",
  "serde_json",
  "shared_child",

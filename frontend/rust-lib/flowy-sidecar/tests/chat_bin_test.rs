@@ -1,5 +1,6 @@
 use anyhow::Result;
-use flowy_sidecar::process::SidecarCommand;
+use flowy_sidecar::manager::SidecarManager;
+use flowy_sidecar::plugin::PluginInfo;
 use serde_json::json;
 use std::sync::Once;
 use tracing::info;
@@ -10,26 +11,46 @@ use tracing_subscriber::EnvFilter;
 #[tokio::test]
 async fn load_chat_model_test() {
   if let Ok(config) = LocalAIConfiguration::new() {
-    let (mut rx, mut child) = SidecarCommand::new_sidecar(&config.chat_bin_path)
-      .unwrap()
-      .spawn()
+    let manager = SidecarManager::new();
+    let info = PluginInfo {
+      name: "chat".to_string(),
+      exec_path: config.chat_bin_path.clone(),
+    };
+    let plugin_id = manager.create_plugin(info).await.unwrap();
+    manager
+      .init_plugin(
+        plugin_id,
+        json!({
+            "absolute_chat_model_path":config.chat_model_absolute_path(),
+        }),
+      )
       .unwrap();
 
-    tokio::spawn(async move {
-      while let Some(event) = rx.recv().await {
-        info!("event: {:?}", event);
-      }
-    });
 
-    let json = json!({
-        "plugin_id": "example_plugin_id",
-        "method": "initialize",
-        "params": {
-            "absolute_chat_model_path":config.chat_model_absolute_path(),
-        }
-    });
-    child.write_json(json).unwrap();
-    tokio::time::sleep(tokio::time::Duration::from_secs(15)).await;
+    tokio::spawn(async move {
+      tokio::time::sleep(tokio::time::Duration::from_secs(15)).await;
+      manager.kill_plugin(plugin_id).await.unwrap();
+    })
+
+    // let (mut rx, mut child) = SidecarCommand::new_sidecar(&config.chat_bin_path)
+    //   .unwrap()
+    //   .spawn()
+    //   .unwrap();
+    //
+    // tokio::spawn(async move {
+    //   while let Some(event) = rx.recv().await {
+    //     info!("event: {:?}", event);
+    //   }
+    // });
+    //
+    // let json = json!({
+    //     "plugin_id": "example_plugin_id",
+    //     "method": "initialize",
+    //     "params": {
+    //         "absolute_chat_model_path":config.chat_model_absolute_path(),
+    //     }
+    // });
+    // child.write_json(json).unwrap();
 
     // let chat_id = uuid::Uuid::new_v4().to_string();
     // let json =
