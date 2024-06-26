@@ -19,6 +19,9 @@
 
 
 body {
+  ::selection {
+    @apply bg-content-blue-100;
+  }
 
   &[data-os="windows"]:not([data-browser="firefox"]) {
     .appflowy-custom-scroller {

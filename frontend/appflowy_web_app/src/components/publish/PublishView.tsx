@@ -18,6 +18,7 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
   const openPublishView = useCallback(async () => {
     let doc;
 
+    setNotFound(false);
     try {
       doc = await service?.getPublishView(namespace, publishName);
     } catch (e) {

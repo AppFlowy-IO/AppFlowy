@@ -57,7 +57,7 @@ export function ViewMetaPreview({ icon, cover, name }: ViewMetaProps) {
   const { t } = useTranslation();
 
   return (
-    <div className={'w-full'}>
+    <div className={'flex w-full flex-col items-center'}>
       {cover && <ViewCover coverType={coverType} coverValue={coverValue} />}
       <div className={`relative mx-16 w-[964px] min-w-0 max-w-full overflow-visible max-md:mx-4`}>
         <div
