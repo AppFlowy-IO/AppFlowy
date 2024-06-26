@@ -136,13 +136,18 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     ),
 
     // Scale up/down the app
-    HotKeyItem(
-      hotKey: HotKey(
-        KeyCode.equal,
-        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
-        scope: HotKeyScope.inapp,
+    // In some keyboards, the system returns equal as + keycode, while others may return add as + keycode, so add them both as zoom in key.
+    ...[KeyCode.equal, KeyCode.add].map(
+      (keycode) => HotKeyItem(
+        hotKey: HotKey(
+          keycode,
+          modifiers: [
+            Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
+          ],
+          scope: HotKeyScope.inapp,
+        ),
+        keyDownHandler: (_) => _scaleWithStep(0.1),
       ),
-      keyDownHandler: (_) => _scaleWithStep(0.1),
     ),
 
     HotKeyItem(
