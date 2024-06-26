@@ -1,6 +1,6 @@
+use crate::core::plugin::{Callback, Peer, PluginId};
+use crate::core::rpc_object::RpcObject;
 use crate::error::{Error, ReadError, RemoteError};
-use crate::plugin::{Callback, Peer, PluginId};
-use crate::rpc_object::RpcObject;
 use parking_lot::{Condvar, Mutex};
 use serde::{de, ser, Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::{json, Value};

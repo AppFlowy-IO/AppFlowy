@@ -1,5 +1,5 @@
-use crate::parser::{Call, RequestId};
-use crate::rpc_peer::Response;
+use crate::core::parser::{Call, RequestId};
+use crate::core::rpc_peer::Response;
 use serde::de::{DeserializeOwned, Error};
 use serde_json::Value;
 

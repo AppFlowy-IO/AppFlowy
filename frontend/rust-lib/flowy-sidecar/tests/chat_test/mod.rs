@@ -11,5 +11,9 @@ async fn load_chat_model_test() {
     let embedding_plugin_id = test.init_embedding_plugin().await;
     let score = test.calculate_similarity(embedding_plugin_id, &resp, "Hello! How can I help you today? Is there something specific you would like to know or discuss").await;
     assert!(score > 0.8);
+
+    // let questions = test.related_question(&chat_id, plugin_id).await;
+    // assert_eq!(questions.len(), 3);
+    // eprintln!("related questions: {:?}", questions);
   }
 }

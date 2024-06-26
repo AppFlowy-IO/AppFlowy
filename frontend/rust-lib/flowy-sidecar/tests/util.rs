@@ -1,10 +1,12 @@
 use anyhow::Result;
 use flowy_sidecar::manager::SidecarManager;
-use flowy_sidecar::parser::{ChatResponseParser, SimilarityResponseParser};
-use flowy_sidecar::plugin::{PluginId, PluginInfo};
 use serde_json::json;
-use std::sync::Once;
+use std::sync::{Arc, Once};
 
+use flowy_sidecar::core::parser::{ChatResponseParser, SimilarityResponseParser};
+use flowy_sidecar::core::plugin::{PluginId, PluginInfo};
+use flowy_sidecar::plugins::chat_plugin::ChatPluginOperation;
+use flowy_sidecar::plugins::embedding_plugin::EmbeddingPluginOperation;
 use tracing_subscriber::fmt::Subscriber;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
@@ -60,16 +62,24 @@ impl LocalAITest {
   }
 
   pub async fn send_message(&self, chat_id: &str, plugin_id: PluginId, message: &str) -> String {
-    let resp = self
-      .manager
-      .async_send_request::<ChatResponseParser>(
-        plugin_id,
-        "handle",
-        json!({"chat_id": chat_id, "method": "answer", "params": {"content": message}}),
-      )
+    let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
+    let operation = ChatPluginOperation::new(plugin);
+    let resp = operation
+      .send_message(chat_id, plugin_id, message)
       .await
       .unwrap();
 
+    resp
+  }
+
+  pub async fn related_question(
+    &self,
+    chat_id: &str,
+    plugin_id: PluginId,
+  ) -> Vec<serde_json::Value> {
+    let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
+    let operation = ChatPluginOperation::new(plugin);
+    let resp = operation.get_related_questions(chat_id).await.unwrap();
     resp
   }
 
@@ -79,13 +89,10 @@ impl LocalAITest {
     message1: &str,
     message2: &str,
   ) -> f64 {
-    self
-      .manager
-      .async_send_request::<SimilarityResponseParser>(
-        plugin_id,
-        "handle",
-        json!({"method": "calculate_similarity", "params": {"src": message1, "dest": message2}}),
-      )
+    let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
+    let operation = EmbeddingPluginOperation::new(plugin);
+    operation
+      .calculate_similarity(message1, message2)
       .await
       .unwrap()
   }

@@ -1,5 +1,5 @@
+use crate::core::rpc_object::RpcObject;
 use crate::error::{ReadError, RemoteError};
-use crate::rpc_object::RpcObject;
 use serde_json::{json, Value};
 use std::io::BufRead;
 
@@ -69,6 +69,22 @@ impl ResponseParser for ChatResponseParser {
       if let Some(message) = json.get("data") {
         if let Some(message) = message.as_str() {
           return Ok(message.to_string());
+        }
+      }
+    }
+    return Err(RemoteError::InvalidResponse(json));
+  }
+}
+
+pub struct ChatRelatedQuestionsResponseParser;
+impl ResponseParser for ChatRelatedQuestionsResponseParser {
+  type ValueType = Vec<Value>;
+
+  fn parse_response(json: Value) -> Result<Self::ValueType, RemoteError> {
+    if json.is_object() {
+      if let Some(message) = json.get("data") {
+        if let Some(values) = message.as_array() {
+          return Ok(values.clone());
         }
       }
     }

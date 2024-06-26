@@ -1,6 +1,5 @@
 use crate::error::Error;
 use crate::manager::WeakSidecarState;
-use crate::rpc_loop::RpcLoop;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -9,6 +8,8 @@ use std::io::BufReader;
 use std::process::{Child, Stdio};
 use std::sync::Arc;
 
+use crate::core::parser::ResponseParser;
+use crate::core::rpc_loop::RpcLoop;
 use anyhow::anyhow;
 use std::thread;
 use std::time::Instant;
@@ -85,7 +86,11 @@ impl Plugin {
     self.peer.send_rpc_request(method, params)
   }
 
-  pub async fn async_send_request(&self, method: &str, params: &Value) -> Result<Value, Error> {
+  pub async fn async_send_request<P: ResponseParser>(
+    &self,
+    method: &str,
+    params: &Value,
+  ) -> Result<P::ValueType, Error> {
     let (tx, rx) = tokio::sync::oneshot::channel();
     self.peer.send_rpc_request_async(
       method,
@@ -97,6 +102,8 @@ impl Plugin {
     let value = rx
       .await
       .map_err(|err| Error::Internal(anyhow!("error waiting for async response: {:?}", err)))??;
+
+    let value = P::parse_response(value)?;
     Ok(value)
   }
 

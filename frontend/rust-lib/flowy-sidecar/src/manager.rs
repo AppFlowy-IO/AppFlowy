@@ -1,8 +1,8 @@
+use crate::core::parser::ResponseParser;
+use crate::core::plugin::{start_plugin_process, Plugin, PluginId, PluginInfo, RpcCtx};
+use crate::core::rpc_loop::Handler;
+use crate::core::rpc_peer::PluginCommand;
 use crate::error::{Error, ReadError, RemoteError};
-use crate::parser::ResponseParser;
-use crate::plugin::{start_plugin_process, Plugin, PluginId, PluginInfo, RpcCtx};
-use crate::rpc_loop::Handler;
-use crate::rpc_peer::PluginCommand;
 use anyhow::anyhow;
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use parking_lot::Mutex;
@@ -41,14 +41,14 @@ impl SidecarManager {
     Ok(plugin_id)
   }
 
-  pub async fn get_plugin(&self, plugin_id: PluginId) -> Result<Plugin, Error> {
+  pub async fn get_plugin(&self, plugin_id: PluginId) -> Result<Weak<Plugin>, Error> {
     let state = self.state.lock();
     let plugin = state
       .plugins
       .iter()
       .find(|p| p.id == plugin_id)
       .ok_or(anyhow!("plugin not found"))?;
-    Ok(plugin.clone())
+    Ok(Arc::downgrade(plugin))
   }
 
   pub async fn remove_plugin(&self, id: PluginId) -> Result<(), Error> {
@@ -118,14 +118,13 @@ impl SidecarManager {
       .iter()
       .find(|p| p.id == id)
       .ok_or(anyhow!("plugin not found"))?;
-    let resp = plugin.async_send_request(method, &request).await?;
-    let value = P::parse_response(resp)?;
+    let value = plugin.async_send_request::<P>(method, &request).await?;
     Ok(value)
   }
 }
 
 pub struct SidecarState {
-  plugins: Vec<Plugin>,
+  plugins: Vec<Arc<Plugin>>,
 }
 
 impl SidecarState {
@@ -133,7 +132,7 @@ impl SidecarState {
     match plugin {
       Ok(plugin) => {
         trace!("plugin connected: {:?}", plugin.id);
-        self.plugins.push(plugin);
+        self.plugins.push(Arc::new(plugin));
       },
       Err(err) => {
         warn!("plugin failed to connect: {:?}", err);
