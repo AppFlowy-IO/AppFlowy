@@ -66,6 +66,7 @@ export const PublishProvider = ({
           throw new Error('View has not been published yet');
         }
 
+        const { namespace, publishName } = info;
         const res = await service?.getPublishViewMeta(namespace, publishName);
 
         if (!res) {
@@ -77,7 +78,7 @@ export const PublishProvider = ({
         return Promise.reject(e);
       }
     },
-    [namespace, publishName, service]
+    [service]
   );
 
   const getViewRowsMap = useCallback(
