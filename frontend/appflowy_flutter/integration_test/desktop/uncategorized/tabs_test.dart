@@ -70,6 +70,8 @@ void main() {
         withKeyUp: true,
       );
 
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
       expect(
         find.descendant(
           of: find.byType(TabBar),

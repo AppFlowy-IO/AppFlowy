@@ -66,7 +66,7 @@ void main() {
         tester: tester,
         withKeyUp: true,
       );
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 1));
 
       themeMode = tester.widget<MaterialApp>(appFinder).themeMode;
       expect(themeMode, ThemeMode.light);
@@ -93,7 +93,7 @@ void main() {
         withKeyUp: true,
       );
 
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 1));
 
       expect(find.byType(HomeSideBar), findsNothing);
     });
