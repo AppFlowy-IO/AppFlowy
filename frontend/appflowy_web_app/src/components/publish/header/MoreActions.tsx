@@ -73,7 +73,9 @@ function MoreActions() {
             <button
               onClick={action.onClick}
               key={index}
-              className={'flex items-center gap-2 rounded-[8px] p-1.5 text-sm hover:bg-content-blue-50'}
+              className={
+                'flex items-center gap-2 rounded-[8px] p-1.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
+              }
             >
               <action.Icon />
               <span>{action.label}</span>

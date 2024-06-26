@@ -3,7 +3,7 @@ use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
   CreateViewParams, CreateWorkspaceParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
   MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams,
-  ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB, ViewLayout, ViewLayoutPB
+  ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB, ViewLayoutPB
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -23,7 +23,7 @@ use collab_entity::CollabType;
 use collab_folder::error::FolderError;
 use collab_folder::{
   Folder, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout, ViewUpdate,
-  Workspace,
+  Workspace
 };
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::CollabKVDB;
