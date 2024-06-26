@@ -85,12 +85,32 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
   Future<void> onWindowMaximize() async {
     super.onWindowMaximize();
     await windowSizeManager.setWindowMaximized(true);
+    await windowSizeManager.setPosition(Offset.zero);
   }
 
   @override
   Future<void> onWindowUnmaximize() async {
     super.onWindowUnmaximize();
     await windowSizeManager.setWindowMaximized(false);
+
+    final position = await windowManager.getPosition();
+    return windowSizeManager.setPosition(position);
+  }
+
+  @override
+  void onWindowEnterFullScreen() async {
+    super.onWindowEnterFullScreen();
+    await windowSizeManager.setWindowMaximized(true);
+    await windowSizeManager.setPosition(Offset.zero);
+  }
+
+  @override
+  Future<void> onWindowLeaveFullScreen() async {
+    super.onWindowLeaveFullScreen();
+    await windowSizeManager.setWindowMaximized(false);
+
+    final position = await windowManager.getPosition();
+    return windowSizeManager.setPosition(position);
   }
 
   @override
