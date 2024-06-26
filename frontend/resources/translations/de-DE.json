@@ -149,8 +149,8 @@
   "newBoardText": "Neues Board",
   "chat": {
     "newChat": "Neuer Chat",
-    "inputMessageHint": "Nachricht an AppFlowy AI",
-    "unsupportedCloudPrompt": "Diese Funktion ist nur bei Verwendung der AppFlowy Cloud verfügbar",
+    "inputMessageHint": "Nachricht an @:appName AI",
+    "unsupportedCloudPrompt": "Diese Funktion ist nur bei Verwendung der @:appName Cloud verfügbar",
     "relatedQuestion": "Verwandt",
     "serverUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
     "aiServerUnavailable": "Beim Generieren einer Antwort ist ein Fehler aufgetreten.",
@@ -625,8 +625,8 @@
       "menuLabel": "KI-Einstellungen",
       "keys": {
         "enableAISearchTitle": "KI-Suche",
-        "aiSettingsDescription": "Wähle oder konfiguriere KI-Modelle, die in AppFlowy verwendet werden. Für eine optimale Leistung empfehlen wir die Verwendung der Standardmodelloptionen",
-        "loginToEnableAIFeature": "KI-Funktionen werden erst nach der Anmeldung bei AppFlowy Cloud aktiviert. Wenn du kein AppFlowy-Konto hast, gehe zu „Mein Konto“, um dich zu registrieren",
+        "aiSettingsDescription": "Wähle oder konfiguriere KI-Modelle, die in @:appName verwendet werden. Für eine optimale Leistung empfehlen wir die Verwendung der Standardmodelloptionen",
+        "loginToEnableAIFeature": "KI-Funktionen werden erst nach der Anmeldung bei @:appName Cloud aktiviert. Wenn du kein @:appName-Konto hast, gehe zu „Mein Konto“, um dich zu registrieren",
         "llmModel": "Sprachmodell",
         "title": "KI-API-Schlüssel",
         "openAILabel": "OpenAI API-Schlüssel",
@@ -652,7 +652,7 @@
         "memberProToggle": "Unbegrenzte Mitgliederzahl",
         "guestCollabToggle": "10 Gastmitarbeiter",
         "aiCredit": {
-          "title": "AppFlowy KI-Guthaben hinzufügen",
+          "title": "@:appName KI-Guthaben hinzufügen",
           "price": "5 $",
           "priceDescription": "für 1.000 Credits",
           "purchase": "Kauf von KI",
@@ -690,7 +690,7 @@
         "deal": {
           "bannerLabel": "Neujahrsangebot!",
           "title": "Erweiter dein Team!",
-          "info": "Upgraden und 10 % auf Pro- und Team-Pläne sparen! Steiger die Produktivität deines Arbeitsplatzes mit leistungsstarken neuen Funktionen, einschließlich AppFlowy KI.",
+          "info": "Upgraden und 10 % auf Pro- und Team-Pläne sparen! Steiger die Produktivität deines Arbeitsplatzes mit leistungsstarken neuen Funktionen, einschließlich @:appName KI.",
           "viewPlans": "Pläne anzeigen"
         }
       }
@@ -767,7 +767,7 @@
       },
       "paymentSuccess": {
         "title": "Du bist jetzt im {} Plan!",
-        "description": "Deine Zahlung wurde erfolgreich verarbeitet und dein Plan wurde auf AppFlowy {} aktualisiert. Du kannst die Details deines Plans auf der Seite \"Plan\" einsehen"
+        "description": "Deine Zahlung wurde erfolgreich verarbeitet und dein Plan wurde auf @:appName {} aktualisiert. Du kannst die Details deines Plans auf der Seite \"Plan\" einsehen"
       },
       "downgradeDialog": {
         "title": "Bist du sicher, dass du deinen Plan herabstufen willst?",
@@ -1342,7 +1342,7 @@
       "smartEditCouldNotFetchResult": "Das Ergebnis konnte nicht von OpenAI abgerufen werden",
       "smartEditCouldNotFetchKey": "Der OpenAI-Schlüssel konnte nicht abgerufen werden",
       "smartEditDisabled": "OpenAI in den Einstellungen verbinden",
-      "appflowyAIEditDisabled": "Melden dich an, um KI-Funktionen zu aktivieren",
+      "appflowyAIEditDisabled": "Melde dich an, um KI-Funktionen zu aktivieren",
       "discardResponse": "Möchtest du die KI-Antworten verwerfen?",
       "createInlineMathEquation": "Formel erstellen",
       "fonts": "Schriftarten",

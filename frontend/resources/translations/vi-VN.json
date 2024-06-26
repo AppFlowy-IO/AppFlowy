@@ -386,7 +386,7 @@
       "themeUpload": {
         "button": "Tải lên",
         "uploadTheme": "Tải theme lên",
-        "description": "Tải lên AppFlowy theme của riêng bạn bằng nút bên dưới.",
+        "description": "Tải lên @:appName theme của riêng bạn bằng nút bên dưới.",
         "loading": "Vui lòng đợi trong khi chúng tôi xác thực và tải theme của bạn lên...",
         "uploadSuccess": "Theme của bạn đã được tải lên thành công",
         "deletionFailure": "Không xóa được theme. Hãy thử xóa nó bằng tay.",
