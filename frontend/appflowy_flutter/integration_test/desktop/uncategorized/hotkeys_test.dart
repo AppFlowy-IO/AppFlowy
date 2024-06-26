@@ -17,7 +17,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('hotkeys test', () {
-    testWidgets('toggle theme mode', (tester) async {
+    testWidgets('toggle theme mode & sidebar', (tester) async {
       await tester.initializeAppFlowy();
 
       await tester.tapAnonymousSignInButton();
@@ -66,19 +66,11 @@ void main() {
         tester: tester,
         withKeyUp: true,
       );
+
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       themeMode = tester.widget<MaterialApp>(appFinder).themeMode;
       expect(themeMode, ThemeMode.light);
-    });
-
-    testWidgets('show or hide home menu', (tester) async {
-      await tester.initializeAppFlowy();
-
-      await tester.tapAnonymousSignInButton();
-      await tester.expectToSeeHomePageWithGetStartedPage();
-
-      await tester.pumpAndSettle();
 
       expect(find.byType(HomeSideBar), findsOneWidget);
 

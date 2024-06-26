@@ -12,6 +12,8 @@ class FlowyTestKeyboard {
       await tester.pumpAndSettle();
     }
 
+    await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
     if (withKeyUp) {
       for (final LogicalKeyboardKey key in keys) {
         await flutter_test.simulateKeyUpEvent(key);
