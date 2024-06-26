@@ -124,6 +124,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                   SpaceEvent.createPage(
                     name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                     index: 0,
+                    layout: ViewLayoutPB.Document,
                   ),
                 );
               }
@@ -216,7 +217,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             await _setSpaceExpandStatus(space, isExpanded);
             emit(state.copyWith(isExpanded: isExpanded));
           },
-          createPage: (name, index) async {
+          createPage: (name, layout, index) async {
             final parentViewId = state.currentSpace?.id;
             if (parentViewId == null) {
               return;
@@ -224,7 +225,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             final result = await ViewBackendService.createView(
               name: name,
-              layoutType: ViewLayoutPB.Document,
+              layoutType: layout,
               parentViewId: parentViewId,
               index: index,
             );
@@ -631,6 +632,7 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.expand(ViewPB space, bool isExpanded) = _Expand;
   const factory SpaceEvent.createPage({
     required String name,
+    required ViewLayoutPB layout,
     int? index,
   }) = _CreatePage;
   const factory SpaceEvent.delete(ViewPB? space) = _Delete;

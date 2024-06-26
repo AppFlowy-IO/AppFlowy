@@ -158,7 +158,7 @@ class DesktopHomeScreen extends StatelessWidget {
       delegate: DesktopHomeScreenStackAdaptor(context),
       userProfile: userProfile,
     );
-    final menu = _buildHomeSidebar(
+    final sidebar = _buildHomeSidebar(
       context,
       layout: layout,
       userProfile: userProfile,
@@ -170,7 +170,7 @@ class DesktopHomeScreen extends StatelessWidget {
     return _layoutWidgets(
       layout: layout,
       homeStack: homeStack,
-      homeMenu: menu,
+      sidebar: sidebar,
       editPanel: editPanel,
       bubble: const QuestionBubble(),
       homeMenuResizer: homeMenuResizer,
@@ -253,7 +253,7 @@ class DesktopHomeScreen extends StatelessWidget {
 
   Widget _layoutWidgets({
     required HomeLayout layout,
-    required Widget homeMenu,
+    required Widget sidebar,
     required Widget homeStack,
     required Widget editPanel,
     required Widget bubble,
@@ -287,7 +287,7 @@ class DesktopHomeScreen extends StatelessWidget {
               bottom: 0,
               width: layout.editPanelWidth,
             ),
-        homeMenu
+        sidebar
             .animatedPanelX(
               closeX: -layout.menuWidth,
               isClosed: !layout.showMenu,
