@@ -41,6 +41,16 @@ impl SidecarManager {
     Ok(plugin_id)
   }
 
+  pub async fn get_plugin(&self, plugin_id: PluginId) -> Result<Plugin, Error> {
+    let state = self.state.lock();
+    let plugin = state
+      .plugins
+      .iter()
+      .find(|p| p.id == plugin_id)
+      .ok_or(anyhow!("plugin not found"))?;
+    Ok(plugin.clone())
+  }
+
   pub async fn remove_plugin(&self, id: PluginId) -> Result<(), Error> {
     if self.operating_system.is_not_desktop() {
       return Err(Error::Internal(anyhow!(
@@ -48,12 +58,15 @@ impl SidecarManager {
       )));
     }
 
-    let state = self.state.lock();
-    let plugin = state
+    let mut state = self.state.lock();
+    let index = state
       .plugins
       .iter()
-      .find(|p| p.id == id)
+      .position(|p| p.id == id)
       .ok_or(anyhow!("plugin not found"))?;
+    let plugin = state.plugins.remove(index);
+    drop(state);
+
     plugin.shutdown();
     Ok(())
   }

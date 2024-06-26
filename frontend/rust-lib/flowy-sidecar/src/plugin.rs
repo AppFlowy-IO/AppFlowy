@@ -7,6 +7,7 @@ use serde_json::{json, Value};
 use std::io::BufReader;
 
 use std::process::{Child, Stdio};
+use std::sync::Arc;
 
 use anyhow::anyhow;
 use std::thread;
@@ -36,9 +37,9 @@ impl<F: Send + FnOnce(Result<Value, Error>)> Callback for F {
 
 /// The `Peer` trait defines the interface for the opposite side of the RPC channel,
 /// designed to be used behind a pointer or as a trait object.
-pub trait Peer: Send + 'static {
+pub trait Peer: Send + Sync + 'static {
   /// Clones the peer into a boxed trait object.
-  fn box_clone(&self) -> Box<dyn Peer>;
+  fn box_clone(&self) -> Arc<dyn Peer>;
 
   /// Sends an RPC notification to the peer with the specified method and parameters.
   fn send_rpc_notification(&self, method: &str, params: &Value);
@@ -59,17 +60,19 @@ pub trait Peer: Send + 'static {
 }
 
 /// The `Peer` trait object.
-pub type RpcPeer = Box<dyn Peer>;
+pub type RpcPeer = Arc<dyn Peer>;
 
 pub struct RpcCtx {
   pub peer: RpcPeer,
 }
+
+#[derive(Clone)]
 pub struct Plugin {
   peer: RpcPeer,
   pub(crate) id: PluginId,
   pub(crate) name: String,
   #[allow(dead_code)]
-  process: Child,
+  process: Arc<Child>,
 }
 
 impl Plugin {
@@ -129,13 +132,13 @@ pub(crate) async fn start_plugin_process(
           let child_stdin = child.stdin.take().unwrap();
           let child_stdout = child.stdout.take().unwrap();
           let mut looper = RpcLoop::new(child_stdin);
-          let peer: RpcPeer = Box::new(looper.get_raw_peer());
+          let peer: RpcPeer = Arc::new(looper.get_raw_peer());
           let name = plugin_info.name.clone();
           peer.send_rpc_notification("ping", &Value::Array(Vec::new()));
 
           let plugin = Plugin {
             peer,
-            process: child,
+            process: Arc::new(child),
             name,
             id,
           };

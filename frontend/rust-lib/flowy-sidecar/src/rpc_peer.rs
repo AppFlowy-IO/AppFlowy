@@ -79,8 +79,8 @@ impl<W: Write> RpcState<W> {
 pub struct RawPeer<W: Write + 'static>(pub(crate) Arc<RpcState<W>>);
 
 impl<W: Write + Send + 'static> Peer for RawPeer<W> {
-  fn box_clone(&self) -> Box<dyn Peer> {
-    Box::new((*self).clone())
+  fn box_clone(&self) -> Arc<dyn Peer> {
+    Arc::new((*self).clone())
   }
   fn send_rpc_notification(&self, method: &str, params: &Value) {
     if let Err(e) = self.send(&json!({
@@ -235,12 +235,6 @@ impl<W: Write> RawPeer<W> {
 
   pub(crate) fn reset_needs_exit(&self) {
     self.0.needs_exit.store(false, Ordering::SeqCst);
-  }
-}
-
-impl Clone for Box<dyn Peer> {
-  fn clone(&self) -> Box<dyn Peer> {
-    self.box_clone()
   }
 }
 

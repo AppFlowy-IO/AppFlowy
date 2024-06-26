@@ -80,7 +80,7 @@ impl<W: Write + Send> RpcLoop<W> {
       peer.reset_needs_exit();
 
       let ctx = RpcCtx {
-        peer: Box::new(peer.clone()),
+        peer: Arc::new(peer.clone()),
       };
 
       // 1. Spawn a new thread for reading data from a stream.
