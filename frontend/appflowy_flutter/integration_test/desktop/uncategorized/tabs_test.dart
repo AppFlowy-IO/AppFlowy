@@ -67,6 +67,7 @@ void main() {
           LogicalKeyboardKey.keyW,
         ],
         tester: tester,
+        withKeyUp: true,
       );
 
       expect(

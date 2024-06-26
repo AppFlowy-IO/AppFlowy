@@ -22,7 +22,6 @@ Future<void> runIntegration3OnDesktop() async {
 
   hotkeys_test.main();
   emoji_shortcut_test.main();
-  hotkeys_test.main();
   emoji_shortcut_test.main();
   settings_test_runner.main();
   share_markdown_test.main();
