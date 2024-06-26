@@ -1,6 +1,6 @@
-import BreadcrumbItem, { Crumb } from 'src/components/publish/header/BreadcrumbItem';
+import BreadcrumbItem, { Crumb } from '@/components/publish/header/BreadcrumbItem';
 import React, { useMemo } from 'react';
-import { ReactComponent as RightIcon } from '$icons/16x/right.svg';
+import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
 
 export function Breadcrumb({ crumbs }: { crumbs: Crumb[] }) {
   const renderCrumb = useMemo(() => {
@@ -9,10 +9,10 @@ export function Breadcrumb({ crumbs }: { crumbs: Crumb[] }) {
       const key = crumb.rowId ? `${crumb.viewId}-${crumb.rowId}` : `${crumb.viewId}`;
 
       return (
-        <React.Fragment key={key}>
+        <div className={`${isLast ? 'text-text-title' : 'text-text-caption'} flex items-center gap-2`} key={key}>
           <BreadcrumbItem crumb={crumb} disableClick={isLast} />
           {!isLast && <RightIcon className={'h-4 w-4'} />}
-        </React.Fragment>
+        </div>
       );
     });
   }, [crumbs]);

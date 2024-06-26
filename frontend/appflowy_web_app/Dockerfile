@@ -5,7 +5,7 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y nginx
 
-RUN bun install cheerio pino axios pino-pretty
+RUN bun install cheerio pino pino-pretty
 
 COPY . .
 

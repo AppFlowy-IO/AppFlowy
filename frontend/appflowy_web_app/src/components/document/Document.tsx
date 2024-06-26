@@ -23,10 +23,10 @@ export const Document = ({
   ...viewMeta
 }: DocumentProps) => {
   return (
-    <div className={'flex w-full justify-center'}>
+    <div className={'flex w-full flex-col items-center'}>
       <ViewMetaPreview {...viewMeta} />
       <Suspense fallback={<ComponentLoading />}>
-        <div className={'max-w-screen w-[964px] min-w-0'}>
+        <div className={'mx-16 w-[964px] min-w-0 max-w-full'}>
           <Editor
             loadView={loadView}
             loadViewMeta={loadViewMeta}

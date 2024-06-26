@@ -14,7 +14,7 @@ export interface CollabViewProps {
 }
 
 function CollabView({ doc }: CollabViewProps) {
-  const { viewId, layout, icon, cover, layoutClassName, style } = useViewMeta();
+  const { viewId, layout, icon, cover, layoutClassName, style, name } = useViewMeta();
 
   const View = useMemo(() => {
     switch (layout) {
@@ -42,7 +42,7 @@ function CollabView({ doc }: CollabViewProps) {
   const getViewRowsMap = usePublishContext()?.getViewRowsMap;
   const loadView = usePublishContext()?.loadView;
 
-  if (!doc) {
+  if (!doc || !View) {
     return <ComponentLoading />;
   }
 
@@ -57,6 +57,7 @@ function CollabView({ doc }: CollabViewProps) {
         icon={icon}
         cover={cover}
         viewId={viewId}
+        name={name}
       />
     </div>
   );

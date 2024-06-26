@@ -24,7 +24,7 @@
     "coverage": "pnpm run test:unit && pnpm run test:components"
   },
   "dependencies": {
-    "@appflowyinc/client-api-wasm": "0.0.3",
+    "@appflowyinc/client-api-wasm": "0.0.4",
     "@atlaskit/primitives": "^5.5.3",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
@@ -139,6 +139,7 @@
     "autoprefixer": "^10.4.13",
     "babel-jest": "^29.6.2",
     "chalk": "^4.1.2",
+    "cheerio": "1.0.0-rc.12",
     "cross-env": "^7.0.3",
     "cypress": "^13.7.2",
     "eslint": "^8.57.0",
@@ -148,6 +149,8 @@
     "istanbul-lib-coverage": "^3.2.2",
     "jest-environment-jsdom": "^29.6.2",
     "nyc": "^15.1.0",
+    "pino": "^9.2.0",
+    "pino-pretty": "^11.2.1",
     "postcss": "^8.4.21",
     "prettier": "2.8.4",
     "prettier-plugin-tailwindcss": "^0.2.2",

@@ -69,4 +69,4 @@ jobs:
           SCRIPT_AFTER: |
             docker build -t appflowy-web-app .
             docker rm -f appflowy-web-app || true
-            docker run -d -p 80:80 -p 443:443 --name appflowy-web-app appflowy-web-app
+            docker run -d -p 80:80 -p 443:443 --env-file .env --name appflowy-web-app appflowy-web-app

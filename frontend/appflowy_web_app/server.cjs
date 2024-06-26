@@ -2,8 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const pino = require('pino');
 const cheerio = require('cheerio');
-const axios = require('axios');
-
+const { fetch } = require('bun');
 const distDir = path.join(__dirname, 'dist');
 const indexPath = path.join(distDir, 'index.html');
 
@@ -38,38 +37,74 @@ const logRequestTimer = (req) => {
 };
 
 const fetchMetaData = async (url) => {
+  logger.info(`Fetching meta data from ${url}`);
   try {
-    const response = await axios.get(url);
-    return response.data;
+    const response = await fetch(url, {
+      verbose: true,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return data;
   } catch (error) {
-    logger.error('Error fetching meta data', error);
+    logger.error(`Error fetching meta data ${error}`);
     return null;
   }
 };
 
+const BASE_URL = process.env.AF_BASE_URL || 'https://test.appflowy.cloud';
 const createServer = async (req) => {
   const timer = logRequestTimer(req);
+  const reqUrl = new URL(req.url);
+  logger.info(`Request URL: ${reqUrl.pathname}`);
+  const [
+    namespace,
+    publishName,
+  ] = reqUrl.pathname.slice(1).split('/');
+
+  logger.info(`Namespace: ${namespace}, Publish Name: ${publishName}`);
+  if (namespace === '' || !publishName) {
+    timer();
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': 'https://appflowy.io',
+      },
+    });
+  }
 
   if (req.method === 'GET') {
-    const pageId = req.url.split('/').pop();
+    let metaData;
+    try {
+      metaData = await fetchMetaData(`${BASE_URL}/api/workspace/published/${namespace}/${publishName}`);
+    } catch (error) {
+      logger.error(`Error fetching meta data: ${error}`);
+    }
+
     let htmlData = fs.readFileSync(indexPath, 'utf8');
     const $ = cheerio.load(htmlData);
-    if (!pageId) {
-      timer();
-      return new Response($.html(), {
-        headers: { 'Content-Type': 'text/html' },
-      });
-    }
 
     const description = 'Write, share, comment, react, and publish docs quickly and securely on AppFlowy.';
     let title = 'AppFlowy';
     const url = 'https://appflowy.com';
     let image = 'https://d3uafhn8yrvdfn.cloudfront.net/website/production/_next/static/media/og-image.e347bfb5.png';
     // Inject meta data into the HTML to support SEO and social sharing
-    // if (metaData) {
-    //   title = metaData.title;
-    //   image = metaData.image;
-    // }
+    if (metaData) {
+      title = metaData.view.name;
+
+      try {
+        const cover = metaData.view.extra ? JSON.parse(metaData.view.extra)?.cover : null;
+        if (cover && ['unsplash', 'custom'].includes(cover.type)) {
+          image = cover.value;
+        }
+      } catch (_) {
+        // Do nothing
+      }
+    }
 
     $('title').text(title);
     setOrUpdateMetaTag($, 'meta[name="description"]', 'name', description);

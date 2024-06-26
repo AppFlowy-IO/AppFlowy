@@ -22,13 +22,7 @@ export function useViewMeta() {
     };
   }, [extra]);
 
-  const layout = useMemo(() => {
-    if (viewMeta?.layout) {
-      return viewMeta.layout;
-    }
-
-    return;
-  }, [viewMeta?.layout]);
+  const layout = viewMeta?.layout;
   const style = useMemo(() => {
     const fontSizeMap = {
       small: '14px',
@@ -96,7 +90,8 @@ export function useViewMeta() {
   }, [extra]);
 
   const viewId = viewMeta?.view_id;
-
+  const name = viewMeta?.name;
+  
   return {
     icon,
     cover,
@@ -104,5 +99,6 @@ export function useViewMeta() {
     layoutClassName,
     layout,
     viewId,
+    name,
   };
 }
