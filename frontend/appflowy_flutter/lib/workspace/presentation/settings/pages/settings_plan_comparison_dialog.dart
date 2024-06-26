@@ -490,25 +490,26 @@ class _ActionButton extends StatelessWidget {
             child: GestureDetector(
               onTap: onPressed,
               child: MouseRegion(
-                  cursor: onPressed != null
-                      ? SystemMouseCursors.click
-                      : MouseCursor.defer,
-                  child: _drawBorder(
-                    isLM: isLM,
-                    isUpgrade: isUpgrade,
-                    child: Container(
-                      height: 36,
-                      width: 148,
-                      decoration: BoxDecoration(
-                        color: useGradientBorder
-                            ? Theme.of(context).cardColor
-                            : Colors.transparent,
-                        border: Border.all(color: Colors.transparent),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Center(child: _drawText(label, isLM, isUpgrade)),
+                cursor: onPressed != null
+                    ? SystemMouseCursors.click
+                    : MouseCursor.defer,
+                child: _drawBorder(
+                  isLM: isLM,
+                  isUpgrade: isUpgrade,
+                  child: Container(
+                    height: 36,
+                    width: 148,
+                    decoration: BoxDecoration(
+                      color: useGradientBorder
+                          ? Theme.of(context).cardColor
+                          : Colors.transparent,
+                      border: Border.all(color: Colors.transparent),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                  )),
+                    child: Center(child: _drawText(label, isLM, isUpgrade)),
+                  ),
+                ),
+              ),
             ),
           ),
         ],

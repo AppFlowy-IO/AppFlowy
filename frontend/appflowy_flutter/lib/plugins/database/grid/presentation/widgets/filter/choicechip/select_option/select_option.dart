@@ -93,6 +93,12 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
   final popoverMutex = PopoverMutex();
 
   @override
+  void dispose() {
+    popoverMutex.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: widget.bloc,

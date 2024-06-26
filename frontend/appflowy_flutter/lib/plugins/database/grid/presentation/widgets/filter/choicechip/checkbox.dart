@@ -84,6 +84,12 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
   final popoverMutex = PopoverMutex();
 
   @override
+  void dispose() {
+    popoverMutex.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: widget.bloc,
