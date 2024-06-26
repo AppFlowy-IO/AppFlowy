@@ -67,8 +67,9 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
     bool? disableSearchIndexing,
     AIModelPB? model,
   }) {
-    final payload =
-        UpdateUserWorkspaceSettingPB(workspaceId: userProfile.workspaceId);
+    final payload = UpdateUserWorkspaceSettingPB(
+      workspaceId: userProfile.workspaceId,
+    );
     if (disableSearchIndexing != null) {
       payload.disableSearchIndexing = disableSearchIndexing;
     }
@@ -82,17 +83,16 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
     FlowyResult<UserProfilePB, FlowyError> userProfileOrFailed,
   ) =>
       userProfileOrFailed.fold(
-        (newUserProfile) =>
-            add(SettingsAIEvent.didReceiveUserProfile(newUserProfile)),
+        (profile) => add(SettingsAIEvent.didReceiveUserProfile(profile)),
         (err) => Log.error(err),
       );
 
   void _loadUserWorkspaceSetting() {
     final payload = UserWorkspaceIdPB(workspaceId: userProfile.workspaceId);
     UserEventGetWorkspaceSetting(payload).send().then((result) {
-      result.fold((settins) {
+      result.fold((settings) {
         if (!isClosed) {
-          add(SettingsAIEvent.didLoadAISetting(settins));
+          add(SettingsAIEvent.didLoadAISetting(settings));
         }
       }, (err) {
         Log.error(err);
