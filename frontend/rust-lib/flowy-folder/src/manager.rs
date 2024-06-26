@@ -3,7 +3,7 @@ use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
   CreateViewParams, CreateWorkspaceParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
   MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams,
-  ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
+  ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB, ViewLayout, ViewLayoutPB
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,

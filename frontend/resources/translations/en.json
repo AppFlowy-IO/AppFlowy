@@ -2029,6 +2029,7 @@
     "duplicate": "Duplicate Space"
   },
   "publish": {
-    "hasNotBeenPublished": "This page hasn't been published yet"
+    "hasNotBeenPublished": "This page hasn't been published yet",
+    "reportPage": "Report page"
   }
 }
