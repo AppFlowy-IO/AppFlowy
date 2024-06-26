@@ -10,21 +10,24 @@ export function PublishViewHeader() {
   const viewMeta = usePublishContext()?.viewMeta;
   const crumbs = useMemo(() => {
     const ancestors = viewMeta?.ancestor_views || [];
-    let icon = viewMeta?.icon;
 
-    try {
-      const extra = viewMeta?.extra ? JSON.parse(viewMeta.extra) : {};
+    return ancestors.map((ancestor) => {
+      let icon;
 
-      icon = extra.icon || icon;
-    } catch (e) {
-      // ignore
-    }
+      try {
+        const extra = ancestor?.extra ? JSON.parse(ancestor.extra) : {};
 
-    return ancestors.map((ancestor) => ({
-      viewId: ancestor.view_id,
-      name: ancestor.name,
-      icon: icon || String(viewMeta?.layout),
-    }));
+        icon = extra.icon?.value || JSON.parse(ancestor.icon || '')?.value;
+      } catch (e) {
+        // ignore
+      }
+
+      return {
+        viewId: ancestor.view_id,
+        name: ancestor.name,
+        icon: icon || String(viewMeta?.layout),
+      };
+    });
   }, [viewMeta]);
 
   return (

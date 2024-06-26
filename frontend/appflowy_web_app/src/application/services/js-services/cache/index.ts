@@ -202,6 +202,7 @@ export async function revalidatePublishView<
 >(name: string, fetcher: Fetcher<T>, collab: YDoc) {
   const { data, meta, rows } = await fetcher();
 
+  console.log('revalidatePublishView', name);
   await db.view_metas.put(
     {
       publish_name: name,
@@ -211,11 +212,14 @@ export async function revalidatePublishView<
     },
     name
   );
+  console.log('revalidatePublishView', name, 'done');
 
-  for (const [key, value] of Object.entries(rows ?? {})) {
-    const row = await openCollabDB(`${name}_${key}`);
+  if (rows) {
+    for (const [key, value] of Object.entries(rows)) {
+      const row = await openCollabDB(`${name}_${key}`);
 
-    applyYDoc(row, new Uint8Array(value));
+      applyYDoc(row, new Uint8Array(value));
+    }
   }
 
   const state = new Uint8Array(data);

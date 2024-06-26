@@ -96,11 +96,13 @@ export const DatabaseBlock = memo(
               </>
             ) : (
               <div
-                className={'mt-[10%] flex h-full w-full flex-col items-center gap-2 px-16 text-text-caption max-md:px-4'}
+                className={
+                  'flex h-full w-full flex-col items-center justify-center gap-2 rounded border border-line-divider bg-fill-list-active px-16 text-text-caption max-md:px-4'
+                }
               >
                 {notFound ? (
                   <>
-                    <div className={'text-base font-medium'}>{t('publish.hasNotBeenPublished')}</div>
+                    <div className={'text-base font-medium'}>{t('publish.databaseHasNotBeenPublished')}</div>
                   </>
                 ) : (
                   <CircularProgress />

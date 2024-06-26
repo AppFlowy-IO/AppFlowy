@@ -34,7 +34,7 @@ export const PublishProvider = ({
     const name = `${namespace}_${publishName}`;
 
     return db.view_metas.get(name);
-  });
+  }, [namespace, publishName]);
   const service = useContext(AFConfigContext)?.service;
   const navigate = useNavigate();
   const toView = useCallback(

@@ -75,23 +75,11 @@ export function useViewMeta() {
     return;
   }, [viewMeta?.icon]);
 
-  const cover = useMemo(() => {
-    if (extra) {
-      try {
-        const extraObj = JSON.parse(extra);
-
-        return extraObj.cover as ViewMetaCover;
-      } catch (e) {
-        return;
-      }
-    }
-
-    return;
-  }, [extra]);
+  const cover = extra?.cover as ViewMetaCover;
 
   const viewId = viewMeta?.view_id;
   const name = viewMeta?.name;
-  
+
   return {
     icon,
     cover,

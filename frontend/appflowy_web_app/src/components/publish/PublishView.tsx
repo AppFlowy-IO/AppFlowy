@@ -19,6 +19,7 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
     let doc;
 
     setNotFound(false);
+    setDoc(undefined);
     try {
       doc = await service?.getPublishView(namespace, publishName);
     } catch (e) {

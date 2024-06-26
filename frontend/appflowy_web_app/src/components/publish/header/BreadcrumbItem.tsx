@@ -53,7 +53,7 @@ function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disable
         }
       }}
     >
-      {renderCrumbIcon(icon)}
+      <span className={'icon'}>{renderCrumbIcon(icon)}</span>
       <span
         className={!disableClick ? 'max-w-[250px] truncate hover:text-text-title hover:underline' : 'flex-1 truncate'}
       >
