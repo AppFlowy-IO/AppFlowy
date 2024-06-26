@@ -574,7 +574,7 @@
         "indent": "Indent",
         "outdent": "Outdent",
         "exit": "Exit editing",
-        "pageUp": "Scroll on page up",
+        "pageUp": "Scroll one page up",
         "pageDown": "Scroll one page down",
         "selectAll": "Select all",
         "pasteWithoutFormatting": "Paste content without formatting",
@@ -654,7 +654,7 @@
           "freeProOne": "Collaborative workspace",
           "freeProTwo": "Up to 3 members (incl. owner)",
           "freeProThree": "Unlimited guests (view-only)",
-          "freeProFour": "Storage 5gb",
+          "freeProFour": "Storage 5GB",
           "freeProFive": "30 day revision history",
           "freeConOne": "Guest collaborators (edit access)",
           "freeConTwo": "Unlimited storage",
@@ -672,7 +672,7 @@
         "deal": {
           "bannerLabel": "New year deal!",
           "title": "Grow your team!",
-          "info": "Upgrade and save 10% off Pro and Team plans! Boost your workspace productivity with powerful new features including Appflowy Ai.",
+          "info": "Upgrade and save 10% off Pro and Team plans! Boost your workspace productivity with powerful new features including AppFlowy AI.",
           "viewPlans": "View plans"
         }
       }
@@ -732,7 +732,6 @@
       "freeLabels": {
         "itemOne": "charged per workspace",
         "itemTwo": "3",
-        "itemThree": "",
         "itemFour": "0",
         "itemFive": "5 GB",
         "itemSix": "yes",
@@ -742,7 +741,6 @@
       "proLabels": {
         "itemOne": "charged per workspace",
         "itemTwo": "up to 10",
-        "itemThree": "",
         "itemFour": "10 guests billed as one seat",
         "itemFive": "unlimited",
         "itemSix": "yes",

@@ -375,6 +375,11 @@
           "change": "E-Mail ändern"
         }
       },
+      "login": {
+        "title": "Kontoanmeldung",
+        "loginLabel": "Anmeldung",
+        "logoutLabel": "Ausloggen"
+      },
       "keys": {
         "title": "KI API-Schlüssel",
         "openAILabel": "OpenAI API-Schlüssel",
@@ -383,11 +388,6 @@
         "stabilityAILabel": "Stability API-Schlüssel",
         "stabilityAITooltip": "Der für die KI-Modelle zu verwendende Stability API-Schlüssel",
         "stabilityAIHint": "Stability API-Schlüssel eingeben"
-      },
-      "login": {
-        "title": "Kontoanmeldung",
-        "loginLabel": "Anmeldung",
-        "logoutLabel": "Ausloggen"
       },
       "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an."
     },
@@ -536,6 +536,7 @@
       },
       "editTooltip": "Zum Starten der Bearbeitung der Tastaturbelegung drücken.",
       "keybindings": {
+        "toggleToDoList": "Aufgabenliste ein-/ausblenden",
         "insertNewParagraphInCodeblock": "Neuen Absatz einfügen",
         "pasteInCodeblock": "In Codeblock einfügen",
         "selectAllCodeblock": "Alles auswählen",
@@ -567,26 +568,146 @@
         "moveCursorEnd": "Cursor an das Zeilenende bewegen",
         "moveCursorRightWord": "Cursor ein Wort nach rechts bewegen",
         "moveCursorRightSelect": "Auswählen und Cursor nach rechts bewegen",
-        "moveCursorEndSelect": "Auswählen und Cursor an das Zeilenende bewegen"
+        "moveCursorEndSelect": "Auswählen und Cursor an das Zeilenende bewegen",
+        "moveCursorRightWordSelect": "Markiere das Wort und bewege den Cursor ein Wort nach rechts",
+        "moveCursorUp": "Cursor nach oben bewegen",
+        "moveCursorTopSelect": "Auswählen und Cursor zum Anfang bewegen",
+        "moveCursorTop": "Cursor zum Anfang bewegen",
+        "moveCursorUpSelect": "Auswählen und Cursor nach oben bewegen",
+        "moveCursorBottomSelect": "Auswählen und Cursor ans Ende bewegen",
+        "moveCursorBottom": "Cursor ans Ende bewegen",
+        "moveCursorDown": "Cursor nach unten bewegen",
+        "moveCursorDownSelect": "Auswählen und Cursor nach unten bewegen",
+        "home": "Zum Anfang scrollen",
+        "end": "Zum Ende scrollen",
+        "toggleBold": "Fett ein-/ausschalten",
+        "toggleItalic": "Kursivschrift ein-/ausschalten",
+        "toggleUnderline": "Unterstreichung ein-/ausschalten",
+        "toggleStrikethrough": "Durchgestrichen ein-/ausschalten",
+        "toggleCode": "Inline-Code ein-/ausschalten",
+        "toggleHighlight": "Hervorhebung ein-/ausschalten",
+        "showLinkMenu": "Linkmenü anzeigen",
+        "openInlineLink": "Inline-Link öffnen",
+        "openLinks": "Alle ausgewählten Links öffnen",
+        "indent": "Einzug",
+        "outdent": "Ausrücken",
+        "exit": "Bearbeitung beenden",
+        "pageUp": "Eine Seite nach oben scrollen",
+        "pageDown": "Eine Seite nach unten scrollen",
+        "selectAll": "Alles auswählen",
+        "pasteWithoutFormatting": "Inhalt ohne Formatierung einfügen",
+        "showEmojiPicker": "Emoji-Auswahl anzeigen",
+        "enterInTableCell": "Zeilenumbruch in Tabelle hinzufügen",
+        "leftInTableCell": "In der Tabelle eine Zelle nach links verschieben",
+        "rightInTableCell": "In der Tabelle eine Zelle nach rechts verschieben",
+        "upInTableCell": "In der Tabelle eine Zelle nach oben verschieben",
+        "downInTableCell": "In der Tabelle eine Zelle nach unten verschieben",
+        "tabInTableCell": "Zur nächsten verfügbaren Zelle in der Tabelle gehen",
+        "shiftTabInTableCell": "Zur zuvor verfügbaren Zelle in der Tabelle gehen",
+        "backSpaceInTableCell": "Am Anfang der Zelle anhalten"
       },
       "commands": {
+        "codeBlockNewParagraph": "Füge einen neuen Absatz neben dem Codeblock ein",
+        "codeBlockIndentLines": "Füge am Zeilenanfang im Codeblock zwei Leerzeichen ein",
+        "codeBlockOutdentLines": "Lösche zwei Leerzeichen am Zeilenanfang im Codeblock",
         "codeBlockAddTwoSpaces": "Einfügen von zwei Leerzeichen an der Cursorposition im Codeblock",
+        "codeBlockSelectAll": "Wähle den gesamten Inhalt innerhalb eines Codeblocks aus",
         "codeBlockPasteText": "Text in Codeblock einfügen",
         "textAlignLeft": "Text nach links ausrichten",
-        "textAlignCenter": "Text nach rechts ausrichten"
+        "textAlignCenter": "Text nach rechts ausrichten",
+        "textAlignRight": "Text rechtsbündig ausrichten"
       },
       "couldNotLoadErrorMsg": "Konnte keine Shortcuts laden, versuchen Sie es erneut",
       "couldNotSaveErrorMsg": "Shortcuts konnten nicht gespeichert werden, versuchen Sie es erneut"
     },
+    "aiPage": {
+      "title": "KI-Einstellungen",
+      "menuLabel": "KI-Einstellungen",
+      "keys": {
+        "enableAISearchTitle": "KI-Suche",
+        "aiSettingsDescription": "Wähle oder konfiguriere KI-Modelle, die in AppFlowy verwendet werden. Für eine optimale Leistung empfehlen wir die Verwendung der Standardmodelloptionen",
+        "loginToEnableAIFeature": "KI-Funktionen werden erst nach der Anmeldung bei AppFlowy Cloud aktiviert. Wenn du kein AppFlowy-Konto hast, gehe zu „Mein Konto“, um dich zu registrieren",
+        "llmModel": "Sprachmodell",
+        "title": "KI-API-Schlüssel",
+        "openAILabel": "OpenAI API-Schlüssel",
+        "openAITooltip": "Du findest deinen geheimen API-Schlüssel auf der API-Schlüsselseite",
+        "openAIHint": "Gebe deinen OpenAI API-Schlüssel ein",
+        "stabilityAILabel": "Stability API-Schlüssel",
+        "stabilityAITooltip": "Dein Stability API-Schlüssel, der zur Authentifizierung deiner Anfragen verwendet wird",
+        "stabilityAIHint": "Gebe deinen Stability API-Schlüssel ein"
+      }
+    },
     "planPage": {
       "menuLabel": "Plan",
+      "title": "Tarifplan",
       "planUsage": {
+        "title": "Zusammenfassung der Plannutzung",
         "storageLabel": "Speicher",
-        "storageUsage": "{} von {} GB"
+        "storageUsage": "{} von {} GB",
+        "collaboratorsLabel": "Gastmitarbeiter",
+        "collaboratorsUsage": "{} von {}",
+        "aiResponseLabel": "KI-Antworten",
+        "aiResponseUsage": "{} von {}",
+        "proBadge": "Pro",
+        "memberProToggle": "Unbegrenzte Mitgliederzahl",
+        "guestCollabToggle": "10 Gastmitarbeiter",
+        "aiCredit": {
+          "title": "AppFlowy KI-Guthaben hinzufügen",
+          "price": "5 $",
+          "priceDescription": "für 1.000 Credits",
+          "purchase": "Kauf von KI",
+          "info": "Füge 1.000 KI-Credits pro Arbeitsbereich hinzu und integriere anpassbare KI nahtlos in deinen Arbeitsablauf für intelligentere, schnellere Ergebnisse mit bis zu:",
+          "infoItemOne": "10.000 Antworten pro Datenbank",
+          "infoItemTwo": "1.000 Antworten pro Arbeitsbereich"
+        },
+        "currentPlan": {
+          "bannerLabel": "Derzeitiger Plan",
+          "freeTitle": "Kostenfrei",
+          "proTitle": "Pro",
+          "teamTitle": "Team",
+          "freeInfo": "Perfekt für Einzelpersonen oder kleine Teams mit bis zu 3 Mitgliedern.",
+          "proInfo": "Perfekt für kleine und mittlere Teams mit bis zu 10 Mitgliedern.",
+          "teamInfo": "Perfekt für alle produktiven und gut organisierten Teams.",
+          "upgrade": "Vergleichen &\n Upgraden",
+          "freeProOne": "Gemeinsamer Arbeitsbereich",
+          "freeProTwo": "Bis zu 3 Mitglieder (inkl. Eigentümer)",
+          "freeProThree": "Unbegrenzte Anzahl an Gästen (nur anzeigen)",
+          "freeProFour": "Speicher 5 GB",
+          "freeProFive": "30 Tage Änderungshistorie",
+          "freeConOne": "Gastmitarbeiter (Bearbeitungszugriff)",
+          "freeConTwo": "Unbegrenzter Speicherplatz",
+          "freeConThree": "6 Monate Änderungshistorie",
+          "professionalProOne": "Gemeinsamer Arbeitsbereich",
+          "professionalProTwo": "Unbegrenzte Mitgliederzahl",
+          "professionalProThree": "Unbegrenzte Anzahl an Gästen (nur anzeigen)",
+          "professionalProFour": "Unbegrenzter Speicherplatz",
+          "professionalProFive": "6 Monate Änderungshistorie",
+          "professionalConOne": "Unbegrenzte Anzahl an Gastmitarbeitern (Bearbeitungszugriff)",
+          "professionalConTwo": "Unbegrenzte KI-Antworten",
+          "professionalConThree": "1 Jahr Änderungshistorie",
+          "canceledInfo": "Dein Plan wurde gekündigt und du wirst am {} auf den kostenlosen Plan herabgestuft."
+        },
+        "deal": {
+          "bannerLabel": "Neujahrsangebot!",
+          "title": "Erweiter dein Team!",
+          "info": "Upgraden und 10 % auf Pro- und Team-Pläne sparen! Steiger die Produktivität deines Arbeitsplatzes mit leistungsstarken neuen Funktionen, einschließlich AppFlowy KI.",
+          "viewPlans": "Pläne anzeigen"
+        }
       }
     },
     "billingPage": {
+      "menuLabel": "Abrechnung",
+      "title": "Abrechnung",
+      "plan": {
+        "title": "Plan",
+        "freeLabel": "Kostenfrei",
+        "proLabel": "Pro",
+        "planButtonLabel": "Plan ändern",
+        "billingPeriod": "Abrechnungszeitraum",
+        "periodButtonLabel": "Zeitraum bearbeiten"
+      },
       "paymentDetails": {
+        "title": "Zahlungsdetails",
         "methodLabel": "Zahlungsmethode",
         "methodButtonLabel": "Zahlungsmethode bearbeiten"
       }
@@ -609,6 +730,7 @@
       },
       "proPlan": {
         "title": "Professionell",
+        "description": "Ein Ort für kleine Gruppen zum Planen und Organisieren.",
         "price": "$10 /Monat",
         "priceInfo": "jährlich abgerechnet"
       },
@@ -1220,6 +1342,7 @@
       "smartEditCouldNotFetchResult": "Das Ergebnis konnte nicht von OpenAI abgerufen werden",
       "smartEditCouldNotFetchKey": "Der OpenAI-Schlüssel konnte nicht abgerufen werden",
       "smartEditDisabled": "OpenAI in den Einstellungen verbinden",
+      "appflowyAIEditDisabled": "Melden dich an, um KI-Funktionen zu aktivieren",
       "discardResponse": "Möchten Sie die KI-Antworten verwerfen?",
       "createInlineMathEquation": "Formel erstellen",
       "fonts": "Schriftarten",
@@ -1457,6 +1580,7 @@
     "ungroupedButtonTooltip": "Enthält Karten, die keiner Gruppe zugeordnet sind",
     "ungroupedItemsTitle": "Klicke, um dem Board hinzuzufügen",
     "groupBy": "Gruppiert nach",
+    "groupCondition": "Gruppenbedingung",
     "referencedBoardPrefix": "Sicht von",
     "notesTooltip": "Notizen vorhanden",
     "mobile": {
