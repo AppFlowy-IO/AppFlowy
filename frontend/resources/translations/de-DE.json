@@ -2042,7 +2042,7 @@
     "collapseAllSubPages": "Alle Unterseiten einklappen",
     "createNewSpace": "Einen neuen Space schaffen",
     "createSpaceDescription": "Erstellen Sie mehrere öffentliche und private Bereiche, um Ihre Arbeit besser zu organisieren.",
-    "spaceName": "Space name",
+    "spaceName": "Space Name",
     "permission": "Berechtigung",
     "publicPermission": "Öffentlich",
     "publicPermissionDescription": "Alle Mitglieder des Arbeitsbereichs mit Vollzugriff",
@@ -2053,11 +2053,11 @@
     "dangerZone": "Gefahrenzone",
     "unableToDeleteLastSpace": "Der letzte Space kann nicht gelöscht werden",
     "unableToDeleteSpaceNotCreatedByYou": "Von anderen erstellte Spaces können nicht gelöscht werden",
-    "enableSpacesForYourWorkspace": "Spaces für Ihren Arbeitsbereich aktivieren",
+    "enableSpacesForYourWorkspace": "Spaces für deinen Arbeitsbereich aktivieren",
     "title": "Spaces",
     "defaultSpaceName": "Allgemein",
     "upgradeSpaceTitle": "Spaces freigeben",
-    "upgradeSpaceDescription": "Erstellen Sie mehrere öffentliche und private Spaces, um Ihren Arbeitsbereich besser zu organisieren.",
+    "upgradeSpaceDescription": "Erstelle mehrere öffentliche und private Spaces, um deinen Arbeitsbereich besser zu organisieren.",
     "upgrade": "Update",
     "upgradeYourSpace": "Mehrere Spaces erstellen"
   }
