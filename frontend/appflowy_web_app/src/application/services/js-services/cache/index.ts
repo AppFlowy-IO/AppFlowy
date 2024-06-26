@@ -185,6 +185,8 @@ export async function revalidatePublishViewMeta<
     },
     name
   );
+
+  return db.view_metas.get(name);
 }
 
 export async function revalidatePublishView<

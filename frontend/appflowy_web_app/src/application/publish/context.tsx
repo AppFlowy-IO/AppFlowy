@@ -67,10 +67,11 @@ export const PublishProvider = ({
         }
 
         const { namespace, publishName } = info;
+
         const res = await service?.getPublishViewMeta(namespace, publishName);
 
         if (!res) {
-          throw new Error('View has not been published yet');
+          throw new Error('View meta has not been published yet');
         }
 
         return res;
