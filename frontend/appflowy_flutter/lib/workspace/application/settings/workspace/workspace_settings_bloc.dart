@@ -22,7 +22,7 @@ class WorkspaceSettingsBloc
 
             try {
               final currentWorkspace =
-                  await _userService!.getCurrentWorkspace().getOrThrow();
+                  await UserBackendService.getCurrentWorkspace().getOrThrow();
 
               final workspaces =
                   await _userService!.getWorkspaces().getOrThrow();
