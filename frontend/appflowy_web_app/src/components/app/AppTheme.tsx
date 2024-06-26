@@ -1,4 +1,4 @@
-import { useAppThemeMode } from '@/components/app/useAppThemeMode';
+import { ThemeModeContext, useAppThemeMode } from '@/components/app/useAppThemeMode';
 import React, { useMemo } from 'react';
 import createTheme from '@mui/material/styles/createTheme';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
@@ -8,7 +8,8 @@ import 'src/styles/tailwind.css';
 import 'src/styles/template.css';
 
 function AppTheme({ children }: { children: React.ReactNode }) {
-  const { isDark } = useAppThemeMode();
+  const { isDark, setIsDark } = useAppThemeMode();
+
   const theme = useMemo(
     () =>
       createTheme({
@@ -161,7 +162,16 @@ function AppTheme({ children }: { children: React.ReactNode }) {
     [isDark]
   );
 
-  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+  return (
+    <ThemeModeContext.Provider
+      value={{
+        isDark,
+        setDark: setIsDark,
+      }}
+    >
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    </ThemeModeContext.Provider>
+  );
 }
 
 export default AppTheme;
