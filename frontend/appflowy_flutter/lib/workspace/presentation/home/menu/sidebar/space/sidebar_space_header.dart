@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -9,6 +8,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/manage_s
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_more_popup.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -29,7 +29,7 @@ class SidebarSpaceHeader extends StatefulWidget {
   });
 
   final ViewPB space;
-  final VoidCallback onAdded;
+  final void Function(ViewLayoutPB layout) onAdded;
   final VoidCallback onCreateNewSpace;
   final VoidCallback onCollapseAllPages;
   final bool isExpanded;
@@ -87,7 +87,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
                 left: 3,
                 top: 3,
                 bottom: 3,
-                right: isHovered.value || onEditing ? 66 : 0,
+                right: isHovered.value || onEditing ? 88 : 0,
                 child: SpacePopup(
                   child: _buildChild(),
                 ),
@@ -144,12 +144,20 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
               onAction: _onAction,
             ),
             const HSpace(8.0),
-            FlowyIconButton(
-              width: 24,
-              tooltipText: LocaleKeys.sideBar_addAPage.tr(),
-              iconPadding: const EdgeInsets.all(4.0),
-              icon: const FlowySvg(FlowySvgs.view_item_add_s),
-              onPressed: widget.onAdded,
+            ViewAddButton(
+              parentViewId: widget.space.id,
+              onEditing: (_) {},
+              onSelected: (
+                pluginBuilder,
+                name,
+                initialDataBytes,
+                openAfterCreated,
+                createNewView,
+              ) {
+                if (createNewView) {
+                  widget.onAdded(pluginBuilder.layoutType!);
+                }
+              },
             ),
           ],
         ),
