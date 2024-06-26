@@ -68,6 +68,7 @@ collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-date = { workspace = true, path = "flowy-date" }
 flowy-chat = { workspace = true, path = "flowy-chat" }
 flowy-chat-pub = { workspace = true, path = "flowy-chat-pub" }
+flowy-sidecar = { workspace = true, path = "flowy-sidecar" }
 anyhow = "1.0"
 tracing = "0.1.40"
 bytes = "1.5.0"

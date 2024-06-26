@@ -38,7 +38,6 @@ impl RpcObject {
       return Err("RPC response must contain exactly one of 'error' or 'result' fields.".into());
     }
     let result = self.0.as_object_mut().and_then(|obj| obj.remove("result"));
-
     match result {
       Some(r) => Ok(Ok(r)),
       None => {

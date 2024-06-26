@@ -2,10 +2,16 @@ use crate::chat::Chat;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
 use crate::persistence::{insert_chat, ChatTable};
 use dashmap::DashMap;
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageType};
+use flowy_chat_pub::cloud::{
+  ChatCloudService, ChatMessage, ChatMessageStream, ChatMessageType, MessageCursor,
+  RepeatedChatMessage, RepeatedRelatedQuestion, StreamAnswer,
+};
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_sidecar::manager::SidecarManager;
 use flowy_sqlite::DBConnection;
+use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
+use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use tracing::trace;
 
@@ -17,7 +23,7 @@ pub trait ChatUserService: Send + Sync + 'static {
 }
 
 pub struct ChatManager {
-  cloud_service: Arc<dyn ChatCloudService>,
+  chat_service: Arc<ChatService>,
   user_service: Arc<dyn ChatUserService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
 }
@@ -27,10 +33,12 @@ impl ChatManager {
     cloud_service: Arc<dyn ChatCloudService>,
     user_service: impl ChatUserService,
   ) -> ChatManager {
+    let sidecar_manager = Arc::new(SidecarManager::new());
+    let chat_service = Arc::new(ChatService::new(cloud_service, sidecar_manager));
     let user_service = Arc::new(user_service);
 
     Self {
-      cloud_service,
+      chat_service,
       user_service,
       chats: Arc::new(DashMap::new()),
     }
@@ -43,7 +51,7 @@ impl ChatManager {
         self.user_service.user_id().unwrap(),
         chat_id.to_string(),
         self.user_service.clone(),
-        self.cloud_service.clone(),
+        self.chat_service.clone(),
       ))
     });
 
@@ -64,7 +72,7 @@ impl ChatManager {
   pub async fn create_chat(&self, uid: &i64, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
     self
-      .cloud_service
+      .chat_service
       .create_chat(uid, &workspace_id, chat_id)
       .await?;
     save_chat(self.user_service.sqlite_connection(*uid)?, chat_id)?;
@@ -73,7 +81,7 @@ impl ChatManager {
       self.user_service.user_id().unwrap(),
       chat_id.to_string(),
       self.user_service.clone(),
-      self.cloud_service.clone(),
+      self.chat_service.clone(),
     ));
     self.chats.insert(chat_id.to_string(), chat.clone());
     Ok(chat)
@@ -101,7 +109,7 @@ impl ChatManager {
           self.user_service.user_id().unwrap(),
           chat_id.to_string(),
           self.user_service.clone(),
-          self.cloud_service.clone(),
+          self.chat_service.clone(),
         ));
         self.chats.insert(chat_id.to_string(), chat.clone());
         Ok(chat)
@@ -183,8 +191,107 @@ fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
     chat_id: chat_id.to_string(),
     created_at: timestamp(),
     name: "".to_string(),
+    local_model_path: "".to_string(),
+    local_model_name: "".to_string(),
+    local_enabled: false,
+    sync_to_cloud: true,
   };
 
   insert_chat(conn, &row)?;
   Ok(())
+}
+
+pub struct ChatService {
+  cloud_service: Arc<dyn ChatCloudService>,
+  sidecar_manager: Arc<SidecarManager>,
+}
+
+impl ChatService {
+  pub fn new(
+    cloud_service: Arc<dyn ChatCloudService>,
+    sidecar_manager: Arc<SidecarManager>,
+  ) -> Self {
+    Self {
+      cloud_service,
+      sidecar_manager,
+    }
+  }
+}
+
+impl ChatCloudService for ChatService {
+  fn create_chat(
+    &self,
+    uid: &i64,
+    workspace_id: &str,
+    chat_id: &str,
+  ) -> FutureResult<(), FlowyError> {
+    self.cloud_service.create_chat(uid, workspace_id, chat_id)
+  }
+
+  async fn send_chat_message(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+    message_type: ChatMessageType,
+  ) -> Result<ChatMessageStream, FlowyError> {
+    todo!()
+  }
+
+  fn send_question(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+    message_type: ChatMessageType,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    todo!()
+  }
+
+  fn save_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message: &str,
+    question_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    todo!()
+  }
+
+  async fn stream_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message_id: i64,
+  ) -> Result<StreamAnswer, FlowyError> {
+    todo!()
+  }
+
+  fn get_chat_messages(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    offset: MessageCursor,
+    limit: u64,
+  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
+    todo!()
+  }
+
+  fn get_related_message(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    message_id: i64,
+  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
+    todo!()
+  }
+
+  fn generate_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    question_message_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    todo!()
+  }
 }

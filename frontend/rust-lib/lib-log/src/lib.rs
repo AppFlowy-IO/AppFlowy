@@ -4,7 +4,7 @@ use std::sync::{Arc, RwLock};
 
 use chrono::Local;
 use lazy_static::lazy_static;
-use lib_infra::util::Platform;
+use lib_infra::util::OperatingSystem;
 use tracing::subscriber::set_global_default;
 use tracing_appender::rolling::Rotation;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
@@ -29,7 +29,7 @@ pub struct Builder {
   env_filter: String,
   file_appender: RollingFileAppender,
   #[allow(dead_code)]
-  platform: Platform,
+  platform: OperatingSystem,
   stream_log_sender: Option<Arc<dyn StreamLogSender>>,
 }
 
@@ -37,7 +37,7 @@ impl Builder {
   pub fn new(
     name: &str,
     directory: &str,
-    platform: &Platform,
+    platform: &OperatingSystem,
     stream_log_sender: Option<Arc<dyn StreamLogSender>>,
   ) -> Self {
     let file_appender = RollingFileAppender::builder()

@@ -17,6 +17,9 @@ pub enum Error {
   /// The peer sent a response containing the id, but was malformed.
   #[error("Invalid response.")]
   InvalidResponse,
+
+  #[error(transparent)]
+  Internal(#[from] anyhow::Error),
 }
 
 #[derive(Debug)]

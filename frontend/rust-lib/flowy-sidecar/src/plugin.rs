@@ -8,6 +8,7 @@ use std::io::BufReader;
 
 use std::process::{Child, Stdio};
 
+use anyhow::anyhow;
 use std::thread;
 use std::time::Instant;
 use tracing::{error, info};
@@ -26,6 +27,13 @@ impl From<i64> for PluginId {
 pub trait Callback: Send {
   fn call(self: Box<Self>, result: Result<Value, Error>);
 }
+
+impl<F: Send + FnOnce(Result<Value, Error>)> Callback for F {
+  fn call(self: Box<F>, result: Result<Value, Error>) {
+    (*self)(result)
+  }
+}
+
 /// The `Peer` trait defines the interface for the opposite side of the RPC channel,
 /// designed to be used behind a pointer or as a trait object.
 pub trait Peer: Send + 'static {
@@ -72,6 +80,21 @@ impl Plugin {
 
   pub fn send_request(&self, method: &str, params: &Value) -> Result<Value, Error> {
     self.peer.send_rpc_request(method, params)
+  }
+
+  pub async fn async_send_request(&self, method: &str, params: &Value) -> Result<Value, Error> {
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    self.peer.send_rpc_request_async(
+      method,
+      params,
+      Box::new(move |result| {
+        let _ = tx.send(result);
+      }),
+    );
+    let value = rx
+      .await
+      .map_err(|err| Error::Internal(anyhow!("error waiting for async response: {:?}", err)))??;
+    Ok(value)
   }
 
   pub fn shutdown(&self) {

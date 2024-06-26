@@ -1,9 +1,10 @@
+use diesel::sqlite::SqliteConnection;
 use flowy_sqlite::upsert::excluded;
 use flowy_sqlite::{
   diesel,
   query_dsl::*,
   schema::{chat_table, chat_table::dsl},
-  DBConnection, ExpressionMethods, Identifiable, Insertable, QueryResult, Queryable,
+  AsChangeset, DBConnection, ExpressionMethods, Identifiable, Insertable, QueryResult, Queryable,
 };
 
 #[derive(Clone, Default, Queryable, Insertable, Identifiable)]
@@ -13,6 +14,22 @@ pub struct ChatTable {
   pub chat_id: String,
   pub created_at: i64,
   pub name: String,
+  pub local_model_path: String,
+  pub local_model_name: String,
+  pub local_enabled: bool,
+  pub sync_to_cloud: bool,
+}
+
+#[derive(AsChangeset, Identifiable, Default, Debug)]
+#[diesel(table_name = chat_table)]
+#[diesel(primary_key(chat_id))]
+pub struct ChatTableChangeset {
+  pub chat_id: String,
+  pub name: Option<String>,
+  pub local_model_path: Option<String>,
+  pub local_model_name: Option<String>,
+  pub local_enabled: Option<bool>,
+  pub sync_to_cloud: Option<bool>,
 }
 
 pub fn insert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<usize> {
@@ -25,6 +42,15 @@ pub fn insert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<
       chat_table::name.eq(excluded(chat_table::name)),
     ))
     .execute(&mut *conn)
+}
+
+pub fn update_chat_local_model(
+  conn: &mut SqliteConnection,
+  changeset: ChatTableChangeset,
+) -> QueryResult<usize> {
+  let filter = dsl::chat_table.filter(chat_table::chat_id.eq(changeset.chat_id.clone()));
+  let affected_row = diesel::update(filter).set(changeset).execute(conn)?;
+  Ok(affected_row)
 }
 
 #[allow(dead_code)]

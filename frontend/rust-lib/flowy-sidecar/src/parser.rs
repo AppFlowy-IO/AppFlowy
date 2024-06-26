@@ -75,3 +75,19 @@ impl ResponseParser for ChatResponseParser {
     return Err(RemoteError::InvalidResponse(json));
   }
 }
+
+pub struct SimilarityResponseParser;
+impl ResponseParser for SimilarityResponseParser {
+  type ValueType = f64;
+
+  fn parse_response(json: Value) -> Result<Self::ValueType, RemoteError> {
+    if json.is_object() {
+      if let Some(data) = json.get("data") {
+        if let Some(score) = data.get("score").and_then(|v| v.as_f64()) {
+          return Ok(score);
+        }
+      }
+    }
+    return Err(RemoteError::InvalidResponse(json));
+  }
+}

@@ -25,7 +25,7 @@ use flowy_user::user_manager::UserManager;
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::priority_task::{TaskDispatcher, TaskRunner};
-use lib_infra::util::Platform;
+use lib_infra::util::OperatingSystem;
 use lib_log::stream_log::StreamLogSender;
 use module::make_plugins;
 
@@ -69,7 +69,7 @@ impl AppFlowyCore {
     runtime: Arc<AFPluginRuntime>,
     stream_log_sender: Option<Arc<dyn StreamLogSender>>,
   ) -> Self {
-    let platform = Platform::from(&config.platform);
+    let platform = OperatingSystem::from(&config.platform);
 
     #[allow(clippy::if_same_then_else)]
     if cfg!(debug_assertions) {
