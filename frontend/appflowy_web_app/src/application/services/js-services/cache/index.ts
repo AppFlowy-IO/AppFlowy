@@ -202,7 +202,6 @@ export async function revalidatePublishView<
 >(name: string, fetcher: Fetcher<T>, collab: YDoc) {
   const { data, meta, rows } = await fetcher();
 
-  console.log('revalidatePublishView', name);
   await db.view_metas.put(
     {
       publish_name: name,
@@ -212,7 +211,6 @@ export async function revalidatePublishView<
     },
     name
   );
-  console.log('revalidatePublishView', name, 'done');
 
   if (rows) {
     for (const [key, value] of Object.entries(rows)) {

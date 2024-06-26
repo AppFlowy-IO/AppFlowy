@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@appflowyinc/client-api-wasm':
-    specifier: 0.0.4
-    version: 0.0.4
+    specifier: 0.0.6
+    version: 0.0.6
   '@atlaskit/primitives':
     specifier: ^5.5.3
     version: 5.7.0(@types/react@18.2.66)(react@18.2.0)
@@ -451,8 +451,8 @@ packages:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
 
-  /@appflowyinc/client-api-wasm@0.0.4:
-    resolution: {integrity: sha512-R8nm811vmh4oJU7LDFV7TJP89Y+WZKYrwpR1xrfL9m+PtyA/c21HvNJrvT+NssHfuz+IKj4L1cH2uXQcggnybA==}
+  /@appflowyinc/client-api-wasm@0.0.6:
+    resolution: {integrity: sha512-qx6NlHwBUDRMTDzy2hqi5fiTk/F8aV+QbUBlwrQIp+te+OC1akXmuBOGVehXJlycHfWfD/6ua1AyL6nf3QDAZQ==}
     dev: false
 
   /@atlaskit/analytics-next-stable-react-context@1.0.1(react@18.2.0):

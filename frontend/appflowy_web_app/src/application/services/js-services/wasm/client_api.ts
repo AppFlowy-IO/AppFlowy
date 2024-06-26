@@ -9,6 +9,10 @@ export function initAPIService(
     clientId: string;
   }
 ) {
+  if (client) {
+    return;
+  }
+
   window.refresh_token = () => {
     //
   };

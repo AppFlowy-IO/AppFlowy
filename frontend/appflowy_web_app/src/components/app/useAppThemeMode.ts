@@ -27,7 +27,6 @@ export function useAppThemeMode() {
   }, []);
 
   useEffect(() => {
-    console.log('isDark', isDark);
     document.documentElement.setAttribute('data-dark-mode', isDark ? 'true' : 'false');
   }, [isDark]);
 
