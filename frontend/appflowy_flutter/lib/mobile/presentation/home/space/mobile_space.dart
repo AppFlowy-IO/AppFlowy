@@ -54,6 +54,7 @@ class _MobileSpaceState extends State<MobileSpace> {
                 context.read<SpaceBloc>().add(
                       SpaceEvent.createPage(
                         name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                        layout: ViewLayoutPB.Document,
                         index: 0,
                       ),
                     );
@@ -99,6 +100,7 @@ class _MobileSpaceState extends State<MobileSpace> {
     context.read<SpaceBloc>().add(
           SpaceEvent.createPage(
             name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+            layout: ViewLayoutPB.Document,
           ),
         );
   }

@@ -1,4 +1,6 @@
-import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/editor_state_paste_node_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_html.dart';
@@ -8,12 +10,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
 
-/// Paste.
-///
 /// - support
 ///   - desktop
 ///   - web
@@ -43,8 +42,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     final image = data.image;
 
     // paste as link preview
-    final result = await _pasteAsLinkPreview(editorState, plainText);
-    if (result) {
+    if (await _pasteAsLinkPreview(editorState, plainText)) {
       return;
     }
 
@@ -57,16 +55,14 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     // try to paste the content in order, if any of them is failed, then try the next one
     if (inAppJson != null && inAppJson.isNotEmpty) {
       await editorState.deleteSelectionIfNeeded();
-      final result = await editorState.pasteInAppJson(inAppJson);
-      if (result) {
+      if (await editorState.pasteInAppJson(inAppJson)) {
         return;
       }
     }
 
     if (html != null && html.isNotEmpty) {
       await editorState.deleteSelectionIfNeeded();
-      final result = await editorState.pasteHtml(html);
-      if (result) {
+      if (await editorState.pasteHtml(html)) {
         return;
       }
     }

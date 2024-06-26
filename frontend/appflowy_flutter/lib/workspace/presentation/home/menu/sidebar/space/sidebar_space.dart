@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
@@ -103,7 +102,11 @@ class _SpaceState extends State<_Space> {
             SidebarSpaceHeader(
               isExpanded: state.isExpanded,
               space: currentSpace,
-              onAdded: () => _showCreatePagePopup(context, currentSpace),
+              onAdded: (layout) => _showCreatePagePopup(
+                context,
+                currentSpace,
+                layout,
+              ),
               onCreateNewSpace: () => _showCreateSpaceDialog(context),
               onCollapseAllPages: () => isExpandedNotifier.value = true,
             ),
@@ -150,23 +153,20 @@ class _SpaceState extends State<_Space> {
     );
   }
 
-  void _showCreatePagePopup(BuildContext context, ViewPB space) {
-    createViewAndShowRenameDialogIfNeeded(
-      context,
-      LocaleKeys.newPageText.tr(),
-      (viewName, _) {
-        if (viewName.isNotEmpty) {
-          context.read<SpaceBloc>().add(
-                SpaceEvent.createPage(
-                  name: viewName,
-                  index: 0,
-                ),
-              );
+  void _showCreatePagePopup(
+    BuildContext context,
+    ViewPB space,
+    ViewLayoutPB layout,
+  ) {
+    context.read<SpaceBloc>().add(
+          SpaceEvent.createPage(
+            name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+            layout: layout,
+            index: 0,
+          ),
+        );
 
-          context.read<SpaceBloc>().add(SpaceEvent.expand(space, true));
-        }
-      },
-    );
+    context.read<SpaceBloc>().add(SpaceEvent.expand(space, true));
   }
 
   void _switchToNextSpace() {

@@ -83,4 +83,19 @@ class WindowSizeManager {
       '${scaleFactor.clamp(minScaleFactor, maxScaleFactor)}',
     );
   }
+
+  /// Set the window maximized status
+  Future<void> setWindowMaximized(bool isMaximized) async {
+    await getIt<KeyValueStorage>()
+        .set(KVKeys.windowMaximized, isMaximized.toString());
+  }
+
+  /// Get the window maximized status
+  Future<bool> getWindowMaximized() async {
+    return await getIt<KeyValueStorage>().getWithFormat<bool>(
+          KVKeys.windowMaximized,
+          (v) => bool.tryParse(v) ?? false,
+        ) ??
+        false;
+  }
 }
