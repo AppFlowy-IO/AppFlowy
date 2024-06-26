@@ -43,7 +43,7 @@ function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disable
 
   return (
     <div
-      className={`flex items-center gap-1 ${!disableClick ? 'cursor-pointer' : 'flex-1 overflow-hidden'}`}
+      className={`flex items-center gap-1 text-sm ${!disableClick ? 'cursor-pointer' : 'flex-1 overflow-hidden'}`}
       onClick={async () => {
         if (disableClick) return;
         try {

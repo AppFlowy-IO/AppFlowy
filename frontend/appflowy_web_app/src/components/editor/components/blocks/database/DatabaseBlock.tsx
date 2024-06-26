@@ -100,7 +100,7 @@ export const DatabaseBlock = memo(
               >
                 {notFound ? (
                   <>
-                    <div className={'text-sm font-medium'}>{t('publish.hasNotBeenPublished')}</div>
+                    <div className={'text-base font-medium'}>{t('publish.hasNotBeenPublished')}</div>
                   </>
                 ) : (
                   <CircularProgress />

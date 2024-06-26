@@ -1,6 +1,8 @@
 import { usePublishContext } from '@/application/publish';
+import { openOrDownload } from '@/components/publish/header/utils';
 import React, { useMemo } from 'react';
 import Breadcrumb from './Breadcrumb';
+import { ReactComponent as Logo } from '@/assets/logo.svg';
 
 export function PublishViewHeader() {
   const viewMeta = usePublishContext()?.viewMeta;
@@ -24,9 +26,12 @@ export function PublishViewHeader() {
   }, [viewMeta]);
 
   return (
-    <div className={'appflowy-top-bar flex h-[64px] p-4'}>
+    <div className={'appflowy-top-bar flex h-[64px] px-5'}>
       <div className={'flex w-full items-center justify-between overflow-hidden'}>
         <Breadcrumb crumbs={crumbs} />
+        <button onClick={openOrDownload}>
+          <Logo className={'h-6 w-6'} />
+        </button>
       </div>
     </div>
   );
