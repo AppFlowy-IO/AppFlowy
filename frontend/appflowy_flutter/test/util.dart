@@ -59,7 +59,7 @@ class AppFlowyUnitTest {
 
   WorkspacePB get currentWorkspace => workspace;
   Future<void> _loadWorkspace() async {
-    final result = await userService.getCurrentWorkspace();
+    final result = await UserBackendService.getCurrentWorkspace();
     result.fold(
       (value) => workspace = value,
       (error) {
