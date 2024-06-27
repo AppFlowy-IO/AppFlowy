@@ -584,6 +584,16 @@ pub struct DuplicateViewPayloadPB {
 
   #[pb(index = 3)]
   pub include_children: bool,
+
+  // duplicate the view to the specified parent view.
+  // if the parent_view_id is None, the view will be duplicated to the same parent view.
+  #[pb(index = 4, one_of)]
+  pub parent_view_id: Option<String>,
+
+  // The suffix of the duplicated view name.
+  // If the suffix is None, the duplicated view will have the same name with (copy) suffix.
+  #[pb(index = 5, one_of)]
+  pub suffix: Option<String>,
 }
 
 #[derive(Debug)]
@@ -593,6 +603,10 @@ pub struct DuplicateViewParams {
   pub open_after_duplicate: bool,
 
   pub include_children: bool,
+
+  pub parent_view_id: Option<String>,
+
+  pub suffix: Option<String>,
 }
 
 impl TryInto<DuplicateViewParams> for DuplicateViewPayloadPB {
@@ -604,6 +618,8 @@ impl TryInto<DuplicateViewParams> for DuplicateViewPayloadPB {
       view_id,
       open_after_duplicate: self.open_after_duplicate,
       include_children: self.include_children,
+      parent_view_id: self.parent_view_id,
+      suffix: self.suffix,
     })
   }
 }

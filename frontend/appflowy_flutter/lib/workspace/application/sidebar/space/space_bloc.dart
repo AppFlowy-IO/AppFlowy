@@ -297,12 +297,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             if (currentSpace == null) {
               return;
             }
-            await ViewBackendService.duplicate(
-              view: currentSpace,
-              openAfterDuplicate: false,
-              includeChildren: true,
-            );
-            add(const SpaceEvent.didReceiveSpaceUpdate());
+            final newSpace = await _duplicateSpace(currentSpace);
+            // open the duplicated space
+            if (newSpace != null) {
+              add(SpaceEvent.open(newSpace));
+            }
           },
         );
       },
@@ -601,6 +600,40 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     }
 
     return false;
+  }
+
+  Future<ViewPB?> _duplicateSpace(ViewPB space) async {
+    // if the space is not duplicated, try to create a new space
+    final icon = space.icon.value.isNotEmpty
+        ? space.icon.value
+        : builtInSpaceIcons.first;
+    final iconColor = space.spaceIconColor ?? builtInSpaceColors.first;
+    final newSpace = await _createSpace(
+      name: '${space.name} (copy)',
+      icon: icon,
+      iconColor: iconColor,
+      permission: space.spacePermission,
+    );
+
+    if (newSpace == null) {
+      return null;
+    }
+
+    for (final view in space.childViews) {
+      unawaited(
+        ViewBackendService.duplicate(
+          view: view,
+          openAfterDuplicate: true,
+          includeChildren: true,
+          parentViewId: newSpace.id,
+          suffix: '',
+        ),
+      );
+    }
+
+    Log.info('Space duplicated: $newSpace');
+    add(const SpaceEvent.didReceiveSpaceUpdate());
+    return newSpace;
   }
 }
 
