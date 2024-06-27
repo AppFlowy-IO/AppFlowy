@@ -62,7 +62,7 @@ function MentionPage({ pageId }: { pageId: string }) {
         <span className={'mention-unpublished font-semibold text-text-caption'}>No Access</span>
       ) : (
         <>
-          <span className={'mention-icon'}>{icon?.value || defaultIcon}</span>
+          <span className={'mention-icon icon'}>{icon?.value || defaultIcon}</span>
 
           <span className={'mention-content'}>{meta?.name || t('menuAppHeader.defaultNewPageName')}</span>
         </>

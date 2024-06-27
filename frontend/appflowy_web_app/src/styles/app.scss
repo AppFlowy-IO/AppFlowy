@@ -52,12 +52,12 @@ body {
 }
 
 .icon {
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Twemoji Mozilla', sans-serif;
+  font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Twemoji Mozilla', sans-serif;
 }
 
 .view-icon {
   @apply flex w-fit leading-[1.5em] cursor-pointer rounded-lg py-2 text-[1.5em];
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Twemoji Mozilla', sans-serif;
+  font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Twemoji Mozilla', sans-serif;
   line-height: 1em;
   white-space: nowrap;
 }

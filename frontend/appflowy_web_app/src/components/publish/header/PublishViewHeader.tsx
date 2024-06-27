@@ -9,7 +9,7 @@ import MoreActions from './MoreActions';
 export function PublishViewHeader() {
   const viewMeta = usePublishContext()?.viewMeta;
   const crumbs = useMemo(() => {
-    const ancestors = viewMeta?.ancestor_views || [];
+    const ancestors = viewMeta?.ancestor_views.slice(1) || [];
 
     return ancestors.map((ancestor) => {
       let icon;
@@ -33,7 +33,7 @@ export function PublishViewHeader() {
   return (
     <div className={'appflowy-top-bar flex h-[64px] px-5'}>
       <div className={'flex w-full items-center justify-between gap-2 overflow-hidden'}>
-        <div className={'flex-1'}>
+        <div className={'flex-1 overflow-hidden'}>
           <Breadcrumb crumbs={crumbs} />
         </div>
 
