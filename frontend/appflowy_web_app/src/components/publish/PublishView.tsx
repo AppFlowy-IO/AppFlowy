@@ -3,6 +3,8 @@ import { PublishProvider } from '@/application/publish';
 import { AFScroller } from '@/components/_shared/scroller';
 import { AFConfigContext } from '@/components/app/AppConfig';
 import CollabView from '@/components/publish/CollabView';
+import OutlineDrawer from '@/components/publish/outline/OutlineDrawer';
+import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { PublishViewHeader } from 'src/components/publish/header';
 import NotFound from '@/components/error/NotFound';
@@ -11,6 +13,8 @@ export interface PublishViewProps {
   namespace: string;
   publishName: string;
 }
+
+const drawerWidth = 268;
 
 export function PublishView({ namespace, publishName }: PublishViewProps) {
   const [doc, setDoc] = useState<YDoc | undefined>();
@@ -35,6 +39,25 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
     void openPublishView();
   }, [openPublishView]);
 
+  const [open, setOpen] = useState(false);
+
+  const onKeyDown = useCallback((e: KeyboardEvent) => {
+    switch (true) {
+      case createHotkey(HOT_KEY_NAME.TOGGLE_SIDEBAR)(e):
+        e.preventDefault();
+        setOpen((prev) => !prev);
+        break;
+      default:
+        break;
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onKeyDown]);
   if (notFound && !doc) {
     return <NotFound />;
   }
@@ -42,11 +65,22 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
   return (
     <PublishProvider namespace={namespace} publishName={publishName}>
       <div className={'h-screen w-screen'}>
-        <PublishViewHeader />
+        <PublishViewHeader
+          onOpenDrawer={() => {
+            setOpen(true);
+          }}
+          openDrawer={open}
+          drawerWidth={drawerWidth}
+        />
+        {open && <OutlineDrawer width={drawerWidth} open={open} onClose={() => setOpen(false)} />}
+
         <AFScroller
           overflowXHidden
           style={{
             height: 'calc(100vh - 64px)',
+            transform: open ? `translateX(${drawerWidth}px)` : 'none',
+            width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
+            transition: 'width 0.2s ease-in-out 0s',
           }}
           className={'appflowy-layout appflowy-scroll-container'}
         >

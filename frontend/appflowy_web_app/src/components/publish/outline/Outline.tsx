@@ -1,0 +1,61 @@
+import { PublishViewInfo, ViewLayout } from '@/application/collab.type';
+import OutlineItem from '@/components/publish/outline/OutlineItem';
+import SearchInput from '@/components/publish/outline/SearchInput';
+import { filterViews } from '@/components/publish/outline/utils';
+import { CircularProgress } from '@mui/material';
+import React, { useCallback, useEffect } from 'react';
+
+function Outline({ viewMeta }: { viewMeta?: PublishViewInfo }) {
+  const hasChildren = Boolean(viewMeta?.child_views?.length);
+
+  const [children, setChildren] = React.useState<PublishViewInfo[]>([]);
+
+  useEffect(() => {
+    if (viewMeta) {
+      setChildren(viewMeta.child_views || []);
+    }
+  }, [viewMeta]);
+
+  const handleSearch = useCallback(
+    (val: string) => {
+      if (!val) {
+        return setChildren(viewMeta?.child_views || []);
+      }
+
+      setChildren(filterViews(viewMeta?.child_views || [], val));
+    },
+    [viewMeta]
+  );
+
+  if (!viewMeta) {
+    return <CircularProgress />;
+  }
+
+  return (
+    <div className={'flex w-full flex-1 flex-col items-start justify-between gap-2'}>
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          width: '100%',
+          height: '44px',
+        }}
+        className={'z-10 flex items-center justify-center gap-3 bg-bg-body'}
+      >
+        <SearchInput onSearch={handleSearch} />
+      </div>
+
+      {hasChildren && (
+        <div className={'flex w-full flex-1 flex-col'}>
+          {children
+            .filter((view) => view.layout === ViewLayout.Document)
+            .map((view: PublishViewInfo) => (
+              <OutlineItem key={view.view_id} view={view} />
+            ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Outline;

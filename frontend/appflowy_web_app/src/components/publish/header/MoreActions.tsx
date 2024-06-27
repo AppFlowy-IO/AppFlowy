@@ -5,6 +5,7 @@ import { IconButton } from '@mui/material';
 import React, { useContext, useMemo } from 'react';
 import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 import { ReactComponent as MoonIcon } from '@/assets/moon.svg';
+import { ReactComponent as SunIcon } from '@/assets/sun.svg';
 import { ReactComponent as ReportIcon } from '@/assets/report.svg';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +28,7 @@ function MoreActions() {
     return [
       isDark
         ? {
-            Icon: MoonIcon,
+            Icon: SunIcon,
             label: t('settings.appearance.themeMode.light'),
             onClick: () => {
               setDark?.(false);

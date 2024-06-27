@@ -1,12 +1,23 @@
 import { usePublishContext } from '@/application/publish';
 import { openOrDownload } from '@/components/publish/header/utils';
-import { Divider } from '@mui/material';
-import React, { useMemo } from 'react';
+import { Divider, IconButton } from '@mui/material';
+import { debounce } from 'lodash-es';
+import React, { useCallback, useMemo } from 'react';
+import OutlinePopover from '@/components/publish/outline/OutlinePopover';
 import Breadcrumb from './Breadcrumb';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import MoreActions from './MoreActions';
+import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
 
-export function PublishViewHeader() {
+export function PublishViewHeader({
+  onOpenDrawer,
+  drawerWidth,
+  openDrawer,
+}: {
+  onOpenDrawer: () => void;
+  openDrawer: boolean;
+  drawerWidth: number;
+}) {
   const viewMeta = usePublishContext()?.viewMeta;
   const crumbs = useMemo(() => {
     const ancestors = viewMeta?.ancestor_views.slice(1) || [];
@@ -29,10 +40,53 @@ export function PublishViewHeader() {
       };
     });
   }, [viewMeta]);
+  const [openPopover, setOpenPopover] = React.useState(false);
+
+  const debounceClosePopover = useMemo(() => {
+    return debounce(() => {
+      setOpenPopover(false);
+    }, 200);
+  }, []);
+
+  const handleOpenPopover = useCallback(() => {
+    debounceClosePopover.cancel();
+    if (openDrawer) {
+      return;
+    }
+
+    setOpenPopover(true);
+  }, [openDrawer, debounceClosePopover]);
 
   return (
-    <div className={'appflowy-top-bar flex h-[64px] px-5'}>
+    <div
+      style={{
+        transform: openDrawer ? `translateX(${drawerWidth}px)` : 'none',
+        width: openDrawer ? `calc(100% - ${drawerWidth}px)` : '100%',
+        transition: 'width 0.2s ease-in-out 0s',
+      }}
+      className={'appflowy-top-bar flex h-[64px] px-5'}
+    >
       <div className={'flex w-full items-center justify-between gap-2 overflow-hidden'}>
+        {!openDrawer && (
+          <OutlinePopover
+            onMouseEnter={handleOpenPopover}
+            onMouseLeave={debounceClosePopover}
+            open={openPopover}
+            onClose={debounceClosePopover}
+          >
+            <IconButton
+              onClick={() => {
+                setOpenPopover(false);
+                onOpenDrawer();
+              }}
+              onMouseEnter={handleOpenPopover}
+              onMouseLeave={debounceClosePopover}
+            >
+              <SideOutlined className={'h-4 w-4'} />
+            </IconButton>
+          </OutlinePopover>
+        )}
+
         <div className={'flex-1 overflow-hidden'}>
           <Breadcrumb crumbs={crumbs} />
         </div>

@@ -5,7 +5,7 @@ const cheerio = require('cheerio');
 const { fetch } = require('bun');
 const distDir = path.join(__dirname, 'dist');
 const indexPath = path.join(distDir, 'index.html');
-
+const logo = path.join(distDir, 'appflowy.svg');
 const setOrUpdateMetaTag = ($, selector, attribute, content) => {
   if ($(selector).length === 0) {
     $('head').append(`<meta ${attribute}="${selector.match(/\[(.*?)\]/)[1]}" content="${content}">`);
@@ -88,13 +88,13 @@ const createServer = async (req) => {
     let htmlData = fs.readFileSync(indexPath, 'utf8');
     const $ = cheerio.load(htmlData);
 
-    const description = 'Write, share, comment, react, and publish docs quickly and securely on AppFlowy.';
+    const description = 'Write, share, and publish docs quickly on AppFlowy. \n Get started for free.';
     let title = 'AppFlowy';
     const url = 'https://appflowy.com';
-    let image = 'https://d3uafhn8yrvdfn.cloudfront.net/website/production/_next/static/media/og-image.e347bfb5.png';
+    let image = logo;
     // Inject meta data into the HTML to support SEO and social sharing
     if (metaData) {
-      title = metaData.view.name;
+      title = `${metaData.view.name} | AppFlowy`;
 
       try {
         const cover = metaData.view.extra ? JSON.parse(metaData.view.extra)?.cover : null;
