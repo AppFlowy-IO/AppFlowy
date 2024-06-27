@@ -102,7 +102,6 @@ impl Plugin {
     let value = rx
       .await
       .map_err(|err| Error::Internal(anyhow!("error waiting for async response: {:?}", err)))??;
-
     let value = P::parse_response(value)?;
     Ok(value)
   }

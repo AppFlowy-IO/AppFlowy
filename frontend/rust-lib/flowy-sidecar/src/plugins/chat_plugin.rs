@@ -32,6 +32,25 @@ impl ChatPluginOperation {
     Ok(resp)
   }
 
+  pub async fn stream_message(
+    &self,
+    chat_id: &str,
+    plugin_id: PluginId,
+    message: &str,
+  ) -> Result<String, Error> {
+    let plugin = self
+      .plugin
+      .upgrade()
+      .ok_or(Error::Internal(anyhow!("Plugin is dropped")))?;
+
+    let params =
+      json!({"chat_id": chat_id, "method": "stream_answer", "params": {"content": message}});
+    let resp = plugin
+      .async_send_request::<ChatResponseParser>("handle", &params)
+      .await?;
+    Ok(resp)
+  }
+
   pub async fn get_related_questions(
     &self,
     chat_id: &str,

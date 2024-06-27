@@ -143,6 +143,9 @@ impl<W: Write> RawPeer<W> {
       let mut pending = self.0.pending.lock();
       pending.insert(id, rh);
     }
+
+    // Call the ResponseHandler if the send fails. Otherwise, the response will be
+    // called in handle_response.
     if let Err(e) = self.send(&json!({
         "id": id,
         "method": method,
@@ -162,7 +165,10 @@ impl<W: Write> RawPeer<W> {
       pending.remove(&id)
     };
     match handler {
-      Some(response_handler) => response_handler.invoke(resp),
+      Some(response_handler) => {
+        //
+        response_handler.invoke(resp)
+      },
       None => warn!("[RPC] id {} not found in pending", id),
     }
   }
@@ -242,6 +248,10 @@ impl<W: Write> Clone for RawPeer<W> {
   fn clone(&self) -> Self {
     RawPeer(self.0.clone())
   }
+}
+
+pub struct ResponsePayload {
+  value: Value,
 }
 
 pub type Response = Result<Value, RemoteError>;

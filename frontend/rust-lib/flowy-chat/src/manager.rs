@@ -235,7 +235,10 @@ impl ChatCloudService for ChatService {
     message: &str,
     message_type: ChatMessageType,
   ) -> Result<ChatMessageStream, FlowyError> {
-    todo!()
+    self
+      .cloud_service
+      .send_chat_message(workspace_id, chat_id, message, message_type)
+      .await
   }
 
   fn send_question(
@@ -274,7 +277,13 @@ impl ChatCloudService for ChatService {
     offset: MessageCursor,
     limit: u64,
   ) -> FutureResult<RepeatedChatMessage, FlowyError> {
-    todo!()
+    FutureResult::new(async move {
+      RepeatedChatMessage {
+        messages: vec![],
+        has_more: false,
+        total: 0,
+      }
+    })
   }
 
   fn get_related_message(
@@ -283,7 +292,12 @@ impl ChatCloudService for ChatService {
     chat_id: &str,
     message_id: i64,
   ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
-    todo!()
+    FutureResult::new(async move {
+      RepeatedRelatedQuestion {
+        message_id,
+        items: vec![],
+      }
+    })
   }
 
   fn generate_answer(
