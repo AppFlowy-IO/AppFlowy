@@ -376,9 +376,8 @@ impl FolderManager {
     let view_layout: ViewLayout = params.layout.clone().into();
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
-    let meta = params.meta.clone();
 
-    if meta.is_empty() && params.initial_data.is_empty() {
+    if params.meta.is_empty() && params.initial_data.is_empty() {
       tracing::trace!("Create view with build-in data");
       handler
         .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
@@ -386,14 +385,7 @@ impl FolderManager {
     } else {
       tracing::trace!("Create view with view data");
       handler
-        .create_view_with_view_data(
-          user_id,
-          &params.view_id,
-          &params.name,
-          params.initial_data.clone(),
-          view_layout.clone(),
-          meta,
-        )
+        .create_view_with_view_data(user_id, params.clone())
         .await?;
     }
 
