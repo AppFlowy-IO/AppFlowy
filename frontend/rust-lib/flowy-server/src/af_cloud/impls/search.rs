@@ -32,7 +32,7 @@ where
     // Filter out irrelevant results
     let result = result
       .into_iter()
-      .filter(|r| r.score < SCORE_LIMIT)
+      .filter(|r| r.score > SCORE_LIMIT)
       .collect();
 
     Ok(result)

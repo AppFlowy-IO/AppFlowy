@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use tracing::{trace, warn};
 
 use flowy_error::FlowyResult;
 use flowy_folder::{manager::FolderManager, ViewLayout};
@@ -52,6 +53,7 @@ impl SearchHandler for DocumentSearchHandler {
       .cloud_service
       .document_search(&workspace_id, query)
       .await?;
+    trace!("[Search] remote search results: {:?}", results);
 
     // Grab all views from folder cache
     // Notice that `get_all_view_pb` returns Views that don't include trashed and private views
@@ -86,9 +88,12 @@ impl SearchHandler for DocumentSearchHandler {
           workspace_id: result.workspace_id,
           preview: result.preview,
         });
+      } else {
+        warn!("No view found for search result: {:?}", result);
       }
     }
 
+    trace!("[Search] showing results: {:?}", search_results);
     Ok(search_results)
   }
 
