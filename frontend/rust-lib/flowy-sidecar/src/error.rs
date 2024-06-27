@@ -1,11 +1,10 @@
-use crate::core::rpc_peer::ResponsePayload;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::{json, Value as JsonValue};
 use std::{fmt, io};
 
 /// The error type of `tauri-utils`.
 #[derive(Debug, thiserror::Error)]
-pub enum Error {
+pub enum SidecarError {
   /// An IO error occurred on the underlying communication channel.
   #[error(transparent)]
   Io(#[from] io::Error),
@@ -48,6 +47,9 @@ pub enum RemoteError {
 
   #[error("Invalid response: {0}")]
   InvalidResponse(JsonValue),
+
+  #[error("Parse response: {0}")]
+  ParseResponse(JsonValue),
   /// A custom error, defined by the client.
   #[error("Custom error: {message}")]
   Custom {
@@ -100,9 +102,9 @@ impl From<serde_json::Error> for RemoteError {
   }
 }
 
-impl From<RemoteError> for Error {
-  fn from(err: RemoteError) -> Error {
-    Error::RemoteError(err)
+impl From<RemoteError> for SidecarError {
+  fn from(err: RemoteError) -> SidecarError {
+    SidecarError::RemoteError(err)
   }
 }
 
@@ -152,6 +154,11 @@ impl Serialize for RemoteError {
         panic!("The 'Unknown' error variant is not intended for client use.")
       },
       RemoteError::InvalidResponse(resp) => (
+        -1,
+        "Invalid response".to_string(),
+        Some(json!(resp.to_string())),
+      ),
+      RemoteError::ParseResponse(resp) => (
         -1,
         "Invalid response".to_string(),
         Some(json!(resp.to_string())),

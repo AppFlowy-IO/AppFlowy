@@ -11,7 +11,7 @@ use flowy_sidecar::manager::SidecarManager;
 use flowy_sqlite::DBConnection;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
-use std::sync::atomic::AtomicBool;
+
 use std::sync::Arc;
 use tracing::trace;
 
@@ -263,9 +263,9 @@ impl ChatCloudService for ChatService {
 
   async fn stream_answer(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message_id: i64,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _message_id: i64,
   ) -> Result<StreamAnswer, FlowyError> {
     todo!()
   }

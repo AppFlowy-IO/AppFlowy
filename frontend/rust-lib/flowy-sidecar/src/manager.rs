@@ -2,11 +2,11 @@ use crate::core::parser::ResponseParser;
 use crate::core::plugin::{start_plugin_process, Plugin, PluginId, PluginInfo, RpcCtx};
 use crate::core::rpc_loop::Handler;
 use crate::core::rpc_peer::{PluginCommand, ResponsePayload};
-use crate::error::{Error, ReadError, RemoteError};
+use crate::error::{ReadError, RemoteError, SidecarError};
 use anyhow::anyhow;
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use parking_lot::Mutex;
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::io;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
@@ -29,9 +29,9 @@ impl SidecarManager {
     }
   }
 
-  pub async fn create_plugin(&self, plugin_info: PluginInfo) -> Result<PluginId, Error> {
+  pub async fn create_plugin(&self, plugin_info: PluginInfo) -> Result<PluginId, SidecarError> {
     if self.operating_system.is_not_desktop() {
-      return Err(Error::Internal(anyhow!(
+      return Err(SidecarError::Internal(anyhow!(
         "plugin not supported on this platform"
       )));
     }
@@ -41,7 +41,7 @@ impl SidecarManager {
     Ok(plugin_id)
   }
 
-  pub async fn get_plugin(&self, plugin_id: PluginId) -> Result<Weak<Plugin>, Error> {
+  pub async fn get_plugin(&self, plugin_id: PluginId) -> Result<Weak<Plugin>, SidecarError> {
     let state = self.state.lock();
     let plugin = state
       .plugins
@@ -51,9 +51,9 @@ impl SidecarManager {
     Ok(Arc::downgrade(plugin))
   }
 
-  pub async fn remove_plugin(&self, id: PluginId) -> Result<(), Error> {
+  pub async fn remove_plugin(&self, id: PluginId) -> Result<(), SidecarError> {
     if self.operating_system.is_not_desktop() {
-      return Err(Error::Internal(anyhow!(
+      return Err(SidecarError::Internal(anyhow!(
         "plugin not supported on this platform"
       )));
     }
@@ -71,9 +71,9 @@ impl SidecarManager {
     Ok(())
   }
 
-  pub fn init_plugin(&self, id: PluginId, init_params: Value) -> Result<(), Error> {
+  pub fn init_plugin(&self, id: PluginId, init_params: Value) -> Result<(), SidecarError> {
     if self.operating_system.is_not_desktop() {
-      return Err(Error::Internal(anyhow!(
+      return Err(SidecarError::Internal(anyhow!(
         "plugin not supported on this platform"
       )));
     }
@@ -94,15 +94,15 @@ impl SidecarManager {
     id: PluginId,
     method: &str,
     request: Value,
-  ) -> Result<P::ValueType, Error> {
+  ) -> Result<P::ValueType, SidecarError> {
     let state = self.state.lock();
     let plugin = state
       .plugins
       .iter()
       .find(|p| p.id == id)
       .ok_or(anyhow!("plugin not found"))?;
-    let resp = plugin.send_request(method, &request)?;
-    let value = P::parse_response(resp)?;
+    let resp = plugin.request(method, &request)?;
+    let value = P::parse_json(resp)?;
     Ok(value)
   }
 
@@ -111,14 +111,14 @@ impl SidecarManager {
     id: PluginId,
     method: &str,
     request: Value,
-  ) -> Result<P::ValueType, Error> {
+  ) -> Result<P::ValueType, SidecarError> {
     let state = self.state.lock();
     let plugin = state
       .plugins
       .iter()
       .find(|p| p.id == id)
       .ok_or(anyhow!("plugin not found"))?;
-    let value = plugin.async_send_request::<P>(method, &request).await?;
+    let value = plugin.async_request::<P>(method, &request).await?;
     Ok(value)
   }
 }

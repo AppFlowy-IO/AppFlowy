@@ -1,18 +1,18 @@
 use crate::core::plugin::{Peer, PluginId};
 use crate::core::rpc_object::RpcObject;
-use crate::error::{Error, ReadError, RemoteError};
-use futures::Stream;
+use crate::error::{ReadError, RemoteError, SidecarError};
 use parking_lot::{Condvar, Mutex};
 use serde::{de, ser, Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::{json, Value as JsonValue};
 use std::collections::{BTreeMap, BinaryHeap, VecDeque};
 use std::fmt::Display;
 use std::io::Write;
-use std::pin::Pin;
+
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{mpsc, Arc};
 use std::time::{Duration, Instant};
 use std::{cmp, io};
+use tokio_stream::Stream;
 use tracing::{error, trace, warn};
 
 pub struct PluginCommand<T> {
@@ -97,15 +97,19 @@ impl<W: Write + Send + 'static> Peer for RawPeer<W> {
     }
   }
 
-  fn send_rpc_request_async(&self, method: &str, params: &JsonValue, f: Box<dyn Callback>) {
+  fn stream_rpc_request(&self, method: &str, params: &JsonValue, f: CloneableCallback) {
+    self.send_rpc(method, params, ResponseHandler::StreamCallback(Arc::new(f)));
+  }
+
+  fn async_send_rpc_request(&self, method: &str, params: &JsonValue, f: Box<dyn OneShotCallback>) {
     self.send_rpc(method, params, ResponseHandler::Callback(f));
   }
 
-  fn send_rpc_request(&self, method: &str, params: &JsonValue) -> Result<JsonValue, Error> {
+  fn send_rpc_request(&self, method: &str, params: &JsonValue) -> Result<JsonValue, SidecarError> {
     let (tx, rx) = mpsc::channel();
     self.0.is_blocking.store(true, Ordering::Release);
     self.send_rpc(method, params, ResponseHandler::Chan(tx));
-    rx.recv().unwrap_or(Err(Error::PeerDisconnect))
+    rx.recv().unwrap_or(Err(SidecarError::PeerDisconnect))
   }
 
   fn request_is_pending(&self) -> bool {
@@ -133,7 +137,7 @@ impl<W: Write> RawPeer<W> {
     match result {
       Ok(result) => match result {
         ResponsePayload::Json(value) => response["result"] = value,
-        ResponsePayload::Stream(_) => {
+        ResponsePayload::Streaming(_) | ResponsePayload::StreamEnd(_) => {
           error!("stream response not supported")
         },
       },
@@ -161,29 +165,44 @@ impl<W: Write> RawPeer<W> {
     })) {
       let mut pending = self.0.pending.lock();
       if let Some(rh) = pending.remove(&id) {
-        rh.invoke(Err(Error::Io(e)));
+        rh.invoke(Err(SidecarError::Io(e)));
       }
     }
   }
 
-  pub(crate) fn handle_response(&self, id: u64, resp: Result<ResponsePayload, Error>) {
-    let id = id as usize;
+  pub(crate) fn handle_response(
+    &self,
+    request_id: u64,
+    resp: Result<ResponsePayload, SidecarError>,
+  ) {
+    let request_id = request_id as usize;
     let handler = {
       let mut pending = self.0.pending.lock();
-      pending.remove(&id)
+      pending.remove(&request_id)
     };
     let is_stream = resp.as_ref().map(|resp| resp.is_stream()).unwrap_or(false);
     match handler {
       Some(response_handler) => {
+        if is_stream {
+          let is_stream_end = resp
+            .as_ref()
+            .map(|resp| resp.is_stream_end())
+            .unwrap_or(false);
+          if !is_stream_end {
+            // when steam is not end, we need to put the stream callback back to pending in order to
+            // receive the next stream message.
+            if let Some(callback) = response_handler.get_stream_callback() {
+              let mut pending = self.0.pending.lock();
+              pending.insert(request_id, ResponseHandler::StreamCallback(callback));
+            }
+          } else {
+            trace!("[RPC] {} stream end", request_id);
+          }
+        }
         let json = resp.map(|resp| resp.into_json());
         response_handler.invoke(json);
-
-        // if is_stream {
-        //   let mut pending = self.0.pending.lock();
-        //   pending.insert(id, response_handler);
-        // }
       },
-      None => warn!("[RPC] id {} not found in pending", id),
+      None => error!("[RPC] id {}'s handle not found", request_id),
     }
   }
 
@@ -243,7 +262,7 @@ impl<W: Write> RawPeer<W> {
     let ids = pending.keys().cloned().collect::<Vec<_>>();
     for id in &ids {
       let callback = pending.remove(id).unwrap();
-      callback.invoke(Err(Error::PeerDisconnect));
+      callback.invoke(Err(SidecarError::PeerDisconnect));
     }
     self.0.needs_exit.store(true, Ordering::Relaxed);
   }
@@ -267,7 +286,8 @@ impl<W: Write> Clone for RawPeer<W> {
 #[derive(Clone, Debug)]
 pub enum ResponsePayload {
   Json(JsonValue),
-  Stream(JsonValue),
+  Streaming(JsonValue),
+  StreamEnd(JsonValue),
 }
 
 impl ResponsePayload {
@@ -276,23 +296,29 @@ impl ResponsePayload {
   }
 
   pub fn is_stream(&self) -> bool {
-    match self {
-      ResponsePayload::Json(_) => false,
-      ResponsePayload::Stream(_) => true,
-    }
+    matches!(
+      self,
+      ResponsePayload::Streaming(_) | ResponsePayload::StreamEnd(_)
+    )
+  }
+
+  pub fn is_stream_end(&self) -> bool {
+    matches!(self, ResponsePayload::StreamEnd(_))
   }
 
   pub fn json(&self) -> &JsonValue {
     match self {
       ResponsePayload::Json(v) => v,
-      ResponsePayload::Stream(v) => v,
+      ResponsePayload::Streaming(v) => v,
+      ResponsePayload::StreamEnd(v) => v,
     }
   }
 
   pub fn into_json(self) -> JsonValue {
     match self {
       ResponsePayload::Json(v) => v,
-      ResponsePayload::Stream(v) => v,
+      ResponsePayload::Streaming(v) => v,
+      ResponsePayload::StreamEnd(v) => v,
     }
   }
 }
@@ -301,36 +327,77 @@ impl Display for ResponsePayload {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
       ResponsePayload::Json(v) => write!(f, "{}", v),
-      ResponsePayload::Stream(_) => write!(f, "stream"),
+      ResponsePayload::Streaming(_) => write!(f, "stream start"),
+      ResponsePayload::StreamEnd(_) => write!(f, "stream end"),
     }
   }
 }
 
 pub type Response = Result<ResponsePayload, RemoteError>;
 
-pub trait ResponseStream: Stream<Item = Result<JsonValue, Error>> + Unpin + Send {}
+pub trait ResponseStream: Stream<Item = Result<JsonValue, SidecarError>> + Unpin + Send {}
 
-impl<T> ResponseStream for T where T: Stream<Item = Result<JsonValue, Error>> + Unpin + Send {}
+impl<T> ResponseStream for T where T: Stream<Item = Result<JsonValue, SidecarError>> + Unpin + Send {}
 
 enum ResponseHandler {
-  Chan(mpsc::Sender<Result<JsonValue, Error>>),
-  Callback(Box<dyn Callback>),
-}
-pub trait Callback: Send {
-  fn call(self: Box<Self>, result: Result<JsonValue, Error>);
+  Chan(mpsc::Sender<Result<JsonValue, SidecarError>>),
+  Callback(Box<dyn OneShotCallback>),
+  StreamCallback(Arc<CloneableCallback>),
 }
 
-impl<F: Send + FnOnce(Result<JsonValue, Error>)> Callback for F {
-  fn call(self: Box<F>, result: Result<JsonValue, Error>) {
+impl ResponseHandler {
+  pub fn get_stream_callback(&self) -> Option<Arc<CloneableCallback>> {
+    match self {
+      ResponseHandler::StreamCallback(cb) => Some(cb.clone()),
+      _ => None,
+    }
+  }
+}
+
+pub trait OneShotCallback: Send {
+  fn call(self: Box<Self>, result: Result<JsonValue, SidecarError>);
+}
+
+impl<F: Send + FnOnce(Result<JsonValue, SidecarError>)> OneShotCallback for F {
+  fn call(self: Box<Self>, result: Result<JsonValue, SidecarError>) {
+    (self)(result)
+  }
+}
+
+pub trait Callback: Send + Sync {
+  fn call(&self, result: Result<JsonValue, SidecarError>);
+}
+
+impl<F: Send + Sync + Fn(Result<JsonValue, SidecarError>)> Callback for F {
+  fn call(&self, result: Result<JsonValue, SidecarError>) {
     (*self)(result)
   }
 }
 
+#[derive(Clone)]
+pub struct CloneableCallback {
+  callback: Arc<dyn Callback>,
+}
+impl CloneableCallback {
+  pub fn new<C: Callback + 'static>(callback: C) -> Self {
+    CloneableCallback {
+      callback: Arc::new(callback),
+    }
+  }
+
+  pub fn call(&self, result: Result<JsonValue, SidecarError>) {
+    self.callback.call(result)
+  }
+}
+
 impl ResponseHandler {
-  fn invoke(self, result: Result<JsonValue, Error>) {
+  fn invoke(self, result: Result<JsonValue, SidecarError>) {
     match self {
       ResponseHandler::Chan(tx) => {
         let _ = tx.send(result);
+      },
+      ResponseHandler::StreamCallback(cb) => {
+        cb.call(result);
       },
       ResponseHandler::Callback(f) => f.call(result),
     }

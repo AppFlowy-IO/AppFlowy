@@ -2,14 +2,14 @@ use crate::core::parser::{Call, MessageReader};
 use crate::core::plugin::RpcCtx;
 use crate::core::rpc_object::RpcObject;
 use crate::core::rpc_peer::{RawPeer, ResponsePayload, RpcState};
-use crate::error::{Error, ReadError, RemoteError};
+use crate::error::{ReadError, RemoteError, SidecarError};
 use serde::de::DeserializeOwned;
-use serde_json::Value;
+
 use std::io::{BufRead, Write};
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
-use tracing::{error, trace};
+use tracing::{error, info, trace};
 
 const MAX_IDLE_WAIT: Duration = Duration::from_millis(5);
 
@@ -97,7 +97,6 @@ impl<W: Write + Send> RpcLoop<W> {
             trace!("read loop exit");
             break;
           }
-
           let json = match self.reader.next(&mut stream) {
             Ok(json) => json,
             Err(err) => {
@@ -109,15 +108,17 @@ impl<W: Write + Send> RpcLoop<W> {
             },
           };
           if json.is_response() {
-            let id = json.get_id().unwrap();
+            let request_id = json.get_id().unwrap();
             match json.into_response() {
               Ok(resp) => {
-                let resp = resp.map_err(Error::from);
-                self.peer.handle_response(id, resp);
+                let resp = resp.map_err(SidecarError::from);
+                self.peer.handle_response(request_id, resp);
               },
               Err(msg) => {
                 error!("[RPC] failed to parse response: {}", msg);
-                self.peer.handle_response(id, Err(Error::InvalidResponse));
+                self
+                  .peer
+                  .handle_response(request_id, Err(SidecarError::InvalidResponse));
               },
             }
           } else {

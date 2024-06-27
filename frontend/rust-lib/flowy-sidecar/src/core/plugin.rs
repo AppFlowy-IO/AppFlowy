@@ -1,9 +1,9 @@
-use crate::error::Error;
+use crate::error::SidecarError;
 use crate::manager::WeakSidecarState;
 
 use crate::core::parser::ResponseParser;
 use crate::core::rpc_loop::RpcLoop;
-use crate::core::rpc_peer::{Callback, ResponsePayload};
+use crate::core::rpc_peer::{CloneableCallback, OneShotCallback};
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
@@ -12,6 +12,9 @@ use std::process::{Child, Stdio};
 use std::sync::Arc;
 use std::thread;
 use std::time::Instant;
+use tokio_stream::wrappers::ReceiverStream;
+use tokio_stream::Stream;
+
 use tracing::{error, info};
 
 #[derive(
@@ -34,12 +37,12 @@ pub trait Peer: Send + Sync + 'static {
   /// Sends an RPC notification to the peer with the specified method and parameters.
   fn send_rpc_notification(&self, method: &str, params: &JsonValue);
 
-  /// Sends an asynchronous RPC request to the peer and executes the provided callback upon completion.
-  fn send_rpc_request_async(&self, method: &str, params: &JsonValue, f: Box<dyn Callback>);
+  fn stream_rpc_request(&self, method: &str, params: &JsonValue, f: CloneableCallback);
 
+  fn async_send_rpc_request(&self, method: &str, params: &JsonValue, f: Box<dyn OneShotCallback>);
   /// Sends a synchronous RPC request to the peer and waits for the result.
   /// Returns the result of the request or an error.
-  fn send_rpc_request(&self, method: &str, params: &JsonValue) -> Result<JsonValue, Error>;
+  fn send_rpc_request(&self, method: &str, params: &JsonValue) -> Result<JsonValue, SidecarError>;
 
   /// Checks if there is an incoming request pending, intended to reduce latency for bulk operations done in the background.
   fn request_is_pending(&self) -> bool;
@@ -66,33 +69,52 @@ pub struct Plugin {
 }
 
 impl Plugin {
-  pub fn initialize(&self, value: JsonValue) -> Result<(), Error> {
+  pub fn initialize(&self, value: JsonValue) -> Result<(), SidecarError> {
     self.peer.send_rpc_request("initialize", &value)?;
     Ok(())
   }
 
-  pub fn send_request(&self, method: &str, params: &JsonValue) -> Result<JsonValue, Error> {
+  pub fn request(&self, method: &str, params: &JsonValue) -> Result<JsonValue, SidecarError> {
     self.peer.send_rpc_request(method, params)
   }
 
-  pub async fn async_send_request<P: ResponseParser>(
+  pub async fn async_request<P: ResponseParser>(
     &self,
     method: &str,
     params: &JsonValue,
-  ) -> Result<P::ValueType, Error> {
+  ) -> Result<P::ValueType, SidecarError> {
     let (tx, rx) = tokio::sync::oneshot::channel();
-    self.peer.send_rpc_request_async(
+    self.peer.async_send_rpc_request(
       method,
       params,
       Box::new(move |result| {
         let _ = tx.send(result);
       }),
     );
-    let value = rx
-      .await
-      .map_err(|err| Error::Internal(anyhow!("error waiting for async response: {:?}", err)))??;
-    let value = P::parse_response(value)?;
+    let value = rx.await.map_err(|err| {
+      SidecarError::Internal(anyhow!("error waiting for async response: {:?}", err))
+    })??;
+    let value = P::parse_json(value)?;
     Ok(value)
+  }
+  pub fn stream_request<P: ResponseParser>(
+    &self,
+    method: &str,
+    params: &JsonValue,
+  ) -> Result<ReceiverStream<Result<P::ValueType, SidecarError>>, SidecarError> {
+    let (tx, stream) = tokio::sync::mpsc::channel(100);
+    let stream = ReceiverStream::new(stream);
+    let callback = CloneableCallback::new(move |result| match result {
+      Ok(json) => {
+        let result = P::parse_json(json).map_err(SidecarError::from);
+        let _ = tx.blocking_send(result);
+      },
+      Err(err) => {
+        let _ = tx.blocking_send(Err(err));
+      },
+    });
+    self.peer.stream_rpc_request(method, params, callback);
+    Ok(stream)
   }
 
   pub fn shutdown(&self) {

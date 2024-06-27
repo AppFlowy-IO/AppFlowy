@@ -1,10 +1,12 @@
 use anyhow::Result;
 use flowy_sidecar::manager::SidecarManager;
 use serde_json::json;
-use std::sync::{Arc, Once};
+use std::sync::Once;
+use tokio_stream::wrappers::ReceiverStream;
+use tokio_stream::Stream;
 
-use flowy_sidecar::core::parser::{ChatResponseParser, SimilarityResponseParser};
 use flowy_sidecar::core::plugin::{PluginId, PluginInfo};
+use flowy_sidecar::error::SidecarError;
 use flowy_sidecar::plugins::chat_plugin::ChatPluginOperation;
 use flowy_sidecar::plugins::embedding_plugin::EmbeddingPluginOperation;
 use tracing_subscriber::fmt::Subscriber;
@@ -61,7 +63,12 @@ impl LocalAITest {
     plugin_id
   }
 
-  pub async fn send_message(&self, chat_id: &str, plugin_id: PluginId, message: &str) -> String {
+  pub async fn send_chat_message(
+    &self,
+    chat_id: &str,
+    plugin_id: PluginId,
+    message: &str,
+  ) -> String {
     let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
     let operation = ChatPluginOperation::new(plugin);
     let resp = operation
@@ -70,6 +77,20 @@ impl LocalAITest {
       .unwrap();
 
     resp
+  }
+
+  pub async fn stream_chat_message(
+    &self,
+    chat_id: &str,
+    plugin_id: PluginId,
+    message: &str,
+  ) -> ReceiverStream<Result<String, SidecarError>> {
+    let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
+    let operation = ChatPluginOperation::new(plugin);
+    operation
+      .stream_message(chat_id, plugin_id, message)
+      .await
+      .unwrap()
   }
 
   pub async fn related_question(
