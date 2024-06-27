@@ -7,11 +7,7 @@ import BuiltInImage6 from '@/assets/cover/m_cover_image_6.png';
 import ViewCover, { CoverType } from '@/components/view-meta/ViewCover';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-
-export interface ViewMetaIcon {
-  type: number;
-  value: string;
-}
+import { ViewMetaIcon } from '@/application/collab.type';
 
 export interface ViewMetaCover {
   type: CoverType;
@@ -59,21 +55,14 @@ export function ViewMetaPreview({ icon, cover, name }: ViewMetaProps) {
   return (
     <div className={'flex w-full flex-col items-center'}>
       {cover && <ViewCover coverType={coverType} coverValue={coverValue} />}
-      <div className={`relative mx-16 w-[964px] min-w-0 max-w-full overflow-visible max-md:mx-4`}>
+      <div className={`relative mx-16 mb-6 mt-[52px] w-[964px] min-w-0 max-w-full overflow-visible max-md:mx-4`}>
         <div
-          style={{
-            position: coverValue ? 'absolute' : 'relative',
-            bottom: '100%',
-            width: '100%',
-          }}
-          className={'flex items-center gap-2 px-14 py-8 text-4xl max-md:px-2 max-sm:text-[7vw]'}
+          className={
+            'flex items-center gap-4 px-16 text-[2.25rem] font-bold leading-[1.5em] max-md:px-4 max-sm:text-[7vw]'
+          }
         >
           <div className={`view-icon`}>{icon?.value}</div>
-          <div className={'flex flex-1 items-center gap-2 overflow-hidden'}>
-            <div className={'font-bold leading-[1.5em]'}>
-              {name || <span className={'text-text-placeholder'}>{t('menuAppHeader.defaultNewPageName')}</span>}
-            </div>
-          </div>
+          {name || <span className={'text-text-placeholder'}>{t('menuAppHeader.defaultNewPageName')}</span>}
         </div>
       </div>
     </div>

@@ -56,7 +56,7 @@ const fetchMetaData = async (url) => {
   }
 };
 
-const BASE_URL = process.env.AF_BASE_URL || 'https://test.appflowy.cloud';
+const BASE_URL = process.env.AF_BASE_URL || 'https://beta.appflowy.cloud';
 const createServer = async (req) => {
   const timer = logRequestTimer(req);
   const reqUrl = new URL(req.url);
@@ -140,6 +140,7 @@ const start = () => {
       },
     });
     logger.info(`Server is running on port 3000`);
+    logger.info(`Base API URL: ${process.env.AF_BASE_URL}`);
   } catch (err) {
     logger.error(err);
     process.exit(1);

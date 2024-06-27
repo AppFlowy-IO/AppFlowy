@@ -23,6 +23,7 @@ body {
     @apply bg-content-blue-100;
   }
 
+  @apply bg-bg-body text-text-title;
   &[data-os="windows"]:not([data-browser="firefox"]) {
     .appflowy-custom-scroller {
       @include mixin.hidden-scrollbar
@@ -50,10 +51,13 @@ body {
   opacity: 60%;
 }
 
+.icon {
+  font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Twemoji Mozilla', sans-serif;
+}
 
 .view-icon {
   @apply flex w-fit leading-[1.5em] cursor-pointer rounded-lg py-2 text-[1.5em];
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols;
+  font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Twemoji Mozilla', sans-serif;
   line-height: 1em;
   white-space: nowrap;
 }

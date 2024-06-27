@@ -1,4 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, createContext } from 'react';
+
+export const ThemeModeContext = createContext<
+  | {
+      isDark: boolean;
+      setDark: (isDark: boolean) => void;
+    }
+  | undefined
+>(undefined);
 
 export function useAppThemeMode() {
   const [isDark, setIsDark] = useState<boolean>(false);
@@ -8,7 +16,6 @@ export function useAppThemeMode() {
       const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
       setIsDark(darkModeMediaQuery.matches);
-      document.documentElement.setAttribute('data-dark-mode', darkModeMediaQuery.matches ? 'true' : 'false');
     }
 
     detectColorScheme();
@@ -19,7 +26,12 @@ export function useAppThemeMode() {
     };
   }, []);
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-dark-mode', isDark ? 'true' : 'false');
+  }, [isDark]);
+
   return {
     isDark,
+    setIsDark,
   };
 }

@@ -1,1 +1,1 @@
-export * from 'src/components/view-meta/ViewMetaPreview';
+export * from './ViewMetaPreview';

@@ -34,7 +34,7 @@ export const PublishProvider = ({
     const name = `${namespace}_${publishName}`;
 
     return db.view_metas.get(name);
-  });
+  }, [namespace, publishName]);
   const service = useContext(AFConfigContext)?.service;
   const navigate = useNavigate();
   const toView = useCallback(
@@ -66,10 +66,12 @@ export const PublishProvider = ({
           throw new Error('View has not been published yet');
         }
 
+        const { namespace, publishName } = info;
+
         const res = await service?.getPublishViewMeta(namespace, publishName);
 
         if (!res) {
-          throw new Error('View has not been published yet');
+          throw new Error('View meta has not been published yet');
         }
 
         return res;
@@ -77,7 +79,7 @@ export const PublishProvider = ({
         return Promise.reject(e);
       }
     },
-    [namespace, publishName, service]
+    [service]
   );
 
   const getViewRowsMap = useCallback(

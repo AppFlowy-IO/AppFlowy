@@ -636,3 +636,27 @@ export enum LineHeightLayout {
   normal = 'normal',
   large = 'large',
 }
+
+export interface ViewMetaIcon {
+  ty: number;
+  value: string;
+}
+
+export interface PublishViewInfo {
+  view_id: string;
+  name: string;
+  icon: ViewMetaIcon | null;
+  extra: string | null;
+  layout: number;
+  created_at: string;
+  created_by: string;
+  last_edited_time: string;
+  last_edited_by: string;
+  child_views: PublishViewInfo[] | null;
+}
+
+export interface PublishViewMetaData {
+  view: PublishViewInfo;
+  child_views: PublishViewInfo[];
+  ancestor_views: PublishViewInfo[];
+}

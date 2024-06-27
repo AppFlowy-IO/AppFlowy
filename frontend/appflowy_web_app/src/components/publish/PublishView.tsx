@@ -5,6 +5,7 @@ import { AFConfigContext } from '@/components/app/AppConfig';
 import CollabView from '@/components/publish/CollabView';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { PublishViewHeader } from 'src/components/publish/header';
+import NotFound from '@/components/error/NotFound';
 
 export interface PublishViewProps {
   namespace: string;
@@ -19,13 +20,10 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
     let doc;
 
     setNotFound(false);
+    setDoc(undefined);
     try {
       doc = await service?.getPublishView(namespace, publishName);
     } catch (e) {
-      // do nothing
-    }
-
-    if (!doc) {
       setNotFound(true);
       return;
     }
@@ -37,8 +35,8 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
     void openPublishView();
   }, [openPublishView]);
 
-  if (notFound) {
-    return <div className={'flex h-full w-full items-center justify-center'}>Not found</div>;
+  if (notFound && !doc) {
+    return <NotFound />;
   }
 
   return (

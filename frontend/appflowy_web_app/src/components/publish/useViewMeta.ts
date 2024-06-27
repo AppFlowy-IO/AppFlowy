@@ -1,6 +1,6 @@
 import { usePublishContext } from '@/application/publish';
 import { EditorLayoutStyle } from '@/components/editor/EditorContext';
-import { ViewMetaCover, ViewMetaIcon } from '@/components/view-meta';
+import { ViewMetaCover } from '@/components/view-meta';
 import { useEffect, useMemo } from 'react';
 
 export function useViewMeta() {
@@ -63,35 +63,13 @@ export function useViewMeta() {
     });
   }, [layoutStyle.font]);
 
-  const icon = useMemo(() => {
-    if (viewMeta?.icon) {
-      try {
-        return JSON.parse(viewMeta.icon) as ViewMetaIcon;
-      } catch (e) {
-        return;
-      }
-    }
+  const icon = viewMeta?.icon || undefined;
 
-    return;
-  }, [viewMeta?.icon]);
-
-  const cover = useMemo(() => {
-    if (extra) {
-      try {
-        const extraObj = JSON.parse(extra);
-
-        return extraObj.cover as ViewMetaCover;
-      } catch (e) {
-        return;
-      }
-    }
-
-    return;
-  }, [extra]);
+  const cover = extra?.cover as ViewMetaCover;
 
   const viewId = viewMeta?.view_id;
   const name = viewMeta?.name;
-  
+
   return {
     icon,
     cover,

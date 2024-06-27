@@ -5,7 +5,6 @@ import { ReactComponent as CalendarSvg } from '$icons/16x/date.svg';
 import { ViewLayout } from '@/application/collab.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { useEditorContext } from '@/components/editor/EditorContext';
-import { ViewMetaIcon } from '@/components/view-meta';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -31,15 +30,7 @@ function MentionPage({ pageId }: { pageId: string }) {
   }, [loadViewMeta, pageId]);
 
   const icon = useMemo(() => {
-    if (meta?.icon) {
-      try {
-        return JSON.parse(meta.icon) as ViewMetaIcon;
-      } catch (e) {
-        return;
-      }
-    }
-
-    return;
+    return meta?.icon;
   }, [meta?.icon]);
 
   const defaultIcon = useMemo(() => {
@@ -71,7 +62,7 @@ function MentionPage({ pageId }: { pageId: string }) {
         <span className={'mention-unpublished font-semibold text-text-caption'}>No Access</span>
       ) : (
         <>
-          <span className={'mention-icon'}>{icon?.value || defaultIcon}</span>
+          <span className={'mention-icon icon'}>{icon?.value || defaultIcon}</span>
 
           <span className={'mention-content'}>{meta?.name || t('menuAppHeader.defaultNewPageName')}</span>
         </>
