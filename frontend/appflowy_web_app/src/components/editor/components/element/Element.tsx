@@ -2,7 +2,7 @@ import { BlockData, BlockType, InlineBlockType, YjsEditorKey } from '@/applicati
 import { BulletedList } from '@/components/editor/components/blocks/bulleted-list';
 import { Callout } from '@/components/editor/components/blocks/callout';
 import { CodeBlock } from '@/components/editor/components/blocks/code';
-// import { DatabaseBlock } from '@/components/editor/components/blocks/database';
+import { DatabaseBlock } from '@/components/editor/components/blocks/database';
 import { DividerNode } from '@/components/editor/components/blocks/divider';
 import { Heading } from '@/components/editor/components/blocks/heading';
 import { ImageBlock } from '@/components/editor/components/blocks/image';
@@ -70,10 +70,10 @@ export const Element = memo(
           return TableBlock;
         case BlockType.TableCell:
           return TableCellBlock;
-        // case BlockType.GridBlock:
-        // case BlockType.BoardBlock:
-        // case BlockType.CalendarBlock:
-        //   return DatabaseBlock;
+        case BlockType.GridBlock:
+        case BlockType.BoardBlock:
+        case BlockType.CalendarBlock:
+          return DatabaseBlock;
         default:
           return UnSupportedBlock;
       }
