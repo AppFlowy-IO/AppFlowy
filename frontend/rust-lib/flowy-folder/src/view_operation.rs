@@ -70,11 +70,7 @@ pub trait FolderOperationHandler {
   fn create_view_with_view_data(
     &self,
     user_id: i64,
-    view_id: &str,
-    name: &str,
-    data: Vec<u8>,
-    layout: ViewLayout,
-    meta: HashMap<String, String>,
+    params: CreateViewParams,
   ) -> FutureResult<(), FlowyError>;
 
   /// Create a view with the pre-defined data.

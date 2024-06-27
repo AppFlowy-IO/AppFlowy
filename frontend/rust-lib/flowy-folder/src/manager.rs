@@ -381,9 +381,8 @@ impl FolderManager {
     let view_layout: ViewLayout = params.layout.clone().into();
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
-    let meta = params.meta.clone();
 
-    if meta.is_empty() && params.initial_data.is_empty() {
+    if params.meta.is_empty() && params.initial_data.is_empty() {
       tracing::trace!("Create view with build-in data");
       handler
         .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
@@ -391,14 +390,7 @@ impl FolderManager {
     } else {
       tracing::trace!("Create view with view data");
       handler
-        .create_view_with_view_data(
-          user_id,
-          &params.view_id,
-          &params.name,
-          params.initial_data.clone(),
-          view_layout.clone(),
-          meta,
-        )
+        .create_view_with_view_data(user_id, params.clone())
         .await?;
     }
 
@@ -754,12 +746,17 @@ impl FolderManager {
     let view = self
       .with_folder(|| None, |folder| folder.views.get_view(&params.view_id))
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can't duplicate the view"))?;
+    let parent_view_id = params
+      .parent_view_id
+      .clone()
+      .unwrap_or(view.parent_view_id.clone());
     self
       .duplicate_view_with_parent_id(
         &view.id,
-        &view.parent_view_id,
+        &parent_view_id,
         params.open_after_duplicate,
         params.include_children,
+        params.suffix,
       )
       .await
   }
@@ -774,6 +771,7 @@ impl FolderManager {
     parent_view_id: &str,
     open_after_duplicated: bool,
     include_children: bool,
+    suffix: Option<String>,
   ) -> Result<(), FlowyError> {
     if view_id == parent_view_id {
       return Err(FlowyError::new(
@@ -790,6 +788,7 @@ impl FolderManager {
     let mut is_source_view = true;
     // use a stack to duplicate the view and its children
     let mut stack = vec![(view_id.to_string(), parent_view_id.to_string())];
+    let suffix = suffix.unwrap_or(" (copy)".to_string());
 
     while let Some((current_view_id, current_parent_id)) = stack.pop() {
       let view = self
@@ -825,7 +824,7 @@ impl FolderManager {
       );
 
       let name = if is_source_view {
-        format!("{} (copy)", &view.name)
+        format!("{}{}", &view.name, suffix)
       } else {
         view.name.clone()
       };

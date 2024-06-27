@@ -11,6 +11,7 @@ use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
 use flowy_document::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
+use flowy_folder::entities::{CreateViewParams, ViewLayoutPB};
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{
@@ -183,17 +184,13 @@ impl FolderOperationHandler for DocumentFolderOperation {
   fn create_view_with_view_data(
     &self,
     user_id: i64,
-    view_id: &str,
-    _name: &str,
-    data: Vec<u8>,
-    layout: ViewLayout,
-    _meta: HashMap<String, String>,
+    params: CreateViewParams,
   ) -> FutureResult<(), FlowyError> {
-    debug_assert_eq!(layout, ViewLayout::Document);
-    let view_id = view_id.to_string();
+    debug_assert_eq!(params.layout, ViewLayoutPB::Document);
+    let view_id = params.view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      let data = DocumentDataPB::try_from(Bytes::from(data))?;
+      let data = DocumentDataPB::try_from(Bytes::from(params.initial_data))?;
       manager
         .create_document(user_id, &view_id, Some(data.into()))
         .await?;
@@ -327,40 +324,43 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   fn create_view_with_view_data(
     &self,
     _user_id: i64,
-    view_id: &str,
-    name: &str,
-    data: Vec<u8>,
-    layout: ViewLayout,
-    meta: HashMap<String, String>,
+    params: CreateViewParams,
   ) -> FutureResult<(), FlowyError> {
-    match CreateDatabaseExtParams::from_map(meta) {
+    match CreateDatabaseExtParams::from_map(params.meta.clone()) {
       None => {
         let database_manager = self.0.clone();
-        let view_id = view_id.to_string();
+        let view_id = params.view_id.to_string();
         FutureResult::new(async move {
           database_manager
-            .create_database_with_database_data(&view_id, data)
+            .create_database_with_database_data(&view_id, params.initial_data)
             .await?;
           Ok(())
         })
       },
-      Some(params) => {
+      Some(database_params) => {
         let database_manager = self.0.clone();
 
-        let layout = match layout {
-          ViewLayout::Board => DatabaseLayoutPB::Board,
-          ViewLayout::Calendar => DatabaseLayoutPB::Calendar,
-          ViewLayout::Grid => DatabaseLayoutPB::Grid,
-          ViewLayout::Document | ViewLayout::Chat => {
+        let layout = match params.layout {
+          ViewLayoutPB::Board => DatabaseLayoutPB::Board,
+          ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
+          ViewLayoutPB::Grid => DatabaseLayoutPB::Grid,
+          ViewLayoutPB::Document | ViewLayoutPB::Chat => {
             return FutureResult::new(async move { Err(FlowyError::not_support()) });
           },
         };
-        let name = name.to_string();
-        let database_view_id = view_id.to_string();
+        let name = params.name.to_string();
+        let database_view_id = params.view_id.to_string();
+        let database_parent_view_id = params.parent_view_id.to_string();
 
         FutureResult::new(async move {
           database_manager
-            .create_linked_view(name, layout.into(), params.database_id, database_view_id)
+            .create_linked_view(
+              name,
+              layout.into(),
+              database_params.database_id,
+              database_view_id,
+              database_parent_view_id,
+            )
             .await?;
           Ok(())
         })
@@ -529,11 +529,7 @@ impl FolderOperationHandler for ChatFolderOperation {
   fn create_view_with_view_data(
     &self,
     _user_id: i64,
-    _view_id: &str,
-    _name: &str,
-    _data: Vec<u8>,
-    _layout: ViewLayout,
-    _meta: HashMap<String, String>,
+    _params: CreateViewParams,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }

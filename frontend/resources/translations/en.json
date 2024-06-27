@@ -154,8 +154,8 @@
   "newBoardText": "New board",
   "chat": {
     "newChat": "AI Chat",
-    "inputMessageHint": "Message AppFlowy AI",
-    "unsupportedCloudPrompt": "This feature is only available when using AppFlowy Cloud",
+    "inputMessageHint": "Message @:appName AI",
+    "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
     "relatedQuestion": "Related",
     "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
     "aiServerUnavailable": "🌈 Uh-oh! 🌈. A unicorn ate our response. Please retry!",
@@ -496,6 +496,11 @@
           "description": "Clearing the cache will cause images and fonts to be re-downloaded on load. This action will not remove or modify your data.",
           "successHint": "Cache cleared!"
         }
+      },
+      "data": {
+        "fixYourData": "Fix your data",
+        "fixButton": "Fix",
+        "fixYourDataDescription": "If you're experiencing issues with your data, you can try to fix it here."
       }
     },
     "shortcutsPage": {
@@ -579,7 +584,7 @@
         "indent": "Indent",
         "outdent": "Outdent",
         "exit": "Exit editing",
-        "pageUp": "Scroll on page up",
+        "pageUp": "Scroll one page up",
         "pageDown": "Scroll one page down",
         "selectAll": "Select all",
         "pasteWithoutFormatting": "Paste content without formatting",
@@ -612,8 +617,8 @@
       "menuLabel": "AI Settings",
       "keys": {
         "enableAISearchTitle": "AI Search",
-        "aiSettingsDescription": "Select or configure Ai models used on AppFlowy. For best performance we recommend using the default model options",
-        "loginToEnableAIFeature": "AI features are only enabled after logging in with AppFlowy Cloud. If you don't have an AppFlowy account, go to 'My Account' to sign up",
+        "aiSettingsDescription": "Select or configure Ai models used on @:appName. For best performance we recommend using the default model options",
+        "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
         "title": "AI API Keys",
         "openAILabel": "OpenAI API key",
@@ -638,8 +643,9 @@
         "proBadge": "Pro",
         "memberProToggle": "Unlimited members",
         "guestCollabToggle": "10 guest collaborators",
+        "storageUnlimited": "Unlimited storage with your Pro Plan",
         "aiCredit": {
-          "title": "Add AppFlowy AI Credit",
+          "title": "Add @:appName AI Credit",
           "price": "5$",
           "priceDescription": "for 1,000 credits",
           "purchase": "Purchase AI",
@@ -659,7 +665,7 @@
           "freeProOne": "Collaborative workspace",
           "freeProTwo": "Up to 3 members (incl. owner)",
           "freeProThree": "Unlimited guests (view-only)",
-          "freeProFour": "Storage 5gb",
+          "freeProFour": "Storage 5GB",
           "freeProFive": "30 day revision history",
           "freeConOne": "Guest collaborators (edit access)",
           "freeConTwo": "Unlimited storage",
@@ -677,7 +683,7 @@
         "deal": {
           "bannerLabel": "New year deal!",
           "title": "Grow your team!",
-          "info": "Upgrade and save 10% off Pro and Team plans! Boost your workspace productivity with powerful new features including Appflowy Ai.",
+          "info": "Upgrade and save 10% off Pro and Team plans! Boost your workspace productivity with powerful new features including @:appName AI.",
           "viewPlans": "View plans"
         }
       }
@@ -756,7 +762,7 @@
       },
       "paymentSuccess": {
         "title": "You are now on the {} plan!",
-        "description": "Your payment has been successfully processed and your plan is upgraded to AppFlowy {}. You can view your plan details on the Plan page"
+        "description": "Your payment has been successfully processed and your plan is upgraded to @:appName {}. You can view your plan details on the Plan page"
       },
       "downgradeDialog": {
         "title": "Are you sure you want to downgrade your plan?",
