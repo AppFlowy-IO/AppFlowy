@@ -51,10 +51,10 @@ function OutlineItem({ view }: { view: PublishViewInfo }) {
                 notify.error(t('publish.hasNotBeenPublished'));
               }
             }}
-            className={'flex flex-1 cursor-pointer items-center gap-1'}
+            className={'flex flex-1 cursor-pointer items-center gap-1 overflow-hidden'}
           >
             <div className={'icon'}>{renderCrumbIcon(item.icon?.value || String(item.layout))}</div>
-            <div>{item.name}</div>
+            <div className={'flex-1 truncate'}>{item.name}</div>
           </div>
         </div>
       </div>
