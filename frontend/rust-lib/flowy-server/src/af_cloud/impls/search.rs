@@ -11,7 +11,8 @@ pub(crate) struct AFCloudSearchCloudServiceImpl<T> {
 
 // The limit of what the score should be for results, used to
 // filter out irrelevant results.
-const SCORE_LIMIT: f64 = 0.8;
+// https://community.openai.com/t/rule-of-thumb-cosine-similarity-thresholds/693670/5
+const SCORE_LIMIT: f64 = 0.3;
 const DEFAULT_PREVIEW: u32 = 80;
 
 #[async_trait]
