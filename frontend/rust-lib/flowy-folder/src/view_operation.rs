@@ -64,7 +64,6 @@ pub trait FolderOperationHandler {
     &self,
     user_id: i64,
     params: CreateViewParams,
-    meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError>;
 
   /// Create a view with the pre-defined data.

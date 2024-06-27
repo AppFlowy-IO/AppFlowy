@@ -184,7 +184,6 @@ impl FolderOperationHandler for DocumentFolderOperation {
     &self,
     user_id: i64,
     params: CreateViewParams,
-    _meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(params.layout, ViewLayoutPB::Document);
     let view_id = params.view_id.to_string();
@@ -301,9 +300,8 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     &self,
     _user_id: i64,
     params: CreateViewParams,
-    meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
-    match CreateDatabaseExtParams::from_map(meta) {
+    match CreateDatabaseExtParams::from_map(params.meta.clone()) {
       None => {
         let database_manager = self.0.clone();
         let view_id = params.view_id.to_string();
@@ -507,7 +505,6 @@ impl FolderOperationHandler for ChatFolderOperation {
     &self,
     _user_id: i64,
     _params: CreateViewParams,
-    _meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
