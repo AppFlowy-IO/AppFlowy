@@ -738,7 +738,6 @@
       "freeLabels": {
         "itemOne": "charged per workspace",
         "itemTwo": "3",
-        "itemThree": "",
         "itemFour": "0",
         "itemFive": "5 GB",
         "itemSix": "yes",
@@ -748,7 +747,6 @@
       "proLabels": {
         "itemOne": "charged per workspace",
         "itemTwo": "up to 10",
-        "itemThree": "",
         "itemFour": "10 guests billed as one seat",
         "itemFive": "unlimited",
         "itemSix": "yes",
