@@ -137,7 +137,6 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   void _onSubmitted(String text) {
     widget.onSubmitted?.call(text);
     if (widget.autoClearWhenDone) {
-      // using `controller.clear()` instead of `controller.text = ''` which will crash on Windows.
       controller.clear();
     }
   }
@@ -154,7 +153,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           _onChanged(text);
         }
       },
-      onSubmitted: (text) => _onSubmitted(text),
+      onSubmitted: _onSubmitted,
       onEditingComplete: widget.onEditingComplete,
       minLines: 1,
       maxLines: widget.maxLines,

@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
@@ -42,12 +43,12 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
 
 class _PopoverActionListState<T extends PopoverAction>
     extends State<PopoverActionList<T>> {
-  late PopoverController popoverController;
+  final PopoverController popoverController = PopoverController();
 
   @override
-  void initState() {
-    popoverController = PopoverController();
-    super.initState();
+  void dispose() {
+    popoverController.close();
+    super.dispose();
   }
 
   @override

@@ -1,6 +1,8 @@
 use collab_database::database::{gen_field_id, MutexDatabase};
 use collab_database::fields::Field;
-use collab_database::views::{DatabaseLayout, LayoutSetting, OrderObjectPosition};
+use collab_database::views::{
+  DatabaseLayout, FieldSettingsByFieldIdMap, LayoutSetting, OrderObjectPosition,
+};
 use std::sync::Arc;
 
 use crate::entities::FieldType;
@@ -28,23 +30,40 @@ impl DatabaseLayoutDepsResolver {
 
   pub fn resolve_deps_when_create_database_linked_view(
     &self,
-  ) -> (Option<Field>, Option<LayoutSetting>) {
+    view_id: &str,
+  ) -> (
+    Option<Field>,
+    Option<LayoutSetting>,
+    Option<FieldSettingsByFieldIdMap>,
+  ) {
     match self.database_layout {
-      DatabaseLayout::Grid => (None, None),
+      DatabaseLayout::Grid => (None, None, None),
       DatabaseLayout::Board => {
         let layout_settings = BoardLayoutSetting::new().into();
-        if !self
+
+        let field = if !self
           .database
           .lock()
           .get_fields(None)
           .into_iter()
           .any(|field| FieldType::from(field.field_type).can_be_group())
         {
-          let select_field = self.create_select_field();
-          (Some(select_field), Some(layout_settings))
+          Some(self.create_select_field())
         } else {
-          (None, Some(layout_settings))
-        }
+          None
+        };
+
+        let field_settings_map = self.database.lock().get_field_settings(view_id, None);
+        tracing::info!(
+          "resolve_deps_when_create_database_linked_view {:?}",
+          field_settings_map
+        );
+
+        (
+          field,
+          Some(layout_settings),
+          Some(field_settings_map.into()),
+        )
       },
       DatabaseLayout::Calendar => {
         match self
@@ -56,12 +75,12 @@ impl DatabaseLayoutDepsResolver {
         {
           Some(field) => {
             let layout_setting = CalendarLayoutSetting::new(field.id).into();
-            (None, Some(layout_setting))
+            (None, Some(layout_setting), None)
           },
           None => {
             let date_field = self.create_date_field();
             let layout_setting = CalendarLayoutSetting::new(date_field.clone().id).into();
-            (Some(date_field), Some(layout_setting))
+            (Some(date_field), Some(layout_setting), None)
           },
         }
       },
