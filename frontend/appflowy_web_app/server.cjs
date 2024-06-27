@@ -90,7 +90,7 @@ const createServer = async (req) => {
 
     const description = 'Write, share, and publish docs quickly on AppFlowy. \n Get started for free.';
     let title = 'AppFlowy';
-    const url = 'https://appflowy.com';
+    const url = 'https://appflowy.io';
     let image = logo;
     // Inject meta data into the HTML to support SEO and social sharing
     if (metaData) {
@@ -111,13 +111,14 @@ const createServer = async (req) => {
     setOrUpdateMetaTag($, 'meta[property="og:title"]', 'property', title);
     setOrUpdateMetaTag($, 'meta[property="og:description"]', 'property', description);
     setOrUpdateMetaTag($, 'meta[property="og:image"]', 'property', image);
-    setOrUpdateMetaTag($, 'meta[property="og:url"]', 'property', 'https://appflowy.io');
+    setOrUpdateMetaTag($, 'meta[property="og:url"]', 'property', url);
     setOrUpdateMetaTag($, 'meta[property="og:site_name"]', 'property', 'AppFlowy');
-    setOrUpdateMetaTag($, 'meta[property="og:type"]', 'property', 'article');
+    setOrUpdateMetaTag($, 'meta[property="og:type"]', 'property', 'website');
     setOrUpdateMetaTag($, 'meta[name="twitter:card"]', 'name', 'summary_large_image');
     setOrUpdateMetaTag($, 'meta[name="twitter:title"]', 'name', title);
     setOrUpdateMetaTag($, 'meta[name="twitter:description"]', 'name', description);
     setOrUpdateMetaTag($, 'meta[name="twitter:image"]', 'name', image);
+    setOrUpdateMetaTag($, 'meta[name="twitter:site"]', 'name', '@appflowy');
 
     timer();
     return new Response($.html(), {
