@@ -117,6 +117,10 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
           );
         },
         cancelSubscription: () async {
+          final newState = state
+              .mapOrNull(ready: (state) => state)
+              ?.copyWith(downgradeProcessing: true);
+          emit(newState ?? state);
           await _userService.cancelSubscription(workspaceId);
           add(const SettingsPlanEvent.started());
         },
@@ -174,5 +178,6 @@ class SettingsPlanState with _$SettingsPlanState {
     required WorkspaceSubscriptionPB subscription,
     required BillingPortalPB? billingPortal,
     @Default(false) bool showSuccessDialog,
+    @Default(false) bool downgradeProcessing,
   }) = _Ready;
 }

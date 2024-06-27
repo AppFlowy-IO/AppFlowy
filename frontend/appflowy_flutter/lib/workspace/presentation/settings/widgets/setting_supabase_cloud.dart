@@ -1,3 +1,7 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_setting_bloc.dart';
@@ -15,9 +19,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingSupabaseCloudView extends StatelessWidget {
@@ -265,13 +266,7 @@ class SupabaseInput extends StatefulWidget {
 }
 
 class SupabaseInputState extends State<SupabaseInput> {
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.url);
-  }
+  late final _controller = TextEditingController(text: widget.url);
 
   @override
   void dispose() {

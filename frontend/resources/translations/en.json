@@ -633,6 +633,7 @@
         "proBadge": "Pro",
         "memberProToggle": "Unlimited members",
         "guestCollabToggle": "10 guest collaborators",
+        "storageUnlimited": "Unlimited storage with your Pro Plan",
         "aiCredit": {
           "title": "Add AppFlowy AI Credit",
           "price": "5$",

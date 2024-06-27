@@ -130,11 +130,6 @@ class NavigatorAlertDialog extends StatefulWidget {
 
 class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return StyledDialog(
       child: Column(

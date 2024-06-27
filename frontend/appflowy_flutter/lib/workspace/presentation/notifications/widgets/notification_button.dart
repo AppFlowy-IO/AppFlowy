@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -10,18 +12,27 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class NotificationButton extends StatelessWidget {
-  const NotificationButton({
-    super.key,
-  });
+class NotificationButton extends StatefulWidget {
+  const NotificationButton({super.key});
+
+  @override
+  State<NotificationButton> createState() => _NotificationButtonState();
+}
+
+class _NotificationButtonState extends State<NotificationButton> {
+  final mutex = PopoverMutex();
+
+  @override
+  void dispose() {
+    mutex.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final views = context.watch<SidebarSectionsBloc>().state.section.views;
-    final mutex = PopoverMutex();
 
     return BlocProvider<ReminderBloc>.value(
       value: getIt<ReminderBloc>(),
