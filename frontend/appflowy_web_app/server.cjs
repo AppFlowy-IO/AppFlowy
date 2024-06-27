@@ -140,6 +140,7 @@ const start = () => {
       },
     });
     logger.info(`Server is running on port 3000`);
+    logger.info(`Base URL: ${process.env.AF_BASE_URL}`);
   } catch (err) {
     logger.error(err);
     process.exit(1);
