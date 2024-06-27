@@ -111,7 +111,8 @@ const createServer = async (req) => {
     setOrUpdateMetaTag($, 'meta[property="og:title"]', 'property', title);
     setOrUpdateMetaTag($, 'meta[property="og:description"]', 'property', description);
     setOrUpdateMetaTag($, 'meta[property="og:image"]', 'property', image);
-    setOrUpdateMetaTag($, 'meta[property="og:url"]', 'property', url);
+    setOrUpdateMetaTag($, 'meta[property="og:url"]', 'property', 'https://appflowy.io');
+    setOrUpdateMetaTag($, 'meta[property="og:site_name"]', 'property', 'AppFlowy');
     setOrUpdateMetaTag($, 'meta[property="og:type"]', 'property', 'article');
     setOrUpdateMetaTag($, 'meta[name="twitter:card"]', 'name', 'summary_large_image');
     setOrUpdateMetaTag($, 'meta[name="twitter:title"]', 'name', title);
