@@ -149,8 +149,8 @@
   "newBoardText": "Neues Board",
   "chat": {
     "newChat": "Neuer Chat",
-    "inputMessageHint": "Nachricht an AppFlowy AI",
-    "unsupportedCloudPrompt": "Diese Funktion ist nur bei Verwendung der AppFlowy Cloud verfügbar",
+    "inputMessageHint": "Nachricht an @:appName AI",
+    "unsupportedCloudPrompt": "Diese Funktion ist nur bei Verwendung der @:appName Cloud verfügbar",
     "relatedQuestion": "Verwandt",
     "serverUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
     "aiServerUnavailable": "Beim Generieren einer Antwort ist ein Fehler aufgetreten.",
@@ -279,7 +279,7 @@
     "Spaces": "Gemeinsam genutzte Bereiche",
     "public": "Öffentlich",
     "clickToHidePublic": "Hier klicken, um den öffentlichen Bereich auszublenden.\nHier erstellte Seiten sind für jedes Mitglied sichtbar.",
-    "addAPageToPublic": "Eine Seite zum öffentlichen Bereich hinzufügen."
+    "addAPageToPublic": "Eine Seite zur öffentlichen Domäne hinzufügen."
   },
   "notifications": {
     "export": {
@@ -375,6 +375,11 @@
           "change": "E-Mail ändern"
         }
       },
+      "login": {
+        "title": "Kontoanmeldung",
+        "loginLabel": "Anmeldung",
+        "logoutLabel": "Ausloggen"
+      },
       "keys": {
         "title": "KI API-Schlüssel",
         "openAILabel": "OpenAI API-Schlüssel",
@@ -383,11 +388,6 @@
         "stabilityAILabel": "Stability API-Schlüssel",
         "stabilityAITooltip": "Der für die KI-Modelle zu verwendende Stability API-Schlüssel",
         "stabilityAIHint": "Stability API-Schlüssel eingeben"
-      },
-      "login": {
-        "title": "Kontoanmeldung",
-        "loginLabel": "Anmeldung",
-        "logoutLabel": "Ausloggen"
       },
       "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an."
     },
@@ -521,21 +521,22 @@
       },
       "errorPage": {
         "message": "Shortcuts konnten nicht geladen werden: {}",
-        "howToFix": "Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, melden Sie es bitte auf GitHub."
+        "howToFix": "Bitte versuche es erneut. Wenn das Problem weiterhin besteht, melde es bitte auf GitHub."
       },
       "resetDialog": {
         "title": "Shortcuts zurücksetzen",
-        "description": "Dies wird alle Ihre Shortcuts auf die Standardeinstellungen zurücksetzen, dies kann nicht rückgängig gemacht werden, sind Sie sicher, dass Sie fortfahren möchten?",
+        "description": "Dies wird alle deine Shortcuts auf die Standardeinstellungen zurücksetzen, dies kann nicht rückgängig gemacht werden. Bist du dir sicher, dass du fortfahren möchtest?",
         "buttonLabel": "Zurücksetzen"
       },
       "conflictDialog": {
         "title": "{} ist derzeit in Verwendung",
         "descriptionPrefix": "Diese Tastenkombination wird derzeit verwendet von ",
-        "descriptionSuffix": ". Wenn Sie diese Tastaturbelegung ersetzen, wird sie aus {} entfernt.",
+        "descriptionSuffix": ". Wenn du diese Tastaturbelegung ersetzt, wird sie aus {} entfernt.",
         "confirmLabel": "Weiter"
       },
       "editTooltip": "Zum Starten der Bearbeitung der Tastaturbelegung drücken.",
       "keybindings": {
+        "toggleToDoList": "Aufgabenliste ein-/ausblenden",
         "insertNewParagraphInCodeblock": "Neuen Absatz einfügen",
         "pasteInCodeblock": "In Codeblock einfügen",
         "selectAllCodeblock": "Alles auswählen",
@@ -567,26 +568,146 @@
         "moveCursorEnd": "Cursor an das Zeilenende bewegen",
         "moveCursorRightWord": "Cursor ein Wort nach rechts bewegen",
         "moveCursorRightSelect": "Auswählen und Cursor nach rechts bewegen",
-        "moveCursorEndSelect": "Auswählen und Cursor an das Zeilenende bewegen"
+        "moveCursorEndSelect": "Auswählen und Cursor an das Zeilenende bewegen",
+        "moveCursorRightWordSelect": "Markiere das Wort und bewege den Cursor ein Wort nach rechts",
+        "moveCursorUp": "Cursor nach oben bewegen",
+        "moveCursorTopSelect": "Auswählen und Cursor zum Anfang bewegen",
+        "moveCursorTop": "Cursor zum Anfang bewegen",
+        "moveCursorUpSelect": "Auswählen und Cursor nach oben bewegen",
+        "moveCursorBottomSelect": "Auswählen und Cursor ans Ende bewegen",
+        "moveCursorBottom": "Cursor ans Ende bewegen",
+        "moveCursorDown": "Cursor nach unten bewegen",
+        "moveCursorDownSelect": "Auswählen und Cursor nach unten bewegen",
+        "home": "Zum Anfang scrollen",
+        "end": "Zum Ende scrollen",
+        "toggleBold": "Fett ein-/ausschalten",
+        "toggleItalic": "Kursivschrift ein-/ausschalten",
+        "toggleUnderline": "Unterstreichung ein-/ausschalten",
+        "toggleStrikethrough": "Durchgestrichen ein-/ausschalten",
+        "toggleCode": "Inline-Code ein-/ausschalten",
+        "toggleHighlight": "Hervorhebung ein-/ausschalten",
+        "showLinkMenu": "Linkmenü anzeigen",
+        "openInlineLink": "Inline-Link öffnen",
+        "openLinks": "Alle ausgewählten Links öffnen",
+        "indent": "Einzug",
+        "outdent": "Ausrücken",
+        "exit": "Bearbeitung beenden",
+        "pageUp": "Eine Seite nach oben scrollen",
+        "pageDown": "Eine Seite nach unten scrollen",
+        "selectAll": "Alles auswählen",
+        "pasteWithoutFormatting": "Inhalt ohne Formatierung einfügen",
+        "showEmojiPicker": "Emoji-Auswahl anzeigen",
+        "enterInTableCell": "Zeilenumbruch in Tabelle hinzufügen",
+        "leftInTableCell": "In der Tabelle eine Zelle nach links verschieben",
+        "rightInTableCell": "In der Tabelle eine Zelle nach rechts verschieben",
+        "upInTableCell": "In der Tabelle eine Zelle nach oben verschieben",
+        "downInTableCell": "In der Tabelle eine Zelle nach unten verschieben",
+        "tabInTableCell": "Zur nächsten verfügbaren Zelle in der Tabelle gehen",
+        "shiftTabInTableCell": "Zur zuvor verfügbaren Zelle in der Tabelle gehen",
+        "backSpaceInTableCell": "Am Anfang der Zelle anhalten"
       },
       "commands": {
+        "codeBlockNewParagraph": "Füge einen neuen Absatz neben dem Codeblock ein",
+        "codeBlockIndentLines": "Füge am Zeilenanfang im Codeblock zwei Leerzeichen ein",
+        "codeBlockOutdentLines": "Lösche zwei Leerzeichen am Zeilenanfang im Codeblock",
         "codeBlockAddTwoSpaces": "Einfügen von zwei Leerzeichen an der Cursorposition im Codeblock",
+        "codeBlockSelectAll": "Wähle den gesamten Inhalt innerhalb eines Codeblocks aus",
         "codeBlockPasteText": "Text in Codeblock einfügen",
         "textAlignLeft": "Text nach links ausrichten",
-        "textAlignCenter": "Text nach rechts ausrichten"
+        "textAlignCenter": "Text nach rechts ausrichten",
+        "textAlignRight": "Text rechtsbündig ausrichten"
       },
-      "couldNotLoadErrorMsg": "Konnte keine Shortcuts laden, versuchen Sie es erneut",
-      "couldNotSaveErrorMsg": "Shortcuts konnten nicht gespeichert werden, versuchen Sie es erneut"
+      "couldNotLoadErrorMsg": "Konnte keine Shortcuts laden, versuche es erneut",
+      "couldNotSaveErrorMsg": "Shortcuts konnten nicht gespeichert werden, versuche es erneut"
+    },
+    "aiPage": {
+      "title": "KI-Einstellungen",
+      "menuLabel": "KI-Einstellungen",
+      "keys": {
+        "enableAISearchTitle": "KI-Suche",
+        "aiSettingsDescription": "Wähle oder konfiguriere KI-Modelle, die in @:appName verwendet werden. Für eine optimale Leistung empfehlen wir die Verwendung der Standardmodelloptionen",
+        "loginToEnableAIFeature": "KI-Funktionen werden erst nach der Anmeldung bei @:appName Cloud aktiviert. Wenn du kein @:appName-Konto hast, gehe zu „Mein Konto“, um dich zu registrieren",
+        "llmModel": "Sprachmodell",
+        "title": "KI-API-Schlüssel",
+        "openAILabel": "OpenAI API-Schlüssel",
+        "openAITooltip": "Du findest deinen geheimen API-Schlüssel auf der API-Schlüsselseite",
+        "openAIHint": "Gebe deinen OpenAI API-Schlüssel ein",
+        "stabilityAILabel": "Stability API-Schlüssel",
+        "stabilityAITooltip": "Dein Stability API-Schlüssel, der zur Authentifizierung deiner Anfragen verwendet wird",
+        "stabilityAIHint": "Gebe deinen Stability API-Schlüssel ein"
+      }
     },
     "planPage": {
       "menuLabel": "Plan",
+      "title": "Tarifplan",
       "planUsage": {
+        "title": "Zusammenfassung der Plannutzung",
         "storageLabel": "Speicher",
-        "storageUsage": "{} von {} GB"
+        "storageUsage": "{} von {} GB",
+        "collaboratorsLabel": "Gastmitarbeiter",
+        "collaboratorsUsage": "{} von {}",
+        "aiResponseLabel": "KI-Antworten",
+        "aiResponseUsage": "{} von {}",
+        "proBadge": "Pro",
+        "memberProToggle": "Unbegrenzte Mitgliederzahl",
+        "guestCollabToggle": "10 Gastmitarbeiter",
+        "aiCredit": {
+          "title": "@:appName KI-Guthaben hinzufügen",
+          "price": "5 $",
+          "priceDescription": "für 1.000 Credits",
+          "purchase": "Kauf von KI",
+          "info": "Füge 1.000 KI-Credits pro Arbeitsbereich hinzu und integriere anpassbare KI nahtlos in deinen Arbeitsablauf für intelligentere, schnellere Ergebnisse mit bis zu:",
+          "infoItemOne": "10.000 Antworten pro Datenbank",
+          "infoItemTwo": "1.000 Antworten pro Arbeitsbereich"
+        },
+        "currentPlan": {
+          "bannerLabel": "Derzeitiger Plan",
+          "freeTitle": "Kostenfrei",
+          "proTitle": "Pro",
+          "teamTitle": "Team",
+          "freeInfo": "Perfekt für Einzelpersonen oder kleine Teams mit bis zu 3 Mitgliedern.",
+          "proInfo": "Perfekt für kleine und mittlere Teams mit bis zu 10 Mitgliedern.",
+          "teamInfo": "Perfekt für alle produktiven und gut organisierten Teams.",
+          "upgrade": "Vergleichen &\n Upgraden",
+          "freeProOne": "Gemeinsamer Arbeitsbereich",
+          "freeProTwo": "Bis zu 3 Mitglieder (inkl. Eigentümer)",
+          "freeProThree": "Unbegrenzte Anzahl an Gästen (nur anzeigen)",
+          "freeProFour": "Speicher 5 GB",
+          "freeProFive": "30 Tage Änderungshistorie",
+          "freeConOne": "Gastmitarbeiter (Bearbeitungszugriff)",
+          "freeConTwo": "Unbegrenzter Speicherplatz",
+          "freeConThree": "6 Monate Änderungshistorie",
+          "professionalProOne": "Gemeinsamer Arbeitsbereich",
+          "professionalProTwo": "Unbegrenzte Mitgliederzahl",
+          "professionalProThree": "Unbegrenzte Anzahl an Gästen (nur anzeigen)",
+          "professionalProFour": "Unbegrenzter Speicherplatz",
+          "professionalProFive": "6 Monate Änderungshistorie",
+          "professionalConOne": "Unbegrenzte Anzahl an Gastmitarbeitern (Bearbeitungszugriff)",
+          "professionalConTwo": "Unbegrenzte KI-Antworten",
+          "professionalConThree": "1 Jahr Änderungshistorie",
+          "canceledInfo": "Dein Plan wurde gekündigt und du wirst am {} auf den kostenlosen Plan herabgestuft."
+        },
+        "deal": {
+          "bannerLabel": "Neujahrsangebot!",
+          "title": "Erweiter dein Team!",
+          "info": "Upgraden und 10 % auf Pro- und Team-Pläne sparen! Steiger die Produktivität deines Arbeitsplatzes mit leistungsstarken neuen Funktionen, einschließlich @:appName KI.",
+          "viewPlans": "Pläne anzeigen"
+        }
       }
     },
     "billingPage": {
+      "menuLabel": "Abrechnung",
+      "title": "Abrechnung",
+      "plan": {
+        "title": "Plan",
+        "freeLabel": "Kostenfrei",
+        "proLabel": "Pro",
+        "planButtonLabel": "Plan ändern",
+        "billingPeriod": "Abrechnungszeitraum",
+        "periodButtonLabel": "Zeitraum bearbeiten"
+      },
       "paymentDetails": {
+        "title": "Zahlungsdetails",
         "methodLabel": "Zahlungsmethode",
         "methodButtonLabel": "Zahlungsmethode bearbeiten"
       }
@@ -598,7 +719,7 @@
       "actions": {
         "upgrade": "Upgrade",
         "downgrade": "Downgrade",
-        "downgradeDisabledTooltip": "Sie werden am Ende des Abrechnungszeitraums automatisch downgegradet",
+        "downgradeDisabledTooltip": "Du wirst am Ende des Abrechnungszeitraums automatisch herabgestuft",
         "current": "Aktuell"
       },
       "freePlan": {
@@ -609,6 +730,7 @@
       },
       "proPlan": {
         "title": "Professionell",
+        "description": "Ein Ort für kleine Gruppen zum Planen und Organisieren.",
         "price": "$10 /Monat",
         "priceInfo": "jährlich abgerechnet"
       },
@@ -644,12 +766,12 @@
         "itemEight": "10.000 monatlich"
       },
       "paymentSuccess": {
-        "title": "Sie sind jetzt im {} Plan!",
-        "description": "Ihre Zahlung wurde erfolgreich verarbeitet und Ihr Plan wurde auf AppFlowy {} aktualisiert. Sie können die Details Ihres Plans auf der Seite \"Plan\" einsehen"
+        "title": "Du bist jetzt im {} Plan!",
+        "description": "Deine Zahlung wurde erfolgreich verarbeitet und dein Plan wurde auf @:appName {} aktualisiert. Du kannst die Details deines Plans auf der Seite \"Plan\" einsehen"
       },
       "downgradeDialog": {
-        "title": "Sind Sie sicher, dass Sie Ihren Plan downgraden wollen?",
-        "description": "Wenn Sie Ihren Plan herabstufen, kehren Sie zum kostenlosen Plan zurück. Mitglieder können den Zugang zu Arbeitsbereichen verlieren und Sie müssen möglicherweise Speicherplatz freigeben, um die Speichergrenzen des kostenlosen Tarifs einzuhalten.",
+        "title": "Bist du sicher, dass du deinen Plan herabstufen willst?",
+        "description": "Wenn du deinen Plan herabstufst, kehrst du zum kostenfreien Plan zurück. Mitglieder können den Zugang zu Arbeitsbereichen verlieren und du musst möglicherweise Speicherplatz freigeben, um die Speichergrenzen des kostenfreien Tarifs einzuhalten.",
         "downgradeLabel": "Downgrade Plan"
       }
     },
@@ -664,7 +786,7 @@
       "notifications": "Benachrichtigungen",
       "open": "Einstellungen öffnen",
       "logout": "Abmelden",
-      "logoutPrompt": "Wollen sie sich wirklich Abmelden?",
+      "logoutPrompt": "Willst du dich wirklich abmelden?",
       "selfEncryptionLogoutPrompt": "Willst du dich wirklich Abmelden? Bitte stelle sicher, dass der Encryption Secret Code kopiert wurde.",
       "syncSetting": "Sync Einstellung",
       "cloudSettings": "Cloud Einstellungen",
@@ -816,7 +938,7 @@
         "failedToAddMember": "Mitglied konnte nicht hinzugefügt werden!",
         "addMemberSuccess": "Mitglied erfolgreich hinzugefügt",
         "removeMember": "Mitglied entfernen",
-        "areYouSureToRemoveMember": "Möchten Sie dieses Mitglied wirklich entfernen?",
+        "areYouSureToRemoveMember": "Möchtest du dieses Mitglied wirklich entfernen?",
         "inviteMemberSuccess": "Die Einladung wurde erfolgreich versendet",
         "failedToInviteMember": "Das Einladen des Mitglieds ist fehlgeschlagen"
       }
@@ -828,7 +950,7 @@
       "doubleTapToCopy": "Zweimal tippen, um den Pfad zu kopieren",
       "restoreLocation": "@:appName-Standardpfad wiederherstellen",
       "customizeLocation": "Einen anderen Ordner öffnen",
-      "restartApp": "Bitte starten Sie die App neu, damit die Änderungen wirksam werden.",
+      "restartApp": "Bitte starte die App neu, damit die Änderungen wirksam werden.",
       "exportDatabase": "Datenbank exportieren",
       "selectFiles": "Dateien auswählen, die exportiert werden sollen",
       "selectAll": "Alle auswählen",
@@ -911,7 +1033,7 @@
     }
   },
   "grid": {
-    "deleteView": "Möchten Sie diese Ansicht wirklich löschen?",
+    "deleteView": "Möchtest du diese Ansicht wirklich löschen?",
     "createView": "Neu",
     "title": {
       "placeholder": "Unbenannt"
@@ -1089,8 +1211,8 @@
       "cannotFindCreatableField": "Es konnte kein geeignetes Feld zum Sortieren gefunden werden",
       "deleteAllSorts": "Alle Sortierungen entfernen",
       "addSort": "Sortierung hinzufügen",
-      "removeSorting": "Möchten Sie die Sortierung entfernen?",
-      "fieldInUse": "Sie sortieren bereits nach diesem Feld"
+      "removeSorting": "Möchtest du die Sortierung entfernen?",
+      "fieldInUse": "Du sortierst bereits nach diesem Feld"
     },
     "row": {
       "duplicate": "Duplikat",
@@ -1103,8 +1225,8 @@
       "action": "Aktion",
       "add": "Klicken, um unten hinzuzufügen",
       "drag": "Ziehen, um zu verschieben",
-      "deleteRowPrompt": "Sind Sie sicher, dass Sie diese Zeile löschen wollen? Diese Aktion kann nicht rückgängig gemacht werden",
-      "deleteCardPrompt": "Sind Sie sicher, dass Sie diese Karte löschen wollen? Diese Aktion kann nicht rückgängig gemacht werden",
+      "deleteRowPrompt": "Bist du sicher, dass du diese Zeile löschen willst? Diese Aktion kann nicht rückgängig gemacht werden",
+      "deleteCardPrompt": "Bist du sicher, dass du diese Karte löschen willst? Diese Aktion kann nicht rückgängig gemacht werden",
       "dragAndClick": "Ziehen, um zu verschieben. Klicke, um das Menü zu öffnen",
       "insertRecordAbove": "Füge Datensatz oben ein",
       "insertRecordBelow": "Füge Datensatz unten ein",
@@ -1133,7 +1255,7 @@
     },
     "checklist": {
       "taskHint": "Aufgbenbeschreibbung",
-      "addNew": "Fügen Sie einen Artikel hinzu",
+      "addNew": "Füge eine Aufgabe hinzu",
       "submitNewTask": "Erstellen",
       "hideComplete": "Blende abgeschlossene Aufgaben aus",
       "showComplete": "Zeige alle Aufgaben"
@@ -1141,7 +1263,7 @@
     "url": {
       "launch": "Im Browser öffnen",
       "copy": "Webadresse kopieren",
-      "textFieldHint": "Geben Sie eine URL ein",
+      "textFieldHint": "Gebe eine URL ein",
       "copiedNotification": "In die Zwischenablage kopiert!"
     },
     "relation": {
@@ -1220,7 +1342,8 @@
       "smartEditCouldNotFetchResult": "Das Ergebnis konnte nicht von OpenAI abgerufen werden",
       "smartEditCouldNotFetchKey": "Der OpenAI-Schlüssel konnte nicht abgerufen werden",
       "smartEditDisabled": "OpenAI in den Einstellungen verbinden",
-      "discardResponse": "Möchten Sie die KI-Antworten verwerfen?",
+      "appflowyAIEditDisabled": "Melde dich an, um KI-Funktionen zu aktivieren",
+      "discardResponse": "Möchtest du die KI-Antworten verwerfen?",
       "createInlineMathEquation": "Formel erstellen",
       "fonts": "Schriftarten",
       "insertDate": "Datum einfügen",
@@ -1254,7 +1377,7 @@
         "addIcon": "Symbol hinzufügen",
         "changeIcon": "Symbol wechseln",
         "coverRemoveAlert": "Nach dem Löschen wird es aus dem Titelbild entfernt.",
-        "alertDialogConfirmation": "Sicher, dass Sie weitermachen wollen?"
+        "alertDialogConfirmation": "Sicher, dass du weitermachen willst?"
       },
       "mathEquation": {
         "name": "Mathematische Formel",
@@ -1288,7 +1411,7 @@
         "convertToLink": "Konvertieren zum eingebetteten Link"
       },
       "outline": {
-        "addHeadingToCreateOutline": "Fügen Sie Überschriften hinzu, um ein Inhaltsverzeichnis zu erstellen.",
+        "addHeadingToCreateOutline": "Füge Überschriften hinzu, um ein Inhaltsverzeichnis zu erstellen.",
         "noMatchHeadings": "Keine passenden Überschriften gefunden."
       },
       "table": {
@@ -1329,7 +1452,7 @@
       "placeholder": "Inhaltsverzeichnis"
     },
     "textBlock": {
-      "placeholder": "Geben Sie „/“ für Inhaltsblöcke ein"
+      "placeholder": "Gebe „/“ für Inhaltsblöcke ein"
     },
     "title": {
       "placeholder": "Ohne Titel"
@@ -1457,6 +1580,7 @@
     "ungroupedButtonTooltip": "Enthält Karten, die keiner Gruppe zugeordnet sind",
     "ungroupedItemsTitle": "Klicke, um dem Board hinzuzufügen",
     "groupBy": "Gruppiert nach",
+    "groupCondition": "Gruppenbedingung",
     "referencedBoardPrefix": "Sicht von",
     "notesTooltip": "Notizen vorhanden",
     "mobile": {
@@ -1511,7 +1635,7 @@
         "other": "{count} Ereignisse ohne Datum"
       },
       "unscheduledEventsTitle": "Ungeplante Events",
-      "clickToAdd": "Klicken Sie, um es zum Kalender hinzuzufügen",
+      "clickToAdd": "Klicken zum hinzufügen im Kalender",
       "name": "Kalendereinstellungen",
       "clickToOpen": "Hier klicken, um den Eintrag zu öffnen"
     },
@@ -1521,7 +1645,7 @@
   },
   "errorDialog": {
     "title": "@:appName-Fehler",
-    "howToFixFallback": "Wir entschuldigen uns für die Unannehmlichkeiten! Reiche auf unserer GitHub-Seite ein Problem ein, das Ihren Fehler beschreibt.",
+    "howToFixFallback": "Wir entschuldigen uns für die Unannehmlichkeiten! Reiche auf unserer GitHub-Seite ein Problem ein, das deinen Fehler beschreibt.",
     "github": "Auf GitHub ansehen"
   },
   "search": {
@@ -1538,8 +1662,8 @@
   },
   "unSupportBlock": "Die aktuelle Version unterstützt diesen Block nicht.",
   "views": {
-    "deleteContentTitle": "Möchten Sie den {pageType} wirklich löschen?",
-    "deleteContentCaption": "Wenn Sie diesen {pageType} löschen, können Sie ihn aus dem Papierkorb wiederherstellen."
+    "deleteContentTitle": "Möchtest du den {pageType} wirklich löschen?",
+    "deleteContentCaption": "Wenn du diesen {pageType} löschst, kannst du ihn aus dem Papierkorb wiederherstellen."
   },
   "colors": {
     "custom": "Individuell",
@@ -1674,7 +1798,7 @@
   },
   "error": {
     "weAreSorry": "Das tut uns leid",
-    "loadingViewError": "Wir haben Schwierigkeiten diese Ansicht zu laden. Bitte prüfe die Internetverbindung, lade die App neu und zögere Sie nicht, dass Team zu kontaktieren, falls das Problem weiterhin besteht."
+    "loadingViewError": "Wir haben Schwierigkeiten diese Ansicht zu laden. Bitte prüfe die Internetverbindung, lade die App neu und zögere nicht, das Team zu kontaktieren, falls das Problem weiterhin besteht."
   },
   "editor": {
     "bold": "Fett",
@@ -1904,37 +2028,39 @@
     "betaLabel": "BETA",
     "betaTooltip": "Wir unterstützen derzeit nur die Suche nach Seiten",
     "fromTrashHint": "Aus dem Mülleimer",
-    "noResultsHint": "Wir haben nicht gefunden, wonach Sie gesucht haben. Versuchen Sie, nach einem anderen Begriff zu suchen.",
+    "noResultsHint": "Wir haben nicht gefunden, wonach du gesucht hast. Versuche nach einem anderen Begriff zu suchen.",
     "clearSearchTooltip": "Suchfeld löschen"
   },
   "space": {
     "delete": "Löschen",
     "deleteConfirmation": "Löschen:",
     "deleteConfirmationDescription": "Alle Seiten innerhalb dieses Space werden gelöscht und in den Papierkorb verschoben.",
-    "rename": "Space umbennen",
+    "rename": "Domäne umbennen",
     "changeIcon": "Symbol ändern",
-    "manage": "Space verwalten",
-    "addNewSpace": "Space erstellen",
+    "manage": "Domäne verwalten",
+    "addNewSpace": "Domäne erstellen",
     "collapseAllSubPages": "Alle Unterseiten einklappen",
-    "createNewSpace": "Einen neuen Space schaffen",
-    "createSpaceDescription": "Erstellen Sie mehrere öffentliche und private Bereiche, um Ihre Arbeit besser zu organisieren.",
-    "spaceName": "Space name",
+    "createNewSpace": "Eine neue Domäne erstellen",
+    "createSpaceDescription": "Erstellen mehrere öffentliche und private Domänen, um deine Arbeit besser zu organisieren.",
+    "spaceName": "Name der Domäne",
     "permission": "Berechtigung",
     "publicPermission": "Öffentlich",
     "publicPermissionDescription": "Alle Mitglieder des Arbeitsbereichs mit Vollzugriff",
     "privatePermission": "Privat",
-    "privatePermissionDescription": "Nur Sie haben Zugang zu diesem Space",
+    "privatePermissionDescription": "Nur du hast Zugang zu dieser Domäne",
     "spaceIconBackground": "Hintergrundfarbe",
     "spaceIcon": "Symbol",
     "dangerZone": "Gefahrenzone",
-    "unableToDeleteLastSpace": "Der letzte Space kann nicht gelöscht werden",
-    "unableToDeleteSpaceNotCreatedByYou": "Von anderen erstellte Spaces können nicht gelöscht werden",
-    "enableSpacesForYourWorkspace": "Spaces für Ihren Arbeitsbereich aktivieren",
-    "title": "Spaces",
+    "unableToDeleteLastSpace": "Die letzte Domäne kann nicht gelöscht werden",
+    "unableToDeleteSpaceNotCreatedByYou": "Von anderen erstellte Domänen können nicht gelöscht werden",
+    "enableSpacesForYourWorkspace": "Domänen für deinen Arbeitsbereich aktivieren",
+    "title": "Domänen",
     "defaultSpaceName": "Allgemein",
-    "upgradeSpaceTitle": "Spaces freigeben",
-    "upgradeSpaceDescription": "Erstellen Sie mehrere öffentliche und private Spaces, um Ihren Arbeitsbereich besser zu organisieren.",
+    "upgradeSpaceTitle": "Domänen aktivieren",
+    "upgradeSpaceDescription": "Erstelle mehrere öffentliche und private Domänen, um deinen Arbeitsbereich besser zu organisieren.",
     "upgrade": "Update",
-    "upgradeYourSpace": "Mehrere Spaces erstellen"
+    "upgradeYourSpace": "Mehrere Domänen erstellen",
+    "quicklySwitch": "Schnell zur nächsten Domäne wechseln",
+    "duplicate": "Domäne duplizieren"
   }
 }

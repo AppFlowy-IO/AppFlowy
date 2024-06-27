@@ -318,7 +318,6 @@
     "accountPage": {
       "menuLabel": "我的帳號",
       "title": "我的帳號",
-      "description": "自訂您的個人資料、管理帳戶安全性和 AI API 金鑰，或登入您的帳號",
       "general": {
         "title": "帳號名稱和個人資料圖片",
         "changeProfilePicture": "更改個人資料圖片"
@@ -329,6 +328,11 @@
           "change": "更改電子郵件"
         }
       },
+      "login": {
+        "title": "帳號登入",
+        "loginLabel": "登入",
+        "logoutLabel": "登出"
+      },
       "keys": {
         "title": "AI API 金鑰",
         "openAILabel": "Open AI API 金鑰",
@@ -338,11 +342,7 @@
         "stabilityAITooltip": "以Stability API 金鑰使用AI 模型",
         "stabilityAIHint": "輸入您的Stability API 金鑰"
       },
-      "login": {
-        "title": "帳號登入",
-        "loginLabel": "登入",
-        "logoutLabel": "登出"
-      }
+      "description": "自訂您的個人資料、管理帳戶安全性和 AI API 金鑰，或登入您的帳號"
     },
     "menu": {
       "appearance": "外觀",
@@ -546,20 +546,6 @@
       "pleaseInputYourStabilityAIKey": "請輸入您的 Stability AI 金鑰",
       "clickToLogout": "點選以登出目前使用者"
     },
-    "shortcuts": {
-      "shortcutsLabel": "快捷鍵",
-      "command": "指令",
-      "keyBinding": "鍵盤綁定",
-      "addNewCommand": "新增指令",
-      "updateShortcutStep": "按下您想要的鍵盤組合並按下 ENTER",
-      "shortcutIsAlreadyUsed": "此快捷鍵已被使用於：{conflict}",
-      "resetToDefault": "重設為預設鍵盤綁定",
-      "couldNotLoadErrorMsg": "無法載入快捷鍵，請再試一次",
-      "couldNotSaveErrorMsg": "無法儲存快捷鍵，請再試一次",
-      "commands": {
-        "textAlignRight": "向右對齊文字"
-      }
-    },
     "mobile": {
       "personalInfo": "個人資料",
       "username": "使用者名稱",
@@ -576,6 +562,20 @@
       "selectLayout": "選擇版面配置",
       "selectStartingDay": "選擇一週的起始日",
       "version": "版本"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "快捷鍵",
+      "command": "指令",
+      "keyBinding": "鍵盤綁定",
+      "addNewCommand": "新增指令",
+      "updateShortcutStep": "按下您想要的鍵盤組合並按下 ENTER",
+      "shortcutIsAlreadyUsed": "此快捷鍵已被使用於：{conflict}",
+      "resetToDefault": "重設為預設鍵盤綁定",
+      "couldNotLoadErrorMsg": "無法載入快捷鍵，請再試一次",
+      "couldNotSaveErrorMsg": "無法儲存快捷鍵，請再試一次",
+      "commands": {
+        "textAlignRight": "向右對齊文字"
+      }
     }
   },
   "grid": {
