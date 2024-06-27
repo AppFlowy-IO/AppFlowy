@@ -14,7 +14,13 @@ impl SearchDepsResolver {
     folder_manager: Arc<FolderManager>,
   ) -> Arc<SearchManager> {
     let folder_handler = Arc::new(FolderSearchHandler::new(folder_indexer));
-    let document_handler = Arc::new(DocumentSearchHandler::new(cloud_service, folder_manager));
-    Arc::new(SearchManager::new(vec![folder_handler, document_handler]))
+    let document_handler = Arc::new(DocumentSearchHandler::new(
+      cloud_service,
+      folder_manager.clone(),
+    ));
+    Arc::new(SearchManager::new(
+      folder_manager,
+      vec![folder_handler, document_handler],
+    ))
   }
 }

@@ -11,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-search/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'command_palette_bloc.freezed.dart';
 
@@ -90,7 +91,8 @@ class CommandPaletteBloc
 
           _messagesReceived++;
 
-          final searchResults = _filterDuplicates(results.items);
+          final allItems = [...state.results, ...results.items];
+          final searchResults = _removeDuplicates(allItems);
           searchResults.sort((a, b) => b.score.compareTo(a.score));
 
           emit(
@@ -133,29 +135,30 @@ class CommandPaletteBloc
     );
   }
 
-  List<SearchResultPB> _filterDuplicates(List<SearchResultPB> results) {
-    final currentItems = [...state.results];
-    final res = [...results];
+  /// Remove duplicates, where retained item is the one with the highest score.
+  List<SearchResultPB> _removeDuplicates(List<SearchResultPB> items) {
+    final res = <SearchResultPB>[];
 
-    for (final item in results) {
-      if (item.data.trim().isEmpty) {
-        continue;
-      }
-
-      final duplicateIndex = currentItems.indexWhere((a) => a.id == item.id);
+    for (final item in items) {
+      final duplicateIndex = res.indexWhere((a) => a.id == item.id);
       if (duplicateIndex == -1) {
+        res.add(item);
         continue;
       }
 
-      final duplicate = currentItems[duplicateIndex];
-      if (item.score < duplicate.score) {
-        res.remove(item);
-      } else {
-        currentItems.remove(duplicate);
+      var (keep, discard) = item.score > res[duplicateIndex].score
+          ? (item, res[duplicateIndex])
+          : (res[duplicateIndex], item);
+
+      if (keep.preview.isEmpty && discard.preview.isNotEmpty) {
+        keep.freeze();
+        keep = keep.rebuild((i) => i.preview = discard.preview);
       }
+
+      res[duplicateIndex] = keep;
     }
 
-    return res..addAll(currentItems);
+    return res;
   }
 
   void _performSearch(String value) =>

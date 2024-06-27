@@ -27,7 +27,12 @@ class RecentViewTile extends StatelessWidget {
         children: [
           icon,
           const HSpace(6),
-          FlowyText(view.name),
+          Flexible(
+            child: FlowyText(
+              view.name,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
       focusColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),

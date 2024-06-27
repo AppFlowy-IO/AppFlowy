@@ -81,6 +81,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
           style: HoverStyle(
             hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
             foregroundColorOnHover: AFThemeExtension.of(context).textColor,
+            borderRadius: BorderRadius.zero,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

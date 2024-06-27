@@ -383,6 +383,11 @@ impl IndexManager for FolderIndexManagerImpl {
 
     let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
 
+    let delete_term = Term::from_field_text(id_field, &data.id.clone());
+    // Remove old index just in case we have duplicate messages
+    // from the index content receiver.
+    index_writer.delete_term(delete_term);
+
     // Add new index
     let _ = index_writer.add_document(doc![
       id_field => data.id,

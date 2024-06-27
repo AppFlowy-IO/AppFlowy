@@ -21,6 +21,7 @@ class FlowyDialog extends StatelessWidget {
     this.alignment,
     this.insetPadding,
     this.width,
+    this.heightFactor = 0.7,
   });
 
   final Widget? title;
@@ -39,10 +40,12 @@ class FlowyDialog extends StatelessWidget {
 
   final double? width;
 
+  final double heightFactor;
+
   @override
   Widget build(BuildContext context) {
     final windowSize = MediaQuery.of(context).size;
-    final size = windowSize * 0.7;
+    final size = windowSize * heightFactor;
 
     return SimpleDialog(
       alignment: alignment,

@@ -1252,7 +1252,7 @@ impl FolderManager {
   }
 
   /// Filter the views that are in the trash and belong to the other private sections.
-  fn get_view_ids_should_be_filtered(&self, folder: &Folder) -> Vec<String> {
+  pub fn get_view_ids_should_be_filtered(&self, folder: &Folder) -> Vec<String> {
     let trash_ids = self.get_all_trash_ids(folder);
     let other_private_view_ids = self.get_other_private_view_ids(folder);
     [trash_ids, other_private_view_ids].concat()
