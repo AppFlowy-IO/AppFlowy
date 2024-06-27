@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -175,41 +176,31 @@ class _ImportPanelState extends State<ImportPanel> {
           }
           break;
         case ImportType.historyDatabase:
-
-          // final result = await ImportBackendService.importPages(
-          //   utf8.encode(data),
-          //   name,
-          //   parentViewId,
-          //   ImportTypePB.HistoryDatabase,
-          // );
-          // result.onFailure((error) {
-          //   showSnackBarMessage(context, error.msg);
-          //   Log.error('Failed to import history database $error');
-          // });
+          importValues.add(
+            ImportValuePayloadPB.create()
+              ..name = name
+              ..data = utf8.encode(data)
+              ..viewLayout = ViewLayoutPB.Grid
+              ..importType = ImportTypePB.HistoryDatabase,
+          );
           break;
         case ImportType.databaseRawData:
-          // final result = await ImportBackendService.importPages(
-          //   utf8.encode(data),
-          //   name,
-          //   parentViewId,
-          //   ImportTypePB.RawDatabase,
-          // );
-          // result.onFailure((error) {
-          //   showSnackBarMessage(context, error.msg);
-          //   Log.error('Failed to import database raw data $error');
-          // });
+          importValues.add(
+            ImportValuePayloadPB.create()
+              ..name = name
+              ..data = utf8.encode(data)
+              ..viewLayout = ViewLayoutPB.Grid
+              ..importType = ImportTypePB.RawDatabase,
+          );
           break;
         case ImportType.databaseCSV:
-          // final result = await ImportBackendService.importPages(
-          //   utf8.encode(data),
-          //   name,
-          //   parentViewId,
-          //   ImportTypePB.CSV,
-          // );
-          // result.onFailure((error) {
-          //   showSnackBarMessage(context, error.msg);
-          //   Log.error('Failed to import CSV $error');
-          // });
+          importValues.add(
+            ImportValuePayloadPB.create()
+              ..name = name
+              ..data = utf8.encode(data)
+              ..viewLayout = ViewLayoutPB.Grid
+              ..importType = ImportTypePB.CSV,
+          );
           break;
         default:
           assert(false, 'Unsupported Type $importType');

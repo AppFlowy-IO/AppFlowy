@@ -1,6 +1,7 @@
 use crate::entities::parser::empty_str::NotEmptyStr;
 use crate::entities::ViewLayoutPB;
 use crate::share::{ImportParams, ImportType, ImportValue};
+use collab_entity::CollabType;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
 
@@ -19,6 +20,17 @@ impl From<ImportTypePB> for ImportType {
       ImportTypePB::HistoryDatabase => ImportType::HistoryDatabase,
       ImportTypePB::RawDatabase => ImportType::RawDatabase,
       ImportTypePB::CSV => ImportType::CSV,
+    }
+  }
+}
+
+impl From<ImportType> for CollabType {
+  fn from(import_type: ImportType) -> Self {
+    match import_type {
+      ImportType::HistoryDocument => CollabType::Document,
+      ImportType::HistoryDatabase => CollabType::Database,
+      ImportType::RawDatabase => CollabType::Database,
+      ImportType::CSV => CollabType::Database,
     }
   }
 }

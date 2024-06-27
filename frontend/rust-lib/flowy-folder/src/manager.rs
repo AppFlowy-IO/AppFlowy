@@ -1028,16 +1028,17 @@ impl FolderManager {
     Ok(())
   }
 
+  /// Imports a single file to the folder and returns the encoded collab for immediate cloud sync.
   pub(crate) async fn import_single_file(
     &self,
     parent_view_id: String,
     import_data: ImportValue,
   ) -> FlowyResult<(View, Option<EncodedCollab>)> {
-    // check the data and file_path, at least one of them should be provided
+    // Ensure either data or file_path is provided
     if import_data.data.is_none() && import_data.file_path.is_none() {
       return Err(FlowyError::new(
         ErrorCode::InvalidParams,
-        "data or file_path is required",
+        "Either data or file_path is required",
       ));
     }
 
@@ -1045,6 +1046,8 @@ impl FolderManager {
     let view_id = gen_view_id().to_string();
     let uid = self.user.user_id()?;
     let mut encoded_collab: Option<EncodedCollab> = None;
+
+    // Import data from bytes if available
     if let Some(data) = import_data.data {
       encoded_collab = Some(
         handler
@@ -1059,7 +1062,9 @@ impl FolderManager {
       );
     }
 
+    // Import data from file path if available
     if let Some(file_path) = import_data.file_path {
+      // TODO(Lucas): return the collab
       handler
         .import_from_file_path(&view_id, &import_data.name, file_path)
         .await?;
@@ -1081,6 +1086,8 @@ impl FolderManager {
     };
 
     let view = create_view(self.user.user_id()?, params, import_data.view_layout);
+
+    // Insert the new view into the folder
     self.with_folder(
       || (),
       |folder| {
@@ -1091,31 +1098,47 @@ impl FolderManager {
     Ok((view, encoded_collab))
   }
 
+  /// Import function to handle the import of data.
   pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<()> {
     let workspace_id = self.user.workspace_id()?;
+
+    // Initialize an empty vector to store the objects
     let mut objects = vec![];
+
+    // Iterate over the values in the import data
     for data in import_data.values {
+      let collab_type = data.import_type.clone().into();
+
+      // Import a single file and get the view and encoded collab data
       let (view, encoded_collab) = self
         .import_single_file(import_data.parent_view_id.clone(), data)
         .await?;
+
       if let Some(encoded_collab) = encoded_collab {
+        // Try to encode the collaboration data to bytes
         let encode_collab_v1 = encoded_collab.encode_to_bytes().map_err(internal_error);
+
+        // If the view can't be encoded, skip it and don't block the whole import process
         match encode_collab_v1 {
           Ok(encode_collab_v1) => objects.push(FolderCollabParams {
             object_id: view.id.clone(),
             encoded_collab_v1: encode_collab_v1,
-            collab_type: CollabType::Document,
+            collab_type,
           }),
-          Err(e) => error!("import error {}"\),
+          Err(e) => {
+            error!("import error {}", e)
+          },
         }
       }
     }
 
+    // Sync the view to the cloud
     self
       .cloud_service
       .batch_create_folder_collab_objects(&workspace_id, objects)
       .await?;
 
+    // Notify that the parent view has changed
     notify_parent_view_did_change(
       &workspace_id,
       self.mutex_folder.clone(),
@@ -1124,7 +1147,6 @@ impl FolderManager {
 
     Ok(())
   }
-
   /// Update the view with the provided view_id using the specified function.
   async fn update_view<F>(&self, view_id: &str, f: F) -> FlowyResult<()>
   where

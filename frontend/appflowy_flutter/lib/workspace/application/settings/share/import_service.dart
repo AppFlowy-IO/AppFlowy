@@ -29,18 +29,3 @@ class ImportBackendService {
     return FolderEventImportData(request).send();
   }
 }
-
-extension on ImportTypePB {
-  ViewLayoutPB toLayout() {
-    switch (this) {
-      case ImportTypePB.HistoryDocument:
-        return ViewLayoutPB.Document;
-      case ImportTypePB.HistoryDatabase ||
-            ImportTypePB.CSV ||
-            ImportTypePB.RawDatabase:
-        return ViewLayoutPB.Grid;
-      default:
-        throw UnimplementedError('Unsupported import type $this');
-    }
-  }
-}

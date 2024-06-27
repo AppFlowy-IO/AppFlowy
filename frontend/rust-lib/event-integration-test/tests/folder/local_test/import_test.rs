@@ -1,7 +1,7 @@
 use crate::util::unzip;
 use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
-use flowy_folder::entities::{ImportPayloadPB, ImportTypePB, ViewLayoutPB};
+use flowy_folder::entities::{ImportPayloadPB, ImportTypePB, ImportValuePayloadPB, ViewLayoutPB};
 
 #[tokio::test]
 async fn import_492_row_csv_file_test() {
@@ -43,13 +43,14 @@ async fn import_10240_row_csv_file_test() {
 }
 
 fn gen_import_data(file_name: String, csv_string: String, workspace_id: String) -> ImportPayloadPB {
-  let import_data = ImportPayloadPB {
+  ImportPayloadPB {
     parent_view_id: workspace_id.clone(),
-    name: file_name,
-    data: Some(csv_string.as_bytes().to_vec()),
-    file_path: None,
-    view_layout: ViewLayoutPB::Grid,
-    import_type: ImportTypePB::CSV,
-  };
-  import_data
+    values: vec![ImportValuePayloadPB {
+      name: file_name,
+      data: Some(csv_string.as_bytes().to_vec()),
+      file_path: None,
+      view_layout: ViewLayoutPB::Grid,
+      import_type: ImportTypePB::CSV,
+    }],
+  }
 }

@@ -312,7 +312,7 @@ impl DatabaseManager {
   pub async fn create_database_with_params(
     &self,
     params: CreateDatabaseParams,
-  ) -> FlowyResult<MutexDatabase> {
+  ) -> FlowyResult<Arc<MutexDatabase>> {
     let wdb = self.get_database_indexer().await?;
     let database = wdb.create_database(params)?;
     Ok(database)
@@ -365,13 +365,19 @@ impl DatabaseManager {
       return Err(FlowyError::internal().with_context("The number of rows exceeds the limit"));
     }
 
+    let view_id = params.inline_view_id.clone();
+    let database_id = params.database_id.clone();
     let database = self.create_database_with_params(params).await?;
+    let encoded_collab = database
+      .lock()
+      .get_collab()
+      .lock()
+      .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))?;
     let result = ImportResult {
-      database_id: params.database_id.clone(),
-      view_id: params.inline_view_id.clone(),
-      database,
+      database_id,
+      view_id,
+      encoded_collab,
     };
-
     Ok(result)
   }
 

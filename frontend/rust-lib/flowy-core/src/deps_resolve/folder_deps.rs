@@ -1,5 +1,4 @@
 use bytes::Bytes;
-use client_api::entity::ai_dto::CollabType;
 use collab_entity::EncodedCollab;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
@@ -408,21 +407,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         String::from_utf8(bytes).map_err(|err| FlowyError::internal().with_context(err))
       })
       .await??;
-
       let result = database_manager
         .import_csv(view_id, content, format)
         .await?;
-      let database = result.database;
-      let encoded_collab = database
-        .into_inner()
-        .get_collab()
-        .lock()
-        .encode_collab_v1(|collab| {
-          CollabType::Database
-            .validate_require_data(collab)
-            .map_err(|_| DatabaseError::NoRequiredData)?
-        });
-      Ok(encoded_collab)
+      Ok(result.encoded_collab)
     })
   }
 
