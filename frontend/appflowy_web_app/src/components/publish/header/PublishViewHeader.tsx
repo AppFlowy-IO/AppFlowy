@@ -17,7 +17,7 @@ export function PublishViewHeader() {
       try {
         const extra = ancestor?.extra ? JSON.parse(ancestor.extra) : {};
 
-        icon = extra.icon?.value || JSON.parse(ancestor.icon || '')?.value;
+        icon = extra.icon?.value || ancestor.icon?.value;
       } catch (e) {
         // ignore
       }

@@ -1,5 +1,6 @@
 import { ClientAPI } from '@appflowyinc/client-api-wasm';
 import { AFCloudConfig } from '@/application/services/services.type';
+import { PublishViewMetaData } from '@/application/collab.type';
 
 let client: ClientAPI;
 
@@ -37,7 +38,12 @@ export function initAPIService(
 }
 
 export async function getPublishView(publishNamespace: string, publishName: string) {
-  return client.get_publish_view(publishNamespace, publishName);
+  const data = await client.get_publish_view(publishNamespace, publishName);
+
+  return {
+    data: data.data,
+    meta: JSON.parse(data.meta.data) as PublishViewMetaData,
+  };
 }
 
 export async function getPublishInfoWithViewId(viewId: string) {
@@ -45,5 +51,8 @@ export async function getPublishInfoWithViewId(viewId: string) {
 }
 
 export async function getPublishViewMeta(publishNamespace: string, publishName: string) {
-  return client.get_publish_view_meta(publishNamespace, publishName);
+  const data = await client.get_publish_view_meta(publishNamespace, publishName);
+  const metadata = JSON.parse(data.data) as PublishViewMetaData;
+
+  return metadata;
 }

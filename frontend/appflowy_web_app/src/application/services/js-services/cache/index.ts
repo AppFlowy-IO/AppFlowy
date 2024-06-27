@@ -1,5 +1,11 @@
-import { MetaData } from '@/application/db/tables/view_metas';
-import { CollabType, YDoc, YjsEditorKey, YSharedRoot } from '@/application/collab.type';
+import {
+  CollabType,
+  PublishViewInfo,
+  PublishViewMetaData,
+  YDoc,
+  YjsEditorKey,
+  YSharedRoot,
+} from '@/application/collab.type';
 import { applyYDoc } from '@/application/ydoc/apply';
 import { db, openCollabDB } from '@/application/db';
 import { Fetcher, StrategyType } from '@/application/services/js-services/cache/types';
@@ -49,11 +55,9 @@ export async function hasViewMetaCache(name: string) {
 
 export async function getPublishViewMeta<
   T extends {
-    metadata: {
-      view: MetaData;
-      child_views: MetaData[];
-      ancestor_views: MetaData[];
-    };
+    view: PublishViewInfo;
+    child_views: PublishViewInfo[];
+    ancestor_views: PublishViewInfo[];
   }
 >(
   fetcher: Fetcher<T>,
@@ -107,11 +111,9 @@ export async function getPublishView<
   T extends {
     data: number[];
     meta: {
-      metadata: {
-        view: MetaData;
-        child_views: MetaData[];
-        ancestor_views: MetaData[];
-      };
+      view: PublishViewInfo;
+      child_views: PublishViewInfo[];
+      ancestor_views: PublishViewInfo[];
     };
   }
 >(
@@ -167,21 +169,19 @@ export async function getPublishView<
 
 export async function revalidatePublishViewMeta<
   T extends {
-    metadata: {
-      view: MetaData;
-      child_views: MetaData[];
-      ancestor_views: MetaData[];
-    };
+    view: PublishViewInfo;
+    child_views: PublishViewInfo[];
+    ancestor_views: PublishViewInfo[];
   }
 >(name: string, fetcher: Fetcher<T>) {
-  const { metadata } = await fetcher();
+  const { view, child_views, ancestor_views } = await fetcher();
 
   await db.view_metas.put(
     {
       publish_name: name,
-      ...metadata.view,
-      child_views: metadata.child_views,
-      ancestor_views: metadata.ancestor_views,
+      ...view,
+      child_views: child_views,
+      ancestor_views: ancestor_views,
     },
     name
   );
@@ -193,13 +193,7 @@ export async function revalidatePublishView<
   T extends {
     data: number[];
     rows?: Record<string, number[]>;
-    meta: {
-      metadata: {
-        view: MetaData;
-        child_views: MetaData[];
-        ancestor_views: MetaData[];
-      };
-    };
+    meta: PublishViewMetaData;
   }
 >(name: string, fetcher: Fetcher<T>, collab: YDoc) {
   const { data, meta, rows } = await fetcher();
@@ -207,9 +201,9 @@ export async function revalidatePublishView<
   await db.view_metas.put(
     {
       publish_name: name,
-      ...meta.metadata.view,
-      child_views: meta.metadata.child_views,
-      ancestor_views: meta.metadata.ancestor_views,
+      ...meta.view,
+      child_views: meta.child_views,
+      ancestor_views: meta.ancestor_views,
     },
     name
   );

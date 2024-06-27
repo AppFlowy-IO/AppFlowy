@@ -1,23 +1,12 @@
 import { Table } from 'dexie';
-
-export interface MetaData {
-  view_id: string;
-  name: string;
-  icon: string | null;
-  layout: number;
-  extra: string | null;
-  created_by: string | null;
-  last_edited_by: string | null;
-  last_edited_time: string;
-  created_at: string;
-}
+import { PublishViewInfo } from '@/application/collab.type';
 
 export type ViewMeta = {
   publish_name: string;
 
-  child_views: MetaData[];
-  ancestor_views: MetaData[];
-} & MetaData;
+  child_views: PublishViewInfo[];
+  ancestor_views: PublishViewInfo[];
+} & PublishViewInfo;
 
 export type ViewMetasTable = {
   view_metas: Table<ViewMeta>;
