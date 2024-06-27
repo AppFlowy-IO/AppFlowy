@@ -20,7 +20,7 @@ function OutlineDrawer({ open, width, onClose }: { open: boolean; width: number;
         '& .MuiDrawer-paper': {
           width,
           boxSizing: 'border-box',
-          borderColor: 'var(--line-border)',
+          borderColor: 'var(--line-divider)',
           boxShadow: 'none',
         },
       }}
