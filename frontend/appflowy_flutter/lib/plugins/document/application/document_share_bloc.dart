@@ -7,7 +7,6 @@ import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
-import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -51,27 +50,31 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
             ),
           );
         },
-        publish: (url) async {
-          // todo: optimize the logic
-          const prefix = 'appflowy';
-          final name = '${view.name}-${uuid()}'.substring(0, 19);
-
+        publish: (nameSpace, publishName) async {
           // set space name
-
           try {
-            final nameSpace =
-                await ViewBackendService.getPublishNameSpace().getOrThrow();
-            if (nameSpace.namespace != prefix) {
-              await ViewBackendService.setPublishNameSpace(prefix).getOrThrow();
-            }
+            final getNameSpaceResult =
+                await ViewBackendService.getPublishNameSpace();
+            final name = await getNameSpaceResult.fold((s) async {
+              Log.error('get publish namespace success: ${s.namespace}');
+              return s.namespace;
+            }, (f) async {
+              Log.error('get publish namespace error: $f');
+              await ViewBackendService.setPublishNameSpace(nameSpace)
+                  .getOrThrow();
+              return nameSpace;
+            });
 
-            final result = await ViewBackendService.publish(view, name: name);
+            await ViewBackendService.publish(
+              view,
+              name: publishName,
+            ).getOrThrow();
 
             emit(
               state.copyWith(
                 isPublished: true,
-                publishResult: result,
-                url: '$_url/${nameSpace.namespace}/$name',
+                publishResult: FlowySuccess(null),
+                url: '$_url/$name/$publishName',
               ),
             );
           } catch (e) {
@@ -173,7 +176,10 @@ class DocumentShareEvent with _$DocumentShareEvent {
     DocumentShareType type,
     String? path,
   ) = _Share;
-  const factory DocumentShareEvent.publish(String url) = _Publish;
+  const factory DocumentShareEvent.publish(
+    String nameSpace,
+    String pageId,
+  ) = _Publish;
   const factory DocumentShareEvent.unPublish() = _UnPublish;
 }
 

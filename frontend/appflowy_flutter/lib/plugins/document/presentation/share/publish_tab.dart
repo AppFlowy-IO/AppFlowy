@@ -4,10 +4,13 @@ import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+final _regExp = RegExp(r'[^\w\-\.@:/]');
 
 class PublishTab extends StatelessWidget {
   const PublishTab({super.key});
@@ -36,12 +39,30 @@ class PublishTab extends StatelessWidget {
                 },
               )
             : _UnPublishWidget(
-                onPublish: () => context
-                    .read<DocumentShareBloc>()
-                    .add(const DocumentShareEvent.publish('')),
+                onPublish: () async {
+                  final publishName = await _generatePublishName(context);
+                  final nameSpace = await _generateNameSpace();
+                  if (context.mounted) {
+                    context.read<DocumentShareBloc>().add(
+                          DocumentShareEvent.publish(nameSpace, publishName),
+                        );
+                  }
+                },
               );
       },
     );
+  }
+
+  Future<String> _generateNameSpace() async {
+    const workspaceName = '';
+    final id = uuid().substring(0, 8);
+    return '$workspaceName$id'.replaceAll(_regExp, '_');
+  }
+
+  Future<String> _generatePublishName(BuildContext context) async {
+    final publishName = context.read<DocumentShareBloc>().view.name;
+    final id = uuid().substring(0, 8);
+    return '$publishName$id'.replaceAll(_regExp, '');
   }
 }
 
