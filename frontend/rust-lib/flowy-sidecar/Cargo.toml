@@ -17,6 +17,7 @@ crossbeam-utils = "0.8.20"
 log = "0.4.21"
 parking_lot.workspace = true
 lib-infra.workspace = true
+futures.workspace = true
 
 
 [dev-dependencies]

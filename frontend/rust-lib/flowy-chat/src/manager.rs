@@ -278,11 +278,11 @@ impl ChatCloudService for ChatService {
     limit: u64,
   ) -> FutureResult<RepeatedChatMessage, FlowyError> {
     FutureResult::new(async move {
-      RepeatedChatMessage {
+      Ok(RepeatedChatMessage {
         messages: vec![],
         has_more: false,
         total: 0,
-      }
+      })
     })
   }
 
@@ -293,10 +293,10 @@ impl ChatCloudService for ChatService {
     message_id: i64,
   ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
     FutureResult::new(async move {
-      RepeatedRelatedQuestion {
+      Ok(RepeatedRelatedQuestion {
         message_id,
         items: vec![],
-      }
+      })
     })
   }
 

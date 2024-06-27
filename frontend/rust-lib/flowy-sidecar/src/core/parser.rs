@@ -1,6 +1,7 @@
 use crate::core::rpc_object::RpcObject;
+use crate::core::rpc_peer::ResponsePayload;
 use crate::error::{ReadError, RemoteError};
-use serde_json::{json, Value};
+use serde_json::{json, Value as JsonValue};
 use std::io::BufRead;
 
 #[derive(Debug, Default)]
@@ -30,7 +31,7 @@ impl MessageReader {
   /// This should not be called directly unless you are writing tests.
   #[doc(hidden)]
   pub fn parse(&self, s: &str) -> Result<RpcObject, ReadError> {
-    match serde_json::from_str::<Value>(s) {
+    match serde_json::from_str::<JsonValue>(s) {
       Ok(val) => {
         if !val.is_object() {
           Err(ReadError::NotObject(s.to_string()))
@@ -44,10 +45,10 @@ impl MessageReader {
 }
 
 pub type RequestId = u64;
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 /// An RPC call, which may be either a notification or a request.
 pub enum Call<R> {
-  Message(Value),
+  Message(JsonValue),
   /// An id and an RPC Request
   Request(RequestId, R),
   /// A malformed request: the request contained an id, but could
@@ -57,17 +58,17 @@ pub enum Call<R> {
 
 pub trait ResponseParser {
   type ValueType;
-  fn parse_response(json: serde_json::Value) -> Result<Self::ValueType, RemoteError>;
+  fn parse_response(payload: JsonValue) -> Result<Self::ValueType, RemoteError>;
 }
 
 pub struct ChatResponseParser;
 impl ResponseParser for ChatResponseParser {
   type ValueType = String;
 
-  fn parse_response(json: Value) -> Result<Self::ValueType, RemoteError> {
+  fn parse_response(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
     if json.is_object() {
-      if let Some(message) = json.get("data") {
-        if let Some(message) = message.as_str() {
+      if let Some(data) = json.get("data") {
+        if let Some(message) = data.as_str() {
           return Ok(message.to_string());
         }
       }
@@ -78,12 +79,12 @@ impl ResponseParser for ChatResponseParser {
 
 pub struct ChatRelatedQuestionsResponseParser;
 impl ResponseParser for ChatRelatedQuestionsResponseParser {
-  type ValueType = Vec<Value>;
+  type ValueType = Vec<JsonValue>;
 
-  fn parse_response(json: Value) -> Result<Self::ValueType, RemoteError> {
+  fn parse_response(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
     if json.is_object() {
-      if let Some(message) = json.get("data") {
-        if let Some(values) = message.as_array() {
+      if let Some(data) = json.get("data") {
+        if let Some(values) = data.as_array() {
           return Ok(values.clone());
         }
       }
@@ -96,7 +97,7 @@ pub struct SimilarityResponseParser;
 impl ResponseParser for SimilarityResponseParser {
   type ValueType = f64;
 
-  fn parse_response(json: Value) -> Result<Self::ValueType, RemoteError> {
+  fn parse_response(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
     if json.is_object() {
       if let Some(data) = json.get("data") {
         if let Some(score) = data.get("score").and_then(|v| v.as_f64()) {
@@ -104,6 +105,7 @@ impl ResponseParser for SimilarityResponseParser {
         }
       }
     }
+
     return Err(RemoteError::InvalidResponse(json));
   }
 }

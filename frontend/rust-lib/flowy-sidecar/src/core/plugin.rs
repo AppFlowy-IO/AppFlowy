@@ -1,16 +1,15 @@
 use crate::error::Error;
 use crate::manager::WeakSidecarState;
 
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
-use std::io::BufReader;
-
-use std::process::{Child, Stdio};
-use std::sync::Arc;
-
 use crate::core::parser::ResponseParser;
 use crate::core::rpc_loop::RpcLoop;
+use crate::core::rpc_peer::{Callback, ResponsePayload};
 use anyhow::anyhow;
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value as JsonValue};
+use std::io::BufReader;
+use std::process::{Child, Stdio};
+use std::sync::Arc;
 use std::thread;
 use std::time::Instant;
 use tracing::{error, info};
@@ -26,16 +25,6 @@ impl From<i64> for PluginId {
   }
 }
 
-pub trait Callback: Send {
-  fn call(self: Box<Self>, result: Result<Value, Error>);
-}
-
-impl<F: Send + FnOnce(Result<Value, Error>)> Callback for F {
-  fn call(self: Box<F>, result: Result<Value, Error>) {
-    (*self)(result)
-  }
-}
-
 /// The `Peer` trait defines the interface for the opposite side of the RPC channel,
 /// designed to be used behind a pointer or as a trait object.
 pub trait Peer: Send + Sync + 'static {
@@ -43,14 +32,14 @@ pub trait Peer: Send + Sync + 'static {
   fn box_clone(&self) -> Arc<dyn Peer>;
 
   /// Sends an RPC notification to the peer with the specified method and parameters.
-  fn send_rpc_notification(&self, method: &str, params: &Value);
+  fn send_rpc_notification(&self, method: &str, params: &JsonValue);
 
   /// Sends an asynchronous RPC request to the peer and executes the provided callback upon completion.
-  fn send_rpc_request_async(&self, method: &str, params: &Value, f: Box<dyn Callback>);
+  fn send_rpc_request_async(&self, method: &str, params: &JsonValue, f: Box<dyn Callback>);
 
   /// Sends a synchronous RPC request to the peer and waits for the result.
   /// Returns the result of the request or an error.
-  fn send_rpc_request(&self, method: &str, params: &Value) -> Result<Value, Error>;
+  fn send_rpc_request(&self, method: &str, params: &JsonValue) -> Result<JsonValue, Error>;
 
   /// Checks if there is an incoming request pending, intended to reduce latency for bulk operations done in the background.
   fn request_is_pending(&self) -> bool;
@@ -77,19 +66,19 @@ pub struct Plugin {
 }
 
 impl Plugin {
-  pub fn initialize(&self, value: Value) -> Result<(), Error> {
+  pub fn initialize(&self, value: JsonValue) -> Result<(), Error> {
     self.peer.send_rpc_request("initialize", &value)?;
     Ok(())
   }
 
-  pub fn send_request(&self, method: &str, params: &Value) -> Result<Value, Error> {
+  pub fn send_request(&self, method: &str, params: &JsonValue) -> Result<JsonValue, Error> {
     self.peer.send_rpc_request(method, params)
   }
 
   pub async fn async_send_request<P: ResponseParser>(
     &self,
     method: &str,
-    params: &Value,
+    params: &JsonValue,
   ) -> Result<P::ValueType, Error> {
     let (tx, rx) = tokio::sync::oneshot::channel();
     self.peer.send_rpc_request_async(
@@ -140,7 +129,7 @@ pub(crate) async fn start_plugin_process(
           let mut looper = RpcLoop::new(child_stdin);
           let peer: RpcPeer = Arc::new(looper.get_raw_peer());
           let name = plugin_info.name.clone();
-          peer.send_rpc_notification("ping", &Value::Array(Vec::new()));
+          peer.send_rpc_notification("ping", &JsonValue::Array(Vec::new()));
 
           let plugin = Plugin {
             peer,

@@ -1,5 +1,5 @@
 use crate::core::parser::{Call, RequestId};
-use crate::core::rpc_peer::Response;
+use crate::core::rpc_peer::{Response, ResponsePayload};
 use serde::de::{DeserializeOwned, Error};
 use serde_json::Value;
 
@@ -39,7 +39,7 @@ impl RpcObject {
     }
     let result = self.0.as_object_mut().and_then(|obj| obj.remove("result"));
     match result {
-      Some(r) => Ok(Ok(r)),
+      Some(r) => Ok(Ok(ResponsePayload::Json(r))),
       None => {
         let error = self
           .0

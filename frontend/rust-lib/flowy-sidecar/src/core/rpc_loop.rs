@@ -1,7 +1,7 @@
 use crate::core::parser::{Call, MessageReader};
 use crate::core::plugin::RpcCtx;
 use crate::core::rpc_object::RpcObject;
-use crate::core::rpc_peer::{RawPeer, RpcState};
+use crate::core::rpc_peer::{RawPeer, ResponsePayload, RpcState};
 use crate::error::{Error, ReadError, RemoteError};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
@@ -15,7 +15,11 @@ const MAX_IDLE_WAIT: Duration = Duration::from_millis(5);
 
 pub trait Handler {
   type Request: DeserializeOwned;
-  fn handle_request(&mut self, ctx: &RpcCtx, rpc: Self::Request) -> Result<Value, RemoteError>;
+  fn handle_request(
+    &mut self,
+    ctx: &RpcCtx,
+    rpc: Self::Request,
+  ) -> Result<ResponsePayload, RemoteError>;
   #[allow(unused_variables)]
   fn idle(&mut self, ctx: &RpcCtx, token: usize) {}
 }

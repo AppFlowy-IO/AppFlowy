@@ -1,5 +1,6 @@
+use crate::core::rpc_peer::ResponsePayload;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde_json::{json, Value};
+use serde_json::{json, Value as JsonValue};
 use std::{fmt, io};
 
 /// The error type of `tauri-utils`.
@@ -36,30 +37,30 @@ pub enum ReadError {
   Disconnect,
 }
 
-#[derive(Debug, Clone, PartialEq, thiserror::Error)]
+#[derive(Debug, Clone, thiserror::Error)]
 pub enum RemoteError {
   /// The JSON was valid, but was not a correctly formed request.
   ///
   /// This Error is used internally, and should not be returned by
   /// clients.
   #[error("Invalid request: {0:?}")]
-  InvalidRequest(Option<Value>),
+  InvalidRequest(Option<JsonValue>),
 
   #[error("Invalid response: {0}")]
-  InvalidResponse(Value),
+  InvalidResponse(JsonValue),
   /// A custom error, defined by the client.
   #[error("Custom error: {message}")]
   Custom {
     code: i64,
     message: String,
-    data: Option<Value>,
+    data: Option<JsonValue>,
   },
   /// An error that cannot be represented by an error object.
   ///
   /// This error is intended to accommodate clients that return arbitrary
   /// error values. It should not be used for new errors.
   #[error("Unknown error: {0}")]
-  Unknown(Value),
+  Unknown(JsonValue),
 }
 
 impl ReadError {
@@ -110,7 +111,7 @@ struct ErrorHelper {
   code: i64,
   message: String,
   #[serde(skip_serializing_if = "Option::is_none")]
-  data: Option<Value>,
+  data: Option<JsonValue>,
 }
 
 impl<'de> Deserialize<'de> for RemoteError {
@@ -118,7 +119,7 @@ impl<'de> Deserialize<'de> for RemoteError {
   where
     D: Deserializer<'de>,
   {
-    let v = Value::deserialize(deserializer)?;
+    let v = JsonValue::deserialize(deserializer)?;
     let resp = match ErrorHelper::deserialize(&v) {
       Ok(resp) => resp,
       Err(_) => return Ok(RemoteError::Unknown(v)),
@@ -150,7 +151,11 @@ impl Serialize for RemoteError {
       RemoteError::Unknown(_) => {
         panic!("The 'Unknown' error variant is not intended for client use.")
       },
-      RemoteError::InvalidResponse(s) => (-1, "Invalid response".to_string(), Some(s.clone())),
+      RemoteError::InvalidResponse(resp) => (
+        -1,
+        "Invalid response".to_string(),
+        Some(json!(resp.to_string())),
+      ),
     };
     let err = ErrorHelper {
       code,

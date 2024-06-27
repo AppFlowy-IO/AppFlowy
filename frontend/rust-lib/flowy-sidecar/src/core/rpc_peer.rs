@@ -1,11 +1,14 @@
-use crate::core::plugin::{Callback, Peer, PluginId};
+use crate::core::plugin::{Peer, PluginId};
 use crate::core::rpc_object::RpcObject;
 use crate::error::{Error, ReadError, RemoteError};
+use futures::Stream;
 use parking_lot::{Condvar, Mutex};
 use serde::{de, ser, Deserialize, Deserializer, Serialize, Serializer};
-use serde_json::{json, Value};
+use serde_json::{json, Value as JsonValue};
 use std::collections::{BTreeMap, BinaryHeap, VecDeque};
+use std::fmt::Display;
 use std::io::Write;
+use std::pin::Pin;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{mpsc, Arc};
 use std::time::{Duration, Instant};
@@ -37,7 +40,7 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for PluginCommand<T> {
     struct PluginIdHelper {
       plugin_id: PluginId,
     }
-    let v = Value::deserialize(deserializer)?;
+    let v = JsonValue::deserialize(deserializer)?;
     let plugin_id = PluginIdHelper::deserialize(&v)
       .map_err(de::Error::custom)?
       .plugin_id;
@@ -82,7 +85,7 @@ impl<W: Write + Send + 'static> Peer for RawPeer<W> {
   fn box_clone(&self) -> Arc<dyn Peer> {
     Arc::new((*self).clone())
   }
-  fn send_rpc_notification(&self, method: &str, params: &Value) {
+  fn send_rpc_notification(&self, method: &str, params: &JsonValue) {
     if let Err(e) = self.send(&json!({
         "method": method,
         "params": params,
@@ -94,11 +97,11 @@ impl<W: Write + Send + 'static> Peer for RawPeer<W> {
     }
   }
 
-  fn send_rpc_request_async(&self, method: &str, params: &Value, f: Box<dyn Callback>) {
+  fn send_rpc_request_async(&self, method: &str, params: &JsonValue, f: Box<dyn Callback>) {
     self.send_rpc(method, params, ResponseHandler::Callback(f));
   }
 
-  fn send_rpc_request(&self, method: &str, params: &Value) -> Result<Value, Error> {
+  fn send_rpc_request(&self, method: &str, params: &JsonValue) -> Result<JsonValue, Error> {
     let (tx, rx) = mpsc::channel();
     self.0.is_blocking.store(true, Ordering::Release);
     self.send_rpc(method, params, ResponseHandler::Chan(tx));
@@ -119,7 +122,7 @@ impl<W: Write + Send + 'static> Peer for RawPeer<W> {
 }
 
 impl<W: Write> RawPeer<W> {
-  fn send(&self, v: &Value) -> Result<(), io::Error> {
+  fn send(&self, v: &JsonValue) -> Result<(), io::Error> {
     let mut s = serde_json::to_string(v).unwrap();
     s.push('\n');
     self.0.writer.lock().write_all(s.as_bytes())
@@ -128,7 +131,12 @@ impl<W: Write> RawPeer<W> {
   pub(crate) fn respond(&self, result: Response, id: u64) {
     let mut response = json!({ "id": id });
     match result {
-      Ok(result) => response["result"] = result,
+      Ok(result) => match result {
+        ResponsePayload::Json(value) => response["result"] = value,
+        ResponsePayload::Stream(_) => {
+          error!("stream response not supported")
+        },
+      },
       Err(error) => response["error"] = json!(error),
     };
     if let Err(e) = self.send(&response) {
@@ -136,7 +144,7 @@ impl<W: Write> RawPeer<W> {
     }
   }
 
-  fn send_rpc(&self, method: &str, params: &Value, rh: ResponseHandler) {
+  fn send_rpc(&self, method: &str, params: &JsonValue, rh: ResponseHandler) {
     trace!("[RPC] call method: {} params: {:?}", method, params);
     let id = self.0.id.fetch_add(1, Ordering::Relaxed);
     {
@@ -158,16 +166,22 @@ impl<W: Write> RawPeer<W> {
     }
   }
 
-  pub(crate) fn handle_response(&self, id: u64, resp: Result<Value, Error>) {
+  pub(crate) fn handle_response(&self, id: u64, resp: Result<ResponsePayload, Error>) {
     let id = id as usize;
     let handler = {
       let mut pending = self.0.pending.lock();
       pending.remove(&id)
     };
+    let is_stream = resp.as_ref().map(|resp| resp.is_stream()).unwrap_or(false);
     match handler {
       Some(response_handler) => {
-        //
-        response_handler.invoke(resp)
+        let json = resp.map(|resp| resp.into_json());
+        response_handler.invoke(json);
+
+        // if is_stream {
+        //   let mut pending = self.0.pending.lock();
+        //   pending.insert(id, response_handler);
+        // }
       },
       None => warn!("[RPC] id {} not found in pending", id),
     }
@@ -250,18 +264,70 @@ impl<W: Write> Clone for RawPeer<W> {
   }
 }
 
-pub struct ResponsePayload {
-  value: Value,
+#[derive(Clone, Debug)]
+pub enum ResponsePayload {
+  Json(JsonValue),
+  Stream(JsonValue),
 }
 
-pub type Response = Result<Value, RemoteError>;
+impl ResponsePayload {
+  pub fn empty_json() -> Self {
+    ResponsePayload::Json(json!({}))
+  }
+
+  pub fn is_stream(&self) -> bool {
+    match self {
+      ResponsePayload::Json(_) => false,
+      ResponsePayload::Stream(_) => true,
+    }
+  }
+
+  pub fn json(&self) -> &JsonValue {
+    match self {
+      ResponsePayload::Json(v) => v,
+      ResponsePayload::Stream(v) => v,
+    }
+  }
+
+  pub fn into_json(self) -> JsonValue {
+    match self {
+      ResponsePayload::Json(v) => v,
+      ResponsePayload::Stream(v) => v,
+    }
+  }
+}
+
+impl Display for ResponsePayload {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    match self {
+      ResponsePayload::Json(v) => write!(f, "{}", v),
+      ResponsePayload::Stream(_) => write!(f, "stream"),
+    }
+  }
+}
+
+pub type Response = Result<ResponsePayload, RemoteError>;
+
+pub trait ResponseStream: Stream<Item = Result<JsonValue, Error>> + Unpin + Send {}
+
+impl<T> ResponseStream for T where T: Stream<Item = Result<JsonValue, Error>> + Unpin + Send {}
+
 enum ResponseHandler {
-  Chan(mpsc::Sender<Result<Value, Error>>),
+  Chan(mpsc::Sender<Result<JsonValue, Error>>),
   Callback(Box<dyn Callback>),
+}
+pub trait Callback: Send {
+  fn call(self: Box<Self>, result: Result<JsonValue, Error>);
+}
+
+impl<F: Send + FnOnce(Result<JsonValue, Error>)> Callback for F {
+  fn call(self: Box<F>, result: Result<JsonValue, Error>) {
+    (*self)(result)
+  }
 }
 
 impl ResponseHandler {
-  fn invoke(self, result: Result<Value, Error>) {
+  fn invoke(self, result: Result<JsonValue, Error>) {
     match self {
       ResponseHandler::Chan(tx) => {
         let _ = tx.send(result);

@@ -1,7 +1,7 @@
 use crate::core::parser::ResponseParser;
 use crate::core::plugin::{start_plugin_process, Plugin, PluginId, PluginInfo, RpcCtx};
 use crate::core::rpc_loop::Handler;
-use crate::core::rpc_peer::PluginCommand;
+use crate::core::rpc_peer::{PluginCommand, ResponsePayload};
 use crate::error::{Error, ReadError, RemoteError};
 use anyhow::anyhow;
 use lib_infra::util::{get_operating_system, OperatingSystem};
@@ -176,8 +176,12 @@ impl WeakSidecarState {
 impl Handler for WeakSidecarState {
   type Request = PluginCommand<String>;
 
-  fn handle_request(&mut self, _ctx: &RpcCtx, rpc: Self::Request) -> Result<Value, RemoteError> {
+  fn handle_request(
+    &mut self,
+    _ctx: &RpcCtx,
+    rpc: Self::Request,
+  ) -> Result<ResponsePayload, RemoteError> {
     trace!("handling request: {:?}", rpc.cmd);
-    Ok(json!({}))
+    Ok(ResponsePayload::empty_json())
   }
 }

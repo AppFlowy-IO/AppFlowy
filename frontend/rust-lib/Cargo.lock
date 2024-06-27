@@ -2148,6 +2148,7 @@ dependencies = [
  "anyhow",
  "crossbeam-utils",
  "dotenv",
+ "futures",
  "lib-infra",
  "log",
  "once_cell",
