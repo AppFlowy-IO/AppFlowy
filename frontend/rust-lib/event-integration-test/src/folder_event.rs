@@ -258,7 +258,7 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
-  pub async fn import_data(&self, data: ImportPB) -> ViewPB {
+  pub async fn import_data(&self, data: ImportPayloadPB) -> ViewPB {
     EventBuilder::new(self.clone())
       .event(FolderEvent::ImportData)
       .payload(data)

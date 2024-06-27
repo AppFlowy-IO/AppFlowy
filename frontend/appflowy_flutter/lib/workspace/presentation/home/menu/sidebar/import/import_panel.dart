@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -7,8 +6,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/share/import_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
@@ -153,6 +150,8 @@ class _ImportPanelState extends State<ImportPanel> {
 
     showLoading.value = true;
 
+    final importValues = <ImportValuePayloadPB>[];
+
     for (final file in result.files) {
       final path = file.path;
       if (path == null) {
@@ -166,58 +165,61 @@ class _ImportPanelState extends State<ImportPanel> {
         case ImportType.historyDocument:
           final bytes = _documentDataFrom(importType, data);
           if (bytes != null) {
-            final result = await ImportBackendService.importData(
-              bytes,
-              name,
-              parentViewId,
-              ImportTypePB.HistoryDocument,
+            importValues.add(
+              ImportValuePayloadPB.create()
+                ..name = name
+                ..data = bytes
+                ..viewLayout = ViewLayoutPB.Document
+                ..importType = ImportTypePB.HistoryDocument,
             );
-            result.onFailure((error) {
-              showSnackBarMessage(context, error.msg);
-              Log.error('Failed to import markdown $error');
-            });
           }
           break;
         case ImportType.historyDatabase:
-          final result = await ImportBackendService.importData(
-            utf8.encode(data),
-            name,
-            parentViewId,
-            ImportTypePB.HistoryDatabase,
-          );
-          result.onFailure((error) {
-            showSnackBarMessage(context, error.msg);
-            Log.error('Failed to import history database $error');
-          });
+
+          // final result = await ImportBackendService.importPages(
+          //   utf8.encode(data),
+          //   name,
+          //   parentViewId,
+          //   ImportTypePB.HistoryDatabase,
+          // );
+          // result.onFailure((error) {
+          //   showSnackBarMessage(context, error.msg);
+          //   Log.error('Failed to import history database $error');
+          // });
           break;
         case ImportType.databaseRawData:
-          final result = await ImportBackendService.importData(
-            utf8.encode(data),
-            name,
-            parentViewId,
-            ImportTypePB.RawDatabase,
-          );
-          result.onFailure((error) {
-            showSnackBarMessage(context, error.msg);
-            Log.error('Failed to import database raw data $error');
-          });
+          // final result = await ImportBackendService.importPages(
+          //   utf8.encode(data),
+          //   name,
+          //   parentViewId,
+          //   ImportTypePB.RawDatabase,
+          // );
+          // result.onFailure((error) {
+          //   showSnackBarMessage(context, error.msg);
+          //   Log.error('Failed to import database raw data $error');
+          // });
           break;
         case ImportType.databaseCSV:
-          final result = await ImportBackendService.importData(
-            utf8.encode(data),
-            name,
-            parentViewId,
-            ImportTypePB.CSV,
-          );
-          result.onFailure((error) {
-            showSnackBarMessage(context, error.msg);
-            Log.error('Failed to import CSV $error');
-          });
+          // final result = await ImportBackendService.importPages(
+          //   utf8.encode(data),
+          //   name,
+          //   parentViewId,
+          //   ImportTypePB.CSV,
+          // );
+          // result.onFailure((error) {
+          //   showSnackBarMessage(context, error.msg);
+          //   Log.error('Failed to import CSV $error');
+          // });
           break;
         default:
           assert(false, 'Unsupported Type $importType');
       }
     }
+
+    await ImportBackendService.importPages(
+      parentViewId,
+      importValues,
+    );
 
     showLoading.value = false;
     widget.importCallback(importType, '', null);

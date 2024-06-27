@@ -1,4 +1,6 @@
 use bytes::Bytes;
+use client_api::entity::ai_dto::CollabType;
+use collab_entity::EncodedCollab;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_chat::chat_manager::ChatManager;
@@ -229,15 +231,15 @@ impl FolderOperationHandler for DocumentFolderOperation {
     _name: &str,
     _import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<EncodedCollab, FlowyError> {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
-      manager
+      let encoded_collab = manager
         .create_document(uid, &view_id, Some(data.into()))
         .await?;
-      Ok(())
+      Ok(encoded_collab)
     })
   }
 
@@ -392,7 +394,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     _name: &str,
     import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<EncodedCollab, FlowyError> {
     let database_manager = self.0.clone();
     let view_id = view_id.to_string();
     let format = match import_type {
@@ -407,10 +409,20 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       })
       .await??;
 
-      database_manager
+      let result = database_manager
         .import_csv(view_id, content, format)
         .await?;
-      Ok(())
+      let database = result.database;
+      let encoded_collab = database
+        .into_inner()
+        .get_collab()
+        .lock()
+        .encode_collab_v1(|collab| {
+          CollabType::Database
+            .validate_require_data(collab)
+            .map_err(|_| DatabaseError::NoRequiredData)?
+        });
+      Ok(encoded_collab)
     })
   }
 
@@ -531,7 +543,7 @@ impl FolderOperationHandler for ChatFolderOperation {
     _name: &str,
     _import_type: ImportType,
     _bytes: Vec<u8>,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<EncodedCollab, FlowyError> {
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
 

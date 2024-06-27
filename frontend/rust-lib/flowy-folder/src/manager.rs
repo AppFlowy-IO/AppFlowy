@@ -12,13 +12,13 @@ use crate::manager_observer::{
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
 };
-use crate::share::ImportParams;
+use crate::share::{ImportParams, ImportValue};
 use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 use collab::core::collab::{DataSource, MutexCollab};
-use collab_entity::CollabType;
+use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::error::FolderError;
 use collab_folder::{
   Folder, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout, ViewUpdate,
@@ -26,8 +26,8 @@ use collab_folder::{
 };
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::CollabKVDB;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService, FolderCollabParams};
 use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::StorePreferences;
@@ -1028,8 +1028,12 @@ impl FolderManager {
     Ok(())
   }
 
-  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {
-    let workspace_id = self.user.workspace_id()?;
+  pub(crate) async fn import_single_file(
+    &self,
+    parent_view_id: String,
+    import_data: ImportValue,
+  ) -> FlowyResult<(View, Option<EncodedCollab>)> {
+    // check the data and file_path, at least one of them should be provided
     if import_data.data.is_none() && import_data.file_path.is_none() {
       return Err(FlowyError::new(
         ErrorCode::InvalidParams,
@@ -1040,16 +1044,19 @@ impl FolderManager {
     let handler = self.get_handler(&import_data.view_layout)?;
     let view_id = gen_view_id().to_string();
     let uid = self.user.user_id()?;
+    let mut encoded_collab: Option<EncodedCollab> = None;
     if let Some(data) = import_data.data {
-      handler
-        .import_from_bytes(
-          uid,
-          &view_id,
-          &import_data.name,
-          import_data.import_type,
-          data,
-        )
-        .await?;
+      encoded_collab = Some(
+        handler
+          .import_from_bytes(
+            uid,
+            &view_id,
+            &import_data.name,
+            import_data.import_type,
+            data,
+          )
+          .await?,
+      );
     }
 
     if let Some(file_path) = import_data.file_path {
@@ -1059,7 +1066,7 @@ impl FolderManager {
     }
 
     let params = CreateViewParams {
-      parent_view_id: import_data.parent_view_id,
+      parent_view_id,
       name: import_data.name,
       desc: "".to_string(),
       layout: import_data.view_layout.clone().into(),
@@ -1080,12 +1087,42 @@ impl FolderManager {
         folder.insert_view(view.clone(), None);
       },
     );
+
+    Ok((view, encoded_collab))
+  }
+
+  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    let mut objects = vec![];
+    for data in import_data.values {
+      let (view, encoded_collab) = self
+        .import_single_file(import_data.parent_view_id.clone(), data)
+        .await?;
+      if let Some(encoded_collab) = encoded_collab {
+        let encode_collab_v1 = encoded_collab.encode_to_bytes().map_err(internal_error);
+        match encode_collab_v1 {
+          Ok(encode_collab_v1) => objects.push(FolderCollabParams {
+            object_id: view.id.clone(),
+            encoded_collab_v1: encode_collab_v1,
+            collab_type: CollabType::Document,
+          }),
+          Err(e) => error!("import error {}"\),
+        }
+      }
+    }
+
+    self
+      .cloud_service
+      .batch_create_folder_collab_objects(&workspace_id, objects)
+      .await?;
+
     notify_parent_view_did_change(
       &workspace_id,
       self.mutex_folder.clone(),
-      vec![view.parent_view_id.clone()],
+      vec![import_data.parent_view_id],
     );
-    Ok(view)
+
+    Ok(())
   }
 
   /// Update the view with the provided view_id using the specified function.

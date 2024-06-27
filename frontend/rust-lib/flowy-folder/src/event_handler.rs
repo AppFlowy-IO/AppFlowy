@@ -363,14 +363,13 @@ pub(crate) async fn delete_my_trash_handler(
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn import_data_handler(
-  data: AFPluginData<ImportPB>,
+  data: AFPluginData<ImportPayloadPB>,
   folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<ViewPB, FlowyError> {
+) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: ImportParams = data.into_inner().try_into()?;
-  let view = folder.import(params).await?;
-  let view_pb = view_pb_without_child_views(view);
-  data_result_ok(view_pb)
+  folder.import(params).await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]

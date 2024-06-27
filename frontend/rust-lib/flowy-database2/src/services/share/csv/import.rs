@@ -1,6 +1,8 @@
 use std::{fs::File, io::prelude::*};
 
-use collab_database::database::{gen_database_id, gen_field_id, gen_row_id, timestamp};
+use collab_database::database::{
+  gen_database_id, gen_field_id, gen_row_id, timestamp, MutexDatabase,
+};
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, CreateRowParams};
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
@@ -166,6 +168,7 @@ impl FieldsRows {
 pub struct ImportResult {
   pub database_id: String,
   pub view_id: String,
+  pub database: MutexDatabase,
 }
 
 #[cfg(test)]

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::{DataSource, MutexCollab};
-use collab_database::database::DatabaseData;
+use collab_database::database::{DatabaseData, MutexDatabase};
 use collab_database::error::DatabaseError;
 use collab_database::rows::RowId;
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
@@ -309,10 +309,13 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn create_database_with_params(&self, params: CreateDatabaseParams) -> FlowyResult<()> {
+  pub async fn create_database_with_params(
+    &self,
+    params: CreateDatabaseParams,
+  ) -> FlowyResult<MutexDatabase> {
     let wdb = self.get_database_indexer().await?;
-    let _ = wdb.create_database(params)?;
-    Ok(())
+    let database = wdb.create_database(params)?;
+    Ok(database)
   }
 
   /// A linked view is a view that is linked to existing database.
@@ -362,11 +365,13 @@ impl DatabaseManager {
       return Err(FlowyError::internal().with_context("The number of rows exceeds the limit"));
     }
 
+    let database = self.create_database_with_params(params).await?;
     let result = ImportResult {
       database_id: params.database_id.clone(),
       view_id: params.inline_view_id.clone(),
+      database,
     };
-    self.create_database_with_params(params).await?;
+
     Ok(result)
   }
 
