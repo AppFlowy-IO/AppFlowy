@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/share/pubish_color_extension.dart';
 import 'package:appflowy/plugins/document/presentation/share/publish_name_generator.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -110,7 +111,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
             _buildButton(
               context,
               name: LocaleKeys.shareAction_unPublish.tr(),
-              borderColor: const Color(0x1E14171B),
+              borderColor: ShareMenuColors.borderColor(context),
               onTap: widget.onUnPublish,
             ),
             const Spacer(),
@@ -235,12 +236,13 @@ class _PublishUrl extends StatelessWidget {
         readOnly: true,
         autoFocus: false,
         controller: controller,
-        suffixIcon: _buildCopyLinkIcon(),
+        enableBorderColor: ShareMenuColors.borderColor(context),
+        suffixIcon: _buildCopyLinkIcon(context),
       ),
     );
   }
 
-  Widget _buildCopyLinkIcon() {
+  Widget _buildCopyLinkIcon(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(

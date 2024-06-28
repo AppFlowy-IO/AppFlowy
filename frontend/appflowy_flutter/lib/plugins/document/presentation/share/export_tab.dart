@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -100,13 +101,16 @@ class _ExportButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).isLightMode
+        ? const Color(0x1E14171B)
+        : Colors.white.withOpacity(0.1);
     final radius = BorderRadius.circular(10.0);
     return FlowyButton(
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
       iconPadding: 12,
       decoration: BoxDecoration(
         border: Border.all(
-          color: const Color(0x1E14171B),
+          color: color,
         ),
         borderRadius: radius,
       ),

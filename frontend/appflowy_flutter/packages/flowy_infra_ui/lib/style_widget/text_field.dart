@@ -37,6 +37,7 @@ class FlowyTextField extends StatefulWidget {
   final bool obscureText;
   final bool isDense;
   final bool readOnly;
+  final Color? enableBorderColor;
 
   const FlowyTextField({
     super.key,
@@ -72,6 +73,7 @@ class FlowyTextField extends StatefulWidget {
     this.obscureText = false,
     this.isDense = true,
     this.readOnly = false,
+    this.enableBorderColor,
   });
 
   @override
@@ -180,7 +182,8 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             enabledBorder: OutlineInputBorder(
               borderRadius: Corners.s8Border,
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
+                color: widget.enableBorderColor ??
+                    Theme.of(context).colorScheme.outline,
               ),
             ),
             isDense: false,
