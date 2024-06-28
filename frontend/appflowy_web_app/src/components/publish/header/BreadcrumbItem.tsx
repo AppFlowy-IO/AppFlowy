@@ -1,14 +1,14 @@
-import { ReactComponent as BoardSvg } from '$icons/16x/board.svg';
-import { ReactComponent as CalendarSvg } from '$icons/16x/date.svg';
-import { ReactComponent as DocumentSvg } from '$icons/16x/document.svg';
-import { ReactComponent as GridSvg } from '$icons/16x/grid.svg';
+import { ReactComponent as BoardSvg } from '@/assets/board.svg';
+import { ReactComponent as CalendarSvg } from '@/assets/calendar.svg';
+import { ReactComponent as DocumentSvg } from '@/assets/document.svg';
+import { ReactComponent as GridSvg } from '@/assets/grid.svg';
 import { ViewLayout } from '@/application/collab.type';
 import { usePublishContext } from '@/application/publish';
 import { notify } from '@/components/_shared/notify';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-const renderCrumbIcon = (icon: string) => {
+export const renderCrumbIcon = (icon: string) => {
   if (Number(icon) === ViewLayout.Grid) {
     return <GridSvg className={'h-4 w-4'} />;
   }

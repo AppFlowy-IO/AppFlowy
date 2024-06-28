@@ -2037,6 +2037,7 @@
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
     "reportPage": "Report page",
-    "databaseHasNotBeenPublished": "This database hasn't been published yet"
+    "databaseHasNotBeenPublished": "This database hasn't been published yet",
+    "createdWith": "Created with"
   }
 }
