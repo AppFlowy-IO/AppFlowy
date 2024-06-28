@@ -1,16 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/share/publish_name_generator.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-final _regExp = RegExp(r'[^\w\-\.@:/]');
 
 class PublishTab extends StatelessWidget {
   const PublishTab({super.key});
@@ -40,8 +38,12 @@ class PublishTab extends StatelessWidget {
               )
             : _UnPublishWidget(
                 onPublish: () async {
-                  final publishName = await _generatePublishName(context);
-                  final nameSpace = await _generateNameSpace();
+                  final id = context.read<DocumentShareBloc>().view.id;
+                  final publishName = await generatePublishName(
+                    id,
+                    state.viewName,
+                  );
+                  final nameSpace = await generateNameSpace();
                   if (context.mounted) {
                     context.read<DocumentShareBloc>().add(
                           DocumentShareEvent.publish(nameSpace, publishName),
@@ -51,18 +53,6 @@ class PublishTab extends StatelessWidget {
               );
       },
     );
-  }
-
-  Future<String> _generateNameSpace() async {
-    const workspaceName = '';
-    final id = uuid().substring(0, 8);
-    return '$workspaceName$id'.replaceAll(_regExp, '_');
-  }
-
-  Future<String> _generatePublishName(BuildContext context) async {
-    final publishName = context.read<DocumentShareBloc>().view.name;
-    final id = uuid().substring(0, 8);
-    return '$publishName$id'.replaceAll(_regExp, '');
   }
 }
 

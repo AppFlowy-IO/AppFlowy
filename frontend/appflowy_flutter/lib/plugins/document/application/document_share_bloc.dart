@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
@@ -12,7 +13,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'document_share_bloc.freezed.dart';
 
-const _url = 'https://test.appflowy.io';
+const _url = 'https://test.appflowy.com';
 
 class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
   DocumentShareBloc({
@@ -21,16 +22,30 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
     on<DocumentShareEvent>((event, emit) async {
       await event.when(
         initial: () async {
+          viewListener = ViewListener(viewId: view.id)
+            ..start(
+              onViewUpdated: (value) {
+                add(DocumentShareEvent.updateViewName(value.name));
+              },
+            );
+
           final publishInfo = await ViewBackendService.getPublishInfo(view);
           publishInfo.fold((s) {
             emit(
               state.copyWith(
                 isPublished: true,
                 url: '$_url/${s.namespace}/${s.publishName}',
+                viewName: view.name,
               ),
             );
           }, (f) {
-            emit(state.copyWith(isPublished: false, url: ''));
+            emit(
+              state.copyWith(
+                isPublished: false,
+                url: '',
+                viewName: view.name,
+              ),
+            );
           });
         },
         share: (type, path) async {
@@ -101,13 +116,23 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
             ),
           );
         },
+        updateViewName: (viewName) async {
+          emit(state.copyWith(viewName: viewName));
+        },
       );
     });
   }
 
   final ViewPB view;
+  late final ViewListener viewListener;
 
   late final exporter = DocumentExporter(view);
+
+  @override
+  Future<void> close() async {
+    await viewListener.stop();
+    return super.close();
+  }
 
   Future<FlowyResult<ExportDataPB, FlowyError>> _export(
     DocumentShareType type,
@@ -181,6 +206,8 @@ class DocumentShareEvent with _$DocumentShareEvent {
     String pageId,
   ) = _Publish;
   const factory DocumentShareEvent.unPublish() = _UnPublish;
+  const factory DocumentShareEvent.updateViewName(String name) =
+      _UpdateViewName;
 }
 
 @freezed
@@ -191,11 +218,13 @@ class DocumentShareState with _$DocumentShareState {
     required bool isPublished,
     FlowyResult<void, FlowyError>? publishResult,
     required String url,
+    required String viewName,
   }) = _DocumentShareState;
 
   factory DocumentShareState.initial() => const DocumentShareState(
         isLoading: false,
         isPublished: false,
         url: '',
+        viewName: '',
       );
 }
