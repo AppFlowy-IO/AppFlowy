@@ -351,25 +351,22 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       SpacePermission.private => ViewSectionPB.Private,
     };
 
+    final extra = {
+      ViewExtKeys.isSpaceKey: true,
+      ViewExtKeys.spaceIconKey: icon,
+      ViewExtKeys.spaceIconColorKey: iconColor,
+      ViewExtKeys.spacePermissionKey: permission.index,
+      ViewExtKeys.spaceCreatedAtKey: DateTime.now().millisecondsSinceEpoch,
+    };
     final result = await _workspaceService.createView(
       name: name,
       viewSection: section,
-      setAsCurrent: false,
+      setAsCurrent: true,
       viewId: viewId,
+      extra: jsonEncode(extra),
     );
     return await result.fold((space) async {
       Log.info('Space created: $space');
-      final extra = {
-        ViewExtKeys.isSpaceKey: true,
-        ViewExtKeys.spaceIconKey: icon,
-        ViewExtKeys.spaceIconColorKey: iconColor,
-        ViewExtKeys.spacePermissionKey: permission.index,
-        ViewExtKeys.spaceCreatedAtKey: DateTime.now().millisecondsSinceEpoch,
-      };
-      await ViewBackendService.updateView(
-        viewId: space.id,
-        extra: jsonEncode(extra),
-      );
       return space;
     }, (error) {
       Log.error('Failed to create space: $error');

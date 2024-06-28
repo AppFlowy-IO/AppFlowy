@@ -261,6 +261,11 @@ pub struct CreateViewPayloadPB {
 
   #[pb(index = 11, one_of)]
   pub view_id: Option<String>,
+
+  // The extra data of the view.
+  // Refer to the extra field in the collab
+  #[pb(index = 12, one_of)]
+  pub extra: Option<String>,
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
@@ -335,7 +340,7 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       index: self.index,
       section: self.section,
       icon: None,
-      extra: None,
+      extra: self.extra,
     })
   }
 }

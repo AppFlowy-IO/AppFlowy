@@ -133,13 +133,13 @@ extension ViewExtension on ViewPB {
     }
   }
 
-  FlowySvg get spaceIconSvg {
+  FlowySvg? get spaceIconSvg {
     try {
       final ext = jsonDecode(extra);
       final icon = ext[ViewExtKeys.spaceIconKey];
       final color = ext[ViewExtKeys.spaceIconColorKey];
       if (icon == null || color == null) {
-        return const FlowySvg(FlowySvgs.space_icon_s, blendMode: null);
+        return null;
       }
       return FlowySvg(
         FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
@@ -147,7 +147,7 @@ extension ViewExtension on ViewPB {
         blendMode: BlendMode.srcOut,
       );
     } catch (e) {
-      return const FlowySvg(FlowySvgs.space_icon_s, blendMode: null);
+      return null;
     }
   }
 
