@@ -20,7 +20,7 @@
     --fill-hover: #52d1f4;
     --fill-pressed: #009fd1;
     --fill-active: #e0f8ff;
-    --fill-list-hover: #e0f8ff;
+    --fill-list-hover: rgba(31, 35, 41, 6%);
     --fill-list-active: #f9fafd;
     --content-blue-400: #00bcf0;
     --content-blue-300: #52d1f4;

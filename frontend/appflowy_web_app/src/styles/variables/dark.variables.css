@@ -19,7 +19,7 @@
     --fill-toolbar: #0F111C;
     --fill-selector: #232b38;
     --fill-list-active: #3c4557;
-    --fill-list-hover: #005174;
+    --fill-list-hover: rgba(255, 255, 255, 0.1);
     --content-blue-400: #00bcf0;
     --content-blue-300: #52d1f4;
     --content-blue-600: #009fd1;

@@ -22,7 +22,7 @@ function ViewCover({ coverValue, coverType }: { coverValue?: string; coverType?:
   }
 
   return (
-    <div className={'relative flex h-[198px] w-full max-sm:h-[180px]'}>
+    <div className={'relative flex h-[208px] w-full max-sm:h-[180px]'}>
       {coverType === 'color' && renderCoverColor(coverValue)}
       {(coverType === 'custom' || coverType === 'built_in') && renderCoverImage(coverValue)}
     </div>
