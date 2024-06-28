@@ -100,10 +100,6 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
           controller: controller,
           onCopy: (url) {
             AppFlowyClipboard.setData(text: url);
-            showSnackBarMessage(
-              context,
-              LocaleKeys.document_inlineLink_copyLink.tr(),
-            );
           },
           onSubmitted: (url) {},
         ),
