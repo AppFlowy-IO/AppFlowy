@@ -61,6 +61,7 @@ const createServer = async (req) => {
   const timer = logRequestTimer(req);
   const reqUrl = new URL(req.url);
   logger.info(`Request URL: ${reqUrl.pathname}`);
+
   const [
     namespace,
     publishName,
