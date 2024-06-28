@@ -56,7 +56,7 @@ export function OutlinePopover({
         </div>
       </div>
     );
-  }, [onMouseEnter, onMouseLeave, t, viewMeta]);
+  }, [onMouseEnter, onMouseLeave, viewMeta]);
 
   return (
     <RichTooltip open={open} onClose={onClose} content={content} placement={placement}>
