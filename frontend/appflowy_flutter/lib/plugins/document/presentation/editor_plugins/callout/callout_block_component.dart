@@ -196,6 +196,7 @@ class _CalloutBlockComponentWidgetState
               ), // force to refresh the popover state
               title: '',
               emoji: emoji,
+              emojiSize: 16.0,
               onSubmitted: (emoji, controller) {
                 setEmoji(emoji);
                 controller?.close();
@@ -204,7 +205,7 @@ class _CalloutBlockComponentWidgetState
           ),
           Flexible(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: buildCalloutBlockComponent(context, textDirection),
             ),
           ),
