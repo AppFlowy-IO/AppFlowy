@@ -9,11 +9,17 @@ RUN bun install cheerio pino pino-pretty
 
 COPY . .
 
+RUN addgroup --system nginx && \
+    adduser --system --no-create-home --disabled-login --ingroup nginx nginx
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
 COPY dist/ /usr/share/nginx/html/
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
+RUN chown -R nginx:nginx /etc/ssl/certs/nginx-signed.crt /etc/ssl/private/nginx-signed.key
 
 COPY start.sh /app/start.sh
 
