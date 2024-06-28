@@ -140,7 +140,7 @@ const createServer = async (req) => {
 const start = () => {
   try {
     Bun.serve({
-      port: 3000,
+      port: 3001,
       fetch: createServer,
       error: (err) => {
         logger.error(`Internal Server Error: ${err}`);

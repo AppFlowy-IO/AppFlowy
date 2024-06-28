@@ -71,4 +71,4 @@ jobs:
             cd appflowy-web-app
             docker build -t appflowy-web-app .
             docker rm -f appflowy-web-app || true
-            docker run -d -p 3000:80 --env-file .env --name appflowy-web-app appflowy-web-app
+            docker run -d -p 3000:3000 --env-file .env --name appflowy-web-app appflowy-web-app
