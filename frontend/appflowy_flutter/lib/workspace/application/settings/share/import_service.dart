@@ -24,6 +24,7 @@ class ImportBackendService {
     final request = ImportPayloadPB(
       parentViewId: parentViewId,
       values: values,
+      syncAfterCreate: true,
     );
 
     return FolderEventImportData(request).send();

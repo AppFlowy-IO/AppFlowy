@@ -73,6 +73,9 @@ pub struct ImportPayloadPB {
 
   #[pb(index = 2)]
   pub values: Vec<ImportValuePayloadPB>,
+
+  #[pb(index = 3)]
+  pub sync_after_create: bool,
 }
 
 impl TryInto<ImportParams> for ImportPayloadPB {
@@ -115,6 +118,7 @@ impl TryInto<ImportParams> for ImportPayloadPB {
     Ok(ImportParams {
       parent_view_id,
       values,
+      sync_after_create: self.sync_after_create,
     })
   }
 }
