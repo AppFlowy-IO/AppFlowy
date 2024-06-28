@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -48,6 +49,12 @@ class _ShareMenuState extends State<ShareMenu> {
           isSelected: selectedTab == tab,
         ),
     };
+    final color = Theme.of(context).isLightMode
+        ? const Color(0xFFEEF0F3)
+        : Colors.black.withOpacity(0.3);
+    final thumbColor = Theme.of(context).isLightMode
+        ? Colors.white
+        : Theme.of(context).colorScheme.secondary;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -61,11 +68,11 @@ class _ShareMenuState extends State<ShareMenu> {
             innerPadding: const EdgeInsets.all(3.0),
             children: children,
             decoration: BoxDecoration(
-              color: const Color(0xFFEEF0F3),
+              color: color,
               borderRadius: BorderRadius.circular(8),
             ),
             thumbDecoration: BoxDecoration(
-              color: Colors.white,
+              color: thumbColor,
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x141F2225),

@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/share/publish_name_generator.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -115,7 +116,8 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
               context,
               name: LocaleKeys.shareAction_visitSite.tr(),
               backgroundColor: Theme.of(context).colorScheme.primary,
-              textColor: Colors.white,
+              textColor:
+                  Theme.of(context).isLightMode ? Colors.white : Colors.black,
               onTap: () {
                 safeLaunchUrl(controller.text);
               },
