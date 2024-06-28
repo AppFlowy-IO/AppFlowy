@@ -5,7 +5,7 @@ const cheerio = require('cheerio');
 const { fetch } = require('bun');
 const distDir = path.join(__dirname, 'dist');
 const indexPath = path.join(distDir, 'index.html');
-const logo = path.join(distDir, 'appflowy.svg');
+const logo = '/appflowy.svg';
 const setOrUpdateMetaTag = ($, selector, attribute, content) => {
   if ($(selector).length === 0) {
     $('head').append(`<meta ${attribute}="${selector.match(/\[(.*?)\]/)[1]}" content="${content}">`);
