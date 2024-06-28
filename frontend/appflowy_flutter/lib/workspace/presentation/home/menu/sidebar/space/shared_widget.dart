@@ -337,8 +337,10 @@ class CurrentSpace extends StatelessWidget {
           ),
         ),
         const HSpace(4.0),
-        const FlowySvg(
-          FlowySvgs.workspace_drop_down_menu_show_s,
+        FlowySvg(
+          context.read<SpaceBloc>().state.isExpanded
+              ? FlowySvgs.workspace_drop_down_menu_show_s
+              : FlowySvgs.workspace_drop_down_menu_hide_s,
         ),
       ],
     );
