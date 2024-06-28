@@ -65,8 +65,10 @@ jobs:
           SOURCE: "frontend/appflowy_web_app/dist frontend/appflowy_web_app/server.cjs frontend/appflowy_web_app/start.sh frontend/appflowy_web_app/Dockerfile frontend/appflowy_web_app/nginx.conf frontend/appflowy_web_app/.env nginx-signed.crt nginx-signed.key"
           REMOTE_HOST: ${{ env.REMOTE_HOST }}
           REMOTE_USER: ${{ env.REMOTE_USER }}
+          TARGET: /home/${{ env.REMOTE_USER }}/appflowy-web-app
           EXCLUDE: "frontend/appflowy_web_app/dist/, frontend/appflowy_web_app/node_modules/"
           SCRIPT_AFTER: |
+            cd appflowy-web-app
             docker build -t appflowy-web-app .
             docker rm -f appflowy-web-app || true
-            docker run -d -p 80:80 -p 443:443 --env-file .env --name appflowy-web-app appflowy-web-app
+            docker run -d -p 3000:3000 --env-file .env --name appflowy-web-app appflowy-web-app
