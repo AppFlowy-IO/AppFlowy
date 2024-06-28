@@ -10,7 +10,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
-pub type StreamAnswer = BoxStream<'static, Result<Bytes, AppResponseError>>;
+pub type StreamAnswer = BoxStream<'static, Result<Bytes, FlowyError>>;
 #[async_trait]
 pub trait ChatCloudService: Send + Sync + 'static {
   fn create_chat(

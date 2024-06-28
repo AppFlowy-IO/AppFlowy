@@ -11,8 +11,8 @@ flowy-notification = { workspace = true }
 flowy-error = { path = "../flowy-error", features = [
     "impl_from_dispatch_error",
     "impl_from_collab_folder",
-    "impl_from_sqlite"
-
+    "impl_from_sqlite",
+    "impl_from_sidecar"
 ] }
 lib-dispatch = { workspace = true }
 tracing.workspace = true

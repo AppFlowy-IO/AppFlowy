@@ -6,7 +6,7 @@ use client_api::entity::{
 };
 use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, StreamAnswer};
 use flowy_error::FlowyError;
-use futures_util::StreamExt;
+use futures_util::{StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
@@ -102,7 +102,8 @@ where
     let stream = try_get_client?
       .ask_question(workspace_id, chat_id, message_id)
       .await
-      .map_err(FlowyError::from)?;
+      .map_err(FlowyError::from)?
+      .map_err(|err| FlowyError::from(err));
     Ok(stream.boxed())
   }
 

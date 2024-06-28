@@ -1,4 +1,5 @@
 use anyhow::anyhow;
+use bytes::Bytes;
 use flowy_error::FlowyError;
 use flowy_sidecar::core::parser::ResponseParser;
 use flowy_sidecar::core::plugin::{Plugin, PluginId};
@@ -17,12 +18,7 @@ impl ChatPluginOperation {
     ChatPluginOperation { plugin }
   }
 
-  pub async fn send_message(
-    &self,
-    chat_id: &str,
-    _plugin_id: PluginId,
-    message: &str,
-  ) -> Result<String, SidecarError> {
+  pub async fn send_message(&self, chat_id: &str, message: &str) -> Result<String, SidecarError> {
     let plugin = self
       .plugin
       .upgrade()
@@ -38,9 +34,8 @@ impl ChatPluginOperation {
   pub async fn stream_message(
     &self,
     chat_id: &str,
-    _plugin_id: PluginId,
     message: &str,
-  ) -> Result<ReceiverStream<Result<String, SidecarError>>, FlowyError> {
+  ) -> Result<ReceiverStream<Result<Bytes, SidecarError>>, FlowyError> {
     let plugin = self
       .plugin
       .upgrade()
@@ -89,11 +84,11 @@ impl ResponseParser for ChatResponseParser {
 
 pub struct ChatStreamResponseParser;
 impl ResponseParser for ChatStreamResponseParser {
-  type ValueType = String;
+  type ValueType = Bytes;
 
   fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
     if let Some(message) = json.as_str() {
-      return Ok(message.to_string());
+      return Ok(Bytes::from(message.to_string()));
     }
     return Err(RemoteError::ParseResponse(json));
   }

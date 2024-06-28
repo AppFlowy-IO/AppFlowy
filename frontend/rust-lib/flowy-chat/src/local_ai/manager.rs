@@ -1,4 +1,5 @@
 use crate::local_ai::chat_plugin::ChatPluginOperation;
+use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sidecar::core::plugin::{PluginId, PluginInfo};
@@ -48,29 +49,36 @@ impl LocalAIManager {
     }
   }
 
-  pub async fn stream_chat_message(
+  pub async fn ask_question(
     &self,
     chat_id: &str,
     message: &str,
-  ) -> FlowyResult<ReceiverStream<anyhow::Result<String, SidecarError>>> {
+  ) -> FlowyResult<ReceiverStream<anyhow::Result<Bytes, SidecarError>>> {
     let plugin_id = self
       .chat_plugin_id
       .read()
       .await
-      .ok_or_else(|| FlowyError::internal().with_context("chat plugin not set"))?;
+      .ok_or_else(|| FlowyError::local_ai().with_context("chat plugin not set"))?;
 
-    let plugin = self
-      .sidecar_manager
-      .get_plugin(plugin_id)
-      .await
-      .map_err(|err| FlowyError::internal().with_context(err.to_string()))?;
+    let plugin = self.sidecar_manager.get_plugin(plugin_id).await?;
 
     let operation = ChatPluginOperation::new(plugin);
-    let stream = operation
-      .stream_message(chat_id, plugin_id, message)
-      .await?;
-
+    let stream = operation.stream_message(chat_id, message).await?;
     Ok(stream)
+  }
+
+  pub async fn generate_answer(&self, chat_id: &str, message: &str) -> FlowyResult<String> {
+    let plugin_id = self
+      .chat_plugin_id
+      .read()
+      .await
+      .ok_or_else(|| FlowyError::local_ai().with_context("chat plugin not set"))?;
+
+    let plugin = self.sidecar_manager.get_plugin(plugin_id).await?;
+
+    let operation = ChatPluginOperation::new(plugin);
+    let answer = operation.send_message(chat_id, message).await?;
+    Ok(answer)
   }
 
   pub async fn setup_chat_plugin(&self, config: ChatPluginConfig) -> FlowyResult<()> {
@@ -100,15 +108,12 @@ impl LocalAIManager {
 
     // init plugin
     let model_path = config.chat_model_path;
-    self
-      .sidecar_manager
-      .init_plugin(
-        plugin,
-        serde_json::json!({
-          "absolute_chat_model_path": model_path,
-        }),
-      )
-      .map_err(|err| FlowyError::internal().with_context(err.to_string()))?;
+    self.sidecar_manager.init_plugin(
+      plugin,
+      serde_json::json!({
+        "absolute_chat_model_path": model_path,
+      }),
+    )?;
 
     self.chat_plugin_id.write().await.replace(plugin);
     self.plugin_map.insert(config.chat_bin_path, plugin);

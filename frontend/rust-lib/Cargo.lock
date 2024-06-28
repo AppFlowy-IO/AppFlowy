@@ -1962,6 +1962,7 @@ dependencies = [
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
+ "flowy-sidecar",
  "flowy-sqlite",
  "lib-dispatch",
  "protobuf",

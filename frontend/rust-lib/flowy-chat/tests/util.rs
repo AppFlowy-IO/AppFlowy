@@ -1,4 +1,5 @@
 use anyhow::Result;
+use bytes::Bytes;
 use flowy_sidecar::manager::SidecarManager;
 use serde_json::json;
 use std::path::PathBuf;
@@ -71,10 +72,7 @@ impl LocalAITest {
   ) -> String {
     let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
     let operation = ChatPluginOperation::new(plugin);
-    let resp = operation
-      .send_message(chat_id, plugin_id, message)
-      .await
-      .unwrap();
+    let resp = operation.send_message(chat_id, message).await.unwrap();
 
     resp
   }
@@ -84,13 +82,10 @@ impl LocalAITest {
     chat_id: &str,
     plugin_id: PluginId,
     message: &str,
-  ) -> ReceiverStream<Result<String, SidecarError>> {
+  ) -> ReceiverStream<Result<Bytes, SidecarError>> {
     let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
     let operation = ChatPluginOperation::new(plugin);
-    operation
-      .stream_message(chat_id, plugin_id, message)
-      .await
-      .unwrap()
+    operation.stream_message(chat_id, message).await.unwrap()
   }
 
   pub async fn related_question(

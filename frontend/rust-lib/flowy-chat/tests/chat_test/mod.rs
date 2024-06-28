@@ -31,7 +31,7 @@ async fn stream_local_model_test() {
       .await;
     let mut list = vec![];
     while let Some(s) = resp.next().await {
-      list.push(s.unwrap());
+      list.push(String::from_utf8(s.unwrap().to_vec()).unwrap());
     }
 
     let answer = list.join("");

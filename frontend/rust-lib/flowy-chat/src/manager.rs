@@ -17,7 +17,7 @@ use flowy_sqlite::kv::KVStorePreferences;
 use lib_infra::async_trait::async_trait;
 use parking_lot::RwLock;
 
-use futures::StreamExt;
+use futures::{StreamExt, TryStreamExt};
 use std::sync::Arc;
 use tracing::{error, info, trace};
 
@@ -335,8 +335,9 @@ impl ChatCloudService for ChatService {
       let content = self.get_message_content(message_id)?;
       let stream = self
         .local_ai_manager
-        .stream_chat_message(chat_id, &content)
-        .await?;
+        .ask_question(chat_id, &content)
+        .await?
+        .map_err(FlowyError::from);
       Ok(stream.boxed())
     } else {
       self
@@ -353,6 +354,11 @@ impl ChatCloudService for ChatService {
     question_message_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     if self.local_ai_setting.read().enabled {
+      let content = self.get_message_content(question_message_id)?;
+      let answer = self
+        .local_ai_manager
+        .generate_answer(chat_id, &content)
+        .await?;
       todo!()
     } else {
       self
