@@ -1,6 +1,6 @@
 use crate::chat::Chat;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
-use crate::persistence::{insert_chat, ChatTable};
+use crate::persistence::{insert_chat, select_single_message, ChatTable};
 use dashmap::DashMap;
 use flowy_chat_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageType, MessageCursor, RepeatedChatMessage,
@@ -17,6 +17,7 @@ use flowy_sqlite::kv::KVStorePreferences;
 use lib_infra::async_trait::async_trait;
 use parking_lot::RwLock;
 
+use futures::StreamExt;
 use std::sync::Arc;
 use tracing::{error, info, trace};
 
@@ -41,22 +42,23 @@ impl ChatManager {
     user_service: impl ChatUserService,
     store_preferences: Arc<KVStorePreferences>,
   ) -> ChatManager {
+    let user_service = Arc::new(user_service);
     let local_ai_setting = store_preferences
       .get_object::<LocalAISetting>(LOCAL_AI_SETTING_KEY)
       .unwrap_or_default();
     let sidecar_manager = Arc::new(SidecarManager::new());
 
-    // Setup local AI chat plugin
+    // setup local AI chat plugin
     let local_ai_manager = Arc::new(LocalAIManager::new(sidecar_manager));
     setup_local_ai(&local_ai_setting, local_ai_manager.clone());
 
-    //
+    // setup local chat service
     let chat_service = Arc::new(ChatService::new(
+      user_service.clone(),
       cloud_service,
       local_ai_manager,
       local_ai_setting,
     ));
-    let user_service = Arc::new(user_service);
 
     Self {
       chat_service,
@@ -255,21 +257,36 @@ fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
 
 pub struct ChatService {
   cloud_service: Arc<dyn ChatCloudService>,
+  user_service: Arc<dyn ChatUserService>,
   local_ai_manager: Arc<LocalAIManager>,
   local_ai_setting: Arc<RwLock<LocalAISetting>>,
 }
 
 impl ChatService {
   pub fn new(
+    user_service: Arc<dyn ChatUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
     local_ai_manager: Arc<LocalAIManager>,
     local_ai_setting: LocalAISetting,
   ) -> Self {
     Self {
+      user_service,
       cloud_service,
       local_ai_manager,
       local_ai_setting: Arc::new(RwLock::new(local_ai_setting)),
     }
+  }
+
+  fn get_message_content(&self, message_id: i64) -> FlowyResult<String> {
+    let uid = self.user_service.user_id()?;
+    let conn = self.user_service.sqlite_connection(uid)?;
+    let content = select_single_message(conn, message_id)?
+      .map(|data| data.content)
+      .ok_or_else(|| {
+        FlowyError::record_not_found().with_context(format!("Message not found: {}", message_id))
+      })?;
+
+    Ok(content)
   }
 }
 
@@ -315,8 +332,12 @@ impl ChatCloudService for ChatService {
     message_id: i64,
   ) -> Result<StreamAnswer, FlowyError> {
     if self.local_ai_setting.read().enabled {
-      // self.local_ai_manager.stream_chat_message(chat_id, "", message_id).await
-      todo!()
+      let content = self.get_message_content(message_id)?;
+      let stream = self
+        .local_ai_manager
+        .stream_chat_message(chat_id, &content)
+        .await?;
+      Ok(stream.boxed())
     } else {
       self
         .cloud_service
@@ -325,18 +346,19 @@ impl ChatCloudService for ChatService {
     }
   }
 
-  fn generate_answer(
+  async fn generate_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     question_message_id: i64,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+  ) -> Result<ChatMessage, FlowyError> {
     if self.local_ai_setting.read().enabled {
       todo!()
     } else {
       self
         .cloud_service
         .generate_answer(workspace_id, chat_id, question_message_id)
+        .await
     }
   }
 

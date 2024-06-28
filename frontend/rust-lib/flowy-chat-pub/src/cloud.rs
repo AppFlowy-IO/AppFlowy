@@ -43,12 +43,12 @@ pub trait ChatCloudService: Send + Sync + 'static {
     message_id: i64,
   ) -> Result<StreamAnswer, FlowyError>;
 
-  fn generate_answer(
+  async fn generate_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     question_message_id: i64,
-  ) -> FutureResult<ChatMessage, FlowyError>;
+  ) -> Result<ChatMessage, FlowyError>;
 
   fn get_chat_messages(
     &self,

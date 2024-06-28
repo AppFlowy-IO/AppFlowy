@@ -106,23 +106,18 @@ where
     Ok(stream.boxed())
   }
 
-  fn generate_answer(
+  async fn generate_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     question_message_id: i64,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
+  ) -> Result<ChatMessage, FlowyError> {
     let try_get_client = self.inner.try_get_client();
-
-    FutureResult::new(async move {
-      let resp = try_get_client?
-        .generate_answer(&workspace_id, &chat_id, question_message_id)
-        .await
-        .map_err(FlowyError::from)?;
-      Ok(resp)
-    })
+    let resp = try_get_client?
+      .generate_answer(&workspace_id, &chat_id, question_message_id)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(resp)
   }
 
   fn get_chat_messages(

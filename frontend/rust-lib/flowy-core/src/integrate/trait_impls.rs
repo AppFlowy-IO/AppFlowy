@@ -633,21 +633,17 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  fn generate_answer(
+  async fn generate_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     question_message_id: i64,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
+  ) -> Result<ChatMessage, FlowyError> {
     let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .generate_answer(&workspace_id, &chat_id, question_message_id)
-        .await
-    })
+    server?
+      .chat_service()
+      .generate_answer(&workspace_id, &chat_id, question_message_id)
+      .await
   }
 }
 

@@ -93,9 +93,15 @@ pub(crate) async fn get_answer_handler(
 ) -> DataResult<ChatMessagePB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let data = data.into_inner();
-  let message = chat_manager
-    .generate_answer(&data.chat_id, data.message_id)
-    .await?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  tokio::spawn(async move {
+    let message = chat_manager
+      .generate_answer(&data.chat_id, data.message_id)
+      .await?;
+    let _ = tx.send(message);
+    Ok::<_, FlowyError>(())
+  });
+  let message = rx.await?;
   data_result_ok(message)
 }
 

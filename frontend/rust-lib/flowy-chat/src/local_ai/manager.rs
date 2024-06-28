@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio_stream::wrappers::ReceiverStream;
-use tracing::trace;
+use tracing::{debug, trace};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LocalAISetting {
@@ -74,6 +74,7 @@ impl LocalAIManager {
   }
 
   pub async fn setup_chat_plugin(&self, config: ChatPluginConfig) -> FlowyResult<()> {
+    debug!("setup chat plugin: {:?}", config);
     // If the chat_bin_path is different, remove the old plugin
     if let Some(chat_plugin_config) = self.chat_plugin_config.read().await.as_ref() {
       if chat_plugin_config.chat_bin_path != config.chat_bin_path {

@@ -4,7 +4,8 @@ use flowy_sqlite::{
   diesel, insert_into,
   query_dsl::*,
   schema::{chat_message_table, chat_message_table::dsl},
-  DBConnection, ExpressionMethods, Identifiable, Insertable, QueryResult, Queryable,
+  DBConnection, ExpressionMethods, Identifiable, Insertable, OptionalExtension, QueryResult,
+  Queryable,
 };
 
 #[derive(Queryable, Insertable, Identifiable)]
@@ -68,4 +69,15 @@ pub fn select_chat_messages(
 
   let messages: Vec<ChatMessageTable> = query.load::<ChatMessageTable>(&mut *conn)?;
   Ok(messages)
+}
+
+pub fn select_single_message(
+  mut conn: DBConnection,
+  message_id_val: i64,
+) -> QueryResult<Option<ChatMessageTable>> {
+  let message = dsl::chat_message_table
+    .filter(chat_message_table::message_id.eq(message_id_val))
+    .first::<ChatMessageTable>(&mut *conn)
+    .optional()?;
+  Ok(message)
 }

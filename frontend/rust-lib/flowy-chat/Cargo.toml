@@ -11,6 +11,8 @@ flowy-notification = { workspace = true }
 flowy-error = { path = "../flowy-error", features = [
     "impl_from_dispatch_error",
     "impl_from_collab_folder",
+    "impl_from_sqlite"
+
 ] }
 lib-dispatch = { workspace = true }
 tracing.workspace = true
@@ -38,7 +40,6 @@ parking_lot.workspace = true
 dotenv = "0.15.0"
 uuid.workspace = true
 tracing-subscriber = { version = "0.3.17", features = ["registry", "env-filter", "ansi", "json"] }
-
 
 [build-dependencies]
 flowy-codegen.workspace = true
