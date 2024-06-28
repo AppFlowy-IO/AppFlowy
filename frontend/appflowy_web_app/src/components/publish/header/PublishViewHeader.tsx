@@ -63,7 +63,7 @@ export function PublishViewHeader({
       style={{
         transform: openDrawer ? `translateX(${drawerWidth}px)` : 'none',
         width: openDrawer ? `calc(100% - ${drawerWidth}px)` : '100%',
-        transition: 'width 0.2s ease-in-out 0s',
+        transition: 'width 0.2s ease-in-out, transform 0.2s ease-in-out',
       }}
       className={'appflowy-top-bar flex h-[48px] px-5'}
     >

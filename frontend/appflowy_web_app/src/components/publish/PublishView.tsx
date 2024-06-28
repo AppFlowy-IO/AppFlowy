@@ -80,7 +80,7 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
             height: 'calc(100vh - 64px)',
             transform: open ? `translateX(${drawerWidth}px)` : 'none',
             width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
-            transition: 'width 0.2s ease-in-out 0s',
+            transition: 'width 0.2s ease-in-out, transform 0.2s ease-in-out',
           }}
           className={'appflowy-layout appflowy-scroll-container'}
         >
