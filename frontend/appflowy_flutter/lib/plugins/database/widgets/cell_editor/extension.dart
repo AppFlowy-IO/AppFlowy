@@ -96,7 +96,6 @@ class SelectOptionTag extends StatelessWidget {
     );
 
     return Container(
-      height: 20,
       padding: onRemove == null ? padding : padding.copyWith(right: 2.0),
       decoration: BoxDecoration(
         color: optionColor,
