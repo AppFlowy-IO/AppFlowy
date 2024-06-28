@@ -10,7 +10,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AIFeatureOnlySupportedWhenUsingAppFlowyCloud extends StatelessWidget {
@@ -31,30 +30,25 @@ class AIFeatureOnlySupportedWhenUsingAppFlowyCloud extends StatelessWidget {
 }
 
 class SettingsAIView extends StatelessWidget {
-  const SettingsAIView({
-    super.key,
-    required this.userProfile,
-  });
+  const SettingsAIView({super.key, required this.userProfile});
 
   final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsAIBloc>(
-      create: (context) =>
+      create: (_) =>
           SettingsAIBloc(userProfile)..add(const SettingsAIEvent.started()),
       child: BlocBuilder<SettingsAIBloc, SettingsAIState>(
-        builder: (context, state) {
-          return SettingsBody(
-            title: LocaleKeys.settings_aiPage_title.tr(),
-            description:
-                LocaleKeys.settings_aiPage_keys_aiSettingsDescription.tr(),
-            children: const [
-              AIModelSeclection(),
-              _AISearchToggle(value: false),
-            ],
-          );
-        },
+        builder: (_, __) => SettingsBody(
+          title: LocaleKeys.settings_aiPage_title.tr(),
+          description:
+              LocaleKeys.settings_aiPage_keys_aiSettingsDescription.tr(),
+          children: const [
+            AIModelSeclection(),
+            _AISearchToggle(value: false),
+          ],
+        ),
       ),
     );
   }
@@ -66,23 +60,22 @@ class AIModelSeclection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        FlowyText(
-          LocaleKeys.settings_aiPage_keys_llmModel.tr(),
-          fontSize: 14,
+        Flexible(
+          child: FlowyText.medium(
+            LocaleKeys.settings_aiPage_keys_llmModel.tr(),
+          ),
         ),
         const Spacer(),
-        BlocBuilder<SettingsAIBloc, SettingsAIState>(
-          builder: (context, state) {
-            return Expanded(
-              child: SettingsDropdown<AIModelPB>(
+        Flexible(
+          child: BlocBuilder<SettingsAIBloc, SettingsAIState>(
+            builder: (context, state) {
+              return SettingsDropdown<AIModelPB>(
                 key: const Key('AIModelDropdown'),
-                expandWidth: false,
-                onChanged: (format) {
-                  context.read<SettingsAIBloc>().add(
-                        SettingsAIEvent.selectModel(format),
-                      );
-                },
+                onChanged: (model) => context
+                    .read<SettingsAIBloc>()
+                    .add(SettingsAIEvent.selectModel(model)),
                 selectedOption: state.userProfile.aiModel,
                 options: _availableModels
                     .map(
@@ -93,9 +86,9 @@ class AIModelSeclection extends StatelessWidget {
                       ),
                     )
                     .toList(),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ],
     );
@@ -139,17 +132,21 @@ class _AISearchToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: FlowyText.regular(
-            LocaleKeys.settings_aiPage_keys_enableAISearchTitle.tr(),
-            fontSize: 16,
-          ),
+        FlowyText.medium(
+          LocaleKeys.settings_aiPage_keys_enableAISearchTitle.tr(),
         ),
-        const HSpace(16),
+        const Spacer(),
         BlocBuilder<SettingsAIBloc, SettingsAIState>(
           builder: (context, state) {
             if (state.aiSettings == null) {
-              return const CircularProgressIndicator.adaptive();
+              return const Padding(
+                padding: EdgeInsets.only(top: 6),
+                child: SizedBox(
+                  height: 26,
+                  width: 26,
+                  child: CircularProgressIndicator.adaptive(strokeWidth: 4),
+                ),
+              );
             } else {
               return Toggle(
                 value: state.enableSearchIndexing,
