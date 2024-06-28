@@ -52,7 +52,6 @@ class DocumentShareButton extends StatelessWidget {
                   constraints: const BoxConstraints(
                     maxWidth: 422,
                   ),
-                  margin: const EdgeInsets.all(16),
                   offset: const Offset(0, 8),
                   popupBuilder: (context) => BlocProvider.value(
                     value: shareBloc,

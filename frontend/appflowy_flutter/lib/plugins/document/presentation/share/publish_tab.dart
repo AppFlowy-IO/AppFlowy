@@ -98,7 +98,13 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
         const VSpace(16),
         _PublishUrl(
           controller: controller,
-          onCopy: (url) {},
+          onCopy: (url) {
+            AppFlowyClipboard.setData(text: url);
+            showSnackBarMessage(
+              context,
+              LocaleKeys.document_inlineLink_copyLink.tr(),
+            );
+          },
           onSubmitted: (url) {},
         ),
         const VSpace(16),
@@ -138,13 +144,14 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
   }) {
     return SizedBox(
       height: 36,
-      width: 189,
+      width: 184,
       child: FlowyButton(
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: borderColor),
         ),
+        radius: BorderRadius.circular(10),
         text: FlowyText.regular(
           name,
           textAlign: TextAlign.center,
@@ -229,6 +236,7 @@ class _PublishUrl extends StatelessWidget {
     return SizedBox(
       height: 36,
       child: FlowyTextField(
+        readOnly: true,
         autoFocus: false,
         controller: controller,
         suffixIcon: _buildCopyLinkIcon(),

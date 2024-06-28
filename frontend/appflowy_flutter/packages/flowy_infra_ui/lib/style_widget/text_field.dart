@@ -1,9 +1,8 @@
 import 'dart:async';
 
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:flowy_infra/size.dart';
 
 class FlowyTextField extends StatefulWidget {
   final String? hintText;
@@ -37,6 +36,7 @@ class FlowyTextField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final bool obscureText;
   final bool isDense;
+  final bool readOnly;
 
   const FlowyTextField({
     super.key,
@@ -71,6 +71,7 @@ class FlowyTextField extends StatefulWidget {
     this.inputFormatters,
     this.obscureText = false,
     this.isDense = true,
+    this.readOnly = false,
   });
 
   @override
@@ -144,6 +145,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      readOnly: widget.readOnly,
       controller: controller,
       focusNode: focusNode,
       onChanged: (text) {

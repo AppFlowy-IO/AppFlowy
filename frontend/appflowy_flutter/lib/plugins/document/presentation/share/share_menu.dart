@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/util/theme_extension.dart';
-import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:appflowy/mobile/presentation/home/tab/_round_underline_tab_indicator.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,7 @@ enum ShareMenuTab {
   exportAs;
 
   static List<ShareMenuTab> supportedTabs = [
-    ShareMenuTab.share,
+    // ShareMenuTab.share,
     ShareMenuTab.publish,
     ShareMenuTab.exportAs,
   ];
@@ -37,60 +36,75 @@ class ShareMenu extends StatefulWidget {
   State<ShareMenu> createState() => _ShareMenuState();
 }
 
-class _ShareMenuState extends State<ShareMenu> {
+class _ShareMenuState extends State<ShareMenu>
+    with SingleTickerProviderStateMixin {
   ShareMenuTab selectedTab = ShareMenuTab.publish;
+  late final tabController = TabController(
+    length: ShareMenuTab.supportedTabs.length,
+    vsync: this,
+    initialIndex: ShareMenuTab.supportedTabs.indexOf(selectedTab),
+  );
 
   @override
   Widget build(BuildContext context) {
-    final children = {
-      for (final tab in ShareMenuTab.supportedTabs)
-        tab: _Segment(
-          title: tab.i18n.tr(),
-          isSelected: selectedTab == tab,
-        ),
-    };
-    final color = Theme.of(context).isLightMode
-        ? const Color(0xFFEEF0F3)
-        : Colors.black.withOpacity(0.3);
-    final thumbColor = Theme.of(context).isLightMode
-        ? Colors.white
-        : Theme.of(context).colorScheme.secondary;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          height: 34,
-          child: CustomSlidingSegmentedControl<ShareMenuTab>(
-            initialValue: selectedTab,
-            curve: Curves.linear,
-            padding: 0,
-            fixedWidth: 128,
-            innerPadding: const EdgeInsets.all(3.0),
-            children: children,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            thumbDecoration: BoxDecoration(
-              color: thumbColor,
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x141F2225),
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                ),
-              ],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            onValueChanged: (v) {
-              setState(() {
-                selectedTab = v;
-              });
-            },
+        const VSpace(10),
+        Container(
+          alignment: Alignment.centerLeft,
+          height: 30,
+          child: _buildTabBar(context),
+        ),
+        Divider(
+          color: Theme.of(context).dividerColor,
+          height: 1,
+          thickness: 1,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14.0),
+          child: _buildTab(context),
+        ),
+        const VSpace(20),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildTabBar(BuildContext context) {
+    final children = [
+      for (final tab in ShareMenuTab.supportedTabs)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: _Segment(
+            title: tab.i18n.tr(),
+            isSelected: selectedTab == tab,
           ),
         ),
-        _buildTab(context),
-      ],
+    ];
+    return TabBar(
+      indicatorSize: TabBarIndicatorSize.label,
+      indicator: RoundUnderlineTabIndicator(
+        width: 48.0,
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 3,
+        ),
+        insets: const EdgeInsets.only(bottom: -2),
+      ),
+      isScrollable: true,
+      controller: tabController,
+      tabs: children,
+      onTap: (index) {
+        setState(() {
+          selectedTab = ShareMenuTab.supportedTabs[index];
+        });
+      },
     );
   }
 
