@@ -131,7 +131,7 @@ async fn single_document_get_publish_view_payload_test() {
   let expect_payload = mock_single_document_view_publish_payload(
     &test,
     &view,
-    format!("{}-{}", "Orphan_View", view_id),
+    format!("{}_{}", "Orphan_View", view_id),
   )
   .await;
 
@@ -150,7 +150,7 @@ async fn nested_document_get_publish_view_payload_test() {
   let expect_payload = mock_nested_document_view_publish_payload(
     &test,
     &view,
-    format!("{}-{}", "Orphan_View", view_id),
+    format!("{}_{}", "Orphan_View", view_id),
   )
   .await;
 
