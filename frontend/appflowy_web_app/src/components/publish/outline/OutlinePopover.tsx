@@ -2,7 +2,6 @@ import { usePublishContext } from '@/application/publish';
 import Outline from '@/components/publish/outline/Outline';
 import { Divider, PopperPlacementType } from '@mui/material';
 import React, { ReactElement, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import RichTooltip from 'src/components/_shared/popover/RichTooltip';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
@@ -23,7 +22,6 @@ export function OutlinePopover({
   onMouseLeave?: () => void;
 }) {
   const viewMeta = usePublishContext()?.viewMeta;
-  const { t } = useTranslation();
 
   const content = useMemo(() => {
     return (
