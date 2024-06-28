@@ -1,6 +1,6 @@
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::{ChatMessageType, MessageCursor, RepeatedChatMessage};
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageStream, StreamAnswer};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, StreamAnswer};
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;

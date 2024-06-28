@@ -123,6 +123,7 @@ impl LocalAIManager {
 
 #[derive(Debug, Clone)]
 pub struct ChatPluginConfig {
+  #[allow(dead_code)]
   bin_dir: PathBuf,
   chat_bin_path: PathBuf,
   chat_model_path: PathBuf,

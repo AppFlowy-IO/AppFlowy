@@ -50,8 +50,6 @@ impl ChatManager {
 
     // setup local AI chat plugin
     let local_ai_manager = Arc::new(LocalAIManager::new(sidecar_manager));
-    setup_local_ai(&local_ai_setting, local_ai_manager.clone());
-
     // setup local chat service
     let chat_service = Arc::new(ChatService::new(
       user_service.clone(),
@@ -69,12 +67,10 @@ impl ChatManager {
   }
 
   pub fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
-    setting.validate()?;
-
+    self.chat_service.update_local_ai_setting(setting.clone())?;
     self
       .store_preferences
-      .set_object(LOCAL_AI_SETTING_KEY, setting.clone())?;
-    *self.chat_service.local_ai_setting.write() = setting;
+      .set_object(LOCAL_AI_SETTING_KEY, setting)?;
     Ok(())
   }
 
@@ -269,12 +265,21 @@ impl ChatService {
     local_ai_manager: Arc<LocalAIManager>,
     local_ai_setting: LocalAISetting,
   ) -> Self {
+    setup_local_ai(&local_ai_setting, local_ai_manager.clone());
+
     Self {
       user_service,
       cloud_service,
       local_ai_manager,
       local_ai_setting: Arc::new(RwLock::new(local_ai_setting)),
     }
+  }
+
+  pub fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
+    setting.validate()?;
+    setup_local_ai(&setting, self.local_ai_manager.clone());
+    *self.local_ai_setting.write() = setting;
+    Ok(())
   }
 
   fn get_message_content(&self, message_id: i64) -> FlowyResult<String> {
@@ -355,7 +360,7 @@ impl ChatCloudService for ChatService {
   ) -> Result<ChatMessage, FlowyError> {
     if self.local_ai_setting.read().enabled {
       let content = self.get_message_content(question_message_id)?;
-      let answer = self
+      let _answer = self
         .local_ai_manager
         .generate_answer(chat_id, &content)
         .await?;

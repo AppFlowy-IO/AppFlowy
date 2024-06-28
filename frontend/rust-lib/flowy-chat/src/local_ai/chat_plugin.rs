@@ -2,7 +2,7 @@ use anyhow::anyhow;
 use bytes::Bytes;
 use flowy_error::FlowyError;
 use flowy_sidecar::core::parser::ResponseParser;
-use flowy_sidecar::core::plugin::{Plugin, PluginId};
+use flowy_sidecar::core::plugin::Plugin;
 use flowy_sidecar::error::{RemoteError, SidecarError};
 use serde_json::json;
 use serde_json::Value as JsonValue;
