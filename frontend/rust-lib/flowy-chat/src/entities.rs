@@ -1,3 +1,4 @@
+use crate::local_ai::manager::LocalAISetting;
 use flowy_chat_pub::cloud::{
   ChatMessage, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
 };
@@ -202,6 +203,43 @@ impl From<RepeatedRelatedQuestion> for RepeatedRelatedQuestionPB {
         .into_iter()
         .map(RelatedQuestionPB::from)
         .collect(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct LocalAIChatSettingPB {
+  #[pb(index = 1)]
+  pub bin_dir: String,
+
+  #[pb(index = 2)]
+  pub chat_bin: String,
+
+  #[pb(index = 3)]
+  pub chat_model: String,
+
+  #[pb(index = 4)]
+  pub enabled: bool,
+}
+
+impl From<LocalAISetting> for LocalAIChatSettingPB {
+  fn from(value: LocalAISetting) -> Self {
+    LocalAIChatSettingPB {
+      bin_dir: value.chat_bin,
+      chat_bin: value.bin_dir,
+      chat_model: value.chat_model,
+      enabled: value.enabled,
+    }
+  }
+}
+
+impl From<LocalAIChatSettingPB> for LocalAISetting {
+  fn from(value: LocalAIChatSettingPB) -> Self {
+    LocalAISetting {
+      chat_bin: value.bin_dir,
+      bin_dir: value.chat_bin,
+      chat_model: value.chat_model,
+      enabled: value.enabled,
     }
   }
 }

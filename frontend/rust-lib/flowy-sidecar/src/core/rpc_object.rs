@@ -1,8 +1,8 @@
 use crate::core::parser::{Call, RequestId};
 use crate::core::rpc_peer::{Response, ResponsePayload};
-use crate::error::RemoteError;
+
 use serde::de::{DeserializeOwned, Error};
-use serde_json::{json, Value};
+use serde_json::Value;
 
 #[derive(Debug, Clone)]
 pub struct RpcObject(pub Value);

@@ -93,7 +93,7 @@ impl Chat {
 
     let question = self
       .chat_service
-      .send_question(&workspace_id, &self.chat_id, message, message_type)
+      .save_question(&workspace_id, &self.chat_id, message, message_type)
       .await
       .map_err(|err| {
         error!("Failed to send question: {}", err);
@@ -114,7 +114,7 @@ impl Chat {
     tokio::spawn(async move {
       let mut text_sink = IsolateSink::new(Isolate::new(text_stream_port));
       match cloud_service
-        .stream_answer(&workspace_id, &chat_id, question_id)
+        .ask_question(&workspace_id, &chat_id, question_id)
         .await
       {
         Ok(mut stream) => {

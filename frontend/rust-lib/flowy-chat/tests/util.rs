@@ -1,14 +1,14 @@
 use anyhow::Result;
 use flowy_sidecar::manager::SidecarManager;
 use serde_json::json;
+use std::path::PathBuf;
 use std::sync::Once;
 use tokio_stream::wrappers::ReceiverStream;
-use tokio_stream::Stream;
 
+use flowy_chat::local_ai::chat_plugin::ChatPluginOperation;
+use flowy_chat::local_ai::embedding_plugin::EmbeddingPluginOperation;
 use flowy_sidecar::core::plugin::{PluginId, PluginInfo};
 use flowy_sidecar::error::SidecarError;
-use flowy_sidecar::plugins::chat_plugin::ChatPluginOperation;
-use flowy_sidecar::plugins::embedding_plugin::EmbeddingPluginOperation;
 use tracing_subscriber::fmt::Subscriber;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
@@ -120,10 +120,10 @@ impl LocalAITest {
 }
 
 pub struct LocalAIConfiguration {
-  root: String,
-  chat_bin_path: String,
+  model_dir: String,
+  chat_bin_path: PathBuf,
   chat_model_name: String,
-  embedding_bin_path: String,
+  embedding_bin_path: PathBuf,
   embedding_model_name: String,
 }
 
@@ -133,15 +133,15 @@ impl LocalAIConfiguration {
     setup_log();
 
     // load from .env
-    let root = dotenv::var("LOCAL_AI_ROOT_PATH")?;
-    let chat_bin_path = dotenv::var("CHAT_BIN_PATH")?;
+    let model_dir = dotenv::var("LOCAL_AI_MODEL_DIR")?;
+    let chat_bin_path = PathBuf::from(dotenv::var("CHAT_BIN_PATH")?);
     let chat_model_name = dotenv::var("LOCAL_AI_CHAT_MODEL_NAME")?;
 
-    let embedding_bin_path = dotenv::var("EMBEDDING_BIN_PATH")?;
+    let embedding_bin_path = PathBuf::from(dotenv::var("EMBEDDING_BIN_PATH")?);
     let embedding_model_name = dotenv::var("LOCAL_AI_EMBEDDING_MODEL_NAME")?;
 
     Ok(Self {
-      root,
+      model_dir,
       chat_bin_path,
       chat_model_name,
       embedding_bin_path,
@@ -150,11 +150,11 @@ impl LocalAIConfiguration {
   }
 
   pub fn chat_model_absolute_path(&self) -> String {
-    format!("{}/{}", self.root, self.chat_model_name)
+    format!("{}/{}", self.model_dir, self.chat_model_name)
   }
 
   pub fn embedding_model_absolute_path(&self) -> String {
-    format!("{}/{}", self.root, self.embedding_model_name)
+    format!("{}/{}", self.model_dir, self.embedding_model_name)
   }
 }
 

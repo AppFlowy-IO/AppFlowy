@@ -200,7 +200,19 @@ impl<W: Write> RawPeer<W> {
           }
         }
         let json = resp.map(|resp| resp.into_json());
-        response_handler.invoke(json);
+        match json {
+          Ok(Some(json)) => {
+            response_handler.invoke(Ok(json));
+          },
+          Ok(None) => {
+            if !is_stream {
+              warn!("[RPC] only stream response can be None");
+            }
+          },
+          Err(err) => {
+            response_handler.invoke(Err(err));
+          },
+        }
       },
       None => error!("[RPC] id {}'s handle not found", request_id),
     }
@@ -306,19 +318,11 @@ impl ResponsePayload {
     matches!(self, ResponsePayload::StreamEnd(_))
   }
 
-  pub fn json(&self) -> &JsonValue {
+  pub fn into_json(self) -> Option<JsonValue> {
     match self {
-      ResponsePayload::Json(v) => v,
-      ResponsePayload::Streaming(v) => v,
-      ResponsePayload::StreamEnd(v) => v,
-    }
-  }
-
-  pub fn into_json(self) -> JsonValue {
-    match self {
-      ResponsePayload::Json(v) => v,
-      ResponsePayload::Streaming(v) => v,
-      ResponsePayload::StreamEnd(v) => v,
+      ResponsePayload::Json(v) => Some(v),
+      ResponsePayload::Streaming(v) => Some(v),
+      ResponsePayload::StreamEnd(_) => None,
     }
   }
 }

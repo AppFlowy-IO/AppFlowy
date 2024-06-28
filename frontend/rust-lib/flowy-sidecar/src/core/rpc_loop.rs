@@ -9,7 +9,7 @@ use std::io::{BufRead, Write};
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
-use tracing::{error, info, trace};
+use tracing::{error, trace};
 
 const MAX_IDLE_WAIT: Duration = Duration::from_millis(5);
 

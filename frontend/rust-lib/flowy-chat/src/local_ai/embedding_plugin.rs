@@ -1,8 +1,9 @@
-use crate::core::parser::SimilarityResponseParser;
-use crate::core::plugin::Plugin;
-use crate::error::SidecarError;
 use anyhow::anyhow;
+use flowy_sidecar::core::parser::ResponseParser;
+use flowy_sidecar::core::plugin::Plugin;
+use flowy_sidecar::error::{RemoteError, SidecarError};
 use serde_json::json;
+use serde_json::Value as JsonValue;
 use std::sync::Weak;
 
 pub struct EmbeddingPluginOperation {
@@ -28,5 +29,22 @@ impl EmbeddingPluginOperation {
     plugin
       .async_request::<SimilarityResponseParser>("handle", &params)
       .await
+  }
+}
+
+pub struct SimilarityResponseParser;
+impl ResponseParser for SimilarityResponseParser {
+  type ValueType = f64;
+
+  fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
+    if json.is_object() {
+      if let Some(data) = json.get("data") {
+        if let Some(score) = data.get("score").and_then(|v| v.as_f64()) {
+          return Ok(score);
+        }
+      }
+    }
+
+    return Err(RemoteError::ParseResponse(json));
   }
 }

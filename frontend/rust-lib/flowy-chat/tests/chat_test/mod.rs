@@ -29,18 +29,13 @@ async fn stream_local_model_test() {
     let mut resp = test
       .stream_chat_message(&chat_id, plugin_id, "hello world")
       .await;
-    let a = resp.next().await.unwrap().unwrap();
-    eprintln!("chat response: {:?}", a);
+    let mut list = vec![];
+    while let Some(s) = resp.next().await {
+      list.push(s.unwrap());
+    }
 
+    let answer = list.join("");
+    eprintln!("chat response: {:?}", answer);
     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-
-    // let mut resp = test
-    //   .stream_chat_message(&chat_id, plugin_id, "How are you")
-    //   .await;
-    // let a = resp.next().await.unwrap().unwrap();
-    // eprintln!("chat response: {:?}", a);
-    // let questions = test.related_question(&chat_id, plugin_id).await;
-    // assert_eq!(questions.len(), 3);
-    // eprintln!("related questions: {:?}", questions);
   }
 }

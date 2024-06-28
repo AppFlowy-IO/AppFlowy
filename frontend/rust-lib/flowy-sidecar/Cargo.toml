@@ -18,9 +18,3 @@ log = "0.4.21"
 parking_lot.workspace = true
 tokio-stream = "0.1.15"
 lib-infra.workspace = true
-
-
-[dev-dependencies]
-dotenv = "0.15.0"
-uuid.workspace = true
-tracing-subscriber = { version = "0.3.17", features = ["registry", "env-filter", "ansi", "json"] }

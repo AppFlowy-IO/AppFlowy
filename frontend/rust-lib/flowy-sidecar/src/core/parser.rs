@@ -3,7 +3,6 @@ use crate::core::rpc_object::RpcObject;
 use crate::error::{ReadError, RemoteError};
 use serde_json::{json, Value as JsonValue};
 use std::io::BufRead;
-use tracing::error;
 
 #[derive(Debug, Default)]
 pub struct MessageReader(String);
@@ -60,65 +59,4 @@ pub enum Call<R> {
 pub trait ResponseParser {
   type ValueType: Send + Sync + 'static;
   fn parse_json(payload: JsonValue) -> Result<Self::ValueType, RemoteError>;
-}
-
-pub struct ChatResponseParser;
-impl ResponseParser for ChatResponseParser {
-  type ValueType = String;
-
-  fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
-    if json.is_object() {
-      if let Some(data) = json.get("data") {
-        if let Some(message) = data.as_str() {
-          return Ok(message.to_string());
-        }
-      }
-    }
-    return Err(RemoteError::ParseResponse(json));
-  }
-}
-
-pub struct ChatStreamResponseParser;
-impl ResponseParser for ChatStreamResponseParser {
-  type ValueType = String;
-
-  fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
-    if let Some(message) = json.as_str() {
-      return Ok(message.to_string());
-    }
-    return Err(RemoteError::ParseResponse(json));
-  }
-}
-
-pub struct ChatRelatedQuestionsResponseParser;
-impl ResponseParser for ChatRelatedQuestionsResponseParser {
-  type ValueType = Vec<JsonValue>;
-
-  fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
-    if json.is_object() {
-      if let Some(data) = json.get("data") {
-        if let Some(values) = data.as_array() {
-          return Ok(values.clone());
-        }
-      }
-    }
-    return Err(RemoteError::ParseResponse(json));
-  }
-}
-
-pub struct SimilarityResponseParser;
-impl ResponseParser for SimilarityResponseParser {
-  type ValueType = f64;
-
-  fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
-    if json.is_object() {
-      if let Some(data) = json.get("data") {
-        if let Some(score) = data.get("score").and_then(|v| v.as_f64()) {
-          return Ok(score);
-        }
-      }
-    }
-
-    return Err(RemoteError::ParseResponse(json));
-  }
 }

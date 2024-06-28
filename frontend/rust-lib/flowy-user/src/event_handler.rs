@@ -1,5 +1,5 @@
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::cloud::UserCloudConfig;
 use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
@@ -25,8 +25,8 @@ fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc
 }
 
 fn upgrade_store_preferences(
-  store: AFPluginState<Weak<StorePreferences>>,
-) -> FlowyResult<Arc<StorePreferences>> {
+  store: AFPluginState<Weak<KVStorePreferences>>,
+) -> FlowyResult<Arc<KVStorePreferences>> {
   let store = store
     .upgrade()
     .ok_or(FlowyError::internal().with_context("The store preferences is already drop"))?;
@@ -151,7 +151,7 @@ const APPEARANCE_SETTING_CACHE_KEY: &str = "appearance_settings";
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn set_appearance_setting(
-  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  store_preferences: AFPluginState<Weak<KVStorePreferences>>,
   data: AFPluginData<AppearanceSettingsPB>,
 ) -> Result<(), FlowyError> {
   let store_preferences = upgrade_store_preferences(store_preferences)?;
@@ -165,7 +165,7 @@ pub async fn set_appearance_setting(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_appearance_setting(
-  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  store_preferences: AFPluginState<Weak<KVStorePreferences>>,
 ) -> DataResult<AppearanceSettingsPB, FlowyError> {
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   match store_preferences.get_str(APPEARANCE_SETTING_CACHE_KEY) {
@@ -187,7 +187,7 @@ const DATE_TIME_SETTINGS_CACHE_KEY: &str = "date_time_settings";
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn set_date_time_settings(
-  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  store_preferences: AFPluginState<Weak<KVStorePreferences>>,
   data: AFPluginData<DateTimeSettingsPB>,
 ) -> Result<(), FlowyError> {
   let store_preferences = upgrade_store_preferences(store_preferences)?;
@@ -202,7 +202,7 @@ pub async fn set_date_time_settings(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_date_time_settings(
-  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  store_preferences: AFPluginState<Weak<KVStorePreferences>>,
 ) -> DataResult<DateTimeSettingsPB, FlowyError> {
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   match store_preferences.get_str(DATE_TIME_SETTINGS_CACHE_KEY) {
@@ -227,7 +227,7 @@ const NOTIFICATION_SETTINGS_CACHE_KEY: &str = "notification_settings";
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn set_notification_settings(
-  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  store_preferences: AFPluginState<Weak<KVStorePreferences>>,
   data: AFPluginData<NotificationSettingsPB>,
 ) -> Result<(), FlowyError> {
   let store_preferences = upgrade_store_preferences(store_preferences)?;
@@ -238,7 +238,7 @@ pub async fn set_notification_settings(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_notification_settings(
-  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  store_preferences: AFPluginState<Weak<KVStorePreferences>>,
 ) -> DataResult<NotificationSettingsPB, FlowyError> {
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   match store_preferences.get_str(NOTIFICATION_SETTINGS_CACHE_KEY) {
@@ -348,7 +348,7 @@ pub async fn sign_in_with_provider_handler(
 pub async fn set_encrypt_secret_handler(
   manager: AFPluginState<Weak<UserManager>>,
   data: AFPluginData<UserSecretPB>,
-  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  store_preferences: AFPluginState<Weak<KVStorePreferences>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let store_preferences = upgrade_store_preferences(store_preferences)?;
@@ -408,7 +408,7 @@ pub async fn check_encrypt_secret_handler(
 pub async fn set_cloud_config_handler(
   manager: AFPluginState<Weak<UserManager>>,
   data: AFPluginData<UpdateCloudConfigPB>,
-  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  store_preferences: AFPluginState<Weak<KVStorePreferences>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let session = manager.get_session()?;
@@ -468,7 +468,7 @@ pub async fn set_cloud_config_handler(
 #[tracing::instrument(level = "info", skip_all, err)]
 pub async fn get_cloud_config_handler(
   manager: AFPluginState<Weak<UserManager>>,
-  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  store_preferences: AFPluginState<Weak<KVStorePreferences>>,
 ) -> DataResult<CloudSettingPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let session = manager.get_session()?;

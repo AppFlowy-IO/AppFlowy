@@ -18,8 +18,7 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageStream, MessageCursor, RepeatedChatMessage,
-  StreamAnswer,
+  ChatCloudService, ChatMessage, MessageCursor, RepeatedChatMessage, StreamAnswer,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
@@ -545,24 +544,7 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  async fn send_chat_message(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
-    message_type: ChatMessageType,
-  ) -> Result<ChatMessageStream, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
-    let message = message.to_string();
-    let server = self.get_server()?;
-    server
-      .chat_service()
-      .send_chat_message(&workspace_id, &chat_id, &message, message_type)
-      .await
-  }
-
-  fn send_question(
+  fn save_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -577,7 +559,7 @@ impl ChatCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .chat_service()
-        .send_question(&workspace_id, &chat_id, &message, message_type)
+        .save_question(&workspace_id, &chat_id, &message, message_type)
         .await
     })
   }
@@ -601,7 +583,7 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  async fn stream_answer(
+  async fn ask_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -612,7 +594,7 @@ impl ChatCloudService for ServerProvider {
     let server = self.get_server()?;
     server
       .chat_service()
-      .stream_answer(&workspace_id, &chat_id, message_id)
+      .ask_question(&workspace_id, &chat_id, message_id)
       .await
   }
 

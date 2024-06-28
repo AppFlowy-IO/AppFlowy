@@ -8,12 +8,12 @@ use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
 use std::io::BufReader;
+use std::path::PathBuf;
 use std::process::{Child, Stdio};
 use std::sync::Arc;
 use std::thread;
 use std::time::Instant;
 use tokio_stream::wrappers::ReceiverStream;
-use tokio_stream::Stream;
 
 use tracing::{error, info};
 
@@ -126,7 +126,7 @@ impl Plugin {
 
 pub struct PluginInfo {
   pub name: String,
-  pub exec_path: String,
+  pub exec_path: PathBuf,
 }
 
 pub(crate) async fn start_plugin_process(

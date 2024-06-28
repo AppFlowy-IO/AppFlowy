@@ -3,8 +3,8 @@ use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionP
 use crate::persistence::{insert_chat, ChatTable};
 use dashmap::DashMap;
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageStream, ChatMessageType, MessageCursor,
-  RepeatedChatMessage, RepeatedRelatedQuestion, StreamAnswer,
+  ChatCloudService, ChatMessage, ChatMessageType, MessageCursor, RepeatedChatMessage,
+  RepeatedRelatedQuestion, StreamAnswer,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sidecar::manager::SidecarManager;
@@ -12,8 +12,13 @@ use flowy_sqlite::DBConnection;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
+use crate::local_ai::manager::{LocalAIManager, LocalAISetting};
+use flowy_sqlite::kv::KVStorePreferences;
+use lib_infra::async_trait::async_trait;
+use parking_lot::RwLock;
+
 use std::sync::Arc;
-use tracing::trace;
+use tracing::{error, info, trace};
 
 pub trait ChatUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -26,22 +31,54 @@ pub struct ChatManager {
   chat_service: Arc<ChatService>,
   user_service: Arc<dyn ChatUserService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
+  store_preferences: Arc<KVStorePreferences>,
 }
 
+const LOCAL_AI_SETTING_KEY: &str = "local_ai_setting";
 impl ChatManager {
   pub fn new(
     cloud_service: Arc<dyn ChatCloudService>,
     user_service: impl ChatUserService,
+    store_preferences: Arc<KVStorePreferences>,
   ) -> ChatManager {
+    let local_ai_setting = store_preferences
+      .get_object::<LocalAISetting>(LOCAL_AI_SETTING_KEY)
+      .unwrap_or_default();
     let sidecar_manager = Arc::new(SidecarManager::new());
-    let chat_service = Arc::new(ChatService::new(cloud_service, sidecar_manager));
+
+    // Setup local AI chat plugin
+    let local_ai_manager = Arc::new(LocalAIManager::new(sidecar_manager));
+    setup_local_ai(&local_ai_setting, local_ai_manager.clone());
+
+    //
+    let chat_service = Arc::new(ChatService::new(
+      cloud_service,
+      local_ai_manager,
+      local_ai_setting,
+    ));
     let user_service = Arc::new(user_service);
 
     Self {
       chat_service,
       user_service,
       chats: Arc::new(DashMap::new()),
+      store_preferences,
     }
+  }
+
+  pub fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
+    setting.validate()?;
+
+    self
+      .store_preferences
+      .set_object(LOCAL_AI_SETTING_KEY, setting.clone())?;
+    *self.chat_service.local_ai_setting.write() = setting;
+    Ok(())
+  }
+
+  pub fn get_local_ai_setting(&self) -> FlowyResult<LocalAISetting> {
+    let setting = self.chat_service.local_ai_setting.read().clone();
+    Ok(setting)
   }
 
   pub async fn open_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
@@ -186,6 +223,21 @@ impl ChatManager {
   }
 }
 
+fn setup_local_ai(local_ai_setting: &LocalAISetting, local_ai_manager: Arc<LocalAIManager>) {
+  if let Ok(config) = local_ai_setting.get_chat_plugin_config() {
+    tokio::spawn(async move {
+      match local_ai_manager.setup_chat_plugin(config).await {
+        Ok(_) => {
+          info!("Local AI chat plugin setup successfully");
+        },
+        Err(err) => {
+          error!("Failed to setup local AI chat plugin: {:?}", err);
+        },
+      }
+    });
+  }
+}
+
 fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
   let row = ChatTable {
     chat_id: chat_id.to_string(),
@@ -203,21 +255,25 @@ fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
 
 pub struct ChatService {
   cloud_service: Arc<dyn ChatCloudService>,
-  sidecar_manager: Arc<SidecarManager>,
+  local_ai_manager: Arc<LocalAIManager>,
+  local_ai_setting: Arc<RwLock<LocalAISetting>>,
 }
 
 impl ChatService {
   pub fn new(
     cloud_service: Arc<dyn ChatCloudService>,
-    sidecar_manager: Arc<SidecarManager>,
+    local_ai_manager: Arc<LocalAIManager>,
+    local_ai_setting: LocalAISetting,
   ) -> Self {
     Self {
       cloud_service,
-      sidecar_manager,
+      local_ai_manager,
+      local_ai_setting: Arc::new(RwLock::new(local_ai_setting)),
     }
   }
 }
 
+#[async_trait]
 impl ChatCloudService for ChatService {
   fn create_chat(
     &self,
@@ -228,27 +284,16 @@ impl ChatCloudService for ChatService {
     self.cloud_service.create_chat(uid, workspace_id, chat_id)
   }
 
-  async fn send_chat_message(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
-    message_type: ChatMessageType,
-  ) -> Result<ChatMessageStream, FlowyError> {
-    self
-      .cloud_service
-      .send_chat_message(workspace_id, chat_id, message, message_type)
-      .await
-  }
-
-  fn send_question(
+  fn save_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
   ) -> FutureResult<ChatMessage, FlowyError> {
-    todo!()
+    self
+      .cloud_service
+      .save_question(workspace_id, chat_id, message, message_type)
   }
 
   fn save_answer(
@@ -258,16 +303,41 @@ impl ChatCloudService for ChatService {
     message: &str,
     question_id: i64,
   ) -> FutureResult<ChatMessage, FlowyError> {
-    todo!()
+    self
+      .cloud_service
+      .save_answer(workspace_id, chat_id, message, question_id)
   }
 
-  async fn stream_answer(
+  async fn ask_question(
     &self,
-    _workspace_id: &str,
-    _chat_id: &str,
-    _message_id: i64,
+    workspace_id: &str,
+    chat_id: &str,
+    message_id: i64,
   ) -> Result<StreamAnswer, FlowyError> {
-    todo!()
+    if self.local_ai_setting.read().enabled {
+      // self.local_ai_manager.stream_chat_message(chat_id, "", message_id).await
+      todo!()
+    } else {
+      self
+        .cloud_service
+        .ask_question(workspace_id, chat_id, message_id)
+        .await
+    }
+  }
+
+  fn generate_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    question_message_id: i64,
+  ) -> FutureResult<ChatMessage, FlowyError> {
+    if self.local_ai_setting.read().enabled {
+      todo!()
+    } else {
+      self
+        .cloud_service
+        .generate_answer(workspace_id, chat_id, question_message_id)
+    }
   }
 
   fn get_chat_messages(
@@ -277,13 +347,9 @@ impl ChatCloudService for ChatService {
     offset: MessageCursor,
     limit: u64,
   ) -> FutureResult<RepeatedChatMessage, FlowyError> {
-    FutureResult::new(async move {
-      Ok(RepeatedChatMessage {
-        messages: vec![],
-        has_more: false,
-        total: 0,
-      })
-    })
+    self
+      .cloud_service
+      .get_chat_messages(workspace_id, chat_id, offset, limit)
   }
 
   fn get_related_message(
@@ -292,20 +358,17 @@ impl ChatCloudService for ChatService {
     chat_id: &str,
     message_id: i64,
   ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
-    FutureResult::new(async move {
-      Ok(RepeatedRelatedQuestion {
-        message_id,
-        items: vec![],
+    if self.local_ai_setting.read().enabled {
+      FutureResult::new(async move {
+        Ok(RepeatedRelatedQuestion {
+          message_id,
+          items: vec![],
+        })
       })
-    })
-  }
-
-  fn generate_answer(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    question_message_id: i64,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    todo!()
+    } else {
+      self
+        .cloud_service
+        .get_related_message(workspace_id, chat_id, message_id)
+    }
   }
 }

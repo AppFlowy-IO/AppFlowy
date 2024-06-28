@@ -1,6 +1,7 @@
 use flowy_chat::manager::{ChatManager, ChatUserService};
 use flowy_chat_pub::cloud::ChatCloudService;
 use flowy_error::FlowyError;
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use std::sync::{Arc, Weak};
@@ -11,9 +12,14 @@ impl ChatDepsResolver {
   pub fn resolve(
     authenticate_user: Weak<AuthenticateUser>,
     cloud_service: Arc<dyn ChatCloudService>,
+    store_preferences: Arc<KVStorePreferences>,
   ) -> Arc<ChatManager> {
     let user_service = ChatUserServiceImpl(authenticate_user);
-    Arc::new(ChatManager::new(cloud_service, user_service))
+    Arc::new(ChatManager::new(
+      cloud_service,
+      user_service,
+      store_preferences,
+    ))
   }
 }
 

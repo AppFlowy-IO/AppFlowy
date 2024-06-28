@@ -18,6 +18,11 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
     .event(ChatEvent::GetRelatedQuestion, get_related_question_handler)
     .event(ChatEvent::GetAnswerForQuestion, get_answer_handler)
     .event(ChatEvent::StopStream, stop_stream_handler)
+    .event(ChatEvent::GetLocalAISetting, get_local_ai_setting_handler)
+    .event(
+      ChatEvent::UpdateLocalAISetting,
+      update_local_ai_setting_handler,
+    )
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -41,4 +46,10 @@ pub enum ChatEvent {
 
   #[event(input = "ChatMessageIdPB", output = "ChatMessagePB")]
   GetAnswerForQuestion = 5,
+
+  #[event(input = "LocalAIChatSettingPB")]
+  UpdateLocalAISetting = 6,
+
+  #[event(output = "LocalAIChatSettingPB")]
+  GetLocalAISetting = 7,
 }
