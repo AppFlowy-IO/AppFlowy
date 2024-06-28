@@ -63,11 +63,7 @@ pub trait FolderOperationHandler {
   fn create_view_with_view_data(
     &self,
     user_id: i64,
-    view_id: &str,
-    name: &str,
-    data: Vec<u8>,
-    layout: ViewLayout,
-    meta: HashMap<String, String>,
+    params: CreateViewParams,
   ) -> FutureResult<(), FlowyError>;
 
   /// Create a view with the pre-defined data.
@@ -127,14 +123,14 @@ pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout
     parent_view_id: params.parent_view_id,
     name: params.name,
     desc: params.desc,
-    children: Default::default(),
     created_at: time,
     is_favorite: false,
     layout,
-    icon: None,
+    icon: params.icon,
     created_by: Some(uid),
     last_edited_time: 0,
     last_edited_by: Some(uid),
-    extra: None,
+    extra: params.extra,
+    children: Default::default(),
   }
 }

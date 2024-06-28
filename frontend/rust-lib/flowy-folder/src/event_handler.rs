@@ -266,12 +266,12 @@ pub(crate) async fn move_nested_view_handler(
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn duplicate_view_handler(
-  data: AFPluginData<ViewPB>,
+  data: AFPluginData<DuplicateViewPayloadPB>,
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let view: ViewPB = data.into_inner();
-  folder.duplicate_view(&view.id).await?;
+  let params: DuplicateViewParams = data.into_inner().try_into()?;
+  folder.duplicate_view(params).await?;
   Ok(())
 }
 

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
@@ -9,7 +11,6 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:scaled_app/scaled_app.dart';
@@ -136,13 +137,18 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     ),
 
     // Scale up/down the app
-    HotKeyItem(
-      hotKey: HotKey(
-        KeyCode.equal,
-        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
-        scope: HotKeyScope.inapp,
+    // In some keyboards, the system returns equal as + keycode, while others may return add as + keycode, so add them both as zoom in key.
+    ...[KeyCode.equal, KeyCode.add].map(
+      (keycode) => HotKeyItem(
+        hotKey: HotKey(
+          keycode,
+          modifiers: [
+            Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
+          ],
+          scope: HotKeyScope.inapp,
+        ),
+        keyDownHandler: (_) => _scaleWithStep(0.1),
       ),
-      keyDownHandler: (_) => _scaleWithStep(0.1),
     ),
 
     HotKeyItem(
@@ -181,14 +187,12 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
   @override
   void initState() {
     super.initState();
-
     _registerHotKeys(context);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     _registerHotKeys(context);
   }
 

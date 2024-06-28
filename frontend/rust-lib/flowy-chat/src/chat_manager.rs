@@ -3,8 +3,8 @@ use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionP
 use crate::persistence::{insert_chat, select_single_message, ChatTable};
 use dashmap::DashMap;
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageType, MessageCursor, RepeatedChatMessage,
-  RepeatedRelatedQuestion, StreamAnswer,
+  ChatCloudService, ChatMessage, ChatMessageType, CompletionType, MessageCursor,
+  RepeatedChatMessage, RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sidecar::manager::SidecarManager;
@@ -29,8 +29,8 @@ pub trait ChatUserService: Send + Sync + 'static {
 }
 
 pub struct ChatManager {
-  chat_service: Arc<ChatService>,
-  user_service: Arc<dyn ChatUserService>,
+  pub chat_service: Arc<ChatService>,
+  pub user_service: Arc<dyn ChatUserService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
   store_preferences: Arc<KVStorePreferences>,
 }
@@ -252,7 +252,7 @@ fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
 }
 
 pub struct ChatService {
-  cloud_service: Arc<dyn ChatCloudService>,
+  pub cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn ChatUserService>,
   local_ai_manager: Arc<LocalAIManager>,
   local_ai_setting: Arc<RwLock<LocalAISetting>>,
@@ -402,6 +402,21 @@ impl ChatCloudService for ChatService {
       self
         .cloud_service
         .get_related_message(workspace_id, chat_id, message_id)
+    }
+  }
+
+  async fn stream_complete(
+    &self,
+    workspace_id: &str,
+    text: &str,
+    complete_type: CompletionType,
+  ) -> Result<StreamComplete, FlowyError> {
+    if self.local_ai_setting.read().enabled {
+      todo!()
+    } else {
+      self
+        .stream_complete(workspace_id, text, complete_type)
+        .await
     }
   }
 }

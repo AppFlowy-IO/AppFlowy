@@ -1,4 +1,15 @@
 # Release Notes
+## Version 0.6.2 - 01/07/2024
+### New Features
+### Bug Fixes
+
+## Version 0.6.1 - 22/06/2024
+### New Features
+- Introduced the "Space" feature to help you organize your pages more efficiently.
+### Bug Fixes
+- Resolved shortcut conflicts on the board page.
+- Resolved an issue where underscores could cause the editor to freeze.
+
 ## Version 0.6.0 - 19/06/2024
 ### New Features
 - Introduced the "Space" feature to help you organize your pages more efficiently.

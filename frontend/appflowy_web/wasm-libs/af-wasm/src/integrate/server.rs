@@ -41,7 +41,7 @@ impl ServerProviderWASM {
           self.config.clone(),
           true,
           self.device_id.clone(),
-          "0.0.1"
+          "0.0.1",
         ));
         *self.server.write() = Some(server.clone());
         server
@@ -67,6 +67,10 @@ impl CollabCloudPluginProvider for ServerProviderWASM {
 impl UserCloudServiceProvider for ServerProviderWASM {
   fn set_token(&self, token: &str) -> Result<(), FlowyError> {
     self.get_server().set_token(token)?;
+    Ok(())
+  }
+
+  fn set_ai_model(&self, ai_model: &str) -> Result<(), FlowyError> {
     Ok(())
   }
 

@@ -87,6 +87,7 @@ diesel::table! {
         encryption_type -> Text,
         stability_ai_key -> Text,
         updated_at -> BigInt,
+        ai_model -> Text,
     }
 }
 

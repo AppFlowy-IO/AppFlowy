@@ -1,19 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/share/import_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
-
+import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 
@@ -67,10 +69,12 @@ class ImportPanel extends StatefulWidget {
 
 class _ImportPanelState extends State<ImportPanel> {
   final flowyContainerFocusNode = FocusNode();
+  final ValueNotifier<bool> showLoading = ValueNotifier(false);
 
   @override
   void dispose() {
     flowyContainerFocusNode.dispose();
+    showLoading.dispose();
     super.dispose();
   }
 
@@ -87,37 +91,52 @@ class _ImportPanelState extends State<ImportPanel> {
           FlowyOverlay.pop(context);
         }
       },
-      child: FlowyContainer(
-        Theme.of(context).colorScheme.surface,
-        height: height,
-        width: width,
-        child: GridView.count(
-          childAspectRatio: 1 / .2,
-          crossAxisCount: 2,
-          children: ImportType.values
-              .where((element) => element.enableOnRelease)
-              .map(
-                (e) => Card(
-                  child: FlowyButton(
-                    leftIcon: e.icon(context),
-                    leftIconSize: const Size.square(20),
-                    text: FlowyText.medium(
-                      e.toString(),
-                      fontSize: 15,
-                      overflow: TextOverflow.ellipsis,
-                      color: Theme.of(context).colorScheme.tertiary,
+      child: Stack(
+        children: [
+          FlowyContainer(
+            Theme.of(context).colorScheme.surface,
+            height: height,
+            width: width,
+            child: GridView.count(
+              childAspectRatio: 1 / .2,
+              crossAxisCount: 2,
+              children: ImportType.values
+                  .where((element) => element.enableOnRelease)
+                  .map(
+                    (e) => Card(
+                      child: FlowyButton(
+                        leftIcon: e.icon(context),
+                        leftIconSize: const Size.square(20),
+                        text: FlowyText.medium(
+                          e.toString(),
+                          fontSize: 15,
+                          overflow: TextOverflow.ellipsis,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                        onTap: () async {
+                          await _importFile(widget.parentViewId, e);
+                          if (context.mounted) {
+                            FlowyOverlay.pop(context);
+                          }
+                        },
+                      ),
                     ),
-                    onTap: () async {
-                      await _importFile(widget.parentViewId, e);
-                      if (context.mounted) {
-                        FlowyOverlay.pop(context);
-                      }
-                    },
-                  ),
-                ),
-              )
-              .toList(),
-        ),
+                  )
+                  .toList(),
+            ),
+          ),
+          ValueListenableBuilder(
+            valueListenable: showLoading,
+            builder: (context, showLoading, child) {
+              if (!showLoading) {
+                return const SizedBox.shrink();
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -132,6 +151,8 @@ class _ImportPanelState extends State<ImportPanel> {
       return;
     }
 
+    showLoading.value = true;
+
     for (final file in result.files) {
       final path = file.path;
       if (path == null) {
@@ -145,43 +166,60 @@ class _ImportPanelState extends State<ImportPanel> {
         case ImportType.historyDocument:
           final bytes = _documentDataFrom(importType, data);
           if (bytes != null) {
-            await ImportBackendService.importData(
+            final result = await ImportBackendService.importData(
               bytes,
               name,
               parentViewId,
               ImportTypePB.HistoryDocument,
             );
+            result.onFailure((error) {
+              showSnackBarMessage(context, error.msg);
+              Log.error('Failed to import markdown $error');
+            });
           }
           break;
         case ImportType.historyDatabase:
-          await ImportBackendService.importData(
+          final result = await ImportBackendService.importData(
             utf8.encode(data),
             name,
             parentViewId,
             ImportTypePB.HistoryDatabase,
           );
+          result.onFailure((error) {
+            showSnackBarMessage(context, error.msg);
+            Log.error('Failed to import history database $error');
+          });
           break;
         case ImportType.databaseRawData:
-          await ImportBackendService.importData(
+          final result = await ImportBackendService.importData(
             utf8.encode(data),
             name,
             parentViewId,
             ImportTypePB.RawDatabase,
           );
+          result.onFailure((error) {
+            showSnackBarMessage(context, error.msg);
+            Log.error('Failed to import database raw data $error');
+          });
           break;
         case ImportType.databaseCSV:
-          await ImportBackendService.importData(
+          final result = await ImportBackendService.importData(
             utf8.encode(data),
             name,
             parentViewId,
             ImportTypePB.CSV,
           );
+          result.onFailure((error) {
+            showSnackBarMessage(context, error.msg);
+            Log.error('Failed to import CSV $error');
+          });
           break;
         default:
           assert(false, 'Unsupported Type $importType');
       }
     }
 
+    showLoading.value = false;
     widget.importCallback(importType, '', null);
   }
 }

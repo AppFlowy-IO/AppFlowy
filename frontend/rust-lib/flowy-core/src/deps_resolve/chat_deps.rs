@@ -1,4 +1,4 @@
-use flowy_chat::manager::{ChatManager, ChatUserService};
+use flowy_chat::chat_manager::{ChatManager, ChatUserService};
 use flowy_chat_pub::cloud::ChatCloudService;
 use flowy_error::FlowyError;
 use flowy_sqlite::kv::KVStorePreferences;

@@ -2293,6 +2293,7 @@ dependencies = [
  "anyhow",
  "base64 0.21.5",
  "chrono",
+ "client-api",
  "collab",
  "collab-entity",
  "flowy-error",

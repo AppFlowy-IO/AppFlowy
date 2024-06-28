@@ -11,13 +11,14 @@ use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{
-  Role, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
-  WorkspaceSubscription, WorkspaceUsage,
+  Role, UpdateUserProfileParams, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus,
+  WorkspaceMember, WorkspaceSubscription, WorkspaceUsage,
 };
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
-  RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, UserWorkspacePB,
+  RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, UpdateUserWorkspaceSettingPB,
+  UseAISettingPB, UserWorkspacePB,
 };
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
@@ -27,10 +28,11 @@ use crate::services::data_import::{
 use crate::services::sqlite_sql::member_sql::{
   select_workspace_member, upsert_workspace_member, WorkspaceMemberTable,
 };
+use crate::services::sqlite_sql::user_sql::UserTableChangeset;
 use crate::services::sqlite_sql::workspace_sql::{
   get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op, UserWorkspaceTable,
 };
-use crate::user_manager::UserManager;
+use crate::user_manager::{upsert_user_profile_change, UserManager};
 use flowy_user_pub::session::Session;
 
 impl UserManager {
@@ -327,20 +329,6 @@ impl UserManager {
     Ok(())
   }
 
-  // deprecated, use invite instead
-  pub async fn add_workspace_member(
-    &self,
-    user_email: String,
-    workspace_id: String,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_services
-      .get_user_service()?
-      .add_workspace_member(user_email, workspace_id)
-      .await?;
-    Ok(())
-  }
-
   pub async fn remove_workspace_member(
     &self,
     user_email: String,
@@ -495,6 +483,49 @@ impl UserManager {
       .get_billing_portal_url()
       .await?;
     Ok(url)
+  }
+
+  pub async fn update_workspace_setting(
+    &self,
+    updated_settings: UpdateUserWorkspaceSettingPB,
+  ) -> FlowyResult<()> {
+    let ai_model = updated_settings
+      .ai_model
+      .as_ref()
+      .map(|model| model.to_str().to_string());
+    let workspace_id = updated_settings.workspace_id.clone();
+    let cloud_service = self.cloud_services.get_user_service()?;
+    let settings = cloud_service
+      .update_workspace_setting(&workspace_id, updated_settings.into())
+      .await?;
+
+    let pb = UseAISettingPB::from(settings);
+    let uid = self.user_id()?;
+    send_notification(&uid.to_string(), UserNotification::DidUpdateAISetting)
+      .payload(pb)
+      .send();
+
+    if let Some(ai_model) = ai_model {
+      if let Err(err) = self.cloud_services.set_ai_model(&ai_model) {
+        error!("Set ai model failed: {}", err);
+      }
+
+      let conn = self.db_connection(uid)?;
+      let params = UpdateUserProfileParams::new(uid).with_ai_model(&ai_model);
+      upsert_user_profile_change(uid, conn, UserTableChangeset::new(params))?;
+    }
+    Ok(())
+  }
+
+  pub async fn get_workspace_settings(&self, workspace_id: &str) -> FlowyResult<UseAISettingPB> {
+    let cloud_service = self.cloud_services.get_user_service()?;
+    let settings = cloud_service.get_workspace_setting(workspace_id).await?;
+
+    let uid = self.user_id()?;
+    let conn = self.db_connection(uid)?;
+    let params = UpdateUserProfileParams::new(uid).with_ai_model(&settings.ai_model);
+    upsert_user_profile_change(uid, conn, UserTableChangeset::new(params))?;
+    Ok(UseAISettingPB::from(settings))
   }
 
   #[instrument(level = "debug", skip(self), err)]

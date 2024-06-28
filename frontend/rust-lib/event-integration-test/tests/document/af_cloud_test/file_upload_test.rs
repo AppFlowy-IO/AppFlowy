@@ -26,10 +26,8 @@ async fn af_cloud_upload_file_test() {
     .unwrap();
 
   while let Ok(result) = rx.recv().await {
-    if result.file_id == created_upload.file_id {
-      if result.status == UploadStatus::Finish {
-        break;
-      }
+    if result.file_id == created_upload.file_id && result.status == UploadStatus::Finish {
+      break;
     }
   }
 
@@ -54,10 +52,8 @@ async fn af_cloud_upload_big_file_test() {
 
   let mut rx = test.storage_manager.subscribe_upload_result();
   while let Ok(result) = rx.recv().await {
-    if result.file_id == created_upload.file_id {
-      if result.status == UploadStatus::InProgress {
-        break;
-      }
+    if result.file_id == created_upload.file_id && result.status == UploadStatus::InProgress {
+      break;
     }
   }
 
@@ -71,10 +67,8 @@ async fn af_cloud_upload_big_file_test() {
   let test = EventIntegrationTest::new_with_config(config).await;
   let mut rx = test.storage_manager.subscribe_upload_result();
   while let Ok(result) = rx.recv().await {
-    if result.file_id == created_upload.file_id {
-      if result.status == UploadStatus::Finish {
-        break;
-      }
+    if result.file_id == created_upload.file_id && result.status == UploadStatus::Finish {
+      break;
     }
   }
 
@@ -101,7 +95,7 @@ async fn af_cloud_upload_6_files_test() {
   let mut rx = test.storage_manager.subscribe_upload_result();
 
   let mut created_uploads = vec![];
-  for file_size in vec![1, 2, 5, 8, 12, 20] {
+  for file_size in [1, 2, 5, 8, 12, 20] {
     let file_path = generate_file_with_bytes_len(file_size * 1024 * 1024)
       .await
       .0;

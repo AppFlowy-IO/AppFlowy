@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
-use client_api::entity::ai_dto::RepeatedRelatedQuestion;
+use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
 
@@ -12,13 +12,13 @@ use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
 use tokio_stream::wrappers::WatchStream;
-use tracing::debug;
+use tracing::{debug, info};
 
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, MessageCursor, RepeatedChatMessage, StreamAnswer,
+  ChatCloudService, ChatMessage, MessageCursor, RepeatedChatMessage, StreamAnswer, StreamComplete,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
@@ -144,6 +144,13 @@ impl UserCloudServiceProvider for ServerProvider {
   fn set_token(&self, token: &str) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server.set_token(token)?;
+    Ok(())
+  }
+
+  fn set_ai_model(&self, ai_model: &str) -> Result<(), FlowyError> {
+    info!("Set AI model: {}", ai_model);
+    let server = self.get_server()?;
+    server.set_ai_model(ai_model)?;
     Ok(())
   }
 
@@ -643,6 +650,21 @@ impl ChatCloudService for ServerProvider {
     server?
       .chat_service()
       .generate_answer(&workspace_id, &chat_id, question_message_id)
+      .await
+  }
+
+  async fn stream_complete(
+    &self,
+    workspace_id: &str,
+    text: &str,
+    complete_type: CompletionType,
+  ) -> Result<StreamComplete, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let text = text.to_string();
+    let server = self.get_server()?;
+    server
+      .chat_service()
+      .stream_complete(&workspace_id, &text, complete_type)
       .await
   }
 }

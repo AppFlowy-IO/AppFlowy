@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'theme_upload_decoration.dart';
@@ -57,8 +58,9 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
     });
   }
 
-  Widget child =
-      const UploadNewThemeWidget(key: Key('upload_new_theme_widget'));
+  Widget child = const UploadNewThemeWidget(
+    key: Key('upload_new_theme_widget'),
+  );
 
   @override
   Widget build(BuildContext context) {

@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:flowy_infra/size.dart';
 
 class FlowyFormTextInput extends StatelessWidget {
   static EdgeInsets kDefaultTextInputPadding =
@@ -162,10 +163,12 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
 
   @override
   void initState() {
+    super.initState();
     _controller =
         widget.controller ?? TextEditingController(text: widget.initialValue);
     _focusNode = FocusNode(
-      debugLabel: widget.label ?? '',
+      debugLabel: widget.label,
+      canRequestFocus: true,
       onKeyEvent: (node, event) {
         if (event.logicalKey == LogicalKeyboardKey.escape) {
           widget.onEditingCancel?.call();
@@ -173,7 +176,6 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         }
         return KeyEventResult.ignored;
       },
-      canRequestFocus: true,
     );
     // Listen for focus out events
     _focusNode
@@ -182,7 +184,6 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
     if (widget.autoFocus ?? false) {
       scheduleMicrotask(() => _focusNode.requestFocus());
     }
-    super.initState();
   }
 
   @override
@@ -292,8 +293,10 @@ class ThinUnderlineBorder extends InputBorder {
   bool get isOutline => false;
 
   @override
-  UnderlineInputBorder copyWith(
-      {BorderSide? borderSide, BorderRadius? borderRadius}) {
+  UnderlineInputBorder copyWith({
+    BorderSide? borderSide,
+    BorderRadius? borderRadius,
+  }) {
     return UnderlineInputBorder(
       borderSide: borderSide ?? this.borderSide,
       borderRadius: borderRadius ?? this.borderRadius,
@@ -301,14 +304,12 @@ class ThinUnderlineBorder extends InputBorder {
   }
 
   @override
-  EdgeInsetsGeometry get dimensions {
-    return EdgeInsets.only(bottom: borderSide.width);
-  }
+  EdgeInsetsGeometry get dimensions =>
+      EdgeInsets.only(bottom: borderSide.width);
 
   @override
-  UnderlineInputBorder scale(double t) {
-    return UnderlineInputBorder(borderSide: borderSide.scale(t));
-  }
+  UnderlineInputBorder scale(double t) =>
+      UnderlineInputBorder(borderSide: borderSide.scale(t));
 
   @override
   Path getInnerPath(Rect rect, {TextDirection? textDirection}) {

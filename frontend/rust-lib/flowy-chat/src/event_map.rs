@@ -1,17 +1,22 @@
-use std::sync::Weak;
+use std::sync::{Arc, Weak};
 
 use strum_macros::Display;
 
+use crate::tools::AITools;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 
+use crate::chat_manager::ChatManager;
 use crate::event_handler::*;
-use crate::manager::ChatManager;
 
 pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
+  let user_service = Arc::downgrade(&chat_manager.upgrade().unwrap().user_service);
+  let cloud_service = Arc::downgrade(&chat_manager.upgrade().unwrap().chat_service);
+  let ai_tools = Arc::new(AITools::new(cloud_service, user_service));
   AFPlugin::new()
     .name("Flowy-Chat")
     .state(chat_manager)
+    .state(ai_tools)
     .event(ChatEvent::StreamMessage, stream_chat_message_handler)
     .event(ChatEvent::LoadPrevMessage, load_prev_message_handler)
     .event(ChatEvent::LoadNextMessage, load_next_message_handler)
@@ -23,6 +28,8 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
       ChatEvent::UpdateLocalAISetting,
       update_local_ai_setting_handler,
     )
+    .event(ChatEvent::CompleteText, start_complete_text_handler)
+    .event(ChatEvent::StopCompleteText, stop_complete_text_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -52,4 +59,10 @@ pub enum ChatEvent {
 
   #[event(output = "LocalAIChatSettingPB")]
   GetLocalAISetting = 7,
+
+  #[event(input = "CompleteTextPB", output = "CompleteTextTaskPB")]
+  CompleteText = 8,
+
+  #[event(input = "CompleteTextTaskPB")]
+  StopCompleteText = 9,
 }

@@ -624,19 +624,6 @@ pub async fn update_reminder_event_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn add_workspace_member_handler(
-  data: AFPluginData<AddWorkspaceMemberPB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let data = data.try_into_inner()?;
-  let manager = upgrade_manager(manager)?;
-  manager
-    .add_workspace_member(data.email, data.workspace_id)
-    .await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn delete_workspace_member_handler(
   data: AFPluginData<RemoveWorkspaceMemberPB>,
   manager: AFPluginState<Weak<UserManager>>,
@@ -844,4 +831,26 @@ pub async fn get_workspace_member_info(
   let manager = upgrade_manager(manager)?;
   let member = manager.get_workspace_member_info(param.uid).await?;
   data_result_ok(member.into())
+}
+
+#[tracing::instrument(level = "info", skip_all, err)]
+pub async fn update_workspace_setting(
+  params: AFPluginData<UpdateUserWorkspaceSettingPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let params = params.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  manager.update_workspace_setting(params).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "info", skip_all, err)]
+pub async fn get_workspace_setting(
+  params: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<UseAISettingPB, FlowyError> {
+  let params = params.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  let pb = manager.get_workspace_settings(&params.workspace_id).await?;
+  data_result_ok(pb)
 }

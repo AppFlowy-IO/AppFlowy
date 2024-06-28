@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -22,7 +22,7 @@ class OpenAIImageWidget extends StatefulWidget {
 }
 
 class _OpenAIImageWidgetState extends State<OpenAIImageWidget> {
-  Future<FlowyResult<List<String>, OpenAIError>>? future;
+  Future<FlowyResult<List<String>, AIError>>? future;
   String query = '';
 
   @override
@@ -93,7 +93,7 @@ class _OpenAIImageWidgetState extends State<OpenAIImageWidget> {
   }
 
   void _search() async {
-    final openAI = await getIt.getAsync<OpenAIRepository>();
+    final openAI = await getIt.getAsync<AIRepository>();
     setState(() {
       future = openAI.generateImage(
         prompt: query,

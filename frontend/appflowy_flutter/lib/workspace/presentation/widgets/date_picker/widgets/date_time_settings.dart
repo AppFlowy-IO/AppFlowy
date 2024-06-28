@@ -30,6 +30,12 @@ class _DateTimeSettingState extends State<DateTimeSetting> {
   String? overlayIdentifier;
 
   @override
+  void dispose() {
+    timeSettingPopoverMutex.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final List<Widget> children = [
       AppFlowyPopover(

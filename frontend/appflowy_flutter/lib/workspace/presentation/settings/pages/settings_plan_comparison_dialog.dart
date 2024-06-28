@@ -47,7 +47,7 @@ class _SettingsPlanComparisonDialogState
   Widget build(BuildContext context) {
     final isLM = Theme.of(context).isLightMode;
 
-    return BlocListener<SettingsPlanBloc, SettingsPlanState>(
+    return BlocConsumer<SettingsPlanBloc, SettingsPlanState>(
       listener: (context, state) {
         final readyState = state.mapOrNull(ready: (state) => state);
 
@@ -82,7 +82,7 @@ class _SettingsPlanComparisonDialogState
           currentSubscription = readyState.subscription;
         });
       },
-      child: FlowyDialog(
+      builder: (context, state) => FlowyDialog(
         constraints: const BoxConstraints(maxWidth: 784, minWidth: 674),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,7 +185,16 @@ class _SettingsPlanComparisonDialogState
                             canDowngrade:
                                 currentSubscription.subscriptionPlan !=
                                     SubscriptionPlanPB.None,
-                            currentCanceled: currentSubscription.hasCanceled,
+                            currentCanceled: currentSubscription.hasCanceled ||
+                                (context
+                                        .watch<SettingsPlanBloc>()
+                                        .state
+                                        .mapOrNull(
+                                          loading: (_) => true,
+                                          ready: (state) =>
+                                              state.downgradeProcessing,
+                                        ) ??
+                                    false),
                             onSelected: () async {
                               if (currentSubscription.subscriptionPlan ==
                                       SubscriptionPlanPB.None ||
@@ -484,8 +493,9 @@ class _ActionButton extends StatelessWidget {
                 cursor: onPressed != null
                     ? SystemMouseCursors.click
                     : MouseCursor.defer,
-                child: _drawGradientBorder(
+                child: _drawBorder(
                   isLM: isLM,
+                  isUpgrade: isUpgrade,
                   child: Container(
                     height: 36,
                     width: 148,
@@ -496,9 +506,7 @@ class _ActionButton extends StatelessWidget {
                       border: Border.all(color: Colors.transparent),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Center(
-                      child: _drawText(label, isLM),
-                    ),
+                    child: Center(child: _drawText(label, isLM, isUpgrade)),
                   ),
                 ),
               ),
@@ -509,13 +517,13 @@ class _ActionButton extends StatelessWidget {
     );
   }
 
-  Widget _drawText(String text, bool isLM) {
+  Widget _drawText(String text, bool isLM, bool isUpgrade) {
     final child = FlowyText(
       text,
       fontSize: 14,
       lineHeight: 1.2,
       fontWeight: useGradientBorder ? FontWeight.w600 : FontWeight.w500,
-      color: const Color(0xFFC49BEC),
+      color: isUpgrade ? const Color(0xFFC49BEC) : null,
     );
 
     if (!useGradientBorder || !isLM) {
@@ -536,18 +544,25 @@ class _ActionButton extends StatelessWidget {
     );
   }
 
-  Widget _drawGradientBorder({required bool isLM, required Widget child}) {
+  Widget _drawBorder({
+    required bool isLM,
+    required bool isUpgrade,
+    required Widget child,
+  }) {
     return Container(
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          transform: const GradientRotation(-1.2),
-          stops: const [0.4, 1],
-          colors: [
-            isLM ? const Color(0xFF251D37) : const Color(0xFF7459AD),
-            isLM ? const Color(0xFF7547C0) : const Color(0xFFDDC8FF),
-          ],
-        ),
+        gradient: isUpgrade
+            ? LinearGradient(
+                transform: const GradientRotation(-1.2),
+                stops: const [0.4, 1],
+                colors: [
+                  isLM ? const Color(0xFF251D37) : const Color(0xFF7459AD),
+                  isLM ? const Color(0xFF7547C0) : const Color(0xFFDDC8FF),
+                ],
+              )
+            : null,
+        border: isUpgrade ? null : Border.all(),
         borderRadius: BorderRadius.circular(16),
       ),
       child: child,

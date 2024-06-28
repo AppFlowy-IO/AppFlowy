@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/notification_filter/notification_filter_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -9,7 +11,6 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/notificati
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NotificationDialog extends StatefulWidget {
@@ -44,7 +45,7 @@ class _NotificationDialogState extends State<NotificationDialog>
 
   @override
   void dispose() {
-    _mutex.close();
+    _mutex.dispose();
     _controller.removeListener(_updateState);
     _controller.dispose();
     super.dispose();

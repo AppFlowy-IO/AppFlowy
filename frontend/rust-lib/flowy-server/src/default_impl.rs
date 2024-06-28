@@ -1,6 +1,6 @@
-use client_api::entity::ai_dto::RepeatedRelatedQuestion;
+use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::{ChatMessageType, MessageCursor, RepeatedChatMessage};
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, StreamAnswer};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, StreamAnswer, StreamComplete};
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
@@ -83,5 +83,14 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     _question_message_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+  }
+
+  async fn stream_complete(
+    &self,
+    _workspace_id: &str,
+    _text: &str,
+    _complete_type: CompletionType,
+  ) -> Result<StreamComplete, FlowyError> {
+    Err(FlowyError::not_support().with_context("complete text is not supported in local server."))
   }
 }

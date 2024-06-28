@@ -38,6 +38,7 @@ class ViewBackendService {
     /// If the index is null, the view will be added to the end of the list.
     int? index,
     ViewSectionPB? section,
+    final String? viewId,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = parentViewId
@@ -61,6 +62,10 @@ class ViewBackendService {
 
     if (section != null) {
       payload.section = section;
+    }
+
+    if (viewId != null) {
+      payload.viewId = viewId;
     }
 
     return FolderEventCreateView(payload).send();
@@ -133,8 +138,26 @@ class ViewBackendService {
 
   static Future<FlowyResult<void, FlowyError>> duplicate({
     required ViewPB view,
+    required bool openAfterDuplicate,
+    // should include children views
+    required bool includeChildren,
+    String? parentViewId,
+    String? suffix,
   }) {
-    return FolderEventDuplicateView(view).send();
+    final payload = DuplicateViewPayloadPB.create()
+      ..viewId = view.id
+      ..openAfterDuplicate = openAfterDuplicate
+      ..includeChildren = includeChildren;
+
+    if (parentViewId != null) {
+      payload.parentViewId = parentViewId;
+    }
+
+    if (suffix != null) {
+      payload.suffix = suffix;
+    }
+
+    return FolderEventDuplicateView(payload).send();
   }
 
   static Future<FlowyResult<void, FlowyError>> favorite({

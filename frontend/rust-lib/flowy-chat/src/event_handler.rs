@@ -3,11 +3,12 @@ use std::path::Path;
 use std::sync::{Arc, Weak};
 use validator::Validate;
 
+use crate::tools::AITools;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
+use crate::chat_manager::ChatManager;
 use crate::entities::*;
-use crate::manager::ChatManager;
 
 fn upgrade_chat_manager(
   chat_manager: AFPluginState<Weak<ChatManager>>,
@@ -165,5 +166,23 @@ pub(crate) async fn update_local_ai_setting_handler(
 
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   chat_manager.update_local_ai_setting(data.into())?;
+  Ok(())
+}
+
+pub(crate) async fn start_complete_text_handler(
+  data: AFPluginData<CompleteTextPB>,
+  tools: AFPluginState<Arc<AITools>>,
+) -> DataResult<CompleteTextTaskPB, FlowyError> {
+  let task = tools.create_complete_task(data.into_inner()).await?;
+  data_result_ok(task)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn stop_complete_text_handler(
+  data: AFPluginData<CompleteTextTaskPB>,
+  tools: AFPluginState<Arc<AITools>>,
+) -> Result<(), FlowyError> {
+  let data = data.into_inner();
+  tools.cancel_complete_task(&data.task_id).await;
   Ok(())
 }

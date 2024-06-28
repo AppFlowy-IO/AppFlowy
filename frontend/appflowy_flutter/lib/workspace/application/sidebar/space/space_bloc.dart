@@ -19,6 +19,7 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -123,6 +124,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                   SpaceEvent.createPage(
                     name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                     index: 0,
+                    layout: ViewLayoutPB.Document,
                   ),
                 );
               }
@@ -215,7 +217,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             await _setSpaceExpandStatus(space, isExpanded);
             emit(state.copyWith(isExpanded: isExpanded));
           },
-          createPage: (name, index) async {
+          createPage: (name, layout, index) async {
             final parentViewId = state.currentSpace?.id;
             if (parentViewId == null) {
               return;
@@ -223,7 +225,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             final result = await ViewBackendService.createView(
               name: name,
-              layoutType: ViewLayoutPB.Document,
+              layoutType: layout,
               parentViewId: parentViewId,
               index: index,
             );
@@ -257,6 +259,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           reset: (userProfile, workspaceId) async {
+            if (workspaceId == _workspaceId) {
+              return;
+            }
+
             _reset(userProfile, workspaceId);
 
             add(
@@ -286,6 +292,17 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             final nextSpace = spaces[nextIndex];
             add(SpaceEvent.open(nextSpace));
           },
+          duplicate: () async {
+            final currentSpace = state.currentSpace;
+            if (currentSpace == null) {
+              return;
+            }
+            final newSpace = await _duplicateSpace(currentSpace);
+            // open the duplicated space
+            if (newSpace != null) {
+              add(SpaceEvent.open(newSpace));
+            }
+          },
         );
       },
     );
@@ -293,6 +310,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
   late WorkspaceService _workspaceService;
   String? _workspaceId;
+  late UserProfilePB userProfile;
   WorkspaceSectionsListener? _listener;
 
   @override
@@ -321,6 +339,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     required String icon,
     required String iconColor,
     required SpacePermission permission,
+    String? viewId,
   }) async {
     final section = switch (permission) {
       SpacePermission.publicToAll => ViewSectionPB.Public,
@@ -331,6 +350,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       name: name,
       viewSection: section,
       setAsCurrent: false,
+      viewId: viewId,
     );
     return await result.fold((space) async {
       Log.info('Space created: $space');
@@ -382,6 +402,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   void _initial(UserProfilePB userProfile, String workspaceId) {
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
     _workspaceId = workspaceId;
+    this.userProfile = userProfile;
 
     _listener = WorkspaceSectionsListener(
       user: userProfile,
@@ -442,7 +463,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
   Future<bool> _getSpaceExpandStatus(ViewPB? space) async {
     if (space == null) {
-      return false;
+      return true;
     }
 
     return getIt<KeyValueStorage>().get(KVKeys.expandedViews).then((result) {
@@ -476,53 +497,79 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       if (members.items.length == 1 || isOwner) {
         // create a new public space and a new private space
         // move all the views in the workspace to the new public/private space
-        final publicViews =
-            await _workspaceService.getPublicViews().getOrThrow();
-        // only migrate the public space if there are any public views
-        if (publicViews.isNotEmpty) {
-          final publicSpace = await _createSpace(
-            name: 'Shared',
-            icon: builtInSpaceIcons.first,
-            iconColor: builtInSpaceColors.first,
-            permission: SpacePermission.publicToAll,
-          );
-
-          if (publicSpace != null) {
-            for (final view in publicViews.reversed) {
-              if (view.isSpace) {
-                continue;
-              }
-              await ViewBackendService.moveViewV2(
-                viewId: view.id,
-                newParentId: publicSpace.id,
-                prevViewId: view.parentViewId,
-              );
-            }
-          }
-        }
-      }
-      // create a new private space
-      final privateViews =
-          await _workspaceService.getPrivateViews().getOrThrow();
-      // only migrate the private space if there are any private views
-      if (privateViews.isNotEmpty) {
-        final privateSpace = await _createSpace(
-          name: 'Private',
-          icon: builtInSpaceIcons.last,
-          iconColor: builtInSpaceColors.last,
-          permission: SpacePermission.private,
+        var publicViews = await _workspaceService.getPublicViews().getOrThrow();
+        final containsPublicSpace = publicViews.any(
+          (e) => e.isSpace && e.spacePermission == SpacePermission.publicToAll,
         );
-        if (privateSpace != null) {
-          for (final view in privateViews.reversed) {
+        publicViews = publicViews.where((e) => !e.isSpace).toList();
+        // if there is already a public space, don't migrate the public space
+        // only migrate the public space if there are any public views
+        if (publicViews.isEmpty || containsPublicSpace) {
+          return true;
+        }
+
+        final viewId = fixedUuid(user.id.toInt(), UuidType.publicSpace);
+        final publicSpace = await _createSpace(
+          name: 'Shared',
+          icon: builtInSpaceIcons.first,
+          iconColor: builtInSpaceColors.first,
+          permission: SpacePermission.publicToAll,
+          viewId: viewId,
+        );
+
+        Log.info('migrating: created a new public space: ${publicSpace?.id}');
+
+        if (publicSpace != null) {
+          for (final view in publicViews.reversed) {
             if (view.isSpace) {
               continue;
             }
             await ViewBackendService.moveViewV2(
               viewId: view.id,
-              newParentId: privateSpace.id,
-              prevViewId: view.parentViewId,
+              newParentId: publicSpace.id,
+              prevViewId: null,
+            );
+            Log.info(
+              'migrating: migrate ${view.name}(${view.id}) to public space(${publicSpace.id})',
             );
           }
+        }
+      }
+
+      // create a new private space
+      final viewId = fixedUuid(user.id.toInt(), UuidType.privateSpace);
+      var privateViews = await _workspaceService.getPrivateViews().getOrThrow();
+      // if there is already a private space, don't migrate the private space
+      final containsPrivateSpace = privateViews.any(
+        (e) => e.isSpace && e.spacePermission == SpacePermission.private,
+      );
+      privateViews = privateViews.where((e) => !e.isSpace).toList();
+      if (privateViews.isEmpty || containsPrivateSpace) {
+        return true;
+      }
+      // only migrate the private space if there are any private views
+      final privateSpace = await _createSpace(
+        name: 'Private',
+        icon: builtInSpaceIcons.last,
+        iconColor: builtInSpaceColors.last,
+        permission: SpacePermission.private,
+        viewId: viewId,
+      );
+      Log.info('migrating: created a new private space: ${privateSpace?.id}');
+
+      if (privateSpace != null) {
+        for (final view in privateViews.reversed) {
+          if (view.isSpace) {
+            continue;
+          }
+          await ViewBackendService.moveViewV2(
+            viewId: view.id,
+            newParentId: privateSpace.id,
+            prevViewId: null,
+          );
+          Log.info(
+            'migrating: migrate ${view.name}(${view.id}) to private space(${privateSpace.id})',
+          );
         }
       }
 
@@ -538,19 +585,55 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     required List<ViewPB> publicViews,
     required List<ViewPB> privateViews,
   }) async {
-    final publicSpaces =
-        spaces.where((e) => e.spacePermission == SpacePermission.publicToAll);
+    final publicSpaces = spaces.where(
+      (e) => e.spacePermission == SpacePermission.publicToAll,
+    );
     if (publicSpaces.isEmpty && publicViews.isNotEmpty) {
       return true;
     }
 
-    final privateSpaces =
-        spaces.where((e) => e.spacePermission == SpacePermission.private);
+    final privateSpaces = spaces.where(
+      (e) => e.spacePermission == SpacePermission.private,
+    );
     if (privateSpaces.isEmpty && privateViews.isNotEmpty) {
       return true;
     }
 
     return false;
+  }
+
+  Future<ViewPB?> _duplicateSpace(ViewPB space) async {
+    // if the space is not duplicated, try to create a new space
+    final icon = space.icon.value.isNotEmpty
+        ? space.icon.value
+        : builtInSpaceIcons.first;
+    final iconColor = space.spaceIconColor ?? builtInSpaceColors.first;
+    final newSpace = await _createSpace(
+      name: '${space.name} (copy)',
+      icon: icon,
+      iconColor: iconColor,
+      permission: space.spacePermission,
+    );
+
+    if (newSpace == null) {
+      return null;
+    }
+
+    for (final view in space.childViews) {
+      unawaited(
+        ViewBackendService.duplicate(
+          view: view,
+          openAfterDuplicate: true,
+          includeChildren: true,
+          parentViewId: newSpace.id,
+          suffix: '',
+        ),
+      );
+    }
+
+    Log.info('Space duplicated: $newSpace');
+    add(const SpaceEvent.didReceiveSpaceUpdate());
+    return newSpace;
   }
 }
 
@@ -571,6 +654,7 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
   const factory SpaceEvent.changeIcon(String icon, String iconColor) =
       _ChangeIcon;
+  const factory SpaceEvent.duplicate() = _Duplicate;
   const factory SpaceEvent.update({
     String? name,
     String? icon,
@@ -581,6 +665,7 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.expand(ViewPB space, bool isExpanded) = _Expand;
   const factory SpaceEvent.createPage({
     required String name,
+    required ViewLayoutPB layout,
     int? index,
   }) = _CreatePage;
   const factory SpaceEvent.delete(ViewPB? space) = _Delete;

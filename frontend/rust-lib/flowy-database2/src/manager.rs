@@ -323,17 +323,22 @@ impl DatabaseManager {
     layout: DatabaseLayout,
     database_id: String,
     database_view_id: String,
+    database_parent_view_id: String,
   ) -> FlowyResult<()> {
     let wdb = self.get_database_indexer().await?;
     let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
     if let Some(database) = wdb.get_database(&database_id).await {
-      let (field, layout_setting) = DatabaseLayoutDepsResolver::new(database, layout)
-        .resolve_deps_when_create_database_linked_view();
+      let (field, layout_setting, field_settings_map) =
+        DatabaseLayoutDepsResolver::new(database, layout)
+          .resolve_deps_when_create_database_linked_view(&database_parent_view_id);
       if let Some(field) = field {
         params = params.with_deps_fields(vec![field], vec![default_field_settings_by_layout_map()]);
       }
       if let Some(layout_setting) = layout_setting {
         params = params.with_layout_setting(layout_setting);
+      }
+      if let Some(field_settings_map) = field_settings_map {
+        params = params.with_field_settings_map(field_settings_map);
       }
     };
     wdb.create_database_linked_view(params).await?;

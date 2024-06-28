@@ -31,8 +31,10 @@ import 'package:image_picker/image_picker.dart';
 class PageStyleCoverImage extends StatelessWidget {
   PageStyleCoverImage({
     super.key,
+    required this.documentId,
   });
 
+  final String documentId;
   late final ImagePicker _imagePicker = ImagePicker();
 
   @override
@@ -230,7 +232,7 @@ class PageStyleCoverImage extends StatelessWidget {
         type = PageStyleCoverImageType.localImage;
       } else {
         // else we should save the image to cloud storage
-        (result, _) = await saveImageToCloudStorage(path);
+        (result, _) = await saveImageToCloudStorage(path, documentId);
         type = PageStyleCoverImageType.customImage;
       }
       if (!context.mounted) {

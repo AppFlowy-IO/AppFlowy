@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
@@ -10,7 +12,6 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../application/field/field_controller.dart';
@@ -35,15 +36,15 @@ class GridCreateFilterList extends StatefulWidget {
 }
 
 class _GridCreateFilterListState extends State<GridCreateFilterList> {
-  late GridCreateFilterBloc editBloc;
+  late final GridCreateFilterBloc editBloc;
 
   @override
   void initState() {
+    super.initState();
     editBloc = GridCreateFilterBloc(
       viewId: widget.viewId,
       fieldController: widget.fieldController,
     )..add(const GridCreateFilterEvent.initial());
-    super.initState();
   }
 
   @override
