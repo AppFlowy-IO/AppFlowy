@@ -88,7 +88,7 @@ const createServer = async (req) => {
     let htmlData = fs.readFileSync(indexPath, 'utf8');
     const $ = cheerio.load(htmlData);
 
-    const description = 'Write, share, and publish docs quickly on AppFlowy. \n Get started for free.';
+    const description = 'Write, share, and publish docs quickly on AppFlowy.\nGet started for free.';
     let title = 'AppFlowy';
     const url = 'https://appflowy.io';
     let image = logo;
