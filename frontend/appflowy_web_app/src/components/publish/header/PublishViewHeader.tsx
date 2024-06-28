@@ -36,7 +36,8 @@ export function PublishViewHeader({
       return {
         viewId: ancestor.view_id,
         name: ancestor.name,
-        icon: icon || String(viewMeta?.layout),
+        icon: icon,
+        layout: ancestor.layout,
       };
     });
   }, [viewMeta]);
@@ -64,7 +65,7 @@ export function PublishViewHeader({
         width: openDrawer ? `calc(100% - ${drawerWidth}px)` : '100%',
         transition: 'width 0.2s ease-in-out 0s',
       }}
-      className={'appflowy-top-bar flex h-[64px] px-5'}
+      className={'appflowy-top-bar flex h-[48px] px-5'}
     >
       <div className={'flex w-full items-center justify-between gap-2 overflow-hidden'}>
         {!openDrawer && (

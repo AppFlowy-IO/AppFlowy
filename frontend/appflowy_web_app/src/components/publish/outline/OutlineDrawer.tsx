@@ -31,9 +31,9 @@ function OutlineDrawer({ open, width, onClose }: { open: boolean; width: number;
       autoFocus
     >
       <div className={'flex h-full flex-col'}>
-        <div className={'flex h-[64px] items-center justify-between p-4'}>
+        <div className={'flex h-[48px] items-center justify-between p-4'}>
           <div
-            className={'flex cursor-pointer items-center text-text-title'}
+            className={'flex cursor-pointer items-center gap-1 text-text-title'}
             onClick={() => {
               window.open('https://appflowy.io', '_blank');
             }}

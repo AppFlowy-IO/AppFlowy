@@ -1,7 +1,7 @@
 import { PublishViewInfo, ViewLayout } from '@/application/collab.type';
 import { PublishContext } from '@/application/publish';
 import { notify } from '@/components/_shared/notify';
-import { renderCrumbIcon } from '@/components/publish/header/BreadcrumbItem';
+import { ViewIcon } from '@/components/_shared/view-icon';
 import React, { useCallback, useContext } from 'react';
 import { ReactComponent as ChevronDownIcon } from '@/assets/chevron_down.svg';
 import { useTranslation } from 'react-i18next';
@@ -35,6 +35,8 @@ function OutlineItem({ view }: { view: PublishViewInfo }) {
 
   const navigateToView = useContext(PublishContext)?.toView;
   const renderItem = (item: PublishViewInfo) => {
+    const { icon, layout, name, view_id } = item;
+
     return (
       <div className={'flex h-fit w-full flex-col gap-2'}>
         <div
@@ -46,15 +48,15 @@ function OutlineItem({ view }: { view: PublishViewInfo }) {
           <div
             onClick={async () => {
               try {
-                await navigateToView?.(item.view_id);
+                await navigateToView?.(view_id);
               } catch (e) {
                 notify.error(t('publish.hasNotBeenPublished'));
               }
             }}
             className={'flex flex-1 cursor-pointer items-center gap-1 overflow-hidden'}
           >
-            <div className={'icon'}>{renderCrumbIcon(item.icon?.value || String(item.layout))}</div>
-            <div className={'flex-1 truncate'}>{item.name}</div>
+            <div className={'icon'}>{icon?.value || <ViewIcon layout={layout} size={'small'} />}</div>
+            <div className={'flex-1 truncate'}>{name}</div>
           </div>
         </div>
       </div>

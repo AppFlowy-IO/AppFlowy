@@ -30,7 +30,7 @@ export function OutlinePopover({
       <div
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        className={'flex h-fit max-h-[500px] w-[268px] flex-col overflow-y-auto p-2'}
+        className={'flex h-fit max-h-[500px] w-[268px] flex-col overflow-y-auto overflow-x-hidden p-2'}
       >
         <Outline viewMeta={viewMeta} />
         <div
@@ -44,17 +44,14 @@ export function OutlinePopover({
         >
           {Boolean(viewMeta?.child_views?.length) && <Divider className={'w-full'} />}
 
-          <div className={'flex w-full items-center justify-center gap-4 text-sm'}>
-            <div className={'text-text-caption'}>{t('publish.createdWith')}</div>
-            <div
-              className={'flex cursor-pointer items-center justify-center text-text-title'}
-              onClick={() => {
-                window.open('https://appflowy.io', '_blank');
-              }}
-            >
-              <Logo className={'h-4 w-4'} />
-              <AppflowyLogo className={'w-20'} />
-            </div>
+          <div
+            onClick={() => {
+              window.open('https://appflowy.io', '_blank');
+            }}
+            className={'flex w-full cursor-pointer items-center justify-center text-sm text-text-title opacity-50'}
+          >
+            <Logo className={'h-4 w-4'} />
+            <AppflowyLogo className={'w-20'} />
           </div>
         </div>
       </div>

@@ -21,7 +21,6 @@ function SearchInput({ onSearch }: { onSearch: (value: string) => void }) {
 
   return (
     <OutlinedInput
-      autoFocus
       spellCheck={false}
       startAdornment={
         <InputAdornment className={'text-text-caption'} position='start'>

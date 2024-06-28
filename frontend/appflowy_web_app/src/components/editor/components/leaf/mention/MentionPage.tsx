@@ -1,9 +1,6 @@
-import { ReactComponent as DocumentSvg } from '$icons/16x/document.svg';
-import { ReactComponent as GridSvg } from '$icons/16x/grid.svg';
-import { ReactComponent as BoardSvg } from '$icons/16x/board.svg';
-import { ReactComponent as CalendarSvg } from '$icons/16x/date.svg';
 import { ViewLayout } from '@/application/collab.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
+import { ViewIcon } from '@/components/_shared/view-icon';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,21 +30,6 @@ function MentionPage({ pageId }: { pageId: string }) {
     return meta?.icon;
   }, [meta?.icon]);
 
-  const defaultIcon = useMemo(() => {
-    switch (meta?.layout) {
-      case ViewLayout.Document:
-        return <DocumentSvg />;
-      case ViewLayout.Grid:
-        return <GridSvg />;
-      case ViewLayout.Board:
-        return <BoardSvg />;
-      case ViewLayout.Calendar:
-        return <CalendarSvg />;
-      default:
-        return <DocumentSvg />;
-    }
-  }, [meta?.layout]);
-
   const { t } = useTranslation();
 
   return (
@@ -62,7 +44,9 @@ function MentionPage({ pageId }: { pageId: string }) {
         <span className={'mention-unpublished font-semibold text-text-caption'}>No Access</span>
       ) : (
         <>
-          <span className={'mention-icon icon'}>{icon?.value || defaultIcon}</span>
+          <span className={'mention-icon icon'}>
+            {icon?.value || <ViewIcon layout={meta?.layout || ViewLayout.Document} size={'small'} />}
+          </span>
 
           <span className={'mention-content'}>{meta?.name || t('menuAppHeader.defaultNewPageName')}</span>
         </>
