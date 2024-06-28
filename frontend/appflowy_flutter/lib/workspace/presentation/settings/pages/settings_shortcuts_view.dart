@@ -490,14 +490,11 @@ class KeyBadge extends StatelessWidget {
       ),
       child: Center(
         child: iconData != null
-            ? FlowySvg(
-                iconData!,
-                color: AFThemeExtension.of(context).strongText,
-              )
+            ? FlowySvg(iconData!, color: Colors.black)
             : FlowyText.medium(
                 keyLabel.toLowerCase(),
                 fontSize: 12,
-                color: AFThemeExtension.of(context).strongText,
+                color: Colors.black,
               ),
       ),
     );
