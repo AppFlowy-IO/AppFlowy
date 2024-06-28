@@ -118,4 +118,7 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
 
   @override
   List<NavigationItem> get navigationItems => [this];
+
+  @override
+  EdgeInsets get contentPadding => EdgeInsets.zero;
 }

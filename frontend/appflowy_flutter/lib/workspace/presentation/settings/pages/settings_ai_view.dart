@@ -144,7 +144,7 @@ class _AISearchToggle extends StatelessWidget {
                 child: SizedBox(
                   height: 26,
                   width: 26,
-                  child: CircularProgressIndicator.adaptive(strokeWidth: 4),
+                  child: CircularProgressIndicator.adaptive(),
                 ),
               );
             } else {
