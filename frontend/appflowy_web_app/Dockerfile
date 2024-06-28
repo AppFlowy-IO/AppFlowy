@@ -19,8 +19,6 @@ COPY dist/ /usr/share/nginx/html/
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-RUN chown -R nginx:nginx /etc/ssl/certs/nginx-signed.crt /etc/ssl/private/nginx-signed.key
-
 COPY start.sh /app/start.sh
 
 RUN chmod +x /app/start.sh
