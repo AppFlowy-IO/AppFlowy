@@ -36,12 +36,18 @@ function OutlineItem({ view }: { view: PublishViewInfo }) {
   const navigateToView = useContext(PublishContext)?.toView;
   const renderItem = (item: PublishViewInfo) => {
     const { icon, layout, name, view_id } = item;
+    const hasChildren = Boolean(item.child_views?.length);
 
     return (
-      <div className={'flex h-fit w-full flex-col gap-2'}>
+      <div
+        style={{
+          marginLeft: hasChildren ? '0' : '1.125rem',
+        }}
+        className={'flex h-fit flex-col gap-2'}
+      >
         <div
           className={
-            'flex w-full items-center rounded-[8px] p-1.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
+            'flex w-full items-center gap-0.5 rounded-[8px] p-1.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
           }
         >
           {item.child_views?.length ? getIcon() : null}
@@ -63,14 +69,17 @@ function OutlineItem({ view }: { view: PublishViewInfo }) {
     );
   };
 
+  const hasChildren = Boolean(view.child_views?.length);
+
   return (
     <div className={'flex h-fit w-full flex-col'}>
       {renderItem(view)}
       <div
-        className={'ml-9 flex transform flex-col gap-2 transition-all'}
+        className={'flex transform flex-col gap-2 transition-all'}
         style={{
           height: isExpanded && view.child_views?.length ? 'auto' : 0,
           opacity: isExpanded && view.child_views?.length ? 1 : 0,
+          marginLeft: hasChildren ? '1.125rem' : '2.25rem',
         }}
       >
         {view.child_views
