@@ -92,18 +92,23 @@ const createServer = async (req) => {
     let title = 'AppFlowy';
     const url = 'https://appflowy.io';
     let image = logo;
-    // Inject meta data into the HTML to support SEO and social sharing
-    if (metaData) {
-      title = `${metaData.view.name} | AppFlowy`;
 
-      try {
-        const cover = metaData.view.extra ? JSON.parse(metaData.view.extra)?.cover : null;
-        if (cover && ['unsplash', 'custom'].includes(cover.type)) {
-          image = cover.value;
+    try {
+      // Inject meta data into the HTML to support SEO and social sharing
+      if (metaData && metaData.view) {
+        title = `${metaData.view.name} | AppFlowy`;
+
+        try {
+          const cover = metaData.view.extra ? JSON.parse(metaData.view.extra)?.cover : null;
+          if (cover && ['unsplash', 'custom'].includes(cover.type)) {
+            image = cover.value;
+          }
+        } catch (_) {
+          // Do nothing
         }
-      } catch (_) {
-        // Do nothing
       }
+    } catch (error) {
+      logger.error(`Error injecting meta data: ${error}`);
     }
 
     $('title').text(title);
