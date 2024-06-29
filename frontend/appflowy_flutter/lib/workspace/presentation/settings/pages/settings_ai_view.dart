@@ -1,5 +1,4 @@
 import 'package:appflowy/workspace/application/settings/ai/setting_local_ai_bloc.dart';
-import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flutter/material.dart';
@@ -264,14 +263,15 @@ class AIConfigurateTextField extends StatelessWidget {
         ),
         const VSpace(8),
         RoundedInputField(
-            hintText: hitText,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-            normalBorderColor: Theme.of(context).colorScheme.outline,
-            errorBorderColor: Theme.of(context).colorScheme.error,
-            cursorColor: Theme.of(context).colorScheme.primary,
-            errorText: errorText,
-            initialValue: value,
-            onChanged: onChanged),
+          hintText: hitText,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          normalBorderColor: Theme.of(context).colorScheme.outline,
+          errorBorderColor: Theme.of(context).colorScheme.error,
+          cursorColor: Theme.of(context).colorScheme.primary,
+          errorText: errorText,
+          initialValue: value,
+          onChanged: onChanged,
+        ),
       ],
     );
   }

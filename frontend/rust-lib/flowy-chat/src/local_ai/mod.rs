@@ -1,4 +1,4 @@
 pub mod chat_plugin;
-pub mod manager;
+pub mod llm_controller;
 
 pub mod embedding_plugin;

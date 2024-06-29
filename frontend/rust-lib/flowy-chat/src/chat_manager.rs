@@ -12,11 +12,12 @@ use flowy_sqlite::DBConnection;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
-use crate::local_ai::manager::{LocalAIManager, LocalAISetting};
+use crate::local_ai::llm_controller::{LocalChatLLMController, LocalLLMSetting};
 use flowy_sqlite::kv::KVStorePreferences;
 use lib_infra::async_trait::async_trait;
 use parking_lot::RwLock;
 
+use crate::chat_service_impl::ChatService;
 use futures::{StreamExt, TryStreamExt};
 use std::sync::Arc;
 use tracing::{error, info, trace};
@@ -44,17 +45,17 @@ impl ChatManager {
   ) -> ChatManager {
     let user_service = Arc::new(user_service);
     let local_ai_setting = store_preferences
-      .get_object::<LocalAISetting>(LOCAL_AI_SETTING_KEY)
+      .get_object::<LocalLLMSetting>(LOCAL_AI_SETTING_KEY)
       .unwrap_or_default();
     let sidecar_manager = Arc::new(SidecarManager::new());
 
     // setup local AI chat plugin
-    let local_ai_manager = Arc::new(LocalAIManager::new(sidecar_manager));
+    let local_llm_ctrl = Arc::new(LocalChatLLMController::new(sidecar_manager));
     // setup local chat service
     let chat_service = Arc::new(ChatService::new(
       user_service.clone(),
       cloud_service,
-      local_ai_manager,
+      local_llm_ctrl,
       local_ai_setting,
     ));
 
@@ -66,7 +67,7 @@ impl ChatManager {
     }
   }
 
-  pub fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
+  pub fn update_local_ai_setting(&self, setting: LocalLLMSetting) -> FlowyResult<()> {
     self.chat_service.update_local_ai_setting(setting.clone())?;
     self
       .store_preferences
@@ -74,8 +75,8 @@ impl ChatManager {
     Ok(())
   }
 
-  pub fn get_local_ai_setting(&self) -> FlowyResult<LocalAISetting> {
-    let setting = self.chat_service.local_ai_setting.read().clone();
+  pub fn get_local_ai_setting(&self) -> FlowyResult<LocalLLMSetting> {
+    let setting = self.chat_service.get_local_ai_setting();
     Ok(setting)
   }
 
@@ -90,16 +91,20 @@ impl ChatManager {
       ))
     });
 
+    self.chat_service.notify_open_chat(chat_id);
     Ok(())
   }
 
-  pub async fn close_chat(&self, _chat_id: &str) -> Result<(), FlowyError> {
+  pub async fn close_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
+    trace!("close chat: {}", chat_id);
+    self.chat_service.notify_close_chat(chat_id);
     Ok(())
   }
 
   pub async fn delete_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
     if let Some((_, chat)) = self.chats.remove(chat_id) {
       chat.close();
+      self.chat_service.notify_close_chat(chat_id);
     }
     Ok(())
   }
@@ -221,26 +226,6 @@ impl ChatManager {
   }
 }
 
-fn setup_local_ai(local_ai_setting: &LocalAISetting, local_ai_manager: Arc<LocalAIManager>) {
-  trace!(
-    "[Chat Plugin] update local ai setting: {:?}",
-    local_ai_setting
-  );
-
-  if let Ok(config) = local_ai_setting.get_chat_plugin_config() {
-    tokio::spawn(async move {
-      match local_ai_manager.setup_chat_plugin(config).await {
-        Ok(_) => {
-          info!("Local AI chat plugin setup successfully");
-        },
-        Err(err) => {
-          error!("Failed to setup local AI chat plugin: {:?}", err);
-        },
-      }
-    });
-  }
-}
-
 fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
   let row = ChatTable {
     chat_id: chat_id.to_string(),
@@ -254,174 +239,4 @@ fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
 
   insert_chat(conn, &row)?;
   Ok(())
-}
-
-pub struct ChatService {
-  pub cloud_service: Arc<dyn ChatCloudService>,
-  user_service: Arc<dyn ChatUserService>,
-  local_ai_manager: Arc<LocalAIManager>,
-  local_ai_setting: Arc<RwLock<LocalAISetting>>,
-}
-
-impl ChatService {
-  pub fn new(
-    user_service: Arc<dyn ChatUserService>,
-    cloud_service: Arc<dyn ChatCloudService>,
-    local_ai_manager: Arc<LocalAIManager>,
-    local_ai_setting: LocalAISetting,
-  ) -> Self {
-    setup_local_ai(&local_ai_setting, local_ai_manager.clone());
-
-    Self {
-      user_service,
-      cloud_service,
-      local_ai_manager,
-      local_ai_setting: Arc::new(RwLock::new(local_ai_setting)),
-    }
-  }
-
-  pub fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
-    setting.validate()?;
-    setup_local_ai(&setting, self.local_ai_manager.clone());
-    *self.local_ai_setting.write() = setting;
-    Ok(())
-  }
-
-  fn get_message_content(&self, message_id: i64) -> FlowyResult<String> {
-    let uid = self.user_service.user_id()?;
-    let conn = self.user_service.sqlite_connection(uid)?;
-    let content = select_single_message(conn, message_id)?
-      .map(|data| data.content)
-      .ok_or_else(|| {
-        FlowyError::record_not_found().with_context(format!("Message not found: {}", message_id))
-      })?;
-
-    Ok(content)
-  }
-}
-
-#[async_trait]
-impl ChatCloudService for ChatService {
-  fn create_chat(
-    &self,
-    uid: &i64,
-    workspace_id: &str,
-    chat_id: &str,
-  ) -> FutureResult<(), FlowyError> {
-    self.cloud_service.create_chat(uid, workspace_id, chat_id)
-  }
-
-  fn save_question(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
-    message_type: ChatMessageType,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    self
-      .cloud_service
-      .save_question(workspace_id, chat_id, message, message_type)
-  }
-
-  fn save_answer(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
-    question_id: i64,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    self
-      .cloud_service
-      .save_answer(workspace_id, chat_id, message, question_id)
-  }
-
-  async fn ask_question(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message_id: i64,
-  ) -> Result<StreamAnswer, FlowyError> {
-    if self.local_ai_setting.read().enabled {
-      let content = self.get_message_content(message_id)?;
-      let stream = self
-        .local_ai_manager
-        .ask_question(chat_id, &content)
-        .await?
-        .map_err(FlowyError::from);
-      Ok(stream.boxed())
-    } else {
-      self
-        .cloud_service
-        .ask_question(workspace_id, chat_id, message_id)
-        .await
-    }
-  }
-
-  async fn generate_answer(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    question_message_id: i64,
-  ) -> Result<ChatMessage, FlowyError> {
-    if self.local_ai_setting.read().enabled {
-      let content = self.get_message_content(question_message_id)?;
-      let _answer = self
-        .local_ai_manager
-        .generate_answer(chat_id, &content)
-        .await?;
-      todo!()
-    } else {
-      self
-        .cloud_service
-        .generate_answer(workspace_id, chat_id, question_message_id)
-        .await
-    }
-  }
-
-  fn get_chat_messages(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    offset: MessageCursor,
-    limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
-    self
-      .cloud_service
-      .get_chat_messages(workspace_id, chat_id, offset, limit)
-  }
-
-  fn get_related_message(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message_id: i64,
-  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
-    if self.local_ai_setting.read().enabled {
-      FutureResult::new(async move {
-        Ok(RepeatedRelatedQuestion {
-          message_id,
-          items: vec![],
-        })
-      })
-    } else {
-      self
-        .cloud_service
-        .get_related_message(workspace_id, chat_id, message_id)
-    }
-  }
-
-  async fn stream_complete(
-    &self,
-    workspace_id: &str,
-    text: &str,
-    complete_type: CompletionType,
-  ) -> Result<StreamComplete, FlowyError> {
-    if self.local_ai_setting.read().enabled {
-      todo!()
-    } else {
-      self
-        .stream_complete(workspace_id, text, complete_type)
-        .await
-    }
-  }
 }

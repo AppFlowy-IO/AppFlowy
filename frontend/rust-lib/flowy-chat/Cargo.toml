@@ -29,7 +29,7 @@ tokio.workspace = true
 futures.workspace = true
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
 log = "0.4.21"
-flowy-sidecar = { workspace = true }
+flowy-sidecar = { workspace = true, features = ["verbose"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 anyhow = "1.0.86"
@@ -48,3 +48,4 @@ flowy-codegen.workspace = true
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
 web_ts = ["flowy-codegen/ts", "flowy-notification/web_ts"]
+

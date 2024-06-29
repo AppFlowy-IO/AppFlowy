@@ -1,4 +1,4 @@
-use crate::local_ai::manager::LocalAISetting;
+use crate::local_ai::llm_controller::LocalLLMSetting;
 use flowy_chat_pub::cloud::{
   ChatMessage, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
 };
@@ -208,7 +208,7 @@ impl From<RepeatedRelatedQuestion> for RepeatedRelatedQuestionPB {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct LocalAIChatSettingPB {
+pub struct LocalLLMSettingPB {
   #[pb(index = 1)]
   pub chat_bin_path: String,
 
@@ -219,9 +219,9 @@ pub struct LocalAIChatSettingPB {
   pub enabled: bool,
 }
 
-impl From<LocalAISetting> for LocalAIChatSettingPB {
-  fn from(value: LocalAISetting) -> Self {
-    LocalAIChatSettingPB {
+impl From<LocalLLMSetting> for LocalLLMSettingPB {
+  fn from(value: LocalLLMSetting) -> Self {
+    LocalLLMSettingPB {
       chat_bin_path: value.chat_bin_path,
       chat_model_path: value.chat_model_path,
       enabled: value.enabled,
@@ -229,9 +229,9 @@ impl From<LocalAISetting> for LocalAIChatSettingPB {
   }
 }
 
-impl From<LocalAIChatSettingPB> for LocalAISetting {
-  fn from(value: LocalAIChatSettingPB) -> Self {
-    LocalAISetting {
+impl From<LocalLLMSettingPB> for LocalLLMSetting {
+  fn from(value: LocalLLMSettingPB) -> Self {
+    LocalLLMSetting {
       chat_bin_path: value.chat_bin_path,
       chat_model_path: value.chat_model_path,
       enabled: value.enabled,

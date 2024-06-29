@@ -18,3 +18,6 @@ log = "0.4.21"
 parking_lot.workspace = true
 tokio-stream = "0.1.15"
 lib-infra.workspace = true
+
+[features]
+verbose = []

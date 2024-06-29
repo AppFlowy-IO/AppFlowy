@@ -1,4 +1,5 @@
-use crate::chat_manager::{ChatService, ChatUserService};
+use crate::chat_manager::ChatUserService;
+use crate::chat_service_impl::ChatService;
 use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB,
 };

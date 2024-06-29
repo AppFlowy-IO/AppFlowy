@@ -1,5 +1,6 @@
 use crate::error::SidecarError;
 use crate::manager::WeakSidecarState;
+use std::fmt::{Display, Formatter};
 
 use crate::core::parser::ResponseParser;
 use crate::core::rpc_loop::RpcLoop;
@@ -65,7 +66,19 @@ pub struct Plugin {
   pub(crate) id: PluginId,
   pub(crate) name: String,
   #[allow(dead_code)]
-  process: Arc<Child>,
+  pub(crate) process: Arc<Child>,
+}
+
+impl Display for Plugin {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    write!(
+      f,
+      "{}, plugin id: {:?}, process id: {}",
+      self.name,
+      self.id,
+      self.process.id()
+    )
+  }
 }
 
 impl Plugin {
@@ -97,6 +110,7 @@ impl Plugin {
     let value = P::parse_json(value)?;
     Ok(value)
   }
+
   pub fn stream_request<P: ResponseParser>(
     &self,
     method: &str,

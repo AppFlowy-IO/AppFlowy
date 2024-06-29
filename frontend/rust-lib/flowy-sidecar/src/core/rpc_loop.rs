@@ -68,7 +68,7 @@ impl<W: Write + Send> RpcLoop<W> {
   /// Calls to the handler occur on the caller's thread and maintain the order from the channel. Currently, there can only be one outstanding incoming request.
   pub fn mainloop<R, BufferReadFn, H>(
     &mut self,
-    plugin_name: &str,
+    _plugin_name: &str,
     buffer_read_fn: BufferReadFn,
     handler: &mut H,
   ) -> Result<(), ReadError>
@@ -154,8 +154,9 @@ impl<W: Write + Send> RpcLoop<W> {
             peer.disconnect();
             return ReadError::UnknownRequest(err);
           },
-          Ok(Call::Message(msg)) => {
-            trace!("[RPC {}]: {}", plugin_name, msg);
+          Ok(Call::Message(_msg)) => {
+            #[cfg(feature = "verbose")]
+            trace!("[RPC {}]: {}", _plugin_name, _msg);
           },
         }
       }

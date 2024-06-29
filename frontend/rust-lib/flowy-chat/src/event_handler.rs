@@ -122,7 +122,7 @@ pub(crate) async fn stop_stream_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_local_ai_setting_handler(
   chat_manager: AFPluginState<Weak<ChatManager>>,
-) -> DataResult<LocalAIChatSettingPB, FlowyError> {
+) -> DataResult<LocalLLMSettingPB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let setting = chat_manager.get_local_ai_setting()?;
   let pb = setting.into();
@@ -131,7 +131,7 @@ pub(crate) async fn get_local_ai_setting_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_local_ai_setting_handler(
-  data: AFPluginData<LocalAIChatSettingPB>,
+  data: AFPluginData<LocalLLMSettingPB>,
   chat_manager: AFPluginState<Weak<ChatManager>>,
 ) -> Result<(), FlowyError> {
   let data = data.into_inner();

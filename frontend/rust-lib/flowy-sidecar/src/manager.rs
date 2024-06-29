@@ -10,7 +10,7 @@ use serde_json::Value;
 use std::io;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
-use tracing::{trace, warn};
+use tracing::{error, info, trace, warn};
 
 pub struct SidecarManager {
   state: Arc<Mutex<SidecarState>>,
@@ -71,7 +71,7 @@ impl SidecarManager {
     Ok(())
   }
 
-  pub fn init_plugin(&self, id: PluginId, init_params: Value) -> Result<(), SidecarError> {
+  pub fn init_plugin(&self, id: PluginId, init_params: Value) -> Result<Arc<Plugin>, SidecarError> {
     if self.operating_system.is_not_desktop() {
       return Err(SidecarError::Internal(anyhow!(
         "plugin not supported on this platform"
@@ -86,7 +86,7 @@ impl SidecarManager {
       .ok_or(anyhow!("plugin not found"))?;
     plugin.initialize(init_params)?;
 
-    Ok(())
+    Ok(plugin.clone())
   }
 
   pub fn send_request<P: ResponseParser>(
@@ -131,7 +131,7 @@ impl SidecarState {
   pub fn plugin_connect(&mut self, plugin: Result<Plugin, io::Error>) {
     match plugin {
       Ok(plugin) => {
-        trace!("plugin connected: {:?}", plugin.id);
+        info!("[RPC] {} connected", plugin);
         self.plugins.push(Arc::new(plugin));
       },
       Err(err) => {
@@ -142,12 +142,19 @@ impl SidecarState {
 
   pub fn plugin_disconnect(&mut self, id: PluginId, error: Result<(), ReadError>) {
     if let Err(err) = error {
-      warn!("[RPC] plugin {:?} exited with result {:?}", id, err);
+      error!("[RPC] plugin {:?} exited with result {:?}", id, err)
     }
+
     let running_idx = self.plugins.iter().position(|p| p.id == id);
-    if let Some(idx) = running_idx {
-      let plugin = self.plugins.remove(idx);
-      plugin.shutdown();
+    match running_idx {
+      Some(idx) => {
+        let plugin = self.plugins.remove(idx);
+        error!("[RPC] plugin {} shut down", plugin);
+        plugin.shutdown();
+      },
+      None => {
+        warn!("[RPC] plugin {:?} not found", id);
+      },
     }
   }
 }

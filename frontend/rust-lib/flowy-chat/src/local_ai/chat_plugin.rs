@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use bytes::Bytes;
 use flowy_error::FlowyError;
-use flowy_sidecar::core::parser::ResponseParser;
+use flowy_sidecar::core::parser::{DefaultResponseParser, ResponseParser};
 use flowy_sidecar::core::plugin::Plugin;
 use flowy_sidecar::error::{RemoteError, SidecarError};
 use serde_json::json;
@@ -17,6 +17,32 @@ pub struct ChatPluginOperation {
 impl ChatPluginOperation {
   pub fn new(plugin: Weak<Plugin>) -> Self {
     ChatPluginOperation { plugin }
+  }
+
+  pub async fn create_chat(&self, chat_id: &str) -> Result<(), SidecarError> {
+    let plugin = self
+      .plugin
+      .upgrade()
+      .ok_or(SidecarError::Internal(anyhow!("Plugin is dropped")))?;
+
+    let params = json!({"chat_id": chat_id, "method": "create_chat"});
+    plugin
+      .async_request::<DefaultResponseParser>("handle", &params)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn close_chat(&self, chat_id: &str) -> Result<(), SidecarError> {
+    let plugin = self
+      .plugin
+      .upgrade()
+      .ok_or(SidecarError::Internal(anyhow!("Plugin is dropped")))?;
+
+    let params = json!({"chat_id": chat_id, "method": "close_chat"});
+    plugin
+      .async_request::<DefaultResponseParser>("handle", &params)
+      .await?;
+    Ok(())
   }
 
   pub async fn send_message(&self, chat_id: &str, message: &str) -> Result<String, SidecarError> {

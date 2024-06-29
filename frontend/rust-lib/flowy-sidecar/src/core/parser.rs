@@ -60,3 +60,12 @@ pub trait ResponseParser {
   type ValueType: Send + Sync + 'static;
   fn parse_json(payload: JsonValue) -> Result<Self::ValueType, RemoteError>;
 }
+
+pub struct DefaultResponseParser;
+impl ResponseParser for DefaultResponseParser {
+  type ValueType = JsonValue;
+
+  fn parse_json(payload: JsonValue) -> Result<Self::ValueType, RemoteError> {
+    Ok(payload)
+  }
+}

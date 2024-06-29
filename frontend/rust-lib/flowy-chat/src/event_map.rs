@@ -54,10 +54,10 @@ pub enum ChatEvent {
   #[event(input = "ChatMessageIdPB", output = "ChatMessagePB")]
   GetAnswerForQuestion = 5,
 
-  #[event(input = "LocalAIChatSettingPB")]
+  #[event(input = "LocalLLMSettingPB")]
   UpdateLocalAISetting = 6,
 
-  #[event(output = "LocalAIChatSettingPB")]
+  #[event(output = "LocalLLMSettingPB")]
   GetLocalAISetting = 7,
 
   #[event(input = "CompleteTextPB", output = "CompleteTextTaskPB")]
