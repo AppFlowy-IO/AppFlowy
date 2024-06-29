@@ -10,15 +10,7 @@ import { ReactComponent as Logo } from '@/assets/logo.svg';
 import MoreActions from './MoreActions';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
 
-export function PublishViewHeader({
-  onOpenDrawer,
-  drawerWidth,
-  openDrawer,
-}: {
-  onOpenDrawer: () => void;
-  openDrawer: boolean;
-  drawerWidth: number;
-}) {
+export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: () => void; openDrawer: boolean }) {
   const { t } = useTranslation();
   const viewMeta = usePublishContext()?.viewMeta;
   const crumbs = useMemo(() => {
@@ -63,11 +55,10 @@ export function PublishViewHeader({
   return (
     <div
       style={{
-        transform: openDrawer ? `translateX(${drawerWidth}px)` : 'none',
-        width: openDrawer ? `calc(100% - ${drawerWidth}px)` : '100%',
-        transition: 'width 0.2s ease-in-out, transform 0.2s ease-in-out',
+        backdropFilter: 'saturate(180%) blur(16px)',
+        background: 'var(--header)',
       }}
-      className={'appflowy-top-bar flex h-[48px] px-5'}
+      className={'appflowy-top-bar sticky top-0 z-10 flex h-[48px] px-5'}
     >
       <div className={'flex w-full items-center justify-between gap-2 overflow-hidden'}>
         {!openDrawer && (

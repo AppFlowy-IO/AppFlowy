@@ -65,25 +65,23 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
   return (
     <PublishProvider namespace={namespace} publishName={publishName}>
       <div className={'h-screen w-screen'}>
-        <PublishViewHeader
-          onOpenDrawer={() => {
-            setOpen(true);
-          }}
-          openDrawer={open}
-          drawerWidth={drawerWidth}
-        />
-        {open && <OutlineDrawer width={drawerWidth} open={open} onClose={() => setOpen(false)} />}
-
         <AFScroller
           overflowXHidden
           style={{
-            height: 'calc(100vh - 64px)',
             transform: open ? `translateX(${drawerWidth}px)` : 'none',
             width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
             transition: 'width 0.2s ease-in-out, transform 0.2s ease-in-out',
           }}
           className={'appflowy-layout appflowy-scroll-container'}
         >
+          <PublishViewHeader
+            onOpenDrawer={() => {
+              setOpen(true);
+            }}
+            openDrawer={open}
+          />
+          {open && <OutlineDrawer width={drawerWidth} open={open} onClose={() => setOpen(false)} />}
+
           <CollabView doc={doc} />
         </AFScroller>
       </div>
