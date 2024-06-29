@@ -55,7 +55,9 @@ export const LinkPreview = memo(
               </div>
             </div>
           ) : (
-            node.data.url
+            <a href={node.data.url} className={'text-content-blue-400 underline'} target={'blank'}>
+              {node.data.url}
+            </a>
           )}
         </div>
         <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
