@@ -1,8 +1,10 @@
+import 'dart:ui' as ui;
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/util/text_direction.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -60,6 +62,8 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
     super.dispose();
   }
 
+  ui.TextDirection? lastDirection;
+
   @override
   Widget build(BuildContext context) {
     final boardCustomData = widget.groupData.customData as GroupData;
@@ -75,10 +79,17 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
               });
             }
 
+            lastDirection = getTextDirectionBaseOnContext(
+              context,
+              widget.groupData.headerData.groupName,
+              lastDirection: lastDirection,
+            );
+
             Widget title = Expanded(
               child: FlowyText.medium(
                 widget.groupData.headerData.groupName,
                 overflow: TextOverflow.ellipsis,
+                textDirection: lastDirection,
               ),
             );
 
@@ -97,6 +108,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                       child: FlowyText.medium(
                         widget.groupData.headerData.groupName,
                         overflow: TextOverflow.ellipsis,
+                        textDirection: lastDirection,
                       ),
                     ),
                   ),
@@ -149,45 +161,49 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   }
 
   Widget _buildTextField(BuildContext context) {
-    return Expanded(
-      child: KeyboardListener(
-        focusNode: _keyboardListenerFocusNode,
-        onKeyEvent: (event) {
-          if ([LogicalKeyboardKey.enter, LogicalKeyboardKey.escape]
-              .contains(event.logicalKey)) {
-            _saveEdit();
-          }
-        },
-        child: TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          onEditingComplete: _saveEdit,
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 14),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Theme.of(context).colorScheme.surface,
-            hoverColor: Colors.transparent,
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
+    return ValueListenableBuilder(
+      valueListenable: _controller,
+      builder: (context, TextEditingValue value, __) {
+        lastDirection = getTextDirectionBaseOnContext(
+          context,
+          _controller.text,
+          lastDirection: lastDirection,
+        );
+
+        return Expanded(
+          child: KeyboardListener(
+            focusNode: _keyboardListenerFocusNode,
+            onKeyEvent: (event) {
+              if ([LogicalKeyboardKey.enter, LogicalKeyboardKey.escape]
+                  .contains(event.logicalKey)) {
+                _saveEdit();
+              }
+            },
+            child: TextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              onEditingComplete: _saveEdit,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(fontSize: 14),
+              textDirection: lastDirection,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface,
+                hoverColor: Colors.transparent,
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            isDense: true,
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
