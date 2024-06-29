@@ -47,8 +47,6 @@ function AppConfig({ children }: { children: React.ReactNode }) {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   useEffect(() => {
-    const commonClasses = 'flex items-center justify-center gap-3 bg-bg-body';
-
     window.toast = {
       success: (message: string) => {
         enqueueSnackbar(message, { variant: 'success' });

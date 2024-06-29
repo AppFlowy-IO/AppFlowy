@@ -1,4 +1,3 @@
-import { AFScroller } from '@/components/_shared/scroller';
 import { EditorElementProps, TableCellNode, TableNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useMemo } from 'react';
 import { Grid } from '@atlaskit/primitives';
