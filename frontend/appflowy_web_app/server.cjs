@@ -49,9 +49,7 @@ const fetchMetaData = async (url) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const data = await response.json();
-
-    return data;
+    return response.json();
   } catch (error) {
     logger.error(`Error fetching meta data ${error}`);
     return null;
