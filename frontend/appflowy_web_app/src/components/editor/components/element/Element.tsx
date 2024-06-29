@@ -6,6 +6,7 @@ import { DatabaseBlock } from '@/components/editor/components/blocks/database';
 import { DividerNode } from '@/components/editor/components/blocks/divider';
 import { Heading } from '@/components/editor/components/blocks/heading';
 import { ImageBlock } from '@/components/editor/components/blocks/image';
+import { LinkPreview } from '@/components/editor/components/blocks/link-preview';
 import { MathEquation } from '@/components/editor/components/blocks/math-equation';
 import { NumberedList } from '@/components/editor/components/blocks/numbered-list';
 import { Outline } from '@/components/editor/components/blocks/outline';
@@ -74,6 +75,8 @@ export const Element = memo(
         case BlockType.BoardBlock:
         case BlockType.CalendarBlock:
           return DatabaseBlock;
+        case BlockType.LinkPreview:
+          return LinkPreview;
         default:
           return UnSupportedBlock;
       }

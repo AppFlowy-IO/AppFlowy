@@ -32,6 +32,7 @@ export enum BlockType {
   OutlineBlock = 'outline',
   TableBlock = 'table',
   TableCell = 'table/cell',
+  LinkPreview = 'link_preview',
 }
 
 export enum InlineBlockType {
@@ -77,6 +78,10 @@ export interface CalloutBlockData extends BlockData {
 
 export interface MathEquationBlockData extends BlockData {
   formula?: string;
+}
+
+export interface LinkPreviewBlockData extends BlockData {
+  url?: string;
 }
 
 export enum ImageType {
