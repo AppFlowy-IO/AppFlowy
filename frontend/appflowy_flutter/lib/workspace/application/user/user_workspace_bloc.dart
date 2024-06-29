@@ -70,7 +70,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             final workspaceMemberResult =
                 await _userService.getWorkspaceMember();
             final workspaceMember = workspaceMemberResult.toNullable();
-
             emit(state.copyWith(currentWorkspaceMember: workspaceMember));
           },
           fetchWorkspaces: () async {
@@ -510,6 +509,7 @@ class UserWorkspaceState with _$UserWorkspaceState {
     if (identical(this, other)) return true;
 
     return other is UserWorkspaceState &&
+        other.currentWorkspaceMember == currentWorkspaceMember &&
         other.currentWorkspace == currentWorkspace &&
         _deepCollectionEquality.equals(other.workspaces, workspaces) &&
         identical(other.actionResult, actionResult);

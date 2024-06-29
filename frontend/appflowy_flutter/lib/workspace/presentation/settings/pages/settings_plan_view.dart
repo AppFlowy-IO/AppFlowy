@@ -70,6 +70,7 @@ class SettingsPlanView extends StatelessWidget {
                   usage: state.workspaceUsage,
                   subscription: state.subscription,
                 ),
+                const VSpace(16),
                 _CurrentPlanBox(subscription: state.subscription),
               ],
             ),
