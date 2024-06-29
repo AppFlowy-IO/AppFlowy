@@ -3,6 +3,7 @@ const fs = require('fs');
 const pino = require('pino');
 const cheerio = require('cheerio');
 const { fetch } = require('bun');
+
 const distDir = path.join(__dirname, 'dist');
 const indexPath = path.join(distDir, 'index.html');
 
