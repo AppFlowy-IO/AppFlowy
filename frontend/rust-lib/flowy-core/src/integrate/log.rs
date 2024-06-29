@@ -57,7 +57,8 @@ pub fn create_log_filter(
   filters.push(format!("lib_infra={}", level));
   filters.push(format!("flowy_search={}", level));
   filters.push(format!("flowy_chat={}", level));
-  filters.push(format!("flowy_storage={}", level));
+  filters.push(format!("flowy_chat={}", level));
+  filters.push(format!("flowy_sidecar={}", level));
   filters.push(format!("flowy_ai={}", level));
   // Enable the frontend logs. DO NOT DISABLE.
   // These logs are essential for debugging and verifying frontend behavior.

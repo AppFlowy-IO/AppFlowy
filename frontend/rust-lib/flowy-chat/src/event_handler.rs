@@ -1,5 +1,5 @@
 use flowy_chat_pub::cloud::ChatMessageType;
-use std::path::Path;
+
 use std::sync::{Arc, Weak};
 use validator::Validate;
 
@@ -135,35 +135,6 @@ pub(crate) async fn update_local_ai_setting_handler(
   chat_manager: AFPluginState<Weak<ChatManager>>,
 ) -> Result<(), FlowyError> {
   let data = data.into_inner();
-  let chat_bin_path = Path::new(&data.bin_dir);
-  if !chat_bin_path.exists() {
-    return Err(
-      FlowyError::invalid_data()
-        .with_context(format!("Chat binary path does not exist: {}", data.bin_dir)),
-    );
-  }
-  if !chat_bin_path.is_file() {
-    return Err(
-      FlowyError::invalid_data()
-        .with_context(format!("Chat binary path is not a file: {}", data.bin_dir)),
-    );
-  }
-
-  // Check if local_model_dir exists and is a directory
-  let local_model_dir = Path::new(&data.chat_bin);
-  if !local_model_dir.exists() {
-    return Err(FlowyError::invalid_data().with_context(format!(
-      "Local model directory does not exist: {}",
-      data.chat_bin
-    )));
-  }
-  if !local_model_dir.is_dir() {
-    return Err(FlowyError::invalid_data().with_context(format!(
-      "Local model directory is not a directory: {}",
-      data.chat_bin
-    )));
-  }
-
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   chat_manager.update_local_ai_setting(data.into())?;
   Ok(())

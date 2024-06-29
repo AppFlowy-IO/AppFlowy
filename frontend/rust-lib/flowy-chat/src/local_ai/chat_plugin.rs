@@ -8,6 +8,7 @@ use serde_json::json;
 use serde_json::Value as JsonValue;
 use std::sync::Weak;
 use tokio_stream::wrappers::ReceiverStream;
+use tracing::instrument;
 
 pub struct ChatPluginOperation {
   plugin: Weak<Plugin>,
@@ -31,6 +32,7 @@ impl ChatPluginOperation {
     Ok(resp)
   }
 
+  #[instrument(level = "debug", skip(self), err)]
   pub async fn stream_message(
     &self,
     chat_id: &str,
@@ -40,7 +42,6 @@ impl ChatPluginOperation {
       .plugin
       .upgrade()
       .ok_or(FlowyError::internal().with_context("Plugin is dropped"))?;
-
     let params =
       json!({"chat_id": chat_id, "method": "stream_answer", "params": {"content": message}});
     let stream = plugin

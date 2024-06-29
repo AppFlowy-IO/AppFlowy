@@ -222,6 +222,11 @@ impl ChatManager {
 }
 
 fn setup_local_ai(local_ai_setting: &LocalAISetting, local_ai_manager: Arc<LocalAIManager>) {
+  trace!(
+    "[Chat Plugin] update local ai setting: {:?}",
+    local_ai_setting
+  );
+
   if let Ok(config) = local_ai_setting.get_chat_plugin_config() {
     tokio::spawn(async move {
       match local_ai_manager.setup_chat_plugin(config).await {

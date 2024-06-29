@@ -11,23 +11,22 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio_stream::wrappers::ReceiverStream;
-use tracing::{debug, trace};
+use tracing::{debug, info, instrument, trace};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LocalAISetting {
-  pub bin_dir: String,
-  pub chat_bin: String,
-  pub chat_model: String,
+  pub chat_bin_path: String,
+  pub chat_model_path: String,
   pub enabled: bool,
 }
 
 impl LocalAISetting {
   pub fn validate(&self) -> FlowyResult<()> {
-    ChatPluginConfig::new(&self.bin_dir, &self.chat_bin, &self.chat_model)?;
+    ChatPluginConfig::new(&self.chat_bin_path, &self.chat_model_path)?;
     Ok(())
   }
   pub fn get_chat_plugin_config(&self) -> FlowyResult<ChatPluginConfig> {
-    let config = ChatPluginConfig::new(&self.bin_dir, &self.chat_bin, &self.chat_model)?;
+    let config = ChatPluginConfig::new(&self.chat_bin_path, &self.chat_model_path)?;
     Ok(config)
   }
 }
@@ -54,6 +53,7 @@ impl LocalAIManager {
     chat_id: &str,
     message: &str,
   ) -> FlowyResult<ReceiverStream<anyhow::Result<Bytes, SidecarError>>> {
+    trace!("[Chat Plugin] ask question: {}", message);
     let plugin_id = self
       .chat_plugin_id
       .read()
@@ -61,7 +61,6 @@ impl LocalAIManager {
       .ok_or_else(|| FlowyError::local_ai().with_context("chat plugin not set"))?;
 
     let plugin = self.sidecar_manager.get_plugin(plugin_id).await?;
-
     let operation = ChatPluginOperation::new(plugin);
     let stream = operation.stream_message(chat_id, message).await?;
     Ok(stream)
@@ -81,8 +80,9 @@ impl LocalAIManager {
     Ok(answer)
   }
 
+  #[instrument(skip_all, err)]
   pub async fn setup_chat_plugin(&self, config: ChatPluginConfig) -> FlowyResult<()> {
-    debug!("setup chat plugin: {:?}", config);
+    debug!("[Chat Plugin] setup chat plugin: {:?}", config);
     // If the chat_bin_path is different, remove the old plugin
     if let Some(chat_plugin_config) = self.chat_plugin_config.read().await.as_ref() {
       if chat_plugin_config.chat_bin_path != config.chat_bin_path {
@@ -96,56 +96,39 @@ impl LocalAIManager {
     }
 
     // create new plugin
+    trace!("[Chat Plugin] create chat plugin: {:?}", config);
     let plugin_info = PluginInfo {
       name: "chat_plugin".to_string(),
       exec_path: config.chat_bin_path.clone(),
     };
-    let plugin = self
-      .sidecar_manager
-      .create_plugin(plugin_info)
-      .await
-      .unwrap();
+    let plugin_id = self.sidecar_manager.create_plugin(plugin_info).await?;
 
     // init plugin
+    trace!("[Chat Plugin] init chat plugin model: {:?}", plugin_id);
     let model_path = config.chat_model_path;
     self.sidecar_manager.init_plugin(
-      plugin,
+      plugin_id,
       serde_json::json!({
         "absolute_chat_model_path": model_path,
       }),
     )?;
 
-    self.chat_plugin_id.write().await.replace(plugin);
-    self.plugin_map.insert(config.chat_bin_path, plugin);
+    info!("[Chat Plugin] chat plugin {:?} setup success", plugin_id);
+    self.chat_plugin_id.write().await.replace(plugin_id);
+    self.plugin_map.insert(config.chat_bin_path, plugin_id);
     Ok(())
   }
 }
 
 #[derive(Debug, Clone)]
 pub struct ChatPluginConfig {
-  #[allow(dead_code)]
-  bin_dir: PathBuf,
   chat_bin_path: PathBuf,
   chat_model_path: PathBuf,
 }
 
 impl ChatPluginConfig {
-  pub fn new(bin_dir: &str, chat_bin: &str, chat_model_name: &str) -> FlowyResult<Self> {
-    // check bin_dir exists and is a directory
-    let bin_dir = PathBuf::from(bin_dir);
-    if !bin_dir.exists() {
-      return Err(
-        FlowyError::invalid_data().with_context(format!("bin path not exists: {:?}", bin_dir)),
-      );
-    }
-    if !bin_dir.is_dir() {
-      return Err(
-        FlowyError::invalid_data()
-          .with_context(format!("bin path is not directory: {:?}", bin_dir)),
-      );
-    }
-
-    let chat_bin_path = bin_dir.join(chat_bin);
+  pub fn new(chat_bin: &str, chat_model_path: &str) -> FlowyResult<Self> {
+    let chat_bin_path = PathBuf::from(chat_bin);
     if !chat_bin_path.exists() {
       return Err(FlowyError::invalid_data().with_context(format!(
         "Chat binary path does not exist: {:?}",
@@ -160,7 +143,7 @@ impl ChatPluginConfig {
     }
 
     // Check if local_model_dir exists and is a directory
-    let chat_model_path = bin_dir.join(&chat_model_name);
+    let chat_model_path = PathBuf::from(&chat_model_path);
     if !chat_model_path.exists() {
       return Err(
         FlowyError::invalid_data()
@@ -175,7 +158,6 @@ impl ChatPluginConfig {
     }
 
     Ok(Self {
-      bin_dir,
       chat_bin_path,
       chat_model_path,
     })

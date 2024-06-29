@@ -1,3 +1,7 @@
+import 'package:appflowy/workspace/application/settings/ai/setting_local_ai_bloc.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -52,6 +56,7 @@ class SettingsAIView extends StatelessWidget {
             children: const [
               AIModelSeclection(),
               _AISearchToggle(value: false),
+              LocalAIConfiguration(),
             ],
           );
         },
@@ -160,6 +165,113 @@ class _AISearchToggle extends StatelessWidget {
             }
           },
         ),
+      ],
+    );
+  }
+}
+
+class LocalAIConfiguration extends StatelessWidget {
+  const LocalAIConfiguration({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          SettingsAILocalBloc()..add(const SettingsAILocalEvent.started()),
+      child: BlocBuilder<SettingsAILocalBloc, SettingsAILocalState>(
+        builder: (context, state) {
+          return state.loadingState.when(
+            loading: () {
+              return const SizedBox.shrink();
+            },
+            finish: () {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AIConfigurateTextField(
+                    title: 'chat bin path',
+                    hitText: '',
+                    errorText: state.chatBinPathError ?? '',
+                    value: state.aiSettings?.chatBinPath ?? '',
+                    onChanged: (value) {
+                      context.read<SettingsAILocalBloc>().add(
+                            SettingsAILocalEvent.updateChatBin(value),
+                          );
+                    },
+                  ),
+                  const VSpace(16),
+                  AIConfigurateTextField(
+                    title: 'chat model path',
+                    hitText: '',
+                    errorText: state.chatModelPathError ?? '',
+                    value: state.aiSettings?.chatModelPath ?? '',
+                    onChanged: (value) {
+                      context.read<SettingsAILocalBloc>().add(
+                            SettingsAILocalEvent.updateChatModelPath(value),
+                          );
+                    },
+                  ),
+                  const VSpace(16),
+                  Toggle(
+                    value: state.localAIEnabled,
+                    onChanged: (_) => context
+                        .read<SettingsAILocalBloc>()
+                        .add(const SettingsAILocalEvent.toggleLocalAI()),
+                  ),
+                  const VSpace(16),
+                  FlowyButton(
+                    disable: !state.saveButtonEnabled,
+                    text: const FlowyText("save"),
+                    onTap: () {
+                      context.read<SettingsAILocalBloc>().add(
+                            const SettingsAILocalEvent.saveSetting(),
+                          );
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class AIConfigurateTextField extends StatelessWidget {
+  const AIConfigurateTextField({
+    required this.title,
+    required this.hitText,
+    required this.errorText,
+    required this.value,
+    required this.onChanged,
+    super.key,
+  });
+
+  final String title;
+  final String hitText;
+  final String errorText;
+  final String value;
+  final void Function(String) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FlowyText(
+          title,
+        ),
+        const VSpace(8),
+        RoundedInputField(
+            hintText: hitText,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            normalBorderColor: Theme.of(context).colorScheme.outline,
+            errorBorderColor: Theme.of(context).colorScheme.error,
+            cursorColor: Theme.of(context).colorScheme.primary,
+            errorText: errorText,
+            initialValue: value,
+            onChanged: onChanged),
       ],
     );
   }

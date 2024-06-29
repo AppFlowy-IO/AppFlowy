@@ -210,24 +210,20 @@ impl From<RepeatedRelatedQuestion> for RepeatedRelatedQuestionPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct LocalAIChatSettingPB {
   #[pb(index = 1)]
-  pub bin_dir: String,
+  pub chat_bin_path: String,
 
   #[pb(index = 2)]
-  pub chat_bin: String,
+  pub chat_model_path: String,
 
   #[pb(index = 3)]
-  pub chat_model: String,
-
-  #[pb(index = 4)]
   pub enabled: bool,
 }
 
 impl From<LocalAISetting> for LocalAIChatSettingPB {
   fn from(value: LocalAISetting) -> Self {
     LocalAIChatSettingPB {
-      bin_dir: value.chat_bin,
-      chat_bin: value.bin_dir,
-      chat_model: value.chat_model,
+      chat_bin_path: value.chat_bin_path,
+      chat_model_path: value.chat_model_path,
       enabled: value.enabled,
     }
   }
@@ -236,9 +232,8 @@ impl From<LocalAISetting> for LocalAIChatSettingPB {
 impl From<LocalAIChatSettingPB> for LocalAISetting {
   fn from(value: LocalAIChatSettingPB) -> Self {
     LocalAISetting {
-      chat_bin: value.bin_dir,
-      bin_dir: value.chat_bin,
-      chat_model: value.chat_model,
+      chat_bin_path: value.chat_bin_path,
+      chat_model_path: value.chat_model_path,
       enabled: value.enabled,
     }
   }
