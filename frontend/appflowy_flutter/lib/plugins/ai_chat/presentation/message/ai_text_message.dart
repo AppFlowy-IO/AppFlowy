@@ -2,7 +2,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
+import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -71,11 +74,39 @@ class ChatAITextMessageWidget extends StatelessWidget {
     BuildContext context,
     String text,
   ) {
-    return MarkdownWidget(
-      data: text,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      config: configFromContext(context),
+    debugPrint('text: $text');
+    final document = markdownToDocument(text);
+    final editorState = EditorState(document: document);
+    final styleCustomizer =
+        EditorStyleCustomizer(context: context, padding: EdgeInsets.zero);
+    // return MarkdownWidget(
+    //   data: text,
+    //   shrinkWrap: true,
+    //   physics: const NeverScrollableScrollPhysics(),
+    //   config: configFromContext(context),
+    // );
+
+    final blockBuilders = getEditorBuilderMap(
+      context: context,
+      editorState: editorState,
+      styleCustomizer: styleCustomizer,
+      editable: false,
+    );
+    return IntrinsicHeight(
+      child: AppFlowyEditor(
+        shrinkWrap: true,
+        editable: false,
+        editorStyle: const EditorStyle(
+          padding: EdgeInsets.zero,
+          cursorColor: Colors.transparent,
+          dragHandleColor: Colors.transparent,
+          selectionColor: Colors.blue,
+          textStyleConfiguration: TextStyleConfiguration(),
+          textSpanDecorator: defaultTextSpanDecoratorForAttribute,
+        ),
+        blockComponentBuilders: blockBuilders,
+        editorState: editorState,
+      ),
     );
   }
 
