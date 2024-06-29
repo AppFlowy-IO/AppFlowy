@@ -75,19 +75,20 @@ function OutlineItem({ view, level = 0, width }: { view: PublishViewInfo; width:
     );
   };
 
+  const children = view.child_views || [];
+
   return (
     <div className={'flex h-fit flex-col'}>
       {renderItem(view)}
       <div
         className={'flex transform flex-col gap-2 transition-all'}
         style={{
-          height: isExpanded && view.child_views?.length ? 'auto' : 0,
-          opacity: isExpanded && view.child_views?.length ? 1 : 0,
+          display: isExpanded ? 'block' : 'none',
         }}
       >
-        {view.child_views
-          ?.filter((view) => view.layout === ViewLayout.Document)
-          ?.map((item, index) => (
+        {children
+          .filter((view) => view.layout === ViewLayout.Document)
+          .map((item, index) => (
             <OutlineItem level={level + 1} width={width} key={index} view={item} />
           ))}
       </div>
