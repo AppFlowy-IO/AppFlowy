@@ -16,8 +16,9 @@ async fn import_492_row_csv_file_test() {
   let workspace_id = test.get_current_workspace().await.id;
   let import_data = gen_import_data(file_name, csv_string, workspace_id);
 
-  let view = test.import_data(import_data).await;
-  let database = test.get_database(&view.id).await;
+  let views = test.import_data(import_data).await;
+  let view_id = views[0].clone().id;
+  let database = test.get_database(&view_id).await;
   assert_eq!(database.rows.len(), 492);
   drop(cleaner);
 }
@@ -35,8 +36,9 @@ async fn import_10240_row_csv_file_test() {
   let workspace_id = test.get_current_workspace().await.id;
   let import_data = gen_import_data(file_name, csv_string, workspace_id);
 
-  let view = test.import_data(import_data).await;
-  let database = test.get_database(&view.id).await;
+  let views = test.import_data(import_data).await;
+  let view_id = views[0].clone().id;
+  let database = test.get_database(&view_id).await;
   assert_eq!(database.rows.len(), 10240);
 
   drop(cleaner);

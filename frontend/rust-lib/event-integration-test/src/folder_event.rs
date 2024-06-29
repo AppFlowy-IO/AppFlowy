@@ -258,13 +258,14 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
-  pub async fn import_data(&self, data: ImportPayloadPB) -> ViewPB {
+  pub async fn import_data(&self, data: ImportPayloadPB) -> Vec<ViewPB> {
     EventBuilder::new(self.clone())
       .event(FolderEvent::ImportData)
       .payload(data)
       .async_send()
       .await
-      .parse::<ViewPB>()
+      .parse::<RepeatedViewPB>()
+      .items
   }
 
   pub async fn get_view_ancestors(&self, view_id: &str) -> Vec<ViewPB> {

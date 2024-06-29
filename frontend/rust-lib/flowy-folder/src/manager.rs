@@ -1099,12 +1099,13 @@ impl FolderManager {
   }
 
   /// Import function to handle the import of data.
-  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<()> {
+  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<RepeatedViewPB> {
     let workspace_id = self.user.workspace_id()?;
 
     // Initialize an empty vector to store the objects
     let sync_after_create = import_data.sync_after_create;
     let mut objects = vec![];
+    let mut views = vec![];
 
     // Iterate over the values in the import data
     for data in import_data.values {
@@ -1114,6 +1115,9 @@ impl FolderManager {
       let (view, encoded_collab) = self
         .import_single_file(import_data.parent_view_id.clone(), data)
         .await?;
+      let object_id = view.id.clone();
+
+      views.push(view_pb_without_child_views(view));
 
       if sync_after_create {
         if let Some(encoded_collab) = encoded_collab {
@@ -1123,7 +1127,7 @@ impl FolderManager {
           // If the view can't be encoded, skip it and don't block the whole import process
           match encode_collab_v1 {
             Ok(encode_collab_v1) => objects.push(FolderCollabParams {
-              object_id: view.id.clone(),
+              object_id,
               encoded_collab_v1: encode_collab_v1,
               collab_type,
             }),
@@ -1138,9 +1142,9 @@ impl FolderManager {
     // Sync the view to the cloud
     if sync_after_create {
       self
-      .cloud_service
-      .batch_create_folder_collab_objects(&workspace_id, objects)
-      .await?;
+        .cloud_service
+        .batch_create_folder_collab_objects(&workspace_id, objects)
+        .await?;
     }
 
     // Notify that the parent view has changed
@@ -1150,8 +1154,9 @@ impl FolderManager {
       vec![import_data.parent_view_id],
     );
 
-    Ok(())
+    Ok(RepeatedViewPB { items: views })
   }
+
   /// Update the view with the provided view_id using the specified function.
   async fn update_view<F>(&self, view_id: &str, f: F) -> FlowyResult<()>
   where
