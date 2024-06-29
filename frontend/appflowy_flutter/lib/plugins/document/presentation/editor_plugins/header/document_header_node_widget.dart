@@ -91,6 +91,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
   String viewIcon = '';
   PageStyleCover? cover;
+  late ViewPB view;
   late final ViewListener viewListener;
 
   @override
@@ -99,6 +100,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     final value = widget.view.icon.value;
     viewIcon = value.isNotEmpty ? value : icon ?? '';
     cover = widget.view.cover;
+    view = widget.view;
     widget.node.addListener(_reload);
     viewListener = ViewListener(
       viewId: widget.view.id,
@@ -107,6 +109,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
           setState(() {
             viewIcon = p0.icon.value;
             cover = p0.cover;
+            view = p0;
           });
         },
       );
@@ -137,7 +140,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
         ),
         if (hasCover)
           DocumentCover(
-            view: widget.view,
+            view: view,
             editorState: widget.editorState,
             node: widget.node,
             coverType: coverType,
@@ -177,7 +180,6 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   }
 
   void _saveIconOrCover({(CoverType, String?)? cover, String? icon}) async {
-    final transaction = widget.editorState.transaction;
     final coverType = widget.node.attributes[DocumentHeaderBlockKeys.coverType];
     final coverDetails =
         widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
@@ -197,16 +199,13 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
       widget.onIconChanged(icon);
     }
 
-    // compatible with version <= 0.5.5.
-    transaction.updateNode(widget.node, attributes);
-    await widget.editorState.apply(transaction);
-
-    // compatible with version > 0.5.5.
-    EditorMigration.migrateCoverIfNeeded(
-      widget.view,
-      widget.editorState,
-      overwrite: true,
-    );
+    if (cover != null) {
+      EditorMigration.migrateCoverIfNeeded(
+        view,
+        attributes,
+        overwrite: true,
+      );
+    }
   }
 }
 

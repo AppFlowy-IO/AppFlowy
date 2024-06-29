@@ -164,18 +164,17 @@ class EditorMigration {
   // Now, the cover is stored in the view.ext.
   static void migrateCoverIfNeeded(
     ViewPB view,
-    EditorState editorState, {
+    Attributes attributes, {
     bool overwrite = false,
   }) async {
     if (view.extra.isNotEmpty && !overwrite) {
       return;
     }
 
-    final root = editorState.document.root;
     final coverType = CoverType.fromString(
-      root.attributes[DocumentHeaderBlockKeys.coverType],
+      attributes[DocumentHeaderBlockKeys.coverType],
     );
-    final coverDetails = root.attributes[DocumentHeaderBlockKeys.coverDetails];
+    final coverDetails = attributes[DocumentHeaderBlockKeys.coverDetails];
 
     Map extra = {};
 
