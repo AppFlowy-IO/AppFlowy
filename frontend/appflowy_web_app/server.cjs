@@ -60,6 +60,7 @@ const BASE_URL = process.env.AF_BASE_URL || 'https://beta.appflowy.cloud';
 const createServer = async (req) => {
   const timer = logRequestTimer(req);
   const reqUrl = new URL(req.url);
+  
   logger.info(`Request URL: ${reqUrl.pathname}`);
 
   const [
@@ -68,7 +69,7 @@ const createServer = async (req) => {
   ] = reqUrl.pathname.slice(1).split('/');
 
   logger.info(`Namespace: ${namespace}, Publish Name: ${publishName}`);
-  
+
   if (namespace === '' || !publishName) {
     timer();
     return new Response(null, {
