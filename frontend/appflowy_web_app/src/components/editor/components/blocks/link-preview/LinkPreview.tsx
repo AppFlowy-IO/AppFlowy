@@ -47,11 +47,12 @@ export const LinkPreview = memo(
               <img
                 src={data.image.url}
                 alt={data.title}
-                className={'container h-full w-40 rounded bg-cover bg-center'}
+                className={'container h-full w-[25%] rounded bg-cover bg-center'}
               />
               <div className={'flex flex-col justify-center gap-2'}>
                 <div className={'text-base font-bold text-text-title'}>{data.title}</div>
-                <div className={'text-sm text-text-caption'}>{data.description}</div>
+                <div className={'text-sm text-text-title'}>{data.description}</div>
+                <div className={'text-xs text-text-caption'}>{url}</div>
               </div>
             </div>
           ) : (
