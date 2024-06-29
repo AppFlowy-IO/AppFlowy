@@ -68,6 +68,7 @@ const createServer = async (req) => {
   ] = reqUrl.pathname.slice(1).split('/');
 
   logger.info(`Namespace: ${namespace}, Publish Name: ${publishName}`);
+  
   if (namespace === '' || !publishName) {
     timer();
     return new Response(null, {
