@@ -14,6 +14,7 @@ const setOrUpdateMetaTag = ($, selector, attribute, content) => {
     $(selector).attr('content', content);
   }
 };
+
 // Create a new logger instance
 const logger = pino({
   transport: {
