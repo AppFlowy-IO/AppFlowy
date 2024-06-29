@@ -5,7 +5,6 @@ const cheerio = require('cheerio');
 const { fetch } = require('bun');
 const distDir = path.join(__dirname, 'dist');
 const indexPath = path.join(distDir, 'index.html');
-const logo = '/appflowy.svg';
 const setOrUpdateMetaTag = ($, selector, attribute, content) => {
   if ($(selector).length === 0) {
     $('head').append(`<meta ${attribute}="${selector.match(/\[(.*?)\]/)[1]}" content="${content}">`);
@@ -61,6 +60,7 @@ const createServer = async (req) => {
   const timer = logRequestTimer(req);
   const reqUrl = new URL(req.url);
   logger.info(`Request URL: ${reqUrl.pathname}`);
+  const logo = reqUrl.origin + '/appflowy.svg';
 
   const [
     namespace,
