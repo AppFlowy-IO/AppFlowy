@@ -1,4 +1,5 @@
 import { useAppLanguage } from '@/components/app/useAppLanguage';
+import { useSnackbar } from 'notistack';
 import React, { createContext, useEffect, useState } from 'react';
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { getService } from '@/application/services';
@@ -42,6 +43,35 @@ function AppConfig({ children }: { children: React.ReactNode }) {
       setService(await getService(appConfig));
     })();
   }, [appConfig]);
+
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    const commonClasses = 'flex items-center justify-center gap-3 bg-bg-body';
+
+    window.toast = {
+      success: (message: string) => {
+        enqueueSnackbar(message, { variant: 'success' });
+      },
+      error: (message: string) => {
+        console.log('error', message);
+        enqueueSnackbar(message, { variant: 'error' });
+      },
+      warning: (message: string) => {
+        enqueueSnackbar(message, { variant: 'warning' });
+      },
+      default: (message: string) => {
+        enqueueSnackbar(message, { variant: 'default' });
+      },
+      info: (message: string) => {
+        enqueueSnackbar(message, { variant: 'info' });
+      },
+
+      clear: () => {
+        closeSnackbar();
+      },
+    };
+  }, [closeSnackbar, enqueueSnackbar]);
 
   return (
     <AFConfigContext.Provider

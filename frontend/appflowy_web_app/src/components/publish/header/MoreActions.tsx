@@ -72,7 +72,10 @@ function MoreActions() {
         <div className={'flex w-[240px] flex-col gap-2 px-2 py-2'}>
           {actions.map((action, index) => (
             <button
-              onClick={action.onClick}
+              onClick={() => {
+                action.onClick();
+                handleClose();
+              }}
               key={index}
               className={
                 'flex items-center gap-2 rounded-[8px] p-1.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'

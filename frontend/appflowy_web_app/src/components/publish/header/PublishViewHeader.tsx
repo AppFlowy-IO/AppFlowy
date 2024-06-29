@@ -1,9 +1,10 @@
 import { usePublishContext } from '@/application/publish';
 import { openOrDownload } from '@/components/publish/header/utils';
-import { Divider, IconButton } from '@mui/material';
+import { Divider, IconButton, Tooltip } from '@mui/material';
 import { debounce } from 'lodash-es';
 import React, { useCallback, useMemo } from 'react';
 import OutlinePopover from '@/components/publish/outline/OutlinePopover';
+import { useTranslation } from 'react-i18next';
 import Breadcrumb from './Breadcrumb';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import MoreActions from './MoreActions';
@@ -18,6 +19,7 @@ export function PublishViewHeader({
   openDrawer: boolean;
   drawerWidth: number;
 }) {
+  const { t } = useTranslation();
   const viewMeta = usePublishContext()?.viewMeta;
   const crumbs = useMemo(() => {
     const ancestors = viewMeta?.ancestor_views.slice(1) || [];
@@ -95,9 +97,11 @@ export function PublishViewHeader({
         <div className={'flex items-center gap-2'}>
           <MoreActions />
           <Divider orientation={'vertical'} className={'mx-2'} flexItem />
-          <button onClick={openOrDownload}>
-            <Logo className={'h-6 w-6'} />
-          </button>
+          <Tooltip title={t('publish.downloadApp')}>
+            <button onClick={openOrDownload}>
+              <Logo className={'h-6 w-6'} />
+            </button>
+          </Tooltip>
         </div>
       </div>
     </div>

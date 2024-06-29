@@ -61,7 +61,8 @@ export function ViewMetaPreview({ icon, cover, name }: ViewMetaProps) {
             'flex items-center gap-4 px-16 text-[2.25rem] font-bold leading-[1.5em] max-md:px-4 max-sm:text-[7vw]'
           }
         >
-          <div className={`view-icon`}>{icon?.value}</div>
+          {icon?.value ? <div className={'view-icon'}>{icon?.value}</div> : null}
+
           {name || <span className={'text-text-placeholder'}>{t('menuAppHeader.defaultNewPageName')}</span>}
         </div>
       </div>

@@ -25,7 +25,7 @@ export const Outline = memo(
       if (element) {
         void smoothScrollIntoViewIfNeeded(element, {
           behavior: 'smooth',
-          block: 'center',
+          block: 'start',
         });
       }
     }, []);

@@ -1,3 +1,4 @@
+import { AFScroller } from '@/components/_shared/scroller';
 import { EditorElementProps, TableCellNode, TableNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useMemo } from 'react';
 import { Grid } from '@atlaskit/primitives';
@@ -38,17 +39,23 @@ const Table = memo(
     }, [rowGroup, rowDefaultHeight]);
 
     return (
-      <div ref={ref} {...attributes} className={`table-block relative my-2 w-full px-1 ${className || ''}`}>
-        <Grid
-          id={`table-${node.blockId}`}
-          rowGap='space.0'
-          autoFlow='column'
-          columnGap='space.0'
-          templateRows={templateRows}
-          templateColumns={templateColumns}
-        >
-          {children}
-        </Grid>
+      <div
+        ref={ref}
+        {...attributes}
+        className={`table-block relative my-2 w-full overflow-hidden px-1 ${className || ''}`}
+      >
+        <div className={'h-full w-full overflow-x-auto  overflow-y-hidden'}>
+          <Grid
+            id={`table-${node.blockId}`}
+            rowGap='space.0'
+            autoFlow='column'
+            columnGap='space.0'
+            templateRows={templateRows}
+            templateColumns={templateColumns}
+          >
+            {children}
+          </Grid>
+        </div>
       </div>
     );
   }),

@@ -1,7 +1,6 @@
 import { YDoc } from '@/application/collab.type';
 import { db } from '@/application/db';
 import { ViewMeta } from '@/application/db/tables/view_metas';
-import { notify } from '@/components/_shared/notify';
 import { AFConfigContext } from '@/components/app/AppConfig';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { createContext, useCallback, useContext } from 'react';
@@ -50,7 +49,6 @@ export const PublishProvider = ({
 
         navigate(`/${namespace}/${publishName}`);
       } catch (e) {
-        notify.error('The view has not been published yet.');
         return Promise.reject(e);
       }
     },

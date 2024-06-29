@@ -30,7 +30,7 @@ export function OutlinePopover({
         onMouseLeave={onMouseLeave}
         className={'flex h-fit max-h-[500px] w-[268px] flex-col overflow-y-auto overflow-x-hidden p-2'}
       >
-        <Outline viewMeta={viewMeta} />
+        <Outline width={268} viewMeta={viewMeta} />
         <div
           style={{
             position: 'sticky',

@@ -4,10 +4,11 @@ import SearchInput from '@/components/publish/outline/SearchInput';
 import { filterViews } from '@/components/publish/outline/utils';
 import { CircularProgress } from '@mui/material';
 import React, { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
-function Outline({ viewMeta }: { viewMeta?: PublishViewInfo }) {
+function Outline({ viewMeta, width }: { viewMeta?: PublishViewInfo; width: number }) {
   const hasChildren = Boolean(viewMeta?.child_views?.length);
-
+  const { t } = useTranslation();
   const [children, setChildren] = React.useState<PublishViewInfo[]>([]);
 
   useEffect(() => {
@@ -45,14 +46,16 @@ function Outline({ viewMeta }: { viewMeta?: PublishViewInfo }) {
         <SearchInput onSearch={handleSearch} />
       </div>
 
-      {hasChildren && (
+      {hasChildren ? (
         <div className={'flex w-full flex-1 flex-col'}>
           {children
             .filter((view) => view.layout === ViewLayout.Document)
             .map((view: PublishViewInfo) => (
-              <OutlineItem key={view.view_id} view={view} />
+              <OutlineItem width={width} key={view.view_id} view={view} />
             ))}
         </div>
+      ) : (
+        <div className={'flex w-full flex-1 items-center justify-center text-text-caption'}>{t('noPagesInside')}</div>
       )}
     </div>
   );

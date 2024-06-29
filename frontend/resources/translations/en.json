@@ -1378,6 +1378,9 @@
         "imageUploadFailed": "Image upload failed",
         "errorCode": "Error code"
       },
+      "math": {
+        "copiedToPasteBoard": "The math equation has been copied to the clipboard"
+      },
       "urlPreview": {
         "copiedToPasteBoard": "The link has been copied to the clipboard",
         "convertToLink": "Convert to embed link"
@@ -2037,7 +2040,8 @@
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
     "reportPage": "Report page",
-    "databaseHasNotBeenPublished": "This database hasn't been published yet",
-    "createdWith": "Created with"
+    "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
+    "createdWith": "Created with",
+    "downloadApp": "Download AppFlowy"
   }
 }

@@ -1,5 +1,7 @@
 import KatexMath from '@/components/_shared/katex-math/KatexMath';
+import { notify } from '@/components/_shared/notify';
 import { EditorElementProps, MathEquationNode } from '@/components/editor/editor.type';
+import { copyTextToClipboard } from '@/utils/copy';
 import { FunctionsOutlined } from '@mui/icons-material';
 import { forwardRef, memo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +18,18 @@ export const MathEquation = memo(
           <div
             {...attributes}
             ref={containerRef}
-            className={`${className} math-equation-block relative w-full cursor-pointer py-2`}
+            onClick={async () => {
+              if (!formula) return;
+              try {
+                await copyTextToClipboard(formula);
+                notify.success(t('document.plugins.math.copiedToPasteBoard'));
+              } catch (_) {
+                // do nothing
+              }
+            }}
+            className={`${className} math-equation-block relative w-full ${
+              formula ? 'cursor-pointer' : 'cursor-default'
+            } py-2`}
           >
             <div
               contentEditable={false}

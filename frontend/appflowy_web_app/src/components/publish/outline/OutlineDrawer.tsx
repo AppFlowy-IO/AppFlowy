@@ -55,7 +55,7 @@ function OutlineDrawer({ open, width, onClose }: { open: boolean; width: number;
           </Tooltip>
         </div>
         <div className={'flex flex-1 flex-col overflow-y-auto px-4 pb-4'}>
-          <Outline viewMeta={viewMeta} />
+          <Outline width={width} viewMeta={viewMeta} />
         </div>
       </div>
     </Drawer>

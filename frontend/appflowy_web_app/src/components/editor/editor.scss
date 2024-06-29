@@ -1,3 +1,4 @@
+@use "src/styles/mixin.scss";
 
 .block-element:not([data-block-type="table/cell"]) {
   @apply my-[4px];
@@ -300,4 +301,8 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
     margin-top: 0px;
     margin-bottom: 0px;
   }
+}
+
+.table-block {
+  @include mixin.scrollbar-style;
 }

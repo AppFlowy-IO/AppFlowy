@@ -15,6 +15,7 @@ interface Window {
     error: (message: string) => void;
     info: (message: string) => void;
     clear: () => void;
+    default: (message: string) => void;
     warning: (message: string) => void;
   };
 }

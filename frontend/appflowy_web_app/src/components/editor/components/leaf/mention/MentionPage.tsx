@@ -41,7 +41,7 @@ function MentionPage({ pageId }: { pageId: string }) {
       contentEditable={false}
     >
       {unPublished ? (
-        <span className={'mention-unpublished font-semibold text-text-caption'}>No Access</span>
+        <span className={'mention-unpublished cursor-text font-semibold text-text-caption'}>No Access</span>
       ) : (
         <>
           <span className={'mention-icon icon'}>

@@ -27,7 +27,7 @@ function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disable
         try {
           await onNavigateToView?.(viewId);
         } catch (e) {
-          notify.error(t('publish.hasNotBeenPublished'));
+          notify.default(t('publish.hasNotBeenPublished'));
         }
       }}
     >
