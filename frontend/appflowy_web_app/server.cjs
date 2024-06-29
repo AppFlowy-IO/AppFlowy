@@ -3,10 +3,8 @@ const fs = require('fs');
 const pino = require('pino');
 const cheerio = require('cheerio');
 const { fetch } = require('bun');
-const { readFileSync } = require('node:fs');
 const distDir = path.join(__dirname, 'dist');
 const indexPath = path.join(distDir, 'index.html');
-const logo = 'https://test.appflowy.com/appflowy.svg';
 
 const setOrUpdateMetaTag = ($, selector, attribute, content) => {
   if ($(selector).length === 0) {
@@ -94,7 +92,7 @@ const createServer = async (req) => {
     const description = 'Write, share, and publish docs quickly on AppFlowy.\nGet started for free.';
     let title = 'AppFlowy';
     const url = 'https://appflowy.io';
-    let image = logo;
+    let image = 'https://d3uafhn8yrvdfn.cloudfront.net/website/production/_next/static/media/og-image.e347bfb5.png';
 
     try {
       // Inject meta data into the HTML to support SEO and social sharing
