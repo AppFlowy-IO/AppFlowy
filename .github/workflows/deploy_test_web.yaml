@@ -69,6 +69,7 @@ jobs:
           EXCLUDE: "frontend/appflowy_web_app/dist/, frontend/appflowy_web_app/node_modules/"
           SCRIPT_AFTER: |
             cd appflowy-web-app
+            docker system prune -f
             docker build -t appflowy-web-app .
             docker rm -f appflowy-web-app || true
             docker run -d -p 3000:80 --env-file .env --name appflowy-web-app appflowy-web-app
