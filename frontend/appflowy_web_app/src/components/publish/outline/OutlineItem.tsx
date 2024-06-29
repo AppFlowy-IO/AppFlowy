@@ -6,7 +6,7 @@ import React, { useCallback, useContext } from 'react';
 import { ReactComponent as ChevronDownIcon } from '@/assets/chevron_down.svg';
 import { useTranslation } from 'react-i18next';
 
-function OutlineItem({ view, level = 0, width }: { view: PublishViewInfo; width: number; level: number }) {
+function OutlineItem({ view, level = 0, width }: { view: PublishViewInfo; width: number; level?: number }) {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const getIcon = useCallback(() => {
     if (isExpanded) {
