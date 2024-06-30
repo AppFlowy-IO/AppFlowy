@@ -1,22 +1,15 @@
 use crate::chat::Chat;
+use crate::chat_service_impl::ChatService;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
+use crate::local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
 use crate::persistence::{insert_chat, ChatTable};
 use dashmap::DashMap;
-use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageType, CompletionType, MessageCursor,
-  RepeatedChatMessage, RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
-};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageType};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sidecar::manager::SidecarManager;
-use flowy_sqlite::DBConnection;
-
-use lib_infra::util::timestamp;
-
-use crate::local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
 use flowy_sqlite::kv::KVStorePreferences;
-
-use crate::chat_service_impl::ChatService;
-
+use flowy_sqlite::DBConnection;
+use lib_infra::util::timestamp;
 use std::sync::Arc;
 use tracing::trace;
 

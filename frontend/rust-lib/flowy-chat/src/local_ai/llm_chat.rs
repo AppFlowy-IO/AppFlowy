@@ -305,6 +305,7 @@ impl LLMState {
     matches!(self, LLMState::Loading)
   }
 
+  #[allow(dead_code)]
   fn is_uninitialized(&self) -> bool {
     matches!(self, LLMState::Uninitialized)
   }
