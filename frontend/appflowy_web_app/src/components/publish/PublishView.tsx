@@ -80,10 +80,10 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
             }}
             openDrawer={open}
           />
-          {open && <OutlineDrawer width={drawerWidth} open={open} onClose={() => setOpen(false)} />}
 
           <CollabView doc={doc} />
         </AFScroller>
+        {open && <OutlineDrawer width={drawerWidth} open={open} onClose={() => setOpen(false)} />}
       </div>
     </PublishProvider>
   );

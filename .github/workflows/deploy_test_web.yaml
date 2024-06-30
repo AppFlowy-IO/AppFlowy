@@ -3,7 +3,7 @@ name: Deploy Web (Test)
 on:
   push:
     branches:
-      - build/test
+      - build/old-test
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
@@ -72,4 +72,4 @@ jobs:
             docker system prune -f
             docker build -t appflowy-web-app .
             docker rm -f appflowy-web-app || true
-            docker run -d -p 3000:80 --env-file .env --name appflowy-web-app appflowy-web-app
+            docker run -d -p 30012:80 --env-file .env --name appflowy-web-app appflowy-web-app
