@@ -61,6 +61,15 @@ pub struct RpcState<W: Write> {
 }
 
 impl<W: Write> RpcState<W> {
+  /// Creates a new `RawPeer` instance.
+  ///
+  /// # Arguments
+  ///
+  /// * `writer` - An object implementing the `Write` trait, used for sending messages.
+  ///
+  /// # Returns
+  ///
+  /// A new `RawPeer` instance wrapped in an `Arc`.
   pub fn new(writer: W) -> Self {
     RpcState {
       rx_queue: Mutex::new(VecDeque::new()),
@@ -126,12 +135,36 @@ impl<W: Write + Send + 'static> Peer for RawPeer<W> {
 }
 
 impl<W: Write> RawPeer<W> {
-  fn send(&self, v: &JsonValue) -> Result<(), io::Error> {
-    let mut s = serde_json::to_string(v).unwrap();
+  /// Sends a JSON value to the peer.
+  ///
+  /// # Arguments
+  ///
+  /// * `json` - A reference to a `JsonValue` to be sent.
+  ///
+  /// # Returns
+  ///
+  /// A `Result` indicating success or an `io::Error` if the write operation fails.
+  ///
+  /// # Notes
+  ///
+  /// This function serializes the JSON value, appends a newline, and writes it to the underlying writer.
+  fn send(&self, json: &JsonValue) -> Result<(), io::Error> {
+    let mut s = serde_json::to_string(json).unwrap();
     s.push('\n');
     self.0.writer.lock().write_all(s.as_bytes())
   }
 
+  /// Sends a response to a previous RPC request.
+  ///
+  /// # Arguments
+  ///
+  /// * `result` - The `Response` to be sent.
+  /// * `id` - The ID of the request being responded to.
+  ///
+  /// # Notes
+  ///
+  /// This function constructs a JSON response and sends it using the `send` method.
+  /// It handles both successful results and errors.
   pub(crate) fn respond(&self, result: Response, id: u64) {
     let mut response = json!({ "id": id });
     match result {
@@ -148,12 +181,24 @@ impl<W: Write> RawPeer<W> {
     }
   }
 
-  fn send_rpc(&self, method: &str, params: &JsonValue, rh: ResponseHandler) {
+  /// Sends an RPC request.
+  ///
+  /// # Arguments
+  ///
+  /// * `method` - The name of the RPC method to be called.
+  /// * `params` - The parameters for the RPC call.
+  /// * `response_handler` - A `ResponseHandler` to handle the response.
+  ///
+  /// # Notes
+  ///
+  /// This function generates a unique ID for the request, stores the response handler,
+  /// and sends the RPC request. If sending fails, it immediately invokes the response handler with an error.
+  fn send_rpc(&self, method: &str, params: &JsonValue, response_handler: ResponseHandler) {
     trace!("[RPC] call method: {} params: {:?}", method, params);
     let id = self.0.id.fetch_add(1, Ordering::Relaxed);
     {
       let mut pending = self.0.pending.lock();
-      pending.insert(id, rh);
+      pending.insert(id, response_handler);
     }
 
     // Call the ResponseHandler if the send fails. Otherwise, the response will be
@@ -170,6 +215,38 @@ impl<W: Write> RawPeer<W> {
     }
   }
 
+  /// Processes an incoming response to an RPC request.
+  ///
+  /// This function is responsible for handling responses received from the peer, matching them
+  /// to their corresponding requests, and invoking the appropriate callbacks. It supports both
+  /// one-time responses and streaming responses.
+  ///
+  /// # Arguments
+  ///
+  /// * `&self` - A reference to the `RawPeer` instance.
+  /// * `request_id: u64` - The unique identifier of the request to which this is a response.
+  /// * `resp: Result<ResponsePayload, SidecarError>` - The response payload or an error.
+  ///
+  /// # Behavior
+  ///
+  /// 1. Retrieves and removes the response handler for the given `request_id` from the pending requests.
+  /// 2. Determines if the response is part of a stream.
+  /// 3. For streaming responses:
+  ///    - If it's not the end of the stream, re-inserts the stream callback for future messages.
+  ///    - If it's the end of the stream, logs this information.
+  /// 4. Converts the response payload to JSON.
+  /// 5. Invokes the response handler with the JSON data or error.
+  ///
+  /// # Concurrency
+  ///
+  /// This function uses mutex locks to ensure thread-safe access to shared data structures.
+  /// It's designed to be called from multiple threads safely.
+  ///
+  /// # Error Handling
+  ///
+  /// - If no handler is found for the `request_id`, an error is logged.
+  /// - If a non-stream response payload is `None`, a warning is logged.
+  /// - Errors in the response are propagated to the response handler.
   pub(crate) fn handle_response(
     &self,
     request_id: u64,
@@ -245,13 +322,10 @@ impl<W: Write> RawPeer<W> {
 
   /// Checks the status of the most imminent timer.
   ///
-  /// If the timer has expired, returns `Some(Ok(_))` with the corresponding token.
-  /// If a timer exists but has not expired, returns `Some(Err(_))` with the `Duration` until the timer is ready.
-  /// Returns `None` if no timers are registered.
-  ///
   /// # Returns
-  /// - `Some(Ok(usize))`: If the timer has expired, with the corresponding token.
-  /// - `Some(Err(Duration))`: If a timer exists but hasn't expired, with the time remaining until it is ready.
+  ///
+  /// - `Some(Ok(usize))`: If the most imminent timer has expired, returns its token.
+  /// - `Some(Err(Duration))`: If the most imminent timer has not yet expired, returns the time until it expires.
   /// - `None`: If no timers are registered.
   pub(crate) fn check_timers(&self) -> Option<Result<usize, Duration>> {
     let mut timers = self.0.timers.lock();
@@ -279,7 +353,7 @@ impl<W: Write> RawPeer<W> {
     self.0.needs_exit.store(true, Ordering::Relaxed);
   }
 
-  /// Returns `true` if an error has occured in the main thread.
+  /// Checks if the RPC system needs to exit.
   pub(crate) fn needs_exit(&self) -> bool {
     self.0.needs_exit.load(Ordering::Relaxed)
   }

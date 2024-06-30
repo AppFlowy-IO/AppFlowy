@@ -29,7 +29,16 @@ pub trait Handler {
 struct PanicGuard<'a, W: Write + 'static>(&'a RawPeer<W>);
 
 impl<'a, W: Write + 'static> Drop for PanicGuard<'a, W> {
+  /// Implements the cleanup behavior when the guard is dropped.
+  ///
+  /// This method is automatically called when the `PanicGuard` goes out of scope.
+  /// It checks if a panic is occurring and, if so, logs an error message and
+  /// disconnects the peer.
   fn drop(&mut self) {
+    // - If no panic is occurring, this method does nothing.
+    // - If a panic is detected:
+    //   1. An error message is logged.
+    //   2. The `disconnect()` method is called on the peer.
     if thread::panicking() {
       error!("[RPC] panic guard hit, closing run loop");
       self.0.disconnect();
@@ -66,6 +75,44 @@ impl<W: Write + Send> RpcLoop<W> {
   /// # Note:
   /// The reader is provided via a closure to avoid needing `Send`. The main loop runs on a separate I/O thread that calls this closure at startup.
   /// Calls to the handler occur on the caller's thread and maintain the order from the channel. Currently, there can only be one outstanding incoming request.
+
+  /// Starts and manages the main event loop for processing RPC messages.
+  ///
+  /// This function is the core of the RPC system, handling incoming messages,
+  /// dispatching requests to the appropriate handler, and managing the overall
+  /// lifecycle of the RPC communication.
+  ///
+  /// # Arguments
+  ///
+  /// * `&mut self` - A mutable reference to the `RpcLoop` instance.
+  /// * `_plugin_name: &str` - The name of the plugin (currently unused in the function body).
+  /// * `buffer_read_fn: BufferReadFn` - A closure that returns a `BufRead` instance for reading input.
+  /// * `handler: &mut H` - A mutable reference to the handler implementing the `Handler` trait.
+  ///
+  /// # Type Parameters
+  ///
+  /// * `R: BufRead` - The type returned by `buffer_read_fn`, must implement `BufRead`.
+  /// * `BufferReadFn: Send + FnOnce() -> R` - The type of the closure that provides the input reader.
+  /// * `H: Handler` - The type of the handler, must implement the `Handler` trait.
+  ///
+  /// # Returns
+  ///
+  /// * `Result<(), ReadError>` - Returns `Ok(())` if the loop exits normally (EOF),
+  ///   or an error if an unrecoverable error occurs.
+  ///
+  /// # Behavior
+  ///
+  /// 1. Creates a new `RpcCtx` with a clone of the `RawPeer`.
+  /// 2. Spawns a separate thread for reading input using `crossbeam_utils::thread::scope`.
+  /// 3. In the reading thread:
+  ///    - Continuously reads and parses JSON messages from the input.
+  ///    - Handles responses by calling `handle_response` on the peer.
+  ///    - Puts other messages into the peer's queue using `put_rpc_object`.
+  /// 4. In the main thread:
+  ///    - Retrieves messages using `next_read`.
+  ///    - Processes requests by calling the handler's `handle_request` method.
+  ///    - Sends responses back using the peer's `respond` method.
+  /// 5. Continues looping until an error occurs or the peer is disconnected.
   pub fn mainloop<R, BufferReadFn, H>(
     &mut self,
     _plugin_name: &str,
@@ -77,6 +124,22 @@ impl<W: Write + Send> RpcLoop<W> {
     BufferReadFn: Send + FnOnce() -> R,
     H: Handler,
   {
+    // uses `crossbeam_utils::thread::scope` for thread management,
+    // which offers several advantages over `std::thread`:
+    // 1. Scoped Threads: Guarantees thread termination when the scope ends,
+    //    preventing resource leaks.
+    // 2. Simplified Lifetime Management: Allows threads to borrow data from
+    //    their parent stack frame, enabling more ergonomic code.
+    // 3. Improved Safety: Prevents threads from outliving the data they operate on,
+    //    reducing risks of data races and use-after-free errors.
+    // 4. Efficiency: Potentially more efficient due to known thread lifetimes,
+    //    leading to better resource management.
+    // 5. Error Propagation: Simplifies propagating errors from spawned threads
+    //    back to the parent thread.
+    // 6. Consistency with Rust's Ownership Model: Aligns well with Rust's
+    //    ownership and borrowing rules.
+    // 7. Automatic Thread Joining: No need for manual thread joining, reducing
+    //    the risk of thread management errors.
     let exit = crossbeam_utils::thread::scope(|scope| {
       let peer = self.get_raw_peer();
       peer.reset_needs_exit();
@@ -127,7 +190,12 @@ impl<W: Write + Send> RpcLoop<W> {
         }
       });
 
+      // Main processing loop
       loop {
+        // `PanicGuard` is a critical safety mechanism in the RPC system. It's designed to detect
+        // panics that occur during RPC request handling and ensure that the system shuts down
+        // gracefully, preventing resource leaks and maintaining system integrity.
+        //
         let _guard = PanicGuard(&peer);
         let read_result = next_read(&peer, &ctx);
         let json = match read_result {

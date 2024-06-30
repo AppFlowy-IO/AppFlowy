@@ -1,6 +1,6 @@
 use crate::chat::Chat;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
-use crate::persistence::{insert_chat, select_single_message, ChatTable};
+use crate::persistence::{insert_chat, ChatTable};
 use dashmap::DashMap;
 use flowy_chat_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageType, CompletionType, MessageCursor,
@@ -9,18 +9,16 @@ use flowy_chat_pub::cloud::{
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sidecar::manager::SidecarManager;
 use flowy_sqlite::DBConnection;
-use lib_infra::future::FutureResult;
+
 use lib_infra::util::timestamp;
 
-use crate::local_ai::llm_controller::{LocalChatLLMController, LocalLLMSetting};
+use crate::local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
 use flowy_sqlite::kv::KVStorePreferences;
-use lib_infra::async_trait::async_trait;
-use parking_lot::RwLock;
 
 use crate::chat_service_impl::ChatService;
-use futures::{StreamExt, TryStreamExt};
+
 use std::sync::Arc;
-use tracing::{error, info, trace};
+use tracing::trace;
 
 pub trait ChatUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -50,7 +48,7 @@ impl ChatManager {
     let sidecar_manager = Arc::new(SidecarManager::new());
 
     // setup local AI chat plugin
-    let local_llm_ctrl = Arc::new(LocalChatLLMController::new(sidecar_manager));
+    let local_llm_ctrl = Arc::new(LocalChatLLMChat::new(sidecar_manager));
     // setup local chat service
     let chat_service = Arc::new(ChatService::new(
       user_service.clone(),

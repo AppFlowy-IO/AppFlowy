@@ -1,5 +1,5 @@
 use crate::chat_manager::ChatUserService;
-use crate::local_ai::llm_controller::{LocalChatLLMController, LocalLLMSetting};
+use crate::local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
 use crate::persistence::select_single_message;
 use flowy_chat_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageType, CompletionType, MessageCursor,
@@ -13,46 +13,37 @@ use parking_lot::RwLock;
 use std::sync::Arc;
 use tracing::{error, info, trace};
 
-#[derive(Debug, Clone)]
-pub enum LLMStatus {
-  Loading,
-  FinishLoading,
-}
-
 pub struct ChatService {
   pub cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn ChatUserService>,
-  local_llm_ctrl: Arc<LocalChatLLMController>,
+  local_llm_chat: Arc<LocalChatLLMChat>,
   local_llm_setting: Arc<RwLock<LocalLLMSetting>>,
-  llm_status: tokio::sync::broadcast::Sender<LLMStatus>,
 }
 
 impl ChatService {
   pub fn new(
     user_service: Arc<dyn ChatUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
-    local_llm_ctrl: Arc<LocalChatLLMController>,
+    local_llm_ctrl: Arc<LocalChatLLMChat>,
     local_llm_setting: LocalLLMSetting,
   ) -> Self {
-    let (tx, rx) = tokio::sync::broadcast::channel(100);
-
     if local_llm_setting.enabled {
-      setup_local_ai(&local_llm_setting, local_llm_ctrl.clone());
+      setup_local_chat(&local_llm_setting, local_llm_ctrl.clone());
     }
 
     Self {
       user_service,
       cloud_service,
-      local_llm_ctrl,
+      local_llm_chat: local_llm_ctrl,
       local_llm_setting: Arc::new(RwLock::new(local_llm_setting)),
-      llm_status: tx,
     }
   }
 
   pub fn notify_open_chat(&self, chat_id: &str) {
     if self.local_llm_setting.read().enabled {
+      trace!("[Chat Plugin] notify open chat: {}", chat_id);
       let chat_id = chat_id.to_string();
-      let weak_ctrl = Arc::downgrade(&self.local_llm_ctrl);
+      let weak_ctrl = Arc::downgrade(&self.local_llm_chat);
       tokio::spawn(async move {
         if let Some(ctrl) = weak_ctrl.upgrade() {
           if let Err(err) = ctrl.create_chat(&chat_id).await {
@@ -65,7 +56,8 @@ impl ChatService {
 
   pub fn notify_close_chat(&self, chat_id: &str) {
     if self.local_llm_setting.read().enabled {
-      let weak_ctrl = Arc::downgrade(&self.local_llm_ctrl);
+      trace!("[Chat Plugin] notify close chat: {}", chat_id);
+      let weak_ctrl = Arc::downgrade(&self.local_llm_chat);
       let chat_id = chat_id.to_string();
       tokio::spawn(async move {
         if let Some(ctrl) = weak_ctrl.upgrade() {
@@ -84,7 +76,7 @@ impl ChatService {
   pub fn update_local_ai_setting(&self, setting: LocalLLMSetting) -> FlowyResult<()> {
     setting.validate()?;
 
-    setup_local_ai(&setting, self.local_llm_ctrl.clone());
+    setup_local_chat(&setting, self.local_llm_chat.clone());
     *self.local_llm_setting.write() = setting;
     Ok(())
   }
@@ -146,7 +138,7 @@ impl ChatCloudService for ChatService {
     if self.local_llm_setting.read().enabled {
       let content = self.get_message_content(message_id)?;
       let stream = self
-        .local_llm_ctrl
+        .local_llm_chat
         .ask_question(chat_id, &content)
         .await?
         .map_err(FlowyError::from);
@@ -168,7 +160,7 @@ impl ChatCloudService for ChatService {
     if self.local_llm_setting.read().enabled {
       let content = self.get_message_content(question_message_id)?;
       let _answer = self
-        .local_llm_ctrl
+        .local_llm_chat
         .generate_answer(chat_id, &content)
         .await?;
       todo!()
@@ -229,23 +221,20 @@ impl ChatCloudService for ChatService {
   }
 }
 
-fn setup_local_ai(local_ai_setting: &LocalLLMSetting, local_llm_ctrl: Arc<LocalChatLLMController>) {
-  trace!(
-    "[Chat Plugin] setup local ai with setting: {:?}",
-    local_ai_setting
-  );
-
-  if local_ai_setting.enabled {
-    if let Ok(config) = local_ai_setting.chat_plugin_config() {
+fn setup_local_chat(local_llm_setting: &LocalLLMSetting, llm_chat_ctrl: Arc<LocalChatLLMChat>) {
+  if local_llm_setting.enabled {
+    if let Ok(config) = local_llm_setting.chat_config() {
       tokio::spawn(async move {
-        if let Err(err) = local_llm_ctrl.init_chat_plugin(config).await {
+        trace!("[Chat Plugin] setup local chat: {:?}", config);
+
+        if let Err(err) = llm_chat_ctrl.init_chat_plugin(config).await {
           error!("[Chat Plugin] failed to setup plugin: {:?}", err);
         }
       });
     }
   } else {
     tokio::spawn(async move {
-      match local_llm_ctrl.destroy_chat_plugin().await {
+      match llm_chat_ctrl.destroy_chat_plugin().await {
         Ok(_) => info!("[Chat Plugin] destroy plugin successfully"),
         Err(err) => error!("[Chat Plugin] failed to destroy plugin: {:?}", err),
       }
