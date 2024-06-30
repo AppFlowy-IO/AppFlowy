@@ -19,43 +19,46 @@ impl ChatPluginOperation {
     ChatPluginOperation { plugin }
   }
 
-  pub async fn create_chat(&self, chat_id: &str) -> Result<(), SidecarError> {
-    let plugin = self
+  fn get_plugin(&self) -> Result<std::sync::Arc<Plugin>, SidecarError> {
+    self
       .plugin
       .upgrade()
-      .ok_or(SidecarError::Internal(anyhow!("Plugin is dropped")))?;
+      .ok_or_else(|| SidecarError::Internal(anyhow!("Plugin is dropped")))
+  }
 
-    let params = json!({"chat_id": chat_id, "method": "create_chat"});
-    plugin
-      .async_request::<DefaultResponseParser>("handle", &params)
-      .await?;
-    Ok(())
+  async fn send_request<T: ResponseParser>(
+    &self,
+    method: &str,
+    params: JsonValue,
+  ) -> Result<T::ValueType, SidecarError> {
+    let plugin = self.get_plugin()?;
+    let mut request = json!({ "method": method });
+    request
+      .as_object_mut()
+      .unwrap()
+      .extend(params.as_object().unwrap().clone());
+    plugin.async_request::<T>("handle", &request).await
+  }
+
+  pub async fn create_chat(&self, chat_id: &str) -> Result<(), SidecarError> {
+    self
+      .send_request::<DefaultResponseParser>("create_chat", json!({ "chat_id": chat_id }))
+      .await
   }
 
   pub async fn close_chat(&self, chat_id: &str) -> Result<(), SidecarError> {
-    let plugin = self
-      .plugin
-      .upgrade()
-      .ok_or(SidecarError::Internal(anyhow!("Plugin is dropped")))?;
-
-    let params = json!({"chat_id": chat_id, "method": "close_chat"});
-    plugin
-      .async_request::<DefaultResponseParser>("handle", &params)
-      .await?;
-    Ok(())
+    self
+      .send_request::<DefaultResponseParser>("close_chat", json!({ "chat_id": chat_id }))
+      .await
   }
 
   pub async fn send_message(&self, chat_id: &str, message: &str) -> Result<String, SidecarError> {
-    let plugin = self
-      .plugin
-      .upgrade()
-      .ok_or(SidecarError::Internal(anyhow!("Plugin is dropped")))?;
-
-    let params = json!({"chat_id": chat_id, "method": "answer", "params": {"content": message}});
-    let resp = plugin
-      .async_request::<ChatResponseParser>("handle", &params)
-      .await?;
-    Ok(resp)
+    self
+      .send_request::<ChatResponseParser>(
+        "answer",
+        json!({ "chat_id": chat_id, "params": { "content": message } }),
+      )
+      .await
   }
 
   #[instrument(level = "debug", skip(self), err)]
@@ -65,31 +68,25 @@ impl ChatPluginOperation {
     message: &str,
   ) -> Result<ReceiverStream<Result<Bytes, SidecarError>>, FlowyError> {
     let plugin = self
-      .plugin
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("Plugin is dropped"))?;
-    let params =
-      json!({"chat_id": chat_id, "method": "stream_answer", "params": {"content": message}});
-    let stream = plugin
-      .stream_request::<ChatStreamResponseParser>("handle", &params)
+      .get_plugin()
       .map_err(|err| FlowyError::internal().with_context(err.to_string()))?;
-    Ok(stream)
+    let params = json!({
+        "chat_id": chat_id,
+        "method": "stream_answer",
+        "params": { "content": message }
+    });
+    plugin
+      .stream_request::<ChatStreamResponseParser>("handle", &params)
+      .map_err(|err| FlowyError::internal().with_context(err.to_string()))
   }
 
-  pub async fn get_related_questions(
-    &self,
-    chat_id: &str,
-  ) -> Result<Vec<serde_json::Value>, SidecarError> {
-    let plugin = self
-      .plugin
-      .upgrade()
-      .ok_or(SidecarError::Internal(anyhow!("Plugin is dropped")))?;
-
-    let params = json!({"chat_id": chat_id, "method": "related_question"});
-    let resp = plugin
-      .async_request::<ChatRelatedQuestionsResponseParser>("handle", &params)
-      .await?;
-    Ok(resp)
+  pub async fn get_related_questions(&self, chat_id: &str) -> Result<Vec<JsonValue>, SidecarError> {
+    self
+      .send_request::<ChatRelatedQuestionsResponseParser>(
+        "related_question",
+        json!({ "chat_id": chat_id }),
+      )
+      .await
   }
 }
 
@@ -98,14 +95,11 @@ impl ResponseParser for ChatResponseParser {
   type ValueType = String;
 
   fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
-    if json.is_object() {
-      if let Some(data) = json.get("data") {
-        if let Some(message) = data.as_str() {
-          return Ok(message.to_string());
-        }
-      }
-    }
-    return Err(RemoteError::ParseResponse(json));
+    json
+      .get("data")
+      .and_then(|data| data.as_str())
+      .map(String::from)
+      .ok_or_else(|| RemoteError::ParseResponse(json))
   }
 }
 
@@ -114,10 +108,10 @@ impl ResponseParser for ChatStreamResponseParser {
   type ValueType = Bytes;
 
   fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
-    if let Some(message) = json.as_str() {
-      return Ok(Bytes::from(message.to_string()));
-    }
-    return Err(RemoteError::ParseResponse(json));
+    json
+      .as_str()
+      .map(|message| Bytes::from(message.to_string()))
+      .ok_or_else(|| RemoteError::ParseResponse(json))
   }
 }
 
@@ -126,13 +120,10 @@ impl ResponseParser for ChatRelatedQuestionsResponseParser {
   type ValueType = Vec<JsonValue>;
 
   fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
-    if json.is_object() {
-      if let Some(data) = json.get("data") {
-        if let Some(values) = data.as_array() {
-          return Ok(values.clone());
-        }
-      }
-    }
-    return Err(RemoteError::ParseResponse(json));
+    json
+      .get("data")
+      .and_then(|data| data.as_array())
+      .map(|values| values.clone())
+      .ok_or_else(|| RemoteError::ParseResponse(json))
   }
 }

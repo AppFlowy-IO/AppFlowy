@@ -132,8 +132,13 @@ impl Plugin {
   }
 
   pub fn shutdown(&self) {
-    if let Err(err) = self.peer.send_rpc_request("shutdown", &json!({})) {
-      error!("error sending shutdown to plugin {}: {:?}", self.name, err);
+    match self.peer.send_rpc_request("shutdown", &json!({})) {
+      Ok(_) => {
+        info!("shutting down plugin {}", self);
+      },
+      Err(err) => {
+        error!("error sending shutdown to plugin {}: {:?}", self, err);
+      },
     }
   }
 }

@@ -1,6 +1,5 @@
 use crate::local_ai::chat_plugin::ChatPluginOperation;
 use bytes::Bytes;
-use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sidecar::core::plugin::{Plugin, PluginId, PluginInfo};
 use flowy_sidecar::error::SidecarError;
@@ -35,10 +34,9 @@ impl LocalLLMSetting {
 
 pub struct LocalChatLLMChat {
   sidecar_manager: Arc<SidecarManager>,
-  chat_plugin_config: RwLock<Option<ChatPluginConfig>>,
-  plugin_map: DashMap<PathBuf, PluginId>,
   state: RwLock<LLMState>,
   state_notify: tokio::sync::broadcast::Sender<LLMState>,
+  plugin_config: RwLock<Option<ChatPluginConfig>>,
 }
 
 impl LocalChatLLMChat {
@@ -46,11 +44,15 @@ impl LocalChatLLMChat {
     let (state_notify, _) = tokio::sync::broadcast::channel(10);
     Self {
       sidecar_manager,
-      chat_plugin_config: RwLock::new(None),
-      plugin_map: Default::default(),
       state: RwLock::new(LLMState::Loading),
       state_notify,
+      plugin_config: Default::default(),
     }
+  }
+
+  async fn update_state(&self, state: LLMState) {
+    *self.state.write().await = state.clone();
+    let _ = self.state_notify.send(state);
   }
 
   /// Waits for the plugin to be ready.
@@ -180,23 +182,20 @@ impl LocalChatLLMChat {
 
   #[instrument(skip_all, err)]
   pub async fn destroy_chat_plugin(&self) -> FlowyResult<()> {
-    if let Some(plugin_config) = self.chat_plugin_config.read().await.as_ref() {
-      info!("[Chat Plugin] destroy chat plugin: {:?}", plugin_config);
-      if let Some(entry) = self.plugin_map.remove(&plugin_config.chat_bin_path) {
-        if let Err(err) = self.sidecar_manager.remove_plugin(entry.1).await {
-          error!("remove plugin failed: {:?}", err);
-        }
+    if let Ok(plugin_id) = self.state.read().await.plugin_id() {
+      if let Err(err) = self.sidecar_manager.remove_plugin(plugin_id).await {
+        error!("remove plugin failed: {:?}", err);
       }
-
-      let _ = self.state_notify.send(LLMState::Uninitialized);
     }
+
+    self.update_state(LLMState::Uninitialized).await;
     Ok(())
   }
 
   #[instrument(skip_all, err)]
   pub async fn init_chat_plugin(&self, config: ChatPluginConfig) -> FlowyResult<()> {
     if self.state.read().await.is_ready() {
-      if let Some(existing_config) = self.chat_plugin_config.read().await.as_ref() {
+      if let Some(existing_config) = self.plugin_config.read().await.as_ref() {
         if existing_config == &config {
           trace!("[Chat Plugin] chat plugin already initialized with the same config");
           return Ok(());
@@ -212,9 +211,10 @@ impl LocalChatLLMChat {
 
     // Initialize chat plugin if the config is different
     // If the chat_bin_path is different, remove the old plugin
-    self.destroy_chat_plugin().await?;
-    *self.state.write().await = LLMState::Loading;
-    let _ = self.state_notify.send(LLMState::Loading);
+    if let Err(err) = self.destroy_chat_plugin().await {
+      error!("[Chat Plugin] failed to destroy plugin: {:?}", err);
+    }
+    self.update_state(LLMState::Loading).await;
 
     // create new plugin
     trace!("[Chat Plugin] create chat plugin: {:?}", config);
@@ -226,7 +226,7 @@ impl LocalChatLLMChat {
 
     // init plugin
     trace!("[Chat Plugin] init chat plugin model: {:?}", plugin_id);
-    let model_path = config.chat_model_path;
+    let model_path = config.chat_model_path.clone();
     let plugin = self.sidecar_manager.init_plugin(
       plugin_id,
       serde_json::json!({
@@ -235,9 +235,8 @@ impl LocalChatLLMChat {
     )?;
 
     info!("[Chat Plugin] {} setup success", plugin);
-    *self.state.write().await = LLMState::Ready { plugin_id };
-    let _ = self.state_notify.send(LLMState::Ready { plugin_id });
-    self.plugin_map.insert(config.chat_bin_path, plugin_id);
+    self.plugin_config.write().await.replace(config);
+    self.update_state(LLMState::Ready { plugin_id }).await;
     Ok(())
   }
 }

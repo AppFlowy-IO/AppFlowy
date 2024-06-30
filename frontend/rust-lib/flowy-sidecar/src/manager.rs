@@ -8,9 +8,10 @@ use lib_infra::util::{get_operating_system, OperatingSystem};
 use parking_lot::Mutex;
 use serde_json::Value;
 use std::io;
+
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
-use tracing::{error, info, trace, warn};
+use tracing::{error, info, instrument, trace, warn};
 
 pub struct SidecarManager {
   state: Arc<Mutex<SidecarState>>,
@@ -51,6 +52,7 @@ impl SidecarManager {
     Ok(Arc::downgrade(plugin))
   }
 
+  #[instrument(skip(self), err)]
   pub async fn remove_plugin(&self, id: PluginId) -> Result<(), SidecarError> {
     if self.operating_system.is_not_desktop() {
       return Err(SidecarError::Internal(anyhow!(
@@ -58,16 +60,8 @@ impl SidecarManager {
       )));
     }
 
-    let mut state = self.state.lock();
-    let index = state
-      .plugins
-      .iter()
-      .position(|p| p.id == id)
-      .ok_or(anyhow!("plugin not found"))?;
-    let plugin = state.plugins.remove(index);
-    drop(state);
-
-    plugin.shutdown();
+    info!("[RPC] removing plugin {:?}", id);
+    self.state.lock().plugin_disconnect(id, Ok(()));
     Ok(())
   }
 
@@ -140,7 +134,11 @@ impl SidecarState {
     }
   }
 
-  pub fn plugin_disconnect(&mut self, id: PluginId, error: Result<(), ReadError>) {
+  pub fn plugin_disconnect(
+    &mut self,
+    id: PluginId,
+    error: Result<(), ReadError>,
+  ) -> Option<Arc<Plugin>> {
     if let Err(err) = error {
       error!("[RPC] plugin {:?} exited with result {:?}", id, err)
     }
@@ -149,11 +147,12 @@ impl SidecarState {
     match running_idx {
       Some(idx) => {
         let plugin = self.plugins.remove(idx);
-        error!("[RPC] plugin {} shut down", plugin);
         plugin.shutdown();
+        Some(plugin)
       },
       None => {
         warn!("[RPC] plugin {:?} not found", id);
+        None
       },
     }
   }
@@ -175,7 +174,7 @@ impl WeakSidecarState {
 
   pub fn plugin_exit(&self, plugin: PluginId, error: Result<(), ReadError>) {
     if let Some(core) = self.upgrade() {
-      core.lock().plugin_disconnect(plugin, error)
+      core.lock().plugin_disconnect(plugin, error);
     }
   }
 }
