@@ -99,7 +99,7 @@ impl ResponseParser for ChatResponseParser {
       .get("data")
       .and_then(|data| data.as_str())
       .map(String::from)
-      .ok_or_else(|| RemoteError::ParseResponse(json))
+      .ok_or(RemoteError::ParseResponse(json))
   }
 }
 
@@ -111,7 +111,7 @@ impl ResponseParser for ChatStreamResponseParser {
     json
       .as_str()
       .map(|message| Bytes::from(message.to_string()))
-      .ok_or_else(|| RemoteError::ParseResponse(json))
+      .ok_or(RemoteError::ParseResponse(json))
   }
 }
 
@@ -122,8 +122,7 @@ impl ResponseParser for ChatRelatedQuestionsResponseParser {
   fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
     json
       .get("data")
-      .and_then(|data| data.as_array())
-      .map(|values| values.clone())
-      .ok_or_else(|| RemoteError::ParseResponse(json))
+      .and_then(|data| data.as_array()).cloned()
+      .ok_or(RemoteError::ParseResponse(json))
   }
 }

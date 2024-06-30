@@ -105,7 +105,7 @@ where
       .ask_question(workspace_id, chat_id, message_id)
       .await
       .map_err(FlowyError::from)?
-      .map_err(|err| FlowyError::from(err));
+      .map_err(FlowyError::from);
     Ok(stream.boxed())
   }
 
@@ -117,7 +117,7 @@ where
   ) -> Result<ChatMessage, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let resp = try_get_client?
-      .generate_answer(&workspace_id, &chat_id, question_message_id)
+      .generate_answer(workspace_id, chat_id, question_message_id)
       .await
       .map_err(FlowyError::from)?;
     Ok(resp)

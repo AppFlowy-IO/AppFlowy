@@ -649,7 +649,7 @@ impl ChatCloudService for ServerProvider {
     let server = self.get_server();
     server?
       .chat_service()
-      .generate_answer(&workspace_id, &chat_id, question_message_id)
+      .generate_answer(workspace_id, chat_id, question_message_id)
       .await
   }
 

@@ -45,6 +45,6 @@ impl ResponseParser for SimilarityResponseParser {
       }
     }
 
-    return Err(RemoteError::ParseResponse(json));
+    Err(RemoteError::ParseResponse(json))
   }
 }

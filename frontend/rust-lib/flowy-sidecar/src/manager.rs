@@ -19,6 +19,12 @@ pub struct SidecarManager {
   operating_system: OperatingSystem,
 }
 
+impl Default for SidecarManager {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 impl SidecarManager {
   pub fn new() -> Self {
     SidecarManager {
@@ -106,12 +112,14 @@ impl SidecarManager {
     method: &str,
     request: Value,
   ) -> Result<P::ValueType, SidecarError> {
-    let state = self.state.lock();
-    let plugin = state
+    let plugin = self
+      .state
+      .lock()
       .plugins
       .iter()
       .find(|p| p.id == id)
-      .ok_or(anyhow!("plugin not found"))?;
+      .ok_or(anyhow!("plugin not found"))
+      .cloned()?;
     let value = plugin.async_request::<P>(method, &request).await?;
     Ok(value)
   }

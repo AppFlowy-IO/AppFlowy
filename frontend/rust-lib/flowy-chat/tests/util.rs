@@ -72,9 +72,9 @@ impl LocalAITest {
   ) -> String {
     let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
     let operation = ChatPluginOperation::new(plugin);
-    let resp = operation.send_message(chat_id, message).await.unwrap();
+    
 
-    resp
+    operation.send_message(chat_id, message).await.unwrap()
   }
 
   pub async fn stream_chat_message(
@@ -95,8 +95,8 @@ impl LocalAITest {
   ) -> Vec<serde_json::Value> {
     let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
     let operation = ChatPluginOperation::new(plugin);
-    let resp = operation.get_related_questions(chat_id).await.unwrap();
-    resp
+    
+    operation.get_related_questions(chat_id).await.unwrap()
   }
 
   pub async fn calculate_similarity(
