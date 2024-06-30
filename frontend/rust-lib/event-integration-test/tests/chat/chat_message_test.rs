@@ -5,7 +5,7 @@ use flowy_chat::entities::ChatMessageListPB;
 use flowy_chat::notification::ChatNotification;
 
 use flowy_chat_pub::cloud::ChatMessageType;
-use futures_util::StreamExt;
+
 use std::time::Duration;
 
 #[tokio::test]
@@ -19,8 +19,8 @@ async fn af_cloud_create_chat_message_test() {
   let chat_id = view.id.clone();
   let chat_service = test.server_provider.get_server().unwrap().chat_service();
   for i in 0..10 {
-    let mut stream = chat_service
-      .send_chat_message(
+    let _ = chat_service
+      .save_question(
         &current_workspace.id,
         &chat_id,
         &format!("hello world {}", i),
@@ -28,9 +28,6 @@ async fn af_cloud_create_chat_message_test() {
       )
       .await
       .unwrap();
-    while let Some(message) = stream.next().await {
-      message.unwrap();
-    }
   }
   let rx = test
     .notification_sender
@@ -77,8 +74,8 @@ async fn af_cloud_load_remote_system_message_test() {
 
   let chat_service = test.server_provider.get_server().unwrap().chat_service();
   for i in 0..10 {
-    let mut stream = chat_service
-      .send_chat_message(
+    let _ = chat_service
+      .save_question(
         &current_workspace.id,
         &chat_id,
         &format!("hello server {}", i),
@@ -86,9 +83,6 @@ async fn af_cloud_load_remote_system_message_test() {
       )
       .await
       .unwrap();
-    while let Some(message) = stream.next().await {
-      message.unwrap();
-    }
   }
 
   let rx = test

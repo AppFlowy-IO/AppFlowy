@@ -242,6 +242,7 @@ impl Display for UploadTask {
     }
   }
 }
+
 impl Eq for UploadTask {}
 
 impl PartialEq for UploadTask {

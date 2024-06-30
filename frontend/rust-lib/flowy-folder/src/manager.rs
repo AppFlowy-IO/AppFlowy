@@ -30,7 +30,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
 use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use parking_lot::RwLock;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
@@ -51,7 +51,7 @@ pub struct FolderManager {
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
   pub(crate) folder_indexer: Arc<dyn FolderIndexManager>,
-  pub(crate) store_preferences: Arc<StorePreferences>,
+  pub(crate) store_preferences: Arc<KVStorePreferences>,
 }
 
 impl FolderManager {
@@ -61,7 +61,7 @@ impl FolderManager {
     operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
     folder_indexer: Arc<dyn FolderIndexManager>,
-    store_preferences: Arc<StorePreferences>,
+    store_preferences: Arc<KVStorePreferences>,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
     let manager = Self {

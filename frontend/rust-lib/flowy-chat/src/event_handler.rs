@@ -1,4 +1,5 @@
 use flowy_chat_pub::cloud::ChatMessageType;
+
 use std::sync::{Arc, Weak};
 use validator::Validate;
 
@@ -93,9 +94,15 @@ pub(crate) async fn get_answer_handler(
 ) -> DataResult<ChatMessagePB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let data = data.into_inner();
-  let message = chat_manager
-    .generate_answer(&data.chat_id, data.message_id)
-    .await?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  tokio::spawn(async move {
+    let message = chat_manager
+      .generate_answer(&data.chat_id, data.message_id)
+      .await?;
+    let _ = tx.send(message);
+    Ok::<_, FlowyError>(())
+  });
+  let message = rx.await?;
   data_result_ok(message)
 }
 
@@ -113,6 +120,26 @@ pub(crate) async fn stop_stream_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_local_ai_setting_handler(
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> DataResult<LocalLLMSettingPB, FlowyError> {
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let setting = chat_manager.get_local_ai_setting()?;
+  let pb = setting.into();
+  data_result_ok(pb)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_local_ai_setting_handler(
+  data: AFPluginData<LocalLLMSettingPB>,
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.into_inner();
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  chat_manager.update_local_ai_setting(data.into())?;
+  Ok(())
+}
+
 pub(crate) async fn start_complete_text_handler(
   data: AFPluginData<CompleteTextPB>,
   tools: AFPluginState<Arc<AITools>>,

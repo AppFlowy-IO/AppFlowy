@@ -1,3 +1,4 @@
+use crate::local_ai::llm_chat::LocalLLMSetting;
 use flowy_chat_pub::cloud::{
   ChatMessage, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
 };
@@ -202,6 +203,38 @@ impl From<RepeatedRelatedQuestion> for RepeatedRelatedQuestionPB {
         .into_iter()
         .map(RelatedQuestionPB::from)
         .collect(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct LocalLLMSettingPB {
+  #[pb(index = 1)]
+  pub chat_bin_path: String,
+
+  #[pb(index = 2)]
+  pub chat_model_path: String,
+
+  #[pb(index = 3)]
+  pub enabled: bool,
+}
+
+impl From<LocalLLMSetting> for LocalLLMSettingPB {
+  fn from(value: LocalLLMSetting) -> Self {
+    LocalLLMSettingPB {
+      chat_bin_path: value.chat_bin_path,
+      chat_model_path: value.chat_model_path,
+      enabled: value.enabled,
+    }
+  }
+}
+
+impl From<LocalLLMSettingPB> for LocalLLMSetting {
+  fn from(value: LocalLLMSettingPB) -> Self {
+    LocalLLMSetting {
+      chat_bin_path: value.chat_bin_path,
+      chat_model_path: value.chat_model_path,
+      enabled: value.enabled,
     }
   }
 }
