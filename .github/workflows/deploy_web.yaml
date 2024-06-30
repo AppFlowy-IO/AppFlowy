@@ -69,7 +69,7 @@ jobs:
         with:
           SSH_PRIVATE_KEY: ${{ secrets.WEB_TEST_SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i"
-          SOURCE: build-output.tar.gz deploy.sh
+          SOURCE: frontend/appflowy_web_app/build-output.tar.gz frontend/appflowy_web_app/deploy.sh
           TARGET: /home/${{ secrets.WEB_TEST_REMOTE_USER }}/appflowy-web-app
           REMOTE_HOST: ${{ secrets.WEB_TEST_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.WEB_TEST_REMOTE_USER }}
@@ -84,7 +84,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.WEB_PROD_SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i"
           TARGET: /home/${{ secrets.WEB_PROD_REMOTE_USER }}/appflowy-web-app
-          SOURCE: build-output.tar.gz deploy.sh
+          SOURCE: frontend/appflowy_web_app/build-output.tar.gz frontend/appflowy_web_app/deploy.sh
           REMOTE_HOST: ${{ secrets.WEB_PROD_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.WEB_PROD_REMOTE_USER }}
           SCRIPT_AFTER: |
