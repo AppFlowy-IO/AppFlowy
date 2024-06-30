@@ -11,13 +11,13 @@ use crate::sqlite_impl::{Database, PoolConfig};
 
 const DB_NAME: &str = "cache.db";
 
-/// [StorePreferences] uses a sqlite database to store key value pairs.
+/// [KVStorePreferences] uses a sqlite database to store key value pairs.
 /// Most of the time, it used to storage AppFlowy configuration.
 #[derive(Clone)]
-pub struct StorePreferences {
+pub struct KVStorePreferences {
   database: Option<Database>,
 }
-impl StorePreferences {
+impl KVStorePreferences {
   #[tracing::instrument(level = "trace", err)]
   pub fn new(root: &str) -> Result<Self, anyhow::Error> {
     if !Path::new(root).exists() {
@@ -138,7 +138,7 @@ mod tests {
   use serde::{Deserialize, Serialize};
   use tempfile::TempDir;
 
-  use crate::kv::StorePreferences;
+  use crate::kv::KVStorePreferences;
 
   #[derive(Serialize, Deserialize, Clone, Eq, PartialEq, Debug)]
   struct Person {
@@ -150,7 +150,7 @@ mod tests {
   fn kv_store_test() {
     let tempdir = TempDir::new().unwrap();
     let path = tempdir.into_path();
-    let store = StorePreferences::new(path.to_str().unwrap()).unwrap();
+    let store = KVStorePreferences::new(path.to_str().unwrap()).unwrap();
 
     store.set_str("1", "hello".to_string());
     assert_eq!(store.get_str("1").unwrap(), "hello");
