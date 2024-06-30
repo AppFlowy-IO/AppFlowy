@@ -1,6 +1,7 @@
 import 'package:appflowy/workspace/application/settings/ai/setting_local_ai_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -49,7 +50,7 @@ class SettingsAIView extends StatelessWidget {
             description:
                 LocaleKeys.settings_aiPage_keys_aiSettingsDescription.tr(),
             children: const [
-              AIModelSeclection(),
+              AIModelSelection(),
               _AISearchToggle(value: false),
               // Disable local AI configuration for now. It's not ready for production.
               // LocalAIConfiguration(),
@@ -61,8 +62,8 @@ class SettingsAIView extends StatelessWidget {
   }
 }
 
-class AIModelSeclection extends StatelessWidget {
-  const AIModelSeclection({super.key});
+class AIModelSelection extends StatelessWidget {
+  const AIModelSelection({super.key});
 
   @override
   Widget build(BuildContext context) {
