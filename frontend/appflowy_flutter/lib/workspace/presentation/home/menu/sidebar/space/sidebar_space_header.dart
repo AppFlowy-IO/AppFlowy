@@ -89,6 +89,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
                 bottom: 3,
                 right: isHovered.value || onEditing ? 88 : 0,
                 child: SpacePopup(
+                  showCreateButton: true,
                   child: _buildChild(),
                 ),
               ),

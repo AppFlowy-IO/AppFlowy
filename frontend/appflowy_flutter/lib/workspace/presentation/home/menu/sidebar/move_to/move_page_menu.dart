@@ -120,6 +120,7 @@ class _MovePageMenuState extends State<MovePageMenu> {
           useIntrinsicWidth: false,
           expand: true,
           height: 30,
+          showCreateButton: false,
           child: CurrentSpace(
             onTapBlankArea: () {
               // move the page to current space

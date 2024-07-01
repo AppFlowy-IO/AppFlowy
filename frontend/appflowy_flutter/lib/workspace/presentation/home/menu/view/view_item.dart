@@ -257,26 +257,33 @@ class _InnerViewItemState extends State<InnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = SingleInnerViewItem(
-      view: widget.view,
-      parentView: widget.parentView,
-      level: widget.level,
-      showActions: widget.showActions,
-      spaceType: widget.spaceType,
-      onSelected: widget.onSelected,
-      onTertiarySelected: widget.onTertiarySelected,
-      isExpanded: widget.isExpanded,
-      isDraggable: widget.isDraggable,
-      leftPadding: widget.leftPadding,
-      isFeedback: widget.isFeedback,
-      height: widget.height,
-      isPlaceholder: widget.isPlaceholder,
-      isHovered: widget.isHovered,
-      leftIconBuilder: widget.leftIconBuilder,
-      rightIconsBuilder: widget.rightIconsBuilder,
-      extendBuilder: widget.extendBuilder,
-      disableSelectedStatus: widget.disableSelectedStatus,
-      shouldIgnoreView: widget.shouldIgnoreView,
+    Widget child = ValueListenableBuilder(
+      valueListenable: getIt<MenuSharedState>().notifier,
+      builder: (context, value, _) {
+        final isSelected = value?.id == widget.view.id;
+        return SingleInnerViewItem(
+          view: widget.view,
+          parentView: widget.parentView,
+          level: widget.level,
+          showActions: widget.showActions,
+          spaceType: widget.spaceType,
+          onSelected: widget.onSelected,
+          onTertiarySelected: widget.onTertiarySelected,
+          isExpanded: widget.isExpanded,
+          isDraggable: widget.isDraggable,
+          leftPadding: widget.leftPadding,
+          isFeedback: widget.isFeedback,
+          height: widget.height,
+          isPlaceholder: widget.isPlaceholder,
+          isHovered: widget.isHovered,
+          leftIconBuilder: widget.leftIconBuilder,
+          rightIconsBuilder: widget.rightIconsBuilder,
+          extendBuilder: widget.extendBuilder,
+          disableSelectedStatus: widget.disableSelectedStatus,
+          shouldIgnoreView: widget.shouldIgnoreView,
+          isSelected: isSelected,
+        );
+      },
     );
 
     // if the view is expanded and has child views, render its child views
@@ -403,6 +410,7 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.extendBuilder,
     required this.disableSelectedStatus,
     required this.shouldIgnoreView,
+    required this.isSelected,
   });
 
   final ViewPB view;
@@ -430,6 +438,7 @@ class SingleInnerViewItem extends StatefulWidget {
 
   final List<Widget> Function(ViewPB view)? extendBuilder;
   final bool Function(ViewPB view)? shouldIgnoreView;
+  final bool isSelected;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -441,8 +450,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    var isSelected =
-        getIt<MenuSharedState>().latestOpenView?.id == widget.view.id;
+    var isSelected = widget.isSelected;
+
     if (widget.disableSelectedStatus == true) {
       isSelected = false;
     }

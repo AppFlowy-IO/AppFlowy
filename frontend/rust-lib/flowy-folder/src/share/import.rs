@@ -9,11 +9,17 @@ pub enum ImportType {
 }
 
 #[derive(Clone, Debug)]
-pub struct ImportParams {
-  pub parent_view_id: String,
+pub struct ImportValue {
   pub name: String,
   pub data: Option<Vec<u8>>,
   pub file_path: Option<String>,
   pub view_layout: ViewLayout,
   pub import_type: ImportType,
+}
+
+#[derive(Clone, Debug)]
+pub struct ImportParams {
+  pub parent_view_id: String,
+  pub values: Vec<ImportValue>,
+  pub sync_after_create: bool,
 }
