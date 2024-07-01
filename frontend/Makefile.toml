@@ -50,7 +50,6 @@ APP_ENVIRONMENT = "local"
 FLUTTER_FLOWY_SDK_PATH = "appflowy_flutter/packages/appflowy_backend"
 TAURI_BACKEND_SERVICE_PATH = "appflowy_tauri/src/services/backend"
 WEB_BACKEND_SERVICE_PATH = "appflowy_web/src/services/backend"
-WEB_LIB_PATH = "appflowy_web/wasm-libs/af-wasm"
 TAURI_APP_BACKEND_SERVICE_PATH = "appflowy_web_app/src/application/services/tauri-services/backend"
 # Test default config
 TEST_CRATE_TYPE = "cdylib"
