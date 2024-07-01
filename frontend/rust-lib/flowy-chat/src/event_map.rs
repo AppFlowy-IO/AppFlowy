@@ -11,7 +11,7 @@ use crate::event_handler::*;
 
 pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
   let user_service = Arc::downgrade(&chat_manager.upgrade().unwrap().user_service);
-  let cloud_service = Arc::downgrade(&chat_manager.upgrade().unwrap().cloud_service);
+  let cloud_service = Arc::downgrade(&chat_manager.upgrade().unwrap().chat_service);
   let ai_tools = Arc::new(AITools::new(cloud_service, user_service));
   AFPlugin::new()
     .name("Flowy-Chat")
@@ -23,6 +23,11 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
     .event(ChatEvent::GetRelatedQuestion, get_related_question_handler)
     .event(ChatEvent::GetAnswerForQuestion, get_answer_handler)
     .event(ChatEvent::StopStream, stop_stream_handler)
+    .event(ChatEvent::GetLocalAISetting, get_local_ai_setting_handler)
+    .event(
+      ChatEvent::UpdateLocalAISetting,
+      update_local_ai_setting_handler,
+    )
     .event(ChatEvent::CompleteText, start_complete_text_handler)
     .event(ChatEvent::StopCompleteText, stop_complete_text_handler)
 }
@@ -49,9 +54,15 @@ pub enum ChatEvent {
   #[event(input = "ChatMessageIdPB", output = "ChatMessagePB")]
   GetAnswerForQuestion = 5,
 
+  #[event(input = "LocalLLMSettingPB")]
+  UpdateLocalAISetting = 6,
+
+  #[event(output = "LocalLLMSettingPB")]
+  GetLocalAISetting = 7,
+
   #[event(input = "CompleteTextPB", output = "CompleteTextTaskPB")]
-  CompleteText = 6,
+  CompleteText = 8,
 
   #[event(input = "CompleteTextTaskPB")]
-  StopCompleteText = 7,
+  StopCompleteText = 9,
 }

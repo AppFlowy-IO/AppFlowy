@@ -280,6 +280,9 @@ pub enum ErrorCode {
 
   #[error("Workspace data not match")]
   WorkspaceDataNotMatch = 97,
+
+  #[error("Local AI error")]
+  LocalAIError = 98,
 }
 
 impl ErrorCode {
