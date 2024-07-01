@@ -44,15 +44,10 @@ export const ImageBlock = memo(
         }}
         className={`${className || ''} image-block  relative w-full py-1 ${url ? 'cursor-pointer' : 'cursor-default'}`}
       >
-        <div ref={ref} className={'absolute  left-0 top-0 h-full w-full select-none caret-transparent'}>
+        <div ref={ref} className={'absolute left-0 top-0 h-full w-full select-none caret-transparent'}>
           {children}
         </div>
-        <div
-          contentEditable={false}
-          className={`flex w-full select-none ${url ? '' : 'rounded border'} ${
-            selected ? 'border-fill-list-hover' : 'border-line-divider'
-          } ${alignCss}`}
-        >
+        <div contentEditable={false} className={`flex w-full select-none ${url ? '' : 'rounded border'} ${alignCss}`}>
           {url ? (
             <ImageRender selected={selected} node={node} />
           ) : (

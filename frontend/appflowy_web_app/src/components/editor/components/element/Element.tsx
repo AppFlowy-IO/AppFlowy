@@ -104,7 +104,7 @@ export const Element = memo(
       const data = (node.data as BlockData) || {};
 
       return {
-        backgroundColor: data.bg_color ? renderColor(data.bg_color) : undefined,
+        backgroundColor: data.bgColor ? renderColor(data.bgColor) : undefined,
         color: data.font_color ? renderColor(data.font_color) : undefined,
       };
     }, [node.data]);

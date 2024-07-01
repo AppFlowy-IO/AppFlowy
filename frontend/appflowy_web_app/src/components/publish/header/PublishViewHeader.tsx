@@ -10,6 +10,8 @@ import { ReactComponent as Logo } from '@/assets/logo.svg';
 import MoreActions from './MoreActions';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
 
+export const HEADER_HEIGHT = 48;
+
 export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: () => void; openDrawer: boolean }) {
   const { t } = useTranslation();
   const viewMeta = usePublishContext()?.viewMeta;
@@ -57,8 +59,9 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
       style={{
         backdropFilter: 'saturate(180%) blur(16px)',
         background: 'var(--header)',
+        height: HEADER_HEIGHT,
       }}
-      className={'appflowy-top-bar sticky top-0 z-10 flex h-[48px] px-5'}
+      className={'appflowy-top-bar sticky top-0 z-10 flex px-5'}
     >
       <div className={'flex w-full items-center justify-between gap-2 overflow-hidden'}>
         {!openDrawer && (
@@ -69,6 +72,7 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
             onClose={debounceClosePopover}
           >
             <IconButton
+              className={'hidden'}
               onClick={() => {
                 setOpenPopover(false);
                 onOpenDrawer();

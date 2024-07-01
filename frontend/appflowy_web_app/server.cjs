@@ -60,7 +60,7 @@ const BASE_URL = process.env.AF_BASE_URL || 'https://beta.appflowy.cloud';
 const createServer = async (req) => {
   const timer = logRequestTimer(req);
   const reqUrl = new URL(req.url);
-  
+
   logger.info(`Request URL: ${reqUrl.pathname}`);
 
   const [
@@ -68,7 +68,7 @@ const createServer = async (req) => {
     publishName,
   ] = reqUrl.pathname.slice(1).split('/');
 
-  logger.info(`Namespace: ${namespace}, Publish Name: ${publishName}`);
+  logger.info(`Namespace: ${namespace}, Puganblish Name: ${publishName}`);
 
   if (namespace === '' || !publishName) {
     timer();
@@ -94,7 +94,7 @@ const createServer = async (req) => {
     const description = 'Write, share, and publish docs quickly on AppFlowy.\nGet started for free.';
     let title = 'AppFlowy';
     const url = 'https://appflowy.io';
-    let image = 'https://d3uafhn8yrvdfn.cloudfront.net/website/production/_next/static/media/og-image.e347bfb5.png';
+    let image = '/og-image.png';
 
     try {
       // Inject meta data into the HTML to support SEO and social sharing

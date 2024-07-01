@@ -235,11 +235,11 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
     @apply bg-transparent;
   }
 
-  &:hover {
-    .container-bg {
-      background: var(--fill-list-hover) !important;
-    }
-  }
+  //&:hover {
+  //  .container-bg {
+  //    background: var(--fill-list-hover) !important;
+  //  }
+  //}
 }
 
 [data-block-type='heading'] {

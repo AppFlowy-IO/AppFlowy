@@ -47,7 +47,7 @@ export enum AlignType {
 }
 
 export interface BlockData {
-  bg_color?: string;
+  bgColor?: string;
   font_color?: string;
   align?: AlignType;
 }

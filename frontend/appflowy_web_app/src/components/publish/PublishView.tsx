@@ -45,7 +45,7 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
     switch (true) {
       case createHotkey(HOT_KEY_NAME.TOGGLE_SIDEBAR)(e):
         e.preventDefault();
-        setOpen((prev) => !prev);
+        // setOpen((prev) => !prev);
         break;
       default:
         break;
