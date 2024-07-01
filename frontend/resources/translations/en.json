@@ -2027,6 +2027,8 @@
     "upgrade": "Update",
     "upgradeYourSpace": "Create multiple Spaces",
     "quicklySwitch": "Quickly switch to the next space",
-    "duplicate": "Duplicate Space"
+    "duplicate": "Duplicate Space",
+    "movePageToSpace": "Move page to space",
+    "switchSpace": "Switch space"
   }
 }

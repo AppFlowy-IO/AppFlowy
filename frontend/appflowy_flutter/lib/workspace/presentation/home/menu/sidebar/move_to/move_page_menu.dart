@@ -117,7 +117,14 @@ class _MovePageMenuState extends State<MovePageMenu> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SpacePopup(
+          useIntrinsicWidth: false,
+          expand: true,
+          height: 30,
           child: CurrentSpace(
+            onTapBlankArea: () {
+              // move the page to current space
+              widget.onSelected(space);
+            },
             space: space,
           ),
         ),
