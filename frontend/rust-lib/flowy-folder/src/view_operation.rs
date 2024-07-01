@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use bytes::Bytes;
 
+use collab_entity::EncodedCollab;
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
 use tokio::sync::RwLock;
@@ -78,6 +79,8 @@ pub trait FolderOperationHandler {
   ) -> FutureResult<(), FlowyError>;
 
   /// Create a view by importing data
+  ///
+  /// The return value
   fn import_from_bytes(
     &self,
     uid: i64,
@@ -85,7 +88,7 @@ pub trait FolderOperationHandler {
     name: &str,
     import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> FutureResult<EncodedCollab, FlowyError>;
 
   /// Create a view by importing data from a file
   fn import_from_file_path(

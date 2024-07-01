@@ -1,7 +1,7 @@
 use crate::util::unzip;
 use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
-use flowy_folder::entities::{ImportPB, ImportTypePB, ViewLayoutPB};
+use flowy_folder::entities::{ImportPayloadPB, ImportTypePB, ImportValuePayloadPB, ViewLayoutPB};
 
 #[tokio::test]
 async fn import_492_row_csv_file_test() {
@@ -16,8 +16,9 @@ async fn import_492_row_csv_file_test() {
   let workspace_id = test.get_current_workspace().await.id;
   let import_data = gen_import_data(file_name, csv_string, workspace_id);
 
-  let view = test.import_data(import_data).await;
-  let database = test.get_database(&view.id).await;
+  let views = test.import_data(import_data).await;
+  let view_id = views[0].clone().id;
+  let database = test.get_database(&view_id).await;
   assert_eq!(database.rows.len(), 492);
   drop(cleaner);
 }
@@ -35,21 +36,24 @@ async fn import_10240_row_csv_file_test() {
   let workspace_id = test.get_current_workspace().await.id;
   let import_data = gen_import_data(file_name, csv_string, workspace_id);
 
-  let view = test.import_data(import_data).await;
-  let database = test.get_database(&view.id).await;
+  let views = test.import_data(import_data).await;
+  let view_id = views[0].clone().id;
+  let database = test.get_database(&view_id).await;
   assert_eq!(database.rows.len(), 10240);
 
   drop(cleaner);
 }
 
-fn gen_import_data(file_name: String, csv_string: String, workspace_id: String) -> ImportPB {
-  let import_data = ImportPB {
+fn gen_import_data(file_name: String, csv_string: String, workspace_id: String) -> ImportPayloadPB {
+  ImportPayloadPB {
     parent_view_id: workspace_id.clone(),
-    name: file_name,
-    data: Some(csv_string.as_bytes().to_vec()),
-    file_path: None,
-    view_layout: ViewLayoutPB::Grid,
-    import_type: ImportTypePB::CSV,
-  };
-  import_data
+    sync_after_create: false,
+    values: vec![ImportValuePayloadPB {
+      name: file_name,
+      data: Some(csv_string.as_bytes().to_vec()),
+      file_path: None,
+      view_layout: ViewLayoutPB::Grid,
+      import_type: ImportTypePB::CSV,
+    }],
+  }
 }
