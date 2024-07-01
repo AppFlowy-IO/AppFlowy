@@ -30,7 +30,7 @@ use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService, FolderCollabParams};
 use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use parking_lot::RwLock;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
@@ -51,7 +51,7 @@ pub struct FolderManager {
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
   pub(crate) folder_indexer: Arc<dyn FolderIndexManager>,
-  pub(crate) store_preferences: Arc<StorePreferences>,
+  pub(crate) store_preferences: Arc<KVStorePreferences>,
 }
 
 impl FolderManager {
@@ -61,7 +61,7 @@ impl FolderManager {
     operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
     folder_indexer: Arc<dyn FolderIndexManager>,
-    store_preferences: Arc<StorePreferences>,
+    store_preferences: Arc<KVStorePreferences>,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
     let manager = Self {
@@ -741,12 +741,17 @@ impl FolderManager {
     let view = self
       .with_folder(|| None, |folder| folder.views.get_view(&params.view_id))
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can't duplicate the view"))?;
+    let parent_view_id = params
+      .parent_view_id
+      .clone()
+      .unwrap_or(view.parent_view_id.clone());
     self
       .duplicate_view_with_parent_id(
         &view.id,
-        &view.parent_view_id,
+        &parent_view_id,
         params.open_after_duplicate,
         params.include_children,
+        params.suffix,
       )
       .await
   }
@@ -761,6 +766,7 @@ impl FolderManager {
     parent_view_id: &str,
     open_after_duplicated: bool,
     include_children: bool,
+    suffix: Option<String>,
   ) -> Result<(), FlowyError> {
     if view_id == parent_view_id {
       return Err(FlowyError::new(
@@ -777,6 +783,7 @@ impl FolderManager {
     let mut is_source_view = true;
     // use a stack to duplicate the view and its children
     let mut stack = vec![(view_id.to_string(), parent_view_id.to_string())];
+    let suffix = suffix.unwrap_or(" (copy)".to_string());
 
     while let Some((current_view_id, current_parent_id)) = stack.pop() {
       let view = self
@@ -812,7 +819,7 @@ impl FolderManager {
       );
 
       let name = if is_source_view {
-        format!("{} (copy)", &view.name)
+        format!("{}{}", &view.name, suffix)
       } else {
         view.name.clone()
       };

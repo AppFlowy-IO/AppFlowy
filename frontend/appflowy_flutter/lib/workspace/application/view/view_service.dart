@@ -141,11 +141,22 @@ class ViewBackendService {
     required bool openAfterDuplicate,
     // should include children views
     required bool includeChildren,
+    String? parentViewId,
+    String? suffix,
   }) {
     final payload = DuplicateViewPayloadPB.create()
       ..viewId = view.id
       ..openAfterDuplicate = openAfterDuplicate
       ..includeChildren = includeChildren;
+
+    if (parentViewId != null) {
+      payload.parentViewId = parentViewId;
+    }
+
+    if (suffix != null) {
+      payload.suffix = suffix;
+    }
+
     return FolderEventDuplicateView(payload).send();
   }
 

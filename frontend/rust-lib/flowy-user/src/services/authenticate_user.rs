@@ -5,7 +5,7 @@ use crate::services::sqlite_sql::user_sql::vacuum_database;
 use collab_integrate::CollabKVDB;
 
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_user_pub::entities::UserWorkspace;
 use flowy_user_pub::session::Session;
@@ -19,12 +19,12 @@ pub struct AuthenticateUser {
   pub user_config: UserConfig,
   pub(crate) database: Arc<UserDB>,
   pub(crate) user_paths: UserPaths,
-  store_preferences: Arc<StorePreferences>,
+  store_preferences: Arc<KVStorePreferences>,
   session: Arc<parking_lot::RwLock<Option<Session>>>,
 }
 
 impl AuthenticateUser {
-  pub fn new(user_config: UserConfig, store_preferences: Arc<StorePreferences>) -> Self {
+  pub fn new(user_config: UserConfig, store_preferences: Arc<KVStorePreferences>) -> Self {
     let user_paths = UserPaths::new(user_config.storage_path.clone());
     let database = Arc::new(UserDB::new(user_paths.clone()));
     let session = Arc::new(parking_lot::RwLock::new(None));
