@@ -117,6 +117,7 @@ class _MovePageMenuState extends State<MovePageMenu> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SpacePopup(
+          showCreateButton: false,
           child: CurrentSpace(
             space: space,
           ),

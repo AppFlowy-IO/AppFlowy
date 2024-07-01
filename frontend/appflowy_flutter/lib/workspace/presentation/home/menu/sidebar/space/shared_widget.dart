@@ -277,9 +277,11 @@ class DeleteSpacePopup extends StatelessWidget {
 class SpacePopup extends StatelessWidget {
   const SpacePopup({
     super.key,
+    required this.showCreateButton,
     required this.child,
   });
 
+  final bool showCreateButton;
   final Widget child;
 
   @override
@@ -293,7 +295,9 @@ class SpacePopup extends StatelessWidget {
         offset: const Offset(0, 4),
         popupBuilder: (_) => BlocProvider.value(
           value: context.read<SpaceBloc>(),
-          child: const SidebarSpaceMenu(),
+          child: SidebarSpaceMenu(
+            showCreateButton: showCreateButton,
+          ),
         ),
         child: FlowyButton(
           useIntrinsicWidth: true,
@@ -333,8 +337,10 @@ class CurrentSpace extends StatelessWidget {
           ),
         ),
         const HSpace(4.0),
-        const FlowySvg(
-          FlowySvgs.workspace_drop_down_menu_show_s,
+        FlowySvg(
+          context.read<SpaceBloc>().state.isExpanded
+              ? FlowySvgs.workspace_drop_down_menu_show_s
+              : FlowySvgs.workspace_drop_down_menu_hide_s,
         ),
       ],
     );

@@ -238,6 +238,7 @@ impl EventIntegrationTest {
       index: None,
       section: None,
       view_id: None,
+      extra: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -302,6 +303,7 @@ impl ViewTest {
       index: None,
       section: None,
       view_id: None,
+      extra: None,
     };
 
     let view = EventBuilder::new(sdk.clone())
