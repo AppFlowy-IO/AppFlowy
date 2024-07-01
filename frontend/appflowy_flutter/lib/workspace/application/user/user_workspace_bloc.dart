@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -10,7 +12,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -55,23 +56,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               await _userService.openWorkspace(currentWorkspace.workspaceId);
             }
 
-            WorkspaceMemberPB? currentWorkspaceMember;
-            final workspaceMemberResult =
-                await _userService.getWorkspaceMember();
-            currentWorkspaceMember = workspaceMemberResult.fold(
-              (s) => s,
-              (e) => null,
-            );
-
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
                 workspaces: workspaces,
                 isCollabWorkspaceOn: isCollabWorkspaceOn,
-                currentWorkspaceMember: currentWorkspaceMember,
                 actionResult: null,
               ),
             );
+
+            /// We wait with fetching the workspace member as it may take some time,
+            /// to avoid blocking the UI from rendering (the sidebar).
+            final workspaceMemberResult =
+                await _userService.getWorkspaceMember();
+            final workspaceMember = workspaceMemberResult.toNullable();
+            emit(state.copyWith(currentWorkspaceMember: workspaceMember));
           },
           fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
@@ -208,14 +207,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               (e) => state.currentWorkspace,
             );
 
-            WorkspaceMemberPB? currentWorkspaceMember;
-            final workspaceMemberResult =
-                await _userService.getWorkspaceMember();
-            currentWorkspaceMember = workspaceMemberResult.fold(
-              (s) => s,
-              (e) => null,
-            );
-
             result
               ..onSuccess((s) {
                 Log.info(
@@ -229,7 +220,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
-                currentWorkspaceMember: currentWorkspaceMember,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.open,
                   isLoading: false,
@@ -237,6 +227,14 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 ),
               ),
             );
+
+            /// We wait with fetching the workspace member as it may take some time,
+            /// to avoid blocking the UI from rendering (the sidebar).
+            final workspaceMemberResult =
+                await _userService.getWorkspaceMember();
+            final workspaceMember = workspaceMemberResult.toNullable();
+
+            emit(state.copyWith(currentWorkspaceMember: workspaceMember));
           },
           renameWorkspace: (workspaceId, name) async {
             final result =
@@ -511,6 +509,7 @@ class UserWorkspaceState with _$UserWorkspaceState {
     if (identical(this, other)) return true;
 
     return other is UserWorkspaceState &&
+        other.currentWorkspaceMember == currentWorkspaceMember &&
         other.currentWorkspace == currentWorkspace &&
         _deepCollectionEquality.equals(other.workspaces, workspaces) &&
         identical(other.actionResult, actionResult);

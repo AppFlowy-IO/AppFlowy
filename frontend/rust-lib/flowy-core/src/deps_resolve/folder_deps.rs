@@ -1,4 +1,5 @@
 use bytes::Bytes;
+use collab_entity::EncodedCollab;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_chat::chat_manager::ChatManager;
@@ -19,7 +20,7 @@ use flowy_folder::view_operation::{
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
@@ -38,7 +39,7 @@ impl FolderDepsResolver {
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
     folder_indexer: Arc<FolderIndexManagerImpl>,
-    store_preferences: Arc<StorePreferences>,
+    store_preferences: Arc<KVStorePreferences>,
     operation_handlers: FolderOperationHandlers,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
@@ -229,15 +230,15 @@ impl FolderOperationHandler for DocumentFolderOperation {
     _name: &str,
     _import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<EncodedCollab, FlowyError> {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
-      manager
+      let encoded_collab = manager
         .create_document(uid, &view_id, Some(data.into()))
         .await?;
-      Ok(())
+      Ok(encoded_collab)
     })
   }
 
@@ -392,7 +393,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     _name: &str,
     import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<EncodedCollab, FlowyError> {
     let database_manager = self.0.clone();
     let view_id = view_id.to_string();
     let format = match import_type {
@@ -406,11 +407,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         String::from_utf8(bytes).map_err(|err| FlowyError::internal().with_context(err))
       })
       .await??;
-
-      database_manager
+      let result = database_manager
         .import_csv(view_id, content, format)
         .await?;
-      Ok(())
+      Ok(result.encoded_collab)
     })
   }
 
@@ -531,7 +531,7 @@ impl FolderOperationHandler for ChatFolderOperation {
     _name: &str,
     _import_type: ImportType,
     _bytes: Vec<u8>,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<EncodedCollab, FlowyError> {
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
 

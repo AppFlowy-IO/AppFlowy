@@ -71,7 +71,6 @@ class AIChatPagePlugin extends Plugin {
   void dispose() {
     _viewInfoBloc.close();
     notifier.dispose();
-    super.dispose();
   }
 }
 
@@ -119,4 +118,7 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
 
   @override
   List<NavigationItem> get navigationItems => [this];
+
+  @override
+  EdgeInsets get contentPadding => EdgeInsets.zero;
 }

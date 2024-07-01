@@ -26,7 +26,7 @@ use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::gen_view_id;
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_folder_pub::folder_builder::{ParentChildViews, ViewBuilder};
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
 use flowy_user_pub::session::Session;
@@ -62,7 +62,7 @@ pub(crate) fn prepare_import(path: &str) -> anyhow::Result<ImportedFolder> {
     return Err(anyhow!("The path: {} is not exist", path));
   }
   let user_paths = UserPaths::new(path.to_string());
-  let other_store_preferences = Arc::new(StorePreferences::new(path)?);
+  let other_store_preferences = Arc::new(KVStorePreferences::new(path)?);
   migrate_session_with_user_uuid("appflowy_session_cache", &other_store_preferences);
   let imported_session = other_store_preferences
     .get_object::<Session>("appflowy_session_cache")

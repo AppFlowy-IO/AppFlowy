@@ -14,7 +14,7 @@ use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_server_pub::AuthenticatorType;
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::*;
 
 use crate::AppFlowyCoreConfig;
@@ -59,7 +59,7 @@ pub struct ServerProvider {
   providers: RwLock<HashMap<Server, Arc<dyn AppFlowyServer>>>,
   pub(crate) encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   #[allow(dead_code)]
-  pub(crate) store_preferences: Weak<StorePreferences>,
+  pub(crate) store_preferences: Weak<KVStorePreferences>,
   pub(crate) user_enable_sync: RwLock<bool>,
 
   /// The authenticator type of the user.
@@ -72,7 +72,7 @@ impl ServerProvider {
   pub fn new(
     config: AppFlowyCoreConfig,
     server: Server,
-    store_preferences: Weak<StorePreferences>,
+    store_preferences: Weak<KVStorePreferences>,
     server_user: impl ServerUser + 'static,
   ) -> Self {
     let user = Arc::new(server_user);

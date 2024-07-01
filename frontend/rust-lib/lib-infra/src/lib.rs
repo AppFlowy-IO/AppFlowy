@@ -23,5 +23,6 @@ if_wasm! {
 pub mod isolate_stream;
 pub mod priority_task;
 pub mod ref_map;
+pub mod stream_util;
 pub mod util;
 pub mod validator_fn;
