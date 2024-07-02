@@ -3,12 +3,12 @@ use std::sync::Weak;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use lib_dispatch::prelude::AFPlugin;
 
 use crate::event_handler::*;
 
-pub fn init(store_preferences: Weak<StorePreferences>) -> AFPlugin {
+pub fn init(store_preferences: Weak<KVStorePreferences>) -> AFPlugin {
   AFPlugin::new()
     .name(env!("CARGO_PKG_NAME"))
     .state(store_preferences)

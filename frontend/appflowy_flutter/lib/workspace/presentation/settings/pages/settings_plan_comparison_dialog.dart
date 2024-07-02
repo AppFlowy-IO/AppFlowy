@@ -494,6 +494,7 @@ class _ActionButton extends StatelessWidget {
                     ? SystemMouseCursors.click
                     : MouseCursor.defer,
                 child: _drawBorder(
+                  context,
                   isLM: isLM,
                   isUpgrade: isUpgrade,
                   child: Container(
@@ -544,7 +545,8 @@ class _ActionButton extends StatelessWidget {
     );
   }
 
-  Widget _drawBorder({
+  Widget _drawBorder(
+    BuildContext context, {
     required bool isLM,
     required bool isUpgrade,
     required Widget child,
@@ -562,7 +564,7 @@ class _ActionButton extends StatelessWidget {
                 ],
               )
             : null,
-        border: isUpgrade ? null : Border.all(),
+        border: isUpgrade ? null : Border.all(color: const Color(0xFF333333)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: child,

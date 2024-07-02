@@ -14,7 +14,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarSpaceMenu extends StatelessWidget {
-  const SidebarSpaceMenu({super.key});
+  const SidebarSpaceMenu({
+    super.key,
+    required this.showCreateButton,
+  });
+
+  final bool showCreateButton;
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +37,18 @@ class SidebarSpaceMenu extends StatelessWidget {
                   isSelected: state.currentSpace?.id == space.id,
                 ),
               ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Divider(
-                height: 0.5,
+            if (showCreateButton) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Divider(
+                  height: 0.5,
+                ),
               ),
-            ),
-            const SizedBox(
-              height: HomeSpaceViewSizes.viewHeight,
-              child: _CreateSpaceButton(),
-            ),
+              const SizedBox(
+                height: HomeSpaceViewSizes.viewHeight,
+                child: _CreateSpaceButton(),
+              ),
+            ],
           ],
         );
       },

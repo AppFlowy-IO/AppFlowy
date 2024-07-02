@@ -31,6 +31,8 @@ members = [
     "flowy-search-pub",
     "flowy-chat",
     "flowy-chat-pub",
+    "flowy-storage-pub",
+    "flowy-sidecar",
 ]
 resolver = "2"
 
@@ -66,6 +68,7 @@ collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-date = { workspace = true, path = "flowy-date" }
 flowy-chat = { workspace = true, path = "flowy-chat" }
 flowy-chat-pub = { workspace = true, path = "flowy-chat-pub" }
+flowy-sidecar = { workspace = true, path = "flowy-sidecar" }
 anyhow = "1.0"
 tracing = "0.1.40"
 bytes = "1.5.0"
@@ -93,11 +96,11 @@ validator = { version = "0.16.1", features = ["derive"] }
 
 # Please using the following command to update the revision id
 # Current directory: frontend
-# Run the script:
+# Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d61524d63605aa010afa6a734cbbe4fb4cd68ea1" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d61524d63605aa010afa6a734cbbe4fb4cd68ea1" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "9884d93aa2805013f36a79c1757174a0b5063065" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "9884d93aa2805013f36a79c1757174a0b5063065" }
 
 [profile.dev]
 opt-level = 1

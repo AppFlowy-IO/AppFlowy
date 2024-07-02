@@ -13,13 +13,13 @@ use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
 };
 use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
-use crate::share::ImportParams;
+use crate::share::{ImportParams, ImportValue};
 use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 use collab::core::collab::{DataSource, MutexCollab};
-use collab_entity::CollabType;
+use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::error::FolderError;
 use collab_folder::{
   Folder, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout, ViewUpdate,
@@ -27,14 +27,14 @@ use collab_folder::{
 };
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::CollabKVDB;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService, FolderCollabParams};
 use flowy_folder_pub::entities::{
   PublishInfoResponse, PublishViewInfo, PublishViewMeta, PublishViewMetaData, PublishViewPayload,
 };
 use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use futures::future;
 use parking_lot::RwLock;
 use std::fmt::{Display, Formatter};
@@ -56,7 +56,7 @@ pub struct FolderManager {
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
   pub(crate) folder_indexer: Arc<dyn FolderIndexManager>,
-  pub(crate) store_preferences: Arc<StorePreferences>,
+  pub(crate) store_preferences: Arc<KVStorePreferences>,
 }
 
 impl FolderManager {
@@ -66,7 +66,7 @@ impl FolderManager {
     operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
     folder_indexer: Arc<dyn FolderIndexManager>,
-    store_preferences: Arc<StorePreferences>,
+    store_preferences: Arc<KVStorePreferences>,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
     let manager = Self {
@@ -376,11 +376,21 @@ impl FolderManager {
     }
   }
 
-  pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
+  /// Asynchronously creates a view with provided parameters and notifies the workspace if update is needed.
+  ///
+  /// Commonly, the notify_workspace_update parameter is set to true when the view is created in the workspace.
+  /// If you're handling multiple views in the same hierarchy and want to notify the workspace only after the last view is created,
+  ///   you can set notify_workspace_update to false to avoid multiple notifications.
+  pub async fn create_view_with_params(
+    &self,
+    params: CreateViewParams,
+    notify_workspace_update: bool,
+  ) -> FlowyResult<(View, Option<EncodedCollab>)> {
     let workspace_id = self.user.workspace_id()?;
     let view_layout: ViewLayout = params.layout.clone().into();
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
+    let mut encoded_collab: Option<EncodedCollab> = None;
 
     if params.meta.is_empty() && params.initial_data.is_empty() {
       tracing::trace!("Create view with build-in data");
@@ -389,7 +399,7 @@ impl FolderManager {
         .await?;
     } else {
       tracing::trace!("Create view with view data");
-      handler
+      encoded_collab = handler
         .create_view_with_view_data(user_id, params.clone())
         .await?;
     }
@@ -408,12 +418,14 @@ impl FolderManager {
       },
     );
 
-    let folder = &self.mutex_folder.read();
-    if let Some(folder) = folder.as_ref() {
-      notify_did_update_workspace(&workspace_id, folder);
+    if notify_workspace_update {
+      let folder = &self.mutex_folder.read();
+      if let Some(folder) = folder.as_ref() {
+        notify_did_update_workspace(&workspace_id, folder);
+      }
     }
 
-    Ok(view)
+    Ok((view, encoded_collab))
   }
 
   /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
@@ -757,6 +769,7 @@ impl FolderManager {
         params.open_after_duplicate,
         params.include_children,
         params.suffix,
+        params.sync_after_create,
       )
       .await
   }
@@ -772,6 +785,7 @@ impl FolderManager {
     open_after_duplicated: bool,
     include_children: bool,
     suffix: Option<String>,
+    sync_after_create: bool,
   ) -> Result<(), FlowyError> {
     if view_id == parent_view_id {
       return Err(FlowyError::new(
@@ -780,6 +794,7 @@ impl FolderManager {
       ));
     }
 
+    // filter the view ids that in the trash or private section
     let filtered_view_ids = self.with_folder(Vec::new, |folder| {
       self.get_view_ids_should_be_filtered(folder)
     });
@@ -788,6 +803,7 @@ impl FolderManager {
     let mut is_source_view = true;
     // use a stack to duplicate the view and its children
     let mut stack = vec![(view_id.to_string(), parent_view_id.to_string())];
+    let mut objects = vec![];
     let suffix = suffix.unwrap_or(" (copy)".to_string());
 
     while let Some((current_view_id, current_parent_id)) = stack.pop() {
@@ -828,6 +844,7 @@ impl FolderManager {
       } else {
         view.name.clone()
       };
+
       let duplicate_params = CreateViewParams {
         parent_view_id: current_parent_id.clone(),
         name,
@@ -843,14 +860,37 @@ impl FolderManager {
         icon: view.icon.clone(),
       };
 
-      let duplicated_view = self.create_view_with_params(duplicate_params).await?;
+      // set the notify_workspace_update to false to avoid multiple notifications
+      let (duplicated_view, encoded_collab) = self
+        .create_view_with_params(duplicate_params, false)
+        .await?;
+
+      if sync_after_create {
+        if let Some(encoded_collab) = encoded_collab {
+          let object_id = duplicated_view.id.clone();
+          let collab_type = match duplicated_view.layout {
+            ViewLayout::Document => CollabType::Document,
+            ViewLayout::Board | ViewLayout::Grid | ViewLayout::Calendar => CollabType::Database,
+            ViewLayout::Chat => CollabType::Unknown,
+          };
+          // don't block the whole import process if the view can't be encoded
+          if collab_type != CollabType::Unknown {
+            match self.get_folder_collab_params(object_id, collab_type, encoded_collab) {
+              Ok(params) => objects.push(params),
+              Err(e) => {
+                error!("duplicate error {}", e);
+              },
+            }
+          }
+        }
+      }
 
       if include_children {
         let child_views = self.get_views_belong_to(&current_view_id).await?;
         // reverse the child views to keep the order
         for child_view in child_views.iter().rev() {
           // skip the view_id should be filtered and the child_view is the duplicated view
-          if !filtered_view_ids.contains(&child_view.id) {
+          if !filtered_view_ids.contains(&child_view.id) && child_view.layout != ViewLayout::Chat {
             stack.push((child_view.id.clone(), duplicated_view.id.clone()));
           }
         }
@@ -858,6 +898,23 @@ impl FolderManager {
 
       is_source_view = false
     }
+
+    let workspace_id = &self.user.workspace_id()?;
+
+    // Sync the view to the cloud
+    if sync_after_create {
+      self
+        .cloud_service
+        .batch_create_folder_collab_objects(workspace_id, objects)
+        .await?;
+    }
+
+    // notify the update here
+    notify_parent_view_did_change(
+      workspace_id,
+      self.mutex_folder.clone(),
+      vec![parent_view_id.to_string()],
+    );
 
     Ok(())
   }
@@ -1235,38 +1292,50 @@ impl FolderManager {
     Ok(())
   }
 
-  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {
-    let workspace_id = self.user.workspace_id()?;
+  /// Imports a single file to the folder and returns the encoded collab for immediate cloud sync.
+  pub(crate) async fn import_single_file(
+    &self,
+    parent_view_id: String,
+    import_data: ImportValue,
+  ) -> FlowyResult<(View, Option<EncodedCollab>)> {
+    // Ensure either data or file_path is provided
     if import_data.data.is_none() && import_data.file_path.is_none() {
       return Err(FlowyError::new(
         ErrorCode::InvalidParams,
-        "data or file_path is required",
+        "Either data or file_path is required",
       ));
     }
 
     let handler = self.get_handler(&import_data.view_layout)?;
     let view_id = gen_view_id().to_string();
     let uid = self.user.user_id()?;
+    let mut encoded_collab: Option<EncodedCollab> = None;
+
+    // Import data from bytes if available
     if let Some(data) = import_data.data {
-      handler
-        .import_from_bytes(
-          uid,
-          &view_id,
-          &import_data.name,
-          import_data.import_type,
-          data,
-        )
-        .await?;
+      encoded_collab = Some(
+        handler
+          .import_from_bytes(
+            uid,
+            &view_id,
+            &import_data.name,
+            import_data.import_type,
+            data,
+          )
+          .await?,
+      );
     }
 
+    // Import data from file path if available
     if let Some(file_path) = import_data.file_path {
+      // TODO(Lucas): return the collab
       handler
         .import_from_file_path(&view_id, &import_data.name, file_path)
         .await?;
     }
 
     let params = CreateViewParams {
-      parent_view_id: import_data.parent_view_id,
+      parent_view_id,
       name: import_data.name,
       desc: "".to_string(),
       layout: import_data.view_layout.clone().into(),
@@ -1281,18 +1350,68 @@ impl FolderManager {
     };
 
     let view = create_view(self.user.user_id()?, params, import_data.view_layout);
+
+    // Insert the new view into the folder
     self.with_folder(
       || (),
       |folder| {
         folder.insert_view(view.clone(), None);
       },
     );
+
+    Ok((view, encoded_collab))
+  }
+
+  /// Import function to handle the import of data.
+  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<RepeatedViewPB> {
+    let workspace_id = self.user.workspace_id()?;
+
+    // Initialize an empty vector to store the objects
+    let sync_after_create = import_data.sync_after_create;
+    let mut objects = vec![];
+    let mut views = vec![];
+
+    // Iterate over the values in the import data
+    for data in import_data.values {
+      let collab_type = data.import_type.clone().into();
+
+      // Import a single file and get the view and encoded collab data
+      let (view, encoded_collab) = self
+        .import_single_file(import_data.parent_view_id.clone(), data)
+        .await?;
+      let object_id = view.id.clone();
+
+      views.push(view_pb_without_child_views(view));
+
+      if sync_after_create {
+        if let Some(encoded_collab) = encoded_collab {
+          // don't block the whole import process if the view can't be encoded
+          match self.get_folder_collab_params(object_id, collab_type, encoded_collab) {
+            Ok(params) => objects.push(params),
+            Err(e) => {
+              error!("import error {}", e);
+            },
+          }
+        }
+      }
+    }
+
+    // Sync the view to the cloud
+    if sync_after_create {
+      self
+        .cloud_service
+        .batch_create_folder_collab_objects(&workspace_id, objects)
+        .await?;
+    }
+
+    // Notify that the parent view has changed
     notify_parent_view_did_change(
       &workspace_id,
       self.mutex_folder.clone(),
-      vec![view.parent_view_id.clone()],
+      vec![import_data.parent_view_id],
     );
-    Ok(view)
+
+    Ok(RepeatedViewPB { items: views })
   }
 
   /// Update the view with the provided view_id using the specified function.
@@ -1343,6 +1462,22 @@ impl FolderManager {
       ))),
       Some(processor) => Ok(processor.clone()),
     }
+  }
+
+  fn get_folder_collab_params(
+    &self,
+    object_id: String,
+    collab_type: CollabType,
+    encoded_collab: EncodedCollab,
+  ) -> FlowyResult<FolderCollabParams> {
+    // Try to encode the collaboration data to bytes
+    let encoded_collab_v1: Result<Vec<u8>, FlowyError> =
+      encoded_collab.encode_to_bytes().map_err(internal_error);
+    encoded_collab_v1.map(|encoded_collab_v1| FolderCollabParams {
+      object_id,
+      encoded_collab_v1,
+      collab_type,
+    })
   }
 
   /// Returns the relation of the view. The relation is a tuple of (is_workspace, parent_view_id,

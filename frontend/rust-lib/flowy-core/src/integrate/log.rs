@@ -1,4 +1,4 @@
-use lib_infra::util::Platform;
+use lib_infra::util::OperatingSystem;
 use lib_log::stream_log::StreamLogSender;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -8,7 +8,7 @@ use crate::AppFlowyCoreConfig;
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 pub(crate) fn init_log(
   config: &AppFlowyCoreConfig,
-  platform: &Platform,
+  platform: &OperatingSystem,
   stream_log_sender: Option<Arc<dyn StreamLogSender>>,
 ) {
   #[cfg(debug_assertions)]
@@ -25,11 +25,15 @@ pub(crate) fn init_log(
   }
 }
 
-pub fn create_log_filter(level: String, with_crates: Vec<String>, platform: Platform) -> String {
+pub fn create_log_filter(
+  level: String,
+  with_crates: Vec<String>,
+  platform: OperatingSystem,
+) -> String {
   let mut level = std::env::var("RUST_LOG").unwrap_or(level);
 
   #[cfg(debug_assertions)]
-  if matches!(platform, Platform::IOS) {
+  if matches!(platform, OperatingSystem::IOS) {
     level = "trace".to_string();
   }
 
@@ -53,7 +57,8 @@ pub fn create_log_filter(level: String, with_crates: Vec<String>, platform: Plat
   filters.push(format!("lib_infra={}", level));
   filters.push(format!("flowy_search={}", level));
   filters.push(format!("flowy_chat={}", level));
-  filters.push(format!("flowy_storage={}", level));
+  filters.push(format!("flowy_chat={}", level));
+  filters.push(format!("flowy_sidecar={}", level));
   filters.push(format!("flowy_ai={}", level));
   // Enable the frontend logs. DO NOT DISABLE.
   // These logs are essential for debugging and verifying frontend behavior.

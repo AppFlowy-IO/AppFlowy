@@ -142,7 +142,7 @@ impl EventIntegrationTest {
       self
         .appflowy_core
         .folder_manager
-        .create_view_with_params(params)
+        .create_view_with_params(params, true)
         .await
         .unwrap();
     }
@@ -264,6 +264,7 @@ impl EventIntegrationTest {
       index: None,
       section: None,
       view_id: None,
+      extra: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -284,13 +285,14 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
-  pub async fn import_data(&self, data: ImportPB) -> ViewPB {
+  pub async fn import_data(&self, data: ImportPayloadPB) -> Vec<ViewPB> {
     EventBuilder::new(self.clone())
       .event(FolderEvent::ImportData)
       .payload(data)
       .async_send()
       .await
-      .parse::<ViewPB>()
+      .parse::<RepeatedViewPB>()
+      .items
   }
 
   pub async fn get_view_ancestors(&self, view_id: &str) -> Vec<ViewPB> {
@@ -328,6 +330,7 @@ impl ViewTest {
       index: None,
       section: None,
       view_id: None,
+      extra: None,
     };
 
     let view = EventBuilder::new(sdk.clone())

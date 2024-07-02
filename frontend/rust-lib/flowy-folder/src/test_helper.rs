@@ -51,7 +51,7 @@ impl FolderManager {
       icon: None,
       extra: None,
     };
-    self.create_view_with_params(params).await.unwrap();
+    self.create_view_with_params(params, true).await.unwrap();
     view_id
   }
 }
