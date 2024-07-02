@@ -869,12 +869,13 @@ impl FolderManager {
             ViewLayout::Chat => CollabType::Unknown,
           };
           // don't block the whole import process if the view can't be encoded
-          let params = self.get_folder_collab_params(object_id, collab_type, encoded_collab);
-          match params {
-            Ok(params) => objects.push(params),
-            Err(e) => {
-              error!("duplicate error {}", e);
-            },
+          if collab_type != CollabType::Unknown {
+            match self.get_folder_collab_params(object_id, collab_type, encoded_collab) {
+              Ok(params) => objects.push(params),
+              Err(e) => {
+                error!("duplicate error {}", e);
+              },
+            }
           }
         }
       }
@@ -1185,8 +1186,7 @@ impl FolderManager {
       if sync_after_create {
         if let Some(encoded_collab) = encoded_collab {
           // don't block the whole import process if the view can't be encoded
-          let params = self.get_folder_collab_params(object_id, collab_type, encoded_collab);
-          match params {
+          match self.get_folder_collab_params(object_id, collab_type, encoded_collab) {
             Ok(params) => objects.push(params),
             Err(e) => {
               error!("import error {}", e);
