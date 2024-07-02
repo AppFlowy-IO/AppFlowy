@@ -11,6 +11,7 @@ use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
+use collab_plugins::local_storage::kv::PersistenceError;
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;
@@ -72,6 +73,20 @@ impl DocumentManager {
       storage_service,
       snapshot_service,
     }
+  }
+
+  /// Get the encoded collab of the document.
+  pub async fn encode_collab(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
+    let doc_state = DataSource::Disk;
+    let uid = self.user_service.user_id()?;
+    let collab = self
+      .collab_for_document(uid, doc_id, doc_state, false)
+      .await?;
+
+    let collab = collab.lock();
+    collab
+      .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+      .map_err(internal_error)
   }
 
   pub async fn initialize(&self, _uid: i64) -> FlowyResult<()> {

@@ -1,17 +1,12 @@
 import { EditorElementProps, DividerNode as DividerBlock } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useMemo } from 'react';
-import { useSelected } from 'slate-react';
 
 export const DividerNode = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DividerBlock>>(
     ({ node: _node, children: children, ...attributes }, ref) => {
-      const selected = useSelected();
-
       const className = useMemo(() => {
-        return `${attributes.className ?? ''} divider-node relative w-full rounded ${
-          selected ? 'bg-content-blue-100' : ''
-        }`;
-      }, [attributes.className, selected]);
+        return `${attributes.className ?? ''} divider-node relative w-full rounded`;
+      }, [attributes.className]);
 
       return (
         <div {...attributes} className={className}>

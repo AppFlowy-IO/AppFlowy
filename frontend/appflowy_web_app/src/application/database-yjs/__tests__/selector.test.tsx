@@ -18,7 +18,6 @@ import {
   useSortsSelector,
 } from '../selector';
 import { useDatabaseViewId } from '../context';
-import { IdProvider } from '@/components/_shared/context-provider/IdProvider';
 import { DatabaseContextProvider } from '@/components/database/DatabaseContext';
 import { withTestingDatabase } from '@/application/database-yjs/__tests__/withTestingData';
 import { expect } from '@jest/globals';
@@ -31,11 +30,9 @@ const wrapperCreator =
   (viewId: string, doc: YDoc, rowDocMap: Y.Map<YDoc>) =>
   ({ children }: { children: React.ReactNode }) => {
     return (
-      <IdProvider objectId={viewId}>
-        <DatabaseContextProvider viewId={viewId} databaseDoc={doc} rowDocMap={rowDocMap} readOnly={true}>
-          {children}
-        </DatabaseContextProvider>
-      </IdProvider>
+      <DatabaseContextProvider viewId={viewId} databaseDoc={doc} rowDocMap={rowDocMap} readOnly={true}>
+        {children}
+      </DatabaseContextProvider>
     );
   };
 

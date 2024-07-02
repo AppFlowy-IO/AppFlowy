@@ -2,8 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use bytes::Bytes;
-
-use collab_entity::EncodedCollab;
+use collab::entity::EncodedCollab;
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
 use tokio::sync::RwLock;
@@ -45,6 +44,12 @@ pub trait FolderOperationHandler {
 
   /// Returns the [ViewData] that can be used to create the same view.
   fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
+
+  fn encoded_collab_v1(
+    &self,
+    view_id: &str,
+    layout: ViewLayout,
+  ) -> FutureResult<EncodedCollab, FlowyError>;
 
   /// Create a view with the data.
   ///

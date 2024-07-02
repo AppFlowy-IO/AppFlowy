@@ -230,13 +230,26 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
     showDialog(
       context: context,
       builder: (_) {
+        final space = spaceBloc.state.currentSpace;
+        final name = space != null ? space.name : '';
+        final title = LocaleKeys.space_deleteConfirmation.tr() + name;
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: BlocProvider.value(
             value: spaceBloc,
-            child: const SizedBox(width: 440, child: DeleteSpacePopup()),
+            child: SizedBox(
+              width: 440,
+              child: ConfirmDeletionPopup(
+                title: title,
+                description:
+                    LocaleKeys.space_deleteConfirmationDescription.tr(),
+                onConfirm: () {
+                  context.read<SpaceBloc>().add(const SpaceEvent.delete(null));
+                },
+              ),
+            ),
           ),
         );
       },

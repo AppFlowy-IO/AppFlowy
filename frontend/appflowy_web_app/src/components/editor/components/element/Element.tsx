@@ -2,9 +2,11 @@ import { BlockData, BlockType, InlineBlockType, YjsEditorKey } from '@/applicati
 import { BulletedList } from '@/components/editor/components/blocks/bulleted-list';
 import { Callout } from '@/components/editor/components/blocks/callout';
 import { CodeBlock } from '@/components/editor/components/blocks/code';
+import { DatabaseBlock } from '@/components/editor/components/blocks/database';
 import { DividerNode } from '@/components/editor/components/blocks/divider';
 import { Heading } from '@/components/editor/components/blocks/heading';
 import { ImageBlock } from '@/components/editor/components/blocks/image';
+import { LinkPreview } from '@/components/editor/components/blocks/link-preview';
 import { MathEquation } from '@/components/editor/components/blocks/math-equation';
 import { NumberedList } from '@/components/editor/components/blocks/numbered-list';
 import { Outline } from '@/components/editor/components/blocks/outline';
@@ -25,7 +27,6 @@ import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
 import React, { FC, memo, Suspense, useMemo } from 'react';
 import { RenderElementProps } from 'slate-react';
-import { DatabaseBlock } from 'src/components/editor/components/blocks/database';
 import isEqual from 'lodash-es/isEqual';
 
 export const Element = memo(
@@ -74,6 +75,8 @@ export const Element = memo(
         case BlockType.BoardBlock:
         case BlockType.CalendarBlock:
           return DatabaseBlock;
+        case BlockType.LinkPreview:
+          return LinkPreview;
         default:
           return UnSupportedBlock;
       }
@@ -94,14 +97,14 @@ export const Element = memo(
       const data = (node.data as BlockData) || {};
       const align = data.align;
 
-      return `block-element flex rounded ${align ? `block-align-${align}` : ''}`;
+      return `block-element relative flex rounded ${align ? `block-align-${align}` : ''}`;
     }, [node.data]);
 
     const style = useMemo(() => {
       const data = (node.data as BlockData) || {};
 
       return {
-        backgroundColor: data.bg_color ? renderColor(data.bg_color) : undefined,
+        backgroundColor: data.bgColor ? renderColor(data.bgColor) : undefined,
         color: data.font_color ? renderColor(data.font_color) : undefined,
       };
     }, [node.data]);

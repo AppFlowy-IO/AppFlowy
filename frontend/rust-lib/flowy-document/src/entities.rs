@@ -17,6 +17,14 @@ use validator::Validate;
 use crate::parse::{NotEmptyStr, NotEmptyVec};
 
 #[derive(Default, ProtoBuf)]
+pub struct EncodedCollabPB {
+  #[pb(index = 1)]
+  pub state_vector: Vec<u8>,
+  #[pb(index = 2)]
+  pub doc_state: Vec<u8>,
+}
+
+#[derive(Default, ProtoBuf)]
 pub struct OpenDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,

@@ -12,12 +12,12 @@ export const Formula = memo(
       <span
         ref={ref}
         {...attributes}
-        contentEditable={false}
-        className={`${attributes.className ?? ''} formula-inline relative cursor-pointer rounded px-1 py-0.5 ${
+        // contentEditable={false}
+        className={`${attributes.className ?? ''} formula-inline relative cursor-pointer rounded py-0.5 ${
           selected ? 'selected' : ''
         }`}
       >
-        <span className={'select-none'} contentEditable={false}>
+        <span className={''}>
           <KatexMath latex={formula || ''} isInline />
         </span>
 

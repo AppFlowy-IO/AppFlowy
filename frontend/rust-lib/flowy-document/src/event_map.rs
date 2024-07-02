@@ -19,6 +19,10 @@ pub fn init(document_manager: Weak<DocumentManager>) -> AFPlugin {
     .event(DocumentEvent::ApplyAction, apply_action_handler)
     .event(DocumentEvent::GetDocumentData, get_document_data_handler)
     .event(
+      DocumentEvent::GetDocEncodedCollab,
+      get_encode_collab_handler,
+    )
+    .event(
       DocumentEvent::ConvertDataToDocument,
       convert_data_to_document,
     )
@@ -126,4 +130,7 @@ pub enum DocumentEvent {
 
   #[event(input = "UpdateDocumentAwarenessStatePB")]
   SetAwarenessState = 18,
+
+  #[event(input = "OpenDocumentPayloadPB", output = "EncodedCollabPB")]
+  GetDocEncodedCollab = 19,
 }

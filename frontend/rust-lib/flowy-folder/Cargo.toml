@@ -39,6 +39,9 @@ serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 validator.workspace = true
 async-trait.workspace = true
+regex = "1.9.5"
+futures = "0.3.30"
+
 
 [build-dependencies]
 flowy-codegen.workspace = true

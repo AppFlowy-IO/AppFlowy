@@ -17,6 +17,7 @@ import {
   BlockId,
   BlockData,
   DatabaseNodeData,
+  LinkPreviewBlockData,
 } from '@/application/collab.type';
 import { HTMLAttributes } from 'react';
 import { Element } from 'slate';
@@ -89,6 +90,12 @@ export interface CalloutNode extends BlockNode {
   type: BlockType.CalloutBlock;
   blockId: string;
   data: CalloutBlockData;
+}
+
+export interface LinkPreviewNode extends BlockNode {
+  type: BlockType.LinkPreview;
+  blockId: string;
+  data: LinkPreviewBlockData;
 }
 
 export interface MathEquationNode extends BlockNode {

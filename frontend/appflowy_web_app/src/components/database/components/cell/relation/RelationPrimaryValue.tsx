@@ -1,8 +1,9 @@
-import { FieldId, YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { FieldId, YDatabaseCell, YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { FieldType } from '@/application/database-yjs';
 import { parseYDatabaseCellToCell } from '@/application/database-yjs/cell.parse';
 import React, { useEffect, useState } from 'react';
 
-export function RelationPrimaryValue({ rowDoc, fieldId }: { rowDoc: YDoc; fieldId: FieldId }) {
+export function RelationPrimaryValue({ rowDoc, fieldId }: { rowDoc: YDoc; fieldId?: FieldId }) {
   const [text, setText] = useState<string | null>(null);
   const [row, setRow] = useState<YDatabaseRow | null>(null);
 
@@ -23,18 +24,34 @@ export function RelationPrimaryValue({ rowDoc, fieldId }: { rowDoc: YDoc; fieldI
   useEffect(() => {
     if (!row) return;
     const cells = row.get(YjsDatabaseKey.cells);
-    const primaryCell = cells.get(fieldId);
 
-    if (!primaryCell) return;
+    let primaryCell: YDatabaseCell | undefined;
+
+    if (fieldId) {
+      primaryCell = cells?.get(fieldId);
+    } else {
+      const fieldId = Array.from(cells.keys()).find((key) => {
+        const fieldType = cells.get(key)?.get(YjsDatabaseKey.field_type);
+
+        if (!fieldType) return false;
+        return Number(fieldType) === FieldType.RichText;
+      });
+
+      if (fieldId) {
+        primaryCell = cells?.get(fieldId);
+      }
+    }
+
     const observeHandler = () => {
+      if (!primaryCell) return;
       setText(parseYDatabaseCellToCell(primaryCell).data as string);
     };
 
     observeHandler();
 
-    primaryCell.observe(observeHandler);
+    primaryCell?.observe(observeHandler);
     return () => {
-      primaryCell.unobserve(observeHandler);
+      primaryCell?.unobserve(observeHandler);
     };
   }, [row, fieldId]);
 

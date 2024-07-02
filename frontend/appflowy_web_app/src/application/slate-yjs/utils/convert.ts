@@ -97,9 +97,11 @@ export function yDataToSlateContent({
 export function yDocToSlateContent(doc: YDoc): Element | undefined {
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
+  if (!sharedRoot || sharedRoot.size === 0) return;
   const document = sharedRoot.get(YjsEditorKey.document);
   const pageId = document.get(YjsEditorKey.page_id) as string;
   const blocks = document.get(YjsEditorKey.blocks) as YBlocks;
+
   const meta = document.get(YjsEditorKey.meta) as YMeta;
   const childrenMap = meta.get(YjsEditorKey.children_map) as YChildrenMap;
   const textMap = meta.get(YjsEditorKey.text_map) as YTextMap;

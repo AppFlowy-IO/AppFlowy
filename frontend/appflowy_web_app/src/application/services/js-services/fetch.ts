@@ -1,4 +1,3 @@
-import { CollabType } from '@/application/collab.type';
 import { APIService } from '@/application/services/js-services/wasm';
 
 const pendingRequests = new Map();
@@ -31,36 +30,20 @@ function fetchWithDeduplication<Req, Res>(url: string, params: Req, fetchFunctio
   return fetchPromise;
 }
 
-/**
- * Fetch collab
- * @param workspaceId
- * @param id
- * @param type [CollabType]
- */
-export function fetchCollab(workspaceId: string, id: string, type: CollabType) {
-  const fetchFunction = () => APIService.getCollab(workspaceId, id, type);
+export function fetchPublishView(namespace: string, publishName: string) {
+  const fetchFunction = () => APIService.getPublishView(namespace, publishName);
 
-  return fetchWithDeduplication(`fetchCollab_${workspaceId}`, { id, type }, fetchFunction);
+  return fetchWithDeduplication(`fetchPublishView_${namespace}`, { publishName }, fetchFunction);
 }
 
-/**
- * Batch fetch collab
- * Usage:
- *   // load database rows
- *   const rows = await batchFetchCollab(workspaceId, databaseRows.map((row) => ({ collabId: row.id, collabType: CollabType.DatabaseRow })));
- *
- * @param workspaceId
- * @param params [{ collabId: string; collabType: CollabType }]
- */
-export function batchFetchCollab(workspaceId: string, params: { collabId: string; collabType: CollabType }[]) {
-  const fetchFunction = () =>
-    APIService.batchGetCollab(
-      workspaceId,
-      params.map(({ collabId, collabType }) => ({
-        object_id: collabId,
-        collab_type: collabType,
-      }))
-    );
+export function fetchViewInfo(viewId: string) {
+  const fetchFunction = () => APIService.getPublishInfoWithViewId(viewId);
 
-  return fetchWithDeduplication(`batchFetchCollab_${workspaceId}`, params, fetchFunction);
+  return fetchWithDeduplication(`fetchViewInfo`, { viewId }, fetchFunction);
+}
+
+export function fetchPublishViewMeta(namespace: string, publishName: string) {
+  const fetchFunction = () => APIService.getPublishViewMeta(namespace, publishName);
+
+  return fetchWithDeduplication(`fetchPublishViewMeta_${namespace}`, { publishName }, fetchFunction);
 }

@@ -1,4 +1,5 @@
 import { YDatabase, YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { ViewMeta } from '@/application/db/tables/view_metas';
 import { createContext, useContext } from 'react';
 import * as Y from 'yjs';
 
@@ -9,6 +10,10 @@ export interface DatabaseContextState {
   rowDocMap: Y.Map<YDoc>;
   isDatabaseRowPage?: boolean;
   navigateToRow?: (rowId: string) => void;
+  loadView?: (viewId: string) => Promise<YDoc>;
+  getViewRowsMap?: (viewId: string, rowIds: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+  loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
+  navigateToView?: (viewId: string) => Promise<void>;
 }
 
 export const DatabaseContext = createContext<DatabaseContextState | null>(null);

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/core/config/kv.dart';
@@ -141,8 +142,14 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             final result = await ViewBackendService.delete(viewId: view.id);
             emit(
               result.fold(
-                (l) =>
-                    state.copyWith(successOrFailure: FlowyResult.success(null)),
+                (l) {
+                  // unpublish the page if it's published
+                  unawaited(_unpublishPage(view));
+
+                  return state.copyWith(
+                    successOrFailure: FlowyResult.success(null),
+                  );
+                },
                 (error) => state.copyWith(
                   successOrFailure: FlowyResult.failure(error),
                 ),
@@ -381,6 +388,37 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
     }
 
     return null;
+  }
+
+  Future<void> _unpublishPage(ViewPB view) async {
+    final allChildViews = await _getAllChildViews(view);
+    final views = [view, ...allChildViews];
+
+    // unpublish
+    for (final view in views) {
+      await ViewBackendService.unpublish(view);
+    }
+  }
+
+  Future<List<ViewPB>> _getAllChildViews(ViewPB view) async {
+    final views = <ViewPB>[];
+
+    final childViews =
+        await ViewBackendService.getChildViews(viewId: view.id).fold(
+      (s) => s,
+      (f) => [],
+    );
+
+    for (final child in childViews) {
+      // filter the view itself
+      if (child.id == view.id) {
+        continue;
+      }
+      views.add(child);
+      views.addAll(await _getAllChildViews(child));
+    }
+
+    return views;
   }
 
   bool _isSameViewIgnoreChildren(ViewPB from, ViewPB to) {

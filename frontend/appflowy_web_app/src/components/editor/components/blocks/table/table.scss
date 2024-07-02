@@ -1,4 +1,9 @@
 .table-block {
+  ::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
+  }
+
   [id^=table-] {
     width: fit-content;
     @apply border-t border-l border-line-border;

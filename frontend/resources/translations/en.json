@@ -106,7 +106,12 @@
     "html": "HTML",
     "clipboard": "Copy to clipboard",
     "csv": "CSV",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy Link",
+    "publishToTheWeb": "Publish to the web",
+    "publishToTheWebHint": "Publish a static website of this page",
+    "publish": "Publish",
+    "unPublish": "Unpublish",
+    "visitSite": "Visit site"
   },
   "moreAction": {
     "small": "small",
@@ -1373,6 +1378,9 @@
         "imageUploadFailed": "Image upload failed",
         "errorCode": "Error code"
       },
+      "math": {
+        "copiedToPasteBoard": "The math equation has been copied to the clipboard"
+      },
       "urlPreview": {
         "copiedToPasteBoard": "The link has been copied to the clipboard",
         "convertToLink": "Convert to embed link"
@@ -2027,8 +2035,22 @@
     "upgrade": "Update",
     "upgradeYourSpace": "Create multiple Spaces",
     "quicklySwitch": "Quickly switch to the next space",
+
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
     "switchSpace": "Switch space"
+  },
+  "publish": {
+    "hasNotBeenPublished": "This page hasn't been published yet",
+    "reportPage": "Report page",
+    "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
+    "createdWith": "Created with",
+    "downloadApp": "Download AppFlowy",
+    "copy": {
+      "codeBlock": "The content of code block has been copied to the clipboard",
+      "imageBlock": "The image link has been copied to the clipboard",
+      "mathBlock": "The math equation has been copied to the clipboard"
+    },
+    "containsPublishedPage": "This page contains one or more published page, it will be unpublished if you continue."
   }
 }

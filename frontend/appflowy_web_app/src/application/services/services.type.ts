@@ -1,16 +1,8 @@
 import { YDoc } from '@/application/collab.type';
-import { ProviderType, SignUpWithEmailPasswordParams, UserProfile } from '@/application/user.type';
+import { ViewMeta } from '@/application/db/tables/view_metas';
 import * as Y from 'yjs';
 
-export interface AFService {
-  getDeviceID: () => string;
-  getClientID: () => string;
-  authService: AuthService;
-  userService: UserService;
-  documentService: DocumentService;
-  folderService: FolderService;
-  databaseService: DatabaseService;
-}
+export type AFService = PublishService;
 
 export interface AFServiceConfig {
   cloudConfig: AFCloudConfig;
@@ -22,35 +14,16 @@ export interface AFCloudConfig {
   wsURL: string;
 }
 
-export interface AuthService {
-  getOAuthURL: (provider: ProviderType) => Promise<string>;
-  signInWithOAuth: (params: { uri: string }) => Promise<void>;
-  signupWithEmailPassword: (params: SignUpWithEmailPasswordParams) => Promise<void>;
-  signinWithEmailPassword: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-}
-
-export interface DocumentService {
-  openDocument: (docId: string) => Promise<YDoc>;
-}
-
-export interface DatabaseService {
-  getWorkspaceDatabases: () => Promise<{ views: string[]; database_id: string }[]>;
-  openDatabase: (
-    databaseId: string,
-    rowIds?: string[]
+export interface PublishService {
+  getPublishViewMeta: (namespace: string, publishName: string) => Promise<ViewMeta>;
+  getPublishView: (namespace: string, publishName: string) => Promise<YDoc>;
+  getPublishInfo: (viewId: string) => Promise<{ namespace: string; publishName: string }>;
+  getPublishDatabaseViewRows: (
+    namespace: string,
+    publishName: string,
+    rowIds: string[]
   ) => Promise<{
-    databaseDoc: YDoc;
     rows: Y.Map<YDoc>;
+    destroy: () => void;
   }>;
-  closeDatabase: (databaseId: string) => Promise<void>;
-}
-
-export interface UserService {
-  getUserProfile: () => Promise<UserProfile | null>;
-  checkUser: () => Promise<boolean>;
-}
-
-export interface FolderService {
-  openWorkspace: (workspaceId: string) => Promise<YDoc>;
 }

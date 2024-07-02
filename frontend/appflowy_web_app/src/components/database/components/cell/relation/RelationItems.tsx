@@ -1,54 +1,28 @@
-import { YDatabaseField, YDatabaseFields, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
-import {
-  DatabaseContextState,
-  parseRelationTypeOption,
-  useDatabase,
-  useFieldSelector,
-  useNavigateToRow,
-} from '@/application/database-yjs';
+import { YjsDatabaseKey } from '@/application/collab.type';
+import { DatabaseContext, DatabaseContextState, useDatabase, useNavigateToRow } from '@/application/database-yjs';
 import { RelationCell, RelationCellData } from '@/application/database-yjs/cell.type';
 import { RelationPrimaryValue } from '@/components/database/components/cell/relation/RelationPrimaryValue';
-import { useGetDatabaseDispatch } from '@/components/database/Database.hooks';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 
-function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: string; style?: React.CSSProperties }) {
-  const { field } = useFieldSelector(fieldId);
-  const currentDatabaseId = useDatabase()?.get(YjsDatabaseKey.id);
-  const { onOpenDatabase, onCloseDatabase } = useGetDatabaseDispatch();
+function RelationItems({ style, cell }: { cell: RelationCell; fieldId: string; style?: React.CSSProperties }) {
+  const database = useDatabase();
+  const viewId = database.get(YjsDatabaseKey.metas)?.get(YjsDatabaseKey.iid)?.toString();
   const rowIds = useMemo(() => {
     return (cell.data?.toJSON() as RelationCellData) ?? [];
   }, [cell.data]);
-  const databaseId = rowIds.length > 0 && field ? parseRelationTypeOption(field).database_id : undefined;
-  const [databasePrimaryFieldId, setDatabasePrimaryFieldId] = useState<string | undefined>(undefined);
+  const getViewRowsMap = useContext(DatabaseContext)?.getViewRowsMap;
+
   const [rows, setRows] = useState<DatabaseContextState['rowDocMap'] | null>();
 
   const navigateToRow = useNavigateToRow();
 
   useEffect(() => {
-    if (!databaseId || !rowIds.length) return;
-    void onOpenDatabase({ databaseId, rowIds }).then(({ databaseDoc: doc, rows }) => {
-      const fields = doc
-        .getMap(YjsEditorKey.data_section)
-        .get(YjsEditorKey.database)
-        .get(YjsDatabaseKey.fields) as YDatabaseFields;
+    if (!viewId || !rowIds.length) return;
 
-      fields.forEach((field, fieldId) => {
-        if ((field as YDatabaseField).get(YjsDatabaseKey.is_primary)) {
-          setDatabasePrimaryFieldId(fieldId);
-        }
-      });
-
+    void getViewRowsMap?.(viewId, rowIds).then(({ rows }) => {
       setRows(rows);
     });
-  }, [onOpenDatabase, databaseId, rowIds, onCloseDatabase]);
-
-  useEffect(() => {
-    return () => {
-      if (currentDatabaseId !== databaseId && databaseId) {
-        onCloseDatabase(databaseId);
-      }
-    };
-  }, [databaseId, currentDatabaseId, onCloseDatabase]);
+  }, [getViewRowsMap, rowIds, viewId]);
 
   return (
     <div style={style} className={'relation-cell flex w-full items-center gap-2'}>
@@ -64,9 +38,7 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
             }}
             className={'w-full cursor-pointer underline'}
           >
-            {rowDoc && databasePrimaryFieldId && (
-              <RelationPrimaryValue rowDoc={rowDoc} fieldId={databasePrimaryFieldId} />
-            )}
+            {rowDoc && <RelationPrimaryValue rowDoc={rowDoc} />}
           </div>
         );
       })}

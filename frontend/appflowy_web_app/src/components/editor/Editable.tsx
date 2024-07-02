@@ -20,17 +20,19 @@ const EditorEditable = ({ editor }: { editor: ReactEditor }) => {
   const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, []);
 
   return (
-    <Editable
-      role={'textbox'}
-      decorate={decorate}
-      className={'px-16 outline-none focus:outline-none max-md:px-4'}
-      renderLeaf={Leaf}
-      renderElement={renderElement}
-      readOnly={readOnly}
-      spellCheck={false}
-      autoCorrect={'off'}
-      autoComplete={'off'}
-    />
+    <>
+      <Editable
+        role={'textbox'}
+        decorate={decorate}
+        className={'px-16 outline-none focus:outline-none max-md:px-4'}
+        renderLeaf={Leaf}
+        renderElement={renderElement}
+        readOnly={readOnly}
+        spellCheck={false}
+        autoCorrect={'off'}
+        autoComplete={'off'}
+      />
+    </>
   );
 };
 
