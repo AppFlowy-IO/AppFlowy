@@ -57,7 +57,9 @@ function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disable
           <SpaceIcon value={extraObj.space_icon || ''} />
         </span>
       ) : (
-        <span className={'icon'}>{icon || <ViewIcon layout={layout} size={'small'} />}</span>
+        <span className={'icon flex h-5 w-5 items-center justify-center'}>
+          {icon || <ViewIcon layout={layout} size={'small'} />}
+        </span>
       )}
 
       <span

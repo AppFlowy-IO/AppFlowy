@@ -19,6 +19,7 @@ const drawerWidth = 268;
 export function PublishView({ namespace, publishName }: PublishViewProps) {
   const [doc, setDoc] = useState<YDoc | undefined>();
   const [notFound, setNotFound] = useState<boolean>(false);
+
   const service = useContext(AFConfigContext)?.service;
   const openPublishView = useCallback(async () => {
     let doc;
@@ -58,6 +59,7 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [onKeyDown]);
+
   if (notFound && !doc) {
     return <NotFound />;
   }

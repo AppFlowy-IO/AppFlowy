@@ -21,7 +21,7 @@ export function useViewMeta() {
       lineHeightLayout: extra?.lineHeightLayout,
     };
   }, [extra]);
-
+  
   const layout = viewMeta?.layout;
   const style = useMemo(() => {
     const fontSizeMap = {

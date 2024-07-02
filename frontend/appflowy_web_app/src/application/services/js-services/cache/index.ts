@@ -7,7 +7,7 @@ import {
   YSharedRoot,
 } from '@/application/collab.type';
 import { applyYDoc } from '@/application/ydoc/apply';
-import { db, openCollabDB } from '@/application/db';
+import { closeCollabDB, db, openCollabDB } from '@/application/db';
 import { Fetcher, StrategyType } from '@/application/services/js-services/cache/types';
 
 export function collabTypeToDBType(type: CollabType) {
@@ -225,4 +225,14 @@ export async function getBatchCollabs(names: string[]) {
   const collabs = await Promise.all(names.map((name) => openCollabDB(name)));
 
   return collabs;
+}
+
+export async function deleteViewMeta(name: string) {
+  await db.view_metas.delete(name);
+}
+
+export async function deleteView(name: string) {
+  console.log('deleteView', name);
+  await deleteViewMeta(name);
+  await closeCollabDB(name);
 }

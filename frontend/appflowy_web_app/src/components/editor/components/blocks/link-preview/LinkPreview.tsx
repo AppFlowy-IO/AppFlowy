@@ -41,7 +41,7 @@ export const LinkPreview = memo(
           {data ? (
             <div
               className={
-                'container-bg flex w-full cursor-pointer select-none items-center gap-4 rounded border border-line-divider bg-fill-list-active p-3'
+                'container-bg flex w-full cursor-pointer select-none items-center gap-4 overflow-hidden rounded border border-line-divider bg-fill-list-active p-3'
               }
             >
               <img
@@ -49,10 +49,22 @@ export const LinkPreview = memo(
                 alt={data.title}
                 className={'container h-full w-[25%] rounded bg-cover bg-center'}
               />
-              <div className={'flex flex-col justify-center gap-2'}>
-                <div className={'text-base font-bold text-text-title'}>{data.title}</div>
-                <div className={'text-sm text-text-title'}>{data.description}</div>
-                <div className={'text-xs text-text-caption'}>{url}</div>
+              <div className={'flex flex-col justify-center gap-2 overflow-hidden'}>
+                <div
+                  className={
+                    'max-h-[48px] overflow-hidden whitespace-pre-wrap break-words text-base font-bold text-text-title'
+                  }
+                >
+                  {data.title}
+                </div>
+                <div
+                  className={
+                    'max-h-[64px] overflow-hidden truncate whitespace-pre-wrap break-words text-sm text-text-title'
+                  }
+                >
+                  {data.description}
+                </div>
+                <div className={'truncate whitespace-nowrap text-xs text-text-caption'}>{url}</div>
               </div>
             </div>
           ) : (
