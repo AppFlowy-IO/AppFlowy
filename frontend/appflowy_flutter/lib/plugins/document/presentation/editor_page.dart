@@ -214,7 +214,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   AFFocusManager? focusManager;
 
-  void _loseFocus() => widget.editorState.selection = null;
+  void _loseFocus() {
+    if (!widget.editorState.isDisposed) {
+      widget.editorState.selection = null;
+    }
+  }
 
   @override
   void initState() {

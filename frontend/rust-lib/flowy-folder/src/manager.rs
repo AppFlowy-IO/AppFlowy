@@ -885,7 +885,7 @@ impl FolderManager {
         // reverse the child views to keep the order
         for child_view in child_views.iter().rev() {
           // skip the view_id should be filtered and the child_view is the duplicated view
-          if !filtered_view_ids.contains(&child_view.id) {
+          if !filtered_view_ids.contains(&child_view.id) && child_view.layout != ViewLayout::Chat {
             stack.push((child_view.id.clone(), duplicated_view.id.clone()));
           }
         }
