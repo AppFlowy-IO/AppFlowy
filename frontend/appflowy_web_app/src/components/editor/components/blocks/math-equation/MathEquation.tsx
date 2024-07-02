@@ -3,8 +3,8 @@ import { notify } from '@/components/_shared/notify';
 import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
 import { EditorElementProps, MathEquationNode } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
-import { FunctionsOutlined } from '@mui/icons-material';
-import React, { forwardRef, memo, useRef, useState } from 'react';
+import { ReactComponent as MathSvg } from '@/assets/math.svg';
+import React, { forwardRef, memo, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const MathEquation = memo(
@@ -14,6 +14,18 @@ export const MathEquation = memo(
       const { t } = useTranslation();
       const containerRef = useRef<HTMLDivElement>(null);
       const [showToolbar, setShowToolbar] = useState(false);
+      const newClassName = useMemo(() => {
+        const classList = [
+          className,
+          'math-equation-block relative w-full container-bg w-full py-1  select-none rounded',
+        ];
+
+        if (formula) {
+          classList.push('border border-transparent hover:border-line-divider hover:bg-fill-list-active cursor-pointer');
+        }
+
+        return classList.join(' ');
+      }, [formula, className]);
 
       return (
         <>
@@ -26,15 +38,17 @@ export const MathEquation = memo(
               setShowToolbar(true);
             }}
             onMouseLeave={() => setShowToolbar(false)}
-            className={`${className} math-equation-block relative w-full ${
-              formula ? 'cursor-pointer' : 'cursor-default'
-            } container-bg w-full select-none rounded border border-transparent py-2 px-3 hover:border-line-divider hover:bg-fill-list-active`}
+            className={newClassName}
           >
             {formula ? (
               <KatexMath latex={formula} />
             ) : (
-              <div className={'flex h-[48px] w-full items-center gap-[10px] text-text-caption'}>
-                <FunctionsOutlined />
+              <div
+                className={
+                  'flex h-[48px] w-full items-center gap-[10px] rounded border border-line-divider bg-fill-list-active px-4 text-text-caption'
+                }
+              >
+                <MathSvg className={'h-4 w-4'} />
                 {t('document.plugins.mathEquation.addMathEquation')}
               </div>
             )}

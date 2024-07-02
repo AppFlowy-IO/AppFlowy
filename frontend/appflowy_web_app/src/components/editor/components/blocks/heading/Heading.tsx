@@ -17,6 +17,7 @@ export const Heading = memo(
         id={`heading-${node.blockId}`}
         style={{
           scrollMarginTop: HEADER_HEIGHT,
+          ...attributes.style,
         }}
         className={className}
       >

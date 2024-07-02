@@ -40,7 +40,7 @@ export const ImageBlock = memo(
           setShowToolbar(true);
         }}
         onMouseLeave={() => setShowToolbar(false)}
-        className={`${className || ''} image-block  cursor-default} relative w-full py-1`}
+        className={`${className || ''} image-block relative w-full cursor-default`}
       >
         <div ref={ref} className={'absolute left-0 top-0 h-full w-full select-none caret-transparent'}>
           {children}

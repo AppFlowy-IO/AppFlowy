@@ -35,7 +35,7 @@ export const LinkPreview = memo(
         }}
         {...attributes}
         ref={ref}
-        className={`link-preview-block relative w-full cursor-pointer`}
+        className={`link-preview-block relative w-full cursor-pointer py-1`}
       >
         <div>
           {data ? (
