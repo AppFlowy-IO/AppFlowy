@@ -13,7 +13,7 @@ export interface Crumb {
   name: string;
   icon: string;
   layout: ViewLayout;
-  extra?: string;
+  extra?: string | null;
 }
 
 function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disableClick?: boolean }) {
