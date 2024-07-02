@@ -3,7 +3,7 @@ use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
   CreateViewParams, CreateWorkspaceParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
   MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams,
-  ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB, ViewLayoutPB
+  ViewLayoutPB, ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -23,7 +23,7 @@ use collab_entity::CollabType;
 use collab_folder::error::FolderError;
 use collab_folder::{
   Folder, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout, ViewUpdate,
-  Workspace
+  Workspace,
 };
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::CollabKVDB;
@@ -959,7 +959,7 @@ impl FolderManager {
 
     // Get the view payload and its child views recursively
     let payload = self
-      .get_batch_publish_payload(view_id, publish_name)
+      .get_batch_publish_payload(view_id, publish_name, Some(false))
       .await?;
 
     let workspace_id = self.user.workspace_id()?;
@@ -1018,6 +1018,7 @@ impl FolderManager {
     &self,
     view_id: &str,
     publish_name: Option<String>,
+    include_children: Option<bool>,
   ) -> FlowyResult<Vec<PublishViewPayload>> {
     let mut stack = vec![view_id.to_string()];
     let mut payloads = Vec::new();
@@ -1050,9 +1051,11 @@ impl FolderManager {
         payloads.push(payload);
       }
 
-      // Add the child views to the stack
-      for child in &view.child_views {
-        stack.push(child.id.clone());
+      if include_children.unwrap_or(false) {
+        // Add the child views to the stack
+        for child in &view.child_views {
+          stack.push(child.id.clone());
+        }
       }
     }
 

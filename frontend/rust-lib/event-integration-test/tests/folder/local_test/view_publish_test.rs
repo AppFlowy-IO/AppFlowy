@@ -126,12 +126,12 @@ async fn single_document_get_publish_view_payload_test() {
   let name = "Orphan View";
   create_single_document(&test, view_id, name).await;
   let view = test.get_view(view_id).await;
-  let payload = test.get_publish_payload(view_id).await;
+  let payload = test.get_publish_payload(view_id, Some(true)).await;
 
   let expect_payload = mock_single_document_view_publish_payload(
     &test,
     &view,
-    format!("{}_{}", "Orphan_View", view_id),
+    format!("{}-{}", "Orphan-View", view_id),
   )
   .await;
 
@@ -145,15 +145,48 @@ async fn nested_document_get_publish_view_payload_test() {
   let view_id = "20240521";
   create_nested_document(&test, view_id, name).await;
   let view = test.get_view(view_id).await;
-  let payload = test.get_publish_payload(view_id).await;
+  let payload = test.get_publish_payload(view_id, Some(true)).await;
 
   let expect_payload = mock_nested_document_view_publish_payload(
     &test,
     &view,
-    format!("{}_{}", "Orphan_View", view_id),
+    format!("{}-{}", "Orphan-View", view_id),
   )
   .await;
 
   assert_eq!(payload.len(), 2);
   assert_eq!(payload, expect_payload);
+}
+
+#[tokio::test]
+async fn no_children_publish_view_payload_test() {
+  let test = EventIntegrationTest::new_anon().await;
+  let name = "Orphan View";
+  let view_id = "20240521";
+  create_nested_document(&test, view_id, name).await;
+  let view = test.get_view(view_id).await;
+  let payload = test.get_publish_payload(view_id, Some(false)).await;
+
+  let data = mock_single_document_view_publish_payload(
+    &test,
+    &view,
+    format!("{}-{}", "Orphan-View", view_id),
+  )
+  .await
+  .iter()
+  .map(|p| p.data.clone())
+  .collect::<Vec<_>>();
+  let meta = mock_nested_document_view_publish_payload(
+    &test,
+    &view,
+    format!("{}-{}", "Orphan-View", view_id),
+  )
+  .await
+  .iter()
+  .map(|p| p.meta.clone())
+  .collect::<Vec<_>>();
+
+  assert_eq!(payload.len(), 1);
+  assert_eq!(&payload[0].data, &data[0]);
+  assert_eq!(&payload[0].meta, &meta[0]);
 }

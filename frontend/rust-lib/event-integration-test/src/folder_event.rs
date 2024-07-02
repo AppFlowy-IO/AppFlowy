@@ -174,9 +174,15 @@ impl EventIntegrationTest {
     folder.get_folder_data(&workspace_id).clone().unwrap()
   }
 
-  pub async fn get_publish_payload(&self, view_id: &str) -> Vec<PublishViewPayload> {
+  pub async fn get_publish_payload(
+    &self,
+    view_id: &str,
+    include_children: Option<bool>,
+  ) -> Vec<PublishViewPayload> {
     let manager = self.folder_manager.clone();
-    let payload = manager.get_batch_publish_payload(view_id, None).await;
+    let payload = manager
+      .get_batch_publish_payload(view_id, None, include_children)
+      .await;
 
     if payload.is_err() {
       panic!("Get publish payload failed")
