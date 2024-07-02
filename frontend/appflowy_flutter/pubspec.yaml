@@ -66,6 +66,7 @@ dependencies:
   styled_widget: ^0.4.1
   expandable: ^5.0.1
   flutter_colorpicker: ^1.0.3
+  flex_color_picker: ^3.5.1
   highlight: ^0.7.0
   package_info_plus: ^6.0.0
   url_launcher: ^6.1.11

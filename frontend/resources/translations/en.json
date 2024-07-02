@@ -849,6 +849,9 @@
       "documentSettings": {
         "cursorColor": "Document cursor color",
         "selectionColor": "Document selection color",
+        "pickColor": "Select a color",
+        "colorShade": "Color shade",
+        "opacity": "Opacity",
         "hexEmptyError": "Hex color cannot be empty",
         "hexLengthError": "Hex value must be 6 digits long",
         "hexInvalidError": "Invalid hex value",
