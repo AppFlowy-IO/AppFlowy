@@ -1,7 +1,13 @@
 # Release Notes
 ## Version 0.6.2 - 01/07/2024
 ### New Features
+- Added support for duplicating spaces.
+- Added support for moving pages across spaces.
+- Undo markdown formatting with `Ctrl + Z` or `Cmd + Z`.
+- Improved shortcuts settings UI.
 ### Bug Fixes
+- Fixed unable to zoom in with `Ctrl` and `+` or `Cmd` and `+` on some keyboards.
+- Fixed unable to paste nested lists in existing lists.
 
 ## Version 0.6.1 - 22/06/2024
 ### New Features
