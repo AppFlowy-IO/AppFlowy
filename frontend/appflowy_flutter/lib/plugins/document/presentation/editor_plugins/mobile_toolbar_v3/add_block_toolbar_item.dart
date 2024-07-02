@@ -1,25 +1,30 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_add_block_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/image_text_extractor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/shared/permission/permission_checker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 final addBlockToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, service, __, onAction) {
@@ -196,6 +201,14 @@ class _AddBlockMenu extends StatelessWidget {
           });
         },
       ),
+      // extract text from image
+      TypeOptionMenuItemValue(
+        value: '', // leave it empty
+        backgroundColor: colorMap[ImageBlockKeys.type]!,
+        text: 'OCR',
+        icon: FlowySvgs.m_add_block_image_s,
+        onTap: (context, __) async => _extractTextFromImage(context),
+      ),
 
       // date
       TypeOptionMenuItemValue(
@@ -309,6 +322,67 @@ class _AddBlockMenu extends StatelessWidget {
       CodeBlockKeys.type: const Color(0xFFCABDFF),
       MathEquationBlockKeys.type: const Color(0xFFCABDFF),
     };
+  }
+
+  Future<void> _extractTextFromImage(BuildContext context) async {
+    AppGlobals.rootNavKey.currentContext?.pop(true);
+    // show a popup to alert the user that the feature is not completely accurate
+    // and it's still in beta
+    // final context = AppGlobals.rootNavKey.currentContext;
+    if (!context.mounted) {
+      return;
+    }
+
+    await showFlowyMobileConfirmDialog(
+      context,
+      title: const FlowyText.semibold(
+        'Extract text from image',
+        maxLines: 3,
+        textAlign: TextAlign.center,
+      ),
+      content: const FlowyText(
+        'The text extracted from the image might not be 100% accurate due to various factors like image quality, text font, and background noise.',
+        maxLines: 5,
+        textAlign: TextAlign.center,
+        fontSize: 12.0,
+      ),
+      actionAlignment: ConfirmDialogActionAlignment.vertical,
+      actionButtonTitle: 'Upload image',
+      actionButtonColor: Colors.blue,
+      cancelButtonTitle: LocaleKeys.button_cancel.tr(),
+      onActionButtonPressed: () {
+        _showImagePicker(context);
+      },
+    );
+
+    // select an image and show loading
+  }
+
+  Future<void> _showImagePicker(BuildContext context) async {
+    final selection = editorState.selection;
+
+    final permissionGranted =
+        await PermissionChecker.checkPhotoPermission(context);
+    if (!permissionGranted || selection == null) {
+      return;
+    }
+    // show image picker
+    final result = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final path = result?.path;
+    if (path != null) {
+      final result = await ImageTextExtractor(
+        apiKey: '',
+        imagePath: path,
+      ).extractText();
+      result.fold((s) {
+        final document = markdownToDocument(s);
+        final transaction = editorState.transaction;
+        transaction.insertNodes(selection.end.path, document.root.children);
+        editorState.apply(transaction);
+      }, (f) {
+        showSnackBarMessage(context, f.msg);
+      });
+    }
   }
 }
 
