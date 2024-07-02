@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/share/publish_name_genera
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -104,6 +105,11 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
           onCopy: (url) {
             getIt<ClipboardService>().setData(
               ClipboardServiceData(plainText: url),
+            );
+
+            showToastNotification(
+              context,
+              message: LocaleKeys.grid_url_copy.tr(),
             );
           },
           onSubmitted: (url) {},
