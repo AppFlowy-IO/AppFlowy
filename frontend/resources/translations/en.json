@@ -108,9 +108,9 @@
     "csv": "CSV",
     "copyLink": "Copy Link",
     "publishToTheWeb": "Publish to the web",
-    "publishToTheWebHint": "Publish a static website of this page and control who see it",
+    "publishToTheWebHint": "Publish a static website of this page",
     "publish": "Publish",
-    "unPublish": "UnPublish",
+    "unPublish": "Unpublish",
     "visitSite": "Visit site"
   },
   "moreAction": {
