@@ -68,17 +68,8 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
         publish: (nameSpace, publishName) async {
           // set space name
           try {
-            final getNameSpaceResult =
-                await ViewBackendService.getPublishNameSpace();
-            final name = await getNameSpaceResult.fold((s) async {
-              Log.error('get publish namespace success: ${s.namespace}');
-              return s.namespace;
-            }, (f) async {
-              Log.error('get publish namespace error: $f');
-              await ViewBackendService.setPublishNameSpace(nameSpace)
-                  .getOrThrow();
-              return nameSpace;
-            });
+            final result =
+                await ViewBackendService.getPublishNameSpace().getOrThrow();
 
             await ViewBackendService.publish(
               view,
@@ -89,7 +80,7 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
               state.copyWith(
                 isPublished: true,
                 publishResult: FlowySuccess(null),
-                url: '$_url/$name/$publishName',
+                url: '$_url/${result.namespace}/$publishName',
               ),
             );
           } catch (e) {
@@ -107,10 +98,15 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
           }
         },
         unPublish: () async {
-          await ViewBackendService.unpublish(view);
+          final result = await ViewBackendService.unpublish(view);
+          final isPublished = !result.isSuccess;
+          result.onFailure((f) {
+            Log.error('unpublish error: $f');
+          });
+
           emit(
             state.copyWith(
-              isPublished: false,
+              isPublished: isPublished,
               publishResult: null,
               url: '',
             ),

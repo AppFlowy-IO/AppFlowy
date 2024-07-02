@@ -45,10 +45,9 @@ class PublishTab extends StatelessWidget {
                     id,
                     state.viewName,
                   );
-                  final nameSpace = await generateNameSpace();
                   if (context.mounted) {
                     context.read<DocumentShareBloc>().add(
-                          DocumentShareEvent.publish(nameSpace, publishName),
+                          DocumentShareEvent.publish('', publishName),
                         );
                   }
                 },
