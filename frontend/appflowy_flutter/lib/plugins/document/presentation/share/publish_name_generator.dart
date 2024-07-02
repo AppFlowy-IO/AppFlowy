@@ -1,6 +1,6 @@
 String replaceInvalidChars(String input) {
   final RegExp invalidCharsRegex = RegExp('[^a-zA-Z0-9-]');
-  return input.replaceAll(invalidCharsRegex, '');
+  return input.replaceAll(invalidCharsRegex, '-');
 }
 
 Future<String> generateNameSpace() async {

@@ -329,4 +329,25 @@ class ViewBackendService {
       getPublishNameSpace() async {
     return FolderEventGetPublishNamespace().send();
   }
+
+  static Future<List<ViewPB>> getAllChildViews(ViewPB view) async {
+    final views = <ViewPB>[];
+
+    final childViews =
+        await ViewBackendService.getChildViews(viewId: view.id).fold(
+      (s) => s,
+      (f) => [],
+    );
+
+    for (final child in childViews) {
+      // filter the view itself
+      if (child.id == view.id) {
+        continue;
+      }
+      views.add(child);
+      views.addAll(await getAllChildViews(child));
+    }
+
+    return views;
+  }
 }

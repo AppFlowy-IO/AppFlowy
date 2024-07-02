@@ -222,13 +222,20 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
   }
 }
 
-class DeleteSpacePopup extends StatelessWidget {
-  const DeleteSpacePopup({super.key});
+class ConfirmDeletionPopup extends StatelessWidget {
+  const ConfirmDeletionPopup({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.onConfirm,
+  });
+
+  final String title;
+  final String description;
+  final VoidCallback onConfirm;
 
   @override
   Widget build(BuildContext context) {
-    final space = context.read<SpaceBloc>().state.currentSpace;
-    final name = space != null ? space.name : '';
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 20.0,
@@ -241,7 +248,7 @@ class DeleteSpacePopup extends StatelessWidget {
           Row(
             children: [
               FlowyText(
-                LocaleKeys.space_deleteConfirmation.tr() + name,
+                title,
                 fontSize: 14.0,
               ),
               const Spacer(),
@@ -254,7 +261,7 @@ class DeleteSpacePopup extends StatelessWidget {
           ),
           const VSpace(8.0),
           FlowyText.regular(
-            LocaleKeys.space_deleteConfirmationDescription.tr(),
+            description,
             fontSize: 12.0,
             color: Theme.of(context).hintColor,
             maxLines: 3,
@@ -264,7 +271,7 @@ class DeleteSpacePopup extends StatelessWidget {
           SpaceCancelOrConfirmButton(
             onCancel: () => Navigator.of(context).pop(),
             onConfirm: () {
-              context.read<SpaceBloc>().add(const SpaceEvent.delete(null));
+              onConfirm();
               Navigator.of(context).pop();
             },
             confirmButtonName: LocaleKeys.space_delete.tr(),

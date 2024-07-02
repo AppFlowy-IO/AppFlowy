@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
@@ -11,6 +13,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -690,7 +693,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         spaceType: widget.spaceType,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-        onAction: (action, data) {
+        onAction: (action, data) async {
           switch (action) {
             case ViewMoreActionType.favorite:
             case ViewMoreActionType.unFavorite:
@@ -699,18 +702,31 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                   .add(FavoriteEvent.toggle(widget.view));
               break;
             case ViewMoreActionType.rename:
-              NavigatorTextFieldDialog(
-                title: LocaleKeys.disclosureAction_rename.tr(),
-                autoSelectAllText: true,
-                value: widget.view.name,
-                maxLength: 256,
-                onConfirm: (newValue, _) {
-                  context.read<ViewBloc>().add(ViewEvent.rename(newValue));
-                },
-              ).show(context);
+              unawaited(
+                NavigatorTextFieldDialog(
+                  title: LocaleKeys.disclosureAction_rename.tr(),
+                  autoSelectAllText: true,
+                  value: widget.view.name,
+                  maxLength: 256,
+                  onConfirm: (newValue, _) {
+                    context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+                  },
+                ).show(context),
+              );
               break;
             case ViewMoreActionType.delete:
-              context.read<ViewBloc>().add(const ViewEvent.delete());
+              // get if current page contains published child views
+              final childViews =
+                  await ViewBackendService.getAllChildViews(widget.view);
+              final views = [widget.view, ...childViews];
+              final containPublishedPage = await Future.wait(
+                views.map((e) => ViewBackendService.getPublishInfo(e)),
+              ).then((value) => value.where((e) => e.isSuccess));
+              if (containPublishedPage.isNotEmpty && context.mounted) {
+                _showDeleteDialog(context);
+              } else if (context.mounted) {
+                context.read<ViewBloc>().add(const ViewEvent.delete());
+              }
               break;
             case ViewMoreActionType.duplicate:
               context.read<ViewBloc>().add(const ViewEvent.duplicate());
@@ -726,7 +742,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 return;
               }
               final result = data;
-              ViewBackendService.updateViewIcon(
+              await ViewBackendService.updateViewIcon(
                 viewId: widget.view.id,
                 viewIcon: result.emoji,
                 iconType: result.type.toProto(),
@@ -737,9 +753,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               if (target is! ViewPB) {
                 return;
               }
-              debugPrint(
-                'Move view ${widget.view.id}, ${widget.view.name} to ${target.id}, ${target.name}',
-              );
               _moveViewCrossSection(
                 context,
                 widget.view,
@@ -770,6 +783,30 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         return LocaleKeys.chat_newChat.tr();
     }
     return LocaleKeys.newPageText.tr();
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: SizedBox(
+            width: 440,
+            child: ConfirmDeletionPopup(
+              title:
+                  LocaleKeys.space_deleteConfirmation.tr() + widget.view.name,
+              description: LocaleKeys.publish_containsPublishedPage.tr(),
+              onConfirm: () {
+                context.read<ViewBloc>().add(const ViewEvent.delete());
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 

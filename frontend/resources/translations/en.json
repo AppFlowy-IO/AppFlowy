@@ -2050,6 +2050,7 @@
       "codeBlock": "The content of code block has been copied to the clipboard",
       "imageBlock": "The image link has been copied to the clipboard",
       "mathBlock": "The math equation has been copied to the clipboard"
-    }
+    },
+    "containsPublishedPage": "This page contains one or more published page, it will be unpublished if you continue."
   }
 }
