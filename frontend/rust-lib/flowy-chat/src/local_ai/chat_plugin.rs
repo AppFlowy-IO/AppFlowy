@@ -122,7 +122,8 @@ impl ResponseParser for ChatRelatedQuestionsResponseParser {
   fn parse_json(json: JsonValue) -> Result<Self::ValueType, RemoteError> {
     json
       .get("data")
-      .and_then(|data| data.as_array()).cloned()
+      .and_then(|data| data.as_array())
+      .cloned()
       .ok_or(RemoteError::ParseResponse(json))
   }
 }

@@ -22,6 +22,7 @@ impl EventIntegrationTest {
       index: None,
       section: None,
       view_id: None,
+      extra: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)

@@ -297,11 +297,16 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             if (currentSpace == null) {
               return;
             }
+            emit(state.copyWith(isDuplicatingSpace: true));
+
             final newSpace = await _duplicateSpace(currentSpace);
             // open the duplicated space
             if (newSpace != null) {
+              add(const SpaceEvent.didReceiveSpaceUpdate());
               add(SpaceEvent.open(newSpace));
             }
+
+            emit(state.copyWith(isDuplicatingSpace: false));
           },
         );
       },
@@ -346,25 +351,22 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       SpacePermission.private => ViewSectionPB.Private,
     };
 
+    final extra = {
+      ViewExtKeys.isSpaceKey: true,
+      ViewExtKeys.spaceIconKey: icon,
+      ViewExtKeys.spaceIconColorKey: iconColor,
+      ViewExtKeys.spacePermissionKey: permission.index,
+      ViewExtKeys.spaceCreatedAtKey: DateTime.now().millisecondsSinceEpoch,
+    };
     final result = await _workspaceService.createView(
       name: name,
       viewSection: section,
-      setAsCurrent: false,
+      setAsCurrent: true,
       viewId: viewId,
+      extra: jsonEncode(extra),
     );
     return await result.fold((space) async {
       Log.info('Space created: $space');
-      final extra = {
-        ViewExtKeys.isSpaceKey: true,
-        ViewExtKeys.spaceIconKey: icon,
-        ViewExtKeys.spaceIconColorKey: iconColor,
-        ViewExtKeys.spacePermissionKey: permission.index,
-        ViewExtKeys.spaceCreatedAtKey: DateTime.now().millisecondsSinceEpoch,
-      };
-      await ViewBackendService.updateView(
-        viewId: space.id,
-        extra: jsonEncode(extra),
-      );
       return space;
     }, (error) {
       Log.error('Failed to create space: $error');
@@ -620,19 +622,17 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     }
 
     for (final view in space.childViews) {
-      unawaited(
-        ViewBackendService.duplicate(
-          view: view,
-          openAfterDuplicate: true,
-          includeChildren: true,
-          parentViewId: newSpace.id,
-          suffix: '',
-        ),
+      await ViewBackendService.duplicate(
+        view: view,
+        openAfterDuplicate: true,
+        includeChildren: true,
+        parentViewId: newSpace.id,
+        suffix: '',
       );
     }
 
     Log.info('Space duplicated: $newSpace');
-    add(const SpaceEvent.didReceiveSpaceUpdate());
+
     return newSpace;
   }
 }
@@ -688,6 +688,7 @@ class SpaceState with _$SpaceState {
     @Default(null) ViewPB? lastCreatedPage,
     FlowyResult<void, FlowyError>? createPageResult,
     @Default(false) bool shouldShowUpgradeDialog,
+    @Default(false) bool isDuplicatingSpace,
   }) = _SpaceState;
 
   factory SpaceState.initial() => const SpaceState();

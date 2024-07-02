@@ -72,7 +72,6 @@ impl LocalAITest {
   ) -> String {
     let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
     let operation = ChatPluginOperation::new(plugin);
-    
 
     operation.send_message(chat_id, message).await.unwrap()
   }
@@ -95,7 +94,7 @@ impl LocalAITest {
   ) -> Vec<serde_json::Value> {
     let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
     let operation = ChatPluginOperation::new(plugin);
-    
+
     operation.get_related_questions(chat_id).await.unwrap()
   }
 
