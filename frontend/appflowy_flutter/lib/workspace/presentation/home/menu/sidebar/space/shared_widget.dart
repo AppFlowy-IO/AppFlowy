@@ -15,6 +15,8 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -277,17 +279,23 @@ class DeleteSpacePopup extends StatelessWidget {
 class SpacePopup extends StatelessWidget {
   const SpacePopup({
     super.key,
+    this.height,
+    this.useIntrinsicWidth = true,
+    this.expand = false,
     required this.showCreateButton,
     required this.child,
   });
 
   final bool showCreateButton;
+  final bool useIntrinsicWidth;
+  final bool expand;
+  final double? height;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: HomeSizes.workspaceSectionHeight,
+      height: height ?? HomeSizes.workspaceSectionHeight,
       child: AppFlowyPopover(
         constraints: const BoxConstraints(maxWidth: 260),
         direction: PopoverDirection.bottomWithLeftAligned,
@@ -300,7 +308,8 @@ class SpacePopup extends StatelessWidget {
           ),
         ),
         child: FlowyButton(
-          useIntrinsicWidth: true,
+          useIntrinsicWidth: useIntrinsicWidth,
+          expand: expand,
           margin: const EdgeInsets.only(left: 3.0, right: 4.0),
           iconPadding: 10.0,
           text: child,
@@ -313,37 +322,68 @@ class SpacePopup extends StatelessWidget {
 class CurrentSpace extends StatelessWidget {
   const CurrentSpace({
     super.key,
+    this.onTapBlankArea,
     required this.space,
   });
 
   final ViewPB space;
+  final VoidCallback? onTapBlankArea;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SpaceIcon(
-          dimension: 20,
-          space: space,
-          cornerRadius: 6.0,
-        ),
-        const HSpace(10),
-        Flexible(
-          child: FlowyText.medium(
-            space.name,
-            fontSize: 14.0,
-            overflow: TextOverflow.ellipsis,
+    final child = FlowyTooltip(
+      message: LocaleKeys.space_switchSpace.tr(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SpaceIcon(
+            dimension: 20,
+            space: space,
+            cornerRadius: 6.0,
           ),
-        ),
-        const HSpace(4.0),
-        FlowySvg(
-          context.read<SpaceBloc>().state.isExpanded
-              ? FlowySvgs.workspace_drop_down_menu_show_s
-              : FlowySvgs.workspace_drop_down_menu_hide_s,
-        ),
-      ],
+          const HSpace(10),
+          Flexible(
+            child: FlowyText.medium(
+              space.name,
+              fontSize: 14.0,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const HSpace(4.0),
+          FlowySvg(
+            context.read<SpaceBloc>().state.isExpanded
+                ? FlowySvgs.workspace_drop_down_menu_show_s
+                : FlowySvgs.workspace_drop_down_menu_hide_s,
+          ),
+        ],
+      ),
     );
+
+    if (onTapBlankArea != null) {
+      return Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: FlowyHover(
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: child,
+              ),
+            ),
+          ),
+          Expanded(
+            child: FlowyTooltip(
+              message: LocaleKeys.space_movePageToSpace.tr(),
+              child: GestureDetector(
+                onTap: onTapBlankArea,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return child;
   }
 }
 
