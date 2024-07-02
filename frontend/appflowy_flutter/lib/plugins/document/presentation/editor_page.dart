@@ -165,8 +165,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           style: styleCustomizer.selectionMenuStyleBuilder(),
         ),
 
-        customFormatGreaterEqual,
+        // emoji shortcut command
+        emojiShortcutCommand(context),
 
+        customFormatGreaterEqual,
         ...standardCharacterShortcutEvents
           ..removeWhere(
             (shortcut) => [
