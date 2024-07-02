@@ -1,8 +1,9 @@
 import { AlignType } from '@/application/collab.type';
 import { notify } from '@/components/_shared/notify';
+import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
 import { EditorElementProps, ImageBlockNode } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
-import React, { forwardRef, memo, useCallback, useMemo, useRef } from 'react';
+import React, { forwardRef, memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactEditor, useSelected, useSlateStatic } from 'slate-react';
 import ImageEmpty from './ImageEmpty';
@@ -28,21 +29,18 @@ export const ImageBlock = memo(
     }, [align]);
 
     const { t } = useTranslation();
+    const [showToolbar, setShowToolbar] = useState(false);
 
     return (
       <div
         {...attributes}
         ref={containerRef}
-        onClick={async () => {
+        onMouseEnter={() => {
           if (!url) return;
-          try {
-            await copyTextToClipboard(url);
-            notify.success(t('document.plugins.image.copiedToPasteBoard'));
-          } catch (_) {
-            // do nothing
-          }
+          setShowToolbar(true);
         }}
-        className={`${className || ''} image-block  relative w-full py-1 ${url ? 'cursor-pointer' : 'cursor-default'}`}
+        onMouseLeave={() => setShowToolbar(false)}
+        className={`${className || ''} image-block  cursor-default} relative w-full py-1`}
       >
         <div ref={ref} className={'absolute left-0 top-0 h-full w-full select-none caret-transparent'}>
           {children}
@@ -54,6 +52,19 @@ export const ImageBlock = memo(
             <ImageEmpty node={node} onEscape={onFocusNode} containerRef={containerRef} />
           )}
         </div>
+        {showToolbar && (
+          <RightTopActionsToolbar
+            onCopy={async () => {
+              if (!url) return;
+              try {
+                await copyTextToClipboard(url);
+                notify.success(t('publish.copy.imageBlock'));
+              } catch (_) {
+                // do nothing
+              }
+            }}
+          />
+        )}
       </div>
     );
   })

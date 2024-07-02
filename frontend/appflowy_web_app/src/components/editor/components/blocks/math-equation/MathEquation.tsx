@@ -1,9 +1,10 @@
 import KatexMath from '@/components/_shared/katex-math/KatexMath';
 import { notify } from '@/components/_shared/notify';
+import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
 import { EditorElementProps, MathEquationNode } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
 import { FunctionsOutlined } from '@mui/icons-material';
-import { forwardRef, memo, useRef } from 'react';
+import React, { forwardRef, memo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const MathEquation = memo(
@@ -12,41 +13,47 @@ export const MathEquation = memo(
       const formula = node.data.formula;
       const { t } = useTranslation();
       const containerRef = useRef<HTMLDivElement>(null);
+      const [showToolbar, setShowToolbar] = useState(false);
 
       return (
         <>
           <div
             {...attributes}
             ref={containerRef}
-            onClick={async () => {
+            contentEditable={false}
+            onMouseEnter={() => {
               if (!formula) return;
-              try {
-                await copyTextToClipboard(formula);
-                notify.success(t('document.plugins.math.copiedToPasteBoard'));
-              } catch (_) {
-                // do nothing
-              }
+              setShowToolbar(true);
             }}
+            onMouseLeave={() => setShowToolbar(false)}
             className={`${className} math-equation-block relative w-full ${
               formula ? 'cursor-pointer' : 'cursor-default'
-            } py-2`}
+            } container-bg w-full select-none rounded border border-transparent py-2 px-3 hover:border-line-divider hover:bg-fill-list-active`}
           >
-            <div
-              contentEditable={false}
-              className={`container-bg w-full select-none rounded  border border-line-divider bg-fill-list-active px-3`}
-            >
-              {formula ? (
-                <KatexMath latex={formula} />
-              ) : (
-                <div className={'flex h-[48px] w-full items-center gap-[10px] text-text-caption'}>
-                  <FunctionsOutlined />
-                  {t('document.plugins.mathEquation.addMathEquation')}
-                </div>
-              )}
-            </div>
+            {formula ? (
+              <KatexMath latex={formula} />
+            ) : (
+              <div className={'flex h-[48px] w-full items-center gap-[10px] text-text-caption'}>
+                <FunctionsOutlined />
+                {t('document.plugins.mathEquation.addMathEquation')}
+              </div>
+            )}
             <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
               {children}
             </div>
+            {showToolbar && (
+              <RightTopActionsToolbar
+                onCopy={async () => {
+                  if (!formula) return;
+                  try {
+                    await copyTextToClipboard(formula);
+                    notify.success(t('publish.copy.mathBlock'));
+                  } catch (_) {
+                    // do nothing
+                  }
+                }}
+              />
+            )}
           </div>
         </>
       );

@@ -11,7 +11,7 @@ export const Mention = memo(
     return (
       <span
         {...attributes}
-        contentEditable={false}
+        // contentEditable={false}
         className={`mention relative cursor-pointer ${selected ? 'selected' : ''}`}
         ref={ref}
       >

@@ -2042,6 +2042,11 @@
     "reportPage": "Report page",
     "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
     "createdWith": "Created with",
-    "downloadApp": "Download AppFlowy"
+    "downloadApp": "Download AppFlowy",
+    "copy": {
+      "codeBlock": "The content of code block has been copied to the clipboard",
+      "imageBlock": "The image link has been copied to the clipboard",
+      "mathBlock": "The math equation has been copied to the clipboard"
+    }
   }
 }

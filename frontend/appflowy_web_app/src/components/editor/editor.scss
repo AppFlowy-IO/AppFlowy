@@ -258,7 +258,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 .mention-inline {
   height: inherit;
   overflow: hidden;
-  @apply inline-flex select-none gap-1 relative;
+  @apply inline-flex gap-1 relative;
 
   .mention-icon {
     @apply absolute top-1/2 transform -translate-y-1/2;

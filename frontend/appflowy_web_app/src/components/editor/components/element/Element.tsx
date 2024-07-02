@@ -97,7 +97,7 @@ export const Element = memo(
       const data = (node.data as BlockData) || {};
       const align = data.align;
 
-      return `block-element flex rounded ${align ? `block-align-${align}` : ''}`;
+      return `block-element relative flex rounded ${align ? `block-align-${align}` : ''}`;
     }, [node.data]);
 
     const style = useMemo(() => {

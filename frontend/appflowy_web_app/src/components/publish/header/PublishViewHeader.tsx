@@ -34,6 +34,7 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
         name: ancestor.name,
         icon: icon,
         layout: ancestor.layout,
+        extra: ancestor.extra,
       };
     });
   }, [viewMeta]);
