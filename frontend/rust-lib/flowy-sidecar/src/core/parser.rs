@@ -20,7 +20,7 @@ impl MessageReader {
     self.0.clear();
     let _ = reader.read_line(&mut self.0)?;
     if self.0.is_empty() {
-      Err(ReadError::Disconnect)
+      Err(ReadError::Disconnect("Empty line".to_string()))
     } else {
       self.parse(&self.0)
     }

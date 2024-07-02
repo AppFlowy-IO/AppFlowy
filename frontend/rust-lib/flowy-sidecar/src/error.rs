@@ -33,7 +33,7 @@ pub enum ReadError {
   /// The the method and params were not recognized by the handler.
   UnknownRequest(serde_json::Error),
   /// The peer closed the connection.
-  Disconnect,
+  Disconnect(String),
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
@@ -68,7 +68,7 @@ pub enum RemoteError {
 impl ReadError {
   /// Returns `true` iff this is the `ReadError::Disconnect` variant.
   pub fn is_disconnect(&self) -> bool {
-    matches!(*self, ReadError::Disconnect)
+    matches!(*self, ReadError::Disconnect(_))
   }
 }
 
@@ -79,7 +79,7 @@ impl fmt::Display for ReadError {
       ReadError::Json(ref err) => write!(f, "JSON Error: {:?}", err),
       ReadError::NotObject(s) => write!(f, "Expected JSON object, found: {}", s),
       ReadError::UnknownRequest(ref err) => write!(f, "Unknown request: {:?}", err),
-      ReadError::Disconnect => write!(f, "Peer closed the connection."),
+      ReadError::Disconnect(reason) => write!(f, "Peer closed the connection, reason: {}", reason),
     }
   }
 }

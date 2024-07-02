@@ -164,6 +164,7 @@ impl<W: Write + Send> RpcLoop<W> {
             Ok(json) => json,
             Err(err) => {
               if self.peer.0.is_blocking() {
+                error!("[RPC] {:?}, disconnecting peer", err);
                 self.peer.disconnect();
               }
               self.peer.put_rpc_object(Err(err));
@@ -201,6 +202,7 @@ impl<W: Write + Send> RpcLoop<W> {
         let json = match read_result {
           Ok(json) => json,
           Err(err) => {
+            error!("[RPC] error reading message: {:?}, disconnecting peer", err);
             peer.disconnect();
             return err;
           },
