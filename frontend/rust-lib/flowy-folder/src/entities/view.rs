@@ -599,6 +599,9 @@ pub struct DuplicateViewPayloadPB {
   // If the suffix is None, the duplicated view will have the same name with (copy) suffix.
   #[pb(index = 5, one_of)]
   pub suffix: Option<String>,
+
+  #[pb(index = 6)]
+  pub sync_after_create: bool,
 }
 
 #[derive(Debug)]
@@ -612,6 +615,8 @@ pub struct DuplicateViewParams {
   pub parent_view_id: Option<String>,
 
   pub suffix: Option<String>,
+
+  pub sync_after_create: bool,
 }
 
 impl TryInto<DuplicateViewParams> for DuplicateViewPayloadPB {
@@ -625,6 +630,7 @@ impl TryInto<DuplicateViewParams> for DuplicateViewPayloadPB {
       include_children: self.include_children,
       parent_view_id: self.parent_view_id,
       suffix: self.suffix,
+      sync_after_create: self.sync_after_create,
     })
   }
 }

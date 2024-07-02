@@ -143,11 +143,13 @@ class ViewBackendService {
     required bool includeChildren,
     String? parentViewId,
     String? suffix,
+    required bool syncAfterDuplicate,
   }) {
     final payload = DuplicateViewPayloadPB.create()
       ..viewId = view.id
       ..openAfterDuplicate = openAfterDuplicate
-      ..includeChildren = includeChildren;
+      ..includeChildren = includeChildren
+      ..syncAfterCreate = syncAfterDuplicate;
 
     if (parentViewId != null) {
       payload.parentViewId = parentViewId;
