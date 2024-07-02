@@ -140,7 +140,7 @@ impl EventIntegrationTest {
       self
         .appflowy_core
         .folder_manager
-        .create_view_with_params(params)
+        .create_view_with_params(params, true)
         .await
         .unwrap();
     }

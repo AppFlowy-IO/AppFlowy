@@ -105,7 +105,7 @@ pub(crate) async fn create_view_handler(
   let folder = upgrade_folder(folder)?;
   let params: CreateViewParams = data.into_inner().try_into()?;
   let set_as_current = params.set_as_current;
-  let view = folder.create_view_with_params(params).await?;
+  let (view, _) = folder.create_view_with_params(params, true).await?;
   if set_as_current {
     let _ = folder.set_current_view(&view.id).await;
   }

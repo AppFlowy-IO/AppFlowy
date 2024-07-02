@@ -242,14 +242,11 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
         leftIcon: inner.leftIcon,
         rightIcon: inner.rightIcon,
         iconPadding: 10.0,
-        text: SizedBox(
-          height: 18.0,
-          child: FlowyText.regular(
-            inner.name,
-            color: inner == ViewMoreActionType.delete
-                ? Theme.of(context).colorScheme.error
-                : null,
-          ),
+        text: FlowyText.regular(
+          inner.name,
+          color: inner == ViewMoreActionType.delete
+              ? Theme.of(context).colorScheme.error
+              : null,
         ),
         onTap: onTap,
       ),

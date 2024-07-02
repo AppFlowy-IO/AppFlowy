@@ -10,7 +10,7 @@ use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLay
 use collab_database::workspace_database::{
   CollabDocStateByOid, CollabFuture, DatabaseCollabService, DatabaseMeta, WorkspaceDatabase,
 };
-use collab_entity::CollabType;
+use collab_entity::{CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
@@ -289,7 +289,7 @@ impl DatabaseManager {
     &self,
     view_id: &str,
     data: Vec<u8>,
-  ) -> FlowyResult<()> {
+  ) -> FlowyResult<EncodedCollab> {
     let database_data = DatabaseData::from_json_bytes(data)?;
 
     let mut create_database_params = CreateDatabaseParams::from_database_data(database_data);
@@ -305,8 +305,13 @@ impl DatabaseManager {
     }
 
     let wdb = self.get_database_indexer().await?;
-    let _ = wdb.create_database(create_database_params)?;
-    Ok(())
+    let database = wdb.create_database(create_database_params)?;
+    let encoded_collab = database
+      .lock()
+      .get_collab()
+      .lock()
+      .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))?;
+    Ok(encoded_collab)
   }
 
   pub async fn create_database_with_params(
