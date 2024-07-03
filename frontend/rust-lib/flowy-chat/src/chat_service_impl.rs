@@ -1,6 +1,6 @@
 use crate::chat_manager::ChatUserService;
-use crate::local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
 use crate::persistence::select_single_message;
+use appflowy_local_ai_chat::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
 use flowy_chat_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageType, CompletionType, MessageCursor,
   RepeatedChatMessage, RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
@@ -141,7 +141,7 @@ impl ChatCloudService for ChatService {
         .local_llm_chat
         .ask_question(chat_id, &content)
         .await?
-        .map_err(FlowyError::from);
+        .map_err(|err| FlowyError::local_ai().with_context(err));
       Ok(stream.boxed())
     } else {
       self

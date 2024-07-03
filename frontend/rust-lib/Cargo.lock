@@ -195,6 +195,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "appflowy-local-ai-chat"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=b7f51a3f#b7f51a3fe79142582d89c4e577ccd36957cc2c00"
+dependencies = [
+ "anyhow",
+ "appflowy-plugin",
+ "bytes",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+]
+
+[[package]]
+name = "appflowy-plugin"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=b7f51a3f#b7f51a3fe79142582d89c4e577ccd36957cc2c00"
+dependencies = [
+ "anyhow",
+ "cfg-if",
+ "crossbeam-utils",
+ "log",
+ "once_cell",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+]
+
+[[package]]
 name = "arc-swap"
 version = "1.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1667,6 +1701,8 @@ version = "0.1.0"
 dependencies = [
  "allo-isolate",
  "anyhow",
+ "appflowy-local-ai-chat",
+ "appflowy-plugin",
  "bytes",
  "dashmap",
  "dotenv",
@@ -1675,7 +1711,6 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
- "flowy-sidecar",
  "flowy-sqlite",
  "futures",
  "lib-dispatch",
@@ -1963,7 +1998,6 @@ dependencies = [
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
- "flowy-sidecar",
  "flowy-sqlite",
  "lib-dispatch",
  "protobuf",
@@ -2152,24 +2186,6 @@ dependencies = [
  "flowy-error",
  "serde",
  "serde_repr",
-]
-
-[[package]]
-name = "flowy-sidecar"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "crossbeam-utils",
- "lib-infra",
- "log",
- "once_cell",
- "parking_lot 0.12.1",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tokio-stream",
- "tracing",
 ]
 
 [[package]]

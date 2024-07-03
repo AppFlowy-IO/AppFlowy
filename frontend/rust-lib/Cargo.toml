@@ -32,7 +32,6 @@ members = [
     "flowy-chat",
     "flowy-chat-pub",
     "flowy-storage-pub",
-    "flowy-sidecar",
 ]
 resolver = "2"
 
@@ -68,7 +67,6 @@ collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-date = { workspace = true, path = "flowy-date" }
 flowy-chat = { workspace = true, path = "flowy-chat" }
 flowy-chat-pub = { workspace = true, path = "flowy-chat-pub" }
-flowy-sidecar = { workspace = true, path = "flowy-sidecar" }
 anyhow = "1.0"
 tracing = "0.1.40"
 bytes = "1.5.0"
@@ -146,3 +144,6 @@ collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFl
 collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3a58d95" }
 collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3a58d95" }
 collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3a58d95" }
+
+appflowy-local-ai-chat = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "b7f51a3f" }
+appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "b7f51a3f" }

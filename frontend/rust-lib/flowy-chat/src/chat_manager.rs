@@ -1,12 +1,12 @@
 use crate::chat::Chat;
 use crate::chat_service_impl::ChatService;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
-use crate::local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
 use crate::persistence::{insert_chat, ChatTable};
+use appflowy_local_ai_chat::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
+use appflowy_plugin::manager::SidecarManager;
 use dashmap::DashMap;
 use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageType};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sidecar::manager::SidecarManager;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use lib_infra::util::timestamp;

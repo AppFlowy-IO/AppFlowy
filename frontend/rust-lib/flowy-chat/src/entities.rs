@@ -1,4 +1,4 @@
-use crate::local_ai::llm_chat::LocalLLMSetting;
+use appflowy_local_ai_chat::llm_chat::LocalLLMSetting;
 use flowy_chat_pub::cloud::{
   ChatMessage, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
 };
