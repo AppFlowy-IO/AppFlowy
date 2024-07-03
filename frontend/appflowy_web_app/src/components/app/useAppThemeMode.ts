@@ -9,7 +9,11 @@ export const ThemeModeContext = createContext<
 >(undefined);
 
 export function useAppThemeMode() {
-  const [isDark, setIsDark] = useState<boolean>(false);
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    const darkMode = localStorage.getItem('dark-mode');
+
+    return darkMode === 'true';
+  });
 
   useEffect(() => {
     function detectColorScheme() {
@@ -28,6 +32,7 @@ export function useAppThemeMode() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-dark-mode', isDark ? 'true' : 'false');
+    localStorage.setItem('dark-mode', isDark ? 'true' : 'false');
   }, [isDark]);
 
   return {
