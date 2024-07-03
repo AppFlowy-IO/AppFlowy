@@ -111,7 +111,10 @@
     "publishToTheWebHint": "Create a website with AppFlowy",
     "publish": "Publish",
     "unPublish": "Unpublish",
-    "visitSite": "Visit site"
+    "visitSite": "Visit site",
+    "exportAsTab": "Export as",
+    "publishTab": "Publish",
+    "shareTab": "Share"
   },
   "moreAction": {
     "small": "small",

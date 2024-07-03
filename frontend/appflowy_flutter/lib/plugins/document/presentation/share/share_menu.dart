@@ -12,26 +12,25 @@ enum ShareMenuTab {
   publish,
   exportAs;
 
-  static List<ShareMenuTab> supportedTabs = [
-    // ShareMenuTab.share,
-    ShareMenuTab.publish,
-    ShareMenuTab.exportAs,
-  ];
-
   String get i18n {
     switch (this) {
       case ShareMenuTab.share:
-        return 'Share';
+        return LocaleKeys.shareAction_shareTab.tr();
       case ShareMenuTab.publish:
-        return LocaleKeys.shareAction_publish;
+        return LocaleKeys.shareAction_publishTab.tr();
       case ShareMenuTab.exportAs:
-        return 'Export as';
+        return LocaleKeys.shareAction_exportAsTab.tr();
     }
   }
 }
 
 class ShareMenu extends StatefulWidget {
-  const ShareMenu({super.key});
+  const ShareMenu({
+    super.key,
+    required this.tabs,
+  });
+
+  final List<ShareMenuTab> tabs;
 
   @override
   State<ShareMenu> createState() => _ShareMenuState();
@@ -39,15 +38,19 @@ class ShareMenu extends StatefulWidget {
 
 class _ShareMenuState extends State<ShareMenu>
     with SingleTickerProviderStateMixin {
-  ShareMenuTab selectedTab = ShareMenuTab.publish;
+  late ShareMenuTab selectedTab = widget.tabs.first;
   late final tabController = TabController(
-    length: ShareMenuTab.supportedTabs.length,
+    length: widget.tabs.length,
     vsync: this,
-    initialIndex: ShareMenuTab.supportedTabs.indexOf(selectedTab),
+    initialIndex: widget.tabs.indexOf(selectedTab),
   );
 
   @override
   Widget build(BuildContext context) {
+    if (widget.tabs.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -79,7 +82,7 @@ class _ShareMenuState extends State<ShareMenu>
 
   Widget _buildTabBar(BuildContext context) {
     final children = [
-      for (final tab in ShareMenuTab.supportedTabs)
+      for (final tab in widget.tabs)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: _Segment(
@@ -103,7 +106,7 @@ class _ShareMenuState extends State<ShareMenu>
       tabs: children,
       onTap: (index) {
         setState(() {
-          selectedTab = ShareMenuTab.supportedTabs[index];
+          selectedTab = widget.tabs[index];
         });
       },
     );

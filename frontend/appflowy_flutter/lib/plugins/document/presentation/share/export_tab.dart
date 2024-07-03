@@ -6,7 +6,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -81,9 +81,16 @@ class ExportTab extends StatelessWidget {
         DocumentExporter(context.read<DocumentShareBloc>().view);
     final result = await documentExporter.export(DocumentExportType.markdown);
     result.fold(
-      (markdown) => getIt<ClipboardService>()
-          .setData(ClipboardServiceData(plainText: markdown)),
-      (error) => showMessageToast(error.msg),
+      (markdown) {
+        getIt<ClipboardService>().setData(
+          ClipboardServiceData(plainText: markdown),
+        );
+        showToastNotification(
+          context,
+          message: LocaleKeys.grid_url_copiedNotification.tr(),
+        );
+      },
+      (error) => showToastNotification(context, message: error.msg),
     );
   }
 }

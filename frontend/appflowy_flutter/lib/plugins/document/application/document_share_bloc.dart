@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -7,6 +8,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -31,12 +33,18 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
             );
 
           final publishInfo = await ViewBackendService.getPublishInfo(view);
+          final enablePublish =
+              await UserBackendService.getCurrentUserProfile().fold(
+            (v) => v.authenticator == AuthenticatorPB.AppFlowyCloud,
+            (p) => false,
+          );
           publishInfo.fold((s) {
             emit(
               state.copyWith(
                 isPublished: true,
                 url: '$_url/${s.namespace}/${s.publishName}',
                 viewName: view.name,
+                enablePublish: enablePublish,
               ),
             );
           }, (f) {
@@ -45,6 +53,7 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
                 isPublished: false,
                 url: '',
                 viewName: view.name,
+                enablePublish: enablePublish,
               ),
             );
           });
@@ -220,18 +229,20 @@ class DocumentShareEvent with _$DocumentShareEvent {
 @freezed
 class DocumentShareState with _$DocumentShareState {
   const factory DocumentShareState({
-    required bool isLoading,
-    FlowyResult<ExportDataPB, FlowyError>? exportResult,
     required bool isPublished,
-    FlowyResult<void, FlowyError>? publishResult,
-    FlowyResult<void, FlowyError>? unpublishResult,
+    required bool isLoading,
     required String url,
     required String viewName,
+    required bool enablePublish,
+    FlowyResult<ExportDataPB, FlowyError>? exportResult,
+    FlowyResult<void, FlowyError>? publishResult,
+    FlowyResult<void, FlowyError>? unpublishResult,
   }) = _DocumentShareState;
 
   factory DocumentShareState.initial() => const DocumentShareState(
         isLoading: false,
         isPublished: false,
+        enablePublish: true,
         url: '',
         viewName: '',
       );

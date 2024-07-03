@@ -43,6 +43,10 @@ class DocumentShareButton extends StatelessWidget {
         },
         child: BlocBuilder<DocumentShareBloc, DocumentShareState>(
           builder: (context, state) {
+            final tabs = [
+              if (state.enablePublish) ShareMenuTab.publish,
+              ShareMenuTab.exportAs,
+            ];
             final shareBloc = context.read<DocumentShareBloc>();
             return SizedBox(
               height: 32.0,
@@ -55,12 +59,18 @@ class DocumentShareButton extends StatelessWidget {
                   offset: const Offset(0, 8),
                   popupBuilder: (context) => BlocProvider.value(
                     value: shareBloc,
-                    child: const ShareMenu(),
+                    child: ShareMenu(
+                      tabs: tabs,
+                    ),
                   ),
                   child: RoundedTextButton(
                     title: LocaleKeys.shareAction_buttonText.tr(),
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 14.0),
                     fontSize: 14.0,
+                    fontWeight: FontWeight.w500,
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(10.0),
+                    ),
                     textColor: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
