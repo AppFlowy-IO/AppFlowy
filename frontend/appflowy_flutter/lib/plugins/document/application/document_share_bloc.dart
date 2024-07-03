@@ -14,7 +14,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'document_share_bloc.freezed.dart';
 
 // todo: replace with beta
-const _url = 'https://test.appflowy.com';
+const _url = 'https://beta.appflowy.com';
 
 class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
   DocumentShareBloc({

@@ -306,6 +306,11 @@ void showToastNotification(
     alignment: Alignment.bottomCenter,
     autoCloseDuration: const Duration(seconds: 4),
     showProgressBar: false,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    borderSide: BorderSide(
+      width: 1.5,
+      color: Colors.grey.withOpacity(0.4),
+    ),
   );
 }
 
