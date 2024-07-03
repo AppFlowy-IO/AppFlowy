@@ -22,7 +22,9 @@ export function useAppThemeMode() {
       setIsDark(darkModeMediaQuery.matches);
     }
 
-    detectColorScheme();
+    if (localStorage.getItem('dark-mode') === null) {
+      detectColorScheme();
+    }
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectColorScheme);
     return () => {
