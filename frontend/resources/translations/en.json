@@ -82,7 +82,7 @@
       "reachOut": "Reach out on Discord"
     },
     "menuTitle": "Workspaces",
-    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
+    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone, and any pages you have published will be unpublished.",
     "createSuccess": "Workspace created successfully",
     "createFailed": "Failed to create workspace",
     "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
@@ -439,7 +439,7 @@
       },
       "deleteWorkspacePrompt": {
         "title": "Delete workspace",
-        "content": "Are you sure you want to delete this workspace? This action cannot be undone."
+        "content": "Are you sure you want to delete this workspace? This action cannot be undone, and any pages you have published will be unpublished."
       },
       "leaveWorkspacePrompt": {
         "title": "Leave workspace",
@@ -2008,7 +2008,7 @@
   "space": {
     "delete": "Delete",
     "deleteConfirmation": "Delete: ",
-    "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to Trash.",
+    "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to the Trash, and any published pages will be unpublished.",
     "rename": "Rename Space",
     "changeIcon": "Change icon",
     "manage": "Manage Space",

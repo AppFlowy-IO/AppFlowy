@@ -14,7 +14,6 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -726,7 +725,14 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 views.map((e) => ViewBackendService.getPublishInfo(e)),
               ).then((value) => value.where((e) => e.isSuccess));
               if (containPublishedPage.isNotEmpty && context.mounted) {
-                _showDeleteDialog(context);
+                await showConfirmDeletionDialog(
+                  context: context,
+                  name: widget.view.name,
+                  description: LocaleKeys.publish_containsPublishedPage.tr(),
+                  onConfirm: () {
+                    context.read<ViewBloc>().add(const ViewEvent.delete());
+                  },
+                );
               } else if (context.mounted) {
                 context.read<ViewBloc>().add(const ViewEvent.delete());
               }
@@ -789,30 +795,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         return LocaleKeys.chat_newChat.tr();
     }
     return LocaleKeys.newPageText.tr();
-  }
-
-  void _showDeleteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: SizedBox(
-            width: 440,
-            child: ConfirmDeletionPopup(
-              title:
-                  LocaleKeys.space_deleteConfirmation.tr() + widget.view.name,
-              description: LocaleKeys.publish_containsPublishedPage.tr(),
-              onConfirm: () {
-                context.read<ViewBloc>().add(const ViewEvent.delete());
-              },
-            ),
-          ),
-        );
-      },
-    );
   }
 }
 
