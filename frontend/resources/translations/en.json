@@ -2054,6 +2054,7 @@
     "containsPublishedPage": "This page contains one or more published page, it will be unpublished if you continue.",
     "publishSuccessfully": "Published successfully",
     "unpublishSuccessfully": "Unpublished successfully",
-    "publishFailed": "Failed to publish"
+    "publishFailed": "Failed to publish",
+    "unpublishFailed": "Failed to unpublish"
   }
 }

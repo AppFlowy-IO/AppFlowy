@@ -22,19 +22,7 @@ class PublishTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<DocumentShareBloc, DocumentShareState>(
       listener: (context, state) {
-        if (state.publishResult != null) {
-          state.publishResult!.fold(
-            (value) => showToastNotification(
-              context,
-              message: LocaleKeys.publish_publishSuccessfully.tr(),
-            ),
-            (error) => showToastNotification(
-              context,
-              message:
-                  '${LocaleKeys.publish_publishFailed.tr()}: ${error.code}',
-            ),
-          );
-        }
+        _showToast(context, state);
       },
       builder: (context, state) {
         return state.isPublished
@@ -63,6 +51,33 @@ class PublishTab extends StatelessWidget {
               );
       },
     );
+  }
+
+  void _showToast(BuildContext context, DocumentShareState state) {
+    if (state.publishResult != null) {
+      state.publishResult!.fold(
+        (value) => showToastNotification(
+          context,
+          message: LocaleKeys.publish_publishSuccessfully.tr(),
+        ),
+        (error) => showToastNotification(
+          context,
+          message: '${LocaleKeys.publish_publishFailed.tr()}: ${error.code}',
+        ),
+      );
+    } else if (state.unpublishResult != null) {
+      state.unpublishResult!.fold(
+        (value) => showToastNotification(
+          context,
+          message: LocaleKeys.publish_unpublishSuccessfully.tr(),
+        ),
+        (error) => showToastNotification(
+          context,
+          message: LocaleKeys.publish_unpublishFailed.tr(),
+          description: error.msg,
+        ),
+      );
+    }
   }
 }
 

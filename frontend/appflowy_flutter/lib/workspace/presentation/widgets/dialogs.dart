@@ -295,7 +295,14 @@ void showToastNotification(
     type: ToastificationType.success,
     style: ToastificationStyle.flat,
     title: FlowyText(message),
-    description: description != null ? FlowyText(description) : null,
+    description: description != null
+        ? FlowyText.regular(
+            description,
+            fontSize: 12,
+            lineHeight: 1.2,
+            maxLines: 3,
+          )
+        : null,
     alignment: Alignment.bottomCenter,
     autoCloseDuration: const Duration(seconds: 4),
     showProgressBar: false,

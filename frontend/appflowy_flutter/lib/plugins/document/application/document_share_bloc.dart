@@ -13,6 +13,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'document_share_bloc.freezed.dart';
 
+// todo: replace with beta
 const _url = 'https://test.appflowy.com';
 
 class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
@@ -80,6 +81,7 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
               state.copyWith(
                 isPublished: true,
                 publishResult: FlowySuccess(null),
+                unpublishResult: null,
                 url: '$_url/${result.namespace}/$publishName',
               ),
             );
@@ -92,12 +94,20 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
                 publishResult: FlowyResult.failure(
                   FlowyError(msg: 'publish error: $e'),
                 ),
+                unpublishResult: null,
                 url: '',
               ),
             );
           }
         },
         unPublish: () async {
+          emit(
+            state.copyWith(
+              publishResult: null,
+              unpublishResult: null,
+            ),
+          );
+
           final result = await ViewBackendService.unpublish(view);
           final isPublished = !result.isSuccess;
           result.onFailure((f) {
@@ -108,7 +118,8 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
             state.copyWith(
               isPublished: isPublished,
               publishResult: null,
-              url: '',
+              unpublishResult: result,
+              url: result.fold((_) => '', (_) => state.url),
             ),
           );
         },
@@ -213,6 +224,7 @@ class DocumentShareState with _$DocumentShareState {
     FlowyResult<ExportDataPB, FlowyError>? exportResult,
     required bool isPublished,
     FlowyResult<void, FlowyError>? publishResult,
+    FlowyResult<void, FlowyError>? unpublishResult,
     required String url,
     required String viewName,
   }) = _DocumentShareState;
