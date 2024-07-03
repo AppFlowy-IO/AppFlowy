@@ -107,8 +107,8 @@
     "clipboard": "Copy to clipboard",
     "csv": "CSV",
     "copyLink": "Copy Link",
-    "publishToTheWeb": "Publish to the web",
-    "publishToTheWebHint": "Publish a static website of this page",
+    "publishToTheWeb": "Publish to Web",
+    "publishToTheWebHint": "Create a website with AppFlowy",
     "publish": "Publish",
     "unPublish": "Unpublish",
     "visitSite": "Visit site"
@@ -2051,6 +2051,9 @@
       "imageBlock": "The image link has been copied to the clipboard",
       "mathBlock": "The math equation has been copied to the clipboard"
     },
-    "containsPublishedPage": "This page contains one or more published page, it will be unpublished if you continue."
+    "containsPublishedPage": "This page contains one or more published page, it will be unpublished if you continue.",
+    "publishSuccessfully": "Published successfully",
+    "unpublishSuccessfully": "Unpublished successfully",
+    "publishFailed": "Failed to publish"
   }
 }

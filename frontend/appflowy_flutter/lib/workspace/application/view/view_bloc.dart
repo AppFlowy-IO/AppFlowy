@@ -140,12 +140,14 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           },
           delete: (e) async {
             final result = await ViewBackendService.delete(viewId: view.id);
+
+            result.onSuccess((_) {
+              add(const ViewEvent.unpublish(sync: false));
+            });
+
             emit(
               result.fold(
                 (l) {
-                  // unpublish the page if it's published
-                  unawaited(_unpublishPage(view));
-
                   return state.copyWith(
                     successOrFailure: FlowyResult.success(null),
                   );
@@ -187,8 +189,11 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             );
             emit(
               result.fold(
-                (l) =>
-                    state.copyWith(successOrFailure: FlowyResult.success(null)),
+                (l) {
+                  return state.copyWith(
+                    successOrFailure: FlowyResult.success(null),
+                  );
+                },
                 (error) => state.copyWith(
                   successOrFailure: FlowyResult.failure(error),
                 ),
@@ -242,6 +247,13 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               await _setViewIsExpanded(childView, false);
             }
             add(const ViewEvent.setIsExpanded(false));
+          },
+          unpublish: (value) async {
+            if (value.sync) {
+              await _unpublishPage(view);
+            } else {
+              unawaited(_unpublishPage(view));
+            }
           },
         );
       },
@@ -390,14 +402,28 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
     return null;
   }
 
+  // unpublish the page and all its child pages
   Future<void> _unpublishPage(ViewPB view) async {
     final allChildViews = await _getAllChildViews(view);
     final views = [view, ...allChildViews];
 
     // unpublish
-    for (final view in views) {
-      await ViewBackendService.unpublish(view);
-    }
+    await Future.wait(
+      views.map((view) => ViewBackendService.getPublishInfo(view)),
+    ).then((results) {
+      final viewsToUnpublish = <ViewPB>[];
+      for (var i = 0; i < results.length; i++) {
+        final result = results[i];
+        if (result.isSuccess) {
+          viewsToUnpublish.add(views[i]);
+        }
+      }
+      return viewsToUnpublish;
+    }).then((views) async {
+      await Future.wait(
+        views.map((view) => ViewBackendService.unpublish(view)),
+      );
+    });
   }
 
   Future<List<ViewPB>> _getAllChildViews(ViewPB view) async {
@@ -468,6 +494,8 @@ class ViewEvent with _$ViewEvent {
   ) = UpdateViewVisibility;
   const factory ViewEvent.updateIcon(String? icon) = UpdateIcon;
   const factory ViewEvent.collapseAllPages() = CollapseAllPages;
+  // this event will unpublish the page and all its child pages if they are published
+  const factory ViewEvent.unpublish({required bool sync}) = Unpublish;
 }
 
 @freezed

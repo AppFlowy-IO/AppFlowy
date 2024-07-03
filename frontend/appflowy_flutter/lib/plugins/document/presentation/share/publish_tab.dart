@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/document/presentation/share/pubish_color_extens
 import 'package:appflowy/plugins/document/presentation/share/publish_name_generator.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -25,9 +24,15 @@ class PublishTab extends StatelessWidget {
       listener: (context, state) {
         if (state.publishResult != null) {
           state.publishResult!.fold(
-            (value) => showSnackBarMessage(context, 'Published successfully'),
-            (error) =>
-                showSnackBarMessage(context, 'Failed to publish: $error'),
+            (value) => showToastNotification(
+              context,
+              message: LocaleKeys.publish_publishSuccessfully.tr(),
+            ),
+            (error) => showToastNotification(
+              context,
+              message:
+                  '${LocaleKeys.publish_publishFailed.tr()}: ${error.code}',
+            ),
           );
         }
       },
