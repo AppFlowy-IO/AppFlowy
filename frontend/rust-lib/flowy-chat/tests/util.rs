@@ -10,6 +10,8 @@ use flowy_chat::local_ai::chat_plugin::ChatPluginOperation;
 use flowy_chat::local_ai::embedding_plugin::EmbeddingPluginOperation;
 use flowy_sidecar::core::plugin::{PluginId, PluginInfo};
 use flowy_sidecar::error::SidecarError;
+use simsimd::SpatialSimilarity;
+use std::f64;
 use tracing_subscriber::fmt::Subscriber;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
@@ -104,11 +106,21 @@ impl LocalAITest {
   ) -> f64 {
     let plugin = self.manager.get_plugin(plugin_id).await.unwrap();
     let operation = EmbeddingPluginOperation::new(plugin);
-    operation
-      .calculate_similarity(message1, message2)
-      .await
-      .unwrap()
+    let left = operation.get_embeddings(message1).await.unwrap();
+    let right = operation.get_embeddings(message2).await.unwrap();
+
+    let actual_embedding_flat = flatten_vec(left);
+    let expected_embedding_flat = flatten_vec(right);
+    let distance = f64::cosine(&actual_embedding_flat, &expected_embedding_flat)
+      .expect("Vectors must be of the same length");
+
+    distance.cos()
   }
+}
+
+// Function to flatten Vec<Vec<f64>> into Vec<f64>
+fn flatten_vec(vec: Vec<Vec<f64>>) -> Vec<f64> {
+  vec.into_iter().flatten().collect()
 }
 
 pub struct LocalAIConfiguration {

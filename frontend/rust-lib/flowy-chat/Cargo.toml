@@ -40,6 +40,7 @@ parking_lot.workspace = true
 dotenv = "0.15.0"
 uuid.workspace = true
 tracing-subscriber = { version = "0.3.17", features = ["registry", "env-filter", "ansi", "json"] }
+simsimd = "4.4.0"
 
 [build-dependencies]
 flowy-codegen.workspace = true
