@@ -1,5 +1,11 @@
 import { YDoc } from '@/application/collab.type';
-import { getBatchCollabs, getPublishView, getPublishViewMeta } from '@/application/services/js-services/cache';
+import {
+  deleteView,
+  getBatchCollabs,
+  getPublishView,
+  getPublishViewMeta,
+  hasViewMetaCache,
+} from '@/application/services/js-services/cache';
 import { StrategyType } from '@/application/services/js-services/cache/types';
 import { fetchPublishView, fetchPublishViewMeta, fetchViewInfo } from '@/application/services/js-services/fetch';
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
@@ -56,8 +62,20 @@ export class AFClientService implements AFService {
 
     const isLoaded = this.publishViewLoaded.has(name);
     const doc = await getPublishView(
-      () => {
-        return fetchPublishView(namespace, publishName);
+      async () => {
+        try {
+          return await fetchPublishView(namespace, publishName);
+        } catch (e) {
+          void (async () => {
+            if (await hasViewMetaCache(name)) {
+              this.publishViewLoaded.delete(name);
+              void deleteView(name);
+              window.location.reload();
+            }
+          })();
+
+          return Promise.reject(e);
+        }
       },
       {
         namespace,

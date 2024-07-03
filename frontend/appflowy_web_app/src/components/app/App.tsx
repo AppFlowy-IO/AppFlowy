@@ -8,6 +8,7 @@ const AppMain = withAppWrapper(() => {
   return (
     <Routes>
       <Route path={'/:namespace/:publishName'} element={<PublishPage />} />
+      <Route path='/404' element={<NotFound />} />
       <Route path='*' element={<NotFound />} />
     </Routes>
   );

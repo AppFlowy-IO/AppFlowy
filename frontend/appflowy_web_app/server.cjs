@@ -62,26 +62,28 @@ const createServer = async (req) => {
   const reqUrl = new URL(req.url);
 
   logger.info(`Request URL: ${reqUrl.pathname}`);
-
+  
   const [
     namespace,
     publishName,
   ] = reqUrl.pathname.slice(1).split('/');
 
-  logger.info(`Namespace: ${namespace}, Puganblish Name: ${publishName}`);
-
-  if (namespace === '' || !publishName) {
-    timer();
-    return new Response(null, {
-      status: 302,
-      headers: {
-        'Location': 'https://appflowy.io',
-      },
-    });
-  }
+  logger.info(`Namespace: ${namespace}, Publish Name: ${publishName}`);
 
   if (req.method === 'GET') {
+
+    if (namespace === '' || !publishName) {
+      timer();
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': 'https://appflowy.io',
+        },
+      });
+    }
+
     let metaData;
+
     try {
       metaData = await fetchMetaData(`${BASE_URL}/api/workspace/published/${namespace}/${publishName}`);
     } catch (error) {

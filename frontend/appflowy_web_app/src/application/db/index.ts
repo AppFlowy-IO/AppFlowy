@@ -42,3 +42,17 @@ export async function openCollabDB(docName: string): Promise<YDoc> {
 
   return doc as YDoc;
 }
+
+export async function closeCollabDB(docName: string) {
+  const name = `${databasePrefix}_${docName}`;
+
+  if (openedSet.has(name)) {
+    openedSet.delete(name);
+  }
+
+  const doc = new Y.Doc();
+
+  const provider = new IndexeddbPersistence(name, doc);
+
+  await provider.destroy();
+}
