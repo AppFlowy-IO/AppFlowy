@@ -4,6 +4,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_sidecar::core::plugin::{Plugin, PluginId, PluginInfo};
 use flowy_sidecar::error::SidecarError;
 use flowy_sidecar::manager::SidecarManager;
+use lib_infra::util::{get_operating_system, OperatingSystem};
 use log::error;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -209,6 +210,7 @@ impl LocalChatLLMChat {
       }
     }
 
+    let system = get_operating_system();
     // Initialize chat plugin if the config is different
     // If the chat_bin_path is different, remove the old plugin
     if let Err(err) = self.destroy_chat_plugin().await {
@@ -227,13 +229,35 @@ impl LocalChatLLMChat {
     // init plugin
     trace!("[Chat Plugin] init chat plugin model: {:?}", plugin_id);
     let model_path = config.chat_model_path.clone();
-    let plugin = self.sidecar_manager.init_plugin(
-      plugin_id,
-      serde_json::json!({
-        "absolute_chat_model_path": model_path,
-      }),
-    )?;
+    let params = match system {
+      OperatingSystem::Windows => {
+        serde_json::json!({
+          "absolute_chat_model_path": model_path,
+          "device": "cpu",
+        })
+      },
+      OperatingSystem::Linux => {
+        serde_json::json!({
+          "absolute_chat_model_path": model_path,
+          "device": "cpu",
+        })
+      },
+      OperatingSystem::MacOS => {
+        serde_json::json!({
+          "absolute_chat_model_path": model_path,
+          "device": "gpu",
+        })
+      },
+      _ => {
+        return Err(FlowyError::local_ai().with_context("Unsupported operating system"));
+      },
+    };
 
+    info!(
+      "[Chat Plugin] setup chat plugin: {:?}, params: {:?}",
+      plugin_id, params
+    );
+    let plugin = self.sidecar_manager.init_plugin(plugin_id, params)?;
     info!("[Chat Plugin] {} setup success", plugin);
     self.plugin_config.write().await.replace(config);
     self.update_state(LLMState::Ready { plugin_id }).await;
@@ -310,6 +334,11 @@ impl LLMState {
   }
 
   fn is_ready(&self) -> bool {
-    matches!(self, LLMState::Ready { .. })
+    let system = get_operating_system();
+    if system.is_desktop() {
+      return matches!(self, LLMState::Ready { .. });
+    } else {
+      false
+    }
   }
 }
