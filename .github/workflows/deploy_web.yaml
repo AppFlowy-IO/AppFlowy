@@ -1,15 +1,28 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-      - build/test
   workflow_dispatch:
     inputs:
       environment:
         description: 'Environment'
         required: true
         default: 'test'
+      port:
+        description: 'Docker Port'
+        required: true
+        default: '30012'
+      api_base_url:
+        description: 'API Base URL'
+        required: true
+        default: 'https://test.appflowy.cloud'
+      api_gotrue_url:
+        description: 'GoTrue API URL'
+        required: true
+        default: 'https://test.appflowy.cloud/gotrue'
+      ws_url:
+        description: 'Websocket URL'
+        required: true
+        default: 'wss://test.appflowy.cloud/ws/v1'
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
@@ -40,16 +53,12 @@ jobs:
         working-directory: frontend/appflowy_web_app
         run: |
           pnpm install
-      - name: generate env file (Test)
-        if: github.event.inputs.environment == 'test' || github.ref == 'refs/heads/build/test'
+      - name: generate env file
         working-directory: frontend/appflowy_web_app
         run: |
-          cp test.env .env
-      - name: generate env file (Prod)
-        if: github.event.inputs.environment == 'prod'
-        working-directory: frontend/appflowy_web_app
-        run: |
-          cp beta.env .env
+          echo "AF_BASE_URL=${{ github.event.inputs.api_base_url }}" >> .env
+          echo "AF_GOTRUE_URL=${{ github.event.inputs.api_gotrue_url }}" >> .env
+          echo "AF_WS_URL=${{ github.event.inputs.ws_url }}" >> .env
       - name: test and lint
         working-directory: frontend/appflowy_web_app
         run: |
@@ -61,22 +70,22 @@ jobs:
       - name: Archive build output
         working-directory: frontend/appflowy_web_app
         run: |
-          tar -czf build-output.tar.gz dist server.cjs start.sh Dockerfile nginx.conf .env supervisord.conf
+          tar -czf build-output.tar.gz dist deploy/server.cjs deploy/start.sh deploy/Dockerfile deploy/nginx.conf .env deploy/supervisord.conf
 
       - name: Deploy to EC2 (Test)
-        if: github.event.inputs.environment == 'test' || github.ref == 'refs/heads/build/test'
+        if: github.event.inputs.environment == 'test'
         uses: easingthemes/ssh-deploy@main
         with:
           SSH_PRIVATE_KEY: ${{ secrets.WEB_TEST_SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i"
-          SOURCE: frontend/appflowy_web_app/build-output.tar.gz frontend/appflowy_web_app/deploy.sh
+          SOURCE: frontend/appflowy_web_app/build-output.tar.gz frontend/appflowy_web_app/deploy/deploy.sh
           TARGET: /home/${{ secrets.WEB_TEST_REMOTE_USER }}/appflowy-web-app
           REMOTE_HOST: ${{ secrets.WEB_TEST_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.WEB_TEST_REMOTE_USER }}
           SCRIPT_AFTER: |
             cd appflowy-web-app
             chmod +x deploy.sh
-            sh deploy.sh
+            sh deploy.sh ${{ github.event.inputs.port }}
       - name: Deploy to EC2 (Prod)
         if: github.event.inputs.environment == 'prod'
         uses: easingthemes/ssh-deploy@main
@@ -84,10 +93,10 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.WEB_PROD_SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i"
           TARGET: /home/${{ secrets.WEB_PROD_REMOTE_USER }}/appflowy-web-app
-          SOURCE: frontend/appflowy_web_app/build-output.tar.gz frontend/appflowy_web_app/deploy.sh
+          SOURCE: frontend/appflowy_web_app/build-output.tar.gz frontend/appflowy_web_app/deploy/deploy.sh
           REMOTE_HOST: ${{ secrets.WEB_PROD_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.WEB_PROD_REMOTE_USER }}
           SCRIPT_AFTER: |
             cd appflowy-web-app
             chmod +x deploy.sh
-            sh deploy.sh
+            sh deploy.sh ${{ github.event.inputs.port }}

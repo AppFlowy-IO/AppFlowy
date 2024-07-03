@@ -7,7 +7,7 @@ RUN apt-get update && \
 
 RUN bun install cheerio pino pino-pretty
 
-COPY . .
+COPY .. .
 
 COPY supervisord.conf /app/supervisord.conf
 
@@ -17,7 +17,7 @@ RUN addgroup --system nginx && \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
-COPY dist/ /usr/share/nginx/html/
+COPY ../dist /usr/share/nginx/html/
 
 COPY nginx.conf /etc/nginx/nginx.conf
 

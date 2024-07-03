@@ -6,7 +6,7 @@ const { fetch } = require('bun');
 
 const distDir = path.join(__dirname, 'dist');
 const indexPath = path.join(distDir, 'index.html');
-
+const baseURL = process.env.AF_BASE_URL;
 const setOrUpdateMetaTag = ($, selector, attribute, content) => {
   if ($(selector).length === 0) {
     $('head').append(`<meta ${attribute}="${selector.match(/\[(.*?)\]/)[1]}" content="${content}">`);
@@ -86,10 +86,6 @@ const createServer = async (req) => {
     let metaData;
 
     try {
-      const isBeta = hostname.startsWith('beta');
-      const isTest = hostname.startsWith('test');
-      const defaultUrl = 'https://beta.appflowy.cloud';
-      const baseUrl = isBeta ? 'https://beta.appflowy.cloud' : isTest ? 'https://test.appflowy.cloud' : defaultUrl;
       metaData = await fetchMetaData(`${baseUrl}/api/workspace/published/${namespace}/${publishName}`);
     } catch (error) {
       logger.error(`Error fetching meta data: ${error}`);
@@ -162,6 +158,7 @@ const start = () => {
       },
     });
     logger.info(`Server is running on port 3000`);
+    logger.info(`Base URL: ${baseURL}`);
   } catch (err) {
     logger.error(err);
     process.exit(1);

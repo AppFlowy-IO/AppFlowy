@@ -43,6 +43,16 @@ Before you begin, ensure you have the following installed:
     pnpm install
    ```
 
+- Modify the environment file in `frontend/appflowy_web_app/.env` to add or modify environment variables
+
+```bash
+# Example
+AF_BASE_URL=https://test.appflowy.cloud
+AF_GOTRUE_URL=https://test.appflowy.cloud/gotrue
+AF_WS_URL=wss://test.appflowy.cloud/ws/v1
+
+```
+
 #### 🖥️ Desktop Application (Tauri) (Optional)
 
 > **Note**: if you want to run the web app in the browser, skip this step
@@ -147,10 +157,6 @@ Don't modify the theme file in `frontend/appflowy_web_app/src/styles/variables` 
    ```bash
    pnpm run css:variables
    ```
-
-#### How to add or modify the environment variables
-
-- Modify the environment file in `frontend/appflowy_web_app/.env` to add or modify environment variables
 
 #### How to create symlink for the @appflowyinc/client-api-wasm in local development
 
