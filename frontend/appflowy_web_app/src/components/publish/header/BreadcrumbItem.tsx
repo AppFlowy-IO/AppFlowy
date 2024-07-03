@@ -63,7 +63,10 @@ function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disable
       )}
 
       <span
-        className={!disableClick ? 'max-w-[250px] truncate hover:text-text-title hover:underline' : 'flex-1 truncate'}
+        className={
+          'max-w-[250px] overflow-hidden truncate ' +
+          (!disableClick ? 'hover:text-text-title hover:underline' : 'flex-1')
+        }
       >
         {name || t('menuAppHeader.defaultNewPageName')}
       </span>

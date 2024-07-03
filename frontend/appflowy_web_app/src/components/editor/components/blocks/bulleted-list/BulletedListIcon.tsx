@@ -31,31 +31,24 @@ export function BulletedListIcon({ block, className }: { block: BulletedListNode
   const Icon = useMemo(() => {
     switch (letter) {
       case Letter.Disc:
-        return 'disc';
+        return DiscIcon;
       case Letter.Circle:
-        return 'circle';
+        return CircleIcon;
       case Letter.Square:
-        return 'square';
+        return SquareIcon;
     }
   }, [letter]);
 
   return (
-    // <span
-    //   onMouseDown={(e) => {
-    //     e.preventDefault();
-    //   }}
-    //   contentEditable={false}
-    //   className={`${className} bulleted-icon ${dataLetter} flex min-w-[24px] justify-center pr-1 font-medium`}
-    // />
     <span
       data-playwright-selected={false}
       contentEditable={false}
       onMouseDown={(e) => {
         e.preventDefault();
       }}
-      className={`${className} cursor-pointer pr-1 text-xl hover:text-fill-default`}
+      className={`${className} pr-1 text-xl`}
     >
-      {Icon === 'disc' ? <DiscIcon /> : Icon === 'circle' ? <CircleIcon /> : <SquareIcon />}
+      <Icon />
     </span>
   );
 }
