@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Paths to your Cargo.toml files
 REPO_PATH="./AppFlowy-Collab"
