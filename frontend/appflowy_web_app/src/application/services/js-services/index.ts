@@ -61,6 +61,7 @@ export class AFClientService implements AFService {
     const name = `${namespace}_${publishName}`;
 
     const isLoaded = this.publishViewLoaded.has(name);
+
     const doc = await getPublishView(
       async () => {
         try {

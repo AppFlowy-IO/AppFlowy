@@ -197,10 +197,22 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 }
 
 .bulleted-icon {
-  &:after {
-    content: attr(data-letter);
-    font-weight: 500;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  background-position: center;
+
+  &.disc {
+    background-image: url('../../assets/bulleted_list_icon_1.svg');
   }
+
+  &.circle {
+    background-image: url('../../assets/bulleted_list_icon_2.svg');
+  }
+
+  &.square {
+    background-image: url('../../assets/bulleted_list_icon_3.svg');
+  }
+
 }
 
 .numbered-icon {

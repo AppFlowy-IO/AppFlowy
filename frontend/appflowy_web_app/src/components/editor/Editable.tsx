@@ -1,10 +1,11 @@
 import { useDecorate } from '@/components/editor/components/blocks/code/useDecorate';
 import { Leaf } from '@/components/editor/components/leaf';
 import { useEditorContext } from '@/components/editor/EditorContext';
-import React, { useCallback } from 'react';
+import React, { Suspense, useCallback } from 'react';
 import { NodeEntry } from 'slate';
 import { Editable, ReactEditor, RenderElementProps } from 'slate-react';
 import { Element } from './components/element';
+import { Skeleton } from '@mui/material';
 
 const EditorEditable = ({ editor }: { editor: ReactEditor }) => {
   const { readOnly } = useEditorContext();
@@ -17,7 +18,14 @@ const EditorEditable = ({ editor }: { editor: ReactEditor }) => {
     [codeDecorate]
   );
 
-  const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, []);
+  const renderElement = useCallback(
+    (props: RenderElementProps) => (
+      <Suspense fallback={<Skeleton width={'100%'} height={24} />}>
+        <Element {...props} />
+      </Suspense>
+    ),
+    []
+  );
 
   return (
     <>

@@ -4,23 +4,25 @@ import React, { createContext, useEffect, useState } from 'react';
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { getService } from '@/application/services';
 
+const hostName = window.location.hostname;
+const isProd = !hostName.includes('localhost');
+const isBeta = isProd && hostName.includes('beta');
+const isTest = isProd && hostName.includes('test');
+const baseAPIHost = isProd
+  ? isBeta
+    ? 'beta.appflowy.cloud'
+    : isTest
+    ? 'test.appflowy.cloud'
+    : 'beta.appflowy.cloud'
+  : 'test.appflowy.cloud';
+const baseURL = `https://${baseAPIHost}`;
+const gotrueURL = `${baseURL}/gotrue`;
+
 const defaultConfig: AFServiceConfig = {
   cloudConfig: {
-    baseURL: import.meta.env.AF_BASE_URL
-      ? import.meta.env.AF_BASE_URL
-      : import.meta.env.DEV
-      ? 'https://test.appflowy.cloud'
-      : 'https://beta.appflowy.cloud',
-    gotrueURL: import.meta.env.AF_GOTRUE_URL
-      ? import.meta.env.AF_GOTRUE_URL
-      : import.meta.env.DEV
-      ? 'https://test.appflowy.cloud/gotrue'
-      : 'https://beta.appflowy.cloud/gotrue',
-    wsURL: import.meta.env.AF_WS_URL
-      ? import.meta.env.AF_WS_URL
-      : import.meta.env.DEV
-      ? 'wss://test.appflowy.cloud/ws/v1'
-      : 'wss://beta.appflowy.cloud/ws/v1',
+    baseURL,
+    gotrueURL,
+    wsURL: `wss://${baseAPIHost}/ws/v1`,
   },
 };
 

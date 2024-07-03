@@ -28,11 +28,11 @@ export function BulletedListIcon({ block, className }: { block: BulletedListNode
   const dataLetter = useMemo(() => {
     switch (letter) {
       case Letter.Disc:
-        return '•';
+        return 'disc';
       case Letter.Circle:
-        return '◦';
+        return 'circle';
       case Letter.Square:
-        return '▪';
+        return 'square';
     }
   }, [letter]);
 
@@ -41,9 +41,8 @@ export function BulletedListIcon({ block, className }: { block: BulletedListNode
       onMouseDown={(e) => {
         e.preventDefault();
       }}
-      data-letter={dataLetter}
       contentEditable={false}
-      className={`${className} bulleted-icon flex min-w-[24px] justify-center pr-1 font-medium`}
+      className={`${className} bulleted-icon ${dataLetter} flex min-w-[24px] justify-center pr-1 font-medium`}
     />
   );
 }

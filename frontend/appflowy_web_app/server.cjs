@@ -56,13 +56,14 @@ const fetchMetaData = async (url) => {
   }
 };
 
-const BASE_URL = process.env.AF_BASE_URL || 'https://beta.appflowy.cloud';
 const createServer = async (req) => {
   const timer = logRequestTimer(req);
   const reqUrl = new URL(req.url);
 
-  logger.info(`Request URL: ${reqUrl.pathname}`);
-  
+  const hostname = req.headers.get('host');
+
+  logger.info(`Request URL: ${hostname}${reqUrl.pathname}`);
+
   const [
     namespace,
     publishName,
@@ -85,7 +86,11 @@ const createServer = async (req) => {
     let metaData;
 
     try {
-      metaData = await fetchMetaData(`${BASE_URL}/api/workspace/published/${namespace}/${publishName}`);
+      const isBeta = hostname.startsWith('beta');
+      const isTest = hostname.startsWith('test');
+      const defaultUrl = 'https://beta.appflowy.cloud';
+      const baseUrl = isBeta ? 'https://beta.appflowy.cloud' : isTest ? 'https://test.appflowy.cloud' : defaultUrl;
+      metaData = await fetchMetaData(`${baseUrl}/api/workspace/published/${namespace}/${publishName}`);
     } catch (error) {
       logger.error(`Error fetching meta data: ${error}`);
     }
@@ -105,8 +110,13 @@ const createServer = async (req) => {
 
         try {
           const cover = metaData.view.extra ? JSON.parse(metaData.view.extra)?.cover : null;
-          if (cover && ['unsplash', 'custom'].includes(cover.type)) {
-            image = cover.value;
+          if (cover) {
+            if (['unsplash', 'custom'].includes(cover.type)) {
+              image = cover.value;
+            } else if (cover.type === 'built_in') {
+              image = `/covers/m_cover_image_${cover.value}.png`;
+            }
+
           }
         } catch (_) {
           // Do nothing
@@ -152,7 +162,6 @@ const start = () => {
       },
     });
     logger.info(`Server is running on port 3000`);
-    logger.info(`Base API URL: ${process.env.AF_BASE_URL}`);
   } catch (err) {
     logger.error(err);
     process.exit(1);

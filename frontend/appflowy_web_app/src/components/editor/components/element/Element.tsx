@@ -16,7 +16,6 @@ import { Quote } from '@/components/editor/components/blocks/quote';
 import { TableBlock, TableCellBlock } from '@/components/editor/components/blocks/table';
 import { Text } from '@/components/editor/components/blocks/text';
 import { ElementFallbackRender } from '@/components/error/ElementFallbackRender';
-import { Skeleton } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import { TodoList } from 'src/components/editor/components/blocks/todo-list';
 import { ToggleList } from 'src/components/editor/components/blocks/toggle-list';
@@ -25,7 +24,7 @@ import { Formula } from '@/components/editor/components/leaf/formula';
 import { Mention } from '@/components/editor/components/leaf/mention';
 import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
-import React, { FC, memo, Suspense, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 import { RenderElementProps } from 'slate-react';
 import isEqual from 'lodash-es/isEqual';
 
@@ -126,15 +125,13 @@ export const Element = memo(
     }
 
     return (
-      <Suspense fallback={<Skeleton width={'100%'} height={24} />}>
-        <ErrorBoundary fallbackRender={ElementFallbackRender}>
-          <div {...attributes} data-block-type={node.type} className={className}>
-            <Component style={style} className={`flex w-full flex-col`} node={node}>
-              {children}
-            </Component>
-          </div>
-        </ErrorBoundary>
-      </Suspense>
+      <ErrorBoundary fallbackRender={ElementFallbackRender}>
+        <div {...attributes} data-block-type={node.type} className={className}>
+          <Component style={style} className={`flex w-full flex-col`} node={node}>
+            {children}
+          </Component>
+        </div>
+      </ErrorBoundary>
     );
   },
   (prevProps, nextProps) => isEqual(prevProps.element, nextProps.element)

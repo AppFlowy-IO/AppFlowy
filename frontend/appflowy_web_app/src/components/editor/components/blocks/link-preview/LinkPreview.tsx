@@ -9,6 +9,7 @@ export const LinkPreview = memo(
       title: string;
       description: string;
     } | null>(null);
+    const [notFound, setNotFound] = useState<boolean>(false);
     const url = node.data.url;
 
     useEffect(() => {
@@ -17,14 +18,19 @@ export const LinkPreview = memo(
       setData(null);
       void (async () => {
         try {
+          setNotFound(false);
           const response = await axios.get(`https://api.microlink.io/?url=${url}`);
 
-          if (response.data.statusCode !== 200) return;
+          if (response.data.statusCode !== 200) {
+            setNotFound(true);
+            return;
+          }
+
           const data = response.data.data;
 
           setData(data);
-        } catch (error) {
-          // don't do anything
+        } catch (_) {
+          setNotFound(true);
         }
       })();
     }, [url]);
@@ -37,17 +43,22 @@ export const LinkPreview = memo(
         ref={ref}
         className={`link-preview-block relative w-full cursor-pointer py-1`}
       >
-        <div>
-          {data ? (
-            <div
-              className={
-                'container-bg flex w-full cursor-pointer select-none items-center gap-4 overflow-hidden rounded border border-line-divider bg-fill-list-active p-3'
-              }
-            >
+        <div
+          className={
+            'container-bg flex w-full cursor-pointer select-none items-center gap-4 overflow-hidden rounded border border-line-divider bg-fill-list-active p-3'
+          }
+        >
+          {notFound ? (
+            <div className={'flex w-full items-center justify-center'}>
+              <div className={'text-text-title'}>Could not load preview</div>
+              <div className={'text-sm text-text-caption'}>{url}</div>
+            </div>
+          ) : (
+            <>
               <img
-                src={data.image.url}
-                alt={data.title}
-                className={'container h-full w-[25%] rounded bg-cover bg-center'}
+                src={data?.image.url}
+                alt={data?.title}
+                className={'container h-full min-h-[48px] w-[25%] rounded bg-cover bg-center'}
               />
               <div className={'flex flex-col justify-center gap-2 overflow-hidden'}>
                 <div
@@ -55,22 +66,18 @@ export const LinkPreview = memo(
                     'max-h-[48px] overflow-hidden whitespace-pre-wrap break-words text-base font-bold text-text-title'
                   }
                 >
-                  {data.title}
+                  {data?.title}
                 </div>
                 <div
                   className={
                     'max-h-[64px] overflow-hidden truncate whitespace-pre-wrap break-words text-sm text-text-title'
                   }
                 >
-                  {data.description}
+                  {data?.description}
                 </div>
                 <div className={'truncate whitespace-nowrap text-xs text-text-caption'}>{url}</div>
               </div>
-            </div>
-          ) : (
-            <a href={node.data.url} className={'text-content-blue-400 underline'} target={'blank'}>
-              {node.data.url}
-            </a>
+            </>
           )}
         </div>
         <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>

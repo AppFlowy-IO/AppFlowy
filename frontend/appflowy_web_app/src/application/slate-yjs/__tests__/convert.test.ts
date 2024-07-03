@@ -7,7 +7,7 @@ describe('convert yjs data to slate content', () => {
   it('should return undefined if root block is not exist', () => {
     const doc = new Y.Doc();
 
-    expect(() => yDocToSlateContent(doc)).toThrowError();
+    expect(() => yDocToSlateContent(doc)).toBeUndefined();
 
     const doc2 = withTestingYDoc('1');
     const { blocks, childrenMap, textMap, pageId } = getTestingDocData(doc2);
