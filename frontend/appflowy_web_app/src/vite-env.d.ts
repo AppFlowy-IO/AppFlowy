@@ -9,4 +9,5 @@ interface Window {
   WebFont?: {
     load: (options: { google: { families: string[] } }) => void;
   };
+  markdownit: () => any;
 }

@@ -1,284 +1,151 @@
+<h1 align="center" style="margin:0"> AppFlowy Web </h1>
 <div align="center">
-
-  <h1><code>AppFlowy Web Project</code></h1>
-
-<div>Welcome to the AppFlowy Web Project, a robust and versatile platform designed to bring the innovative features of
-AppFlowy to the web. This project uniquely supports running as a desktop application via Tauri, and offers web
-interfaces powered by WebAssembly (WASM). Dive into an exceptional development experience with high performance and
-extensive capabilities.</div>
-
+  <img src="https://img.shields.io/badge/React-v18.2.0-blue"/>
+  <img src="https://img.shields.io/badge/TypeScript-v4.9.5-blue"/>
+  <img src="https://img.shields.io/badge/Nginx-v1.21.6-brightgreen"/>
+  <img src="https://img.shields.io/badge/Bun-latest-black"/>
+  <img src="https://img.shields.io/badge/Docker-v20.10.12-blue"/>
 </div>
 
-## 🐑 Features
+## 🌟 Introduction
 
-- **Cross-Platform Compatibility**: Seamlessly run on desktop environments with Tauri, and on any web browser through
-  WASM.
-- **High Performance**: Leverage the speed and efficiency of WebAssembly for your web interfaces.
-- **Tauri Integration**: Build lightweight, secure, and efficient desktop applications.
-- **Flexible Development**: Utilize a wide range of AppFlowy's functionalities in your web or desktop projects.
+Welcome to the AppFlowy Web project! This project aims to bring the powerful features of AppFlowy to the web. Whether
+you're a developer looking to contribute or a user eager to try out the latest features, this guide will help you get
+started.
 
-## 🚀 Getting Started
+AppFlowy Web is built with the following technologies:
 
-### 🛠️ Prerequisites
+- **React**: A JavaScript library for building user interfaces.
+- **TypeScript**: A typed superset of JavaScript that compiles to plain JavaScript.
+- **Bun**: A fast all-in-one JavaScript runtime.
+- **Nginx**: A high-performance web server.
+- **Docker**: A platform to develop, ship, and run applications in containers.
 
-Before you begin, ensure you have the following installed:
+### Resource Sharing
 
-- Node.js (v14 or later)
-- Rust (latest stable version)
-- Tauri prerequisites for your operating system
-- PNPM (8.5.0)
+To maintain consistency across different platforms, the Web project shares i18n translation files and Icons with the
+Flutter project. This ensures a unified user experience and reduces duplication of effort in maintaining these
+resources.
 
-### 🏗️ Installation
+- **i18n Translation Files**: The translation files are shared to provide a consistent localization experience across
+  both Web and Flutter applications. The path to the translation files is `frontend/resources/translations/`.
 
-#### Clone the Repository
+  > The translation files are stored in JSON format and contain translations for different languages. The files are
+  named according to the language code (e.g., `en.json` for English, `es.json` for Spanish, etc.).
 
-   ```bash
-   git clone https://github.com/AppFlowy-IO/AppFlowy
-  ```
+- **Icons**: The icon set used in the Web project is the same as the one used in the Flutter project, ensuring visual
+  consistency. The icons are stored in the `frontend/resources/flowy_icons/` directory.
 
-#### 🌐 Install the frontend dependencies:
+Let's dive in and get the project up and running! 🚀
 
-   ```bash
-    cd frontend/appflowy_web_app
-    pnpm install
-   ```
+## 🛠 Getting Started
 
-#### 🖥️ Desktop Application (Tauri) (Optional)
+### Prerequisites
 
-> **Note**: if you want to run the web app in the browser, skip this step
+Before you begin, make sure you have the following installed on your system:
 
-- Follow the instructions [here](https://tauri.app/v1/guides/getting-started/prerequisites/) to install Tauri
+- [Node.js](https://nodejs.org/) (v18.6.0) 🌳
+- [pnpm](https://pnpm.io/) (package manager) 📦
+- [Jest](https://jestjs.io/) (testing framework) 🃏
+- [Cypress](https://www.cypress.io/) (end-to-end testing) 🧪
 
-##### Windows and Linux Prerequisites
+### Clone the Repository
 
-###### Windows only
+First, clone the repository to your local machine:
 
-- Install the Duckscript CLI and vcpkg
+```bash
+git clone https://github.com/AppFlowy-IO/AppFlowy.git
+cd frontend/appflowy_web_app
+```
 
-   ```bash
-     cargo install --force duckscript_cli
-     vcpkg integrate install
-   ```
+### Install Dependencies
 
-###### Linux only
+Install the required dependencies using pnpm:
 
-- Install the required dependencies
+```bash
+## ensure you have pnpm installed, if not run the following command
+# npm install -g pnpm@8.5.0
 
-   ```bash
-     sudo apt-get update
-     sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-   ```
+pnpm install
+```
 
-- **Get error**: failed to run custom build command for librocksdb-sys v6.11.4
+### Start the Development Server
 
-   ```bash
-     sudo apt install clang
-   ```
+To start the development server, run the following command:
 
-##### Install Tauri Dependencies
+```bash
+pnpm run dev
+```
 
-- Install cargo-make
+### 🚀 Building for Production(Optional)
 
-   ```bash
-   cargo install --force cargo-make
-   ```
+if you want to run the production build, use the following commands
 
+```bash
+pnpm run build
+pnpm run start
+```
 
-- Install AppFlowy dev tools
+This will start the application in development mode. Open http://localhost:3000 to view it in the browser.
 
-   ```bash
-   # install development tools
-   # make sure you are in the root directory of the project
-    cd frontend
-    cargo make appflowy-tauri-deps-tools
-   ```
+## 🧪 Running Tests
 
-- Build the service/dependency
+### Unit Tests
 
-   ```bash
-    # make sure you are in the root directory of the project
-    cd frontend/appflowy_web_app
-    mkdir dist
-    cd src-tauri
-    cargo build
-   ```
+We use **Jest** for running unit tests. To run the tests, use the following command:
 
-### 🚀 Running the Application
+```bash
+pnpm run test:unit
+```
 
-#### 🌐 Web Application
+This will execute all the unit tests in the project and provide a summary of the results. ✅
 
-- Run the web application
+### Components Tests
 
-   ```bash
-   pnpm run dev
-   ```
-- Open your browser and navigate to `http://localhost:3000`, You can now interact with the AppFlowy web application
+We use **Cypress** for end-to-end testing. To run the Cypress tests, use the following command:
 
-#### 🖥️ Desktop Application (Tauri)
+```bash
+pnpm run cypress:open
+```
 
-**Ensure close web application before running the desktop application**
+This will open the Cypress Test Runner where you can run your end-to-end tests. 🧪
 
-- Run the desktop application
-
-   ```bash
-   pnpm run tauri:dev
-   ```
-- The AppFlowy desktop application will open, and you can interact with it
-
-### 🛠️ Development
-
-#### How to add or modify i18n keys
-
-- Modify the i18n files in `frontend/resources/translations/en.json` to add or modify i18n keys
-- Run the following command to update the i18n keys in the application
-
-   ```bash
-   pnpm run sync:i18n
-   ```
-
-#### How to modify the theme
-
-Don't modify the theme file in `frontend/appflowy_web_app/src/styles/variables` directly)
-
-- Modify the theme file in `frontend/appflowy_web_app/style-dictionary/tokens/base.json( or dark.json or light.json)` to
-  add or modify theme keys
-- Run the following command to update the theme in the application
-
-   ```bash
-   pnpm run css:variables
-   ```
-
-#### How to add or modify the environment variables
-
-- Modify the environment file in `frontend/appflowy_web_app/.env` to add or modify environment variables
-
-#### How to create symlink for the @appflowyinc/client-api-wasm in local development
-
-- Run the following command to create a symlink for the @appflowyinc/client-api-wasm
-
-   ```bash
-     # ensure you are in the frontend/appflowy_web_app directory
-   
-     pnpm run link:client-api $source_path $target_path
-  
-     # Example
-     # pnpm run link:client-api ../../../AppFlowy-Cloud/libs/client-api-wasm/pkg ./node_modules/@appflowyinc/client-api-wasm
-   ```
-
-### 📝 About the Project
-
-#### 📁 Directory Structure
-
-- `frontend/appflowy_web_app`: Contains the web application source code
-- `frontend/appflowy_web_app/src`: Contains the app entry point and the source code
-- `frontend/appflowy_web_app/src/components`: Contains the react components
-- `frontend/appflowy_web_app/src/styles`: Contains the styles for the application
-- `frontend/appflowy_web_app/src/utils`: Contains the utility functions
-- `frontend/appflowy_web_app/src/i18n`: Contains the i18n files
-- `frontend/appflowy_web_app/src/assets`: Contains the assets for the application
-- `frontend/appflowy_web_app/src/store`: Contains the redux store
-- `frontend/appflowy_web_app/src/@types`: Contains the typescript types
-- `frontend/appflowy_web_app/src/applications/services`:  Contains the services for the application. In vite.config.ts,
-  we have defined the alias for the services directory for different environments(Tauri/Web)
-  ```typescript
-    resolve: {
-      alias: [
-        // ...
-        {
-          find: '$client-services',
-          replacement: !!process.env.TAURI_PLATFORM
-            ? `${__dirname}/src/application/services/tauri-services`
-            : `${__dirname}/src/application/services/js-services`,
-        },
-      ]
-    }
-  ```
-
-### 📦 Deployment
-
-Use the AppFlowy CI/CD pipeline to deploy the application to the test and production environments.
-
-- Push the changes to the main branch
-- Deploy Test Environment
-    - Automatically, the test environment will be deployed if merged to the main branch or build/test branch
-- Deploy Production Environment
-    - Navigate to the Actions tab
-    - Click on the workflow and select the Run workflow
-    - Enter the options
-    - Click on the Run workflow button
-
-#### 📦 Deployment (Self-Hosted EC2)
-
-##### Pre-requisites
-
-Please ensure you have learned about:
-
-- [Deploy Web application on AWS Cloud using EC2 Instance](https://www.youtube.com/watch?v=gWVIIU1ev0Y)
-- [How to Install and Use Rsync Command](https://operavps.com/docs/install-rsync-command-in-linux/)
-- [How to Use ssh-keygen to Generate a New SSH Key?](https://www.ssh.com/academy/ssh/keygen)
-- [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/)
-- [Configuring HTTPS servers](https://nginx.org/en/docs/http/configuring_https_servers.html)
-
-And then follow the steps below:
-
-1. Ensure you have the following installed on your server:
-    - Docker: [Install Docker](https://docs.docker.com/engine/install/)
-    - Rsync: [Install Rsync](https://operavps.com/docs/install-rsync-command-in-linux/)
-
-2. Create a new user for deploy, and generate an SSH key for the user
-
-   ```bash
-   sudo adduser appflowy(or any name)
-   sudo su - appflowy
-   mkdir ~/.ssh
-   chmod 700 ~/.ssh
-   ssh-keygen -t rsa
-   chmod 600 ~/.ssh/authorized_keys
-   # add the user to the docker group, to run docker commands without sudo
-   sudo usermod -aG docker ${USER}
-   ```
-    - visit the `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub` to get the private and public key respectively
-    - add the public key to the `~/.ssh/authorized_keys` file
-    - ensure the private key is kept safe
-    - exit and login back to the server with the new
-      user: `ssh -i your-existing-key.pem ec2-user@your-instance-public-dns`
-
-3. Clone the AppFlowy repository
-
-4. Set the following secrets in your
-   repository, have to
-   know [Using secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
-
-> Note: Test Environment: prefix the secret with `WEB_TEST_` and Production Environment: prefix the secret with `WEB_`
-
-> for example, `WEB_TEST_SSH_PRIVATE_KEY` and `WEB_SSH_PRIVATE_KEY`
-
-- `SSH_PRIVATE_KEY`: The private key generated in step 2: cat ~/.ssh/id_rsa
-- `REMOTE_HOST`: The host of the server: `your-instance-public-dns` or `your-instance-ip`
-- `REMOTE_USER`: The user created in step 2: `appflowy`
-- `SSL_CERTIFICATE`: The SSL certificate for the
-  server - [Configuring HTTPS servers](https://nginx.org/en/docs/http/configuring_https_servers.html)
-- `SSL_CERTIFICATE_KEY`: The SSL certificate key for the
-  server - [Configuring HTTPS servers](https://nginx.org/en/docs/http/configuring_https_servers.html)
-
-5. Run the deployment workflow to deploy the application(production or test environment)
-
-> Note: the test server will **automatically** deploy if merged to the main branch or build/test branch
-
-### 🧪 Testing
-
-> We use Cypress for end-to-end testing and component testing - [Cypress](https://www.cypress.io/)
-
-#### 🧪 End-to-End Testing
-
-> to be continued
-
-#### 🧪 Component Testing
-
-Run the following command to run the component tests
+Alternatively, to run Cypress tests in the headless mode, use:
 
 ```bash
 pnpm run test:components
 ```
 
+Both commands will provide detailed test results and generate a code coverage report.
+
+## 🔄 Development Workflow
+
+### Linting
+
+To maintain code quality, we use **ESLint**. To run the linter and fix any linting errors, use the following command:
+
+```bash
+pnpm run lint
+```
+
+## 🚀 Production Deployment
+
+Our production deployment process is automated using GitHub Actions. The process involves:
+
+1. **Setting up an AWS EC2 instance**: We use an EC2 instance to host the application.
+2. **Installing Docker and Docker Compose**: Docker is installed on the AWS instance.
+3. **Configuring SSH Access**: SSH access is set up with a user and password.
+4. **Preparing Project Configuration**: We configure `Dockerfile`, `nginx.conf`, and `server.cjs` in the web project.
+5. **Using GitHub Actions**: We use the easingthemes/ssh-deploy@main action to deploy the project to the remote server.
+
+The deployment steps include building the Docker image and running the Docker container with the necessary port
+mappings:
+
+```bash
+docker build -t appflowy-web-app .
+docker rm -f appflowy-web-app || true
+docker run -d -p 80:80 -p 443:443 --name appflowy-web-app appflowy-web-app
+```
+
+The Web server runs on Bun. For more details about Bun, please refer to the [Bun documentation](https://bun.sh/).
 
