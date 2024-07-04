@@ -11,7 +11,7 @@ export const Text = memo(
       const editor = useSlateStatic();
       const isEmpty = editor.isEmpty(node);
       const className = useMemo(() => {
-        const classList = ['text-element', 'relative', 'flex', 'w-full', 'whitespace-pre-wrap', 'break-all', 'px-1'];
+        const classList = ['text-element', 'relative', 'flex', 'w-full', 'whitespace-pre-wrap', 'break-word', 'px-1'];
 
         if (classNameProp) classList.push(classNameProp);
         if (hasStartIcon) classList.push('has-start-icon');
