@@ -718,13 +718,11 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               break;
             case ViewMoreActionType.delete:
               // get if current page contains published child views
-              final childViews =
-                  await ViewBackendService.getAllChildViews(widget.view);
-              final views = [widget.view, ...childViews];
-              final containPublishedPage = await Future.wait(
-                views.map((e) => ViewBackendService.getPublishInfo(e)),
-              ).then((value) => value.where((e) => e.isSuccess));
-              if (containPublishedPage.isNotEmpty && context.mounted) {
+              final (containPublishedPage, _) =
+                  await ViewBackendService.containPublishedPage(
+                widget.view,
+              );
+              if (containPublishedPage && context.mounted) {
                 await showConfirmDeletionDialog(
                   context: context,
                   name: widget.view.name,

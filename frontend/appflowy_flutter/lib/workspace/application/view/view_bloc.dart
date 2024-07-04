@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -139,11 +140,10 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             );
           },
           delete: (e) async {
-            final result = await ViewBackendService.delete(viewId: view.id);
+            // unpublish the page and all its child pages if they are published
+            await _unpublishPage(view);
 
-            result.onSuccess((_) {
-              add(const ViewEvent.unpublish(sync: false));
-            });
+            final result = await ViewBackendService.delete(viewId: view.id);
 
             emit(
               result.fold(
@@ -403,48 +403,17 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   }
 
   // unpublish the page and all its child pages
-  Future<void> _unpublishPage(ViewPB view) async {
-    final allChildViews = await _getAllChildViews(view);
-    final views = [view, ...allChildViews];
-
-    // unpublish
-    await Future.wait(
-      views.map((view) => ViewBackendService.getPublishInfo(view)),
-    ).then((results) {
-      final viewsToUnpublish = <ViewPB>[];
-      for (var i = 0; i < results.length; i++) {
-        final result = results[i];
-        if (result.isSuccess) {
-          viewsToUnpublish.add(views[i]);
-        }
-      }
-      return viewsToUnpublish;
-    }).then((views) async {
-      await Future.wait(
-        views.map((view) => ViewBackendService.unpublish(view)),
-      );
-    });
-  }
-
-  Future<List<ViewPB>> _getAllChildViews(ViewPB view) async {
-    final views = <ViewPB>[];
-
-    final childViews =
-        await ViewBackendService.getChildViews(viewId: view.id).fold(
-      (s) => s,
-      (f) => [],
+  Future<void> _unpublishPage(ViewPB views) async {
+    final (_, publishedPages) = await ViewBackendService.containPublishedPage(
+      view,
     );
 
-    for (final child in childViews) {
-      // filter the view itself
-      if (child.id == view.id) {
-        continue;
-      }
-      views.add(child);
-      views.addAll(await _getAllChildViews(child));
-    }
-
-    return views;
+    await Future.wait(
+      publishedPages.map((view) async {
+        Log.info('unpublishing page: ${view.id}, ${view.name}');
+        await ViewBackendService.unpublish(view);
+      }),
+    );
   }
 
   bool _isSameViewIgnoreChildren(ViewPB from, ViewPB to) {

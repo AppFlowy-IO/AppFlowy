@@ -67,10 +67,8 @@ class ViewAction extends StatelessWidget {
 
   Future<void> _onAction(BuildContext context) async {
     if (type == ViewActionType.delete) {
-      final containPublishedPage =
-          await ViewBackendService.containPublishedPage(
-        view,
-      );
+      final (containPublishedPage, _) =
+          await ViewBackendService.containPublishedPage(view);
       if (containPublishedPage && context.mounted) {
         await showConfirmDeletionDialog(
           context: context,
