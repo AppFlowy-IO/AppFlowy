@@ -48,7 +48,7 @@
     "vite.config.ts",
     "cypress.config.ts",
     "cypress",
-    "deploy/server.js"
+    "deploy/server.ts"
   ],
   "exclude": [
     "node_modules",

@@ -1,44 +1,49 @@
-const path = require('path');
-const fs = require('fs');
-const pino = require('pino');
-const cheerio = require('cheerio');
-const { fetch } = require('bun');
+import path from 'path';
+import * as fs from 'fs';
+import pino from 'pino';
+import { type CheerioAPI, load } from 'cheerio';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import { fetch } from 'bun';
 
 const distDir = path.join(__dirname, 'dist');
 const indexPath = path.join(distDir, 'index.html');
-const baseURL = process.env.AF_BASE_URL;
-const setOrUpdateMetaTag = ($, selector, attribute, content) => {
+const baseURL = process.env.AF_BASE_URL as string;
+const defaultSite = 'https://appflowy.io';
+
+const setOrUpdateMetaTag = ($: CheerioAPI, selector: string, attribute: string, content: string) => {
   if ($(selector).length === 0) {
-    $('head').append(`<meta ${attribute}="${selector.match(/\[(.*?)\]/)[1]}" content="${content}">`);
+    $('head').append(`<meta ${attribute}="${selector.match(/\[(.*?)\]/)?.[1]}" content="${content}">`);
   } else {
     $(selector).attr('content', content);
   }
 };
 
-// Create a new logger instance
 const logger = pino({
   transport: {
     target: 'pino-pretty',
-    level: 'info',
     options: {
       colorize: true,
       translateTime: 'SYS:standard',
       destination: `${__dirname}/pino-logger.log`,
     },
   },
+  level: 'info',
 });
 
-const logRequestTimer = (req) => {
+const logRequestTimer = (req: Request) => {
   const start = Date.now();
   const pathname = new URL(req.url).pathname;
+
   logger.info(`Incoming request: ${pathname}`);
   return () => {
     const duration = Date.now() - start;
+
     logger.info(`Request for ${pathname} took ${duration}ms`);
   };
 };
 
-const fetchMetaData = async (url) => {
+const fetchMetaData = async (url: string) => {
   logger.info(`Fetching meta data from ${url}`);
   try {
     const response = await fetch(url, {
@@ -56,29 +61,24 @@ const fetchMetaData = async (url) => {
   }
 };
 
-const createServer = async (req) => {
+const createServer = async (req: Request) => {
   const timer = logRequestTimer(req);
   const reqUrl = new URL(req.url);
-
   const hostname = req.headers.get('host');
 
   logger.info(`Request URL: ${hostname}${reqUrl.pathname}`);
 
-  const [
-    namespace,
-    publishName,
-  ] = reqUrl.pathname.slice(1).split('/');
+  const [namespace, publishName] = reqUrl.pathname.slice(1).split('/');
 
   logger.info(`Namespace: ${namespace}, Publish Name: ${publishName}`);
 
   if (req.method === 'GET') {
-
     if (namespace === '' || !publishName) {
       timer();
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': 'https://appflowy.io',
+          Location: defaultSite,
         },
       });
     }
@@ -91,28 +91,27 @@ const createServer = async (req) => {
       logger.error(`Error fetching meta data: ${error}`);
     }
 
-    let htmlData = fs.readFileSync(indexPath, 'utf8');
-    const $ = cheerio.load(htmlData);
+    const htmlData = fs.readFileSync(indexPath, 'utf8');
+    const $ = load(htmlData);
 
     const description = 'Write, share, and publish docs quickly on AppFlowy.\nGet started for free.';
     let title = 'AppFlowy';
-    const url = 'https://appflowy.io';
+    const url = `https://${hostname}${reqUrl.pathname}`;
     let image = '/og-image.png';
 
     try {
-      // Inject meta data into the HTML to support SEO and social sharing
       if (metaData && metaData.view) {
         title = `${metaData.view.name} | AppFlowy`;
 
         try {
           const cover = metaData.view.extra ? JSON.parse(metaData.view.extra)?.cover : null;
+
           if (cover) {
             if (['unsplash', 'custom'].includes(cover.type)) {
               image = cover.value;
             } else if (cover.type === 'built_in') {
               image = `/covers/m_cover_image_${cover.value}.png`;
             }
-
           }
         } catch (_) {
           // Do nothing
@@ -147,8 +146,13 @@ const createServer = async (req) => {
   }
 };
 
+declare const Bun: {
+  serve: (options: { port: number; fetch: typeof createServer; error: (err: Error) => Response }) => void;
+};
+
 const start = () => {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     Bun.serve({
       port: 3000,
       fetch: createServer,
@@ -157,7 +161,7 @@ const start = () => {
         return new Response('Internal Server Error', { status: 500 });
       },
     });
-    logger.info(`Server is running on port 3000`);
+    logger.info('Server is running on port 3000');
     logger.info(`Base URL: ${baseURL}`);
   } catch (err) {
     logger.error(err);
@@ -166,3 +170,5 @@ const start = () => {
 };
 
 start();
+
+export {};

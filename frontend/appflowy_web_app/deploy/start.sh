@@ -6,7 +6,7 @@
 service nginx start
 
 # Start the frontend server
-bun run server.js
+bun run server.ts
 
 tail -f /dev/null
 
