@@ -43,7 +43,7 @@ const Table = memo(
         {...attributes}
         className={`table-block relative my-2 w-full overflow-hidden px-1 ${className || ''}`}
       >
-        <div className={'h-full w-full overflow-x-auto  overflow-y-hidden'}>
+        <div className={'h-full w-full overflow-x-auto overflow-y-hidden'}>
           <Grid
             id={`table-${node.blockId}`}
             rowGap='space.0'
