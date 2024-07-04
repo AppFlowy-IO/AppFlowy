@@ -86,7 +86,7 @@ const createServer = async (req) => {
     let metaData;
 
     try {
-      metaData = await fetchMetaData(`${baseUrl}/api/workspace/published/${namespace}/${publishName}`);
+      metaData = await fetchMetaData(`${baseURL}/api/workspace/published/${namespace}/${publishName}`);
     } catch (error) {
       logger.error(`Error fetching meta data: ${error}`);
     }
