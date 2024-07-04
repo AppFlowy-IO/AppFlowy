@@ -6,7 +6,7 @@ export const Callout = memo(
   forwardRef<HTMLDivElement, EditorElementProps<CalloutNode>>(({ node, children, ...attributes }, ref) => {
     return (
       <>
-        <div contentEditable={false} className={'absolute w-full select-none px-2 pt-[15px]'}>
+        <div contentEditable={false} className={'absolute w-full select-none px-2 pt-[16px]'}>
           <CalloutIcon node={node} />
         </div>
         <div ref={ref} className={`${attributes.className ?? ''} w-full bg-bg-body py-2`}>
