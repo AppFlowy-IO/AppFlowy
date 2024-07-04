@@ -350,4 +350,13 @@ class ViewBackendService {
 
     return views;
   }
+
+  static Future<bool> containPublishedPage(ViewPB view) async {
+    final childViews = await ViewBackendService.getAllChildViews(view);
+    final views = [view, ...childViews];
+    final containPublishedPage = await Future.wait(
+      views.map((e) => ViewBackendService.getPublishInfo(e)),
+    ).then((value) => value.where((e) => e.isSuccess));
+    return containPublishedPage.isNotEmpty;
+  }
 }

@@ -1,14 +1,15 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum ViewActionType {
@@ -46,8 +47,8 @@ class ViewAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      onTap: () {
-        context.read<ViewBloc>().add(type.actionEvent);
+      onTap: () async {
+        await _onAction(context);
         mutex?.close();
       },
       text: FlowyText.regular(
@@ -62,5 +63,28 @@ class ViewAction extends StatelessWidget {
       leftIconSize: const Size(18, 18),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
     );
+  }
+
+  Future<void> _onAction(BuildContext context) async {
+    if (type == ViewActionType.delete) {
+      final containPublishedPage =
+          await ViewBackendService.containPublishedPage(
+        view,
+      );
+      if (containPublishedPage && context.mounted) {
+        await showConfirmDeletionDialog(
+          context: context,
+          name: view.name,
+          description: LocaleKeys.publish_containsPublishedPage.tr(),
+          onConfirm: () {
+            context.read<ViewBloc>().add(const ViewEvent.delete());
+          },
+        );
+      } else if (context.mounted) {
+        context.read<ViewBloc>().add(const ViewEvent.delete());
+      }
+    } else {
+      context.read<ViewBloc>().add(type.actionEvent);
+    }
   }
 }
