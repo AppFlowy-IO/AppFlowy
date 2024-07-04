@@ -88,7 +88,7 @@ export function NumberListIcon({ block, className }: { block: NumberedListNode; 
       }}
       contentEditable={false}
       data-number={dataNumber}
-      className={`${className} numbered-icon flex w-fit min-w-[24px] justify-center pr-1 font-medium`}
+      className={`${className} numbered-icon flex w-fit min-w-[24px] justify-center whitespace-nowrap pr-1 font-medium`}
     />
   );
 }
