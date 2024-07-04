@@ -1,3 +1,4 @@
+import { AFScroller } from '@/components/_shared/scroller';
 import BreadcrumbItem, { Crumb } from '@/components/publish/header/BreadcrumbItem';
 import React, { useMemo } from 'react';
 import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
@@ -17,7 +18,13 @@ export function Breadcrumb({ crumbs }: { crumbs: Crumb[] }) {
     });
   }, [crumbs]);
 
-  return <div className={'flex flex-1 items-center gap-2 overflow-hidden'}>{renderCrumb}</div>;
+  return (
+    <div className={'relative h-full w-full flex-1  overflow-hidden'}>
+      <AFScroller overflowYHidden className={'flex w-full items-center gap-2'}>
+        {renderCrumb}{' '}
+      </AFScroller>
+    </div>
+  );
 }
 
 export default Breadcrumb;
