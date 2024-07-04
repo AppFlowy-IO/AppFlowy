@@ -70,7 +70,7 @@ jobs:
       - name: Archive build output
         working-directory: frontend/appflowy_web_app
         run: |
-          tar -czf build-output.tar.gz dist deploy/server.cjs deploy/start.sh deploy/Dockerfile deploy/nginx.conf .env deploy/supervisord.conf
+          tar -czf build-output.tar.gz dist deploy .env
 
       - name: Deploy to EC2 (Test)
         if: github.event.inputs.environment == 'test'

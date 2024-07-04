@@ -7,11 +7,17 @@ PORT=$1
 
 echo "Starting deployment on port $PORT"
 
-rm -rf dist
+rm -rf deploy
 
 tar -xzf build-output.tar.gz
 
 rm -rf build-output.tar.gz
+
+mv dist deploy/dist
+
+mv .env deploy/.env
+
+cd deploy
 
 docker system prune -f
 
