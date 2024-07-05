@@ -86,7 +86,7 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
           </OutlinePopover>
         )}
 
-        <div className={'flex-1 overflow-hidden'}>
+        <div className={'h-full flex-1 overflow-hidden'}>
           <Breadcrumb crumbs={crumbs} />
         </div>
 

@@ -29,7 +29,7 @@ export const CodeBlock = memo(
         <div {...attributes} ref={ref} className={`${attributes.className ?? ''} flex w-full bg-bg-body py-2`}>
           <pre
             spellCheck={false}
-            className={`flex w-full rounded border border-line-divider bg-fill-list-active p-5 pt-20`}
+            className={`flex w-full overflow-hidden rounded border border-line-divider bg-fill-list-active p-5 pt-20`}
           >
             <code>{children}</code>
           </pre>

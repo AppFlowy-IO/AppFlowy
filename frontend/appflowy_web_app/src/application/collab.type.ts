@@ -116,6 +116,7 @@ export interface TableCellBlockData extends BlockData {
   height: number;
   rowPosition: number;
   width: number;
+  rowBackgroundColor: string;
 }
 
 export interface DatabaseNodeData extends BlockData {
