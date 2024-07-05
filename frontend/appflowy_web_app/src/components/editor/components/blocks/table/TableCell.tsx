@@ -6,6 +6,7 @@ const TableCell = memo(
   forwardRef<HTMLDivElement, EditorElementProps<TableCellNode>>(({ node, children, className, ...attributes }, ref) => {
     const { data } = node;
     const rowBackgroundColor = data.rowBackgroundColor;
+    const colBackgroundColor = data.colBackgroundColor;
 
     return (
       <div
@@ -13,7 +14,8 @@ const TableCell = memo(
         {...attributes}
         style={{
           ...attributes.style,
-          backgroundColor: rowBackgroundColor ? renderColor(data.rowBackgroundColor) : undefined,
+          backgroundColor:
+            rowBackgroundColor || colBackgroundColor ? renderColor(colBackgroundColor || rowBackgroundColor) : undefined,
         }}
         className={`relative table-cell text-left ${className || ''}`}
       >
