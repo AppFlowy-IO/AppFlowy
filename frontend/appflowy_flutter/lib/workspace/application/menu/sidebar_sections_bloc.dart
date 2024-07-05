@@ -11,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -219,6 +220,23 @@ class SidebarSectionsBloc
       final publicViews = await _workspaceService.getPublicViews().getOrThrow();
       final privateViews =
           await _workspaceService.getPrivateViews().getOrThrow();
+
+      for (final view in publicViews) {
+        debugPrint('old: public view: ${view.name}');
+      }
+
+      for (final view in privateViews) {
+        debugPrint('old:private view: ${view.name}');
+      }
+
+      final publicSpaces = publicViews.where((e) => e.isSpace);
+      final privateSpaces = privateViews.where((e) => e.isSpace);
+
+      debugPrint('old:publicSpaces: ${publicSpaces.length}');
+      debugPrint('old:privateSpaces: ${privateSpaces.length}');
+
+      Log.info('fetch views from all views:');
+
       return SidebarSection(
         publicViews: publicViews,
         privateViews: privateViews,
