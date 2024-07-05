@@ -204,7 +204,10 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             focusedBorder: OutlineInputBorder(
               borderRadius: Corners.s8Border,
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
+                color: widget.readOnly
+                    ? widget.enableBorderColor ??
+                        Theme.of(context).colorScheme.outline
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
             errorBorder: OutlineInputBorder(
