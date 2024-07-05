@@ -3,7 +3,7 @@ import { db } from '@/application/db';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { AFConfigContext } from '@/components/app/AppConfig';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { createContext, useCallback, useContext } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Y from 'yjs';
 
@@ -34,6 +34,9 @@ export const PublishProvider = ({
 
     return db.view_metas.get(name);
   }, [namespace, publishName]);
+
+  const prevViewMeta = useRef(viewMeta);
+
   const service = useContext(AFConfigContext)?.service;
   const navigate = useNavigate();
   const toView = useCallback(
@@ -128,6 +131,15 @@ export const PublishProvider = ({
     },
     [service]
   );
+
+  useEffect(() => {
+    if (!viewMeta && prevViewMeta.current) {
+      window.location.reload();
+      return;
+    }
+
+    prevViewMeta.current = viewMeta;
+  }, [viewMeta]);
 
   return (
     <PublishContext.Provider

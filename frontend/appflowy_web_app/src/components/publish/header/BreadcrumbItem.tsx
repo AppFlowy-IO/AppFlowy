@@ -4,6 +4,7 @@ import { notify } from '@/components/_shared/notify';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import SpaceIcon from '@/components/publish/header/SpaceIcon';
 import { renderColor } from '@/utils/color';
+import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -35,42 +36,44 @@ function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disable
   const onNavigateToView = usePublishContext()?.toView;
 
   return (
-    <div
-      className={`flex items-center gap-1 text-sm ${!disableClick ? 'cursor-pointer' : 'flex-1 overflow-hidden'}`}
-      onClick={async () => {
-        if (disableClick) return;
-        try {
-          await onNavigateToView?.(viewId);
-        } catch (e) {
-          notify.default(t('publish.hasNotBeenPublished'));
-        }
-      }}
-    >
-      {extraObj && extraObj.is_space ? (
-        <span
-          className={'icon h-5 w-5'}
-          style={{
-            backgroundColor: extraObj.space_icon_color ? renderColor(extraObj.space_icon_color) : undefined,
-            borderRadius: '8px',
-          }}
-        >
-          <SpaceIcon value={extraObj.space_icon || ''} />
-        </span>
-      ) : (
-        <span className={'icon flex h-5 w-5 items-center justify-center'}>
-          {icon || <ViewIcon layout={layout} size={'small'} />}
-        </span>
-      )}
-
-      <span
-        className={
-          'max-w-[250px] overflow-hidden truncate ' +
-          (!disableClick ? 'hover:text-text-title hover:underline' : 'flex-1')
-        }
+    <Tooltip title={name} placement={'bottom'} enterDelay={1000} enterNextDelay={1000}>
+      <div
+        className={`flex items-center gap-1 text-sm ${!disableClick ? 'cursor-pointer' : 'flex-1 overflow-hidden'}`}
+        onClick={async () => {
+          if (disableClick) return;
+          try {
+            await onNavigateToView?.(viewId);
+          } catch (e) {
+            notify.default(t('publish.hasNotBeenPublished'));
+          }
+        }}
       >
-        {name || t('menuAppHeader.defaultNewPageName')}
-      </span>
-    </div>
+        {extraObj && extraObj.is_space ? (
+          <span
+            className={'icon h-5 w-5'}
+            style={{
+              backgroundColor: extraObj.space_icon_color ? renderColor(extraObj.space_icon_color) : undefined,
+              borderRadius: '8px',
+            }}
+          >
+            <SpaceIcon value={extraObj.space_icon || ''} />
+          </span>
+        ) : (
+          <span className={'icon flex h-5 w-5 items-center justify-center'}>
+            {icon || <ViewIcon layout={layout} size={'small'} />}
+          </span>
+        )}
+
+        <span
+          className={
+            'max-w-[250px] overflow-hidden truncate ' +
+            (!disableClick ? 'hover:text-text-title hover:underline' : 'flex-1')
+          }
+        >
+          {name || t('menuAppHeader.defaultNewPageName')}
+        </span>
+      </div>
+    </Tooltip>
   );
 }
 

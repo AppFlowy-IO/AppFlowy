@@ -71,7 +71,6 @@ export class AFClientService implements AFService {
             if (await hasViewMetaCache(name)) {
               this.publishViewLoaded.delete(name);
               void deleteView(name);
-              window.location.reload();
             }
           })();
 
