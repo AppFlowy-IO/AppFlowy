@@ -16,6 +16,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
 
+const _buttonsMinWidth = 116.0;
+
 class SettingsBillingView extends StatelessWidget {
   const SettingsBillingView({
     super.key,
@@ -57,7 +59,9 @@ class SettingsBillingView extends StatelessWidget {
             },
             ready: (state) {
               final billingPortalEnabled = state.billingPortal != null &&
-                  state.billingPortal!.url.isNotEmpty;
+                  state.billingPortal!.url.isNotEmpty &&
+                  state.subscription.subscriptionPlan !=
+                      SubscriptionPlanPB.None;
 
               return SettingsBody(
                 title: LocaleKeys.settings_billingPage_title.tr(),
@@ -77,6 +81,7 @@ class SettingsBillingView extends StatelessWidget {
                         buttonLabel: LocaleKeys
                             .settings_billingPage_plan_planButtonLabel
                             .tr(),
+                        minWidth: _buttonsMinWidth,
                       ),
                       if (billingPortalEnabled)
                         SingleSettingAction(
@@ -89,6 +94,7 @@ class SettingsBillingView extends StatelessWidget {
                           buttonLabel: LocaleKeys
                               .settings_billingPage_plan_periodButtonLabel
                               .tr(),
+                          minWidth: _buttonsMinWidth,
                         ),
                     ],
                   ),
@@ -108,9 +114,34 @@ class SettingsBillingView extends StatelessWidget {
                           buttonLabel: LocaleKeys
                               .settings_billingPage_paymentDetails_methodButtonLabel
                               .tr(),
+                          minWidth: _buttonsMinWidth,
                         ),
                       ],
                     ),
+                  // TODO(Mathias): Implement the business logic for AI Add-ons
+                  const SettingsCategory(
+                    title: 'Add-ons',
+                    children: [
+                      SingleSettingAction(
+                        buttonType: SingleSettingsButtonType.highlight,
+                        label: 'AppFlowy AI Max',
+                        description:
+                            "\$8 /user per month billed annually or \$10 billed monthly",
+                        buttonLabel: 'Add AI Max',
+                        fontWeight: FontWeight.w500,
+                        minWidth: _buttonsMinWidth,
+                      ),
+                      SingleSettingAction(
+                        buttonType: SingleSettingsButtonType.highlight,
+                        label: 'AppFlowy AI Offline',
+                        description:
+                            "\$8 /user per month billed annually or \$10 billed monthly",
+                        buttonLabel: 'Add AI Offline',
+                        fontWeight: FontWeight.w500,
+                        minWidth: _buttonsMinWidth,
+                      ),
+                    ],
+                  ),
                 ],
               );
             },

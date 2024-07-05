@@ -207,7 +207,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                       Navigator.of(context).pop();
                     },
                   ).show(context),
-                  isDangerous: true,
+                  buttonType: SingleSettingsButtonType.danger,
                   buttonLabel: workspaceMember?.role.isOwner ?? false
                       ? LocaleKeys
                           .settings_workspacePage_manageWorkspace_deleteWorkspace
