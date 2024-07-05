@@ -2,6 +2,7 @@ import { ViewLayout, YDoc } from '@/application/collab.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { usePublishContext } from '@/application/publish';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
+import { useAppThemeMode } from '@/components/app/useAppThemeMode';
 import { Database } from '@/components/database';
 import { useViewMeta } from '@/components/publish/useViewMeta';
 import { ViewMetaProps } from 'src/components/view-meta';
@@ -15,7 +16,7 @@ export interface CollabViewProps {
 
 function CollabView({ doc }: CollabViewProps) {
   const { viewId, layout, icon, cover, layoutClassName, style, name } = useViewMeta();
-
+  const { isDark } = useAppThemeMode();
   const View = useMemo(() => {
     switch (layout) {
       case ViewLayout.Document:
@@ -30,6 +31,7 @@ function CollabView({ doc }: CollabViewProps) {
   }, [layout]) as React.FC<
     {
       doc: YDoc;
+      isDark: boolean;
       navigateToView?: (viewId: string) => Promise<void>;
       loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
       getViewRowsMap?: (viewId: string, rowIds: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
@@ -58,6 +60,7 @@ function CollabView({ doc }: CollabViewProps) {
         cover={cover}
         viewId={viewId}
         name={name}
+        isDark={isDark}
       />
     </div>
   );

@@ -25,7 +25,7 @@ const NotFound = () => {
         </Typography>
         <Typography className={'text-[20px] leading-[152%]'} gutterBottom>
           <div className={''}>{t('publish.createWithAppFlowy')}</div>
-          <div className={'flex items-center'}>
+          <div className={'flex items-center gap-1'}>
             <span className={'font-semibold text-fill-default'}>{t('publish.fastWithAI')}</span>
             <span>{t('publish.tryItNow')}</span>
           </div>

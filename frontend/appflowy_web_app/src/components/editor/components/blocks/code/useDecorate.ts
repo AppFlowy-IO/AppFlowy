@@ -1,13 +1,18 @@
 import { BlockType } from '@/application/collab.type';
-import { decorateCode } from '@/components/editor/components/blocks/code/utils';
+import { useEditorContext } from '@/components/editor/EditorContext';
+import { decorateCode } from './utils';
 import { CodeNode } from '@/components/editor/editor.type';
-import { useCallback } from 'react';
+import { useMemo } from 'react';
 import { BaseRange, Editor, NodeEntry, Element } from 'slate';
 import { ReactEditor } from 'slate-react';
 
 export function useDecorate(editor: ReactEditor) {
-  return useCallback(
-    (entry: NodeEntry): BaseRange[] => {
+  const grammars = useEditorContext().codeGrammars;
+  const isDark = useEditorContext().isDark;
+
+  return useMemo(() => {
+    return (entry: NodeEntry): BaseRange[] => {
+      if (!entry) return [];
       const path = entry[1];
 
       const blockEntry = editor.above({
@@ -20,14 +25,11 @@ export function useDecorate(editor: ReactEditor) {
 
       const block = blockEntry[0] as CodeNode;
 
-      if (block.type === BlockType.CodeBlock) {
-        const language = block.data.language;
-
-        return decorateCode(entry, language, false);
+      if (block.type === BlockType.CodeBlock && grammars?.[block.blockId]) {
+        return decorateCode(entry, grammars[block.blockId], isDark);
       }
 
       return [];
-    },
-    [editor]
-  );
+    };
+  }, [editor, grammars, isDark]);
 }

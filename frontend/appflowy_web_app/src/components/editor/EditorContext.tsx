@@ -17,7 +17,10 @@ export const defaultLayoutStyle: EditorLayoutStyle = {
 
 export interface EditorContextState {
   readOnly: boolean;
+  isDark: boolean;
   layoutStyle?: EditorLayoutStyle;
+  codeGrammars?: Record<string, string>;
+  addCodeGrammars?: (blockId: string, grammar: string) => void;
   navigateToView?: (viewId: string) => Promise<void>;
   loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
   loadView?: (viewId: string) => Promise<YDoc>;
@@ -27,6 +30,8 @@ export interface EditorContextState {
 export const EditorContext = createContext<EditorContextState>({
   readOnly: true,
   layoutStyle: defaultLayoutStyle,
+  codeGrammars: {},
+  isDark: false,
 });
 
 export const EditorContextProvider = ({ children, ...props }: EditorContextState & { children: React.ReactNode }) => {

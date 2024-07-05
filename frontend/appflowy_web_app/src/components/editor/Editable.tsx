@@ -11,27 +11,23 @@ const EditorEditable = ({ editor }: { editor: ReactEditor }) => {
   const { readOnly } = useEditorContext();
   const codeDecorate = useDecorate(editor);
 
-  const decorate = useCallback(
-    (entry: NodeEntry) => {
-      return [...codeDecorate(entry)];
-    },
-    [codeDecorate]
-  );
-
-  const renderElement = useCallback(
-    (props: RenderElementProps) => (
+  const renderElement = useCallback((props: RenderElementProps) => {
+    return (
       <Suspense fallback={<Skeleton width={'100%'} height={24} />}>
         <Element {...props} />
       </Suspense>
-    ),
-    []
-  );
+    );
+  }, []);
 
   return (
     <>
       <Editable
         role={'textbox'}
-        decorate={decorate}
+        decorate={(entry: NodeEntry) => {
+          const decoration = codeDecorate?.(entry);
+
+          return decoration || [];
+        }}
         className={'px-16 outline-none focus:outline-none max-md:px-4'}
         renderLeaf={Leaf}
         renderElement={renderElement}

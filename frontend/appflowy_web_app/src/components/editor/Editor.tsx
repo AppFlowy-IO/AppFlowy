@@ -9,8 +9,19 @@ export interface EditorProps extends EditorContextState {
 }
 
 export const Editor = memo(({ doc, layoutStyle = defaultLayoutStyle, ...props }: EditorProps) => {
+  const [codeGrammars, setCodeGrammars] = React.useState<Record<string, string>>({});
+
+  const handleAddCodeGrammars = React.useCallback((blockId: string, grammar: string) => {
+    setCodeGrammars((prev) => ({ ...prev, [blockId]: grammar }));
+  }, []);
+
   return (
-    <EditorContextProvider {...props} layoutStyle={layoutStyle}>
+    <EditorContextProvider
+      {...props}
+      codeGrammars={codeGrammars}
+      addCodeGrammars={handleAddCodeGrammars}
+      layoutStyle={layoutStyle}
+    >
       <CollaborativeEditor doc={doc} />
     </EditorContextProvider>
   );
