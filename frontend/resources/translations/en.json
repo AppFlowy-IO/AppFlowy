@@ -2054,7 +2054,7 @@
       "imageBlock": "The image link has been copied to the clipboard",
       "mathBlock": "The math equation has been copied to the clipboard"
     },
-    "containsPublishedPage": "This page contains one or more published page, it will be unpublished if you continue.",
+    "containsPublishedPage": "This page contains one or more published pages. If you continue, they will be unpublished. Do you want to proceed with deletion?",
     "publishSuccessfully": "Published successfully",
     "unpublishSuccessfully": "Unpublished successfully",
     "publishFailed": "Failed to publish",
