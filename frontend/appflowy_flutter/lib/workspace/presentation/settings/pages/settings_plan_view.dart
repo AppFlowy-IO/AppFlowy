@@ -247,8 +247,7 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
     final appearance = context.read<AppearanceSettingsCubit>().state;
     return appearance.dateFormat.formatDate(
       widget.subscription.canceledAt.toDateTime(),
-      true,
-      appearance.timeFormat,
+      false,
     );
   }
 
