@@ -29,33 +29,12 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
               onViewUpdated: (value) {
                 add(DocumentShareEvent.updateViewName(value.name));
               },
+              onViewMoveToTrash: (p0) {
+                add(const DocumentShareEvent.setPublishStatus(false));
+              },
             );
 
-          final publishInfo = await ViewBackendService.getPublishInfo(view);
-          final enablePublish =
-              await UserBackendService.getCurrentUserProfile().fold(
-            (v) => v.authenticator == AuthenticatorPB.AppFlowyCloud,
-            (p) => false,
-          );
-          publishInfo.fold((s) {
-            emit(
-              state.copyWith(
-                isPublished: true,
-                url: '$_url/${s.namespace}/${s.publishName}',
-                viewName: view.name,
-                enablePublish: enablePublish,
-              ),
-            );
-          }, (f) {
-            emit(
-              state.copyWith(
-                isPublished: false,
-                url: '',
-                viewName: view.name,
-                enablePublish: enablePublish,
-              ),
-            );
-          });
+          add(const DocumentShareEvent.updatePublishStatus());
         },
         share: (type, path) async {
           if (DocumentShareType.unimplemented.contains(type)) {
@@ -133,6 +112,41 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
         },
         updateViewName: (viewName) async {
           emit(state.copyWith(viewName: viewName));
+        },
+        setPublishStatus: (isPublished) {
+          emit(
+            state.copyWith(
+              isPublished: isPublished,
+              url: isPublished ? state.url : '',
+            ),
+          );
+        },
+        updatePublishStatus: () async {
+          final publishInfo = await ViewBackendService.getPublishInfo(view);
+          final enablePublish =
+              await UserBackendService.getCurrentUserProfile().fold(
+            (v) => v.authenticator == AuthenticatorPB.AppFlowyCloud,
+            (p) => false,
+          );
+          publishInfo.fold((s) {
+            emit(
+              state.copyWith(
+                isPublished: true,
+                url: '$_url/${s.namespace}/${s.publishName}',
+                viewName: view.name,
+                enablePublish: enablePublish,
+              ),
+            );
+          }, (f) {
+            emit(
+              state.copyWith(
+                isPublished: false,
+                url: '',
+                viewName: view.name,
+                enablePublish: enablePublish,
+              ),
+            );
+          });
         },
       );
     });
@@ -223,6 +237,9 @@ class DocumentShareEvent with _$DocumentShareEvent {
   const factory DocumentShareEvent.unPublish() = _UnPublish;
   const factory DocumentShareEvent.updateViewName(String name) =
       _UpdateViewName;
+  const factory DocumentShareEvent.updatePublishStatus() = _UpdatePublishStatus;
+  const factory DocumentShareEvent.setPublishStatus(bool isPublished) =
+      _SetPublishStatus;
 }
 
 @freezed

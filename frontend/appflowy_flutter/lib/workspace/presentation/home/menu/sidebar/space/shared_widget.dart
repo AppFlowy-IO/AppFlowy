@@ -264,11 +264,14 @@ class _ConfirmDeletionPopupState extends State<ConfirmDeletionPopup> {
           children: [
             Row(
               children: [
-                FlowyText(
-                  widget.title,
-                  fontSize: 14.0,
+                Flexible(
+                  child: FlowyText(
+                    widget.title,
+                    fontSize: 14.0,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const Spacer(),
+                const HSpace(6.0),
                 FlowyButton(
                   useIntrinsicWidth: true,
                   text: const FlowySvg(FlowySvgs.upgrade_close_s),
