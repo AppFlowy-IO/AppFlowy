@@ -12,6 +12,7 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/fix_data_widget.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -376,11 +377,14 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     debugPrint('privateSpaces: ${privateSpaces.length}');
 
     Log.info('fetch views from all views:');
-    final result = await ViewBackendService.getAllViews().getOrThrow();
-    for (int i = 0; i < result.items.length; i++) {
-      final view = result.items[i];
-      Log.info('get from all views $i: $view)');
-    }
+
+    await FixDataManager.checkWorkspaceHealth(dryRun: true);
+
+    // final result = await ViewBackendService.getAllViews().getOrThrow();
+    // for (int i = 0; i < result.items.length; i++) {
+    //   final view = result.items[i];
+    //   Log.info('get from all views $i: $view)');
+    // }
 
     return ([...publicSpaces, ...privateSpaces], publicViews, privateViews);
   }
