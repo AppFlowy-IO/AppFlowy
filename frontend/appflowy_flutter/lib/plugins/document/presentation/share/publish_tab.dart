@@ -5,7 +5,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/share/pubish_color_extension.dart';
 import 'package:appflowy/plugins/document/presentation/share/publish_name_generator.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -138,54 +137,45 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildButton(
-              context,
-              name: LocaleKeys.shareAction_unPublish.tr(),
-              borderColor: ShareMenuColors.borderColor(context),
-              onTap: widget.onUnPublish,
-            ),
+            _buildUnpublishButton(),
             const Spacer(),
-            _buildButton(
-              context,
-              name: LocaleKeys.shareAction_visitSite.tr(),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              textColor:
-                  Theme.of(context).isLightMode ? Colors.white : Colors.black,
-              onTap: () {
-                safeLaunchUrl(controller.text);
-              },
-            ),
+            _buildVisitSiteButton(),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildButton(
-    BuildContext context, {
-    required String name,
-    Color? backgroundColor,
-    Color borderColor = Colors.transparent,
-    Color? textColor,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildUnpublishButton() {
     return SizedBox(
       height: 36,
       width: 184,
       child: FlowyButton(
         decoration: BoxDecoration(
-          color: backgroundColor,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: borderColor),
+          border: Border.all(color: ShareMenuColors.borderColor(context)),
         ),
         radius: BorderRadius.circular(10),
         text: FlowyText.regular(
-          name,
+          LocaleKeys.shareAction_unPublish.tr(),
           textAlign: TextAlign.center,
-          color: textColor,
         ),
-        onTap: onTap,
+        onTap: widget.onUnPublish,
       ),
+    );
+  }
+
+  Widget _buildVisitSiteButton() {
+    return RoundedTextButton(
+      onPressed: () {
+        safeLaunchUrl(controller.text);
+      },
+      title: LocaleKeys.shareAction_visitSite.tr(),
+      width: 184,
+      height: 36,
+      borderRadius: const BorderRadius.all(Radius.circular(10)),
+      fillColor: Theme.of(context).colorScheme.primary,
+      textColor: Theme.of(context).colorScheme.onPrimary,
     );
   }
 }
