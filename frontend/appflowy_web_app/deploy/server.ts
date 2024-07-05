@@ -101,10 +101,12 @@ const createServer = async (req: Request) => {
 
     try {
       if (metaData && metaData.view) {
-        title = `${metaData.view.name} | AppFlowy`;
+        const view = metaData.view;
+
+        title = `${view.icon.value} ${view.name} | AppFlowy`;
 
         try {
-          const cover = metaData.view.extra ? JSON.parse(metaData.view.extra)?.cover : null;
+          const cover = view.extra ? JSON.parse(view.extra)?.cover : null;
 
           if (cover) {
             if (['unsplash', 'custom'].includes(cover.type)) {
