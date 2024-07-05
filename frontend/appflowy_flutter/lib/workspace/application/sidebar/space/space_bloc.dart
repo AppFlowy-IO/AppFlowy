@@ -9,8 +9,8 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
-import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -21,6 +21,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -69,6 +70,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             _initial(userProfile, workspaceId);
 
             final (spaces, publicViews, privateViews) = await _getSpaces();
+
             final shouldShowUpgradeDialog = await this.shouldShowUpgradeDialog(
               spaces: spaces,
               publicViews: publicViews,
@@ -98,6 +100,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 add(SpaceEvent.open(currentSpace));
               }
             }
+
+            Future.delayed(const Duration(seconds: 10), () {
+              debugPrint('delay to fetch the space');
+              add(const SpaceEvent.didReceiveSpaceUpdate());
+            });
           },
           create: (
             name,
@@ -337,6 +344,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   String? _workspaceId;
   late UserProfilePB userProfile;
   WorkspaceSectionsListener? _listener;
+  WorkspaceListener? _workspaceListener;
 
   @override
   Future<void> close() async {
@@ -355,6 +363,24 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
     final publicSpaces = publicViews.where((e) => e.isSpace);
     final privateSpaces = privateViews.where((e) => e.isSpace);
+
+    for (final view in publicViews) {
+      debugPrint('public view: ${view.name}');
+    }
+
+    for (final view in privateViews) {
+      debugPrint('private view: ${view.name}');
+    }
+
+    debugPrint('publicSpaces: ${publicSpaces.length}');
+    debugPrint('privateSpaces: ${privateSpaces.length}');
+
+    Log.info('fetch views from all views:');
+    final result = await ViewBackendService.getAllViews().getOrThrow();
+    for (int i = 0; i < result.items.length; i++) {
+      final view = result.items[i];
+      Log.info('get from all views $i: $view)');
+    }
 
     return ([...publicSpaces, ...privateSpaces], publicViews, privateViews);
   }
@@ -434,11 +460,24 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           add(const SpaceEvent.didReceiveSpaceUpdate());
         },
       );
+
+    _workspaceListener =
+        WorkspaceListener(user: userProfile, workspaceId: workspaceId)
+          ..start(
+            onWorkspaceUpdated: (result) {
+              debugPrint('workspace updated $result');
+            },
+            appsChanged: (p0) {
+              debugPrint('apps changed $p0');
+            },
+          );
   }
 
   void _reset(UserProfilePB userProfile, String workspaceId) {
     _listener?.stop();
     _listener = null;
+    _workspaceListener?.stop();
+    _workspaceListener = null;
 
     _initial(userProfile, workspaceId);
   }
