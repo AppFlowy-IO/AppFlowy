@@ -102,9 +102,21 @@ const createServer = async (req: Request) => {
     try {
       if (metaData && metaData.view) {
         const view = metaData.view;
+        const icon = view.icon.value;
+        const titleList = [];
 
-        title = `${view.icon.value} ${view.name} | AppFlowy`;
+        if (icon) {
+          titleList.push(icon);
+        }
 
+        if (view.name) {
+          titleList.push(view.name);
+          titleList.push('|');
+        }
+
+        titleList.push('AppFlowy');
+        title = titleList.join(' ');
+        
         try {
           const cover = view.extra ? JSON.parse(view.extra)?.cover : null;
 
