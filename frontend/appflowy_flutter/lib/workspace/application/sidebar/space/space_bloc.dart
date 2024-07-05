@@ -6,6 +6,7 @@ import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
@@ -82,6 +83,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 currentSpace: currentSpace,
                 isExpanded: isExpanded,
                 shouldShowUpgradeDialog: shouldShowUpgradeDialog,
+                isInitialized: true,
               ),
             );
 
@@ -192,7 +194,25 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           open: (space) async {
             await _openSpace(space);
             final isExpanded = await _getSpaceExpandStatus(space);
-            emit(state.copyWith(currentSpace: space, isExpanded: isExpanded));
+            final views = await ViewBackendService.getChildViews(
+              viewId: space.id,
+            );
+            final currentSpace = views.fold(
+              (views) {
+                space.freeze();
+                return space.rebuild((b) {
+                  b.childViews.clear();
+                  b.childViews.addAll(views);
+                });
+              },
+              (_) => space,
+            );
+            emit(
+              state.copyWith(
+                currentSpace: currentSpace,
+                isExpanded: isExpanded,
+              ),
+            );
 
             // don't open the page automatically on mobile
             if (PlatformExtension.isDesktop) {
@@ -690,6 +710,7 @@ class SpaceState with _$SpaceState {
     FlowyResult<void, FlowyError>? createPageResult,
     @Default(false) bool shouldShowUpgradeDialog,
     @Default(false) bool isDuplicatingSpace,
+    @Default(false) bool isInitialized,
   }) = _SpaceState;
 
   factory SpaceState.initial() => const SpaceState();
