@@ -5,7 +5,6 @@ import * as Y from 'yjs';
 
 export interface DatabaseContextState {
   readOnly: boolean;
-  isDark?: boolean;
   databaseDoc: YDoc;
   viewId: string;
   rowDocMap: Y.Map<YDoc>;

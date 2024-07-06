@@ -7,7 +7,6 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
   const meta = useRowMetaSelector(rowId);
   const documentId = meta?.documentId;
-  const isDark = useContext(DatabaseContext)?.isDark || false;
   const loadView = useContext(DatabaseContext)?.loadView;
   const getViewRowsMap = useContext(DatabaseContext)?.getViewRowsMap;
   const navigateToView = useContext(DatabaseContext)?.navigateToView;
@@ -47,7 +46,6 @@ export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
 
   return (
     <Editor
-      isDark={isDark}
       doc={doc}
       loadViewMeta={loadViewMeta}
       navigateToView={navigateToView}

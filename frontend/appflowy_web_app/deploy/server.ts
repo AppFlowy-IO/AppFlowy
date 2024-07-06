@@ -140,7 +140,7 @@ const createServer = async (req: Request) => {
     }
 
     $('title').text(title);
-    setOrUpdateMetaTag($, 'link[rel="icon"]', 'href', favicon);
+    $('link[rel="icon"]').attr('href', favicon);
     setOrUpdateMetaTag($, 'meta[name="description"]', 'name', description);
     setOrUpdateMetaTag($, 'meta[property="og:title"]', 'property', title);
     setOrUpdateMetaTag($, 'meta[property="og:description"]', 'property', description);

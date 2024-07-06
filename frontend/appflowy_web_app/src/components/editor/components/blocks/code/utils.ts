@@ -75,7 +75,9 @@ function switchCodeTheme(isDark: boolean) {
   document.head.appendChild(newLink);
 }
 
-export const decorateCode = ([node, path]: NodeEntry, language: string, isDark: boolean) => {
+export const decorateCode = ([node, path]: NodeEntry, language: string) => {
+  const isDark = document.documentElement.getAttribute('data-dark-mode') === 'true';
+
   switchCodeTheme(isDark);
 
   const ranges: BaseRange[] = [];

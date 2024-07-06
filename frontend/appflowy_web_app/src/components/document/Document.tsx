@@ -8,7 +8,6 @@ import Y from 'yjs';
 
 export interface DocumentProps extends ViewMetaProps {
   doc: YDoc;
-  isDark: boolean;
   navigateToView?: (viewId: string) => Promise<void>;
   loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
   loadView?: (viewId: string) => Promise<YDoc>;
@@ -21,7 +20,6 @@ export const Document = ({
   navigateToView,
   loadViewMeta,
   getViewRowsMap,
-  isDark,
   ...viewMeta
 }: DocumentProps) => {
   return (
@@ -30,7 +28,6 @@ export const Document = ({
       <Suspense fallback={<ComponentLoading />}>
         <div className={'mx-16 w-[964px] min-w-0 max-w-full'}>
           <Editor
-            isDark={isDark}
             loadView={loadView}
             loadViewMeta={loadViewMeta}
             navigateToView={navigateToView}

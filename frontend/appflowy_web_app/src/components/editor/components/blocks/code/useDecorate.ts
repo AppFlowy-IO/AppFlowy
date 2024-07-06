@@ -8,7 +8,6 @@ import { ReactEditor } from 'slate-react';
 
 export function useDecorate(editor: ReactEditor) {
   const grammars = useEditorContext().codeGrammars;
-  const isDark = useEditorContext().isDark;
 
   return useMemo(() => {
     return (entry: NodeEntry): BaseRange[] => {
@@ -26,10 +25,10 @@ export function useDecorate(editor: ReactEditor) {
       const block = blockEntry[0] as CodeNode;
 
       if (block.type === BlockType.CodeBlock && grammars?.[block.blockId]) {
-        return decorateCode(entry, grammars[block.blockId], isDark);
+        return decorateCode(entry, grammars[block.blockId]);
       }
 
       return [];
     };
-  }, [editor, grammars, isDark]);
+  }, [editor, grammars]);
 }

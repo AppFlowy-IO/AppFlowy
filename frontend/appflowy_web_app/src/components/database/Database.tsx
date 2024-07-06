@@ -11,14 +11,13 @@ import { DatabaseContextProvider } from './DatabaseContext';
 
 export interface Database2Props extends ViewMetaProps {
   doc: YDoc;
-  isDark?: boolean;
   getViewRowsMap?: (viewId: string, rowIds: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
   loadView?: (viewId: string) => Promise<YDoc>;
   navigateToView?: (viewId: string) => Promise<void>;
   loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
 }
 
-function Database({ doc, isDark, getViewRowsMap, navigateToView, loadViewMeta, loadView, ...viewMeta }: Database2Props) {
+function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView, ...viewMeta }: Database2Props) {
   const [search, setSearch] = useSearchParams();
 
   const viewId = search.get('v') || viewMeta.viewId;
@@ -74,7 +73,6 @@ function Database({ doc, isDark, getViewRowsMap, navigateToView, loadViewMeta, l
     <div className={'flex w-full justify-center'}>
       <Suspense fallback={<ComponentLoading />}>
         <DatabaseContextProvider
-          isDark={isDark}
           isDatabaseRowPage={!!rowId}
           navigateToRow={handleNavigateToRow}
           viewId={viewId}
