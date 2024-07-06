@@ -98,15 +98,19 @@ const createServer = async (req: Request) => {
     let title = 'AppFlowy';
     const url = `https://${hostname}${reqUrl.pathname}`;
     let image = '/og-image.png';
+    let favicon = '/appflowy.svg';
 
     try {
       if (metaData && metaData.view) {
         const view = metaData.view;
-        const icon = view.icon.value;
+        const emoji = view.icon.value;
         const titleList = [];
 
-        if (icon) {
-          titleList.push(icon);
+        if (emoji) {
+          const emojiCode = emoji.codePointAt(0).toString(16); // Convert emoji to hex code
+          const baseUrl = 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/svg/emoji_u';
+
+          favicon = `${baseUrl}${emojiCode}.svg`;
         }
 
         if (view.name) {
@@ -116,7 +120,7 @@ const createServer = async (req: Request) => {
 
         titleList.push('AppFlowy');
         title = titleList.join(' ');
-        
+
         try {
           const cover = view.extra ? JSON.parse(view.extra)?.cover : null;
 
@@ -136,6 +140,7 @@ const createServer = async (req: Request) => {
     }
 
     $('title').text(title);
+    setOrUpdateMetaTag($, 'link[rel="icon"]', 'href', favicon);
     setOrUpdateMetaTag($, 'meta[name="description"]', 'name', description);
     setOrUpdateMetaTag($, 'meta[property="og:title"]', 'property', title);
     setOrUpdateMetaTag($, 'meta[property="og:description"]', 'property', description);
