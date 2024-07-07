@@ -1,0 +1,226 @@
+{
+  "appName": "appNaam",
+  "defaultUsername": "standaardGebruikersnaam",
+  "welcomeText": "welkomTekst",
+  "githubStarText": "githubSterTekst",
+  "subscribeNewsletterText": "abonneerNieuwsbriefTekst",
+  "letsGoButtonText": "latenWeGaanKnopTekst",
+  "title": "titel",
+  "youCanAlso": "jeKuntOok",
+  "and": "en",
+  "blockActions": {
+    "addBelowTooltip": "voegBenedenTooltipToe",
+    "addAboveCmd": "voegBovenCmdToe",
+    "addAboveMacCmd": "voegBovenMacCmdToe",
+    "addAboveTooltip": "voegBovenTooltipToe",
+    "dragTooltip": "sleepTooltip",
+    "openMenuTooltip": "openMenuTooltip"
+  },
+  "signUp": {
+    "buttonText": "knopTekst",
+    "title": "titel",
+    "getStartedText": "beginTekst",
+    "emptyPasswordError": "legeWachtwoordFout",
+    "repeatPasswordEmptyError": "herhaalWachtwoordLegeFout",
+    "unmatchedPasswordError": "nietOvereenkomendWachtwoordFout",
+    "alreadyHaveAnAccount": "alEenAccount",
+    "emailHint": "emailHint",
+    "passwordHint": "wachtwoordHint",
+    "repeatPasswordHint": "herhaalWachtwoordHint",
+    "signUpWith": "meldJeAanMet"
+  },
+  "signIn": {
+    "loginTitle": "loginTitel",
+    "loginButtonText": "loginKnopTekst",
+    "loginStartWithAnonymous": "loginStartMetAnoniem",
+    "continueAnonymousUser": "gaDoorMetAnoniemeGebruiker",
+    "buttonText": "knopTekst",
+    "forgotPassword": "wachtwoordVergeten",
+    "emailHint": "emailHint",
+    "passwordHint": "wachtwoordHint",
+    "dontHaveAnAccount": "geenAccount",
+    "repeatPasswordEmptyError": "herhaalWachtwoordLegeFout",
+    "unmatchedPasswordError": "nietOvereenkomendWachtwoordFout",
+    "syncPromptMessage": "synchronisatiePromptBericht",
+    "or": "of",
+    "LogInWithGoogle": "logInMetGoogle",
+    "LogInWithGithub": "logInMetGithub",
+    "LogInWithDiscord": "logInMetDiscord",
+    "signInWith": "logInMet"
+  },
+  "workspace": {
+    "chooseWorkspace": "kiesWerkruimte",
+    "create": "maak",
+    "reset": "reset",
+    "resetWorkspacePrompt": "resetWerkruimtePrompt",
+    "hint": "hint",
+    "notFoundError": "nietGevondenFout",
+    "failedToLoad": "ladenMislukt",
+    "errorActions": {
+      "reportIssue": "meldProbleem",
+      "reachOut": "bereikUit"
+    }
+  },
+  "shareAction": {
+    "buttonText": "knopTekst",
+    "workInProgress": "werkInUitvoering",
+    "markdown": "markdown",
+    "csv": "csv",
+    "copyLink": "kopieerLink"
+  },
+  "moreAction": {
+    "small": "klein",
+    "medium": "medium",
+    "large": "groot",
+    "fontSize": "lettergrootte",
+    "import": "importeer",
+    "moreOptions": "meerOpties"
+  },
+  "importPanel": {
+    "textAndMarkdown": "tekstEnMarkdown",
+    "documentFromV010": "documentVanV010",
+    "databaseFromV010": "databaseVanV010",
+    "csv": "csv",
+    "database": "database"
+  },
+  "disclosureAction": {
+    "rename": "hernoem",
+    "delete": "verwijder",
+    "duplicate": "dupliceer",
+    "unfavorite": "verwijderFavoriet",
+    "favorite": "favoriet",
+    "openNewTab": "openNieuwTabblad",
+    "moveTo": "verplaatsNaar",
+    "addToFavorites": "voegToeAanFavorieten",
+    "copyLink": "kopieerLink"
+  },
+  "blankPageTitle": "legePaginaTitel",
+  "newPageText": "nieuwePaginaTekst",
+  "newDocumentText": "nieuwDocumentTekst",
+  "newGridText": "nieuweRasterTekst",
+  "newCalendarText": "nieuweKalenderTekst",
+  "newBoardText": "nieuwBordTekst",
+  "trash": {
+    "text": "tekst",
+    "restoreAll": "herstelAlles",
+    "deleteAll": "verwijderAlles",
+    "pageHeader": {
+      "fileName": "bestandsNaam",
+      "lastModified": "laatstGewijzigd",
+      "created": "gemaakt"
+    },
+    "confirmDeleteAll": {
+      "title": "titel",
+      "caption": "onderschrift"
+    },
+    "confirmRestoreAll": {
+      "title": "titel",
+      "caption": "onderschrift"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "tekst",
+    "restore": "herstel",
+    "deletePermanent": "verwijderPermanent"
+  },
+  "dialogCreatePageNameHint": "dialoogMaakPaginaNaamHint",
+  "questionBubble": {
+    "shortcuts": "sneltoetsen",
+    "whatsNew": "watIsNieuw",
+    "help": "help",
+    "markdown": "markdown",
+    "debug": {
+      "name": "naam",
+      "success": "succes",
+      "fail": "mislukking"
+    },
+    "feedback": "feedback"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "meerKnopTooltip",
+    "addPageTooltip": "voegPaginaTooltipToe",
+    "defaultNewPageName": "standaardNieuwePaginaNaam",
+    "renameDialog": "hernoemDialoog"
+  },
+  "toolbar": {
+    "undo": "ongedaanMaken",
+    "redo": "opnieuwDoen",
+    "bold": "vet",
+    "italic": "cursief",
+    "underline": "onderstrepen",
+    "strike": "doorhalen",
+    "numList": "nummerLijst",
+    "bulletList": "bulletLijst",
+    "checkList": "checkLijst",
+    "inlineCode": "inlineCode",
+    "quote": "citaat",
+    "header": "kop",
+    "highlight": "markeren",
+    "color": "kleur",
+    "addLink": "voegLinkToe",
+    "link": "link"
+  },
+  "tooltip": {
+    "lightMode": "lichtModus",
+    "darkMode": "donkerModus",
+    "openAsPage": "openAlsPagina",
+    "addNewRow": "voegNieuweRijToe",
+    "openMenu": "openMenu",
+    "dragRow": "sleepRij",
+    "viewDataBase": "bekijkDatabase",
+    "referencePage": "referentiePagina",
+    "addBlockBelow": "voegBlokBenedenToe"
+  },
+  "sideBar": {
+    "closeSidebar": "sluitZijbalk",
+    "openSidebar": "openZijbalk",
+    "personal": "persoonlijk",
+    "favorites": "favorieten",
+    "clickToHidePersonal": "klikOmPersoonlijkTeVerbergen",
+    "clickToHideFavorites": "klikOmFavorietenTeVerbergen",
+    "addAPage": "voegEenPaginaToe"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "markdown",
+      "path": "pad"
+    }
+  },
+  "contactsPage": {
+    "title": "titel",
+    "whatsHappening": "watGebeurdEr",
+    "addContact": "voegContactToe",
+    "editContact": "bewerkContact"
+  },
+  "button": {
+    "ok": "ok",
+    "cancel": "annuleren",
+    "signIn": "inloggen",
+    "signOut": "uitloggen",
+    "complete": "voltooien",
+    "save": "opslaan",
+    "generate": "genereren",
+    "esc": "esc",
+    "keep": "houden",
+    "tryAgain": "probeerOpnieuw",
+    "discard": "verwerpen",
+    "replace": "vervangen",
+    "insertBelow": "invoegenBeneden",
+    "upload": "uploaden",
+    "edit": "bewerken",
+    "delete": "verwijderen",
+    "duplicate": "dupliceren",
+    "done": "klaar",
+    "putback": "terugplaatsen"
+  },
+  "label": {
+    "welcome": "welkom",
+    "firstName": "voornaam",
+    "middleName": "middelNaam",
+    "lastName": "achternaam",
+    "primaryEmail": "primaireEmail",
+    "secondaryEmail": "secundaireEmail",
+    "phoneNumber": "telefoonNummer",
+    "notes": "notities"
+  }
+}
