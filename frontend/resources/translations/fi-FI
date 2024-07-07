@@ -1,0 +1,226 @@
+{
+  "appName": "SovelluksenNimi",
+  "defaultUsername": "Oletuskäyttäjänimi",
+  "welcomeText": "Tervetuloa",
+  "githubStarText": "Tähtiä GitHubissa",
+  "subscribeNewsletterText": "Tilaa uutiskirje",
+  "letsGoButtonText": "Aloitetaan",
+  "title": "Otsikko",
+  "youCanAlso": "Voit myös",
+  "and": "ja",
+  "blockActions": {
+    "addBelowTooltip": "Lisää alle",
+    "addAboveCmd": "Lisää yläpuolelle (Cmd)",
+    "addAboveMacCmd": "Lisää yläpuolelle (Mac-Cmd)",
+    "addAboveTooltip": "Lisää yläpuolelle",
+    "dragTooltip": "Raahaa",
+    "openMenuTooltip": "Avaa valikko"
+  },
+  "signUp": {
+    "buttonText": "Rekisteröidy",
+    "title": "Rekisteröidy",
+    "getStartedText": "Aloita",
+    "emptyPasswordError": "Tyhjä salasana",
+    "repeatPasswordEmptyError": "Toista salasana tyhjä",
+    "unmatchedPasswordError": "Salasanat eivät täsmää",
+    "alreadyHaveAnAccount": "Onko sinulla jo tili?",
+    "emailHint": "Sähköposti",
+    "passwordHint": "Salasana",
+    "repeatPasswordHint": "Toista salasana",
+    "signUpWith": "Rekisteröidy käyttäen"
+  },
+  "signIn": {
+    "loginTitle": "Kirjaudu sisään",
+    "loginButtonText": "Kirjaudu sisään",
+    "loginStartWithAnonymous": "Aloita nimettömänä",
+    "continueAnonymousUser": "Jatka nimettömänä käyttäjänä",
+    "buttonText": "Kirjaudu",
+    "forgotPassword": "Unohditko salasanasi?",
+    "emailHint": "Sähköposti",
+    "passwordHint": "Salasana",
+    "dontHaveAnAccount": "Eikö sinulla ole tiliä?",
+    "repeatPasswordEmptyError": "Toista salasana tyhjä",
+    "unmatchedPasswordError": "Salasanat eivät täsmää",
+    "syncPromptMessage": "Synkronointi viesti",
+    "or": "tai",
+    "LogInWithGoogle": "Kirjaudu Googlella",
+    "LogInWithGithub": "Kirjaudu GitHubilla",
+    "LogInWithDiscord": "Kirjaudu Discordilla",
+    "signInWith": "Kirjaudu sisään käyttäen"
+  },
+  "workspace": {
+    "chooseWorkspace": "Valitse työtila",
+    "create": "Luo",
+    "reset": "Nollaa",
+    "resetWorkspacePrompt": "Nollaa työtila",
+    "hint": "Vihje",
+    "notFoundError": "Ei löytynyt virhettä",
+    "failedToLoad": "Lataus epäonnistui",
+    "errorActions": {
+      "reportIssue": "Ilmoita ongelmasta",
+      "reachOut": "Ota yhteyttä"
+    }
+  },
+  "shareAction": {
+    "buttonText": "Jaa",
+    "workInProgress": "Työn alla",
+    "markdown": "Markdown",
+    "csv": "CSV",
+    "copyLink": "Kopioi linkki"
+  },
+  "moreAction": {
+    "small": "Pieni",
+    "medium": "Keskikokoinen",
+    "large": "Suuri",
+    "fontSize": "Fonttikoko",
+    "import": "Tuo",
+    "moreOptions": "Lisää vaihtoehtoja"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Teksti ja Markdown",
+    "documentFromV010": "Dokumentti versiosta 0.1.0",
+    "databaseFromV010": "Tietokanta versiosta 0.1.0",
+    "csv": "CSV",
+    "database": "Tietokanta"
+  },
+  "disclosureAction": {
+    "rename": "Nimeä uudelleen",
+    "delete": "Poista",
+    "duplicate": "Kaksoiskappale",
+    "unfavorite": "Poista suosikeista",
+    "favorite": "Suosikki",
+    "openNewTab": "Avaa uudessa välilehdessä",
+    "moveTo": "Siirrä",
+    "addToFavorites": "Lisää suosikkeihin",
+    "copyLink": "Kopioi linkki"
+  },
+  "blankPageTitle": "Tyhjän sivun otsikko",
+  "newPageText": "Uusi sivu",
+  "newDocumentText": "Uusi dokumentti",
+  "newGridText": "Uusi ruudukko",
+  "newCalendarText": "Uusi kalenteri",
+  "newBoardText": "Uusi taulu",
+  "trash": {
+    "text": "Roskakori",
+    "restoreAll": "Palauta kaikki",
+    "deleteAll": "Poista kaikki",
+    "pageHeader": {
+      "fileName": "Tiedostonimi",
+      "lastModified": "Viimeksi muokattu",
+      "created": "Luotu"
+    },
+    "confirmDeleteAll": {
+      "title": "Vahvista kaikki poistaminen",
+      "caption": "Haluatko varmasti poistaa kaiken?"
+    },
+    "confirmRestoreAll": {
+      "title": "Vahvista kaikkien palauttaminen",
+      "caption": "Haluatko varmasti palauttaa kaiken?"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Poista sivu",
+    "restore": "Palauta",
+    "deletePermanent": "Poista pysyvästi"
+  },
+  "dialogCreatePageNameHint": "Luo sivun nimi",
+  "questionBubble": {
+    "shortcuts": "Pikanäppäimet",
+    "whatsNew": "Mitä uutta",
+    "help": "Ohje",
+    "markdown": "Markdown",
+    "debug": {
+      "name": "Nimi",
+      "success": "Onnistui",
+      "fail": "Epäonnistui"
+    },
+    "feedback": "Palaute"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "Lisää-painikkeen vinkki",
+    "addPageTooltip": "Lisää sivu -vinkki",
+    "defaultNewPageName": "Oletus uuden sivun nimi",
+    "renameDialog": "Nimeä uudelleen"
+  },
+  "toolbar": {
+    "undo": "Kumoa",
+    "redo": "Tee uudelleen",
+    "bold": "Lihavoi",
+    "italic": "Kursivoi",
+    "underline": "Alleviivaa",
+    "strike": "Yliviivaa",
+    "numList": "Numeroitu lista",
+    "bulletList": "Luettelomerkit",
+    "checkList": "Tehtävälista",
+    "inlineCode": "Sisäkkäinen koodi",
+    "quote": "Lainaus",
+    "header": "Otsikko",
+    "highlight": "Korosta",
+    "color": "Väri",
+    "addLink": "Lisää linkki",
+    "link": "Linkki"
+  },
+  "tooltip": {
+    "lightMode": "Valotila",
+    "darkMode": "Tumma tila",
+    "openAsPage": "Avaa sivuna",
+    "addNewRow": "Lisää uusi rivi",
+    "openMenu": "Avaa valikko",
+    "dragRow": "Raahaa riviä",
+    "viewDataBase": "Näytä tietokanta",
+    "referencePage": "Viitesivu",
+    "addBlockBelow": "Lisää lohko alle"
+  },
+  "sideBar": {
+    "closeSidebar": "Sulje sivupalkki",
+    "openSidebar": "Avaa sivupalkki",
+    "personal": "Henkilökohtainen",
+    "favorites": "Suosikit",
+    "clickToHidePersonal": "Piilota henkilökohtainen",
+    "clickToHideFavorites": "Piilota suosikit",
+    "addAPage": "Lisää sivu"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Markdown",
+      "path": "Polku"
+    }
+  },
+  "contactsPage": {
+    "title": "Yhteystiedot",
+    "whatsHappening": "Mitä tapahtuu",
+    "addContact": "Lisää yhteystieto",
+    "editContact": "Muokkaa yhteystietoa"
+  },
+  "button": {
+    "ok": "OK",
+    "cancel": "Peruuta",
+    "signIn": "Kirjaudu sisään",
+    "signOut": "Kirjaudu ulos",
+    "complete": "Valmis",
+    "save": "Tallenna",
+    "generate": "Generoi",
+    "esc": "Esc",
+    "keep": "Säilytä",
+    "tryAgain": "Yritä uudelleen",
+    "discard": "Hylkää",
+    "replace": "Korvaa",
+    "insertBelow": "Lisää alle",
+    "upload": "Lataa",
+    "edit": "Muokkaa",
+    "delete": "Poista",
+    "duplicate": "Kaksoiskappale",
+    "done": "Valmis",
+    "putback": "Palauta takaisin"
+  },
+  "label": {
+    "welcome": "Tervetuloa",
+    "firstName": "Etunimi",
+    "middleName": "Toinen nimi",
+    "lastName": "Sukunimi",
+    "primaryEmail": "Ensisijainen sähköposti",
+    "secondaryEmail": "Toissijainen sähköposti",
+    "phoneNumber": "Puhelinnumero",
+    "notes": "Muistiinpanot"
+  }
+}
