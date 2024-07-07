@@ -1,0 +1,226 @@
+{
+  "appName": "Jou Program Naam",
+  "defaultUsername": "Standaard Gebruikersnaam",
+  "welcomeText": "Welkom by Ons Toepassing",
+  "githubStarText": "Ster ons op GitHub!",
+  "subscribeNewsletterText": "Skryf in vir ons Nuusbrief",
+  "letsGoButtonText": "Laat Ons Gaan!",
+  "title": "Titel",
+  "youCanAlso": "Jy Kan Ook",
+  "and": "en",
+  "blockActions": {
+    "addBelowTooltip": "Voeg Blok Onder Toe",
+    "addAboveCmd": "Voeg Bok Bokant In",
+    "addAboveMacCmd": "Voeg Bok Bokant Mac In",
+    "addAboveTooltip": "Voeg Blok Bokant Toe",
+    "dragTooltip": "Sleep",
+    "openMenuTooltip": "Maak Menu Oop"
+  },
+  "signUp": {
+    "buttonText": "Teken Aan",
+    "title": "Registreer",
+    "getStartedText": "Begin Jou Reis",
+    "emptyPasswordError": "Leë Wagwoord Fout",
+    "repeatPasswordEmptyError": "Herhaal Wagwoord Leeg Fout",
+    "unmatchedPasswordError": "Nie ooreenstemmende wagwoorde",
+    "alreadyHaveAnAccount": "Het jy al 'n rekening?",
+    "emailHint": "E-pos Adres",
+    "passwordHint": "Wagwoord",
+    "repeatPasswordHint": "Herhaal Wagwoord",
+    "signUpWith": "Teken Aan Met"
+  },
+  "signIn": {
+    "loginTitle": "Teken In",
+    "loginButtonText": "Teken In",
+    "loginStartWithAnonymous": "Begin Anoniem",
+    "continueAnonymousUser": "Hou Aan As Anonieme Gebruiker",
+    "buttonText": "Teken In",
+    "forgotPassword": "Wagwoord Vergeet?",
+    "emailHint": "E-pos Adres",
+    "passwordHint": "Wagwoord",
+    "dontHaveAnAccount": "Het jy nie 'n rekening nie?",
+    "repeatPasswordEmptyError": "Herhaal Wagwoord Leeg Fout",
+    "unmatchedPasswordError": "Nie ooreenstemmende wagwoorde",
+    "syncPromptMessage": "Sinkroniseer boodskap",
+    "or": "Of",
+    "LogInWithGoogle": "Teken Aan Met Google",
+    "LogInWithGithub": "Teken Aan Met GitHub",
+    "LogInWithDiscord": "Teken Aan Met Discord",
+    "signInWith": "Teken Aan Met"
+  },
+  "workspace": {
+    "chooseWorkspace": "Kies Werkspasie",
+    "create": "Skep",
+    "reset": "Herstel",
+    "resetWorkspacePrompt": "Herstel Werkspasie",
+    "hint": "Wenk",
+    "notFoundError": "Nie Gevind Fout",
+    "failedToLoad": "Misluk Om Te Laai",
+    "errorActions": {
+      "reportIssue": "Rapporteer Probleem",
+      "reachOut": "Kontak Ons"
+    }
+  },
+  "shareAction": {
+    "buttonText": "Deel",
+    "workInProgress": "Werk In Uitvoering",
+    "markdown": "Markdown",
+    "csv": "CSV",
+    "copyLink": "Kopieer Skakel"
+  },
+  "moreAction": {
+    "small": "Klein",
+    "medium": "Middel",
+    "large": "Groot",
+    "fontSize": "Font Grootte",
+    "import": "Importeer",
+    "moreOptions": "Meer Opsies"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Tekste en Markdown",
+    "documentFromV010": "Dokumente van V010",
+    "databaseFromV010": "Databasisse van V010",
+    "csv": "CSV",
+    "database": "Databasis"
+  },
+  "disclosureAction": {
+    "rename": "Herdoop",
+    "delete": "Skrap",
+    "duplicate": "Dupliseer",
+    "unfavorite": "Ontgunstel",
+    "favorite": "Gunsteling",
+    "openNewTab": "Maak Nuwe Bladsy Oop",
+    "moveTo": "Skuif Na",
+    "addToFavorites": "Voeg By Gunstelinge",
+    "copyLink": "Kopieer Skakel"
+  },
+  "blankPageTitle": "Leë Bladsy Titel",
+  "newPageText": "Nuwe Bladsy",
+  "newDocumentText": "Nuwe Dokument",
+  "newGridText": "Nuwe Rooster",
+  "newCalendarText": "Nuwe Kalender",
+  "newBoardText": "Nuwe Bord",
+  "trash": {
+    "text": "Gooi Weg",
+    "restoreAll": "Herstel Alles",
+    "deleteAll": "Verwyder Alles",
+    "pageHeader": {
+      "fileName": "Lêernaam",
+      "lastModified": "Laaste Verander",
+      "created": "Geskep"
+    },
+    "confirmDeleteAll": {
+      "title": "Bevestig Verwydering van Alles",
+      "caption": "Weet jy seker jy wil alles verwyder?"
+    },
+    "confirmRestoreAll": {
+      "title": "Bevestig Herstel van Alles",
+      "caption": "Weet jy seker jy wil alles herstel?"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Verwyder Bladsy",
+    "restore": "Herstel",
+    "deletePermanent": "Verwyder Permanent"
+  },
+  "dialogCreatePageNameHint": "Voer Bladsy Naam In",
+  "questionBubble": {
+    "shortcuts": "Snelpaaie",
+    "whatsNew": "Wat Is Nuut",
+    "help": "Hulp",
+    "markdown": "Markdown",
+    "debug": {
+      "name": "Naam",
+      "success": "Sukses",
+      "fail": "Misluk"
+    },
+    "feedback": "Terugvoer"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "Meer Knoppie",
+    "addPageTooltip": "Voeg Bladsy Toe",
+    "defaultNewPageName": "Standaard Nuwe Bladsy Naam",
+    "renameDialog": "Herdoop Dialoog"
+  },
+  "toolbar": {
+    "undo": "Ontdoen",
+    "redo": "Herdoen",
+    "bold": "Vetgedruk",
+    "italic": "Kursief",
+    "underline": "Onderstreep",
+    "strike": "Deurhaal",
+    "numList": "Genummerde Lys",
+    "bulletList": "Puntlys",
+    "checkList": "Kontroleer Lys",
+    "inlineCode": "Inline Kode",
+    "quote": "Aanhaling",
+    "header": "Kop",
+    "highlight": "Beklemtoon",
+    "color": "Kleur",
+    "addLink": "Voeg Skakel Toe",
+    "link": "Skakel"
+  },
+  "tooltip": {
+    "lightMode": "Lig Modus",
+    "darkMode": "Donker Modus",
+    "openAsPage": "Maak Oop as Bladsy",
+    "addNewRow": "Voeg Nuwe Ry Toe",
+    "openMenu": "Maak Menu Oop",
+    "dragRow": "Sleep Ry",
+    "viewDataBase": "Besigtig Databasis",
+    "referencePage": "Verwysingsbladsy",
+    "addBlockBelow": "Voeg Blok Onder Toe"
+  },
+  "sideBar": {
+    "closeSidebar": "Maak Sybalk Toe",
+    "openSidebar": "Maak Sybalk Oop",
+    "personal": "Persoonlik",
+    "favorites": "Gunstelinge",
+    "clickToHidePersonal": "Kliek om Persoonlike Te Versteek",
+    "clickToHideFavorites": "Kliek om Gunstelinge Te Versteek",
+    "addAPage": "Voeg 'n Bladsy By"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Markdown",
+      "path": "Pad"
+    }
+  },
+  "contactsPage": {
+    "title": "Kontakte Bladsy Titel",
+    "whatsHappening": "Wat Gebeur",
+    "addContact": "Voeg Kontak Toe",
+    "editContact": "Redigeer Kontak"
+  },
+  "button": {
+    "ok": "OK",
+    "cancel": "Kanselleer",
+    "signIn": "Teken In",
+    "signOut": "Teken Uit",
+    "complete": "Voltooi",
+    "save": "Stoor",
+    "generate": "Genereer",
+    "esc": "Esc",
+    "keep": "Hou Aan",
+    "tryAgain": "Probeer Weer",
+    "discard": "Gooi Weg",
+    "replace": "Vervang",
+    "insertBelow": "Voeg Onder Toe",
+    "upload": "Laai Op",
+    "edit": "Redigeer",
+    "delete": "Verwyder",
+    "duplicate": "Dupliseer",
+    "done": "Klaar",
+    "putback": "Sit Terug"
+  },
+  "label": {
+    "welcome": "Welkom",
+    "firstName": "Voornaam",
+    "middleName": "Middelnaam",
+    "lastName": "Van",
+    "primaryEmail": "Primêre E-pos",
+    "secondaryEmail": "Sekondêre E-pos",
+    "phoneNumber": "Telefoonnommer",
+    "notes": "Notas"
+  }
+}
