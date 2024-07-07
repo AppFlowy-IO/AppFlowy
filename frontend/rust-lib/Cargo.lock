@@ -195,9 +195,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "appflowy-local-ai-chat"
+name = "appflowy-local-ai"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=b7f51a3f#b7f51a3fe79142582d89c4e577ccd36957cc2c00"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=8bb364#8bb364a97fe1c3eec5c5092dd8208883a4e6186b"
 dependencies = [
  "anyhow",
  "appflowy-plugin",
@@ -212,7 +212,7 @@ dependencies = [
 [[package]]
 name = "appflowy-plugin"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=b7f51a3f#b7f51a3fe79142582d89c4e577ccd36957cc2c00"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=8bb364#8bb364a97fe1c3eec5c5092dd8208883a4e6186b"
 dependencies = [
  "anyhow",
  "cfg-if",
@@ -1701,7 +1701,7 @@ version = "0.1.0"
 dependencies = [
  "allo-isolate",
  "anyhow",
- "appflowy-local-ai-chat",
+ "appflowy-local-ai",
  "appflowy-plugin",
  "bytes",
  "dashmap",

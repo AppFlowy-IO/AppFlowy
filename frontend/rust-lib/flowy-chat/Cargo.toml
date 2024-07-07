@@ -33,7 +33,7 @@ serde_json = { workspace = true }
 anyhow = "1.0.86"
 tokio-stream = "0.1.15"
 parking_lot.workspace = true
-appflowy-local-ai-chat = { version = "0.1.0", features = ["verbose"] }
+appflowy-local-ai = { version = "0.1.0", features = ["verbose"] }
 appflowy-plugin = { version = "0.1.0", features = ["verbose"] }
 
 [dev-dependencies]

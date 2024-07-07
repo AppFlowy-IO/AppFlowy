@@ -1,4 +1,4 @@
-use appflowy_local_ai_chat::llm_chat::LocalLLMSetting;
+use appflowy_local_ai::llm_chat::LocalLLMSetting;
 use flowy_chat_pub::cloud::{
   ChatMessage, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
 };
@@ -266,4 +266,20 @@ pub enum CompletionTypePB {
   MakeShorter = 3,
   MakeLonger = 4,
   ContinueWriting = 5,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct ChatStatePB {
+  #[pb(index = 1)]
+  pub model_type: ModelTypePB,
+
+  #[pb(index = 2)]
+  pub available: bool,
+}
+
+#[derive(Clone, Debug, ProtoBuf_Enum, Default)]
+pub enum ModelTypePB {
+  LocalAI = 0,
+  #[default]
+  RemoteAI = 1,
 }

@@ -3,8 +3,8 @@ pub mod event_map;
 
 mod chat;
 pub mod chat_manager;
-mod chat_service_impl;
 pub mod entities;
+mod middleware;
 pub mod notification;
 mod persistence;
 mod protobuf;
