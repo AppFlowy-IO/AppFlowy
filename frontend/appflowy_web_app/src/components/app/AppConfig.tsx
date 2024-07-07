@@ -4,9 +4,9 @@ import React, { createContext, useEffect, useState } from 'react';
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { getService } from '@/application/services';
 
-const baseURL = import.meta.env.AF_BASE_URL;
-const gotrueURL = import.meta.env.AF_GOTRUE_URL;
-const wsURL = import.meta.env.AF_WS_URL;
+const baseURL = import.meta.env.AF_BASE_URL || 'https://test.appflowy.cloud';
+const gotrueURL = import.meta.env.AF_GOTRUE_URL || 'https://test.appflowy.cloud/gotrue';
+const wsURL = import.meta.env.AF_WS_URL || 'wss://test.appflowy.cloud/ws/v1';
 
 const defaultConfig: AFServiceConfig = {
   cloudConfig: {
