@@ -45,6 +45,11 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
 
   final SettingsShortcutService service;
 
+  /// Fetches and updates shortcut data.
+  ///
+  /// This method retrieves customizable shortcuts data from ShortcutService instance
+  /// and updates the command shortcuts based on the provided data and current state.
+  ///
   Future<void> fetchShortcuts() async {
     emit(
       state.copyWith(
@@ -82,6 +87,7 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     }
   }
 
+  /// Saves all updated shortcuts to the Shortcut Service instance we are using.
   Future<void> updateAllShortcuts() async {
     emit(state.copyWith(status: ShortcutsStatus.updating, error: ''));
 
@@ -98,6 +104,7 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     }
   }
 
+  /// This method resets all shortcuts to their default commands.
   Future<void> resetToDefault() async {
     emit(state.copyWith(status: ShortcutsStatus.updating, error: ''));
 
@@ -108,6 +115,36 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       emit(
         state.copyWith(
           status: ShortcutsStatus.failure,
+          error: LocaleKeys.settings_shortcutsPage_couldNotSaveErrorMsg.tr(),
+        ),
+      );
+    }
+  }
+
+  /// Resets an individual shortcut to its default shortcut command.
+  /// Takes in the shortcut to reset.
+  Future<void> resetIndividualShortcut(CommandShortcutEvent shortcut) async {
+    emit(state.copyWith(status: ShortcutsStatus.updating, error: ''));
+
+    try {
+      // If no shortcut is found in the `defaultCommandShortcutEvents` then
+      // it will throw an error which will be handled by our catch block.
+      final defaultShortcut = defaultCommandShortcutEvents.firstWhere(
+        (el) => el.key == shortcut.key && el.handler == shortcut.handler,
+      );
+
+      // only update the shortcut if it is overidden
+      if (defaultShortcut.command != shortcut.command) {
+        shortcut.updateCommand(command: defaultShortcut.command);
+        await service.saveAllShortcuts(state.commandShortcutEvents);
+      }
+
+      emit(state.copyWith(status: ShortcutsStatus.success, error: ''));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: ShortcutsStatus.failure,
+          // TODO: replace this string with the correct localized string.
           error: LocaleKeys.settings_shortcutsPage_couldNotSaveErrorMsg.tr(),
         ),
       );

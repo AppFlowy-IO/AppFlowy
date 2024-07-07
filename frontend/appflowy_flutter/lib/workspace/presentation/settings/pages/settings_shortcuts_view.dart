@@ -192,6 +192,7 @@ class _ResetButton extends StatelessWidget {
             horizontal: 6,
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const FlowySvg(
                 FlowySvgs.restore_s,
@@ -332,6 +333,10 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
     _finishEditing();
   }
 
+  void _resetIndividualCommand(CommandShortcutEvent shortcut) {
+    context.read<ShortcutsCubit>().resetIndividualShortcut(shortcut);
+  }
+
   @override
   void dispose() {
     focusNode.dispose();
@@ -395,25 +400,46 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
           ],
           const Spacer(),
           if (isHovering)
-            GestureDetector(
-              onTap: () {
-                if (widget.canStartEditing()) {
-                  setState(() {
-                    widget.onStartEditing();
-                    isEditing = true;
-                  });
-                }
-              },
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: FlowyTooltip(
-                  message: LocaleKeys.settings_shortcutsPage_editTooltip.tr(),
-                  child: const FlowySvg(
-                    FlowySvgs.edit_s,
-                    size: Size.square(16),
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    if (widget.canStartEditing()) {
+                      setState(() {
+                        widget.onStartEditing();
+                        isEditing = true;
+                      });
+                    }
+                  },
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: FlowyTooltip(
+                      message:
+                          LocaleKeys.settings_shortcutsPage_editTooltip.tr(),
+                      child: const FlowySvg(
+                        FlowySvgs.edit_s,
+                        size: Size.square(16),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                const HSpace(16),
+                GestureDetector(
+                  onTap: () => _resetIndividualCommand(widget.command),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: FlowyTooltip(
+                      message:
+                          //TODO: replace the localized string with the correct one
+                          LocaleKeys.settings_shortcutsPage_editTooltip.tr(),
+                      child: const FlowySvg(
+                        FlowySvgs.restore_s,
+                        size: Size.square(16),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           const HSpace(8),
         ],
