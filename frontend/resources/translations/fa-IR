@@ -1,0 +1,226 @@
+{
+  "appName": "نام اپلیکیشن",
+  "defaultUsername": "نام کاربری پیش‌فرض",
+  "welcomeText": "متن خوش‌آمدگویی",
+  "githubStarText": "متن ستاره گیت‌هاب",
+  "subscribeNewsletterText": "متن اشتراک خبرنامه",
+  "letsGoButtonText": "متن دکمه برویم",
+  "title": "عنوان",
+  "youCanAlso": "شما همچنین می‌توانید",
+  "and": "و",
+  "blockActions": {
+    "addBelowTooltip": "افزودن در پایین",
+    "addAboveCmd": "افزودن در بالا (Cmd)",
+    "addAboveMacCmd": "افزودن در بالا (Mac Cmd)",
+    "addAboveTooltip": "افزودن در بالا",
+    "dragTooltip": "کشیدن",
+    "openMenuTooltip": "باز کردن منو"
+  },
+  "signUp": {
+    "buttonText": "متن دکمه",
+    "title": "عنوان",
+    "getStartedText": "متن شروع",
+    "emptyPasswordError": "خطای رمز عبور خالی",
+    "repeatPasswordEmptyError": "خطای تکرار رمز عبور خالی",
+    "unmatchedPasswordError": "خطای عدم تطابق رمز عبور",
+    "alreadyHaveAnAccount": "حساب کاربری دارید",
+    "emailHint": "راهنمای ایمیل",
+    "passwordHint": "راهنمای رمز عبور",
+    "repeatPasswordHint": "راهنمای تکرار رمز عبور",
+    "signUpWith": "ثبت نام با"
+  },
+  "signIn": {
+    "loginTitle": "عنوان ورود",
+    "loginButtonText": "متن دکمه ورود",
+    "loginStartWithAnonymous": "ورود ناشناس",
+    "continueAnonymousUser": "ادامه کاربر ناشناس",
+    "buttonText": "متن دکمه",
+    "forgotPassword": "فراموشی رمز عبور",
+    "emailHint": "راهنمای ایمیل",
+    "passwordHint": "راهنمای رمز عبور",
+    "dontHaveAnAccount": "حساب کاربری ندارید",
+    "repeatPasswordEmptyError": "خطای تکرار رمز عبور خالی",
+    "unmatchedPasswordError": "خطای عدم تطابق رمز عبور",
+    "syncPromptMessage": "پیام درخواست همگام‌سازی",
+    "or": "یا",
+    "LogInWithGoogle": "ورود با گوگل",
+    "LogInWithGithub": "ورود با گیت‌هاب",
+    "LogInWithDiscord": "ورود با دیسکورد",
+    "signInWith": "ورود با"
+  },
+  "workspace": {
+    "chooseWorkspace": "انتخاب فضای کاری",
+    "create": "ایجاد کردن",
+    "reset": "بازنشانی",
+    "resetWorkspacePrompt": "پیام بازنشانی فضای کاری",
+    "hint": "راهنما",
+    "notFoundError": "خطای یافت نشد",
+    "failedToLoad": "خطا در بارگذاری",
+    "errorActions": {
+      "reportIssue": "گزارش مشکل",
+      "reachOut": "تماس گرفتن"
+    }
+  },
+  "shareAction": {
+    "buttonText": "متن دکمه",
+    "workInProgress": "در حال کار",
+    "markdown": "مارک‌داون",
+    "csv": "CSV",
+    "copyLink": "کپی لینک"
+  },
+  "moreAction": {
+    "small": "کوچک",
+    "medium": "متوسط",
+    "large": "بزرگ",
+    "fontSize": "اندازه فونت",
+    "import": "وارد کردن",
+    "moreOptions": "گزینه‌های بیشتر"
+  },
+  "importPanel": {
+    "textAndMarkdown": "متن و مارک‌داون",
+    "documentFromV010": "سند از V0.10",
+    "databaseFromV010": "پایگاه داده از V0.10",
+    "csv": "CSV",
+    "database": "پایگاه داده"
+  },
+  "disclosureAction": {
+    "rename": "تغییر نام",
+    "delete": "حذف",
+    "duplicate": "تکرار",
+    "unfavorite": "حذف از علاقه‌مندی‌ها",
+    "favorite": "علاقه‌مند",
+    "openNewTab": "باز کردن در تب جدید",
+    "moveTo": "انتقال به",
+    "addToFavorites": "افزودن به علاقه‌مندی‌ها",
+    "copyLink": "کپی لینک"
+  },
+  "blankPageTitle": "عنوان صفحه خالی",
+  "newPageText": "متن صفحه جدید",
+  "newDocumentText": "متن سند جدید",
+  "newGridText": "متن شبکه جدید",
+  "newCalendarText": "متن تقویم جدید",
+  "newBoardText": "متن تابلو جدید",
+  "trash": {
+    "text": "متن",
+    "restoreAll": "بازیابی همه",
+    "deleteAll": "حذف همه",
+    "pageHeader": {
+      "fileName": "نام فایل",
+      "lastModified": "آخرین ویرایش",
+      "created": "ایجاد شده"
+    },
+    "confirmDeleteAll": {
+      "title": "عنوان",
+      "caption": "زیرنویس"
+    },
+    "confirmRestoreAll": {
+      "title": "عنوان",
+      "caption": "زیرنویس"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "متن",
+    "restore": "بازیابی",
+    "deletePermanent": "حذف دائمی"
+  },
+  "dialogCreatePageNameHint": "راهنمای ایجاد نام صفحه",
+  "questionBubble": {
+    "shortcuts": "میانبرها",
+    "whatsNew": "چه خبر",
+    "help": "راهنما",
+    "markdown": "مارک‌داون",
+    "debug": {
+      "name": "نام",
+      "success": "موفقیت",
+      "fail": "شکست"
+    },
+    "feedback": "بازخورد"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "ابزار بیشتر",
+    "addPageTooltip": "افزودن صفحه",
+    "defaultNewPageName": "نام پیش‌فرض صفحه جدید",
+    "renameDialog": "گفتگوی تغییر نام"
+  },
+  "toolbar": {
+    "undo": "واگردانی",
+    "redo": "ازنو",
+    "bold": "بولد",
+    "italic": "ایتالیک",
+    "underline": "زیرخط",
+    "strike": "خط‌خورده",
+    "numList": "لیست شماره‌دار",
+    "bulletList": "لیست بولت‌دار",
+    "checkList": "لیست چک",
+    "inlineCode": "کد درون‌خطی",
+    "quote": "نقل‌قول",
+    "header": "سرتیتر",
+    "highlight": "برجسته",
+    "color": "رنگ",
+    "addLink": "افزودن لینک",
+    "link": "لینک"
+  },
+  "tooltip": {
+    "lightMode": "حالت روشن",
+    "darkMode": "حالت تاریک",
+    "openAsPage": "باز کردن به‌عنوان صفحه",
+    "addNewRow": "افزودن سطر جدید",
+    "openMenu": "باز کردن منو",
+    "dragRow": "کشیدن سطر",
+    "viewDataBase": "مشاهده پایگاه داده",
+    "referencePage": "صفحه مرجع",
+    "addBlockBelow": "افزودن بلوک در پایین"
+  },
+  "sideBar": {
+    "closeSidebar": "بستن نوار کناری",
+    "openSidebar": "باز کردن نوار کناری",
+    "personal": "شخصی",
+    "favorites": "علاقه‌مندی‌ها",
+    "clickToHidePersonal": "برای پنهان کردن شخصی کلیک کنید",
+    "clickToHideFavorites": "برای پنهان کردن علاقه‌مندی‌ها کلیک کنید",
+    "addAPage": "افزودن صفحه"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "مارک‌داون",
+      "path": "مسیر"
+    }
+  },
+  "contactsPage": {
+    "title": "عنوان",
+    "whatsHappening": "چه خبر",
+    "addContact": "افزودن مخاطب",
+    "editContact": "ویرایش مخاطب"
+  },
+  "button": {
+    "ok": "باشه",
+    "cancel": "لغو",
+    "signIn": "ورود",
+    "signOut": "خروج",
+    "complete": "کامل",
+    "save": "ذخیره",
+    "generate": "تولید",
+    "esc": "ESC",
+    "keep": "نگه‌داشتن",
+    "tryAgain": "دوباره امتحان کنید",
+    "discard": "دور انداختن",
+    "replace": "جایگزین کردن",
+    "insertBelow": "درج در پایین",
+    "upload": "بارگذاری",
+    "edit": "ویرایش",
+    "delete": "حذف",
+    "duplicate": "تکرار",
+    "done": "انجام شد",
+    "putback": "بازگرداندن"
+  },
+  "label": {
+    "welcome": "خوش‌آمدید",
+    "firstName": "نام",
+    "middleName": "نام میانی",
+    "lastName": "نام خانوادگی",
+    "primaryEmail": "ایمیل اصلی",
+    "secondaryEmail": "ایمیل ثانویه",
+    "phoneNumber": "شماره تلفن",
+    "notes": "یادداشت‌ها"
+  }
+}
