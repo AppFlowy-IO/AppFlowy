@@ -25,10 +25,16 @@ export function NumberListIcon({ block, className }: { block: NumberedListNode; 
   const staticEditor = useSlateStatic();
 
   const path = ReactEditor.findPath(editor, block);
+
   const index = useMemo(() => {
     let index = 1;
 
     let topNode;
+
+    if (path.length === 1 && path[0] === 0) {
+      return index;
+    }
+
     let prevPath = Path.previous(path);
 
     while (prevPath) {
@@ -41,6 +47,10 @@ export function NumberListIcon({ block, className }: { block: NumberedListNode; 
         topNode = prevNode;
       } else {
         break;
+      }
+
+      if (prevPath.length === 1 && prevPath[0] === 0) {
+        return index;
       }
 
       prevPath = Path.previous(prevPath);
@@ -78,7 +88,7 @@ export function NumberListIcon({ block, className }: { block: NumberedListNode; 
       }}
       contentEditable={false}
       data-number={dataNumber}
-      className={`${className} numbered-icon flex w-[24px] min-w-[24px] justify-center pr-1 font-medium`}
+      className={`${className} numbered-icon flex w-fit min-w-[24px] justify-center whitespace-nowrap pr-1 font-medium`}
     />
   );
 }

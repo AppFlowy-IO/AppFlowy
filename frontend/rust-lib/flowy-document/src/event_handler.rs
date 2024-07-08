@@ -33,6 +33,22 @@ fn upgrade_document(
   Ok(manager)
 }
 
+// Handler for getting the document state
+#[instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_encode_collab_handler(
+  data: AFPluginData<OpenDocumentPayloadPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> DataResult<EncodedCollabPB, FlowyError> {
+  let manager = upgrade_document(manager)?;
+  let params: OpenDocumentParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let state = manager.encode_collab(&doc_id).await?;
+  data_result_ok(EncodedCollabPB {
+    state_vector: Vec::from(state.state_vector),
+    doc_state: Vec::from(state.doc_state),
+  })
+}
+
 // Handler for creating a new document
 pub(crate) async fn create_document_handler(
   data: AFPluginData<CreateDocumentPayloadPB>,

@@ -291,4 +291,78 @@ class ViewBackendService {
     );
     return FolderEventUpdateViewVisibilityStatus(payload).send();
   }
+
+  static Future<FlowyResult<PublishInfoResponsePB, FlowyError>> getPublishInfo(
+    ViewPB view,
+  ) async {
+    final payload = ViewIdPB()..value = view.id;
+    return FolderEventGetPublishInfo(payload).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> publish(
+    ViewPB view, {
+    String? name,
+  }) async {
+    final payload = PublishViewParamsPB()..viewId = view.id;
+
+    if (name != null) {
+      payload.publishName = name;
+    }
+    return FolderEventPublishView(payload).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> unpublish(
+    ViewPB view,
+  ) async {
+    final payload = UnpublishViewsPayloadPB(viewIds: [view.id]);
+    return FolderEventUnpublishViews(payload).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> setPublishNameSpace(
+    String name,
+  ) async {
+    final payload = SetPublishNamespacePayloadPB()..newNamespace = name;
+    return FolderEventSetPublishNamespace(payload).send();
+  }
+
+  static Future<FlowyResult<PublishNamespacePB, FlowyError>>
+      getPublishNameSpace() async {
+    return FolderEventGetPublishNamespace().send();
+  }
+
+  static Future<List<ViewPB>> getAllChildViews(ViewPB view) async {
+    final views = <ViewPB>[];
+
+    final childViews =
+        await ViewBackendService.getChildViews(viewId: view.id).fold(
+      (s) => s,
+      (f) => [],
+    );
+
+    for (final child in childViews) {
+      // filter the view itself
+      if (child.id == view.id) {
+        continue;
+      }
+      views.add(child);
+      views.addAll(await getAllChildViews(child));
+    }
+
+    return views;
+  }
+
+  static Future<(bool, List<ViewPB>)> containPublishedPage(ViewPB view) async {
+    final childViews = await ViewBackendService.getAllChildViews(view);
+    final views = [view, ...childViews];
+    final List<ViewPB> publishedPages = [];
+
+    for (final view in views) {
+      final publishInfo = await ViewBackendService.getPublishInfo(view);
+      if (publishInfo.isSuccess) {
+        publishedPages.add(view);
+      }
+    }
+
+    return (publishedPages.isNotEmpty, publishedPages);
+  }
 }

@@ -1,8 +1,8 @@
 use crate::chat_manager::ChatUserService;
-use crate::chat_service_impl::ChatService;
 use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB,
 };
+use crate::middleware::chat_service_mw::ChatService;
 use crate::notification::{send_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use allo_isolate::Isolate;

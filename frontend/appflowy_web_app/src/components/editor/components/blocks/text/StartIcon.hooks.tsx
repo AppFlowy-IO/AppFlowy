@@ -1,6 +1,7 @@
 import { BlockType } from '@/application/collab.type';
 import { BulletedListIcon } from '@/components/editor/components/blocks/bulleted-list';
 import { NumberListIcon } from '@/components/editor/components/blocks/numbered-list';
+import QuoteIcon from '@/components/editor/components/blocks/quote/QuoteIcon';
 import ToggleIcon from '@/components/editor/components/blocks/toggle-list/ToggleIcon';
 import { TextNode } from '@/components/editor/editor.type';
 import React, { FC, useCallback, useMemo } from 'react';
@@ -27,6 +28,8 @@ export function useStartIcon(node: TextNode) {
         return NumberListIcon;
       case BlockType.BulletedListBlock:
         return BulletedListIcon;
+      case BlockType.QuoteBlock:
+        return QuoteIcon;
       default:
         return null;
     }
@@ -37,7 +40,15 @@ export function useStartIcon(node: TextNode) {
       return null;
     }
 
-    return <Component className={`text-block-icon relative h-[24px] w-[24px]`} block={block} />;
+    const classList = ['text-block-icon relative w-[24px]'];
+
+    if (block.type === BlockType.QuoteBlock) {
+      classList.push('h-full');
+    } else {
+      classList.push('h-6');
+    }
+
+    return <Component className={classList.join(' ')} block={block} />;
   }, [Component, block]);
 
   return {

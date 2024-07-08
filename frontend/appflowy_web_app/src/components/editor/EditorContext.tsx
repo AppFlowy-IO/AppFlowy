@@ -1,5 +1,7 @@
-import { FontLayout, LineHeightLayout } from '@/application/collab.type';
+import { FontLayout, LineHeightLayout, YDoc } from '@/application/collab.type';
+import { ViewMeta } from '@/application/db/tables/view_metas';
 import { createContext, useContext } from 'react';
+import Y from 'yjs';
 
 export interface EditorLayoutStyle {
   fontLayout: FontLayout;
@@ -13,14 +15,21 @@ export const defaultLayoutStyle: EditorLayoutStyle = {
   lineHeightLayout: LineHeightLayout.normal,
 };
 
-interface EditorContextState {
+export interface EditorContextState {
   readOnly: boolean;
-  layoutStyle: EditorLayoutStyle;
+  layoutStyle?: EditorLayoutStyle;
+  codeGrammars?: Record<string, string>;
+  addCodeGrammars?: (blockId: string, grammar: string) => void;
+  navigateToView?: (viewId: string) => Promise<void>;
+  loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
+  loadView?: (viewId: string) => Promise<YDoc>;
+  getViewRowsMap?: (viewId: string, rowIds: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
 }
 
 export const EditorContext = createContext<EditorContextState>({
   readOnly: true,
   layoutStyle: defaultLayoutStyle,
+  codeGrammars: {},
 });
 
 export const EditorContextProvider = ({ children, ...props }: EditorContextState & { children: React.ReactNode }) => {

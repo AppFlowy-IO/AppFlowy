@@ -106,6 +106,15 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
+# Please use the following script to update collab.
+# Working directory: frontend
+#
+# To update the commit ID, run:
+# scripts/tool/update_collab_rev.sh new_rev_id
+#
+# To switch to the local path, run:
+# scripts/tool/update_collab_source.sh
+# ⚠️⚠️⚠️️
 collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
 collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
 collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
@@ -113,3 +122,10 @@ collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFl
 collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
 collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
 collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5048762" }
+
+# Working directory: frontend
+# To update the commit ID, run:
+# scripts/tool/update_local_ai_rev.sh new_rev_id
+# ⚠️⚠️⚠️️
+appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "0820a0d23f7b813dee505e7e29e88a8561699fe8" }
+appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "0820a0d23f7b813dee505e7e29e88a8561699fe8" }

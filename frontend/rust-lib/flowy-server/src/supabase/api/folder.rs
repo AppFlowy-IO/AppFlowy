@@ -13,6 +13,7 @@ use flowy_folder_pub::cloud::{
   gen_workspace_id, Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot,
   Workspace, WorkspaceRecord,
 };
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
@@ -173,6 +174,46 @@ where
 
   fn service_name(&self) -> String {
     "Supabase".to_string()
+  }
+
+  fn publish_view(
+    &self,
+    _workspace_id: &str,
+    _payload: Vec<PublishViewPayload>,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Err(anyhow!("supabase server doesn't support publish view")) })
+  }
+
+  fn unpublish_views(
+    &self,
+    _workspace_id: &str,
+    _view_ids: Vec<String>,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Err(anyhow!("supabase server doesn't support unpublish views")) })
+  }
+
+  fn get_publish_info(&self, _view_id: &str) -> FutureResult<PublishInfoResponse, Error> {
+    FutureResult::new(async { Err(anyhow!("supabase server doesn't support publish info")) })
+  }
+
+  fn set_publish_namespace(
+    &self,
+    _workspace_id: &str,
+    _new_namespace: &str,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async {
+      Err(anyhow!(
+        "supabase server doesn't support set publish namespace"
+      ))
+    })
+  }
+
+  fn get_publish_namespace(&self, _workspace_id: &str) -> FutureResult<String, Error> {
+    FutureResult::new(async {
+      Err(anyhow!(
+        "supabase server doesn't support get publish namespace"
+      ))
+    })
   }
 }
 

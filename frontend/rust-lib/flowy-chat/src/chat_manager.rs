@@ -1,12 +1,12 @@
 use crate::chat::Chat;
-use crate::chat_service_impl::ChatService;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
-use crate::local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
+use crate::middleware::chat_service_mw::ChatService;
 use crate::persistence::{insert_chat, ChatTable};
+use appflowy_local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
+use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
 use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageType};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sidecar::manager::SidecarManager;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use lib_infra::util::timestamp;
@@ -38,10 +38,10 @@ impl ChatManager {
     let local_ai_setting = store_preferences
       .get_object::<LocalLLMSetting>(LOCAL_AI_SETTING_KEY)
       .unwrap_or_default();
-    let sidecar_manager = Arc::new(SidecarManager::new());
+    let plugin_manager = Arc::new(PluginManager::new());
 
     // setup local AI chat plugin
-    let local_llm_ctrl = Arc::new(LocalChatLLMChat::new(sidecar_manager));
+    let local_llm_ctrl = Arc::new(LocalChatLLMChat::new(plugin_manager));
     // setup local chat service
     let chat_service = Arc::new(ChatService::new(
       user_service.clone(),

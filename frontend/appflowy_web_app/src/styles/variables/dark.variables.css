@@ -19,7 +19,7 @@
     --fill-toolbar: #0F111C;
     --fill-selector: #232b38;
     --fill-list-active: #3c4557;
-    --fill-list-hover: #005174;
+    --fill-list-hover: rgba(255, 255, 255, 0.1);
     --content-blue-400: #00bcf0;
     --content-blue-300: #52d1f4;
     --content-blue-600: #009fd1;
@@ -55,4 +55,5 @@
     --gradient5: linear-gradient(56.2deg, #5749CA 0%, #BB4A97 100%);
     --gradient6: linear-gradient(180deg, #036FFA 0%, #00B8E5 100%);
     --gradient7: linear-gradient(38.2deg, #F0C6CF 0%, #DECCE2 40.4754%, #CAD3F9 100%);
+    --header: rgba(0, 0, 0, 0.7);
 }
