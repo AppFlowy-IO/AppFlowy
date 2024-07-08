@@ -5,6 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'home_bloc.freezed.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
@@ -47,14 +48,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             emit(state.copyWith(isLoading: e.isLoading));
           },
           didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
-            final latestView = value.setting.hasLatestView()
-                ? value.setting.latestView
-                : state.latestView;
-
             emit(
               state.copyWith(
                 workspaceSetting: value.setting,
-                latestView: latestView,
               ),
             );
           },
