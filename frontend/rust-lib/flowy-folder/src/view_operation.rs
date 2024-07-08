@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use bytes::Bytes;
 
+use collab_entity::EncodedCollab;
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
 use tokio::sync::RwLock;
@@ -60,11 +61,14 @@ pub trait FolderOperationHandler {
   /// * `layout`: the layout of the view
   /// * `meta`: use to carry extra information. For example, the database view will use this
   /// to carry the reference database id.
+  ///
+  /// The return value is the [Option<EncodedCollab>] that can be used to create the view.
+  /// It can be used in syncing the view data to cloud.
   fn create_view_with_view_data(
     &self,
     user_id: i64,
     params: CreateViewParams,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> FutureResult<Option<EncodedCollab>, FlowyError>;
 
   /// Create a view with the pre-defined data.
   /// For example, the initial data of the grid/calendar/kanban board when
@@ -78,6 +82,8 @@ pub trait FolderOperationHandler {
   ) -> FutureResult<(), FlowyError>;
 
   /// Create a view by importing data
+  ///
+  /// The return value
   fn import_from_bytes(
     &self,
     uid: i64,
@@ -85,7 +91,7 @@ pub trait FolderOperationHandler {
     name: &str,
     import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> FutureResult<EncodedCollab, FlowyError>;
 
   /// Create a view by importing data from a file
   fn import_from_file_path(

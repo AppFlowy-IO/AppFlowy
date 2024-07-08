@@ -110,25 +110,30 @@ impl DocumentManager {
     uid: i64,
     doc_id: &str,
     data: Option<DocumentData>,
-  ) -> FlowyResult<()> {
+  ) -> FlowyResult<EncodedCollab> {
     if self.is_doc_exist(doc_id).await.unwrap_or(false) {
       Err(FlowyError::new(
         ErrorCode::RecordAlreadyExists,
         format!("document {} already exists", doc_id),
       ))
     } else {
-      let doc_state = doc_state_from_document_data(
+      let encoded_collab = doc_state_from_document_data(
         doc_id,
         data.unwrap_or_else(|| default_document_data(doc_id)),
       )
-      .await?
-      .doc_state
-      .to_vec();
+      .await?;
+      let doc_state = encoded_collab.doc_state.to_vec();
       let collab = self
-        .collab_for_document(uid, doc_id, DataSource::DocStateV1(doc_state), false)
+        .collab_for_document(
+          uid,
+          doc_id,
+          DataSource::DocStateV1(doc_state.clone()),
+          false,
+        )
         .await?;
       collab.lock().flush();
-      Ok(())
+
+      Ok(encoded_collab)
     }
   }
 

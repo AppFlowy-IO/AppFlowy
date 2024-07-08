@@ -509,6 +509,11 @@
           "description": "Durch das Leeren des Caches werden Bilder und Schriftarten beim Laden erneut heruntergeladen. Deine Daten werden durch diese Aktion weder entfernt noch geändert.",
           "successHint": "Cache geleert!"
         }
+      },
+      "data": {
+        "fixYourData": "Deine Daten korrigieren",
+        "fixButton": "Korrigieren",
+        "fixYourDataDescription": "Wenn du Probleme mit deinen Daten hast, kannst du hier versuchen, diese zu beheben."
       }
     },
     "shortcutsPage": {
@@ -651,6 +656,7 @@
         "proBadge": "Pro",
         "memberProToggle": "Unbegrenzte Mitgliederzahl",
         "guestCollabToggle": "10 Gastmitarbeiter",
+        "storageUnlimited": "Unbegrenzter Speicherplatz mit deinem Pro-Plan",
         "aiCredit": {
           "title": "@:appName KI-Guthaben hinzufügen",
           "price": "5 $",

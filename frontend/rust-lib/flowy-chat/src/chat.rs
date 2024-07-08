@@ -140,12 +140,14 @@ impl Chat {
                 send_notification(&chat_id, ChatNotification::StreamChatMessageError)
                   .payload(pb)
                   .send();
-                break;
+                return Err(err);
               },
             }
           }
         },
         Err(err) => {
+          error!("[Chat] failed to stream answer: {}", err);
+          let _ = text_sink.send(format!("error:{}", err)).await;
           let pb = ChatMessageErrorPB {
             chat_id: chat_id.clone(),
             error_message: err.to_string(),
@@ -153,10 +155,15 @@ impl Chat {
           send_notification(&chat_id, ChatNotification::StreamChatMessageError)
             .payload(pb)
             .send();
+          return Err(err);
         },
       }
 
       send_notification(&chat_id, ChatNotification::FinishStreaming).send();
+      if stream_buffer.lock().await.is_empty() {
+        return Ok(());
+      }
+
       let answer = cloud_service
         .save_answer(
           &workspace_id,
@@ -166,7 +173,6 @@ impl Chat {
         )
         .await?;
       Self::save_answer(uid, &chat_id, &user_service, answer)?;
-
       Ok::<(), FlowyError>(())
     });
 

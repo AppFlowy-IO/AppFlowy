@@ -105,7 +105,7 @@ pub(crate) async fn create_view_handler(
   let folder = upgrade_folder(folder)?;
   let params: CreateViewParams = data.into_inner().try_into()?;
   let set_as_current = params.set_as_current;
-  let view = folder.create_view_with_params(params).await?;
+  let (view, _) = folder.create_view_with_params(params, true).await?;
   if set_as_current {
     let _ = folder.set_current_view(&view.id).await;
   }
@@ -363,14 +363,13 @@ pub(crate) async fn delete_my_trash_handler(
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn import_data_handler(
-  data: AFPluginData<ImportPB>,
+  data: AFPluginData<ImportPayloadPB>,
   folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<ViewPB, FlowyError> {
+) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: ImportParams = data.into_inner().try_into()?;
-  let view = folder.import(params).await?;
-  let view_pb = view_pb_without_child_views(view);
-  data_result_ok(view_pb)
+  let views = folder.import(params).await?;
+  data_result_ok(views)
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
