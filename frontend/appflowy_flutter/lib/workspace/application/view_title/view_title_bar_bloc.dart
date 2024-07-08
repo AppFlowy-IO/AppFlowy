@@ -15,6 +15,14 @@ class ViewTitleBarBloc extends Bloc<ViewTitleBarEvent, ViewTitleBarState> {
         await event.when(
           initial: () async {
             add(const ViewTitleBarEvent.reload());
+
+            viewListener = ViewListener(
+              viewId: view.id,
+            )..start(
+                onViewUpdated: (p0) {
+                  add(const ViewTitleBarEvent.reload());
+                },
+              );
           },
           reload: () async {
             final List<ViewPB> ancestors =
@@ -30,6 +38,13 @@ class ViewTitleBarBloc extends Bloc<ViewTitleBarEvent, ViewTitleBarState> {
   }
 
   final ViewPB view;
+  late final ViewListener viewListener;
+
+  @override
+  Future<void> close() {
+    viewListener.stop();
+    return super.close();
+  }
 }
 
 @freezed

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/share/share_menu.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
@@ -13,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,23 +30,44 @@ class DocumentShareButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DocumentShareBloc>(param1: view),
+      create: (context) => getIt<DocumentShareBloc>(param1: view)
+        ..add(const DocumentShareEvent.initial()),
       child: BlocListener<DocumentShareBloc, DocumentShareState>(
         listener: (context, state) {
-          state.mapOrNull(
-            finish: (state) {
-              state.successOrFail.fold(
-                (data) => _handleExportData(context, data),
-                _handleExportError,
-              );
-            },
-          );
+          if (state.isLoading == false && state.exportResult != null) {
+            state.exportResult!.fold(
+              (data) => _handleExportData(context, data),
+              _handleExportError,
+            );
+          }
         },
         child: BlocBuilder<DocumentShareBloc, DocumentShareState>(
-          builder: (context, state) => SizedBox(
-            height: 32.0,
-            child: IntrinsicWidth(child: ShareActionList(view: view)),
-          ),
+          builder: (context, state) {
+            final tabs = [
+              if (state.enablePublish) ShareMenuTab.publish,
+              ShareMenuTab.exportAs,
+            ];
+            final shareBloc = context.read<DocumentShareBloc>();
+            return SizedBox(
+              height: 32.0,
+              child: IntrinsicWidth(
+                child: AppFlowyPopover(
+                  direction: PopoverDirection.bottomWithRightAligned,
+                  constraints: const BoxConstraints(
+                    maxWidth: 422,
+                  ),
+                  offset: const Offset(0, 8),
+                  popupBuilder: (context) => BlocProvider.value(
+                    value: shareBloc,
+                    child: ShareMenu(
+                      tabs: tabs,
+                    ),
+                  ),
+                  child: const InnerDocumentShareButton(),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -72,6 +95,24 @@ class DocumentShareButton extends StatelessWidget {
 
   void _handleExportError(FlowyError error) {
     showMessageToast(error.msg);
+  }
+}
+
+class InnerDocumentShareButton extends StatelessWidget {
+  const InnerDocumentShareButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return RoundedTextButton(
+      title: LocaleKeys.shareAction_buttonText.tr(),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0),
+      fontSize: 14.0,
+      fontWeight: FontWeight.w500,
+      borderRadius: const BorderRadius.all(
+        Radius.circular(10.0),
+      ),
+      textColor: Theme.of(context).colorScheme.onPrimary,
+    );
   }
 }
 

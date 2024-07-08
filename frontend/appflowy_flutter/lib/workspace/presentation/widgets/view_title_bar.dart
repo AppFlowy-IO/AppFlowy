@@ -37,7 +37,9 @@ class ViewTitleBar extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: SizedBox(
               height: 24,
-              child: Row(children: _buildViewTitles(context, ancestors)),
+              child: Row(
+                children: _buildViewTitles(context, ancestors),
+              ),
             ),
           );
         },
@@ -76,6 +78,7 @@ class ViewTitleBar extends StatelessWidget {
       }
 
       final child = FlowyTooltip(
+        key: ValueKey(view.id),
         message: view.name,
         child: _ViewTitle(
           view: view,

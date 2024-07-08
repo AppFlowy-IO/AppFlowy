@@ -11,6 +11,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+typedef MovePageMenuOnSelected = void Function(ViewPB space, ViewPB view);
+
 class MovePageMenu extends StatefulWidget {
   const MovePageMenu({
     super.key,
@@ -23,7 +25,7 @@ class MovePageMenu extends StatefulWidget {
   final ViewPB sourceView;
   final UserProfilePB userProfile;
   final String workspaceId;
-  final void Function(ViewPB view) onSelected;
+  final MovePageMenuOnSelected onSelected;
 
   @override
   State<MovePageMenu> createState() => _MovePageMenuState();
@@ -88,7 +90,7 @@ class _MovePageMenuState extends State<MovePageMenu> {
                     );
                   }
                   return Expanded(
-                    child: _buildGroupedViews(state.queryResults!),
+                    child: _buildGroupedViews(space, state.queryResults!),
                   );
                 },
               ),
@@ -99,7 +101,7 @@ class _MovePageMenuState extends State<MovePageMenu> {
     );
   }
 
-  Widget _buildGroupedViews(List<ViewPB> views) {
+  Widget _buildGroupedViews(ViewPB space, List<ViewPB> views) {
     final groupedViews = views
         .where(
           (view) =>
@@ -108,7 +110,7 @@ class _MovePageMenuState extends State<MovePageMenu> {
         .toList();
     return _MovePageGroupedViews(
       views: groupedViews,
-      onSelected: widget.onSelected,
+      onSelected: (view) => widget.onSelected(space, view),
     );
   }
 
@@ -124,7 +126,7 @@ class _MovePageMenuState extends State<MovePageMenu> {
           child: CurrentSpace(
             onTapBlankArea: () {
               // move the page to current space
-              widget.onSelected(space);
+              widget.onSelected(space, space);
             },
             space: space,
           ),
@@ -145,7 +147,7 @@ class _MovePageMenuState extends State<MovePageMenu> {
               disableSelectedStatus: true,
               // hide the ... and + buttons
               rightIconsBuilder: (context, view) => [],
-              onSelected: (_, view) => widget.onSelected(view),
+              onSelected: (_, view) => widget.onSelected(space, view),
             ),
           ),
         ),

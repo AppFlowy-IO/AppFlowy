@@ -23,10 +23,12 @@ export const Outline = memo(
       const element = document.getElementById(id);
 
       if (element) {
-        void smoothScrollIntoViewIfNeeded(element, {
-          behavior: 'smooth',
-          block: 'center',
-        });
+        void (async () => {
+          await smoothScrollIntoViewIfNeeded(element, {
+            behavior: 'smooth',
+            block: 'start',
+          });
+        })();
       }
     }, []);
 
