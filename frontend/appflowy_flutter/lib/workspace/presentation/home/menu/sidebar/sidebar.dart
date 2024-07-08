@@ -380,7 +380,9 @@ class _SidebarState extends State<_Sidebar> {
       context.read<SpaceBloc>().add(const SpaceEvent.didReceiveSpaceUpdate());
     }
 
-    return !containsSpace || !workspaceState.isCollabWorkspaceOn
+    return !containsSpace ||
+            spaceState.spaces.isEmpty ||
+            !workspaceState.isCollabWorkspaceOn
         ? Expanded(
             child: Padding(
               padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
