@@ -57,16 +57,6 @@ class _SettingsPlanComparisonDialogState
 
         if (readyState.showSuccessDialog) {
           SettingsAlertDialog(
-            icon: Center(
-              child: SizedBox(
-                height: 90,
-                width: 90,
-                child: FlowySvg(
-                  FlowySvgs.check_circle_s,
-                  color: AFThemeExtension.of(context).success,
-                ),
-              ),
-            ),
             title: LocaleKeys.settings_comparePlanDialog_paymentSuccess_title
                 .tr(args: [readyState.subscription.label]),
             subtitle: LocaleKeys
@@ -588,21 +578,28 @@ class _Heading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 175,
+      width: 185,
       height: height,
       child: Padding(
         padding: EdgeInsets.only(left: 12 + (!isPrimary ? 12 : 0)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FlowyText.semibold(
-              title,
-              fontSize: 24,
-              color: isPrimary
-                  ? AFThemeExtension.of(context).strongText
-                  : Theme.of(context).isLightMode
-                      ? const Color(0xFF5C3699)
-                      : const Color(0xFFC49BEC),
+            Row(
+              children: [
+                Expanded(
+                  child: FlowyText.semibold(
+                    title,
+                    fontSize: 24,
+                    overflow: TextOverflow.ellipsis,
+                    color: isPrimary
+                        ? AFThemeExtension.of(context).strongText
+                        : Theme.of(context).isLightMode
+                            ? const Color(0xFF5C3699)
+                            : const Color(0xFFC49BEC),
+                  ),
+                ),
+              ],
             ),
             if (description != null && description!.isNotEmpty) ...[
               const VSpace(4),
@@ -636,24 +633,20 @@ final _planLabels = [
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemThree.tr(),
-    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipThree.tr(),
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemFour.tr(),
-    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipFour.tr(),
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemFive.tr(),
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSix.tr(),
+    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSix.tr(),
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSeven.tr(),
-  ),
-  _PlanItem(
-    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemEight.tr(),
-    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipEight.tr(),
+    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSeven.tr(),
   ),
 ];
 
@@ -676,20 +669,17 @@ final List<_CellItem> _freeLabels = [
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
+    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
+    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
-    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
-    icon: FlowySvgs.check_m,
-  ),
-  _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemEight.tr(),
   ),
 ];
 
@@ -705,19 +695,17 @@ final List<_CellItem> _proLabels = [
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
+    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
+    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
-    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
     icon: FlowySvgs.check_m,
-  ),
-  _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemEight.tr(),
   ),
 ];

@@ -58,8 +58,7 @@ class SettingsBillingView extends StatelessWidget {
               return ErrorWidget.withDetails(message: 'Something went wrong!');
             },
             ready: (state) {
-              final billingPortalEnabled = state.billingPortal != null &&
-                  state.billingPortal!.url.isNotEmpty &&
+              final billingPortalEnabled =
                   state.subscription.subscriptionPlan !=
                       SubscriptionPlanPB.None;
 
@@ -85,8 +84,11 @@ class SettingsBillingView extends StatelessWidget {
                       ),
                       if (billingPortalEnabled)
                         SingleSettingAction(
-                          onPressed: () =>
-                              afLaunchUrlString(state.billingPortal!.url),
+                          onPressed: () => context
+                              .read<SettingsBillingBloc>()
+                              .add(
+                                const SettingsBillingEvent.openCustomerPortal(),
+                              ),
                           label: LocaleKeys
                               .settings_billingPage_plan_billingPeriod
                               .tr(),
@@ -105,8 +107,11 @@ class SettingsBillingView extends StatelessWidget {
                           .tr(),
                       children: [
                         SingleSettingAction(
-                          onPressed: () =>
-                              afLaunchUrlString(state.billingPortal!.url),
+                          onPressed: () => context
+                              .read<SettingsBillingBloc>()
+                              .add(
+                                const SettingsBillingEvent.openCustomerPortal(),
+                              ),
                           label: LocaleKeys
                               .settings_billingPage_paymentDetails_methodLabel
                               .tr(),
@@ -119,24 +124,34 @@ class SettingsBillingView extends StatelessWidget {
                       ],
                     ),
                   // TODO(Mathias): Implement the business logic for AI Add-ons
-                  const SettingsCategory(
-                    title: 'Add-ons',
+                  SettingsCategory(
+                    title: LocaleKeys.settings_billingPage_addons_title.tr(),
                     children: [
                       SingleSettingAction(
                         buttonType: SingleSettingsButtonType.highlight,
-                        label: 'AppFlowy AI Max',
-                        description:
-                            "\$8 /user per month billed annually or \$10 billed monthly",
-                        buttonLabel: 'Add AI Max',
+                        label: LocaleKeys
+                            .settings_billingPage_addons_aiMax_label
+                            .tr(),
+                        description: LocaleKeys
+                            .settings_billingPage_addons_aiMax_description
+                            .tr(),
+                        buttonLabel: LocaleKeys
+                            .settings_billingPage_addons_aiMax_buttonLabel
+                            .tr(),
                         fontWeight: FontWeight.w500,
                         minWidth: _buttonsMinWidth,
                       ),
                       SingleSettingAction(
                         buttonType: SingleSettingsButtonType.highlight,
-                        label: 'AppFlowy AI Offline',
-                        description:
-                            "\$8 /user per month billed annually or \$10 billed monthly",
-                        buttonLabel: 'Add AI Offline',
+                        label: LocaleKeys
+                            .settings_billingPage_addons_aiOnDevice_label
+                            .tr(),
+                        description: LocaleKeys
+                            .settings_billingPage_addons_aiOnDevice_description
+                            .tr(),
+                        buttonLabel: LocaleKeys
+                            .settings_billingPage_addons_aiOnDevice_buttonLabel
+                            .tr(),
                         fontWeight: FontWeight.w500,
                         minWidth: _buttonsMinWidth,
                       ),
