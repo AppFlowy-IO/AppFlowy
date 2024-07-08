@@ -737,6 +737,7 @@ fn to_workspace_subscription(s: WorkspaceSubscriptionStatus) -> WorkspaceSubscri
       },
     },
     is_active: matches!(s.subscription_status, SubscriptionStatus::Active),
-    canceled_at: s.cancel_at,
+    has_canceled: s.subscription_status == SubscriptionStatus::Canceled,
+    canceled_at: Some(s.current_period_end),
   }
 }

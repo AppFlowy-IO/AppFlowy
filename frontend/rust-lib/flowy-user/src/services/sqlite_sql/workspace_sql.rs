@@ -1,10 +1,14 @@
 use chrono::{TimeZone, Utc};
+use diesel::insert_into;
 use diesel::{RunQueryDsl, SqliteConnection};
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_workspace_table;
+use flowy_sqlite::schema::workspace_subscriptions_table;
+use flowy_sqlite::schema::workspace_subscriptions_table::dsl;
 use flowy_sqlite::DBConnection;
 use flowy_sqlite::{query_dsl::*, ExpressionMethods};
 use flowy_user_pub::entities::UserWorkspace;
+use flowy_user_pub::entities::WorkspaceSubscription;
 use std::convert::TryFrom;
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
@@ -16,6 +20,19 @@ pub struct UserWorkspaceTable {
   pub created_at: i64,
   pub database_storage_id: String,
   pub icon: String,
+}
+
+#[derive(Queryable, Insertable, AsChangeset, Debug)]
+#[diesel(table_name = workspace_subscriptions_table)]
+#[diesel(primary_key(workspace_id))]
+pub struct WorkspaceSubscriptionsTable {
+  pub workspace_id: String,
+  pub subscription_plan: i64,
+  pub recurring_interval: i64,
+  pub is_active: bool,
+  pub has_canceled: bool,
+  pub canceled_at: Option<i64>,
+  pub updated_at: chrono::NaiveDateTime,
 }
 
 pub fn get_user_workspace_op(workspace_id: &str, mut conn: DBConnection) -> Option<UserWorkspace> {
@@ -72,6 +89,46 @@ pub fn insert_new_workspaces_op(
       .execute(conn)?;
   }
   Ok(())
+}
+
+pub fn select_workspace_subscription(
+  mut conn: DBConnection,
+  workspace_id: &str,
+) -> FlowyResult<WorkspaceSubscriptionsTable> {
+  let subscription = dsl::workspace_subscriptions_table
+    .filter(workspace_subscriptions_table::workspace_id.eq(workspace_id))
+    .first::<WorkspaceSubscriptionsTable>(&mut conn)?;
+
+  Ok(subscription)
+}
+
+pub fn upsert_workspace_subscription<T: Into<WorkspaceSubscriptionsTable>>(
+  mut conn: DBConnection,
+  subscription: T,
+) -> FlowyResult<()> {
+  let subscription = subscription.into();
+
+  insert_into(workspace_subscriptions_table::table)
+    .values(&subscription)
+    .on_conflict((workspace_subscriptions_table::workspace_id,))
+    .do_update()
+    .set(&subscription)
+    .execute(&mut conn)?;
+
+  Ok(())
+}
+
+impl From<WorkspaceSubscriptionsTable> for WorkspaceSubscription {
+  fn from(value: WorkspaceSubscriptionsTable) -> Self {
+    Self {
+      workspace_id: value.workspace_id,
+      subscription_plan: value.subscription_plan.into(),
+      recurring_interval: value.recurring_interval.into(),
+      is_active: value.is_active,
+      has_canceled: value.has_canceled,
+      canceled_at: value.canceled_at,
+    }
+  }
 }
 
 impl TryFrom<(i64, &UserWorkspace)> for UserWorkspaceTable {

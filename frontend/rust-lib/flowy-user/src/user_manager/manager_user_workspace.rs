@@ -11,8 +11,9 @@ use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{
-  Role, UpdateUserProfileParams, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus,
-  WorkspaceMember, WorkspaceSubscription, WorkspaceUsage,
+  RecurringInterval, Role, SubscriptionPlan, UpdateUserProfileParams, UserWorkspace,
+  WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember, WorkspaceSubscription,
+  WorkspaceUsage,
 };
 use lib_dispatch::prelude::af_spawn;
 
@@ -30,7 +31,9 @@ use crate::services::sqlite_sql::member_sql::{
 };
 use crate::services::sqlite_sql::user_sql::UserTableChangeset;
 use crate::services::sqlite_sql::workspace_sql::{
-  get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op, UserWorkspaceTable,
+  get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op,
+  select_workspace_subscription, upsert_workspace_subscription, UserWorkspaceTable,
+  WorkspaceSubscriptionsTable,
 };
 use crate::user_manager::{upsert_user_profile_change, UserManager};
 use flowy_user_pub::session::Session;
@@ -447,12 +450,62 @@ impl UserManager {
 
   #[instrument(level = "info", skip(self), err)]
   pub async fn get_workspace_subscriptions(&self) -> FlowyResult<Vec<WorkspaceSubscription>> {
-    let res = self
+    let session = self.get_session()?;
+    let uid = session.user_id;
+    let workspace_id = session.user_workspace.id.clone();
+    let db = self.authenticate_user.get_sqlite_connection(uid)?;
+
+    // We check if we can use the cache from local sqlite db
+    if let Ok(subscription) = select_workspace_subscription(db, &workspace_id) {
+      if is_older_than_n_minutes(subscription.updated_at, 10) {
+        self.get_workspace_subscriptions_from_remote(uid).await?;
+      }
+
+      return Ok(vec![WorkspaceSubscription {
+        workspace_id: subscription.workspace_id,
+        subscription_plan: subscription.subscription_plan.into(),
+        recurring_interval: subscription.recurring_interval.into(),
+        is_active: subscription.is_active,
+        has_canceled: subscription.has_canceled,
+        canceled_at: subscription.canceled_at,
+      }]);
+    }
+
+    let subscriptions = self.get_workspace_subscriptions_from_remote(uid).await?;
+
+    Ok(subscriptions)
+  }
+
+  async fn get_workspace_subscriptions_from_remote(
+    &self,
+    uid: i64,
+  ) -> FlowyResult<Vec<WorkspaceSubscription>> {
+    let subscriptions = self
       .cloud_services
       .get_user_service()?
       .get_workspace_subscriptions()
       .await?;
-    Ok(res)
+
+    for subscription in &subscriptions {
+      let db = self.authenticate_user.get_sqlite_connection(uid)?;
+      let record = WorkspaceSubscriptionsTable {
+        workspace_id: subscription.workspace_id.clone(),
+        subscription_plan: <SubscriptionPlan as Into<i64>>::into(
+          subscription.subscription_plan.clone(),
+        ),
+        recurring_interval: <RecurringInterval as Into<i64>>::into(
+          subscription.recurring_interval.clone(),
+        ),
+        is_active: subscription.is_active,
+        has_canceled: subscription.has_canceled,
+        canceled_at: subscription.canceled_at.clone().into(),
+        updated_at: Utc::now().naive_utc(),
+      };
+
+      upsert_workspace_subscription(db, record)?;
+    }
+
+    Ok(subscriptions)
   }
 
   #[instrument(level = "info", skip(self), err)]
