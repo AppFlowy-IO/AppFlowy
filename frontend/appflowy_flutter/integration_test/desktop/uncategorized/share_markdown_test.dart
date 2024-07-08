@@ -105,12 +105,12 @@ fn main() {
 > Click `?` at the bottom right for help and support.
 
 > 🥰
->
+> 
 > Like AppFlowy? Follow us:
 > [GitHub](https://github.com/AppFlowy-IO/AppFlowy)
 > [Twitter](https://twitter.com/appflowy): @appflowy
 > [Newsletter](https://blog-appflowy.ghost.io/)
->
+> 
 
 
 
