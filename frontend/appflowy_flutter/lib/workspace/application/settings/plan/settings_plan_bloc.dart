@@ -6,7 +6,6 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
@@ -31,12 +30,12 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
     on<SettingsPlanEvent>((event, emit) async {
       await event.when(
         started: (withShowSuccessful) async {
+          final stopwatch = Stopwatch()..start();
           emit(const SettingsPlanState.loading());
 
           final snapshots = await Future.wait([
             _service.getWorkspaceUsage(),
             UserBackendService.getWorkspaceSubscriptions(),
-            _service.getBillingPortal(),
           ]);
 
           FlowyError? error;
@@ -65,32 +64,15 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             },
           );
 
-          final billingPortalResult = snapshots.last;
-          final billingPortal = billingPortalResult.fold(
-            (s) => s as BillingPortalPB,
-            (e) {
-              // Not a customer yet
-              if (e.code == ErrorCode.InvalidParams) {
-                return BillingPortalPB();
-              }
-
-              error = e;
-              return null;
-            },
-          );
-
-          if (usageResult == null ||
-              subscription == null ||
-              billingPortal == null ||
-              error != null) {
+          if (usageResult == null || subscription == null || error != null) {
             return emit(SettingsPlanState.error(error: error));
           }
 
+          stopwatch.stop();
           emit(
             SettingsPlanState.ready(
               workspaceUsage: usageResult,
               subscription: subscription,
-              billingPortal: billingPortal,
               showSuccessDialog: withShowSuccessful,
             ),
           );
@@ -100,7 +82,6 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
               SettingsPlanState.ready(
                 workspaceUsage: usageResult,
                 subscription: subscription,
-                billingPortal: billingPortal,
               ),
             );
           }
@@ -176,7 +157,6 @@ class SettingsPlanState with _$SettingsPlanState {
   const factory SettingsPlanState.ready({
     required WorkspaceUsagePB workspaceUsage,
     required WorkspaceSubscriptionPB subscription,
-    required BillingPortalPB? billingPortal,
     @Default(false) bool showSuccessDialog,
     @Default(false) bool downgradeProcessing,
   }) = _Ready;

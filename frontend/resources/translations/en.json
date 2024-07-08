@@ -631,13 +631,13 @@
         "title": "Plan usage summary",
         "storageLabel": "Storage",
         "storageUsage": "{} of {} GB",
-        "collaboratorsLabel": "Collaborators",
+        "collaboratorsLabel": "Members",
         "collaboratorsUsage": "{} of {}",
         "aiResponseLabel": "AI Responses",
         "aiResponseUsage": "{} of {}",
         "proBadge": "Pro",
-        "memberProToggle": "10 members and unlimited AI responses",
-        "storageUnlimited": "Unlimited storage with your Pro Plan",
+        "memberProToggle": "More members & unlimited AI",
+        "storageUnlimited": "Unlimited storage with Pro Plan",
         "aiCredit": {
           "title": "Add @:appName AI Credit",
           "price": "5$",
@@ -655,7 +655,7 @@
           "freeInfo": "Perfect for individuals or small teams up to 3 members.",
           "proInfo": "Perfect for small and medium teams up to 10 members.",
           "teamInfo": "Perfect for all productive and well-organized teams..",
-          "upgrade": "Upgrade plan",
+          "upgrade": "Change plan",
           "canceledInfo": "Your plan is cancelled, you will be downgraded to the Free plan on {}."
         },
         "deal": {
@@ -695,48 +695,44 @@
       },
       "freePlan": {
         "title": "Free",
-        "description": "For organizing every corner of your work & life.",
-        "price": "$0",
+        "description": "For individuals and small groups to organize everything",
+        "price": "US$0",
         "priceInfo": "free forever"
       },
       "proPlan": {
         "title": "Professional",
-        "description": "A place for small groups to plan & get organized.",
-        "price": "$10 /month",
-        "priceInfo": "billed annually"
+        "description": "For small teams to manage projects and team knowledge",
+        "price": "US$12.5",
+        "priceInfo": "billed monthly"
       },
       "planLabels": {
         "itemOne": "Workspaces",
         "itemTwo": "Members",
-        "itemThree": "Guests",
-        "tooltipThree": "Guests have read-only permission to the specifically shared content",
-        "itemFour": "Guest collaborators",
-        "tooltipFour": "Guest collaborators are billed as one seat",
-        "itemFive": "Storage",
-        "itemSix": "Real-time collaboration",
-        "itemSeven": "Mobile app",
-        "itemEight": "AI Responses",
-        "tooltipEight": "Lifetime means the number of responses never reset"
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Mobile app",
+        "itemSix": "AI Responses",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "itemSeven": "Custom namespace",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace"
       },
       "freeLabels": {
         "itemOne": "charged per workspace",
-        "itemTwo": "3",
-        "itemThree": "",
-        "itemFour": "0",
-        "itemFive": "5 GB",
-        "itemSix": "yes",
-        "itemSeven": "yes",
-        "itemEight": "1,000 lifetime"
+        "itemTwo": "up to 3",
+        "itemThree": "5 GB",
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "100 lifetime",
+        "itemSeven": ""
       },
       "proLabels": {
         "itemOne": "charged per workspace",
         "itemTwo": "up to 10",
-        "itemThree": "",
-        "itemFour": "10 guests billed as one seat",
-        "itemFive": "unlimited",
-        "itemSix": "yes",
-        "itemSeven": "yes",
-        "itemEight": "10,000 monthly"
+        "itemThree": "unlimited",
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "unlimited",
+        "itemSeven": ""
       },
       "paymentSuccess": {
         "title": "You are now on the {} plan!",

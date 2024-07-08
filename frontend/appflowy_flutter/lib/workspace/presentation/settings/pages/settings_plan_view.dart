@@ -69,7 +69,6 @@ class SettingsPlanView extends StatelessWidget {
                 _PlanUsageSummary(
                   usage: state.workspaceUsage,
                   subscription: state.subscription,
-                  billingPortal: state.billingPortal,
                 ),
                 const VSpace(16),
                 _CurrentPlanBox(subscription: state.subscription),
@@ -78,7 +77,7 @@ class SettingsPlanView extends StatelessWidget {
                 FlowyText(
                   'Add-ons',
                   fontSize: 18,
-                  color: AFThemeExtension.of(context).secondaryTextColor,
+                  color: AFThemeExtension.of(context).strongText,
                   fontWeight: FontWeight.w600,
                 ),
                 const VSpace(8),
@@ -88,8 +87,8 @@ class SettingsPlanView extends StatelessWidget {
                       child: _AddOnBox(
                         title: "AI Max",
                         description:
-                            "Unlimited AI responses with access to the latest advanced AI models.",
-                        price: "\$8",
+                            "Unlimited AI models and access to advanced models",
+                        price: "US\$8",
                         priceInfo: "billed annually or \$10 billed monthly",
                         buttonText: "Add AI Max",
                       ),
@@ -99,8 +98,8 @@ class SettingsPlanView extends StatelessWidget {
                       child: _AddOnBox(
                         title: "AI Offline",
                         description:
-                            "Run AI locally on your device for maximum privacy.",
-                        price: "\$8",
+                            "Local AI on your own hardware for ultimate privacy",
+                        price: "US\$8",
                         priceInfo: "billed annually or \$10 billed monthly",
                         buttonText: "Add AI Offline",
                       ),
@@ -272,12 +271,10 @@ class _PlanUsageSummary extends StatelessWidget {
   const _PlanUsageSummary({
     required this.usage,
     required this.subscription,
-    this.billingPortal,
   });
 
   final WorkspaceUsagePB usage;
   final WorkspaceSubscriptionPB subscription;
-  final BillingPortalPB? billingPortal;
 
   @override
   Widget build(BuildContext context) {
@@ -341,19 +338,17 @@ class _PlanUsageSummary extends StatelessWidget {
                 subscription: subscription,
                 badgeLabel:
                     LocaleKeys.settings_planPage_planUsage_proBadge.tr(),
-                onTap: billingPortal?.url == null
-                    ? null
-                    : () async {
-                        context.read<SettingsPlanBloc>().add(
-                              const SettingsPlanEvent.addSubscription(
-                                SubscriptionPlanPB.Pro,
-                              ),
-                            );
-                        await Future.delayed(
-                          const Duration(seconds: 2),
-                          () {},
-                        );
-                      },
+                onTap: () async {
+                  context.read<SettingsPlanBloc>().add(
+                        const SettingsPlanEvent.addSubscription(
+                          SubscriptionPlanPB.Pro,
+                        ),
+                      );
+                  await Future.delayed(
+                    const Duration(seconds: 2),
+                    () {},
+                  );
+                },
               ),
             ],
           ],
@@ -552,7 +547,7 @@ class _AddOnBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 200,
+      height: 220,
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 12,
@@ -570,7 +565,6 @@ class _AddOnBox extends StatelessWidget {
             color: AFThemeExtension.of(context).secondaryTextColor,
           ),
           const VSpace(4),
-          const VSpace(4),
           FlowyText.regular(
             description,
             fontSize: 11,
@@ -578,24 +572,17 @@ class _AddOnBox extends StatelessWidget {
             maxLines: 4,
           ),
           const VSpace(4),
-          Row(
-            children: [
-              FlowyText(
-                price,
-                fontSize: 24,
-                color: AFThemeExtension.of(context).strongText,
-              ),
-              const HSpace(4),
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: FlowyText(
-                  '/user per month',
-                  fontSize: 11,
-                  color: AFThemeExtension.of(context).strongText,
-                ),
-              ),
-            ],
+          FlowyText(
+            price,
+            fontSize: 24,
+            color: AFThemeExtension.of(context).strongText,
           ),
+          FlowyText(
+            '/user per month',
+            fontSize: 11,
+            color: AFThemeExtension.of(context).strongText,
+          ),
+          const VSpace(6),
           Row(
             children: [
               Expanded(
@@ -616,6 +603,7 @@ class _AddOnBox extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                 fillColor: Colors.transparent,
+                constraints: const BoxConstraints(minWidth: 115),
                 radius: Corners.s16Border,
                 hoverColor: const Color(0xFF5C3699),
                 fontColor: const Color(0xFF5C3699),
