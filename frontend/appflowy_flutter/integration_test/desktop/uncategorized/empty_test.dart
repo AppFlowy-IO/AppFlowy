@@ -11,6 +11,7 @@ void main() {
     testWidgets('toggle theme mode', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
+      await tester.wait(1000);
     });
   });
 }

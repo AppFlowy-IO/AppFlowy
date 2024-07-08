@@ -54,9 +54,11 @@ class SidebarSectionsBloc
             _initial(userProfile, workspaceId);
             final sectionViews = await _getSectionViews();
             if (sectionViews != null) {
+              final containsSpace = _containsSpace(sectionViews);
               emit(
                 state.copyWith(
                   section: sectionViews,
+                  containsSpace: containsSpace,
                 ),
               );
             }
@@ -65,9 +67,11 @@ class SidebarSectionsBloc
             _reset(userProfile, workspaceId);
             final sectionViews = await _getSectionViews();
             if (sectionViews != null) {
+              final containsSpace = _containsSpace(sectionViews);
               emit(
                 state.copyWith(
                   section: sectionViews,
+                  containsSpace: containsSpace,
                 ),
               );
             }
@@ -160,9 +164,11 @@ class SidebarSectionsBloc
             _initial(userProfile, workspaceId);
             final sectionViews = await _getSectionViews();
             if (sectionViews != null) {
+              final containsSpace = _containsSpace(sectionViews);
               emit(
                 state.copyWith(
                   section: sectionViews,
+                  containsSpace: containsSpace,
                 ),
               );
               // try to open the fist view in public section or private section
@@ -229,6 +235,11 @@ class SidebarSectionsBloc
     }
   }
 
+  bool _containsSpace(SidebarSection section) {
+    return section.publicViews.any((view) => view.isSpace) ||
+        section.privateViews.any((view) => view.isSpace);
+  }
+
   void _initial(UserProfilePB userProfile, String workspaceId) {
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
 
@@ -292,6 +303,7 @@ class SidebarSectionsState with _$SidebarSectionsState {
     required SidebarSection section,
     @Default(null) ViewPB? lastCreatedRootView,
     FlowyResult<void, FlowyError>? createRootViewResult,
+    @Default(true) bool containsSpace,
   }) = _SidebarSectionsState;
 
   factory SidebarSectionsState.initial() => const SidebarSectionsState(
