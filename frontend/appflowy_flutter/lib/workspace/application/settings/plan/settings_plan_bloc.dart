@@ -30,7 +30,6 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
     on<SettingsPlanEvent>((event, emit) async {
       await event.when(
         started: (withShowSuccessful) async {
-          final stopwatch = Stopwatch()..start();
           emit(const SettingsPlanState.loading());
 
           final snapshots = await Future.wait([
@@ -68,7 +67,6 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             return emit(SettingsPlanState.error(error: error));
           }
 
-          stopwatch.stop();
           emit(
             SettingsPlanState.ready(
               workspaceUsage: usageResult,
