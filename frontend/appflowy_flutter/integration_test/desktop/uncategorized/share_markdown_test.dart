@@ -51,13 +51,14 @@ void main() {
           },
         );
 
-        final shareButton = find.byType(ShareActionList);
+        final shareButton = find.byType(DocumentShareButton);
         final shareButtonState =
-            tester.state(shareButton) as ShareActionListState;
+            tester.widget(shareButton) as DocumentShareButton;
+
         final path = await mockSaveFilePath(
           p.join(
             context.applicationDataDirectory,
-            '${shareButtonState.name}.md',
+            '${shareButtonState.view.name}.md',
           ),
         );
 
@@ -104,12 +105,12 @@ fn main() {
 > Click `?` at the bottom right for help and support.
 
 > 🥰
-> 
+>
 > Like AppFlowy? Follow us:
 > [GitHub](https://github.com/AppFlowy-IO/AppFlowy)
 > [Twitter](https://twitter.com/appflowy): @appflowy
 > [Newsletter](https://blog-appflowy.ghost.io/)
-> 
+>
 
 
 

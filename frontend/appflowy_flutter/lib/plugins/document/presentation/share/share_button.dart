@@ -63,16 +63,7 @@ class DocumentShareButton extends StatelessWidget {
                       tabs: tabs,
                     ),
                   ),
-                  child: RoundedTextButton(
-                    title: LocaleKeys.shareAction_buttonText.tr(),
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w500,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(10.0),
-                    ),
-                    textColor: Theme.of(context).colorScheme.onPrimary,
-                  ),
+                  child: const InnerDocumentShareButton(),
                 ),
               ),
             );
@@ -104,6 +95,24 @@ class DocumentShareButton extends StatelessWidget {
 
   void _handleExportError(FlowyError error) {
     showMessageToast(error.msg);
+  }
+}
+
+class InnerDocumentShareButton extends StatelessWidget {
+  const InnerDocumentShareButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return RoundedTextButton(
+      title: LocaleKeys.shareAction_buttonText.tr(),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0),
+      fontSize: 14.0,
+      fontWeight: FontWeight.w500,
+      borderRadius: const BorderRadius.all(
+        Radius.circular(10.0),
+      ),
+      textColor: Theme.of(context).colorScheme.onPrimary,
+    );
   }
 }
 
