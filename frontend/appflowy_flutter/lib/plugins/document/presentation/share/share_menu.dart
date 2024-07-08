@@ -1,9 +1,12 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/tab/_round_underline_tab_indicator.dart';
+import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/share/export_tab.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'publish_tab.dart';
 
@@ -86,7 +89,7 @@ class _ShareMenuState extends State<ShareMenu>
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: _Segment(
-            title: tab.i18n.tr(),
+            tab: tab,
             isSelected: selectedTab == tab,
           ),
         ),
@@ -94,7 +97,7 @@ class _ShareMenuState extends State<ShareMenu>
     return TabBar(
       indicatorSize: TabBarIndicatorSize.label,
       indicator: RoundUnderlineTabIndicator(
-        width: 48.0,
+        width: 68.0,
         borderSide: BorderSide(
           color: Theme.of(context).colorScheme.primary,
           width: 3,
@@ -128,12 +131,12 @@ class _ShareMenuState extends State<ShareMenu>
 
 class _Segment extends StatefulWidget {
   const _Segment({
-    required this.title,
+    required this.tab,
     required this.isSelected,
   });
 
-  final String title;
   final bool isSelected;
+  final ShareMenuTab tab;
 
   @override
   State<_Segment> createState() => _SegmentState();
@@ -150,14 +153,34 @@ class _SegmentState extends State<_Segment> {
     } else if (widget.isSelected) {
       textColor = null;
     }
-    return MouseRegion(
+
+    Widget child = MouseRegion(
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
       child: FlowyText(
-        widget.title,
+        widget.tab.i18n,
         textAlign: TextAlign.center,
         color: textColor,
       ),
     );
+
+    if (widget.tab == ShareMenuTab.publish) {
+      final isPublished = context.watch<DocumentShareBloc>().state.isPublished;
+      // show checkmark icon if published
+      if (isPublished) {
+        child = Row(
+          children: [
+            const FlowySvg(
+              FlowySvgs.published_checkmark_s,
+              blendMode: null,
+            ),
+            const HSpace(6),
+            child,
+          ],
+        );
+      }
+    }
+
+    return child;
   }
 }
