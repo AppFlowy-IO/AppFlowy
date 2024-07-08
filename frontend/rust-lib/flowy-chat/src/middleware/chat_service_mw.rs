@@ -162,7 +162,7 @@ impl ChatCloudService for ChatService {
   ) -> Result<StreamAnswer, FlowyError> {
     if self.local_llm_setting.read().enabled {
       let content = self.get_message_content(message_id)?;
-      match self.local_llm_chat.ask_question(chat_id, &content).await {
+      match self.local_llm_chat.stream_question(chat_id, &content).await {
         Ok(stream) => Ok(
           stream
             .map_err(|err| FlowyError::local_ai().with_context(err))
@@ -189,7 +189,7 @@ impl ChatCloudService for ChatService {
   ) -> Result<ChatMessage, FlowyError> {
     if self.local_llm_setting.read().enabled {
       let content = self.get_message_content(question_message_id)?;
-      match self.local_llm_chat.generate_answer(chat_id, &content).await {
+      match self.local_llm_chat.ask_question(chat_id, &content).await {
         Ok(answer) => {
           let message = self
             .cloud_service
