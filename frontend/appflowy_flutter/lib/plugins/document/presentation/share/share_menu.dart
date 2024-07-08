@@ -126,7 +126,7 @@ class _ShareMenuState extends State<ShareMenu>
   }
 }
 
-class _Segment extends StatelessWidget {
+class _Segment extends StatefulWidget {
   const _Segment({
     required this.title,
     required this.isSelected,
@@ -136,12 +136,28 @@ class _Segment extends StatelessWidget {
   final bool isSelected;
 
   @override
+  State<_Segment> createState() => _SegmentState();
+}
+
+class _SegmentState extends State<_Segment> {
+  bool isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    final textColor = isSelected ? null : Theme.of(context).hintColor;
-    return FlowyText(
-      title,
-      textAlign: TextAlign.center,
-      color: textColor,
+    Color? textColor = Theme.of(context).hintColor;
+    if (isHovered) {
+      textColor = const Color(0xFF00BCF0);
+    } else if (widget.isSelected) {
+      textColor = null;
+    }
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovered = true),
+      onExit: (_) => setState(() => isHovered = false),
+      child: FlowyText(
+        widget.title,
+        textAlign: TextAlign.center,
+        color: textColor,
+      ),
     );
   }
 }
