@@ -8,9 +8,18 @@ import {
 } from '@/application/services/js-services/cache';
 import { StrategyType } from '@/application/services/js-services/cache/types';
 import { fetchPublishView, fetchPublishViewMeta, fetchViewInfo } from '@/application/services/js-services/fetch';
+import {
+  initAPIService,
+  signInGoogle,
+  signInWithMagicLink,
+  signInGithub,
+  signInDiscord,
+  signInWithUrl,
+} from '@/application/services/js-services/wasm/client_api';
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
+import { emit, EventType } from '@/application/session';
+import { afterAuth, AUTH_CALLBACK_URL, withSignIn } from '@/application/session/sign_in';
 import { nanoid } from 'nanoid';
-import { initAPIService } from '@/application/services/js-services/wasm/client_api';
 import * as Y from 'yjs';
 
 export class AFClientService implements AFService {
@@ -36,6 +45,10 @@ export class AFClientService implements AFService {
       deviceId: this.deviceId,
       clientId: this.clientId,
     });
+  }
+
+  getClientId() {
+    return this.clientId;
   }
 
   async getPublishViewMeta(namespace: string, publishName: string) {
@@ -148,5 +161,38 @@ export class AFClientService implements AFService {
     this.publishViewInfo.set(viewId, data);
 
     return data;
+  }
+
+  async loginAuth(url: string) {
+    try {
+      console.log('loginAuth', url);
+      await signInWithUrl(url);
+      emit(EventType.SESSION_VALID);
+      afterAuth();
+      return;
+    } catch (e) {
+      emit(EventType.SESSION_INVALID);
+      return Promise.reject(e);
+    }
+  }
+
+  @withSignIn()
+  async signInMagicLink({ email }: { email: string; redirectTo: string }) {
+    return await signInWithMagicLink(email, AUTH_CALLBACK_URL);
+  }
+
+  @withSignIn()
+  async signInGoogle(_: { redirectTo: string }) {
+    return await signInGoogle(AUTH_CALLBACK_URL);
+  }
+
+  @withSignIn()
+  async signInGithub(_: { redirectTo: string }) {
+    return await signInGithub(AUTH_CALLBACK_URL);
+  }
+
+  @withSignIn()
+  async signInDiscord(_: { redirectTo: string }) {
+    return await signInDiscord(AUTH_CALLBACK_URL);
   }
 }

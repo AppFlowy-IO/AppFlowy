@@ -1,3 +1,4 @@
+import { getToken, invalidToken, isTokenValid, refreshToken } from '@/application/session/token';
 import { ClientAPI } from '@appflowyinc/client-api-wasm';
 import { AFCloudConfig } from '@/application/services/services.type';
 import { PublishViewMetaData } from '@/application/collab.type';
@@ -14,13 +15,9 @@ export function initAPIService(
     return;
   }
 
-  window.refresh_token = () => {
-    //
-  };
+  window.refresh_token = refreshToken;
 
-  window.invalid_token = () => {
-    // invalidToken();
-  };
+  window.invalid_token = invalidToken;
 
   client = ClientAPI.new({
     base_url: config.baseURL,
@@ -33,6 +30,10 @@ export function initAPIService(
       compression_buffer_size: 10240,
     },
   });
+
+  if (isTokenValid()) {
+    client.restore_token(getToken() || '');
+  }
 
   client.subscribe();
 }
@@ -55,4 +56,34 @@ export async function getPublishViewMeta(publishNamespace: string, publishName: 
   const metadata = JSON.parse(data.data) as PublishViewMetaData;
 
   return metadata;
+}
+
+export async function signInWithUrl(url: string) {
+  return client.sign_in_with_url(url);
+}
+
+export async function signInWithMagicLink(email: string, redirectTo: string) {
+  return client.sign_in_with_magic_link(email, redirectTo);
+}
+
+export async function signInGoogle(redirectTo: string) {
+  return signInProvider('google', redirectTo);
+}
+
+export async function signInProvider(provider: string, redirectTo: string) {
+  try {
+    const { url } = await client.generate_oauth_url_with_provider(provider, redirectTo);
+
+    window.open(url, '_current');
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+export async function signInGithub(redirectTo: string) {
+  return signInProvider('github', redirectTo);
+}
+
+export async function signInDiscord(redirectTo: string) {
+  return signInProvider('discord', redirectTo);
 }
