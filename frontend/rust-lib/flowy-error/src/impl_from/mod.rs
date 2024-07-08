@@ -25,7 +25,5 @@ mod cloud;
 #[cfg(feature = "impl_from_url")]
 mod url;
 
-#[cfg(feature = "impl_from_sidecar")]
-mod sidecar;
 #[cfg(feature = "impl_from_tantivy")]
 mod tantivy;

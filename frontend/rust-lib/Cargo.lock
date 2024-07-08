@@ -195,6 +195,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "appflowy-local-ai"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=0820a0d23f7b813dee505e7e29e88a8561699fe8#0820a0d23f7b813dee505e7e29e88a8561699fe8"
+dependencies = [
+ "anyhow",
+ "appflowy-plugin",
+ "bytes",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+]
+
+[[package]]
+name = "appflowy-plugin"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=0820a0d23f7b813dee505e7e29e88a8561699fe8#0820a0d23f7b813dee505e7e29e88a8561699fe8"
+dependencies = [
+ "anyhow",
+ "cfg-if",
+ "crossbeam-utils",
+ "log",
+ "once_cell",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+]
+
+[[package]]
 name = "arc-swap"
 version = "1.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1667,6 +1701,8 @@ version = "0.1.0"
 dependencies = [
  "allo-isolate",
  "anyhow",
+ "appflowy-local-ai",
+ "appflowy-plugin",
  "bytes",
  "dashmap",
  "dotenv",
@@ -1675,7 +1711,6 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
- "flowy-sidecar",
  "flowy-sqlite",
  "futures",
  "lib-dispatch",
@@ -1685,6 +1720,7 @@ dependencies = [
  "protobuf",
  "serde",
  "serde_json",
+ "simsimd",
  "strum_macros 0.21.1",
  "tokio",
  "tokio-stream",
@@ -1962,7 +1998,6 @@ dependencies = [
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
- "flowy-sidecar",
  "flowy-sqlite",
  "lib-dispatch",
  "protobuf",
@@ -2151,24 +2186,6 @@ dependencies = [
  "flowy-error",
  "serde",
  "serde_repr",
-]
-
-[[package]]
-name = "flowy-sidecar"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "crossbeam-utils",
- "lib-infra",
- "log",
- "once_cell",
- "parking_lot 0.12.1",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tokio-stream",
- "tracing",
 ]
 
 [[package]]
@@ -5143,6 +5160,15 @@ dependencies = [
  "num-traits",
  "thiserror",
  "time",
+]
+
+[[package]]
+name = "simsimd"
+version = "4.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "efc843bc8f12d9c8e6b734a0fe8918fc497b42f6ae0f347dbfdad5b5138ab9b4"
+dependencies = [
+ "cc",
 ]
 
 [[package]]

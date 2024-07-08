@@ -204,6 +204,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "appflowy-local-ai"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=0820a0d23f7b813dee505e7e29e88a8561699fe8#0820a0d23f7b813dee505e7e29e88a8561699fe8"
+dependencies = [
+ "anyhow",
+ "appflowy-plugin",
+ "bytes",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+]
+
+[[package]]
+name = "appflowy-plugin"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=0820a0d23f7b813dee505e7e29e88a8561699fe8#0820a0d23f7b813dee505e7e29e88a8561699fe8"
+dependencies = [
+ "anyhow",
+ "cfg-if",
+ "crossbeam-utils",
+ "log",
+ "once_cell",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+]
+
+[[package]]
 name = "appflowy_tauri"
 version = "0.0.0"
 dependencies = [
@@ -1341,7 +1375,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa 1.0.6",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1847,6 +1881,8 @@ version = "0.1.0"
 dependencies = [
  "allo-isolate",
  "anyhow",
+ "appflowy-local-ai",
+ "appflowy-plugin",
  "bytes",
  "dashmap",
  "flowy-chat-pub",
@@ -1854,7 +1890,6 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
- "flowy-sidecar",
  "flowy-sqlite",
  "futures",
  "lib-dispatch",
@@ -2136,7 +2171,6 @@ dependencies = [
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
- "flowy-sidecar",
  "flowy-sqlite",
  "lib-dispatch",
  "protobuf",
@@ -2321,24 +2355,6 @@ dependencies = [
  "flowy-error",
  "serde",
  "serde_repr",
-]
-
-[[package]]
-name = "flowy-sidecar"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "crossbeam-utils",
- "lib-infra",
- "log",
- "once_cell",
- "parking_lot 0.12.1",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tokio-stream",
- "tracing",
 ]
 
 [[package]]
@@ -4878,7 +4894,7 @@ checksum = "c55e02e35260070b6f716a2423c2ff1c3bb1642ddca6f99e1f26d06268a0e2d2"
 dependencies = [
  "bytes",
  "heck 0.4.1",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "log",
  "multimap",
  "once_cell",
@@ -4899,7 +4915,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efb6c9a1dd1def8e2124d17e83a20af56f1570d6c2d2bd9e266ccb768df3840e"
 dependencies = [
  "anyhow",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.47",

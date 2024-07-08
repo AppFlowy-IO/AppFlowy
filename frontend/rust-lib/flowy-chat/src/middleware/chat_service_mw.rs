@@ -1,12 +1,16 @@
 use crate::chat_manager::ChatUserService;
-use crate::local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
+use crate::entities::{ChatStatePB, ModelTypePB};
+use crate::notification::{send_notification, ChatNotification};
 use crate::persistence::select_single_message;
+use appflowy_local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
+use appflowy_plugin::error::PluginError;
+use appflowy_plugin::util::is_apple_silicon;
 use flowy_chat_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageType, CompletionType, MessageCursor,
   RepeatedChatMessage, RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use futures::{StreamExt, TryStreamExt};
+use futures::{stream, StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use parking_lot::RwLock;
@@ -30,6 +34,13 @@ impl ChatService {
     if local_llm_setting.enabled {
       setup_local_chat(&local_llm_setting, local_llm_ctrl.clone());
     }
+
+    let mut rx = local_llm_ctrl.subscribe_running_state();
+    tokio::spawn(async move {
+      while let Ok(state) = rx.recv().await {
+        info!("[Chat Plugin] state: {:?}", state);
+      }
+    });
 
     Self {
       user_service,
@@ -92,6 +103,20 @@ impl ChatService {
 
     Ok(content)
   }
+
+  fn handle_plugin_error(&self, err: PluginError) {
+    if matches!(
+      err,
+      PluginError::PluginNotConnected | PluginError::PeerDisconnect
+    ) {
+      send_notification("appflowy_chat_plugin", ChatNotification::ChatStateUpdated).payload(
+        ChatStatePB {
+          model_type: ModelTypePB::LocalAI,
+          available: false,
+        },
+      );
+    }
+  }
 }
 
 #[async_trait]
@@ -137,12 +162,17 @@ impl ChatCloudService for ChatService {
   ) -> Result<StreamAnswer, FlowyError> {
     if self.local_llm_setting.read().enabled {
       let content = self.get_message_content(message_id)?;
-      let stream = self
-        .local_llm_chat
-        .ask_question(chat_id, &content)
-        .await?
-        .map_err(FlowyError::from);
-      Ok(stream.boxed())
+      match self.local_llm_chat.stream_question(chat_id, &content).await {
+        Ok(stream) => Ok(
+          stream
+            .map_err(|err| FlowyError::local_ai().with_context(err))
+            .boxed(),
+        ),
+        Err(err) => {
+          self.handle_plugin_error(err);
+          Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
+        },
+      }
     } else {
       self
         .cloud_service
@@ -159,11 +189,19 @@ impl ChatCloudService for ChatService {
   ) -> Result<ChatMessage, FlowyError> {
     if self.local_llm_setting.read().enabled {
       let content = self.get_message_content(question_message_id)?;
-      let _answer = self
-        .local_llm_chat
-        .generate_answer(chat_id, &content)
-        .await?;
-      todo!()
+      match self.local_llm_chat.ask_question(chat_id, &content).await {
+        Ok(answer) => {
+          let message = self
+            .cloud_service
+            .save_answer(workspace_id, chat_id, &answer, question_message_id)
+            .await?;
+          Ok(message)
+        },
+        Err(err) => {
+          self.handle_plugin_error(err);
+          Err(FlowyError::local_ai_unavailable())
+        },
+      }
     } else {
       self
         .cloud_service
@@ -223,12 +261,35 @@ impl ChatCloudService for ChatService {
 
 fn setup_local_chat(local_llm_setting: &LocalLLMSetting, llm_chat_ctrl: Arc<LocalChatLLMChat>) {
   if local_llm_setting.enabled {
-    if let Ok(config) = local_llm_setting.chat_config() {
+    if let Ok(mut config) = local_llm_setting.chat_config() {
       tokio::spawn(async move {
         trace!("[Chat Plugin] setup local chat: {:?}", config);
+        if is_apple_silicon().await.unwrap_or(false) {
+          config = config.with_device("gpu");
+        }
 
-        if let Err(err) = llm_chat_ctrl.init_chat_plugin(config).await {
-          error!("[Chat Plugin] failed to setup plugin: {:?}", err);
+        if cfg!(debug_assertions) {
+          config = config.with_verbose(true);
+        }
+
+        match llm_chat_ctrl.init_chat_plugin(config).await {
+          Ok(_) => {
+            send_notification("appflowy_chat_plugin", ChatNotification::ChatStateUpdated).payload(
+              ChatStatePB {
+                model_type: ModelTypePB::LocalAI,
+                available: true,
+              },
+            );
+          },
+          Err(err) => {
+            send_notification("appflowy_chat_plugin", ChatNotification::ChatStateUpdated).payload(
+              ChatStatePB {
+                model_type: ModelTypePB::LocalAI,
+                available: false,
+              },
+            );
+            error!("[Chat Plugin] failed to setup plugin: {:?}", err);
+          },
         }
       });
     }
