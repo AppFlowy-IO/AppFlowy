@@ -53,11 +53,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "8b9ccf8"
-      resolved-ref: "8b9ccf83fda9d3624197b9fabbfa7c5dba8d8258"
+      ref: "0f5a4cb"
+      resolved-ref: "0f5a4cb1b4ba3110acc2b8c7369b6e3479b1edd5"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "3.0.0"
+    version: "3.1.0"
   appflowy_editor_plugins:
     dependency: "direct main"
     description:
@@ -410,6 +410,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  custom_sliding_segmented_control:
+    dependency: "direct main"
+    description:
+      name: custom_sliding_segmented_control
+      sha256: "53c3e931c3ae1f696085d1ec70ac8e934da836595a9b7d9b88fdd0fcbf2a5574"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.8.3"
   dart_style:
     dependency: transitive
     description:
@@ -965,6 +973,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  iconsax_flutter:
+    dependency: transitive
+    description:
+      name: iconsax_flutter
+      sha256: "95b65699da8ea98f87c5d232f06b0debaaf1ec1332b697e4d90969ec9a93037d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   image:
     dependency: transitive
     description:
@@ -1434,6 +1450,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1"
+  pausable_timer:
+    dependency: transitive
+    description:
+      name: pausable_timer
+      sha256: "6ef1a95441ec3439de6fb63f39a011b67e693198e7dae14e20675c3c00e86074"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0+3"
   pdf:
     dependency: transitive
     description:
@@ -2105,6 +2129,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  toastification:
+    dependency: "direct main"
+    description:
+      name: toastification
+      sha256: "5e751acc2fb5b8d008138dac255d62290fde4e5a24824f29809ac098c3dfe395"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   tuple:
     dependency: transitive
     description:
