@@ -121,7 +121,7 @@ class HomeSideBar extends StatelessWidget {
                     userProfile,
                     state.currentWorkspace?.workspaceId ??
                         workspaceSetting.workspaceId,
-                    openFirstPage: true,
+                    openFirstPage: false,
                   ),
                 ),
             ),
