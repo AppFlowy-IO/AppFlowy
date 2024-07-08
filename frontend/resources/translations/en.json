@@ -681,6 +681,19 @@
         "title": "Payment details",
         "methodLabel": "Payment method",
         "methodButtonLabel": "Edit method"
+      },
+      "addons": {
+        "title": "Add-ons",
+        "aiMax": {
+          "label": "AI Max",
+          "description": "US$8 /user per month billed annually or US$10 billed monthly",
+          "buttonLabel": "Add AI Max"
+        },
+        "aiOnDevice": {
+          "label": "AI On-device",
+          "description": "US$8 /user per month billed annually or US$10 billed monthly",
+          "buttonLabel": "Add AI On-device"
+        }
       }
     },
     "comparePlanDialog": {

@@ -453,15 +453,57 @@ pub struct WorkspaceInvitation {
   pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Clone, Debug)]
 pub enum RecurringInterval {
   Month,
   Year,
 }
 
+impl Into<i64> for RecurringInterval {
+  fn into(self) -> i64 {
+    match self {
+      RecurringInterval::Month => 0,
+      RecurringInterval::Year => 1,
+    }
+  }
+}
+
+impl From<i64> for RecurringInterval {
+  fn from(value: i64) -> Self {
+    match value {
+      0 => RecurringInterval::Month,
+      1 => RecurringInterval::Year,
+      _ => RecurringInterval::Month,
+    }
+  }
+}
+
+#[derive(Clone, Debug)]
 pub enum SubscriptionPlan {
   None,
   Pro,
   Team,
+}
+
+impl Into<i64> for SubscriptionPlan {
+  fn into(self) -> i64 {
+    match self {
+      SubscriptionPlan::None => 0,
+      SubscriptionPlan::Pro => 1,
+      SubscriptionPlan::Team => 2,
+    }
+  }
+}
+
+impl From<i64> for SubscriptionPlan {
+  fn from(value: i64) -> Self {
+    match value {
+      0 => SubscriptionPlan::None,
+      1 => SubscriptionPlan::Pro,
+      2 => SubscriptionPlan::Team,
+      _ => SubscriptionPlan::None,
+    }
+  }
 }
 
 pub struct WorkspaceSubscription {
@@ -469,6 +511,7 @@ pub struct WorkspaceSubscription {
   pub subscription_plan: SubscriptionPlan,
   pub recurring_interval: RecurringInterval,
   pub is_active: bool,
+  pub has_canceled: bool,
   pub canceled_at: Option<i64>,
 }
 
