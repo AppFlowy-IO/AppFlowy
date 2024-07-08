@@ -82,11 +82,11 @@ void main() {
         HeadingBlockKeys.type,
       );
       expect(
-        importedPageEditorState.getNodeAtPath([2])!.type,
+        importedPageEditorState.getNodeAtPath([1])!.type,
         HeadingBlockKeys.type,
       );
       expect(
-        importedPageEditorState.getNodeAtPath([4])!.type,
+        importedPageEditorState.getNodeAtPath([2])!.type,
         TableBlockKeys.type,
       );
     });
