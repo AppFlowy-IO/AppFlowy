@@ -38,10 +38,10 @@ impl ChatManager {
     let local_ai_setting = store_preferences
       .get_object::<LocalLLMSetting>(LOCAL_AI_SETTING_KEY)
       .unwrap_or_default();
-    let sidecar_manager = Arc::new(PluginManager::new());
+    let plugin_manager = Arc::new(PluginManager::new());
 
     // setup local AI chat plugin
-    let local_llm_ctrl = Arc::new(LocalChatLLMChat::new(sidecar_manager));
+    let local_llm_ctrl = Arc::new(LocalChatLLMChat::new(plugin_manager));
     // setup local chat service
     let chat_service = Arc::new(ChatService::new(
       user_service.clone(),
