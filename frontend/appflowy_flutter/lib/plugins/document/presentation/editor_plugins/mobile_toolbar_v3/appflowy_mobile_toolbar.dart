@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_close_keyboard_or_menu_button.dart';
@@ -9,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -284,6 +286,14 @@ class _MobileToolbarState extends State<_MobileToolbar>
 
     if (canUpdateCachedKeyboardHeight) {
       cachedKeyboardHeight.value = height;
+
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        // cache the keyboard height with the view padding in Android
+        if (cachedKeyboardHeight.value != 0) {
+          cachedKeyboardHeight.value +=
+              MediaQuery.of(context).viewPadding.bottom;
+        }
+      }
     }
 
     if (height == 0) {
@@ -385,13 +395,19 @@ class _MobileToolbarState extends State<_MobileToolbar>
         return ValueListenableBuilder(
           valueListenable: showMenuNotifier,
           builder: (_, showingMenu, __) {
-            var paddingHeight = height;
-            if (Platform.isAndroid) {
-              paddingHeight =
-                  height + MediaQuery.of(context).viewPadding.bottom;
+            var keyboardHeight = height;
+            if (defaultTargetPlatform == TargetPlatform.android) {
+              if (!showingMenu) {
+                // take the max value of the keyboard height and the view padding
+                // to make sure the toolbar is above the keyboard
+                keyboardHeight = max(
+                  keyboardHeight,
+                  MediaQuery.of(context).viewInsets.bottom,
+                );
+              }
             }
             return SizedBox(
-              height: paddingHeight,
+              height: keyboardHeight,
               child: (showingMenu && selectedMenuIndex != null)
                   ? widget.toolbarItems[selectedMenuIndex!].menuBuilder?.call(
                         context,

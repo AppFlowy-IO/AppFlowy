@@ -4,13 +4,14 @@ import 'dart:convert';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
-import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -21,6 +22,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -69,6 +71,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             _initial(userProfile, workspaceId);
 
             final (spaces, publicViews, privateViews) = await _getSpaces();
+
             final shouldShowUpgradeDialog = await this.shouldShowUpgradeDialog(
               spaces: spaces,
               publicViews: publicViews,
@@ -87,10 +90,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               ),
             );
 
-            if (shouldShowUpgradeDialog) {
-              if (!integrationMode().isTest) {
-                add(const SpaceEvent.migrate());
-              }
+            if (shouldShowUpgradeDialog && !integrationMode().isTest) {
+              add(const SpaceEvent.migrate());
             }
 
             if (openFirstPage) {
@@ -217,8 +218,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             // don't open the page automatically on mobile
             if (PlatformExtension.isDesktop) {
               // open the first page by default
-              if (space.childViews.isNotEmpty) {
-                final firstPage = space.childViews.first;
+              if (currentSpace.childViews.isNotEmpty) {
+                final firstPage = currentSpace.childViews.first;
                 emit(
                   state.copyWith(
                     lastCreatedPage: firstPage,
@@ -350,8 +351,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     if (sectionViews == null || sectionViews.views.isEmpty) {
       return (<ViewPB>[], <ViewPB>[], <ViewPB>[]);
     }
-    final publicViews = sectionViews.publicViews;
-    final privateViews = sectionViews.privateViews;
+
+    final publicViews = sectionViews.publicViews.unique((e) => e.id);
+    final privateViews = sectionViews.privateViews.unique((e) => e.id);
 
     final publicSpaces = publicViews.where((e) => e.isSpace);
     final privateSpaces = privateViews.where((e) => e.isSpace);
