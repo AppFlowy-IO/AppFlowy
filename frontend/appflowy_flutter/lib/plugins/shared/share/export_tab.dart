@@ -1,12 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -20,6 +21,16 @@ class ExportTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final view = context.read<ShareBloc>().view;
+
+    if (view.layout == ViewLayoutPB.Document) {
+      return _buildDocumentExportTab(context);
+    }
+
+    return _buildDatabaseExportTab(context);
+  }
+
+  Widget _buildDocumentExportTab(BuildContext context) {
     return Column(
       children: [
         const VSpace(10),
@@ -44,16 +55,29 @@ class ExportTab extends StatelessWidget {
     );
   }
 
+  Widget _buildDatabaseExportTab(BuildContext context) {
+    return Column(
+      children: [
+        const VSpace(10),
+        _ExportButton(
+          title: LocaleKeys.shareAction_csv.tr(),
+          svg: FlowySvgs.database_layout_m,
+          onTap: () => _exportCSV(context),
+        ),
+      ],
+    );
+  }
+
   Future<void> _exportHTML(BuildContext context) async {
-    final viewName = context.read<DocumentShareBloc>().state.viewName;
+    final viewName = context.read<ShareBloc>().state.viewName;
     final exportPath = await getIt<FilePickerService>().saveFile(
       dialogTitle: '',
       fileName: '${viewName.toFileName()}.html',
     );
     if (context.mounted && exportPath != null) {
-      context.read<DocumentShareBloc>().add(
-            DocumentShareEvent.share(
-              DocumentShareType.html,
+      context.read<ShareBloc>().add(
+            ShareEvent.share(
+              ShareType.html,
               exportPath,
             ),
           );
@@ -61,15 +85,31 @@ class ExportTab extends StatelessWidget {
   }
 
   Future<void> _exportMarkdown(BuildContext context) async {
-    final viewName = context.read<DocumentShareBloc>().state.viewName;
+    final viewName = context.read<ShareBloc>().state.viewName;
     final exportPath = await getIt<FilePickerService>().saveFile(
       dialogTitle: '',
       fileName: '${viewName.toFileName()}.md',
     );
     if (context.mounted && exportPath != null) {
-      context.read<DocumentShareBloc>().add(
-            DocumentShareEvent.share(
-              DocumentShareType.markdown,
+      context.read<ShareBloc>().add(
+            ShareEvent.share(
+              ShareType.markdown,
+              exportPath,
+            ),
+          );
+    }
+  }
+
+  Future<void> _exportCSV(BuildContext context) async {
+    final viewName = context.read<ShareBloc>().state.viewName;
+    final exportPath = await getIt<FilePickerService>().saveFile(
+      dialogTitle: '',
+      fileName: '${viewName.toFileName()}.csv',
+    );
+    if (context.mounted && exportPath != null) {
+      context.read<ShareBloc>().add(
+            ShareEvent.share(
+              ShareType.csv,
               exportPath,
             ),
           );
@@ -77,8 +117,7 @@ class ExportTab extends StatelessWidget {
   }
 
   Future<void> _exportToClipboard(BuildContext context) async {
-    final documentExporter =
-        DocumentExporter(context.read<DocumentShareBloc>().view);
+    final documentExporter = DocumentExporter(context.read<ShareBloc>().view);
     final result = await documentExporter.export(DocumentExportType.markdown);
     result.fold(
       (markdown) {

@@ -126,7 +126,7 @@ async fn single_document_get_publish_view_payload_test() {
   let name = "Orphan View";
   create_single_document(&test, view_id, name).await;
   let view = test.get_view(view_id).await;
-  let payload = test.get_publish_payload(view_id, Some(true)).await;
+  let payload = test.get_publish_payload(view_id, true).await;
 
   let expect_payload = mock_single_document_view_publish_payload(
     &test,
@@ -145,7 +145,7 @@ async fn nested_document_get_publish_view_payload_test() {
   let view_id = "20240521";
   create_nested_document(&test, view_id, name).await;
   let view = test.get_view(view_id).await;
-  let payload = test.get_publish_payload(view_id, Some(true)).await;
+  let payload = test.get_publish_payload(view_id, true).await;
 
   let expect_payload = mock_nested_document_view_publish_payload(
     &test,
@@ -165,7 +165,7 @@ async fn no_children_publish_view_payload_test() {
   let view_id = "20240521";
   create_nested_document(&test, view_id, name).await;
   let view = test.get_view(view_id).await;
-  let payload = test.get_publish_payload(view_id, Some(false)).await;
+  let payload = test.get_publish_payload(view_id, false).await;
 
   let data = mock_single_document_view_publish_payload(
     &test,

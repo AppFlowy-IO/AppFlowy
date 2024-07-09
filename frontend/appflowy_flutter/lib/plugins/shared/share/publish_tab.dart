@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
+import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
-import 'package:appflowy/plugins/document/presentation/share/pubish_color_extension.dart';
-import 'package:appflowy/plugins/document/presentation/share/publish_name_generator.dart';
+import 'package:appflowy/plugins/shared/share/pubish_color_extension.dart';
+import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -19,7 +19,7 @@ class PublishTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<DocumentShareBloc, DocumentShareState>(
+    return BlocConsumer<ShareBloc, ShareState>(
       listener: (context, state) {
         _showToast(context, state);
       },
@@ -29,21 +29,19 @@ class PublishTab extends StatelessWidget {
                 url: state.url,
                 onVisitSite: () {},
                 onUnPublish: () {
-                  context
-                      .read<DocumentShareBloc>()
-                      .add(const DocumentShareEvent.unPublish());
+                  context.read<ShareBloc>().add(const ShareEvent.unPublish());
                 },
               )
             : _UnPublishWidget(
                 onPublish: () async {
-                  final id = context.read<DocumentShareBloc>().view.id;
+                  final id = context.read<ShareBloc>().view.id;
                   final publishName = await generatePublishName(
                     id,
                     state.viewName,
                   );
                   if (context.mounted) {
-                    context.read<DocumentShareBloc>().add(
-                          DocumentShareEvent.publish('', publishName),
+                    context.read<ShareBloc>().add(
+                          ShareEvent.publish('', publishName),
                         );
                   }
                 },
@@ -52,7 +50,7 @@ class PublishTab extends StatelessWidget {
     );
   }
 
-  void _showToast(BuildContext context, DocumentShareState state) {
+  void _showToast(BuildContext context, ShareState state) {
     if (state.publishResult != null) {
       state.publishResult!.fold(
         (value) => showToastNotification(

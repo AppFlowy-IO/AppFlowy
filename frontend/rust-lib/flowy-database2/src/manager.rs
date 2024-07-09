@@ -169,6 +169,7 @@ impl DatabaseManager {
     })?;
 
     let lock_guard = database_collab.lock();
+
     Ok(lock_guard.get_inline_view_id())
   }
 
@@ -564,6 +565,15 @@ impl DatabaseManager {
   #[cfg(debug_assertions)]
   pub fn get_cloud_service(&self) -> &Arc<dyn DatabaseCloudService> {
     &self.cloud_service
+  }
+
+  /// Get the [EncodedCollab] from the database with the given view id.
+  pub async fn get_encoded_collab_v1_with_view_id(
+    &self,
+    view_id: &str,
+  ) -> FlowyResult<EncodedCollab> {
+    let database_editor = self.get_database_with_view_id(view_id).await?;
+    database_editor.get_encoded_collab_v1()
   }
 }
 

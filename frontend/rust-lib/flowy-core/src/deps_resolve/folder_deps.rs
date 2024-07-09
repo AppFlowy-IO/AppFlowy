@@ -198,7 +198,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     })
   }
 
-  fn encoded_collab_v1(
+  fn get_encoded_collab_v1(
     &self,
     view_id: &str,
     layout: ViewLayout,
@@ -207,8 +207,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      let encoded_collab = manager.encode_collab(&view_id).await?;
-
+      let encoded_collab = manager.get_encoded_collab_v1_with_view_id(&view_id).await?;
       Ok(encoded_collab)
     })
   }
@@ -300,13 +299,19 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     })
   }
 
-  fn encoded_collab_v1(
+  fn get_encoded_collab_v1(
     &self,
-    _view_id: &str,
+    view_id: &str,
     _layout: ViewLayout,
   ) -> FutureResult<EncodedCollab, FlowyError> {
-    // Database view doesn't support collab
-    FutureResult::new(async move { Err(FlowyError::not_support()) })
+    let database_manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      let encoded_collab = database_manager
+        .get_encoded_collab_v1_with_view_id(&view_id)
+        .await?;
+      Ok(encoded_collab)
+    })
   }
 
   fn duplicate_view(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
@@ -568,7 +573,7 @@ impl FolderOperationHandler for ChatFolderOperation {
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
 
-  fn encoded_collab_v1(
+  fn get_encoded_collab_v1(
     &self,
     _view_id: &str,
     _layout: ViewLayout,

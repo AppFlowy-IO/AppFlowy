@@ -999,7 +999,7 @@ impl FolderManager {
 
   /// Publishes a view identified by the given `view_id`.
   ///
-  /// If `publish_name` is `None`, a default name will be generated using the view ID and view name.
+  /// If `publish_name` is `None`, a default name will be generated using the view name and view id.
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn publish_view(&self, view_id: &str, publish_name: Option<String>) -> FlowyResult<()> {
     let view = self
@@ -1160,7 +1160,7 @@ impl FolderManager {
     layout: ViewLayout,
   ) -> FlowyResult<PublishViewPayload> {
     let handler = self.get_handler(&layout)?;
-    let encoded_collab = handler.encoded_collab_v1(view_id, layout).await?;
+    let encoded_collab = handler.get_encoded_collab_v1(view_id, layout).await?;
     let view = self
       .with_folder(|| None, |folder| folder.views.get_view(view_id))
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can't find the view"))?;

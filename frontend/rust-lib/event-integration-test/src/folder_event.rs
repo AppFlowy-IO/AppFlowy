@@ -177,7 +177,7 @@ impl EventIntegrationTest {
   pub async fn get_publish_payload(
     &self,
     view_id: &str,
-    include_children: Option<bool>,
+    include_children: bool,
   ) -> Vec<PublishViewPayload> {
     let manager = self.folder_manager.clone();
     let payload = manager
@@ -195,7 +195,10 @@ impl EventIntegrationTest {
     let manager = self.folder_manager.clone();
     let handlers = manager.get_operation_handlers();
     let handler = handlers.get(&layout).unwrap();
-    handler.encoded_collab_v1(view_id, layout).await.unwrap()
+    handler
+      .get_encoded_collab_v1(view_id, layout)
+      .await
+      .unwrap()
   }
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {

@@ -45,7 +45,8 @@ pub trait FolderOperationHandler {
   /// Returns the [ViewData] that can be used to create the same view.
   fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
 
-  fn encoded_collab_v1(
+  /// Encoded the collab data of the given view.
+  fn get_encoded_collab_v1(
     &self,
     view_id: &str,
     layout: ViewLayout,

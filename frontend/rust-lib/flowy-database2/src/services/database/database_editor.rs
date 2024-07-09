@@ -25,6 +25,7 @@ use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{
   DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
 };
+use collab_entity::{CollabType, EncodedCollab};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
 use lib_infra::box_any::BoxAny;
@@ -91,6 +92,14 @@ impl DatabaseEditor {
 
   pub async fn close_view(&self, view_id: &str) {
     self.database_views.close_view(view_id).await;
+  }
+
+  pub fn get_encoded_collab_v1(&self) -> FlowyResult<EncodedCollab> {
+    let database = self.database.lock();
+    let collab = database.get_collab().lock();
+    collab
+      .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
+      .map_err(internal_error)
   }
 
   pub async fn num_views(&self) -> usize {
