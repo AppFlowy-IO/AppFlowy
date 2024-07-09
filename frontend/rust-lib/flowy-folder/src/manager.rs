@@ -30,7 +30,8 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService, FolderCollabParams};
 use flowy_folder_pub::entities::{
-  PublishInfoResponse, PublishViewInfo, PublishViewMeta, PublishViewMetaData, PublishViewPayload,
+  PublishDatabaseData, PublishDatabasePayload, PublishDocumentPayload, PublishInfoResponse,
+  PublishPayload, PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
 use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
@@ -1082,7 +1083,7 @@ impl FolderManager {
     view_id: &str,
     publish_name: Option<String>,
     include_children: bool,
-  ) -> FlowyResult<Vec<PublishViewPayload>> {
+  ) -> FlowyResult<Vec<PublishPayload>> {
     let mut stack = vec![view_id.to_string()];
     let mut payloads = Vec::new();
 
@@ -1158,7 +1159,7 @@ impl FolderManager {
     view_id: &str,
     publish_name: Option<String>,
     layout: ViewLayout,
-  ) -> FlowyResult<PublishViewPayload> {
+  ) -> FlowyResult<PublishPayload> {
     let handler = self.get_handler(&layout)?;
     let encoded_collab = handler.get_encoded_collab_v1(view_id, layout).await?;
     let view = self
@@ -1191,8 +1192,22 @@ impl FolderManager {
       metadata,
     };
 
-    let data = Vec::from(encoded_collab.doc_state);
-    Ok(PublishViewPayload { meta, data })
+    let payload = match view.layout {
+      ViewLayout::Document => {
+        let data = encoded_collab.doc_state.to_vec();
+        PublishPayload::Document(PublishDocumentPayload { meta, data })
+      },
+      ViewLayout::Board | ViewLayout::Grid | ViewLayout::Calendar => {
+        let data = PublishDatabaseData {
+          database_collab: encoded_collab.doc_state.to_vec(),
+          ..Default::default()
+        };
+        PublishPayload::Database(PublishDatabasePayload { meta, data })
+      },
+      ViewLayout::Chat => PublishPayload::Unknown,
+    };
+
+    Ok(payload)
   }
 
   // Used by toggle_favorites to send notification to frontend, after the favorite status of view has been changed.It sends two distinct notifications: one to correctly update the concerned view's is_favorite status, and another to update the list of favorites that is to be displayed.

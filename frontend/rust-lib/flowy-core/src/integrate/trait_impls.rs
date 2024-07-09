@@ -30,7 +30,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
+use flowy_folder_pub::entities::{PublishDocumentPayload, PublishInfoResponse, PublishPayload};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
@@ -305,7 +305,7 @@ impl FolderCloudService for ServerProvider {
   fn publish_view(
     &self,
     workspace_id: &str,
-    payload: Vec<PublishViewPayload>,
+    payload: Vec<PublishPayload>,
   ) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();

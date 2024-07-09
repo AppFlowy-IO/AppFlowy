@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
-import 'package:appflowy/plugins/shared/share/document_share_button.dart';
+import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';

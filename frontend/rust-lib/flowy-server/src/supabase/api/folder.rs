@@ -13,7 +13,7 @@ use flowy_folder_pub::cloud::{
   gen_workspace_id, Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot,
   Workspace, WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
+use flowy_folder_pub::entities::{PublishDocumentPayload, PublishInfoResponse, PublishPayload};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
@@ -179,7 +179,7 @@ where
   fn publish_view(
     &self,
     _workspace_id: &str,
-    _payload: Vec<PublishViewPayload>,
+    _payload: Vec<PublishPayload>,
   ) -> FutureResult<(), Error> {
     FutureResult::new(async { Err(anyhow!("supabase server doesn't support publish view")) })
   }

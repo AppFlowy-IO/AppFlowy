@@ -6,7 +6,7 @@ use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{entities::*, ViewLayout};
-use flowy_folder_pub::entities::PublishViewPayload;
+use flowy_folder_pub::entities::{PublishDocumentPayload, PublishPayload};
 use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
   AcceptWorkspaceInvitationPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
@@ -178,7 +178,7 @@ impl EventIntegrationTest {
     &self,
     view_id: &str,
     include_children: bool,
-  ) -> Vec<PublishViewPayload> {
+  ) -> Vec<PublishPayload> {
     let manager = self.folder_manager.clone();
     let payload = manager
       .get_batch_publish_payload(view_id, None, include_children)

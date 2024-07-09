@@ -6,7 +6,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
-import 'package:appflowy/plugins/shared/share/document_share_button.dart';
+import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:appflowy/plugins/shared/share/document_share_button.dart';
+import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;

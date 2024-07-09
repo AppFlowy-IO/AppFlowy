@@ -3,14 +3,14 @@ use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::{ViewLayoutPB, ViewPB};
 use flowy_folder::publish_util::generate_publish_name;
 use flowy_folder_pub::entities::{
-  PublishViewInfo, PublishViewMeta, PublishViewMetaData, PublishViewPayload,
+  PublishViewInfo, PublishViewMeta, PublishViewMetaData, PublishDocumentPayload,
 };
 
 async fn mock_single_document_view_publish_payload(
   test: &EventIntegrationTest,
   view: &ViewPB,
   publish_name: String,
-) -> Vec<PublishViewPayload> {
+) -> Vec<PublishDocumentPayload> {
   let view_id = &view.id;
   let layout: ViewLayout = view.layout.clone().into();
   let view_encoded_collab = test.encoded_collab_v1(view_id, layout).await;
@@ -27,7 +27,7 @@ async fn mock_single_document_view_publish_payload(
     child_views: None,
   };
 
-  vec![PublishViewPayload {
+  vec![PublishDocumentPayload {
     meta: PublishViewMeta {
       metadata: PublishViewMetaData {
         view: publish_view_info.clone(),
@@ -45,7 +45,7 @@ async fn mock_nested_document_view_publish_payload(
   test: &EventIntegrationTest,
   view: &ViewPB,
   publish_name: String,
-) -> Vec<PublishViewPayload> {
+) -> Vec<PublishDocumentPayload> {
   let view_id = &view.id;
   let layout: ViewLayout = view.layout.clone().into();
   let view_encoded_collab = test.encoded_collab_v1(view_id, layout).await;
@@ -81,7 +81,7 @@ async fn mock_nested_document_view_publish_payload(
   let child_publish_name = generate_publish_name(&child_view.id, &child_view.name);
 
   vec![
-    PublishViewPayload {
+    PublishDocumentPayload {
       meta: PublishViewMeta {
         metadata: PublishViewMetaData {
           view: publish_view_info.clone(),
@@ -93,7 +93,7 @@ async fn mock_nested_document_view_publish_payload(
       },
       data: Vec::from(view_encoded_collab.doc_state),
     },
-    PublishViewPayload {
+    PublishDocumentPayload {
       meta: PublishViewMeta {
         metadata: PublishViewMetaData {
           view: child_publish_view_info.clone(),

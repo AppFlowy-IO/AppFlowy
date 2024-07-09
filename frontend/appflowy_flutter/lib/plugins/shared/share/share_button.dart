@@ -25,7 +25,7 @@ class ShareButton extends StatelessWidget {
           getIt<ShareBloc>(param1: view)..add(const ShareEvent.initial()),
       child: BlocListener<ShareBloc, ShareState>(
         listener: (context, state) {
-          if (state.isLoading == false && state.exportResult != null) {
+          if (!state.isLoading && state.exportResult != null) {
             state.exportResult!.fold(
               (data) => _handleExportSuccess(context, data),
               (error) => _handleExportError(context, error),
