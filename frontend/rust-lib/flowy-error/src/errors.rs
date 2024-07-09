@@ -187,3 +187,9 @@ impl From<tokio::sync::oneshot::error::RecvError> for FlowyError {
     FlowyError::internal().with_context(e)
   }
 }
+
+impl From<String> for FlowyError {
+  fn from(e: String) -> Self {
+    FlowyError::internal().with_context(e)
+  }
+}

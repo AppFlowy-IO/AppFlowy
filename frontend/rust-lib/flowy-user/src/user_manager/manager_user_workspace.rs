@@ -1,4 +1,7 @@
 use chrono::{Duration, NaiveDateTime, Utc};
+use client_api::entity::billing_dto::{
+  RecurringInterval, SubscriptionPlan, WorkspaceUsageAndLimit,
+};
 use std::convert::TryFrom;
 use std::sync::Arc;
 
@@ -11,9 +14,8 @@ use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{
-  RecurringInterval, Role, SubscriptionPlan, UpdateUserProfileParams, UserWorkspace,
-  WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember, WorkspaceSubscription,
-  WorkspaceUsage,
+  Role, UpdateUserProfileParams, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus,
+  WorkspaceMember, WorkspaceSubscription,
 };
 use lib_dispatch::prelude::af_spawn;
 
@@ -462,9 +464,9 @@ impl UserManager {
       }
 
       return Ok(vec![WorkspaceSubscription {
-        workspace_id: subscription.workspace_id,
-        subscription_plan: subscription.subscription_plan.into(),
-        recurring_interval: subscription.recurring_interval.into(),
+        workspace_id,
+        subscription_plan: SubscriptionPlan::try_from(subscription.subscription_plan as i16)?,
+        recurring_interval: RecurringInterval::try_from(subscription.recurring_interval as i16)?,
         is_active: subscription.is_active,
         has_canceled: subscription.has_canceled,
         canceled_at: subscription.canceled_at,
@@ -480,25 +482,24 @@ impl UserManager {
     &self,
     uid: i64,
   ) -> FlowyResult<Vec<WorkspaceSubscription>> {
-    let subscriptions = self
+    let subscriptions: Vec<WorkspaceSubscription> = self
       .cloud_services
       .get_user_service()?
       .get_workspace_subscriptions()
-      .await?;
+      .await?
+      .into_iter()
+      .map(WorkspaceSubscription::from)
+      .collect();
 
     for subscription in &subscriptions {
       let db = self.authenticate_user.get_sqlite_connection(uid)?;
       let record = WorkspaceSubscriptionsTable {
-        workspace_id: subscription.workspace_id.clone(),
-        subscription_plan: <SubscriptionPlan as Into<i64>>::into(
-          subscription.subscription_plan.clone(),
-        ),
-        recurring_interval: <RecurringInterval as Into<i64>>::into(
-          subscription.recurring_interval.clone(),
-        ),
-        is_active: subscription.is_active,
-        has_canceled: subscription.has_canceled,
-        canceled_at: subscription.canceled_at.clone().into(),
+        workspace_id: subscription.workspace_id.clone().into(),
+        subscription_plan: subscription.subscription_plan.clone() as i64,
+        recurring_interval: subscription.recurring_interval.clone() as i64,
+        is_active: subscription.canceled_at.is_none(),
+        has_canceled: subscription.canceled_at.is_some(),
+        canceled_at: subscription.canceled_at.into(),
         updated_at: Utc::now().naive_utc(),
       };
 
@@ -509,17 +510,24 @@ impl UserManager {
   }
 
   #[instrument(level = "info", skip(self), err)]
-  pub async fn cancel_workspace_subscription(&self, workspace_id: String) -> FlowyResult<()> {
+  pub async fn cancel_workspace_subscription(
+    &self,
+    workspace_id: String,
+    plan: SubscriptionPlan,
+  ) -> FlowyResult<()> {
     self
       .cloud_services
       .get_user_service()?
-      .cancel_workspace_subscription(workspace_id)
+      .cancel_workspace_subscription(workspace_id, plan)
       .await?;
     Ok(())
   }
 
   #[instrument(level = "info", skip(self), err)]
-  pub async fn get_workspace_usage(&self, workspace_id: String) -> FlowyResult<WorkspaceUsage> {
+  pub async fn get_workspace_usage(
+    &self,
+    workspace_id: String,
+  ) -> FlowyResult<WorkspaceUsageAndLimit> {
     let workspace_usage = self
       .cloud_services
       .get_user_service()?

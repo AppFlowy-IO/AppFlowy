@@ -1,6 +1,9 @@
 use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
+use client_api::entity::billing_dto::{
+  RecurringInterval, SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::*;
@@ -453,59 +456,6 @@ pub struct WorkspaceInvitation {
   pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Clone, Debug)]
-pub enum RecurringInterval {
-  Month,
-  Year,
-}
-
-impl Into<i64> for RecurringInterval {
-  fn into(self) -> i64 {
-    match self {
-      RecurringInterval::Month => 0,
-      RecurringInterval::Year => 1,
-    }
-  }
-}
-
-impl From<i64> for RecurringInterval {
-  fn from(value: i64) -> Self {
-    match value {
-      0 => RecurringInterval::Month,
-      1 => RecurringInterval::Year,
-      _ => RecurringInterval::Month,
-    }
-  }
-}
-
-#[derive(Clone, Debug)]
-pub enum SubscriptionPlan {
-  None,
-  Pro,
-  Team,
-}
-
-impl Into<i64> for SubscriptionPlan {
-  fn into(self) -> i64 {
-    match self {
-      SubscriptionPlan::None => 0,
-      SubscriptionPlan::Pro => 1,
-      SubscriptionPlan::Team => 2,
-    }
-  }
-}
-
-impl From<i64> for SubscriptionPlan {
-  fn from(value: i64) -> Self {
-    match value {
-      0 => SubscriptionPlan::None,
-      1 => SubscriptionPlan::Pro,
-      2 => SubscriptionPlan::Team,
-      _ => SubscriptionPlan::None,
-    }
-  }
-}
-
 pub struct WorkspaceSubscription {
   pub workspace_id: String,
   pub subscription_plan: SubscriptionPlan,
@@ -515,9 +465,15 @@ pub struct WorkspaceSubscription {
   pub canceled_at: Option<i64>,
 }
 
-pub struct WorkspaceUsage {
-  pub member_count: usize,
-  pub member_count_limit: usize,
-  pub total_blob_bytes: usize,
-  pub total_blob_bytes_limit: usize,
+impl From<WorkspaceSubscriptionStatus> for WorkspaceSubscription {
+  fn from(sub_status: WorkspaceSubscriptionStatus) -> Self {
+    WorkspaceSubscription {
+      workspace_id: sub_status.workspace_id,
+      subscription_plan: sub_status.workspace_plan,
+      recurring_interval: sub_status.recurring_interval,
+      is_active: sub_status.subscription_status == SubscriptionStatus::Active,
+      has_canceled: sub_status.canceled_at.is_some(),
+      canceled_at: sub_status.canceled_at,
+    }
+  }
 }
