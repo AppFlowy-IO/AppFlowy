@@ -1,7 +1,6 @@
 import { useNavigateToRow, useRowMetaSelector } from '@/application/database-yjs';
 import { TextCell as CellType, CellProps } from '@/application/database-yjs/cell.type';
 import { TextCell } from '@/components/database/components/cell/text';
-import OpenAction from '@/components/database/components/database-row/OpenAction';
 import { getPlatform } from '@/utils/platform';
 import React, { useEffect, useMemo, useState } from 'react';
 
@@ -10,7 +9,7 @@ export function PrimaryCell(props: CellProps<CellType>) {
   const meta = useRowMetaSelector(rowId);
   const icon = meta?.icon;
 
-  const [hover, setHover] = useState(false);
+  const [, setHover] = useState(false);
 
   useEffect(() => {
     const table = document.querySelector('.grid-table');
@@ -61,11 +60,11 @@ export function PrimaryCell(props: CellProps<CellType>) {
         <TextCell {...props} />
       </div>
 
-      {hover && (
-        <div className={'absolute right-0 top-1/2 min-w-0 -translate-y-1/2 transform '}>
-          <OpenAction rowId={rowId} />
-        </div>
-      )}
+      {/*{hover && (*/}
+      {/*  <div className={'absolute right-0 top-1/2 min-w-0 -translate-y-1/2 transform '}>*/}
+      {/*    <OpenAction rowId={rowId} />*/}
+      {/*  </div>*/}
+      {/*)}*/}
     </div>
   );
 }

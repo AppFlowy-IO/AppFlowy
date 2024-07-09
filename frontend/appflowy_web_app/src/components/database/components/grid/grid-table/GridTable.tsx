@@ -18,6 +18,7 @@ export interface GridTableProps {
 export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: GridTableProps) => {
   const ref = useRef<VariableSizeGrid | null>(null);
   const { rows } = useRenderRows();
+
   const forceUpdate = useCallback((index: number) => {
     ref.current?.resetAfterRowIndex(index, true);
   }, []);

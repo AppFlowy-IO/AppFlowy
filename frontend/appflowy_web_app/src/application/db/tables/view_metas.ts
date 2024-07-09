@@ -6,6 +6,8 @@ export type ViewMeta = {
 
   child_views: PublishViewInfo[];
   ancestor_views: PublishViewInfo[];
+
+  visible_view_ids: string[];
 } & PublishViewInfo;
 
 export type ViewMetasTable = {

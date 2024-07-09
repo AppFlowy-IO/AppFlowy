@@ -14,6 +14,8 @@ export interface DatabaseTabBarProps {
   viewIds: string[];
   selectedViewId?: string;
   setSelectedViewId?: (viewId: string) => void;
+  viewName?: string;
+  iidIndex: string;
 }
 
 const DatabaseIcons: {
@@ -25,7 +27,7 @@ const DatabaseIcons: {
 };
 
 export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
-  ({ viewIds, selectedViewId, setSelectedViewId }, ref) => {
+  ({ viewIds, viewName, iidIndex, selectedViewId, setSelectedViewId }, ref) => {
     const { t } = useTranslation();
     const view = useDatabaseView();
     const views = useDatabase().get(YjsDatabaseKey.views);
@@ -69,7 +71,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
               if (!view) return null;
               const layout = Number(view.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
               const Icon = DatabaseIcons[layout];
-              const name = view.get(YjsDatabaseKey.name);
+              const name = viewId === iidIndex ? viewName : view.get(YjsDatabaseKey.name);
 
               return (
                 <ViewTab

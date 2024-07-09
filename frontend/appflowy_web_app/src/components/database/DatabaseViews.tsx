@@ -15,10 +15,12 @@ function DatabaseViews({
   onChangeView,
   viewId,
   iidIndex,
+  viewName,
 }: {
   onChangeView: (viewId: string) => void;
   viewId: string;
   iidIndex: string;
+  viewName?: string;
 }) {
   const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex);
 
@@ -60,7 +62,13 @@ function DatabaseViews({
           toggleExpanded,
         }}
       >
-        <DatabaseTabs selectedViewId={viewId} setSelectedViewId={onChangeView} viewIds={viewIds} />
+        <DatabaseTabs
+          viewName={viewName}
+          iidIndex={iidIndex}
+          selectedViewId={viewId}
+          setSelectedViewId={onChangeView}
+          viewIds={viewIds}
+        />
         <DatabaseConditions />
       </DatabaseConditionsContext.Provider>
       <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
