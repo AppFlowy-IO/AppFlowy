@@ -128,6 +128,7 @@ export class AFClientService implements AFService {
       rowsFolder.set(rowIds[index], doc);
     });
 
+    console.log('getPublishDatabaseViewRows', rowsFolder);
     return {
       rows: rowsFolder,
       destroy: () => {

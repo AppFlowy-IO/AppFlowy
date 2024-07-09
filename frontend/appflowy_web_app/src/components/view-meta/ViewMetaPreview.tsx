@@ -7,7 +7,7 @@ import BuiltInImage6 from '@/assets/cover/m_cover_image_6.png';
 import ViewCover, { CoverType } from '@/components/view-meta/ViewCover';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ViewMetaIcon } from '@/application/collab.type';
+import { ViewLayout, ViewMetaIcon } from '@/application/collab.type';
 
 export interface ViewMetaCover {
   type: CoverType;
@@ -19,6 +19,7 @@ export interface ViewMetaProps {
   cover?: ViewMetaCover;
   name?: string;
   viewId?: string;
+  layout: ViewLayout;
 }
 
 export function ViewMetaPreview({ icon, cover, name }: ViewMetaProps) {

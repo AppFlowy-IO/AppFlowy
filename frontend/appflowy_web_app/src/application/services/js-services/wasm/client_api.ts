@@ -1,7 +1,7 @@
 import { getToken, invalidToken, isTokenValid, refreshToken } from '@/application/session/token';
 import { ClientAPI } from '@appflowyinc/client-api-wasm';
 import { AFCloudConfig } from '@/application/services/services.type';
-import { PublishViewMetaData } from '@/application/collab.type';
+import { PublishViewMetaData, ViewLayout } from '@/application/collab.type';
 
 let client: ClientAPI;
 
@@ -41,10 +41,35 @@ export function initAPIService(
 export async function getPublishView(publishNamespace: string, publishName: string) {
   const data = await client.get_publish_view(publishNamespace, publishName);
 
-  return {
-    data: data.data,
-    meta: JSON.parse(data.meta.data) as PublishViewMetaData,
-  };
+  const meta = JSON.parse(data.meta.data) as PublishViewMetaData;
+
+  if (meta.view.layout === ViewLayout.Document) {
+    return {
+      data: data.data,
+      meta,
+    };
+  }
+
+  try {
+    const decoder = new TextDecoder('utf-8');
+    const jsonStr = decoder.decode(new Uint8Array(data.data));
+    const res = JSON.parse(jsonStr) as {
+      database_collab: number[];
+      database_row_collabs: Record<string, number[]>;
+      database_row_document_collabs: Record<string, number[]>;
+      visible_database_view_ids: string[];
+    };
+
+    console.log('getPublishView', res);
+    return {
+      data: res.database_collab,
+      rows: res.database_row_collabs,
+      visibleViewIds: res.visible_database_view_ids,
+      meta,
+    };
+  } catch (e) {
+    return Promise.reject(e);
+  }
 }
 
 export async function getPublishInfoWithViewId(viewId: string) {

@@ -110,6 +110,8 @@ export async function getPublishViewMeta<
 export async function getPublishView<
   T extends {
     data: number[];
+    rows?: Record<string, number[]>;
+    visibleViewIds?: string[];
     meta: {
       view: PublishViewInfo;
       child_views: PublishViewInfo[];
@@ -176,12 +178,15 @@ export async function revalidatePublishViewMeta<
 >(name: string, fetcher: Fetcher<T>) {
   const { view, child_views, ancestor_views } = await fetcher();
 
+  const dbView = await db.view_metas.get(name);
+
   await db.view_metas.put(
     {
       publish_name: name,
       ...view,
       child_views: child_views,
       ancestor_views: ancestor_views,
+      visible_view_ids: dbView?.visible_view_ids ?? [],
     },
     name
   );
@@ -193,10 +198,11 @@ export async function revalidatePublishView<
   T extends {
     data: number[];
     rows?: Record<string, number[]>;
+    visibleViewIds?: string[];
     meta: PublishViewMetaData;
   }
 >(name: string, fetcher: Fetcher<T>, collab: YDoc) {
-  const { data, meta, rows } = await fetcher();
+  const { data, meta, rows, visibleViewIds = [] } = await fetcher();
 
   await db.view_metas.put(
     {
@@ -204,6 +210,7 @@ export async function revalidatePublishView<
       ...meta.view,
       child_views: meta.child_views,
       ancestor_views: meta.ancestor_views,
+      visible_view_ids: visibleViewIds,
     },
     name
   );
