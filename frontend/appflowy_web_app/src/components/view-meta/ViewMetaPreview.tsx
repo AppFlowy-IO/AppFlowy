@@ -19,7 +19,7 @@ export interface ViewMetaProps {
   cover?: ViewMetaCover;
   name?: string;
   viewId?: string;
-  layout: ViewLayout;
+  layout?: ViewLayout;
 }
 
 export function ViewMetaPreview({ icon, cover, name }: ViewMetaProps) {
