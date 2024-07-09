@@ -1,4 +1,5 @@
 use chrono::{TimeZone, Utc};
+use client_api::entity::billing_dto::{RecurringInterval, SubscriptionPlan};
 use diesel::insert_into;
 use diesel::{RunQueryDsl, SqliteConnection};
 use flowy_error::{FlowyError, FlowyResult};
@@ -7,8 +8,7 @@ use flowy_sqlite::schema::workspace_subscriptions_table;
 use flowy_sqlite::schema::workspace_subscriptions_table::dsl;
 use flowy_sqlite::DBConnection;
 use flowy_sqlite::{query_dsl::*, ExpressionMethods};
-use flowy_user_pub::entities::UserWorkspace;
-use flowy_user_pub::entities::WorkspaceSubscription;
+use flowy_user_pub::entities::{UserWorkspace, WorkspaceSubscription};
 use std::convert::TryFrom;
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
@@ -118,16 +118,17 @@ pub fn upsert_workspace_subscription<T: Into<WorkspaceSubscriptionsTable>>(
   Ok(())
 }
 
-impl From<WorkspaceSubscriptionsTable> for WorkspaceSubscription {
-  fn from(value: WorkspaceSubscriptionsTable) -> Self {
-    Self {
+impl TryFrom<WorkspaceSubscriptionsTable> for WorkspaceSubscription {
+  type Error = FlowyError;
+  fn try_from(value: WorkspaceSubscriptionsTable) -> Result<Self, Self::Error> {
+    Ok(Self {
       workspace_id: value.workspace_id,
-      subscription_plan: value.subscription_plan.into(),
-      recurring_interval: value.recurring_interval.into(),
+      subscription_plan: SubscriptionPlan::try_from(value.subscription_plan as i16)?,
+      recurring_interval: RecurringInterval::try_from(value.recurring_interval as i16)?,
       is_active: value.is_active,
       has_canceled: value.has_canceled,
       canceled_at: value.canceled_at,
-    }
+    })
   }
 }
 

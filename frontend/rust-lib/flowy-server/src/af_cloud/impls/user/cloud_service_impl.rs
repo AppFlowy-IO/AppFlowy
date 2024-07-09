@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use anyhow::anyhow;
 use client_api::entity::billing_dto::{
-  SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus,
+  RecurringInterval, SubscriptionPlan, WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
 };
 use client_api::entity::workspace_dto::{
   CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset, WorkspaceMemberInvitation,
@@ -23,7 +23,6 @@ use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, User
 use flowy_user_pub::entities::{
   AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
   UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
-  WorkspaceSubscription, WorkspaceUsage,
 };
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -476,19 +475,18 @@ where
   fn subscribe_workspace(
     &self,
     workspace_id: String,
-    recurring_interval: flowy_user_pub::entities::RecurringInterval,
-    workspace_subscription_plan: flowy_user_pub::entities::SubscriptionPlan,
+    recurring_interval: RecurringInterval,
+    subscription_plan: SubscriptionPlan,
     success_url: String,
   ) -> FutureResult<String, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
-      let subscription_plan = to_workspace_subscription_plan(workspace_subscription_plan)?;
       let client = try_get_client?;
       let payment_link = client
         .create_subscription(
           &workspace_id,
-          to_recurring_interval(recurring_interval),
+          recurring_interval,
           subscription_plan,
           &success_url,
         )
@@ -525,42 +523,39 @@ where
     })
   }
 
-  fn get_workspace_subscriptions(&self) -> FutureResult<Vec<WorkspaceSubscription>, FlowyError> {
+  fn get_workspace_subscriptions(
+    &self,
+  ) -> FutureResult<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let workspace_subscriptions = client
-        .list_subscription()
-        .await?
-        .into_iter()
-        .map(to_workspace_subscription)
-        .collect();
+      let workspace_subscriptions = client.list_subscription().await?;
       Ok(workspace_subscriptions)
     })
   }
 
-  fn cancel_workspace_subscription(&self, workspace_id: String) -> FutureResult<(), FlowyError> {
+  fn cancel_workspace_subscription(
+    &self,
+    workspace_id: String,
+    plan: SubscriptionPlan,
+  ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      client
-        .cancel_subscription(&workspace_id, &SubscriptionPlan::Pro)
-        .await?; // TODO:
+      client.cancel_subscription(&workspace_id, &plan).await?;
       Ok(())
     })
   }
 
-  fn get_workspace_usage(&self, workspace_id: String) -> FutureResult<WorkspaceUsage, FlowyError> {
+  fn get_workspace_usage(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<WorkspaceUsageAndLimit, FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
       let usage = client.get_workspace_usage_and_limit(&workspace_id).await?;
-      Ok(WorkspaceUsage {
-        member_count: usage.member_count as usize,
-        member_count_limit: usage.member_count_limit as usize,
-        total_blob_bytes: usage.storage_bytes as usize,
-        total_blob_bytes_limit: usage.storage_bytes_limit as usize,
-      })
+      Ok(usage)
     })
   }
 
@@ -696,48 +691,4 @@ fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, FlowyErr
   Ok(AFCloudOAuthParams {
     sign_in_url: sign_in_url.to_string(),
   })
-}
-
-fn to_recurring_interval(
-  r: flowy_user_pub::entities::RecurringInterval,
-) -> client_api::entity::billing_dto::RecurringInterval {
-  match r {
-    flowy_user_pub::entities::RecurringInterval::Month => {
-      client_api::entity::billing_dto::RecurringInterval::Month
-    },
-    flowy_user_pub::entities::RecurringInterval::Year => {
-      client_api::entity::billing_dto::RecurringInterval::Year
-    },
-  }
-}
-
-fn to_workspace_subscription_plan(
-  s: flowy_user_pub::entities::SubscriptionPlan,
-) -> Result<SubscriptionPlan, FlowyError> {
-  match s {
-    flowy_user_pub::entities::SubscriptionPlan::Pro => Ok(SubscriptionPlan::Pro),
-    flowy_user_pub::entities::SubscriptionPlan::Team => Ok(SubscriptionPlan::Team),
-    flowy_user_pub::entities::SubscriptionPlan::None => Err(FlowyError::new(
-      ErrorCode::InvalidParams,
-      "Invalid subscription plan",
-    )),
-  }
-}
-
-fn to_workspace_subscription(s: WorkspaceSubscriptionStatus) -> WorkspaceSubscription {
-  WorkspaceSubscription {
-    workspace_id: s.workspace_id,
-    subscription_plan: flowy_user_pub::entities::SubscriptionPlan::None,
-    recurring_interval: match s.recurring_interval {
-      client_api::entity::billing_dto::RecurringInterval::Month => {
-        flowy_user_pub::entities::RecurringInterval::Month
-      },
-      client_api::entity::billing_dto::RecurringInterval::Year => {
-        flowy_user_pub::entities::RecurringInterval::Year
-      },
-    },
-    is_active: matches!(s.subscription_status, SubscriptionStatus::Active),
-    has_canceled: s.subscription_status == SubscriptionStatus::Canceled,
-    canceled_at: Some(s.current_period_end),
-  }
 }
