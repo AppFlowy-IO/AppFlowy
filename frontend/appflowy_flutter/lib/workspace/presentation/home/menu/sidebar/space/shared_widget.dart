@@ -264,7 +264,7 @@ class _ConfirmDeletionPopupState extends State<ConfirmDeletionPopup> {
           children: [
             Row(
               children: [
-                Flexible(
+                Expanded(
                   child: FlowyText(
                     widget.title,
                     fontSize: 14.0,
