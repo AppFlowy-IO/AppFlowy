@@ -1,12 +1,10 @@
+use client_api::entity::billing_dto::{RecurringInterval, SubscriptionPlan};
 use std::str::FromStr;
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
-use flowy_user_pub::entities::{
-  RecurringInterval, Role, SubscriptionPlan, WorkspaceInvitation, WorkspaceMember,
-  WorkspaceSubscription,
-};
+use flowy_user_pub::entities::{Role, WorkspaceInvitation, WorkspaceMember, WorkspaceSubscription};
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -180,6 +178,16 @@ pub struct UserWorkspaceIdPB {
   pub workspace_id: String,
 }
 
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct CancelWorkspaceSubscriptionPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub plan: SubscriptionPlanPB,
+}
+
 #[derive(ProtoBuf, Default, Clone)]
 pub struct WorkspaceMemberIdPB {
   #[pb(index = 1)]
@@ -261,6 +269,9 @@ pub enum SubscriptionPlanPB {
   None = 0,
   Pro = 1,
   Team = 2,
+
+  AiMax = 3,
+  AiLocal = 4,
 }
 
 impl From<SubscriptionPlanPB> for SubscriptionPlan {
@@ -268,7 +279,9 @@ impl From<SubscriptionPlanPB> for SubscriptionPlan {
     match value {
       SubscriptionPlanPB::Pro => SubscriptionPlan::Pro,
       SubscriptionPlanPB::Team => SubscriptionPlan::Team,
-      SubscriptionPlanPB::None => SubscriptionPlan::None,
+      SubscriptionPlanPB::None => SubscriptionPlan::Free,
+      SubscriptionPlanPB::AiMax => SubscriptionPlan::AiMax,
+      SubscriptionPlanPB::AiLocal => SubscriptionPlan::AiLocal,
     }
   }
 }
@@ -278,7 +291,9 @@ impl From<SubscriptionPlan> for SubscriptionPlanPB {
     match value {
       SubscriptionPlan::Pro => SubscriptionPlanPB::Pro,
       SubscriptionPlan::Team => SubscriptionPlanPB::Team,
-      SubscriptionPlan::None => SubscriptionPlanPB::None,
+      SubscriptionPlan::Free => SubscriptionPlanPB::None,
+      SubscriptionPlan::AiMax => SubscriptionPlanPB::AiMax,
+      SubscriptionPlan::AiLocal => SubscriptionPlanPB::AiLocal,
     }
   }
 }
@@ -336,9 +351,19 @@ pub struct WorkspaceUsagePB {
   #[pb(index = 2)]
   pub member_count_limit: u64,
   #[pb(index = 3)]
-  pub total_blob_bytes: u64,
+  pub storage_bytes: u64,
   #[pb(index = 4)]
-  pub total_blob_bytes_limit: u64,
+  pub storage_bytes_limit: u64,
+  #[pb(index = 5)]
+  pub storage_bytes_unlimited: bool,
+  #[pb(index = 6)]
+  pub ai_responses_count: u64,
+  #[pb(index = 7)]
+  pub ai_responses_count_limit: u64,
+  #[pb(index = 8)]
+  pub ai_responses_unlimited: bool,
+  #[pb(index = 9)]
+  pub local_ai: bool,
 }
 
 #[derive(Debug, ProtoBuf, Default, Clone)]

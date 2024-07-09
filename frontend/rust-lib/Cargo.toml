@@ -99,8 +99,8 @@ validator = { version = "0.16.1", features = ["derive"] }
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "9884d93aa2805013f36a79c1757174a0b5063065" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "9884d93aa2805013f36a79c1757174a0b5063065" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "cba2248132de961f5dbab2a87c86b485dc701a56" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "cba2248132de961f5dbab2a87c86b485dc701a56" }
 
 [profile.dev]
 opt-level = 1

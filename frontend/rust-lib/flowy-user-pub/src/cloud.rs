@@ -1,3 +1,7 @@
+use client_api::entity::billing_dto::RecurringInterval;
+use client_api::entity::billing_dto::SubscriptionPlan;
+use client_api::entity::billing_dto::WorkspaceSubscriptionStatus;
+use client_api::entity::billing_dto::WorkspaceUsageAndLimit;
 pub use client_api::entity::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
 use collab_entity::{CollabObject, CollabType};
 use flowy_error::{internal_error, ErrorCode, FlowyError};
@@ -13,9 +17,8 @@ use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
 use crate::entities::{
-  AuthResponse, Authenticator, RecurringInterval, Role, SubscriptionPlan, UpdateUserProfileParams,
-  UserCredentials, UserProfile, UserTokenState, UserWorkspace, WorkspaceInvitation,
-  WorkspaceInvitationStatus, WorkspaceMember, WorkspaceSubscription, WorkspaceUsage,
+  AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
+  UserTokenState, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -281,15 +284,24 @@ pub trait UserCloudService: Send + Sync + 'static {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
-  fn get_workspace_subscriptions(&self) -> FutureResult<Vec<WorkspaceSubscription>, FlowyError> {
+  fn get_workspace_subscriptions(
+    &self,
+  ) -> FutureResult<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
-  fn cancel_workspace_subscription(&self, workspace_id: String) -> FutureResult<(), FlowyError> {
+  fn cancel_workspace_subscription(
+    &self,
+    workspace_id: String,
+    plan: SubscriptionPlan,
+  ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
-  fn get_workspace_usage(&self, workspace_id: String) -> FutureResult<WorkspaceUsage, FlowyError> {
+  fn get_workspace_usage(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<WorkspaceUsageAndLimit, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
