@@ -284,26 +284,4 @@ where
       Ok(namespace)
     })
   }
-
-  // fn publish_payload_to_publish_collab_item(&self, payload: PublishPayload) -> Option<PublishCollabItem> {
-  //   match payload {
-  //     PublishPayload::Document(payload) => Some(PublishCollabItem {
-  //       meta: PublishCollabMetadata {
-  //         view_id: Uuid::parse_str(payload.meta.view_id.as_str()).unwrap_or(Uuid::nil()),
-  //         publish_name: payload.meta.publish_name,
-  //         metadata: payload.meta.metadata,
-  //       },
-  //       data: payload.data,
-  //     }),
-  //     PublishPayload::Database(payload) => Some(PublishCollabItem {
-  //       meta: PublishCollabMetadata {
-  //         view_id: Uuid::parse_str(payload.meta.view_id.as_str()).unwrap_or(Uuid::nil()),
-  //         publish_name: payload.meta.publish_name,
-  //         metadata: payload.meta.metadata,
-  //       },
-  //       data: payload.data.database_collab,
-  //     }),
-  //     PublishPayload::Unknown => None,
-  //   }
-  // }
 }

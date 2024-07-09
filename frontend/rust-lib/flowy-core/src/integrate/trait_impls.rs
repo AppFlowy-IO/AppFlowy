@@ -30,7 +30,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishDocumentPayload, PublishInfoResponse, PublishPayload};
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};

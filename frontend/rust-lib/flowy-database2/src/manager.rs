@@ -571,14 +571,17 @@ impl DatabaseManager {
   pub async fn get_database_encoded_collab_with_view_id(
     &self,
     view_id: &str,
-    collab_type: CollabType,
   ) -> FlowyResult<EncodedCollab> {
     let database_editor = self.get_database_with_view_id(view_id).await?;
-    match collab_type {
-      CollabType::Database => database_editor.get_database_encoded_collab(),
-      CollabType::Database => database_editor.get_database_rows_encoded_collab(),
-      _ => Err(FlowyError::internal().with_context("Unsupported collab type")),
-    }
+    database_editor.get_database_encoded_collab()
+  }
+
+  pub async fn get_database_row_encoded_collabs_with_view_id(
+    &self,
+    view_id: &str,
+  ) -> FlowyResult<HashMap<String, EncodedCollab>> {
+    let database_editor = self.get_database_with_view_id(view_id).await?;
+    database_editor.get_database_rows_encoded_collab()
   }
 }
 

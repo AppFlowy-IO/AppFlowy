@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-
-use collab_entity::EncodedCollab;
 use flowy_derive::ProtoBuf;
 use flowy_folder_pub::entities::PublishInfoResponse;
 

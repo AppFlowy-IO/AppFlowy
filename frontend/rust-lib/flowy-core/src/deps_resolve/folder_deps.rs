@@ -1,6 +1,5 @@
 use bytes::Bytes;
-use client_api::entity::ai_dto::CollabType;
-use collab_entity::{CollabType, EncodedCollab};
+use collab_entity::EncodedCollab;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_chat::chat_manager::ChatManager;
@@ -12,13 +11,12 @@ use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
 use flowy_document::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
-use flowy_folder::entities::{
-  CreateViewParams, EncodedCollabWrapper, PublishDatabaseEncodedCollab, ViewLayoutPB,
-};
+use flowy_folder::entities::{CreateViewParams, ViewLayoutPB};
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{
-  FolderOperationHandler, FolderOperationHandlers, View, ViewData,
+  DatabaseEncodedCollab, DocumentEncodedCollab, EncodedCollabWrapper, FolderOperationHandler,
+  FolderOperationHandlers, View, ViewData,
 };
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::folder_builder::NestedViewBuilder;
@@ -202,16 +200,13 @@ impl FolderOperationHandler for DocumentFolderOperation {
   }
 
   fn get_encoded_collab_v1(&self, view_id: &str) -> FutureResult<EncodedCollabWrapper, FlowyError> {
-    // only support database type and database row type
-    if collab_type != CollabType::Document {
-      return FutureResult::new(async move { Err(FlowyError::not_support()) });
-    }
-
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
       let encoded_collab = manager.get_encoded_collab_with_view_id(&view_id).await?;
-      Ok(EncodedCollabWrapper::Document(encoded_collab))
+      Ok(EncodedCollabWrapper::Document(DocumentEncodedCollab {
+        document_encoded_collab: encoded_collab,
+      }))
     })
   }
 
@@ -307,17 +302,15 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     let view_id = view_id.to_string();
     FutureResult::new(async move {
       let database_encoded_collab = database_manager
-        .get_database_encoded_collab_with_view_id(&view_id, CollabType::Database)
+        .get_database_encoded_collab_with_view_id(&view_id)
         .await?;
       let database_row_encoded_collabs = database_manager
-        .get_database_encoded_collab_with_view_id(&view_id, CollabType::DatabaseRow)
+        .get_database_row_encoded_collabs_with_view_id(&view_id)
         .await?;
-      Ok(EncodedCollabWrapper::Database(
-        PublishDatabaseEncodedCollab {
-          database_encoded_collab,
-          database_row_encoded_collabs,
-        },
-      ))
+      Ok(EncodedCollabWrapper::Database(DatabaseEncodedCollab {
+        database_encoded_collab,
+        database_row_encoded_collabs,
+      }))
     })
   }
 
