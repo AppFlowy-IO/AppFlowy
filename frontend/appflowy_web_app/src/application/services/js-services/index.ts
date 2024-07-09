@@ -122,13 +122,13 @@ export class AFClientService implements AFService {
     }
 
     const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
-    const docs = await getBatchCollabs(rowIds);
+    const docs = await getBatchCollabs(rowIds.map((id) => `${name}_${id}`));
 
     docs.forEach((doc, index) => {
       rowsFolder.set(rowIds[index], doc);
     });
 
-    console.log('getPublishDatabaseViewRows', rowsFolder);
+    console.log('getPublishDatabaseViewRows', docs);
     return {
       rows: rowsFolder,
       destroy: () => {

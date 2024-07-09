@@ -229,7 +229,22 @@ export async function revalidatePublishView<
 }
 
 export async function getBatchCollabs(names: string[]) {
-  const collabs = await Promise.all(names.map((name) => openCollabDB(name)));
+  const getRowDoc = async (name: string) => {
+    const doc = await openCollabDB(name);
+    const exist = hasCollabCache(doc);
+
+    if (!exist) {
+      return Promise.reject(new Error('No cache found'));
+    }
+
+    return doc;
+  };
+
+  const collabs = await Promise.all(
+    names.map((name) => {
+      return getRowDoc(name);
+    })
+  );
 
   return collabs;
 }
