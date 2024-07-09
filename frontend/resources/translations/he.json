@@ -1,0 +1,2067 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Me",
+  "welcomeText": "Welcome to @:appName",
+  "welcomeTo": "Welcome to",
+  "githubStarText": "Star on GitHub",
+  "subscribeNewsletterText": "Subscribe to Newsletter",
+  "letsGoButtonText": "Quick Start",
+  "title": "Title",
+  "youCanAlso": "You can also",
+  "and": "and",
+  "failedToOpenUrl": "Failed to open url: {}",
+  "blockActions": {
+    "addBelowTooltip": "Click to add below",
+    "addAboveCmd": "Alt+click",
+    "addAboveMacCmd": "Option+click",
+    "addAboveTooltip": "to add above",
+    "dragTooltip": "Drag to move",
+    "openMenuTooltip": "Click to open menu"
+  },
+  "signUp": {
+    "buttonText": "Sign Up",
+    "title": "Sign Up to @:appName",
+    "getStartedText": "Get Started",
+    "emptyPasswordError": "Password can't be empty",
+    "repeatPasswordEmptyError": "Repeat password can't be empty",
+    "unmatchedPasswordError": "Repeat password is not the same as password",
+    "alreadyHaveAnAccount": "Already have an account?",
+    "emailHint": "Email",
+    "passwordHint": "Password",
+    "repeatPasswordHint": "Repeat password",
+    "signUpWith": "Sign up with:"
+  },
+  "signIn": {
+    "loginTitle": "Login to @:appName",
+    "loginButtonText": "Login",
+    "loginStartWithAnonymous": "Start with an anonymous session",
+    "continueAnonymousUser": "Continue with an anonymous session",
+    "buttonText": "Sign In",
+    "signingInText": "Signing in...",
+    "forgotPassword": "Forgot Password?",
+    "emailHint": "Email",
+    "passwordHint": "Password",
+    "dontHaveAnAccount": "Don't have an account?",
+    "createAccount": "Create account",
+    "repeatPasswordEmptyError": "Repeat password can't be empty",
+    "unmatchedPasswordError": "Repeat password is not the same as password",
+    "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
+    "or": "OR",
+    "signInWithGoogle": "Log in with Google",
+    "signInWithGithub": "Log in with Github",
+    "signInWithDiscord": "Log in with Discord",
+    "signUpWithGoogle": "Sign up with Google",
+    "signUpWithGithub": "Sign up with Github",
+    "signUpWithDiscord": "Sign up with Discord",
+    "signInWith": "Sign in with:",
+    "signInWithEmail": "Sign in with Email",
+    "signInWithMagicLink": "Log in with Magic Link",
+    "signUpWithMagicLink": "Sign up with Magic Link",
+    "pleaseInputYourEmail": "Please enter your email address",
+    "settings": "Settings",
+    "magicLinkSent": "We emailed a magic link. Click the link to log in.",
+    "invalidEmail": "Please enter a valid email address",
+    "alreadyHaveAnAccount": "Already have an account?",
+    "logIn": "Log in",
+    "generalError": "Something went wrong. Please try again later",
+    "limitRateError": "For security reasons, you can only request a magic link every 60 seconds"
+  },
+  "workspace": {
+    "chooseWorkspace": "Choose your workspace",
+    "create": "Create workspace",
+    "reset": "Reset workspace",
+    "renameWorkspace": "Rename workspace",
+    "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
+    "hint": "workspace",
+    "notFoundError": "Workspace not found",
+    "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of @:appName and try again.",
+    "errorActions": {
+      "reportIssue": "Report an issue",
+      "reportIssueOnGithub": "Report an issue on Github",
+      "exportLogFiles": "Export log files",
+      "reachOut": "Reach out on Discord"
+    },
+    "menuTitle": "Workspaces",
+    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone, and any pages you have published will be unpublished.",
+    "createSuccess": "Workspace created successfully",
+    "createFailed": "Failed to create workspace",
+    "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
+    "deleteSuccess": "Workspace deleted successfully",
+    "deleteFailed": "Failed to delete workspace",
+    "openSuccess": "Open workspace successfully",
+    "openFailed": "Failed to open workspace",
+    "renameSuccess": "Workspace renamed successfully",
+    "renameFailed": "Failed to rename workspace",
+    "updateIconSuccess": "Updated workspace icon successfully",
+    "updateIconFailed": "Updated workspace icon failed",
+    "cannotDeleteTheOnlyWorkspace": "Cannot delete the only workspace",
+    "fetchWorkspacesFailed": "Failed to fetch workspaces",
+    "leaveCurrentWorkspace": "Leave workspace",
+    "leaveCurrentWorkspacePrompt": "Are you sure you want to leave the current workspace?"
+  },
+  "shareAction": {
+    "buttonText": "Share",
+    "workInProgress": "Coming soon",
+    "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "Copy to clipboard",
+    "csv": "CSV",
+    "copyLink": "Copy Link",
+    "publishToTheWeb": "Publish to Web",
+    "publishToTheWebHint": "Create a website with AppFlowy",
+    "publish": "Publish",
+    "unPublish": "Unpublish",
+    "visitSite": "Visit site",
+    "exportAsTab": "Export as",
+    "publishTab": "Publish",
+    "shareTab": "Share"
+  },
+  "moreAction": {
+    "small": "small",
+    "medium": "medium",
+    "large": "large",
+    "fontSize": "Font size",
+    "import": "Import",
+    "moreOptions": "More options",
+    "wordCount": "Word count: {}",
+    "charCount": "Character count: {}",
+    "createdAt": "Created: {}",
+    "deleteView": "Delete",
+    "duplicateView": "Duplicate"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "Document from v0.1.0",
+    "databaseFromV010": "Database from v0.1.0",
+    "csv": "CSV",
+    "database": "Database"
+  },
+  "disclosureAction": {
+    "rename": "Rename",
+    "delete": "Delete",
+    "duplicate": "Duplicate",
+    "unfavorite": "Remove from favorites",
+    "favorite": "Add to favorites",
+    "openNewTab": "Open in a new tab",
+    "moveTo": "Move to",
+    "addToFavorites": "Add to Favorites",
+    "copyLink": "Copy Link",
+    "changeIcon": "Change icon",
+    "collapseAllPages": "Collapse all subpages"
+  },
+  "blankPageTitle": "Blank page",
+  "newPageText": "New page",
+  "newDocumentText": "New document",
+  "newGridText": "New grid",
+  "newCalendarText": "New calendar",
+  "newBoardText": "New board",
+  "chat": {
+    "newChat": "AI Chat",
+    "inputMessageHint": "Message @:appName AI",
+    "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
+    "relatedQuestion": "Related",
+    "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
+    "aiServerUnavailable": "🌈 Uh-oh! 🌈. A unicorn ate our response. Please retry!",
+    "clickToRetry": "Click to retry",
+    "regenerateAnswer": "Regenerate",
+    "question1": "How to use Kanban to manage tasks",
+    "question2": "Explain the GTD method",
+    "question3": "Why use Rust",
+    "question4": "Recipe with what's in my kitchen",
+    "aiMistakePrompt": "AI can make mistakes. Check important info."
+  },
+  "trash": {
+    "text": "Trash",
+    "restoreAll": "Restore All",
+    "deleteAll": "Delete All",
+    "pageHeader": {
+      "fileName": "File name",
+      "lastModified": "Last Modified",
+      "created": "Created"
+    },
+    "confirmDeleteAll": {
+      "title": "Are you sure to delete all pages in Trash?",
+      "caption": "This action cannot be undone."
+    },
+    "confirmRestoreAll": {
+      "title": "Are you sure to restore all pages in Trash?",
+      "caption": "This action cannot be undone."
+    },
+    "mobile": {
+      "actions": "Trash Actions",
+      "empty": "Trash Bin is Empty",
+      "emptyDescription": "You don't have any deleted file",
+      "isDeleted": "is deleted",
+      "isRestored": "is restored"
+    },
+    "confirmDeleteTitle": "Are you sure you want to delete this page permanently?"
+  },
+  "deletePagePrompt": {
+    "text": "This page is in Trash",
+    "restore": "Restore page",
+    "deletePermanent": "Delete permanently"
+  },
+  "dialogCreatePageNameHint": "Page name",
+  "questionBubble": {
+    "shortcuts": "Shortcuts",
+    "whatsNew": "What's new?",
+    "help": "Help & Support",
+    "markdown": "Markdown",
+    "debug": {
+      "name": "Debug Info",
+      "success": "Copied debug info to clipboard!",
+      "fail": "Unable to copy debug info to clipboard"
+    },
+    "feedback": "Feedback"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "Remove, rename, and more...",
+    "addPageTooltip": "Quickly add a page inside",
+    "defaultNewPageName": "Untitled",
+    "renameDialog": "Rename"
+  },
+  "noPagesInside": "No pages inside",
+  "toolbar": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "strike": "Strikethrough",
+    "numList": "Numbered List",
+    "bulletList": "Bulleted List",
+    "checkList": "Check List",
+    "inlineCode": "Inline Code",
+    "quote": "Quote Block",
+    "header": "Header",
+    "highlight": "Highlight",
+    "color": "Color",
+    "addLink": "Add Link",
+    "link": "Link"
+  },
+  "tooltip": {
+    "lightMode": "Switch to Light mode",
+    "darkMode": "Switch to Dark mode",
+    "openAsPage": "Open as a Page",
+    "addNewRow": "Add a new row",
+    "openMenu": "Click to open menu",
+    "dragRow": "Long press to reorder the row",
+    "viewDataBase": "View database",
+    "referencePage": "This {name} is referenced",
+    "addBlockBelow": "Add a block below",
+    "aiGenerate": "Generate"
+  },
+  "sideBar": {
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar",
+    "personal": "Personal",
+    "private": "Private",
+    "workspace": "Workspace",
+    "favorites": "Favorites",
+    "clickToHidePrivate": "Click to hide private space\nPages you created here are only visible to you",
+    "clickToHideWorkspace": "Click to hide workspace\nPages you created here are visible to every member",
+    "clickToHidePersonal": "Click to hide personal space",
+    "clickToHideFavorites": "Click to hide favorite space",
+    "addAPage": "Add a new page",
+    "addAPageToPrivate": "Add a page to private space",
+    "addAPageToWorkspace": "Add a page to workspace",
+    "recent": "Recent",
+    "today": "Today",
+    "thisWeek": "This week",
+    "others": "Other favorites",
+    "justNow": "just now",
+    "minutesAgo": "{count} minutes ago",
+    "lastViewed": "Last viewed",
+    "favoriteAt": "Favorited at",
+    "emptyRecent": "No Recent Documents",
+    "emptyRecentDescription": "As you view documents, they will appear here for easy retrieval",
+    "emptyFavorite": "No Favorite Documents",
+    "emptyFavoriteDescription": "Start exploring and mark documents as favorites. They’ll be listed here for quick access!",
+    "removePageFromRecent": "Remove this page from the Recent?",
+    "removeSuccess": "Removed successfully",
+    "favoriteSpace": "Favorites",
+    "RecentSpace": "Recent",
+    "Spaces": "Spaces"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Exported Note To Markdown",
+      "path": "Documents/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "Contacts",
+    "whatsHappening": "What's happening this week?",
+    "addContact": "Add Contact",
+    "editContact": "Edit Contact"
+  },
+  "button": {
+    "ok": "Ok",
+    "confirm": "Confirm",
+    "done": "Done",
+    "cancel": "Cancel",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "complete": "Complete",
+    "save": "Save",
+    "generate": "Generate",
+    "esc": "ESC",
+    "keep": "Keep",
+    "tryAgain": "Try again",
+    "discard": "Discard",
+    "replace": "Replace",
+    "insertBelow": "Insert below",
+    "insertAbove": "Insert above",
+    "upload": "Upload",
+    "edit": "Edit",
+    "delete": "Delete",
+    "duplicate": "Duplicate",
+    "putback": "Put Back",
+    "update": "Update",
+    "share": "Share",
+    "removeFromFavorites": "Remove from favorites",
+    "removeFromRecent": "Remove from recent",
+    "addToFavorites": "Add to favorites",
+    "rename": "Rename",
+    "helpCenter": "Help Center",
+    "add": "Add",
+    "yes": "Yes",
+    "clear": "Clear",
+    "remove": "Remove",
+    "dontRemove": "Don't remove",
+    "copyLink": "Copy Link",
+    "align": "Align",
+    "login": "Login",
+    "logout": "Log out",
+    "deleteAccount": "Delete account",
+    "back": "Back",
+    "signInGoogle": "Sign in with Google",
+    "signInGithub": "Sign in with Github",
+    "signInDiscord": "Sign in with Discord",
+    "more": "More",
+    "create": "Create",
+    "close": "Close"
+  },
+  "label": {
+    "welcome": "Welcome!",
+    "firstName": "First Name",
+    "middleName": "Middle Name",
+    "lastName": "Last Name",
+    "stepX": "Step {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Unable to connect to your account.",
+      "failedMsg": "Please make sure you've completed the sign-in process in your browser."
+    },
+    "google": {
+      "title": "GOOGLE SIGN-IN",
+      "instruction1": "In order to import your Google Contacts, you'll need to authorize this application using your web browser.",
+      "instruction2": "Copy this code to your clipboard by clicking the icon or selecting the text:",
+      "instruction3": "Navigate to the following link in your web browser, and enter the above code:",
+      "instruction4": "Press the button below when you've completed signup:"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "accountPage": {
+      "menuLabel": "My account",
+      "title": "My account",
+      "general": {
+        "title": "Account name & profile image",
+        "changeProfilePicture": "Change profile picture"
+      },
+      "email": {
+        "title": "Email",
+        "actions": {
+          "change": "Change email"
+        }
+      },
+      "login": {
+        "title": "Account login",
+        "loginLabel": "Log in",
+        "logoutLabel": "Log out"
+      }
+    },
+    "workspacePage": {
+      "menuLabel": "Workspace",
+      "title": "Workspace",
+      "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
+      "workspaceName": {
+        "title": "Workspace name"
+      },
+      "workspaceIcon": {
+        "title": "Workspace icon",
+        "description": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications."
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+        "options": {
+          "system": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        }
+      },
+      "theme": {
+        "title": "Theme",
+        "description": "Select a preset theme, or upload your own custom theme.",
+        "uploadCustomThemeTooltip": "Upload a custom theme"
+      },
+      "workspaceFont": {
+        "title": "Workspace font",
+        "noFontHint": "No font found, try another term."
+      },
+      "textDirection": {
+        "title": "Text direction",
+        "leftToRight": "Left to right",
+        "rightToLeft": "Right to left",
+        "auto": "Auto",
+        "enableRTLItems": "Enable RTL toolbar items"
+      },
+      "layoutDirection": {
+        "title": "Layout direction",
+        "leftToRight": "Left to right",
+        "rightToLeft": "Right to left"
+      },
+      "dateTime": {
+        "title": "Date & time",
+        "example": "{} at {} ({})",
+        "24HourTime": "24-hour time",
+        "dateFormat": {
+          "label": "Date format",
+          "local": "Local",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Friendly",
+          "dmy": "D/M/Y"
+        }
+      },
+      "language": {
+        "title": "Language"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Delete workspace",
+        "content": "Are you sure you want to delete this workspace? This action cannot be undone, and any pages you have published will be unpublished."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Leave workspace",
+        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it."
+      },
+      "manageWorkspace": {
+        "title": "Manage workspace",
+        "leaveWorkspace": "Leave workspace",
+        "deleteWorkspace": "Delete workspace"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Manage data",
+      "title": "Manage data",
+      "description": "Manage data local storage or Import your existing data into @:appName.",
+      "dataStorage": {
+        "title": "File storage location",
+        "tooltip": "The location where your files are stored",
+        "actions": {
+          "change": "Change path",
+          "open": "Open folder",
+          "openTooltip": "Open current data folder location",
+          "copy": "Copy path",
+          "copiedHint": "Path copied!",
+          "resetTooltip": "Reset to default location"
+        },
+        "resetDialog": {
+          "title": "Are you sure?",
+          "description": "Resetting the path to the default data location will not delete your data. If you want to re-import your current data, you should copy the path of your current location first."
+        }
+      },
+      "importData": {
+        "title": "Import data",
+        "tooltip": "Import data from @:appName backups/data folders",
+        "description": "Copy data from an external @:appName data folder",
+        "action": "Browse file"
+      },
+      "encryption": {
+        "title": "Encryption",
+        "tooltip": "Manage how your data is stored and encrypted",
+        "descriptionNoEncryption": "Turning on encryption will encrypt all data. This can not be undone.",
+        "descriptionEncrypted": "Your data is encrypted.",
+        "action": "Encrypt data",
+        "dialog": {
+          "title": "Encrypt all your data?",
+          "description": "Encrypting all your data will keep your data safe and secure. This action can NOT be undone. Are you sure you want to continue?"
+        }
+      },
+      "cache": {
+        "title": "Clear cache",
+        "description": "Clear app cache, this can help resolve issues like images or fonts not loading. This will not affect your data.",
+        "dialog": {
+          "title": "Are you sure?",
+          "description": "Clearing the cache will cause images and fonts to be re-downloaded on load. This action will not remove or modify your data.",
+          "successHint": "Cache cleared!"
+        }
+      },
+      "data": {
+        "fixYourData": "Fix your data",
+        "fixButton": "Fix",
+        "fixYourDataDescription": "If you're experiencing issues with your data, you can try to fix it here."
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "Shortcuts",
+      "title": "Shortcuts",
+      "editBindingHint": "Input new binding",
+      "searchHint": "Search",
+      "actions": {
+        "resetDefault": "Reset default"
+      },
+      "errorPage": {
+        "message": "Failed to load shortcuts: {}",
+        "howToFix": "Please try again, if the issue persists please reach out on GitHub."
+      },
+      "resetDialog": {
+        "title": "Reset shortcuts",
+        "description": "This will reset all of your keybindings to the default, you cannot undo this later, are you sure you want to proceed?",
+        "buttonLabel": "Reset"
+      },
+      "conflictDialog": {
+        "title": "{} is currently in use",
+        "descriptionPrefix": "This keybinding is currently being used by ",
+        "descriptionSuffix": ". If you replace this keybinding, it will be removed from {}.",
+        "confirmLabel": "Continue"
+      },
+      "editTooltip": "Press to start editing the keybinding",
+      "keybindings": {
+        "toggleToDoList": "Toggle to do list",
+        "insertNewParagraphInCodeblock": "Insert new paragraph",
+        "pasteInCodeblock": "Paste in codeblock",
+        "selectAllCodeblock": "Select all",
+        "indentLineCodeblock": "Insert two spaces at line start",
+        "outdentLineCodeblock": "Delete two spaces at line start",
+        "twoSpacesCursorCodeblock": "Insert two spaces at cursor",
+        "copy": "Copy selection",
+        "paste": "Paste in content",
+        "cut": "Cut selection",
+        "alignLeft": "Align text left",
+        "alignCenter": "Align text center",
+        "alignRight": "Align text right",
+        "undo": "Undo",
+        "redo": "Redo",
+        "convertToParagraph": "Convert block to paragraph",
+        "backspace": "Delete",
+        "deleteLeftWord": "Delete left word",
+        "deleteLeftSentence": "Delete left sentence",
+        "delete": "Delete right character",
+        "deleteMacOS": "Delete left character",
+        "deleteRightWord": "Delete right word",
+        "moveCursorLeft": "Move cursor left",
+        "moveCursorBeginning": "Move cursor to the beginning",
+        "moveCursorLeftWord": "Move cursor left one word",
+        "moveCursorLeftSelect": "Select and move cursor left",
+        "moveCursorBeginSelect": "Select and move cursor to the beginning",
+        "moveCursorLeftWordSelect": "Select and move cursor left one word",
+        "moveCursorRight": "Move cursor right",
+        "moveCursorEnd": "Move cursor to the end",
+        "moveCursorRightWord": "Move cursor right one word",
+        "moveCursorRightSelect": "Select and move cursor right one",
+        "moveCursorEndSelect": "Select and move cursor to the end",
+        "moveCursorRightWordSelect": "Select and move cursor to the right one word",
+        "moveCursorUp": "Move cursor up",
+        "moveCursorTopSelect": "Select and move cursor to the top",
+        "moveCursorTop": "Move cursor to the top",
+        "moveCursorUpSelect": "Select and move cursor up",
+        "moveCursorBottomSelect": "Select and move cursor to the bottom",
+        "moveCursorBottom": "Move cursor to the bottom",
+        "moveCursorDown": "Move cursor down",
+        "moveCursorDownSelect": "Select and move cursor down",
+        "home": "Scroll to the top",
+        "end": "Scroll to the bottom",
+        "toggleBold": "Toggle bold",
+        "toggleItalic": "Toggle italic",
+        "toggleUnderline": "Toggle underline",
+        "toggleStrikethrough": "Toggle strikethrough",
+        "toggleCode": "Toggle in-line code",
+        "toggleHighlight": "Toggle highlight",
+        "showLinkMenu": "Show link menu",
+        "openInlineLink": "Open in-line link",
+        "openLinks": "Open all selected links",
+        "indent": "Indent",
+        "outdent": "Outdent",
+        "exit": "Exit editing",
+        "pageUp": "Scroll one page up",
+        "pageDown": "Scroll one page down",
+        "selectAll": "Select all",
+        "pasteWithoutFormatting": "Paste content without formatting",
+        "showEmojiPicker": "Show emoji picker",
+        "enterInTableCell": "Add linebreak in table",
+        "leftInTableCell": "Move left one cell in table",
+        "rightInTableCell": "Move right one cell in table",
+        "upInTableCell": "Move up one cell in table",
+        "downInTableCell": "Move down one cell in table",
+        "tabInTableCell": "Go to next available cell in table",
+        "shiftTabInTableCell": "Go to previously available cell in table",
+        "backSpaceInTableCell": "Stop at the beginning of the cell"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "Insert a new paragraph next to the code block",
+        "codeBlockIndentLines": "Insert two spaces at the line start in code block",
+        "codeBlockOutdentLines": "Delete two spaces at the line start in code block",
+        "codeBlockAddTwoSpaces": "Insert two spaces at the cursor position in code block",
+        "codeBlockSelectAll": "Select all content inside a code block",
+        "codeBlockPasteText": "Paste text in codeblock",
+        "textAlignLeft": "Align text to the left",
+        "textAlignCenter": "Align text to the center",
+        "textAlignRight": "Align text to the right"
+      },
+      "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
+      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
+    },
+    "aiPage": {
+      "title": "AI Settings",
+      "menuLabel": "AI Settings",
+      "keys": {
+        "enableAISearchTitle": "AI Search",
+        "aiSettingsDescription": "Select or configure Ai models used on @:appName. For best performance we recommend using the default model options",
+        "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
+        "llmModel": "Language Model",
+        "title": "AI API Keys",
+        "openAILabel": "OpenAI API key",
+        "openAITooltip": "You can find your Secret API key on the API key page",
+        "openAIHint": "Input your OpenAI API Key",
+        "stabilityAILabel": "Stability API key",
+        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
+        "stabilityAIHint": "Input your Stability API Key"
+      }
+    },
+    "planPage": {
+      "menuLabel": "Plan",
+      "title": "Pricing plan",
+      "planUsage": {
+        "title": "Plan usage summary",
+        "storageLabel": "Storage",
+        "storageUsage": "{} of {} GB",
+        "collaboratorsLabel": "Collaborators",
+        "collaboratorsUsage": "{} of {}",
+        "aiResponseLabel": "AI Responses",
+        "aiResponseUsage": "{} of {}",
+        "proBadge": "Pro",
+        "memberProToggle": "Unlimited members",
+        "guestCollabToggle": "10 guest collaborators",
+        "storageUnlimited": "Unlimited storage with your Pro Plan",
+        "aiCredit": {
+          "title": "Add @:appName AI Credit",
+          "price": "5$",
+          "priceDescription": "for 1,000 credits",
+          "purchase": "Purchase AI",
+          "info": "Add 1,000 Ai credits per workspace and seamlessly integrate customizable AI into your workflow for smarter, faster results with up to:",
+          "infoItemOne": "10,000 responses per database",
+          "infoItemTwo": "1,000 responses per workspace"
+        },
+        "currentPlan": {
+          "bannerLabel": "Current plan",
+          "freeTitle": "Free",
+          "proTitle": "Pro",
+          "teamTitle": "Team",
+          "freeInfo": "Perfect for individuals or small teams up to 3 members.",
+          "proInfo": "Perfect for small and medium teams up to 10 members.",
+          "teamInfo": "Perfect for all productive and well-organized teams..",
+          "upgrade": "Compare &\n Upgrade",
+          "freeProOne": "Collaborative workspace",
+          "freeProTwo": "Up to 3 members (incl. owner)",
+          "freeProThree": "Unlimited guests (view-only)",
+          "freeProFour": "Storage 5GB",
+          "freeProFive": "30 day revision history",
+          "freeConOne": "Guest collaborators (edit access)",
+          "freeConTwo": "Unlimited storage",
+          "freeConThree": "6 month revision history",
+          "professionalProOne": "Collaborative workspace",
+          "professionalProTwo": "Unlimited members",
+          "professionalProThree": "Unlimited guests (view-only)",
+          "professionalProFour": "Unlimited storage",
+          "professionalProFive": "6 month revision history",
+          "professionalConOne": "Unlimited guest collaborators (edit access)",
+          "professionalConTwo": "Unlimited AI responses",
+          "professionalConThree": "1 year revision history",
+          "canceledInfo": "Your plan is cancelled, you will be downgraded to the Free plan on {}."
+        },
+        "deal": {
+          "bannerLabel": "New year deal!",
+          "title": "Grow your team!",
+          "info": "Upgrade and save 10% off Pro and Team plans! Boost your workspace productivity with powerful new features including @:appName AI.",
+          "viewPlans": "View plans"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "Billing",
+      "title": "Billing",
+      "plan": {
+        "title": "Plan",
+        "freeLabel": "Free",
+        "proLabel": "Pro",
+        "planButtonLabel": "Change plan",
+        "billingPeriod": "Billing period",
+        "periodButtonLabel": "Edit period"
+      },
+      "paymentDetails": {
+        "title": "Payment details",
+        "methodLabel": "Payment method",
+        "methodButtonLabel": "Edit method"
+      }
+    },
+    "comparePlanDialog": {
+      "title": "Compare & select plan",
+      "planFeatures": "Plan\nFeatures",
+      "current": "Current",
+      "actions": {
+        "upgrade": "Upgrade",
+        "downgrade": "Downgrade",
+        "downgradeDisabledTooltip": "You will automatically downgrade at the end of the billing cycle",
+        "current": "Current"
+      },
+      "freePlan": {
+        "title": "Free",
+        "description": "For organizing every corner of your work & life.",
+        "price": "$0",
+        "priceInfo": "free forever"
+      },
+      "proPlan": {
+        "title": "Professional",
+        "description": "A place for small groups to plan & get organized.",
+        "price": "$10 /month",
+        "priceInfo": "billed annually"
+      },
+      "planLabels": {
+        "itemOne": "Workspaces",
+        "itemTwo": "Members",
+        "itemThree": "Guests",
+        "tooltipThree": "Guests have read-only permission to the specifically shared content",
+        "itemFour": "Guest collaborators",
+        "tooltipFour": "Guest collaborators are billed as one seat",
+        "itemFive": "Storage",
+        "itemSix": "Real-time collaboration",
+        "itemSeven": "Mobile app",
+        "itemEight": "AI Responses",
+        "tooltipEight": "Lifetime means the number of responses never reset"
+      },
+      "freeLabels": {
+        "itemOne": "charged per workspace",
+        "itemTwo": "3",
+        "itemThree": "",
+        "itemFour": "0",
+        "itemFive": "5 GB",
+        "itemSix": "yes",
+        "itemSeven": "yes",
+        "itemEight": "1,000 lifetime"
+      },
+      "proLabels": {
+        "itemOne": "charged per workspace",
+        "itemTwo": "up to 10",
+        "itemThree": "",
+        "itemFour": "10 guests billed as one seat",
+        "itemFive": "unlimited",
+        "itemSix": "yes",
+        "itemSeven": "yes",
+        "itemEight": "10,000 monthly"
+      },
+      "paymentSuccess": {
+        "title": "You are now on the {} plan!",
+        "description": "Your payment has been successfully processed and your plan is upgraded to @:appName {}. You can view your plan details on the Plan page"
+      },
+      "downgradeDialog": {
+        "title": "Are you sure you want to downgrade your plan?",
+        "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to workspaces and you may need to free up space to meet the storage limits of the Free plan.",
+        "downgradeLabel": "Downgrade plan"
+      }
+    },
+    "common": {
+      "reset": "Reset"
+    },
+    "menu": {
+      "appearance": "Appearance",
+      "language": "Language",
+      "user": "User",
+      "files": "Files",
+      "notifications": "Notifications",
+      "open": "Open Settings",
+      "logout": "Logout",
+      "logoutPrompt": "Are you sure to logout?",
+      "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
+      "syncSetting": "Sync Setting",
+      "cloudSettings": "Cloud Settings",
+      "enableSync": "Enable sync",
+      "enableEncrypt": "Encrypt data",
+      "cloudURL": "Base URL",
+      "invalidCloudURLScheme": "Invalid Scheme",
+      "cloudServerType": "Cloud server",
+      "cloudServerTypeTip": "Please note that it might log out your current account after switching the cloud server",
+      "cloudLocal": "Local",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
+      "cloudSupabaseAnonKey": "Supabase anon key",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
+      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
+      "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
+      "clickToCopy": "Click to copy",
+      "selfHostStart": "If you don't have a server, please refer to the",
+      "selfHostContent": "document",
+      "selfHostEnd": "for guidance on how to self-host your own server",
+      "cloudURLHint": "Input the base URL of your server",
+      "cloudWSURL": "Websocket URL",
+      "cloudWSURLHint": "Input the websocket address of your server",
+      "restartApp": "Restart",
+      "restartAppTip": "Restart the application for the changes to take effect. Please note that this might log out your current account.",
+      "changeServerTip": "After changing the server, you must click the restart button for the changes to take effect",
+      "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
+      "inputEncryptPrompt": "Please enter your encryption secret for",
+      "clickToCopySecret": "Click to copy secret",
+      "configServerSetting": "Configurate your server settings",
+      "configServerGuide": "After selecting `Quick Start`, navigate to `Settings` and then \"Cloud Settings\" to configure your self-hosted server.",
+      "inputTextFieldHint": "Your secret",
+      "historicalUserList": "User login history",
+      "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
+      "openHistoricalUser": "Click to open the anonymous account",
+      "customPathPrompt": "Storing the @:appName data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
+      "importAppFlowyData": "Import Data from External @:appName Folder",
+      "importingAppFlowyDataTip": "Data import is in progress. Please do not close the app",
+      "importAppFlowyDataDescription": "Copy data from an external @:appName data folder and import it into the current AppFlowy data folder",
+      "importSuccess": "Successfully imported the @:appName data folder",
+      "importFailed": "Importing the @:appName data folder failed",
+      "importGuide": "For further details, please check the referenced document"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Enable notifications",
+        "hint": "Turn off to stop local notifications from appearing."
+      },
+      "showNotificationsIcon": {
+        "label": "Show notifications icon",
+        "hint": "Toggle off to hide the notification icon in the sidebar."
+      }
+    },
+    "appearance": {
+      "resetSetting": "Reset",
+      "fontFamily": {
+        "label": "Font Family",
+        "search": "Search",
+        "defaultFont": "System"
+      },
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Light Mode",
+        "dark": "Dark Mode",
+        "system": "Adapt to System"
+      },
+      "fontScaleFactor": "Font Scale Factor",
+      "documentSettings": {
+        "cursorColor": "Document cursor color",
+        "selectionColor": "Document selection color",
+        "hexEmptyError": "Hex color cannot be empty",
+        "hexLengthError": "Hex value must be 6 digits long",
+        "hexInvalidError": "Invalid hex value",
+        "opacityEmptyError": "Opacity cannot be empty",
+        "opacityRangeError": "Opacity must be between 1 and 100",
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "Apply"
+      },
+      "layoutDirection": {
+        "label": "Layout Direction",
+        "hint": "Control the flow of content on your screen, from left to right or right to left.",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "Default Text Direction",
+        "hint": "Specify whether text should start from left or right as the default.",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "AUTO",
+        "fallback": "Same as layout direction"
+      },
+      "themeUpload": {
+        "button": "Upload",
+        "uploadTheme": "Upload theme",
+        "description": "Upload your own @:appName theme using the button below.",
+        "loading": "Please wait while we validate and upload your theme...",
+        "uploadSuccess": "Your theme was uploaded successfully",
+        "deletionFailure": "Failed to delete the theme. Try to delete it manually.",
+        "filePickerDialogTitle": "Choose a .flowy_plugin file",
+        "urlUploadFailure": "Failed to open url: {}"
+      },
+      "theme": "Theme",
+      "builtInsLabel": "Built-in Themes",
+      "pluginsLabel": "Plugins",
+      "dateFormat": {
+        "label": "Date format",
+        "local": "Local",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "Friendly",
+        "dmy": "D/M/Y"
+      },
+      "timeFormat": {
+        "label": "Time format",
+        "twelveHour": "Twelve hour",
+        "twentyFourHour": "Twenty four hour"
+      },
+      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
+      "enableRTLToolbarItems": "Enable RTL toolbar items",
+      "members": {
+        "title": "Members settings",
+        "inviteMembers": "Invite members",
+        "inviteHint": "Invite by email",
+        "sendInvite": "Send invite",
+        "copyInviteLink": "Copy invite link",
+        "label": "Members",
+        "user": "User",
+        "role": "Role",
+        "removeFromWorkspace": "Remove from Workspace",
+        "owner": "Owner",
+        "guest": "Guest",
+        "member": "Member",
+        "memberHintText": "A member can read and edit pages",
+        "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
+        "emailInvalidError": "Invalid email, please check and try again",
+        "emailSent": "Email sent, please check the inbox",
+        "members": "members",
+        "membersCount": {
+          "zero": "{} members",
+          "one": "{} member",
+          "other": "{} members"
+        },
+        "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
+        "failedToAddMember": "Failed to add member",
+        "addMemberSuccess": "Member added successfully",
+        "removeMember": "Remove Member",
+        "areYouSureToRemoveMember": "Are you sure you want to remove this member?",
+        "inviteMemberSuccess": "The invitation has been sent successfully",
+        "failedToInviteMember": "Failed to invite member"
+      }
+    },
+    "files": {
+      "copy": "Copy",
+      "defaultLocation": "Read files and data storage location",
+      "exportData": "Export your data",
+      "doubleTapToCopy": "Double tap to copy the path",
+      "restoreLocation": "Restore to @:appName default path",
+      "customizeLocation": "Open another folder",
+      "restartApp": "Please restart app for the changes to take effect.",
+      "exportDatabase": "Export database",
+      "selectFiles": "Select the files that need to be export",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "createNewFolder": "Create a new folder",
+      "createNewFolderDesc": "Tell us where you want to store your data",
+      "defineWhereYourDataIsStored": "Define where your data is stored",
+      "open": "Open",
+      "openFolder": "Open an existing folder",
+      "openFolderDesc": "Read and write it to your existing @:appName folder",
+      "folderHintText": "folder name",
+      "location": "Creating a new folder",
+      "locationDesc": "Pick a name for your @:appName data folder",
+      "browser": "Browse",
+      "create": "Create",
+      "set": "Set",
+      "folderPath": "Path to store your folder",
+      "locationCannotBeEmpty": "Path cannot be empty",
+      "pathCopiedSnackbar": "File storage path copied to clipboard!",
+      "changeLocationTooltips": "Change the data directory",
+      "change": "Change",
+      "openLocationTooltips": "Open another data directory",
+      "openCurrentDataFolder": "Open current data directory",
+      "recoverLocationTooltips": "Reset to @:appName's default data directory",
+      "exportFileSuccess": "Export file successfully!",
+      "exportFileFail": "Export file failed!",
+      "export": "Export",
+      "clearCache": "Clear cache",
+      "clearCacheDesc": "If you encounter issues with images not loading or fonts not displaying correctly, try clearing your cache. This action will not remove your user data.",
+      "areYouSureToClearCache": "Are you sure to clear the cache?",
+      "clearCacheSuccess": "Cache cleared successfully!"
+    },
+    "user": {
+      "name": "Name",
+      "email": "Email",
+      "tooltipSelectIcon": "Select icon",
+      "selectAnIcon": "Select an icon",
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key",
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
+      "clickToLogout": "Click to logout the current user"
+    },
+    "mobile": {
+      "personalInfo": "Personal Information",
+      "username": "User Name",
+      "usernameEmptyError": "User name cannot be empty",
+      "about": "About",
+      "pushNotifications": "Push Notifications",
+      "support": "Support",
+      "joinDiscord": "Join us in Discord",
+      "privacyPolicy": "Privacy Policy",
+      "userAgreement": "User Agreement",
+      "termsAndConditions": "Terms and Conditions",
+      "userprofileError": "Failed to load user profile",
+      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists.",
+      "selectLayout": "Select layout",
+      "selectStartingDay": "Select starting day",
+      "version": "Version"
+    }
+  },
+  "grid": {
+    "deleteView": "Are you sure you want to delete this view?",
+    "createView": "New",
+    "title": {
+      "placeholder": "Untitled"
+    },
+    "settings": {
+      "filter": "Filter",
+      "sort": "Sort",
+      "sortBy": "Sort by",
+      "properties": "Properties",
+      "reorderPropertiesTooltip": "Drag to reorder properties",
+      "group": "Group",
+      "addFilter": "Add Filter",
+      "deleteFilter": "Delete filter",
+      "filterBy": "Filter by...",
+      "typeAValue": "Type a value...",
+      "layout": "Layout",
+      "databaseLayout": "Layout",
+      "viewList": {
+        "zero": "0 views",
+        "one": "{count} view",
+        "other": "{count} views"
+      },
+      "editView": "Edit View",
+      "boardSettings": "Board settings",
+      "calendarSettings": "Calendar settings",
+      "createView": "New view",
+      "duplicateView": "Duplicate view",
+      "deleteView": "Delete view",
+      "numberOfVisibleFields": "{} shown"
+    },
+    "textFilter": {
+      "contains": "Contains",
+      "doesNotContain": "Does not contain",
+      "endsWith": "Ends with",
+      "startWith": "Starts with",
+      "is": "Is",
+      "isNot": "Is not",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty",
+      "choicechipPrefix": {
+        "isNot": "Not",
+        "startWith": "Starts with",
+        "endWith": "Ends with",
+        "isEmpty": "is empty",
+        "isNotEmpty": "is not empty"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Checked",
+      "isUnchecked": "Unchecked",
+      "choicechipPrefix": {
+        "is": "is"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "is complete",
+      "isIncomplted": "is incomplete"
+    },
+    "selectOptionFilter": {
+      "is": "Is",
+      "isNot": "Is not",
+      "contains": "Contains",
+      "doesNotContain": "Does not contain",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty"
+    },
+    "dateFilter": {
+      "is": "Is",
+      "before": "Is before",
+      "after": "Is after",
+      "onOrBefore": "Is on or before",
+      "onOrAfter": "Is on or after",
+      "between": "Is between",
+      "empty": "Is empty",
+      "notEmpty": "Is not empty",
+      "choicechipPrefix": {
+        "before": "Before",
+        "after": "After",
+        "onOrBefore": "On or before",
+        "onOrAfter": "On or after",
+        "isEmpty": "Is empty",
+        "isNotEmpty": "Is not empty"
+      }
+    },
+    "numberFilter": {
+      "equal": "Equals",
+      "notEqual": "Does not equal",
+      "lessThan": "Is less than",
+      "greaterThan": "Is greater than",
+      "lessThanOrEqualTo": "Is less than or equal to",
+      "greaterThanOrEqualTo": "Is greater than or equal to",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty"
+    },
+    "field": {
+      "hide": "Hide",
+      "show": "Show",
+      "insertLeft": "Insert Left",
+      "insertRight": "Insert Right",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "wrapCellContent": "Wrap text",
+      "clear": "Clear cells",
+      "textFieldName": "Text",
+      "checkboxFieldName": "Checkbox",
+      "dateFieldName": "Date",
+      "updatedAtFieldName": "Last modified",
+      "createdAtFieldName": "Created at",
+      "numberFieldName": "Numbers",
+      "singleSelectFieldName": "Select",
+      "multiSelectFieldName": "Multiselect",
+      "urlFieldName": "URL",
+      "checklistFieldName": "Checklist",
+      "relationFieldName": "Relation",
+      "summaryFieldName": "AI Summary",
+      "timeFieldName": "Time",
+      "translateFieldName": "AI Translate",
+      "translateTo": "Translate to",
+      "numberFormat": "Number format",
+      "dateFormat": "Date format",
+      "includeTime": "Include time",
+      "isRange": "End date",
+      "dateFormatFriendly": "Month Day, Year",
+      "dateFormatISO": "Year-Month-Day",
+      "dateFormatLocal": "Month/Day/Year",
+      "dateFormatUS": "Year/Month/Day",
+      "dateFormatDayMonthYear": "Day/Month/Year",
+      "timeFormat": "Time format",
+      "invalidTimeFormat": "Invalid format",
+      "timeFormatTwelveHour": "12 hour",
+      "timeFormatTwentyFourHour": "24 hour",
+      "clearDate": "Clear date",
+      "dateTime": "Date time",
+      "startDateTime": "Start date time",
+      "endDateTime": "End date time",
+      "failedToLoadDate": "Failed to load date value",
+      "selectTime": "Select time",
+      "selectDate": "Select date",
+      "visibility": "Visibility",
+      "propertyType": "Property type",
+      "addSelectOption": "Add an option",
+      "typeANewOption": "Type a new option",
+      "optionTitle": "Options",
+      "addOption": "Add option",
+      "editProperty": "Edit property",
+      "newProperty": "New property",
+      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
+      "newColumn": "New Column",
+      "format": "Format",
+      "reminderOnDateTooltip": "This cell has a scheduled reminder",
+      "optionAlreadyExist": "Option already exists"
+    },
+    "rowPage": {
+      "newField": "Add a new field",
+      "fieldDragElementTooltip": "Click to open menu",
+      "showHiddenFields": {
+        "one": "Show {count} hidden field",
+        "many": "Show {count} hidden fields",
+        "other": "Show {count} hidden fields"
+      },
+      "hideHiddenFields": {
+        "one": "Hide {count} hidden field",
+        "many": "Hide {count} hidden fields",
+        "other": "Hide {count} hidden fields"
+      },
+      "openAsFullPage": "Open as full page",
+      "moreRowActions": "More row actions"
+    },
+    "sort": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "by": "By",
+      "empty": "No active sorts",
+      "cannotFindCreatableField": "Cannot find a suitable field to sort by",
+      "deleteAllSorts": "Delete all sorts",
+      "addSort": "Add new sort",
+      "removeSorting": "Would you like to remove sorting?",
+      "fieldInUse": "You are already sorting by this field"
+    },
+    "row": {
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "titlePlaceholder": "Untitled",
+      "textPlaceholder": "Empty",
+      "copyProperty": "Copied property to clipboard",
+      "count": "Count",
+      "newRow": "New row",
+      "action": "Action",
+      "add": "Click add to below",
+      "drag": "Drag to move",
+      "deleteRowPrompt": "Are you sure you want to delete this row? This action cannot be undone",
+      "deleteCardPrompt": "Are you sure you want to delete this card? This action cannot be undone",
+      "dragAndClick": "Drag to move, click to open menu",
+      "insertRecordAbove": "Insert record above",
+      "insertRecordBelow": "Insert record below",
+      "noContent": "No content"
+    },
+    "selectOption": {
+      "create": "Create",
+      "purpleColor": "Purple",
+      "pinkColor": "Pink",
+      "lightPinkColor": "Light Pink",
+      "orangeColor": "Orange",
+      "yellowColor": "Yellow",
+      "limeColor": "Lime",
+      "greenColor": "Green",
+      "aquaColor": "Aqua",
+      "blueColor": "Blue",
+      "deleteTag": "Delete tag",
+      "colorPanelTitle": "Color",
+      "panelTitle": "Select an option or create one",
+      "searchOption": "Search for an option",
+      "searchOrCreateOption": "Search for an option or create one",
+      "createNew": "Create a new",
+      "orSelectOne": "Or select an option",
+      "typeANewOption": "Type a new option",
+      "tagName": "Tag name"
+    },
+    "checklist": {
+      "taskHint": "Task description",
+      "addNew": "Add a new task",
+      "submitNewTask": "Create",
+      "hideComplete": "Hide completed tasks",
+      "showComplete": "Show all tasks"
+    },
+    "url": {
+      "launch": "Open link in browser",
+      "copy": "Copy link to clipboard",
+      "textFieldHint": "Enter a URL",
+      "copiedNotification": "Copied to clipboard!"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Related Database",
+      "relatedDatabasePlaceholder": "None",
+      "inRelatedDatabase": "In",
+      "rowSearchTextFieldPlaceholder": "Search",
+      "noDatabaseSelected": "No database selected, please select one first from the list below:",
+      "emptySearchResult": "No records found",
+      "linkedRowListLabel": "{count} linked rows",
+      "unlinkedRowListLabel": "Link another row"
+    },
+    "menuName": "Grid",
+    "referencedGridPrefix": "View of",
+    "calculate": "Calculate",
+    "calculationTypeLabel": {
+      "none": "None",
+      "average": "Average",
+      "max": "Max",
+      "median": "Median",
+      "min": "Min",
+      "sum": "Sum",
+      "count": "Count",
+      "countEmpty": "Count empty",
+      "countEmptyShort": "EMPTY",
+      "countNonEmpty": "Count not empty",
+      "countNonEmptyShort": "FILLED"
+    }
+  },
+  "document": {
+    "menuName": "Document",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "Select a Board to link to",
+        "createANewBoard": "Create a new Board"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "Select a Grid to link to",
+        "createANewGrid": "Create a new Grid"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Select a Calendar to link to",
+        "createANewCalendar": "Create a new Calendar"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Select a Document to link to"
+      }
+    },
+    "selectionMenu": {
+      "outline": "Outline",
+      "codeBlock": "Code Block"
+    },
+    "plugins": {
+      "referencedBoard": "Referenced Board",
+      "referencedGrid": "Referenced Grid",
+      "referencedCalendar": "Referenced Calendar",
+      "referencedDocument": "Referenced Document",
+      "autoGeneratorMenuItemName": "OpenAI Writer",
+      "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
+      "autoGeneratorLearnMore": "Learn more",
+      "autoGeneratorGenerate": "Generate",
+      "autoGeneratorHintText": "Ask OpenAI ...",
+      "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
+      "autoGeneratorRewrite": "Rewrite",
+      "smartEdit": "AI Assistants",
+      "openAI": "OpenAI",
+      "smartEditFixSpelling": "Fix spelling",
+      "warning": "⚠️ AI responses can be inaccurate or misleading.",
+      "smartEditSummarize": "Summarize",
+      "smartEditImproveWriting": "Improve writing",
+      "smartEditMakeLonger": "Make longer",
+      "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
+      "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
+      "smartEditDisabled": "Connect OpenAI in Settings",
+      "appflowyAIEditDisabled": "Sign in to enable AI features",
+      "discardResponse": "Do you want to discard the AI responses?",
+      "createInlineMathEquation": "Create equation",
+      "fonts": "Fonts",
+      "insertDate": "Insert date",
+      "emoji": "Emoji",
+      "toggleList": "Toggle list",
+      "quoteList": "Quote list",
+      "numberedList": "Numbered list",
+      "bulletedList": "Bulleted list",
+      "todoList": "Todo List",
+      "callout": "Callout",
+      "cover": {
+        "changeCover": "Change Cover",
+        "colors": "Colors",
+        "images": "Images",
+        "clearAll": "Clear All",
+        "abstract": "Abstract",
+        "addCover": "Add Cover",
+        "addLocalImage": "Add local image",
+        "invalidImageUrl": "Invalid image URL",
+        "failedToAddImageToGallery": "Failed to add image to gallery",
+        "enterImageUrl": "Enter image URL",
+        "add": "Add",
+        "back": "Back",
+        "saveToGallery": "Save to gallery",
+        "removeIcon": "Remove icon",
+        "pasteImageUrl": "Paste image URL",
+        "or": "OR",
+        "pickFromFiles": "Pick from files",
+        "couldNotFetchImage": "Could not fetch image",
+        "imageSavingFailed": "Image Saving Failed",
+        "addIcon": "Add icon",
+        "changeIcon": "Change icon",
+        "coverRemoveAlert": "It will be removed from cover after it is deleted.",
+        "alertDialogConfirmation": "Are you sure, you want to continue?"
+      },
+      "mathEquation": {
+        "name": "Math Equation",
+        "addMathEquation": "Add a TeX equation",
+        "editMathEquation": "Edit Math Equation"
+      },
+      "optionAction": {
+        "click": "Click",
+        "toOpenMenu": " to open menu",
+        "delete": "Delete",
+        "duplicate": "Duplicate",
+        "turnInto": "Turn into",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "color": "Color",
+        "align": "Align",
+        "left": "Left",
+        "center": "Center",
+        "right": "Right",
+        "defaultColor": "Default",
+        "depth": "Depth"
+      },
+      "image": {
+        "copiedToPasteBoard": "The image link has been copied to the clipboard",
+        "addAnImage": "Add an image",
+        "imageUploadFailed": "Image upload failed",
+        "errorCode": "Error code"
+      },
+      "math": {
+        "copiedToPasteBoard": "The math equation has been copied to the clipboard"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "The link has been copied to the clipboard",
+        "convertToLink": "Convert to embed link"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Add headings to create a table of contents.",
+        "noMatchHeadings": "No matching headings found."
+      },
+      "table": {
+        "addAfter": "Add after",
+        "addBefore": "Add before",
+        "delete": "Delete",
+        "clear": "Clear content",
+        "duplicate": "Duplicate",
+        "bgColor": "Background color"
+      },
+      "contextMenu": {
+        "copy": "Copy",
+        "cut": "Cut",
+        "paste": "Paste"
+      },
+      "action": "Actions",
+      "database": {
+        "selectDataSource": "Select data source",
+        "noDataSource": "No data source",
+        "selectADataSource": "Select a data source",
+        "toContinue": "to continue",
+        "newDatabase": "New Database",
+        "linkToDatabase": "Link to Database"
+      },
+      "date": "Date",
+      "video": {
+        "label": "Video",
+        "emptyLabel": "Add a video",
+        "placeholder": "Paste the video link",
+        "copiedToPasteBoard": "The video link has been copied to the clipboard",
+        "insertVideo": "Add video",
+        "invalidVideoUrl": "The source URL is not supported yet.",
+        "invalidVideoUrlYouTube": "YouTube is not supported yet.",
+        "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      }
+    },
+    "outlineBlock": {
+      "placeholder": "Table of Contents"
+    },
+    "textBlock": {
+      "placeholder": "Type '/' for commands"
+    },
+    "title": {
+      "placeholder": "Untitled"
+    },
+    "imageBlock": {
+      "placeholder": "Click to add image",
+      "upload": {
+        "label": "Upload",
+        "placeholder": "Click to upload image"
+      },
+      "url": {
+        "label": "Image URL",
+        "placeholder": "Enter image URL"
+      },
+      "ai": {
+        "label": "Generate image from OpenAI",
+        "placeholder": "Please input the prompt for OpenAI to generate image"
+      },
+      "stability_ai": {
+        "label": "Generate image from Stability AI",
+        "placeholder": "Please input the prompt for Stability AI to generate image"
+      },
+      "support": "Image size limit is 5MB. Supported formats: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "Invalid image",
+        "invalidImageSize": "Image size must be less than 5MB",
+        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "Invalid image URL",
+        "noImage": "No such file or directory"
+      },
+      "embedLink": {
+        "label": "Embed link",
+        "placeholder": "Paste or type an image link"
+      },
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "searchForAnImage": "Search for an image",
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
+      "saveImageToGallery": "Save image",
+      "failedToAddImageToGallery": "Failed to add image to gallery",
+      "successToAddImageToGallery": "Image added to gallery successfully",
+      "unableToLoadImage": "Unable to load image",
+      "maximumImageSize": "Maximum supported upload image size is 10MB",
+      "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
+      "imageIsUploading": "Image is uploading"
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Language",
+        "placeholder": "Select language",
+        "auto": "Auto"
+      },
+      "copyTooltip": "Copy contents of the code block",
+      "searchLanguageHint": "Search for a language",
+      "codeCopiedSnackbar": "Code copied to clipboard!"
+    },
+    "inlineLink": {
+      "placeholder": "Paste or type a link",
+      "openInNewTab": "Open in new tab",
+      "copyLink": "Copy link",
+      "removeLink": "Remove link",
+      "url": {
+        "label": "Link URL",
+        "placeholder": "Enter link URL"
+      },
+      "title": {
+        "label": "Link Title",
+        "placeholder": "Enter link title"
+      }
+    },
+    "mention": {
+      "placeholder": "Mention a person or a page or date...",
+      "page": {
+        "label": "Link to page",
+        "tooltip": "Click to open page"
+      },
+      "deleted": "Deleted",
+      "deletedContent": "This content does not exist or has been deleted"
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Reset to default"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "Unable to parse the block content",
+      "clickToCopyTheBlockContent": "Click to copy the block content",
+      "blockContentHasBeenCopied": "The block content has been copied."
+    },
+    "mobilePageSelector": {
+      "title": "Select page",
+      "failedToLoad": "Failed to load page list",
+      "noPagesFound": "No pages found"
+    }
+  },
+  "board": {
+    "column": {
+      "createNewCard": "New",
+      "renameGroupTooltip": "Press to rename group",
+      "createNewColumn": "Add a new group",
+      "addToColumnTopTooltip": "Add a new card at the top",
+      "addToColumnBottomTooltip": "Add a new card at the bottom",
+      "renameColumn": "Rename",
+      "hideColumn": "Hide",
+      "newGroup": "New group",
+      "deleteColumn": "Delete",
+      "deleteColumnConfirmation": "This will delete this group and all the cards in it.\nAre you sure you want to continue?"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "Hidden Groups",
+      "collapseTooltip": "Hide the hidden groups",
+      "expandTooltip": "View the hidden groups"
+    },
+    "cardDetail": "Card Detail",
+    "cardActions": "Card Actions",
+    "cardDuplicated": "Card has been duplicated",
+    "cardDeleted": "Card has been deleted",
+    "showOnCard": "Show on card detail",
+    "setting": "Setting",
+    "propertyName": "Property name",
+    "menuName": "Board",
+    "showUngrouped": "Show ungrouped items",
+    "ungroupedButtonText": "Ungrouped",
+    "ungroupedButtonTooltip": "Contains cards that don't belong in any group",
+    "ungroupedItemsTitle": "Click to add to the board",
+    "groupBy": "Group by",
+    "groupCondition": "Group condition",
+    "referencedBoardPrefix": "View of",
+    "notesTooltip": "Notes inside",
+    "mobile": {
+      "editURL": "Edit URL",
+      "showGroup": "Show group",
+      "showGroupContent": "Are you sure you want to show this group on the board?",
+      "failedToLoad": "Failed to load board view"
+    },
+    "dateCondition": {
+      "weekOf": "Week of {} - {}",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "tomorrow": "Tomorrow",
+      "lastSevenDays": "Last 7 days",
+      "nextSevenDays": "Next 7 days",
+      "lastThirtyDays": "Last 30 days",
+      "nextThirtyDays": "Next 30 days"
+    },
+    "noGroup": "No group by property",
+    "noGroupDesc": "Board views require a property to group by in order to display"
+  },
+  "calendar": {
+    "menuName": "Calendar",
+    "defaultNewCalendarTitle": "Untitled",
+    "newEventButtonTooltip": "Add a new event",
+    "navigation": {
+      "today": "Today",
+      "jumpToday": "Jump to Today",
+      "previousMonth": "Previous Month",
+      "nextMonth": "Next Month",
+      "views": {
+        "day": "Day",
+        "week": "Week",
+        "month": "Month",
+        "year": "Year"
+      }
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "No events yet",
+      "emptyBody": "Press the plus button to create an event on this day."
+    },
+    "settings": {
+      "showWeekNumbers": "Show week numbers",
+      "showWeekends": "Show weekends",
+      "firstDayOfWeek": "Start week on",
+      "layoutDateField": "Layout calendar by",
+      "changeLayoutDateField": "Change layout field",
+      "noDateTitle": "No Date",
+      "noDateHint": {
+        "zero": "Unscheduled events will show up here",
+        "one": "{count} unscheduled event",
+        "other": "{count} unscheduled events"
+      },
+      "unscheduledEventsTitle": "Unscheduled events",
+      "clickToAdd": "Click to add to the calendar",
+      "name": "Calendar settings",
+      "clickToOpen": "Click to open the record"
+    },
+    "referencedCalendarPrefix": "View of",
+    "quickJumpYear": "Jump to",
+    "duplicateEvent": "Duplicate event"
+  },
+  "errorDialog": {
+    "title": "@:appName Error",
+    "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
+    "github": "View on GitHub"
+  },
+  "search": {
+    "label": "Search",
+    "placeholder": {
+      "actions": "Search actions..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Copied!",
+      "fail": "Unable to copy"
+    }
+  },
+  "unSupportBlock": "The current version does not support this Block.",
+  "views": {
+    "deleteContentTitle": "Are you sure want to delete the {pageType}?",
+    "deleteContentCaption": "if you delete this {pageType}, you can restore it from the trash."
+  },
+  "colors": {
+    "custom": "Custom",
+    "default": "Default",
+    "red": "Red",
+    "orange": "Orange",
+    "yellow": "Yellow",
+    "green": "Green",
+    "blue": "Blue",
+    "purple": "Purple",
+    "pink": "Pink",
+    "brown": "Brown",
+    "gray": "Gray"
+  },
+  "emoji": {
+    "emojiTab": "Emoji",
+    "search": "Search emoji",
+    "noRecent": "No recent emoji",
+    "noEmojiFound": "No emoji found",
+    "filter": "Filter",
+    "random": "Random",
+    "selectSkinTone": "Select skin tone",
+    "remove": "Remove emoji",
+    "categories": {
+      "smileys": "Smileys & Emotion",
+      "people": "People & Body",
+      "animals": "Animals & Nature",
+      "food": "Food & Drink",
+      "activities": "Activities",
+      "places": "Travel & Places",
+      "objects": "Objects",
+      "symbols": "Symbols",
+      "flags": "Flags",
+      "nature": "Nature",
+      "frequentlyUsed": "Frequently Used"
+    },
+    "skinTone": {
+      "default": "Default",
+      "light": "Light",
+      "mediumLight": "Medium-Light",
+      "medium": "Medium",
+      "mediumDark": "Medium-Dark",
+      "dark": "Dark"
+    }
+  },
+  "inlineActions": {
+    "noResults": "No results",
+    "recentPages": "Recent pages",
+    "pageReference": "Page reference",
+    "docReference": "Document reference",
+    "boardReference": "Board reference",
+    "calReference": "Calendar reference",
+    "gridReference": "Grid reference",
+    "date": "Date",
+    "reminder": {
+      "groupTitle": "Reminder",
+      "shortKeyword": "remind"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Change the date and time format in settings",
+    "dateFormat": "Date format",
+    "includeTime": "Include time",
+    "isRange": "End date",
+    "timeFormat": "Time format",
+    "clearDate": "Clear date",
+    "reminderLabel": "Reminder",
+    "selectReminder": "Select reminder",
+    "reminderOptions": {
+      "none": "None",
+      "atTimeOfEvent": "Time of event",
+      "fiveMinsBefore": "5 mins before",
+      "tenMinsBefore": "10 mins before",
+      "fifteenMinsBefore": "15 mins before",
+      "thirtyMinsBefore": "30 mins before",
+      "oneHourBefore": "1 hour before",
+      "twoHoursBefore": "2 hours before",
+      "onDayOfEvent": "On day of event",
+      "oneDayBefore": "1 day before",
+      "twoDaysBefore": "2 days before",
+      "oneWeekBefore": "1 week before",
+      "custom": "Custom"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "Yesterday",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "oneWeek": "1 week"
+  },
+  "notificationHub": {
+    "title": "Notifications",
+    "mobile": {
+      "title": "Updates"
+    },
+    "emptyTitle": "All caught up!",
+    "emptyBody": "No pending notifications or actions. Enjoy the calm.",
+    "tabs": {
+      "inbox": "Inbox",
+      "upcoming": "Upcoming"
+    },
+    "actions": {
+      "markAllRead": "Mark all as read",
+      "showAll": "All",
+      "showUnreads": "Unread"
+    },
+    "filters": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "groupByDate": "Group by date",
+      "showUnreadsOnly": "Show unreads only",
+      "resetToDefault": "Reset to default"
+    }
+  },
+  "reminderNotification": {
+    "title": "Reminder",
+    "message": "Remember to check this before you forget!",
+    "tooltipDelete": "Delete",
+    "tooltipMarkRead": "Mark as read",
+    "tooltipMarkUnread": "Mark as unread"
+  },
+  "findAndReplace": {
+    "find": "Find",
+    "previousMatch": "Previous match",
+    "nextMatch": "Next match",
+    "close": "Close",
+    "replace": "Replace",
+    "replaceAll": "Replace all",
+    "noResult": "No results",
+    "caseSensitive": "Case sensitive",
+    "searchMore": "Search to find more results"
+  },
+  "error": {
+    "weAreSorry": "We're sorry",
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
+  },
+  "editor": {
+    "bold": "Bold",
+    "bulletedList": "Bulleted List",
+    "bulletedListShortForm": "Bulleted",
+    "checkbox": "Checkbox",
+    "embedCode": "Embed Code",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Highlight",
+    "color": "Color",
+    "image": "Image",
+    "date": "Date",
+    "page": "Page",
+    "italic": "Italic",
+    "link": "Link",
+    "numberedList": "Numbered List",
+    "numberedListShortForm": "Numbered",
+    "quote": "Quote",
+    "strikethrough": "Strikethrough",
+    "text": "Text",
+    "underline": "Underline",
+    "fontColorDefault": "Default",
+    "fontColorGray": "Gray",
+    "fontColorBrown": "Brown",
+    "fontColorOrange": "Orange",
+    "fontColorYellow": "Yellow",
+    "fontColorGreen": "Green",
+    "fontColorBlue": "Blue",
+    "fontColorPurple": "Purple",
+    "fontColorPink": "Pink",
+    "fontColorRed": "Red",
+    "backgroundColorDefault": "Default background",
+    "backgroundColorGray": "Gray background",
+    "backgroundColorBrown": "Brown background",
+    "backgroundColorOrange": "Orange background",
+    "backgroundColorYellow": "Yellow background",
+    "backgroundColorGreen": "Green background",
+    "backgroundColorBlue": "Blue background",
+    "backgroundColorPurple": "Purple background",
+    "backgroundColorPink": "Pink background",
+    "backgroundColorRed": "Red background",
+    "backgroundColorLime": "Lime background",
+    "backgroundColorAqua": "Aqua background",
+    "done": "Done",
+    "cancel": "Cancel",
+    "tint1": "Tint 1",
+    "tint2": "Tint 2",
+    "tint3": "Tint 3",
+    "tint4": "Tint 4",
+    "tint5": "Tint 5",
+    "tint6": "Tint 6",
+    "tint7": "Tint 7",
+    "tint8": "Tint 8",
+    "tint9": "Tint 9",
+    "lightLightTint1": "Purple",
+    "lightLightTint2": "Pink",
+    "lightLightTint3": "Light Pink",
+    "lightLightTint4": "Orange",
+    "lightLightTint5": "Yellow",
+    "lightLightTint6": "Lime",
+    "lightLightTint7": "Green",
+    "lightLightTint8": "Aqua",
+    "lightLightTint9": "Blue",
+    "urlHint": "URL",
+    "mobileHeading1": "Heading 1",
+    "mobileHeading2": "Heading 2",
+    "mobileHeading3": "Heading 3",
+    "textColor": "Text Color",
+    "backgroundColor": "Background Color",
+    "addYourLink": "Add your link",
+    "openLink": "Open link",
+    "copyLink": "Copy link",
+    "removeLink": "Remove link",
+    "editLink": "Edit link",
+    "linkText": "Text",
+    "linkTextHint": "Please enter text",
+    "linkAddressHint": "Please enter URL",
+    "highlightColor": "Highlight color",
+    "clearHighlightColor": "Clear highlight color",
+    "customColor": "Custom color",
+    "hexValue": "Hex value",
+    "opacity": "Opacity",
+    "resetToDefaultColor": "Reset to default color",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "Auto",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "find": "Find",
+    "select": "Select",
+    "selectAll": "Select all",
+    "previousMatch": "Previous match",
+    "nextMatch": "Next match",
+    "closeFind": "Close",
+    "replace": "Replace",
+    "replaceAll": "Replace all",
+    "regex": "Regex",
+    "caseSensitive": "Case sensitive",
+    "uploadImage": "Upload Image",
+    "urlImage": "URL Image",
+    "incorrectLink": "Incorrect Link",
+    "upload": "Upload",
+    "chooseImage": "Choose an image",
+    "loading": "Loading",
+    "imageLoadFailed": "Image load failed",
+    "divider": "Divider",
+    "table": "Table",
+    "colAddBefore": "Add before",
+    "rowAddBefore": "Add before",
+    "colAddAfter": "Add after",
+    "rowAddAfter": "Add after",
+    "colRemove": "Remove",
+    "rowRemove": "Remove",
+    "colDuplicate": "Duplicate",
+    "rowDuplicate": "Duplicate",
+    "colClear": "Clear Content",
+    "rowClear": "Clear Content",
+    "slashPlaceHolder": "Type '/' to insert a block, or start typing",
+    "typeSomething": "Type something...",
+    "toggleListShortForm": "Toggle",
+    "quoteListShortForm": "Quote",
+    "mathEquationShortForm": "Formula",
+    "codeBlockShortForm": "Code"
+  },
+  "favorite": {
+    "noFavorite": "No favorite page",
+    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites",
+    "removeFromSidebar": "Remove from sidebar",
+    "addToSidebar": "Pin to sidebar"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Enter a / to insert a block, or start typing"
+  },
+  "blockPlaceholders": {
+    "todoList": "To-do",
+    "bulletList": "List",
+    "numberList": "List",
+    "quote": "Quote",
+    "heading": "Heading {}"
+  },
+  "titleBar": {
+    "pageIcon": "Page icon",
+    "language": "Language",
+    "font": "Font",
+    "actions": "Actions",
+    "date": "Date",
+    "addField": "Add field",
+    "userIcon": "User icon"
+  },
+  "noLogFiles": "There're no log files",
+  "newSettings": {
+    "myAccount": {
+      "title": "My account",
+      "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "profileLabel": "Account name & Profile image",
+      "profileNamePlaceholder": "Enter your name",
+      "accountSecurity": "Account security",
+      "2FA": "2-Step Authentication",
+      "aiKeys": "AI keys",
+      "accountLogin": "Account Login",
+      "updateNameError": "Failed to update name",
+      "updateIconError": "Failed to update icon",
+      "deleteAccount": {
+        "title": "Delete Account",
+        "subtitle": "Permanently delete your account and all of your data.",
+        "deleteMyAccount": "Delete my account",
+        "dialogTitle": "Delete account",
+        "dialogContent1": "Are you sure you want to permanently delete your account?",
+        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+      }
+    },
+    "workplace": {
+      "name": "Workplace",
+      "title": "Workplace Settings",
+      "subtitle": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+      "workplaceName": "Workplace name",
+      "workplaceNamePlaceholder": "Enter workplace name",
+      "workplaceIcon": "Workplace icon",
+      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications.",
+      "renameError": "Failed to rename workplace",
+      "updateIconError": "Failed to update icon",
+      "chooseAnIcon": "Choose an icon",
+      "appearance": {
+        "name": "Appearance",
+        "themeMode": {
+          "auto": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "language": "Language"
+      }
+    },
+    "syncState": {
+      "syncing": "Syncing",
+      "synced": "Synced",
+      "noNetworkConnected": "No network connected"
+    }
+  },
+  "pageStyle": {
+    "title": "Page style",
+    "layout": "Layout",
+    "coverImage": "Cover image",
+    "pageIcon": "Page icon",
+    "colors": "Colors",
+    "gradient": "Gradient",
+    "backgroundImage": "Background image",
+    "presets": "Presets",
+    "photo": "Photo",
+    "unsplash": "Unsplash",
+    "pageCover": "Page cover",
+    "none": "None",
+    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
+    "openSettings": "Open Settings",
+    "photoPermissionTitle": "@:appName would like to access your photo library",
+    "doNotAllow": "Don't Allow",
+    "image": "Image"
+  },
+  "commandPalette": {
+    "placeholder": "Type to search...",
+    "bestMatches": "Best matches",
+    "recentHistory": "Recent history",
+    "navigateHint": "to navigate",
+    "loadingTooltip": "We are looking for results...",
+    "betaLabel": "BETA",
+    "betaTooltip": "We currently only support searching for pages and content in documents",
+    "fromTrashHint": "From trash",
+    "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
+    "clearSearchTooltip": "Clear search field"
+  },
+  "space": {
+    "delete": "Delete",
+    "deleteConfirmation": "Delete: ",
+    "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to the Trash, and any published pages will be unpublished.",
+    "rename": "Rename Space",
+    "changeIcon": "Change icon",
+    "manage": "Manage Space",
+    "addNewSpace": "Create Space",
+    "collapseAllSubPages": "Collapse all subpages",
+    "createNewSpace": "Create a new space",
+    "createSpaceDescription": "Create multiple public and private spaces to better organize your work.",
+    "spaceName": "Space name",
+    "permission": "Permission",
+    "publicPermission": "Public",
+    "publicPermissionDescription": "All workspace members with full access",
+    "privatePermission": "Private",
+    "privatePermissionDescription": "Only you can access this space",
+    "spaceIconBackground": "Background color",
+    "spaceIcon": "Icon",
+    "dangerZone": "Danger Zone",
+    "unableToDeleteLastSpace": "Unable to delete the last Space",
+    "unableToDeleteSpaceNotCreatedByYou": "Unable to delete Spaces created by others",
+    "enableSpacesForYourWorkspace": "Enable Spaces for your workspace",
+    "title": "Spaces",
+    "defaultSpaceName": "General",
+    "upgradeSpaceTitle": "Enable Spaces",
+    "upgradeSpaceDescription": "Create multiple public and private Spaces to better organize your workspace.",
+    "upgrade": "Update",
+    "upgradeYourSpace": "Create multiple Spaces",
+    "quicklySwitch": "Quickly switch to the next space",
+
+    "duplicate": "Duplicate Space",
+    "movePageToSpace": "Move page to space",
+    "switchSpace": "Switch space"
+  },
+  "publish": {
+    "hasNotBeenPublished": "This page hasn't been published yet",
+    "reportPage": "Report page",
+    "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
+    "createdWith": "Created with",
+    "downloadApp": "Download AppFlowy",
+    "copy": {
+      "codeBlock": "The content of code block has been copied to the clipboard",
+      "imageBlock": "The image link has been copied to the clipboard",
+      "mathBlock": "The math equation has been copied to the clipboard"
+    },
+    "containsPublishedPage": "This page contains one or more published pages. If you continue, they will be unpublished. Do you want to proceed with deletion?",
+    "publishSuccessfully": "Published successfully",
+    "unpublishSuccessfully": "Unpublished successfully",
+    "publishFailed": "Failed to publish",
+    "unpublishFailed": "Failed to unpublish",
+    "noAccessToVisit": "No access to this page...",
+    "createWithAppFlowy": "Create a website with AppFlowy",
+    "fastWithAI": "Fast and easy with AI.",
+    "tryItNow": "Try it now"
+  }
+}
