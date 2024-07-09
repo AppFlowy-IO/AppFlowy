@@ -61,6 +61,7 @@ class _SignInWithMagicLinkButtonsState
     }
 
     context.read<SignInBloc>().add(SignInEvent.signedWithMagicLink(email));
+
     showSnackBarMessage(
       context,
       LocaleKeys.signIn_magicLinkSent.tr(),

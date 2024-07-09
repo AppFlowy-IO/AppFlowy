@@ -34,7 +34,7 @@
   "signIn": {
     "loginTitle": "Login to @:appName",
     "loginButtonText": "Login",
-    "loginStartWithAnonymous": "Start with an anonymous session",
+    "loginStartWithAnonymous": "Continue with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
@@ -2069,7 +2069,7 @@
     "continueWithGoogle": "Continue with Google",
     "continueWithGithub": "Continue with GitHub",
     "continueWithDiscord": "Continue with Discord",
-    "signInAgreement": "By clicking \"Continue\" above, you confirm that you have read, understood, and agreed to AppFlowy's",
+    "signInAgreement": "By clicking \"Continue\" above, you confirm that\nyou have read, understood, and agreed to\nAppFlowy's",
     "and": "and",
     "termOfUse": "Terms",
     "privacyPolicy": "Privacy Policy",
