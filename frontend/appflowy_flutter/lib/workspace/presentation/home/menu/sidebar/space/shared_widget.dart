@@ -358,8 +358,8 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             widget.onConfirm();
             Navigator.of(context).pop();
           },
-          confirmButtonName: LocaleKeys.space_delete.tr(),
-          confirmButtonColor: Theme.of(context).colorScheme.error,
+          confirmButtonName: LocaleKeys.button_ok.tr(),
+          confirmButtonColor: Theme.of(context).colorScheme.primary,
         );
       case ConfirmPopupStyle.cancelAndOk:
         return SpaceCancelOrConfirmButton(
