@@ -70,6 +70,7 @@ function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView,
     return null;
   }
 
+  console.log('Database', doc);
   return (
     <div
       style={{
