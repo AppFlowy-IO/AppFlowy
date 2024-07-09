@@ -49,7 +49,7 @@
     "or": "OR",
     "signInWithGoogle": "Continue with Google",
     "signInWithGithub": "Continue with Github",
-    "signInWithDiscord": "Log in with Discord",
+    "signInWithDiscord": "Continue with Discord",
     "signUpWithGoogle": "Sign up with Google",
     "signUpWithGithub": "Sign up with Github",
     "signUpWithDiscord": "Sign up with Discord",
@@ -335,9 +335,9 @@
     "logout": "Log out",
     "deleteAccount": "Delete account",
     "back": "Back",
-    "signInGoogle": "Sign in with Google",
-    "signInGithub": "Sign in with Github",
-    "signInDiscord": "Sign in with Discord",
+    "signInGoogle": "Continue with Google",
+    "signInGithub": "Continue with Github",
+    "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
     "close": "Close"
@@ -2038,7 +2038,6 @@
     "upgrade": "Update",
     "upgradeYourSpace": "Create multiple Spaces",
     "quicklySwitch": "Quickly switch to the next space",
-
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
     "switchSpace": "Switch space"
