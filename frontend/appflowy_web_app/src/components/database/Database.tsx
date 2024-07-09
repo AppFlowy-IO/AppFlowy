@@ -70,6 +70,7 @@ function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView,
     return null;
   }
 
+  console.log('Database', doc);
   return (
     <div
       style={{
@@ -96,7 +97,12 @@ function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView,
               {viewMeta && <DatabaseHeader {...viewMeta} />}
 
               <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
-                <DatabaseViews iidIndex={iidIndex} onChangeView={handleChangeView} viewId={viewId} />
+                <DatabaseViews
+                  iidIndex={iidIndex}
+                  viewName={viewMeta.name}
+                  onChangeView={handleChangeView}
+                  viewId={viewId}
+                />
               </div>
             </div>
           )}
