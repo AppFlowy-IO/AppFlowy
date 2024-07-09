@@ -195,10 +195,7 @@ impl EventIntegrationTest {
     let manager = self.folder_manager.clone();
     let handlers = manager.get_operation_handlers();
     let handler = handlers.get(&layout).unwrap();
-    handler
-      .get_encoded_collab_v1(view_id, layout)
-      .await
-      .unwrap()
+    handler.get_encoded_collab_v1(view_id).await.unwrap()
   }
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {

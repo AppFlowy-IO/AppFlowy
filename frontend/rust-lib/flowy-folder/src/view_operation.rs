@@ -18,6 +18,24 @@ use crate::share::ImportType;
 
 pub type ViewData = Bytes;
 
+#[derive(Debug, Clone)]
+pub enum EncodedCollabWrapper {
+  Document(DocumentEncodedCollab),
+  Database(DatabaseEncodedCollab),
+  Unknown,
+}
+
+#[derive(Debug, Clone)]
+pub struct DocumentEncodedCollab {
+  pub document_encoded_collab: EncodedCollab,
+}
+
+#[derive(Debug, Clone)]
+pub struct DatabaseEncodedCollab {
+  pub database_encoded_collab: EncodedCollab,
+  pub database_row_encoded_collabs: HashMap<String, EncodedCollab>,
+}
+
 /// The handler will be used to handler the folder operation for a specific
 /// view layout. Each [ViewLayout] will have a handler. So when creating a new
 /// view, the [ViewLayout] will be used to get the handler.
@@ -46,11 +64,7 @@ pub trait FolderOperationHandler {
   fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
 
   /// Encoded the collab data of the given view.
-  fn get_encoded_collab_v1(
-    &self,
-    view_id: &str,
-    layout: ViewLayout,
-  ) -> FutureResult<EncodedCollab, FlowyError>;
+  fn get_encoded_collab_v1(&self, view_id: &str) -> FutureResult<EncodedCollabWrapper, FlowyError>;
 
   /// Create a view with the data.
   ///

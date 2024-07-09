@@ -17,7 +17,9 @@ use crate::share::{ImportParams, ImportValue};
 use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
 };
-use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
+use crate::view_operation::{
+  create_view, EncodedCollabWrapper, FolderOperationHandler, FolderOperationHandlers,
+};
 use collab::core::collab::{DataSource, MutexCollab};
 use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::error::FolderError;
@@ -38,6 +40,7 @@ use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::future;
 use parking_lot::RwLock;
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
@@ -1154,24 +1157,25 @@ impl FolderManager {
 
     Some(view)
   }
+
   async fn get_publish_payload(
     &self,
     view_id: &str,
     publish_name: Option<String>,
     layout: ViewLayout,
   ) -> FlowyResult<PublishPayload> {
-    let handler = self.get_handler(&layout)?;
-    let encoded_collab = handler.get_encoded_collab_v1(view_id, layout).await?;
-    let view = self
-      .with_folder(|| None, |folder| folder.views.get_view(view_id))
-      .ok_or_else(|| FlowyError::record_not_found().with_context("Can't find the view"))?;
+    let handler: Arc<dyn FolderOperationHandler + Sync + Send> = self.get_handler(&layout)?;
+    let encoded_collab_wrapper: EncodedCollabWrapper =
+      handler.get_encoded_collab_v1(view_id).await?;
+    let view = self.get_view_pb(view_id).await?;
+
     let publish_name = publish_name.unwrap_or_else(|| generate_publish_name(&view.id, &view.name));
 
     let child_views = self
       .build_publish_views(view_id)
       .await
-      .map(|v| v.child_views.map_or(vec![], |c| c))
-      .map_or(vec![], |c| c);
+      .and_then(|v| v.child_views)
+      .unwrap_or_default();
 
     let ancestor_views = self
       .get_view_ancestors_pb(view_id)
@@ -1180,9 +1184,8 @@ impl FolderManager {
       .map(view_pb_to_publish_view)
       .collect::<Vec<PublishViewInfo>>();
 
-    let view_pb = self.get_view_pb(view_id).await?;
     let metadata = PublishViewMetaData {
-      view: view_pb_to_publish_view(&view_pb),
+      view: view_pb_to_publish_view(&view),
       child_views,
       ancestor_views,
     };
@@ -1192,19 +1195,30 @@ impl FolderManager {
       metadata,
     };
 
-    let payload = match view.layout {
-      ViewLayout::Document => {
-        let data = encoded_collab.doc_state.to_vec();
-        PublishPayload::Document(PublishDocumentPayload { meta, data })
-      },
-      ViewLayout::Board | ViewLayout::Grid | ViewLayout::Calendar => {
-        let data = PublishDatabaseData {
-          database_collab: encoded_collab.doc_state.to_vec(),
+    let payload = match encoded_collab_wrapper {
+      EncodedCollabWrapper::Database(v) => {
+        let database_collab = v.database_encoded_collab.doc_state.to_vec();
+        let database_row_collabs = v
+        .database_row_encoded_collabs
+        .into_iter()
+        .map(|v| (v.0, v.1.doc_state.to_vec())) // Convert to HashMap
+        .collect::<HashMap<String, Vec<u8>>>();
+
+        let database_data = PublishDatabaseData {
+          database_collab,
+          database_row_collabs,
           ..Default::default()
         };
-        PublishPayload::Database(PublishDatabasePayload { meta, data })
+        PublishPayload::Database(PublishDatabasePayload {
+          meta,
+          data: database_data,
+        })
       },
-      ViewLayout::Chat => PublishPayload::Unknown,
+      EncodedCollabWrapper::Document(v) => PublishPayload::Document(PublishDocumentPayload {
+        meta,
+        data: v.document_encoded_collab.doc_state.to_vec(),
+      }),
+      EncodedCollabWrapper::Unknown => PublishPayload::Unknown,
     };
 
     Ok(payload)

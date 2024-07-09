@@ -75,10 +75,7 @@ impl DocumentManager {
   }
 
   /// Get the encoded collab of the document.
-  pub async fn get_encoded_collab_v1_with_view_id(
-    &self,
-    doc_id: &str,
-  ) -> FlowyResult<EncodedCollab> {
+  pub async fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
     let doc_state = DataSource::Disk;
     let uid = self.user_service.user_id()?;
     let collab = self
