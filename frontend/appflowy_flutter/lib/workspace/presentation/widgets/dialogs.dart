@@ -329,7 +329,7 @@ Future<void> showConfirmDeletionDialog({
         ),
         child: SizedBox(
           width: 440,
-          child: ConfirmDeletionPopup(
+          child: ConfirmPopup(
             title: title,
             description: description,
             onConfirm: onConfirm,
