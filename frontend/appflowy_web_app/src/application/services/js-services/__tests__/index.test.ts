@@ -2,7 +2,7 @@ import { withTestingYDoc } from '@/application/slate-yjs/__tests__/withTestingYj
 import { AFClientService } from '../index';
 import { fetchViewInfo } from '@/application/services/js-services/fetch';
 import { expect, jest } from '@jest/globals';
-import { getBatchCollabs, getPublishView, getPublishViewMeta } from '@/application/services/js-services/cache';
+import { getPublishView, getPublishViewMeta } from '@/application/services/js-services/cache';
 
 jest.mock('@/application/services/js-services/wasm/client_api', () => {
   return {
@@ -112,13 +112,12 @@ describe('AFClientService', () => {
   it('getPublishDatabaseViewRows', async () => {
     const namespace = 'namespace';
     const publishName = 'publishName';
-    const rowIds = ['1', '2', '3'];
     const mockResponse = [withTestingYDoc('1'), withTestingYDoc('2'), withTestingYDoc('3')];
 
     // @ts-ignore
     (getBatchCollabs as jest.Mock).mockResolvedValue(mockResponse);
 
-    const result = await service.getPublishDatabaseViewRows(namespace, publishName, rowIds);
+    const result = await service.getPublishDatabaseViewRows(namespace, publishName);
 
     expect(result).toEqual({
       rows: expect.any(Object),

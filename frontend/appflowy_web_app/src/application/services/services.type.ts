@@ -22,7 +22,7 @@ export interface PublishService {
   getPublishDatabaseViewRows: (
     namespace: string,
     publishName: string,
-    rowIds: string[]
+    rowIds?: string[]
   ) => Promise<{
     rows: Y.Map<YDoc>;
     destroy: () => void;

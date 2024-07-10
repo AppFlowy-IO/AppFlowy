@@ -13,7 +13,7 @@ export interface PublishContextType {
   viewMeta?: ViewMeta;
   toView: (viewId: string) => Promise<void>;
   loadViewMeta: (viewId: string) => Promise<ViewMeta>;
-  getViewRowsMap?: (viewId: string, rowIds: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+  getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
 
   loadView: (viewId: string) => Promise<YDoc>;
 }
@@ -84,7 +84,7 @@ export const PublishProvider = ({
   );
 
   const getViewRowsMap = useCallback(
-    async (viewId: string, rowIds: string[]) => {
+    async (viewId: string, rowIds?: string[]) => {
       try {
         const info = await service?.getPublishInfo(viewId);
 

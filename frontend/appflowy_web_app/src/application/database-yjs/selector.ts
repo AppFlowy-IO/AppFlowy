@@ -14,7 +14,7 @@ import { sortBy } from '@/application/database-yjs/sort';
 import { parseYDatabaseCellToCell } from '@/application/database-yjs/cell.parse';
 import { DateTimeCell } from '@/application/database-yjs/cell.type';
 import * as dayjs from 'dayjs';
-import { throttle } from 'lodash-es';
+import { debounce } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Y from 'yjs';
 import { CalendarLayoutSetting, FieldType, FieldVisibility, Filter, RowMetaKey, SortCondition } from './database.type';
@@ -369,8 +369,6 @@ export function useRowsByGroup(groupId: string) {
     if (!fieldId || !rowOrders || !rows) return;
 
     const onConditionsChange = () => {
-      if (rows.size < rowOrders?.length) return;
-
       const newResult = new Map<string, Row[]>();
 
       const field = fields.get(fieldId);
@@ -450,18 +448,20 @@ export function useRowOrdersSelector() {
   }, [onConditionsChange, clock]);
 
   useEffect(() => {
-    const throttleChange = throttle(onConditionsChange, 200);
+    const throttleChange = debounce(onConditionsChange, 200);
 
+    view?.get(YjsDatabaseKey.row_orders)?.observeDeep(throttleChange);
     sorts?.observeDeep(throttleChange);
     filters?.observeDeep(throttleChange);
     fields?.observeDeep(throttleChange);
 
     return () => {
+      view?.get(YjsDatabaseKey.row_orders)?.unobserveDeep(throttleChange);
       sorts?.unobserveDeep(throttleChange);
       filters?.unobserveDeep(throttleChange);
       fields?.unobserveDeep(throttleChange);
     };
-  }, [onConditionsChange, fields, filters, sorts]);
+  }, [onConditionsChange, view, fields, filters, sorts]);
 
   return rowOrders;
 }
@@ -474,17 +474,10 @@ export function useRowDocMapSelector() {
     if (!rowMap) return;
     const observerEvent = () => setClock((prev) => prev + 1);
 
-    const rowIds = Array.from(rowMap?.keys() || []);
-
-    rowMap.observe(observerEvent);
-
-    const observers = rowIds.map((rowId) => {
-      return observeDeepRow(rowId, rowMap, observerEvent);
-    });
+    rowMap.observeDeep(observerEvent);
 
     return () => {
-      rowMap.unobserve(observerEvent);
-      observers.forEach((observer) => observer());
+      rowMap.unobserveDeep(observerEvent);
     };
   }, [rowMap]);
 
@@ -514,37 +507,33 @@ export function observeDeepRow(
 export function useRowDataSelector(rowId: string) {
   const rowMap = useRowDocMap();
 
-  const rowSharedRoot = rowMap?.get(rowId)?.getMap(YjsEditorKey.data_section);
+  const rowDoc = rowMap?.get(rowId);
+
+  const rowSharedRoot = rowDoc?.getMap(YjsEditorKey.data_section);
   const row = rowSharedRoot?.get(YjsEditorKey.database_row);
 
-  const [clock, setClock] = useState<number>(0);
-
   useEffect(() => {
-    if (!rowMap) return;
-    const onChange = () => {
-      setClock((prev) => prev + 1);
+    if (!row) return;
+
+    const observerEvent = () => {
+      console.log('row', row.toJSON());
     };
 
-    const observer = observeDeepRow(rowId, rowMap, onChange);
-
-    rowMap.observe(onChange);
+    row?.observeDeep(observerEvent);
 
     return () => {
-      rowMap.unobserve(onChange);
-      observer();
+      row?.unobserveDeep(observerEvent);
     };
-  }, [rowId, rowMap]);
-
+  }, [row]);
   return {
     row,
-    clock,
   };
 }
 
 export function useCellSelector({ rowId, fieldId }: { rowId: string; fieldId: string }) {
   const { row } = useRowDataSelector(rowId);
-
   const cell = row?.get(YjsDatabaseKey.cells)?.get(fieldId);
+
   const [cellValue, setCellValue] = useState(() => (cell ? parseYDatabaseCellToCell(cell) : undefined));
 
   useEffect(() => {
@@ -552,10 +541,10 @@ export function useCellSelector({ rowId, fieldId }: { rowId: string; fieldId: st
     setCellValue(parseYDatabaseCellToCell(cell));
     const observerEvent = () => setCellValue(parseYDatabaseCellToCell(cell));
 
-    cell.observe(observerEvent);
+    cell.observeDeep(observerEvent);
 
     return () => {
-      cell.unobserve(observerEvent);
+      cell.unobserveDeep(observerEvent);
     };
   }, [cell]);
 

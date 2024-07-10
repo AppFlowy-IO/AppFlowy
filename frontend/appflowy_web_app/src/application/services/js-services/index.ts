@@ -1,7 +1,6 @@
 import { YDoc } from '@/application/collab.type';
 import {
   deleteView,
-  getBatchCollabs,
   getPublishView,
   getPublishViewMeta,
   hasViewMetaCache,
@@ -75,7 +74,7 @@ export class AFClientService implements AFService {
 
     const isLoaded = this.publishViewLoaded.has(name);
 
-    const doc = await getPublishView(
+    const { doc, rowMapDoc } = await getPublishView(
       async () => {
         try {
           return await fetchPublishView(namespace, publishName);
@@ -101,39 +100,33 @@ export class AFClientService implements AFService {
       this.publishViewLoaded.add(name);
     }
 
+    if (!this.cacheDatabaseRowDocMap.has(name)) {
+      this.cacheDatabaseRowDocMap.set(name, rowMapDoc);
+    }
+
+    console.log('getPublishView', doc);
     return doc;
   }
 
-  async getPublishDatabaseViewRows(namespace: string, publishName: string, rowIds: string[]) {
+  async getPublishDatabaseViewRows(namespace: string, publishName: string) {
     const name = `${namespace}_${publishName}`;
 
-    if (!this.publishViewLoaded.has(name)) {
+    if (this.publishViewLoaded.has(name)) {
       await this.getPublishView(namespace, publishName);
     }
 
-    const rootRowsDoc =
-      this.cacheDatabaseRowDocMap.get(name) ??
-      new Y.Doc({
-        guid: name,
-      });
+    const rootRowsDoc = this.cacheDatabaseRowDocMap.get(name);
 
-    if (!this.cacheDatabaseRowDocMap.has(name)) {
-      this.cacheDatabaseRowDocMap.set(name, rootRowsDoc);
+    if (!rootRowsDoc) {
+      return Promise.reject(new Error('Root rows doc not found'));
     }
 
     const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
-    const docs = await getBatchCollabs(rowIds.map((id) => `${name}_${id}`));
 
-    docs.forEach((doc, index) => {
-      rowsFolder.set(rowIds[index], doc);
-    });
-
-    console.log('getPublishDatabaseViewRows', docs);
     return {
       rows: rowsFolder,
       destroy: () => {
         this.cacheDatabaseRowDocMap.delete(name);
-        rootRowsDoc.destroy();
       },
     };
   }

@@ -11,7 +11,7 @@ function NoDate({ emptyEvents }: { emptyEvents: CalendarEvent[] }) {
   const content = useMemo(() => {
     return (
       <div className={'flex w-[260px] flex-col gap-3 p-2 text-xs font-medium'}>
-        <div className={'text-text-caption'}>{t('calendar.settings.clickToOpen')}</div>
+        {/*<div className={'text-text-caption'}>{t('calendar.settings.clickToOpen')}</div>*/}
         {emptyEvents.map((event) => {
           const rowId = event.id.split(':')[0];
 
@@ -19,7 +19,7 @@ function NoDate({ emptyEvents }: { emptyEvents: CalendarEvent[] }) {
         })}
       </div>
     );
-  }, [emptyEvents, t]);
+  }, [emptyEvents]);
 
   return (
     <RichTooltip

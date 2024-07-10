@@ -2,14 +2,13 @@ import { CalendarEvent, useFieldsSelector } from '@/application/database-yjs';
 import { RichTooltip } from '@/components/_shared/popover';
 import EventPaper from '@/components/database/components/calendar/event/EventPaper';
 import CardField from '@/components/database/components/field/CardField';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { EventWrapperProps } from 'react-big-calendar';
 
 export function Event({ event }: EventWrapperProps<CalendarEvent>) {
   const { id } = event;
-  const [rowId, fieldId] = id.split(':');
-  const fields = useFieldsSelector();
-  const showFields = useMemo(() => fields.filter((field) => field.fieldId !== fieldId), [fields, fieldId]);
+  const [rowId] = id.split(':');
+  const showFields = useFieldsSelector();
 
   // const navigateToRow = useNavigateToRow();
   const [open, setOpen] = React.useState(false);

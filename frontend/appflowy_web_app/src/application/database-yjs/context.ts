@@ -11,7 +11,7 @@ export interface DatabaseContextState {
   isDatabaseRowPage?: boolean;
   navigateToRow?: (rowId: string) => void;
   loadView?: (viewId: string) => Promise<YDoc>;
-  getViewRowsMap?: (viewId: string, rowIds: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+  getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
   loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
   navigateToView?: (viewId: string) => Promise<void>;
 }

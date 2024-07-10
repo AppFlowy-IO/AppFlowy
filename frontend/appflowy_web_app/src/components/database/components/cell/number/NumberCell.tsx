@@ -25,6 +25,9 @@ export function NumberCell({ cell, fieldId, style, placeholder }: CellProps<Numb
     const numberFormater = currencyFormaterMap[format];
 
     if (!numberFormater) return cell.data;
+
+    if (isNaN(parseInt(cell.data))) return '';
+
     return numberFormater(new Decimal(cell.data).toNumber());
   }, [cell, format]);
 

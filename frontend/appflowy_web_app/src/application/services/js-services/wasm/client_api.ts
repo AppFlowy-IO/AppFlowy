@@ -60,7 +60,6 @@ export async function getPublishView(publishNamespace: string, publishName: stri
       visible_database_view_ids: string[];
     };
 
-    console.log('getPublishView', res);
     return {
       data: res.database_collab,
       rows: res.database_row_collabs,

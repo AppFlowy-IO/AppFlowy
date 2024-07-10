@@ -5,14 +5,14 @@ import DatabaseHeader from '@/components/database/components/header/DatabaseHead
 import DatabaseRow from '@/components/database/DatabaseRow';
 import DatabaseViews from '@/components/database/DatabaseViews';
 import { ViewMetaProps } from '@/components/view-meta/ViewMetaPreview';
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import * as Y from 'yjs';
 import { DatabaseContextProvider } from './DatabaseContext';
 
 export interface Database2Props extends ViewMetaProps {
   doc: YDoc;
-  getViewRowsMap?: (viewId: string, rowIds: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+  getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
   loadView?: (viewId: string) => Promise<YDoc>;
   navigateToView?: (viewId: string) => Promise<void>;
   loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
@@ -22,33 +22,32 @@ function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView,
   const [search, setSearch] = useSearchParams();
 
   const viewId = search.get('v') || viewMeta.viewId;
+  const database = doc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database) as YDatabase;
 
-  const rowIds = useMemo(() => {
-    if (!viewId) return [];
-    const database = doc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database) as YDatabase;
-    const rows = database.get(YjsDatabaseKey.views).get(viewId).get(YjsDatabaseKey.row_orders);
+  const iidIndex = database.get(YjsDatabaseKey.metas).get(YjsDatabaseKey.iid);
 
-    return rows.toJSON().map((row) => row.id);
-  }, [doc, viewId]);
+  const view = database.get(YjsDatabaseKey.views).get(iidIndex);
 
-  const iidIndex = useMemo(() => {
-    const database = doc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database) as YDatabase;
-
-    return database.get(YjsDatabaseKey.metas).get(YjsDatabaseKey.iid);
-  }, [doc]);
-
+  const rowOrders = view.get(YjsDatabaseKey.row_orders);
   const [rowDocMap, setRowDocMap] = useState<Y.Map<YDoc> | null>(null);
 
+  const handleUpdateRowDocMap = useCallback(async () => {
+    if (!getViewRowsMap || !iidIndex) return;
+
+    const { rows, destroy } = await getViewRowsMap(iidIndex);
+
+    setRowDocMap(rows);
+    return destroy;
+  }, [getViewRowsMap, iidIndex]);
+
   useEffect(() => {
-    if (!getViewRowsMap || !rowIds.length || !iidIndex) return;
+    void handleUpdateRowDocMap();
 
-    void (async () => {
-      const { rows, destroy } = await getViewRowsMap(iidIndex, rowIds);
-
-      setRowDocMap(rows);
-      return destroy;
-    })();
-  }, [getViewRowsMap, rowIds, iidIndex]);
+    rowOrders?.observe(handleUpdateRowDocMap);
+    return () => {
+      rowOrders?.unobserve(handleUpdateRowDocMap);
+    };
+  }, [handleUpdateRowDocMap, rowOrders]);
 
   const rowId = search.get('r');
 

@@ -6,7 +6,7 @@ import { CellProps, CheckboxCell as CheckboxCellType } from '@/application/datab
 export function CheckboxCell({ cell, style }: CellProps<CheckboxCellType>) {
   const checked = cell?.data;
 
-  if (cell?.fieldType !== FieldType.Checkbox) return null;
+  if (cell && cell?.fieldType !== FieldType.Checkbox) return null;
 
   return (
     <div style={style} className='relative flex w-full cursor-pointer items-center text-lg text-fill-default'>
