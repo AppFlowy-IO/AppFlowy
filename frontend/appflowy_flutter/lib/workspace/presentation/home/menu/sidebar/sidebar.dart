@@ -27,7 +27,6 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_migration.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
@@ -370,11 +369,6 @@ class _SidebarState extends State<_Sidebar> {
     // otherwise, show the space
     final sidebarSectionBloc = context.watch<SidebarSectionsBloc>();
     final containsSpace = sidebarSectionBloc.state.containsSpace;
-
-    Log.info('fetch the space info from sidebar section: $containsSpace');
-    Log.info(
-      'fetch the space info from space: ${spaceState.spaces.isNotEmpty}',
-    );
 
     if (containsSpace && spaceState.spaces.isEmpty) {
       context.read<SpaceBloc>().add(const SpaceEvent.didReceiveSpaceUpdate());
