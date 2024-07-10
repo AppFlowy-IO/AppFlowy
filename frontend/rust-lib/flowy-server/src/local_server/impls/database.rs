@@ -2,7 +2,7 @@ use anyhow::Error;
 use collab::preclude::Collab;
 use collab_entity::define::{DATABASE, DATABASE_ROW_DATA, WORKSPACE_DATABASES};
 use collab_entity::CollabType;
-use yrs::{Any, MapPrelim};
+use yrs::MapPrelim;
 
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
@@ -36,7 +36,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
         CollabType::WorkspaceDatabase => {
           let collab = Collab::new(1, object_id, collab_type, vec![], false);
           collab.with_origin_transact_mut(|txn| {
-            collab.create_array_with_txn::<MapPrelim<Any>>(txn, WORKSPACE_DATABASES, vec![]);
+            collab.create_array_with_txn::<MapPrelim>(txn, WORKSPACE_DATABASES, vec![]);
           });
           collab
             .encode_collab_v1(|_| Ok::<(), Error>(()))?
