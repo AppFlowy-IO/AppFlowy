@@ -284,8 +284,17 @@ pub trait UserCloudService: Send + Sync + 'static {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
+  /// Get all subscriptions for all workspaces for a user (email)
   fn get_workspace_subscriptions(
     &self,
+  ) -> FutureResult<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
+  /// Get the workspace subscriptions for a workspace
+  fn get_workspace_subscription_one(
+    &self,
+    workspace_id: String,
   ) -> FutureResult<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
