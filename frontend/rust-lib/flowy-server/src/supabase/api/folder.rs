@@ -96,11 +96,8 @@ where
       if items.is_empty() {
         return Ok(None);
       }
-      let updates = items
-        .iter()
-        .map(|update| update.value.as_ref())
-        .collect::<Vec<&[u8]>>();
-      let doc_state = merge_updates_v1(&updates)
+      let updates = items.into_iter().map(|update| update.value);
+      let doc_state = merge_updates_v1(updates)
         .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
 
       let folder = Folder::from_collab_doc_state(
