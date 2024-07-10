@@ -55,6 +55,7 @@ impl DefaultFolderBuilder {
       recent: Default::default(),
       trash: Default::default(),
       private: Default::default(),
+      section_view_relations: Default::default(),
     }
   }
 }

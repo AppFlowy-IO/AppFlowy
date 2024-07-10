@@ -86,8 +86,8 @@ impl SearchManager {
         return;
       },
     };
-    let private_views = self.folder_manager.get_view_ids_should_be_filtered(folder);
-    tracing::warn!("Private views: {:?}", private_views);
+
+    let private_space_ids = self.folder_manager.get_view_ids_should_be_filtered(folder);
 
     let max: usize = self.handlers.len();
     let handlers = self.handlers.clone();
@@ -96,17 +96,25 @@ impl SearchManager {
       let f = filter.clone();
       let ch = channel.clone();
       let notifier = self.notifier.clone();
-      let private_view_ids = private_views.clone();
+
+      let filtered_ids = private_space_ids
+        .iter()
+        .filter_map(|key| folder.section_view_relations.get(key))
+        .flatten()
+        .cloned()
+        .collect::<Vec<String>>();
 
       af_spawn(async move {
         let res = handler.perform_search(q.clone(), f).await;
-
         let items = res.unwrap_or_default();
 
-        // Filter out any items which ID exists in private_views
+        tracing::warn!("Search Result: {:?}", items);
+        tracing::warn!("Filtered IDs: {:?}", filtered_ids);
+
+        // filter out items that are not in the private view
         let items = items
           .into_iter()
-          .filter(|item| !private_view_ids.contains(&item.id))
+          .filter(|item| !filtered_ids.contains(&item.id))
           .collect();
 
         let notification = SearchResultNotificationPB {
