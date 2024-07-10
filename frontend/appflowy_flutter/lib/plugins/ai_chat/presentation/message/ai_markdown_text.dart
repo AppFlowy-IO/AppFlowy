@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/markdown_code_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -19,7 +19,7 @@ class AIMarkdownText extends StatelessWidget {
   const AIMarkdownText({
     super.key,
     required this.markdown,
-    this.type = AIMarkdownType.appflowyEditor,
+    this.type = AIMarkdownType.markdownWidget,
   });
 
   final String markdown;
@@ -101,6 +101,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
         editable: false,
         editorStyle: editorStyle,
         blockComponentBuilders: blockBuilders,
+        commandShortcutEvents: [customCopyCommand],
         editorState: editorState,
       ),
     );
