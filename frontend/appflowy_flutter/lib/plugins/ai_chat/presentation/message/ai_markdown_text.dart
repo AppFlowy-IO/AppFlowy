@@ -19,7 +19,7 @@ class AIMarkdownText extends StatelessWidget {
   const AIMarkdownText({
     super.key,
     required this.markdown,
-    this.type = AIMarkdownType.markdownWidget,
+    this.type = AIMarkdownType.appflowyEditor,
   });
 
   final String markdown;
@@ -60,12 +60,17 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
         cursorColor: Colors.transparent,
         cursorWidth: 0,
       );
+  late EditorScrollController scrollController;
 
   @override
   void initState() {
     super.initState();
 
     editorState = _parseMarkdown(widget.markdown);
+    scrollController = EditorScrollController(
+      editorState: editorState,
+      shrinkWrap: true,
+    );
   }
 
   @override
@@ -75,11 +80,17 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
     if (oldWidget.markdown != widget.markdown) {
       editorState.dispose();
       editorState = _parseMarkdown(widget.markdown);
+      scrollController.dispose();
+      scrollController = EditorScrollController(
+        editorState: editorState,
+        shrinkWrap: true,
+      );
     }
   }
 
   @override
   void dispose() {
+    scrollController.dispose();
     editorState.dispose();
 
     super.dispose();
@@ -100,6 +111,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
         // the editor is not editable in the chat
         editable: false,
         editorStyle: editorStyle,
+        editorScrollController: scrollController,
         blockComponentBuilders: blockBuilders,
         commandShortcutEvents: [customCopyCommand],
         editorState: editorState,
