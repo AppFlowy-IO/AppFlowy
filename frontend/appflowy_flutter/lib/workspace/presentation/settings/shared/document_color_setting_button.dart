@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/color_to_hex_string.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/utils/hex_opacity_string_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/util/color_to_hex_string.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/utils/hex_opacity_string_extension.dart';
+import 'package:flutter/material.dart';
 
 class DocumentColorSettingButton extends StatefulWidget {
   const DocumentColorSettingButton({
@@ -92,28 +92,6 @@ class DocumentColorSettingDialogState
   late TextEditingController hexController;
   late TextEditingController opacityController;
 
-  void updateSelectedColor() {
-    if (widget.formKey.currentState!.validate()) {
-      setState(() {
-        final colorValue = int.tryParse(
-          hexController.text.combineHexWithOpacity(opacityController.text),
-        );
-        // colorValue has been validated in the _ColorSettingTextField for hex value and it won't be null as this point
-        selectedColorOnDialog = Color(colorValue!);
-        widget.onChanged(selectedColorOnDialog!);
-      });
-    }
-  }
-
-  void updateColor(Color color) {
-    setState(() {
-      hexController.text = ColorExtension(color).toHexString().extractHex();
-      opacityController.text =
-          ColorExtension(color).toHexString().extractOpacity();
-    });
-    updateSelectedColor();
-  }
-
   @override
   void initState() {
     super.initState();
@@ -156,14 +134,14 @@ class DocumentColorSettingDialogState
                 controller: hexController,
                 labelText: LocaleKeys.editor_hexValue.tr(),
                 hintText: '6fc9e7',
-                onChanged: (_) => updateSelectedColor(),
-                onFieldSubmitted: (_) => updateSelectedColor(),
+                onChanged: (_) => _updateSelectedColor(),
+                onFieldSubmitted: (_) => _updateSelectedColor(),
                 validator: (v) => validateHexValue(v, opacityController.text),
                 suffixIcon: GestureDetector(
                   onTap: () => _showColorPickerDialog(
                     context: context,
                     currentColor: widget.currentColor,
-                    updateColor: updateColor,
+                    updateColor: _updateColor,
                   ),
                   child: const Icon(Icons.color_lens_rounded),
                 ),
@@ -173,8 +151,8 @@ class DocumentColorSettingDialogState
                 controller: opacityController,
                 labelText: LocaleKeys.editor_opacity.tr(),
                 hintText: '50',
-                onChanged: (_) => updateSelectedColor(),
-                onFieldSubmitted: (_) => updateSelectedColor(),
+                onChanged: (_) => _updateSelectedColor(),
+                onFieldSubmitted: (_) => _updateSelectedColor(),
                 validator: (value) => validateOpacityValue(value),
               ),
             ],
@@ -182,6 +160,28 @@ class DocumentColorSettingDialogState
         ),
       ],
     );
+  }
+
+  void _updateSelectedColor() {
+    if (widget.formKey.currentState!.validate()) {
+      setState(() {
+        final colorValue = int.tryParse(
+          hexController.text.combineHexWithOpacity(opacityController.text),
+        );
+        // colorValue has been validated in the _ColorSettingTextField for hex value and it won't be null as this point
+        selectedColorOnDialog = Color(colorValue!);
+        widget.onChanged(selectedColorOnDialog!);
+      });
+    }
+  }
+
+  void _updateColor(Color color) {
+    setState(() {
+      hexController.text = ColorExtension(color).toHexString().extractHex();
+      opacityController.text =
+          ColorExtension(color).toHexString().extractOpacity();
+    });
+    _updateSelectedColor();
   }
 }
 
@@ -264,26 +264,114 @@ String? validateOpacityValue(String? value) {
   return null;
 }
 
+const _kColorCircleWidth = 46.0;
+const _kColorCircleHeight = 46.0;
+const _kColorCircleRadius = 23.0;
+const _kColorOpacityThumbRadius = 23.0;
+const _kDialogButtonPaddingHorizontal = 24.0;
+const _kDialogButtonPaddingVertical = 12.0;
+const _kColorsColumnSpacing = 3.0;
+
+class _ColorPicker extends StatelessWidget {
+  const _ColorPicker({
+    required this.selectedColor,
+    required this.onColorChanged,
+  });
+
+  final Color selectedColor;
+  final void Function(Color) onColorChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SingleChildScrollView(
+      child: ColorPicker(
+        width: _kColorCircleWidth,
+        height: _kColorCircleHeight,
+        borderRadius: _kColorCircleRadius,
+        enableOpacity: true,
+        opacityThumbRadius: _kColorOpacityThumbRadius,
+        columnSpacing: _kColorsColumnSpacing,
+        enableTooltips: false,
+        pickersEnabled: const {
+          ColorPickerType.both: false,
+          ColorPickerType.primary: true,
+          ColorPickerType.accent: true,
+          ColorPickerType.wheel: true,
+        },
+        subheading: Text(
+          LocaleKeys.settings_appearance_documentSettings_colorShade.tr(),
+          style: theme.textTheme.labelLarge,
+        ),
+        opacitySubheading: Text(
+          LocaleKeys.settings_appearance_documentSettings_opacity.tr(),
+          style: theme.textTheme.labelLarge,
+        ),
+        onColorChanged: onColorChanged,
+      ),
+    );
+  }
+}
+
+class _ColorPickerActions extends StatelessWidget {
+  const _ColorPickerActions({
+    required this.onReset,
+    required this.onUpdate,
+  });
+
+  final VoidCallback onReset;
+  final VoidCallback onUpdate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 24,
+          child: FlowyTextButton(
+            LocaleKeys.button_cancel.tr(),
+            padding: const EdgeInsets.symmetric(
+              horizontal: _kDialogButtonPaddingHorizontal,
+              vertical: _kDialogButtonPaddingVertical,
+            ),
+            fontColor: AFThemeExtension.of(context).textColor,
+            fillColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            radius: Corners.s12Border,
+            onPressed: onReset,
+          ),
+        ),
+        const HSpace(8),
+        SizedBox(
+          height: 48,
+          child: FlowyTextButton(
+            LocaleKeys.button_done.tr(),
+            padding: const EdgeInsets.symmetric(
+              horizontal: _kDialogButtonPaddingHorizontal,
+              vertical: _kDialogButtonPaddingVertical,
+            ),
+            radius: Corners.s12Border,
+            fontHoverColor: Colors.white,
+            fillColor: Theme.of(context).colorScheme.primary,
+            hoverColor: const Color(0xFF005483),
+            onPressed: onUpdate,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 void _showColorPickerDialog({
   required BuildContext context,
   String? title,
   required Color currentColor,
   required void Function(Color) updateColor,
 }) {
-  const kColorCircleWidth = 46.0;
-  const kColorCircleHeight = 46.0;
-  const kColorCircleRadius = 23.0;
-  const kColorOpacityThumbRadius = 23.0;
-  const kDialogButtonPaddingHorizontal = 24.0;
-  const kDialogButtonPaddingVertical = 12.0;
-  const kColorsColumnSpacing = 3.0;
   final style = Theme.of(context);
   Color selectedColor = currentColor;
-
-  void updated(Color color) {
-    updateColor(color);
-    Navigator.of(context).pop();
-  }
 
   showDialog(
     context: context,
@@ -296,71 +384,21 @@ void _showColorPickerDialog({
               LocaleKeys.settings_appearance_documentSettings_pickColor.tr(),
           style: style.textTheme.titleLarge,
         ),
-        content: SingleChildScrollView(
-          child: ColorPicker(
-            width: kColorCircleWidth,
-            height: kColorCircleHeight,
-            borderRadius: kColorCircleRadius,
-            enableOpacity: true,
-            opacityThumbRadius: kColorOpacityThumbRadius,
-            columnSpacing: kColorsColumnSpacing,
-            enableTooltips: false,
-            pickersEnabled: const {
-              ColorPickerType.both: false,
-              ColorPickerType.primary: true,
-              ColorPickerType.accent: true,
-              ColorPickerType.wheel: true,
-            },
-            subheading: Text(
-              LocaleKeys.settings_appearance_documentSettings_colorShade.tr(),
-              style: style.textTheme.labelLarge,
-            ),
-            opacitySubheading: Text(
-              LocaleKeys.settings_appearance_documentSettings_opacity.tr(),
-              style: style.textTheme.labelLarge,
-            ),
-            onColorChanged: (color) {
-              selectedColor = color;
-            },
-          ),
+        content: _ColorPicker(
+          selectedColor: selectedColor,
+          onColorChanged: (color) => selectedColor = color,
         ),
         actionsPadding: const EdgeInsets.all(8),
         actions: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 24,
-                child: FlowyTextButton(
-                  LocaleKeys.button_cancel.tr(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: kDialogButtonPaddingHorizontal,
-                    vertical: kDialogButtonPaddingVertical,
-                  ),
-                  fontColor: AFThemeExtension.of(context).textColor,
-                  fillColor: Colors.transparent,
-                  hoverColor: Colors.transparent,
-                  radius: Corners.s12Border,
-                  onPressed: () => updated(currentColor),
-                ),
-              ),
-              const HSpace(8),
-              SizedBox(
-                height: 48,
-                child: FlowyTextButton(
-                  LocaleKeys.button_done.tr(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: kDialogButtonPaddingHorizontal,
-                    vertical: kDialogButtonPaddingVertical,
-                  ),
-                  radius: Corners.s12Border,
-                  fontHoverColor: Colors.white,
-                  fillColor: Theme.of(context).colorScheme.primary,
-                  hoverColor: const Color(0xFF005483),
-                  onPressed: () => updated(selectedColor),
-                ),
-              ),
-            ],
+          _ColorPickerActions(
+            onReset: () {
+              updateColor(currentColor);
+              Navigator.of(context).pop();
+            },
+            onUpdate: () {
+              updateColor(selectedColor);
+              Navigator.of(context).pop();
+            },
           ),
         ],
       );
