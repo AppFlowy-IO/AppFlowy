@@ -534,6 +534,18 @@ where
     })
   }
 
+  fn get_workspace_subscription_one(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let workspace_subscriptions = client.get_workspace_subscriptions(&workspace_id).await?;
+      Ok(workspace_subscriptions)
+    })
+  }
+
   fn cancel_workspace_subscription(
     &self,
     workspace_id: String,
