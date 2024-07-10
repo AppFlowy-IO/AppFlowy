@@ -18,6 +18,7 @@ import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/util/throttle.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -36,6 +37,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'document_bloc.freezed.dart';
+
+bool enableDocumentInternalLog = false;
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
@@ -212,6 +215,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<EditorState?> _initAppFlowyEditorState(DocumentDataPB data) async {
+    if (enableDocumentInternalLog) {
+      Log.info('document data: ${data.toProto3Json()}');
+    }
+
     final document = data.toDocument();
     if (document == null) {
       assert(false, 'document is null');
