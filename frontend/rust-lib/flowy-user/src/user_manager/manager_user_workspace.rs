@@ -1,6 +1,6 @@
 use chrono::{Duration, NaiveDateTime, Utc};
 use client_api::entity::billing_dto::{
-  RecurringInterval, SubscriptionPlan, WorkspaceUsageAndLimit,
+  RecurringInterval, SubscriptionPlan, WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
 };
 use std::convert::TryFrom;
 use std::sync::Arc;
@@ -476,6 +476,18 @@ impl UserManager {
     let subscriptions = self.get_workspace_subscriptions_from_remote(uid).await?;
 
     Ok(subscriptions)
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn get_workspace_subscription_info(
+    &self,
+    workspace_id: String,
+  ) -> FlowyResult<Vec<WorkspaceSubscriptionStatus>> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_subscriptions()
+      .await
   }
 
   async fn get_workspace_subscriptions_from_remote(

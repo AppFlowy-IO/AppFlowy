@@ -788,6 +788,19 @@ pub async fn get_workspace_subscriptions_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_workspace_subscription_info_handler(
+  params: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<WorkspaceSubscriptionInfoPB, FlowyError> {
+  let params = params.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  let subs = manager
+    .get_workspace_subscription_info(params.workspace_id)
+    .await?;
+  data_result_ok(WorkspaceSubscriptionInfoPB::from(subs))
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn cancel_workspace_subscription_handler(
   param: AFPluginData<CancelWorkspaceSubscriptionPB>,
   manager: AFPluginState<Weak<UserManager>>,
