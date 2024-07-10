@@ -472,8 +472,8 @@ impl From<WorkspaceSubscriptionStatus> for WorkspaceSubscription {
       subscription_plan: sub_status.workspace_plan,
       recurring_interval: sub_status.recurring_interval,
       is_active: sub_status.subscription_status == SubscriptionStatus::Active,
-      has_canceled: sub_status.canceled_at.is_some(),
-      canceled_at: sub_status.canceled_at,
+      has_canceled: sub_status.cancel_at.is_some(),
+      canceled_at: sub_status.cancel_at,
     }
   }
 }

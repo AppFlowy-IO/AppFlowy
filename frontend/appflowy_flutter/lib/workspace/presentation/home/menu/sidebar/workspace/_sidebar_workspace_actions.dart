@@ -105,14 +105,16 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
           case WorkspaceMoreAction.divider:
             break;
           case WorkspaceMoreAction.delete:
-            await NavigatorAlertDialog(
-              title: LocaleKeys.workspace_deleteWorkspaceHintText.tr(),
-              confirm: () {
+            await showConfirmDeletionDialog(
+              context: context,
+              name: workspace.name,
+              description: LocaleKeys.workspace_deleteWorkspaceHintText.tr(),
+              onConfirm: () {
                 workspaceBloc.add(
                   UserWorkspaceEvent.deleteWorkspace(workspace.workspaceId),
                 );
               },
-            ).show(context);
+            );
           case WorkspaceMoreAction.rename:
             await NavigatorTextFieldDialog(
               title: LocaleKeys.workspace_renameWorkspace.tr(),

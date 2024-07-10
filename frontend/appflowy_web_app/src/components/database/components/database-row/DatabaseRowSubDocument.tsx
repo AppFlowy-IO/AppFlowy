@@ -1,6 +1,5 @@
 import { YDoc } from '@/application/collab.type';
-import { useRowMetaSelector } from '@/application/database-yjs';
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { DatabaseContext, useRowMetaSelector } from '@/application/database-yjs';
 import { Editor } from '@/components/editor';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -8,17 +7,19 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
   const meta = useRowMetaSelector(rowId);
   const documentId = meta?.documentId;
+  const loadView = useContext(DatabaseContext)?.loadView;
+  const getViewRowsMap = useContext(DatabaseContext)?.getViewRowsMap;
+  const navigateToView = useContext(DatabaseContext)?.navigateToView;
+  const loadViewMeta = useContext(DatabaseContext)?.loadViewMeta;
 
   const [loading, setLoading] = useState(true);
   const [doc, setDoc] = useState<YDoc | null>(null);
 
-  const documentService = useContext(AFConfigContext)?.service?.documentService;
-
   const handleOpenDocument = useCallback(async () => {
-    if (!documentService || !documentId) return;
+    if (!loadView || !documentId) return;
     try {
       setDoc(null);
-      const doc = await documentService.openDocument(documentId);
+      const doc = await loadView(documentId);
 
       console.log('doc', doc);
       setDoc(doc);
@@ -26,7 +27,7 @@ export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
       console.error(e);
       // haven't created by client, ignore error and show empty
     }
-  }, [documentService, documentId]);
+  }, [loadView, documentId]);
 
   useEffect(() => {
     setLoading(true);
@@ -43,7 +44,16 @@ export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
 
   if (!doc) return null;
 
-  return <Editor doc={doc} readOnly={true} />;
+  return (
+    <Editor
+      doc={doc}
+      loadViewMeta={loadViewMeta}
+      navigateToView={navigateToView}
+      getViewRowsMap={getViewRowsMap}
+      readOnly={true}
+      loadView={loadView}
+    />
+  );
 }
 
 export default DatabaseRowSubDocument;

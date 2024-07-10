@@ -53,7 +53,7 @@ class SettingsAIView extends StatelessWidget {
               AIModelSelection(),
               _AISearchToggle(value: false),
               // Disable local AI configuration for now. It's not ready for production.
-              // LocalAIConfiguration(),
+              LocalAIConfiguration(),
             ],
           );
         },

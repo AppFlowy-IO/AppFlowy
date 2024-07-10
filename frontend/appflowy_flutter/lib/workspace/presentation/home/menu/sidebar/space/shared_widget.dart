@@ -19,6 +19,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpacePermissionSwitch extends StatefulWidget {
@@ -222,55 +223,82 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
   }
 }
 
-class DeleteSpacePopup extends StatelessWidget {
-  const DeleteSpacePopup({super.key});
+class ConfirmDeletionPopup extends StatefulWidget {
+  const ConfirmDeletionPopup({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.onConfirm,
+  });
+
+  final String title;
+  final String description;
+  final VoidCallback onConfirm;
+
+  @override
+  State<ConfirmDeletionPopup> createState() => _ConfirmDeletionPopupState();
+}
+
+class _ConfirmDeletionPopupState extends State<ConfirmDeletionPopup> {
+  final focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
-    final space = context.read<SpaceBloc>().state.currentSpace;
-    final name = space != null ? space.name : '';
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 20.0,
-        horizontal: 20.0,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              FlowyText(
-                LocaleKeys.space_deleteConfirmation.tr() + name,
-                fontSize: 14.0,
-              ),
-              const Spacer(),
-              FlowyButton(
-                useIntrinsicWidth: true,
-                text: const FlowySvg(FlowySvgs.upgrade_close_s),
-                onTap: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          const VSpace(8.0),
-          FlowyText.regular(
-            LocaleKeys.space_deleteConfirmationDescription.tr(),
-            fontSize: 12.0,
-            color: Theme.of(context).hintColor,
-            maxLines: 3,
-            lineHeight: 1.4,
-          ),
-          const VSpace(20.0),
-          SpaceCancelOrConfirmButton(
-            onCancel: () => Navigator.of(context).pop(),
-            onConfirm: () {
-              context.read<SpaceBloc>().add(const SpaceEvent.delete(null));
-              Navigator.of(context).pop();
-            },
-            confirmButtonName: LocaleKeys.space_delete.tr(),
-            confirmButtonColor: Theme.of(context).colorScheme.error,
-          ),
-        ],
+    return KeyboardListener(
+      focusNode: focusNode,
+      autofocus: true,
+      onKeyEvent: (event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.escape) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 20.0,
+          horizontal: 20.0,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Flexible(
+                  child: FlowyText(
+                    widget.title,
+                    fontSize: 14.0,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const HSpace(6.0),
+                FlowyButton(
+                  useIntrinsicWidth: true,
+                  text: const FlowySvg(FlowySvgs.upgrade_close_s),
+                  onTap: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+            const VSpace(8.0),
+            FlowyText.regular(
+              widget.description,
+              fontSize: 12.0,
+              color: Theme.of(context).hintColor,
+              maxLines: 3,
+              lineHeight: 1.4,
+            ),
+            const VSpace(20.0),
+            SpaceCancelOrConfirmButton(
+              onCancel: () => Navigator.of(context).pop(),
+              onConfirm: () {
+                widget.onConfirm();
+                Navigator.of(context).pop();
+              },
+              confirmButtonName: LocaleKeys.space_delete.tr(),
+              confirmButtonColor: Theme.of(context).colorScheme.error,
+            ),
+          ],
+        ),
       ),
     );
   }

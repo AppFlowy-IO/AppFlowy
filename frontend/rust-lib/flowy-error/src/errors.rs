@@ -119,6 +119,7 @@ impl FlowyError {
   );
   static_flowy_error!(workspace_data_not_match, ErrorCode::WorkspaceDataNotMatch);
   static_flowy_error!(local_ai, ErrorCode::LocalAIError);
+  static_flowy_error!(local_ai_unavailable, ErrorCode::LocalAIUnavailable);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

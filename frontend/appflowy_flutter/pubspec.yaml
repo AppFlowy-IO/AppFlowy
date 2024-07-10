@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.6.2
+version: 0.6.3
 
 environment:
   flutter: ">=3.22.0"
@@ -66,6 +66,7 @@ dependencies:
   styled_widget: ^0.4.1
   expandable: ^5.0.1
   flutter_colorpicker: ^1.0.3
+  flex_color_picker: ^3.5.1
   highlight: ^0.7.0
   package_info_plus: ^6.0.0
   url_launcher: ^6.1.11
@@ -141,6 +142,7 @@ dependencies:
   shimmer: ^3.0.0
   isolates: ^3.0.3+8
   markdown_widget: ^2.3.2+6
+  markdown:
 
   # Window Manager for MacOS and Linux
   window_manager: ^0.3.9
@@ -149,6 +151,8 @@ dependencies:
   bitsdojo_window: ^0.1.6
 
   flutter_highlight: ^0.7.0
+  custom_sliding_segmented_control: ^1.8.3
+  toastification: ^2.0.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -185,7 +189,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "e8ee051"
+      ref: "d2d9873"
 
   appflowy_editor_plugins:
     git:

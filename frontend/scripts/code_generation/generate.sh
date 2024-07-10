@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Store the current working directory
 original_dir=$(pwd)

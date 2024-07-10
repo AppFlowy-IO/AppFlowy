@@ -77,11 +77,8 @@ impl Action for FetchObjectUpdateAction {
                 return Ok(vec![]);
               }
 
-              let updates = items
-                .iter()
-                .map(|update| update.value.as_ref())
-                .collect::<Vec<&[u8]>>();
-              let doc_state = merge_updates_v1(&updates)
+              let updates = items.into_iter().map(|update| update.value);
+              let doc_state = merge_updates_v1(updates)
                 .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
               Ok(doc_state)
             },
@@ -286,12 +283,9 @@ pub async fn batch_get_updates_from_server(
             if items.is_empty() {
               updates_by_oid.insert(oid.to_string(), DataSource::Disk);
             } else {
-              let updates = items
-                .iter()
-                .map(|update| update.value.as_ref())
-                .collect::<Vec<&[u8]>>();
+              let updates = items.into_iter().map(|update| update.value);
 
-              let doc_state = merge_updates_v1(&updates)
+              let doc_state = merge_updates_v1(updates)
                 .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
               updates_by_oid.insert(oid.to_string(), DataSource::DocStateV1(doc_state));
             }

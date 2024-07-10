@@ -1,4 +1,7 @@
+import { notify } from '@/components/_shared/notify';
+import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
 import { ImageBlockNode } from '@/components/editor/editor.type';
+import { copyTextToClipboard } from '@/utils/copy';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CircularProgress } from '@mui/material';
@@ -6,7 +9,15 @@ import { ErrorOutline } from '@mui/icons-material';
 
 const MIN_WIDTH = 100;
 
-function ImageRender({ selected, node }: { selected: boolean; node: ImageBlockNode }) {
+function ImageRender({
+  selected,
+  node,
+  showToolbar,
+}: {
+  selected: boolean;
+  node: ImageBlockNode;
+  showToolbar?: boolean;
+}) {
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
@@ -62,6 +73,19 @@ function ImageRender({ selected, node }: { selected: boolean; node: ImageBlockNo
       className={`image-render relative min-h-[48px] ${hasError ? 'w-full' : ''}`}
     >
       <img loading={'lazy'} {...imageProps} alt={`image-${blockId}`} />
+      {showToolbar && url && (
+        <RightTopActionsToolbar
+          onCopy={async () => {
+            if (!url) return;
+            try {
+              await copyTextToClipboard(url);
+              notify.success(t('publish.copy.imageBlock'));
+            } catch (_) {
+              // do nothing
+            }
+          }}
+        />
+      )}
       {hasError ? (
         renderErrorNode()
       ) : loading ? (
