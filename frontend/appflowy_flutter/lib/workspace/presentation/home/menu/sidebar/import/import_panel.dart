@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/markdown_code_parser.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/share/import_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
@@ -220,7 +221,12 @@ class _ImportPanelState extends State<ImportPanel> {
 Uint8List? _documentDataFrom(ImportType importType, String data) {
   switch (importType) {
     case ImportType.markdownOrText:
-      final document = markdownToDocument(data);
+      final document = markdownToDocument(
+        data,
+        markdownParsers: [
+          const MarkdownCodeBlockParser(),
+        ],
+      );
       return DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
     case ImportType.historyDocument:
       final document = EditorMigration.migrateDocument(data);

@@ -52,7 +52,6 @@ class TextMessageText extends StatelessWidget {
       text,
       fontSize: 16,
       fontWeight: FontWeight.w500,
-      lineHeight: 1.5,
       maxLines: null,
       selectable: true,
       color: AFThemeExtension.of(context).textColor,
