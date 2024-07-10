@@ -20,6 +20,16 @@ async fn get_document_event_test() {
 }
 
 #[tokio::test]
+async fn get_encoded_collab_event_test() {
+  let test = DocumentEventTest::new().await;
+  let view = test.create_document().await;
+  let doc_id = view.id.clone();
+  let encoded_v1 = test.get_encoded_collab(&doc_id).await;
+  assert!(!encoded_v1.doc_state.is_empty());
+  assert!(!encoded_v1.state_vector.is_empty());
+}
+
+#[tokio::test]
 async fn apply_document_event_test() {
   let test = DocumentEventTest::new().await;
   let view = test.create_document().await;

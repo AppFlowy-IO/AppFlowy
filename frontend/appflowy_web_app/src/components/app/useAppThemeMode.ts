@@ -1,17 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, createContext } from 'react';
+
+export const ThemeModeContext = createContext<
+  | {
+      isDark: boolean;
+      setDark: (isDark: boolean) => void;
+    }
+  | undefined
+>(undefined);
 
 export function useAppThemeMode() {
-  const [isDark, setIsDark] = useState<boolean>(false);
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    const darkMode = localStorage.getItem('dark-mode');
+
+    return darkMode === 'true';
+  });
 
   useEffect(() => {
     function detectColorScheme() {
       const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
       setIsDark(darkModeMediaQuery.matches);
-      document.documentElement.setAttribute('data-dark-mode', darkModeMediaQuery.matches ? 'true' : 'false');
     }
 
-    detectColorScheme();
+    if (localStorage.getItem('dark-mode') === null) {
+      detectColorScheme();
+    }
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectColorScheme);
     return () => {
@@ -19,7 +32,13 @@ export function useAppThemeMode() {
     };
   }, []);
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-dark-mode', isDark ? 'true' : 'false');
+    localStorage.setItem('dark-mode', isDark ? 'true' : 'false');
+  }, [isDark]);
+
   return {
     isDark,
+    setIsDark,
   };
 }

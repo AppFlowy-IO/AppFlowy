@@ -51,13 +51,14 @@ void main() {
           },
         );
 
-        final shareButton = find.byType(ShareActionList);
+        final shareButton = find.byType(DocumentShareButton);
         final shareButtonState =
-            tester.state(shareButton) as ShareActionListState;
+            tester.widget(shareButton) as DocumentShareButton;
+
         final path = await mockSaveFilePath(
           p.join(
             context.applicationDataDirectory,
-            '${shareButtonState.name}.md',
+            '${shareButtonState.view.name}.md',
           ),
         );
 

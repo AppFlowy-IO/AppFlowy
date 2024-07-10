@@ -1,4 +1,8 @@
 # Release Notes
+## Version 0.6.3 - 08/07/2024
+### New Features
+- Publish a Document to the Web
+
 ## Version 0.6.2 - 01/07/2024
 ### New Features
 - Added support for duplicating spaces.

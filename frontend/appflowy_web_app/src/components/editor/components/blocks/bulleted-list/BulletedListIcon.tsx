@@ -2,6 +2,9 @@ import { BulletedListNode } from '@/components/editor/editor.type';
 import { getListLevel } from '@/components/editor/utils/list';
 import React, { useMemo } from 'react';
 import { ReactEditor, useSlateStatic } from 'slate-react';
+import { ReactComponent as DiscIcon } from '@/assets/bulleted_list_icon_1.svg';
+import { ReactComponent as CircleIcon } from '@/assets/bulleted_list_icon_2.svg';
+import { ReactComponent as SquareIcon } from '@/assets/bulleted_list_icon_3.svg';
 
 enum Letter {
   Disc,
@@ -25,25 +28,27 @@ export function BulletedListIcon({ block, className }: { block: BulletedListNode
     }
   }, [block.type, staticEditor, path]);
 
-  const dataLetter = useMemo(() => {
+  const Icon = useMemo(() => {
     switch (letter) {
       case Letter.Disc:
-        return '•';
+        return DiscIcon;
       case Letter.Circle:
-        return '◦';
+        return CircleIcon;
       case Letter.Square:
-        return '▪';
+        return SquareIcon;
     }
   }, [letter]);
 
   return (
     <span
+      data-playwright-selected={false}
+      contentEditable={false}
       onMouseDown={(e) => {
         e.preventDefault();
       }}
-      data-letter={dataLetter}
-      contentEditable={false}
-      className={`${className} bulleted-icon flex min-w-[24px] justify-center pr-1 font-medium`}
-    />
+      className={`${className} pr-1 text-xl`}
+    >
+      <Icon />
+    </span>
   );
 }

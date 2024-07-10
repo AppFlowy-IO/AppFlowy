@@ -82,7 +82,7 @@
       "reachOut": "Reach out on Discord"
     },
     "menuTitle": "Workspaces",
-    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
+    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone, and any pages you have published will be unpublished.",
     "createSuccess": "Workspace created successfully",
     "createFailed": "Failed to create workspace",
     "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
@@ -106,7 +106,15 @@
     "html": "HTML",
     "clipboard": "Copy to clipboard",
     "csv": "CSV",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy Link",
+    "publishToTheWeb": "Publish to Web",
+    "publishToTheWebHint": "Create a website with AppFlowy",
+    "publish": "Publish",
+    "unPublish": "Unpublish",
+    "visitSite": "Visit site",
+    "exportAsTab": "Export as",
+    "publishTab": "Publish",
+    "shareTab": "Share"
   },
   "moreAction": {
     "small": "small",
@@ -434,7 +442,7 @@
       },
       "deleteWorkspacePrompt": {
         "title": "Delete workspace",
-        "content": "Are you sure you want to delete this workspace? This action cannot be undone."
+        "content": "Are you sure you want to delete this workspace? This action cannot be undone, and any pages you have published will be unpublished."
       },
       "leaveWorkspacePrompt": {
         "title": "Leave workspace",
@@ -1376,6 +1384,9 @@
         "imageUploadFailed": "Image upload failed",
         "errorCode": "Error code"
       },
+      "math": {
+        "copiedToPasteBoard": "The math equation has been copied to the clipboard"
+      },
       "urlPreview": {
         "copiedToPasteBoard": "The link has been copied to the clipboard",
         "convertToLink": "Convert to embed link"
@@ -2003,7 +2014,7 @@
   "space": {
     "delete": "Delete",
     "deleteConfirmation": "Delete: ",
-    "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to Trash.",
+    "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to the Trash, and any published pages will be unpublished.",
     "rename": "Rename Space",
     "changeIcon": "Change icon",
     "manage": "Manage Space",
@@ -2030,8 +2041,30 @@
     "upgrade": "Update",
     "upgradeYourSpace": "Create multiple Spaces",
     "quicklySwitch": "Quickly switch to the next space",
+
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
     "switchSpace": "Switch space"
+  },
+  "publish": {
+    "hasNotBeenPublished": "This page hasn't been published yet",
+    "reportPage": "Report page",
+    "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
+    "createdWith": "Created with",
+    "downloadApp": "Download AppFlowy",
+    "copy": {
+      "codeBlock": "The content of code block has been copied to the clipboard",
+      "imageBlock": "The image link has been copied to the clipboard",
+      "mathBlock": "The math equation has been copied to the clipboard"
+    },
+    "containsPublishedPage": "This page contains one or more published pages. If you continue, they will be unpublished. Do you want to proceed with deletion?",
+    "publishSuccessfully": "Published successfully",
+    "unpublishSuccessfully": "Unpublished successfully",
+    "publishFailed": "Failed to publish",
+    "unpublishFailed": "Failed to unpublish",
+    "noAccessToVisit": "No access to this page...",
+    "createWithAppFlowy": "Create a website with AppFlowy",
+    "fastWithAI": "Fast and easy with AI.",
+    "tryItNow": "Try it now"
   }
 }

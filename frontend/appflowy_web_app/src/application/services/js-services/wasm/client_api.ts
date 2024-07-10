@@ -1,8 +1,6 @@
-import { CollabType } from '@/application/collab.type';
 import { ClientAPI } from '@appflowyinc/client-api-wasm';
-import { UserProfile, UserWorkspace } from '@/application/user.type';
 import { AFCloudConfig } from '@/application/services/services.type';
-import { invalidToken, readTokenStr, writeToken } from 'src/application/services/js-services/session';
+import { PublishViewMetaData } from '@/application/collab.type';
 
 let client: ClientAPI;
 
@@ -12,8 +10,18 @@ export function initAPIService(
     clientId: string;
   }
 ) {
-  window.refresh_token = writeToken;
-  window.invalid_token = invalidToken;
+  if (client) {
+    return;
+  }
+
+  window.refresh_token = () => {
+    //
+  };
+
+  window.invalid_token = () => {
+    // invalidToken();
+  };
+
   client = ClientAPI.new({
     base_url: config.baseURL,
     ws_addr: config.wsURL,
@@ -26,96 +34,25 @@ export function initAPIService(
     },
   });
 
-  const token = readTokenStr();
-
-  if (token) {
-    client.restore_token(token);
-  }
-
   client.subscribe();
 }
 
-export function signIn(email: string, password: string) {
-  return client.login(email, password);
-}
-
-export function logout() {
-  return client.logout();
-}
-
-export async function getUser(): Promise<UserProfile> {
-  try {
-    const user = await client.get_user();
-
-    if (!user) {
-      throw new Error('No user found');
-    }
-
-    return {
-      uid: parseInt(user.uid),
-      uuid: user.uuid || undefined,
-      email: user.email || undefined,
-      name: user.name || undefined,
-      workspaceId: user.latest_workspace_id,
-      iconUrl: user.icon_url || undefined,
-    };
-  } catch (e) {
-    return Promise.reject(e);
-  }
-}
-
-export async function getCollab(workspaceId: string, object_id: string, collabType: CollabType) {
-  const res = await client.get_collab({
-    workspace_id: workspaceId,
-    object_id: object_id,
-    collab_type: Number(collabType) as 0 | 1 | 2 | 3 | 4 | 5,
-  });
-
-  const state = new Uint8Array(res.doc_state);
+export async function getPublishView(publishNamespace: string, publishName: string) {
+  const data = await client.get_publish_view(publishNamespace, publishName);
 
   return {
-    state,
+    data: data.data,
+    meta: JSON.parse(data.meta.data) as PublishViewMetaData,
   };
 }
 
-export async function batchGetCollab(
-  workspaceId: string,
-  params: {
-    object_id: string;
-    collab_type: CollabType;
-  }[]
-) {
-  const res = (await client.batch_get_collab(
-    workspaceId,
-    params.map((param) => ({
-      object_id: param.object_id,
-      collab_type: Number(param.collab_type) as 0 | 1 | 2 | 3 | 4 | 5,
-    }))
-  )) as unknown as Map<string, { doc_state: number[] }>;
-
-  const result: Record<string, number[]> = {};
-
-  res.forEach((value, key) => {
-    result[key] = value.doc_state;
-  });
-  return result;
+export async function getPublishInfoWithViewId(viewId: string) {
+  return client.get_publish_info(viewId);
 }
 
-export async function getUserWorkspace(): Promise<UserWorkspace> {
-  const res = await client.get_user_workspace();
+export async function getPublishViewMeta(publishNamespace: string, publishName: string) {
+  const data = await client.get_publish_view_meta(publishNamespace, publishName);
+  const metadata = JSON.parse(data.data) as PublishViewMetaData;
 
-  return {
-    visitingWorkspaceId: res.visiting_workspace_id,
-    workspaces: res.workspaces.map((workspace) => ({
-      id: workspace.workspace_id,
-      name: workspace.workspace_name,
-      icon: workspace.icon,
-      owner: {
-        id: Number(workspace.owner_uid),
-        name: workspace.owner_name,
-      },
-      type: workspace.workspace_type,
-      workspaceDatabaseId: workspace.database_storage_id,
-    })),
-  };
+  return metadata;
 }

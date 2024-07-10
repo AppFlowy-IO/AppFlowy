@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -21,6 +22,8 @@ import 'package:appflowy_editor/appflowy_editor.dart'
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
 
+const _kExternalTextType = 'text';
+
 /// Uses to adjust the data structure between the editor and the backend.
 ///
 /// The editor uses a tree structure to represent the document, while the backend uses a flat structure.
@@ -34,11 +37,9 @@ class TransactionAdapter {
   final DocumentService documentService;
   final String documentId;
 
-  final bool _enableDebug = false;
-
   Future<void> apply(Transaction transaction, EditorState editorState) async {
     final stopwatch = Stopwatch()..start();
-    if (_enableDebug) {
+    if (enableDocumentInternalLog) {
       Log.debug('transaction => ${transaction.toJson()}');
     }
     final actions = transaction.operations
@@ -60,8 +61,10 @@ class TransactionAdapter {
           textId: payload.textId,
           delta: payload.delta,
         );
-        if (_enableDebug) {
-          Log.debug('create external text: ${payload.delta}');
+        if (enableDocumentInternalLog) {
+          Log.debug(
+            '[editor_transaction_adapter] create external text: ${payload.delta}',
+          );
         }
       } else if (type == TextDeltaType.update) {
         await documentService.updateExternalText(
@@ -69,8 +72,10 @@ class TransactionAdapter {
           textId: payload.textId,
           delta: payload.delta,
         );
-        if (_enableDebug) {
-          Log.debug('update external text: ${payload.delta}');
+        if (enableDocumentInternalLog) {
+          Log.debug(
+            '[editor_transaction_adapter] update external text: ${payload.delta}',
+          );
         }
       }
     }
@@ -82,9 +87,9 @@ class TransactionAdapter {
     );
     final elapsed = stopwatch.elapsedMilliseconds;
     stopwatch.stop();
-    if (_enableDebug) {
+    if (enableDocumentInternalLog) {
       Log.debug(
-        'apply transaction cost: total $elapsed ms, converter action $actionCostTime ms, apply action ${elapsed - actionCostTime} ms',
+        '[editor_transaction_adapter] apply transaction cost: total $elapsed ms, converter action $actionCostTime ms, apply action ${elapsed - actionCostTime} ms',
       );
     }
   }
@@ -136,8 +141,9 @@ extension on InsertOperation {
       // create the external text if the node contains the delta in its data.
       final delta = node.delta;
       TextDeltaPayloadPB? textDeltaPayloadPB;
+      String? textId;
       if (delta != null) {
-        final textId = nanoid(6);
+        textId = nanoid(6);
 
         textDeltaPayloadPB = TextDeltaPayloadPB(
           documentId: documentId,
@@ -148,13 +154,17 @@ extension on InsertOperation {
         // sync the text id to the node
         node.externalValues = ExternalValues(
           externalId: textId,
-          externalType: 'text',
+          externalType: _kExternalTextType,
         );
       }
 
       // remove the delta from the data when the incremental update is stable.
       final payload = BlockActionPayloadPB()
-        ..block = node.toBlock(childrenId: nanoid(6))
+        ..block = node.toBlock(
+          childrenId: nanoid(6),
+          externalId: textId,
+          externalType: textId != null ? _kExternalTextType : null,
+        )
         ..parentId = parentId
         ..prevId = prevId;
 
@@ -248,7 +258,7 @@ extension on UpdateOperation {
 
       node.externalValues = ExternalValues(
         externalId: textId,
-        externalType: 'text',
+        externalType: _kExternalTextType,
       );
 
       actions.add(

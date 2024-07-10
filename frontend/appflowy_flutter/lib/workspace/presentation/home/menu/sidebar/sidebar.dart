@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
@@ -32,11 +30,12 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/side
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 Loading? _duplicateSpaceLoading;
@@ -360,10 +359,24 @@ class _SidebarState extends State<_Sidebar> {
   Widget _renderFolderOrSpace(EdgeInsets menuHorizontalInset) {
     final spaceState = context.read<SpaceBloc>().state;
     final workspaceState = context.read<UserWorkspaceBloc>().state;
+
+    if (!spaceState.isInitialized) {
+      return const SizedBox.shrink();
+    }
+
     // there's no space or the workspace is not collaborative,
     // show the folder section (Workspace, Private, Personal)
     // otherwise, show the space
-    return spaceState.spaces.isEmpty || !workspaceState.isCollabWorkspaceOn
+    final sidebarSectionBloc = context.watch<SidebarSectionsBloc>();
+    final containsSpace = sidebarSectionBloc.state.containsSpace;
+
+    if (containsSpace && spaceState.spaces.isEmpty) {
+      context.read<SpaceBloc>().add(const SpaceEvent.didReceiveSpaceUpdate());
+    }
+
+    return !containsSpace ||
+            spaceState.spaces.isEmpty ||
+            !workspaceState.isCollabWorkspaceOn
         ? Expanded(
             child: Padding(
               padding: menuHorizontalInset - const EdgeInsets.only(right: 6),

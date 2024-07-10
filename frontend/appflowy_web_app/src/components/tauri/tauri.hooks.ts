@@ -1,11 +1,7 @@
 import { useCallback } from 'react';
 import { notify } from '@/components/_shared/notify';
-import { useAuth } from '@/components/auth/auth.hooks';
 
 export function useDeepLink() {
-  const {
-    signInWithOAuth,
-  } = useAuth();
   const onDeepLink = useCallback(async () => {
     const { event } = await import('@tauri-apps/api');
 
@@ -21,15 +17,12 @@ export function useDeepLink() {
         // update login state to error
         return;
       }
-
-      await signInWithOAuth(payload);
     });
-  }, [signInWithOAuth]);
+  }, []);
 
   return {
     onDeepLink,
   };
-
 }
 
 function parseHash(hash: string) {

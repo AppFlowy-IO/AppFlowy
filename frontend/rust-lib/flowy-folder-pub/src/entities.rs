@@ -1,4 +1,6 @@
 use crate::folder_builder::ParentChildViews;
+use collab_folder::{ViewIcon, ViewLayout};
+use serde::Serialize;
 use std::collections::HashMap;
 
 pub enum ImportData {
@@ -38,4 +40,47 @@ pub struct SearchData {
 
   /// The data that is stored in the search index row.
   pub data: String,
+}
+
+#[derive(Serialize, Clone, Debug, Eq, PartialEq)]
+pub struct PublishViewInfo {
+  pub view_id: String,
+  pub name: String,
+  pub icon: Option<ViewIcon>,
+  pub layout: ViewLayout,
+  pub extra: Option<String>,
+  pub created_by: Option<i64>,
+  pub last_edited_by: Option<i64>,
+  pub last_edited_time: i64,
+  pub created_at: i64,
+  pub child_views: Option<Vec<PublishViewInfo>>,
+}
+
+#[derive(Serialize, Clone, Debug, Eq, PartialEq)]
+pub struct PublishViewMetaData {
+  pub view: PublishViewInfo,
+  pub child_views: Vec<PublishViewInfo>,
+  pub ancestor_views: Vec<PublishViewInfo>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PublishViewMeta {
+  pub metadata: PublishViewMetaData,
+  pub view_id: String,
+  pub publish_name: String,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PublishViewPayload {
+  pub meta: PublishViewMeta,
+  /// The doc_state of the encoded collab.
+  pub data: Vec<u8>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PublishInfoResponse {
+  pub view_id: String,
+  /// one part of publish url: /{namespace}/{publish_name}
+  pub publish_name: String,
+  pub namespace: Option<String>,
 }
