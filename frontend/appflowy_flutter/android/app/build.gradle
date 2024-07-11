@@ -64,12 +64,6 @@ android {
         }
     }
 
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging true
-        }
-    }
-
     signingConfigs {
        release {
            keyAlias keystoreProperties['keyAlias']
