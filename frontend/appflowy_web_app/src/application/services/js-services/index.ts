@@ -111,7 +111,7 @@ export class AFClientService implements AFService {
   async getPublishDatabaseViewRows(namespace: string, publishName: string) {
     const name = `${namespace}_${publishName}`;
 
-    if (this.publishViewLoaded.has(name)) {
+    if (!this.publishViewLoaded.has(name) || !this.cacheDatabaseRowDocMap.has(name)) {
       await this.getPublishView(namespace, publishName);
     }
 

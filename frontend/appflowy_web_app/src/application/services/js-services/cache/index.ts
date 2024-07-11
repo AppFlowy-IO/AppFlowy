@@ -9,6 +9,7 @@ import {
 import { applyYDoc } from '@/application/ydoc/apply';
 import { closeCollabDB, db, openCollabDB } from '@/application/db';
 import { Fetcher, StrategyType } from '@/application/services/js-services/cache/types';
+import { IndexeddbPersistence } from 'y-indexeddb';
 import * as Y from 'yjs';
 
 export function collabTypeToDBType(type: CollabType) {
@@ -132,7 +133,21 @@ export async function getPublishView<
 ) {
   const name = `${namespace}_${publishName}`;
   const doc = await openCollabDB(name);
-  const rowMapDoc = await openCollabDB(`${name}_rows`);
+  const rowMapDoc = (await openCollabDB(`${name}_rows`)) as Y.Doc;
+
+  const subdocs = Array.from(rowMapDoc.getSubdocs());
+
+  for (const subdoc of subdocs) {
+    const promise = new Promise((resolve) => {
+      const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
+
+      persistence.on('synced', () => {
+        resolve(true);
+      });
+    });
+
+    await promise;
+  }
 
   const exist = (await hasViewMetaCache(name)) && hasCollabCache(doc);
 
@@ -220,20 +235,16 @@ export async function revalidatePublishView<
 
   if (rows) {
     for (const [key, value] of Object.entries(rows)) {
-      if (!rowMapDoc.getMap().has(key)) {
-        const row = new Y.Doc({
-          guid: key,
-        });
+      const subdoc = new Y.Doc({
+        guid: key,
+      });
+      const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
 
-        rowMapDoc.getMap().set(key, row);
-      }
-
-      const row = rowMapDoc.getMap().get(key) as YDoc;
-
-      applyYDoc(row, new Uint8Array(value));
-
-      rowMapDoc.getMap().delete(key);
-      rowMapDoc.getMap().set(key, row);
+      persistence.on('synced', () => {
+        applyYDoc(subdoc, new Uint8Array(value));
+        rowMapDoc.getMap().delete(subdoc.guid);
+        rowMapDoc.getMap().set(subdoc.guid, subdoc);
+      });
     }
   }
 

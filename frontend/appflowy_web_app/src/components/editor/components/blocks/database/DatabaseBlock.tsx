@@ -57,6 +57,8 @@ export const DatabaseBlock = memo(
       })();
     }, [viewId, loadView]);
 
+    const [selectedViewId, setSelectedViewId] = useState<string>(viewId);
+
     return (
       <>
         <div
@@ -73,10 +75,13 @@ export const DatabaseBlock = memo(
               <>
                 <Database
                   doc={doc}
+                  viewId={selectedViewId}
                   getViewRowsMap={getViewRowsMap}
                   loadView={loadView}
                   navigateToView={navigateToView}
                   loadViewMeta={loadViewMeta}
+                  iidName={''}
+                  onChangeView={setSelectedViewId}
                 />
                 {isHovering && (
                   <div className={'absolute right-4 top-1'}>

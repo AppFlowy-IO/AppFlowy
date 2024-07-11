@@ -2,9 +2,8 @@ import { ViewLayout, YDoc } from '@/application/collab.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { usePublishContext } from '@/application/publish';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
-import { useAppThemeMode } from '@/components/app/useAppThemeMode';
-import { Database } from '@/components/database';
 import { Document } from '@/components/document';
+import DatabaseView from '@/components/publish/DatabaseView';
 import { useViewMeta } from '@/components/publish/useViewMeta';
 import React, { useMemo } from 'react';
 import { ViewMetaProps } from 'src/components/view-meta';
@@ -16,7 +15,6 @@ export interface CollabViewProps {
 
 function CollabView({ doc }: CollabViewProps) {
   const { viewId, layout, icon, cover, layoutClassName, style, name } = useViewMeta();
-  const { isDark } = useAppThemeMode();
   const View = useMemo(() => {
     switch (layout) {
       case ViewLayout.Document:
@@ -24,20 +22,18 @@ function CollabView({ doc }: CollabViewProps) {
       case ViewLayout.Grid:
       case ViewLayout.Board:
       case ViewLayout.Calendar:
-        return Database;
+        return DatabaseView;
       default:
         return null;
     }
-  }, [layout]) as React.FC<
-    {
-      doc: YDoc;
-      isDark: boolean;
-      navigateToView?: (viewId: string) => Promise<void>;
-      loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
-      getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
-      loadView?: (id: string) => Promise<YDoc>;
-    } & ViewMetaProps
-  >;
+  }, [layout]) as React.FC<{
+    doc: YDoc;
+    navigateToView?: (viewId: string) => Promise<void>;
+    loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
+    getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+    loadView?: (id: string) => Promise<YDoc>;
+    viewMeta: ViewMetaProps;
+  }>;
 
   const navigateToView = usePublishContext()?.toView;
   const loadViewMeta = usePublishContext()?.loadViewMeta;
@@ -56,12 +52,13 @@ function CollabView({ doc }: CollabViewProps) {
         getViewRowsMap={getViewRowsMap}
         navigateToView={navigateToView}
         loadView={loadView}
-        icon={icon}
-        cover={cover}
-        viewId={viewId}
-        name={name}
-        isDark={isDark}
-        layout={layout || ViewLayout.Document}
+        viewMeta={{
+          icon,
+          cover,
+          viewId,
+          name,
+          layout: layout || ViewLayout.Document,
+        }}
       />
     </div>
   );

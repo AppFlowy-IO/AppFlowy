@@ -44,6 +44,8 @@ export function Property({ fieldId, rowId }: { fieldId: string; rowId: string })
       case FieldType.Relation:
         return RelationCell;
       case FieldType.RichText:
+      case FieldType.AISummaries:
+      case FieldType.AITranslations:
         return TextCell;
       default:
         return TextProperty;

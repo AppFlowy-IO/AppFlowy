@@ -21,7 +21,9 @@ const openedSet = new Set<string>();
  */
 export async function openCollabDB(docName: string): Promise<YDoc> {
   const name = `${databasePrefix}_${docName}`;
-  const doc = new Y.Doc();
+  const doc = new Y.Doc({
+    guid: docName,
+  });
 
   const provider = new IndexeddbPersistence(name, doc);
 

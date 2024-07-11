@@ -1,27 +1,37 @@
 import { YDatabase, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
-import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
 import DatabaseRow from '@/components/database/DatabaseRow';
 import DatabaseViews from '@/components/database/DatabaseViews';
-import { ViewMetaProps } from '@/components/view-meta/ViewMetaPreview';
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import * as Y from 'yjs';
 import { DatabaseContextProvider } from './DatabaseContext';
 
-export interface Database2Props extends ViewMetaProps {
+export interface Database2Props {
   doc: YDoc;
   getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
   loadView?: (viewId: string) => Promise<YDoc>;
   navigateToView?: (viewId: string) => Promise<void>;
   loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
+  viewId: string;
+  iidName: string;
+  rowId?: string;
+  onChangeView: (viewId: string) => void;
+  onOpenRow?: (rowId: string) => void;
 }
 
-function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView, ...viewMeta }: Database2Props) {
-  const [search, setSearch] = useSearchParams();
-
-  const viewId = search.get('v') || viewMeta.viewId;
+function Database({
+  doc,
+  getViewRowsMap,
+  navigateToView,
+  loadViewMeta,
+  loadView,
+  viewId,
+  iidName,
+  rowId,
+  onChangeView,
+  onOpenRow,
+}: Database2Props) {
   const database = doc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database) as YDatabase;
 
   const iidIndex = database.get(YjsDatabaseKey.metas).get(YjsDatabaseKey.iid);
@@ -49,37 +59,16 @@ function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView,
     };
   }, [handleUpdateRowDocMap, rowOrders]);
 
-  const rowId = search.get('r');
-
-  const handleChangeView = useCallback(
-    (viewId: string) => {
-      setSearch({ v: viewId });
-    },
-    [setSearch]
-  );
-
-  const handleNavigateToRow = useCallback(
-    (rowId: string) => {
-      setSearch({ r: rowId });
-    },
-    [setSearch]
-  );
-
   if (!rowDocMap || !viewId) {
     return null;
   }
 
   return (
-    <div
-      style={{
-        height: 'calc(100vh - 48px)',
-      }}
-      className={'flex w-full justify-center'}
-    >
+    <div className={'flex w-full flex-1 justify-center'}>
       <Suspense fallback={<ComponentLoading />}>
         <DatabaseContextProvider
           isDatabaseRowPage={!!rowId}
-          navigateToRow={handleNavigateToRow}
+          navigateToRow={onOpenRow}
           viewId={viewId}
           databaseDoc={doc}
           rowDocMap={rowDocMap}
@@ -91,17 +80,8 @@ function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView,
           {rowId ? (
             <DatabaseRow rowId={rowId} />
           ) : (
-            <div className={'relative flex h-full w-full flex-col'}>
-              {viewMeta && <DatabaseHeader {...viewMeta} />}
-
-              <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
-                <DatabaseViews
-                  iidIndex={iidIndex}
-                  viewName={viewMeta.name}
-                  onChangeView={handleChangeView}
-                  viewId={viewId}
-                />
-              </div>
+            <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
+              <DatabaseViews iidIndex={iidIndex} viewName={iidName} onChangeView={onChangeView} viewId={viewId} />
             </div>
           )}
         </DatabaseContextProvider>
