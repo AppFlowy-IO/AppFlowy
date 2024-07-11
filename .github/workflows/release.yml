@@ -135,7 +135,7 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { target: x86_64-apple-darwin, os: macos-latest, extra-build-args: "" }
+          - { target: x86_64-apple-darwin, os: macos-12, extra-build-args: "" }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
