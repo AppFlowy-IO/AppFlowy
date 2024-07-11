@@ -74,7 +74,6 @@ class SettingsPlanView extends StatelessWidget {
                 const VSpace(16),
                 _CurrentPlanBox(subscriptionInfo: state.subscriptionInfo),
                 const VSpace(16),
-                // TODO(Mathias): Localize and add business logic
                 FlowyText(
                   LocaleKeys.settings_planPage_planUsage_addons_title.tr(),
                   fontSize: 18,
