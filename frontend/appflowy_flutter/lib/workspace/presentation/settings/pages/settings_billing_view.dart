@@ -262,9 +262,11 @@ class _AITile extends StatelessWidget {
               .add(const SettingsBillingEvent.openCustomerPortal());
         } else if (subscriptionInfo != null) {
           SettingsAlertDialog(
-            title: 'Remove AI Max',
-            subtitle:
-                'Are you sure you want to remove AI Max? You will keep the benefits until the end of the billing period.',
+            title: LocaleKeys.settings_billingPage_addons_removeDialog_title
+                .tr(args: [plan.label]).tr(),
+            subtitle: LocaleKeys
+                .settings_billingPage_addons_removeDialog_description
+                .tr(args: [plan.label]).tr(),
             confirm: () {
               Navigator.of(context).pop();
               context
