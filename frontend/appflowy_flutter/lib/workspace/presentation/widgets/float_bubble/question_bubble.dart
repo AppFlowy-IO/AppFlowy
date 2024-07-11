@@ -14,6 +14,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -209,7 +210,7 @@ class FlowyVersionDescription extends CustomActionCell {
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onDoubleTap: () {
-                    if (Env.internalBuild != '1') {
+                    if (Env.internalBuild != '1' && !kDebugMode) {
                       return;
                     }
                     enableDocumentInternalLog = !enableDocumentInternalLog;
