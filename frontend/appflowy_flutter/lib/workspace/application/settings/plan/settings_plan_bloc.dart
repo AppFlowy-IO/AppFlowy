@@ -28,7 +28,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
     on<SettingsPlanEvent>((event, emit) async {
       await event.when(
-        started: (withShowSuccessful) async {
+        started: (withSuccessfulUpgrade) async {
           emit(const SettingsPlanState.loading());
 
           final snapshots = await Future.wait([
@@ -64,11 +64,11 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             SettingsPlanState.ready(
               workspaceUsage: usageResult,
               subscriptionInfo: subscriptionInfo,
-              showSuccessDialog: withShowSuccessful,
+              successfulPlanUpgrade: withSuccessfulUpgrade,
             ),
           );
 
-          if (withShowSuccessful) {
+          if (withSuccessfulUpgrade != null) {
             emit(
               SettingsPlanState.ready(
                 workspaceUsage: usageResult,
@@ -80,7 +80,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
         addSubscription: (plan) async {
           final result = await _userService.createSubscription(
             workspaceId,
-            SubscriptionPlanPB.Pro,
+            plan,
           );
 
           result.fold(
@@ -103,13 +103,13 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
           add(const SettingsPlanEvent.started());
         },
-        paymentSuccessful: () {
+        paymentSuccessful: (plan) {
           final readyState = state.mapOrNull(ready: (state) => state);
           if (readyState == null) {
             return;
           }
 
-          add(const SettingsPlanEvent.started(withShowSuccessful: true));
+          add(SettingsPlanEvent.started(withSuccessfulUpgrade: plan));
         },
       );
     });
@@ -124,7 +124,11 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
     // Invalidate cache for this workspace
     await UserBackendService.invalidateWorkspaceSubscriptionCache(workspaceId);
 
-    add(const SettingsPlanEvent.paymentSuccessful());
+    add(
+      SettingsPlanEvent.paymentSuccessful(
+        plan: _successListenable.subscribedPlan,
+      ),
+    );
   }
 
   @override
@@ -137,7 +141,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 @freezed
 class SettingsPlanEvent with _$SettingsPlanEvent {
   const factory SettingsPlanEvent.started({
-    @Default(false) bool withShowSuccessful,
+    @Default(null) SubscriptionPlanPB? withSuccessfulUpgrade,
   }) = _Started;
 
   const factory SettingsPlanEvent.addSubscription(SubscriptionPlanPB plan) =
@@ -145,7 +149,9 @@ class SettingsPlanEvent with _$SettingsPlanEvent {
 
   const factory SettingsPlanEvent.cancelSubscription() = _CancelSubscription;
 
-  const factory SettingsPlanEvent.paymentSuccessful() = _PaymentSuccessful;
+  const factory SettingsPlanEvent.paymentSuccessful({
+    @Default(null) SubscriptionPlanPB? plan,
+  }) = _PaymentSuccessful;
 }
 
 @freezed
@@ -161,7 +167,7 @@ class SettingsPlanState with _$SettingsPlanState {
   const factory SettingsPlanState.ready({
     required WorkspaceUsagePB workspaceUsage,
     required WorkspaceSubscriptionInfoPB subscriptionInfo,
-    @Default(false) bool showSuccessDialog,
+    @Default(null) SubscriptionPlanPB? successfulPlanUpgrade,
     @Default(false) bool downgradeProcessing,
   }) = _Ready;
 }

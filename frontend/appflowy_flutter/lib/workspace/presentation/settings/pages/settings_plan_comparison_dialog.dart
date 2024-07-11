@@ -56,13 +56,13 @@ class _SettingsPlanComparisonDialogState
           return;
         }
 
-        if (readyState.showSuccessDialog) {
+        if (readyState.successfulPlanUpgrade != null) {
           SettingsAlertDialog(
             title: LocaleKeys.settings_comparePlanDialog_paymentSuccess_title
-                .tr(args: [readyState.subscriptionInfo.label]),
+                .tr(args: [readyState.successfulPlanUpgrade!.label]),
             subtitle: LocaleKeys
                 .settings_comparePlanDialog_paymentSuccess_description
-                .tr(args: [readyState.subscriptionInfo.label]),
+                .tr(args: [readyState.successfulPlanUpgrade!.label]),
             hideCancelButton: true,
             confirm: Navigator.of(context).pop,
             confirmLabel: LocaleKeys.button_close.tr(),

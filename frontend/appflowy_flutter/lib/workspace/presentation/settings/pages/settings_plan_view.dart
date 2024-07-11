@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -108,6 +109,7 @@ class SettingsPlanView extends StatelessWidget {
                                 .settings_planPage_planUsage_addons_addLabel
                                 .tr(),
                         isActive: state.subscriptionInfo.hasAIMax,
+                        plan: SubscriptionPlanPB.AiMax,
                       ),
                     ),
                     const HSpace(8),
@@ -136,6 +138,7 @@ class SettingsPlanView extends StatelessWidget {
                                 .settings_planPage_planUsage_addons_addLabel
                                 .tr(),
                         isActive: state.subscriptionInfo.hasAIOnDevice,
+                        plan: SubscriptionPlanPB.AiLocal,
                       ),
                     ),
                   ],
@@ -328,11 +331,10 @@ class _PlanUsageSummary extends StatelessWidget {
             Expanded(
               child: _UsageBox(
                 title: LocaleKeys.settings_planPage_planUsage_storageLabel.tr(),
-                replacementText: subscriptionInfo.plan ==
-                        WorkspacePlanPB.ProPlan
-                    ? LocaleKeys.settings_planPage_planUsage_storageUnlimited
-                        .tr()
-                    : null,
+                unlimitedLabel: LocaleKeys
+                    .settings_planPage_planUsage_unlimitedStorageLabel
+                    .tr(),
+                unlimited: usage.storageBytesUnlimited,
                 label: LocaleKeys.settings_planPage_planUsage_storageUsage.tr(
                   args: [
                     usage.currentBlobInGb,
@@ -345,17 +347,21 @@ class _PlanUsageSummary extends StatelessWidget {
             ),
             Expanded(
               child: _UsageBox(
-                title: LocaleKeys.settings_planPage_planUsage_collaboratorsLabel
-                    .tr(),
-                label: LocaleKeys.settings_planPage_planUsage_collaboratorsUsage
-                    .tr(
+                title:
+                    LocaleKeys.settings_planPage_planUsage_aiResponseLabel.tr(),
+                label:
+                    LocaleKeys.settings_planPage_planUsage_aiResponseUsage.tr(
                   args: [
-                    usage.memberCount.toString(),
-                    usage.memberCountLimit.toString(),
+                    usage.aiResponsesCount.toString(),
+                    usage.aiResponsesCountLimit.toString(),
                   ],
                 ),
-                value:
-                    usage.memberCount.toInt() / usage.memberCountLimit.toInt(),
+                unlimitedLabel: LocaleKeys
+                    .settings_planPage_planUsage_unlimitedAILabel
+                    .tr(),
+                unlimited: usage.aiResponsesUnlimited,
+                value: usage.aiResponsesCount.toInt() /
+                    usage.aiResponsesCountLimit.toInt(),
               ),
             ),
           ],
@@ -396,18 +402,23 @@ class _UsageBox extends StatelessWidget {
     required this.title,
     required this.label,
     required this.value,
-    this.replacementText,
+    required this.unlimitedLabel,
+    this.unlimited = false,
   });
 
   final String title;
   final String label;
   final double value;
 
-  /// Replaces the progress indicator if not null
-  final String? replacementText;
+  final String unlimitedLabel;
+
+  // Replaces the progress bar with an unlimited badge
+  final bool unlimited;
 
   @override
   Widget build(BuildContext context) {
+    final isLM = Theme.of(context).isLightMode;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -416,17 +427,36 @@ class _UsageBox extends StatelessWidget {
           fontSize: 11,
           color: AFThemeExtension.of(context).secondaryTextColor,
         ),
-        if (replacementText != null) ...[
-          Row(
-            children: [
-              Flexible(
-                child: FlowyText.medium(
-                  replacementText!,
-                  fontSize: 11,
-                  color: AFThemeExtension.of(context).secondaryTextColor,
-                ),
+        if (unlimited) ...[
+          const VSpace(4),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: isLM ? const Color(0xFFE8E2EE) : const Color(0xFF9C00FB),
               ),
-            ],
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 4,
+                horizontal: 8,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const FlowySvg(
+                    FlowySvgs.check_circle_outlined_s,
+                    color: Color(0xFF9C00FB),
+                  ),
+                  const HSpace(4),
+                  FlowyText(
+                    unlimitedLabel,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 11,
+                  ),
+                ],
+              ),
+            ),
           ),
         ] else ...[
           _PlanProgressIndicator(label: label, progress: value),
@@ -569,6 +599,7 @@ class _AddOnBox extends StatelessWidget {
     required this.billingInfo,
     required this.buttonText,
     required this.isActive,
+    required this.plan,
   });
 
   final String title;
@@ -578,6 +609,7 @@ class _AddOnBox extends StatelessWidget {
   final String billingInfo;
   final String buttonText;
   final bool isActive;
+  final SubscriptionPlanPB plan;
 
   @override
   Widget build(BuildContext context) {
@@ -658,7 +690,11 @@ class _AddOnBox extends StatelessWidget {
                       ? const Color(0xFFE8E2EE)
                       : const Color(0xFF5C3699),
                   fontSize: 12,
-                  onPressed: isActive ? null : () {},
+                  onPressed: isActive
+                      ? null
+                      : () => context
+                          .read<SettingsPlanBloc>()
+                          .add(SettingsPlanEvent.addSubscription(plan)),
                 ),
               ),
             ],
