@@ -20,7 +20,7 @@ export function ChecklistCell({ cell, style, placeholder }: CellProps<ChecklistC
       </div>
     ) : null;
   return (
-    <div style={style} className={'w-full cursor-pointer'}>
+    <div style={style} className={'w-full'}>
       <LinearProgressWithLabel value={data?.percentage} count={options.length} selectedCount={selectedOptions.length} />
     </div>
   );

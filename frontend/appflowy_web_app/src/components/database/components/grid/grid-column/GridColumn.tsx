@@ -26,7 +26,7 @@ export function GridColumn({ column, index }: { column: Column; index: number })
           borderLeftWidth: index === 1 ? 0 : 1,
         }}
         className={
-          'flex h-full w-full cursor-pointer items-center overflow-hidden whitespace-nowrap border-t border-b border-l border-line-divider px-1.5 text-xs font-medium hover:bg-fill-list-active'
+          'flex h-full w-full items-center overflow-hidden whitespace-nowrap border-t border-b border-l border-line-divider px-1.5 text-xs font-medium hover:bg-fill-list-active'
         }
       >
         <div className={'w-5'}>

@@ -43,6 +43,7 @@ export function Toolbar({
         <Button
           size={'small'}
           variant={'outlined'}
+          disabled
           className={'rounded-md border-line-divider'}
           color={'inherit'}
           onClick={() => onNavigate('TODAY')}

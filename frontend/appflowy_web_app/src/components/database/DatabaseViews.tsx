@@ -40,10 +40,12 @@ function DatabaseViews({
     return childViews[value];
   }, [childViews, value]);
 
-  const view = useMemo(() => {
-    if (!activeView) return null;
-    const layout = Number(activeView.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
+  const layout = useMemo(() => {
+    if (!activeView) return DatabaseViewLayout.Grid;
+    return Number(activeView.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
+  }, [activeView]);
 
+  const view = useMemo(() => {
     switch (layout) {
       case DatabaseViewLayout.Grid:
         return <Grid />;
@@ -52,7 +54,7 @@ function DatabaseViews({
       case DatabaseViewLayout.Calendar:
         return <Calendar />;
     }
-  }, [activeView]);
+  }, [layout]);
 
   return (
     <>
@@ -69,7 +71,7 @@ function DatabaseViews({
           setSelectedViewId={onChangeView}
           viewIds={viewIds}
         />
-        <DatabaseConditions />
+        {layout === DatabaseViewLayout.Calendar ? null : <DatabaseConditions />}
       </DatabaseConditionsContext.Provider>
       <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
         <Suspense fallback={<ComponentLoading />}>
