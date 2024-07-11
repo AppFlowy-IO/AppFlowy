@@ -40,12 +40,10 @@ class MarkdownCodeBlockParser extends CustomMarkdownParser {
       language = languageClass.substring('language-'.length);
     }
 
-    final deltaDecoder = DeltaMarkdownDecoder();
-
     return [
       codeBlockNode(
         language: language,
-        delta: deltaDecoder.convertNodes(code.children),
+        delta: Delta()..insert(code.textContent.trimRight()),
       ),
     ];
   }

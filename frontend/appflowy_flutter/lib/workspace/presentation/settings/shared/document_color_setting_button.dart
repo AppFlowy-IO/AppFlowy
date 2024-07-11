@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
@@ -137,13 +138,19 @@ class DocumentColorSettingDialogState
                 onChanged: (_) => _updateSelectedColor(),
                 onFieldSubmitted: (_) => _updateSelectedColor(),
                 validator: (v) => validateHexValue(v, opacityController.text),
-                suffixIcon: GestureDetector(
-                  onTap: () => _showColorPickerDialog(
-                    context: context,
-                    currentColor: widget.currentColor,
-                    updateColor: _updateColor,
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: FlowyIconButton(
+                    onPressed: () => _showColorPickerDialog(
+                      context: context,
+                      currentColor: widget.currentColor,
+                      updateColor: _updateColor,
+                    ),
+                    icon: const FlowySvg(
+                      FlowySvgs.m_aa_color_s,
+                      size: Size.square(20),
+                    ),
                   ),
-                  child: const Icon(Icons.color_lens_rounded),
                 ),
               ),
               const VSpace(8),
@@ -378,7 +385,9 @@ void _showColorPickerDialog({
     barrierColor: const Color.fromARGB(128, 0, 0, 0),
     builder: (context) {
       return AlertDialog(
-        icon: const Icon(Icons.palette),
+        icon: const FlowySvg(
+          FlowySvgs.m_aa_color_s,
+        ),
         title: Text(
           title ??
               LocaleKeys.settings_appearance_documentSettings_pickColor.tr(),
