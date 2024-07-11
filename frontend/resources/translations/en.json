@@ -675,6 +675,25 @@
           "upgrade": "Change plan",
           "canceledInfo": "Your plan is cancelled, you will be downgraded to the Free plan on {}."
         },
+        "addons": {
+          "title": "Add-ons",
+          "addLabel": "Add",
+          "activeLabel": "Added",
+          "aiMax": {
+            "title": "AI Max",
+            "description": "Unlock unlimited AI",
+            "price": "US{}",
+            "priceInfo": "/user per month",
+            "billingInfo": "billed annually or US{} biled monthly"
+          },
+          "aiOnDevice": {
+            "title": "AI On-device",
+            "description": "AI offline on your device",
+            "price": "US{}",
+            "priceInfo": "/user per month",
+            "billingInfo": "billed annually or US{} biled monthly"
+          }
+        },
         "deal": {
           "bannerLabel": "New year deal!",
           "title": "Grow your team!",
@@ -701,15 +720,16 @@
       },
       "addons": {
         "title": "Add-ons",
+        "addLabel": "Add",
+        "removeLabel": "Remove",
+        "renewLabel": "Renew",
         "aiMax": {
           "label": "AI Max",
-          "description": "US$8 /user per month billed annually or US$10 billed monthly",
-          "buttonLabel": "Add AI Max"
+          "description": "US$8 /user per month billed annually or US$10 billed monthly"
         },
         "aiOnDevice": {
           "label": "AI On-device",
-          "description": "US$8 /user per month billed annually or US$10 billed monthly",
-          "buttonLabel": "Add AI On-device"
+          "description": "US$8 /user per month billed annually or US$10 billed monthly"
         }
       }
     },

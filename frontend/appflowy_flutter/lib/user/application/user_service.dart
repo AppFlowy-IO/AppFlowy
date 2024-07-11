@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
@@ -10,7 +11,10 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:fixnum/fixnum.dart';
 
 abstract class IUserBackendService {
-  Future<FlowyResult<void, FlowyError>> cancelSubscription(String workspaceId);
+  Future<FlowyResult<void, FlowyError>> cancelSubscription(
+    String workspaceId,
+    SubscriptionPlanPB plan,
+  );
   Future<FlowyResult<PaymentLinkPB, FlowyError>> createSubscription(
     String workspaceId,
     SubscriptionPlanPB plan,
@@ -228,9 +232,16 @@ class UserBackendService implements IUserBackendService {
     return UserEventLeaveWorkspace(data).send();
   }
 
-  static Future<FlowyResult<RepeatedWorkspaceSubscriptionPB, FlowyError>>
-      getWorkspaceSubscriptions() {
-    return UserEventGetWorkspaceSubscriptions().send();
+  static Future<FlowyResult<WorkspaceSubscriptionInfoPB, FlowyError>>
+      getWorkspaceSubscriptionInfo(String workspaceId) {
+    final params = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
+    return UserEventGetWorkspaceSubscriptionInfo(params).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>>
+      invalidateWorkspaceSubscriptionCache(String workspaceId) {
+    final params = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
+    return UserEventInvalidateWorkspaceSubscriptionInfoCache(params).send();
   }
 
   Future<FlowyResult<WorkspaceMemberPB, FlowyError>>
@@ -250,15 +261,19 @@ class UserBackendService implements IUserBackendService {
       ..recurringInterval = RecurringIntervalPB.Year
       ..workspaceSubscriptionPlan = plan
       ..successUrl =
-          '${getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url}/web/payment-success';
+          '${getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url}/web/payment-success?plan=${plan.toRecognizable()}';
     return UserEventSubscribeWorkspace(request).send();
   }
 
   @override
   Future<FlowyResult<void, FlowyError>> cancelSubscription(
     String workspaceId,
+    SubscriptionPlanPB plan,
   ) {
-    final request = UserWorkspaceIdPB()..workspaceId = workspaceId;
+    final request = CancelWorkspaceSubscriptionPB()
+      ..workspaceId = workspaceId
+      ..plan = plan;
+
     return UserEventCancelWorkspaceSubscription(request).send();
   }
 }

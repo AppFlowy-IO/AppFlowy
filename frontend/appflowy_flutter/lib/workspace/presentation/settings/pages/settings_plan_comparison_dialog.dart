@@ -1,11 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -13,15 +12,17 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../generated/locale_keys.g.dart';
+
 class SettingsPlanComparisonDialog extends StatefulWidget {
   const SettingsPlanComparisonDialog({
     super.key,
     required this.workspaceId,
-    required this.subscription,
+    required this.subscriptionInfo,
   });
 
   final String workspaceId;
-  final WorkspaceSubscriptionPB subscription;
+  final WorkspaceSubscriptionInfoPB subscriptionInfo;
 
   @override
   State<SettingsPlanComparisonDialog> createState() =>
@@ -33,7 +34,7 @@ class _SettingsPlanComparisonDialogState
   final horizontalController = ScrollController();
   final verticalController = ScrollController();
 
-  late WorkspaceSubscriptionPB currentSubscription = widget.subscription;
+  late WorkspaceSubscriptionInfoPB currentInfo = widget.subscriptionInfo;
 
   @override
   void dispose() {
@@ -57,19 +58,17 @@ class _SettingsPlanComparisonDialogState
         if (readyState.showSuccessDialog) {
           SettingsAlertDialog(
             title: LocaleKeys.settings_comparePlanDialog_paymentSuccess_title
-                .tr(args: [readyState.subscription.label]),
+                .tr(args: [readyState.subscriptionInfo.label]),
             subtitle: LocaleKeys
                 .settings_comparePlanDialog_paymentSuccess_description
-                .tr(args: [readyState.subscription.label]),
+                .tr(args: [readyState.subscriptionInfo.label]),
             hideCancelButton: true,
             confirm: Navigator.of(context).pop,
             confirmLabel: LocaleKeys.button_close.tr(),
           ).show(context);
         }
 
-        setState(() {
-          currentSubscription = readyState.subscription;
-        });
+        setState(() => currentInfo = readyState.subscriptionInfo);
       },
       builder: (context, state) => FlowyDialog(
         constraints: const BoxConstraints(maxWidth: 784, minWidth: 674),
@@ -89,8 +88,7 @@ class _SettingsPlanComparisonDialogState
                   const Spacer(),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(
-                      currentSubscription.subscriptionPlan !=
-                          widget.subscription.subscriptionPlan,
+                      currentInfo.plan != widget.subscriptionInfo.plan,
                     ),
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
@@ -170,32 +168,30 @@ class _SettingsPlanComparisonDialogState
                                 .settings_comparePlanDialog_freePlan_priceInfo
                                 .tr(),
                             cells: _freeLabels,
-                            isCurrent: currentSubscription.subscriptionPlan ==
-                                SubscriptionPlanPB.None,
+                            isCurrent:
+                                currentInfo.plan == WorkspacePlanPB.FreePlan,
                             canDowngrade:
-                                currentSubscription.subscriptionPlan !=
-                                    SubscriptionPlanPB.None,
-                            currentCanceled: currentSubscription.hasCanceled ||
+                                currentInfo.plan != WorkspacePlanPB.FreePlan,
+                            currentCanceled: currentInfo.isCanceled ||
                                 (context
                                         .watch<SettingsPlanBloc>()
                                         .state
                                         .mapOrNull(
                                           loading: (_) => true,
-                                          ready: (state) =>
-                                              state.downgradeProcessing,
+                                          ready: (s) => s.downgradeProcessing,
                                         ) ??
                                     false),
                             onSelected: () async {
-                              if (currentSubscription.subscriptionPlan ==
-                                      SubscriptionPlanPB.None ||
-                                  currentSubscription.hasCanceled) {
+                              if (currentInfo.plan ==
+                                      WorkspacePlanPB.FreePlan ||
+                                  currentInfo.isCanceled) {
                                 return;
                               }
 
                               await SettingsAlertDialog(
                                 title: LocaleKeys
                                     .settings_comparePlanDialog_downgradeDialog_title
-                                    .tr(args: [currentSubscription.label]),
+                                    .tr(args: [currentInfo.label]),
                                 subtitle: LocaleKeys
                                     .settings_comparePlanDialog_downgradeDialog_description
                                     .tr(),
@@ -229,11 +225,11 @@ class _SettingsPlanComparisonDialogState
                                 .settings_comparePlanDialog_proPlan_priceInfo
                                 .tr(),
                             cells: _proLabels,
-                            isCurrent: currentSubscription.subscriptionPlan ==
-                                SubscriptionPlanPB.Pro,
-                            canUpgrade: currentSubscription.subscriptionPlan ==
-                                SubscriptionPlanPB.None,
-                            currentCanceled: currentSubscription.hasCanceled,
+                            isCurrent:
+                                currentInfo.plan == WorkspacePlanPB.ProPlan,
+                            canUpgrade:
+                                currentInfo.plan == WorkspacePlanPB.FreePlan,
+                            currentCanceled: currentInfo.isCanceled,
                             onSelected: () =>
                                 context.read<SettingsPlanBloc>().add(
                                       const SettingsPlanEvent.addSubscription(

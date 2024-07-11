@@ -118,10 +118,9 @@ diesel::table! {
     workspace_subscriptions_table (workspace_id) {
         workspace_id -> Text,
         subscription_plan -> BigInt,
-        recurring_interval -> BigInt,
-        is_active -> Bool,
-        has_canceled -> Bool,
-        canceled_at -> Nullable<BigInt>,
+        workspace_status -> BigInt,
+        end_date -> BigInt,
+        addons -> Text,
         updated_at -> Timestamp,
     }
 }

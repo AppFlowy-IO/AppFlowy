@@ -11,7 +11,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbserver.dart';
 import 'package:bloc/bloc.dart';
-import 'package:collection/collection.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -34,7 +33,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
           final snapshots = await Future.wait([
             _service.getWorkspaceUsage(),
-            UserBackendService.getWorkspaceSubscriptions(),
+            UserBackendService.getWorkspaceSubscriptionInfo(workspaceId),
           ]);
 
           FlowyError? error;
@@ -47,30 +46,24 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             },
           );
 
-          final subscription = snapshots[1].fold(
-            (s) =>
-                (s as RepeatedWorkspaceSubscriptionPB)
-                    .items
-                    .firstWhereOrNull((i) => i.workspaceId == workspaceId) ??
-                WorkspaceSubscriptionPB(
-                  workspaceId: workspaceId,
-                  subscriptionPlan: SubscriptionPlanPB.None,
-                  isActive: true,
-                ),
+          final subscriptionInfo = snapshots[1].fold(
+            (s) => s as WorkspaceSubscriptionInfoPB,
             (f) {
               error = f;
               return null;
             },
           );
 
-          if (usageResult == null || subscription == null || error != null) {
+          if (usageResult == null ||
+              subscriptionInfo == null ||
+              error != null) {
             return emit(SettingsPlanState.error(error: error));
           }
 
           emit(
             SettingsPlanState.ready(
               workspaceUsage: usageResult,
-              subscription: subscription,
+              subscriptionInfo: subscriptionInfo,
               showSuccessDialog: withShowSuccessful,
             ),
           );
@@ -79,7 +72,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             emit(
               SettingsPlanState.ready(
                 workspaceUsage: usageResult,
-                subscription: subscription,
+                subscriptionInfo: subscriptionInfo,
               ),
             );
           }
@@ -100,7 +93,14 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
               .mapOrNull(ready: (state) => state)
               ?.copyWith(downgradeProcessing: true);
           emit(newState ?? state);
-          await _userService.cancelSubscription(workspaceId);
+
+          // We can hardcode the subscription plan here because we cannot cancel addons
+          // on the Plan page
+          await _userService.cancelSubscription(
+            workspaceId,
+            SubscriptionPlanPB.Pro,
+          );
+
           add(const SettingsPlanEvent.started());
         },
         paymentSuccessful: () {
@@ -120,7 +120,10 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
   late final IUserBackendService _userService;
   late final SubscriptionSuccessListenable _successListenable;
 
-  void _onPaymentSuccessful() {
+  Future<void> _onPaymentSuccessful() async {
+    // Invalidate cache for this workspace
+    await UserBackendService.invalidateWorkspaceSubscriptionCache(workspaceId);
+
     add(const SettingsPlanEvent.paymentSuccessful());
   }
 
@@ -136,9 +139,12 @@ class SettingsPlanEvent with _$SettingsPlanEvent {
   const factory SettingsPlanEvent.started({
     @Default(false) bool withShowSuccessful,
   }) = _Started;
+
   const factory SettingsPlanEvent.addSubscription(SubscriptionPlanPB plan) =
       _AddSubscription;
+
   const factory SettingsPlanEvent.cancelSubscription() = _CancelSubscription;
+
   const factory SettingsPlanEvent.paymentSuccessful() = _PaymentSuccessful;
 }
 
@@ -154,7 +160,7 @@ class SettingsPlanState with _$SettingsPlanState {
 
   const factory SettingsPlanState.ready({
     required WorkspaceUsagePB workspaceUsage,
-    required WorkspaceSubscriptionPB subscription,
+    required WorkspaceSubscriptionInfoPB subscriptionInfo,
     @Default(false) bool showSuccessDialog,
     @Default(false) bool downgradeProcessing,
   }) = _Ready;

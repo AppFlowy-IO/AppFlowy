@@ -774,20 +774,6 @@ pub async fn subscribe_workspace_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn get_workspace_subscriptions_handler(
-  manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<RepeatedWorkspaceSubscriptionPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let subs = manager
-    .get_workspace_subscriptions()
-    .await?
-    .into_iter()
-    .map(WorkspaceSubscriptionPB::from)
-    .collect::<Vec<_>>();
-  data_result_ok(RepeatedWorkspaceSubscriptionPB { items: subs })
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_workspace_subscription_info_handler(
   params: AFPluginData<UserWorkspaceIdPB>,
   manager: AFPluginState<Weak<UserManager>>,
@@ -841,6 +827,18 @@ pub async fn get_billing_portal_handler(
   let manager = upgrade_manager(manager)?;
   let url = manager.get_billing_portal_url().await?;
   data_result_ok(BillingPortalPB { url })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn invalidate_workspace_subscription_info_cache_handler(
+  params: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> FlowyResult<()> {
+  let params = params.try_into_inner().unwrap();
+  let manager = upgrade_manager(manager).unwrap();
+  manager
+    .invalidate_workspace_subscription_info_cache(params.workspace_id)
+    .await
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

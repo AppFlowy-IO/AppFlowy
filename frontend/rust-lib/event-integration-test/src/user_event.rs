@@ -19,9 +19,9 @@ use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{
   AuthenticatorPB, ChangeWorkspaceIconPB, CloudSettingPB, CreateWorkspacePB, ImportAppFlowyDataPB,
-  OauthSignInPB, RenameWorkspacePB, RepeatedUserWorkspacePB, RepeatedWorkspaceSubscriptionPB,
-  SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB,
-  UpdateUserProfilePayloadPB, UserProfilePB, UserWorkspaceIdPB, UserWorkspacePB,
+  OauthSignInPB, RenameWorkspacePB, RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB,
+  SignUpPayloadPB, UpdateCloudConfigPB, UpdateUserProfilePayloadPB, UserProfilePB,
+  UserWorkspaceIdPB, UserWorkspacePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent;
@@ -313,14 +313,6 @@ impl EventIntegrationTest {
       .payload(payload)
       .async_send()
       .await;
-  }
-
-  pub async fn get_workspace_subscriptions(&self) -> RepeatedWorkspaceSubscriptionPB {
-    EventBuilder::new(self.clone())
-      .event(UserEvent::GetWorkspaceSubscriptions)
-      .async_send()
-      .await
-      .parse::<RepeatedWorkspaceSubscriptionPB>()
   }
 
   pub async fn leave_workspace(&self, workspace_id: &str) {
