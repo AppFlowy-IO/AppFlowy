@@ -1,4 +1,6 @@
+// import { invalidToken } from '@/application/session/token';
 import { Popover } from '@/components/_shared/popover';
+// import { AFConfigContext } from '@/components/app/AppConfig';
 import { ThemeModeContext } from '@/components/app/useAppThemeMode';
 import { openUrl } from '@/utils/url';
 import { IconButton } from '@mui/material';
@@ -6,10 +8,13 @@ import React, { useContext, useMemo } from 'react';
 import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 import { ReactComponent as MoonIcon } from '@/assets/moon.svg';
 import { ReactComponent as SunIcon } from '@/assets/sun.svg';
+// import { ReactComponent as LoginIcon } from '@/assets/login.svg';
 import { ReactComponent as ReportIcon } from '@/assets/report.svg';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
+
+// import { useNavigate } from 'react-router-dom';
 
 function MoreActions() {
   const { isDark, setDark } = useContext(ThemeModeContext) || {};
@@ -26,8 +31,21 @@ function MoreActions() {
 
   const { t } = useTranslation();
 
+  // const navigate = useNavigate();
+
+  // const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated || false;
+  //
+  // const handleLogin = useCallback(() => {
+  //   invalidToken();
+  //   navigate('/login?redirectTo=' + encodeURIComponent(window.location.href));
+  // }, [navigate]);
   const actions = useMemo(() => {
     return [
+      // {
+      //   Icon: LoginIcon,
+      //   label: isAuthenticated ? t('button.logout') : t('web.login'),
+      //   onClick: handleLogin,
+      // },
       isDark
         ? {
             Icon: SunIcon,
@@ -51,7 +69,7 @@ function MoreActions() {
         },
       },
     ];
-  }, [isDark, t, setDark]);
+  }, [t, isDark, setDark]);
 
   return (
     <>

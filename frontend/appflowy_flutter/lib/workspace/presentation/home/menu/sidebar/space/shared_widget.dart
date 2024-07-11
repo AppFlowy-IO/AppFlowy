@@ -223,9 +223,55 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
   }
 }
 
-class ConfirmDeletionPopup extends StatefulWidget {
-  const ConfirmDeletionPopup({
+class SpaceOkButton extends StatelessWidget {
+  const SpaceOkButton({
     super.key,
+    required this.onConfirm,
+    required this.confirmButtonName,
+    this.confirmButtonColor,
+  });
+
+  final VoidCallback onConfirm;
+  final String confirmButtonName;
+  final Color? confirmButtonColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        DecoratedBox(
+          decoration: ShapeDecoration(
+            color: confirmButtonColor ?? Theme.of(context).colorScheme.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: FlowyButton(
+            useIntrinsicWidth: true,
+            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
+            radius: BorderRadius.circular(8),
+            text: FlowyText.regular(
+              confirmButtonName,
+              color: Colors.white,
+            ),
+            onTap: onConfirm,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+enum ConfirmPopupStyle {
+  onlyOk,
+  cancelAndOk,
+}
+
+class ConfirmPopup extends StatefulWidget {
+  const ConfirmPopup({
+    super.key,
+    this.style = ConfirmPopupStyle.cancelAndOk,
     required this.title,
     required this.description,
     required this.onConfirm,
@@ -234,12 +280,13 @@ class ConfirmDeletionPopup extends StatefulWidget {
   final String title;
   final String description;
   final VoidCallback onConfirm;
+  final ConfirmPopupStyle style;
 
   @override
-  State<ConfirmDeletionPopup> createState() => _ConfirmDeletionPopupState();
+  State<ConfirmPopup> createState() => _ConfirmPopupState();
 }
 
-class _ConfirmDeletionPopupState extends State<ConfirmDeletionPopup> {
+class _ConfirmPopupState extends State<ConfirmPopup> {
   final focusNode = FocusNode();
 
   @override
@@ -262,45 +309,69 @@ class _ConfirmDeletionPopupState extends State<ConfirmDeletionPopup> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Flexible(
-                  child: FlowyText(
-                    widget.title,
-                    fontSize: 14.0,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const HSpace(6.0),
-                FlowyButton(
-                  useIntrinsicWidth: true,
-                  text: const FlowySvg(FlowySvgs.upgrade_close_s),
-                  onTap: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-            const VSpace(8.0),
-            FlowyText.regular(
-              widget.description,
-              fontSize: 12.0,
-              color: Theme.of(context).hintColor,
-              maxLines: 3,
-              lineHeight: 1.4,
-            ),
+            _buildTitle(),
+            const VSpace(6.0),
+            _buildDescription(),
             const VSpace(20.0),
-            SpaceCancelOrConfirmButton(
-              onCancel: () => Navigator.of(context).pop(),
-              onConfirm: () {
-                widget.onConfirm();
-                Navigator.of(context).pop();
-              },
-              confirmButtonName: LocaleKeys.space_delete.tr(),
-              confirmButtonColor: Theme.of(context).colorScheme.error,
-            ),
+            _buildStyledButton(context),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildTitle() {
+    return Row(
+      children: [
+        Expanded(
+          child: FlowyText(
+            widget.title,
+            fontSize: 14.0,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const HSpace(6.0),
+        FlowyButton(
+          useIntrinsicWidth: true,
+          text: const FlowySvg(FlowySvgs.upgrade_close_s),
+          onTap: () => Navigator.of(context).pop(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDescription() {
+    return FlowyText.regular(
+      widget.description,
+      fontSize: 12.0,
+      color: Theme.of(context).hintColor,
+      maxLines: 3,
+      lineHeight: 1.4,
+    );
+  }
+
+  Widget _buildStyledButton(BuildContext context) {
+    switch (widget.style) {
+      case ConfirmPopupStyle.onlyOk:
+        return SpaceOkButton(
+          onConfirm: () {
+            widget.onConfirm();
+            Navigator.of(context).pop();
+          },
+          confirmButtonName: LocaleKeys.button_ok.tr(),
+          confirmButtonColor: Theme.of(context).colorScheme.primary,
+        );
+      case ConfirmPopupStyle.cancelAndOk:
+        return SpaceCancelOrConfirmButton(
+          onCancel: () => Navigator.of(context).pop(),
+          onConfirm: () {
+            widget.onConfirm();
+            Navigator.of(context).pop();
+          },
+          confirmButtonName: LocaleKeys.space_delete.tr(),
+          confirmButtonColor: Theme.of(context).colorScheme.error,
+        );
+    }
   }
 }
 

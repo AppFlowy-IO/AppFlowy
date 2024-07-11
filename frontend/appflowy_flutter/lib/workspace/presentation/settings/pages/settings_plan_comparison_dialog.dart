@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -12,6 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsPlanComparisonDialog extends StatefulWidget {
@@ -173,9 +172,10 @@ class _SettingsPlanComparisonDialogState
                             description: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_description
                                 .tr(),
+                            // TODO(Mathias): the price should be dynamic based on the country and currency
                             price: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_price
-                                .tr(),
+                                .tr(args: ['\$0']),
                             priceInfo: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_priceInfo
                                 .tr(),
@@ -231,9 +231,10 @@ class _SettingsPlanComparisonDialogState
                             description: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_description
                                 .tr(),
+                            // TODO(Mathias): the price should be dynamic based on the country and currency
                             price: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_price
-                                .tr(),
+                                .tr(args: ['\$10 ']),
                             priceInfo: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_priceInfo
                                 .tr(),

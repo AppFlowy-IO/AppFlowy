@@ -4,10 +4,10 @@ import { usePublishContext } from '@/application/publish';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { useAppThemeMode } from '@/components/app/useAppThemeMode';
 import { Database } from '@/components/database';
-import { useViewMeta } from '@/components/publish/useViewMeta';
-import { ViewMetaProps } from 'src/components/view-meta';
-import React, { useMemo } from 'react';
 import { Document } from '@/components/document';
+import { useViewMeta } from '@/components/publish/useViewMeta';
+import React, { useMemo } from 'react';
+import { ViewMetaProps } from 'src/components/view-meta';
 import Y from 'yjs';
 
 export interface CollabViewProps {
@@ -49,7 +49,7 @@ function CollabView({ doc }: CollabViewProps) {
   }
 
   return (
-    <div style={style} className={`relative w-full ${layoutClassName}`}>
+    <div style={style} className={`relative w-full flex-1 ${layoutClassName}`}>
       <View
         doc={doc}
         loadViewMeta={loadViewMeta}
@@ -61,6 +61,7 @@ function CollabView({ doc }: CollabViewProps) {
         viewId={viewId}
         name={name}
         isDark={isDark}
+        layout={layout || ViewLayout.Document}
       />
     </div>
   );

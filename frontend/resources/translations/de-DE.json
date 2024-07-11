@@ -659,7 +659,7 @@
         "storageUnlimited": "Unbegrenzter Speicherplatz mit deinem Pro-Plan",
         "aiCredit": {
           "title": "@:appName KI-Guthaben hinzufügen",
-          "price": "5 $",
+          "price": "{}",
           "priceDescription": "für 1.000 Credits",
           "purchase": "Kauf von KI",
           "info": "Füge 1.000 KI-Credits pro Arbeitsbereich hinzu und integriere anpassbare KI nahtlos in deinen Arbeitsablauf für intelligentere, schnellere Ergebnisse mit bis zu:",
@@ -737,7 +737,7 @@
       "proPlan": {
         "title": "Professionell",
         "description": "Ein Ort für kleine Gruppen zum Planen und Organisieren.",
-        "price": "$10 /Monat",
+        "price": "{} /Monat",
         "priceInfo": "jährlich abgerechnet"
       },
       "planLabels": {
