@@ -367,8 +367,9 @@ class _PlanUsageSummary extends StatelessWidget {
           ],
         ),
         const VSpace(16),
-        Column(
+        SeparatedColumn(
           crossAxisAlignment: CrossAxisAlignment.start,
+          separatorBuilder: () => const VSpace(4),
           children: [
             if (subscriptionInfo.plan == WorkspacePlanPB.FreePlan) ...[
               _ToggleMore(
@@ -383,10 +384,40 @@ class _PlanUsageSummary extends StatelessWidget {
                           SubscriptionPlanPB.Pro,
                         ),
                       );
-                  await Future.delayed(
-                    const Duration(seconds: 2),
-                    () {},
-                  );
+                  await Future.delayed(const Duration(seconds: 2), () {});
+                },
+              ),
+            ],
+            if (!subscriptionInfo.hasAIMax) ...[
+              _ToggleMore(
+                value: false,
+                label: LocaleKeys.settings_planPage_planUsage_aiMaxToggle.tr(),
+                badgeLabel:
+                    LocaleKeys.settings_planPage_planUsage_aiMaxBadge.tr(),
+                onTap: () async {
+                  context.read<SettingsPlanBloc>().add(
+                        const SettingsPlanEvent.addSubscription(
+                          SubscriptionPlanPB.AiMax,
+                        ),
+                      );
+                  await Future.delayed(const Duration(seconds: 2), () {});
+                },
+              ),
+            ],
+            if (!subscriptionInfo.hasAIOnDevice) ...[
+              _ToggleMore(
+                value: false,
+                label: LocaleKeys.settings_planPage_planUsage_aiOnDeviceToggle
+                    .tr(),
+                badgeLabel:
+                    LocaleKeys.settings_planPage_planUsage_aiOnDeviceBadge.tr(),
+                onTap: () async {
+                  context.read<SettingsPlanBloc>().add(
+                        const SettingsPlanEvent.addSubscription(
+                          SubscriptionPlanPB.AiLocal,
+                        ),
+                      );
+                  await Future.delayed(const Duration(seconds: 2), () {});
                 },
               ),
             ],
@@ -417,8 +448,6 @@ class _UsageBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLM = Theme.of(context).isLightMode;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -429,33 +458,22 @@ class _UsageBox extends StatelessWidget {
         ),
         if (unlimited) ...[
           const VSpace(4),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: isLM ? const Color(0xFFE8E2EE) : const Color(0xFF9C00FB),
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 4,
-                horizontal: 8,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const FlowySvg(
-                    FlowySvgs.check_circle_outlined_s,
-                    color: Color(0xFF9C00FB),
-                  ),
-                  const HSpace(4),
-                  FlowyText(
-                    unlimitedLabel,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 11,
-                  ),
-                ],
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const FlowySvg(
+                  FlowySvgs.check_circle_outlined_s,
+                  color: Color(0xFF9C00FB),
+                ),
+                const HSpace(4),
+                FlowyText(
+                  unlimitedLabel,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 11,
+                ),
+              ],
             ),
           ),
         ] else ...[
@@ -569,7 +587,9 @@ class _PlanProgressIndicator extends StatelessWidget {
                     widthFactor: progress,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primary,
+                        color: progress >= 1
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.primary,
                       ),
                     ),
                   ),
@@ -613,6 +633,8 @@ class _AddOnBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLM = Theme.of(context).isLightMode;
+
     return Container(
       height: 220,
       padding: const EdgeInsets.symmetric(
@@ -621,11 +643,9 @@ class _AddOnBox extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         border: Border.all(
-          color: isActive ? const Color(0xFF9C00FB) : const Color(0xFFBDBDBD),
+          color: isActive ? const Color(0xFFBDBDBD) : const Color(0xFF9C00FB),
         ),
-        color: isActive
-            ? const Color(0xFFF7F8FC).withOpacity(0.05)
-            : Colors.transparent,
+        color: const Color(0xFFF7F8FC).withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -673,22 +693,36 @@ class _AddOnBox extends StatelessWidget {
               Expanded(
                 child: FlowyTextButton(
                   buttonText,
+                  heading: isActive
+                      ? const FlowySvg(
+                          FlowySvgs.check_circle_outlined_s,
+                          color: Color(0xFF9C00FB),
+                        )
+                      : null,
                   mainAxisAlignment: MainAxisAlignment.center,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-                  fillColor:
-                      isActive ? const Color(0xFFE8E2EE) : Colors.transparent,
+                  fillColor: isActive
+                      ? const Color(0xFFE8E2EE)
+                      : isLM
+                          ? Colors.transparent
+                          : const Color(0xFF5C3699),
                   constraints: const BoxConstraints(minWidth: 115),
                   radius: Corners.s16Border,
                   hoverColor: isActive
                       ? const Color(0xFFE8E2EE)
-                      : const Color(0xFF5C3699),
-                  fontColor: const Color(0xFF5C3699),
+                      : isLM
+                          ? const Color(0xFF5C3699)
+                          : const Color(0xFF4d3472),
+                  fontColor:
+                      isLM || isActive ? const Color(0xFF5C3699) : Colors.white,
                   fontHoverColor:
                       isActive ? const Color(0xFF5C3699) : Colors.white,
                   borderColor: isActive
                       ? const Color(0xFFE8E2EE)
-                      : const Color(0xFF5C3699),
+                      : isLM
+                          ? const Color(0xFF5C3699)
+                          : const Color(0xFF4d3472),
                   fontSize: 12,
                   onPressed: isActive
                       ? null

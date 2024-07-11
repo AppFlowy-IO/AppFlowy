@@ -646,7 +646,11 @@
         "aiResponseUsage": "{} of {}",
         "unlimitedAILabel": "Unlimited responses",
         "proBadge": "Pro",
+        "aiMaxBadge": "AI Max",
+        "aiOnDeviceBadge": "AI On-device",
         "memberProToggle": "More members & unlimited AI",
+        "aiMaxToggle": "Unlimited AI responses",
+        "aiOnDeviceToggle": "On-device AI for ultimate privacy",
         "aiCredit": {
           "title": "Add @:appName AI Credit",
           "price": "5$",
@@ -717,15 +721,15 @@
         "renewLabel": "Renew",
         "aiMax": {
           "label": "AI Max",
-          "description": "US$8 /user per month billed annually or US$10 billed monthly",
+          "description": "Unlock unlimited AI and advanced models",
           "activeDescription": "Next invoice due on {}",
-          "canceledDescription": "AI Max will be removed on {}"
+          "canceledDescription": "AI Max will be available until {}"
         },
         "aiOnDevice": {
           "label": "AI On-device",
-          "description": "US$8 /user per month billed annually or US$10 billed monthly",
+          "description": "Unlock unlimited AI offline on your device",
           "activeDescription": "Next invoice due on {}",
-          "canceledDescription": "AI On-device will be removed on {}"
+          "canceledDescription": "AI On-device will be available until {}"
         }
       }
     },
@@ -951,7 +955,10 @@
           "one": "{} member",
           "other": "{} members"
         },
-        "memberLimitExceeded": "Member limit reached. Upgrade to invite additional members.",
+        "memberLimitExceeded": "Member limit reached, to invite more members, please ",
+        "memberLimitExceededUpgrade": "upgrade",
+        "memberLimitExceededPro": "Member limit reached, if you require more members contact ",
+        "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "Failed to add member",
         "addMemberSuccess": "Member added successfully",
         "removeMember": "Remove Member",

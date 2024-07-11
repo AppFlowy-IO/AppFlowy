@@ -28,8 +28,10 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
     on<SettingsPlanEvent>((event, emit) async {
       await event.when(
-        started: (withSuccessfulUpgrade) async {
-          emit(const SettingsPlanState.loading());
+        started: (withSuccessfulUpgrade, shouldLoad) async {
+          if (shouldLoad) {
+            emit(const SettingsPlanState.loading());
+          }
 
           final snapshots = await Future.wait([
             _service.getWorkspaceUsage(),
@@ -109,7 +111,12 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             return;
           }
 
-          add(SettingsPlanEvent.started(withSuccessfulUpgrade: plan));
+          add(
+            SettingsPlanEvent.started(
+              withSuccessfulUpgrade: plan,
+              shouldLoad: false,
+            ),
+          );
         },
       );
     });
@@ -142,6 +149,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 class SettingsPlanEvent with _$SettingsPlanEvent {
   const factory SettingsPlanEvent.started({
     @Default(null) SubscriptionPlanPB? withSuccessfulUpgrade,
+    @Default(true) bool shouldLoad,
   }) = _Started;
 
   const factory SettingsPlanEvent.addSubscription(SubscriptionPlanPB plan) =
