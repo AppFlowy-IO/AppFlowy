@@ -40,6 +40,9 @@ $today-highlight-bg: transparent;
 
 }
 
+.rbc-day-bg + .rbc-day-bg {
+  border-left-color: var(--line-divider);
+}
 
 .rbc-month-header {
   height: 40px;
@@ -47,6 +50,7 @@ $today-highlight-bg: transparent;
   top: 0;
   background: var(--bg-body);
   z-index: 50;
+  min-width: 700px;
 
   .rbc-header {
     border: none;
