@@ -1,9 +1,10 @@
 import { YDoc } from '@/application/collab.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
+import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { Database } from '@/components/database';
 import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
 import { ViewMetaProps } from '@/components/view-meta';
-import React, { useCallback } from 'react';
+import React, { Suspense, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import * as Y from 'yjs';
 
@@ -47,14 +48,16 @@ function DatabaseView({ viewMeta, ...props }: DatabaseProps) {
       className={'relative flex h-full w-full flex-col'}
     >
       <DatabaseHeader {...viewMeta} />
-      <Database
-        iidName={viewMeta.name || ''}
-        {...props}
-        viewId={viewId}
-        rowId={rowId}
-        onChangeView={handleChangeView}
-        onOpenRow={handleNavigateToRow}
-      />
+      <Suspense fallback={<ComponentLoading />}>
+        <Database
+          iidName={viewMeta.name || ''}
+          {...props}
+          viewId={viewId}
+          rowId={rowId}
+          onChangeView={handleChangeView}
+          onOpenRow={handleNavigateToRow}
+        />
+      </Suspense>
     </div>
   );
 }
