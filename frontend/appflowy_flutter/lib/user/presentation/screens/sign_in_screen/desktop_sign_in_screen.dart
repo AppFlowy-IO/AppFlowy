@@ -54,16 +54,8 @@ class DesktopSignInScreen extends StatelessWidget {
                 const SignInAnonymousButtonV2(),
                 const VSpace(10),
 
-                SwitchSignInSignUpButton(
-                  onTap: () {
-                    final type = state.loginType == LoginType.signIn
-                        ? LoginType.signUp
-                        : LoginType.signIn;
-                    context
-                        .read<SignInBloc>()
-                        .add(SignInEvent.switchLoginType(type));
-                  },
-                ),
+                // sign in agreement
+                const SignInAgreement(),
 
                 // loading status
                 const VSpace(indicatorMinHeight),

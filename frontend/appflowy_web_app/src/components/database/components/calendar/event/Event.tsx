@@ -1,4 +1,4 @@
-import { CalendarEvent, useFieldsSelector, useNavigateToRow } from '@/application/database-yjs';
+import { CalendarEvent, useFieldsSelector } from '@/application/database-yjs';
 import { RichTooltip } from '@/components/_shared/popover';
 import EventPaper from '@/components/database/components/calendar/event/EventPaper';
 import CardField from '@/components/database/components/field/CardField';
@@ -11,7 +11,7 @@ export function Event({ event }: EventWrapperProps<CalendarEvent>) {
   const fields = useFieldsSelector();
   const showFields = useMemo(() => fields.filter((field) => field.fieldId !== fieldId), [fields, fieldId]);
 
-  const navigateToRow = useNavigateToRow();
+  // const navigateToRow = useNavigateToRow();
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -20,7 +20,7 @@ export function Event({ event }: EventWrapperProps<CalendarEvent>) {
         <div
           onClick={() => {
             if (window.innerWidth < 768) {
-              navigateToRow?.(rowId);
+              // navigateToRow?.(rowId);
             } else {
               setOpen((prev) => !prev);
             }

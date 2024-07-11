@@ -9,6 +9,7 @@ import {
 } from '@/application/services/js-services/cache';
 import { openCollabDB, db } from '@/application/db';
 import { StrategyType } from '@/application/services/js-services/cache/types';
+import * as Y from 'yjs';
 
 jest.mock('@/application/ydoc/apply', () => ({
   applyYDoc: jest.fn(),
@@ -118,9 +119,8 @@ describe('Cache functions', () => {
 
   describe('getBatchCollabs', () => {
     it('should return empty array when no cache found', async () => {
-      (openCollabDB as jest.Mock).mockResolvedValue(undefined);
-      const collabs = await getBatchCollabs(['1', '2', '3']);
-      expect(collabs).toEqual([]);
+      (openCollabDB as jest.Mock).mockResolvedValue(new Y.Doc());
+      await expect(getBatchCollabs(['1', '2', '3'])).rejects.toThrow('No cache found');
     });
 
     it('should return collabs when cache found', async () => {

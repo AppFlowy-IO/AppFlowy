@@ -34,7 +34,7 @@
   "signIn": {
     "loginTitle": "Login to @:appName",
     "loginButtonText": "Login",
-    "loginStartWithAnonymous": "Start with an anonymous session",
+    "loginStartWithAnonymous": "Continue with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
@@ -47,24 +47,25 @@
     "unmatchedPasswordError": "Repeat password is not the same as password",
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "or": "OR",
-    "signInWithGoogle": "Log in with Google",
-    "signInWithGithub": "Log in with Github",
-    "signInWithDiscord": "Log in with Discord",
+    "signInWithGoogle": "Continue with Google",
+    "signInWithGithub": "Continue with Github",
+    "signInWithDiscord": "Continue with Discord",
     "signUpWithGoogle": "Sign up with Google",
     "signUpWithGithub": "Sign up with Github",
     "signUpWithDiscord": "Sign up with Discord",
-    "signInWith": "Sign in with:",
-    "signInWithEmail": "Sign in with Email",
-    "signInWithMagicLink": "Log in with Magic Link",
+    "signInWith": "Continue with:",
+    "signInWithEmail": "Continue with Email",
+    "signInWithMagicLink": "Continue",
     "signUpWithMagicLink": "Sign up with Magic Link",
     "pleaseInputYourEmail": "Please enter your email address",
     "settings": "Settings",
-    "magicLinkSent": "We emailed a magic link. Click the link to log in.",
+    "magicLinkSent": "Magic Link sent!",
     "invalidEmail": "Please enter a valid email address",
     "alreadyHaveAnAccount": "Already have an account?",
     "logIn": "Log in",
     "generalError": "Something went wrong. Please try again later",
-    "limitRateError": "For security reasons, you can only request a magic link every 60 seconds"
+    "limitRateError": "For security reasons, you can only request a magic link every 60 seconds",
+    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes."
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -335,9 +336,9 @@
     "logout": "Log out",
     "deleteAccount": "Delete account",
     "back": "Back",
-    "signInGoogle": "Sign in with Google",
-    "signInGithub": "Sign in with Github",
-    "signInDiscord": "Sign in with Discord",
+    "signInGoogle": "Continue with Google",
+    "signInGithub": "Continue with Github",
+    "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
     "close": "Close"
@@ -2041,7 +2042,6 @@
     "upgrade": "Update",
     "upgradeYourSpace": "Create multiple Spaces",
     "quicklySwitch": "Quickly switch to the next space",
-
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
     "switchSpace": "Switch space"
@@ -2066,5 +2066,18 @@
     "createWithAppFlowy": "Create a website with AppFlowy",
     "fastWithAI": "Fast and easy with AI.",
     "tryItNow": "Try it now"
+  },
+  "web": {
+    "continue": "Continue",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithGithub": "Continue with GitHub",
+    "continueWithDiscord": "Continue with Discord",
+    "signInAgreement": "By clicking \"Continue\" above, you confirm that\nyou have read, understood, and agreed to\nAppFlowy's",
+    "and": "and",
+    "termOfUse": "Terms",
+    "privacyPolicy": "Privacy Policy",
+    "signInError": "Sign in error",
+    "login": "Sign up or log in"
   }
 }
