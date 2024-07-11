@@ -106,6 +106,7 @@ class SettingsBillingBloc
         addSubscription: (plan) async {
           final result =
               await _userService.createSubscription(workspaceId, plan);
+
           result.fold(
             (link) => afLaunchUrlString(link.paymentLink),
             (f) => Log.error(f.msg, f),

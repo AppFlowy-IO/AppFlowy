@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -24,13 +27,14 @@ class WorkspaceMemberBloc
     extends Bloc<WorkspaceMemberEvent, WorkspaceMemberState> {
   WorkspaceMemberBloc({
     required this.userProfile,
+    String? workspaceId,
     this.workspace,
   })  : _userBackendService = UserBackendService(userId: userProfile.id),
         super(WorkspaceMemberState.initial()) {
     on<WorkspaceMemberEvent>((event, emit) async {
       await event.when(
         initial: () async {
-          await _setCurrentWorkspaceId();
+          await _setCurrentWorkspaceId(workspaceId);
 
           final result = await _userBackendService.getWorkspaceMembers(
             _workspaceId,
@@ -135,9 +139,7 @@ class WorkspaceMemberBloc
             (s) => state.members.map((e) {
               if (e.email == email) {
                 e.freeze();
-                return e.rebuild((p0) {
-                  p0.role = role;
-                });
+                return e.rebuild((p0) => p0.role = role);
               }
               return e;
             }).toList(),
@@ -153,7 +155,26 @@ class WorkspaceMemberBloc
             ),
           );
         },
-        upgradePlan: () {},
+        updateSubscriptionInfo: (info) async =>
+            emit(state.copyWith(subscriptionInfo: info)),
+        upgradePlan: () async {
+          final plan = state.subscriptionInfo?.plan;
+          if (plan == null) {
+            return Log.error('Failed to upgrade plan: plan is null');
+          }
+
+          if (plan == WorkspacePlanPB.FreePlan) {
+            final checkoutLink = await _userBackendService.createSubscription(
+              _workspaceId,
+              SubscriptionPlanPB.Pro,
+            );
+
+            checkoutLink.fold(
+              (pl) => afLaunchUrlString(pl.paymentLink),
+              (f) => Log.error('Failed to create subscription: ${f.msg}', f),
+            );
+          }
+        },
       );
     });
   }
@@ -179,9 +200,11 @@ class WorkspaceMemberBloc
     return role;
   }
 
-  Future<void> _setCurrentWorkspaceId() async {
+  Future<void> _setCurrentWorkspaceId(String? workspaceId) async {
     if (workspace != null) {
       _workspaceId = workspace!.workspaceId;
+    } else if (workspaceId != null && workspaceId.isNotEmpty) {
+      _workspaceId = workspaceId;
     } else {
       final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
       currentWorkspace.fold((s) {
@@ -192,6 +215,20 @@ class WorkspaceMemberBloc
         _workspaceId = '';
       });
     }
+
+    unawaited(_fetchWorkspaceSubscriptionInfo());
+  }
+
+  // We fetch workspace subscription info lazily as it's not needed in the first
+  // render of the page.
+  Future<void> _fetchWorkspaceSubscriptionInfo() async {
+    final result =
+        await UserBackendService.getWorkspaceSubscriptionInfo(_workspaceId);
+
+    result.fold(
+      (info) => add(WorkspaceMemberEvent.updateSubscriptionInfo(info)),
+      (f) => Log.error('Failed to fetch subscription info: ${f.msg}', f),
+    );
   }
 }
 
@@ -210,6 +247,9 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
     String email,
     AFRolePB role,
   ) = UpdateWorkspaceMember;
+  const factory WorkspaceMemberEvent.updateSubscriptionInfo(
+    WorkspaceSubscriptionInfoPB subscriptionInfo,
+  ) = UpdateSubscriptionInfo;
 
   const factory WorkspaceMemberEvent.upgradePlan() = UpgradePlan;
 }
@@ -244,6 +284,7 @@ class WorkspaceMemberState with _$WorkspaceMemberState {
     @Default(AFRolePB.Guest) AFRolePB myRole,
     @Default(null) WorkspaceMemberActionResult? actionResult,
     @Default(true) bool isLoading,
+    @Default(null) WorkspaceSubscriptionInfoPB? subscriptionInfo,
   }) = _WorkspaceMemberState;
 
   factory WorkspaceMemberState.initial() => const WorkspaceMemberState();
@@ -258,6 +299,7 @@ class WorkspaceMemberState with _$WorkspaceMemberState {
     return other is WorkspaceMemberState &&
         other.members == members &&
         other.myRole == myRole &&
+        other.subscriptionInfo == subscriptionInfo &&
         identical(other.actionResult, actionResult);
   }
 }

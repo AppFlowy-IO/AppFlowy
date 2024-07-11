@@ -120,7 +120,10 @@ class SettingsDialog extends StatelessWidget {
           return const AIFeatureOnlySupportedWhenUsingAppFlowyCloud();
         }
       case SettingsPage.member:
-        return WorkspaceMembersPage(userProfile: user);
+        return WorkspaceMembersPage(
+          userProfile: user,
+          workspaceId: workspaceId,
+        );
       case SettingsPage.plan:
         return SettingsPlanView(workspaceId: workspaceId, user: user);
       case SettingsPage.billing:
