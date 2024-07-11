@@ -326,6 +326,7 @@ class _PlanUsageSummary extends StatelessWidget {
         ),
         const VSpace(16),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: _UsageBox(
@@ -456,9 +457,8 @@ class _UsageBox extends StatelessWidget {
           color: AFThemeExtension.of(context).secondaryTextColor,
         ),
         if (unlimited) ...[
-          const VSpace(4),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.only(top: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -476,6 +476,7 @@ class _UsageBox extends StatelessWidget {
             ),
           ),
         ] else ...[
+          const VSpace(4),
           _PlanProgressIndicator(label: label, progress: value),
         ],
       ],
