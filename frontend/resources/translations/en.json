@@ -649,7 +649,7 @@
         "storageUnlimited": "Unlimited storage with your Pro Plan",
         "aiCredit": {
           "title": "Add @:appName AI Credit",
-          "price": "5$",
+          "price": "{}",
           "priceDescription": "for 1,000 credits",
           "purchase": "Purchase AI",
           "info": "Add 1,000 Ai credits per workspace and seamlessly integrate customizable AI into your workflow for smarter, faster results with up to:",
@@ -721,13 +721,13 @@
       "freePlan": {
         "title": "Free",
         "description": "For organizing every corner of your work & life.",
-        "price": "$0",
+        "price": "{}",
         "priceInfo": "free forever"
       },
       "proPlan": {
         "title": "Professional",
         "description": "A place for small groups to plan & get organized.",
-        "price": "$10 /month",
+        "price": "{}/month",
         "priceInfo": "billed annually"
       },
       "planLabels": {
