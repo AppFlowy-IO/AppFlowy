@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -120,12 +121,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
   }
 
   EditorState _parseMarkdown(String markdown) {
-    final document = markdownToDocument(
-      markdown,
-      markdownParsers: [
-        const MarkdownCodeBlockParser(),
-      ],
-    );
+    final document = customMarkdownToDocument(markdown);
     final editorState = EditorState(document: document);
     return editorState;
   }

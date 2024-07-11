@@ -7,10 +7,10 @@ import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_popmenu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -183,7 +183,7 @@ class CopyButton extends StatelessWidget {
           color: Theme.of(context).colorScheme.primary,
         ),
         onPressed: () async {
-          final document = markdownToDocument(textMessage.text);
+          final document = customMarkdownToDocument(textMessage.text);
           await getIt<ClipboardService>().setData(
             ClipboardServiceData(
               plainText: textMessage.text,
