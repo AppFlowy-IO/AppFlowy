@@ -1,6 +1,6 @@
 use chrono::Utc;
 use client_api::entity::billing_dto::{
-  RecurringInterval, SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus,
+  RecurringInterval, SubscriptionPlan, WorkspaceSubscriptionStatus,
 };
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -631,7 +631,11 @@ impl From<WorkspaceSubscriptionStatus> for WorkspaceSubscriptionV2PB {
     Self {
       workspace_id: sub.workspace_id,
       subscription_plan: sub.workspace_plan.clone().into(),
-      status: sub.subscription_status.into(),
+      status: if sub.cancel_at.is_some() {
+        WorkspaceSubscriptionStatusPB::Canceled
+      } else {
+        WorkspaceSubscriptionStatusPB::Active
+      },
       end_date: sub.current_period_end,
     }
   }
@@ -654,15 +658,6 @@ impl From<i64> for WorkspaceSubscriptionStatusPB {
   fn from(value: i64) -> Self {
     match value {
       0 => WorkspaceSubscriptionStatusPB::Active,
-      _ => WorkspaceSubscriptionStatusPB::Canceled,
-    }
-  }
-}
-
-impl From<SubscriptionStatus> for WorkspaceSubscriptionStatusPB {
-  fn from(status: SubscriptionStatus) -> Self {
-    match status {
-      SubscriptionStatus::Active => WorkspaceSubscriptionStatusPB::Active,
       _ => WorkspaceSubscriptionStatusPB::Canceled,
     }
   }

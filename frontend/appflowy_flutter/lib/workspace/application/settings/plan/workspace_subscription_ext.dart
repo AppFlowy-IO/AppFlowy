@@ -26,6 +26,22 @@ extension SubscriptionLabels on WorkspaceSubscriptionInfoPB {
       };
 }
 
+extension AllSubscriptionLabels on SubscriptionPlanPB {
+  String get label => switch (this) {
+        SubscriptionPlanPB.None =>
+          LocaleKeys.settings_planPage_planUsage_currentPlan_freeTitle.tr(),
+        SubscriptionPlanPB.Pro =>
+          LocaleKeys.settings_planPage_planUsage_currentPlan_proTitle.tr(),
+        SubscriptionPlanPB.Team =>
+          LocaleKeys.settings_planPage_planUsage_currentPlan_teamTitle.tr(),
+        SubscriptionPlanPB.AiMax =>
+          LocaleKeys.settings_billingPage_addons_aiMax_label.tr(),
+        SubscriptionPlanPB.AiLocal =>
+          LocaleKeys.settings_billingPage_addons_aiOnDevice_label.tr(),
+        _ => 'N/A',
+      };
+}
+
 extension WorkspaceSubscriptionStatusExt on WorkspaceSubscriptionInfoPB {
   bool get isCanceled =>
       planSubscription.status == WorkspaceSubscriptionStatusPB.Canceled;

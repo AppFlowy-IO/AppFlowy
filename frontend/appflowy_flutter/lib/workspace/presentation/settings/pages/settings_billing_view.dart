@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/util/int64_extension.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/billing/settings_billing_bloc.dart';
+import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_comparison_dialog.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -35,7 +40,8 @@ class SettingsBillingView extends StatelessWidget {
         workspaceId: workspaceId,
         userId: user.id,
       )..add(const SettingsBillingEvent.started()),
-      child: BlocBuilder<SettingsBillingBloc, SettingsBillingState>(
+      child: BlocConsumer<SettingsBillingBloc, SettingsBillingState>(
+        listener: (context, state) {},
         builder: (context, state) {
           return state.map(
             initial: (_) => const SizedBox.shrink(),
@@ -124,7 +130,6 @@ class SettingsBillingView extends StatelessWidget {
                         ),
                       ],
                     ),
-                  // TODO(Mathias): Implement the business logic for AI Add-ons
                   SettingsCategory(
                     title: LocaleKeys.settings_billingPage_addons_title.tr(),
                     children: [
@@ -134,8 +139,11 @@ class SettingsBillingView extends StatelessWidget {
                             .settings_billingPage_addons_aiMax_label
                             .tr(),
                         description: LocaleKeys
-                            .settings_billingPage_addons_aiMax_description
-                            .tr(),
+                            .settings_billingPage_addons_aiMax_description,
+                        activeDescription: LocaleKeys
+                            .settings_billingPage_addons_aiMax_activeDescription,
+                        canceledDescription: LocaleKeys
+                            .settings_billingPage_addons_aiMax_canceledDescription,
                         subscriptionInfo:
                             state.subscriptionInfo.addOns.firstWhereOrNull(
                           (a) => a.type == WorkspaceAddOnPBType.AddOnAiMax,
@@ -147,8 +155,11 @@ class SettingsBillingView extends StatelessWidget {
                             .settings_billingPage_addons_aiOnDevice_label
                             .tr(),
                         description: LocaleKeys
-                            .settings_billingPage_addons_aiOnDevice_description
-                            .tr(),
+                            .settings_billingPage_addons_aiOnDevice_description,
+                        activeDescription: LocaleKeys
+                            .settings_billingPage_addons_aiOnDevice_activeDescription,
+                        canceledDescription: LocaleKeys
+                            .settings_billingPage_addons_aiOnDevice_canceledDescription,
                         subscriptionInfo:
                             state.subscriptionInfo.addOns.firstWhereOrNull(
                           (a) => a.type == WorkspaceAddOnPBType.AddOnAiLocal,
@@ -195,12 +206,16 @@ class _AITile extends StatelessWidget {
   const _AITile({
     required this.label,
     required this.description,
+    required this.canceledDescription,
+    required this.activeDescription,
     required this.plan,
     this.subscriptionInfo,
   });
 
   final String label;
   final String description;
+  final String canceledDescription;
+  final String activeDescription;
   final SubscriptionPlanPB plan;
   final WorkspaceAddOnPB? subscriptionInfo;
 
@@ -209,9 +224,29 @@ class _AITile extends StatelessWidget {
     final isCanceled = subscriptionInfo?.addOnSubscription.status ==
         WorkspaceSubscriptionStatusPB.Canceled;
 
+    final dateFormat = context.read<AppearanceSettingsCubit>().state.dateFormat;
+
     return SingleSettingAction(
       label: label,
-      description: description,
+      description: subscriptionInfo != null && isCanceled
+          ? canceledDescription.tr(
+              args: [
+                dateFormat.formatDate(
+                  subscriptionInfo!.addOnSubscription.endDate.toDateTime(),
+                  false,
+                ),
+              ],
+            )
+          : subscriptionInfo != null
+              ? activeDescription.tr(
+                  args: [
+                    dateFormat.formatDate(
+                      subscriptionInfo!.addOnSubscription.endDate.toDateTime(),
+                      false,
+                    ),
+                  ],
+                )
+              : description.tr(),
       buttonLabel: subscriptionInfo != null
           ? isCanceled
               ? LocaleKeys.settings_billingPage_addons_renewLabel.tr()
@@ -220,13 +255,25 @@ class _AITile extends StatelessWidget {
       fontWeight: FontWeight.w500,
       minWidth: _buttonsMinWidth,
       onPressed: () {
-        if (subscriptionInfo != null && !isCanceled) {
-          // Cancel the addon
+        if (subscriptionInfo != null && isCanceled) {
+          // Show customer portal to renew
           context
               .read<SettingsBillingBloc>()
-              .add(SettingsBillingEvent.cancelSubscription(plan));
+              .add(const SettingsBillingEvent.openCustomerPortal());
+        } else if (subscriptionInfo != null) {
+          SettingsAlertDialog(
+            title: 'Remove AI Max',
+            subtitle:
+                'Are you sure you want to remove AI Max? You will keep the benefits until the end of the billing period.',
+            confirm: () {
+              Navigator.of(context).pop();
+              context
+                  .read<SettingsBillingBloc>()
+                  .add(SettingsBillingEvent.cancelSubscription(plan));
+            },
+          ).show(context);
         } else {
-          // Add/renew the addon
+          // Add the addon
           context
               .read<SettingsBillingBloc>()
               .add(SettingsBillingEvent.addSubscription(plan));

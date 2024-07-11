@@ -86,10 +86,11 @@ class SettingsBillingBloc
         },
         billingPortalFetched: (billingPortal) async => state.maybeWhen(
           orElse: () {},
-          ready: (subscriptionInfo, _) => emit(
+          ready: (subscriptionInfo, _, plan) => emit(
             SettingsBillingState.ready(
               subscriptionInfo: subscriptionInfo,
               billingPortal: billingPortal,
+              successfulPlanUpgrade: plan,
             ),
           ),
         ),
@@ -114,7 +115,7 @@ class SettingsBillingBloc
           await _userService.cancelSubscription(workspaceId, plan);
           await _onPaymentSuccessful();
         },
-        paymentSuccessful: () async {
+        paymentSuccessful: (plan) async {
           final result = await UserBackendService.getWorkspaceSubscriptionInfo(
             workspaceId,
           );
@@ -152,7 +153,11 @@ class SettingsBillingBloc
     // Invalidate cache for this workspace
     await UserBackendService.invalidateWorkspaceSubscriptionCache(workspaceId);
 
-    add(const SettingsBillingEvent.paymentSuccessful());
+    add(
+      SettingsBillingEvent.paymentSuccessful(
+        plan: _successListenable.subscribedPlan,
+      ),
+    );
   }
 }
 
@@ -168,7 +173,9 @@ class SettingsBillingEvent with _$SettingsBillingEvent {
   const factory SettingsBillingEvent.cancelSubscription(
     SubscriptionPlanPB plan,
   ) = _CancelSubscription;
-  const factory SettingsBillingEvent.paymentSuccessful() = _PaymentSuccessful;
+  const factory SettingsBillingEvent.paymentSuccessful({
+    SubscriptionPlanPB? plan,
+  }) = _PaymentSuccessful;
 }
 
 @freezed
@@ -186,12 +193,17 @@ class SettingsBillingState extends Equatable with _$SettingsBillingState {
   const factory SettingsBillingState.ready({
     required WorkspaceSubscriptionInfoPB subscriptionInfo,
     required BillingPortalPB? billingPortal,
+    @Default(null) SubscriptionPlanPB? successfulPlanUpgrade,
   }) = _Ready;
 
   @override
   List<Object?> get props => maybeWhen(
         orElse: () => const [],
         error: (error) => [error],
-        ready: (subscription, billingPortal) => [subscription, billingPortal],
+        ready: (subscription, billingPortal, plan) => [
+          subscription,
+          billingPortal,
+          plan,
+        ],
       );
 }

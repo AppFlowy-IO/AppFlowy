@@ -648,13 +648,14 @@
         "title": "Plan usage summary",
         "storageLabel": "Storage",
         "storageUsage": "{} of {} GB",
+        "unlimitedStorageLabel": "Unlimited storage",
         "collaboratorsLabel": "Members",
         "collaboratorsUsage": "{} of {}",
         "aiResponseLabel": "AI Responses",
         "aiResponseUsage": "{} of {}",
+        "unlimitedAILabel": "Unlimited responses",
         "proBadge": "Pro",
         "memberProToggle": "More members & unlimited AI",
-        "storageUnlimited": "Unlimited storage with Pro Plan",
         "aiCredit": {
           "title": "Add @:appName AI Credit",
           "price": "{}",
@@ -725,11 +726,15 @@
         "renewLabel": "Renew",
         "aiMax": {
           "label": "AI Max",
-          "description": "US$8 /user per month billed annually or US$10 billed monthly"
+          "description": "US$8 /user per month billed annually or US$10 billed monthly",
+          "activeDescription": "Next invoice due on {}",
+          "canceledDescription": "AI Max will be removed on {}"
         },
         "aiOnDevice": {
           "label": "AI On-device",
-          "description": "US$8 /user per month billed annually or US$10 billed monthly"
+          "description": "US$8 /user per month billed annually or US$10 billed monthly",
+          "activeDescription": "Next invoice due on {}",
+          "canceledDescription": "AI On-device will be removed on {}"
         }
       }
     },
@@ -955,7 +960,7 @@
           "one": "{} member",
           "other": "{} members"
         },
-        "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
+        "memberLimitExceeded": "Member limit reached. Upgrade to invite additional members.",
         "failedToAddMember": "Failed to add member",
         "addMemberSuccess": "Member added successfully",
         "removeMember": "Remove Member",

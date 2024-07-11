@@ -153,6 +153,7 @@ class WorkspaceMemberBloc
             ),
           );
         },
+        upgradePlan: () {},
       );
     });
   }
@@ -209,6 +210,8 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
     String email,
     AFRolePB role,
   ) = UpdateWorkspaceMember;
+
+  const factory WorkspaceMemberEvent.upgradePlan() = UpgradePlan;
 }
 
 enum WorkspaceMemberActionType {
