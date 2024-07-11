@@ -1,4 +1,4 @@
-use collab::entity::EncodedCollab;
+use flowy_folder::view_operation::EncodedCollabWrapper;
 use std::sync::Arc;
 
 use collab_folder::{FolderData, View};
@@ -6,7 +6,7 @@ use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{entities::*, ViewLayout};
-use flowy_folder_pub::entities::{PublishDocumentPayload, PublishPayload};
+use flowy_folder_pub::entities::PublishPayload;
 use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
   AcceptWorkspaceInvitationPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
@@ -191,7 +191,7 @@ impl EventIntegrationTest {
     payload.unwrap()
   }
 
-  pub async fn encoded_collab_v1(&self, view_id: &str, layout: ViewLayout) -> EncodedCollab {
+  pub async fn encoded_collab_v1(&self, view_id: &str, layout: ViewLayout) -> EncodedCollabWrapper {
     let manager = self.folder_manager.clone();
     let handlers = manager.get_operation_handlers();
     let handler = handlers.get(&layout).unwrap();

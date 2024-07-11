@@ -307,9 +307,19 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       let database_row_encoded_collabs = database_manager
         .get_database_row_encoded_collabs_with_view_id(&view_id)
         .await?;
+      let database_metas = database_manager.get_all_databases_meta().await;
+      let database_relations = database_metas
+        .into_iter()
+        .filter_map(|meta| {
+          let linked_views = meta.linked_views.into_iter().next()?;
+          Some((meta.database_id, linked_views))
+        })
+        .collect::<HashMap<_, _>>();
+
       Ok(EncodedCollabWrapper::Database(DatabaseEncodedCollab {
         database_encoded_collab,
         database_row_encoded_collabs,
+        database_relations,
       }))
     })
   }

@@ -1198,6 +1198,7 @@ impl FolderManager {
     let payload = match encoded_collab_wrapper {
       EncodedCollabWrapper::Database(v) => {
         let database_collab = v.database_encoded_collab.doc_state.to_vec();
+        let database_relations = v.database_relations;
         let database_row_collabs = v
         .database_row_encoded_collabs
         .into_iter()
@@ -1207,6 +1208,7 @@ impl FolderManager {
         let data = PublishDatabaseData {
           database_collab,
           database_row_collabs,
+          database_relations,
           ..Default::default()
         };
         PublishPayload::Database(PublishDatabasePayload { meta, data })

@@ -87,8 +87,7 @@ pub struct PublishDatabaseData {
   pub visible_database_view_ids: Vec<String>,
 
   /// Relation view id map
-  /// It's not used for now
-  pub database_view_relations: HashMap<String, String>,
+  pub database_relations: HashMap<String, String>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
