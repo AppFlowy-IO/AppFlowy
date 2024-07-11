@@ -6,9 +6,9 @@ import { forwardRef, FunctionComponent, SVGProps, useMemo } from 'react';
 import { ViewTabs, ViewTab } from './ViewTabs';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as GridSvg } from '$icons/16x/grid.svg';
-import { ReactComponent as BoardSvg } from '$icons/16x/board.svg';
-import { ReactComponent as CalendarSvg } from '$icons/16x/date.svg';
+import { ReactComponent as GridSvg } from '@/assets/grid.svg';
+import { ReactComponent as BoardSvg } from '@/assets/board.svg';
+import { ReactComponent as CalendarSvg } from '@/assets/calendar.svg';
 
 export interface DatabaseTabBarProps {
   viewIds: string[];
