@@ -730,6 +730,10 @@
           "description": "Unlock unlimited AI offline on your device",
           "activeDescription": "Next invoice due on {}",
           "canceledDescription": "AI On-device will be available until {}"
+        },
+        "removeDialog": {
+          "title": "Remove {}",
+          "description": "Are you sure you want to remove {}? You will keep the benefits until the end of the billing period."
         }
       }
     },
