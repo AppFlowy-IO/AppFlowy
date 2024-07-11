@@ -86,11 +86,13 @@ impl AppFlowyCore {
       init_log(&config, &platform, stream_log_sender);
     }
 
-    info!(
-      "💡{:?}, platform: {:?}",
-      System::long_os_version(),
-      platform
-    );
+    if sysinfo::IS_SUPPORTED_SYSTEM {
+      info!(
+        "💡{:?}, platform: {:?}",
+        System::long_os_version(),
+        platform
+      );
+    }
 
     Self::init(config, runtime).await
   }

@@ -1,5 +1,5 @@
 use std::convert::TryInto;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use protobuf::ProtobufError;
 use thiserror::Error;
@@ -42,8 +42,8 @@ impl FlowyError {
       payload: vec![],
     }
   }
-  pub fn with_context<T: Debug>(mut self, error: T) -> Self {
-    self.msg = format!("{:?}", error);
+  pub fn with_context<T: Display>(mut self, error: T) -> Self {
+    self.msg = format!("{}", error.to_string());
     self
   }
 
@@ -137,7 +137,7 @@ pub fn internal_error<T>(e: T) -> FlowyError
 where
   T: std::fmt::Debug,
 {
-  FlowyError::internal().with_context(e)
+  FlowyError::internal().with_context(format!("{:?}", e))
 }
 
 impl std::convert::From<std::io::Error> for FlowyError {
