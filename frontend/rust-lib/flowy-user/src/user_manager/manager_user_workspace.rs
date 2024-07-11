@@ -1,7 +1,6 @@
 use chrono::{Duration, NaiveDateTime, Utc};
-use client_api::entity::billing_dto::{
-  RecurringInterval, SubscriptionPlan, WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
-};
+use client_api::entity::billing_dto::{SubscriptionPlan, WorkspaceUsageAndLimit};
+
 use std::convert::TryFrom;
 use std::sync::Arc;
 
@@ -15,13 +14,13 @@ use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{
   Role, UpdateUserProfileParams, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus,
-  WorkspaceMember, WorkspaceSubscription,
+  WorkspaceMember,
 };
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, UpdateUserWorkspaceSettingPB,
-  UseAISettingPB, UserWorkspacePB,
+  UseAISettingPB, UserWorkspacePB, WorkspaceSubscriptionInfoPB,
 };
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
@@ -33,9 +32,9 @@ use crate::services::sqlite_sql::member_sql::{
 };
 use crate::services::sqlite_sql::user_sql::UserTableChangeset;
 use crate::services::sqlite_sql::workspace_sql::{
-  get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op,
-  select_workspace_subscription, upsert_workspace_subscription, UserWorkspaceTable,
-  WorkspaceSubscriptionsTable,
+  delete_workspace_subscription_from_cache, get_all_user_workspace_op, get_user_workspace_op,
+  insert_new_workspaces_op, select_workspace_subscription, upsert_workspace_subscription,
+  UserWorkspaceTable,
 };
 use crate::user_manager::{upsert_user_profile_change, UserManager};
 use flowy_user_pub::session::Session;
@@ -451,74 +450,53 @@ impl UserManager {
   }
 
   #[instrument(level = "info", skip(self), err)]
-  pub async fn get_workspace_subscriptions(&self) -> FlowyResult<Vec<WorkspaceSubscription>> {
-    let session = self.get_session()?;
-    let uid = session.user_id;
-    let workspace_id = session.user_workspace.id.clone();
-    let db = self.authenticate_user.get_sqlite_connection(uid)?;
-
-    // We check if we can use the cache from local sqlite db
-    if let Ok(subscription) = select_workspace_subscription(db, &workspace_id) {
-      if is_older_than_n_minutes(subscription.updated_at, 10) {
-        self.get_workspace_subscriptions_from_remote(uid).await?;
-      }
-
-      return Ok(vec![WorkspaceSubscription {
-        workspace_id,
-        subscription_plan: SubscriptionPlan::try_from(subscription.subscription_plan as i16)?,
-        recurring_interval: RecurringInterval::try_from(subscription.recurring_interval as i16)?,
-        is_active: subscription.is_active,
-        has_canceled: subscription.has_canceled,
-        canceled_at: subscription.canceled_at,
-      }]);
-    }
-
-    let subscriptions = self.get_workspace_subscriptions_from_remote(uid).await?;
-
-    Ok(subscriptions)
-  }
-
-  #[instrument(level = "info", skip(self), err)]
   pub async fn get_workspace_subscription_info(
     &self,
     workspace_id: String,
-  ) -> FlowyResult<Vec<WorkspaceSubscriptionStatus>> {
-    self
-      .cloud_services
-      .get_user_service()?
-      .get_workspace_subscriptions()
-      .await
-  }
+  ) -> FlowyResult<WorkspaceSubscriptionInfoPB> {
+    let session = self.get_session()?;
+    let uid = session.user_id;
+    let db = self.authenticate_user.get_sqlite_connection(uid)?;
 
-  async fn get_workspace_subscriptions_from_remote(
-    &self,
-    uid: i64,
-  ) -> FlowyResult<Vec<WorkspaceSubscription>> {
-    let subscriptions: Vec<WorkspaceSubscription> = self
-      .cloud_services
-      .get_user_service()?
-      .get_workspace_subscriptions()
-      .await?
-      .into_iter()
-      .map(WorkspaceSubscription::from)
-      .collect();
+    if let Ok(subscription) = select_workspace_subscription(db, &workspace_id) {
+      if is_older_than_n_minutes(subscription.updated_at, 10) {
+        self
+          .get_workspace_subscription_info_from_remote(uid, workspace_id)
+          .await?;
+      }
 
-    for subscription in &subscriptions {
-      let db = self.authenticate_user.get_sqlite_connection(uid)?;
-      let record = WorkspaceSubscriptionsTable {
-        workspace_id: subscription.workspace_id.clone().into(),
-        subscription_plan: subscription.subscription_plan.clone() as i64,
-        recurring_interval: subscription.recurring_interval.clone() as i64,
-        is_active: subscription.canceled_at.is_none(),
-        has_canceled: subscription.canceled_at.is_some(),
-        canceled_at: subscription.canceled_at.into(),
-        updated_at: Utc::now().naive_utc(),
-      };
-
-      upsert_workspace_subscription(db, record)?;
+      return Ok(subscription.into());
     }
 
-    Ok(subscriptions)
+    let info = self
+      .get_workspace_subscription_info_from_remote(uid, workspace_id)
+      .await?;
+
+    Ok(info)
+  }
+
+  async fn get_workspace_subscription_info_from_remote(
+    &self,
+    uid: i64,
+    workspace_id: String,
+  ) -> FlowyResult<WorkspaceSubscriptionInfoPB> {
+    let subscriptions = self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_subscription_one(workspace_id.clone())
+      .await?;
+
+    let info = WorkspaceSubscriptionInfoPB::from(subscriptions);
+    let record = if info.plan_subscription.workspace_id.is_empty() {
+      WorkspaceSubscriptionInfoPB::default_from_workspace_id(workspace_id)
+    } else {
+      info.clone()
+    };
+
+    let db = self.authenticate_user.get_sqlite_connection(uid)?;
+    upsert_workspace_subscription(db, record)?;
+
+    Ok(info)
   }
 
   #[instrument(level = "info", skip(self), err)]
@@ -533,6 +511,16 @@ impl UserManager {
       .cancel_workspace_subscription(workspace_id, plan)
       .await?;
     Ok(())
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn invalidate_workspace_subscription_info_cache(
+    &self,
+    workspace_id: String,
+  ) -> FlowyResult<()> {
+    let uid = self.user_id()?;
+    let db = self.authenticate_user.get_sqlite_connection(uid)?;
+    delete_workspace_subscription_from_cache(db, &workspace_id)
   }
 
   #[instrument(level = "info", skip(self), err)]

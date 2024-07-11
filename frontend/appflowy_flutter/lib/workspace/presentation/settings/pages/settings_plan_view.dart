@@ -68,40 +68,74 @@ class SettingsPlanView extends StatelessWidget {
               children: [
                 _PlanUsageSummary(
                   usage: state.workspaceUsage,
-                  subscription: state.subscription,
+                  subscriptionInfo: state.subscriptionInfo,
                 ),
                 const VSpace(16),
-                _CurrentPlanBox(subscription: state.subscription),
+                _CurrentPlanBox(subscriptionInfo: state.subscriptionInfo),
                 const VSpace(16),
                 // TODO(Mathias): Localize and add business logic
                 FlowyText(
-                  'Add-ons',
+                  LocaleKeys.settings_planPage_planUsage_addons_title.tr(),
                   fontSize: 18,
                   color: AFThemeExtension.of(context).strongText,
                   fontWeight: FontWeight.w600,
                 ),
                 const VSpace(8),
-                const Row(
+                Row(
                   children: [
                     Flexible(
                       child: _AddOnBox(
-                        title: "AI Max",
-                        description:
-                            "Unlimited AI models and access to advanced models",
-                        price: "US\$8",
-                        priceInfo: "billed annually or \$10 billed monthly",
-                        buttonText: "Add AI Max",
+                        title: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_title
+                            .tr(),
+                        description: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_description
+                            .tr(),
+                        price: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_price
+                            .tr(args: ['\$8']),
+                        priceInfo: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_priceInfo
+                            .tr(),
+                        billingInfo: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_billingInfo
+                            .tr(args: ['\$10']),
+                        buttonText: state.subscriptionInfo.hasAIMax
+                            ? LocaleKeys
+                                .settings_planPage_planUsage_addons_activeLabel
+                                .tr()
+                            : LocaleKeys
+                                .settings_planPage_planUsage_addons_addLabel
+                                .tr(),
+                        isActive: state.subscriptionInfo.hasAIMax,
                       ),
                     ),
-                    HSpace(8),
+                    const HSpace(8),
                     Flexible(
                       child: _AddOnBox(
-                        title: "AI Offline",
-                        description:
-                            "Local AI on your own hardware for ultimate privacy",
-                        price: "US\$8",
-                        priceInfo: "billed annually or \$10 billed monthly",
-                        buttonText: "Add AI Offline",
+                        title: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiOnDevice_title
+                            .tr(),
+                        description: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiOnDevice_description
+                            .tr(),
+                        price: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiOnDevice_price
+                            .tr(args: ['\$8']),
+                        priceInfo: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiOnDevice_priceInfo
+                            .tr(),
+                        billingInfo: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiOnDevice_billingInfo
+                            .tr(args: ['\$10']),
+                        buttonText: state.subscriptionInfo.hasAIOnDevice
+                            ? LocaleKeys
+                                .settings_planPage_planUsage_addons_activeLabel
+                                .tr()
+                            : LocaleKeys
+                                .settings_planPage_planUsage_addons_addLabel
+                                .tr(),
+                        isActive: state.subscriptionInfo.hasAIOnDevice,
                       ),
                     ),
                   ],
@@ -116,9 +150,9 @@ class SettingsPlanView extends StatelessWidget {
 }
 
 class _CurrentPlanBox extends StatefulWidget {
-  const _CurrentPlanBox({required this.subscription});
+  const _CurrentPlanBox({required this.subscriptionInfo});
 
-  final WorkspaceSubscriptionPB subscription;
+  final WorkspaceSubscriptionInfoPB subscriptionInfo;
 
   @override
   State<_CurrentPlanBox> createState() => _CurrentPlanBoxState();
@@ -161,13 +195,13 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
                       children: [
                         const VSpace(4),
                         FlowyText.semibold(
-                          widget.subscription.label,
+                          widget.subscriptionInfo.label,
                           fontSize: 24,
                           color: AFThemeExtension.of(context).strongText,
                         ),
                         const VSpace(8),
                         FlowyText.regular(
-                          widget.subscription.info,
+                          widget.subscriptionInfo.info,
                           fontSize: 16,
                           color: AFThemeExtension.of(context).strongText,
                           maxLines: 3,
@@ -189,7 +223,7 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
                             onPressed: () => _openPricingDialog(
                               context,
                               context.read<SettingsPlanBloc>().workspaceId,
-                              widget.subscription,
+                              widget.subscriptionInfo,
                             ),
                           ),
                         ),
@@ -198,7 +232,7 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
                   ),
                 ],
               ),
-              if (widget.subscription.hasCanceled) ...[
+              if (widget.subscriptionInfo.isCanceled) ...[
                 const VSpace(12),
                 FlowyText(
                   LocaleKeys
@@ -245,7 +279,7 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
   String _canceledDate(BuildContext context) {
     final appearance = context.read<AppearanceSettingsCubit>().state;
     return appearance.dateFormat.formatDate(
-      widget.subscription.canceledAt.toDateTime(),
+      widget.subscriptionInfo.planSubscription.endDate.toDateTime(),
       false,
     );
   }
@@ -253,7 +287,7 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
   void _openPricingDialog(
     BuildContext context,
     String workspaceId,
-    WorkspaceSubscriptionPB subscription,
+    WorkspaceSubscriptionInfoPB subscriptionInfo,
   ) =>
       showDialog(
         context: context,
@@ -261,7 +295,7 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
           value: planBloc,
           child: SettingsPlanComparisonDialog(
             workspaceId: workspaceId,
-            subscription: subscription,
+            subscriptionInfo: subscriptionInfo,
           ),
         ),
       );
@@ -270,11 +304,11 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
 class _PlanUsageSummary extends StatelessWidget {
   const _PlanUsageSummary({
     required this.usage,
-    required this.subscription,
+    required this.subscriptionInfo,
   });
 
   final WorkspaceUsagePB usage;
-  final WorkspaceSubscriptionPB subscription;
+  final WorkspaceSubscriptionInfoPB subscriptionInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -294,8 +328,8 @@ class _PlanUsageSummary extends StatelessWidget {
             Expanded(
               child: _UsageBox(
                 title: LocaleKeys.settings_planPage_planUsage_storageLabel.tr(),
-                replacementText: subscription.subscriptionPlan ==
-                        SubscriptionPlanPB.Pro
+                replacementText: subscriptionInfo.plan ==
+                        WorkspacePlanPB.ProPlan
                     ? LocaleKeys.settings_planPage_planUsage_storageUnlimited
                         .tr()
                     : null,
@@ -305,8 +339,8 @@ class _PlanUsageSummary extends StatelessWidget {
                     usage.totalBlobInGb,
                   ],
                 ),
-                value: usage.totalBlobBytes.toInt() /
-                    usage.totalBlobBytesLimit.toInt(),
+                value: usage.storageBytes.toInt() /
+                    usage.storageBytesLimit.toInt(),
               ),
             ),
             Expanded(
@@ -330,12 +364,11 @@ class _PlanUsageSummary extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (subscription.subscriptionPlan == SubscriptionPlanPB.None) ...[
+            if (subscriptionInfo.plan == WorkspacePlanPB.FreePlan) ...[
               _ToggleMore(
                 value: false,
                 label:
                     LocaleKeys.settings_planPage_planUsage_memberProToggle.tr(),
-                subscription: subscription,
                 badgeLabel:
                     LocaleKeys.settings_planPage_planUsage_proBadge.tr(),
                 onTap: () async {
@@ -407,14 +440,12 @@ class _ToggleMore extends StatefulWidget {
   const _ToggleMore({
     required this.value,
     required this.label,
-    required this.subscription,
     this.badgeLabel,
     this.onTap,
   });
 
   final bool value;
   final String label;
-  final WorkspaceSubscriptionPB subscription;
   final String? badgeLabel;
   final Future<void> Function()? onTap;
 
@@ -535,14 +566,18 @@ class _AddOnBox extends StatelessWidget {
     required this.description,
     required this.price,
     required this.priceInfo,
+    required this.billingInfo,
     required this.buttonText,
+    required this.isActive,
   });
 
   final String title;
   final String description;
   final String price;
   final String priceInfo;
+  final String billingInfo;
   final String buttonText;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
@@ -553,7 +588,12 @@ class _AddOnBox extends StatelessWidget {
         vertical: 12,
       ),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFBDBDBD)),
+        border: Border.all(
+          color: isActive ? const Color(0xFF9C00FB) : const Color(0xFFBDBDBD),
+        ),
+        color: isActive
+            ? const Color(0xFFF7F8FC).withOpacity(0.05)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -578,7 +618,7 @@ class _AddOnBox extends StatelessWidget {
             color: AFThemeExtension.of(context).strongText,
           ),
           FlowyText(
-            '/user per month',
+            priceInfo,
             fontSize: 11,
             color: AFThemeExtension.of(context).strongText,
           ),
@@ -587,7 +627,7 @@ class _AddOnBox extends StatelessWidget {
             children: [
               Expanded(
                 child: FlowyText(
-                  priceInfo,
+                  billingInfo,
                   color: AFThemeExtension.of(context).secondaryTextColor,
                   fontSize: 11,
                   maxLines: 2,
@@ -598,19 +638,28 @@ class _AddOnBox extends StatelessWidget {
           const Spacer(),
           Row(
             children: [
-              FlowyTextButton(
-                buttonText,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-                fillColor: Colors.transparent,
-                constraints: const BoxConstraints(minWidth: 115),
-                radius: Corners.s16Border,
-                hoverColor: const Color(0xFF5C3699),
-                fontColor: const Color(0xFF5C3699),
-                fontHoverColor: Colors.white,
-                borderColor: const Color(0xFF5C3699),
-                fontSize: 12,
-                onPressed: () {},
+              Expanded(
+                child: FlowyTextButton(
+                  buttonText,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                  fillColor:
+                      isActive ? const Color(0xFFE8E2EE) : Colors.transparent,
+                  constraints: const BoxConstraints(minWidth: 115),
+                  radius: Corners.s16Border,
+                  hoverColor: isActive
+                      ? const Color(0xFFE8E2EE)
+                      : const Color(0xFF5C3699),
+                  fontColor: const Color(0xFF5C3699),
+                  fontHoverColor:
+                      isActive ? const Color(0xFF5C3699) : Colors.white,
+                  borderColor: isActive
+                      ? const Color(0xFFE8E2EE)
+                      : const Color(0xFF5C3699),
+                  fontSize: 12,
+                  onPressed: isActive ? null : () {},
+                ),
               ),
             ],
           ),

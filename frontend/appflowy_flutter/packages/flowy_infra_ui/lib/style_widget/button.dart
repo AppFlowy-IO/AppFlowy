@@ -213,7 +213,7 @@ class FlowyTextButton extends StatelessWidget {
     child = ConstrainedBox(
       constraints: constraints,
       child: TextButton(
-        onPressed: onPressed ?? () {},
+        onPressed: onPressed,
         focusNode: FocusNode(skipTraversal: onPressed == null),
         style: ButtonStyle(
           overlayColor: const WidgetStatePropertyAll(Colors.transparent),

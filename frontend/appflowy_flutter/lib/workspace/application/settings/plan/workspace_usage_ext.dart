@@ -7,7 +7,7 @@ final _storageNumberFormat = NumberFormat()
 
 extension PresentableUsage on WorkspaceUsagePB {
   String get totalBlobInGb =>
-      (totalBlobBytesLimit.toInt() / 1024 / 1024 / 1024).round().toString();
+      (storageBytesLimit.toInt() / 1024 / 1024 / 1024).round().toString();
 
   /// We use [NumberFormat] to format the current blob in GB.
   ///
@@ -16,5 +16,5 @@ extension PresentableUsage on WorkspaceUsagePB {
   /// And [NumberFormat.minimumFractionDigits] is set to 0.
   ///
   String get currentBlobInGb =>
-      _storageNumberFormat.format(totalBlobBytes.toInt() / 1024 / 1024 / 1024);
+      _storageNumberFormat.format(storageBytes.toInt() / 1024 / 1024 / 1024);
 }

@@ -95,7 +95,8 @@ class AppFlowyCloudDeepLink {
     }
 
     if (_isPaymentSuccessUri(uri)) {
-      return getIt<SubscriptionSuccessListenable>().onPaymentSuccess();
+      final plan = uri.queryParameters['plan'];
+      return getIt<SubscriptionSuccessListenable>().onPaymentSuccess(plan);
     }
 
     return _isAuthCallbackDeepLink(uri).fold(

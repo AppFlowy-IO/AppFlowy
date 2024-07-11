@@ -240,18 +240,3 @@ async fn af_cloud_different_open_same_workspace_test() {
   assert_eq!(views.len(), 1, "only get: {:?}", views); // Expecting two views.
   assert_eq!(views[0].name, "Getting started");
 }
-
-#[tokio::test]
-async fn af_cloud_get_workspace_subscriptions_test() {
-  user_localhost_af_cloud().await;
-
-  let test = EventIntegrationTest::new().await;
-
-  let workspaces = test.get_all_workspaces().await.items;
-  let first_workspace_id = workspaces[0].workspace_id.as_str();
-  assert_eq!(workspaces.len(), 1);
-
-  let subscriptions = test.get_workspace_subscriptions().await;
-  assert_eq!(subscriptions.items.len(), 1);
-  assert_eq!(subscriptions.items[0].workspace_id, first_workspace_id);
-}
