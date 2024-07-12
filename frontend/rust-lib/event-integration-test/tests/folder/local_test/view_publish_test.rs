@@ -2,15 +2,16 @@ use collab_folder::ViewLayout;
 use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::{ViewLayoutPB, ViewPB};
 use flowy_folder::publish_util::generate_publish_name;
+use flowy_folder::view_operation::EncodedCollabWrapper;
 use flowy_folder_pub::entities::{
-  PublishViewInfo, PublishViewMeta, PublishViewMetaData, PublishDocumentPayload,
+  PublishDocumentPayload, PublishPayload, PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
 
 async fn mock_single_document_view_publish_payload(
   test: &EventIntegrationTest,
   view: &ViewPB,
   publish_name: String,
-) -> Vec<PublishDocumentPayload> {
+) -> Vec<PublishPayload> {
   let view_id = &view.id;
   let layout: ViewLayout = view.layout.clone().into();
   let view_encoded_collab = test.encoded_collab_v1(view_id, layout).await;
@@ -27,7 +28,12 @@ async fn mock_single_document_view_publish_payload(
     child_views: None,
   };
 
-  vec![PublishDocumentPayload {
+  let data = match view_encoded_collab {
+    EncodedCollabWrapper::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    _ => panic!("Expected document collab"),
+  };
+
+  vec![PublishPayload::Document(PublishDocumentPayload {
     meta: PublishViewMeta {
       metadata: PublishViewMetaData {
         view: publish_view_info.clone(),
@@ -37,15 +43,15 @@ async fn mock_single_document_view_publish_payload(
       view_id: view_id.to_string(),
       publish_name,
     },
-    data: Vec::from(view_encoded_collab.doc_state),
-  }]
+    data,
+  })]
 }
 
 async fn mock_nested_document_view_publish_payload(
   test: &EventIntegrationTest,
   view: &ViewPB,
   publish_name: String,
-) -> Vec<PublishDocumentPayload> {
+) -> Vec<PublishPayload> {
   let view_id = &view.id;
   let layout: ViewLayout = view.layout.clone().into();
   let view_encoded_collab = test.encoded_collab_v1(view_id, layout).await;
@@ -80,8 +86,18 @@ async fn mock_nested_document_view_publish_payload(
   };
   let child_publish_name = generate_publish_name(&child_view.id, &child_view.name);
 
+  let data = match view_encoded_collab {
+    EncodedCollabWrapper::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    _ => panic!("Expected document collab"),
+  };
+
+  let child_data = match child_view_encoded_collab {
+    EncodedCollabWrapper::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    _ => panic!("Expected document collab"),
+  };
+
   vec![
-    PublishDocumentPayload {
+    PublishPayload::Document(PublishDocumentPayload {
       meta: PublishViewMeta {
         metadata: PublishViewMetaData {
           view: publish_view_info.clone(),
@@ -91,9 +107,9 @@ async fn mock_nested_document_view_publish_payload(
         view_id: view_id.to_string(),
         publish_name,
       },
-      data: Vec::from(view_encoded_collab.doc_state),
-    },
-    PublishDocumentPayload {
+      data,
+    }),
+    PublishPayload::Document(PublishDocumentPayload {
       meta: PublishViewMeta {
         metadata: PublishViewMetaData {
           view: child_publish_view_info.clone(),
@@ -103,8 +119,8 @@ async fn mock_nested_document_view_publish_payload(
         view_id: child_view_id.to_string(),
         publish_name: child_publish_name,
       },
-      data: Vec::from(child_view_encoded_collab.doc_state),
-    },
+      data: child_data,
+    }),
   ]
 }
 
@@ -174,7 +190,10 @@ async fn no_children_publish_view_payload_test() {
   )
   .await
   .iter()
-  .map(|p| p.data.clone())
+  .filter_map(|p| match p {
+    PublishPayload::Document(payload) => Some(payload.data.clone()),
+    _ => None,
+  })
   .collect::<Vec<_>>();
   let meta = mock_nested_document_view_publish_payload(
     &test,
@@ -183,10 +202,24 @@ async fn no_children_publish_view_payload_test() {
   )
   .await
   .iter()
-  .map(|p| p.meta.clone())
+  .filter_map(|p| match p {
+    PublishPayload::Document(payload) => Some(payload.meta.clone()),
+    _ => None,
+  })
   .collect::<Vec<_>>();
 
   assert_eq!(payload.len(), 1);
-  assert_eq!(&payload[0].data, &data[0]);
-  assert_eq!(&payload[0].meta, &meta[0]);
+
+  let payload_data = match &payload[0] {
+    PublishPayload::Document(payload) => payload.data.clone(),
+    _ => panic!("Expected document payload"),
+  };
+
+  let payload_meta = match &payload[0] {
+    PublishPayload::Document(payload) => payload.meta.clone(),
+    _ => panic!("Expected document payload"),
+  };
+
+  assert_eq!(&payload_data, &data[0]);
+  assert_eq!(&payload_meta, &meta[0]);
 }

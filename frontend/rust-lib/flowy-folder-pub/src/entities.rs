@@ -70,7 +70,7 @@ pub struct PublishViewMeta {
   pub publish_name: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
 pub struct PublishDatabaseData {
   /// The encoded collab data for the database itself
   pub database_collab: Vec<u8>,
@@ -98,13 +98,13 @@ pub struct PublishDocumentPayload {
   pub data: Vec<u8>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PublishDatabasePayload {
   pub meta: PublishViewMeta,
   pub data: PublishDatabaseData,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PublishPayload {
   Document(PublishDocumentPayload),
   Database(PublishDatabasePayload),
