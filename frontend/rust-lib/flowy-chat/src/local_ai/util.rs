@@ -18,10 +18,10 @@ pub fn bytes_to_readable_size(bytes: u64) -> String {
     format!("{:.2} MB", size_in_mb)
   }
 }
-async fn unzip_file(zip_path: impl AsRef<Path>, destination_path: &Path) -> Result<()> {
+pub async fn unzip_file(zip_path: impl AsRef<Path>, destination_path: &Path) -> Result<()> {
   // Remove the destination directory if it exists and create a new one
   if destination_path.exists() {
-    remove_dir_all(destination_path)?;
+    // remove_dir_all(destination_path)?;
   }
   create_dir_all(destination_path)?;
 

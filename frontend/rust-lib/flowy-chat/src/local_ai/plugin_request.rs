@@ -70,6 +70,7 @@ pub async fn download_plugin(
 #[cfg(test)]
 mod test {
   use super::*;
+  use crate::local_ai::util::unzip_file;
   use std::env::temp_dir;
 
   #[tokio::test]
@@ -99,5 +100,6 @@ mod test {
     .await
     .unwrap();
     println!("Downloaded plugin to {:?}", path);
+    unzip_file(&path, &temp_dir).await.unwrap();
   }
 }
