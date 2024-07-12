@@ -295,20 +295,30 @@ pub(crate) async fn read_favorites_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_recent_views_handler(
+  data: AFPluginData<ReadRecentViewsPB>,
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedRecentViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let recent_items = folder.get_my_recent_sections().await;
-  let mut views = vec![];
-  for item in recent_items {
-    if let Ok(view) = folder.get_view_pb(&item.id).await {
-      views.push(SectionViewPB {
-        item: view,
-        timestamp: item.timestamp,
-      });
-    }
-  }
-  data_result_ok(RepeatedRecentViewPB { items: views })
+  let start = data.start;
+  let limit = data.limit;
+  let ids = recent_items
+    .iter()
+    .map(|item| item.id.clone())
+    .rev() // the most recent view is at the end of the list
+    .skip(start as usize)
+    .take(limit as usize)
+    .collect::<Vec<_>>();
+  let views = folder.get_view_pbs_without_children(ids).await?;
+  let items = views
+    .into_iter()
+    .zip(recent_items.into_iter())
+    .map(|(view, item)| SectionViewPB {
+      item: view,
+      timestamp: item.timestamp,
+    })
+    .collect::<Vec<_>>();
+  data_result_ok(RepeatedRecentViewPB { items })
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
