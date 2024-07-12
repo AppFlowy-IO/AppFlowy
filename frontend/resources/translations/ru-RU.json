@@ -280,7 +280,13 @@
     "favoriteAt": "Добавлено в избранное",
     "emptyRecent": "Нет последних документов",
     "emptyRecentDescription": "Когда вы просматриваете документы, они будут появляться здесь для облегчения поиска.",
-    "emptyFavorite": "Нет избранных документов"
+    "emptyFavorite": "Нет избранных документов",
+    "emptyFavoriteDescription": "Начните изучать и отмечайте документы как избранные. Они будут перечислены здесь для быстрого доступа!",
+    "removePageFromRecent": "Удалить эту страницу из списка недавних?",
+    "removeSuccess": "Удалено успешно",
+    "favoriteSpace": "Избранное",
+    "RecentSpace": "Недавнее",
+    "Spaces": "Пространства"
   },
   "notifications": {
     "export": {
@@ -296,6 +302,7 @@
   },
   "button": {
     "ok": "Ок",
+    "confirm": "Подтвердить",
     "done": "Готово",
     "cancel": "Отмена",
     "signIn": "Войти",
@@ -318,6 +325,7 @@
     "update": "Обновить",
     "share": "Поделиться",
     "removeFromFavorites": "Удалить из избранного",
+    "removeFromRecent": "Удалить из недавних",
     "addToFavorites": "Добавить в избранное",
     "rename": "Переименовать",
     "helpCenter": "Центр помощи",
@@ -327,7 +335,17 @@
     "remove": "Удалить",
     "dontRemove": "Не удалять",
     "copyLink": "Скопировать ссылку",
-    "align": "Выровнять"
+    "align": "Выровнять",
+    "login": "Войти",
+    "logout": "Выйти",
+    "deleteAccount": "Удалить аккаунт",
+    "back": "Назад",
+    "signInGoogle": "Продолжить с Google",
+    "signInGithub": "Продолжить с Github",
+    "signInDiscord": "Продолжить с Discord",
+    "more": "Больше",
+    "create": "Создать",
+    "close": "Закрыть"
   },
   "label": {
     "welcome": "Добро пожаловать!",
@@ -351,6 +369,36 @@
   },
   "settings": {
     "title": "Настройки",
+    "accountPage": {
+      "menuLabel": "Мой аккаунт",
+      "title": "Мой аккаунт",
+      "general": {
+        "title": "Имя аккаунта и изображение профиля",
+        "changeProfilePicture": "Изменить изображение профиля"
+      },
+      "email": {
+        "title": "Адрес эл. почта",
+        "actions": {
+          "change": "Изменить адрес эл. почты"
+        }
+      },
+      "login": {
+        "title": "Войти в аккаунт",
+        "loginLabel": "Войти",
+        "logoutLabel": "Выйти"
+      }
+    },
+    "workspacePage": {
+      "menuLabel": "Рабочее пространство",
+      "title": "Рабочее пространство",
+      "description": "Настройте внешний вид рабочего пространства, тему, шрифт, оформление текста, формат даты и времени и язык.",
+      "workspaceName": {
+        "title": "Имя рабочего пространства"
+      },
+      "workspaceIcon": {
+        "title": "Иконка рабочего пространства"
+      }
+    },
     "menu": {
       "appearance": "Внешний вид",
       "language": "Язык",
