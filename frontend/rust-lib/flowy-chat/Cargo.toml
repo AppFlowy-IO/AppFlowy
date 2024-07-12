@@ -41,6 +41,7 @@ sha2 = "0.10.7"
 base64 = "0.21.5"
 futures-util = "0.3.30"
 md5 = "0.7.0"
+zip.workspace = true
 
 [dev-dependencies]
 dotenv = "0.15.0"

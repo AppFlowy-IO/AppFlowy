@@ -480,16 +480,3 @@ impl LLMResourceController {
     Ok(user_data_dir.join("llm"))
   }
 }
-
-pub fn bytes_to_readable_size(bytes: u64) -> String {
-  const GB: u64 = 1_000_000_000;
-  const MB: u64 = 1_000_000;
-
-  if bytes >= GB {
-    let size_in_gb = bytes as f64 / GB as f64;
-    format!("{:.2} GB", size_in_gb)
-  } else {
-    let size_in_mb = bytes as f64 / MB as f64;
-    format!("{:.2} MB", size_in_mb)
-  }
-}

@@ -30,6 +30,7 @@ tokio-stream = "0.1.14"
 async-trait = "0.1.74"
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 yrs = "0.18.8"
+zip = "2.1.3"
 # Please use the following script to update collab.
 # Working directory: frontend
 #

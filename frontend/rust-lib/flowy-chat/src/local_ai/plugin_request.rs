@@ -74,7 +74,7 @@ mod test {
 
   #[tokio::test]
   async fn download_plugin_test() {
-    let url = "https://appflowy-local-ai.s3.amazonaws.com/windows-latest/AppFlowyLLM_release.zip?AWSAccessKeyId=AKIAVQA4ULIFKSXHI6PI&Signature=RyHlKjiB5AFSv2S7NFMt7Kr8cyo%3D&Expires=1720788887";
+    let url = "https://appflowy-local-ai.s3.amazonaws.com/macos-latest/AppFlowyLLM_release.zip?AWSAccessKeyId=AKIAVQA4ULIFKSXHI6PI&Signature=KKXVOOJUG1TSVGZeuJV1MZ4k49o%3D&Expires=1720828964";
     if url.is_empty() {
       return;
     }
@@ -89,7 +89,7 @@ mod test {
       std::fs::create_dir(&temp_dir).unwrap();
     }
 
-    download_plugin(
+    let path = download_plugin(
       url,
       &temp_dir,
       "AppFlowyLLM.zip",
@@ -98,5 +98,6 @@ mod test {
     )
     .await
     .unwrap();
+    println!("Downloaded plugin to {:?}", path);
   }
 }
