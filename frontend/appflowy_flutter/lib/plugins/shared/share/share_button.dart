@@ -1,8 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/shared/share/_shared.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/plugins/shared/share/share_menu.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -20,9 +22,18 @@ class ShareButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          getIt<ShareBloc>(param1: view)..add(const ShareEvent.initial()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              getIt<ShareBloc>(param1: view)..add(const ShareEvent.initial()),
+        ),
+        if (view.layout.isDatabaseView)
+          BlocProvider(
+            create: (context) => DatabaseTabBarBloc(view: view)
+              ..add(const DatabaseTabBarEvent.initial()),
+          ),
+      ],
       child: BlocListener<ShareBloc, ShareState>(
         listener: (context, state) {
           if (!state.isLoading && state.exportResult != null) {

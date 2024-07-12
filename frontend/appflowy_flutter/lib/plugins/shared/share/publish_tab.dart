@@ -9,12 +9,12 @@ import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,6 +45,13 @@ class PublishTab extends StatelessWidget {
                 id,
                 state.viewName,
               );
+
+              if (selectedViews.isNotEmpty) {
+                Log.info(
+                  'Publishing views: ${selectedViews.map((e) => e.name)}',
+                );
+              }
+
               if (context.mounted) {
                 context.read<ShareBloc>().add(
                       ShareEvent.publish(
@@ -351,72 +358,85 @@ class _PublishDatabaseSelector extends StatefulWidget {
 }
 
 class _PublishDatabaseSelectorState extends State<_PublishDatabaseSelector> {
-  final PropertyValueNotifier<List<ViewPB>> _selectedDatabases =
-      PropertyValueNotifier<List<ViewPB>>([]);
-  late final borderColor = Theme.of(context).hintColor.withOpacity(0.3);
+  final PropertyValueNotifier<List<(ViewPB, bool)>> _databaseStatus =
+      PropertyValueNotifier<List<(ViewPB, bool)>>([]);
+  late final _borderColor = Theme.of(context).hintColor.withOpacity(0.3);
 
   @override
   void initState() {
     super.initState();
-    _selectedDatabases.addListener(() {
-      widget.onSelected(_selectedDatabases.value);
+
+    _databaseStatus.addListener(() {
+      final selectedDatabases =
+          _databaseStatus.value.where((e) => e.$2).map((e) => e.$1).toList();
+      widget.onSelected(selectedDatabases);
     });
+
+    _databaseStatus.value = context
+        .read<DatabaseTabBarBloc>()
+        .state
+        .tabBars
+        .map((e) => (e.view, true))
+        .toList();
   }
 
   @override
   void dispose() {
-    _selectedDatabases.dispose();
+    _databaseStatus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => DatabaseTabBarBloc(view: widget.view)
-        ..add(const DatabaseTabBarEvent.initial()),
-      child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-        builder: (context, state) {
-          return Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: ShapeDecoration(
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: borderColor),
-                borderRadius: BorderRadius.circular(8),
+    return BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+      builder: (context, state) {
+        return Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: ShapeDecoration(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: _borderColor),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VSpace(10),
+              _buildSelectedDatabaseCount(context),
+              const VSpace(10),
+              _buildDivider(context),
+              const VSpace(10),
+              ...state.tabBars.map(
+                (e) => _buildDatabaseSelector(context, e),
               ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VSpace(10),
-                _buildSelectedDatabaseCount(context),
-                const VSpace(10),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Divider(
-                    color: borderColor,
-                    thickness: 1,
-                    height: 1,
-                  ),
-                ),
-                const VSpace(10),
-                ...state.tabBars.map((e) => _buildDatabaseSelector(context, e)),
-              ],
-            ),
-          );
-        },
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDivider(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Divider(
+        color: _borderColor,
+        thickness: 1,
+        height: 1,
       ),
     );
   }
 
   Widget _buildSelectedDatabaseCount(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: _selectedDatabases,
+      valueListenable: _databaseStatus,
       builder: (context, selectedDatabases, child) {
+        final count = selectedDatabases.where((e) => e.$2).length;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: FlowyText(
-            LocaleKeys.publish_database.plural(selectedDatabases.length).tr(),
+            LocaleKeys.publish_database.plural(count).tr(),
             color: Theme.of(context).hintColor,
             fontSize: 13,
           ),
@@ -426,22 +446,39 @@ class _PublishDatabaseSelectorState extends State<_PublishDatabaseSelector> {
   }
 
   Widget _buildDatabaseSelector(BuildContext context, DatabaseTabBar tabBar) {
+    final isPrimaryDatabase = tabBar.view.id == widget.view.id;
     return ValueListenableBuilder(
-      valueListenable: _selectedDatabases,
+      valueListenable: _databaseStatus,
       builder: (context, selectedDatabases, child) {
-        return _DatabaseSelectorItem(
-          tabBar: tabBar,
-          isSelected: selectedDatabases.any((e) => e.id == tabBar.view.id),
-          onTap: () {
-            if (selectedDatabases.any((e) => e.id == tabBar.view.id)) {
-              _selectedDatabases.value = selectedDatabases
-                ..removeWhere(
-                  (e) => e.id == tabBar.view.id,
+        final isSelected = selectedDatabases.any(
+          (e) => e.$1.id == tabBar.view.id && e.$2,
+        );
+        return Opacity(
+          opacity: isPrimaryDatabase ? 0.6 : 1.0,
+          child: _DatabaseSelectorItem(
+            tabBar: tabBar,
+            isSelected: isSelected,
+            onTap: () {
+              // unable to deselect the primary database
+              if (isPrimaryDatabase) {
+                showToastNotification(
+                  context,
+                  message:
+                      LocaleKeys.publish_unableToDeselectPrimaryDatabase.tr(),
                 );
-            } else {
-              _selectedDatabases.value = selectedDatabases..add(tabBar.view);
-            }
-          },
+                return;
+              }
+
+              // toggle the selection status
+              _databaseStatus.value = _databaseStatus.value
+                  .map(
+                    (e) => e.$1.id == tabBar.view.id
+                        ? (e.$1, !e.$2)
+                        : (e.$1, e.$2),
+                  )
+                  .toList();
+            },
+          ),
         );
       },
     );
@@ -461,58 +498,42 @@ class _DatabaseSelectorItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final message = tabBar.view.layout == ViewLayoutPB.Grid
-        ? null
-        : LocaleKeys.publish_onlyGridViewCanBePublished.tr();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: FlowyTooltip(
-        message: message,
-        child: FlowyHover(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              if (tabBar.view.layout == ViewLayoutPB.Grid) {
-                onTap();
-              }
-            },
-            child: _buildItem(context),
-          ),
+      child: FlowyHover(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: _buildItem(context),
         ),
       ),
     );
   }
 
   Widget _buildItem(BuildContext context) {
-    // only grid view can be published.
-    final opacity = tabBar.view.layout == ViewLayoutPB.Grid ? 1.0 : 0.5;
-
-    return Opacity(
-      opacity: opacity,
-      child: Container(
-        height: 30,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          children: [
-            FlowySvg(
-              isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
-              blendMode: null,
-              size: const Size.square(18),
-            ),
-            const HSpace(9.0),
-            FlowySvg(
-              tabBar.view.layout.icon,
-              size: const Size.square(16),
-            ),
-            const HSpace(6.0),
-            FlowyText.regular(
-              tabBar.view.name,
-              fontSize: 14,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const Spacer(),
-          ],
-        ),
+    return Container(
+      height: 30,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        children: [
+          FlowySvg(
+            isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
+            blendMode: null,
+            size: const Size.square(18),
+          ),
+          const HSpace(9.0),
+          FlowySvg(
+            tabBar.view.layout.icon,
+            size: const Size.square(16),
+          ),
+          const HSpace(6.0),
+          FlowyText.regular(
+            tabBar.view.name,
+            fontSize: 14,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const Spacer(),
+        ],
       ),
     );
   }
