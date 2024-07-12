@@ -19,9 +19,10 @@ function DatabaseView({ viewMeta, ...props }: DatabaseProps) {
   const [search, setSearch] = useSearchParams();
   const visibleViewIds = useMemo(() => viewMeta.visibleViewIds || [], [viewMeta]);
 
+  const iidIndex = viewMeta.viewId;
   const viewId = useMemo(() => {
-    return search.get('v') || viewMeta.viewId;
-  }, [search, viewMeta.viewId]);
+    return search.get('v') || iidIndex;
+  }, [search, iidIndex]);
 
   const handleChangeView = useCallback(
     (viewId: string) => {
@@ -52,6 +53,7 @@ function DatabaseView({ viewMeta, ...props }: DatabaseProps) {
       <Suspense fallback={<ComponentLoading />}>
         <Database
           iidName={viewMeta.name || ''}
+          iidIndex={iidIndex || ''}
           {...props}
           viewId={viewId}
           rowId={rowId}

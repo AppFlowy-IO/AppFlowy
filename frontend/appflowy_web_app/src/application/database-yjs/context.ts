@@ -14,6 +14,7 @@ import * as Y from 'yjs';
 export interface DatabaseContextState {
   readOnly: boolean;
   databaseDoc: YDoc;
+  iidIndex: string;
   viewId: string;
   rowDocMap: Y.Map<YDoc>;
   isDatabaseRowPage?: boolean;

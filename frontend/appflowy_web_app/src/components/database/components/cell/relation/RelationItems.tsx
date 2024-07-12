@@ -1,10 +1,9 @@
-import { YDatabase, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { YDatabase, YDoc, YjsEditorKey } from '@/application/collab.type';
 import {
   DatabaseContext,
   DatabaseContextState,
   getPrimaryFieldId,
   parseRelationTypeOption,
-  useDatabase,
   useFieldSelector,
 } from '@/application/database-yjs';
 import { RelationCell, RelationCellData } from '@/application/database-yjs/cell.type';
@@ -13,10 +12,9 @@ import { RelationPrimaryValue } from '@/components/database/components/cell/rela
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
 function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: string; style?: React.CSSProperties }) {
-  const database = useDatabase();
+  const viewId = useContext(DatabaseContext)?.iidIndex;
   const { field } = useFieldSelector(fieldId);
   const relatedDatabaseId = field ? parseRelationTypeOption(field).database_id : null;
-  const viewId = database.get(YjsDatabaseKey.metas)?.get(YjsDatabaseKey.iid)?.toString();
 
   const getViewRowsMap = useContext(DatabaseContext)?.getViewRowsMap;
   const loadViewMeta = useContext(DatabaseContext)?.loadViewMeta;
@@ -38,7 +36,11 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
       setRelations(meta.database_relations);
     };
 
-    void loadViewMeta?.(viewId, update);
+    try {
+      void loadViewMeta?.(viewId, update);
+    } catch (e) {
+      console.error(e);
+    }
   }, [loadViewMeta, viewId]);
 
   const handleUpdateRowIds = useCallback(

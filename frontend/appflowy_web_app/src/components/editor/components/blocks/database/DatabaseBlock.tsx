@@ -28,7 +28,7 @@ export const DatabaseBlock = memo(
       switch (type) {
         case BlockType.GridBlock:
           Object.assign(style, {
-            height: 360,
+            height: 460,
           });
           break;
         case BlockType.CalendarBlock:
@@ -60,6 +60,7 @@ export const DatabaseBlock = memo(
 
     const [selectedViewId, setSelectedViewId] = useState<string>(viewId);
     const [visibleViewIds, setVisibleViewIds] = useState<string[]>([]);
+    const [iidName, setIidName] = useState<string>('');
 
     useEffect(() => {
       const updateVisibleViewIds = async (meta: ViewMeta) => {
@@ -69,6 +70,7 @@ export const DatabaseBlock = memo(
           setSelectedViewId(meta.visible_view_ids[0]);
         }
 
+        setIidName(meta.name);
         setVisibleViewIds(viewIds);
       };
 
@@ -91,12 +93,13 @@ export const DatabaseBlock = memo(
               <>
                 <Database
                   doc={doc}
+                  iidIndex={viewId}
                   viewId={selectedViewId}
                   getViewRowsMap={getViewRowsMap}
                   loadView={loadView}
                   navigateToView={navigateToView}
                   loadViewMeta={loadViewMeta}
-                  iidName={''}
+                  iidName={iidName}
                   visibleViewIds={visibleViewIds}
                   onChangeView={setSelectedViewId}
                 />
@@ -124,7 +127,7 @@ export const DatabaseBlock = memo(
               >
                 {notFound ? (
                   <>
-                    <div className={'text-base font-medium'}>{t('publish.databaseHasNotBeenPublished')}</div>
+                    <div className={'text-base font-medium'}>{t('publish.hasNotBeenPublished')}</div>
                   </>
                 ) : (
                   <CircularProgress />

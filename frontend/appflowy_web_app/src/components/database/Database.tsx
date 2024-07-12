@@ -26,6 +26,7 @@ export interface Database2Props {
   onChangeView: (viewId: string) => void;
   onOpenRow?: (rowId: string) => void;
   visibleViewIds: string[];
+  iidIndex: string;
 }
 
 function Database({
@@ -35,6 +36,7 @@ function Database({
   loadViewMeta,
   loadView,
   viewId,
+  iidIndex,
   iidName,
   visibleViewIds,
   rowId,
@@ -42,8 +44,6 @@ function Database({
   onOpenRow,
 }: Database2Props) {
   const database = doc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database) as YDatabase;
-
-  const iidIndex = database.get(YjsDatabaseKey.metas).get(YjsDatabaseKey.iid);
 
   const view = database.get(YjsDatabaseKey.views).get(iidIndex);
 
@@ -78,6 +78,7 @@ function Database({
         <DatabaseContextProvider
           isDatabaseRowPage={!!rowId}
           navigateToRow={onOpenRow}
+          iidIndex={iidIndex}
           viewId={viewId}
           databaseDoc={doc}
           rowDocMap={rowDocMap}
@@ -97,6 +98,7 @@ function Database({
                 viewName={iidName}
                 onChangeView={onChangeView}
                 viewId={viewId}
+                hideConditions={true}
               />
             </div>
           )}

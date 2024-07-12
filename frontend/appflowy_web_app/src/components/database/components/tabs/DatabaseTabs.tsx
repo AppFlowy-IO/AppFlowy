@@ -16,6 +16,7 @@ export interface DatabaseTabBarProps {
   setSelectedViewId?: (viewId: string) => void;
   viewName?: string;
   iidIndex: string;
+  hideConditions?: boolean;
 }
 
 const DatabaseIcons: {
@@ -27,7 +28,7 @@ const DatabaseIcons: {
 };
 
 export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
-  ({ viewIds, viewName, iidIndex, selectedViewId, setSelectedViewId }, ref) => {
+  ({ viewIds, viewName, hideConditions, iidIndex, selectedViewId, setSelectedViewId }, ref) => {
     const { t } = useTranslation();
     const view = useDatabaseView();
     const views = useDatabase().get(YjsDatabaseKey.views);
@@ -91,7 +92,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             })}
           </ViewTabs>
         </div>
-        {layout !== DatabaseViewLayout.Calendar ? <DatabaseActions /> : null}
+        {!hideConditions && layout !== DatabaseViewLayout.Calendar ? <DatabaseActions /> : null}
       </div>
     );
   }
