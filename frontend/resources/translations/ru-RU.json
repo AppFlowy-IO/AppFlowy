@@ -649,11 +649,11 @@
       "cloudServerTypeTip": "Обратите внимание, что после смены облачного сервера может произойти выход из текущего аккаунта.",
       "cloudLocal": "Локально",
       "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrl": "URL Supabase",
       "cloudSupabaseUrlCanNotBeEmpty": "URL-адрес Supabase не может быть пустым.",
       "cloudSupabaseAnonKey": "Анонимный ключ Supabase",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "Анонимный ключ не может быть пустым, если URL Supabase не пуст",
-      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowy": "@:appName Cloud Бета",
       "cloudAppFlowySelfHost": "@:appName Cloud на своём сервере",
       "appFlowyCloudUrlCanNotBeEmpty": "URL облака не может быть пустым.",
       "clickToCopy": "Нажмите, чтобы скопировать",
@@ -1072,7 +1072,7 @@
   "document": {
     "menuName": "Документ",
     "date": {
-      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwelveHour": "01:00 ппд.",
       "timeHintTextInTwentyFourHour": "13:00"
     },
     "slashMenu": {
@@ -1306,7 +1306,7 @@
       "renameGroupTooltip": "Нажмите, чтобы переименовать группу",
       "createNewColumn": "Создать новую группу",
       "addToColumnTopTooltip": "Добавить новую карту сверху",
-      "addToColumnBottomTooltip": "Add a new card at the bottom",
+      "addToColumnBottomTooltip": "Добавить новую карту в самом низу",
       "renameColumn": "Переименовать",
       "hideColumn": "Скрыть",
       "newGroup": "Новая группа",
@@ -1367,7 +1367,7 @@
         "one": "{count} незапланированное событие",
         "other": "{count} незапланированных события"
       },
-      "unscheduledEventsTitle": "Unscheduled events",
+      "unscheduledEventsTitle": "Незапланированные мероприятия",
       "clickToAdd": "Нажмите, чтобы добавить в календарь",
       "name": "Макет календаря"
     },
@@ -1536,9 +1536,9 @@
     "bulletedListShortForm": "Маркированный",
     "checkbox": "Чекбокс",
     "embedCode": "Встроенный код",
-    "heading1": "H1",
-    "heading2": "H2",
-    "heading3": "H3",
+    "heading1": "Заголовок 1 уровня",
+    "heading2": "Заголовок 2 уровня",
+    "heading3": "Заголовок 3 уровня",
     "highlight": "Выделить",
     "color": "Цвет",
     "image": "Изображение",
@@ -1591,7 +1591,7 @@
     "lightLightTint7": "Зелёный",
     "lightLightTint8": "Бирюзовый",
     "lightLightTint9": "Синий",
-    "urlHint": "URL",
+    "urlHint": "Ссылка",
     "mobileHeading1": "Заголовок 1",
     "mobileHeading2": "Заголовок 2",
     "mobileHeading3": "Заголовок 3",
