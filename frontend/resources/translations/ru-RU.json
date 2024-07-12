@@ -823,7 +823,7 @@
       "configServerGuide": "После выбора «Быстрый старт» перейдите в «Настройки», а затем «Настройки облачного сервера», чтобы настроить параметры вашего самостоятельно размещенного сервера.",
       "inputTextFieldHint": "Ваш секрет",
       "historicalUserList": "История входа пользователя",
-      "historicalUserListTooltip": "В этом списке отображаются ваши анонимные аккаунты. Вы можете нажать на аккаунт, чтобы посмотреть данные. Анонимный аккаунт создаётся нажатием кнопки «Начать».",
+      "historicalUserListTooltip": "В этом списке отображаются Ваши анонимные аккаунты. Вы можете нажать на аккаунт, чтобы посмотреть данные. Анонимный аккаунт создаётся нажатием кнопки «Начать».",
       "openHistoricalUser": "Нажмите, чтобы открыть анонимный аккаунт.",
       "customPathPrompt": "Хранение папки данных @:appName в папке с облачной синхронизацией, например на Google Диске, может представлять риск. Если база данных в этой папке будет доступна или изменена с нескольких мест одновременно, это может привести к конфликтам синхронизации и потенциальному повреждению данных",
       "importAppFlowyData": "Импортировать данные из внешней папки @:appName",
@@ -975,11 +975,11 @@
       "folderPath": "Путь к вашей папке",
       "locationCannotBeEmpty": "Путь не может быть пустым",
       "pathCopiedSnackbar": "Путь скопирован в буфер обмена!",
-      "changeLocationTooltips": "Сменить местоположение",
+      "changeLocationTooltips": "Сменить каталог",
       "change": "Изменить",
       "openLocationTooltips": "Открыть другой каталог",
       "openCurrentDataFolder": "Открыть текущий каталог данных",
-      "recoverLocationTooltips": "Сбросить к местоположению по умолчанию",
+      "recoverLocationTooltips": "Сбросить к каталогу по умолчанию",
       "exportFileSuccess": "Экспорт завершён!",
       "exportFileFail": "Не удалось экспортировать!",
       "export": "Экспорт",
@@ -1027,8 +1027,8 @@
     }
   },
   "grid": {
-    "deleteView": "Вы уверены, что хотите удалить это представление?",
-    "createView": "Новое представление",
+    "deleteView": "Вы уверены, что хотите удалить этот вид?",
+    "createView": "Новый",
     "title": {
       "placeholder": "Без названия"
     },
@@ -1128,7 +1128,7 @@
       "wrapCellContent": "Обернуть текст",
       "clear": "Очистить ячейки",
       "textFieldName": "Текст",
-      "checkboxFieldName": "Чекбокс",
+      "checkboxFieldName": "Флажок",
       "dateFieldName": "Дата",
       "updatedAtFieldName": "Последнее изменение",
       "createdAtFieldName": "Дата создания",
@@ -1267,7 +1267,7 @@
       "unlinkedRowListLabel": "Связать ещё одну строку"
     },
     "menuName": "Сетка",
-    "referencedGridPrefix": "Просмотр",
+    "referencedGridPrefix": "Вид",
     "calculate": "Рассчитать",
     "calculationTypeLabel": {
       "none": "Пусто",
@@ -1295,7 +1295,7 @@
         "createANewBoard": "Создать доску"
       },
       "grid": {
-        "selectAGridToLinkTo": "Выбрать сетку",
+        "selectAGridToLinkTo": "Выбрать таблицу",
         "createANewGrid": "Создать сетку"
       },
       "calendar": {
@@ -1397,7 +1397,7 @@
         "errorCode": "Код ошибки"
       },
       "math": {
-        "copiedToPasteBoard": "Математическое уравнение скопировано в буфер обмена."
+        "copiedToPasteBoard": "Математическое выражение скопировано в буфер обмена."
       },
       "urlPreview": {
         "copiedToPasteBoard": "Ссылка скопирована в буфер обмена",
@@ -1563,14 +1563,15 @@
     "ungroupedButtonTooltip": "Содержит карточки, которые не принадлежат ни к одной группе.",
     "ungroupedItemsTitle": "Нажмите, чтобы добавить на доску",
     "groupBy": "Сгруппировать по",
-    "referencedBoardPrefix": "Просмотр",
+    "referencedBoardPrefix": "Вид",
     "notesTooltip": "Заметки",
     "mobile": {
       "editURL": "Редактировать URL",
       "showGroup": "Показать группу",
       "showGroupContent": "Точно показать эту группу на доске?",
       "failedToLoad": "Ошибка загрузки доски"
-    }
+    },
+    "noGroupDesc": "Для просмотра видов досок требуется свойство для группировки."
   },
   "calendar": {
     "menuName": "Календарь",
@@ -1580,7 +1581,13 @@
       "today": "Сегодня",
       "jumpToday": "Перейти к сегодняшнему дню",
       "previousMonth": "Предыдущий месяц",
-      "nextMonth": "Следующий месяц"
+      "nextMonth": "Следующий месяц",
+      "views": {
+        "day": "День",
+        "week": "Неделя",
+        "month": "Месяц",
+        "year": "Год"
+      }
     },
     "mobileEventScreen": {
       "emptyTitle": "Мероприятий пока нет",
@@ -1765,7 +1772,7 @@
     "bold": "Жирный",
     "bulletedList": "Маркированный список",
     "bulletedListShortForm": "Маркированный",
-    "checkbox": "Чекбокс",
+    "checkbox": "Флажок",
     "embedCode": "Встроенный код",
     "heading1": "Заголовок 1 уровня",
     "heading2": "Заголовок 2 уровня",
@@ -1940,6 +1947,9 @@
     "upgradeSpaceDescription": "Создайте несколько общедоступных и личных пространств, чтобы лучше организовать свое рабочее пространство."
   },
   "publish": {
-    "databaseHasNotBeenPublished": "Публикация базы данных пока не поддерживается."
+    "databaseHasNotBeenPublished": "Публикация базы данных пока не поддерживается.",
+    "copy": {
+      "mathBlock": "Математическое выражение скопировано в буфер обмена."
+    }
   }
 }
