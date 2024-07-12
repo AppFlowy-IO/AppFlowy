@@ -1017,7 +1017,6 @@
     },
     "shortcuts": {
       "shortcutsLabel": "Горячие клавиши",
-      "command": "Команда",
       "keyBinding": "Привязка клавиш",
       "addNewCommand": "Добавить новую команду",
       "updateShortcutStep": "Нажмите нужную комбинацию клавиш и нажмите Enter.",
