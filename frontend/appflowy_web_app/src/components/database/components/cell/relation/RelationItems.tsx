@@ -106,7 +106,7 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
               //   e.stopPropagation();
               //   navigateToRow?.(rowId);
               // }}
-              className={'w-full cursor-pointer underline'}
+              className={'cursor-pointer underline'}
             >
               <RelationPrimaryValue fieldId={relatedFieldId} rowDoc={rowDoc} />
             </div>

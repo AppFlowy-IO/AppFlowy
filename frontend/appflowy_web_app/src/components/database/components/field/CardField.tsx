@@ -19,9 +19,20 @@ function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: 
       overflow: 'hidden',
       width: '100%',
       textAlign: 'left',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
     };
+
+    if ([FieldType.Relation, FieldType.SingleSelect, FieldType.MultiSelect].includes(Number(type))) {
+      Object.assign(styleProperties, {
+        breakWord: 'break-word',
+        whiteSpace: 'normal',
+        flexWrap: 'wrap',
+      });
+    } else {
+      Object.assign(styleProperties, {
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      });
+    }
 
     if (isPrimary) {
       Object.assign(styleProperties, {
@@ -31,7 +42,7 @@ function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: 
     }
 
     return styleProperties;
-  }, [isPrimary]);
+  }, [isPrimary, type]);
 
   if (isPrimary && !cell?.data) {
     return (
