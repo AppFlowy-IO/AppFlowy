@@ -38,7 +38,7 @@
     "https://cdn.jsdelivr.net/npm/@inlang/message-lint-rule-missing-translation@1/dist/index.js"
   ],
   "plugin.inlang.i18next": {
-    "pathPattern": "./frontend/resources/translations/ee-ET.json",
+    "pathPattern": "./frontend/resources/translations/{languageTag}.json",
     "variableReferencePattern": [
       "@:"
     ]
