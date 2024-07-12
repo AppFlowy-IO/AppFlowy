@@ -34,7 +34,6 @@ export function GridColumn({ column, index }: { column: Column; index: number })
         </div>
         <div className={'flex-1'}>{name}</div>
         {isAIField && <AIIndicatorSvg className={'text-xl'} />}
-        <div></div>
       </div>
     </Tooltip>
   );

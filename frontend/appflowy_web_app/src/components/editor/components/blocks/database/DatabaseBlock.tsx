@@ -1,4 +1,5 @@
 import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
+import { ViewMeta } from '@/application/db/tables/view_metas';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { Database } from '@/components/database';
 import { DatabaseNode, EditorElementProps } from '@/components/editor/editor.type';
@@ -58,6 +59,21 @@ export const DatabaseBlock = memo(
     }, [viewId, loadView]);
 
     const [selectedViewId, setSelectedViewId] = useState<string>(viewId);
+    const [visibleViewIds, setVisibleViewIds] = useState<string[]>([]);
+
+    useEffect(() => {
+      const updateVisibleViewIds = async (meta: ViewMeta) => {
+        const viewIds = meta.visible_view_ids || [];
+
+        if (!viewIds.includes(viewId)) {
+          setSelectedViewId(meta.visible_view_ids[0]);
+        }
+
+        setVisibleViewIds(viewIds);
+      };
+
+      void loadViewMeta?.(viewId, updateVisibleViewIds);
+    }, [loadViewMeta, viewId]);
 
     return (
       <>
@@ -81,6 +97,7 @@ export const DatabaseBlock = memo(
                   navigateToView={navigateToView}
                   loadViewMeta={loadViewMeta}
                   iidName={''}
+                  visibleViewIds={visibleViewIds}
                   onChangeView={setSelectedViewId}
                 />
                 {isHovering && (

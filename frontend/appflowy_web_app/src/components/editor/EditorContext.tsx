@@ -1,7 +1,5 @@
-import { FontLayout, LineHeightLayout, YDoc } from '@/application/collab.type';
-import { ViewMeta } from '@/application/db/tables/view_metas';
+import { FontLayout, GetViewRowsMap, LineHeightLayout, LoadView, LoadViewMeta } from '@/application/collab.type';
 import { createContext, useContext } from 'react';
-import Y from 'yjs';
 
 export interface EditorLayoutStyle {
   fontLayout: FontLayout;
@@ -21,9 +19,9 @@ export interface EditorContextState {
   codeGrammars?: Record<string, string>;
   addCodeGrammars?: (blockId: string, grammar: string) => void;
   navigateToView?: (viewId: string) => Promise<void>;
-  loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
-  loadView?: (viewId: string) => Promise<YDoc>;
-  getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+  loadViewMeta?: LoadViewMeta;
+  loadView?: LoadView;
+  getViewRowsMap?: GetViewRowsMap;
 }
 
 export const EditorContext = createContext<EditorContextState>({

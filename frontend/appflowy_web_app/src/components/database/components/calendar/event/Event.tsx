@@ -25,21 +25,11 @@ export function Event({ event }: EventWrapperProps<CalendarEvent>) {
             }
           }}
           className={
-            'flex min-h-[24px] cursor-pointer flex-col gap-2 rounded-md border border-line-border bg-bg-body p-2 text-xs shadow-sm hover:bg-fill-list-active hover:shadow'
+            'flex min-h-[24px] cursor-pointer flex-col gap-2 rounded-md border border-line-border bg-bg-body p-2 text-xs text-xs shadow-sm hover:bg-fill-list-active hover:shadow'
           }
         >
           {showFields.map((field) => {
-            return (
-              <div
-                key={field.fieldId}
-                style={{
-                  fontSize: '0.85em',
-                }}
-                className={'overflow-x-hidden truncate'}
-              >
-                <CardField index={0} rowId={rowId} fieldId={field.fieldId} />
-              </div>
-            );
+            return <CardField key={field.fieldId} index={0} rowId={rowId} fieldId={field.fieldId} />;
           })}
         </div>
       </RichTooltip>

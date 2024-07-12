@@ -1,4 +1,12 @@
-import { FieldId, SortId, YDatabaseField, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import {
+  FieldId,
+  SortId,
+  YDatabase,
+  YDatabaseField,
+  YDoc,
+  YjsDatabaseKey,
+  YjsEditorKey,
+} from '@/application/collab.type';
 import { getCell, metaIdFromRowId, MIN_COLUMN_WIDTH } from '@/application/database-yjs/const';
 import {
   useDatabase,
@@ -33,7 +41,7 @@ export interface Row {
 
 const defaultVisible = [FieldVisibility.AlwaysShown, FieldVisibility.HideWhenEmpty];
 
-export function useDatabaseViewsSelector(_iidIndex: string) {
+export function useDatabaseViewsSelector(_iidIndex: string, visibleViewIds?: string[]) {
   const database = useDatabase();
 
   const views = database?.get(YjsDatabaseKey.views);
@@ -55,7 +63,13 @@ export function useDatabaseViewsSelector(_iidIndex: string) {
         return Number(viewB.created_at) - Number(viewA.created_at);
       });
 
-      setViewIds(viewsSorted.map(([key]) => key));
+      setViewIds(
+        viewsSorted
+          .map(([key]) => key)
+          .filter((id) => {
+            return !visibleViewIds || visibleViewIds.includes(id);
+          })
+      );
     };
 
     observerEvent();
@@ -64,7 +78,7 @@ export function useDatabaseViewsSelector(_iidIndex: string) {
     return () => {
       views.unobserve(observerEvent);
     };
-  }, [views]);
+  }, [views, visibleViewIds]);
 
   return {
     childViews,
@@ -645,17 +659,20 @@ export function useCalendarLayoutSetting() {
   return setting;
 }
 
+export function getPrimaryFieldId(database: YDatabase) {
+  const fields = database?.get(YjsDatabaseKey.fields);
+
+  return Array.from(fields?.keys() || []).find((fieldId) => {
+    return fields?.get(fieldId)?.get(YjsDatabaseKey.is_primary);
+  });
+}
+
 export function usePrimaryFieldId() {
   const database = useDatabase();
   const [primaryFieldId, setPrimaryFieldId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fields = database?.get(YjsDatabaseKey.fields);
-    const primaryFieldId = Array.from(fields?.keys() || []).find((fieldId) => {
-      return fields?.get(fieldId)?.get(YjsDatabaseKey.is_primary);
-    });
-
-    setPrimaryFieldId(primaryFieldId || null);
+    setPrimaryFieldId(getPrimaryFieldId(database) || null);
   }, [database]);
 
   return primaryFieldId;

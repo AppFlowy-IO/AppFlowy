@@ -1,7 +1,10 @@
 import {
   CollabType,
+  DatabaseId,
   PublishViewInfo,
   PublishViewMetaData,
+  RowId,
+  ViewId,
   YDoc,
   YjsEditorKey,
   YSharedRoot,
@@ -112,8 +115,9 @@ export async function getPublishViewMeta<
 export async function getPublishView<
   T extends {
     data: number[];
-    rows?: Record<string, number[]>;
-    visibleViewIds?: string[];
+    rows?: Record<RowId, number[]>;
+    visibleViewIds?: ViewId[];
+    relations?: Record<DatabaseId, ViewId>;
     meta: {
       view: PublishViewInfo;
       child_views: PublishViewInfo[];
@@ -205,6 +209,7 @@ export async function revalidatePublishViewMeta<
       child_views: child_views,
       ancestor_views: ancestor_views,
       visible_view_ids: dbView?.visible_view_ids ?? [],
+      database_relations: dbView?.database_relations ?? {},
     },
     name
   );
@@ -215,12 +220,13 @@ export async function revalidatePublishViewMeta<
 export async function revalidatePublishView<
   T extends {
     data: number[];
-    rows?: Record<string, number[]>;
-    visibleViewIds?: string[];
+    rows?: Record<RowId, number[]>;
+    visibleViewIds?: ViewId[];
+    relations?: Record<DatabaseId, ViewId>;
     meta: PublishViewMetaData;
   }
 >(name: string, fetcher: Fetcher<T>, collab: YDoc, rowMapDoc: Y.Doc) {
-  const { data, meta, rows, visibleViewIds = [] } = await fetcher();
+  const { data, meta, rows, visibleViewIds = [], relations = {} } = await fetcher();
 
   await db.view_metas.put(
     {
@@ -229,6 +235,7 @@ export async function revalidatePublishView<
       child_views: meta.child_views,
       ancestor_views: meta.ancestor_views,
       visible_view_ids: visibleViewIds,
+      database_relations: relations,
     },
     name
   );
@@ -261,5 +268,15 @@ export async function deleteView(name: string) {
   console.log('deleteView', name);
   await deleteViewMeta(name);
   await closeCollabDB(name);
+  const rowMapDoc = (await openCollabDB(`${name}_rows`)) as Y.Doc;
+
+  const subdocs = Array.from(rowMapDoc.getSubdocs());
+
+  for (const subdoc of subdocs) {
+    const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
+
+    await persistence.destroy();
+  }
+
   await closeCollabDB(`${name}_rows`);
 }

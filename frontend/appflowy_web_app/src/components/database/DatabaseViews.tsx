@@ -16,13 +16,15 @@ function DatabaseViews({
   viewId,
   iidIndex,
   viewName,
+  visibleViewIds,
 }: {
   onChangeView: (viewId: string) => void;
   viewId: string;
   iidIndex: string;
   viewName?: string;
+  visibleViewIds?: string[];
 }) {
-  const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex);
+  const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex, visibleViewIds);
 
   const value = useMemo(() => {
     return Math.max(
@@ -41,7 +43,7 @@ function DatabaseViews({
   }, [childViews, value]);
 
   const layout = useMemo(() => {
-    if (!activeView) return DatabaseViewLayout.Grid;
+    if (!activeView) return null;
     return Number(activeView.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
   }, [activeView]);
 

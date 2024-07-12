@@ -1,3 +1,4 @@
+import { ViewMeta } from '@/application/db/tables/view_metas';
 import * as Y from 'yjs';
 
 export type BlockId = string;
@@ -667,3 +668,9 @@ export interface PublishViewMetaData {
   child_views: PublishViewInfo[];
   ancestor_views: PublishViewInfo[];
 }
+
+export type GetViewRowsMap = (viewId: string) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+
+export type LoadView = (viewId: string) => Promise<YDoc>;
+
+export type LoadViewMeta = (viewId: string, onChange?: (meta: ViewMeta) => void) => Promise<ViewMeta>;

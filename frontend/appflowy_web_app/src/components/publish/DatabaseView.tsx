@@ -1,26 +1,27 @@
-import { YDoc } from '@/application/collab.type';
-import { ViewMeta } from '@/application/db/tables/view_metas';
+import { GetViewRowsMap, LoadView, LoadViewMeta, YDoc } from '@/application/collab.type';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { Database } from '@/components/database';
 import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
 import { ViewMetaProps } from '@/components/view-meta';
-import React, { Suspense, useCallback } from 'react';
+import React, { Suspense, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import * as Y from 'yjs';
 
 export interface DatabaseProps {
   doc: YDoc;
-  getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
-  loadView?: (viewId: string) => Promise<YDoc>;
+  getViewRowsMap?: GetViewRowsMap;
+  loadView?: LoadView;
   navigateToView?: (viewId: string) => Promise<void>;
-  loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
+  loadViewMeta?: LoadViewMeta;
   viewMeta: ViewMetaProps;
 }
 
 function DatabaseView({ viewMeta, ...props }: DatabaseProps) {
   const [search, setSearch] = useSearchParams();
+  const visibleViewIds = useMemo(() => viewMeta.visibleViewIds || [], [viewMeta]);
 
-  const viewId = search.get('v') || viewMeta.viewId;
+  const viewId = useMemo(() => {
+    return search.get('v') || viewMeta.viewId;
+  }, [search, viewMeta.viewId]);
 
   const handleChangeView = useCallback(
     (viewId: string) => {
@@ -54,6 +55,7 @@ function DatabaseView({ viewMeta, ...props }: DatabaseProps) {
           {...props}
           viewId={viewId}
           rowId={rowId}
+          visibleViewIds={visibleViewIds}
           onChangeView={handleChangeView}
           onOpenRow={handleNavigateToRow}
         />

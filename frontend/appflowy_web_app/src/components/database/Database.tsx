@@ -1,5 +1,12 @@
-import { YDatabase, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
-import { ViewMeta } from '@/application/db/tables/view_metas';
+import {
+  GetViewRowsMap,
+  LoadView,
+  LoadViewMeta,
+  YDatabase,
+  YDoc,
+  YjsDatabaseKey,
+  YjsEditorKey,
+} from '@/application/collab.type';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import DatabaseRow from '@/components/database/DatabaseRow';
 import DatabaseViews from '@/components/database/DatabaseViews';
@@ -9,15 +16,16 @@ import { DatabaseContextProvider } from './DatabaseContext';
 
 export interface Database2Props {
   doc: YDoc;
-  getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
-  loadView?: (viewId: string) => Promise<YDoc>;
+  getViewRowsMap?: GetViewRowsMap;
+  loadView?: LoadView;
   navigateToView?: (viewId: string) => Promise<void>;
-  loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
+  loadViewMeta?: LoadViewMeta;
   viewId: string;
   iidName: string;
   rowId?: string;
   onChangeView: (viewId: string) => void;
   onOpenRow?: (rowId: string) => void;
+  visibleViewIds: string[];
 }
 
 function Database({
@@ -28,6 +36,7 @@ function Database({
   loadView,
   viewId,
   iidName,
+  visibleViewIds,
   rowId,
   onChangeView,
   onOpenRow,
@@ -76,12 +85,19 @@ function Database({
           loadView={loadView}
           navigateToView={navigateToView}
           loadViewMeta={loadViewMeta}
+          getViewRowsMap={getViewRowsMap}
         >
           {rowId ? (
             <DatabaseRow rowId={rowId} />
           ) : (
             <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
-              <DatabaseViews iidIndex={iidIndex} viewName={iidName} onChangeView={onChangeView} viewId={viewId} />
+              <DatabaseViews
+                visibleViewIds={visibleViewIds}
+                iidIndex={iidIndex}
+                viewName={iidName}
+                onChangeView={onChangeView}
+                viewId={viewId}
+              />
             </div>
           )}
         </DatabaseContextProvider>

@@ -1,17 +1,15 @@
-import { YDoc } from '@/application/collab.type';
-import { ViewMeta } from '@/application/db/tables/view_metas';
+import { GetViewRowsMap, LoadView, LoadViewMeta, YDoc } from '@/application/collab.type';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { Editor } from '@/components/editor';
 import React, { Suspense } from 'react';
 import ViewMetaPreview, { ViewMetaProps } from '@/components/view-meta/ViewMetaPreview';
-import Y from 'yjs';
 
 export interface DocumentProps {
   doc: YDoc;
   navigateToView?: (viewId: string) => Promise<void>;
-  loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
-  loadView?: (viewId: string) => Promise<YDoc>;
-  getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+  loadViewMeta?: LoadViewMeta;
+  loadView?: LoadView;
+  getViewRowsMap?: GetViewRowsMap;
   viewMeta: ViewMetaProps;
 }
 

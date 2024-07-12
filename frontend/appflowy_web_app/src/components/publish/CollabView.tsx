@@ -1,19 +1,18 @@
-import { ViewLayout, YDoc } from '@/application/collab.type';
-import { ViewMeta } from '@/application/db/tables/view_metas';
+import { GetViewRowsMap, LoadView, LoadViewMeta, ViewLayout, YDoc } from '@/application/collab.type';
 import { usePublishContext } from '@/application/publish';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { Document } from '@/components/document';
 import DatabaseView from '@/components/publish/DatabaseView';
 import { useViewMeta } from '@/components/publish/useViewMeta';
 import React, { useMemo } from 'react';
-import { ViewMetaProps } from 'src/components/view-meta';
-import Y from 'yjs';
+import { ViewMetaProps } from '@/components/view-meta';
 
 export interface CollabViewProps {
   doc?: YDoc;
 }
 
 function CollabView({ doc }: CollabViewProps) {
+  const visibleViewIds = usePublishContext()?.viewMeta?.visible_view_ids;
   const { viewId, layout, icon, cover, layoutClassName, style, name } = useViewMeta();
   const View = useMemo(() => {
     switch (layout) {
@@ -29,9 +28,9 @@ function CollabView({ doc }: CollabViewProps) {
   }, [layout]) as React.FC<{
     doc: YDoc;
     navigateToView?: (viewId: string) => Promise<void>;
-    loadViewMeta?: (viewId: string) => Promise<ViewMeta>;
-    getViewRowsMap?: (viewId: string, rowIds?: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
-    loadView?: (id: string) => Promise<YDoc>;
+    loadViewMeta?: LoadViewMeta;
+    getViewRowsMap?: GetViewRowsMap;
+    loadView?: LoadView;
     viewMeta: ViewMetaProps;
   }>;
 
@@ -58,6 +57,7 @@ function CollabView({ doc }: CollabViewProps) {
           viewId,
           name,
           layout: layout || ViewLayout.Document,
+          visibleViewIds: visibleViewIds || [],
         }}
       />
     </div>

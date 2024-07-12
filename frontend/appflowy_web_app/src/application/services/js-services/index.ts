@@ -104,7 +104,6 @@ export class AFClientService implements AFService {
       this.cacheDatabaseRowDocMap.set(name, rowMapDoc);
     }
 
-    console.log('getPublishView', doc);
     return doc;
   }
 
