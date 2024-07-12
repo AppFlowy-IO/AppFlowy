@@ -11,25 +11,22 @@ const NotFound = () => {
   return (
     <div className={'m-0 flex h-screen w-screen items-center justify-center bg-bg-body p-0'}>
       <div className={'flex flex-col items-center gap-1 text-center'}>
-        <Typography
-          variant='h3'
-          className={'mb-[27px] flex items-center gap-4 text-text-title'}
-          component='h2'
-          gutterBottom
-        >
-          <Logo className={'w-9'} />
-          <AppflowyLogo className={'w-32'} />
+        <Typography variant='h3' className={'mb-[27px] flex items-center gap-4 text-text-title'} gutterBottom>
+          <>
+            <Logo className={'w-9'} />
+            <AppflowyLogo className={'w-32'} />
+          </>
         </Typography>
-        <Typography className={' text-[52px] font-semibold leading-[128%] text-text-title'} gutterBottom>
+        <div className={'mb-[16px] text-[52px] font-semibold leading-[128%] text-text-title'}>
           {t('publish.noAccessToVisit')}
-        </Typography>
-        <Typography className={'text-[20px] leading-[152%]'} gutterBottom>
-          <div className={''}>{t('publish.createWithAppFlowy')}</div>
+        </div>
+        <div className={'text-[20px] leading-[152%]'}>
+          <div>{t('publish.createWithAppFlowy')}</div>
           <div className={'flex items-center gap-1'}>
-            <span className={'font-semibold text-fill-default'}>{t('publish.fastWithAI')}</span>
-            <span>{t('publish.tryItNow')}</span>
+            <div className={'font-semibold text-fill-default'}>{t('publish.fastWithAI')}</div>
+            <div>{t('publish.tryItNow')}</div>
           </div>
-        </Typography>
+        </div>
         <Button
           component={Link}
           to='https://appflowy.io/download'

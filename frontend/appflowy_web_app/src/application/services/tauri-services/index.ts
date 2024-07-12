@@ -21,4 +21,28 @@ export class AFClientService implements AFService {
   async getPublishDatabaseViewRows(_namespace: string, _publishName: string, _rowIds: string[]) {
     return Promise.reject('Method not implemented');
   }
+
+  getClientId(): string {
+    return '';
+  }
+
+  loginAuth(_: string): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  signInDiscord(_params: { redirectTo: string }): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  signInGithub(_params: { redirectTo: string }): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  signInGoogle(_params: { redirectTo: string }): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  signInMagicLink(_params: { email: string; redirectTo: string }): Promise<void> {
+    return Promise.resolve(undefined);
+  }
 }

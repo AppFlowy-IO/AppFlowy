@@ -6,8 +6,8 @@ import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
 
 class WindowSizeManager {
-  static const double minWindowHeight = 600.0;
-  static const double minWindowWidth = 800.0;
+  static const double minWindowHeight = 640.0;
+  static const double minWindowWidth = 960.0;
   // Preventing failed assertion due to Texture Descriptor Validation
   static const double maxWindowHeight = 8192.0;
   static const double maxWindowWidth = 8192.0;

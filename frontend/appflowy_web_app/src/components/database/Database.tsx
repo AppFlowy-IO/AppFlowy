@@ -1,9 +1,10 @@
 import { YDatabase, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
+import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
 import DatabaseRow from '@/components/database/DatabaseRow';
 import DatabaseViews from '@/components/database/DatabaseViews';
-import { ViewMetaPreview, ViewMetaProps } from '@/components/view-meta/ViewMetaPreview';
+import { ViewMetaProps } from '@/components/view-meta/ViewMetaPreview';
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import * as Y from 'yjs';
@@ -27,7 +28,7 @@ function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView,
     const database = doc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database) as YDatabase;
     const rows = database.get(YjsDatabaseKey.views).get(viewId).get(YjsDatabaseKey.row_orders);
 
-    return rows.toArray().map((row) => row.get(YjsDatabaseKey.id));
+    return rows.toJSON().map((row) => row.id);
   }, [doc, viewId]);
 
   const iidIndex = useMemo(() => {
@@ -70,7 +71,12 @@ function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView,
   }
 
   return (
-    <div className={'flex w-full justify-center'}>
+    <div
+      style={{
+        height: 'calc(100vh - 48px)',
+      }}
+      className={'flex w-full justify-center'}
+    >
       <Suspense fallback={<ComponentLoading />}>
         <DatabaseContextProvider
           isDatabaseRowPage={!!rowId}
@@ -87,10 +93,15 @@ function Database({ doc, getViewRowsMap, navigateToView, loadViewMeta, loadView,
             <DatabaseRow rowId={rowId} />
           ) : (
             <div className={'relative flex h-full w-full flex-col'}>
-              {viewMeta && <ViewMetaPreview {...viewMeta} />}
+              {viewMeta && <DatabaseHeader {...viewMeta} />}
 
               <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
-                <DatabaseViews iidIndex={iidIndex} onChangeView={handleChangeView} viewId={viewId} />
+                <DatabaseViews
+                  iidIndex={iidIndex}
+                  viewName={viewMeta.name}
+                  onChangeView={handleChangeView}
+                  viewId={viewId}
+                />
               </div>
             </div>
           )}

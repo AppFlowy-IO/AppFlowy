@@ -15,6 +15,7 @@ export interface AFCloudConfig {
 }
 
 export interface PublishService {
+  getClientId: () => string;
   getPublishViewMeta: (namespace: string, publishName: string) => Promise<ViewMeta>;
   getPublishView: (namespace: string, publishName: string) => Promise<YDoc>;
   getPublishInfo: (viewId: string) => Promise<{ namespace: string; publishName: string }>;
@@ -26,4 +27,10 @@ export interface PublishService {
     rows: Y.Map<YDoc>;
     destroy: () => void;
   }>;
+
+  loginAuth: (url: string) => Promise<void>;
+  signInMagicLink: (params: { email: string; redirectTo: string }) => Promise<void>;
+  signInGoogle: (params: { redirectTo: string }) => Promise<void>;
+  signInGithub: (params: { redirectTo: string }) => Promise<void>;
+  signInDiscord: (params: { redirectTo: string }) => Promise<void>;
 }

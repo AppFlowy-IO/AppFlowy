@@ -513,6 +513,7 @@ export function observeDeepRow(
 
 export function useRowDataSelector(rowId: string) {
   const rowMap = useRowDocMap();
+
   const rowSharedRoot = rowMap?.get(rowId)?.getMap(YjsEditorKey.data_section);
   const row = rowSharedRoot?.get(YjsEditorKey.database_row);
 

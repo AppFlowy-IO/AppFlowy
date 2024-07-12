@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/editor_state_paste_node_extension.dart';
@@ -10,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -54,6 +53,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
 
     // try to paste the content in order, if any of them is failed, then try the next one
     if (inAppJson != null && inAppJson.isNotEmpty) {
+      debugPrint('paste in app json: $inAppJson');
       await editorState.deleteSelectionIfNeeded();
       if (await editorState.pasteInAppJson(inAppJson)) {
         return;

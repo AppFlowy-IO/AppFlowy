@@ -1,3 +1,5 @@
+import { EventType, on } from '@/application/session';
+import { isTokenValid } from '@/application/session/token';
 import { useAppLanguage } from '@/components/app/useAppLanguage';
 import { useSnackbar } from 'notistack';
 import React, { createContext, useEffect, useState } from 'react';
@@ -19,6 +21,7 @@ const defaultConfig: AFServiceConfig = {
 export const AFConfigContext = createContext<
   | {
       service: AFService | undefined;
+      isAuthenticated: boolean;
     }
   | undefined
 >(undefined);
@@ -26,7 +29,29 @@ export const AFConfigContext = createContext<
 function AppConfig({ children }: { children: React.ReactNode }) {
   const [appConfig] = useState<AFServiceConfig>(defaultConfig);
   const [service, setService] = useState<AFService>();
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(isTokenValid());
 
+  useEffect(() => {
+    return on(EventType.SESSION_VALID, () => {
+      setIsAuthenticated(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'token') setIsAuthenticated(isTokenValid());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+  useEffect(() => {
+    return on(EventType.SESSION_INVALID, () => {
+      setIsAuthenticated(false);
+    });
+  }, []);
   useAppLanguage();
 
   useEffect(() => {
@@ -67,6 +92,7 @@ function AppConfig({ children }: { children: React.ReactNode }) {
     <AFConfigContext.Provider
       value={{
         service,
+        isAuthenticated,
       }}
     >
       {children}
