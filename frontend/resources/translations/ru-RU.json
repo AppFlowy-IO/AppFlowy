@@ -840,8 +840,8 @@
         "hint": "Отключите, чтобы прекратить появление локальных уведомлений."
       },
       "showNotificationsIcon": {
-        "label": "Показать значок уведомлений",
-        "hint": "Выключите, чтобы скрыть значок уведомления на боковой панели."
+        "label": "Показать иконку уведомлений",
+        "hint": "Выключите, чтобы скрыть иконку уведомления на боковой панели."
       }
     },
     "appearance": {
@@ -1365,7 +1365,7 @@
         "couldNotFetchImage": "Не удалось получить изображение",
         "imageSavingFailed": "Не удалось сохранить изображение",
         "addIcon": "Добавить иконку",
-        "changeIcon": "Изменить значок",
+        "changeIcon": "Изменить иконку",
         "coverRemoveAlert": "Изображение будет удалено с обложки",
         "alertDialogConfirmation": "Вы хотите продолжить?"
       },
@@ -1497,8 +1497,12 @@
     "codeBlock": {
       "language": {
         "label": "Язык",
-        "placeholder": "Выберите язык"
-      }
+        "placeholder": "Выберите язык",
+        "auto": "Авто"
+      },
+      "copyTooltip": "Скопировать содержимое блока кода",
+      "searchLanguageHint": "Поиск языка",
+      "codeCopiedSnackbar": "Код скопирован в буфер обмена!"
     },
     "inlineLink": {
       "placeholder": "Вставьте или введите ссылку",
@@ -1528,7 +1532,13 @@
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Текущая версия не поддерживает этот блок.",
+      "clickToCopyTheBlockContent": "Нажмите, чтобы скопировать содержимое блока.",
       "blockContentHasBeenCopied": "Содержимое блока скопировано."
+    },
+    "mobilePageSelector": {
+      "title": "Выбрать страницу",
+      "failedToLoad": "Не удалось загрузить список страниц.",
+      "noPagesFound": "Страницы не найдены."
     }
   },
   "board": {
@@ -1563,6 +1573,7 @@
     "ungroupedButtonTooltip": "Содержит карточки, которые не принадлежат ни к одной группе.",
     "ungroupedItemsTitle": "Нажмите, чтобы добавить на доску",
     "groupBy": "Сгруппировать по",
+    "groupCondition": "Групповое состояние",
     "referencedBoardPrefix": "Вид",
     "notesTooltip": "Заметки",
     "mobile": {
@@ -1571,6 +1582,17 @@
       "showGroupContent": "Точно показать эту группу на доске?",
       "failedToLoad": "Ошибка загрузки доски"
     },
+    "dateCondition": {
+      "weekOf": "Неделя {} - {}",
+      "today": "Сегодня",
+      "yesterday": "Вчера",
+      "tomorrow": "Завтра",
+      "lastSevenDays": "Последние 7 дней",
+      "nextSevenDays": "Следующие 7 дней",
+      "lastThirtyDays": "Последние 30 дней",
+      "nextThirtyDays": "Следующие 30 дней"
+    },
+    "noGroup": "Нет группировки по свойствам",
     "noGroupDesc": "Для просмотра видов досок требуется свойство для группировки."
   },
   "calendar": {
@@ -1590,7 +1612,7 @@
       }
     },
     "mobileEventScreen": {
-      "emptyTitle": "Мероприятий пока нет",
+      "emptyTitle": "Событий пока нет",
       "emptyBody": "Нажмите кнопку «плюс», чтобы создать событие в этот день."
     },
     "settings": {
@@ -1601,16 +1623,18 @@
       "changeLayoutDateField": "Изменить отображение поля",
       "noDateTitle": "Без даты",
       "noDateHint": {
-        "zero": "Здесь будут отображаться незапланированные мероприятия.",
+        "zero": "Здесь будут отображаться незапланированные события.",
         "one": "{count} незапланированное событие",
-        "other": "{count} незапланированных события"
+        "other": "{count} незапланированных событий"
       },
       "unscheduledEventsTitle": "Незапланированные мероприятия",
       "clickToAdd": "Нажмите, чтобы добавить в календарь",
-      "name": "Макет календаря"
+      "name": "Макет календаря",
+      "clickToOpen": "Нажмите, чтобы открыть запись."
     },
     "referencedCalendarPrefix": "Вид",
-    "quickJumpYear": "Перейти к"
+    "quickJumpYear": "Перейти к",
+    "duplicateEvent": "Копировать событие"
   },
   "errorDialog": {
     "title": "Ошибка приложения",
@@ -1680,6 +1704,7 @@
   },
   "inlineActions": {
     "noResults": "Нет результатов",
+    "recentPages": "Последние страницы",
     "pageReference": "Ссылка на страницу",
     "docReference": "Ссылка на документ",
     "boardReference": "Ссылка на доску",
@@ -1709,7 +1734,7 @@
       "thirtyMinsBefore": "за 30 минут до",
       "oneHourBefore": "за 1 час до",
       "twoHoursBefore": "за 2 часа до",
-      "onDayOfEvent": "В день мероприятия",
+      "onDayOfEvent": "В день события",
       "oneDayBefore": "за 1 день до",
       "twoDaysBefore": "за 2 дня до",
       "oneWeekBefore": "за 1 неделю до",
@@ -1781,6 +1806,7 @@
     "color": "Цвет",
     "image": "Изображение",
     "date": "Дата",
+    "page": "Страница",
     "italic": "Курсив",
     "link": "Ссылка",
     "numberedList": "Нумерованный список",
@@ -1809,6 +1835,8 @@
     "backgroundColorPurple": "Фиолетовый фон",
     "backgroundColorPink": "Розовый фон",
     "backgroundColorRed": "Красный фон",
+    "backgroundColorLime": "Лаймовый фон",
+    "backgroundColorAqua": "Аква фон",
     "done": "Готово",
     "cancel": "Отмена",
     "tint1": "Оттенок 1",
@@ -1856,6 +1884,8 @@
     "copy": "Копировать",
     "paste": "Вставить",
     "find": "Найти",
+    "select": "Выбрать",
+    "selectAll": "Выбрать всё",
     "previousMatch": "Предыдущее совпадение",
     "nextMatch": "Следующее совпадение",
     "closeFind": "Закрыть",
@@ -1891,7 +1921,9 @@
   },
   "favorite": {
     "noFavorite": "Нет избранных страниц",
-    "noFavoriteHintText": "Проведите по странице влево, чтобы добавить ее в избранное."
+    "noFavoriteHintText": "Проведите по странице влево, чтобы добавить ее в избранное.",
+    "removeFromSidebar": "Удалить из боковой панели",
+    "addToSidebar": "Закрепить на боковой панели"
   },
   "cardDetails": {
     "notesPlaceholder": "Введите '/', чтобы вставить блок, или начните писать"
@@ -1935,7 +1967,12 @@
       }
     },
     "workplace": {
-      "subtitle": "Настройте внешний вид рабочего пространства, тему, шрифт, макет текста, дату, время и язык."
+      "name": "Рабочее место",
+      "title": "Настройки рабочего места",
+      "subtitle": "Настройте внешний вид рабочего пространства, тему, шрифт, макет текста, дату, время и язык.",
+      "workplaceName": "Название рабочего места",
+      "workplaceNamePlaceholder": "Введите название рабочего места",
+      "workplaceIcon": "Иконка рабочего места"
     }
   },
   "space": {
