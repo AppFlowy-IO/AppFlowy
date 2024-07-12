@@ -401,8 +401,13 @@ pub(crate) async fn publish_view_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params = data.into_inner();
+  let selected_view_ids = params.selected_view_ids.map(|ids| ids.items);
   folder
-    .publish_view(params.view_id.as_str(), params.publish_name)
+    .publish_view(
+      params.view_id.as_str(),
+      params.publish_name,
+      selected_view_ids,
+    )
     .await?;
   Ok(())
 }

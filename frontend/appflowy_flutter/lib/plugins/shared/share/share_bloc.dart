@@ -53,7 +53,7 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             ),
           );
         },
-        publish: (nameSpace, publishName) async {
+        publish: (nameSpace, publishName, selectedViewIds) async {
           // set space name
           try {
             final result =
@@ -62,6 +62,7 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             await ViewBackendService.publish(
               view,
               name: publishName,
+              selectedViewIds: selectedViewIds,
             ).getOrThrow();
 
             emit(
@@ -237,6 +238,7 @@ class ShareEvent with _$ShareEvent {
   const factory ShareEvent.publish(
     String nameSpace,
     String pageId,
+    List<String> selectedViewIds,
   ) = _Publish;
   const factory ShareEvent.unPublish() = _UnPublish;
   const factory ShareEvent.updateViewName(String name) = _UpdateViewName;

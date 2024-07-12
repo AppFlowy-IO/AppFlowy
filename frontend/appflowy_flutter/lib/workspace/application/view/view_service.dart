@@ -302,12 +302,18 @@ class ViewBackendService {
   static Future<FlowyResult<void, FlowyError>> publish(
     ViewPB view, {
     String? name,
+    List<String>? selectedViewIds,
   }) async {
     final payload = PublishViewParamsPB()..viewId = view.id;
 
     if (name != null) {
       payload.publishName = name;
     }
+
+    if (selectedViewIds != null && selectedViewIds.isNotEmpty) {
+      payload.selectedViewIds = RepeatedViewIdPB(items: selectedViewIds);
+    }
+
     return FolderEventPublishView(payload).send();
   }
 

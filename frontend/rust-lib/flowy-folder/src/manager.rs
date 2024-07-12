@@ -1005,7 +1005,12 @@ impl FolderManager {
   ///
   /// If `publish_name` is `None`, a default name will be generated using the view name and view id.
   #[tracing::instrument(level = "debug", skip(self), err)]
-  pub async fn publish_view(&self, view_id: &str, publish_name: Option<String>) -> FlowyResult<()> {
+  pub async fn publish_view(
+    &self,
+    view_id: &str,
+    publish_name: Option<String>,
+    selected_view_ids: Option<Vec<String>>,
+  ) -> FlowyResult<()> {
     let view = self
       .with_folder(|| None, |folder| folder.views.get_view(view_id))
       .ok_or_else(|| {
@@ -1024,6 +1029,21 @@ impl FolderManager {
     let payload = self
       .get_batch_publish_payload(view_id, publish_name, false)
       .await?;
+
+    // set the selected view ids to the payload
+    let payload = if let Some(selected_view_ids) = selected_view_ids {
+      payload
+        .into_iter()
+        .map(|mut p| {
+          if let PublishPayload::Database(p) = &mut p {
+            p.data.visible_database_view_ids = selected_view_ids.clone();
+          }
+          p
+        })
+        .collect::<Vec<_>>()
+    } else {
+      payload
+    };
 
     let workspace_id = self.user.workspace_id()?;
     self

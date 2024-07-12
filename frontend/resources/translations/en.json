@@ -2065,7 +2065,15 @@
     "noAccessToVisit": "No access to this page...",
     "createWithAppFlowy": "Create a website with AppFlowy",
     "fastWithAI": "Fast and easy with AI.",
-    "tryItNow": "Try it now"
+    "tryItNow": "Try it now",
+    "onlyGridViewCanBePublished": "Only Grid view can be published",
+    "database": {
+      "zero": "{} databases will be published",
+      "one": "{} database will be published",
+      "many": "{} databases will be published",
+      "other":"{} databases will be published"
+    },
+    "noDatabaseSelected": "No database selected, please select at least one database."
   },
   "web": {
     "continue": "Continue",

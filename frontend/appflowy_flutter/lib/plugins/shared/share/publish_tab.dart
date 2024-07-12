@@ -1,15 +1,20 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/shared/share/share_bloc.dart';
+import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/shared/share/pubish_color_extension.dart';
 import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
+import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,28 +29,34 @@ class PublishTab extends StatelessWidget {
         _showToast(context, state);
       },
       builder: (context, state) {
-        return state.isPublished
-            ? _PublishedWidget(
-                url: state.url,
-                onVisitSite: () {},
-                onUnPublish: () {
-                  context.read<ShareBloc>().add(const ShareEvent.unPublish());
-                },
-              )
-            : _UnPublishWidget(
-                onPublish: () async {
-                  final id = context.read<ShareBloc>().view.id;
-                  final publishName = await generatePublishName(
-                    id,
-                    state.viewName,
-                  );
-                  if (context.mounted) {
-                    context.read<ShareBloc>().add(
-                          ShareEvent.publish('', publishName),
-                        );
-                  }
-                },
+        if (state.isPublished) {
+          return _PublishedWidget(
+            url: state.url,
+            onVisitSite: (url) => afLaunchUrlString(url),
+            onUnPublish: () {
+              context.read<ShareBloc>().add(const ShareEvent.unPublish());
+            },
+          );
+        } else {
+          return _PublishWidget(
+            onPublish: (selectedViews) async {
+              final id = context.read<ShareBloc>().view.id;
+              final publishName = await generatePublishName(
+                id,
+                state.viewName,
               );
+              if (context.mounted) {
+                context.read<ShareBloc>().add(
+                      ShareEvent.publish(
+                        '',
+                        publishName,
+                        selectedViews.map((e) => e.id).toList(),
+                      ),
+                    );
+              }
+            },
+          );
+        }
       },
     );
   }
@@ -86,7 +97,7 @@ class _PublishedWidget extends StatefulWidget {
   });
 
   final String url;
-  final VoidCallback onVisitSite;
+  final void Function(String url) onVisitSite;
   final VoidCallback onUnPublish;
 
   @override
@@ -146,8 +157,8 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
 
   Widget _buildUnpublishButton() {
     return SizedBox(
-      height: 36,
       width: 184,
+      height: 36,
       child: FlowyButton(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -165,12 +176,10 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
 
   Widget _buildVisitSiteButton() {
     return RoundedTextButton(
-      onPressed: () {
-        safeLaunchUrl(controller.text);
-      },
-      title: LocaleKeys.shareAction_visitSite.tr(),
       width: 184,
       height: 36,
+      onPressed: () => widget.onVisitSite(controller.text),
+      title: LocaleKeys.shareAction_visitSite.tr(),
       borderRadius: const BorderRadius.all(Radius.circular(10)),
       fillColor: Theme.of(context).colorScheme.primary,
       textColor: Theme.of(context).colorScheme.onPrimary,
@@ -178,12 +187,19 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
   }
 }
 
-class _UnPublishWidget extends StatelessWidget {
-  const _UnPublishWidget({
+class _PublishWidget extends StatefulWidget {
+  const _PublishWidget({
     required this.onPublish,
   });
 
-  final VoidCallback onPublish;
+  final void Function(List<ViewPB> selectedViews) onPublish;
+
+  @override
+  State<_PublishWidget> createState() => _PublishWidgetState();
+}
+
+class _PublishWidgetState extends State<_PublishWidget> {
+  List<ViewPB> _selectedViews = [];
 
   @override
   Widget build(BuildContext context) {
@@ -194,15 +210,53 @@ class _UnPublishWidget extends StatelessWidget {
         const VSpace(16),
         const _PublishTabHeader(),
         const VSpace(16),
-        RoundedTextButton(
-          height: 36,
-          title: LocaleKeys.shareAction_publish.tr(),
-          padding: const EdgeInsets.symmetric(vertical: 9.0),
-          fontSize: 14.0,
-          textColor: Theme.of(context).colorScheme.onPrimary,
-          onPressed: onPublish,
+        // if current view is a database, show the database selector
+        if (context.read<ShareBloc>().view.layout.isDatabaseView) ...[
+          _PublishDatabaseSelector(
+            view: context.read<ShareBloc>().view,
+            onSelected: (selectedDatabases) {
+              _selectedViews = selectedDatabases;
+            },
+          ),
+          const VSpace(16),
+        ],
+        _PublishButton(
+          onPublish: () {
+            if (context.read<ShareBloc>().view.layout.isDatabaseView) {
+              // check if any database is selected
+              if (_selectedViews.isEmpty) {
+                showToastNotification(
+                  context,
+                  message: LocaleKeys.publish_noDatabaseSelected.tr(),
+                );
+                return;
+              }
+            }
+
+            widget.onPublish(_selectedViews);
+          },
         ),
       ],
+    );
+  }
+}
+
+class _PublishButton extends StatelessWidget {
+  const _PublishButton({
+    required this.onPublish,
+  });
+
+  final VoidCallback onPublish;
+
+  @override
+  Widget build(BuildContext context) {
+    return RoundedTextButton(
+      height: 36,
+      title: LocaleKeys.shareAction_publish.tr(),
+      padding: const EdgeInsets.symmetric(vertical: 9.0),
+      fontSize: 14.0,
+      textColor: Theme.of(context).colorScheme.onPrimary,
+      onPressed: onPublish,
     );
   }
 }
@@ -275,6 +329,189 @@ class _PublishUrl extends StatelessWidget {
           child: const FlowySvg(
             FlowySvgs.m_toolbar_link_m,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// used to select which database view should be published
+class _PublishDatabaseSelector extends StatefulWidget {
+  const _PublishDatabaseSelector({
+    required this.view,
+    required this.onSelected,
+  });
+
+  final ViewPB view;
+  final void Function(List<ViewPB> selectedDatabases) onSelected;
+
+  @override
+  State<_PublishDatabaseSelector> createState() =>
+      _PublishDatabaseSelectorState();
+}
+
+class _PublishDatabaseSelectorState extends State<_PublishDatabaseSelector> {
+  final PropertyValueNotifier<List<ViewPB>> _selectedDatabases =
+      PropertyValueNotifier<List<ViewPB>>([]);
+  late final borderColor = Theme.of(context).hintColor.withOpacity(0.3);
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDatabases.addListener(() {
+      widget.onSelected(_selectedDatabases.value);
+    });
+  }
+
+  @override
+  void dispose() {
+    _selectedDatabases.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => DatabaseTabBarBloc(view: widget.view)
+        ..add(const DatabaseTabBarEvent.initial()),
+      child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+        builder: (context, state) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: ShapeDecoration(
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: borderColor),
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VSpace(10),
+                _buildSelectedDatabaseCount(context),
+                const VSpace(10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Divider(
+                    color: borderColor,
+                    thickness: 1,
+                    height: 1,
+                  ),
+                ),
+                const VSpace(10),
+                ...state.tabBars.map((e) => _buildDatabaseSelector(context, e)),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSelectedDatabaseCount(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: _selectedDatabases,
+      builder: (context, selectedDatabases, child) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: FlowyText(
+            LocaleKeys.publish_database.plural(selectedDatabases.length).tr(),
+            color: Theme.of(context).hintColor,
+            fontSize: 13,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDatabaseSelector(BuildContext context, DatabaseTabBar tabBar) {
+    return ValueListenableBuilder(
+      valueListenable: _selectedDatabases,
+      builder: (context, selectedDatabases, child) {
+        return _DatabaseSelectorItem(
+          tabBar: tabBar,
+          isSelected: selectedDatabases.any((e) => e.id == tabBar.view.id),
+          onTap: () {
+            if (selectedDatabases.any((e) => e.id == tabBar.view.id)) {
+              _selectedDatabases.value = selectedDatabases
+                ..removeWhere(
+                  (e) => e.id == tabBar.view.id,
+                );
+            } else {
+              _selectedDatabases.value = selectedDatabases..add(tabBar.view);
+            }
+          },
+        );
+      },
+    );
+  }
+}
+
+class _DatabaseSelectorItem extends StatelessWidget {
+  const _DatabaseSelectorItem({
+    required this.tabBar,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final DatabaseTabBar tabBar;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final message = tabBar.view.layout == ViewLayoutPB.Grid
+        ? null
+        : LocaleKeys.publish_onlyGridViewCanBePublished.tr();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: FlowyTooltip(
+        message: message,
+        child: FlowyHover(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              if (tabBar.view.layout == ViewLayoutPB.Grid) {
+                onTap();
+              }
+            },
+            child: _buildItem(context),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItem(BuildContext context) {
+    // only grid view can be published.
+    final opacity = tabBar.view.layout == ViewLayoutPB.Grid ? 1.0 : 0.5;
+
+    return Opacity(
+      opacity: opacity,
+      child: Container(
+        height: 30,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          children: [
+            FlowySvg(
+              isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
+              blendMode: null,
+              size: const Size.square(18),
+            ),
+            const HSpace(9.0),
+            FlowySvg(
+              tabBar.view.layout.icon,
+              size: const Size.square(16),
+            ),
+            const HSpace(6.0),
+            FlowyText.regular(
+              tabBar.view.name,
+              fontSize: 14,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const Spacer(),
+          ],
         ),
       ),
     );
