@@ -345,7 +345,8 @@
     "signInDiscord": "Продолжить с Discord",
     "more": "Больше",
     "create": "Создать",
-    "close": "Закрыть"
+    "close": "Закрыть",
+    "tryAGain": "Попробовать ещё раз"
   },
   "label": {
     "welcome": "Добро пожаловать!",

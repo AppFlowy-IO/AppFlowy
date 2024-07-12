@@ -341,7 +341,8 @@
     "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
-    "close": "Close"
+    "close": "Close",
+    "tryAGain": "Try again"
   },
   "label": {
     "welcome": "Welcome!",
