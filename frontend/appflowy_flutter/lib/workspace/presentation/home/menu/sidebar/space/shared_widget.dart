@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -268,6 +269,22 @@ enum ConfirmPopupStyle {
   cancelAndOk,
 }
 
+class ConfirmPopupColor {
+  static Color titleColor(BuildContext context) {
+    if (Theme.of(context).isLightMode) {
+      return const Color(0xFF171717).withOpacity(0.8);
+    }
+    return const Color(0xFFffffff).withOpacity(0.8);
+  }
+
+  static Color descriptionColor(BuildContext context) {
+    if (Theme.of(context).isLightMode) {
+      return const Color(0xFF171717).withOpacity(0.8);
+    }
+    return const Color(0xFFffffff).withOpacity(0.72);
+  }
+}
+
 class ConfirmPopup extends StatefulWidget {
   const ConfirmPopup({
     super.key,
@@ -328,6 +345,7 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             widget.title,
             fontSize: 14.0,
             overflow: TextOverflow.ellipsis,
+            color: ConfirmPopupColor.titleColor(context),
           ),
         ),
         const HSpace(6.0),
@@ -344,7 +362,7 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
     return FlowyText.regular(
       widget.description,
       fontSize: 12.0,
-      color: Theme.of(context).hintColor,
+      color: ConfirmPopupColor.descriptionColor(context),
       maxLines: 3,
       lineHeight: 1.4,
     );
