@@ -1,5 +1,5 @@
 use crate::chat_manager::ChatUserService;
-use crate::entities::{ChatStatePB, LocalModelStatePB, ModelTypePB};
+use crate::entities::{ChatStatePB, LocalModelResourcePB, LocalModelStatePB, ModelTypePB};
 use crate::local_ai::llm_resource::{LLMResourceController, LLMResourceService};
 use crate::notification::{send_notification, ChatNotification};
 use anyhow::Error;
@@ -66,8 +66,8 @@ impl LocalLLMController {
     let llm_res = Arc::new(LLMResourceController::new(user_service, res_impl));
     Self { llm_chat, llm_res }
   }
-  pub async fn model_info(&self) -> FlowyResult<LLMModelInfo> {
-    self.llm_res.model_info().await
+  pub async fn refresh(&self) -> FlowyResult<LLMModelInfo> {
+    self.llm_res.refresh_llm_resource().await
   }
 
   pub fn initialize(&self) -> FlowyResult<()> {
@@ -134,7 +134,7 @@ impl LocalLLMController {
     });
   }
 
-  pub async fn use_local_llm(&self, llm_id: i64) -> FlowyResult<LocalModelStatePB> {
+  pub async fn use_local_llm(&self, llm_id: i64) -> FlowyResult<LocalModelResourcePB> {
     let llm_chat = self.llm_chat.clone();
     match llm_chat.destroy_chat_plugin().await {
       Ok(_) => info!("[Chat Plugin] destroy plugin successfully"),
@@ -148,17 +148,20 @@ impl LocalLLMController {
     Ok(state)
   }
 
-  pub async fn get_local_llm_state(&self) -> FlowyResult<LocalModelStatePB> {
+  pub async fn get_local_llm_state(&self) -> FlowyResult<LocalModelResourcePB> {
     self.llm_res.get_local_llm_state()
   }
 
-  pub fn start_downloading<T: Sink<i64>>(&self, progress_sink: T) -> FlowyResult<String> {
-    let task_id = self.llm_res.start_downloading()?;
+  pub async fn start_downloading<T>(&self, progress_sink: T) -> FlowyResult<String>
+  where
+    T: Sink<String, Error = anyhow::Error> + Unpin + Sync + Send + 'static,
+  {
+    let task_id = self.llm_res.start_downloading(progress_sink).await?;
     Ok(task_id)
   }
 
-  pub fn cancel_download(&self, task_id: &str) -> FlowyResult<()> {
-    self.llm_res.cancel_download(task_id)?;
+  pub fn cancel_download(&self) -> FlowyResult<()> {
+    self.llm_res.cancel_download()?;
     Ok(())
   }
 }

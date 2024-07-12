@@ -620,7 +620,7 @@
         "downloadLLMPromptDetail": "Downloading {} local model will take up to {} of storage. Do you want to continue?",
         "downloadAIModelButton": "Download AI model",
         "downloadingModel": "Downloading",
-        "downloadingModelPrompt": "Do not navigate away or close the app while file is downloading",
+        "downloadModelSuccess": "Local AI Model successfully added and ready to use",
         "title": "AI API Keys",
         "openAILabel": "OpenAI API key",
         "openAITooltip": "You can find your Secret API key on the API key page",

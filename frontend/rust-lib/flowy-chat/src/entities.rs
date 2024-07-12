@@ -336,4 +336,31 @@ pub struct LocalModelStatePB {
 
   #[pb(index = 4)]
   pub requirements: String,
+
+  #[pb(index = 5)]
+  pub is_downloading: bool,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct LocalModelResourcePB {
+  #[pb(index = 1)]
+  pub is_ready: bool,
+
+  #[pb(index = 2)]
+  pub pending_resources: Vec<PendingResourcePB>,
+
+  #[pb(index = 3)]
+  pub is_downloading: bool,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct PendingResourcePB {
+  #[pb(index = 1)]
+  pub model_name: String,
+
+  #[pb(index = 2)]
+  pub model_size: i64,
+
+  #[pb(index = 3)]
+  pub requirements: String,
 }

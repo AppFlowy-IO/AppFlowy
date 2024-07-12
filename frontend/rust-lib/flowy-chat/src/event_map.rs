@@ -24,8 +24,8 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
     .event(ChatEvent::GetAnswerForQuestion, get_answer_handler)
     .event(ChatEvent::StopStream, stop_stream_handler)
     .event(
-      ChatEvent::GetLocalAIModelInfo,
-      get_local_ai_model_info_handler,
+      ChatEvent::RefreshLocalAIModelInfo,
+      refresh_local_ai_info_handler,
     )
     .event(ChatEvent::UpdateLocalLLM, update_local_llm_model_handler)
     .event(ChatEvent::GetLocalLLMState, get_local_llm_state_handler)
@@ -64,14 +64,14 @@ pub enum ChatEvent {
   #[event(input = "ChatMessageIdPB", output = "ChatMessagePB")]
   GetAnswerForQuestion = 5,
 
-  #[event(input = "LLMModelPB", output = "LocalModelStatePB")]
+  #[event(input = "LLMModelPB", output = "LocalModelResourcePB")]
   UpdateLocalLLM = 6,
 
-  #[event(output = "LocalModelStatePB")]
+  #[event(output = "LocalModelResourcePB")]
   GetLocalLLMState = 7,
 
   #[event(output = "LLMModelInfoPB")]
-  GetLocalAIModelInfo = 8,
+  RefreshLocalAIModelInfo = 8,
 
   #[event(input = "CompleteTextPB", output = "CompleteTextTaskPB")]
   CompleteText = 9,
@@ -85,6 +85,6 @@ pub enum ChatEvent {
   #[event(input = "DownloadLLMPB", output = "DownloadTaskPB")]
   DownloadLLMResource = 12,
 
-  #[event(input = "DownloadTaskPB")]
+  #[event()]
   CancelDownloadLLMResource = 13,
 }

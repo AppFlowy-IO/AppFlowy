@@ -91,14 +91,15 @@ collab-plugins = { version = "0.2" }
 collab-user = { version = "0.2" }
 yrs = "0.18.8"
 validator = { version = "0.16.1", features = ["derive"] }
+tokio-util = "0.7.11"
 
 # Please using the following command to update the revision id
 # Current directory: frontend
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "2a4fb4cf18c3f0b46338cf45f27c4023cfd3a836" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "2a4fb4cf18c3f0b46338cf45f27c4023cfd3a836" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "bb84d4ad059a723de031e1f286606bd1bfcb1806" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "bb84d4ad059a723de031e1f286606bd1bfcb1806" }
 
 [profile.dev]
 opt-level = 1

@@ -124,13 +124,13 @@ pub(crate) async fn stop_stream_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_local_ai_model_info_handler(
+pub(crate) async fn refresh_local_ai_info_handler(
   chat_manager: AFPluginState<Weak<ChatManager>>,
 ) -> DataResult<LLMModelInfoPB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let (tx, rx) = oneshot::channel::<Result<LLMModelInfo, FlowyError>>();
   tokio::spawn(async move {
-    let model_info = chat_manager.llm_controller.model_info().await;
+    let model_info = chat_manager.llm_controller.refresh().await;
     let _ = tx.send(model_info);
   });
 
@@ -142,7 +142,7 @@ pub(crate) async fn get_local_ai_model_info_handler(
 pub(crate) async fn update_local_llm_model_handler(
   data: AFPluginData<LLMModelPB>,
   chat_manager: AFPluginState<Weak<ChatManager>>,
-) -> DataResult<LocalModelStatePB, FlowyError> {
+) -> DataResult<LocalModelResourcePB, FlowyError> {
   let data = data.into_inner();
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let state = chat_manager
@@ -155,7 +155,7 @@ pub(crate) async fn update_local_llm_model_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_local_llm_state_handler(
   chat_manager: AFPluginState<Weak<ChatManager>>,
-) -> DataResult<LocalModelStatePB, FlowyError> {
+) -> DataResult<LocalModelResourcePB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let state = chat_manager.llm_controller.get_local_llm_state().await?;
   data_result_ok(state)
@@ -204,20 +204,21 @@ pub(crate) async fn download_llm_resource_handler(
   data: AFPluginData<DownloadLLMPB>,
   chat_manager: AFPluginState<Weak<ChatManager>>,
 ) -> DataResult<DownloadTaskPB, FlowyError> {
-  let data = data.try_into_inner()?;
+  let data = data.into_inner();
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let text_sink = IsolateSink::new(Isolate::new(data.progress_stream));
-  let task_id = chat_manager.llm_controller.start_downloading(text_sink)?;
+  let task_id = chat_manager
+    .llm_controller
+    .start_downloading(text_sink)
+    .await?;
   data_result_ok(DownloadTaskPB { task_id })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn cancel_download_llm_resource_handler(
-  data: AFPluginData<DownloadTaskPB>,
   chat_manager: AFPluginState<Weak<ChatManager>>,
 ) -> Result<(), FlowyError> {
-  let data = data.into_inner();
   let chat_manager = upgrade_chat_manager(chat_manager)?;
-  chat_manager.llm_controller.cancel_download(&data.task_id)?;
+  chat_manager.llm_controller.cancel_download()?;
   Ok(())
 }

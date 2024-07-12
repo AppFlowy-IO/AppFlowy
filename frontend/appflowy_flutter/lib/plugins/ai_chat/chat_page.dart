@@ -1,6 +1,4 @@
 import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
-import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

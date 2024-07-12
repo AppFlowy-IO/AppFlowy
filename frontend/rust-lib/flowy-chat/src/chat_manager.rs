@@ -230,12 +230,6 @@ impl ChatManager {
     chat.index_file(file_path).await?;
     Ok(())
   }
-
-  pub async fn download_ai_resources(&self, progress_port: i64) -> FlowyResult<()> {
-    let text_sink = IsolateSink::new(Isolate::new(progress_port));
-    self.llm_controller.start_downloading(text_sink)?;
-    Ok(())
-  }
 }
 
 fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
