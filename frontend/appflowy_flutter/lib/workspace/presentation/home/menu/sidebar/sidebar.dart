@@ -27,6 +27,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_migration.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
@@ -139,7 +140,8 @@ class HomeSideBar extends StatelessWidget {
               BlocListener<SpaceBloc, SpaceState>(
                 listenWhen: (p, c) =>
                     p.lastCreatedPage?.id != c.lastCreatedPage?.id ||
-                    p.isDuplicatingSpace != c.isDuplicatingSpace,
+                    p.isDuplicatingSpace != c.isDuplicatingSpace ||
+                    p.issueViews != c.issueViews,
                 listener: (context, state) {
                   final page = state.lastCreatedPage;
                   if (page == null || page.id.isEmpty) {
@@ -163,6 +165,20 @@ class HomeSideBar extends StatelessWidget {
                   } else if (_duplicateSpaceLoading != null) {
                     _duplicateSpaceLoading?.stop();
                     _duplicateSpaceLoading = null;
+                  }
+
+                  if (state.issueViews.isNotEmpty) {
+                    showConfirmDialog(
+                      context: context,
+                      title: 'Some errors happened',
+                      description:
+                          'There are ${state.issueViews.length} pages (${state.issueViews.map((e) => e.name).join(', ')}) that have issues. Press OK to fix them. ',
+                      onConfirm: () {
+                        context.read<SpaceBloc>().add(
+                              const SpaceEvent.reassignIssueViews(),
+                            );
+                      },
+                    );
                   }
                 },
               ),

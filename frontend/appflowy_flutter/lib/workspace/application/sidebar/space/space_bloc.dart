@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/fix_data_widget.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -87,6 +88,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 isExpanded: isExpanded,
                 shouldShowUpgradeDialog: shouldShowUpgradeDialog,
                 isInitialized: true,
+                issueViews: [],
               ),
             );
 
@@ -98,6 +100,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               if (currentSpace != null) {
                 add(SpaceEvent.open(currentSpace));
               }
+            }
+
+            if (!hasRunCheck) {
+              unawaited(_checkViewsRelationship());
             }
           },
           create: (
@@ -329,6 +335,12 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             emit(state.copyWith(isDuplicatingSpace: false));
           },
+          reassignIssueViews: () async {
+            await _reassignIssueViews();
+          },
+          updateIssueViews: (issueViews) async {
+            emit(state.copyWith(issueViews: issueViews));
+          },
         );
       },
     );
@@ -338,6 +350,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   String? _workspaceId;
   late UserProfilePB userProfile;
   WorkspaceSectionsListener? _listener;
+  bool hasRunCheck = false;
 
   @override
   Future<void> close() async {
@@ -428,6 +441,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     _workspaceId = workspaceId;
     this.userProfile = userProfile;
 
+    hasRunCheck = false;
+
     _listener = WorkspaceSectionsListener(
       user: userProfile,
       workspaceId: workspaceId,
@@ -503,6 +518,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     if (_workspaceId == null) {
       return false;
     }
+
     try {
       final user =
           await UserBackendService.getCurrentUserProfile().getOrThrow();
@@ -526,6 +542,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           (e) => e.isSpace && e.spacePermission == SpacePermission.publicToAll,
         );
         publicViews = publicViews.where((e) => !e.isSpace).toList();
+
+        for (final view in publicViews) {
+          Log.info(
+            'migrating: the public view should be migrated: ${view.name}(${view.id})',
+          );
+        }
+
         // if there is already a public space, don't migrate the public space
         // only migrate the public space if there are any public views
         if (publicViews.isEmpty || containsPublicSpace) {
@@ -568,6 +591,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         (e) => e.isSpace && e.spacePermission == SpacePermission.private,
       );
       privateViews = privateViews.where((e) => !e.isSpace).toList();
+
+      for (final view in privateViews) {
+        Log.info(
+          'migrating: the private view should be migrated: ${view.name}(${view.id})',
+        );
+      }
+
       if (privateViews.isEmpty || containsPrivateSpace) {
         return true;
       }
@@ -602,6 +632,17 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       Log.error('migrate space error: $e');
       return false;
     }
+  }
+
+  Future<void> _checkViewsRelationship() async {
+    // during moving, some views were assigned to the a parent view id,
+    //  but they are not in the parent view's child views
+    final issueViews = await WorkspaceDataManager.checkViewHealth();
+    for (final view in issueViews) {
+      Log.info('space: found an issue: $view is not in its parent view');
+    }
+
+    add(SpaceEvent.updateIssueViews(issueViews));
   }
 
   Future<bool> shouldShowUpgradeDialog({
@@ -658,6 +699,28 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
     return newSpace;
   }
+
+  Future<void> _reassignIssueViews() async {
+    final issueViews = state.issueViews;
+    if (issueViews.isEmpty) {
+      return;
+    }
+    for (final view in issueViews) {
+      final result = await ViewBackendService.moveViewV2(
+        viewId: view.id,
+        newParentId: view.parentViewId,
+        prevViewId: null,
+      );
+      result.fold(
+        (_) {
+          Log.info('space: reassign issue view: ${view.name}(${view.id})');
+        },
+        (error) {
+          Log.error('space: failed to reassign issue view: $error');
+        },
+      );
+    }
+  }
 }
 
 @freezed
@@ -699,6 +762,9 @@ class SpaceEvent with _$SpaceEvent {
   ) = _Reset;
   const factory SpaceEvent.migrate() = _Migrate;
   const factory SpaceEvent.switchToNextSpace() = _SwitchToNextSpace;
+  const factory SpaceEvent.reassignIssueViews() = _ReassignIssueViews;
+  const factory SpaceEvent.updateIssueViews(List<ViewPB> issueViews) =
+      _UpdateIssueViews;
 }
 
 @freezed
@@ -713,6 +779,7 @@ class SpaceState with _$SpaceState {
     @Default(false) bool shouldShowUpgradeDialog,
     @Default(false) bool isDuplicatingSpace,
     @Default(false) bool isInitialized,
+    @Default([]) List<ViewPB> issueViews,
   }) = _SpaceState;
 
   factory SpaceState.initial() => const SpaceState();
