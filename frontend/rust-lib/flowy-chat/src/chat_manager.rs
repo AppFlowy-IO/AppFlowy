@@ -1,17 +1,16 @@
 use crate::chat::Chat;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
-use crate::local_ai::local_llm_chat::{LLMModelInfo, LLMSetting, LocalLLMController};
+use crate::local_ai::local_llm_chat::LocalLLMController;
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
 use crate::persistence::{insert_chat, ChatTable};
-use allo_isolate::Isolate;
-use appflowy_local_ai::llm_chat::LocalLLMSetting;
+
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageType, LLMModel};
+use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageType};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
-use lib_infra::isolate_stream::IsolateSink;
+
 use lib_infra::util::timestamp;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -29,11 +28,9 @@ pub struct ChatManager {
   pub chat_service_wm: Arc<ChatServiceMiddleware>,
   pub user_service: Arc<dyn ChatUserService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
-  store_preferences: Arc<KVStorePreferences>,
   pub llm_controller: Arc<LocalLLMController>,
 }
 
-const LOCAL_AI_SETTING_KEY: &str = "local_ai_setting";
 impl ChatManager {
   pub fn new(
     cloud_service: Arc<dyn ChatCloudService>,
@@ -66,7 +63,6 @@ impl ChatManager {
       chat_service_wm,
       user_service,
       chats: Arc::new(DashMap::new()),
-      store_preferences,
       llm_controller,
     }
   }

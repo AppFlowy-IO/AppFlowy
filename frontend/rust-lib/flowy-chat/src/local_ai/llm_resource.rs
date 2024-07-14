@@ -1,30 +1,23 @@
-use reqwest::{Client, Response, StatusCode};
-use sha2::{Digest, Sha256};
-
 use crate::chat_manager::ChatUserService;
-use crate::entities::{LocalModelResourcePB, LocalModelStatePB, PendingResourcePB};
+use crate::entities::{LocalModelResourcePB, PendingResourcePB};
 use crate::local_ai::local_llm_chat::{LLMModelInfo, LLMSetting};
 use crate::local_ai::model_request::download_model;
-use crate::local_ai::plugin_request::download_plugin;
-use crate::notification::{send_notification, ChatNotification};
-use anyhow::anyhow;
-use appflowy_local_ai::llm_chat::ChatPluginConfig;
-use base64::engine::general_purpose::STANDARD;
-use base64::Engine;
+
+use appflowy_local_ai::chat_plugin::ChatPluginConfig;
 use flowy_chat_pub::cloud::{LLMModel, LocalAIConfig, ModelInfo};
 use flowy_error::{FlowyError, FlowyResult};
 use futures::Sink;
 use futures_util::SinkExt;
 use lib_infra::async_trait::async_trait;
-use lib_infra::file_util::unzip_and_replace;
 use parking_lot::RwLock;
-use std::path::{Path, PathBuf};
+
+use appflowy_local_ai::plugin_request::download_plugin;
+use std::path::PathBuf;
 use std::sync::Arc;
-use tokio::fs::{self, File};
-use tokio::io::SeekFrom;
-use tokio::io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt};
+use tokio::fs::{self};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, instrument, trace};
+use zip_extensions::zip_extract;
 
 #[async_trait]
 pub trait LLMResourceService: Send + Sync + 'static {
@@ -59,28 +52,29 @@ impl DownloadTask {
 }
 
 pub struct LLMResourceController {
-  client: Client,
   user_service: Arc<dyn ChatUserService>,
   resource_service: Arc<dyn LLMResourceService>,
   llm_setting: RwLock<Option<LLMSetting>>,
   // The ai_config will be set when user try to get latest local ai config from server
   ai_config: RwLock<Option<LocalAIConfig>>,
   download_task: Arc<RwLock<Option<DownloadTask>>>,
+  resource_notify: tokio::sync::mpsc::Sender<()>,
 }
 
 impl LLMResourceController {
   pub fn new(
     user_service: Arc<dyn ChatUserService>,
     resource_service: impl LLMResourceService,
+    resource_notify: tokio::sync::mpsc::Sender<()>,
   ) -> Self {
     let llm_setting = RwLock::new(resource_service.retrieve());
     Self {
-      client: Client::new(),
       user_service,
       resource_service: Arc::new(resource_service),
       llm_setting,
       ai_config: Default::default(),
       download_task: Default::default(),
+      resource_notify,
     }
   }
 
@@ -160,13 +154,17 @@ impl LLMResourceController {
     let pending_resources: Vec<_> = pending_resources
       .into_iter()
       .filter_map(|res| match res {
-        PendingResource::PluginRes => None,
+        PendingResource::PluginRes => Some(vec![PendingResourcePB {
+          name: "AppFlowy Plugin".to_string(),
+          file_size: 0,
+          requirements: "".to_string(),
+        }]),
         PendingResource::ModelInfoRes(model_infos) => Some(
           model_infos
             .into_iter()
             .map(|model_info| PendingResourcePB {
-              model_name: model_info.name,
-              model_size: model_info.file_size,
+              name: model_info.name,
+              file_size: model_info.file_size,
               requirements: model_info.requirements,
             })
             .collect::<Vec<_>>(),
@@ -226,22 +224,25 @@ impl LLMResourceController {
   {
     let task_id = uuid::Uuid::new_v4().to_string();
     let weak_download_task = Arc::downgrade(&self.download_task);
-
+    let resource_notify = self.resource_notify.clone();
     // notify download progress to client.
     let progress_notify = |mut rx: tokio::sync::broadcast::Receiver<String>| {
       tokio::spawn(async move {
         while let Ok(value) = rx.recv().await {
-          if value == DOWNLOAD_FINISH {
+          let is_finish = value == DOWNLOAD_FINISH;
+          if let Err(err) = progress_sink.send(value).await {
+            error!("Failed to send progress: {:?}", err);
+            break;
+          }
+
+          if is_finish {
+            info!("notify download finish, need to reload resources");
+            let _ = resource_notify.send(()).await;
             if let Some(download_task) = weak_download_task.upgrade() {
               if let Some(task) = download_task.write().take() {
                 task.cancel();
               }
             }
-            break;
-          }
-
-          if let Err(err) = progress_sink.send(value).await {
-            error!("Failed to send progress: {:?}", err);
             break;
           }
         }
@@ -302,7 +303,6 @@ impl LLMResourceController {
           Some(download_task.cancel_token.clone()),
           Some(Arc::new(move |downloaded, total_size| {
             let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
-            trace!("Plugin download progress: {}", progress);
             let _ = plugin_progress_tx.send(format!("plugin:progress:{}", progress));
           })),
         )
@@ -313,7 +313,7 @@ impl LLMResourceController {
           "[LLM Resource] unzip {:?} to {:?}",
           zip_plugin_file, plugin_file_etag_dir
         );
-        unzip_and_replace(&zip_plugin_file, &plugin_file_etag_dir)?;
+        zip_extract(&zip_plugin_file, &plugin_file_etag_dir)?;
 
         // delete zip file
         info!("[LLM Resource] Delete zip file: {:?}", file_name);
@@ -368,6 +368,7 @@ impl LLMResourceController {
           },
         }
       }
+      info!("[LLM Resource] All resources downloaded");
       download_task.tx.send(DOWNLOAD_FINISH.to_string())?;
       Ok::<_, anyhow::Error>(())
     });
@@ -404,9 +405,7 @@ impl LLMResourceController {
       .join("chat_plugin");
     let chat_model_path = model_dir.join(&llm_setting.llm_model.chat_model.file_name);
     let embedding_model_path = model_dir.join(&llm_setting.llm_model.embedding_model.file_name);
-
     let mut config = ChatPluginConfig::new(chat_bin_path, chat_model_path)?;
-
     let persist_directory = resource_dir.join("rag");
     if !persist_directory.exists() {
       std::fs::create_dir_all(&persist_directory)?;

@@ -197,22 +197,26 @@ dependencies = [
 [[package]]
 name = "appflowy-local-ai"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=4ebcd3d00e7a5e24c27a1063f07446bad3c2c087#4ebcd3d00e7a5e24c27a1063f07446bad3c2c087"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=ce9326c48d7a314cec6b8db3b050dfa7b0b66985#ce9326c48d7a314cec6b8db3b050dfa7b0b66985"
 dependencies = [
  "anyhow",
  "appflowy-plugin",
  "bytes",
+ "reqwest",
  "serde",
  "serde_json",
  "tokio",
  "tokio-stream",
+ "tokio-util",
  "tracing",
+ "zip 2.1.3",
+ "zip-extensions",
 ]
 
 [[package]]
 name = "appflowy-plugin"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=4ebcd3d00e7a5e24c27a1063f07446bad3c2c087#4ebcd3d00e7a5e24c27a1063f07446bad3c2c087"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=ce9326c48d7a314cec6b8db3b050dfa7b0b66985#ce9326c48d7a314cec6b8db3b050dfa7b0b66985"
 dependencies = [
  "anyhow",
  "cfg-if",
@@ -226,6 +230,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tracing",
+ "xattr",
 ]
 
 [[package]]
@@ -1246,7 +1251,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.11.2",
+ "phf 0.8.0",
  "smallvec",
 ]
 
@@ -1800,6 +1805,7 @@ dependencies = [
  "uuid",
  "validator",
  "zip 2.1.3",
+ "zip-extensions",
 ]
 
 [[package]]
@@ -3116,15 +3122,6 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
-dependencies = [
- "either",
-]
-
-[[package]]
-name = "itertools"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
@@ -3978,7 +3975,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros 0.8.0",
+ "phf_macros",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -3998,7 +3995,6 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
- "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -4064,19 +4060,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "phf_macros"
-version = "0.11.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
-dependencies = [
- "phf_generator 0.11.2",
- "phf_shared 0.11.2",
- "proc-macro2",
- "quote",
- "syn 2.0.47",
 ]
 
 [[package]]
@@ -4288,7 +4271,7 @@ checksum = "c55e02e35260070b6f716a2423c2ff1c3bb1642ddca6f99e1f26d06268a0e2d2"
 dependencies = [
  "bytes",
  "heck 0.4.1",
- "itertools 0.11.0",
+ "itertools 0.10.5",
  "log",
  "multimap",
  "once_cell",
@@ -4309,7 +4292,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efb6c9a1dd1def8e2124d17e83a20af56f1570d6c2d2bd9e266ccb768df3840e"
 dependencies = [
  "anyhow",
- "itertools 0.11.0",
+ "itertools 0.10.5",
  "proc-macro2",
  "quote",
  "syn 2.0.47",
@@ -5971,8 +5954,12 @@ checksum = "9cf6b47b3771c49ac75ad09a6162f53ad4b8088b76ac60e8ec1455b31a189fe1"
 dependencies = [
  "bytes",
  "futures-core",
+ "futures-io",
  "futures-sink",
+ "futures-util",
+ "hashbrown 0.14.3",
  "pin-project-lite",
+ "slab",
  "tokio",
 ]
 
@@ -6860,6 +6847,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "xattr"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8da84f1a25939b27f6820d92aed108f83ff920fdf11a7b19366c27c4cda81d4f"
+dependencies = [
+ "libc",
+ "linux-raw-sys",
+ "rustix",
+]
+
+[[package]]
 name = "yrs"
 version = "0.18.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6962,6 +6960,15 @@ dependencies = [
  "zeroize",
  "zopfli",
  "zstd 0.13.2",
+]
+
+[[package]]
+name = "zip-extensions"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb0a99499b3497d765525c5d05e3ade9ca4a731c184365c19472c3fd6ba86341"
+dependencies = [
+ "zip 2.1.3",
 ]
 
 [[package]]

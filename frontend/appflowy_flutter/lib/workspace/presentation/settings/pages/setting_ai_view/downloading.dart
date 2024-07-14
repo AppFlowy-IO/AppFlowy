@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/download_model_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
@@ -97,7 +96,7 @@ class DownloadingProgressBar extends StatelessWidget {
                       fontSize: 11,
                     ),
                     onTap: onCancel,
-                  )
+                  ),
                 ],
               ),
             ),

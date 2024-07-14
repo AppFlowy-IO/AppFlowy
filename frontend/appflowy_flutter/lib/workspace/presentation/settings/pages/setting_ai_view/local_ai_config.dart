@@ -1,10 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/downloading.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/init_local_ai.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/plugin_state.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -115,7 +116,7 @@ class _LocalLLMInfoWidget extends StatelessWidget {
         if (error == null) {
           // If the error is null, handle selected llm model.
           if (state.localAIInfo != null) {
-            return state.localAIInfo!.when(
+            final child = state.localAIInfo!.when(
               requestDownload: (
                 LocalModelResourcePB llmResource,
                 LLMModelPB llmModel,
@@ -126,36 +127,30 @@ class _LocalLLMInfoWidget extends StatelessWidget {
               downloadNeeded: (
                 LocalModelResourcePB llmResource,
                 LLMModelPB llmModel,
-              ) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 14),
-                  child: _ModelNotExistIndicator(
-                    llmResource: llmResource,
-                    llmModel: llmModel,
-                  ),
-                );
-              },
+              ) =>
+                  _ModelNotExistIndicator(
+                llmResource: llmResource,
+                llmModel: llmModel,
+              ),
               downloading: (llmModel) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 14),
-                  child: DownloadingIndicator(
-                    key: UniqueKey(),
-                    llmModel: llmModel,
-                    onFinish: () {
-                      context.read<LocalAIConfigBloc>().add(
-                            const LocalAIConfigEvent.finishDownload(),
-                          );
-                    },
-                    onCancel: () {
-                      context.read<LocalAIConfigBloc>().add(
-                            const LocalAIConfigEvent.cancelDownload(),
-                          );
-                    },
-                  ),
+                return DownloadingIndicator(
+                  key: UniqueKey(),
+                  llmModel: llmModel,
+                  onFinish: () => context
+                      .read<LocalAIConfigBloc>()
+                      .add(const LocalAIConfigEvent.finishDownload()),
+                  onCancel: () => context
+                      .read<LocalAIConfigBloc>()
+                      .add(const LocalAIConfigEvent.cancelDownload()),
                 );
               },
-              readyToUse: () => const SizedBox.shrink(),
-              finishDownload: () => const _FinishDownloadIndicator(),
+              pluginState: () => const PluginStateIndicator(),
+              finishDownload: () => const InitLocalAIIndicator(),
+            );
+
+            return Padding(
+              padding: const EdgeInsets.only(top: 14),
+              child: child,
             );
           } else {
             return const SizedBox.shrink();
@@ -236,15 +231,17 @@ class _LLMModelDownloadDialog extends StatelessWidget {
     return NavigatorOkCancelDialog(
       title: LocaleKeys.settings_aiPage_keys_downloadLLMPrompt.tr(
         args: [
-          llmResource.pendingResources[0].modelName,
+          llmResource.pendingResources[0].name,
         ],
       ),
-      message: LocaleKeys.settings_aiPage_keys_downloadLLMPromptDetail.tr(
-        args: [
-          llmResource.pendingResources[0].modelName,
-          llmResource.pendingResources[0].modelSize.toString(),
-        ],
-      ),
+      message: llmResource.pendingResources[0].fileSize == 0
+          ? ""
+          : LocaleKeys.settings_aiPage_keys_downloadLLMPromptDetail.tr(
+              args: [
+                llmResource.pendingResources[0].name,
+                llmResource.pendingResources[0].fileSize.toString(),
+              ],
+            ),
       okTitle: LocaleKeys.button_confirm.tr(),
       cancelTitle: LocaleKeys.button_cancel.tr(),
       onOkPressed: onOkPressed,
@@ -312,33 +309,6 @@ class _ModelNotExistIndicator extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class _FinishDownloadIndicator extends StatelessWidget {
-  const _FinishDownloadIndicator();
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(color: Color(0xFFEDF7ED)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Row(
-          children: [
-            const FlowySvg(
-              FlowySvgs.download_success_s,
-              color: Color(0xFF2E7D32),
-            ),
-            const HSpace(6),
-            FlowyText(
-              LocaleKeys.settings_aiPage_keys_downloadModelSuccess.tr(),
-              fontSize: 11,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

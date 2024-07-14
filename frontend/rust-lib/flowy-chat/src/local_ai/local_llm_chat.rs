@@ -1,9 +1,11 @@
 use crate::chat_manager::ChatUserService;
-use crate::entities::{ChatStatePB, LocalModelResourcePB, LocalModelStatePB, ModelTypePB};
+use crate::entities::{
+  ChatPluginStatePB, ChatStatePB, LocalModelResourcePB, ModelTypePB, RunningStatePB,
+};
 use crate::local_ai::llm_resource::{LLMResourceController, LLMResourceService};
 use crate::notification::{send_notification, ChatNotification};
 use anyhow::Error;
-use appflowy_local_ai::llm_chat::{ChatPluginConfig, LocalChatLLMChat};
+use appflowy_local_ai::chat_plugin::{ChatPluginConfig, LocalChatLLMChat};
 use appflowy_plugin::manager::PluginManager;
 use appflowy_plugin::util::is_apple_silicon;
 use flowy_chat_pub::cloud::{AppFlowyAIPlugin, ChatCloudService, LLMModel, LocalAIConfig};
@@ -11,11 +13,12 @@ use flowy_error::FlowyResult;
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::Sink;
 use lib_infra::async_trait::async_trait;
-use parking_lot::RwLock;
+
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
-use std::path::PathBuf;
+
 use std::sync::Arc;
+use tokio_stream::StreamExt;
 use tracing::{error, info, trace};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -53,8 +56,14 @@ impl LocalLLMController {
     let llm_chat = Arc::new(LocalChatLLMChat::new(plugin_manager));
     let mut rx = llm_chat.subscribe_running_state();
     tokio::spawn(async move {
-      while let Ok(state) = rx.recv().await {
-        info!("[Chat Plugin] state: {:?}", state);
+      while let Some(state) = rx.next().await {
+        let new_state = RunningStatePB::from(state);
+        info!("[Chat Plugin] state: {:?}", new_state);
+        send_notification(
+          "appflowy_chat_plugin",
+          ChatNotification::UpdateChatPluginState,
+        )
+        .payload(ChatPluginStatePB { state: new_state });
       }
     });
 
@@ -63,7 +72,20 @@ impl LocalLLMController {
       cloud_service,
       store_preferences,
     };
-    let llm_res = Arc::new(LLMResourceController::new(user_service, res_impl));
+
+    let (tx, mut rx) = tokio::sync::mpsc::channel(1);
+    let llm_res = Arc::new(LLMResourceController::new(user_service, res_impl, tx));
+
+    let cloned_llm_chat = llm_chat.clone();
+    let cloned_llm_res = llm_res.clone();
+    tokio::spawn(async move {
+      while rx.recv().await.is_some() {
+        if let Ok(chat_config) = cloned_llm_res.get_chat_config() {
+          initialize_chat_plugin(&cloned_llm_chat, chat_config).unwrap();
+        }
+      }
+    });
+
     Self { llm_chat, llm_res }
   }
   pub async fn refresh(&self) -> FlowyResult<LLMModelInfo> {
@@ -71,33 +93,9 @@ impl LocalLLMController {
   }
 
   pub fn initialize(&self) -> FlowyResult<()> {
-    let mut chat_config = self.llm_res.get_chat_config()?;
+    let chat_config = self.llm_res.get_chat_config()?;
     let llm_chat = self.llm_chat.clone();
-    tokio::spawn(async move {
-      trace!("[Chat Plugin] setup local chat: {:?}", chat_config);
-      if is_apple_silicon().await.unwrap_or(false) {
-        chat_config = chat_config.with_device("gpu");
-      }
-      match llm_chat.init_chat_plugin(chat_config).await {
-        Ok(_) => {
-          send_notification("appflowy_chat_plugin", ChatNotification::ChatStateUpdated).payload(
-            ChatStatePB {
-              model_type: ModelTypePB::LocalAI,
-              available: true,
-            },
-          );
-        },
-        Err(err) => {
-          send_notification("appflowy_chat_plugin", ChatNotification::ChatStateUpdated).payload(
-            ChatStatePB {
-              model_type: ModelTypePB::LocalAI,
-              available: false,
-            },
-          );
-          error!("[Chat Plugin] failed to setup plugin: {:?}", err);
-        },
-      }
-    });
+    initialize_chat_plugin(&llm_chat, chat_config)?;
     Ok(())
   }
 
@@ -164,6 +162,43 @@ impl LocalLLMController {
     self.llm_res.cancel_download()?;
     Ok(())
   }
+}
+
+fn initialize_chat_plugin(
+  llm_chat: &Arc<LocalChatLLMChat>,
+  mut chat_config: ChatPluginConfig,
+) -> FlowyResult<()> {
+  let llm_chat = llm_chat.clone();
+  tokio::spawn(async move {
+    trace!("[Chat Plugin] config: {:?}", chat_config);
+    if is_apple_silicon().await.unwrap_or(false) {
+      chat_config = chat_config.with_device("gpu");
+    }
+    match llm_chat.init_chat_plugin(chat_config).await {
+      Ok(_) => {
+        send_notification(
+          "appflowy_chat_plugin",
+          ChatNotification::UpdateChatPluginState,
+        )
+        .payload(ChatStatePB {
+          model_type: ModelTypePB::LocalAI,
+          available: true,
+        });
+      },
+      Err(err) => {
+        send_notification(
+          "appflowy_chat_plugin",
+          ChatNotification::UpdateChatPluginState,
+        )
+        .payload(ChatStatePB {
+          model_type: ModelTypePB::LocalAI,
+          available: false,
+        });
+        error!("[Chat Plugin] failed to setup plugin: {:?}", err);
+      },
+    }
+  });
+  Ok(())
 }
 
 pub struct LLMResourceServiceImpl {

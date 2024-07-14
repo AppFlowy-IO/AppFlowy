@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
@@ -12,9 +13,22 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'local_ai_bloc.freezed.dart';
 
 class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
-  LocalAIConfigBloc() : super(const LocalAIConfigState()) {
+  LocalAIConfigBloc()
+      : listener = LocalLLMListener(),
+        super(const LocalAIConfigState()) {
+    listener.start(
+      stateCallback: (newState) {
+        if (!isClosed) {
+          Log.debug('Local LLM State: new state: $newState');
+          add(LocalAIConfigEvent.updatellmRunningState(newState));
+        }
+      },
+    );
+
     on<LocalAIConfigEvent>(_handleEvent);
   }
+
+  final LocalLLMListener listener;
 
   /// Handles incoming events and dispatches them to the appropriate handler.
   Future<void> _handleEvent(
@@ -45,6 +59,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
         final result = await ChatEventUpdateLocalLLM(llmModel).send();
         result.fold(
           (llmResource) {
+            // If all resources are downloaded, show reload plugin
             if (llmResource.pendingResources.isNotEmpty) {
               emit(
                 state.copyWith(
@@ -61,6 +76,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
                 state.copyWith(
                   selectedLLMModel: llmModel,
                   llmModelLoadingState: const LoadingState.finish(),
+                  localAIInfo: const LocalAIInfo.pluginState(),
                 ),
               );
             }
@@ -77,18 +93,21 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
       refreshLLMState: (LocalModelResourcePB llmResource) {
         if (state.selectedLLMModel == null) {
           Log.error(
-              'Unexpected null selected config. It should be set already');
+            'Unexpected null selected config. It should be set already',
+          );
           return;
         }
 
+        // reload plugin if all resources are downloaded
         if (llmResource.pendingResources.isEmpty) {
           emit(
             state.copyWith(
-              localAIInfo: const LocalAIInfo.readyToUse(),
+              localAIInfo: const LocalAIInfo.pluginState(),
             ),
           );
         } else {
           if (state.selectedLLMModel != null) {
+            // Go to download page if the selected model is downloading
             if (llmResource.isDownloading) {
               emit(
                 state.copyWith(
@@ -123,10 +142,13 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
         final _ = await ChatEventCancelDownloadLLMResource().send();
         _fetchCurremtLLMState();
       },
-      finishDownload: () {
+      finishDownload: () async {
         emit(
           state.copyWith(localAIInfo: const LocalAIInfo.finishDownload()),
         );
+      },
+      updatellmRunningState: (RunningStatePB newRunningState) {
+        emit(state.copyWith(runningState: newRunningState));
       },
     );
   }
@@ -171,6 +193,9 @@ class LocalAIConfigEvent with _$LocalAIConfigEvent {
 
   const factory LocalAIConfigEvent.cancelDownload() = _CancelDownload;
   const factory LocalAIConfigEvent.finishDownload() = _FinishDownload;
+  const factory LocalAIConfigEvent.updatellmRunningState(
+    RunningStatePB newRunningState,
+  ) = _RunningState;
 }
 
 @freezed
@@ -182,6 +207,7 @@ class LocalAIConfigState with _$LocalAIConfigState {
     @Default(LoadingState.loading()) LoadingState llmModelLoadingState,
     @Default([]) List<LLMModelPB> models,
     @Default(LoadingState.loading()) LoadingState loadingState,
+    @Default(RunningStatePB.Connecting) RunningStatePB runningState,
   }) = _LocalAIConfigState;
 }
 
@@ -202,5 +228,5 @@ class LocalAIInfo with _$LocalAIInfo {
   // when start downloading the model
   const factory LocalAIInfo.downloading(LLMModelPB llmModel) = _Downloading;
   const factory LocalAIInfo.finishDownload() = _Finish;
-  const factory LocalAIInfo.readyToUse() = _ReadyToUse;
+  const factory LocalAIInfo.pluginState() = _PluginState;
 }

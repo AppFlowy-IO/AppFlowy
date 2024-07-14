@@ -37,10 +37,10 @@ class DownloadModelBloc extends Bloc<DownloadModelEvent, DownloadModelState> {
             }
           },
           onFinish: () {
-            emit(state.copyWith(isFinish: true));
+            add(const DownloadModelEvent.downloadFinish());
           },
           onError: (err) {
-            emit(state.copyWith(downloadError: err));
+            // emit(state.copyWith(downloadError: err));
           },
         );
 
@@ -62,6 +62,9 @@ class DownloadModelBloc extends Bloc<DownloadModelEvent, DownloadModelState> {
       updatePercent: (String object, double percent) {
         emit(state.copyWith(object: object, percent: percent));
       },
+      downloadFinish: () {
+        emit(state.copyWith(isFinish: true));
+      },
     );
   }
 }
@@ -73,6 +76,7 @@ class DownloadModelEvent with _$DownloadModelEvent {
     String object,
     double percent,
   ) = _UpdatePercent;
+  const factory DownloadModelEvent.downloadFinish() = _DownloadFinish;
 }
 
 @freezed

@@ -12,7 +12,7 @@ pub enum ChatNotification {
   DidReceiveChatMessage = 3,
   StreamChatMessageError = 4,
   FinishStreaming = 5,
-  ChatStateUpdated = 6,
+  UpdateChatPluginState = 6,
   LocalAIResourceNeeded = 7,
 }
 
@@ -29,7 +29,7 @@ impl std::convert::From<i32> for ChatNotification {
       3 => ChatNotification::DidReceiveChatMessage,
       4 => ChatNotification::StreamChatMessageError,
       5 => ChatNotification::FinishStreaming,
-      6 => ChatNotification::ChatStateUpdated,
+      6 => ChatNotification::UpdateChatPluginState,
       7 => ChatNotification::LocalAIResourceNeeded,
       _ => ChatNotification::Unknown,
     }

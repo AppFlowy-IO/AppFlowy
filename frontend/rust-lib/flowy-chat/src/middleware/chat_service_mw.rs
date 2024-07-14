@@ -53,12 +53,14 @@ impl ChatServiceMiddleware {
       err,
       PluginError::PluginNotConnected | PluginError::PeerDisconnect
     ) {
-      send_notification("appflowy_chat_plugin", ChatNotification::ChatStateUpdated).payload(
-        ChatStatePB {
-          model_type: ModelTypePB::LocalAI,
-          available: false,
-        },
-      );
+      send_notification(
+        "appflowy_chat_plugin",
+        ChatNotification::UpdateChatPluginState,
+      )
+      .payload(ChatStatePB {
+        model_type: ModelTypePB::LocalAI,
+        available: false,
+      });
     }
   }
 }

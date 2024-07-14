@@ -1,5 +1,6 @@
 use crate::local_ai::local_llm_chat::LLMModelInfo;
-use appflowy_local_ai::llm_chat::LocalLLMSetting;
+use appflowy_plugin::core::plugin::RunningState;
+
 use flowy_chat_pub::cloud::{
   ChatMessage, LLMModel, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
 };
@@ -356,11 +357,38 @@ pub struct LocalModelResourcePB {
 #[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct PendingResourcePB {
   #[pb(index = 1)]
-  pub model_name: String,
+  pub name: String,
 
   #[pb(index = 2)]
-  pub model_size: i64,
+  pub file_size: i64,
 
   #[pb(index = 3)]
   pub requirements: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct ChatPluginStatePB {
+  #[pb(index = 1)]
+  pub state: RunningStatePB,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
+pub enum RunningStatePB {
+  #[default]
+  Connecting = 0,
+  Connected = 1,
+  Running = 2,
+  Stopped = 3,
+}
+
+impl From<RunningState> for RunningStatePB {
+  fn from(value: RunningState) -> Self {
+    match value {
+      RunningState::Connecting => RunningStatePB::Connecting,
+      RunningState::Connected { .. } => RunningStatePB::Connected,
+      RunningState::Running { .. } => RunningStatePB::Running,
+      RunningState::Stopped { .. } => RunningStatePB::Stopped,
+      RunningState::UnexpectedStop { .. } => RunningStatePB::Stopped,
+    }
+  }
 }
