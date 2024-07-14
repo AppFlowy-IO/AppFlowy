@@ -39,7 +39,7 @@ class LocalLLMListener {
     result.map((r) {
       switch (ty) {
         case ChatNotification.UpdateChatPluginState:
-          stateCallback?.call(ChatPluginStatePB.fromBuffer(r).state);
+          stateCallback?.call(PluginStatePB.fromBuffer(r).state);
           break;
         default:
           break;

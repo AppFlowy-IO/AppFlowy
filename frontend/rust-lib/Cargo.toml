@@ -151,5 +151,5 @@ collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-
 # To update the commit ID, run:
 # scripts/tool/update_local_ai_rev.sh new_rev_id
 # ⚠️⚠️⚠️️
-appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "ce9326c48d7a314cec6b8db3b050dfa7b0b66985" }
-appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "ce9326c48d7a314cec6b8db3b050dfa7b0b66985" }
+appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "aaf1b27999a25d23e231e19fa00bdeef04303b9e" }
+appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "aaf1b27999a25d23e231e19fa00bdeef04303b9e" }

@@ -12,28 +12,28 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'local_ai_bloc.freezed.dart';
 
-class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
-  LocalAIConfigBloc()
+class LocalAISettingBloc
+    extends Bloc<LocalAISettingEvent, LocalAISettingState> {
+  LocalAISettingBloc()
       : listener = LocalLLMListener(),
-        super(const LocalAIConfigState()) {
+        super(const LocalAISettingState()) {
     listener.start(
       stateCallback: (newState) {
         if (!isClosed) {
-          Log.debug('Local LLM State: new state: $newState');
-          add(LocalAIConfigEvent.updatellmRunningState(newState));
+          add(LocalAISettingEvent.updateLLMRunningState(newState));
         }
       },
     );
 
-    on<LocalAIConfigEvent>(_handleEvent);
+    on<LocalAISettingEvent>(_handleEvent);
   }
 
   final LocalLLMListener listener;
 
   /// Handles incoming events and dispatches them to the appropriate handler.
   Future<void> _handleEvent(
-    LocalAIConfigEvent event,
-    Emitter<LocalAIConfigState> emit,
+    LocalAISettingEvent event,
+    Emitter<LocalAISettingState> emit,
   ) async {
     await event.when(
       started: _handleStarted,
@@ -46,12 +46,12 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
                 modelInfo: modelInfo,
                 models: modelInfo.models,
                 selectedLLMModel: modelInfo.selectedModel,
-                loadingState: const LoadingState.finish(),
+                fetchModelInfoState: const LoadingState.finish(),
               ),
             );
           },
           (err) {
-            emit(state.copyWith(loadingState: LoadingState.finish(error: err)));
+            emit(state.copyWith(fetchModelInfoState: LoadingState.finish(error: err)));
           },
         );
       },
@@ -64,19 +64,19 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
               emit(
                 state.copyWith(
                   selectedLLMModel: llmModel,
-                  localAIInfo: LocalAIProgress.requestDownload(
+                  localAIInfo: LocalAIProgress.showDownload(
                     llmResource,
                     llmModel,
                   ),
-                  llmModelLoadingState: const LoadingState.finish(),
+                  selectLLMState: const LoadingState.finish(),
                 ),
               );
             } else {
               emit(
                 state.copyWith(
                   selectedLLMModel: llmModel,
-                  llmModelLoadingState: const LoadingState.finish(),
-                  localAIInfo: const LocalAIProgress.pluginState(),
+                  selectLLMState: const LoadingState.finish(),
+                  localAIInfo: const LocalAIProgress.checkPluginState(),
                 ),
               );
             }
@@ -84,7 +84,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
           (err) {
             emit(
               state.copyWith(
-                llmModelLoadingState: LoadingState.finish(error: err),
+                selectLLMState: LoadingState.finish(error: err),
               ),
             );
           },
@@ -102,7 +102,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
         if (llmResource.pendingResources.isEmpty) {
           emit(
             state.copyWith(
-              localAIInfo: const LocalAIProgress.pluginState(),
+              localAIInfo: const LocalAIProgress.checkPluginState(),
             ),
           );
         } else {
@@ -111,19 +111,20 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
             if (llmResource.isDownloading) {
               emit(
                 state.copyWith(
-                  localAIInfo: LocalAIProgress.downloading(state.selectedLLMModel!),
-                  llmModelLoadingState: const LoadingState.finish(),
+                  localAIInfo:
+                      LocalAIProgress.startDownloading(state.selectedLLMModel!),
+                  selectLLMState: const LoadingState.finish(),
                 ),
               );
               return;
             } else {
               emit(
                 state.copyWith(
-                  localAIInfo: LocalAIProgress.downloadNeeded(
+                  localAIInfo: LocalAIProgress.showDownload(
                     llmResource,
                     state.selectedLLMModel!,
                   ),
-                  llmModelLoadingState: const LoadingState.finish(),
+                  selectLLMState: const LoadingState.finish(),
                 ),
               );
             }
@@ -133,8 +134,8 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
       startDownloadModel: (LLMModelPB llmModel) {
         emit(
           state.copyWith(
-            localAIInfo: LocalAIProgress.downloading(llmModel),
-            llmModelLoadingState: const LoadingState.finish(),
+            localAIInfo: LocalAIProgress.startDownloading(llmModel),
+            selectLLMState: const LoadingState.finish(),
           ),
         );
       },
@@ -147,8 +148,17 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
           state.copyWith(localAIInfo: const LocalAIProgress.finishDownload()),
         );
       },
-      updatellmRunningState: (RunningStatePB newRunningState) {
-        emit(state.copyWith(runningState: newRunningState));
+      updateLLMRunningState: (RunningStatePB newRunningState) {
+        if (newRunningState == RunningStatePB.Stopped) {
+          emit(
+            state.copyWith(
+              runningState: newRunningState,
+              localAIInfo: const LocalAIProgress.checkPluginState(),
+            ),
+          );
+        } else {
+          emit(state.copyWith(runningState: newRunningState));
+        }
       },
     );
   }
@@ -158,7 +168,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
     result.fold(
       (llmResource) {
         if (!isClosed) {
-          add(LocalAIConfigEvent.refreshLLMState(llmResource));
+          add(LocalAISettingEvent.refreshLLMState(llmResource));
         }
       },
       (err) {
@@ -171,62 +181,63 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
   Future<void> _handleStarted() async {
     final result = await ChatEventRefreshLocalAIModelInfo().send();
     if (!isClosed) {
-      add(LocalAIConfigEvent.didLoadModelInfo(result));
+      add(LocalAISettingEvent.didLoadModelInfo(result));
     }
   }
 }
 
 @freezed
-class LocalAIConfigEvent with _$LocalAIConfigEvent {
-  const factory LocalAIConfigEvent.started() = _Started;
-  const factory LocalAIConfigEvent.didLoadModelInfo(
+class LocalAISettingEvent with _$LocalAISettingEvent {
+  const factory LocalAISettingEvent.started() = _Started;
+  const factory LocalAISettingEvent.didLoadModelInfo(
     FlowyResult<LLMModelInfoPB, FlowyError> result,
   ) = _ModelInfo;
-  const factory LocalAIConfigEvent.selectLLMConfig(LLMModelPB config) =
+  const factory LocalAISettingEvent.selectLLMConfig(LLMModelPB config) =
       _SelectLLMConfig;
 
-  const factory LocalAIConfigEvent.refreshLLMState(
+  const factory LocalAISettingEvent.refreshLLMState(
     LocalModelResourcePB llmResource,
   ) = _RefreshLLMResource;
-  const factory LocalAIConfigEvent.startDownloadModel(LLMModelPB llmModel) =
+  const factory LocalAISettingEvent.startDownloadModel(LLMModelPB llmModel) =
       _StartDownloadModel;
 
-  const factory LocalAIConfigEvent.cancelDownload() = _CancelDownload;
-  const factory LocalAIConfigEvent.finishDownload() = _FinishDownload;
-  const factory LocalAIConfigEvent.updatellmRunningState(
+  const factory LocalAISettingEvent.cancelDownload() = _CancelDownload;
+  const factory LocalAISettingEvent.finishDownload() = _FinishDownload;
+  const factory LocalAISettingEvent.updateLLMRunningState(
     RunningStatePB newRunningState,
   ) = _RunningState;
 }
 
 @freezed
-class LocalAIConfigState with _$LocalAIConfigState {
-  const factory LocalAIConfigState({
+class LocalAISettingState with _$LocalAISettingState {
+  const factory LocalAISettingState({
     LLMModelInfoPB? modelInfo,
     LLMModelPB? selectedLLMModel,
     LocalAIProgress? localAIInfo,
-    @Default(LoadingState.loading()) LoadingState llmModelLoadingState,
+    @Default(LoadingState.loading()) LoadingState fetchModelInfoState,
+    @Default(LoadingState.loading()) LoadingState selectLLMState,
     @Default([]) List<LLMModelPB> models,
-    @Default(LoadingState.loading()) LoadingState loadingState,
     @Default(RunningStatePB.Connecting) RunningStatePB runningState,
-  }) = _LocalAIConfigState;
+  }) = _LocalAISettingState;
 }
 
 @freezed
 class LocalAIProgress with _$LocalAIProgress {
   // when user select a new model, it will call requestDownload
-  const factory LocalAIProgress.requestDownload(
+  const factory LocalAIProgress.requestDownloadInfo(
     LocalModelResourcePB llmResource,
     LLMModelPB llmModel,
   ) = _RequestDownload;
 
   // when user comes back to the setting page, it will auto detect current llm state
-  const factory LocalAIProgress.downloadNeeded(
+  const factory LocalAIProgress.showDownload(
     LocalModelResourcePB llmResource,
     LLMModelPB llmModel,
   ) = _DownloadNeeded;
 
   // when start downloading the model
-  const factory LocalAIProgress.downloading(LLMModelPB llmModel) = _Downloading;
+  const factory LocalAIProgress.startDownloading(LLMModelPB llmModel) =
+      _Downloading;
   const factory LocalAIProgress.finishDownload() = _Finish;
-  const factory LocalAIProgress.pluginState() = _PluginState;
+  const factory LocalAIProgress.checkPluginState() = _PluginState;
 }

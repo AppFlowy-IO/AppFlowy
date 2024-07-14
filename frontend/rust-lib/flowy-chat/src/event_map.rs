@@ -40,6 +40,7 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
       ChatEvent::CancelDownloadLLMResource,
       cancel_download_llm_resource_handler,
     )
+    .event(ChatEvent::GetPluginState, get_plugin_state_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -87,4 +88,7 @@ pub enum ChatEvent {
 
   #[event()]
   CancelDownloadLLMResource = 13,
+
+  #[event(output = "PluginStatePB")]
+  GetPluginState = 14,
 }

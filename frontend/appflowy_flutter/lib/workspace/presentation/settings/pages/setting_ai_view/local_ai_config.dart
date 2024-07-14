@@ -34,7 +34,7 @@ class LocalModelConfig extends StatelessWidget {
 
         return BlocProvider(
           create: (context) =>
-              LocalAIConfigBloc()..add(const LocalAIConfigEvent.started()),
+              LocalAISettingBloc()..add(const LocalAISettingEvent.started()),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: Column(
@@ -49,9 +49,9 @@ class LocalModelConfig extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    BlocBuilder<LocalAIConfigBloc, LocalAIConfigState>(
+                    BlocBuilder<LocalAISettingBloc, LocalAISettingState>(
                       builder: (context, state) {
-                        return state.loadingState.when(
+                        return state.fetchModelInfoState.when(
                           loading: () =>
                               const CircularProgressIndicator.adaptive(),
                           finish: (err) {
@@ -79,13 +79,13 @@ class _SelectLocalModelDropdownMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LocalAIConfigBloc, LocalAIConfigState>(
+    return BlocBuilder<LocalAISettingBloc, LocalAISettingState>(
       builder: (context, state) {
         return Flexible(
           child: SettingsDropdown<LLMModelPB>(
             key: const Key('_SelectLocalModelDropdownMenu'),
-            onChanged: (model) => context.read<LocalAIConfigBloc>().add(
-                  LocalAIConfigEvent.selectLLMConfig(model),
+            onChanged: (model) => context.read<LocalAISettingBloc>().add(
+                  LocalAISettingEvent.selectLLMConfig(model),
                 ),
             selectedOption: state.selectedLLMModel!,
             options: state.models
@@ -110,42 +110,42 @@ class _LocalLLMInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LocalAIConfigBloc, LocalAIConfigState>(
+    return BlocBuilder<LocalAISettingBloc, LocalAISettingState>(
       builder: (context, state) {
         final error = errorFromState(state);
         if (error == null) {
           // If the error is null, handle selected llm model.
           if (state.localAIInfo != null) {
             final child = state.localAIInfo!.when(
-              requestDownload: (
+              requestDownloadInfo: (
                 LocalModelResourcePB llmResource,
                 LLMModelPB llmModel,
               ) {
                 _showDownloadDialog(context, llmResource, llmModel);
                 return const SizedBox.shrink();
               },
-              downloadNeeded: (
+              showDownload: (
                 LocalModelResourcePB llmResource,
                 LLMModelPB llmModel,
               ) =>
-                  _ModelNotExistIndicator(
+                  _ShowDownloadIndicator(
                 llmResource: llmResource,
                 llmModel: llmModel,
               ),
-              downloading: (llmModel) {
+              startDownloading: (llmModel) {
                 return DownloadingIndicator(
                   key: UniqueKey(),
                   llmModel: llmModel,
                   onFinish: () => context
-                      .read<LocalAIConfigBloc>()
-                      .add(const LocalAIConfigEvent.finishDownload()),
+                      .read<LocalAISettingBloc>()
+                      .add(const LocalAISettingEvent.finishDownload()),
                   onCancel: () => context
-                      .read<LocalAIConfigBloc>()
-                      .add(const LocalAIConfigEvent.cancelDownload()),
+                      .read<LocalAISettingBloc>()
+                      .add(const LocalAISettingEvent.cancelDownload()),
                 );
               },
-              pluginState: () => const PluginStateIndicator(),
               finishDownload: () => const InitLocalAIIndicator(),
+              checkPluginState: () => const CheckPluginStateIndicator(),
             );
 
             return Padding(
@@ -180,15 +180,15 @@ class _LocalLLMInfoWidget extends StatelessWidget {
             return _LLMModelDownloadDialog(
               llmResource: llmResource,
               onOkPressed: () {
-                context.read<LocalAIConfigBloc>().add(
-                      LocalAIConfigEvent.startDownloadModel(
+                context.read<LocalAISettingBloc>().add(
+                      LocalAISettingEvent.startDownloadModel(
                         llmModel,
                       ),
                     );
               },
               onCancelPressed: () {
-                context.read<LocalAIConfigBloc>().add(
-                      const LocalAIConfigEvent.cancelDownload(),
+                context.read<LocalAISettingBloc>().add(
+                      const LocalAISettingEvent.cancelDownload(),
                     );
               },
             );
@@ -199,14 +199,14 @@ class _LocalLLMInfoWidget extends StatelessWidget {
     );
   }
 
-  FlowyError? errorFromState(LocalAIConfigState state) {
-    final err = state.loadingState.when(
+  FlowyError? errorFromState(LocalAISettingState state) {
+    final err = state.fetchModelInfoState.when(
       loading: () => null,
       finish: (err) => err,
     );
 
     if (err == null) {
-      state.llmModelLoadingState.when(
+      state.selectLLMState.when(
         loading: () => null,
         finish: (err) => err,
       );
@@ -251,8 +251,8 @@ class _LLMModelDownloadDialog extends StatelessWidget {
   }
 }
 
-class _ModelNotExistIndicator extends StatelessWidget {
-  const _ModelNotExistIndicator({
+class _ShowDownloadIndicator extends StatelessWidget {
+  const _ShowDownloadIndicator({
     required this.llmResource,
     required this.llmModel,
   });
@@ -261,7 +261,7 @@ class _ModelNotExistIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LocalAIConfigBloc, LocalAIConfigState>(
+    return BlocBuilder<LocalAISettingBloc, LocalAISettingState>(
       builder: (context, state) {
         return Row(
           children: [
@@ -288,15 +288,15 @@ class _ModelNotExistIndicator extends StatelessWidget {
                         return _LLMModelDownloadDialog(
                           llmResource: llmResource,
                           onOkPressed: () {
-                            context.read<LocalAIConfigBloc>().add(
-                                  LocalAIConfigEvent.startDownloadModel(
+                            context.read<LocalAISettingBloc>().add(
+                                  LocalAISettingEvent.startDownloadModel(
                                     llmModel,
                                   ),
                                 );
                           },
                           onCancelPressed: () {
-                            context.read<LocalAIConfigBloc>().add(
-                                  const LocalAIConfigEvent.cancelDownload(),
+                            context.read<LocalAISettingBloc>().add(
+                                  const LocalAISettingEvent.cancelDownload(),
                                 );
                           },
                         );

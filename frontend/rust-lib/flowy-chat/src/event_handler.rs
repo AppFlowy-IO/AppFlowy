@@ -222,3 +222,12 @@ pub(crate) async fn cancel_download_llm_resource_handler(
   chat_manager.llm_controller.cancel_download()?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_plugin_state_handler(
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> DataResult<PluginStatePB, FlowyError> {
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let state = chat_manager.llm_controller.get_plugin_state();
+  data_result_ok(state)
+}

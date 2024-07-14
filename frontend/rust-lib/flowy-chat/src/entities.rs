@@ -367,7 +367,7 @@ pub struct PendingResourcePB {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct ChatPluginStatePB {
+pub struct PluginStatePB {
   #[pb(index = 1)]
   pub state: RunningStatePB,
 }

@@ -1,6 +1,6 @@
 use crate::chat_manager::ChatUserService;
 use crate::entities::{
-  ChatPluginStatePB, ChatStatePB, LocalModelResourcePB, ModelTypePB, RunningStatePB,
+  ChatStatePB, LocalModelResourcePB, ModelTypePB, PluginStatePB, RunningStatePB,
 };
 use crate::local_ai::llm_resource::{LLMResourceController, LLMResourceService};
 use crate::notification::{send_notification, ChatNotification};
@@ -63,7 +63,8 @@ impl LocalLLMController {
           "appflowy_chat_plugin",
           ChatNotification::UpdateChatPluginState,
         )
-        .payload(ChatPluginStatePB { state: new_state });
+        .payload(PluginStatePB { state: new_state })
+        .send();
       }
     });
 
@@ -161,6 +162,13 @@ impl LocalLLMController {
   pub fn cancel_download(&self) -> FlowyResult<()> {
     self.llm_res.cancel_download()?;
     Ok(())
+  }
+
+  pub fn get_plugin_state(&self) -> PluginStatePB {
+    let state = self.llm_chat.get_plugin_running_state();
+    PluginStatePB {
+      state: RunningStatePB::from(state),
+    }
   }
 }
 
