@@ -66,3 +66,14 @@ extension ToRecognizable on SubscriptionPlanPB {
         _ => null,
       };
 }
+
+extension IsAddOn on SubscriptionPlanPB {
+  /// Returns true if the plan is an add-on and not
+  /// a workspace plan.
+  ///
+  bool get isAddOn => switch (this) {
+        SubscriptionPlanPB.AiMax => true,
+        SubscriptionPlanPB.AiLocal => true,
+        _ => false,
+      };
+}
