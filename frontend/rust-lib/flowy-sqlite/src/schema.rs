@@ -114,6 +114,17 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    workspace_subscriptions_table (workspace_id) {
+        workspace_id -> Text,
+        subscription_plan -> BigInt,
+        workspace_status -> BigInt,
+        end_date -> BigInt,
+        addons -> Text,
+        updated_at -> Timestamp,
+    }
+}
+
 diesel::allow_tables_to_appear_in_same_query!(
   chat_local_setting_table,
   chat_message_table,
@@ -125,4 +136,5 @@ diesel::allow_tables_to_appear_in_same_query!(
   user_table,
   user_workspace_table,
   workspace_members_table,
+  workspace_subscriptions_table,
 );

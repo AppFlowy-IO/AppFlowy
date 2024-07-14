@@ -1,11 +1,18 @@
 use chrono::{TimeZone, Utc};
+use diesel::{delete, insert_into};
 use diesel::{RunQueryDsl, SqliteConnection};
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_workspace_table;
+use flowy_sqlite::schema::workspace_subscriptions_table;
+use flowy_sqlite::schema::workspace_subscriptions_table::dsl;
 use flowy_sqlite::DBConnection;
 use flowy_sqlite::{query_dsl::*, ExpressionMethods};
 use flowy_user_pub::entities::UserWorkspace;
 use std::convert::TryFrom;
+
+use crate::entities::{
+  SubscriptionPlanPB, WorkspacePlanPB, WorkspaceSubscriptionInfoPB, WorkspaceSubscriptionV2PB,
+};
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
 #[diesel(table_name = user_workspace_table)]
@@ -16,6 +23,18 @@ pub struct UserWorkspaceTable {
   pub created_at: i64,
   pub database_storage_id: String,
   pub icon: String,
+}
+
+#[derive(Queryable, Insertable, AsChangeset, Debug)]
+#[diesel(table_name = workspace_subscriptions_table)]
+#[diesel(primary_key(workspace_id))]
+pub struct WorkspaceSubscriptionsTable {
+  pub workspace_id: String,
+  pub subscription_plan: i64,
+  pub workspace_status: i64,
+  pub end_date: i64,
+  pub addons: String,
+  pub updated_at: chrono::NaiveDateTime,
 }
 
 pub fn get_user_workspace_op(workspace_id: &str, mut conn: DBConnection) -> Option<UserWorkspace> {
@@ -72,6 +91,63 @@ pub fn insert_new_workspaces_op(
       .execute(conn)?;
   }
   Ok(())
+}
+
+pub fn select_workspace_subscription(
+  mut conn: DBConnection,
+  workspace_id: &str,
+) -> FlowyResult<WorkspaceSubscriptionsTable> {
+  let subscription = dsl::workspace_subscriptions_table
+    .filter(workspace_subscriptions_table::workspace_id.eq(workspace_id))
+    .first::<WorkspaceSubscriptionsTable>(&mut conn)?;
+
+  Ok(subscription)
+}
+
+pub fn upsert_workspace_subscription<T: Into<WorkspaceSubscriptionsTable>>(
+  mut conn: DBConnection,
+  subscription: T,
+) -> FlowyResult<()> {
+  let subscription = subscription.into();
+
+  insert_into(workspace_subscriptions_table::table)
+    .values(&subscription)
+    .on_conflict((workspace_subscriptions_table::workspace_id,))
+    .do_update()
+    .set(&subscription)
+    .execute(&mut conn)?;
+
+  Ok(())
+}
+
+pub fn delete_workspace_subscription_from_cache(
+  mut conn: DBConnection,
+  workspace_id: &str,
+) -> FlowyResult<()> {
+  let delete = delete(
+    dsl::workspace_subscriptions_table
+      .filter(workspace_subscriptions_table::workspace_id.eq(workspace_id)),
+  );
+
+  delete.execute(&mut conn)?;
+
+  Ok(())
+}
+
+impl Into<WorkspaceSubscriptionInfoPB> for WorkspaceSubscriptionsTable {
+  fn into(self) -> WorkspaceSubscriptionInfoPB {
+    WorkspaceSubscriptionInfoPB {
+      plan: self.subscription_plan.into(),
+      plan_subscription: WorkspaceSubscriptionV2PB {
+        workspace_id: self.workspace_id,
+        subscription_plan: SubscriptionPlanPB::from(WorkspacePlanPB::from(self.subscription_plan)),
+        status: self.workspace_status.into(),
+        end_date: self.end_date,
+      },
+      // Deserialize
+      add_ons: serde_json::from_str(&self.addons).unwrap_or_default(),
+    }
+  }
 }
 
 impl TryFrom<(i64, &UserWorkspace)> for UserWorkspaceTable {

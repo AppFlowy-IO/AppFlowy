@@ -774,27 +774,28 @@ pub async fn subscribe_workspace_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn get_workspace_subscriptions_handler(
+pub async fn get_workspace_subscription_info_handler(
+  params: AFPluginData<UserWorkspaceIdPB>,
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<RepeatedWorkspaceSubscriptionPB, FlowyError> {
+) -> DataResult<WorkspaceSubscriptionInfoPB, FlowyError> {
+  let params = params.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
   let subs = manager
-    .get_workspace_subscriptions()
-    .await?
-    .into_iter()
-    .map(WorkspaceSubscriptionPB::from)
-    .collect::<Vec<_>>();
-  data_result_ok(RepeatedWorkspaceSubscriptionPB { items: subs })
+    .get_workspace_subscription_info(params.workspace_id)
+    .await?;
+  data_result_ok(WorkspaceSubscriptionInfoPB::from(subs))
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn cancel_workspace_subscription_handler(
-  param: AFPluginData<UserWorkspaceIdPB>,
+  param: AFPluginData<CancelWorkspaceSubscriptionPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
-  let workspace_id = param.into_inner().workspace_id;
+  let params = param.into_inner();
   let manager = upgrade_manager(manager)?;
-  manager.cancel_workspace_subscription(workspace_id).await?;
+  manager
+    .cancel_workspace_subscription(params.workspace_id, params.plan.into())
+    .await?;
   Ok(())
 }
 
@@ -809,8 +810,13 @@ pub async fn get_workspace_usage_handler(
   data_result_ok(WorkspaceUsagePB {
     member_count: workspace_usage.member_count as u64,
     member_count_limit: workspace_usage.member_count_limit as u64,
-    total_blob_bytes: workspace_usage.total_blob_bytes as u64,
-    total_blob_bytes_limit: workspace_usage.total_blob_bytes_limit as u64,
+    storage_bytes: workspace_usage.storage_bytes as u64,
+    storage_bytes_limit: workspace_usage.storage_bytes_limit as u64,
+    storage_bytes_unlimited: workspace_usage.storage_bytes_unlimited,
+    ai_responses_count: workspace_usage.ai_responses_count as u64,
+    ai_responses_count_limit: workspace_usage.ai_responses_count_limit as u64,
+    ai_responses_unlimited: workspace_usage.ai_responses_unlimited,
+    local_ai: workspace_usage.local_ai,
   })
 }
 
@@ -821,6 +827,18 @@ pub async fn get_billing_portal_handler(
   let manager = upgrade_manager(manager)?;
   let url = manager.get_billing_portal_url().await?;
   data_result_ok(BillingPortalPB { url })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn invalidate_workspace_subscription_info_cache_handler(
+  params: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> FlowyResult<()> {
+  let params = params.try_into_inner().unwrap();
+  let manager = upgrade_manager(manager).unwrap();
+  manager
+    .invalidate_workspace_subscription_info_cache(params.workspace_id)
+    .await
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
