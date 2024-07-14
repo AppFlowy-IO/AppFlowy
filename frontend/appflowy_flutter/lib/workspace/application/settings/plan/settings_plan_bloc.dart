@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -13,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbserver.dart';
 import 'package:bloc/bloc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'settings_plan_bloc.freezed.dart';
 
@@ -87,7 +89,10 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
           result.fold(
             (pl) => afLaunchUrlString(pl.paymentLink),
-            (f) => Log.error(f.msg, f),
+            (f) => Log.error(
+              'Failed to fetch paymentlink for $plan: ${f.msg}',
+              f,
+            ),
           );
         },
         cancelSubscription: () async {
@@ -98,12 +103,68 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
           // We can hardcode the subscription plan here because we cannot cancel addons
           // on the Plan page
-          await _userService.cancelSubscription(
+          final result = await _userService.cancelSubscription(
             workspaceId,
             SubscriptionPlanPB.Pro,
           );
 
-          add(const SettingsPlanEvent.started());
+          final successOrNull = result.fold(
+            (_) => true,
+            (f) {
+              Log.error('Failed to cancel subscription of Pro: ${f.msg}', f);
+              return null;
+            },
+          );
+
+          if (successOrNull != true) {
+            return;
+          }
+
+          // Invalidate the cache
+          await UserBackendService.invalidateWorkspaceSubscriptionCache(
+            workspaceId,
+          );
+
+          final subscriptionInfo = state.mapOrNull(
+            ready: (s) => s.subscriptionInfo,
+          );
+
+          // This is impossible, but for good measure
+          if (subscriptionInfo == null) {
+            return;
+          }
+
+          // We assume their new plan is Free, since we only have Pro plan
+          // at the moment.
+          subscriptionInfo.freeze();
+          final newInfo = subscriptionInfo.rebuild((value) {
+            value.plan = WorkspacePlanPB.FreePlan;
+            value.planSubscription.freeze();
+            value.planSubscription = value.planSubscription.rebuild((sub) {
+              sub.status = WorkspaceSubscriptionStatusPB.Active;
+              sub.subscriptionPlan = SubscriptionPlanPB.None;
+            });
+          });
+
+          // We need to remove unlimited indicator for storage and
+          // AI usage, if they don't have an addon that changes this behavior.
+          final usage = state.mapOrNull(ready: (s) => s.workspaceUsage)!;
+
+          usage.freeze();
+          final newUsage = usage.rebuild((value) {
+            if (!newInfo.hasAIMax && !newInfo.hasAIOnDevice) {
+              value.aiResponsesUnlimited = false;
+            }
+
+            value.storageBytesUnlimited = false;
+          });
+
+          emit(
+            SettingsPlanState.ready(
+              subscriptionInfo: newInfo,
+              workspaceUsage: newUsage,
+            ),
+          );
         },
         paymentSuccessful: (plan) {
           final readyState = state.mapOrNull(ready: (state) => state);

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -17,6 +18,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'settings_billing_bloc.freezed.dart';
 
@@ -113,8 +115,61 @@ class SettingsBillingBloc
           );
         },
         cancelSubscription: (plan) async {
-          await _userService.cancelSubscription(workspaceId, plan);
-          await _onPaymentSuccessful();
+          final result =
+              await _userService.cancelSubscription(workspaceId, plan);
+          final successOrNull = result.fold(
+            (_) => true,
+            (f) {
+              Log.error(
+                'Failed to cancel subscription of ${plan.label}: ${f.msg}',
+                f,
+              );
+              return null;
+            },
+          );
+
+          if (successOrNull != true) {
+            return;
+          }
+
+          // Invalidate cache for this workspace
+          await UserBackendService.invalidateWorkspaceSubscriptionCache(
+            workspaceId,
+          );
+
+          final subscriptionInfo = state.mapOrNull(
+            ready: (s) => s.subscriptionInfo,
+          );
+
+          // This is impossible, but for good measure
+          if (subscriptionInfo == null) {
+            return;
+          }
+
+          subscriptionInfo.freeze();
+          final newInfo = subscriptionInfo.rebuild((value) {
+            if (plan.isAddOn) {
+              value.addOns.removeWhere(
+                (addon) => addon.addOnSubscription.subscriptionPlan == plan,
+              );
+            }
+
+            if (value.plan == WorkspacePlanPB.ProPlan) {
+              value.plan = WorkspacePlanPB.FreePlan;
+              value.planSubscription.freeze();
+              value.planSubscription = value.planSubscription.rebuild((sub) {
+                sub.status = WorkspaceSubscriptionStatusPB.Active;
+                sub.subscriptionPlan = SubscriptionPlanPB.None;
+              });
+            }
+          });
+
+          emit(
+            SettingsBillingState.ready(
+              subscriptionInfo: newInfo,
+              billingPortal: _billingPortal,
+            ),
+          );
         },
         paymentSuccessful: (plan) async {
           final result = await UserBackendService.getWorkspaceSubscriptionInfo(
@@ -205,6 +260,7 @@ class SettingsBillingState extends Equatable with _$SettingsBillingState {
           subscription,
           billingPortal,
           plan,
+          ...subscription.addOns,
         ],
       );
 }
