@@ -134,7 +134,7 @@ pub fn make_test_grid() -> DatabaseData {
         fields.push(relation_field);
       },
       FieldType::Time => {
-        let type_option = TimeTypeOption;
+        let type_option = TimeTypeOption::new();
         let time_field = FieldBuilder::new(field_type, type_option)
           .name("Estimated time")
           .build();
