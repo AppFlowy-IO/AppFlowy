@@ -314,13 +314,7 @@ class _SelectOptionCell extends StatefulWidget {
 }
 
 class _SelectOptionCellState extends State<_SelectOptionCell> {
-  late PopoverController _popoverController;
-
-  @override
-  void initState() {
-    _popoverController = PopoverController();
-    super.initState();
-  }
+  final _popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -480,11 +474,11 @@ class SelectOptionTagCell extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6.0,
-                    vertical: 4.0,
                   ),
                   child: SelectOptionTag(
                     option: option,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   ),
                 ),
               ),

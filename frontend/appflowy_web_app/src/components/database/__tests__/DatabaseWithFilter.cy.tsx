@@ -1,11 +1,10 @@
 import { renderDatabase } from '@/components/database/__tests__/withTestingDatabase';
-import '@/components/layout/layout.scss';
+import '@/styles/app.scss';
 
 describe('<Database /> with filters and sorts', () => {
   beforeEach(() => {
     cy.viewport(1280, 720);
     Object.defineProperty(window.navigator, 'language', { value: 'en-US' });
-    cy.mockDatabase();
   });
 
   it('render a database with filters and sorts', () => {

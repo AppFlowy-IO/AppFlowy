@@ -1,8 +1,9 @@
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/services.dart';
+
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/time/duration.dart';
+import 'package:flowy_infra_ui/widget/rounded_button.dart';
 
 class RoundedInputField extends StatefulWidget {
   final String? hintText;
@@ -60,33 +61,26 @@ class RoundedInputField extends StatefulWidget {
 
 class _RoundedInputFieldState extends State<RoundedInputField> {
   String inputText = "";
-  bool obscuteText = false;
+  bool obscureText = false;
 
   @override
   void initState() {
-    obscuteText = widget.obscureText;
-    if (widget.controller != null) {
-      inputText = widget.controller!.text;
-    } else {
-      inputText = widget.initialValue ?? "";
-    }
-
     super.initState();
+    obscureText = widget.obscureText;
+    inputText = widget.controller != null
+        ? widget.controller!.text
+        : widget.initialValue ?? "";
   }
 
-  String? _suffixText() {
-    if (widget.maxLength != null) {
-      return ' ${widget.controller!.text.length}/${widget.maxLength}';
-    } else {
-      return null;
-    }
-  }
+  String? _suffixText() => widget.maxLength != null
+      ? ' ${widget.controller!.text.length}/${widget.maxLength}'
+      : null;
 
   @override
   Widget build(BuildContext context) {
-    var borderColor =
+    Color borderColor =
         widget.normalBorderColor ?? Theme.of(context).colorScheme.outline;
-    var focusBorderColor =
+    Color focusBorderColor =
         widget.focusBorderColor ?? Theme.of(context).colorScheme.primary;
 
     if (widget.errorText.isNotEmpty) {
@@ -122,7 +116,7 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
           },
           cursorColor:
               widget.cursorColor ?? Theme.of(context).colorScheme.primary,
-          obscureText: obscuteText,
+          obscureText: obscureText,
           style: widget.style ?? Theme.of(context).textTheme.bodyMedium,
           decoration: InputDecoration(
             contentPadding: widget.contentPadding,
@@ -134,17 +128,11 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
             suffixText: _suffixText(),
             counterText: "",
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: borderColor,
-                width: 1.0,
-              ),
+              borderSide: BorderSide(color: borderColor, width: 1.0),
               borderRadius: Corners.s10Border,
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: focusBorderColor,
-                width: 1.0,
-              ),
+              borderSide: BorderSide(color: focusBorderColor, width: 1.0),
               borderRadius: Corners.s10Border,
             ),
             suffixIcon: obscureIcon(),
@@ -186,19 +174,11 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
     }
 
     assert(widget.obscureIcon != null && widget.obscureHideIcon != null);
-    Widget? icon;
-    if (obscuteText) {
-      icon = widget.obscureIcon!;
-    } else {
-      icon = widget.obscureHideIcon!;
-    }
+    final icon = obscureText ? widget.obscureIcon! : widget.obscureHideIcon!;
 
     return RoundedImageButton(
       size: iconWidth,
-      press: () {
-        obscuteText = !obscuteText;
-        setState(() {});
-      },
+      press: () => setState(() => obscureText = !obscureText),
       child: icon,
     );
   }

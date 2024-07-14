@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 
 class FlowyButton extends StatelessWidget {
   final Widget text;
@@ -195,7 +196,11 @@ class FlowyTextButton extends StatelessWidget {
       children.add(heading!);
       children.add(const HSpace(8));
     }
-    children.add(Text(text, overflow: overflow, textAlign: TextAlign.center));
+    children.add(Text(
+      text,
+      overflow: overflow,
+      textAlign: TextAlign.center,
+    ));
 
     Widget child = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -230,6 +235,7 @@ class FlowyTextButton extends StatelessWidget {
               fontSize: fontSize,
               decoration: decoration,
               fontFamily: fontFamily,
+              height: 1.1,
             ),
           ),
           backgroundColor: WidgetStateProperty.resolveWith(

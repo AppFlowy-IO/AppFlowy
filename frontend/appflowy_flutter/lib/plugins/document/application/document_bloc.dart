@@ -8,7 +8,6 @@ import 'package:appflowy/plugins/document/application/document_data_pb_extension
 import 'package:appflowy/plugins/document/application/document_listener.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -19,7 +18,7 @@ import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/util/throttle.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -38,6 +37,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'document_bloc.freezed.dart';
+
+bool enableDocumentInternalLog = false;
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
@@ -118,11 +119,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         final result = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
-        result.onSuccess((s) {
-          if (s != null) {
-            _migrateCover(s);
-          }
-        });
         final newState = await result.fold(
           (s) async {
             final userProfilePB =
@@ -219,6 +215,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<EditorState?> _initAppFlowyEditorState(DocumentDataPB data) async {
+    if (enableDocumentInternalLog) {
+      Log.info('document data: ${data.toProto3Json()}');
+    }
+
     final document = data.toDocument();
     if (document == null) {
       assert(false, 'document is null');
@@ -389,14 +389,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       documentId: documentId,
       metadata: jsonEncode(metadata.toJson()),
     );
-  }
-
-  // from version 0.5.5, the cover is stored in the view.ext
-  Future<void> _migrateCover(EditorState editorState) async {
-    final view = await ViewBackendService.getView(documentId);
-    view.onSuccess((s) {
-      return EditorMigration.migrateCoverIfNeeded(s, editorState);
-    });
   }
 }
 

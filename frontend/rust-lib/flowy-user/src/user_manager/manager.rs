@@ -4,7 +4,7 @@ use collab_user::core::MutexUserAwareness;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
 use flowy_server_pub::AuthenticatorType;
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
@@ -48,7 +48,7 @@ use super::manager_user_workspace::save_user_workspace;
 
 pub struct UserManager {
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
-  pub(crate) store_preferences: Arc<StorePreferences>,
+  pub(crate) store_preferences: Arc<KVStorePreferences>,
   pub(crate) user_awareness: Arc<Mutex<Option<MutexUserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
@@ -63,7 +63,7 @@ pub struct UserManager {
 impl UserManager {
   pub fn new(
     cloud_services: Arc<dyn UserCloudServiceProvider>,
-    store_preferences: Arc<StorePreferences>,
+    store_preferences: Arc<KVStorePreferences>,
     collab_builder: Weak<AppFlowyCollabBuilder>,
     authenticate_user: Arc<AuthenticateUser>,
     user_workspace_service: Arc<dyn UserWorkspaceService>,
@@ -110,7 +110,7 @@ impl UserManager {
     }
   }
 
-  pub fn get_store_preferences(&self) -> Weak<StorePreferences> {
+  pub fn get_store_preferences(&self) -> Weak<KVStorePreferences> {
     Arc::downgrade(&self.store_preferences)
   }
 
@@ -167,6 +167,10 @@ impl UserManager {
       if user.authenticator.is_appflowy_cloud() {
         if let Err(err) = self.cloud_services.set_token(&user.token) {
           error!("Set token failed: {}", err);
+        }
+
+        if let Err(err) = self.cloud_services.set_ai_model(&user.ai_model) {
+          error!("Set ai model failed: {}", err);
         }
 
         // Subscribe the token state
@@ -804,7 +808,7 @@ fn current_authenticator() -> Authenticator {
   }
 }
 
-fn upsert_user_profile_change(
+pub fn upsert_user_profile_change(
   uid: i64,
   mut conn: DBConnection,
   changeset: UserTableChangeset,

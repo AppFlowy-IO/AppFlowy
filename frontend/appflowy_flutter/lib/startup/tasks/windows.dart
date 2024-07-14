@@ -13,12 +13,9 @@ import 'package:scaled_app/scaled_app.dart';
 import 'package:window_manager/window_manager.dart';
 
 class InitAppWindowTask extends LaunchTask with WindowListener {
-  InitAppWindowTask({
-    this.title = 'AppFlowy',
-  });
+  InitAppWindowTask({this.title = 'AppFlowy'});
 
   final String title;
-
   final windowSizeManager = WindowSizeManager();
 
   @override
@@ -48,7 +45,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     final position = await windowSizeManager.getPosition();
 
     if (PlatformExtension.isWindows) {
-      doWhenWindowReady(() {
+      doWhenWindowReady(() async {
         appWindow.minSize = windowOptions.minimumSize;
         appWindow.maxSize = windowOptions.maximumSize;
         appWindow.size = windowSize;
@@ -58,16 +55,18 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
         }
 
         appWindow.show();
+
+        /// on Windows we maximize the window if it was previously closed
+        /// from a maximized state.
+        final isMaximized = await windowSizeManager.getWindowMaximized();
+        if (isMaximized) {
+          appWindow.maximize();
+        }
       });
     } else {
       await windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.show();
         await windowManager.focus();
-
-        if (PlatformExtension.isWindows) {
-          // Hide title bar on Windows, we implement a custom solution elsewhere
-          await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-        }
 
         if (position != null) {
           await windowManager.setPosition(position);
@@ -83,16 +82,40 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
   }
 
   @override
-  Future<void> onWindowResize() async {
-    super.onWindowResize();
-
-    final currentWindowSize = await windowManager.getSize();
-    return windowSizeManager.setSize(currentWindowSize);
+  Future<void> onWindowMaximize() async {
+    super.onWindowMaximize();
+    await windowSizeManager.setWindowMaximized(true);
+    await windowSizeManager.setPosition(Offset.zero);
   }
 
   @override
-  void onWindowMaximize() async {
-    super.onWindowMaximize();
+  Future<void> onWindowUnmaximize() async {
+    super.onWindowUnmaximize();
+    await windowSizeManager.setWindowMaximized(false);
+
+    final position = await windowManager.getPosition();
+    return windowSizeManager.setPosition(position);
+  }
+
+  @override
+  void onWindowEnterFullScreen() async {
+    super.onWindowEnterFullScreen();
+    await windowSizeManager.setWindowMaximized(true);
+    await windowSizeManager.setPosition(Offset.zero);
+  }
+
+  @override
+  Future<void> onWindowLeaveFullScreen() async {
+    super.onWindowLeaveFullScreen();
+    await windowSizeManager.setWindowMaximized(false);
+
+    final position = await windowManager.getPosition();
+    return windowSizeManager.setPosition(position);
+  }
+
+  @override
+  Future<void> onWindowResize() async {
+    super.onWindowResize();
 
     final currentWindowSize = await windowManager.getSize();
     return windowSizeManager.setSize(currentWindowSize);

@@ -39,7 +39,7 @@ pub struct ViewIconPB {
   pub value: String,
 }
 
-impl std::convert::From<ViewIconPB> for ViewIcon {
+impl From<ViewIconPB> for ViewIcon {
   fn from(rev: ViewIconPB) -> Self {
     ViewIcon {
       ty: rev.ty.into(),

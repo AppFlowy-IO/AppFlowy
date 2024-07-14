@@ -65,6 +65,7 @@ pub fn user_profile_from_af_profile(
     encryption_type,
     uid: profile.uid,
     updated_at: profile.updated_at,
+    ai_model: "".to_string(),
   })
 }
 

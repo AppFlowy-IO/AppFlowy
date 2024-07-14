@@ -13,7 +13,6 @@ impl SearchDepsResolver {
     _folder_manager: Arc<FolderManager>,
   ) -> Arc<SearchManager> {
     let folder_handler = Arc::new(FolderSearchHandler::new(folder_indexer));
-    // TODO(Mathias): Enable when Cloud Search is ready
     // let document_handler = Arc::new(DocumentSearchHandler::new(cloud_service, folder_manager));
     Arc::new(SearchManager::new(vec![folder_handler]))
   }

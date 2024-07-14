@@ -12,7 +12,8 @@ part 'folder_bloc.freezed.dart';
 enum FolderSpaceType {
   favorite,
   private,
-  public;
+  public,
+  unknown;
 
   ViewSectionPB get toViewSectionPB {
     switch (this) {
@@ -21,6 +22,7 @@ enum FolderSpaceType {
       case FolderSpaceType.public:
         return ViewSectionPB.Public;
       case FolderSpaceType.favorite:
+      case FolderSpaceType.unknown:
         throw UnimplementedError();
     }
   }

@@ -431,17 +431,6 @@
       "pleaseInputYourStabilityAIKey": "per favore inserisci la tua chiave Stability AI",
       "clickToLogout": "Fare clic per disconnettere l'utente corrente"
     },
-    "shortcuts": {
-      "shortcutsLabel": "Scorciatoie",
-      "command": "Comando",
-      "keyBinding": "Combinazione",
-      "addNewCommand": "Aggiungi un nuovo comando",
-      "updateShortcutStep": "Premi la combinazione di tasti e poi premi INVIO",
-      "shortcutIsAlreadyUsed": "Questa scorciatoia è già usata per: {conflict}",
-      "resetToDefault": "Ripristina le combinazioni di default",
-      "couldNotLoadErrorMsg": "Impossibile caricare le scorciatoie, Riprova.",
-      "couldNotSaveErrorMsg": "Impossibile salvare le scorciatoie, Riprova."
-    },
     "mobile": {
       "personalInfo": "Informazione personale",
       "username": "Nome utente",
@@ -458,6 +447,17 @@
       "selectLayout": "Seleziona disposizione",
       "selectStartingDay": "Seleziona il giorno di inizio",
       "version": "Versione"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Scorciatoie",
+      "command": "Comando",
+      "keyBinding": "Combinazione",
+      "addNewCommand": "Aggiungi un nuovo comando",
+      "updateShortcutStep": "Premi la combinazione di tasti e poi premi INVIO",
+      "shortcutIsAlreadyUsed": "Questa scorciatoia è già usata per: {conflict}",
+      "resetToDefault": "Ripristina le combinazioni di default",
+      "couldNotLoadErrorMsg": "Impossibile caricare le scorciatoie, Riprova.",
+      "couldNotSaveErrorMsg": "Impossibile salvare le scorciatoie, Riprova."
     }
   },
   "grid": {

@@ -13,7 +13,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 pub fn test_database() -> (Database, PathBuf) {
-  let db_path = temp_dir().join(&format!("test-{}.db", generate_random_string(8)));
+  let db_path = temp_dir().join(format!("test-{}.db", generate_random_string(8)));
   (flowy_sqlite::init(&db_path).unwrap(), db_path)
 }
 
@@ -102,7 +102,7 @@ async fn test_upload_part_test() {
 
   // get all existing parts
   let mut conn = db.get_connection().unwrap();
-  let parts = select_upload_parts(&mut *conn, &upload_id).unwrap();
+  let parts = select_upload_parts(&mut conn, &upload_id).unwrap();
   assert_eq!(parts.len(), 2);
   assert_eq!(parts[0].part_num, 1);
   assert_eq!(parts[1].part_num, 2);
@@ -112,7 +112,7 @@ async fn test_upload_part_test() {
   delete_upload_file(conn, &upload_id).unwrap();
 
   let mut conn = db.get_connection().unwrap();
-  let parts = select_upload_parts(&mut *conn, &upload_id).unwrap();
+  let parts = select_upload_parts(&mut conn, &upload_id).unwrap();
   assert!(parts.is_empty())
 }
 
@@ -165,7 +165,7 @@ pub async fn create_upload_file_record(
   let file_id = fxhash::hash(&chunked_bytes.data).to_string();
 
   // Create UploadFileTable record
-  let upload_file = UploadFileTable {
+  UploadFileTable {
     workspace_id,
     file_id,
     upload_id,
@@ -175,7 +175,5 @@ pub async fn create_upload_file_record(
     chunk_size: MIN_CHUNK_SIZE as i32,
     num_chunk: chunked_bytes.offsets.len() as i32,
     created_at: chrono::Utc::now().timestamp(),
-  };
-
-  upload_file
+  }
 }

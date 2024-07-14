@@ -21,3 +21,4 @@ tokio-stream = "0.1.14"
 flowy-folder-pub.workspace = true
 tracing.workspace = true
 base64 = "0.21"
+client-api = { workspace = true }

@@ -18,6 +18,13 @@ class KVKeys {
   ///   {'dx': 10.0, 'dy': 10.0}
   static const String windowPosition = 'windowPosition';
 
+  /// The key for saving the window status
+  ///
+  /// The value is a json string with the following format:
+  ///  { 'windowMaximized': true }
+  ///
+  static const String windowMaximized = 'windowMaximized';
+
   static const String kDocumentAppearanceFontSize =
       'kDocumentAppearanceFontSize';
   static const String kDocumentAppearanceFontFamily =

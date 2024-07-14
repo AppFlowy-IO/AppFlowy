@@ -47,7 +47,7 @@ async fn af_cloud_add_workspace_member_test() {
   assert_eq!(members[0].email, user_1.email);
 
   test_1
-    .add_workspace_member(&user_1.workspace_id, &user_2.email)
+    .add_workspace_member(&user_1.workspace_id, &test_2)
     .await;
 
   let members = test_1.get_workspace_members(&user_1.workspace_id).await;
@@ -66,7 +66,7 @@ async fn af_cloud_delete_workspace_member_test() {
   let user_2 = test_2.af_cloud_sign_up().await;
 
   test_1
-    .add_workspace_member(&user_1.workspace_id, &user_2.email)
+    .add_workspace_member(&user_1.workspace_id, &test_2)
     .await;
 
   test_1
@@ -88,7 +88,7 @@ async fn af_cloud_leave_workspace_test() {
   let user_2 = test_2.af_cloud_sign_up().await;
 
   test_1
-    .add_workspace_member(&user_1.workspace_id, &user_2.email)
+    .add_workspace_member(&user_1.workspace_id, &test_2)
     .await;
 
   // test_2 should have 2 workspace

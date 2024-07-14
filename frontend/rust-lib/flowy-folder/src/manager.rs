@@ -1,9 +1,9 @@
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
-  CreateViewParams, CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, MoveNestedViewParams,
-  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, ViewPB, ViewSectionPB,
-  WorkspacePB, WorkspaceSettingPB,
+  CreateViewParams, CreateWorkspaceParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
+  MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams,
+  ViewLayoutPB, ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -12,13 +12,14 @@ use crate::manager_observer::{
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
 };
-use crate::share::ImportParams;
+use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
+use crate::share::{ImportParams, ImportValue};
 use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 use collab::core::collab::{DataSource, MutexCollab};
-use collab_entity::CollabType;
+use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::error::FolderError;
 use collab_folder::{
   Folder, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout, ViewUpdate,
@@ -26,11 +27,15 @@ use collab_folder::{
 };
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::CollabKVDB;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService, FolderCollabParams};
+use flowy_folder_pub::entities::{
+  PublishInfoResponse, PublishViewInfo, PublishViewMeta, PublishViewMetaData, PublishViewPayload,
+};
 use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
+use futures::future;
 use parking_lot::RwLock;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
@@ -51,7 +56,7 @@ pub struct FolderManager {
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
   pub(crate) folder_indexer: Arc<dyn FolderIndexManager>,
-  pub(crate) store_preferences: Arc<StorePreferences>,
+  pub(crate) store_preferences: Arc<KVStorePreferences>,
 }
 
 impl FolderManager {
@@ -61,7 +66,7 @@ impl FolderManager {
     operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
     folder_indexer: Arc<dyn FolderIndexManager>,
-    store_preferences: Arc<StorePreferences>,
+    store_preferences: Arc<KVStorePreferences>,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
     let manager = Self {
@@ -371,29 +376,31 @@ impl FolderManager {
     }
   }
 
-  pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
+  /// Asynchronously creates a view with provided parameters and notifies the workspace if update is needed.
+  ///
+  /// Commonly, the notify_workspace_update parameter is set to true when the view is created in the workspace.
+  /// If you're handling multiple views in the same hierarchy and want to notify the workspace only after the last view is created,
+  ///   you can set notify_workspace_update to false to avoid multiple notifications.
+  pub async fn create_view_with_params(
+    &self,
+    params: CreateViewParams,
+    notify_workspace_update: bool,
+  ) -> FlowyResult<(View, Option<EncodedCollab>)> {
     let workspace_id = self.user.workspace_id()?;
     let view_layout: ViewLayout = params.layout.clone().into();
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
-    let meta = params.meta.clone();
+    let mut encoded_collab: Option<EncodedCollab> = None;
 
-    if meta.is_empty() && params.initial_data.is_empty() {
+    if params.meta.is_empty() && params.initial_data.is_empty() {
       tracing::trace!("Create view with build-in data");
       handler
         .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
         .await?;
     } else {
       tracing::trace!("Create view with view data");
-      handler
-        .create_view_with_view_data(
-          user_id,
-          &params.view_id,
-          &params.name,
-          params.initial_data.clone(),
-          view_layout.clone(),
-          meta,
-        )
+      encoded_collab = handler
+        .create_view_with_view_data(user_id, params.clone())
         .await?;
     }
 
@@ -411,12 +418,14 @@ impl FolderManager {
       },
     );
 
-    let folder = &self.mutex_folder.read();
-    if let Some(folder) = folder.as_ref() {
-      notify_did_update_workspace(&workspace_id, folder);
+    if notify_workspace_update {
+      let folder = &self.mutex_folder.read();
+      if let Some(folder) = folder.as_ref() {
+        notify_did_update_workspace(&workspace_id, folder);
+      }
     }
 
-    Ok(view)
+    Ok((view, encoded_collab))
   }
 
   /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
@@ -742,46 +751,171 @@ impl FolderManager {
   }
 
   /// Duplicate the view with the given view id.
+  ///
+  /// Including the view data (icon, cover, extra) and the child views.
   #[tracing::instrument(level = "debug", skip(self), err)]
-  pub(crate) async fn duplicate_view(&self, view_id: &str) -> Result<(), FlowyError> {
+  pub(crate) async fn duplicate_view(&self, params: DuplicateViewParams) -> Result<(), FlowyError> {
     let view = self
-      .with_folder(|| None, |folder| folder.views.get_view(view_id))
+      .with_folder(|| None, |folder| folder.views.get_view(&params.view_id))
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can't duplicate the view"))?;
+    let parent_view_id = params
+      .parent_view_id
+      .clone()
+      .unwrap_or(view.parent_view_id.clone());
+    self
+      .duplicate_view_with_parent_id(
+        &view.id,
+        &parent_view_id,
+        params.open_after_duplicate,
+        params.include_children,
+        params.suffix,
+        params.sync_after_create,
+      )
+      .await
+  }
 
-    let handler = self.get_handler(&view.layout)?;
-    let view_data = handler.duplicate_view(&view.id).await?;
+  /// Duplicate the view with the given view id and parent view id.
+  ///
+  /// If the view id is the same as the parent view id, it will return an error.
+  /// If the view id is not found, it will return an error.
+  pub(crate) async fn duplicate_view_with_parent_id(
+    &self,
+    view_id: &str,
+    parent_view_id: &str,
+    open_after_duplicated: bool,
+    include_children: bool,
+    suffix: Option<String>,
+    sync_after_create: bool,
+  ) -> Result<(), FlowyError> {
+    if view_id == parent_view_id {
+      return Err(FlowyError::new(
+        ErrorCode::Internal,
+        format!("Can't duplicate the view({}) to itself", view_id),
+      ));
+    }
 
-    // get the current view index in the parent view, because we need to insert the duplicated view below the current view.
-    let index = if let Some((_, __, views)) = self.get_view_relation(&view.parent_view_id).await {
-      views.iter().position(|id| id == view_id).map(|i| i as u32)
-    } else {
-      None
-    };
+    // filter the view ids that in the trash or private section
+    let filtered_view_ids = self.with_folder(Vec::new, |folder| {
+      self.get_view_ids_should_be_filtered(folder)
+    });
 
-    let is_private = self.with_folder(
-      || false,
-      |folder| folder.is_view_in_section(Section::Private, &view.id),
+    // only apply the `open_after_duplicated` and the `include_children` to the first view
+    let mut is_source_view = true;
+    // use a stack to duplicate the view and its children
+    let mut stack = vec![(view_id.to_string(), parent_view_id.to_string())];
+    let mut objects = vec![];
+    let suffix = suffix.unwrap_or(" (copy)".to_string());
+
+    while let Some((current_view_id, current_parent_id)) = stack.pop() {
+      let view = self
+        .with_folder(|| None, |folder| folder.views.get_view(&current_view_id))
+        .ok_or_else(|| {
+          FlowyError::record_not_found()
+            .with_context(format!("Can't duplicate the view({})", view_id))
+        })?;
+
+      let handler = self.get_handler(&view.layout)?;
+      let view_data = handler.duplicate_view(&view.id).await?;
+
+      let index = self
+        .get_view_relation(&current_parent_id)
+        .await
+        .and_then(|(_, _, views)| {
+          views
+            .iter()
+            .filter(|id| filtered_view_ids.contains(id))
+            .position(|id| *id == current_view_id)
+            .map(|i| i as u32)
+        });
+
+      let section = self.with_folder(
+        || ViewSectionPB::Private,
+        |folder| {
+          if folder.is_view_in_section(Section::Private, &view.id) {
+            ViewSectionPB::Private
+          } else {
+            ViewSectionPB::Public
+          }
+        },
+      );
+
+      let name = if is_source_view {
+        format!("{}{}", &view.name, suffix)
+      } else {
+        view.name.clone()
+      };
+
+      let duplicate_params = CreateViewParams {
+        parent_view_id: current_parent_id.clone(),
+        name,
+        desc: view.desc.clone(),
+        layout: view.layout.clone().into(),
+        initial_data: view_data.to_vec(),
+        view_id: gen_view_id().to_string(),
+        meta: Default::default(),
+        set_as_current: is_source_view && open_after_duplicated,
+        index,
+        section: Some(section),
+        extra: view.extra.clone(),
+        icon: view.icon.clone(),
+      };
+
+      // set the notify_workspace_update to false to avoid multiple notifications
+      let (duplicated_view, encoded_collab) = self
+        .create_view_with_params(duplicate_params, false)
+        .await?;
+
+      if sync_after_create {
+        if let Some(encoded_collab) = encoded_collab {
+          let object_id = duplicated_view.id.clone();
+          let collab_type = match duplicated_view.layout {
+            ViewLayout::Document => CollabType::Document,
+            ViewLayout::Board | ViewLayout::Grid | ViewLayout::Calendar => CollabType::Database,
+            ViewLayout::Chat => CollabType::Unknown,
+          };
+          // don't block the whole import process if the view can't be encoded
+          if collab_type != CollabType::Unknown {
+            match self.get_folder_collab_params(object_id, collab_type, encoded_collab) {
+              Ok(params) => objects.push(params),
+              Err(e) => {
+                error!("duplicate error {}", e);
+              },
+            }
+          }
+        }
+      }
+
+      if include_children {
+        let child_views = self.get_views_belong_to(&current_view_id).await?;
+        // reverse the child views to keep the order
+        for child_view in child_views.iter().rev() {
+          // skip the view_id should be filtered and the child_view is the duplicated view
+          if !filtered_view_ids.contains(&child_view.id) && child_view.layout != ViewLayout::Chat {
+            stack.push((child_view.id.clone(), duplicated_view.id.clone()));
+          }
+        }
+      }
+
+      is_source_view = false
+    }
+
+    let workspace_id = &self.user.workspace_id()?;
+
+    // Sync the view to the cloud
+    if sync_after_create {
+      self
+        .cloud_service
+        .batch_create_folder_collab_objects(workspace_id, objects)
+        .await?;
+    }
+
+    // notify the update here
+    notify_parent_view_did_change(
+      workspace_id,
+      self.mutex_folder.clone(),
+      vec![parent_view_id.to_string()],
     );
-    let section = if is_private {
-      ViewSectionPB::Private
-    } else {
-      ViewSectionPB::Public
-    };
 
-    let duplicate_params = CreateViewParams {
-      parent_view_id: view.parent_view_id.clone(),
-      name: format!("{} (copy)", &view.name),
-      desc: view.desc.clone(),
-      layout: view.layout.clone().into(),
-      initial_data: view_data.to_vec(),
-      view_id: gen_view_id().to_string(),
-      meta: Default::default(),
-      set_as_current: true,
-      index,
-      section: Some(section),
-    };
-
-    self.create_view_with_params(duplicate_params).await?;
     Ok(())
   }
 
@@ -861,6 +995,201 @@ impl FolderManager {
     );
     self.send_update_recent_views_notification().await;
     Ok(())
+  }
+
+  /// Publish the view with the given view id.
+  /// [publish_name] is one part of the URL of the published view. if it is None, the default publish name will be used. The default publish name is generated by the view id and view name.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn publish_view(&self, view_id: &str, publish_name: Option<String>) -> FlowyResult<()> {
+    let view = self
+      .with_folder(|| None, |folder| folder.views.get_view(view_id))
+      .ok_or_else(|| FlowyError::record_not_found().with_context("Can't find the view"))?;
+
+    let layout = view.layout.clone();
+
+    if layout != ViewLayout::Document {
+      return Err(FlowyError::new(
+        ErrorCode::NotSupportYet,
+        "Only document view can be published".to_string(),
+      ));
+    }
+
+    // Get the view payload and its child views recursively
+    let payload = self
+      .get_batch_publish_payload(view_id, publish_name, Some(false))
+      .await?;
+
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .publish_view(workspace_id.as_str(), payload)
+      .await?;
+    Ok(())
+  }
+
+  /// Unpublish the view with the given view id.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn unpublish_views(&self, view_ids: Vec<String>) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .unpublish_views(workspace_id.as_str(), view_ids)
+      .await?;
+    Ok(())
+  }
+
+  /// Get the publish info of the view with the given view id.
+  /// The publish info contains the namespace and publish_name of the view.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn get_publish_info(&self, view_id: &str) -> FlowyResult<PublishInfoResponse> {
+    let publish_info = self.cloud_service.get_publish_info(view_id).await?;
+    Ok(publish_info)
+  }
+
+  /// Get the namespace of the current workspace.
+  /// The namespace is used to generate the URL of the published view.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn set_publish_namespace(&self, namespace: String) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .set_publish_namespace(workspace_id.as_str(), namespace.as_str())
+      .await?;
+    Ok(())
+  }
+
+  /// Get the namespace of the current workspace.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn get_publish_namespace(&self) -> FlowyResult<String> {
+    let workspace_id = self.user.workspace_id()?;
+    let namespace = self
+      .cloud_service
+      .get_publish_namespace(workspace_id.as_str())
+      .await?;
+    Ok(namespace)
+  }
+
+  /// Get the publishing payload of the view with the given view id.
+  /// The publishing payload contains the view data and its child views(not recursively).
+  pub async fn get_batch_publish_payload(
+    &self,
+    view_id: &str,
+    publish_name: Option<String>,
+    include_children: Option<bool>,
+  ) -> FlowyResult<Vec<PublishViewPayload>> {
+    let mut stack = vec![view_id.to_string()];
+    let mut payloads = Vec::new();
+
+    while let Some(current_view_id) = stack.pop() {
+      let view = match self.get_view_pb(&current_view_id).await {
+        Ok(view) => view,
+        Err(_) => continue,
+      };
+
+      // Only document view can be published
+      let layout = if view.layout == ViewLayoutPB::Document {
+        ViewLayout::Document
+      } else {
+        continue;
+      };
+
+      // Only support set the publish_name for the current view, not for the child views
+      let publish_name = if current_view_id == view_id {
+        publish_name.clone()
+      } else {
+        None
+      };
+
+      let payload = self
+        .get_publish_payload(&current_view_id, publish_name, layout)
+        .await;
+
+      if let Ok(payload) = payload {
+        payloads.push(payload);
+      }
+
+      if include_children.unwrap_or(false) {
+        // Add the child views to the stack
+        for child in &view.child_views {
+          stack.push(child.id.clone());
+        }
+      }
+    }
+
+    Ok(payloads)
+  }
+
+  async fn build_publish_views(&self, view_id: &str) -> Option<PublishViewInfo> {
+    let view_pb = self.get_view_pb(view_id).await.ok()?;
+
+    let mut child_views_futures = vec![];
+
+    for child in &view_pb.child_views {
+      let future = self.build_publish_views(&child.id);
+      child_views_futures.push(future);
+    }
+
+    let child_views = future::join_all(child_views_futures)
+      .await
+      .into_iter()
+      .flatten()
+      .collect::<Vec<PublishViewInfo>>();
+
+    let view_child_views = if child_views.is_empty() {
+      None
+    } else {
+      Some(child_views)
+    };
+
+    let view = view_pb_to_publish_view(&view_pb);
+
+    let view = PublishViewInfo {
+      child_views: view_child_views,
+      ..view
+    };
+
+    Some(view)
+  }
+  async fn get_publish_payload(
+    &self,
+    view_id: &str,
+    publish_name: Option<String>,
+    layout: ViewLayout,
+  ) -> FlowyResult<PublishViewPayload> {
+    let handler = self.get_handler(&layout)?;
+    let encoded_collab = handler.encoded_collab_v1(view_id, layout).await?;
+    let view = self
+      .with_folder(|| None, |folder| folder.views.get_view(view_id))
+      .ok_or_else(|| FlowyError::record_not_found().with_context("Can't find the view"))?;
+    let publish_name = publish_name.unwrap_or_else(|| generate_publish_name(&view.id, &view.name));
+
+    let child_views = self
+      .build_publish_views(view_id)
+      .await
+      .map(|v| v.child_views.map_or(vec![], |c| c))
+      .map_or(vec![], |c| c);
+
+    let ancestor_views = self
+      .get_view_ancestors_pb(view_id)
+      .await?
+      .iter()
+      .map(view_pb_to_publish_view)
+      .collect::<Vec<PublishViewInfo>>();
+
+    let view_pb = self.get_view_pb(view_id).await?;
+    let metadata = PublishViewMetaData {
+      view: view_pb_to_publish_view(&view_pb),
+      child_views,
+      ancestor_views,
+    };
+    let meta = PublishViewMeta {
+      view_id: view.id.clone(),
+      publish_name,
+      metadata,
+    };
+
+    let data = Vec::from(encoded_collab.doc_state);
+    Ok(PublishViewPayload { meta, data })
   }
 
   // Used by toggle_favorites to send notification to frontend, after the favorite status of view has been changed.It sends two distinct notifications: one to correctly update the concerned view's is_favorite status, and another to update the list of favorites that is to be displayed.
@@ -963,38 +1292,50 @@ impl FolderManager {
     Ok(())
   }
 
-  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {
-    let workspace_id = self.user.workspace_id()?;
+  /// Imports a single file to the folder and returns the encoded collab for immediate cloud sync.
+  pub(crate) async fn import_single_file(
+    &self,
+    parent_view_id: String,
+    import_data: ImportValue,
+  ) -> FlowyResult<(View, Option<EncodedCollab>)> {
+    // Ensure either data or file_path is provided
     if import_data.data.is_none() && import_data.file_path.is_none() {
       return Err(FlowyError::new(
         ErrorCode::InvalidParams,
-        "data or file_path is required",
+        "Either data or file_path is required",
       ));
     }
 
     let handler = self.get_handler(&import_data.view_layout)?;
     let view_id = gen_view_id().to_string();
     let uid = self.user.user_id()?;
+    let mut encoded_collab: Option<EncodedCollab> = None;
+
+    // Import data from bytes if available
     if let Some(data) = import_data.data {
-      handler
-        .import_from_bytes(
-          uid,
-          &view_id,
-          &import_data.name,
-          import_data.import_type,
-          data,
-        )
-        .await?;
+      encoded_collab = Some(
+        handler
+          .import_from_bytes(
+            uid,
+            &view_id,
+            &import_data.name,
+            import_data.import_type,
+            data,
+          )
+          .await?,
+      );
     }
 
+    // Import data from file path if available
     if let Some(file_path) = import_data.file_path {
+      // TODO(Lucas): return the collab
       handler
         .import_from_file_path(&view_id, &import_data.name, file_path)
         .await?;
     }
 
     let params = CreateViewParams {
-      parent_view_id: import_data.parent_view_id,
+      parent_view_id,
       name: import_data.name,
       desc: "".to_string(),
       layout: import_data.view_layout.clone().into(),
@@ -1004,21 +1345,73 @@ impl FolderManager {
       set_as_current: false,
       index: None,
       section: None,
+      extra: None,
+      icon: None,
     };
 
     let view = create_view(self.user.user_id()?, params, import_data.view_layout);
+
+    // Insert the new view into the folder
     self.with_folder(
       || (),
       |folder| {
         folder.insert_view(view.clone(), None);
       },
     );
+
+    Ok((view, encoded_collab))
+  }
+
+  /// Import function to handle the import of data.
+  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<RepeatedViewPB> {
+    let workspace_id = self.user.workspace_id()?;
+
+    // Initialize an empty vector to store the objects
+    let sync_after_create = import_data.sync_after_create;
+    let mut objects = vec![];
+    let mut views = vec![];
+
+    // Iterate over the values in the import data
+    for data in import_data.values {
+      let collab_type = data.import_type.clone().into();
+
+      // Import a single file and get the view and encoded collab data
+      let (view, encoded_collab) = self
+        .import_single_file(import_data.parent_view_id.clone(), data)
+        .await?;
+      let object_id = view.id.clone();
+
+      views.push(view_pb_without_child_views(view));
+
+      if sync_after_create {
+        if let Some(encoded_collab) = encoded_collab {
+          // don't block the whole import process if the view can't be encoded
+          match self.get_folder_collab_params(object_id, collab_type, encoded_collab) {
+            Ok(params) => objects.push(params),
+            Err(e) => {
+              error!("import error {}", e);
+            },
+          }
+        }
+      }
+    }
+
+    // Sync the view to the cloud
+    if sync_after_create {
+      self
+        .cloud_service
+        .batch_create_folder_collab_objects(&workspace_id, objects)
+        .await?;
+    }
+
+    // Notify that the parent view has changed
     notify_parent_view_did_change(
       &workspace_id,
       self.mutex_folder.clone(),
-      vec![view.parent_view_id.clone()],
+      vec![import_data.parent_view_id],
     );
-    Ok(view)
+
+    Ok(RepeatedViewPB { items: views })
   }
 
   /// Update the view with the provided view_id using the specified function.
@@ -1069,6 +1462,22 @@ impl FolderManager {
       ))),
       Some(processor) => Ok(processor.clone()),
     }
+  }
+
+  fn get_folder_collab_params(
+    &self,
+    object_id: String,
+    collab_type: CollabType,
+    encoded_collab: EncodedCollab,
+  ) -> FlowyResult<FolderCollabParams> {
+    // Try to encode the collaboration data to bytes
+    let encoded_collab_v1: Result<Vec<u8>, FlowyError> =
+      encoded_collab.encode_to_bytes().map_err(internal_error);
+    encoded_collab_v1.map(|encoded_collab_v1| FolderCollabParams {
+      object_id,
+      encoded_collab_v1,
+      collab_type,
+    })
   }
 
   /// Returns the relation of the view. The relation is a tuple of (is_workspace, parent_view_id,

@@ -34,7 +34,6 @@ collab-folder = { workspace = true, optional = true }
 client-api = { workspace = true, optional = true }
 tantivy = { version = "0.21.1", optional = true }
 
-
 [features]
 impl_from_dispatch_error = ["lib-dispatch"]
 impl_from_serde = []

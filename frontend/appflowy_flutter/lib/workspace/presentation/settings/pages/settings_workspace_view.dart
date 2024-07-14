@@ -24,6 +24,7 @@ import 'package:appflowy/workspace/presentation/settings/shared/setting_list_til
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dashed_divider.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_input_field.dart';
@@ -31,7 +32,6 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_s
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -86,6 +86,7 @@ class SettingsWorkspaceView extends StatelessWidget {
           return SettingsBody(
             title: LocaleKeys.settings_workspacePage_title.tr(),
             description: LocaleKeys.settings_workspacePage_description.tr(),
+            autoSeparate: false,
             children: [
               // We don't allow changing workspace name/icon for local/offline
               if (userProfile.authenticator != AuthenticatorPB.Local) ...[
@@ -94,6 +95,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                       .tr(),
                   children: [_WorkspaceNameSetting(member: workspaceMember)],
                 ),
+                const SettingsCategorySpacer(),
                 SettingsCategory(
                   title: LocaleKeys.settings_workspacePage_workspaceIcon_title
                       .tr(),
@@ -107,11 +109,14 @@ class SettingsWorkspaceView extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SettingsCategorySpacer(),
               ],
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_appearance_title.tr(),
                 children: const [AppearanceSelector()],
               ),
+              const VSpace(16),
+              // const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_theme_title.tr(),
                 description:
@@ -122,6 +127,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                   _DocumentSelectionColorSetting(),
                 ],
               ),
+              const SettingsCategorySpacer(),
               SettingsCategory(
                 title:
                     LocaleKeys.settings_workspacePage_workspaceFont_title.tr(),
@@ -130,7 +136,9 @@ class SettingsWorkspaceView extends StatelessWidget {
                     currentFont:
                         context.read<AppearanceSettingsCubit>().state.font,
                   ),
-                  const SettingsDashedDivider(),
+                  SettingsDashedDivider(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
                   SettingsCategory(
                     title: LocaleKeys.settings_workspacePage_textDirection_title
                         .tr(),
@@ -141,11 +149,14 @@ class SettingsWorkspaceView extends StatelessWidget {
                   ),
                 ],
               ),
+              const VSpace(16),
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_layoutDirection_title
                     .tr(),
                 children: const [_LayoutDirectionSelect()],
               ),
+              const SettingsCategorySpacer(),
+
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_dateTime_title.tr(),
                 children: [
@@ -157,10 +168,14 @@ class SettingsWorkspaceView extends StatelessWidget {
                   const _DateFormatDropdown(),
                 ],
               ),
+              const SettingsCategorySpacer(),
+
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_language_title.tr(),
                 children: const [LanguageDropdown()],
               ),
+              const SettingsCategorySpacer(),
+
               if (userProfile.authenticator != AuthenticatorPB.Local) ...[
                 SingleSettingAction(
                   label: LocaleKeys.settings_workspacePage_manageWorkspace_title
@@ -417,7 +432,6 @@ class EnableRTLItemsSwitcher extends StatelessWidget {
         ),
         const HSpace(16),
         Toggle(
-          style: ToggleStyle.big,
           value: context
               .watch<AppearanceSettingsCubit>()
               .state
@@ -564,7 +578,6 @@ class _TimeFormatSwitcher extends StatelessWidget {
         ),
         const HSpace(16),
         Toggle(
-          style: ToggleStyle.big,
           value: context.watch<AppearanceSettingsCubit>().state.timeFormat ==
               UserTimeFormatPB.TwentyFourHour,
           onChanged: (value) =>

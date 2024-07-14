@@ -109,7 +109,7 @@ class UserBackendService implements IUserBackendService {
     return UserEventOpenWorkspace(payload).send();
   }
 
-  Future<FlowyResult<WorkspacePB, FlowyError>> getCurrentWorkspace() {
+  static Future<FlowyResult<WorkspacePB, FlowyError>> getCurrentWorkspace() {
     return FolderEventReadCurrentWorkspace().send().then((result) {
       return result.fold(
         (workspace) => FlowyResult.success(workspace),

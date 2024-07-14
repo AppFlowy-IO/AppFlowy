@@ -48,8 +48,10 @@ impl FolderManager {
       set_as_current: true,
       index: None,
       section: Some(ViewSectionPB::Public),
+      icon: None,
+      extra: None,
     };
-    self.create_view_with_params(params).await.unwrap();
+    self.create_view_with_params(params, true).await.unwrap();
     view_id
   }
 }

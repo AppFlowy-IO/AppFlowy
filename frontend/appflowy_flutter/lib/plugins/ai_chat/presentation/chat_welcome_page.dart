@@ -31,19 +31,15 @@ class ChatWelcomePage extends StatelessWidget {
             size: Size.square(44),
           ),
           const SizedBox(height: 40),
-          GridView.builder(
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: isMobile ? 2 : 4,
-              crossAxisSpacing: 6,
-              mainAxisSpacing: 6,
-              childAspectRatio: 16.0 / 9.0,
-            ),
-            itemCount: items.length,
-            itemBuilder: (context, index) => WelcomeQuestion(
-              question: items[index],
-              onSelected: onSelectedQuestion,
-            ),
+          Wrap(
+            children: items
+                .map(
+                  (i) => WelcomeQuestion(
+                    question: i,
+                    onSelected: onSelectedQuestion,
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),

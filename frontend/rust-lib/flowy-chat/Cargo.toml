@@ -11,6 +11,7 @@ flowy-notification = { workspace = true }
 flowy-error = { path = "../flowy-error", features = [
     "impl_from_dispatch_error",
     "impl_from_collab_folder",
+    "impl_from_sqlite",
 ] }
 lib-dispatch = { workspace = true }
 tracing.workspace = true
@@ -27,6 +28,19 @@ tokio.workspace = true
 futures.workspace = true
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
 log = "0.4.21"
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+anyhow = "1.0.86"
+tokio-stream = "0.1.15"
+parking_lot.workspace = true
+appflowy-local-ai = { version = "0.1.0", features = ["verbose"] }
+appflowy-plugin = { version = "0.1.0", features = ["verbose"] }
+
+[dev-dependencies]
+dotenv = "0.15.0"
+uuid.workspace = true
+tracing-subscriber = { version = "0.3.17", features = ["registry", "env-filter", "ansi", "json"] }
+simsimd = "4.4.0"
 
 [build-dependencies]
 flowy-codegen.workspace = true
@@ -35,3 +49,4 @@ flowy-codegen.workspace = true
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
 web_ts = ["flowy-codegen/ts", "flowy-notification/web_ts"]
+

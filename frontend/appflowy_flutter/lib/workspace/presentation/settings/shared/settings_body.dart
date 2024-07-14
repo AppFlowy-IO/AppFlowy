@@ -33,7 +33,7 @@ class SettingsBody extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               separatorBuilder: () => autoSeparate
                   ? const SettingsCategorySpacer()
-                  : const VSpace(16),
+                  : const SizedBox.shrink(),
               crossAxisAlignment: CrossAxisAlignment.start,
               children: children,
             ),

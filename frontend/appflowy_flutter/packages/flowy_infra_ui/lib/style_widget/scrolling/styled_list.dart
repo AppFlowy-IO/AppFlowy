@@ -36,27 +36,12 @@ class StyledListView extends StatefulWidget {
 
 /// State is public so this can easily be controlled externally
 class StyledListViewState extends State<StyledListView> {
-  late ScrollController scrollController;
-
-  @override
-  void initState() {
-    scrollController = ScrollController();
-    super.initState();
-  }
+  final scrollController = ScrollController();
 
   @override
   void dispose() {
     scrollController.dispose();
     super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(StyledListView oldWidget) {
-    if (oldWidget.itemCount != widget.itemCount ||
-        oldWidget.itemExtent != widget.itemExtent) {
-      setState(() {});
-    }
-    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -75,7 +60,7 @@ class StyledListViewState extends State<StyledListView> {
         controller: scrollController,
         itemExtent: widget.itemExtent,
         itemCount: widget.itemCount,
-        itemBuilder: (c, i) => widget.itemBuilder(c, i),
+        itemBuilder: widget.itemBuilder,
       ),
     );
     return listContent;

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
@@ -29,13 +30,15 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/side
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+Loading? _duplicateSpaceLoading;
 
 /// Home Sidebar is the left side bar of the home page.
 ///
@@ -135,7 +138,8 @@ class HomeSideBar extends StatelessWidget {
               ),
               BlocListener<SpaceBloc, SpaceState>(
                 listenWhen: (p, c) =>
-                    p.lastCreatedPage?.id != c.lastCreatedPage?.id,
+                    p.lastCreatedPage?.id != c.lastCreatedPage?.id ||
+                    p.isDuplicatingSpace != c.isDuplicatingSpace,
                 listener: (context, state) {
                   final page = state.lastCreatedPage;
                   if (page == null || page.id.isEmpty) {
@@ -151,6 +155,14 @@ class HomeSideBar extends StatelessWidget {
                             plugin: state.lastCreatedPage!.plugin(),
                           ),
                         );
+                  }
+
+                  if (state.isDuplicatingSpace) {
+                    _duplicateSpaceLoading ??= Loading(context);
+                    _duplicateSpaceLoading?.start();
+                  } else if (_duplicateSpaceLoading != null) {
+                    _duplicateSpaceLoading?.stop();
+                    _duplicateSpaceLoading = null;
                   }
                 },
               ),
@@ -347,10 +359,24 @@ class _SidebarState extends State<_Sidebar> {
   Widget _renderFolderOrSpace(EdgeInsets menuHorizontalInset) {
     final spaceState = context.read<SpaceBloc>().state;
     final workspaceState = context.read<UserWorkspaceBloc>().state;
+
+    if (!spaceState.isInitialized) {
+      return const SizedBox.shrink();
+    }
+
     // there's no space or the workspace is not collaborative,
     // show the folder section (Workspace, Private, Personal)
     // otherwise, show the space
-    return spaceState.spaces.isEmpty || !workspaceState.isCollabWorkspaceOn
+    final sidebarSectionBloc = context.watch<SidebarSectionsBloc>();
+    final containsSpace = sidebarSectionBloc.state.containsSpace;
+
+    if (containsSpace && spaceState.spaces.isEmpty) {
+      context.read<SpaceBloc>().add(const SpaceEvent.didReceiveSpaceUpdate());
+    }
+
+    return !containsSpace ||
+            spaceState.spaces.isEmpty ||
+            !workspaceState.isCollabWorkspaceOn
         ? Expanded(
             child: Padding(
               padding: menuHorizontalInset - const EdgeInsets.only(right: 6),

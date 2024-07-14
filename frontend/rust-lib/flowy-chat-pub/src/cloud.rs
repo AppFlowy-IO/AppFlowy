@@ -1,5 +1,7 @@
 use bytes::Bytes;
-pub use client_api::entity::ai_dto::{RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage};
+pub use client_api::entity::ai_dto::{
+  CompletionType, RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage,
+};
 pub use client_api::entity::{
   ChatAuthorType, ChatMessage, ChatMessageType, MessageCursor, QAChatMessage, RepeatedChatMessage,
 };
@@ -10,7 +12,8 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
-pub type StreamAnswer = BoxStream<'static, Result<Bytes, AppResponseError>>;
+pub type StreamAnswer = BoxStream<'static, Result<Bytes, FlowyError>>;
+pub type StreamComplete = BoxStream<'static, Result<Bytes, AppResponseError>>;
 #[async_trait]
 pub trait ChatCloudService: Send + Sync + 'static {
   fn create_chat(
@@ -20,15 +23,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &str,
   ) -> FutureResult<(), FlowyError>;
 
-  async fn send_chat_message(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
-    message_type: ChatMessageType,
-  ) -> Result<ChatMessageStream, FlowyError>;
-
-  fn send_question(
+  fn save_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -44,12 +39,19 @@ pub trait ChatCloudService: Send + Sync + 'static {
     question_id: i64,
   ) -> FutureResult<ChatMessage, FlowyError>;
 
-  async fn stream_answer(
+  async fn ask_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
   ) -> Result<StreamAnswer, FlowyError>;
+
+  async fn generate_answer(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    question_message_id: i64,
+  ) -> Result<ChatMessage, FlowyError>;
 
   fn get_chat_messages(
     &self,
@@ -66,10 +68,10 @@ pub trait ChatCloudService: Send + Sync + 'static {
     message_id: i64,
   ) -> FutureResult<RepeatedRelatedQuestion, FlowyError>;
 
-  fn generate_answer(
+  async fn stream_complete(
     &self,
     workspace_id: &str,
-    chat_id: &str,
-    question_message_id: i64,
-  ) -> FutureResult<ChatMessage, FlowyError>;
+    text: &str,
+    complete_type: CompletionType,
+  ) -> Result<StreamComplete, FlowyError>;
 }

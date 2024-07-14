@@ -180,6 +180,8 @@ extension NodeToBlock on Node {
     String? parentId,
     String? childrenId,
     Attributes? attributes,
+    String? externalId,
+    String? externalType,
   }) {
     assert(id.isNotEmpty);
     final block = BlockPB.create()
@@ -191,6 +193,12 @@ extension NodeToBlock on Node {
     }
     if (parentId != null && parentId.isNotEmpty) {
       block.parentId = parentId;
+    }
+    if (externalId != null && externalId.isNotEmpty) {
+      block.externalId = externalId;
+    }
+    if (externalType != null && externalType.isNotEmpty) {
+      block.externalType = externalType;
     }
     return block;
   }

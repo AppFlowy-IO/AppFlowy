@@ -9,7 +9,7 @@ function MentionDate({ date, reminder }: { date: string; reminder?: { id: string
   }, [date]);
 
   return (
-    <span className={'mention-inline'}>
+    <span className={'mention-inline cursor-text'}>
       {reminder ? <ReminderSvg className={'mention-icon'} /> : <DateSvg className={'mention-icon'} />}
 
       <span className={'mention-content'}>{dateFormat}</span>

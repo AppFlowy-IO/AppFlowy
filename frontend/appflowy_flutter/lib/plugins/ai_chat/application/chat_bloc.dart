@@ -119,7 +119,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             final uniqueMessages = {...allMessages, ...messages}.toList()
               ..sort((a, b) => b.id.compareTo(a.id));
             uniqueMessages.insertAll(0, onetimeMessages);
-
             emit(
               state.copyWith(
                 messages: uniqueMessages,
@@ -380,7 +379,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Message _createStreamMessage(AnswerStream stream, Int64 questionMessageId) {
-    final streamMessageId = nanoid();
+    final streamMessageId = (questionMessageId + 1).toString();
+
     lastStreamMessageId = streamMessageId;
 
     return TextMessage(

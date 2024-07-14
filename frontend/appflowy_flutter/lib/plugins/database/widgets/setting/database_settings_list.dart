@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/setting/database_setting_action.dart';
@@ -6,7 +8,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/widgets.dart';
 
 class DatabaseSettingsList extends StatefulWidget {
   const DatabaseSettingsList({
@@ -21,7 +22,13 @@ class DatabaseSettingsList extends StatefulWidget {
 }
 
 class _DatabaseSettingsListState extends State<DatabaseSettingsList> {
-  late final PopoverMutex popoverMutex = PopoverMutex();
+  final PopoverMutex popoverMutex = PopoverMutex();
+
+  @override
+  void dispose() {
+    popoverMutex.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

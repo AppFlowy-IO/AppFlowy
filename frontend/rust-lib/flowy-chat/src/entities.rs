@@ -1,3 +1,4 @@
+use appflowy_local_ai::llm_chat::LocalLLMSetting;
 use flowy_chat_pub::cloud::{
   ChatMessage, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
 };
@@ -204,4 +205,81 @@ impl From<RepeatedRelatedQuestion> for RepeatedRelatedQuestionPB {
         .collect(),
     }
   }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct LocalLLMSettingPB {
+  #[pb(index = 1)]
+  pub chat_bin_path: String,
+
+  #[pb(index = 2)]
+  pub chat_model_path: String,
+
+  #[pb(index = 3)]
+  pub enabled: bool,
+}
+
+impl From<LocalLLMSetting> for LocalLLMSettingPB {
+  fn from(value: LocalLLMSetting) -> Self {
+    LocalLLMSettingPB {
+      chat_bin_path: value.chat_bin_path,
+      chat_model_path: value.chat_model_path,
+      enabled: value.enabled,
+    }
+  }
+}
+
+impl From<LocalLLMSettingPB> for LocalLLMSetting {
+  fn from(value: LocalLLMSettingPB) -> Self {
+    LocalLLMSetting {
+      chat_bin_path: value.chat_bin_path,
+      chat_model_path: value.chat_model_path,
+      enabled: value.enabled,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct CompleteTextPB {
+  #[pb(index = 1)]
+  pub text: String,
+
+  #[pb(index = 2)]
+  pub completion_type: CompletionTypePB,
+
+  #[pb(index = 3)]
+  pub stream_port: i64,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct CompleteTextTaskPB {
+  #[pb(index = 1)]
+  pub task_id: String,
+}
+
+#[derive(Clone, Debug, ProtoBuf_Enum, Default)]
+pub enum CompletionTypePB {
+  UnknownCompletionType = 0,
+  #[default]
+  ImproveWriting = 1,
+  SpellingAndGrammar = 2,
+  MakeShorter = 3,
+  MakeLonger = 4,
+  ContinueWriting = 5,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct ChatStatePB {
+  #[pb(index = 1)]
+  pub model_type: ModelTypePB,
+
+  #[pb(index = 2)]
+  pub available: bool,
+}
+
+#[derive(Clone, Debug, ProtoBuf_Enum, Default)]
+pub enum ModelTypePB {
+  LocalAI = 0,
+  #[default]
+  RemoteAI = 1,
 }

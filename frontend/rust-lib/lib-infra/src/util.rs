@@ -67,9 +67,8 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
   let md5 = format!("{:x}", md5::compute(data));
   md5
 }
-
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Platform {
+pub enum OperatingSystem {
   Unknown,
   Windows,
   Linux,
@@ -78,33 +77,62 @@ pub enum Platform {
   Android,
 }
 
-impl Platform {
+impl OperatingSystem {
   pub fn is_not_ios(&self) -> bool {
-    !matches!(self, Platform::IOS)
+    !matches!(self, OperatingSystem::IOS)
+  }
+
+  pub fn is_desktop(&self) -> bool {
+    matches!(
+      self,
+      OperatingSystem::Windows | OperatingSystem::Linux | OperatingSystem::MacOS
+    )
+  }
+
+  pub fn is_not_desktop(&self) -> bool {
+    !self.is_desktop()
   }
 }
 
-impl From<String> for Platform {
+impl From<String> for OperatingSystem {
   fn from(s: String) -> Self {
-    Platform::from(s.as_str())
+    OperatingSystem::from(s.as_str())
   }
 }
 
-impl From<&String> for Platform {
+impl From<&String> for OperatingSystem {
   fn from(s: &String) -> Self {
-    Platform::from(s.as_str())
+    OperatingSystem::from(s.as_str())
   }
 }
 
-impl From<&str> for Platform {
+impl From<&str> for OperatingSystem {
   fn from(s: &str) -> Self {
     match s {
-      "windows" => Platform::Windows,
-      "linux" => Platform::Linux,
-      "macos" => Platform::MacOS,
-      "ios" => Platform::IOS,
-      "android" => Platform::Android,
-      _ => Platform::Unknown,
+      "windows" => OperatingSystem::Windows,
+      "linux" => OperatingSystem::Linux,
+      "macos" => OperatingSystem::MacOS,
+      "ios" => OperatingSystem::IOS,
+      "android" => OperatingSystem::Android,
+      _ => OperatingSystem::Unknown,
     }
+  }
+}
+
+pub fn get_operating_system() -> OperatingSystem {
+  cfg_if::cfg_if! {
+      if #[cfg(target_os = "android")] {
+          OperatingSystem::Android
+      } else if #[cfg(target_os = "ios")] {
+          OperatingSystem::IOS
+      } else if #[cfg(target_os = "macos")] {
+          OperatingSystem::MacOS
+      } else if #[cfg(target_os = "windows")] {
+          OperatingSystem::Windows
+      } else if #[cfg(target_os = "linux")] {
+          OperatingSystem::Linux
+      } else {
+          OperatingSystem::Unknown
+      }
   }
 }
