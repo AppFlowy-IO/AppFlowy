@@ -64,7 +64,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
               emit(
                 state.copyWith(
                   selectedLLMModel: llmModel,
-                  localAIInfo: LocalAIInfo.requestDownload(
+                  localAIInfo: LocalAIProgress.requestDownload(
                     llmResource,
                     llmModel,
                   ),
@@ -76,7 +76,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
                 state.copyWith(
                   selectedLLMModel: llmModel,
                   llmModelLoadingState: const LoadingState.finish(),
-                  localAIInfo: const LocalAIInfo.pluginState(),
+                  localAIInfo: const LocalAIProgress.pluginState(),
                 ),
               );
             }
@@ -102,7 +102,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
         if (llmResource.pendingResources.isEmpty) {
           emit(
             state.copyWith(
-              localAIInfo: const LocalAIInfo.pluginState(),
+              localAIInfo: const LocalAIProgress.pluginState(),
             ),
           );
         } else {
@@ -111,7 +111,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
             if (llmResource.isDownloading) {
               emit(
                 state.copyWith(
-                  localAIInfo: LocalAIInfo.downloading(state.selectedLLMModel!),
+                  localAIInfo: LocalAIProgress.downloading(state.selectedLLMModel!),
                   llmModelLoadingState: const LoadingState.finish(),
                 ),
               );
@@ -119,7 +119,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
             } else {
               emit(
                 state.copyWith(
-                  localAIInfo: LocalAIInfo.downloadNeeded(
+                  localAIInfo: LocalAIProgress.downloadNeeded(
                     llmResource,
                     state.selectedLLMModel!,
                   ),
@@ -133,7 +133,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
       startDownloadModel: (LLMModelPB llmModel) {
         emit(
           state.copyWith(
-            localAIInfo: LocalAIInfo.downloading(llmModel),
+            localAIInfo: LocalAIProgress.downloading(llmModel),
             llmModelLoadingState: const LoadingState.finish(),
           ),
         );
@@ -144,7 +144,7 @@ class LocalAIConfigBloc extends Bloc<LocalAIConfigEvent, LocalAIConfigState> {
       },
       finishDownload: () async {
         emit(
-          state.copyWith(localAIInfo: const LocalAIInfo.finishDownload()),
+          state.copyWith(localAIInfo: const LocalAIProgress.finishDownload()),
         );
       },
       updatellmRunningState: (RunningStatePB newRunningState) {
@@ -203,7 +203,7 @@ class LocalAIConfigState with _$LocalAIConfigState {
   const factory LocalAIConfigState({
     LLMModelInfoPB? modelInfo,
     LLMModelPB? selectedLLMModel,
-    LocalAIInfo? localAIInfo,
+    LocalAIProgress? localAIInfo,
     @Default(LoadingState.loading()) LoadingState llmModelLoadingState,
     @Default([]) List<LLMModelPB> models,
     @Default(LoadingState.loading()) LoadingState loadingState,
@@ -212,21 +212,21 @@ class LocalAIConfigState with _$LocalAIConfigState {
 }
 
 @freezed
-class LocalAIInfo with _$LocalAIInfo {
+class LocalAIProgress with _$LocalAIProgress {
   // when user select a new model, it will call requestDownload
-  const factory LocalAIInfo.requestDownload(
+  const factory LocalAIProgress.requestDownload(
     LocalModelResourcePB llmResource,
     LLMModelPB llmModel,
   ) = _RequestDownload;
 
   // when user comes back to the setting page, it will auto detect current llm state
-  const factory LocalAIInfo.downloadNeeded(
+  const factory LocalAIProgress.downloadNeeded(
     LocalModelResourcePB llmResource,
     LLMModelPB llmModel,
   ) = _DownloadNeeded;
 
   // when start downloading the model
-  const factory LocalAIInfo.downloading(LLMModelPB llmModel) = _Downloading;
-  const factory LocalAIInfo.finishDownload() = _Finish;
-  const factory LocalAIInfo.pluginState() = _PluginState;
+  const factory LocalAIProgress.downloading(LLMModelPB llmModel) = _Downloading;
+  const factory LocalAIProgress.finishDownload() = _Finish;
+  const factory LocalAIProgress.pluginState() = _PluginState;
 }
