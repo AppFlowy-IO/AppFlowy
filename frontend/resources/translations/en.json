@@ -404,6 +404,14 @@
           "dark": "Dark"
         }
       },
+      "resetCursorColor": {
+        "title": "Reset document cursor color",
+        "description": "Are you sure you want to reset the cursor color?"
+      },
+      "resetSelectionColor": {
+        "title": "Reset document selection color",
+        "description": "Are you sure you want to reset the selection color?"
+      },
       "theme": {
         "title": "Theme",
         "description": "Select a preset theme, or upload your own custom theme.",
