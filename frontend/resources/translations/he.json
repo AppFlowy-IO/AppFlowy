@@ -630,7 +630,15 @@
                 "openAIHint": "מילוי מפתח ה־API שלך ב־OpenAI",
                 "stabilityAILabel": "מפתח API של Stability",
                 "stabilityAITooltip": "מפתח ה־API שלך ב־Stability, משמש לאימות הבקשות שלך",
-                "stabilityAIHint": "נא למלא את מפתח ה־API שלך ב־Stability"
+                "stabilityAIHint": "נא למלא את מפתח ה־API שלך ב־Stability",
+                "downloadLLMPromptDetail": "הורדת המודל המקומי {} תתפוס {} מהאחסון. להמשיך?",
+                "localAILoading": "מודל הבינה המלאכותית המקומי נטען…",
+                "llmModelType": "סוג מודל שפה",
+                "downloadLLMPrompt": "הורדת {}",
+                "downloadAIModelButton": "הורדת מודל בינה מלאכותית",
+                "downloadingModel": "מתבצעת הורדה",
+                "localAILoaded": "מודל הבינה המלאכותית המקומי נוסף והוא מוכן לשימוש",
+                "localAIStopped": "מודל הבינה המלאכותית המקומי נעצר"
             }
         },
         "planPage": {
