@@ -494,10 +494,10 @@
       },
       "cache": {
         "title": "Clear cache",
-        "description": "Clear app cache, this can help resolve issues like images or fonts not loading. This will not affect your data.",
+        "description": "Help resolve issues like image not loading, missing pages in a space, and fonts not loading. This will not affect your data.",
         "dialog": {
-          "title": "Are you sure?",
-          "description": "Clearing the cache will cause images and fonts to be re-downloaded on load. This action will not remove or modify your data.",
+          "title": "Clear cache",
+          "description": "Help resolve issues like image not loading, missing pages in a space, and fonts not loading. This will not affect your data.",
           "successHint": "Cache cleared!"
         }
       },

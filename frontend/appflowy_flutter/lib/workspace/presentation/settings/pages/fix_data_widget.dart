@@ -114,7 +114,10 @@ class WorkspaceDataManager {
     List<ViewPB>? allViews,
     bool dryRun = true,
   }) async {
-    final List<ViewPB> issues = [];
+    // Views whose parent view does not have the view in its child views
+    final List<ViewPB> unlistedChildViews = [];
+    // Views whose parent is not in allViews
+    final List<ViewPB> orphanViews = [];
 
     try {
       if (workspace == null || allViews == null) {
@@ -129,12 +132,16 @@ class WorkspaceDataManager {
       }
 
       for (final view in allViews) {
+        if (view.parentViewId == '') {
+          continue;
+        }
+
         final parentView = allViews.firstWhereOrNull(
           (e) => e.id == view.parentViewId,
         );
 
         if (parentView == null) {
-          Log.info('found an issue: can not find the parent view: $view');
+          orphanViews.add(view);
           continue;
         }
 
@@ -143,17 +150,50 @@ class WorkspaceDataManager {
                 .getOrThrow();
         final result = childViewsOfParent.any((e) => e.id == view.id);
         if (!result) {
-          Log.info(
-            'found an issue: view is not in the parent view\'s child views: $view',
-          );
-          issues.add(view);
+          unlistedChildViews.add(view);
         }
       }
     } catch (e) {
       Log.error('Failed to check space health: $e');
+      return [];
     }
 
-    return issues;
+    for (final view in unlistedChildViews) {
+      Log.info(
+        '[workspace] found an issue: view is not in the parent view\'s child views, view: ${view.toProto3Json()}}',
+      );
+    }
+
+    for (final view in orphanViews) {
+      Log.debug('[workspace] orphanViews: ${view.toProto3Json()}');
+    }
+
+    if (!dryRun && unlistedChildViews.isNotEmpty) {
+      Log.info(
+        '[workspace] start to fix ${unlistedChildViews.length} unlistedChildViews ...',
+      );
+      for (final view in unlistedChildViews) {
+        // move the view to the parent view if it is not in the parent view's child views
+        Log.info(
+          '[workspace] move view: $view to its parent view ${view.parentViewId}',
+        );
+        await ViewBackendService.moveViewV2(
+          viewId: view.id,
+          newParentId: view.parentViewId,
+          prevViewId: null,
+        );
+      }
+
+      Log.info('[workspace] end to fix unlistedChildViews');
+    }
+
+    if (unlistedChildViews.isEmpty && orphanViews.isEmpty) {
+      Log.info('[workspace] all views are healthy');
+    }
+
+    Log.info('[workspace] done checking view health');
+
+    return unlistedChildViews;
   }
 
   static void dumpViews(String prefix, List<ViewPB> views) {

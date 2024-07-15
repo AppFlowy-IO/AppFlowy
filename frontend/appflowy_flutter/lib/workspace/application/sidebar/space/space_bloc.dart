@@ -87,7 +87,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 isExpanded: isExpanded,
                 shouldShowUpgradeDialog: shouldShowUpgradeDialog,
                 isInitialized: true,
-                issueViews: [],
               ),
             );
 
@@ -142,7 +141,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             if (deletedSpace == null) {
               return;
             }
-            await ViewBackendService.delete(viewId: deletedSpace.id);
+            await ViewBackendService.deleteView(viewId: deletedSpace.id);
           },
           rename: (space, name) async {
             add(SpaceEvent.update(name: name));
@@ -330,12 +329,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             emit(state.copyWith(isDuplicatingSpace: false));
           },
-          reassignIssueViews: () async {
-            await _reassignIssueViews();
-          },
-          updateIssueViews: (issueViews) async {
-            emit(state.copyWith(issueViews: issueViews));
-          },
         );
       },
     );
@@ -440,6 +433,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       workspaceId: workspaceId,
     )..start(
         sectionChanged: (result) async {
+          Log.info('did receive section views changed');
           add(const SpaceEvent.didReceiveSpaceUpdate());
         },
       );
@@ -680,28 +674,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
     return newSpace;
   }
-
-  Future<void> _reassignIssueViews() async {
-    final issueViews = state.issueViews;
-    if (issueViews.isEmpty) {
-      return;
-    }
-    for (final view in issueViews) {
-      final result = await ViewBackendService.moveViewV2(
-        viewId: view.id,
-        newParentId: view.parentViewId,
-        prevViewId: null,
-      );
-      result.fold(
-        (_) {
-          Log.info('space: reassign issue view: ${view.name}(${view.id})');
-        },
-        (error) {
-          Log.error('space: failed to reassign issue view: $error');
-        },
-      );
-    }
-  }
 }
 
 @freezed
@@ -743,9 +715,6 @@ class SpaceEvent with _$SpaceEvent {
   ) = _Reset;
   const factory SpaceEvent.migrate() = _Migrate;
   const factory SpaceEvent.switchToNextSpace() = _SwitchToNextSpace;
-  const factory SpaceEvent.reassignIssueViews() = _ReassignIssueViews;
-  const factory SpaceEvent.updateIssueViews(List<ViewPB> issueViews) =
-      _UpdateIssueViews;
 }
 
 @freezed
@@ -760,7 +729,6 @@ class SpaceState with _$SpaceState {
     @Default(false) bool shouldShowUpgradeDialog,
     @Default(false) bool isDuplicatingSpace,
     @Default(false) bool isInitialized,
-    @Default([]) List<ViewPB> issueViews,
   }) = _SpaceState;
 
   factory SpaceState.initial() => const SpaceState();
