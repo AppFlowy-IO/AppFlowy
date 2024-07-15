@@ -44,10 +44,11 @@ class SettingsAIView extends StatelessWidget {
             title: LocaleKeys.settings_aiPage_title.tr(),
             description:
                 LocaleKeys.settings_aiPage_keys_aiSettingsDescription.tr(),
-            children: const [
-              AIModelSelection(),
-              LocalModelConfig(),
-              _AISearchToggle(value: false),
+            children: [
+              const AIModelSelection(),
+              if (state.aiSettings!.aiModel == AIModelPB.LocalAIModel)
+                const LocalModelConfig(),
+              const _AISearchToggle(value: false),
             ],
           );
         },

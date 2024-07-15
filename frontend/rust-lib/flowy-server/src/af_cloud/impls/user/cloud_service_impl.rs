@@ -543,7 +543,9 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      client.cancel_subscription(&workspace_id, &SubscriptionPlan::Pro).await?; // TODO:
+      client
+        .cancel_subscription(&workspace_id, &SubscriptionPlan::Pro)
+        .await?; // TODO:
       Ok(())
     })
   }
