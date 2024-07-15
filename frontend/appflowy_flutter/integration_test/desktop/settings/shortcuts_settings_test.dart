@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -84,6 +85,89 @@ void main() {
       expect(
         second.command.command,
         '',
+      );
+    });
+
+    testWidgets('can reset an individual shortcut', (tester) async {
+      // In order to reset a shortcut, we must first override it.
+
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.shortcuts);
+      await tester.pumpAndSettle();
+
+      final backspaceCmdText =
+          LocaleKeys.settings_shortcutsPage_keybindings_backspace.tr();
+      final defaultBackspaceCmd = backspaceCommand.command;
+
+      // Input "Delete" into the search field
+      await tester.enterText(find.byType(TextField), backspaceCmdText);
+      await tester.pumpAndSettle();
+
+      await tester.hoverOnWidget(
+        find.descendant(
+          of: find.byType(ShortcutSettingTile),
+          matching: find.text(backspaceCmdText),
+        ),
+        onHover: () async {
+          await tester.tap(find.byFlowySvg(FlowySvgs.edit_s));
+          await tester.pumpAndSettle();
+
+          await FlowyTestKeyboard.simulateKeyDownEvent(
+            [
+              LogicalKeyboardKey.delete,
+              LogicalKeyboardKey.alt,
+              LogicalKeyboardKey.enter,
+            ],
+            tester: tester,
+          );
+          await tester.pumpAndSettle();
+        },
+      );
+
+      // We expect to see conflict dialog
+      expect(
+        find.text(
+          LocaleKeys.settings_shortcutsPage_conflictDialog_confirmLabel.tr(),
+        ),
+        findsNothing,
+      );
+
+      // We expect the first ShortcutSettingTile to have one
+      // [KeyBadge] with `delete+alt` label
+      final first = tester.widget(find.byType(ShortcutSettingTile).first)
+          as ShortcutSettingTile;
+      expect(
+        first.command.command,
+        'alt+$defaultBackspaceCmd',
+      );
+
+      // hover on the ShortcutSettingTile and click the restore button
+      await tester.hoverOnWidget(
+        find.descendant(
+          of: find.byType(ShortcutSettingTile),
+          matching: find.text(backspaceCmdText),
+        ),
+        onHover: () async {
+          await tester.tap(
+            find.descendant(
+              of: find.byType(ShortcutSettingTile).first,
+              matching: find.byFlowySvg(FlowySvgs.restore_s),
+            ),
+          );
+          await tester.pumpAndSettle();
+        },
+      );
+
+      // We expect the first ShortcutSettingTile to have one
+      // [KeyBadge] with `delete` label
+      final reseted = tester.widget(find.byType(ShortcutSettingTile).first)
+          as ShortcutSettingTile;
+      expect(
+        reseted.command.command,
+        defaultBackspaceCmd,
       );
     });
   });
