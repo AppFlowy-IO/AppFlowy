@@ -687,16 +687,16 @@
           "aiMax": {
             "title": "AI Max",
             "description": "Unlock unlimited AI",
-            "price": "US{}",
+            "price": "{}",
             "priceInfo": "/user per month",
-            "billingInfo": "billed annually or US{} biled monthly"
+            "billingInfo": "billed annually or {} billed monthly"
           },
           "aiOnDevice": {
             "title": "AI On-device",
             "description": "AI offline on your device",
-            "price": "US{}",
+            "price": "{}",
             "priceInfo": "/user per month",
-            "billingInfo": "billed annually or US{} biled monthly"
+            "billingInfo": "billed annually or {} billed monthly"
           }
         },
         "deal": {
@@ -742,7 +742,7 @@
         },
         "removeDialog": {
           "title": "Remove {}",
-          "description": "Are you sure you want to remove {}? You will keep the benefits until the end of the billing period."
+          "description": "Are you sure you want to remove {plan}? You will lose access to the features and benefits of {plan} immediately."
         }
       }
     },
@@ -766,7 +766,7 @@
         "title": "Professional",
         "description": "For small teams to manage projects and team knowledge",
         "price": "{}",
-        "priceInfo": "billed monthly"
+        "priceInfo": "/user per month billed annually\n\n{} billed monthly"
       },
       "planLabels": {
         "itemOne": "Workspaces",
@@ -803,7 +803,7 @@
       },
       "downgradeDialog": {
         "title": "Are you sure you want to downgrade your plan?",
-        "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to workspaces and you may need to free up space to meet the storage limits of the Free plan.",
+        "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to this workspace and you may need to free up space to meet the storage limits of the Free plan.",
         "downgradeLabel": "Downgrade plan"
       }
     },
@@ -818,7 +818,7 @@
       "notifications": "Notifications",
       "open": "Open Settings",
       "logout": "Logout",
-      "logoutPrompt": "Are you sure to logout?",
+      "logoutPrompt": "Are you sure you want to logout?",
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "cloudSettings": "Cloud Settings",

@@ -6,8 +6,8 @@ import 'package:appflowy/workspace/application/settings/billing/settings_billing
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_comparison_dialog.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
@@ -261,19 +261,21 @@ class _AITile extends StatelessWidget {
               .read<SettingsBillingBloc>()
               .add(const SettingsBillingEvent.openCustomerPortal());
         } else if (subscriptionInfo != null) {
-          SettingsAlertDialog(
+          showConfirmDialog(
+            context: context,
+            style: ConfirmPopupStyle.cancelAndOk,
             title: LocaleKeys.settings_billingPage_addons_removeDialog_title
                 .tr(args: [plan.label]).tr(),
-            subtitle: LocaleKeys
+            description: LocaleKeys
                 .settings_billingPage_addons_removeDialog_description
-                .tr(args: [plan.label]).tr(),
-            confirm: () {
-              Navigator.of(context).pop();
+                .tr(namedArgs: {"plan": plan.label.tr()}),
+            confirmLabel: LocaleKeys.button_confirm.tr(),
+            onConfirm: () {
               context
                   .read<SettingsBillingBloc>()
                   .add(SettingsBillingEvent.cancelSubscription(plan));
             },
-          ).show(context);
+          );
         } else {
           // Add the addon
           context

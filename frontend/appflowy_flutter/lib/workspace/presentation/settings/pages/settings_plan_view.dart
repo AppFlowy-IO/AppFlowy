@@ -93,13 +93,13 @@ class SettingsPlanView extends StatelessWidget {
                             .tr(),
                         price: LocaleKeys
                             .settings_planPage_planUsage_addons_aiMax_price
-                            .tr(args: ['\$8']),
+                            .tr(args: ['US\$8']),
                         priceInfo: LocaleKeys
                             .settings_planPage_planUsage_addons_aiMax_priceInfo
                             .tr(),
                         billingInfo: LocaleKeys
                             .settings_planPage_planUsage_addons_aiMax_billingInfo
-                            .tr(args: ['\$10']),
+                            .tr(args: ['US\$10']),
                         buttonText: state.subscriptionInfo.hasAIMax
                             ? LocaleKeys
                                 .settings_planPage_planUsage_addons_activeLabel
@@ -122,13 +122,13 @@ class SettingsPlanView extends StatelessWidget {
                             .tr(),
                         price: LocaleKeys
                             .settings_planPage_planUsage_addons_aiOnDevice_price
-                            .tr(args: ['\$8']),
+                            .tr(args: ['US\$8']),
                         priceInfo: LocaleKeys
                             .settings_planPage_planUsage_addons_aiOnDevice_priceInfo
                             .tr(),
                         billingInfo: LocaleKeys
                             .settings_planPage_planUsage_addons_aiOnDevice_billingInfo
-                            .tr(args: ['\$10']),
+                            .tr(args: ['US\$10']),
                         buttonText: state.subscriptionInfo.hasAIOnDevice
                             ? LocaleKeys
                                 .settings_planPage_planUsage_addons_activeLabel
@@ -388,7 +388,7 @@ class _PlanUsageSummary extends StatelessWidget {
                 },
               ),
             ],
-            if (!subscriptionInfo.hasAIMax) ...[
+            if (!subscriptionInfo.hasAIMax && !usage.aiResponsesUnlimited) ...[
               _ToggleMore(
                 value: false,
                 label: LocaleKeys.settings_planPage_planUsage_aiMaxToggle.tr(),
@@ -654,16 +654,16 @@ class _AddOnBox extends StatelessWidget {
           FlowyText.semibold(
             title,
             fontSize: 14,
-            color: AFThemeExtension.of(context).secondaryTextColor,
+            color: AFThemeExtension.of(context).strongText,
           ),
-          const VSpace(4),
+          const VSpace(10),
           FlowyText.regular(
             description,
-            fontSize: 11,
-            color: AFThemeExtension.of(context).strongText,
+            fontSize: 12,
+            color: AFThemeExtension.of(context).secondaryTextColor,
             maxLines: 4,
           ),
-          const VSpace(4),
+          const VSpace(10),
           FlowyText(
             price,
             fontSize: 24,
@@ -671,10 +671,10 @@ class _AddOnBox extends StatelessWidget {
           ),
           FlowyText(
             priceInfo,
-            fontSize: 11,
+            fontSize: 12,
             color: AFThemeExtension.of(context).strongText,
           ),
-          const VSpace(6),
+          const VSpace(12),
           Row(
             children: [
               Expanded(

@@ -1,3 +1,7 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -18,9 +22,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpacePermissionSwitch extends StatefulWidget {
@@ -292,12 +293,16 @@ class ConfirmPopup extends StatefulWidget {
     required this.title,
     required this.description,
     required this.onConfirm,
+    this.confirmLabel,
   });
 
   final String title;
   final String description;
   final VoidCallback onConfirm;
   final ConfirmPopupStyle style;
+
+  /// Defaults to 'Delete' for [ConfirmPopupStyle.cancelAndOk] and 'Ok' for [ConfirmPopupStyle.onlyOk]
+  final String? confirmLabel;
 
   @override
   State<ConfirmPopup> createState() => _ConfirmPopupState();
@@ -376,7 +381,7 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             widget.onConfirm();
             Navigator.of(context).pop();
           },
-          confirmButtonName: LocaleKeys.button_ok.tr(),
+          confirmButtonName: widget.confirmLabel ?? LocaleKeys.button_ok.tr(),
           confirmButtonColor: Theme.of(context).colorScheme.primary,
         );
       case ConfirmPopupStyle.cancelAndOk:
@@ -386,7 +391,8 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             widget.onConfirm();
             Navigator.of(context).pop();
           },
-          confirmButtonName: LocaleKeys.space_delete.tr(),
+          confirmButtonName:
+              widget.confirmLabel ?? LocaleKeys.space_delete.tr(),
           confirmButtonColor: Theme.of(context).colorScheme.error,
         );
     }

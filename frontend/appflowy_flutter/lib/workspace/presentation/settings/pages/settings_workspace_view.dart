@@ -15,13 +15,13 @@ import 'package:appflowy/workspace/application/settings/date_time/date_format_ex
 import 'package:appflowy/workspace/application/settings/date_time/time_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/workspace/workspace_settings_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/document_color_setting_button.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_list_tile.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
@@ -31,6 +31,7 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_input_f
 import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_select.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -44,7 +45,6 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -182,7 +182,8 @@ class SettingsWorkspaceView extends StatelessWidget {
                       .tr(),
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  onPressed: () => SettingsAlertDialog(
+                  onPressed: () => showConfirmDialog(
+                    context: context,
                     title: workspaceMember?.role.isOwner ?? false
                         ? LocaleKeys
                             .settings_workspacePage_deleteWorkspacePrompt_title
@@ -190,23 +191,20 @@ class SettingsWorkspaceView extends StatelessWidget {
                         : LocaleKeys
                             .settings_workspacePage_leaveWorkspacePrompt_title
                             .tr(),
-                    subtitle: workspaceMember?.role.isOwner ?? false
+                    description: workspaceMember?.role.isOwner ?? false
                         ? LocaleKeys
                             .settings_workspacePage_deleteWorkspacePrompt_content
                             .tr()
                         : LocaleKeys
                             .settings_workspacePage_leaveWorkspacePrompt_content
                             .tr(),
-                    isDangerous: true,
-                    confirm: () {
-                      context.read<WorkspaceSettingsBloc>().add(
-                            workspaceMember?.role.isOwner ?? false
-                                ? const WorkspaceSettingsEvent.deleteWorkspace()
-                                : const WorkspaceSettingsEvent.leaveWorkspace(),
-                          );
-                      Navigator.of(context).pop();
-                    },
-                  ).show(context),
+                    style: ConfirmPopupStyle.cancelAndOk,
+                    onConfirm: () => context.read<WorkspaceSettingsBloc>().add(
+                          workspaceMember?.role.isOwner ?? false
+                              ? const WorkspaceSettingsEvent.deleteWorkspace()
+                              : const WorkspaceSettingsEvent.leaveWorkspace(),
+                        ),
+                  ),
                   buttonType: SingleSettingsButtonType.danger,
                   buttonLabel: workspaceMember?.role.isOwner ?? false
                       ? LocaleKeys

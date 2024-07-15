@@ -1,15 +1,16 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
@@ -56,16 +57,16 @@ class _SettingsPlanComparisonDialogState
         }
 
         if (readyState.successfulPlanUpgrade != null) {
-          SettingsAlertDialog(
+          showConfirmDialog(
+            context: context,
             title: LocaleKeys.settings_comparePlanDialog_paymentSuccess_title
                 .tr(args: [readyState.successfulPlanUpgrade!.label]),
-            subtitle: LocaleKeys
+            description: LocaleKeys
                 .settings_comparePlanDialog_paymentSuccess_description
                 .tr(args: [readyState.successfulPlanUpgrade!.label]),
-            hideCancelButton: true,
-            confirm: Navigator.of(context).pop,
             confirmLabel: LocaleKeys.button_close.tr(),
-          ).show(context);
+            onConfirm: () {},
+          );
         }
 
         setState(() => currentInfo = readyState.subscriptionInfo);
@@ -142,7 +143,7 @@ class _SettingsPlanComparisonDialogState
                                         : const Color(0xFFE8E0FF),
                                   ),
                                 ),
-                                const SizedBox(height: 64),
+                                const SizedBox(height: 96),
                                 const SizedBox(height: 56),
                                 ..._planLabels.map(
                                   (e) => _ComparisonCell(
@@ -163,7 +164,7 @@ class _SettingsPlanComparisonDialogState
                             // TODO(Mathias): the price should be dynamic based on the country and currency
                             price: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_price
-                                .tr(args: ['\$0']),
+                                .tr(args: ['US\$0']),
                             priceInfo: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_priceInfo
                                 .tr(),
@@ -188,26 +189,24 @@ class _SettingsPlanComparisonDialogState
                                 return;
                               }
 
-                              await SettingsAlertDialog(
+                              await showConfirmDialog(
+                                context: context,
                                 title: LocaleKeys
                                     .settings_comparePlanDialog_downgradeDialog_title
                                     .tr(args: [currentInfo.label]),
-                                subtitle: LocaleKeys
+                                description: LocaleKeys
                                     .settings_comparePlanDialog_downgradeDialog_description
                                     .tr(),
-                                isDangerous: true,
-                                confirm: () {
-                                  context.read<SettingsPlanBloc>().add(
-                                        const SettingsPlanEvent
-                                            .cancelSubscription(),
-                                      );
-
-                                  Navigator.of(context).pop();
-                                },
                                 confirmLabel: LocaleKeys
                                     .settings_comparePlanDialog_downgradeDialog_downgradeLabel
                                     .tr(),
-                              ).show(context);
+                                style: ConfirmPopupStyle.cancelAndOk,
+                                onConfirm: () =>
+                                    context.read<SettingsPlanBloc>().add(
+                                          const SettingsPlanEvent
+                                              .cancelSubscription(),
+                                        ),
+                              );
                             },
                           ),
                           _PlanTable(
@@ -220,10 +219,10 @@ class _SettingsPlanComparisonDialogState
                             // TODO(Mathias): the price should be dynamic based on the country and currency
                             price: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_price
-                                .tr(args: ['\$10 ']),
+                                .tr(args: ['US\$10']),
                             priceInfo: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_priceInfo
-                                .tr(),
+                                .tr(args: ['US\$12.5']),
                             cells: _proLabels,
                             isCurrent:
                                 currentInfo.plan == WorkspacePlanPB.ProPlan,
@@ -321,7 +320,7 @@ class _PlanTable extends StatelessWidget {
               title: price,
               description: priceInfo,
               isPrimary: !highlightPlan,
-              height: 64,
+              height: 96,
             ),
             if (canUpgrade || canDowngrade) ...[
               Opacity(
