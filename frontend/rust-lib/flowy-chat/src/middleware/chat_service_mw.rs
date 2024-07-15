@@ -1,6 +1,6 @@
 use crate::chat_manager::ChatUserService;
 use crate::entities::{ChatStatePB, ModelTypePB};
-use crate::local_ai::local_llm_chat::LocalLLMController;
+use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::notification::{send_notification, ChatNotification};
 use crate::persistence::select_single_message;
 use appflowy_plugin::error::PluginError;
@@ -20,14 +20,14 @@ use std::sync::Arc;
 pub struct ChatServiceMiddleware {
   pub cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn ChatUserService>,
-  local_llm_controller: Arc<LocalLLMController>,
+  local_llm_controller: Arc<LocalAIController>,
 }
 
 impl ChatServiceMiddleware {
   pub fn new(
     user_service: Arc<dyn ChatUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
-    local_llm_controller: Arc<LocalLLMController>,
+    local_llm_controller: Arc<LocalAIController>,
   ) -> Self {
     Self {
       user_service,

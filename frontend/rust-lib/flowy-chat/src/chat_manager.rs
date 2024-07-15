@@ -1,6 +1,6 @@
 use crate::chat::Chat;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
-use crate::local_ai::local_llm_chat::LocalLLMController;
+use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
 use crate::persistence::{insert_chat, ChatTable};
 
@@ -28,7 +28,7 @@ pub struct ChatManager {
   pub chat_service_wm: Arc<ChatServiceMiddleware>,
   pub user_service: Arc<dyn ChatUserService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
-  pub llm_controller: Arc<LocalLLMController>,
+  pub local_ai_controller: Arc<LocalAIController>,
 }
 
 impl ChatManager {
@@ -39,15 +39,15 @@ impl ChatManager {
   ) -> ChatManager {
     let user_service = Arc::new(user_service);
     let plugin_manager = Arc::new(PluginManager::new());
-    let llm_controller = Arc::new(LocalLLMController::new(
+    let local_ai_controller = Arc::new(LocalAIController::new(
       plugin_manager.clone(),
       store_preferences.clone(),
       user_service.clone(),
       cloud_service.clone(),
     ));
 
-    if llm_controller.is_ready() {
-      if let Err(err) = llm_controller.initialize() {
+    if local_ai_controller.is_ready() {
+      if let Err(err) = local_ai_controller.initialize() {
         error!("[AI Plugin] failed to initialize local ai: {:?}", err);
       }
     }
@@ -56,14 +56,14 @@ impl ChatManager {
     let chat_service_wm = Arc::new(ChatServiceMiddleware::new(
       user_service.clone(),
       cloud_service,
-      llm_controller.clone(),
+      local_ai_controller.clone(),
     ));
 
     Self {
       chat_service_wm,
       user_service,
       chats: Arc::new(DashMap::new()),
-      llm_controller,
+      local_ai_controller,
     }
   }
 
@@ -79,16 +79,16 @@ impl ChatManager {
     });
 
     trace!("[AI Plugin] notify open chat: {}", chat_id);
-    self.llm_controller.open_chat(chat_id);
+    self.local_ai_controller.open_chat(chat_id);
     Ok(())
   }
 
   pub async fn close_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
     trace!("close chat: {}", chat_id);
 
-    if self.llm_controller.is_ready() {
+    if self.local_ai_controller.is_ready() {
       info!("[AI Plugin] notify close chat: {}", chat_id);
-      self.llm_controller.close_chat(chat_id);
+      self.local_ai_controller.close_chat(chat_id);
     }
     Ok(())
   }
@@ -97,9 +97,9 @@ impl ChatManager {
     if let Some((_, chat)) = self.chats.remove(chat_id) {
       chat.close();
 
-      if self.llm_controller.is_ready() {
+      if self.local_ai_controller.is_ready() {
         info!("[AI Plugin] notify close chat: {}", chat_id);
-        self.llm_controller.close_chat(chat_id);
+        self.local_ai_controller.close_chat(chat_id);
       }
     }
     Ok(())

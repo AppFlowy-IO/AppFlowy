@@ -5,7 +5,7 @@ use crate::entities::{
 use crate::local_ai::llm_resource::{LLMResourceController, LLMResourceService};
 use crate::notification::{send_notification, ChatNotification};
 use anyhow::Error;
-use appflowy_local_ai::chat_plugin::{ChatPluginConfig, LocalChatLLMChat};
+use appflowy_local_ai::chat_plugin::{AIPluginConfig, LocalChatLLMChat};
 use appflowy_plugin::manager::PluginManager;
 use appflowy_plugin::util::is_apple_silicon;
 use flowy_chat_pub::cloud::{AppFlowyAIPlugin, ChatCloudService, LLMModel, LocalAIConfig};
@@ -33,12 +33,12 @@ pub struct LLMModelInfo {
 }
 
 const LOCAL_AI_SETTING_KEY: &str = "local_ai_setting";
-pub struct LocalLLMController {
+pub struct LocalAIController {
   llm_chat: Arc<LocalChatLLMChat>,
   llm_res: Arc<LLMResourceController>,
 }
 
-impl Deref for LocalLLMController {
+impl Deref for LocalAIController {
   type Target = Arc<LocalChatLLMChat>;
 
   fn deref(&self) -> &Self::Target {
@@ -46,7 +46,7 @@ impl Deref for LocalLLMController {
   }
 }
 
-impl LocalLLMController {
+impl LocalAIController {
   pub fn new(
     plugin_manager: Arc<PluginManager>,
     store_preferences: Arc<KVStorePreferences>,
@@ -174,7 +174,7 @@ impl LocalLLMController {
 
 fn initialize_chat_plugin(
   llm_chat: &Arc<LocalChatLLMChat>,
-  mut chat_config: ChatPluginConfig,
+  mut chat_config: AIPluginConfig,
 ) -> FlowyResult<()> {
   let llm_chat = llm_chat.clone();
   tokio::spawn(async move {

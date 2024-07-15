@@ -130,7 +130,7 @@ pub(crate) async fn refresh_local_ai_info_handler(
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let (tx, rx) = oneshot::channel::<Result<LLMModelInfo, FlowyError>>();
   tokio::spawn(async move {
-    let model_info = chat_manager.llm_controller.refresh().await;
+    let model_info = chat_manager.local_ai_controller.refresh().await;
     let _ = tx.send(model_info);
   });
 
@@ -146,7 +146,7 @@ pub(crate) async fn update_local_llm_model_handler(
   let data = data.into_inner();
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let state = chat_manager
-    .llm_controller
+    .local_ai_controller
     .use_local_llm(data.llm_id)
     .await?;
   data_result_ok(state)
@@ -157,7 +157,10 @@ pub(crate) async fn get_local_llm_state_handler(
   chat_manager: AFPluginState<Weak<ChatManager>>,
 ) -> DataResult<LocalModelResourcePB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let state = chat_manager.llm_controller.get_local_llm_state().await?;
+  let state = chat_manager
+    .local_ai_controller
+    .get_local_llm_state()
+    .await?;
   data_result_ok(state)
 }
 
@@ -208,7 +211,7 @@ pub(crate) async fn download_llm_resource_handler(
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let text_sink = IsolateSink::new(Isolate::new(data.progress_stream));
   let task_id = chat_manager
-    .llm_controller
+    .local_ai_controller
     .start_downloading(text_sink)
     .await?;
   data_result_ok(DownloadTaskPB { task_id })
@@ -219,7 +222,7 @@ pub(crate) async fn cancel_download_llm_resource_handler(
   chat_manager: AFPluginState<Weak<ChatManager>>,
 ) -> Result<(), FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
-  chat_manager.llm_controller.cancel_download()?;
+  chat_manager.local_ai_controller.cancel_download()?;
   Ok(())
 }
 
@@ -228,6 +231,6 @@ pub(crate) async fn get_plugin_state_handler(
   chat_manager: AFPluginState<Weak<ChatManager>>,
 ) -> DataResult<PluginStatePB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let state = chat_manager.llm_controller.get_plugin_state();
+  let state = chat_manager.local_ai_controller.get_plugin_state();
   data_result_ok(state)
 }

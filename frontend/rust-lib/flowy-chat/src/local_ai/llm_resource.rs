@@ -3,7 +3,7 @@ use crate::entities::{LocalModelResourcePB, PendingResourcePB};
 use crate::local_ai::local_llm_chat::{LLMModelInfo, LLMSetting};
 use crate::local_ai::model_request::download_model;
 
-use appflowy_local_ai::chat_plugin::ChatPluginConfig;
+use appflowy_local_ai::chat_plugin::AIPluginConfig;
 use flowy_chat_pub::cloud::{LLMModel, LocalAIConfig, ModelInfo};
 use flowy_error::{FlowyError, FlowyResult};
 use futures::Sink;
@@ -386,7 +386,7 @@ impl LLMResourceController {
   }
 
   #[instrument(level = "debug", skip_all, err)]
-  pub fn get_ai_plugin_config(&self) -> FlowyResult<ChatPluginConfig> {
+  pub fn get_ai_plugin_config(&self) -> FlowyResult<AIPluginConfig> {
     if !self.is_ready() {
       return Err(FlowyError::local_ai().with_context("Local AI resources are not ready"));
     }
@@ -406,7 +406,7 @@ impl LLMResourceController {
       .join(llm_setting.plugin.name);
     let chat_model_path = model_dir.join(&llm_setting.llm_model.chat_model.file_name);
     let embedding_model_path = model_dir.join(&llm_setting.llm_model.embedding_model.file_name);
-    let mut config = ChatPluginConfig::new(bin_path, chat_model_path)?;
+    let mut config = AIPluginConfig::new(bin_path, chat_model_path)?;
 
     //
     let persist_directory = resource_dir.join("rag");
