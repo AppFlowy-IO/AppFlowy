@@ -13,7 +13,6 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/fix_data_widget.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -100,10 +99,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               if (currentSpace != null) {
                 add(SpaceEvent.open(currentSpace));
               }
-            }
-
-            if (!hasRunCheck) {
-              unawaited(_checkViewsRelationship());
             }
           },
           create: (
@@ -350,7 +345,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   String? _workspaceId;
   late UserProfilePB userProfile;
   WorkspaceSectionsListener? _listener;
-  bool hasRunCheck = false;
 
   @override
   Future<void> close() async {
@@ -440,8 +434,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
     _workspaceId = workspaceId;
     this.userProfile = userProfile;
-
-    hasRunCheck = false;
 
     _listener = WorkspaceSectionsListener(
       user: userProfile,
@@ -632,17 +624,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       Log.error('migrate space error: $e');
       return false;
     }
-  }
-
-  Future<void> _checkViewsRelationship() async {
-    // during moving, some views were assigned to the a parent view id,
-    //  but they are not in the parent view's child views
-    final issueViews = await WorkspaceDataManager.checkViewHealth();
-    for (final view in issueViews) {
-      Log.info('space: found an issue: $view is not in its parent view');
-    }
-
-    add(SpaceEvent.updateIssueViews(issueViews));
   }
 
   Future<bool> shouldShowUpgradeDialog({

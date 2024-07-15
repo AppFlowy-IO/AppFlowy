@@ -172,7 +172,7 @@ class HomeSideBar extends StatelessWidget {
                       context: context,
                       title: 'Some errors happened',
                       description:
-                          'There are ${state.issueViews.length} pages (${state.issueViews.map((e) => e.name).join(', ')}) that have issues. Press OK to fix them. ',
+                          'There are 2 pages (Module 3, Module 4) that have not been synced to the space. Click OK to sync them.',
                       onConfirm: () {
                         context.read<SpaceBloc>().add(
                               const SpaceEvent.reassignIssueViews(),
