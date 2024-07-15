@@ -79,7 +79,7 @@ impl LLMResourceController {
   }
 
   /// Returns true when all resources are downloaded and ready to use.
-  pub fn is_ready(&self) -> bool {
+  pub fn is_resource_ready(&self) -> bool {
     match self.calculate_pending_resources() {
       Ok(res) => res.is_empty(),
       Err(_) => false,
@@ -153,24 +153,21 @@ impl LLMResourceController {
     let is_downloading = self.download_task.read().is_some();
     let pending_resources: Vec<_> = pending_resources
       .into_iter()
-      .filter_map(|res| match res {
-        PendingResource::PluginRes => Some(vec![PendingResourcePB {
+      .flat_map(|res| match res {
+        PendingResource::PluginRes => vec![PendingResourcePB {
           name: "AppFlowy Plugin".to_string(),
           file_size: 0,
           requirements: "".to_string(),
-        }]),
-        PendingResource::ModelInfoRes(model_infos) => Some(
-          model_infos
-            .into_iter()
-            .map(|model_info| PendingResourcePB {
-              name: model_info.name,
-              file_size: model_info.file_size,
-              requirements: model_info.requirements,
-            })
-            .collect::<Vec<_>>(),
-        ),
+        }],
+        PendingResource::ModelInfoRes(model_infos) => model_infos
+          .into_iter()
+          .map(|model_info| PendingResourcePB {
+            name: model_info.name,
+            file_size: model_info.file_size,
+            requirements: model_info.requirements,
+          })
+          .collect::<Vec<_>>(),
       })
-      .flatten()
       .collect();
 
     let resource = LocalModelResourcePB {
@@ -343,14 +340,15 @@ impl LLMResourceController {
         info!("[LLM Resource] Downloading model: {:?}", file_name);
         let plugin_progress_tx = download_task.tx.clone();
         let cloned_model_name = model_name.clone();
+        let progress = Arc::new(move |downloaded, total_size| {
+          let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
+          let _ = plugin_progress_tx.send(format!("{}:progress:{}", cloned_model_name, progress));
+        });
         match download_model(
           &url,
           &model_dir,
           &file_name,
-          Some(Arc::new(move |downloaded, total_size| {
-            let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
-            let _ = plugin_progress_tx.send(format!("{}:progress:{}", cloned_model_name, progress));
-          })),
+          Some(progress),
           Some(download_task.cancel_token.clone()),
         )
         .await
@@ -387,7 +385,7 @@ impl LLMResourceController {
 
   #[instrument(level = "debug", skip_all, err)]
   pub fn get_ai_plugin_config(&self) -> FlowyResult<AIPluginConfig> {
-    if !self.is_ready() {
+    if !self.is_resource_ready() {
       return Err(FlowyError::local_ai().with_context("Local AI resources are not ready"));
     }
 

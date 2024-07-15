@@ -102,7 +102,7 @@ impl LocalAIController {
 
   /// Returns true if the local AI is enabled and ready to use.
   pub fn is_ready(&self) -> bool {
-    self.llm_res.is_ready()
+    self.llm_res.is_resource_ready()
   }
 
   pub fn open_chat(&self, chat_id: &str) {
@@ -141,7 +141,7 @@ impl LocalAIController {
     }
     let state = self.llm_res.use_local_llm(llm_id)?;
     // Re-initialize the plugin if the setting is updated and ready to use
-    if self.llm_res.is_ready() {
+    if self.llm_res.is_resource_ready() {
       self.initialize()?;
     }
     Ok(state)
