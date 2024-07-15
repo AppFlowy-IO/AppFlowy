@@ -16,6 +16,23 @@ pub struct TimeCellData {
 }
 
 impl TimeCellData {
+  pub fn calculate_time(&self, time_type: TimeType) -> Option<i64> {
+    let mut time_sum = self
+      .time_tracks
+      .clone()
+      .into_iter()
+      .fold(0, |total, time_track| {
+        total + time_track.to_timestamp.unwrap_or(timestamp()) - time_track.from_timestamp
+      });
+    if time_type == TimeType::Timer {
+      time_sum = self.timer_start.unwrap_or(0) - time_sum;
+      if time_sum < 0 {
+        time_sum = 0;
+      }
+    }
+    return Some(time_sum);
+  }
+
   pub fn validate(&self) -> Option<FlowyError> {
     if self.time.unwrap_or(0) < 0 {
       return Some(FlowyError::internal().with_context("time can't get less than 0"));
@@ -105,8 +122,14 @@ impl From<&TimeCellData> for Cell {
       Some(time) => time.to_string(),
       None => "".to_string(),
     };
+    let timer_start = match cell_data.timer_start {
+      Some(timer_start) => timer_start.to_string(),
+      None => "".to_string(),
+    };
+
     new_cell_builder(FieldType::Time)
       .insert_str_value(CELL_DATA, time)
+      .insert_str_value(TIMER_START, timer_start)
       .insert_str_value(
         TIME_TRACKS,
         serde_json::to_string(&cell_data.time_tracks).unwrap_or_default(),
