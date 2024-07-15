@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
@@ -6,8 +8,8 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/time_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import '../desktop_grid/desktop_grid_time_cell.dart';
 import '../desktop_row_detail/desktop_row_detail_time_cell.dart';
@@ -32,6 +34,7 @@ abstract class IEditableTimeCellSkin {
     TimeCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
+    PopoverController popoverController,
   );
 }
 
@@ -53,6 +56,7 @@ class EditableTimeCell extends EditableCellWidget {
 
 class _TimeCellState extends GridEditableTextCell<EditableTimeCell> {
   late final TextEditingController _textEditingController;
+  final PopoverController _popover = PopoverController();
   late final cellBloc = TimeCellBloc(
     cellController: makeCellController(
       widget.databaseController,
@@ -89,6 +93,7 @@ class _TimeCellState extends GridEditableTextCell<EditableTimeCell> {
               cellBloc,
               focusNode,
               _textEditingController,
+              _popover,
             );
           },
         ),
@@ -101,7 +106,16 @@ class _TimeCellState extends GridEditableTextCell<EditableTimeCell> {
 
   @override
   void onRequestFocus() {
-    focusNode.requestFocus();
+    final timeType = cellBloc.state.timeType;
+    switch (timeType) {
+      case TimeTypePB.PlainTime:
+        focusNode.requestFocus();
+        break;
+      case TimeTypePB.Timer:
+      case TimeTypePB.Stopwatch:
+        _popover.show();
+        break;
+    }
   }
 
   @override

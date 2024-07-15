@@ -1138,7 +1138,14 @@
       "newColumn": "New Column",
       "format": "Format",
       "reminderOnDateTooltip": "This cell has a scheduled reminder",
-      "optionAlreadyExist": "Option already exists"
+      "optionAlreadyExist": "Option already exists",
+      "timeType": "Time type",
+      "timePrecision": "Time precision",
+      "timeTypePlainTime": "Time",
+      "timeTypeTimer": "Timer",
+      "timeTypeStopwatch": "Stopwatch",
+      "timePrecisionSeconds": "Seconds",
+      "timePrecisionMinutes": "Minutes"
     },
     "rowPage": {
       "newField": "Add a new field",

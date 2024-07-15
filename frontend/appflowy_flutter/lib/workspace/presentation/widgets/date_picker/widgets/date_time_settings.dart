@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/date/date_time_format.dart';
+import 'package:appflowy/plugins/database/widgets/field/type_option_editor/util.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/layout.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class DateTimeSetting extends StatefulWidget {
   const DateTimeSetting({
@@ -36,26 +39,28 @@ class _DateTimeSettingState extends State<DateTimeSetting> {
         mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(8, 0),
-        popupBuilder: (_) => DateFormatList(
-          selectedFormat: widget.dateFormat,
+        popupBuilder: (_) => TypeOptionList(
+          options: {for (final v in DateFormatPB.values) v.title(): v},
+          selectedOption: widget.dateFormat,
           onSelected: _onDateFormatChanged,
         ),
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.0),
-          child: DateFormatButton(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: TypeOptionButton(text: LocaleKeys.grid_field_dateFormat.tr()),
         ),
       ),
       AppFlowyPopover(
         mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(8, 0),
-        popupBuilder: (_) => TimeFormatList(
-          selectedFormat: widget.timeFormat,
+        popupBuilder: (_) => TypeOptionList(
+          options: {for (final v in TimeFormatPB.values) v.title(): v},
+          selectedOption: widget.timeFormat,
           onSelected: _onTimeFormatChanged,
         ),
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.0),
-          child: TimeFormatButton(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: TypeOptionButton(text: LocaleKeys.grid_field_timeFormat.tr()),
         ),
       ),
     ];

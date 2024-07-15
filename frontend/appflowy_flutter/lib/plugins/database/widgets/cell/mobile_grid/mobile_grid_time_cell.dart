@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/time_cell_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 
 import '../editable_cell_skeleton/time.dart';
 
@@ -12,6 +13,7 @@ class MobileGridTimeCellSkin extends IEditableTimeCellSkin {
     TimeCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
+    PopoverController popoverController,
   ) {
     return TextField(
       controller: textEditingController,

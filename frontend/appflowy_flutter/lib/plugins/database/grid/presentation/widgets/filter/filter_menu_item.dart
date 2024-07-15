@@ -9,6 +9,7 @@ import 'choicechip/number.dart';
 import 'choicechip/select_option/select_option.dart';
 import 'choicechip/text.dart';
 import 'choicechip/url.dart';
+import 'choicechip/time.dart';
 import 'filter_info.dart';
 
 class FilterMenuItem extends StatelessWidget {
@@ -29,8 +30,7 @@ class FilterMenuItem extends StatelessWidget {
         SelectOptionFilterChoicechip(filterInfo: filterInfo),
       FieldType.URL => URLFilterChoiceChip(filterInfo: filterInfo),
       FieldType.Checklist => ChecklistFilterChoicechip(filterInfo: filterInfo),
-      // FieldType.Time =>
-      //   TimeFilterChoiceChip(filterInfo: filterInfo),
+      FieldType.Time => TimeFilterChoiceChip(filterInfo: filterInfo),
       _ => const SizedBox(),
     };
   }

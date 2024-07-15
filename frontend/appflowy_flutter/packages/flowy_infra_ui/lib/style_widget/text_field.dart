@@ -37,6 +37,8 @@ class FlowyTextField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final bool obscureText;
   final bool isDense;
+  final bool readOnly;
+  final void Function()? onTap;
 
   const FlowyTextField({
     super.key,
@@ -71,6 +73,8 @@ class FlowyTextField extends StatefulWidget {
     this.inputFormatters,
     this.obscureText = false,
     this.isDense = true,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -146,6 +150,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      readOnly: widget.readOnly,
       focusNode: focusNode,
       onChanged: (text) {
         if (widget.debounceDuration != null) {
@@ -156,6 +161,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       },
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
+      onTap: widget.onTap,
       minLines: 1,
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,

@@ -56,6 +56,7 @@ import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy/plugins/database/widgets/field/field_editor.dart';
 import 'package:appflowy/plugins/database/widgets/field/field_type_list.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/date/date_time_format.dart';
+import 'package:appflowy/plugins/database/widgets/field/type_option_editor/util.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/number.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
@@ -347,7 +348,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> changeDateFormat() async {
-    final findDateFormatButton = find.byType(DateFormatButton);
+    final findDateFormatButton = find.byType(TypeOptionButton);
     await tapButton(findDateFormatButton);
 
     final findNewDateFormat = find.text("Day/Month/Year");
@@ -355,7 +356,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> changeTimeFormat() async {
-    final findDateFormatButton = find.byType(TimeFormatButton);
+    final findDateFormatButton = find.byType(TypeOptionButton);
     await tapButton(findDateFormatButton);
 
     final findNewDateFormat = find.text("12 hour");
