@@ -842,6 +842,22 @@ pub async fn invalidate_workspace_subscription_info_cache_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn update_workspace_subscription_payment_period_handler(
+  params: AFPluginData<UpdateWorkspaceSubscriptionPaymentPeriodPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> FlowyResult<()> {
+  let params = params.try_into_inner().unwrap();
+  let manager = upgrade_manager(manager).unwrap();
+  manager
+    .update_workspace_subscription_payment_period(
+      params.workspace_id,
+      params.plan.into(),
+      params.recurring_interval.into(),
+    )
+    .await
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_workspace_member_info(
   param: AFPluginData<WorkspaceMemberIdPB>,
   manager: AFPluginState<Weak<UserManager>>,

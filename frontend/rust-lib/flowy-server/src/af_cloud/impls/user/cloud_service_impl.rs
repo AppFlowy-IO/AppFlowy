@@ -3,7 +3,8 @@ use std::sync::Arc;
 
 use anyhow::anyhow;
 use client_api::entity::billing_dto::{
-  RecurringInterval, SubscriptionPlan, WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
+  RecurringInterval, SetSubscriptionRecurringInterval, SubscriptionCancelRequest, SubscriptionPlan,
+  WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
 };
 use client_api::entity::workspace_dto::{
   CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset, WorkspaceMemberInvitation,
@@ -554,7 +555,13 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      client.cancel_subscription(&workspace_id, &plan).await?;
+      client
+        .cancel_subscription(&SubscriptionCancelRequest {
+          workspace_id,
+          plan,
+          sync: true,
+        })
+        .await?;
       Ok(())
     })
   }
@@ -577,6 +584,26 @@ where
       let client = try_get_client?;
       let url = client.get_portal_session_link().await?;
       Ok(url)
+    })
+  }
+
+  fn update_workspace_subscription_payment_period(
+    &self,
+    workspace_id: String,
+    plan: SubscriptionPlan,
+    recurring_interval: RecurringInterval,
+  ) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client
+        .set_subscription_recurring_interval(&SetSubscriptionRecurringInterval {
+          workspace_id,
+          plan,
+          recurring_interval,
+        })
+        .await?;
+      Ok(())
     })
   }
 

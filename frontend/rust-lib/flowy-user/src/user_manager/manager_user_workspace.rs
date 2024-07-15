@@ -1,4 +1,5 @@
 use chrono::{Duration, NaiveDateTime, Utc};
+use client_api::entity::billing_dto::RecurringInterval;
 use client_api::entity::billing_dto::{SubscriptionPlan, WorkspaceUsageAndLimit};
 
 use std::convert::TryFrom;
@@ -521,6 +522,21 @@ impl UserManager {
     let uid = self.user_id()?;
     let db = self.authenticate_user.get_sqlite_connection(uid)?;
     delete_workspace_subscription_from_cache(db, &workspace_id)
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn update_workspace_subscription_payment_period(
+    &self,
+    workspace_id: String,
+    plan: SubscriptionPlan,
+    recurring_interval: RecurringInterval,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .update_workspace_subscription_payment_period(workspace_id, plan, recurring_interval)
+      .await?;
+    Ok(())
   }
 
   #[instrument(level = "info", skip(self), err)]
