@@ -17,9 +17,10 @@ use lib_infra::async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 
+use parking_lot::Mutex;
 use std::sync::Arc;
 use tokio_stream::StreamExt;
-use tracing::{error, info, trace};
+use tracing::{debug, error, info, trace};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LLMSetting {
@@ -36,6 +37,7 @@ const LOCAL_AI_SETTING_KEY: &str = "local_ai_setting";
 pub struct LocalAIController {
   llm_chat: Arc<LocalChatLLMChat>,
   llm_res: Arc<LLMResourceController>,
+  current_chat_id: Mutex<Option<String>>,
 }
 
 impl Deref for LocalAIController {
@@ -87,7 +89,11 @@ impl LocalAIController {
       }
     });
 
-    Self { llm_chat, llm_res }
+    Self {
+      llm_chat,
+      llm_res,
+      current_chat_id: Default::default(),
+    }
   }
   pub async fn refresh(&self) -> FlowyResult<LLMModelInfo> {
     self.llm_res.refresh_llm_resource().await
@@ -110,6 +116,14 @@ impl LocalAIController {
       return;
     }
 
+    // Only keep one chat open at a time. Since loading multiple models at the same time will cause
+    // memory issues.
+    if let Some(current_chat_id) = self.current_chat_id.lock().as_ref() {
+      debug!("[AI Plugin] close previous chat: {}", current_chat_id);
+      self.close_chat(current_chat_id);
+    }
+
+    *self.current_chat_id.lock() = Some(chat_id.to_string());
     let chat_id = chat_id.to_string();
     let weak_ctrl = Arc::downgrade(&self.llm_chat);
     tokio::spawn(async move {

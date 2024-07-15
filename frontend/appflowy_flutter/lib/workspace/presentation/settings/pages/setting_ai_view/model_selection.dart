@@ -61,7 +61,7 @@ List<AIModelPB> _availableModels = [
   AIModelPB.Claude3Sonnet,
   AIModelPB.GPT35,
   AIModelPB.GPT4o,
-  AIModelPB.LocalAIModel,
+  // AIModelPB.LocalAIModel,
 ];
 
 String _titleForAIModel(AIModelPB model) {
