@@ -9,7 +9,7 @@ import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
-typedef PluginStateCallback = void Function(RunningStatePB state);
+typedef PluginStateCallback = void Function(PluginStatePB state);
 
 class LocalLLMListener {
   LocalLLMListener() {
@@ -39,7 +39,7 @@ class LocalLLMListener {
     result.map((r) {
       switch (ty) {
         case ChatNotification.UpdateChatPluginState:
-          stateCallback?.call(PluginStatePB.fromBuffer(r).state);
+          stateCallback?.call(PluginStatePB.fromBuffer(r));
           break;
         default:
           break;

@@ -2,9 +2,10 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/plugin_state_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CheckPluginStateIndicator extends StatelessWidget {
@@ -12,17 +13,82 @@ class CheckPluginStateIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Color(0xFFEDF7ED),
-        borderRadius: BorderRadius.all(
-          Radius.circular(4),
-        ),
+    return BlocProvider(
+      create: (context) =>
+          PluginStateBloc()..add(const PluginStateEvent.started()),
+      child: BlocBuilder<PluginStateBloc, PluginStateState>(
+        builder: (context, state) {
+          return state.action.when(
+            init: () => const _InitPlugin(),
+            ready: () => const _ReadyToUse(),
+            reloadRequired: () => const _ReloadButton(),
+          );
+        },
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: BlocProvider(
-          create: (context) => PluginStateBloc(),
+    );
+  }
+}
+
+class _InitPlugin extends StatelessWidget {
+  const _InitPlugin();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      height: 20,
+      child: CircularProgressIndicator.adaptive(),
+    );
+  }
+}
+
+class _ReloadButton extends StatelessWidget {
+  const _ReloadButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const FlowySvg(
+          FlowySvgs.download_warn_s,
+          color: Color(0xFFC62828),
+        ),
+        const HSpace(6),
+        FlowyText(LocaleKeys.settings_aiPage_keys_failToLoadLocalAI.tr()),
+        const Spacer(),
+        SizedBox(
+          height: 30,
+          child: FlowyButton(
+            useIntrinsicWidth: true,
+            text:
+                FlowyText(LocaleKeys.settings_aiPage_keys_restartLocalAI.tr()),
+            onTap: () {
+              context.read<PluginStateBloc>().add(
+                    const PluginStateEvent.restartLocalAI(),
+                  );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ReadyToUse extends StatelessWidget {
+  const _ReadyToUse();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          color: Color(0xFFEDF7ED),
+          borderRadius: BorderRadius.all(
+            Radius.circular(4),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
           child: Row(
             children: [
               const HSpace(8),

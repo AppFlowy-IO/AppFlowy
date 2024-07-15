@@ -234,3 +234,12 @@ pub(crate) async fn get_plugin_state_handler(
   let state = chat_manager.local_ai_controller.get_plugin_state();
   data_result_ok(state)
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn restart_local_ai_handler(
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> Result<(), FlowyError> {
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  chat_manager.local_ai_controller.restart();
+  Ok(())
+}
