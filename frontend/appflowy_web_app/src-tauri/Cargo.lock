@@ -1407,7 +1407,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa 1.0.10",
- "phf 0.11.2",
+ "phf 0.8.0",
  "smallvec",
 ]
 
@@ -2542,6 +2542,7 @@ dependencies = [
  "base64 0.21.7",
  "bytes",
  "chrono",
+ "client-api",
  "collab",
  "collab-database",
  "collab-document",
