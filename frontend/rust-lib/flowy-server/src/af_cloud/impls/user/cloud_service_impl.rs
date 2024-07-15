@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use anyhow::anyhow;
 use client_api::entity::billing_dto::{
-  SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionPlan, WorkspaceSubscriptionStatus,
+  SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus,
 };
 use client_api::entity::workspace_dto::{
   CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset, WorkspaceMemberInvitation,
@@ -543,7 +543,7 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      client.cancel_subscription(&workspace_id).await?;
+      client.cancel_subscription(&workspace_id, &SubscriptionPlan::Pro).await?; // TODO:
       Ok(())
     })
   }
@@ -552,12 +552,12 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let usage = client.get_billing_workspace_usage(&workspace_id).await?;
+      let usage = client.get_workspace_usage_and_limit(&workspace_id).await?;
       Ok(WorkspaceUsage {
-        member_count: usage.member_count,
-        member_count_limit: usage.member_count_limit,
-        total_blob_bytes: usage.total_blob_bytes,
-        total_blob_bytes_limit: usage.total_blob_bytes_limit,
+        member_count: usage.member_count as usize,
+        member_count_limit: usage.member_count_limit as usize,
+        total_blob_bytes: usage.storage_bytes as usize,
+        total_blob_bytes_limit: usage.storage_bytes_limit as usize,
       })
     })
   }
@@ -726,8 +726,8 @@ fn to_workspace_subscription(s: WorkspaceSubscriptionStatus) -> WorkspaceSubscri
   WorkspaceSubscription {
     workspace_id: s.workspace_id,
     subscription_plan: match s.workspace_plan {
-      WorkspaceSubscriptionPlan::Pro => flowy_user_pub::entities::SubscriptionPlan::Pro,
-      WorkspaceSubscriptionPlan::Team => flowy_user_pub::entities::SubscriptionPlan::Team,
+      // WorkspaceSubscriptionPlan::Pro => flowy_user_pub::entities::SubscriptionPlan::Pro,
+      // WorkspaceSubscriptionPlan::Team => flowy_user_pub::entities::SubscriptionPlan::Team,
       _ => flowy_user_pub::entities::SubscriptionPlan::None,
     },
     recurring_interval: match s.recurring_interval {
@@ -739,6 +739,6 @@ fn to_workspace_subscription(s: WorkspaceSubscriptionStatus) -> WorkspaceSubscri
       },
     },
     is_active: matches!(s.subscription_status, SubscriptionStatus::Active),
-    canceled_at: s.canceled_at,
+    canceled_at: s.cancel_at,
   }
 }
