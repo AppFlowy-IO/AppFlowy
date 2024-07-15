@@ -662,3 +662,16 @@ impl From<i64> for WorkspaceSubscriptionStatusPB {
     }
   }
 }
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct UpdateWorkspaceSubscriptionPaymentPeriodPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub plan: SubscriptionPlanPB,
+
+  #[pb(index = 3)]
+  pub recurring_interval: RecurringIntervalPB,
+}

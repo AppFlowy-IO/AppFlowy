@@ -318,6 +318,15 @@ pub trait UserCloudService: Send + Sync + 'static {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
+  fn update_workspace_subscription_payment_period(
+    &self,
+    workspace_id: String,
+    plan: SubscriptionPlan,
+    recurring_interval: RecurringInterval,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
   fn get_workspace_setting(
     &self,
     workspace_id: &str,
