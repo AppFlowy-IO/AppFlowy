@@ -192,8 +192,8 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
           sourceView: sourceView,
           userProfile: userProfile,
           workspaceId: workspaceId,
-          onSelected: (view) {
-            onTap(controller, view);
+          onSelected: (space, view) {
+            onTap(controller, (space, view));
           },
         );
       },

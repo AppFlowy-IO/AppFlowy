@@ -1,9 +1,12 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -203,9 +206,24 @@ class FlowyVersionDescription extends CustomActionCell {
                   thickness: 1.0,
                 ),
                 const VSpace(6),
-                FlowyText(
-                  "$appName $version",
-                  color: Theme.of(context).hintColor,
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onDoubleTap: () {
+                    if (Env.internalBuild != '1') {
+                      return;
+                    }
+                    enableDocumentInternalLog = !enableDocumentInternalLog;
+                    showToastNotification(
+                      context,
+                      message: enableDocumentInternalLog
+                          ? 'Enabled Internal Log'
+                          : 'Disabled Internal Log',
+                    );
+                  },
+                  child: FlowyText(
+                    '$appName $version',
+                    color: Theme.of(context).hintColor,
+                  ),
                 ),
               ],
             ).padding(

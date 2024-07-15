@@ -1,50 +1,41 @@
-import { DatabaseViewLayout, ViewLayout, YjsDatabaseKey, YjsFolderKey, YView } from '@/application/collab.type';
-import { useDatabaseView } from '@/application/database-yjs';
-import { useFolderContext } from '@/application/folder-yjs';
+import { DatabaseViewLayout, YDatabaseView, YjsDatabaseKey } from '@/application/collab.type';
+import { useDatabase, useDatabaseView } from '@/application/database-yjs';
 import { DatabaseActions } from '@/components/database/components/conditions';
 import { Tooltip } from '@mui/material';
-import { forwardRef, FunctionComponent, SVGProps, useCallback, useMemo } from 'react';
+import { forwardRef, FunctionComponent, SVGProps, useMemo } from 'react';
 import { ViewTabs, ViewTab } from './ViewTabs';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as GridSvg } from '$icons/16x/grid.svg';
 import { ReactComponent as BoardSvg } from '$icons/16x/board.svg';
 import { ReactComponent as CalendarSvg } from '$icons/16x/date.svg';
-import { ReactComponent as DocumentSvg } from '$icons/16x/document.svg';
 
 export interface DatabaseTabBarProps {
   viewIds: string[];
   selectedViewId?: string;
   setSelectedViewId?: (viewId: string) => void;
+  viewName?: string;
+  iidIndex: string;
 }
 
 const DatabaseIcons: {
-  [key in ViewLayout]: FunctionComponent<SVGProps<SVGSVGElement> & { title?: string | undefined }>;
+  [key in DatabaseViewLayout]: FunctionComponent<SVGProps<SVGSVGElement> & { title?: string | undefined }>;
 } = {
-  [ViewLayout.Document]: DocumentSvg,
-  [ViewLayout.Grid]: GridSvg,
-  [ViewLayout.Board]: BoardSvg,
-  [ViewLayout.Calendar]: CalendarSvg,
+  [DatabaseViewLayout.Grid]: GridSvg,
+  [DatabaseViewLayout.Board]: BoardSvg,
+  [DatabaseViewLayout.Calendar]: CalendarSvg,
 };
 
 export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
-  ({ viewIds, selectedViewId, setSelectedViewId }, ref) => {
+  ({ viewIds, viewName, iidIndex, selectedViewId, setSelectedViewId }, ref) => {
     const { t } = useTranslation();
-    const folder = useFolderContext();
     const view = useDatabaseView();
+    const views = useDatabase().get(YjsDatabaseKey.views);
     const layout = Number(view?.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
 
     const handleChange = (_: React.SyntheticEvent, newValue: string) => {
       setSelectedViewId?.(newValue);
     };
-
-    const getFolderView = useCallback(
-      (viewId: string) => {
-        if (!folder) return null;
-        return folder.get(YjsFolderKey.views)?.get(viewId) as YView | null;
-      },
-      [folder]
-    );
 
     const className = useMemo(() => {
       const classList = [
@@ -75,12 +66,12 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             onChange={handleChange}
           >
             {viewIds.map((viewId) => {
-              const view = getFolderView(viewId);
+              const view = views?.get(viewId) as YDatabaseView | null;
 
               if (!view) return null;
-              const layout = Number(view.get(YjsFolderKey.layout)) as ViewLayout;
+              const layout = Number(view.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
               const Icon = DatabaseIcons[layout];
-              const name = view.get(YjsFolderKey.name);
+              const name = viewId === iidIndex ? viewName : view.get(YjsDatabaseKey.name);
 
               return (
                 <ViewTab

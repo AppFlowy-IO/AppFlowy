@@ -1,10 +1,8 @@
 import React from 'react';
 import { Button } from '@mui/material';
-import { useAuth } from '@/components/auth/auth.hooks';
 import { useTranslation } from 'react-i18next';
 
 function SignInAsAnonymous() {
-  const { signInAsAnonymous } = useAuth();
   const { t } = useTranslation();
 
   return (
@@ -14,7 +12,6 @@ function SignInAsAnonymous() {
         color={'inherit'}
         className={'border-transparent bg-line-divider py-3'}
         variant={'outlined'}
-        onClick={signInAsAnonymous}
       >
         {t('signIn.loginStartWithAnonymous')}
       </Button>

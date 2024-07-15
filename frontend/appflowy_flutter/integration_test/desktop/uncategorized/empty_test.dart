@@ -8,9 +8,10 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Empty', () {
-    testWidgets('toggle theme mode', (tester) async {
+    testWidgets('empty test', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
+      await tester.wait(1000);
     });
   });
 }

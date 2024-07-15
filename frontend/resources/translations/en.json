@@ -34,7 +34,7 @@
   "signIn": {
     "loginTitle": "Login to @:appName",
     "loginButtonText": "Login",
-    "loginStartWithAnonymous": "Start with an anonymous session",
+    "loginStartWithAnonymous": "Continue with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
@@ -47,24 +47,25 @@
     "unmatchedPasswordError": "Repeat password is not the same as password",
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "or": "OR",
-    "signInWithGoogle": "Log in with Google",
-    "signInWithGithub": "Log in with Github",
-    "signInWithDiscord": "Log in with Discord",
+    "signInWithGoogle": "Continue with Google",
+    "signInWithGithub": "Continue with Github",
+    "signInWithDiscord": "Continue with Discord",
     "signUpWithGoogle": "Sign up with Google",
     "signUpWithGithub": "Sign up with Github",
     "signUpWithDiscord": "Sign up with Discord",
-    "signInWith": "Sign in with:",
-    "signInWithEmail": "Sign in with Email",
-    "signInWithMagicLink": "Log in with Magic Link",
+    "signInWith": "Continue with:",
+    "signInWithEmail": "Continue with Email",
+    "signInWithMagicLink": "Continue",
     "signUpWithMagicLink": "Sign up with Magic Link",
     "pleaseInputYourEmail": "Please enter your email address",
     "settings": "Settings",
-    "magicLinkSent": "We emailed a magic link. Click the link to log in.",
+    "magicLinkSent": "Magic Link sent!",
     "invalidEmail": "Please enter a valid email address",
     "alreadyHaveAnAccount": "Already have an account?",
     "logIn": "Log in",
     "generalError": "Something went wrong. Please try again later",
-    "limitRateError": "For security reasons, you can only request a magic link every 60 seconds"
+    "limitRateError": "For security reasons, you can only request a magic link every 60 seconds",
+    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes."
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -82,7 +83,7 @@
       "reachOut": "Reach out on Discord"
     },
     "menuTitle": "Workspaces",
-    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
+    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone, and any pages you have published will be unpublished.",
     "createSuccess": "Workspace created successfully",
     "createFailed": "Failed to create workspace",
     "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
@@ -106,7 +107,15 @@
     "html": "HTML",
     "clipboard": "Copy to clipboard",
     "csv": "CSV",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy Link",
+    "publishToTheWeb": "Publish to Web",
+    "publishToTheWebHint": "Create a website with AppFlowy",
+    "publish": "Publish",
+    "unPublish": "Unpublish",
+    "visitSite": "Visit site",
+    "exportAsTab": "Export as",
+    "publishTab": "Publish",
+    "shareTab": "Share"
   },
   "moreAction": {
     "small": "small",
@@ -327,9 +336,9 @@
     "logout": "Log out",
     "deleteAccount": "Delete account",
     "back": "Back",
-    "signInGoogle": "Sign in with Google",
-    "signInGithub": "Sign in with Github",
-    "signInDiscord": "Sign in with Discord",
+    "signInGoogle": "Continue with Google",
+    "signInGithub": "Continue with Github",
+    "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
     "close": "Close"
@@ -434,7 +443,7 @@
       },
       "deleteWorkspacePrompt": {
         "title": "Delete workspace",
-        "content": "Are you sure you want to delete this workspace? This action cannot be undone."
+        "content": "Are you sure you want to delete this workspace? This action cannot be undone, and any pages you have published will be unpublished."
       },
       "leaveWorkspacePrompt": {
         "title": "Leave workspace",
@@ -615,6 +624,16 @@
         "aiSettingsDescription": "Select or configure Ai models used on @:appName. For best performance we recommend using the default model options",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
+        "llmModelType": "Language Model Type",
+        "downloadLLMPrompt": "Download {}",
+        "downloadLLMPromptDetail": "Downloading {} local model will take up to {} of storage. Do you want to continue?",
+        "downloadAIModelButton": "Download AI model",
+        "downloadingModel": "Downloading",
+        "localAILoaded": "Local AI Model successfully added and ready to use",
+        "localAILoading": "Local AI Model is loading...",
+        "localAIStopped": "Local AI Model stopped",
+        "failToLoadLocalAI": "Failed to start local AI",
+        "restartLocalAI": "Restart Local AI",
         "title": "AI API Keys",
         "openAILabel": "OpenAI API key",
         "openAITooltip": "You can find your Secret API key on the API key page",
@@ -641,7 +660,7 @@
         "storageUnlimited": "Unlimited storage with your Pro Plan",
         "aiCredit": {
           "title": "Add @:appName AI Credit",
-          "price": "5$",
+          "price": "{}",
           "priceDescription": "for 1,000 credits",
           "purchase": "Purchase AI",
           "info": "Add 1,000 Ai credits per workspace and seamlessly integrate customizable AI into your workflow for smarter, faster results with up to:",
@@ -713,13 +732,13 @@
       "freePlan": {
         "title": "Free",
         "description": "For organizing every corner of your work & life.",
-        "price": "$0",
+        "price": "{}",
         "priceInfo": "free forever"
       },
       "proPlan": {
         "title": "Professional",
         "description": "A place for small groups to plan & get organized.",
-        "price": "$10 /month",
+        "price": "{}/month",
         "priceInfo": "billed annually"
       },
       "planLabels": {
@@ -849,6 +868,9 @@
       "documentSettings": {
         "cursorColor": "Document cursor color",
         "selectionColor": "Document selection color",
+        "pickColor": "Select a color",
+        "colorShade": "Color shade",
+        "opacity": "Opacity",
         "hexEmptyError": "Hex color cannot be empty",
         "hexLengthError": "Hex value must be 6 digits long",
         "hexInvalidError": "Invalid hex value",
@@ -1372,6 +1394,9 @@
         "addAnImage": "Add an image",
         "imageUploadFailed": "Image upload failed",
         "errorCode": "Error code"
+      },
+      "math": {
+        "copiedToPasteBoard": "The math equation has been copied to the clipboard"
       },
       "urlPreview": {
         "copiedToPasteBoard": "The link has been copied to the clipboard",
@@ -2000,7 +2025,7 @@
   "space": {
     "delete": "Delete",
     "deleteConfirmation": "Delete: ",
-    "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to Trash.",
+    "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to the Trash, and any published pages will be unpublished.",
     "rename": "Rename Space",
     "changeIcon": "Change icon",
     "manage": "Manage Space",
@@ -2030,5 +2055,39 @@
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
     "switchSpace": "Switch space"
+  },
+  "publish": {
+    "hasNotBeenPublished": "This page hasn't been published yet",
+    "reportPage": "Report page",
+    "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
+    "createdWith": "Created with",
+    "downloadApp": "Download AppFlowy",
+    "copy": {
+      "codeBlock": "The content of code block has been copied to the clipboard",
+      "imageBlock": "The image link has been copied to the clipboard",
+      "mathBlock": "The math equation has been copied to the clipboard"
+    },
+    "containsPublishedPage": "This page contains one or more published pages. If you continue, they will be unpublished. Do you want to proceed with deletion?",
+    "publishSuccessfully": "Published successfully",
+    "unpublishSuccessfully": "Unpublished successfully",
+    "publishFailed": "Failed to publish",
+    "unpublishFailed": "Failed to unpublish",
+    "noAccessToVisit": "No access to this page...",
+    "createWithAppFlowy": "Create a website with AppFlowy",
+    "fastWithAI": "Fast and easy with AI.",
+    "tryItNow": "Try it now"
+  },
+  "web": {
+    "continue": "Continue",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithGithub": "Continue with GitHub",
+    "continueWithDiscord": "Continue with Discord",
+    "signInAgreement": "By clicking \"Continue\" above, you confirm that\nyou have read, understood, and agreed to\nAppFlowy's",
+    "and": "and",
+    "termOfUse": "Terms",
+    "privacyPolicy": "Privacy Policy",
+    "signInError": "Sign in error",
+    "login": "Sign up or log in"
   }
 }

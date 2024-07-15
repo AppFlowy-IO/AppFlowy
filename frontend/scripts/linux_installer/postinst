@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 if [ -e /usr/local/bin/AppFlowy ]; then
     echo "Symlink already exists, skipping."
 else

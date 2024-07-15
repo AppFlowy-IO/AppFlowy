@@ -1,13 +1,13 @@
 import { expect } from '@jest/globals';
-import { fetchCollab, batchFetchCollab } from '../fetch';
-import { CollabType } from '@/application/collab.type';
+import { fetchPublishView, fetchPublishViewMeta, fetchViewInfo } from '../fetch';
 import { APIService } from '@/application/services/js-services/wasm';
 
 jest.mock('@/application/services/js-services/wasm', () => {
   return {
     APIService: {
-      getCollab: jest.fn(),
-      batchGetCollab: jest.fn(),
+      getPublishView: jest.fn(),
+      getPublishViewMeta: jest.fn(),
+      getPublishInfoWithViewId: jest.fn(),
     },
   };
 });
@@ -17,41 +17,100 @@ describe('Collab fetch functions with deduplication', () => {
     jest.clearAllMocks();
   });
 
-  describe('fetchCollab', () => {
-    it('should fetch collab without duplicating requests', async () => {
-      const workspaceId = 'workspace1';
-      const id = 'id1';
-      const type = CollabType.Document;
+  describe('fetchPublishView', () => {
+    it('should fetch publish view without duplicating requests', async () => {
+      const namespace = 'namespace1';
+      const publishName = 'publish1';
       const mockResponse = { data: 'mockData' };
 
-      (APIService.getCollab as jest.Mock).mockResolvedValue(mockResponse);
+      (APIService.getPublishView as jest.Mock).mockResolvedValue(mockResponse);
 
-      const result1 = fetchCollab(workspaceId, id, type);
-      const result2 = fetchCollab(workspaceId, id, type);
+      const result1 = fetchPublishView(namespace, publishName);
+      const result2 = fetchPublishView(namespace, publishName);
 
       expect(result1).toBe(result2);
       await expect(result1).resolves.toEqual(mockResponse);
-      expect(APIService.getCollab).toHaveBeenCalledTimes(1);
+      expect(APIService.getPublishView).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fetch publish view with different params', async () => {
+      const namespace = 'namespace1';
+      const publishName = 'publish1';
+      const mockResponse = { data: 'mockData' };
+
+      (APIService.getPublishView as jest.Mock).mockResolvedValue(mockResponse);
+
+      const result1 = fetchPublishView(namespace, publishName);
+      const result2 = fetchPublishView(namespace, 'publish2');
+
+      expect(result1).not.toBe(result2);
+      await expect(result1).resolves.toEqual(mockResponse);
+      await expect(result2).resolves.toEqual(mockResponse);
+      expect(APIService.getPublishView).toHaveBeenCalledTimes(2);
     });
   });
 
-  describe('batchFetchCollab', () => {
-    it('should batch fetch collabs without duplicating requests', async () => {
-      const workspaceId = 'workspace1';
-      const params = [
-        { collabId: 'id1', collabType: CollabType.Document },
-        { collabId: 'id2', collabType: CollabType.Folder },
-      ];
+  describe('fetchViewInfo', () => {
+    it('should fetch view info without duplicating requests', async () => {
+      const viewId = 'view1';
       const mockResponse = { data: 'mockData' };
 
-      (APIService.batchGetCollab as jest.Mock).mockResolvedValue(mockResponse);
+      (APIService.getPublishInfoWithViewId as jest.Mock).mockResolvedValue(mockResponse);
 
-      const result1 = batchFetchCollab(workspaceId, params);
-      const result2 = batchFetchCollab(workspaceId, params);
+      const result1 = fetchViewInfo(viewId);
+      const result2 = fetchViewInfo(viewId);
 
       expect(result1).toBe(result2);
       await expect(result1).resolves.toEqual(mockResponse);
-      expect(APIService.batchGetCollab).toHaveBeenCalledTimes(1);
+      expect(APIService.getPublishInfoWithViewId).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fetch view info with different params', async () => {
+      const viewId = 'view1';
+      const mockResponse = { data: 'mockData' };
+
+      (APIService.getPublishInfoWithViewId as jest.Mock).mockResolvedValue(mockResponse);
+
+      const result1 = fetchViewInfo(viewId);
+      const result2 = fetchViewInfo('view2');
+
+      expect(result1).not.toBe(result2);
+      await expect(result1).resolves.toEqual(mockResponse);
+      await expect(result2).resolves.toEqual(mockResponse);
+      expect(APIService.getPublishInfoWithViewId).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('fetchPublishViewMeta', () => {
+    it('should fetch publish view meta without duplicating requests', async () => {
+      const namespace = 'namespace1';
+      const publishName = 'publish1';
+      const mockResponse = { data: 'mockData' };
+
+      (APIService.getPublishViewMeta as jest.Mock).mockResolvedValue(mockResponse);
+
+      const result1 = fetchPublishViewMeta(namespace, publishName);
+      const result2 = fetchPublishViewMeta(namespace, publishName);
+
+      expect(result1).toBe(result2);
+      await expect(result1).resolves.toEqual(mockResponse);
+      expect(APIService.getPublishViewMeta).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fetch publish view meta with different params', async () => {
+      const namespace = 'namespace1';
+      const publishName = 'publish1';
+      const mockResponse = { data: 'mockData' };
+
+      (APIService.getPublishViewMeta as jest.Mock).mockResolvedValue(mockResponse);
+
+      const result1 = fetchPublishViewMeta(namespace, publishName);
+      const result2 = fetchPublishViewMeta(namespace, 'publish2');
+
+      expect(result1).not.toBe(result2);
+      await expect(result1).resolves.toEqual(mockResponse);
+      await expect(result2).resolves.toEqual(mockResponse);
+      expect(APIService.getPublishViewMeta).toHaveBeenCalledTimes(2);
     });
   });
 });

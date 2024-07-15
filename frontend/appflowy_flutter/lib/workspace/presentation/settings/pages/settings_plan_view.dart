@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/int64_extension.dart';
@@ -19,6 +17,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsPlanView extends StatelessWidget {
@@ -710,7 +709,7 @@ class _PlanProgressIndicator extends StatelessWidget {
 //                       children: [
 //                         FlowyText.semibold(
 //                           LocaleKeys.settings_planPage_planUsage_aiCredit_price
-//                               .tr(),
+//                               .tr(args: ['5\$]),
 //                           fontSize: 24,
 //                         ),
 //                         FlowyText.medium(

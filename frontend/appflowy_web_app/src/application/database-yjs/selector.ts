@@ -1,12 +1,4 @@
-import {
-  FieldId,
-  SortId,
-  YDatabaseField,
-  YDoc,
-  YjsDatabaseKey,
-  YjsEditorKey,
-  YjsFolderKey,
-} from '@/application/collab.type';
+import { FieldId, SortId, YDatabaseField, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
 import { getCell, metaIdFromRowId, MIN_COLUMN_WIDTH } from '@/application/database-yjs/const';
 import {
   useDatabase,
@@ -19,7 +11,6 @@ import {
 import { filterBy, parseFilter } from '@/application/database-yjs/filter';
 import { groupByField } from '@/application/database-yjs/group';
 import { sortBy } from '@/application/database-yjs/sort';
-import { useViewsIdSelector } from '@/application/folder-yjs';
 import { parseYDatabaseCellToCell } from '@/application/database-yjs/cell.parse';
 import { DateTimeCell } from '@/application/database-yjs/cell.type';
 import * as dayjs from 'dayjs';
@@ -42,9 +33,8 @@ export interface Row {
 
 const defaultVisible = [FieldVisibility.AlwaysShown, FieldVisibility.HideWhenEmpty];
 
-export function useDatabaseViewsSelector(iidIndex: string) {
+export function useDatabaseViewsSelector(_iidIndex: string) {
   const database = useDatabase();
-  const { viewsId: visibleViewsId, views: folderViews } = useViewsIdSelector();
 
   const views = database?.get(YjsDatabaseKey.views);
   const [viewIds, setViewIds] = useState<string[]>([]);
@@ -65,22 +55,7 @@ export function useDatabaseViewsSelector(iidIndex: string) {
         return Number(viewB.created_at) - Number(viewA.created_at);
       });
 
-      const viewsId = [];
-
-      for (const viewItem of viewsSorted) {
-        const [key] = viewItem;
-        const view = folderViews?.get(key);
-
-        if (
-          visibleViewsId.includes(key) &&
-          view &&
-          (view.get(YjsFolderKey.bid) === iidIndex || view.get(YjsFolderKey.id) === iidIndex)
-        ) {
-          viewsId.push(key);
-        }
-      }
-
-      setViewIds(viewsId);
+      setViewIds(viewsSorted.map(([key]) => key));
     };
 
     observerEvent();
@@ -89,7 +64,7 @@ export function useDatabaseViewsSelector(iidIndex: string) {
     return () => {
       views.unobserve(observerEvent);
     };
-  }, [visibleViewsId, views, folderViews, iidIndex]);
+  }, [views]);
 
   return {
     childViews,
@@ -538,6 +513,7 @@ export function observeDeepRow(
 
 export function useRowDataSelector(rowId: string) {
   const rowMap = useRowDocMap();
+
   const rowSharedRoot = rowMap?.get(rowId)?.getMap(YjsEditorKey.data_section);
   const row = rowSharedRoot?.get(YjsEditorKey.database_row);
 

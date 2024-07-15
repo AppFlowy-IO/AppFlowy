@@ -7,6 +7,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -119,7 +120,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             final uniqueMessages = {...allMessages, ...messages}.toList()
               ..sort((a, b) => b.id.compareTo(a.id));
             uniqueMessages.insertAll(0, onetimeMessages);
-
             emit(
               state.copyWith(
                 messages: uniqueMessages,
@@ -380,7 +380,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Message _createStreamMessage(AnswerStream stream, Int64 questionMessageId) {
-    final streamMessageId = nanoid();
+    final streamMessageId = (questionMessageId + 1).toString();
+
     lastStreamMessageId = streamMessageId;
 
     return TextMessage(
@@ -480,7 +481,7 @@ class ChatState with _$ChatState {
 @freezed
 class LoadingState with _$LoadingState {
   const factory LoadingState.loading() = _Loading;
-  const factory LoadingState.finish() = _Finish;
+  const factory LoadingState.finish({FlowyError? error}) = _Finish;
 }
 
 enum OnetimeShotType {

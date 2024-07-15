@@ -283,6 +283,9 @@ pub enum ErrorCode {
 
   #[error("Local AI error")]
   LocalAIError = 98,
+
+  #[error("Local AI unavailable")]
+  LocalAIUnavailable = 99,
 }
 
 impl ErrorCode {

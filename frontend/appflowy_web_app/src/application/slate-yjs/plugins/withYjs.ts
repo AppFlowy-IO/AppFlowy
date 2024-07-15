@@ -75,7 +75,6 @@ export function withYjs<T extends Editor>(
 
     e.children = content.children;
 
-    console.log('initializeDocumentContent', doc.getMap(YjsEditorKey.data_section).toJSON(), e.children);
     Editor.normalize(editor, { force: true });
   };
 

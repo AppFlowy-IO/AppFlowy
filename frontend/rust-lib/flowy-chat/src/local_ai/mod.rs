@@ -1,4 +1,3 @@
-pub mod chat_plugin;
-pub mod llm_chat;
-
-pub mod embedding_plugin;
+pub mod llm_resource;
+pub mod local_llm_chat;
+mod model_request;

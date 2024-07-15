@@ -1,8 +1,7 @@
-import { CollabType } from '@/application/collab.type';
+import { getToken, invalidToken, isTokenValid, refreshToken } from '@/application/session/token';
 import { ClientAPI } from '@appflowyinc/client-api-wasm';
-import { UserProfile, UserWorkspace } from '@/application/user.type';
 import { AFCloudConfig } from '@/application/services/services.type';
-import { invalidToken, readTokenStr, writeToken } from 'src/application/services/js-services/session';
+import { PublishViewMetaData, ViewLayout } from '@/application/collab.type';
 
 let client: ClientAPI;
 
@@ -12,8 +11,14 @@ export function initAPIService(
     clientId: string;
   }
 ) {
-  window.refresh_token = writeToken;
+  if (client) {
+    return;
+  }
+
+  window.refresh_token = refreshToken;
+
   window.invalid_token = invalidToken;
+
   client = ClientAPI.new({
     base_url: config.baseURL,
     ws_addr: config.wsURL,
@@ -26,96 +31,84 @@ export function initAPIService(
     },
   });
 
-  const token = readTokenStr();
-
-  if (token) {
-    client.restore_token(token);
+  if (isTokenValid()) {
+    client.restore_token(getToken() || '');
   }
 
   client.subscribe();
 }
 
-export function signIn(email: string, password: string) {
-  return client.login(email, password);
-}
+export async function getPublishView(publishNamespace: string, publishName: string) {
+  const data = await client.get_publish_view(publishNamespace, publishName);
 
-export function logout() {
-  return client.logout();
-}
+  const meta = JSON.parse(data.meta.data) as PublishViewMetaData;
 
-export async function getUser(): Promise<UserProfile> {
-  try {
-    const user = await client.get_user();
-
-    if (!user) {
-      throw new Error('No user found');
-    }
-
+  if (meta.view.layout === ViewLayout.Document) {
     return {
-      uid: parseInt(user.uid),
-      uuid: user.uuid || undefined,
-      email: user.email || undefined,
-      name: user.name || undefined,
-      workspaceId: user.latest_workspace_id,
-      iconUrl: user.icon_url || undefined,
+      data: data.data,
+      meta,
+    };
+  }
+
+  try {
+    const decoder = new TextDecoder('utf-8');
+    const jsonStr = decoder.decode(new Uint8Array(data.data));
+    const res = JSON.parse(jsonStr) as {
+      database_collab: number[];
+      database_row_collabs: Record<string, number[]>;
+      database_row_document_collabs: Record<string, number[]>;
+      visible_database_view_ids: string[];
+    };
+
+    console.log('getPublishView', res);
+    return {
+      data: res.database_collab,
+      rows: res.database_row_collabs,
+      visibleViewIds: res.visible_database_view_ids,
+      meta,
     };
   } catch (e) {
     return Promise.reject(e);
   }
 }
 
-export async function getCollab(workspaceId: string, object_id: string, collabType: CollabType) {
-  const res = await client.get_collab({
-    workspace_id: workspaceId,
-    object_id: object_id,
-    collab_type: Number(collabType) as 0 | 1 | 2 | 3 | 4 | 5,
-  });
-
-  const state = new Uint8Array(res.doc_state);
-
-  return {
-    state,
-  };
+export async function getPublishInfoWithViewId(viewId: string) {
+  return client.get_publish_info(viewId);
 }
 
-export async function batchGetCollab(
-  workspaceId: string,
-  params: {
-    object_id: string;
-    collab_type: CollabType;
-  }[]
-) {
-  const res = (await client.batch_get_collab(
-    workspaceId,
-    params.map((param) => ({
-      object_id: param.object_id,
-      collab_type: Number(param.collab_type) as 0 | 1 | 2 | 3 | 4 | 5,
-    }))
-  )) as unknown as Map<string, { doc_state: number[] }>;
+export async function getPublishViewMeta(publishNamespace: string, publishName: string) {
+  const data = await client.get_publish_view_meta(publishNamespace, publishName);
+  const metadata = JSON.parse(data.data) as PublishViewMetaData;
 
-  const result: Record<string, number[]> = {};
-
-  res.forEach((value, key) => {
-    result[key] = value.doc_state;
-  });
-  return result;
+  return metadata;
 }
 
-export async function getUserWorkspace(): Promise<UserWorkspace> {
-  const res = await client.get_user_workspace();
+export async function signInWithUrl(url: string) {
+  return client.sign_in_with_url(url);
+}
 
-  return {
-    visitingWorkspaceId: res.visiting_workspace_id,
-    workspaces: res.workspaces.map((workspace) => ({
-      id: workspace.workspace_id,
-      name: workspace.workspace_name,
-      icon: workspace.icon,
-      owner: {
-        id: Number(workspace.owner_uid),
-        name: workspace.owner_name,
-      },
-      type: workspace.workspace_type,
-      workspaceDatabaseId: workspace.database_storage_id,
-    })),
-  };
+export async function signInWithMagicLink(email: string, redirectTo: string) {
+  return client.sign_in_with_magic_link(email, redirectTo);
+}
+
+export async function signInGoogle(redirectTo: string) {
+  return signInProvider('google', redirectTo);
+}
+
+export async function signInProvider(provider: string, redirectTo: string) {
+  try {
+    const { url } = await client.generate_oauth_url_with_provider(provider, redirectTo);
+
+    window.open(url, '_current');
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+export async function signInGithub(redirectTo: string) {
+  return signInProvider('github', redirectTo);
+}
+
+export async function signInDiscord(redirectTo: string) {
+  return signInProvider('discord', redirectTo);
 }

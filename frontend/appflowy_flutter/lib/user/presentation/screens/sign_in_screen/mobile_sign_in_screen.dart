@@ -39,16 +39,7 @@ class MobileSignInScreen extends StatelessWidget {
                 const VSpace(spacing),
                 const SignInAnonymousButtonV2(),
                 const VSpace(spacing),
-                SwitchSignInSignUpButton(
-                  onTap: () {
-                    final type = state.loginType == LoginType.signIn
-                        ? LoginType.signUp
-                        : LoginType.signIn;
-                    context.read<SignInBloc>().add(
-                          SignInEvent.switchLoginType(type),
-                        );
-                  },
-                ),
+                const SignInAgreement(),
                 const VSpace(spacing),
                 _buildSettingsButton(context),
                 if (!isAuthEnabled) const Spacer(flex: 2),

@@ -2,7 +2,7 @@
 script_runner = "bash"
 script = [
     """
-    #!/bin/bash
+    #!/usr/bin/env bash
     BASE_DIR=$(pwd)
     crates=("lib-dispatch" "flowy-encrypt" "lib-infra" "flowy-notification" "flowy-date" "flowy-error" "collab-integrate" "flowy-document")
 

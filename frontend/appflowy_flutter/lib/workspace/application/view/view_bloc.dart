@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/core/config/kv.dart';
@@ -7,6 +8,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -138,11 +140,18 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             );
           },
           delete: (e) async {
+            // unpublish the page and all its child pages if they are published
+            await _unpublishPage(view);
+
             final result = await ViewBackendService.delete(viewId: view.id);
+
             emit(
               result.fold(
-                (l) =>
-                    state.copyWith(successOrFailure: FlowyResult.success(null)),
+                (l) {
+                  return state.copyWith(
+                    successOrFailure: FlowyResult.success(null),
+                  );
+                },
                 (error) => state.copyWith(
                   successOrFailure: FlowyResult.failure(error),
                 ),
@@ -180,8 +189,11 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             );
             emit(
               result.fold(
-                (l) =>
-                    state.copyWith(successOrFailure: FlowyResult.success(null)),
+                (l) {
+                  return state.copyWith(
+                    successOrFailure: FlowyResult.success(null),
+                  );
+                },
                 (error) => state.copyWith(
                   successOrFailure: FlowyResult.failure(error),
                 ),
@@ -235,6 +247,13 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               await _setViewIsExpanded(childView, false);
             }
             add(const ViewEvent.setIsExpanded(false));
+          },
+          unpublish: (value) async {
+            if (value.sync) {
+              await _unpublishPage(view);
+            } else {
+              unawaited(_unpublishPage(view));
+            }
           },
         );
       },
@@ -383,6 +402,20 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
     return null;
   }
 
+  // unpublish the page and all its child pages
+  Future<void> _unpublishPage(ViewPB views) async {
+    final (_, publishedPages) = await ViewBackendService.containPublishedPage(
+      view,
+    );
+
+    await Future.wait(
+      publishedPages.map((view) async {
+        Log.info('unpublishing page: ${view.id}, ${view.name}');
+        await ViewBackendService.unpublish(view);
+      }),
+    );
+  }
+
   bool _isSameViewIgnoreChildren(ViewPB from, ViewPB to) {
     return _hash(from) == _hash(to);
   }
@@ -430,6 +463,8 @@ class ViewEvent with _$ViewEvent {
   ) = UpdateViewVisibility;
   const factory ViewEvent.updateIcon(String? icon) = UpdateIcon;
   const factory ViewEvent.collapseAllPages() = CollapseAllPages;
+  // this event will unpublish the page and all its child pages if they are published
+  const factory ViewEvent.unpublish({required bool sync}) = Unpublish;
 }
 
 @freezed

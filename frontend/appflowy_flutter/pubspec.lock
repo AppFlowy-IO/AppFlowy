@@ -53,11 +53,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: e8ee051
-      resolved-ref: e8ee051719eded6621ccdc2722f696411c020209
+      ref: e0d673a
+      resolved-ref: e0d673afbbbcaf9df0276f7e0b6405d8f6e98112
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "3.0.0"
+    version: "3.1.0"
   appflowy_editor_plugins:
     dependency: "direct main"
     description:
@@ -121,6 +121,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  barcode:
+    dependency: transitive
+    description:
+      name: barcode
+      sha256: ab180ce22c6555d77d45f0178a523669db67f95856e3378259ef2ffeb43e6003
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.8"
+  bidi:
+    dependency: transitive
+    description:
+      name: bidi
+      sha256: "1a7d0c696324b2089f72e7671fd1f1f64fef44c980f3cebc84e803967c597b63"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.10"
   bitsdojo_window:
     dependency: "direct main"
     description:
@@ -394,6 +410,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  custom_sliding_segmented_control:
+    dependency: "direct main"
+    description:
+      name: custom_sliding_segmented_control
+      sha256: "53c3e931c3ae1f696085d1ec70ac8e934da836595a9b7d9b88fdd0fcbf2a5574"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.8.3"
   dart_style:
     dependency: transitive
     description:
@@ -410,6 +434,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.10"
+  desktop_drop:
+    dependency: "direct main"
+    description:
+      name: desktop_drop
+      sha256: d55a010fe46c8e8fcff4ea4b451a9ff84a162217bdb3b2a0aa1479776205e15d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.4"
   device_info_plus:
     dependency: "direct main"
     description:
@@ -578,6 +610,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  flex_color_picker:
+    dependency: "direct main"
+    description:
+      name: flex_color_picker
+      sha256: "809af4ec82ede3b140ed0219b97d548de99e47aa4b99b14a10f705a2dbbcba5e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.1"
+  flex_seed_scheme:
+    dependency: transitive
+    description:
+      name: flex_seed_scheme
+      sha256: "6c595e545b0678e1fe17e8eec3d1fbca7237482da194fadc20ad8607dc7a7f3d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   flowy_infra:
     dependency: "direct main"
     description:
@@ -949,6 +997,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  iconsax_flutter:
+    dependency: transitive
+    description:
+      name: iconsax_flutter
+      sha256: "95b65699da8ea98f87c5d232f06b0debaaf1ec1332b697e4d90969ec9a93037d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
+  image:
+    dependency: transitive
+    description:
+      name: image
+      sha256: "2237616a36c0d69aef7549ab439b833fb7f9fb9fc861af2cc9ac3eedddd69ca8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.0"
   image_gallery_saver:
     dependency: "direct main"
     description:
@@ -1203,7 +1267,7 @@ packages:
     source: hosted
     version: "1.2.0"
   markdown:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: markdown
       sha256: ef2a1298144e3f985cc736b22e0ccdaf188b5b3970648f2d9dc13efd1d9df051
@@ -1410,6 +1474,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1"
+  pausable_timer:
+    dependency: transitive
+    description:
+      name: pausable_timer
+      sha256: "6ef1a95441ec3439de6fb63f39a011b67e693198e7dae14e20675c3c00e86074"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0+3"
+  pdf:
+    dependency: transitive
+    description:
+      name: pdf
+      sha256: "81d5522bddc1ef5c28e8f0ee40b71708761753c163e0c93a40df56fd515ea0f0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.11.0"
+  pdf_widget_wrapper:
+    dependency: transitive
+    description:
+      name: pdf_widget_wrapper
+      sha256: c930860d987213a3d58c7ec3b7ecf8085c3897f773e8dc23da9cae60a5d6d0f5
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   percent_indicator:
     dependency: "direct main"
     description:
@@ -1530,6 +1618,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  printing:
+    dependency: transitive
+    description:
+      name: printing
+      sha256: cc4b256a5a89d5345488e3318897b595867f5181b8c5ed6fc63bfa5f2044aec3
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.13.1"
   process:
     dependency: transitive
     description:
@@ -1570,6 +1666,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.3"
+  qr:
+    dependency: transitive
+    description:
+      name: qr
+      sha256: "64957a3930367bf97cc211a5af99551d630f2f4625e38af10edd6b19131b64b3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
   realtime_client:
     dependency: transitive
     description:
@@ -2049,6 +2153,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  toastification:
+    dependency: "direct main"
+    description:
+      name: toastification
+      sha256: "5e751acc2fb5b8d008138dac255d62290fde4e5a24824f29809ac098c3dfe395"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   tuple:
     dependency: transitive
     description:

@@ -227,18 +227,14 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
 
   void _showDeleteSpaceDialog(BuildContext context) {
     final spaceBloc = context.read<SpaceBloc>();
-    showDialog(
+    final space = spaceBloc.state.currentSpace;
+    final name = space != null ? space.name : '';
+    showConfirmDeletionDialog(
       context: context,
-      builder: (_) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: BlocProvider.value(
-            value: spaceBloc,
-            child: const SizedBox(width: 440, child: DeleteSpacePopup()),
-          ),
-        );
+      name: name,
+      description: LocaleKeys.space_deleteConfirmationDescription.tr(),
+      onConfirm: () {
+        context.read<SpaceBloc>().add(const SpaceEvent.delete(null));
       },
     );
   }

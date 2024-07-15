@@ -65,6 +65,8 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.3.0):
     - Flutter
+  - printing (1.0.0):
+    - Flutter
   - ReachabilitySwift (5.0.0)
   - SDWebImage (5.14.2):
     - SDWebImage/Core (= 5.14.2)
@@ -101,6 +103,7 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - printing (from `.symlinks/plugins/printing/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite (from `.symlinks/plugins/sqflite/darwin`)
@@ -149,6 +152,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  printing:
+    :path: ".symlinks/plugins/printing/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
@@ -170,7 +175,7 @@ SPEC CHECKSUMS:
   file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   flowy_infra_ui: 0455e1fa8c51885aa1437848e361e99419f34ebc
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  fluttertoast: fafc4fa4d01a6a9e4f772ecd190ffa525e9e2d9c
+  fluttertoast: 31b00dabfa7fb7bacd9e7dbee580d7a2ff4bf265
   image_gallery_saver: cb43cc43141711190510e92c460eb1655cd343cb
   image_picker_ios: 99dfe1854b4fa34d0364e74a78448a0151025425
   integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
@@ -179,6 +184,7 @@ SPEC CHECKSUMS:
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  printing: 233e1b73bd1f4a05615548e9b5a324c98588640b
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   SDWebImage: b9a731e1d6307f44ca703b3976d18c24ca561e84
   share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
@@ -191,4 +197,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: d0d9b4ff572d8695c38eb3f9b490f55cdfc57eca
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.15.2

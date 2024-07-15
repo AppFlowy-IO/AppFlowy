@@ -32,6 +32,7 @@ export enum BlockType {
   OutlineBlock = 'outline',
   TableBlock = 'table',
   TableCell = 'table/cell',
+  LinkPreview = 'link_preview',
 }
 
 export enum InlineBlockType {
@@ -46,7 +47,7 @@ export enum AlignType {
 }
 
 export interface BlockData {
-  bg_color?: string;
+  bgColor?: string;
   font_color?: string;
   align?: AlignType;
 }
@@ -77,6 +78,10 @@ export interface CalloutBlockData extends BlockData {
 
 export interface MathEquationBlockData extends BlockData {
   formula?: string;
+}
+
+export interface LinkPreviewBlockData extends BlockData {
+  url?: string;
 }
 
 export enum ImageType {
@@ -111,6 +116,8 @@ export interface TableCellBlockData extends BlockData {
   height: number;
   rowPosition: number;
   width: number;
+  rowBackgroundColor: string;
+  colBackgroundColor: string;
 }
 
 export interface DatabaseNodeData extends BlockData {
@@ -635,4 +642,28 @@ export enum LineHeightLayout {
   small = 'small',
   normal = 'normal',
   large = 'large',
+}
+
+export interface ViewMetaIcon {
+  ty: number;
+  value: string;
+}
+
+export interface PublishViewInfo {
+  view_id: string;
+  name: string;
+  icon: ViewMetaIcon | null;
+  extra: string | null;
+  layout: number;
+  created_at: string;
+  created_by: string;
+  last_edited_time: string;
+  last_edited_by: string;
+  child_views: PublishViewInfo[] | null;
+}
+
+export interface PublishViewMetaData {
+  view: PublishViewInfo;
+  child_views: PublishViewInfo[];
+  ancestor_views: PublishViewInfo[];
 }
