@@ -830,18 +830,6 @@ pub async fn get_billing_portal_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn invalidate_workspace_subscription_info_cache_handler(
-  params: AFPluginData<UserWorkspaceIdPB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> FlowyResult<()> {
-  let params = params.try_into_inner().unwrap();
-  let manager = upgrade_manager(manager).unwrap();
-  manager
-    .invalidate_workspace_subscription_info_cache(params.workspace_id)
-    .await
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn update_workspace_subscription_payment_period_handler(
   params: AFPluginData<UpdateWorkspaceSubscriptionPaymentPeriodPB>,
   manager: AFPluginState<Weak<UserManager>>,

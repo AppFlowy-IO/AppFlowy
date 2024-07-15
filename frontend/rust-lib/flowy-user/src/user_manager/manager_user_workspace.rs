@@ -33,9 +33,7 @@ use crate::services::sqlite_sql::member_sql::{
 };
 use crate::services::sqlite_sql::user_sql::UserTableChangeset;
 use crate::services::sqlite_sql::workspace_sql::{
-  delete_workspace_subscription_from_cache, get_all_user_workspace_op, get_user_workspace_op,
-  insert_new_workspaces_op, select_workspace_subscription, upsert_workspace_subscription,
-  UserWorkspaceTable,
+  get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op, UserWorkspaceTable,
 };
 use crate::user_manager::{upsert_user_profile_change, UserManager};
 use flowy_user_pub::session::Session;
@@ -455,49 +453,13 @@ impl UserManager {
     &self,
     workspace_id: String,
   ) -> FlowyResult<WorkspaceSubscriptionInfoPB> {
-    let session = self.get_session()?;
-    let uid = session.user_id;
-    let db = self.authenticate_user.get_sqlite_connection(uid)?;
-
-    if let Ok(subscription) = select_workspace_subscription(db, &workspace_id) {
-      if is_older_than_n_minutes(subscription.updated_at, 10) {
-        self
-          .get_workspace_subscription_info_from_remote(uid, workspace_id)
-          .await?;
-      }
-
-      return Ok(subscription.into());
-    }
-
-    let info = self
-      .get_workspace_subscription_info_from_remote(uid, workspace_id)
-      .await?;
-
-    Ok(info)
-  }
-
-  async fn get_workspace_subscription_info_from_remote(
-    &self,
-    uid: i64,
-    workspace_id: String,
-  ) -> FlowyResult<WorkspaceSubscriptionInfoPB> {
     let subscriptions = self
       .cloud_services
       .get_user_service()?
       .get_workspace_subscription_one(workspace_id.clone())
       .await?;
 
-    let info = WorkspaceSubscriptionInfoPB::from(subscriptions);
-    let record = if info.plan_subscription.workspace_id.is_empty() {
-      WorkspaceSubscriptionInfoPB::default_from_workspace_id(workspace_id)
-    } else {
-      info.clone()
-    };
-
-    let db = self.authenticate_user.get_sqlite_connection(uid)?;
-    upsert_workspace_subscription(db, record)?;
-
-    Ok(info)
+    Ok(WorkspaceSubscriptionInfoPB::from(subscriptions))
   }
 
   #[instrument(level = "info", skip(self), err)]
@@ -512,16 +474,6 @@ impl UserManager {
       .cancel_workspace_subscription(workspace_id, plan)
       .await?;
     Ok(())
-  }
-
-  #[instrument(level = "info", skip(self), err)]
-  pub async fn invalidate_workspace_subscription_info_cache(
-    &self,
-    workspace_id: String,
-  ) -> FlowyResult<()> {
-    let uid = self.user_id()?;
-    let db = self.authenticate_user.get_sqlite_connection(uid)?;
-    delete_workspace_subscription_from_cache(db, &workspace_id)
   }
 
   #[instrument(level = "info", skip(self), err)]

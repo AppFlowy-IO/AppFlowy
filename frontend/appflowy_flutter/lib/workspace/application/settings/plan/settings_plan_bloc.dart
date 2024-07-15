@@ -120,11 +120,6 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             return;
           }
 
-          // Invalidate the cache
-          await UserBackendService.invalidateWorkspaceSubscriptionCache(
-            workspaceId,
-          );
-
           final subscriptionInfo = state.mapOrNull(
             ready: (s) => s.subscriptionInfo,
           );
@@ -188,16 +183,11 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
   late final IUserBackendService _userService;
   late final SubscriptionSuccessListenable _successListenable;
 
-  Future<void> _onPaymentSuccessful() async {
-    // Invalidate cache for this workspace
-    await UserBackendService.invalidateWorkspaceSubscriptionCache(workspaceId);
-
-    add(
-      SettingsPlanEvent.paymentSuccessful(
-        plan: _successListenable.subscribedPlan,
-      ),
-    );
-  }
+  Future<void> _onPaymentSuccessful() async => add(
+        SettingsPlanEvent.paymentSuccessful(
+          plan: _successListenable.subscribedPlan,
+        ),
+      );
 
   @override
   Future<void> close() async {

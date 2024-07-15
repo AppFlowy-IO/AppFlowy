@@ -74,7 +74,6 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::CancelWorkspaceSubscription, cancel_workspace_subscription_handler)
     .event(UserEvent::GetWorkspaceUsage, get_workspace_usage_handler)
     .event(UserEvent::GetBillingPortal, get_billing_portal_handler)
-    .event(UserEvent::InvalidateWorkspaceSubscriptionInfoCache, invalidate_workspace_subscription_info_cache_handler)
     .event(UserEvent::UpdateWorkspaceSubscriptionPaymentPeriod, update_workspace_subscription_payment_period_handler)
     // Workspace Setting
     .event(UserEvent::UpdateWorkspaceSetting, update_workspace_setting)
@@ -263,9 +262,6 @@ pub enum UserEvent {
 
   #[event(input = "UserWorkspaceIdPB", output = "WorkspaceSubscriptionInfoPB")]
   GetWorkspaceSubscriptionInfo = 59,
-
-  #[event(input = "UserWorkspaceIdPB")]
-  InvalidateWorkspaceSubscriptionInfoCache = 60,
 
   #[event(input = "UpdateWorkspaceSubscriptionPaymentPeriodPB")]
   UpdateWorkspaceSubscriptionPaymentPeriod = 61,

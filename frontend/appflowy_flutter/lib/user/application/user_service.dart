@@ -238,12 +238,6 @@ class UserBackendService implements IUserBackendService {
     return UserEventGetWorkspaceSubscriptionInfo(params).send();
   }
 
-  static Future<FlowyResult<void, FlowyError>>
-      invalidateWorkspaceSubscriptionCache(String workspaceId) {
-    final params = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
-    return UserEventInvalidateWorkspaceSubscriptionInfoCache(params).send();
-  }
-
   Future<FlowyResult<WorkspaceMemberPB, FlowyError>>
       getWorkspaceMember() async {
     final data = WorkspaceMemberIdPB.create()..uid = userId;

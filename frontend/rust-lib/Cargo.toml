@@ -99,8 +99,8 @@ zip = "2.1.3"
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "eebdbcad79a35b07305affdd36f16d9ce95c5a18" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "eebdbcad79a35b07305affdd36f16d9ce95c5a18" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "2a145c2f8c6293bc2da12b8322386ee2731a7c2d" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "2a145c2f8c6293bc2da12b8322386ee2731a7c2d" }
 
 [profile.dev]
 opt-level = 1

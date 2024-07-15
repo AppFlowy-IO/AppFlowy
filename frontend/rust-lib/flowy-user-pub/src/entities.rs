@@ -1,9 +1,6 @@
 use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
-use client_api::entity::billing_dto::{
-  RecurringInterval, SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus,
-};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::*;
@@ -454,26 +451,4 @@ pub struct WorkspaceInvitation {
   pub inviter_name: Option<String>,
   pub status: WorkspaceInvitationStatus,
   pub updated_at: DateTime<Utc>,
-}
-
-pub struct WorkspaceSubscription {
-  pub workspace_id: String,
-  pub subscription_plan: SubscriptionPlan,
-  pub recurring_interval: RecurringInterval,
-  pub is_active: bool,
-  pub has_canceled: bool,
-  pub canceled_at: Option<i64>,
-}
-
-impl From<WorkspaceSubscriptionStatus> for WorkspaceSubscription {
-  fn from(sub_status: WorkspaceSubscriptionStatus) -> Self {
-    WorkspaceSubscription {
-      workspace_id: sub_status.workspace_id,
-      subscription_plan: sub_status.workspace_plan,
-      recurring_interval: sub_status.recurring_interval,
-      is_active: sub_status.subscription_status == SubscriptionStatus::Active,
-      has_canceled: sub_status.canceled_at.is_some(),
-      canceled_at: sub_status.canceled_at,
-    }
-  }
 }

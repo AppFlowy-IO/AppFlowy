@@ -40,11 +40,11 @@ class SettingsBillingBloc
 
           FlowyError? error;
 
-          final subscriptionInfo =
-              (await UserBackendService.getWorkspaceSubscriptionInfo(
+          final result = await UserBackendService.getWorkspaceSubscriptionInfo(
             workspaceId,
-          ))
-                  .fold(
+          );
+
+          final subscriptionInfo = result.fold(
             (s) => s,
             (e) {
               error = e;
@@ -98,7 +98,7 @@ class SettingsBillingBloc
         ),
         openCustomerPortal: () async {
           if (_billingPortalCompleter.isCompleted && _billingPortal != null) {
-            await afLaunchUrlString(_billingPortal!.url);
+            return afLaunchUrlString(_billingPortal!.url);
           }
           await _billingPortalCompleter.future;
           if (_billingPortal != null) {
@@ -115,6 +115,7 @@ class SettingsBillingBloc
           );
         },
         cancelSubscription: (plan) async {
+          debugPrint("Canceling subscription for $plan");
           final result =
               await _userService.cancelSubscription(workspaceId, plan);
           final successOrNull = result.fold(
@@ -131,11 +132,6 @@ class SettingsBillingBloc
           if (successOrNull != true) {
             return;
           }
-
-          // Invalidate cache for this workspace
-          await UserBackendService.invalidateWorkspaceSubscriptionCache(
-            workspaceId,
-          );
 
           final subscriptionInfo = state.mapOrNull(
             ready: (s) => s.subscriptionInfo,
@@ -154,7 +150,8 @@ class SettingsBillingBloc
               );
             }
 
-            if (value.plan == WorkspacePlanPB.ProPlan) {
+            if (plan == WorkspacePlanPB.ProPlan &&
+                value.plan == WorkspacePlanPB.ProPlan) {
               value.plan = WorkspacePlanPB.FreePlan;
               value.planSubscription.freeze();
               value.planSubscription = value.planSubscription.rebuild((sub) {
@@ -177,7 +174,6 @@ class SettingsBillingBloc
           );
 
           final subscriptionInfo = result.toNullable();
-
           if (subscriptionInfo != null) {
             emit(
               SettingsBillingState.ready(
@@ -205,30 +201,30 @@ class SettingsBillingBloc
     _billingPortalCompleter.complete(billingPortalResult);
   }
 
-  Future<void> _onPaymentSuccessful() async {
-    // Invalidate cache for this workspace
-    await UserBackendService.invalidateWorkspaceSubscriptionCache(workspaceId);
-
-    add(
-      SettingsBillingEvent.paymentSuccessful(
-        plan: _successListenable.subscribedPlan,
-      ),
-    );
-  }
+  Future<void> _onPaymentSuccessful() async => add(
+        SettingsBillingEvent.paymentSuccessful(
+          plan: _successListenable.subscribedPlan,
+        ),
+      );
 }
 
 @freezed
 class SettingsBillingEvent with _$SettingsBillingEvent {
   const factory SettingsBillingEvent.started() = _Started;
+
   const factory SettingsBillingEvent.billingPortalFetched({
     required BillingPortalPB billingPortal,
   }) = _BillingPortalFetched;
+
   const factory SettingsBillingEvent.openCustomerPortal() = _OpenCustomerPortal;
+
   const factory SettingsBillingEvent.addSubscription(SubscriptionPlanPB plan) =
       _AddSubscription;
+
   const factory SettingsBillingEvent.cancelSubscription(
     SubscriptionPlanPB plan,
   ) = _CancelSubscription;
+
   const factory SettingsBillingEvent.paymentSuccessful({
     SubscriptionPlanPB? plan,
   }) = _PaymentSuccessful;

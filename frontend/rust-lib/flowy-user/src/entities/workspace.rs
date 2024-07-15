@@ -1,4 +1,3 @@
-use chrono::Utc;
 use client_api::entity::billing_dto::{
   RecurringInterval, SubscriptionPlan, WorkspaceSubscriptionStatus,
 };
@@ -8,10 +7,8 @@ use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
-use flowy_user_pub::entities::{Role, WorkspaceInvitation, WorkspaceMember, WorkspaceSubscription};
+use flowy_user_pub::entities::{Role, WorkspaceInvitation, WorkspaceMember};
 use lib_infra::validator_fn::required_not_empty_str;
-
-use crate::services::sqlite_sql::workspace_sql::WorkspaceSubscriptionsTable;
 
 #[derive(ProtoBuf, Default, Clone)]
 pub struct WorkspaceMemberPB {
@@ -348,19 +345,6 @@ pub struct WorkspaceSubscriptionPB {
   pub canceled_at: i64, // value is valid only if has_canceled is true
 }
 
-impl From<WorkspaceSubscription> for WorkspaceSubscriptionPB {
-  fn from(s: WorkspaceSubscription) -> Self {
-    Self {
-      workspace_id: s.workspace_id,
-      subscription_plan: s.subscription_plan.into(),
-      recurring_interval: s.recurring_interval.into(),
-      is_active: s.is_active,
-      has_canceled: s.canceled_at.is_some(),
-      canceled_at: s.canceled_at.unwrap_or_default(),
-    }
-  }
-}
-
 #[derive(Debug, ProtoBuf, Default, Clone)]
 pub struct WorkspaceUsagePB {
   #[pb(index = 1)]
@@ -543,19 +527,6 @@ impl From<Vec<WorkspaceSubscriptionStatus>> for WorkspaceSubscriptionInfoPB {
       plan,
       plan_subscription,
       add_ons,
-    }
-  }
-}
-
-impl From<WorkspaceSubscriptionInfoPB> for WorkspaceSubscriptionsTable {
-  fn from(value: WorkspaceSubscriptionInfoPB) -> Self {
-    WorkspaceSubscriptionsTable {
-      workspace_id: value.plan_subscription.workspace_id,
-      subscription_plan: value.plan.into(),
-      workspace_status: value.plan_subscription.status.into(),
-      end_date: value.plan_subscription.end_date,
-      addons: serde_json::to_string(&value.add_ons).unwrap_or_default(),
-      updated_at: Utc::now().naive_utc(),
     }
   }
 }
