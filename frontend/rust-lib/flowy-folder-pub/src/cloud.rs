@@ -3,6 +3,7 @@ use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
 use uuid::Uuid;
 
+use crate::entities::{PublishInfoResponse, PublishViewPayload};
 use lib_infra::future::FutureResult;
 
 /// [FolderCloudService] represents the cloud service for folder.
@@ -44,6 +45,24 @@ pub trait FolderCloudService: Send + Sync + 'static {
   ) -> FutureResult<(), Error>;
 
   fn service_name(&self) -> String;
+
+  fn publish_view(
+    &self,
+    workspace_id: &str,
+    payload: Vec<PublishViewPayload>,
+  ) -> FutureResult<(), Error>;
+
+  fn unpublish_views(&self, workspace_id: &str, view_ids: Vec<String>) -> FutureResult<(), Error>;
+
+  fn get_publish_info(&self, view_id: &str) -> FutureResult<PublishInfoResponse, Error>;
+
+  fn set_publish_namespace(
+    &self,
+    workspace_id: &str,
+    new_namespace: &str,
+  ) -> FutureResult<(), Error>;
+
+  fn get_publish_namespace(&self, workspace_id: &str) -> FutureResult<String, Error>;
 }
 
 #[derive(Debug)]

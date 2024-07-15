@@ -1,10 +1,16 @@
+import 'dart:convert';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_popmenu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/shared/markdown_to_document.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -176,9 +182,20 @@ class CopyButton extends StatelessWidget {
           size: const Size.square(14),
           color: Theme.of(context).colorScheme.primary,
         ),
-        onPressed: () {
-          Clipboard.setData(ClipboardData(text: textMessage.text));
-          showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
+        onPressed: () async {
+          final document = customMarkdownToDocument(textMessage.text);
+          await getIt<ClipboardService>().setData(
+            ClipboardServiceData(
+              plainText: textMessage.text,
+              inAppJson: jsonEncode(document.toJson()),
+            ),
+          );
+          if (context.mounted) {
+            showToastNotification(
+              context,
+              message: LocaleKeys.grid_url_copiedNotification.tr(),
+            );
+          }
         },
       ),
     );

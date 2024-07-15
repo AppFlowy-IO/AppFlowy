@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -19,6 +20,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpacePermissionSwitch extends StatefulWidget {
@@ -222,57 +224,172 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
   }
 }
 
-class DeleteSpacePopup extends StatelessWidget {
-  const DeleteSpacePopup({super.key});
+class SpaceOkButton extends StatelessWidget {
+  const SpaceOkButton({
+    super.key,
+    required this.onConfirm,
+    required this.confirmButtonName,
+    this.confirmButtonColor,
+  });
+
+  final VoidCallback onConfirm;
+  final String confirmButtonName;
+  final Color? confirmButtonColor;
 
   @override
   Widget build(BuildContext context) {
-    final space = context.read<SpaceBloc>().state.currentSpace;
-    final name = space != null ? space.name : '';
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 20.0,
-        horizontal: 20.0,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              FlowyText(
-                LocaleKeys.space_deleteConfirmation.tr() + name,
-                fontSize: 14.0,
-              ),
-              const Spacer(),
-              FlowyButton(
-                useIntrinsicWidth: true,
-                text: const FlowySvg(FlowySvgs.upgrade_close_s),
-                onTap: () => Navigator.of(context).pop(),
-              ),
-            ],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        DecoratedBox(
+          decoration: ShapeDecoration(
+            color: confirmButtonColor ?? Theme.of(context).colorScheme.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
-          const VSpace(8.0),
-          FlowyText.regular(
-            LocaleKeys.space_deleteConfirmationDescription.tr(),
-            fontSize: 12.0,
-            color: Theme.of(context).hintColor,
-            maxLines: 3,
-            lineHeight: 1.4,
+          child: FlowyButton(
+            useIntrinsicWidth: true,
+            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
+            radius: BorderRadius.circular(8),
+            text: FlowyText.regular(
+              confirmButtonName,
+              color: Colors.white,
+            ),
+            onTap: onConfirm,
           ),
-          const VSpace(20.0),
-          SpaceCancelOrConfirmButton(
-            onCancel: () => Navigator.of(context).pop(),
-            onConfirm: () {
-              context.read<SpaceBloc>().add(const SpaceEvent.delete(null));
-              Navigator.of(context).pop();
-            },
-            confirmButtonName: LocaleKeys.space_delete.tr(),
-            confirmButtonColor: Theme.of(context).colorScheme.error,
-          ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+enum ConfirmPopupStyle {
+  onlyOk,
+  cancelAndOk,
+}
+
+class ConfirmPopupColor {
+  static Color titleColor(BuildContext context) {
+    if (Theme.of(context).isLightMode) {
+      return const Color(0xFF171717).withOpacity(0.8);
+    }
+    return const Color(0xFFffffff).withOpacity(0.8);
+  }
+
+  static Color descriptionColor(BuildContext context) {
+    if (Theme.of(context).isLightMode) {
+      return const Color(0xFF171717).withOpacity(0.8);
+    }
+    return const Color(0xFFffffff).withOpacity(0.72);
+  }
+}
+
+class ConfirmPopup extends StatefulWidget {
+  const ConfirmPopup({
+    super.key,
+    this.style = ConfirmPopupStyle.cancelAndOk,
+    required this.title,
+    required this.description,
+    required this.onConfirm,
+  });
+
+  final String title;
+  final String description;
+  final VoidCallback onConfirm;
+  final ConfirmPopupStyle style;
+
+  @override
+  State<ConfirmPopup> createState() => _ConfirmPopupState();
+}
+
+class _ConfirmPopupState extends State<ConfirmPopup> {
+  final focusNode = FocusNode();
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyboardListener(
+      focusNode: focusNode,
+      autofocus: true,
+      onKeyEvent: (event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.escape) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 20.0,
+          horizontal: 20.0,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTitle(),
+            const VSpace(6.0),
+            _buildDescription(),
+            const VSpace(20.0),
+            _buildStyledButton(context),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildTitle() {
+    return Row(
+      children: [
+        Expanded(
+          child: FlowyText(
+            widget.title,
+            fontSize: 14.0,
+            overflow: TextOverflow.ellipsis,
+            color: ConfirmPopupColor.titleColor(context),
+          ),
+        ),
+        const HSpace(6.0),
+        FlowyButton(
+          useIntrinsicWidth: true,
+          text: const FlowySvg(FlowySvgs.upgrade_close_s),
+          onTap: () => Navigator.of(context).pop(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDescription() {
+    return FlowyText.regular(
+      widget.description,
+      fontSize: 12.0,
+      color: ConfirmPopupColor.descriptionColor(context),
+      maxLines: 3,
+      lineHeight: 1.4,
+    );
+  }
+
+  Widget _buildStyledButton(BuildContext context) {
+    switch (widget.style) {
+      case ConfirmPopupStyle.onlyOk:
+        return SpaceOkButton(
+          onConfirm: () {
+            widget.onConfirm();
+            Navigator.of(context).pop();
+          },
+          confirmButtonName: LocaleKeys.button_ok.tr(),
+          confirmButtonColor: Theme.of(context).colorScheme.primary,
+        );
+      case ConfirmPopupStyle.cancelAndOk:
+        return SpaceCancelOrConfirmButton(
+          onCancel: () => Navigator.of(context).pop(),
+          onConfirm: () {
+            widget.onConfirm();
+            Navigator.of(context).pop();
+          },
+          confirmButtonName: LocaleKeys.space_delete.tr(),
+          confirmButtonColor: Theme.of(context).colorScheme.error,
+        );
+    }
   }
 }
 

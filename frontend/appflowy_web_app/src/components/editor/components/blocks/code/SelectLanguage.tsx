@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 function SelectLanguage({
   readOnly,
-  language = 'json',
+  language = 'Auto',
 }: {
   readOnly?: boolean;
   language: string;

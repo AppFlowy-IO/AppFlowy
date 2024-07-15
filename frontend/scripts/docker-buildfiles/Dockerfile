@@ -32,8 +32,8 @@ RUN yay -S --noconfirm curl base-devel openssl clang cmake ninja pkg-config xdg-
 RUN xdg-user-dirs-update
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN source ~/.cargo/env && \
-    rustup toolchain install 1.75 && \
-    rustup default 1.75
+    rustup toolchain install 1.77.2 && \
+    rustup default 1.77.2
 
 # Install Flutter
 RUN sudo pacman -S --noconfirm git tar gtk3

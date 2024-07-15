@@ -400,12 +400,14 @@ impl LLMResourceController {
     let model_dir = self.user_model_folder()?;
     let resource_dir = self.resource_dir()?;
 
-    let chat_bin_path = self
+    let bin_path = self
       .plugin_path(&llm_setting.plugin.etag)?
-      .join("chat_plugin");
+      .join(llm_setting.plugin.name);
     let chat_model_path = model_dir.join(&llm_setting.llm_model.chat_model.file_name);
     let embedding_model_path = model_dir.join(&llm_setting.llm_model.embedding_model.file_name);
-    let mut config = ChatPluginConfig::new(chat_bin_path, chat_model_path)?;
+    let mut config = ChatPluginConfig::new(bin_path, chat_model_path)?;
+
+    //
     let persist_directory = resource_dir.join("rag");
     if !persist_directory.exists() {
       std::fs::create_dir_all(&persist_directory)?;

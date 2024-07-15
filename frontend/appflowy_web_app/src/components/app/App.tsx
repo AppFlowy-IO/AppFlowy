@@ -1,18 +1,20 @@
-import FolderPage from '@/pages/FolderPage';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import ProtectedRoutes from '@/components/auth/ProtectedRoutes';
+import { AUTH_CALLBACK_PATH } from '@/application/session/sign_in';
+import NotFound from '@/components/error/NotFound';
+import LoginAuth from '@/components/login/LoginAuth';
 import LoginPage from '@/pages/LoginPage';
-import ProductPage from '@/pages/ProductPage';
+import PublishPage from '@/pages/PublishPage';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import withAppWrapper from '@/components/app/withAppWrapper';
+import '@/styles/app.scss';
 
 const AppMain = withAppWrapper(() => {
   return (
     <Routes>
-      <Route path={'/'} element={<ProtectedRoutes />}>
-        <Route path={'/view/:workspaceId'} element={<FolderPage />} />
-        <Route path={'/view/:workspaceId/:objectId'} element={<ProductPage />} />
-      </Route>
+      <Route path={'/:namespace/:publishName'} element={<PublishPage />} />
       <Route path={'/login'} element={<LoginPage />} />
+      <Route path={AUTH_CALLBACK_PATH} element={<LoginAuth />} />
+      <Route path='/404' element={<NotFound />} />
+      <Route path='*' element={<NotFound />} />
     </Routes>
   );
 });

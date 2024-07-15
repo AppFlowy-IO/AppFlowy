@@ -1,7 +1,14 @@
-import { CollabType, YDoc, YjsEditorKey, YSharedRoot } from '@/application/collab.type';
+import {
+  CollabType,
+  PublishViewInfo,
+  PublishViewMetaData,
+  YDoc,
+  YjsEditorKey,
+  YSharedRoot,
+} from '@/application/collab.type';
 import { applyYDoc } from '@/application/ydoc/apply';
-import { getCollabDBName, openCollabDB } from './db';
-import { Fetcher, StrategyType } from './types';
+import { closeCollabDB, db, openCollabDB } from '@/application/db';
+import { Fetcher, StrategyType } from '@/application/services/js-services/cache/types';
 
 export function collabTypeToDBType(type: CollabType) {
   switch (type) {
@@ -32,30 +39,40 @@ const collabSharedRootKeyMap = {
   [CollabType.Empty]: YjsEditorKey.empty,
 };
 
-export function hasCache(doc: YDoc, type: CollabType) {
+export function hasCollabCache(doc: YDoc) {
   const data = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
-  return data.has(collabSharedRootKeyMap[type] as string);
+  return Object.values(collabSharedRootKeyMap).some((key) => {
+    return data.has(key);
+  });
 }
 
-export async function getCollab(
-  fetcher: Fetcher<{
-    state: Uint8Array;
-  }>,
+export async function hasViewMetaCache(name: string) {
+  const data = await db.view_metas.get(name);
+
+  return !!data;
+}
+
+export async function getPublishViewMeta<
+  T extends {
+    view: PublishViewInfo;
+    child_views: PublishViewInfo[];
+    ancestor_views: PublishViewInfo[];
+  }
+>(
+  fetcher: Fetcher<T>,
   {
-    collabId,
-    collabType,
-    uuid,
+    namespace,
+    publishName,
   }: {
-    uuid?: string;
-    collabId: string;
-    collabType: CollabType;
+    namespace: string;
+    publishName: string;
   },
   strategy: StrategyType = StrategyType.CACHE_AND_NETWORK
 ) {
-  const name = getCollabDBName(collabId, collabTypeToDBType(collabType), uuid);
-  const collab = await openCollabDB(name);
-  const exist = hasCache(collab, collabType);
+  const name = `${namespace}_${publishName}`;
+  const exist = await hasViewMetaCache(name);
+  const meta = await db.view_metas.get(name);
 
   switch (strategy) {
     case StrategyType.CACHE_ONLY: {
@@ -63,103 +80,181 @@ export async function getCollab(
         throw new Error('No cache found');
       }
 
-      return collab;
+      return meta;
     }
 
     case StrategyType.CACHE_FIRST: {
       if (!exist) {
-        await revalidateCollab(fetcher, collab);
+        return revalidatePublishViewMeta(name, fetcher);
       }
 
-      return collab;
+      return meta;
     }
 
     case StrategyType.CACHE_AND_NETWORK: {
       if (!exist) {
-        await revalidateCollab(fetcher, collab);
+        return revalidatePublishViewMeta(name, fetcher);
       } else {
-        void revalidateCollab(fetcher, collab);
+        void revalidatePublishViewMeta(name, fetcher);
       }
 
-      return collab;
+      return meta;
     }
 
     default: {
-      await revalidateCollab(fetcher, collab);
-
-      return collab;
+      return revalidatePublishViewMeta(name, fetcher);
     }
   }
 }
 
-async function revalidateCollab(
-  fetcher: Fetcher<{
-    state: Uint8Array;
-  }>,
-  collab: YDoc
+export async function getPublishView<
+  T extends {
+    data: number[];
+    rows?: Record<string, number[]>;
+    visibleViewIds?: string[];
+    meta: {
+      view: PublishViewInfo;
+      child_views: PublishViewInfo[];
+      ancestor_views: PublishViewInfo[];
+    };
+  }
+>(
+  fetcher: Fetcher<T>,
+  {
+    namespace,
+    publishName,
+  }: {
+    namespace: string;
+    publishName: string;
+  },
+  strategy: StrategyType = StrategyType.CACHE_AND_NETWORK
 ) {
-  const { state } = await fetcher();
+  const name = `${namespace}_${publishName}`;
+  const doc = await openCollabDB(name);
+  const exist = (await hasViewMetaCache(name)) && hasCollabCache(doc);
+
+  switch (strategy) {
+    case StrategyType.CACHE_ONLY: {
+      if (!exist) {
+        throw new Error('No cache found');
+      }
+
+      break;
+    }
+
+    case StrategyType.CACHE_FIRST: {
+      if (!exist) {
+        await revalidatePublishView(name, fetcher, doc);
+      }
+
+      break;
+    }
+
+    case StrategyType.CACHE_AND_NETWORK: {
+      if (!exist) {
+        await revalidatePublishView(name, fetcher, doc);
+      } else {
+        void revalidatePublishView(name, fetcher, doc);
+      }
+
+      break;
+    }
+
+    default: {
+      await revalidatePublishView(name, fetcher, doc);
+      break;
+    }
+  }
+
+  return doc;
+}
+
+export async function revalidatePublishViewMeta<
+  T extends {
+    view: PublishViewInfo;
+    child_views: PublishViewInfo[];
+    ancestor_views: PublishViewInfo[];
+  }
+>(name: string, fetcher: Fetcher<T>) {
+  const { view, child_views, ancestor_views } = await fetcher();
+
+  const dbView = await db.view_metas.get(name);
+
+  await db.view_metas.put(
+    {
+      publish_name: name,
+      ...view,
+      child_views: child_views,
+      ancestor_views: ancestor_views,
+      visible_view_ids: dbView?.visible_view_ids ?? [],
+    },
+    name
+  );
+
+  return db.view_metas.get(name);
+}
+
+export async function revalidatePublishView<
+  T extends {
+    data: number[];
+    rows?: Record<string, number[]>;
+    visibleViewIds?: string[];
+    meta: PublishViewMetaData;
+  }
+>(name: string, fetcher: Fetcher<T>, collab: YDoc) {
+  const { data, meta, rows, visibleViewIds = [] } = await fetcher();
+
+  await db.view_metas.put(
+    {
+      publish_name: name,
+      ...meta.view,
+      child_views: meta.child_views,
+      ancestor_views: meta.ancestor_views,
+      visible_view_ids: visibleViewIds,
+    },
+    name
+  );
+
+  if (rows) {
+    for (const [key, value] of Object.entries(rows)) {
+      const row = await openCollabDB(`${name}_${key}`);
+
+      applyYDoc(row, new Uint8Array(value));
+    }
+  }
+
+  const state = new Uint8Array(data);
 
   applyYDoc(collab, state);
 }
 
-export async function batchCollab(
-  batchFetcher: Fetcher<Record<string, number[]>>,
-  collabs: {
-    collabId: string;
-    collabType: CollabType;
-    uuid?: string;
-  }[],
-  strategy: StrategyType = StrategyType.CACHE_AND_NETWORK,
-  itemCallback?: (id: string, doc: YDoc) => void
-) {
-  const collabMap = new Map<string, YDoc>();
+export async function getBatchCollabs(names: string[]) {
+  const getRowDoc = async (name: string) => {
+    const doc = await openCollabDB(name);
+    const exist = hasCollabCache(doc);
 
-  for (const { collabId, collabType, uuid } of collabs) {
-    const name = getCollabDBName(collabId, collabTypeToDBType(collabType), uuid);
-    const collab = await openCollabDB(name);
-    const exist = hasCache(collab, collabType);
-
-    collabMap.set(collabId, collab);
-    if (exist) {
-      itemCallback?.(collabId, collab);
-    }
-  }
-
-  const notCacheIds = collabs.filter(({ collabId, collabType }) => {
-    const id = collabMap.get(collabId);
-
-    if (!id) return false;
-
-    return !hasCache(id, collabType);
-  });
-
-  if (strategy === StrategyType.CACHE_ONLY) {
-    if (notCacheIds.length > 0) {
-      throw new Error('No cache found');
+    if (!exist) {
+      return Promise.reject(new Error('No cache found'));
     }
 
-    return;
-  }
+    return doc;
+  };
 
-  if (strategy === StrategyType.CACHE_FIRST && notCacheIds.length === 0) {
-    return;
-  }
+  const collabs = await Promise.all(
+    names.map((name) => {
+      return getRowDoc(name);
+    })
+  );
 
-  const states = await batchFetcher();
+  return collabs;
+}
 
-  for (const [collabId, data] of Object.entries(states)) {
-    const info = collabs.find((item) => item.collabId === collabId);
-    const collab = collabMap.get(collabId);
+export async function deleteViewMeta(name: string) {
+  await db.view_metas.delete(name);
+}
 
-    if (!info || !collab) {
-      continue;
-    }
-
-    const state = new Uint8Array(data);
-
-    applyYDoc(collab, state);
-
-    itemCallback?.(collabId, collab);
-  }
+export async function deleteView(name: string) {
+  console.log('deleteView', name);
+  await deleteViewMeta(name);
+  await closeCollabDB(name);
 }

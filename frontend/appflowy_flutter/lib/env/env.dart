@@ -29,4 +29,11 @@ abstract class Env {
     defaultValue: '',
   )
   static const String afCloudUrl = _Env.afCloudUrl;
+
+  @EnviedField(
+    obfuscate: false,
+    varName: 'INTERNAL_BUILD',
+    defaultValue: '',
+  )
+  static const String internalBuild = _Env.internalBuild;
 }

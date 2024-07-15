@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT } from '@/components/publish/header';
 import { getHeadingCssProperty } from './utils';
 import { EditorElementProps, HeadingNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo } from 'react';
@@ -10,7 +11,16 @@ export const Heading = memo(
     const className = `${attributes.className ?? ''} ${fontSizeCssProperty} level-${level}`;
 
     return (
-      <div {...attributes} ref={ref} id={`heading-${node.blockId}`} className={className}>
+      <div
+        {...attributes}
+        ref={ref}
+        id={`heading-${node.blockId}`}
+        style={{
+          scrollMarginTop: HEADER_HEIGHT,
+          ...attributes.style,
+        }}
+        className={className}
+      >
         {children}
       </div>
     );
