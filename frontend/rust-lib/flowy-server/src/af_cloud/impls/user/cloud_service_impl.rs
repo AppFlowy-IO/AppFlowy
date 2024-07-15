@@ -543,7 +543,9 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      client.cancel_subscription(&workspace_id, &SubscriptionPlan::Pro).await?; // TODO:
+      client
+        .cancel_subscription(&workspace_id, &SubscriptionPlan::Pro)
+        .await?; // TODO:
       Ok(())
     })
   }
@@ -725,11 +727,7 @@ fn to_workspace_subscription_plan(
 fn to_workspace_subscription(s: WorkspaceSubscriptionStatus) -> WorkspaceSubscription {
   WorkspaceSubscription {
     workspace_id: s.workspace_id,
-    subscription_plan: match s.workspace_plan {
-      // WorkspaceSubscriptionPlan::Pro => flowy_user_pub::entities::SubscriptionPlan::Pro,
-      // WorkspaceSubscriptionPlan::Team => flowy_user_pub::entities::SubscriptionPlan::Team,
-      _ => flowy_user_pub::entities::SubscriptionPlan::None,
-    },
+    subscription_plan: flowy_user_pub::entities::SubscriptionPlan::None,
     recurring_interval: match s.recurring_interval {
       client_api::entity::billing_dto::RecurringInterval::Month => {
         flowy_user_pub::entities::RecurringInterval::Month

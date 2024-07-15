@@ -1,6 +1,8 @@
-use appflowy_local_ai::llm_chat::LocalLLMSetting;
+use crate::local_ai::local_llm_chat::LLMModelInfo;
+use appflowy_plugin::core::plugin::RunningState;
+
 use flowy_chat_pub::cloud::{
-  ChatMessage, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
+  ChatMessage, LLMModel, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
@@ -208,33 +210,49 @@ impl From<RepeatedRelatedQuestion> for RepeatedRelatedQuestionPB {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct LocalLLMSettingPB {
+pub struct LLMModelInfoPB {
   #[pb(index = 1)]
-  pub chat_bin_path: String,
+  pub selected_model: LLMModelPB,
 
   #[pb(index = 2)]
-  pub chat_model_path: String,
-
-  #[pb(index = 3)]
-  pub enabled: bool,
+  pub models: Vec<LLMModelPB>,
 }
 
-impl From<LocalLLMSetting> for LocalLLMSettingPB {
-  fn from(value: LocalLLMSetting) -> Self {
-    LocalLLMSettingPB {
-      chat_bin_path: value.chat_bin_path,
-      chat_model_path: value.chat_model_path,
-      enabled: value.enabled,
+impl From<LLMModelInfo> for LLMModelInfoPB {
+  fn from(value: LLMModelInfo) -> Self {
+    LLMModelInfoPB {
+      selected_model: LLMModelPB::from(value.selected_model),
+      models: value.models.into_iter().map(LLMModelPB::from).collect(),
     }
   }
 }
 
-impl From<LocalLLMSettingPB> for LocalLLMSetting {
-  fn from(value: LocalLLMSettingPB) -> Self {
-    LocalLLMSetting {
-      chat_bin_path: value.chat_bin_path,
-      chat_model_path: value.chat_model_path,
-      enabled: value.enabled,
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct LLMModelPB {
+  #[pb(index = 1)]
+  pub llm_id: i64,
+
+  #[pb(index = 2)]
+  pub embedding_model: String,
+
+  #[pb(index = 3)]
+  pub chat_model: String,
+
+  #[pb(index = 4)]
+  pub requirement: String,
+
+  #[pb(index = 5)]
+  pub file_size: i64,
+}
+
+impl From<LLMModel> for LLMModelPB {
+  fn from(value: LLMModel) -> Self {
+    LLMModelPB {
+      llm_id: value.llm_id,
+      embedding_model: value.embedding_model.name,
+      chat_model: value.chat_model.name,
+      requirement: value.chat_model.requirements,
+      file_size: value.chat_model.file_size,
     }
   }
 }
@@ -282,4 +300,95 @@ pub enum ModelTypePB {
   LocalAI = 0,
   #[default]
   RemoteAI = 1,
+}
+
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct ChatFilePB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub file_path: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "required_not_empty_str")]
+  pub chat_id: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct DownloadLLMPB {
+  #[pb(index = 1)]
+  pub progress_stream: i64,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct DownloadTaskPB {
+  #[pb(index = 1)]
+  pub task_id: String,
+}
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct LocalModelStatePB {
+  #[pb(index = 1)]
+  pub model_name: String,
+
+  #[pb(index = 2)]
+  pub model_size: String,
+
+  #[pb(index = 3)]
+  pub need_download: bool,
+
+  #[pb(index = 4)]
+  pub requirements: String,
+
+  #[pb(index = 5)]
+  pub is_downloading: bool,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct LocalModelResourcePB {
+  #[pb(index = 1)]
+  pub is_ready: bool,
+
+  #[pb(index = 2)]
+  pub pending_resources: Vec<PendingResourcePB>,
+
+  #[pb(index = 3)]
+  pub is_downloading: bool,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct PendingResourcePB {
+  #[pb(index = 1)]
+  pub name: String,
+
+  #[pb(index = 2)]
+  pub file_size: i64,
+
+  #[pb(index = 3)]
+  pub requirements: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct PluginStatePB {
+  #[pb(index = 1)]
+  pub state: RunningStatePB,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
+pub enum RunningStatePB {
+  #[default]
+  Connecting = 0,
+  Connected = 1,
+  Running = 2,
+  Stopped = 3,
+}
+
+impl From<RunningState> for RunningStatePB {
+  fn from(value: RunningState) -> Self {
+    match value {
+      RunningState::Connecting => RunningStatePB::Connecting,
+      RunningState::Connected { .. } => RunningStatePB::Connected,
+      RunningState::Running { .. } => RunningStatePB::Running,
+      RunningState::Stopped { .. } => RunningStatePB::Stopped,
+      RunningState::UnexpectedStop { .. } => RunningStatePB::Stopped,
+    }
+  }
 }

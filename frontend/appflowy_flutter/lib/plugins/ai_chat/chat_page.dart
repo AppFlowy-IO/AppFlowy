@@ -1,3 +1,5 @@
+import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -50,7 +52,7 @@ class AIChatUILayout {
   }
 }
 
-class AIChatPage extends StatefulWidget {
+class AIChatPage extends StatelessWidget {
   const AIChatPage({
     super.key,
     required this.view,
@@ -63,10 +65,53 @@ class AIChatPage extends StatefulWidget {
   final UserProfilePB userProfile;
 
   @override
-  State<AIChatPage> createState() => _AIChatPageState();
+  Widget build(BuildContext context) {
+    if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
+      return BlocProvider(
+        create: (context) => ChatFileBloc(chatId: view.id.toString()),
+        child: BlocBuilder<ChatFileBloc, ChatFileState>(
+          builder: (context, state) {
+            return DropTarget(
+              onDragDone: (DropDoneDetails detail) async {
+                for (final file in detail.files) {
+                  context
+                      .read<ChatFileBloc>()
+                      .add(ChatFileEvent.newFile(file.path));
+                }
+              },
+              child: _ChatContentPage(
+                view: view,
+                userProfile: userProfile,
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    return Center(
+      child: FlowyText(
+        LocaleKeys.chat_unsupportedCloudPrompt.tr(),
+        fontSize: 20,
+      ),
+    );
+  }
 }
 
-class _AIChatPageState extends State<AIChatPage> {
+class _ChatContentPage extends StatefulWidget {
+  const _ChatContentPage({
+    required this.view,
+    required this.userProfile,
+  });
+
+  final UserProfilePB userProfile;
+  final ViewPB view;
+
+  @override
+  State<_ChatContentPage> createState() => _ChatContentPageState();
+}
+
+class _ChatContentPageState extends State<_ChatContentPage> {
   late types.User _user;
 
   @override
