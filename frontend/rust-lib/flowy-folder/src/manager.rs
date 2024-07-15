@@ -504,6 +504,38 @@ impl FolderManager {
     }
   }
 
+  /// Retrieves the views corresponding to the specified view IDs.
+  ///
+  /// It is important to note that if the target view contains child views,
+  /// this method only provides access to the first level of child views.
+  ///
+  /// Therefore, to access a nested child view within one of the initial child views, you must invoke this method
+  /// again using the ID of the child view you wish to access.
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub async fn get_view_pbs_without_children(
+    &self,
+    view_ids: Vec<String>,
+  ) -> FlowyResult<Vec<ViewPB>> {
+    let folder = self.mutex_folder.read();
+    let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
+
+    // trash views and other private views should not be accessed
+    let view_ids_should_be_filtered = self.get_view_ids_should_be_filtered(folder);
+
+    let views = view_ids
+      .into_iter()
+      .filter_map(|view_id| {
+        if view_ids_should_be_filtered.contains(&view_id) {
+          return None;
+        }
+        folder.views.get_view(&view_id)
+      })
+      .map(view_pb_without_child_views_from_arc)
+      .collect::<Vec<_>>();
+
+    Ok(views)
+  }
+
   /// Retrieves all views.
   ///
   /// It is important to note that this will return a flat map of all views,

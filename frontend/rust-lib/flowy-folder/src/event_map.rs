@@ -160,7 +160,7 @@ pub enum FolderEvent {
   #[event(input = "UpdateViewIconPayloadPB")]
   UpdateViewIcon = 35,
 
-  #[event(output = "RepeatedRecentViewPB")]
+  #[event(input = "ReadRecentViewsPB", output = "RepeatedRecentViewPB")]
   ReadRecentViews = 36,
 
   // used for add or remove recent views, like history

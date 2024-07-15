@@ -38,8 +38,7 @@ class _MobileRecentFolderState extends State<MobileRecentFolder> {
           builder: (context, state) {
             final ids = <String>{};
 
-            List<ViewPB> recentViews =
-                state.views.reversed.map((e) => e.item).toList();
+            List<ViewPB> recentViews = state.views.map((e) => e.item).toList();
             recentViews.retainWhere((element) => ids.add(element.id));
 
             // only keep the first 20 items.

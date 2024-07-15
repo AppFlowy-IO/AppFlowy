@@ -22,8 +22,8 @@ use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::af_spawn;
 use strsim::levenshtein;
 use tantivy::{
-  collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, schema::Field, Index,
-  IndexReader, IndexWriter, Term,
+  collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, schema::Field, Document,
+  Index, IndexReader, IndexWriter, TantivyDocument, Term,
 };
 
 use super::entities::FolderIndexData;
@@ -233,10 +233,10 @@ impl FolderIndexManagerImpl {
     let mut search_results: Vec<SearchResultPB> = vec![];
     let top_docs = searcher.search(&built_query, &TopDocs::with_limit(10))?;
     for (_score, doc_address) in top_docs {
-      let retrieved_doc = searcher.doc(doc_address)?;
+      let retrieved_doc: TantivyDocument = searcher.doc(doc_address)?;
 
       let mut content = HashMap::new();
-      let named_doc = folder_schema.schema.to_named_doc(&retrieved_doc);
+      let named_doc = retrieved_doc.to_named_doc(&folder_schema.schema);
       for (k, v) in named_doc.0 {
         content.insert(k, v[0].clone());
       }

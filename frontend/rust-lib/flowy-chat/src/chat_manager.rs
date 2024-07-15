@@ -1,33 +1,36 @@
 use crate::chat::Chat;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
-use crate::middleware::chat_service_mw::ChatService;
+use crate::local_ai::local_llm_chat::LocalAIController;
+use crate::middleware::chat_service_mw::ChatServiceMiddleware;
 use crate::persistence::{insert_chat, ChatTable};
-use appflowy_local_ai::llm_chat::{LocalChatLLMChat, LocalLLMSetting};
+
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
 use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageType};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
+
 use lib_infra::util::timestamp;
+use std::path::PathBuf;
 use std::sync::Arc;
-use tracing::trace;
+use tracing::{error, info, trace};
 
 pub trait ChatUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn device_id(&self) -> Result<String, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
+  fn user_data_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
 pub struct ChatManager {
-  pub chat_service: Arc<ChatService>,
+  pub chat_service_wm: Arc<ChatServiceMiddleware>,
   pub user_service: Arc<dyn ChatUserService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
-  store_preferences: Arc<KVStorePreferences>,
+  pub local_ai_controller: Arc<LocalAIController>,
 }
 
-const LOCAL_AI_SETTING_KEY: &str = "local_ai_setting";
 impl ChatManager {
   pub fn new(
     cloud_service: Arc<dyn ChatCloudService>,
@@ -35,40 +38,33 @@ impl ChatManager {
     store_preferences: Arc<KVStorePreferences>,
   ) -> ChatManager {
     let user_service = Arc::new(user_service);
-    let local_ai_setting = store_preferences
-      .get_object::<LocalLLMSetting>(LOCAL_AI_SETTING_KEY)
-      .unwrap_or_default();
     let plugin_manager = Arc::new(PluginManager::new());
+    let local_ai_controller = Arc::new(LocalAIController::new(
+      plugin_manager.clone(),
+      store_preferences.clone(),
+      user_service.clone(),
+      cloud_service.clone(),
+    ));
 
-    // setup local AI chat plugin
-    let local_llm_ctrl = Arc::new(LocalChatLLMChat::new(plugin_manager));
+    if local_ai_controller.is_ready() {
+      if let Err(err) = local_ai_controller.initialize() {
+        error!("[AI Plugin] failed to initialize local ai: {:?}", err);
+      }
+    }
+
     // setup local chat service
-    let chat_service = Arc::new(ChatService::new(
+    let chat_service_wm = Arc::new(ChatServiceMiddleware::new(
       user_service.clone(),
       cloud_service,
-      local_llm_ctrl,
-      local_ai_setting,
+      local_ai_controller.clone(),
     ));
 
     Self {
-      chat_service,
+      chat_service_wm,
       user_service,
       chats: Arc::new(DashMap::new()),
-      store_preferences,
+      local_ai_controller,
     }
-  }
-
-  pub fn update_local_ai_setting(&self, setting: LocalLLMSetting) -> FlowyResult<()> {
-    self.chat_service.update_local_ai_setting(setting.clone())?;
-    self
-      .store_preferences
-      .set_object(LOCAL_AI_SETTING_KEY, setting)?;
-    Ok(())
-  }
-
-  pub fn get_local_ai_setting(&self) -> FlowyResult<LocalLLMSetting> {
-    let setting = self.chat_service.get_local_ai_setting();
-    Ok(setting)
   }
 
   pub async fn open_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
@@ -78,24 +74,33 @@ impl ChatManager {
         self.user_service.user_id().unwrap(),
         chat_id.to_string(),
         self.user_service.clone(),
-        self.chat_service.clone(),
+        self.chat_service_wm.clone(),
       ))
     });
 
-    self.chat_service.notify_open_chat(chat_id);
+    trace!("[AI Plugin] notify open chat: {}", chat_id);
+    self.local_ai_controller.open_chat(chat_id);
     Ok(())
   }
 
   pub async fn close_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
     trace!("close chat: {}", chat_id);
-    self.chat_service.notify_close_chat(chat_id);
+
+    if self.local_ai_controller.is_ready() {
+      info!("[AI Plugin] notify close chat: {}", chat_id);
+      self.local_ai_controller.close_chat(chat_id);
+    }
     Ok(())
   }
 
   pub async fn delete_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
     if let Some((_, chat)) = self.chats.remove(chat_id) {
       chat.close();
-      self.chat_service.notify_close_chat(chat_id);
+
+      if self.local_ai_controller.is_ready() {
+        info!("[AI Plugin] notify close chat: {}", chat_id);
+        self.local_ai_controller.close_chat(chat_id);
+      }
     }
     Ok(())
   }
@@ -103,7 +108,7 @@ impl ChatManager {
   pub async fn create_chat(&self, uid: &i64, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
     self
-      .chat_service
+      .chat_service_wm
       .create_chat(uid, &workspace_id, chat_id)
       .await?;
     save_chat(self.user_service.sqlite_connection(*uid)?, chat_id)?;
@@ -112,7 +117,7 @@ impl ChatManager {
       self.user_service.user_id().unwrap(),
       chat_id.to_string(),
       self.user_service.clone(),
-      self.chat_service.clone(),
+      self.chat_service_wm.clone(),
     ));
     self.chats.insert(chat_id.to_string(), chat.clone());
     Ok(chat)
@@ -140,7 +145,7 @@ impl ChatManager {
           self.user_service.user_id().unwrap(),
           chat_id.to_string(),
           self.user_service.clone(),
-          self.chat_service.clone(),
+          self.chat_service_wm.clone(),
         ));
         self.chats.insert(chat_id.to_string(), chat.clone());
         Ok(chat)
@@ -213,6 +218,12 @@ impl ChatManager {
   pub async fn stop_stream(&self, chat_id: &str) -> Result<(), FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     chat.stop_stream_message().await;
+    Ok(())
+  }
+
+  pub async fn chat_with_file(&self, chat_id: &str, file_path: PathBuf) -> FlowyResult<()> {
+    let chat = self.get_or_create_chat_instance(chat_id).await?;
+    chat.index_file(file_path).await?;
     Ok(())
   }
 }
