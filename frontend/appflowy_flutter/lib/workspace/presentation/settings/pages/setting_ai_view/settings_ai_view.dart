@@ -1,6 +1,5 @@
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_config.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/model_selection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
