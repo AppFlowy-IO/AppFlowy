@@ -50,10 +50,8 @@ pub async fn download_model(
   let header_sha256 = response
     .headers()
     .get("SHA256")
-    .map(|value| value.to_str().ok())
-    .flatten()
-    .map(|value| STANDARD.decode(value).ok())
-    .flatten();
+    .and_then(|value| value.to_str().ok())
+    .and_then(|value| STANDARD.decode(value).ok());
 
   part_file.seek(tokio::io::SeekFrom::Start(0)).await?;
   let mut hasher = Sha256::new();

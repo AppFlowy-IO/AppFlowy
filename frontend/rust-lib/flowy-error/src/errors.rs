@@ -43,7 +43,7 @@ impl FlowyError {
     }
   }
   pub fn with_context<T: Display>(mut self, error: T) -> Self {
-    self.msg = format!("{}", error.to_string());
+    self.msg = format!("{}", error);
     self
   }
 

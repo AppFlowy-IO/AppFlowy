@@ -385,7 +385,8 @@ impl LLMResourceController {
     Ok(())
   }
 
-  pub fn get_chat_config(&self) -> FlowyResult<ChatPluginConfig> {
+  #[instrument(level = "debug", skip_all, err)]
+  pub fn get_ai_plugin_config(&self) -> FlowyResult<ChatPluginConfig> {
     if !self.is_ready() {
       return Err(FlowyError::local_ai().with_context("Local AI resources are not ready"));
     }
@@ -429,7 +430,9 @@ impl LLMResourceController {
       .get_local_ai_config()
       .await
       .map_err(|err| {
-        FlowyError::local_ai().with_context(format!("Can't retrieve model info: {}", err))
+        error!("[LLM Resource] Failed to fetch local ai config: {:?}", err);
+        FlowyError::local_ai()
+          .with_context("Can't retrieve model info. Please try again later".to_string())
       })
   }
 

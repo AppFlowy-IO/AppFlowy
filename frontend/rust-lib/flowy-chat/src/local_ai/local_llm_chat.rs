@@ -58,7 +58,7 @@ impl LocalLLMController {
     tokio::spawn(async move {
       while let Some(state) = rx.next().await {
         let new_state = RunningStatePB::from(state);
-        info!("[Chat Plugin] state: {:?}", new_state);
+        info!("[AI Plugin] state: {:?}", new_state);
         send_notification(
           "appflowy_chat_plugin",
           ChatNotification::UpdateChatPluginState,
@@ -81,7 +81,7 @@ impl LocalLLMController {
     let cloned_llm_res = llm_res.clone();
     tokio::spawn(async move {
       while rx.recv().await.is_some() {
-        if let Ok(chat_config) = cloned_llm_res.get_chat_config() {
+        if let Ok(chat_config) = cloned_llm_res.get_ai_plugin_config() {
           initialize_chat_plugin(&cloned_llm_chat, chat_config).unwrap();
         }
       }
@@ -94,7 +94,7 @@ impl LocalLLMController {
   }
 
   pub fn initialize(&self) -> FlowyResult<()> {
-    let chat_config = self.llm_res.get_chat_config()?;
+    let chat_config = self.llm_res.get_ai_plugin_config()?;
     let llm_chat = self.llm_chat.clone();
     initialize_chat_plugin(&llm_chat, chat_config)?;
     Ok(())
@@ -115,7 +115,7 @@ impl LocalLLMController {
     tokio::spawn(async move {
       if let Some(ctrl) = weak_ctrl.upgrade() {
         if let Err(err) = ctrl.create_chat(&chat_id).await {
-          error!("[Chat Plugin] failed to open chat: {:?}", err);
+          error!("[AI Plugin] failed to open chat: {:?}", err);
         }
       }
     });
@@ -127,7 +127,7 @@ impl LocalLLMController {
     tokio::spawn(async move {
       if let Some(ctrl) = weak_ctrl.upgrade() {
         if let Err(err) = ctrl.close_chat(&chat_id).await {
-          error!("[Chat Plugin] failed to close chat: {:?}", err);
+          error!("[AI Plugin] failed to close chat: {:?}", err);
         }
       }
     });
@@ -136,8 +136,8 @@ impl LocalLLMController {
   pub async fn use_local_llm(&self, llm_id: i64) -> FlowyResult<LocalModelResourcePB> {
     let llm_chat = self.llm_chat.clone();
     match llm_chat.destroy_chat_plugin().await {
-      Ok(_) => info!("[Chat Plugin] destroy plugin successfully"),
-      Err(err) => error!("[Chat Plugin] failed to destroy plugin: {:?}", err),
+      Ok(_) => info!("[AI Plugin] destroy plugin successfully"),
+      Err(err) => error!("[AI Plugin] failed to destroy plugin: {:?}", err),
     }
     let state = self.llm_res.use_local_llm(llm_id)?;
     // Re-initialize the plugin if the setting is updated and ready to use
@@ -178,7 +178,7 @@ fn initialize_chat_plugin(
 ) -> FlowyResult<()> {
   let llm_chat = llm_chat.clone();
   tokio::spawn(async move {
-    trace!("[Chat Plugin] config: {:?}", chat_config);
+    trace!("[AI Plugin] config: {:?}", chat_config);
     if is_apple_silicon().await.unwrap_or(false) {
       chat_config = chat_config.with_device("gpu");
     }
@@ -202,7 +202,7 @@ fn initialize_chat_plugin(
           model_type: ModelTypePB::LocalAI,
           available: false,
         });
-        error!("[Chat Plugin] failed to setup plugin: {:?}", err);
+        error!("[AI Plugin] failed to setup plugin: {:?}", err);
       },
     }
   });

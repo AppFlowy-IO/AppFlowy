@@ -40,16 +40,22 @@ class SettingsAIView extends StatelessWidget {
           SettingsAIBloc(userProfile)..add(const SettingsAIEvent.started()),
       child: BlocBuilder<SettingsAIBloc, SettingsAIState>(
         builder: (context, state) {
+          final children = <Widget>[
+            const AIModelSelection(),
+          ];
+
+          if (state.aiSettings != null &&
+              state.aiSettings!.aiModel == AIModelPB.LocalAIModel) {
+            children.add(const LocalModelConfig());
+          }
+
+          children.add(const _AISearchToggle(value: false));
+
           return SettingsBody(
             title: LocaleKeys.settings_aiPage_title.tr(),
             description:
                 LocaleKeys.settings_aiPage_keys_aiSettingsDescription.tr(),
-            children: [
-              const AIModelSelection(),
-              if (state.aiSettings!.aiModel == AIModelPB.LocalAIModel)
-                const LocalModelConfig(),
-              const _AISearchToggle(value: false),
-            ],
+            children: children,
           );
         },
       ),

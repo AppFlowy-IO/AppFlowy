@@ -48,7 +48,7 @@ impl ChatManager {
 
     if llm_controller.is_ready() {
       if let Err(err) = llm_controller.initialize() {
-        error!("[Chat Plugin] failed to initialize local ai: {:?}", err);
+        error!("[AI Plugin] failed to initialize local ai: {:?}", err);
       }
     }
 
@@ -78,7 +78,7 @@ impl ChatManager {
       ))
     });
 
-    trace!("[Chat Plugin] notify open chat: {}", chat_id);
+    trace!("[AI Plugin] notify open chat: {}", chat_id);
     self.llm_controller.open_chat(chat_id);
     Ok(())
   }
@@ -87,7 +87,7 @@ impl ChatManager {
     trace!("close chat: {}", chat_id);
 
     if self.llm_controller.is_ready() {
-      info!("[Chat Plugin] notify close chat: {}", chat_id);
+      info!("[AI Plugin] notify close chat: {}", chat_id);
       self.llm_controller.close_chat(chat_id);
     }
     Ok(())
@@ -98,7 +98,7 @@ impl ChatManager {
       chat.close();
 
       if self.llm_controller.is_ready() {
-        info!("[Chat Plugin] notify close chat: {}", chat_id);
+        info!("[AI Plugin] notify close chat: {}", chat_id);
         self.llm_controller.close_chat(chat_id);
       }
     }
