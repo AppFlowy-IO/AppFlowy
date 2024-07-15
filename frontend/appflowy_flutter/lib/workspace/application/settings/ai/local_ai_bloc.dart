@@ -51,8 +51,11 @@ class LocalAISettingBloc
             );
           },
           (err) {
-            emit(state.copyWith(
-                fetchModelInfoState: LoadingState.finish(error: err)));
+            emit(
+              state.copyWith(
+                fetchModelInfoState: LoadingState.finish(error: err),
+              ),
+            );
           },
         );
       },

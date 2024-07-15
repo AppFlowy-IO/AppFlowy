@@ -1,5 +1,6 @@
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_config.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/model_selection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -47,6 +48,10 @@ class SettingsAIView extends StatelessWidget {
           if (state.aiSettings != null &&
               state.aiSettings!.aiModel == AIModelPB.LocalAIModel) {
             children.add(const LocalModelConfig());
+          }
+
+          if (kDebugMode) {
+//
           }
 
           children.add(const _AISearchToggle(value: false));
