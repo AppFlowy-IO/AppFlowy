@@ -50,10 +50,6 @@ class SettingsAIView extends StatelessWidget {
             children.add(const LocalModelConfig());
           }
 
-          if (kDebugMode) {
-//
-          }
-
           children.add(const _AISearchToggle(value: false));
 
           return SettingsBody(
