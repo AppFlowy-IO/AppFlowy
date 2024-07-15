@@ -304,15 +304,15 @@ pub(crate) async fn read_recent_views_handler(
   let limit = data.limit;
   let ids = recent_items
     .iter()
+    .rev()  // the most recent view is at the end of the list
     .map(|item| item.id.clone())
-    .rev() // the most recent view is at the end of the list
     .skip(start as usize)
     .take(limit as usize)
     .collect::<Vec<_>>();
   let views = folder.get_view_pbs_without_children(ids).await?;
   let items = views
     .into_iter()
-    .zip(recent_items.into_iter())
+    .zip(recent_items.into_iter().rev())
     .map(|(view, item)| SectionViewPB {
       item: view,
       timestamp: item.timestamp,
