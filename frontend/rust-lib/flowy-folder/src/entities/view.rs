@@ -182,6 +182,15 @@ pub struct RepeatedFavoriteViewPB {
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct ReadRecentViewsPB {
+  #[pb(index = 1)]
+  pub start: u64,
+
+  #[pb(index = 2)]
+  pub limit: u64,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedRecentViewPB {
   #[pb(index = 1)]
   pub items: Vec<SectionViewPB>,

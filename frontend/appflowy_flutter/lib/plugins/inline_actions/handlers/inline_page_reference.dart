@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/service_handler.dart';
+import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -64,11 +65,9 @@ class InlinePageReferenceService extends InlineActionsDelegate {
 
     _recentViewsInitialized = true;
 
-    final views = (await _recentService.recentViews())
-        .reversed
-        .map((e) => e.item)
-        .toSet()
-        .toList();
+    final sectionViews = await _recentService.recentViews();
+    final views =
+        sectionViews.unique((e) => e.item.id).map((e) => e.item).toList();
 
     // Filter by viewLayout
     views.retainWhere(
