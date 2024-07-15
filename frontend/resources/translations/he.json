@@ -1,2064 +1,2081 @@
 {
-  "appName": "AppFlowy",
-  "defaultUsername": "אני",
-  "welcomeText": "ברוך בואך אל @:appName",
-  "welcomeTo": "ברוך בואך אל",
-  "githubStarText": "כוכב ב־GitHub",
-  "subscribeNewsletterText": "הרשמה לרשימת הדיוור",
-  "letsGoButtonText": "התחלה זריזה",
-  "title": "כותרת",
-  "youCanAlso": "אפשר גם",
-  "and": "וגם",
-  "failedToOpenUrl": "פתיחת הכתובת נכשלה: {}",
-  "blockActions": {
-    "addBelowTooltip": "יש ללחוץ כדי להוסיף להלן",
-    "addAboveCmd": "Alt+לחיצה",
-    "addAboveMacCmd": "Option+לחיצה",
-    "addAboveTooltip": "כדי להוסיף מעל",
-    "dragTooltip": "יש לגרור כדי להזיז",
-    "openMenuTooltip": "יש ללחוץ כדי לפתוח תפריט"
-  },
-  "signUp": {
-    "buttonText": "הרשמה",
-    "title": "הרשמה ל־@:appName",
-    "getStartedText": "מאיפה מתחילים",
-    "emptyPasswordError": "הסיסמה לא יכולה להיות ריקה",
-    "repeatPasswordEmptyError": "הסיסמה החוזרת לא יכולה להיות ריקה",
-    "unmatchedPasswordError": "הסיסמה החוזרת לא זהה לסיסמה",
-    "alreadyHaveAnAccount": "כבר יש לך חשבון?",
-    "emailHint": "דוא״ל",
-    "passwordHint": "סיסמה",
-    "repeatPasswordHint": "סיסמה חוזרת",
-    "signUpWith": "הרשמה עם:"
-  },
-  "signIn": {
-    "loginTitle": "כניסה אל @:appName",
-    "loginButtonText": "כניסה",
-    "loginStartWithAnonymous": "התחלה אלמונית",
-    "continueAnonymousUser": "המשך התהליך בצורה אלמונית",
-    "buttonText": "כניסה",
-    "signingInText": "מתבצעת כניסה…",
-    "forgotPassword": "שכחת סיסמה?",
-    "emailHint": "דוא״ל",
-    "passwordHint": "סיסמה",
-    "dontHaveAnAccount": "אין לך חשבון?",
-    "createAccount": "ליצור חשבון",
-    "repeatPasswordEmptyError": "הסיסמה החוזרת לא יכולה להיות ריקה",
-    "unmatchedPasswordError": "הסיסמה החוזרת לא זהה לסיסמה",
-    "syncPromptMessage": "סנכרון הנתונים עלול לארוך זמן מה. נא לא לסגור את העמוד הזה",
-    "or": "או",
-    "signInWithGoogle": "להיכנס עם Google",
-    "signInWithGithub": "להיכנס עם Github",
-    "signInWithDiscord": "להיכנס עם Discord",
-    "signUpWithGoogle": "להירשם עם Google",
-    "signUpWithGithub": "להירשם עם Github",
-    "signUpWithDiscord": "להירשם עם Discord",
-    "signInWith": "להיכנס עם:",
-    "signInWithEmail": "להיכנס עם דוא״ל",
-    "signInWithMagicLink": "כניסה עם קישור קסם",
-    "signUpWithMagicLink": "הרשמה עם קישור קסם",
-    "pleaseInputYourEmail": "נא למלא את כתובת הדוא״ל שלך",
-    "settings": "הגדרות",
-    "magicLinkSent": "שלחנו לך קישור קסם בדוא״ל. נא ללחוץ על הקישור כדי להיכנס.",
-    "invalidEmail": "נא למלא כתובת דוא״ל תקפה",
-    "alreadyHaveAnAccount": "כבר יש לך חשבון?",
-    "logIn": "להיכנס",
-    "generalError": "משהו השתבש. נא לנסות שוב מאוחר יותר.",
-    "limitRateError": "מטעמי אבטחת מידע, אפשר לבקש קישור קסם כל 60 שניות"
-  },
-  "workspace": {
-    "chooseWorkspace": "נא לבחור את מרחב העבודה שלך",
-    "create": "יצירת מרחב עבודה",
-    "reset": "Reset workspace",
-    "renameWorkspace": "שינוי שם מרחב עבודה",
-    "resetWorkspacePrompt": "איפוס מרחב העבודה ימחק את כל הדפים והנתונים שבו. לאפס את מרחב העבודה? לחלופין, אפשר ליצור קשר עם צוות התמיכה לשחזור מרחב העבודה",
-    "hint": "מרחב עבודה",
-    "notFoundError": "לא נמצא מרחב עבודה",
-    "failedToLoad": "משהו השתבש! טעינת מרחב העבודה נכשלה. כדאי לנסות לסגור את כל העותקים הפתוחים של @:appName ולנסות שוב.",
-    "errorActions": {
-      "reportIssue": "דיווח על תקלה",
-      "reportIssueOnGithub": "דיווח על תקלה דרך GitHub",
-      "exportLogFiles": "ייצוא קובצי יומנים",
-      "reachOut": "Reach out on Discord"
+    "appName": "AppFlowy",
+    "defaultUsername": "אני",
+    "welcomeText": "ברוך בואך אל @:appName",
+    "welcomeTo": "ברוך בואך אל",
+    "githubStarText": "כוכב ב־GitHub",
+    "subscribeNewsletterText": "הרשמה לרשימת הדיוור",
+    "letsGoButtonText": "התחלה זריזה",
+    "title": "כותרת",
+    "youCanAlso": "אפשר גם",
+    "and": "וגם",
+    "failedToOpenUrl": "פתיחת הכתובת נכשלה: {}",
+    "blockActions": {
+        "addBelowTooltip": "יש ללחוץ כדי להוסיף להלן",
+        "addAboveCmd": "Alt+לחיצה",
+        "addAboveMacCmd": "Option+לחיצה",
+        "addAboveTooltip": "כדי להוסיף מעל",
+        "dragTooltip": "יש לגרור כדי להזיז",
+        "openMenuTooltip": "יש ללחוץ כדי לפתוח תפריט"
     },
-    "menuTitle": "מרחבי עבודה",
-    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone, and any pages you have published will be unpublished.",
-    "createSuccess": "מרחב העבודה נוצר בהצלחה",
-    "createFailed": "יצירת מרחב העבודה נכשלה",
-    "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
-    "deleteSuccess": "מרחב העבודה נמחק בהצלחה",
-    "deleteFailed": "מחיקת מרחב העבודה נכשלה",
-    "openSuccess": "פתיחת מרחב העבודה הצליחה",
-    "openFailed": "פתיחת מרחב העבודה נכשלה",
-    "renameSuccess": "Workspace renamed successfully",
-    "renameFailed": "Failed to rename workspace",
-    "updateIconSuccess": "Updated workspace icon successfully",
-    "updateIconFailed": "Updated workspace icon failed",
-    "cannotDeleteTheOnlyWorkspace": "Cannot delete the only workspace",
-    "fetchWorkspacesFailed": "Failed to fetch workspaces",
-    "leaveCurrentWorkspace": "Leave workspace",
-    "leaveCurrentWorkspacePrompt": "Are you sure you want to leave the current workspace?"
-  },
-  "shareAction": {
-    "buttonText": "Share",
-    "workInProgress": "Coming soon",
-    "markdown": "Markdown",
-    "html": "HTML",
-    "clipboard": "Copy to clipboard",
-    "csv": "CSV",
-    "copyLink": "Copy Link",
-    "publishToTheWeb": "Publish to Web",
-    "publishToTheWebHint": "Create a website with AppFlowy",
-    "publish": "Publish",
-    "unPublish": "Unpublish",
-    "visitSite": "Visit site",
-    "exportAsTab": "Export as",
-    "publishTab": "Publish",
-    "shareTab": "Share"
-  },
-  "moreAction": {
-    "small": "small",
-    "medium": "medium",
-    "large": "large",
-    "fontSize": "Font size",
-    "import": "Import",
-    "moreOptions": "More options",
-    "wordCount": "Word count: {}",
-    "charCount": "Character count: {}",
-    "createdAt": "Created: {}",
-    "deleteView": "Delete",
-    "duplicateView": "Duplicate"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Text & Markdown",
-    "documentFromV010": "Document from v0.1.0",
-    "databaseFromV010": "Database from v0.1.0",
-    "csv": "CSV",
-    "database": "Database"
-  },
-  "disclosureAction": {
-    "rename": "Rename",
-    "delete": "Delete",
-    "duplicate": "Duplicate",
-    "unfavorite": "Remove from favorites",
-    "favorite": "Add to favorites",
-    "openNewTab": "Open in a new tab",
-    "moveTo": "Move to",
-    "addToFavorites": "Add to Favorites",
-    "copyLink": "Copy Link",
-    "changeIcon": "Change icon",
-    "collapseAllPages": "Collapse all subpages"
-  },
-  "blankPageTitle": "Blank page",
-  "newPageText": "New page",
-  "newDocumentText": "New document",
-  "newGridText": "New grid",
-  "newCalendarText": "New calendar",
-  "newBoardText": "New board",
-  "chat": {
-    "newChat": "AI Chat",
-    "inputMessageHint": "Message @:appName AI",
-    "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
-    "relatedQuestion": "Related",
-    "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
-    "aiServerUnavailable": "🌈 Uh-oh! 🌈. A unicorn ate our response. Please retry!",
-    "clickToRetry": "Click to retry",
-    "regenerateAnswer": "Regenerate",
-    "question1": "How to use Kanban to manage tasks",
-    "question2": "Explain the GTD method",
-    "question3": "Why use Rust",
-    "question4": "Recipe with what's in my kitchen",
-    "aiMistakePrompt": "AI can make mistakes. Check important info."
-  },
-  "trash": {
-    "text": "Trash",
-    "restoreAll": "Restore All",
-    "deleteAll": "Delete All",
-    "pageHeader": {
-      "fileName": "File name",
-      "lastModified": "Last Modified",
-      "created": "Created"
+    "signUp": {
+        "buttonText": "הרשמה",
+        "title": "הרשמה ל־@:appName",
+        "getStartedText": "מאיפה מתחילים",
+        "emptyPasswordError": "הסיסמה לא יכולה להיות ריקה",
+        "repeatPasswordEmptyError": "הסיסמה החוזרת לא יכולה להיות ריקה",
+        "unmatchedPasswordError": "הסיסמה החוזרת לא זהה לסיסמה",
+        "alreadyHaveAnAccount": "כבר יש לך חשבון?",
+        "emailHint": "דוא״ל",
+        "passwordHint": "סיסמה",
+        "repeatPasswordHint": "סיסמה חוזרת",
+        "signUpWith": "הרשמה עם:"
     },
-    "confirmDeleteAll": {
-      "title": "Are you sure to delete all pages in Trash?",
-      "caption": "This action cannot be undone."
+    "signIn": {
+        "loginTitle": "כניסה אל @:appName",
+        "loginButtonText": "כניסה",
+        "loginStartWithAnonymous": "התחלה אלמונית",
+        "continueAnonymousUser": "המשך התהליך בצורה אלמונית",
+        "buttonText": "כניסה",
+        "signingInText": "מתבצעת כניסה…",
+        "forgotPassword": "שכחת סיסמה?",
+        "emailHint": "דוא״ל",
+        "passwordHint": "סיסמה",
+        "dontHaveAnAccount": "אין לך חשבון?",
+        "createAccount": "ליצור חשבון",
+        "repeatPasswordEmptyError": "הסיסמה החוזרת לא יכולה להיות ריקה",
+        "unmatchedPasswordError": "הסיסמה החוזרת לא זהה לסיסמה",
+        "syncPromptMessage": "סנכרון הנתונים עלול לארוך זמן מה. נא לא לסגור את העמוד הזה",
+        "or": "או",
+        "signInWithGoogle": "להיכנס עם Google",
+        "signInWithGithub": "להיכנס עם Github",
+        "signInWithDiscord": "להיכנס עם Discord",
+        "signUpWithGoogle": "להירשם עם Google",
+        "signUpWithGithub": "להירשם עם Github",
+        "signUpWithDiscord": "להירשם עם Discord",
+        "signInWith": "להיכנס עם:",
+        "signInWithEmail": "להיכנס עם דוא״ל",
+        "signInWithMagicLink": "כניסה עם קישור קסם",
+        "signUpWithMagicLink": "הרשמה עם קישור קסם",
+        "pleaseInputYourEmail": "נא למלא את כתובת הדוא״ל שלך",
+        "settings": "הגדרות",
+        "magicLinkSent": "קישור קסם נשלח!",
+        "invalidEmail": "נא למלא כתובת דוא״ל תקפה",
+        "alreadyHaveAnAccount": "כבר יש לך חשבון?",
+        "logIn": "להיכנס",
+        "generalError": "משהו השתבש. נא לנסות שוב מאוחר יותר",
+        "limitRateError": "מטעמי אבטחת מידע, אפשר לבקש קישור קסם כל 60 שניות",
+        "magicLinkSentDescription": "קישור קסם נשלח לדוא״ל שלך. יש ללחוץ על הקישור כדי להשלים את הכניסה שלך למערכת.הקישור יפוג תוך 5 דקות."
     },
-    "confirmRestoreAll": {
-      "title": "Are you sure to restore all pages in Trash?",
-      "caption": "This action cannot be undone."
-    },
-    "mobile": {
-      "actions": "Trash Actions",
-      "empty": "Trash Bin is Empty",
-      "emptyDescription": "You don't have any deleted file",
-      "isDeleted": "is deleted",
-      "isRestored": "is restored"
-    },
-    "confirmDeleteTitle": "Are you sure you want to delete this page permanently?"
-  },
-  "deletePagePrompt": {
-    "text": "This page is in Trash",
-    "restore": "Restore page",
-    "deletePermanent": "Delete permanently"
-  },
-  "dialogCreatePageNameHint": "Page name",
-  "questionBubble": {
-    "shortcuts": "Shortcuts",
-    "whatsNew": "What's new?",
-    "help": "Help & Support",
-    "markdown": "Markdown",
-    "debug": {
-      "name": "Debug Info",
-      "success": "Copied debug info to clipboard!",
-      "fail": "Unable to copy debug info to clipboard"
-    },
-    "feedback": "Feedback"
-  },
-  "menuAppHeader": {
-    "moreButtonToolTip": "Remove, rename, and more...",
-    "addPageTooltip": "Quickly add a page inside",
-    "defaultNewPageName": "Untitled",
-    "renameDialog": "Rename"
-  },
-  "noPagesInside": "No pages inside",
-  "toolbar": {
-    "undo": "Undo",
-    "redo": "Redo",
-    "bold": "Bold",
-    "italic": "Italic",
-    "underline": "Underline",
-    "strike": "Strikethrough",
-    "numList": "Numbered List",
-    "bulletList": "Bulleted List",
-    "checkList": "Check List",
-    "inlineCode": "Inline Code",
-    "quote": "Quote Block",
-    "header": "Header",
-    "highlight": "Highlight",
-    "color": "Color",
-    "addLink": "Add Link",
-    "link": "Link"
-  },
-  "tooltip": {
-    "lightMode": "Switch to Light mode",
-    "darkMode": "Switch to Dark mode",
-    "openAsPage": "Open as a Page",
-    "addNewRow": "Add a new row",
-    "openMenu": "Click to open menu",
-    "dragRow": "Long press to reorder the row",
-    "viewDataBase": "View database",
-    "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below",
-    "aiGenerate": "Generate"
-  },
-  "sideBar": {
-    "closeSidebar": "Close sidebar",
-    "openSidebar": "Open sidebar",
-    "personal": "Personal",
-    "private": "Private",
-    "workspace": "Workspace",
-    "favorites": "Favorites",
-    "clickToHidePrivate": "Click to hide private space\nPages you created here are only visible to you",
-    "clickToHideWorkspace": "Click to hide workspace\nPages you created here are visible to every member",
-    "clickToHidePersonal": "Click to hide personal space",
-    "clickToHideFavorites": "Click to hide favorite space",
-    "addAPage": "Add a new page",
-    "addAPageToPrivate": "Add a page to private space",
-    "addAPageToWorkspace": "Add a page to workspace",
-    "recent": "Recent",
-    "today": "Today",
-    "thisWeek": "This week",
-    "others": "Other favorites",
-    "justNow": "just now",
-    "minutesAgo": "{count} minutes ago",
-    "lastViewed": "Last viewed",
-    "favoriteAt": "Favorited at",
-    "emptyRecent": "No Recent Documents",
-    "emptyRecentDescription": "As you view documents, they will appear here for easy retrieval",
-    "emptyFavorite": "No Favorite Documents",
-    "emptyFavoriteDescription": "Start exploring and mark documents as favorites. They’ll be listed here for quick access!",
-    "removePageFromRecent": "Remove this page from the Recent?",
-    "removeSuccess": "Removed successfully",
-    "favoriteSpace": "Favorites",
-    "RecentSpace": "Recent",
-    "Spaces": "Spaces"
-  },
-  "notifications": {
-    "export": {
-      "markdown": "Exported Note To Markdown",
-      "path": "Documents/flowy"
-    }
-  },
-  "contactsPage": {
-    "title": "Contacts",
-    "whatsHappening": "What's happening this week?",
-    "addContact": "Add Contact",
-    "editContact": "Edit Contact"
-  },
-  "button": {
-    "ok": "Ok",
-    "confirm": "Confirm",
-    "done": "Done",
-    "cancel": "Cancel",
-    "signIn": "Sign In",
-    "signOut": "Sign Out",
-    "complete": "Complete",
-    "save": "Save",
-    "generate": "Generate",
-    "esc": "ESC",
-    "keep": "Keep",
-    "tryAgain": "Try again",
-    "discard": "Discard",
-    "replace": "Replace",
-    "insertBelow": "Insert below",
-    "insertAbove": "Insert above",
-    "upload": "Upload",
-    "edit": "Edit",
-    "delete": "Delete",
-    "duplicate": "Duplicate",
-    "putback": "Put Back",
-    "update": "Update",
-    "share": "Share",
-    "removeFromFavorites": "Remove from favorites",
-    "removeFromRecent": "Remove from recent",
-    "addToFavorites": "Add to favorites",
-    "rename": "Rename",
-    "helpCenter": "Help Center",
-    "add": "Add",
-    "yes": "Yes",
-    "clear": "Clear",
-    "remove": "Remove",
-    "dontRemove": "Don't remove",
-    "copyLink": "Copy Link",
-    "align": "Align",
-    "login": "Login",
-    "logout": "Log out",
-    "deleteAccount": "Delete account",
-    "back": "Back",
-    "signInGoogle": "Sign in with Google",
-    "signInGithub": "Sign in with Github",
-    "signInDiscord": "Sign in with Discord",
-    "more": "More",
-    "create": "Create",
-    "close": "Close"
-  },
-  "label": {
-    "welcome": "Welcome!",
-    "firstName": "First Name",
-    "middleName": "Middle Name",
-    "lastName": "Last Name",
-    "stepX": "Step {X}"
-  },
-  "oAuth": {
-    "err": {
-      "failedTitle": "Unable to connect to your account.",
-      "failedMsg": "Please make sure you've completed the sign-in process in your browser."
-    },
-    "google": {
-      "title": "GOOGLE SIGN-IN",
-      "instruction1": "In order to import your Google Contacts, you'll need to authorize this application using your web browser.",
-      "instruction2": "Copy this code to your clipboard by clicking the icon or selecting the text:",
-      "instruction3": "Navigate to the following link in your web browser, and enter the above code:",
-      "instruction4": "Press the button below when you've completed signup:"
-    }
-  },
-  "settings": {
-    "title": "Settings",
-    "accountPage": {
-      "menuLabel": "My account",
-      "title": "My account",
-      "general": {
-        "title": "Account name & profile image",
-        "changeProfilePicture": "Change profile picture"
-      },
-      "email": {
-        "title": "Email",
-        "actions": {
-          "change": "Change email"
-        }
-      },
-      "login": {
-        "title": "Account login",
-        "loginLabel": "Log in",
-        "logoutLabel": "Log out"
-      }
-    },
-    "workspacePage": {
-      "menuLabel": "Workspace",
-      "title": "Workspace",
-      "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
-      "workspaceName": {
-        "title": "Workspace name"
-      },
-      "workspaceIcon": {
-        "title": "Workspace icon",
-        "description": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications."
-      },
-      "appearance": {
-        "title": "Appearance",
-        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
-        "options": {
-          "system": "Auto",
-          "light": "Light",
-          "dark": "Dark"
-        }
-      },
-      "theme": {
-        "title": "Theme",
-        "description": "Select a preset theme, or upload your own custom theme.",
-        "uploadCustomThemeTooltip": "Upload a custom theme"
-      },
-      "workspaceFont": {
-        "title": "Workspace font",
-        "noFontHint": "No font found, try another term."
-      },
-      "textDirection": {
-        "title": "Text direction",
-        "leftToRight": "Left to right",
-        "rightToLeft": "Right to left",
-        "auto": "Auto",
-        "enableRTLItems": "Enable RTL toolbar items"
-      },
-      "layoutDirection": {
-        "title": "Layout direction",
-        "leftToRight": "Left to right",
-        "rightToLeft": "Right to left"
-      },
-      "dateTime": {
-        "title": "Date & time",
-        "example": "{} at {} ({})",
-        "24HourTime": "24-hour time",
-        "dateFormat": {
-          "label": "Date format",
-          "local": "Local",
-          "us": "US",
-          "iso": "ISO",
-          "friendly": "Friendly",
-          "dmy": "D/M/Y"
-        }
-      },
-      "language": {
-        "title": "Language"
-      },
-      "deleteWorkspacePrompt": {
-        "title": "Delete workspace",
-        "content": "Are you sure you want to delete this workspace? This action cannot be undone, and any pages you have published will be unpublished."
-      },
-      "leaveWorkspacePrompt": {
-        "title": "Leave workspace",
-        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it."
-      },
-      "manageWorkspace": {
-        "title": "Manage workspace",
-        "leaveWorkspace": "Leave workspace",
-        "deleteWorkspace": "Delete workspace"
-      }
-    },
-    "manageDataPage": {
-      "menuLabel": "Manage data",
-      "title": "Manage data",
-      "description": "Manage data local storage or Import your existing data into @:appName.",
-      "dataStorage": {
-        "title": "File storage location",
-        "tooltip": "The location where your files are stored",
-        "actions": {
-          "change": "Change path",
-          "open": "Open folder",
-          "openTooltip": "Open current data folder location",
-          "copy": "Copy path",
-          "copiedHint": "Path copied!",
-          "resetTooltip": "Reset to default location"
+    "workspace": {
+        "chooseWorkspace": "נא לבחור את מרחב העבודה שלך",
+        "create": "יצירת מרחב עבודה",
+        "reset": "איפוס מרחב עבודה",
+        "renameWorkspace": "שינוי שם מרחב עבודה",
+        "resetWorkspacePrompt": "איפוס מרחב העבודה ימחק את כל הדפים והנתונים שבו. לאפס את מרחב העבודה? לחלופין, אפשר ליצור קשר עם צוות התמיכה לשחזור מרחב העבודה",
+        "hint": "מרחב עבודה",
+        "notFoundError": "לא נמצא מרחב עבודה",
+        "failedToLoad": "משהו השתבש! טעינת מרחב העבודה נכשלה. כדאי לנסות לסגור את כל העותקים הפתוחים של @:appName ולנסות שוב.",
+        "errorActions": {
+            "reportIssue": "דיווח על תקלה",
+            "reportIssueOnGithub": "דיווח על תקלה דרך GitHub",
+            "exportLogFiles": "ייצוא קובצי יומנים",
+            "reachOut": "פנייה אלינו דרך Discord"
         },
-        "resetDialog": {
-          "title": "Are you sure?",
-          "description": "Resetting the path to the default data location will not delete your data. If you want to re-import your current data, you should copy the path of your current location first."
-        }
-      },
-      "importData": {
-        "title": "Import data",
-        "tooltip": "Import data from @:appName backups/data folders",
-        "description": "Copy data from an external @:appName data folder",
-        "action": "Browse file"
-      },
-      "encryption": {
-        "title": "Encryption",
-        "tooltip": "Manage how your data is stored and encrypted",
-        "descriptionNoEncryption": "Turning on encryption will encrypt all data. This can not be undone.",
-        "descriptionEncrypted": "Your data is encrypted.",
-        "action": "Encrypt data",
-        "dialog": {
-          "title": "Encrypt all your data?",
-          "description": "Encrypting all your data will keep your data safe and secure. This action can NOT be undone. Are you sure you want to continue?"
-        }
-      },
-      "cache": {
-        "title": "Clear cache",
-        "description": "Clear app cache, this can help resolve issues like images or fonts not loading. This will not affect your data.",
-        "dialog": {
-          "title": "Are you sure?",
-          "description": "Clearing the cache will cause images and fonts to be re-downloaded on load. This action will not remove or modify your data.",
-          "successHint": "Cache cleared!"
-        }
-      },
-      "data": {
-        "fixYourData": "Fix your data",
-        "fixButton": "Fix",
-        "fixYourDataDescription": "If you're experiencing issues with your data, you can try to fix it here."
-      }
+        "menuTitle": "מרחבי עבודה",
+        "deleteWorkspaceHintText": "למחוק את מרחב העבודה? הפעולה הזאת היא בלתי הפיכה, ועמודים שפרסמת יוסתרו.",
+        "createSuccess": "מרחב העבודה נוצר בהצלחה",
+        "createFailed": "יצירת מרחב העבודה נכשלה",
+        "createLimitExceeded": "הגעת לכמות מרחבי העבודה המרבית המותרת לחשבון שלך. כדי להוסיף מרחבי עבודה נוספים ולהמשיך בעבודה שלך, נא לבקש ב־GitHub",
+        "deleteSuccess": "מרחב העבודה נמחק בהצלחה",
+        "deleteFailed": "מחיקת מרחב העבודה נכשלה",
+        "openSuccess": "פתיחת מרחב העבודה הצליחה",
+        "openFailed": "פתיחת מרחב העבודה נכשלה",
+        "renameSuccess": "שם מרחב העבודה השתנה בהצלחה",
+        "renameFailed": "שינוי שם מרחב העבודה נכשל",
+        "updateIconSuccess": "סמל מרחב העבודה עודכן בהצלחה",
+        "updateIconFailed": "עדכון סמל מרחב העבודה נכשל",
+        "cannotDeleteTheOnlyWorkspace": "לא ניתן למחוק את מרחב העבודה היחיד",
+        "fetchWorkspacesFailed": "משיכת מרחבי העבודה נכשלה",
+        "leaveCurrentWorkspace": "יציאה ממרחב העבודה",
+        "leaveCurrentWorkspacePrompt": "לעזוב את סביבת העבודה הנוכחית?"
     },
-    "shortcutsPage": {
-      "menuLabel": "Shortcuts",
-      "title": "Shortcuts",
-      "editBindingHint": "Input new binding",
-      "searchHint": "Search",
-      "actions": {
-        "resetDefault": "Reset default"
-      },
-      "errorPage": {
-        "message": "Failed to load shortcuts: {}",
-        "howToFix": "Please try again, if the issue persists please reach out on GitHub."
-      },
-      "resetDialog": {
-        "title": "Reset shortcuts",
-        "description": "This will reset all of your keybindings to the default, you cannot undo this later, are you sure you want to proceed?",
-        "buttonLabel": "Reset"
-      },
-      "conflictDialog": {
-        "title": "{} is currently in use",
-        "descriptionPrefix": "This keybinding is currently being used by ",
-        "descriptionSuffix": ". If you replace this keybinding, it will be removed from {}.",
-        "confirmLabel": "Continue"
-      },
-      "editTooltip": "Press to start editing the keybinding",
-      "keybindings": {
-        "toggleToDoList": "Toggle to do list",
-        "insertNewParagraphInCodeblock": "Insert new paragraph",
-        "pasteInCodeblock": "Paste in codeblock",
-        "selectAllCodeblock": "Select all",
-        "indentLineCodeblock": "Insert two spaces at line start",
-        "outdentLineCodeblock": "Delete two spaces at line start",
-        "twoSpacesCursorCodeblock": "Insert two spaces at cursor",
-        "copy": "Copy selection",
-        "paste": "Paste in content",
-        "cut": "Cut selection",
-        "alignLeft": "Align text left",
-        "alignCenter": "Align text center",
-        "alignRight": "Align text right",
-        "undo": "Undo",
-        "redo": "Redo",
-        "convertToParagraph": "Convert block to paragraph",
-        "backspace": "Delete",
-        "deleteLeftWord": "Delete left word",
-        "deleteLeftSentence": "Delete left sentence",
-        "delete": "Delete right character",
-        "deleteMacOS": "Delete left character",
-        "deleteRightWord": "Delete right word",
-        "moveCursorLeft": "Move cursor left",
-        "moveCursorBeginning": "Move cursor to the beginning",
-        "moveCursorLeftWord": "Move cursor left one word",
-        "moveCursorLeftSelect": "Select and move cursor left",
-        "moveCursorBeginSelect": "Select and move cursor to the beginning",
-        "moveCursorLeftWordSelect": "Select and move cursor left one word",
-        "moveCursorRight": "Move cursor right",
-        "moveCursorEnd": "Move cursor to the end",
-        "moveCursorRightWord": "Move cursor right one word",
-        "moveCursorRightSelect": "Select and move cursor right one",
-        "moveCursorEndSelect": "Select and move cursor to the end",
-        "moveCursorRightWordSelect": "Select and move cursor to the right one word",
-        "moveCursorUp": "Move cursor up",
-        "moveCursorTopSelect": "Select and move cursor to the top",
-        "moveCursorTop": "Move cursor to the top",
-        "moveCursorUpSelect": "Select and move cursor up",
-        "moveCursorBottomSelect": "Select and move cursor to the bottom",
-        "moveCursorBottom": "Move cursor to the bottom",
-        "moveCursorDown": "Move cursor down",
-        "moveCursorDownSelect": "Select and move cursor down",
-        "home": "Scroll to the top",
-        "end": "Scroll to the bottom",
-        "toggleBold": "Toggle bold",
-        "toggleItalic": "Toggle italic",
-        "toggleUnderline": "Toggle underline",
-        "toggleStrikethrough": "Toggle strikethrough",
-        "toggleCode": "Toggle in-line code",
-        "toggleHighlight": "Toggle highlight",
-        "showLinkMenu": "Show link menu",
-        "openInlineLink": "Open in-line link",
-        "openLinks": "Open all selected links",
-        "indent": "Indent",
-        "outdent": "Outdent",
-        "exit": "Exit editing",
-        "pageUp": "Scroll one page up",
-        "pageDown": "Scroll one page down",
-        "selectAll": "Select all",
-        "pasteWithoutFormatting": "Paste content without formatting",
-        "showEmojiPicker": "Show emoji picker",
-        "enterInTableCell": "Add linebreak in table",
-        "leftInTableCell": "Move left one cell in table",
-        "rightInTableCell": "Move right one cell in table",
-        "upInTableCell": "Move up one cell in table",
-        "downInTableCell": "Move down one cell in table",
-        "tabInTableCell": "Go to next available cell in table",
-        "shiftTabInTableCell": "Go to previously available cell in table",
-        "backSpaceInTableCell": "Stop at the beginning of the cell"
-      },
-      "commands": {
-        "codeBlockNewParagraph": "Insert a new paragraph next to the code block",
-        "codeBlockIndentLines": "Insert two spaces at the line start in code block",
-        "codeBlockOutdentLines": "Delete two spaces at the line start in code block",
-        "codeBlockAddTwoSpaces": "Insert two spaces at the cursor position in code block",
-        "codeBlockSelectAll": "Select all content inside a code block",
-        "codeBlockPasteText": "Paste text in codeblock",
-        "textAlignLeft": "Align text to the left",
-        "textAlignCenter": "Align text to the center",
-        "textAlignRight": "Align text to the right"
-      },
-      "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
-      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
+    "shareAction": {
+        "buttonText": "שיתוף",
+        "workInProgress": "בקרוב",
+        "markdown": "Markdown",
+        "html": "HTML",
+        "clipboard": "העתקה ללוח הגזירים",
+        "csv": "CSV",
+        "copyLink": "העתקת קישור",
+        "publishToTheWeb": "פרסום לאינטרנט",
+        "publishToTheWebHint": "יצירת אתר עם",
+        "publish": "פרסום",
+        "unPublish": "הסתרה",
+        "visitSite": "ביקור באתר",
+        "exportAsTab": "ייצוא בתור",
+        "publishTab": "פרסום",
+        "shareTab": "שיתוף"
     },
-    "aiPage": {
-      "title": "AI Settings",
-      "menuLabel": "AI Settings",
-      "keys": {
-        "enableAISearchTitle": "AI Search",
-        "aiSettingsDescription": "Select or configure Ai models used on @:appName. For best performance we recommend using the default model options",
-        "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
-        "llmModel": "Language Model",
-        "title": "AI API Keys",
-        "openAILabel": "OpenAI API key",
-        "openAITooltip": "You can find your Secret API key on the API key page",
-        "openAIHint": "Input your OpenAI API Key",
-        "stabilityAILabel": "Stability API key",
-        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
-        "stabilityAIHint": "Input your Stability API Key"
-      }
+    "moreAction": {
+        "small": "קטן",
+        "medium": "בינוני",
+        "large": "גדול",
+        "fontSize": "גודל גופן",
+        "import": "ייבוא",
+        "moreOptions": "אפשרויות נוספות",
+        "wordCount": "כמות מילים: {}",
+        "charCount": "כמות תווים: {}",
+        "createdAt": "מועד יצירה: {}",
+        "deleteView": "מחיקה",
+        "duplicateView": "שכפול"
     },
-    "planPage": {
-      "menuLabel": "Plan",
-      "title": "Pricing plan",
-      "planUsage": {
-        "title": "Plan usage summary",
-        "storageLabel": "Storage",
-        "storageUsage": "{} of {} GB",
-        "collaboratorsLabel": "Collaborators",
-        "collaboratorsUsage": "{} of {}",
-        "aiResponseLabel": "AI Responses",
-        "aiResponseUsage": "{} of {}",
-        "proBadge": "Pro",
-        "memberProToggle": "Unlimited members",
-        "guestCollabToggle": "10 guest collaborators",
-        "storageUnlimited": "Unlimited storage with your Pro Plan",
-        "aiCredit": {
-          "title": "Add @:appName AI Credit",
-          "price": "5$",
-          "priceDescription": "for 1,000 credits",
-          "purchase": "Purchase AI",
-          "info": "Add 1,000 Ai credits per workspace and seamlessly integrate customizable AI into your workflow for smarter, faster results with up to:",
-          "infoItemOne": "10,000 responses per database",
-          "infoItemTwo": "1,000 responses per workspace"
+    "importPanel": {
+        "textAndMarkdown": "טקסט ו־Markdown",
+        "documentFromV010": "מסמך מגרסה 0.1.0",
+        "databaseFromV010": "מסד נתונים מגרסה 0.1.0",
+        "csv": "CSV",
+        "database": "מסד נתונים"
+    },
+    "disclosureAction": {
+        "rename": "שינוי שם",
+        "delete": "מחיקה",
+        "duplicate": "שכפול",
+        "unfavorite": "הסרה מהמועדפים",
+        "favorite": "הוספה למועדפים",
+        "openNewTab": "פתיחה בלשונית חדשה",
+        "moveTo": "העברה אל",
+        "addToFavorites": "הוספה למועדפים",
+        "copyLink": "העתקת קישור",
+        "changeIcon": "החלפת סמל",
+        "collapseAllPages": "צמצום כל תת־העמודים"
+    },
+    "blankPageTitle": "עמוד ריק",
+    "newPageText": "עמוד חדש",
+    "newDocumentText": "מסמך חדש",
+    "newGridText": "טבלה חדשה",
+    "newCalendarText": "לוח שנה חדש",
+    "newBoardText": "לוח חדש",
+    "chat": {
+        "newChat": "שיחה עם בינה מלאכותית",
+        "inputMessageHint": "שליחת הודעה לבינה המלאכותית של @:appName",
+        "unsupportedCloudPrompt": "היכולת הזאת זמינה רק עם @:appName בענן",
+        "relatedQuestion": "קשורים",
+        "serverUnavailable": "השירות אינו זמין באופן זמני. נא לנסות שוב מאוחר יותר.",
+        "aiServerUnavailable": "🌈 אוי לא! 🌈. חד־קרן אכל לנו את התגובה. נא לנסות שוב!",
+        "clickToRetry": "נא ללחוץ לניסיון חוזר",
+        "regenerateAnswer": "יצירה מחדש",
+        "question1": "איך להשתמש בקנבן לניהול משימות",
+        "question2": "הסבר על שיטת החתימה למטרה",
+        "question3": "למה להשתמש ב־Rust",
+        "question4": "מתכון ממה שיש לי במטבח",
+        "aiMistakePrompt": "בינה מלאכותית יכולה לטעות. כדאי לאשש את המידע."
+    },
+    "trash": {
+        "text": "אשפה",
+        "restoreAll": "שחזור של הכול",
+        "deleteAll": "מחיקה של הכול",
+        "pageHeader": {
+            "fileName": "שם קובץ",
+            "lastModified": "שינוי אחרון",
+            "created": "נוצר"
         },
-        "currentPlan": {
-          "bannerLabel": "Current plan",
-          "freeTitle": "Free",
-          "proTitle": "Pro",
-          "teamTitle": "Team",
-          "freeInfo": "Perfect for individuals or small teams up to 3 members.",
-          "proInfo": "Perfect for small and medium teams up to 10 members.",
-          "teamInfo": "Perfect for all productive and well-organized teams..",
-          "upgrade": "Compare &\n Upgrade",
-          "freeProOne": "Collaborative workspace",
-          "freeProTwo": "Up to 3 members (incl. owner)",
-          "freeProThree": "Unlimited guests (view-only)",
-          "freeProFour": "Storage 5GB",
-          "freeProFive": "30 day revision history",
-          "freeConOne": "Guest collaborators (edit access)",
-          "freeConTwo": "Unlimited storage",
-          "freeConThree": "6 month revision history",
-          "professionalProOne": "Collaborative workspace",
-          "professionalProTwo": "Unlimited members",
-          "professionalProThree": "Unlimited guests (view-only)",
-          "professionalProFour": "Unlimited storage",
-          "professionalProFive": "6 month revision history",
-          "professionalConOne": "Unlimited guest collaborators (edit access)",
-          "professionalConTwo": "Unlimited AI responses",
-          "professionalConThree": "1 year revision history",
-          "canceledInfo": "Your plan is cancelled, you will be downgraded to the Free plan on {}."
+        "confirmDeleteAll": {
+            "title": "למחוק את כל העמודים שבאשפה?",
+            "caption": "זאת פעולה בלתי הפיכה."
         },
-        "deal": {
-          "bannerLabel": "New year deal!",
-          "title": "Grow your team!",
-          "info": "Upgrade and save 10% off Pro and Team plans! Boost your workspace productivity with powerful new features including @:appName AI.",
-          "viewPlans": "View plans"
-        }
-      }
+        "confirmRestoreAll": {
+            "title": "לשחזר את כל העמודים מהאשפה?",
+            "caption": "זאת פעולה בלתי הפיכה."
+        },
+        "mobile": {
+            "actions": "פעולות אשפה",
+            "empty": "סל האשפה ריק",
+            "emptyDescription": "אין לך קבצים שנמחקו",
+            "isDeleted": "נמחק",
+            "isRestored": "משוחזר"
+        },
+        "confirmDeleteTitle": "למחוק את העמוד הזה לצמיתות?"
     },
-    "billingPage": {
-      "menuLabel": "Billing",
-      "title": "Billing",
-      "plan": {
-        "title": "Plan",
-        "freeLabel": "Free",
-        "proLabel": "Pro",
-        "planButtonLabel": "Change plan",
-        "billingPeriod": "Billing period",
-        "periodButtonLabel": "Edit period"
-      },
-      "paymentDetails": {
-        "title": "Payment details",
-        "methodLabel": "Payment method",
-        "methodButtonLabel": "Edit method"
-      }
+    "deletePagePrompt": {
+        "text": "העמוד הזה הוא באשפה",
+        "restore": "שחזור עמוד",
+        "deletePermanent": "למחוק לצמיתות"
     },
-    "comparePlanDialog": {
-      "title": "Compare & select plan",
-      "planFeatures": "Plan\nFeatures",
-      "current": "Current",
-      "actions": {
-        "upgrade": "Upgrade",
-        "downgrade": "Downgrade",
-        "downgradeDisabledTooltip": "You will automatically downgrade at the end of the billing cycle",
-        "current": "Current"
-      },
-      "freePlan": {
-        "title": "Free",
-        "description": "For organizing every corner of your work & life.",
-        "price": "$0",
-        "priceInfo": "free forever"
-      },
-      "proPlan": {
-        "title": "Professional",
-        "description": "A place for small groups to plan & get organized.",
-        "price": "$10 /month",
-        "priceInfo": "billed annually"
-      },
-      "planLabels": {
-        "itemOne": "Workspaces",
-        "itemTwo": "Members",
-        "itemThree": "Guests",
-        "tooltipThree": "Guests have read-only permission to the specifically shared content",
-        "itemFour": "Guest collaborators",
-        "tooltipFour": "Guest collaborators are billed as one seat",
-        "itemFive": "Storage",
-        "itemSix": "Real-time collaboration",
-        "itemSeven": "Mobile app",
-        "itemEight": "AI Responses",
-        "tooltipEight": "Lifetime means the number of responses never reset"
-      },
-      "freeLabels": {
-        "itemOne": "charged per workspace",
-        "itemTwo": "3",
-        "itemFour": "0",
-        "itemFive": "5 GB",
-        "itemSix": "yes",
-        "itemSeven": "yes",
-        "itemEight": "1,000 lifetime"
-      },
-      "proLabels": {
-        "itemOne": "charged per workspace",
-        "itemTwo": "up to 10",
-        "itemFour": "10 אורחים חויבו כמושב אחד",
-        "itemFive": "ללא הגבלה",
-        "itemSix": "כן",
-        "itemSeven": "כן",
-        "itemEight": "10,000 בחודש"
-      },
-      "paymentSuccess": {
-        "title": "עברת לתוכנית {}!",
-        "description": "Your payment has been successfully processed and your plan is upgraded to @:appName {}. You can view your plan details on the Plan page"
-      },
-      "downgradeDialog": {
-        "title": "לשנמך את התוכנית שלך?",
-        "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to workspaces and you may need to free up space to meet the storage limits of the Free plan.",
-        "downgradeLabel": "שנמוך תוכנית"
-      }
+    "dialogCreatePageNameHint": "שם העמוד",
+    "questionBubble": {
+        "shortcuts": "מקשי קיצור",
+        "whatsNew": "מה חדש?",
+        "help": "עזרה ותמיכה",
+        "markdown": "Markdown",
+        "debug": {
+            "name": "פרטי ניפוי שגיאות",
+            "success": "פרטי ניפוי השגיאות הועתקו ללוח הגזירים!",
+            "fail": "לא ניתן להעתיק את פרטי ניפוי השגיאות ללוח הגזירים"
+        },
+        "feedback": "משוב"
     },
-    "common": {
-      "reset": "איפוס"
+    "menuAppHeader": {
+        "moreButtonToolTip": "הסרה, שינוי שם ועוד…",
+        "addPageTooltip": "הוספת עמוד בפנים במהירות",
+        "defaultNewPageName": "ללא שם",
+        "renameDialog": "שינוי שם"
     },
-    "menu": {
-      "appearance": "מראה",
-      "language": "שפה",
-      "user": "משתמש",
-      "files": "קבצים",
-      "notifications": "התראות",
-      "open": "פתיחת ההגדרות",
-      "logout": "יציאה",
-      "logoutPrompt": "לצאת?",
-      "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
-      "syncSetting": "סנכרון הגדרות",
-      "cloudSettings": "הגדרות ענן",
-      "enableSync": "הפעלת סנכרון",
-      "enableEncrypt": "הצפנת נתונים",
-      "cloudURL": "כתובת בסיס",
-      "invalidCloudURLScheme": "סכמה שגויה",
-      "cloudServerType": "שרת ענן",
-      "cloudServerTypeTip": "Please note that it might log out your current account after switching the cloud server",
-      "cloudLocal": "מקומי",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "כתובת Supabase",
-      "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
-      "cloudSupabaseAnonKey": "Supabase anon key",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
-      "cloudAppFlowy": "@:appName בענן בטא",
-      "cloudAppFlowySelfHost": "@:appName בענן באירוח עצמי",
-      "appFlowyCloudUrlCanNotBeEmpty": "כתובת הענן לא יכולה להישאר ריקה",
-      "clickToCopy": "לחיצה להעתקה",
-      "selfHostStart": "If you don't have a server, please refer to the",
-      "selfHostContent": "document",
-      "selfHostEnd": "for guidance on how to self-host your own server",
-      "cloudURLHint": "Input the base URL of your server",
-      "cloudWSURL": "Websocket URL",
-      "cloudWSURLHint": "Input the websocket address of your server",
-      "restartApp": "Restart",
-      "restartAppTip": "Restart the application for the changes to take effect. Please note that this might log out your current account.",
-      "changeServerTip": "After changing the server, you must click the restart button for the changes to take effect",
-      "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
-      "inputEncryptPrompt": "Please enter your encryption secret for",
-      "clickToCopySecret": "Click to copy secret",
-      "configServerSetting": "Configurate your server settings",
-      "configServerGuide": "After selecting `Quick Start`, navigate to `Settings` and then \"Cloud Settings\" to configure your self-hosted server.",
-      "inputTextFieldHint": "Your secret",
-      "historicalUserList": "User login history",
-      "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
-      "openHistoricalUser": "Click to open the anonymous account",
-      "customPathPrompt": "Storing the @:appName data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
-      "importAppFlowyData": "Import Data from External @:appName Folder",
-      "importingAppFlowyDataTip": "Data import is in progress. Please do not close the app",
-      "importAppFlowyDataDescription": "Copy data from an external @:appName data folder and import it into the current AppFlowy data folder",
-      "importSuccess": "Successfully imported the @:appName data folder",
-      "importFailed": "Importing the @:appName data folder failed",
-      "importGuide": "For further details, please check the referenced document"
+    "noPagesInside": "אין עמודים בפנים",
+    "toolbar": {
+        "undo": "הסגה",
+        "redo": "ביצוע מחדש",
+        "bold": "מודגש",
+        "italic": "נטוי",
+        "underline": "קו תחתי",
+        "strike": "קו חוצה",
+        "numList": "רשימה ממוספרת",
+        "bulletList": "רשימת תבליטים",
+        "checkList": "רשימת סימונים",
+        "inlineCode": "קוד מוטבע",
+        "quote": "מקטע ציטוט",
+        "header": "כותרת עליונה",
+        "highlight": "הדגשה",
+        "color": "צבע",
+        "addLink": "הוספת קישור",
+        "link": "קישור"
+    },
+    "tooltip": {
+        "lightMode": "מעבר למצב בהיר",
+        "darkMode": "מעבר למצב כהה",
+        "openAsPage": "פתיחה כעמוד",
+        "addNewRow": "הוספת שורה חדשה",
+        "openMenu": "לחיצה תפתח את התפריט",
+        "dragRow": "לחיצה ארוכה תסדר את השורה מחדש",
+        "viewDataBase": "הצגת מסד הנתונים",
+        "referencePage": "זאת הפנייה אל {name}",
+        "addBlockBelow": "הוספת מקטע למטה",
+        "aiGenerate": "יצירה"
+    },
+    "sideBar": {
+        "closeSidebar": "סגירת סרגל צד",
+        "openSidebar": "פתיחת סרגל צד",
+        "personal": "אישי",
+        "private": "פרטי",
+        "workspace": "מרחב עבודה",
+        "favorites": "מועדפים",
+        "clickToHidePrivate": "לחיצה תסתיר את המרחב הפרטי\nעמודים שיצרת כאן הם לעיניך בלבד",
+        "clickToHideWorkspace": "לחיצה תסתיר את מרחב העבודה\nעמודים שיצרת כאן יהיו גלויים בפני כל החברים",
+        "clickToHidePersonal": "לחיצה תסתיר את המרחב האישי",
+        "clickToHideFavorites": "לחיצה תסתיר מרחב מועדף",
+        "addAPage": "הוספת עמוד חדש",
+        "addAPageToPrivate": "הוספת עמוד למרחב פרטי",
+        "addAPageToWorkspace": "הוספת עמוד למרחב עבודה פרטי",
+        "recent": "אחרונים",
+        "today": "היום",
+        "thisWeek": "השבוע",
+        "others": "מועדפים אחרים",
+        "justNow": "כרגע",
+        "minutesAgo": "לפני {count} דקות",
+        "lastViewed": "צפייה אחרונה",
+        "favoriteAt": "הוספה למועדפים ב־",
+        "emptyRecent": "אין מסמכים אחרונים",
+        "emptyRecentDescription": "בעת צפייה במסמכים הם יופיעו כאן לאיתור פשוט יותר",
+        "emptyFavorite": "אין מסמכים מועדפים",
+        "emptyFavoriteDescription": "אפשר להתחיל לעיין ולסמן מסמכים כמועדפים. הם יופיעו כאן כדי להקל על הגישה אליהם!",
+        "removePageFromRecent": "להסיר את העמוד הזה מהאחרונים?",
+        "removeSuccess": "הוסר בהצלחה",
+        "favoriteSpace": "מועדפים",
+        "RecentSpace": "אחרונים",
+        "Spaces": "מרחבים"
     },
     "notifications": {
-      "enableNotifications": {
-        "label": "Enable notifications",
-        "hint": "Turn off to stop local notifications from appearing."
-      },
-      "showNotificationsIcon": {
-        "label": "Show notifications icon",
-        "hint": "Toggle off to hide the notification icon in the sidebar."
-      }
+        "export": {
+            "markdown": "פתקית יוצאה ל־Markdown",
+            "path": "מסמכיםflowy"
+        }
     },
-    "appearance": {
-      "resetSetting": "Reset",
-      "fontFamily": {
-        "label": "Font Family",
-        "search": "Search",
-        "defaultFont": "System"
-      },
-      "themeMode": {
-        "label": "Theme Mode",
-        "light": "Light Mode",
-        "dark": "Dark Mode",
-        "system": "Adapt to System"
-      },
-      "fontScaleFactor": "Font Scale Factor",
-      "documentSettings": {
-        "cursorColor": "Document cursor color",
-        "selectionColor": "Document selection color",
-        "hexEmptyError": "Hex color cannot be empty",
-        "hexLengthError": "Hex value must be 6 digits long",
-        "hexInvalidError": "Invalid hex value",
-        "opacityEmptyError": "Opacity cannot be empty",
-        "opacityRangeError": "Opacity must be between 1 and 100",
-        "app": "App",
-        "flowy": "Flowy",
-        "apply": "Apply"
-      },
-      "layoutDirection": {
-        "label": "Layout Direction",
-        "hint": "Control the flow of content on your screen, from left to right or right to left.",
-        "ltr": "משמאל לימין",
-        "rtl": "מימין לשמאל"
-      },
-      "textDirection": {
-        "label": "כיוון ברירת המחדל של טקסט",
-        "hint": "Specify whether text should start from left or right as the default.",
+    "contactsPage": {
+        "title": "אנשי קשר",
+        "whatsHappening": "מה קורה השבוע?",
+        "addContact": "הוספת איש קשר",
+        "editContact": "עריכת איש קשר"
+    },
+    "button": {
+        "ok": "אישור",
+        "confirm": "אישור",
+        "done": "בוצע",
+        "cancel": "ביטול",
+        "signIn": "כניסה",
+        "signOut": "יציאה",
+        "complete": "השלמה",
+        "save": "שמירה",
+        "generate": "יצירה",
+        "esc": "ESC",
+        "keep": "להשאיר",
+        "tryAgain": "לנסות שוב",
+        "discard": "התעלמות",
+        "replace": "החלפה",
+        "insertBelow": "הוספה מתחת",
+        "insertAbove": "הוספה מעל",
+        "upload": "העלאה",
+        "edit": "עריכה",
+        "delete": "מחיקה",
+        "duplicate": "שכפול",
+        "putback": "החזרה למקום",
+        "update": "עדכון",
+        "share": "שיתוף",
+        "removeFromFavorites": "הסרה מהמועדפים",
+        "removeFromRecent": "הסרה מהאחרונים",
+        "addToFavorites": "הוספה למועדפים",
+        "rename": "שינוי שם",
+        "helpCenter": "מרכז העזרה",
+        "add": "הוספה",
+        "yes": "כן",
+        "clear": "פינוי",
+        "remove": "להסיר",
+        "dontRemove": "לא להסיר",
+        "copyLink": "העתקת קישור",
+        "align": "יישור",
+        "login": "כניסה",
+        "logout": "יציאה",
+        "deleteAccount": "מחיקת חשבון",
+        "back": "חזרה",
+        "signInGoogle": "המשך עם Google",
+        "signInGithub": "המשך עם GitHub",
+        "signInDiscord": "המשך עם Discord",
+        "more": "עוד",
+        "create": "יצירה",
+        "close": "סגירה"
+    },
+    "label": {
+        "welcome": "ברוך בואך!",
+        "firstName": "שם פרטי",
+        "middleName": "שם אמצעי",
+        "lastName": "שם משפחה",
+        "stepX": "שלב {X}"
+    },
+    "oAuth": {
+        "err": {
+            "failedTitle": "לא ניתן להתחבר לחשבון שלך.",
+            "failedMsg": "נא לוודא שהשלמת את תהליך הכניסה בדפדפן שלך."
+        },
+        "google": {
+            "title": "כניסה עם GOOGLE",
+            "instruction1": "כדי לייבא את אנשי הקשר שלך מ־Google, צריך לאמת את היישום הזה בעזרת הדפדפן שלך.",
+            "instruction2": "יש להעתיק את הקוד ללוח הגזירים שלך בלחיצה על הסמל או על ידי בחירת הטקסט:",
+            "instruction3": "יש לנווט לקישור הבא בדפדפן שלך ולמלא את הקוד הבא:",
+            "instruction4": "יש ללחוץ על הכפתור שלהלן לאחר השלמת ההרשמה:"
+        }
+    },
+    "settings": {
+        "title": "הגדרות",
+        "accountPage": {
+            "menuLabel": "החשבון שלי",
+            "title": "החשבון שלי",
+            "general": {
+                "title": "שם חשבון ותמונת פרופיל",
+                "changeProfilePicture": "החלפת תמונת פרופיל"
+            },
+            "email": {
+                "title": "דוא״ל",
+                "actions": {
+                    "change": "החלפת כתובת דוא״ל"
+                }
+            },
+            "login": {
+                "title": "כניסה לחשבון",
+                "loginLabel": "כניסה",
+                "logoutLabel": "יציאה"
+            }
+        },
+        "workspacePage": {
+            "menuLabel": "מרחב עבודה",
+            "title": "מרחב עבודה",
+            "description": "התאמת מראה, ערכת העיצוב, הגופן, תבנית התאריך והשעה והשפה של מרחב העבודה שלך.",
+            "workspaceName": {
+                "title": "שם מרחב העבודה"
+            },
+            "workspaceIcon": {
+                "title": "סמל מרחב העבודה",
+                "description": "אפשר להעלות תמונה או להשתמש באמוג׳י למרחב העבודה שלך. הסמל יופיע בסרגל הצד ובהתראות שלך."
+            },
+            "appearance": {
+                "title": "מראה",
+                "description": "התאמת המראה, ערכת העיצוב, גופן, פריסת הטקסט, התאריך, השעה והשפה של מרחב העבודה שלך.",
+                "options": {
+                    "system": "אוטו׳",
+                    "light": "בהיר",
+                    "dark": "כהה"
+                }
+            },
+            "theme": {
+                "title": "ערכת עיצוב",
+                "description": "נא לבחור ערכת עיצוב מוגדרת מראש או להעלות ערכת עיצוב משופרת משלך.",
+                "uploadCustomThemeTooltip": "העלאת ערכת עיצוב משופרת"
+            },
+            "workspaceFont": {
+                "title": "גופן מרחב עבודה",
+                "noFontHint": "הגופן לא נמצא, נא לנסות ביטוי אחר."
+            },
+            "textDirection": {
+                "title": "כיוון טקסט",
+                "leftToRight": "משמאל לימין",
+                "rightToLeft": "מימין לשמאל",
+                "auto": "אוטו׳",
+                "enableRTLItems": "הפעלת פריטי סרגל כלים לכתיבה מימין לשמאל"
+            },
+            "layoutDirection": {
+                "title": "כיוון פריסה",
+                "leftToRight": "משמאל לימין",
+                "rightToLeft": "מימין לשמאל"
+            },
+            "dateTime": {
+                "title": "תאריך ושעה",
+                "example": "{} ב־{} ({})",
+                "24HourTime": "שעון 24 שעות",
+                "dateFormat": {
+                    "label": "תבנית תאריך",
+                    "local": "מקומית",
+                    "us": "אמריקאית",
+                    "iso": "ISO",
+                    "friendly": "ידידותית",
+                    "dmy": "D/M/Y"
+                }
+            },
+            "language": {
+                "title": "שפה"
+            },
+            "deleteWorkspacePrompt": {
+                "title": "מחיקת מרחב עבודה",
+                "content": "למחוק את מרחב העבודה הזה? זאת פעולה בלתי הפיכה וכל הדפים שפרסמת יוסתרו."
+            },
+            "leaveWorkspacePrompt": {
+                "title": "עזיבת מרחב העבודה",
+                "content": "לעזוב את מרחב העבודה הזה? הגישה שלך לכל העמודים והנתונים שבתוכו תלך לאיבוד."
+            },
+            "manageWorkspace": {
+                "title": "ניהול מרחב עבודה",
+                "leaveWorkspace": "עזיבת מרחב עבודה",
+                "deleteWorkspace": "מחיקת מרחב עבודה"
+            }
+        },
+        "manageDataPage": {
+            "menuLabel": "ניהול נתונים",
+            "title": "ניהול נתונים",
+            "description": "ניהול אחסון הנתונים מקומית או ייבוא הנתונים הקיימים שלך אל @:appName.",
+            "dataStorage": {
+                "title": "מקום אחסון קבצים",
+                "tooltip": "המקום בו יאוחסנו הקבצים שלך",
+                "actions": {
+                    "change": "החלפת נתיב",
+                    "open": "פתיחת תיקייה",
+                    "openTooltip": "פתיחת מקום תיקיית הנתונים הנוכחית",
+                    "copy": "העתקת נתיב",
+                    "copiedHint": "הנתיב הועתק!",
+                    "resetTooltip": "איפוס למקום ברירת המחדל"
+                },
+                "resetDialog": {
+                    "title": "להמשיך?",
+                    "description": "איפוס הנתיב למקום ברירת המחדל לאחסון הנתונים שלך. כדי לייבא את הנתונים הנוכחיים שלך מחדש, יש להעתיק את נתיב המקום הנוכחי שלך תחילה."
+                }
+            },
+            "importData": {
+                "title": "ייבוא נתונים",
+                "tooltip": "ייבוא נתונים מתיקיות גיבויים/נתונים של @:appName",
+                "description": "העתקת נתונים מתיקיית נתונים חיצונית של @:appName",
+                "action": "עיון בקובץ"
+            },
+            "encryption": {
+                "title": "הצפנה",
+                "tooltip": "ניהול אופן האחסון וההצפנה של הנתוים שלך",
+                "descriptionNoEncryption": "הפעלת הצפנה תצפין את כל הנתונים. זה תהליך בלתי הפיך.",
+                "descriptionEncrypted": "הנתונים שלך מוצפנים.",
+                "action": "הצפנת נתונים",
+                "dialog": {
+                    "title": "להצפין את כל הנתונים שלך?",
+                    "description": "להצפין את כל הנתונים שלך ישמור עליהם בבטחה ובצורה מאובטחת. זאת פעולה בלתי הפיכה. להמשיך?"
+                }
+            },
+            "cache": {
+                "title": "ביטול זיכרון המטמון",
+                "description": "פינוי זיכרון המטמון של היישום, הפינוי יכול לסייע בפתרון תקלות כמו תמונות או גופנים שלא נטענים. אין לזה השפעה על הנתונים שלך.",
+                "dialog": {
+                    "title": "להמשיך?",
+                    "description": "פינוי זיכרון המטמון יגרום להורדת כל התמונות מחדש עם הטעינה. הפעולה הזאת לא תסיר או תשנה את הנתונים שלך.",
+                    "successHint": "זיכרון המטמון התפנה!"
+                }
+            },
+            "data": {
+                "fixYourData": "תיקון הנתונים שלך",
+                "fixButton": "תיקון",
+                "fixYourDataDescription": "אם נתקלת בבעיות עם הנתונים שלך, אפשר לנסות לתקן אותן כאן."
+            }
+        },
+        "shortcutsPage": {
+            "menuLabel": "מקשי קיצור",
+            "title": "מקשי קיצור",
+            "editBindingHint": "נא להקליד צירוף חדש",
+            "searchHint": "חיפוש",
+            "actions": {
+                "resetDefault": "איפוס ברירת מחדל"
+            },
+            "errorPage": {
+                "message": "טעינת מקשי הקיצור נכשלה: {}",
+                "howToFix": "נא לנסות שוב, אם הבעיה נמשכת נא לפנות אלינו דרך GitHub."
+            },
+            "resetDialog": {
+                "title": "איפוס מקשי קיצור",
+                "description": "הפעולה הזאת תאפס את כל צירופי המקשים שלך לברירת המחדל, היא בלתי הפיכה, להמשיך?",
+                "buttonLabel": "איפוס"
+            },
+            "conflictDialog": {
+                "title": "{} נמצא בשימוש כרגע",
+                "descriptionPrefix": "צירוף המקשים הזה כבר משמש לטובת ",
+                "descriptionSuffix": ". החלפת צירוף המקשים הזה יסיר אותו מהשליטה ב־{}.",
+                "confirmLabel": "המשך"
+            },
+            "editTooltip": "יש ללחוץ כדי להתחיל לערוך את צירוף המקשים",
+            "keybindings": {
+                "toggleToDoList": "הצגת/הסתרת רשימת מטלות",
+                "insertNewParagraphInCodeblock": "הוספת פסקה חדשה",
+                "pasteInCodeblock": "הדבקה במקטע קוד",
+                "selectAllCodeblock": "בחירה בהכול",
+                "indentLineCodeblock": "הוספת שני רווחים בתחילת השורה",
+                "outdentLineCodeblock": "מחיקת שני רווחים בתחילת השורה",
+                "twoSpacesCursorCodeblock": "הוספת שני רווחים איפה שהסמן",
+                "copy": "העתקת בחירה",
+                "paste": "הדבקה בתוכן",
+                "cut": "גזירת הבחירה",
+                "alignLeft": "יישור הטקסט לשמאל",
+                "alignCenter": "מירכוז הטקסט",
+                "alignRight": "יישור הטקסט לימין",
+                "undo": "הסגה",
+                "redo": "ביצוע מחדש",
+                "convertToParagraph": "המרת מקטע לפסקה",
+                "backspace": "מחיקה",
+                "deleteLeftWord": "מחיקת המילה משמאל",
+                "deleteLeftSentence": "מחיקת המשפט משמאל",
+                "delete": "מחיקת התו מימין",
+                "deleteMacOS": "מחיקת השתו משמאל",
+                "deleteRightWord": "מחיקת המילה מימין",
+                "moveCursorLeft": "הזזת הסמל שמאלה",
+                "moveCursorBeginning": "הזזת הסמן להתחלה",
+                "moveCursorLeftWord": "הזזת הסמן מילה שמאלה",
+                "moveCursorLeftSelect": "בחירה והזזת הסמן שמאלה",
+                "moveCursorBeginSelect": "בחירה והזזת הסמן להתחלה",
+                "moveCursorLeftWordSelect": "בחירה והזזת הסמן שמאלה במילה",
+                "moveCursorRight": "הזזת הסמן ימינה",
+                "moveCursorEnd": "הזזת הסמן לסוף",
+                "moveCursorRightWord": "הזזת הסמן ימינה במילה",
+                "moveCursorRightSelect": "בחירה והזזת הסמן אחד ימינה",
+                "moveCursorEndSelect": "בחירה והזזת הסמן לסוף",
+                "moveCursorRightWordSelect": "בחירה והזזת הסמן ימינה במילה",
+                "moveCursorUp": "הזזת הסמן למעלה",
+                "moveCursorTopSelect": "בחירה והזזת הסמן לראש",
+                "moveCursorTop": "הזזת הסמן לראש",
+                "moveCursorUpSelect": "בחירה והזזת הסמן למעלה",
+                "moveCursorBottomSelect": "בחירה והזזת הסמן לתחתית",
+                "moveCursorBottom": "הזזת הסמן לתחתית",
+                "moveCursorDown": "הזזת הסמן למטה",
+                "moveCursorDownSelect": "בחירה והזזת הסמן למטה",
+                "home": "גלילה למעלה",
+                "end": "גלילה לתחתית",
+                "toggleBold": "החלפת מצב מודגש",
+                "toggleItalic": "החלפת מצב הטייה",
+                "toggleUnderline": "החלפת מצב קו תחתי",
+                "toggleStrikethrough": "החלפת קו חוצה",
+                "toggleCode": "החלפת קוד כחלק מהשורה",
+                "toggleHighlight": "החלפת מצב הדגשה",
+                "showLinkMenu": "הצגת תפריט קישורים",
+                "openInlineLink": "פתיחת קישור מובנה",
+                "openLinks": "פתיחת כל הקישורים הנבחרים",
+                "indent": "הגדלת הזחה",
+                "outdent": "הקטנת הזחה",
+                "exit": "יציאה מעריכה",
+                "pageUp": "גלילה עמוד למעלה",
+                "pageDown": "גלילה עמוד למטה",
+                "selectAll": "בחירה בהכול",
+                "pasteWithoutFormatting": "הדבקת תוכן בלי עיצוב",
+                "showEmojiPicker": "הצגת בורר אמוג׳י",
+                "enterInTableCell": "הוספת מעבר שורה בטבלה",
+                "leftInTableCell": "מעבר תא שמאלה בטבלה",
+                "rightInTableCell": "מעבר תא ימינה בטבלה",
+                "upInTableCell": "מעבר תא למעלה בטבלה",
+                "downInTableCell": "מעבר תא למטה בטבלה",
+                "tabInTableCell": "מעבר לתא הזמין הבא בטבלה",
+                "shiftTabInTableCell": "מעבר לתא הזמין הקודם בטבלה",
+                "backSpaceInTableCell": "עצירה בתחילת התא"
+            },
+            "commands": {
+                "codeBlockNewParagraph": "הוספת פסקה חדשה ליד מקטע הקוד",
+                "codeBlockIndentLines": "הוספת שני רווחים בתחילת השורה במקטע קוד",
+                "codeBlockOutdentLines": "מחיקת שני רווחים מתחילת השורה במקטע קוד",
+                "codeBlockAddTwoSpaces": "הוספת שני רווחים במקום של הסמן במקטע קוד",
+                "codeBlockSelectAll": "בחירת כל התוכן בתוך מקטע קוד",
+                "codeBlockPasteText": "הדבקת טקסט במקטע קוד",
+                "textAlignLeft": "יישור טקסט לשמאל",
+                "textAlignCenter": "מירכוז טקסט",
+                "textAlignRight": "יישור טקסט לימין"
+            },
+            "couldNotLoadErrorMsg": "לא ניתן לטעון את קיצורי המקשים, נא לנסות שוב",
+            "couldNotSaveErrorMsg": "לא ניתן לשמור את קיצורי המקשים, נא לנסות שוב"
+        },
+        "aiPage": {
+            "title": "הגדרת בינה מלאכותית",
+            "menuLabel": "הגדרות בינה מלאכותית",
+            "keys": {
+                "enableAISearchTitle": "חיפוש בינה מלאכותית",
+                "aiSettingsDescription": "בחירת או הגדרת מודלים של בינה מלאכותית לשימוש עם @:appName. לביצועים מיטביים אנו ממליצים להשתמש באפשרויות ברירת המחדל של המודל",
+                "loginToEnableAIFeature": "יכולות בינה מלאכותית מופעלות רק לאחר כניסה עם @:appName בענן. אם אין לך חשבון של @:appName, יש לגשת אל ‚החשבון שלי’ כדי להירשם",
+                "llmModel": "מודל שפה",
+                "title": "מפתחות API לבינה מלאכותית",
+                "openAILabel": "מפתח API ל־OpenAI",
+                "openAITooltip": "אפשר למצוא את מפתח ה־API הסודי שלך בעמוד מפתח ה־API",
+                "openAIHint": "מילוי מפתח ה־API שלך ב־OpenAI",
+                "stabilityAILabel": "מפתח API של Stability",
+                "stabilityAITooltip": "מפתח ה־API שלך ב־Stability, משמש לאימות הבקשות שלך",
+                "stabilityAIHint": "נא למלא את מפתח ה־API שלך ב־Stability"
+            }
+        },
+        "planPage": {
+            "menuLabel": "תוכנית",
+            "title": "תוכנית חיוב",
+            "planUsage": {
+                "title": "תקציר שימוש בתוכנית",
+                "storageLabel": "אחסון",
+                "storageUsage": "{} מתוך {} ג״ב",
+                "collaboratorsLabel": "שותפים",
+                "collaboratorsUsage": "{} מתוך {}",
+                "aiResponseLabel": "תגובות בינה מלאכותית",
+                "aiResponseUsage": "{} מתוך {}",
+                "proBadge": "פרו",
+                "memberProToggle": "אין הגבלה על כמות חברים",
+                "guestCollabToggle": "10 משתתפי אורח",
+                "storageUnlimited": "אחסון ללא הגבלה עם תוכנית הפרו שלך",
+                "aiCredit": {
+                    "title": "הוספת קרדיט בינה מלאכותית ל־@:appName",
+                    "price": "{}",
+                    "priceDescription": "ל־1,000 קרדיטים",
+                    "purchase": "רכישת בינה מלאכותית",
+                    "info": "הוספת 1,000 קרדיטים של בינה מלאכותית לכל סביבת עבודה ושילוב בינה מלאכותית מותאמת למרחב העבודה שלך לתוצאות חכמות ומהירות יותר עם עד:",
+                    "infoItemOne": "10,000 תגובות למסד נתונים",
+                    "infoItemTwo": "1,000 תגובות לסביבת עבודה"
+                },
+                "currentPlan": {
+                    "bannerLabel": "תוכנית נוכחית",
+                    "freeTitle": "חינם",
+                    "proTitle": "פרו",
+                    "teamTitle": "צוות",
+                    "freeInfo": "מעולה לעצמאיים או צוותים קטנים של עד 3 חברים.",
+                    "proInfo": "מעולה לצוות קטנים ובינוניים עד 10 חברים.",
+                    "teamInfo": "מעולה לכל סוג של צוות משימתי שמאורגן היטב.",
+                    "upgrade": "השוואה\n ושדרוג",
+                    "freeProOne": "מרחב עבודה שיתופי",
+                    "freeProTwo": "עד 3 חברים (כולל הבעלים)",
+                    "freeProThree": "כמות אורחים בלתי מוגבלת (צפייה בלבד)",
+                    "freeProFour": "אחסון של 5 ג״ב",
+                    "freeProFive": "30 ימי היסטוריית מהדורות",
+                    "freeConOne": "משתתפי אורח (גישת עריכה)",
+                    "freeConTwo": "ללא הגבלת אחסון",
+                    "freeConThree": "6 חודשי היסטוריית מהדורות",
+                    "professionalProOne": "מרחב עבודה שיתופי",
+                    "professionalProTwo": "כמות חברים בלתי מוגבלת",
+                    "professionalProThree": "כמות אורחים בלתי מוגבלת (צפייה בלבד)",
+                    "professionalProFour": "אחסון ללא הגבלה",
+                    "professionalProFive": "6 חודשי היסטוריית מהדורות",
+                    "professionalConOne": "משתתפי אורח ללא הגבלה (גישת עריכה)",
+                    "professionalConTwo": "תגובות מבינה מלאכותית ללא הגבלה",
+                    "professionalConThree": "שנה של היסטוריית מהדורות",
+                    "canceledInfo": "התוכנית שלך בוטלה, יבוצע שנמוך לתוכנית החופשית ב־{}."
+                },
+                "deal": {
+                    "bannerLabel": "מבצע לשנה החדשה!",
+                    "title": "הגדלת הצוות שלך!",
+                    "info": "שדרוג כעת יזכה אותך ב־10% הנחה מתוכניות פרו ולצוותים! אפשר לחזק את יעילות סביבת העבודה שלך עם יכולות חדשות ורבות עוצמה כולל הבינה המלאכותית של @:appName.",
+                    "viewPlans": "הצגת תוכניות"
+                }
+            }
+        },
+        "billingPage": {
+            "menuLabel": "חיוב",
+            "title": "חיוב",
+            "plan": {
+                "title": "תוכנית",
+                "freeLabel": "חינם",
+                "proLabel": "פרו",
+                "planButtonLabel": "החלפת תוכנית",
+                "billingPeriod": "תקופת חיוב",
+                "periodButtonLabel": "עריכת תקופה"
+            },
+            "paymentDetails": {
+                "title": "פרטי תשלום",
+                "methodLabel": "שיטת תשלום",
+                "methodButtonLabel": "עריכת שיטה"
+            }
+        },
+        "comparePlanDialog": {
+            "title": "השוואה ובחירת תוכנית",
+            "planFeatures": "יכולות\nהתוכנית",
+            "current": "נוכחית",
+            "actions": {
+                "upgrade": "שדרוג",
+                "downgrade": "שנמוך",
+                "downgradeDisabledTooltip": "השנמוך יתבצע בסוף מחזור החיוב",
+                "current": "נוכחית"
+            },
+            "freePlan": {
+                "title": "חינם",
+                "description": "לארגון כל פינה בעבודה ובחיים שלך.",
+                "price": "{}",
+                "priceInfo": "חינם לנצח"
+            },
+            "proPlan": {
+                "title": "מקצועי",
+                "description": "מקום קטן לתכנות והתארגנות של קבוצות קטנות.",
+                "price": "{} לחודש",
+                "priceInfo": "בחיוב שנתי"
+            },
+            "planLabels": {
+                "itemOne": "מרחבי עבודה",
+                "itemTwo": "חברים",
+                "itemThree": "אורחים",
+                "tooltipThree": "לאורחים יש הרשאות לקריאה בלבד לתוכן המסוים ששותף",
+                "itemFour": "משתתפי אורח",
+                "tooltipFour": "משתתפי אורח מחויבים כמושב אחד",
+                "itemFive": "אחסון",
+                "itemSix": "שיתוף בזמן אמת",
+                "itemSeven": "יישומון לניידים",
+                "itemEight": "תגובות בינה מלאכותית",
+                "tooltipEight": "הכוונה בביטוי „לכל החיים” כלומר שמספר התגובות לעולם לא יתאפס"
+            },
+            "freeLabels": {
+                "itemOne": "חיוב לפני מרחבי עבודה",
+                "itemTwo": "3",
+                "itemFour": "0",
+                "itemFive": "5 ג״ב",
+                "itemSix": "כן",
+                "itemSeven": "כן",
+                "itemEight": "1,000 לכל החיים"
+            },
+            "proLabels": {
+                "itemOne": "מחויב לפי מרחב עבודה",
+                "itemTwo": "עד 10",
+                "itemFour": "10 אורחים חויבו כמושב אחד",
+                "itemFive": "ללא הגבלה",
+                "itemSix": "כן",
+                "itemSeven": "כן",
+                "itemEight": "10,000 בחודש"
+            },
+            "paymentSuccess": {
+                "title": "עברת לתוכנית {}!",
+                "description": "התשלום שלך עבר עיבוד והתוכנית שלך שודרגה ל־@:appName {}. אפשר לצפות בפרטי התוכנית שלך בעמוד התוכנית"
+            },
+            "downgradeDialog": {
+                "title": "לשנמך את התוכנית שלך?",
+                "description": "שנמוך התוכנית שלך יחזיר אותך לתוכנית החינמית. חברים עלולים לאבד גישה למרחבי העבודה ויהיה עליך לפנות מקום אחסון כדי לעמוד במגבלות האחסון של התוכנית החינמית.",
+                "downgradeLabel": "שנמוך תוכנית"
+            }
+        },
+        "common": {
+            "reset": "איפוס"
+        },
+        "menu": {
+            "appearance": "מראה",
+            "language": "שפה",
+            "user": "משתמש",
+            "files": "קבצים",
+            "notifications": "התראות",
+            "open": "פתיחת ההגדרות",
+            "logout": "יציאה",
+            "logoutPrompt": "לצאת?",
+            "selfEncryptionLogoutPrompt": "לצאת מהמערכת? נא לוודא שהעתקת את סוד ההצפנה",
+            "syncSetting": "סנכרון הגדרות",
+            "cloudSettings": "הגדרות ענן",
+            "enableSync": "הפעלת סנכרון",
+            "enableEncrypt": "הצפנת נתונים",
+            "cloudURL": "כתובת בסיס",
+            "invalidCloudURLScheme": "סכמה שגויה",
+            "cloudServerType": "שרת ענן",
+            "cloudServerTypeTip": "נא לשים לב שהפעולה הזאת עלולה להוציא אותך מהחשבון הנוכחי שלך לאחר מעבר לשרת הענן",
+            "cloudLocal": "מקומי",
+            "cloudSupabase": "Supabase",
+            "cloudSupabaseUrl": "כתובת Supabase",
+            "cloudSupabaseUrlCanNotBeEmpty": "כתובת ה־Supabase לא יכולה להישאר ריקה",
+            "cloudSupabaseAnonKey": "מפתח אלמוני של Supabase",
+            "cloudSupabaseAnonKeyCanNotBeEmpty": "המפתח האלמוני לא יכול להישאר ריק",
+            "cloudAppFlowy": "@:appName בענן בטא",
+            "cloudAppFlowySelfHost": "@:appName בענן באירוח עצמי",
+            "appFlowyCloudUrlCanNotBeEmpty": "כתובת הענן לא יכולה להישאר ריקה",
+            "clickToCopy": "לחיצה להעתקה",
+            "selfHostStart": "אם אין לך שרת, נא לפנות אל",
+            "selfHostContent": "המסמך",
+            "selfHostEnd": "להנחיה בנוגע לאירוח בשרת משלך",
+            "cloudURLHint": "נא למלא את כתובת הבסיס של השרת שלך",
+            "cloudWSURL": "כתובת Websocket",
+            "cloudWSURLHint": "נא למלא את כתובת השקע המקוון (websocket) של השרת שלך",
+            "restartApp": "הפעלה מחדש",
+            "restartAppTip": "יש להפעיל את היישום מחדש כדי להחיל את השינויים. נא לשים לב שיכול להיות שתתבצע יציאה מהחשבון הנוכחי שלך.",
+            "changeServerTip": "לאחר החלפת השרת, יש ללחוץ על כפתור ההפעלה מחדש כדי שהשינויים ייכנסו לתוקף",
+            "enableEncryptPrompt": "אפשר להפעיל הצפנה כדי להגן על הנתונים שלך עם הסוד הזה. יש לאחסן אותו בצורה בטוחה, לאחר שהופעלה, אי אפשר לכבות אותה. אם הסוד אבד, לא תהיה עוד גישה לנתונים שלך. לחיצה להעתקה",
+            "inputEncryptPrompt": "נא למלא את סוד ההצפנה שלך עבור",
+            "clickToCopySecret": "לחיצה להעתקת סוד",
+            "configServerSetting": "הגדרת השרת שלך",
+            "configServerGuide": "לאחר בחירה ב`התחלה מהירה`, יש לנווט אל `הגדרות` ואז ל„הגדרות ענן” כדי להגדיר שרת באירוח עצמי.",
+            "inputTextFieldHint": "הסוד שלך",
+            "historicalUserList": "היסטוריית כניסת משתמשים",
+            "historicalUserListTooltip": "הרשימה הזאת מציגה את החשבונות האלמוניים שלך. אפשר ללחוץ על חשבון כדי לצפות בפרטים שלו. חשבונות אלמוניים נוצרים בלחיצה על הכפתור ‚איך מתחילים’",
+            "openHistoricalUser": "נא ללחוץ כדי לפתוח את החשבון האלמוני",
+            "customPathPrompt": "אחסון תיקיית הנתונים של @:appName בתיקייה שמסונכרנת עם הענן כגון Google Drive יכול להוות סיכון. אם למסד הנתונים בתיקייה הזאת ניגשים או עורכים ממגוון מקומות בו־זמנית, יכולות לקרות סתירות סנכרון והנתונים יכולים להינזק",
+            "importAppFlowyData": "ייבוא נתונים מתיקיית @:appName חיצונית",
+            "importingAppFlowyDataTip": "מתבצע ייבוא נתונים. נא לא לסגור את היישום",
+            "importAppFlowyDataDescription": "העתקת נתונים מתיקיית נתונים חיצונית של @:appName ולייבא אותה לתיקיית הנתונים הנוכחית של AppFlowy",
+            "importSuccess": "תיקיית הנתונים של @:appName יובאה בהצלחה",
+            "importFailed": "ייבוא תיקיית הנתונים של @:appName נכשל",
+            "importGuide": "לפרטים נוספים, נא לעיין במסמך המוזכר"
+        },
+        "notifications": {
+            "enableNotifications": {
+                "label": "הפעלת התראות",
+                "hint": "יש לכבות כדי לעצור הצגת התראות מקומיות."
+            },
+            "showNotificationsIcon": {
+                "label": "הצגת סמל התראות",
+                "hint": "יש לכבות כדי להסתיר את סמל ההתראות בסרגל הצד."
+            }
+        },
+        "appearance": {
+            "resetSetting": "איפוס",
+            "fontFamily": {
+                "label": "משפחת גופנים",
+                "search": "חיפוש",
+                "defaultFont": "מערכת"
+            },
+            "themeMode": {
+                "label": "מצב ערכת עיצוב",
+                "light": "מצב בהיר",
+                "dark": "מצב כהה",
+                "system": "התאמה למערכת"
+            },
+            "fontScaleFactor": "מקדם קנה מידה לגופנים",
+            "documentSettings": {
+                "cursorColor": "צבע סמן מסמך",
+                "selectionColor": "צבע בחירת מסמך",
+                "hexEmptyError": "צבע הקס׳ לא יכול להיות ריק",
+                "hexLengthError": "ערך הקס׳ חייב להיות באורך 6 תווים לפחות",
+                "hexInvalidError": "ערך הקס׳ שגוי",
+                "opacityEmptyError": "האטימות לא יכולה להיות ריקה",
+                "opacityRangeError": "האטימות חייבת להיות בין 1 ל־100",
+                "app": "יישום",
+                "flowy": "Flowy",
+                "apply": "החלה",
+                "pickColor": "נא לבחור צבע",
+                "colorShade": "צללית צבע",
+                "opacity": "שקיפות"
+            },
+            "layoutDirection": {
+                "label": "כיוון פריסה",
+                "hint": "שליטה בזרימת התוכן על המסך שלך, משמאל לימין או מימין לשמאל.",
+                "ltr": "משמאל לימין",
+                "rtl": "מימין לשמאל"
+            },
+            "textDirection": {
+                "label": "כיוון ברירת המחדל של טקסט",
+                "hint": "נא לציין האם טקסט אמור להתחיל משמאל או מימין כברירת מחדל.",
+                "ltr": "משמאל לימין",
+                "rtl": "מימין לשמאל",
+                "auto": "אוטו׳",
+                "fallback": "כמו כיוון הפריסה"
+            },
+            "themeUpload": {
+                "button": "העלאה",
+                "uploadTheme": "העלאת ערכת עיצוב",
+                "description": "אפשר להעלות ערכת עיצוב משלך ל־@:appName בעזרת הכפתור שלהלן.",
+                "loading": "נא להמתין בזמן תיקוף והעלאת ערכת העיצוב שלך…",
+                "uploadSuccess": "ערכת העיצוב שלך הועלתה בהצלחה",
+                "deletionFailure": "מחיקת ערכת העיצוב נכשלה. נא לנסות למחוק אותה ידנית.",
+                "filePickerDialogTitle": "נא לבחור קובץ ‎.flowy_plugin",
+                "urlUploadFailure": "פתיחת הכתובת נכשלה: {}"
+            },
+            "theme": "ערכת עיצוב",
+            "builtInsLabel": "ערכות עיצוב מובנות",
+            "pluginsLabel": "תוספים",
+            "dateFormat": {
+                "label": "תבנית תאריך",
+                "local": "מקומית",
+                "us": "אמריקאית",
+                "iso": "ISO",
+                "friendly": "ידידותית",
+                "dmy": "D/M/Y"
+            },
+            "timeFormat": {
+                "label": "תבנית שעה",
+                "twelveHour": "12 שעות",
+                "twentyFourHour": "24 שעות"
+            },
+            "showNamingDialogWhenCreatingPage": "הצגת חלונית מתן שם בעת יצירת עמוד",
+            "enableRTLToolbarItems": "הפעלת פריטי ימין לשמאל בסרגל הכלים",
+            "members": {
+                "title": "הגדרות חברים",
+                "inviteMembers": "הזמנת חברים",
+                "inviteHint": "הזמנה בדוא״ל",
+                "sendInvite": "שליחת הזמנה",
+                "copyInviteLink": "העתקת קישור הזמנה",
+                "label": "חברים",
+                "user": "משתמש",
+                "role": "תפקיד",
+                "removeFromWorkspace": "הסרה ממרחב העבודה",
+                "owner": "בעלים",
+                "guest": "אורח",
+                "member": "חבר",
+                "memberHintText": "חברים יכולים לקרוא ולערוך עמודים",
+                "guestHintText": "אורחים יכולים לקרוא, להגיב עם סמל, לכתוב הערות ולערוך עמודים מסוימים לפי ההרשאה.",
+                "emailInvalidError": "כתובת דוא״ל שגויה, נא לבדוק ולנסות שוב",
+                "emailSent": "ההודעה נשלחה בדוא״ל, נא לבדוק את תיבת הדוא״ל הנכנס",
+                "members": "חברים",
+                "membersCount": {
+                    "zero": "{} חברים",
+                    "one": "חבר",
+                    "other": "{} חברים"
+                },
+                "memberLimitExceeded": "הגעת למגבלת החברים המרבית לחשבון שלך. כדי להוסיף חברים נוספים ולהמשיך בעבודתך, נא להגיש בקשה ב־GitHub",
+                "failedToAddMember": "הוספת החבר נכשלה",
+                "addMemberSuccess": "החבר נוסף בהצלחה",
+                "removeMember": "הסרת חבר",
+                "areYouSureToRemoveMember": "להסיר את החבר הזה?",
+                "inviteMemberSuccess": "ההזמנה נשלחה בהצלחה",
+                "failedToInviteMember": "הזמנת החבר נכשלה"
+            }
+        },
+        "files": {
+            "copy": "העתקה",
+            "defaultLocation": "קריאת הקבצים ומקום אחסון הנתונים",
+            "exportData": "ייצוא הנתונים שלך",
+            "doubleTapToCopy": "הנתיב יועתק בלחיצה כפולה",
+            "restoreLocation": "שחזור לנתיב ברירת המחדל של @:appName",
+            "customizeLocation": "פתיחת תיקייה אחרת",
+            "restartApp": "נא להפעיל את היישום מחדש כדי שהשינויים ייכנסו לתוקף.",
+            "exportDatabase": "ייצוא מסד נתונים",
+            "selectFiles": "נא לבחור את הקבצים לייצור",
+            "selectAll": "בחירה בהכול",
+            "deselectAll": "ביטול בחירה",
+            "createNewFolder": "יצירת תיקייה חדשה",
+            "createNewFolderDesc": "נא הגדיר לנו איפה לאחסן את הנתונים שלך",
+            "defineWhereYourDataIsStored": "הגדרת מקום אחסון הנתונים שלך",
+            "open": "פתיחה",
+            "openFolder": "פתיחת תיקייה קיימת",
+            "openFolderDesc": "קריאה וכתיבה אל תיקיית ה־@:appName הקיימת שלך",
+            "folderHintText": "שם התיקייה",
+            "location": "יצירת תיקייה חדשה",
+            "locationDesc": "נא לבחור שם לתיקיית הנתונים של @:appName",
+            "browser": "עיון",
+            "create": "יצירה",
+            "set": "הגדרה",
+            "folderPath": "נתיב לאחסון התיקייה שלך",
+            "locationCannotBeEmpty": "הנתיב לא יכול להיות ריק",
+            "pathCopiedSnackbar": "נתיב אחסון הקבצים הועתק ללוח הגזירים!",
+            "changeLocationTooltips": "החלפת תיקיית הנתונים",
+            "change": "שינוי",
+            "openLocationTooltips": "פתיחת תיקיית נתונים אחרת",
+            "openCurrentDataFolder": "פתיחת תיקיית הנתונים הנוכחית",
+            "recoverLocationTooltips": "איפוס לתיקיית הנתונים כברירת המחדל של @:appName",
+            "exportFileSuccess": "ייצוא הקובץ הצליח!",
+            "exportFileFail": "ייצוא הקובץ נכשל!",
+            "export": "ייצוא",
+            "clearCache": "פינוי זיכרון המטמון",
+            "clearCacheDesc": "אם נתקלת בבעיות עם תמונות שלא נטענות או גופנים שלא מופיעים כראוי, כדאי לנסות לפנות את זיכרון המטמון. הפעולה הזאת לא תסיר את נתוני המשתמש שלך.",
+            "areYouSureToClearCache": "לפנות את זיכרון המטמון?",
+            "clearCacheSuccess": "זיכרון המטמון התפנה בהצלחה!"
+        },
+        "user": {
+            "name": "שם",
+            "email": "דוא״ל",
+            "tooltipSelectIcon": "בחירת סמל",
+            "selectAnIcon": "נא לבחור סמל",
+            "pleaseInputYourOpenAIKey": "נא למלא את המפתח שלך ב־OpenAI",
+            "pleaseInputYourStabilityAIKey": "נא למלא את המפתח שלך ב־Stability AI",
+            "clickToLogout": "לחיצה תוציא את המשתמש הנוכחי"
+        },
+        "mobile": {
+            "personalInfo": "פרטים אישיים",
+            "username": "שם משתמש",
+            "usernameEmptyError": "שם שמשתמש לא יכול להישאר ריק",
+            "about": "על אודות",
+            "pushNotifications": "התראות בדחיפה",
+            "support": "תמיכה",
+            "joinDiscord": "להצטרף אלינו ב־Discord",
+            "privacyPolicy": "מדיניות פרטיות",
+            "userAgreement": "הסכם שימוש",
+            "termsAndConditions": "תנאים והתניות",
+            "userprofileError": "טעינת פרופיל המשתמש נכשלה",
+            "userprofileErrorDescription": "נא לנסות לצאת ולהיכנס בחזרה אם הבעיה נמשכת.",
+            "selectLayout": "בחירת פריסה",
+            "selectStartingDay": "בחירת יום ההתחלה",
+            "version": "גרסה"
+        }
+    },
+    "grid": {
+        "deleteView": "למחוק את התצוגה הזאת?",
+        "createView": "חדש",
+        "title": {
+            "placeholder": "ללא שם"
+        },
+        "settings": {
+            "filter": "מסנן",
+            "sort": "מיון",
+            "sortBy": "מיון לפי",
+            "properties": "מאפיינים",
+            "reorderPropertiesTooltip": "אפשר לשנות את סדר המאפיינים בגרירה",
+            "group": "קבוצה",
+            "addFilter": "הוספת מסנן",
+            "deleteFilter": "מחיקת מסנן",
+            "filterBy": "סינון לפי…",
+            "typeAValue": "נא להקליד ערך…",
+            "layout": "פריסה",
+            "databaseLayout": "פריסה",
+            "viewList": {
+                "zero": "0 צפיות",
+                "one": "צפייה",
+                "other": "{count} צפיות"
+            },
+            "editView": "עריכת תצוגה",
+            "boardSettings": "הגדרות לוח",
+            "calendarSettings": "הגדרות לוח שנה",
+            "createView": "תצוגה חדשה",
+            "duplicateView": "שכפול תצוגה",
+            "deleteView": "מחיקת תצוגה",
+            "numberOfVisibleFields": "{} מופיע"
+        },
+        "textFilter": {
+            "contains": "מכיל",
+            "doesNotContain": "לא מכיל",
+            "endsWith": "מסתיים ב־",
+            "startWith": "נפתח ב־",
+            "is": "הוא",
+            "isNot": "אינו",
+            "isEmpty": "ריק",
+            "isNotEmpty": "לא ריק",
+            "choicechipPrefix": {
+                "isNot": "לא",
+                "startWith": "נפתח ב־",
+                "endWith": "מסתיים ב־",
+                "isEmpty": "ריק",
+                "isNotEmpty": "לא ריק"
+            }
+        },
+        "checkboxFilter": {
+            "isChecked": "מסומן",
+            "isUnchecked": "לא מסומן",
+            "choicechipPrefix": {
+                "is": "הוא"
+            }
+        },
+        "checklistFilter": {
+            "isComplete": "הושלם",
+            "isIncomplted": "טרם הושלם"
+        },
+        "selectOptionFilter": {
+            "is": "הוא",
+            "isNot": "אינו",
+            "contains": "מכיל",
+            "doesNotContain": "לא מכיל",
+            "isEmpty": "ריק",
+            "isNotEmpty": "לא ריק"
+        },
+        "dateFilter": {
+            "is": "הוא",
+            "before": "הוא לפני",
+            "after": "הוא אחרי",
+            "onOrBefore": "בתאריך או לפני",
+            "onOrAfter": "בתאריך או אחרי",
+            "between": "בין",
+            "empty": "ריק",
+            "notEmpty": "לא ריק",
+            "choicechipPrefix": {
+                "before": "לפני",
+                "after": "אחרי",
+                "onOrBefore": "בתאריך או לפני",
+                "onOrAfter": "בתאריך או אחרי",
+                "isEmpty": "ריק",
+                "isNotEmpty": "לא ריק"
+            }
+        },
+        "numberFilter": {
+            "equal": "שווה ל־",
+            "notEqual": "לא שווה ל־",
+            "lessThan": "קטן מ־",
+            "greaterThan": "גדול מ־",
+            "lessThanOrEqualTo": "קטן או שווה ל־",
+            "greaterThanOrEqualTo": "גדול או שווה ל־",
+            "isEmpty": "ריק",
+            "isNotEmpty": "לא ריק"
+        },
+        "field": {
+            "hide": "הסתרה",
+            "show": "הצגה",
+            "insertLeft": "הוספה משמאל",
+            "insertRight": "הוספה מימין",
+            "duplicate": "שכפול",
+            "delete": "מחיקה",
+            "wrapCellContent": "גלישת טקסט",
+            "clear": "פינוי תאים",
+            "textFieldName": "טקסט",
+            "checkboxFieldName": "תיבת סימון",
+            "dateFieldName": "תאריך",
+            "updatedAtFieldName": "שינוי אחרון",
+            "createdAtFieldName": "יצירה",
+            "numberFieldName": "מספרים",
+            "singleSelectFieldName": "בחירה",
+            "multiSelectFieldName": "ריבוי בחירות",
+            "urlFieldName": "כתובת",
+            "checklistFieldName": "רשימת סימונים",
+            "relationFieldName": "יחס",
+            "summaryFieldName": "תקציר בינה מלאכותית",
+            "timeFieldName": "שעה",
+            "translateFieldName": "תרגום בינה מלאכותית",
+            "translateTo": "תרגום ל־",
+            "numberFormat": "תבנית מספר",
+            "dateFormat": "תבנית תאריך",
+            "includeTime": "כולל השעה",
+            "isRange": "תאריך סיום",
+            "dateFormatFriendly": "חודש יום, שנה",
+            "dateFormatISO": "שנה-חודש-יום",
+            "dateFormatLocal": "חודש/יום/שנה",
+            "dateFormatUS": "שנה/חודש/יום",
+            "dateFormatDayMonthYear": "יום/חודש/שנה",
+            "timeFormat": "תבנית שעה",
+            "invalidTimeFormat": "תבנית שגויה",
+            "timeFormatTwelveHour": "12 שעות",
+            "timeFormatTwentyFourHour": "24 שעות",
+            "clearDate": "פינוי התאריך",
+            "dateTime": "תאריך שעה",
+            "startDateTime": "תאריך ושעת התחלה",
+            "endDateTime": "תאריך ושעת סיום",
+            "failedToLoadDate": "טעינת ערך התאריך נכשלה",
+            "selectTime": "נא לבחור שעה",
+            "selectDate": "נא לבחור תאריך",
+            "visibility": "חשיפה",
+            "propertyType": "סוג המאפיין",
+            "addSelectOption": "הוספת אפשרות",
+            "typeANewOption": "נא להקליד אפשרות חדשה",
+            "optionTitle": "אפשרויות",
+            "addOption": "הוספת אפשרות",
+            "editProperty": "עריכת מאפיין",
+            "newProperty": "מאפיין חדש",
+            "deleteFieldPromptMessage": "להמשיך? המאפיין יימחק",
+            "clearFieldPromptMessage": "להמשיך? כל התאים בעמודה הזאת יתרוקנו",
+            "newColumn": "עמודה חדשה",
+            "format": "תבנית",
+            "reminderOnDateTooltip": "בתא הזה יש תזכורת מתוזמנת",
+            "optionAlreadyExist": "האפשרות כבר קיימת"
+        },
+        "rowPage": {
+            "newField": "הוספת שדה חדש",
+            "fieldDragElementTooltip": "נא ללחוץ לפתיחת התפריט",
+            "showHiddenFields": {
+                "one": "הצגת שדה מוסתר",
+                "many": "הצגת {count} שדות מוסתרים",
+                "other": "הצגת {count} שדות מוסתרים"
+            },
+            "hideHiddenFields": {
+                "one": "הסתרת שדה מוסתר",
+                "many": "הסתרת {count} שדות מוסתרים",
+                "other": "הסתרת {count} שדות מוסתרים"
+            },
+            "openAsFullPage": "Open as full page",
+            "moreRowActions": "פעולות שורה נוספות"
+        },
+        "sort": {
+            "ascending": "עולה",
+            "descending": "יורד",
+            "by": "לפי",
+            "empty": "אין מיונים פעילים",
+            "cannotFindCreatableField": "לא ניתן למצוא שדה מתאים למיין לפיו",
+            "deleteAllSorts": "מחיקת כל המיונים",
+            "addSort": "הוספת מיון חדש",
+            "removeSorting": "להסיר מיון?",
+            "fieldInUse": "כבר בחרת למיין לפי השדה הזה"
+        },
+        "row": {
+            "duplicate": "שכפול",
+            "delete": "מחיקה",
+            "titlePlaceholder": "ללא שם",
+            "textPlaceholder": "ריק",
+            "copyProperty": "המאפיין הועתק ללוח הגזירים",
+            "count": "ספירה",
+            "newRow": "שורה חדשה",
+            "action": "פעולה",
+            "add": "לחיצה תוסיף להלן",
+            "drag": "גרירה להזזה",
+            "deleteRowPrompt": "למחוק את השורה הזאת? זאת פעולה בלתי הפיכה",
+            "deleteCardPrompt": "למחוק את הכרטיס הזה? זאת פעולה בלתי הפיכה",
+            "dragAndClick": "גרירה להזזה, לחיצה לפתיחת התפריט",
+            "insertRecordAbove": "הוספת רשומה למעלה",
+            "insertRecordBelow": "הוספת רשומה מתחת",
+            "noContent": "אין תוכן"
+        },
+        "selectOption": {
+            "create": "יצירה",
+            "purpleColor": "סגול",
+            "pinkColor": "ורוד",
+            "lightPinkColor": "ורוד בהיר",
+            "orangeColor": "כתום",
+            "yellowColor": "צהוב",
+            "limeColor": "ליים",
+            "greenColor": "ירוק",
+            "aquaColor": "אוקיינוס",
+            "blueColor": "כחול",
+            "deleteTag": "מחיקת תגית",
+            "colorPanelTitle": "צבע",
+            "panelTitle": "נא לבחור אפשרות או ליצור אחת",
+            "searchOption": "חיפוש אפשרות",
+            "searchOrCreateOption": "חיפוש אפשרות או ליצור אחת",
+            "createNew": "ליצור חדשה",
+            "orSelectOne": "או לבחור אפשרות",
+            "typeANewOption": "נא למלא אפשרות חדשה",
+            "tagName": "שם תגית"
+        },
+        "checklist": {
+            "taskHint": "תיאור משימה",
+            "addNew": "הוספת משימה חדשה",
+            "submitNewTask": "יצירה",
+            "hideComplete": "הסתרת משימות שהושלמו",
+            "showComplete": "הצגת כל המשימות"
+        },
+        "url": {
+            "launch": "פתיחת קישור בדפדפן",
+            "copy": "העתקת קישור ללוח הגזירים",
+            "textFieldHint": "נא למלא כתובת",
+            "copiedNotification": "הועתק ללוח הגזירים!"
+        },
+        "relation": {
+            "relatedDatabasePlaceLabel": "מסד נתונים קשור",
+            "relatedDatabasePlaceholder": "אין",
+            "inRelatedDatabase": "בתוך",
+            "rowSearchTextFieldPlaceholder": "חיפוש",
+            "noDatabaseSelected": "לא נבחר מסד נתונים, נא לבחור אחד מהרשימה להלן תחילה:",
+            "emptySearchResult": "לא נמצאו רשומות",
+            "linkedRowListLabel": "{count} שורות מקושרות",
+            "unlinkedRowListLabel": "קישור שורה נוספת"
+        },
+        "menuName": "רשת",
+        "referencedGridPrefix": "View of",
+        "calculate": "חישוב",
+        "calculationTypeLabel": {
+            "none": "אין",
+            "average": "ממוצע",
+            "max": "מרבי",
+            "median": "חציוני",
+            "min": "מזערי",
+            "sum": "סכום",
+            "count": "ספירה",
+            "countEmpty": "ספירת הריקים",
+            "countEmptyShort": "ריק",
+            "countNonEmpty": "ספירת הלא ריקים",
+            "countNonEmptyShort": "מלאים"
+        }
+    },
+    "document": {
+        "menuName": "מסמך",
+        "date": {
+            "timeHintTextInTwelveHour": "‎01:00 PM",
+            "timeHintTextInTwentyFourHour": "13:00"
+        },
+        "slashMenu": {
+            "board": {
+                "selectABoardToLinkTo": "נא לבחור לוח לקשר אליו",
+                "createANewBoard": "יצירת לוח חדש"
+            },
+            "grid": {
+                "selectAGridToLinkTo": "נא לבחור רשת לקשר אליה",
+                "createANewGrid": "יצירת רשת חדשה"
+            },
+            "calendar": {
+                "selectACalendarToLinkTo": "נא לבחור לוח שנה לקשר אליו",
+                "createANewCalendar": "יצירת לוח שנה חדש"
+            },
+            "document": {
+                "selectADocumentToLinkTo": "נא לבחור מסמך לקשר אליו"
+            }
+        },
+        "selectionMenu": {
+            "outline": "קו מתאר",
+            "codeBlock": "מקטע קוד"
+        },
+        "plugins": {
+            "referencedBoard": "לוח מופנה",
+            "referencedGrid": "טבלה מופנית",
+            "referencedCalendar": "לוח שנה מופנה",
+            "referencedDocument": "מסמך מופנה",
+            "autoGeneratorMenuItemName": "כותב OpenAI",
+            "autoGeneratorTitleName": "OpenAI: לבקש מהבינה המלאכותית לכתוב כל דבר שהוא…",
+            "autoGeneratorLearnMore": "מידע נוסף",
+            "autoGeneratorGenerate": "יצירה",
+            "autoGeneratorHintText": "לבקש מ־OpenAI…",
+            "autoGeneratorCantGetOpenAIKey": "לא ניתן למשוך את המפתח של OpenAI",
+            "autoGeneratorRewrite": "שכתוב",
+            "smartEdit": "סייעני בינה מלאכותית",
+            "openAI": "OpenAI",
+            "smartEditFixSpelling": "תיקון איות",
+            "warning": "⚠️ תגובות הבינה המלאכותית יכולות להיות מסולפות או מטעות.",
+            "smartEditSummarize": "סיכום",
+            "smartEditImproveWriting": "שיפור הכתיבה",
+            "smartEditMakeLonger": "הארכה",
+            "smartEditCouldNotFetchResult": "לא ניתן למשוך את התוצאה מ־OpenAI",
+            "smartEditCouldNotFetchKey": "לא ניתן למשוך מפתח OpenAI",
+            "smartEditDisabled": "חיבור OpenAI בהגדרות",
+            "appflowyAIEditDisabled": "יש להיכנס כדי להפעיל יכולות בינה מלאכותית",
+            "discardResponse": "להתעלם מתגובות הבינה המלאכותית?",
+            "createInlineMathEquation": "יצירת משוואה",
+            "fonts": "גופנים",
+            "insertDate": "הוספת תאריך",
+            "emoji": "אמוג׳י",
+            "toggleList": "רשימת מתגים",
+            "quoteList": "רשימת ציטוטים",
+            "numberedList": "רשימה ממוספרת",
+            "bulletedList": "רשימת תבליטים",
+            "todoList": "רשימת מטלות",
+            "callout": "מסר",
+            "cover": {
+                "changeCover": "החלפת עטיפה",
+                "colors": "צבעים",
+                "images": "תמונות",
+                "clearAll": "פינוי של הכול",
+                "abstract": "מופשט",
+                "addCover": "הוספת עטיפה",
+                "addLocalImage": "הוספת תמונה מקומית",
+                "invalidImageUrl": "כתובת תמונה שגויה",
+                "failedToAddImageToGallery": "הוספת תמונה לגלריה נכשלה",
+                "enterImageUrl": "נא למלא כתובת תמונה",
+                "add": "הוספה",
+                "back": "חזרה",
+                "saveToGallery": "שמירה לגלריה",
+                "removeIcon": "הסרת סמל",
+                "pasteImageUrl": "הדבקת כתובת תמונה",
+                "or": "או",
+                "pickFromFiles": "בחירה מהקבצים",
+                "couldNotFetchImage": "לא ניתן למשוך תמונה",
+                "imageSavingFailed": "שמירת התמונה נכשלה",
+                "addIcon": "הוספת סמל",
+                "changeIcon": "החלפת סמל",
+                "coverRemoveAlert": "הוא יוסר מהעטיפה לאחר מחיקתו.",
+                "alertDialogConfirmation": "להמשיך?"
+            },
+            "mathEquation": {
+                "name": "משוואה מתמטית",
+                "addMathEquation": "הוספת משוואת TeX",
+                "editMathEquation": "עריכת משוואה מתמטית"
+            },
+            "optionAction": {
+                "click": "יש ללחוץ על",
+                "toOpenMenu": " כדי לפתוח תפריט",
+                "delete": "מחיקה",
+                "duplicate": "שכפול",
+                "turnInto": "הפיכה ל־",
+                "moveUp": "העלאה למעלה",
+                "moveDown": "הורדה למטה",
+                "color": "צבע",
+                "align": "יישור",
+                "left": "שמאל",
+                "center": "מרכז",
+                "right": "ימין",
+                "defaultColor": "ברירת מחדל",
+                "depth": "עומק"
+            },
+            "image": {
+                "copiedToPasteBoard": "קישור התמונה הועתק ללוח הגזירים",
+                "addAnImage": "הוספת תמונה",
+                "imageUploadFailed": "העלאת התמונה נכשלה",
+                "errorCode": "קוד שגיאה"
+            },
+            "math": {
+                "copiedToPasteBoard": "המשוואה המתמטית הועתקה ללוח הגזירים"
+            },
+            "urlPreview": {
+                "copiedToPasteBoard": "הקישור הועתק ללוח הגזירים",
+                "convertToLink": "המרה לקישור להטמעה"
+            },
+            "outline": {
+                "addHeadingToCreateOutline": "יש להוסיף כותרות ראשיות כדי ליצור תוכן עניינים.",
+                "noMatchHeadings": "לא נמצאו כותרות ראשויות תואמות."
+            },
+            "table": {
+                "addAfter": "הוספה לאחר",
+                "addBefore": "הוספה לפני",
+                "delete": "מחיקה",
+                "clear": "פינוי התוכן",
+                "duplicate": "שכפול",
+                "bgColor": "צבע רקע"
+            },
+            "contextMenu": {
+                "copy": "העתקה",
+                "cut": "גזירה",
+                "paste": "הדבקה"
+            },
+            "action": "פעולות",
+            "database": {
+                "selectDataSource": "בחירת מקור נתונים",
+                "noDataSource": "אין מקור נתונים",
+                "selectADataSource": "נא לבחור מקור נתונים",
+                "toContinue": "כדי להמשיך",
+                "newDatabase": "מסד נתונים חדש",
+                "linkToDatabase": "קישור למסד נתונים"
+            },
+            "date": "תאריך",
+            "video": {
+                "label": "סרטון",
+                "emptyLabel": "הוספת סרטון",
+                "placeholder": "הדבקת הקישור לסרטון",
+                "copiedToPasteBoard": "הקישור לסרטון הועתק ללוח הגזירים",
+                "insertVideo": "הוספת סרטון",
+                "invalidVideoUrl": "כתובת המקור לא נתמכת עדיין.",
+                "invalidVideoUrlYouTube": "עדיין אין תמיכה ב־YouTube.",
+                "supportedFormats": "סוגים נתמכים: MP4,‏ WebM,‏ MOV,‏ AVI,‏ FLV,‏ MPEG/M4V,‏ H.264"
+            }
+        },
+        "outlineBlock": {
+            "placeholder": "תוכן עניינים"
+        },
+        "textBlock": {
+            "placeholder": "נא להקליד ‚/’ לקבלת פקודות"
+        },
+        "title": {
+            "placeholder": "ללא שם"
+        },
+        "imageBlock": {
+            "placeholder": "נא ללחוץ כדי להוסיף תמונה",
+            "upload": {
+                "label": "העלאה",
+                "placeholder": "נא ללחוץ כדי להעלות תמונה"
+            },
+            "url": {
+                "label": "כתובת תמונה",
+                "placeholder": "נא למלא כתובת תמונה"
+            },
+            "ai": {
+                "label": "יצירת תמונה מ־OpenAI",
+                "placeholder": "נא למלא את הקלט ל־OpenAI כדי לייצר תמונה"
+            },
+            "stability_ai": {
+                "label": "יצירת תמונה מ־Stability AI",
+                "placeholder": "נא למלא את הבקשה ל־Stability AI כדי לייצר תמונה"
+            },
+            "support": "מגבלת גודל התמונה היא 5 מ״ב. הסוגים הנתמכים הם: JPEG,‏ PNG,‏ GIF,‏ SVG",
+            "error": {
+                "invalidImage": "תמונה שגויה",
+                "invalidImageSize": "גודל התמונה חייב להיות קטן מ־5 מ״ב",
+                "invalidImageFormat": "סוג התמונה לא נתמך. הסוגים הנתמכים: JPEG,‏ PNG,‏ JPG,‏ GIF,‏ SVG,‏ WEBP",
+                "invalidImageUrl": "כתובת תמונה שגויה",
+                "noImage": "אין קובץ או תיקייה כאלה"
+            },
+            "embedLink": {
+                "label": "קישור להטמעה",
+                "placeholder": "נא להדביק או להקליד קישור לתמונה"
+            },
+            "unsplash": {
+                "label": "Unsplash"
+            },
+            "searchForAnImage": "חיפוש אחר תמונה",
+            "pleaseInputYourOpenAIKey": "נא למלא את מפתח ה־OpenAI שלך בעמוד ההגדרות",
+            "pleaseInputYourStabilityAIKey": "נא למלא את המפתח ל־Stability AI בעמוד ההגדרות",
+            "saveImageToGallery": "שמירת תמונה",
+            "failedToAddImageToGallery": "הוספת התמונה לגלריה נכשלה",
+            "successToAddImageToGallery": "התמונה נוספה לגלריה בהצלחה",
+            "unableToLoadImage": "לא ניתן לטעון את התמונה",
+            "maximumImageSize": "גודל ההעלאה המרבי הנתמך הוא 10 מ״ב",
+            "uploadImageErrorImageSizeTooBig": "גודל התמונה חייב להיות גדול מ־10 מ״ב",
+            "imageIsUploading": "התמונה נשלחת"
+        },
+        "codeBlock": {
+            "language": {
+                "label": "שפה",
+                "placeholder": "בחירת שפה",
+                "auto": "אוטו׳"
+            },
+            "copyTooltip": "העתקת תוכן למקטע קוד",
+            "searchLanguageHint": "חיפוש אחר שפה",
+            "codeCopiedSnackbar": "הקוד הועתק ללוח הגזירים!"
+        },
+        "inlineLink": {
+            "placeholder": "נא להדביק או להקליד קישור",
+            "openInNewTab": "פתיחה בלשונית חדשה",
+            "copyLink": "העתקת קישור",
+            "removeLink": "הסרת קישור",
+            "url": {
+                "label": "כתובת קישור",
+                "placeholder": "נא למלא כתובת לקישור"
+            },
+            "title": {
+                "label": "כותרת קישור",
+                "placeholder": "נא למלא כותרת לקישור"
+            }
+        },
+        "mention": {
+            "placeholder": "אזכור משתמשים או עמוד או תאריך…",
+            "page": {
+                "label": "קישור לעמוד",
+                "tooltip": "לחיצה תפתח את העמוד"
+            },
+            "deleted": "נמחק",
+            "deletedContent": "התוכן הזה לא קיים או שנמחק"
+        },
+        "toolbar": {
+            "resetToDefaultFont": "איפוס לברירת מחדל"
+        },
+        "errorBlock": {
+            "theBlockIsNotSupported": "לא ניתן לפענח את תוכן המקטע",
+            "clickToCopyTheBlockContent": "לחיצה תעתיק את תוכן המקטע",
+            "blockContentHasBeenCopied": "תוכן המקטע הועתק."
+        },
+        "mobilePageSelector": {
+            "title": "נא לבחור עמוד",
+            "failedToLoad": "טעינת רשימת העמודים נכשלה",
+            "noPagesFound": "לא נמצאו עמודים"
+        }
+    },
+    "board": {
+        "column": {
+            "createNewCard": "חדש",
+            "renameGroupTooltip": "נא ללחוץ לשינוי שם הקבוצה",
+            "createNewColumn": "הוספת קבוצה חדשה",
+            "addToColumnTopTooltip": "הוספת כרטיס חדש בראש",
+            "addToColumnBottomTooltip": "הוספת כרטיס חדש בתחתית",
+            "renameColumn": "שינוי שם",
+            "hideColumn": "הסתרה",
+            "newGroup": "קבוצה חדשה",
+            "deleteColumn": "מחיקה",
+            "deleteColumnConfirmation": "הפעולה הזאת תמחק את הקבוצה הזאת ואת כל הכרטיסים שבה.\nלהמשיך?"
+        },
+        "hiddenGroupSection": {
+            "sectionTitle": "קבוצות מוסתרות",
+            "collapseTooltip": "הסתרת הקבוצות המוסתרות",
+            "expandTooltip": "הצגת הקבוצות המוסתרות"
+        },
+        "cardDetail": "פרטי הכרטיס",
+        "cardActions": "פעולות על הכרטיס",
+        "cardDuplicated": "הכרטיס שוכפל",
+        "cardDeleted": "הכרטיס נמחק",
+        "showOnCard": "הצגה על פרט הכרטיס",
+        "setting": "הגדרה",
+        "propertyName": "שם מאפיין",
+        "menuName": "לוח",
+        "showUngrouped": "הצגת פריטים מחוץ לקבוצות",
+        "ungroupedButtonText": "מחוץ לקבוצה",
+        "ungroupedButtonTooltip": "מכיל כרטיסים שלא שייכים לאף קבוצה",
+        "ungroupedItemsTitle": "נא ללחוץ כדי להוסיף ללוח",
+        "groupBy": "קיבוץ לפי",
+        "groupCondition": "תנאי קיבוץ",
+        "referencedBoardPrefix": "View of",
+        "notesTooltip": "הערות בפנים",
+        "mobile": {
+            "editURL": "עריכת כתובת",
+            "showGroup": "הצגת קבוצה",
+            "showGroupContent": "להציג את הקבוצה הזאת בלוח?",
+            "failedToLoad": "טעינת תצוגת הלוח נכשלה"
+        },
+        "dateCondition": {
+            "weekOf": "שבוע {} - {}",
+            "today": "היום",
+            "yesterday": "אתמול",
+            "tomorrow": "מחר",
+            "lastSevenDays": "7 הימים האחרונים",
+            "nextSevenDays": "7 הימים הבאים",
+            "lastThirtyDays": "30 הימים האחרונים",
+            "nextThirtyDays": "30 הימים הבאים"
+        },
+        "noGroup": "אין קבוצה לפי מאפיין",
+        "noGroupDesc": "תצוגות הלוח דורשות מאפיין לקיבוץ כדי שתוצגנה"
+    },
+    "calendar": {
+        "menuName": "לוח שנה",
+        "defaultNewCalendarTitle": "ללא שם",
+        "newEventButtonTooltip": "הוספת אירוע חדש",
+        "navigation": {
+            "today": "היום",
+            "jumpToday": "דילוג להיום",
+            "previousMonth": "החודש הקודם",
+            "nextMonth": "החודש הבא",
+            "views": {
+                "day": "יום",
+                "week": "שבוע",
+                "month": "חודש",
+                "year": "שנה"
+            }
+        },
+        "mobileEventScreen": {
+            "emptyTitle": "אין אירועים עדיין",
+            "emptyBody": "יש ללחוץ על כפתור הפלוס כדי להוסיף אירוע ביום הזה."
+        },
+        "settings": {
+            "showWeekNumbers": "הצגת מספרי השבועות",
+            "showWeekends": "הצגת סופי שבוע",
+            "firstDayOfWeek": "השבוע מתחיל ב־",
+            "layoutDateField": "פריסת לוח השנה לפי",
+            "changeLayoutDateField": "החלפת שדה פריסה",
+            "noDateTitle": "אין תאריך",
+            "noDateHint": {
+                "zero": "אירועים לא מתוזמנים יופיעו כאן",
+                "one": "אירוע לא מתוזמן",
+                "other": "{count} אירועים לא מתוזמנים"
+            },
+            "unscheduledEventsTitle": "אירועים לא מתוזמנים",
+            "clickToAdd": "נא ללחוץ כדי להוסיף ללוח השנה",
+            "name": "הגדרות לוח שנה",
+            "clickToOpen": "לחיצה תפתח את הרשומה"
+        },
+        "referencedCalendarPrefix": "תצוגה של",
+        "quickJumpYear": "דילוג אל",
+        "duplicateEvent": "שכפול אירוע"
+    },
+    "errorDialog": {
+        "title": "שגיאה ב־@:appName",
+        "howToFixFallback": "סליחה על חוסר הנעימות! נא להגיש תיעוד תקלה בעמוד ה־GitHub שלנו שמתאר את השגיאה שלך.",
+        "github": "הצגה ב־GitHub"
+    },
+    "search": {
+        "label": "חיפוש",
+        "placeholder": {
+            "actions": "חיפוש פעולות…"
+        }
+    },
+    "message": {
+        "copy": {
+            "success": "הועתק!",
+            "fail": "לא ניתן להעתיק"
+        }
+    },
+    "unSupportBlock": "הגרסה הנוכחית לא תומכת במקטע הזה.",
+    "views": {
+        "deleteContentTitle": "למחוק את {pageType}?",
+        "deleteContentCaption": "ניתן יהיה לשחזר את ה{pageType} הזה מהאשפה אם בחרת למחוק."
+    },
+    "colors": {
+        "custom": "משלך",
+        "default": "ברירת מחדל",
+        "red": "אדום",
+        "orange": "כתום",
+        "yellow": "צהוב",
+        "green": "ירוק",
+        "blue": "כחול",
+        "purple": "סגול",
+        "pink": "ורוד",
+        "brown": "חום",
+        "gray": "אפור"
+    },
+    "emoji": {
+        "emojiTab": "אמוג׳י",
+        "search": "חיפוש אמוג׳י",
+        "noRecent": "אין אמוג׳י אחרונים",
+        "noEmojiFound": "לא נמצא אמוג׳י",
+        "filter": "מסנן",
+        "random": "אקראי",
+        "selectSkinTone": "בחירת גוון עור",
+        "remove": "הסרת אמוג׳י",
+        "categories": {
+            "smileys": "חייכנים וסמלי רגש",
+            "people": "אנשים וגוף",
+            "animals": "חיות וטבע",
+            "food": "מזון ומשקאות",
+            "activities": "פעילויות",
+            "places": "טיול ומקומות",
+            "objects": "חפצים",
+            "symbols": "סמלים",
+            "flags": "דגלים",
+            "nature": "טבע",
+            "frequentlyUsed": "בשימוש תדיר"
+        },
+        "skinTone": {
+            "default": "ברירת מחדל",
+            "light": "בהיר",
+            "mediumLight": "בהיר ממוצע",
+            "medium": "ממוצע",
+            "mediumDark": "כהה ממוצע",
+            "dark": "כהה"
+        }
+    },
+    "inlineActions": {
+        "noResults": "אין תוצאות",
+        "recentPages": "עמודים אחרונים",
+        "pageReference": "הפנייה לעמוד",
+        "docReference": "הפנייה למסמך",
+        "boardReference": "הפנייה ללוח",
+        "calReference": "הפנייה ללוח שנה",
+        "gridReference": "הפנייה לטבלה",
+        "date": "תאריך",
+        "reminder": {
+            "groupTitle": "תזכורת",
+            "shortKeyword": "להזכיר"
+        }
+    },
+    "datePicker": {
+        "dateTimeFormatTooltip": "אפשר להחליף את התאריך והשעה בהגדרות",
+        "dateFormat": "תבנית תאריך",
+        "includeTime": "כולל השעה",
+        "isRange": "תאריך סיום",
+        "timeFormat": "תבנית שעה",
+        "clearDate": "פינוי התאריך",
+        "reminderLabel": "תזכורת",
+        "selectReminder": "בחירת תזכורת",
+        "reminderOptions": {
+            "none": "בלי",
+            "atTimeOfEvent": "בזמן האירוע",
+            "fiveMinsBefore": "5 דק׳ לפני",
+            "tenMinsBefore": "10 דק׳ לפני",
+            "fifteenMinsBefore": "15 דק׳ לפני",
+            "thirtyMinsBefore": "30 דק׳ לפני",
+            "oneHourBefore": "שעה לפני",
+            "twoHoursBefore": "שעתיים לפני",
+            "onDayOfEvent": "ביום האירוע",
+            "oneDayBefore": "יום לפני",
+            "twoDaysBefore": "יומיים לפני",
+            "oneWeekBefore": "שבוע לפני",
+            "custom": "אחר"
+        }
+    },
+    "relativeDates": {
+        "yesterday": "אתמול",
+        "today": "היום",
+        "tomorrow": "מחר",
+        "oneWeek": "שבוע"
+    },
+    "notificationHub": {
+        "title": "התראות",
+        "mobile": {
+            "title": "עדכונים"
+        },
+        "emptyTitle": "התעדכנת בהכול!",
+        "emptyBody": "אין התראות ממתינות לפעולות. אפשר פשוט להירגע.",
+        "tabs": {
+            "inbox": "הודעות נכנסות",
+            "upcoming": "בקרוב"
+        },
+        "actions": {
+            "markAllRead": "סימון של כולם כנקראו",
+            "showAll": "הכול",
+            "showUnreads": "לא נקראו"
+        },
+        "filters": {
+            "ascending": "עולה",
+            "descending": "יורד",
+            "groupByDate": "קיבוץ לפי תאריך",
+            "showUnreadsOnly": "להציג כאלו שלא נקראו בלבד",
+            "resetToDefault": "איפוס לברירת המחדל"
+        }
+    },
+    "reminderNotification": {
+        "title": "תזכורת",
+        "message": "חשוב לסמן את זה לפני ששוכחים!",
+        "tooltipDelete": "מחיקה",
+        "tooltipMarkRead": "סימון כנקראה",
+        "tooltipMarkUnread": "סימון כלא נקראה"
+    },
+    "findAndReplace": {
+        "find": "איתור",
+        "previousMatch": "התוצאה הקודמת",
+        "nextMatch": "התוצאה הבאה",
+        "close": "סגירה",
+        "replace": "החלפה",
+        "replaceAll": "החלפה של הכול",
+        "noResult": "אין תוצאות",
+        "caseSensitive": "תלוי רישיות",
+        "searchMore": "אפשר לחפש לאיתור תוצאות נוספות"
+    },
+    "error": {
+        "weAreSorry": "אנו מתנצלים",
+        "loadingViewError": "טעינת התצוגה הזאת נתקלת בקשיים. נא לבדוק שהחיבור שלך לאינטרנט תקין, לאחר מכן לרענן את היישום ולא להסס לפנות לצוות אם המצב הזה נמשך."
+    },
+    "editor": {
+        "bold": "מודגש",
+        "bulletedList": "רשימת תבליטים",
+        "bulletedListShortForm": "תבליטים",
+        "checkbox": "תיבת סימון",
+        "embedCode": "הטמעת קוד",
+        "heading1": "כ1",
+        "heading2": "כ2",
+        "heading3": "כ3",
+        "highlight": "הדגשה",
+        "color": "צבע",
+        "image": "תמונה",
+        "date": "תאריך",
+        "page": "עמוד",
+        "italic": "נטוי",
+        "link": "קישור",
+        "numberedList": "רשימה ממוספרת",
+        "numberedListShortForm": "ממוספר",
+        "quote": "ציטוט",
+        "strikethrough": "קו חוצה",
+        "text": "טקסט",
+        "underline": "קו תחתי",
+        "fontColorDefault": "ברירת מחדל",
+        "fontColorGray": "אפור",
+        "fontColorBrown": "חום",
+        "fontColorOrange": "כתום",
+        "fontColorYellow": "צהוב",
+        "fontColorGreen": "ירוק",
+        "fontColorBlue": "כחול",
+        "fontColorPurple": "סגול",
+        "fontColorPink": "ורוד",
+        "fontColorRed": "אדום",
+        "backgroundColorDefault": "רקע ברירת מחדל",
+        "backgroundColorGray": "רקע אפור",
+        "backgroundColorBrown": "רקע חום",
+        "backgroundColorOrange": "רקע כתום",
+        "backgroundColorYellow": "רקע צהוב",
+        "backgroundColorGreen": "רקע ירוק",
+        "backgroundColorBlue": "רקע כחול",
+        "backgroundColorPurple": "רקע סגול",
+        "backgroundColorPink": "רקע ורוד",
+        "backgroundColorRed": "רקע אדום",
+        "backgroundColorLime": "רקע ליים",
+        "backgroundColorAqua": "רקע אוקיינוס",
+        "done": "בוצע",
+        "cancel": "ביטול",
+        "tint1": "גוון 1",
+        "tint2": "גוון 2",
+        "tint3": "גוון 3",
+        "tint4": "גוון 4",
+        "tint5": "גוון 5",
+        "tint6": "גוון 6",
+        "tint7": "גוון 7",
+        "tint8": "גוון 8",
+        "tint9": "גוון 9",
+        "lightLightTint1": "סגול",
+        "lightLightTint2": "ורוד",
+        "lightLightTint3": "ורוד בהיר",
+        "lightLightTint4": "כתום",
+        "lightLightTint5": "צהוב",
+        "lightLightTint6": "ליים",
+        "lightLightTint7": "ירוק",
+        "lightLightTint8": "אוקיינוס",
+        "lightLightTint9": "כחול",
+        "urlHint": "כתובת",
+        "mobileHeading1": "כותרת 1",
+        "mobileHeading2": "כותרת 2",
+        "mobileHeading3": "כותרת 3",
+        "textColor": "צבע טקסט",
+        "backgroundColor": "צבע רקע",
+        "addYourLink": "הוספת הקישור שלך",
+        "openLink": "פתיחת קישור",
+        "copyLink": "העתקת קישור",
+        "removeLink": "הסרת קישור",
+        "editLink": "עריכת קישור",
+        "linkText": "טקסט",
+        "linkTextHint": "נא למלא טקסט",
+        "linkAddressHint": "נא למלא כתובת",
+        "highlightColor": "צבע הדגשה",
+        "clearHighlightColor": "איפוס צבע הדגשה",
+        "customColor": "צבע משלך",
+        "hexValue": "ערך הקס׳",
+        "opacity": "אטימות",
+        "resetToDefaultColor": "איפוס לצבע ברירת המחדל",
         "ltr": "משמאל לימין",
         "rtl": "מימין לשמאל",
         "auto": "אוטו׳",
-        "fallback": "כמו כיוון הפריסה"
-      },
-      "themeUpload": {
-        "button": "העלאה",
-        "uploadTheme": "Upload theme",
-        "description": "Upload your own @:appName theme using the button below.",
-        "loading": "Please wait while we validate and upload your theme...",
-        "uploadSuccess": "Your theme was uploaded successfully",
-        "deletionFailure": "Failed to delete the theme. Try to delete it manually.",
-        "filePickerDialogTitle": "Choose a .flowy_plugin file",
-        "urlUploadFailure": "Failed to open url: {}"
-      },
-      "theme": "Theme",
-      "builtInsLabel": "Built-in Themes",
-      "pluginsLabel": "Plugins",
-      "dateFormat": {
-        "label": "Date format",
-        "local": "Local",
-        "us": "US",
-        "iso": "ISO",
-        "friendly": "Friendly",
-        "dmy": "D/M/Y"
-      },
-      "timeFormat": {
-        "label": "Time format",
-        "twelveHour": "Twelve hour",
-        "twentyFourHour": "Twenty four hour"
-      },
-      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
-      "enableRTLToolbarItems": "Enable RTL toolbar items",
-      "members": {
-        "title": "Members settings",
-        "inviteMembers": "Invite members",
-        "inviteHint": "Invite by email",
-        "sendInvite": "Send invite",
-        "copyInviteLink": "Copy invite link",
-        "label": "Members",
-        "user": "User",
-        "role": "Role",
-        "removeFromWorkspace": "Remove from Workspace",
-        "owner": "Owner",
-        "guest": "Guest",
-        "member": "Member",
-        "memberHintText": "A member can read and edit pages",
-        "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
-        "emailInvalidError": "Invalid email, please check and try again",
-        "emailSent": "Email sent, please check the inbox",
-        "members": "members",
-        "membersCount": {
-          "zero": "{} members",
-          "one": "{} member",
-          "other": "{} members"
+        "cut": "גזירה",
+        "copy": "העתקה",
+        "paste": "הדבקה",
+        "find": "איתור",
+        "select": "בחירה",
+        "selectAll": "בחירה בהכול",
+        "previousMatch": "התוצאה הקודמת",
+        "nextMatch": "התוצאה הבאה",
+        "closeFind": "סגירה",
+        "replace": "החלפה",
+        "replaceAll": "החלפה של הכול",
+        "regex": "ביטוי רגולרי",
+        "caseSensitive": "תלוי רישיות",
+        "uploadImage": "העלאת תמונה",
+        "urlImage": "קישור לתמונה",
+        "incorrectLink": "קישור שגוי",
+        "upload": "העלאה",
+        "chooseImage": "בחירת תמונה",
+        "loading": "בטעינה",
+        "imageLoadFailed": "טעינת התמונה נכשלה",
+        "divider": "מפריד",
+        "table": "טבלה",
+        "colAddBefore": "הוספה לפני",
+        "rowAddBefore": "הוספה לפני",
+        "colAddAfter": "הוספה אחרי",
+        "rowAddAfter": "הוספה אחרי",
+        "colRemove": "הסרה",
+        "rowRemove": "הסרה",
+        "colDuplicate": "שכפול",
+        "rowDuplicate": "שכפול",
+        "colClear": "פינוי תוכן",
+        "rowClear": "פינוי תוכן",
+        "slashPlaceHolder": "נא להקליד ‚/’ כדי להוסיף מקטע או להתחיל להקליד",
+        "typeSomething": "נא להקליד משהו…",
+        "toggleListShortForm": "מתג",
+        "quoteListShortForm": "ציטוט",
+        "mathEquationShortForm": "נוסחה",
+        "codeBlockShortForm": "קוד"
+    },
+    "favorite": {
+        "noFavorite": "לא עמוד מועדף",
+        "noFavoriteHintText": "החלקת העמוד שמאלה תוסיף אותו למועדפים שלך",
+        "removeFromSidebar": "הסרה מסרגל הצד",
+        "addToSidebar": "הצמדה לסרגל צד"
+    },
+    "cardDetails": {
+        "notesPlaceholder": "יש להקליד / כדי להוסיף מקטע, או להתחיל להקליד"
+    },
+    "blockPlaceholders": {
+        "todoList": "מטלה",
+        "bulletList": "רשימה",
+        "numberList": "רשימה",
+        "quote": "ציטוט",
+        "heading": "כותרת {}"
+    },
+    "titleBar": {
+        "pageIcon": "סמל עמוד",
+        "language": "שפה",
+        "font": "גופן",
+        "actions": "פעולות",
+        "date": "תאריך",
+        "addField": "הוספת שדה",
+        "userIcon": "סמל משתמש"
+    },
+    "noLogFiles": "אין קובצי יומנים",
+    "newSettings": {
+        "myAccount": {
+            "title": "החשבון שלי",
+            "subtitle": "התאמת הפרופיל שלך, ניהול אבטחת החשבון, מפתחות בינה מלאכותית או כניסה לחשבון שלך.",
+            "profileLabel": "שם חשבון ותמונת פרופיל",
+            "profileNamePlaceholder": "נא למלא את השם שלך",
+            "accountSecurity": "אבטחת חשבון",
+            "2FA": "אימות דו־שלבי",
+            "aiKeys": "מפתחות בינה מלאכותית",
+            "accountLogin": "כניסה לחשבון",
+            "updateNameError": "עדכון השם נכשל",
+            "updateIconError": "עדכון הסמל נכשל",
+            "deleteAccount": {
+                "title": "מחיקת חשבון",
+                "subtitle": "מחיקת החשבון וכל הנתונים שלך לצמיתות.",
+                "deleteMyAccount": "מחיקת החשבון שלי",
+                "dialogTitle": "מחיקת חשבון",
+                "dialogContent1": "למחוק את החשבון שלך לצמיתות?",
+                "dialogContent2": "זאת פעולה בלתי הפיכה והיא תסיר את הגישה מכל מרחבי הצוותים תוך מחיקת החשבון כולו לרבות מרחבי עבודה פרטיים והסרתך מכל מרחבי העבודה המשותפים."
+            }
         },
-        "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
-        "failedToAddMember": "Failed to add member",
-        "addMemberSuccess": "Member added successfully",
-        "removeMember": "Remove Member",
-        "areYouSureToRemoveMember": "Are you sure you want to remove this member?",
-        "inviteMemberSuccess": "The invitation has been sent successfully",
-        "failedToInviteMember": "Failed to invite member"
-      }
-    },
-    "files": {
-      "copy": "Copy",
-      "defaultLocation": "Read files and data storage location",
-      "exportData": "Export your data",
-      "doubleTapToCopy": "Double tap to copy the path",
-      "restoreLocation": "Restore to @:appName default path",
-      "customizeLocation": "Open another folder",
-      "restartApp": "Please restart app for the changes to take effect.",
-      "exportDatabase": "Export database",
-      "selectFiles": "Select the files that need to be export",
-      "selectAll": "Select all",
-      "deselectAll": "Deselect all",
-      "createNewFolder": "Create a new folder",
-      "createNewFolderDesc": "Tell us where you want to store your data",
-      "defineWhereYourDataIsStored": "Define where your data is stored",
-      "open": "Open",
-      "openFolder": "Open an existing folder",
-      "openFolderDesc": "Read and write it to your existing @:appName folder",
-      "folderHintText": "folder name",
-      "location": "Creating a new folder",
-      "locationDesc": "Pick a name for your @:appName data folder",
-      "browser": "Browse",
-      "create": "Create",
-      "set": "Set",
-      "folderPath": "Path to store your folder",
-      "locationCannotBeEmpty": "Path cannot be empty",
-      "pathCopiedSnackbar": "File storage path copied to clipboard!",
-      "changeLocationTooltips": "Change the data directory",
-      "change": "Change",
-      "openLocationTooltips": "Open another data directory",
-      "openCurrentDataFolder": "Open current data directory",
-      "recoverLocationTooltips": "Reset to @:appName's default data directory",
-      "exportFileSuccess": "Export file successfully!",
-      "exportFileFail": "Export file failed!",
-      "export": "Export",
-      "clearCache": "Clear cache",
-      "clearCacheDesc": "If you encounter issues with images not loading or fonts not displaying correctly, try clearing your cache. This action will not remove your user data.",
-      "areYouSureToClearCache": "Are you sure to clear the cache?",
-      "clearCacheSuccess": "Cache cleared successfully!"
-    },
-    "user": {
-      "name": "Name",
-      "email": "Email",
-      "tooltipSelectIcon": "Select icon",
-      "selectAnIcon": "Select an icon",
-      "pleaseInputYourOpenAIKey": "please input your OpenAI key",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
-      "clickToLogout": "Click to logout the current user"
-    },
-    "mobile": {
-      "personalInfo": "Personal Information",
-      "username": "User Name",
-      "usernameEmptyError": "User name cannot be empty",
-      "about": "About",
-      "pushNotifications": "Push Notifications",
-      "support": "Support",
-      "joinDiscord": "Join us in Discord",
-      "privacyPolicy": "Privacy Policy",
-      "userAgreement": "User Agreement",
-      "termsAndConditions": "Terms and Conditions",
-      "userprofileError": "Failed to load user profile",
-      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists.",
-      "selectLayout": "Select layout",
-      "selectStartingDay": "Select starting day",
-      "version": "Version"
-    }
-  },
-  "grid": {
-    "deleteView": "Are you sure you want to delete this view?",
-    "createView": "New",
-    "title": {
-      "placeholder": "Untitled"
-    },
-    "settings": {
-      "filter": "Filter",
-      "sort": "Sort",
-      "sortBy": "Sort by",
-      "properties": "Properties",
-      "reorderPropertiesTooltip": "Drag to reorder properties",
-      "group": "Group",
-      "addFilter": "Add Filter",
-      "deleteFilter": "Delete filter",
-      "filterBy": "Filter by...",
-      "typeAValue": "Type a value...",
-      "layout": "Layout",
-      "databaseLayout": "Layout",
-      "viewList": {
-        "zero": "0 views",
-        "one": "{count} view",
-        "other": "{count} views"
-      },
-      "editView": "Edit View",
-      "boardSettings": "Board settings",
-      "calendarSettings": "Calendar settings",
-      "createView": "New view",
-      "duplicateView": "Duplicate view",
-      "deleteView": "Delete view",
-      "numberOfVisibleFields": "{} shown"
-    },
-    "textFilter": {
-      "contains": "Contains",
-      "doesNotContain": "Does not contain",
-      "endsWith": "Ends with",
-      "startWith": "Starts with",
-      "is": "Is",
-      "isNot": "Is not",
-      "isEmpty": "Is empty",
-      "isNotEmpty": "Is not empty",
-      "choicechipPrefix": {
-        "isNot": "Not",
-        "startWith": "Starts with",
-        "endWith": "Ends with",
-        "isEmpty": "is empty",
-        "isNotEmpty": "is not empty"
-      }
-    },
-    "checkboxFilter": {
-      "isChecked": "Checked",
-      "isUnchecked": "Unchecked",
-      "choicechipPrefix": {
-        "is": "is"
-      }
-    },
-    "checklistFilter": {
-      "isComplete": "is complete",
-      "isIncomplted": "is incomplete"
-    },
-    "selectOptionFilter": {
-      "is": "Is",
-      "isNot": "Is not",
-      "contains": "Contains",
-      "doesNotContain": "Does not contain",
-      "isEmpty": "Is empty",
-      "isNotEmpty": "Is not empty"
-    },
-    "dateFilter": {
-      "is": "Is",
-      "before": "Is before",
-      "after": "Is after",
-      "onOrBefore": "Is on or before",
-      "onOrAfter": "Is on or after",
-      "between": "Is between",
-      "empty": "Is empty",
-      "notEmpty": "Is not empty",
-      "choicechipPrefix": {
-        "before": "Before",
-        "after": "After",
-        "onOrBefore": "On or before",
-        "onOrAfter": "On or after",
-        "isEmpty": "Is empty",
-        "isNotEmpty": "Is not empty"
-      }
-    },
-    "numberFilter": {
-      "equal": "Equals",
-      "notEqual": "Does not equal",
-      "lessThan": "Is less than",
-      "greaterThan": "Is greater than",
-      "lessThanOrEqualTo": "Is less than or equal to",
-      "greaterThanOrEqualTo": "Is greater than or equal to",
-      "isEmpty": "Is empty",
-      "isNotEmpty": "Is not empty"
-    },
-    "field": {
-      "hide": "Hide",
-      "show": "Show",
-      "insertLeft": "Insert Left",
-      "insertRight": "Insert Right",
-      "duplicate": "Duplicate",
-      "delete": "Delete",
-      "wrapCellContent": "Wrap text",
-      "clear": "Clear cells",
-      "textFieldName": "Text",
-      "checkboxFieldName": "Checkbox",
-      "dateFieldName": "Date",
-      "updatedAtFieldName": "Last modified",
-      "createdAtFieldName": "Created at",
-      "numberFieldName": "Numbers",
-      "singleSelectFieldName": "Select",
-      "multiSelectFieldName": "Multiselect",
-      "urlFieldName": "URL",
-      "checklistFieldName": "Checklist",
-      "relationFieldName": "Relation",
-      "summaryFieldName": "AI Summary",
-      "timeFieldName": "Time",
-      "translateFieldName": "AI Translate",
-      "translateTo": "Translate to",
-      "numberFormat": "Number format",
-      "dateFormat": "Date format",
-      "includeTime": "Include time",
-      "isRange": "End date",
-      "dateFormatFriendly": "Month Day, Year",
-      "dateFormatISO": "Year-Month-Day",
-      "dateFormatLocal": "Month/Day/Year",
-      "dateFormatUS": "Year/Month/Day",
-      "dateFormatDayMonthYear": "Day/Month/Year",
-      "timeFormat": "Time format",
-      "invalidTimeFormat": "Invalid format",
-      "timeFormatTwelveHour": "12 hour",
-      "timeFormatTwentyFourHour": "24 hour",
-      "clearDate": "Clear date",
-      "dateTime": "Date time",
-      "startDateTime": "Start date time",
-      "endDateTime": "End date time",
-      "failedToLoadDate": "Failed to load date value",
-      "selectTime": "Select time",
-      "selectDate": "Select date",
-      "visibility": "Visibility",
-      "propertyType": "Property type",
-      "addSelectOption": "Add an option",
-      "typeANewOption": "Type a new option",
-      "optionTitle": "Options",
-      "addOption": "Add option",
-      "editProperty": "Edit property",
-      "newProperty": "New property",
-      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
-      "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
-      "newColumn": "New Column",
-      "format": "Format",
-      "reminderOnDateTooltip": "This cell has a scheduled reminder",
-      "optionAlreadyExist": "Option already exists"
-    },
-    "rowPage": {
-      "newField": "Add a new field",
-      "fieldDragElementTooltip": "Click to open menu",
-      "showHiddenFields": {
-        "one": "Show {count} hidden field",
-        "many": "Show {count} hidden fields",
-        "other": "Show {count} hidden fields"
-      },
-      "hideHiddenFields": {
-        "one": "Hide {count} hidden field",
-        "many": "Hide {count} hidden fields",
-        "other": "Hide {count} hidden fields"
-      },
-      "openAsFullPage": "Open as full page",
-      "moreRowActions": "More row actions"
-    },
-    "sort": {
-      "ascending": "Ascending",
-      "descending": "Descending",
-      "by": "By",
-      "empty": "No active sorts",
-      "cannotFindCreatableField": "Cannot find a suitable field to sort by",
-      "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add new sort",
-      "removeSorting": "Would you like to remove sorting?",
-      "fieldInUse": "You are already sorting by this field"
-    },
-    "row": {
-      "duplicate": "Duplicate",
-      "delete": "Delete",
-      "titlePlaceholder": "Untitled",
-      "textPlaceholder": "Empty",
-      "copyProperty": "Copied property to clipboard",
-      "count": "Count",
-      "newRow": "New row",
-      "action": "Action",
-      "add": "Click add to below",
-      "drag": "Drag to move",
-      "deleteRowPrompt": "Are you sure you want to delete this row? This action cannot be undone",
-      "deleteCardPrompt": "Are you sure you want to delete this card? This action cannot be undone",
-      "dragAndClick": "Drag to move, click to open menu",
-      "insertRecordAbove": "Insert record above",
-      "insertRecordBelow": "Insert record below",
-      "noContent": "No content"
-    },
-    "selectOption": {
-      "create": "Create",
-      "purpleColor": "Purple",
-      "pinkColor": "Pink",
-      "lightPinkColor": "Light Pink",
-      "orangeColor": "Orange",
-      "yellowColor": "Yellow",
-      "limeColor": "Lime",
-      "greenColor": "Green",
-      "aquaColor": "Aqua",
-      "blueColor": "Blue",
-      "deleteTag": "Delete tag",
-      "colorPanelTitle": "Color",
-      "panelTitle": "Select an option or create one",
-      "searchOption": "Search for an option",
-      "searchOrCreateOption": "Search for an option or create one",
-      "createNew": "Create a new",
-      "orSelectOne": "Or select an option",
-      "typeANewOption": "Type a new option",
-      "tagName": "Tag name"
-    },
-    "checklist": {
-      "taskHint": "Task description",
-      "addNew": "Add a new task",
-      "submitNewTask": "Create",
-      "hideComplete": "Hide completed tasks",
-      "showComplete": "Show all tasks"
-    },
-    "url": {
-      "launch": "Open link in browser",
-      "copy": "Copy link to clipboard",
-      "textFieldHint": "Enter a URL",
-      "copiedNotification": "Copied to clipboard!"
-    },
-    "relation": {
-      "relatedDatabasePlaceLabel": "Related Database",
-      "relatedDatabasePlaceholder": "None",
-      "inRelatedDatabase": "In",
-      "rowSearchTextFieldPlaceholder": "Search",
-      "noDatabaseSelected": "No database selected, please select one first from the list below:",
-      "emptySearchResult": "No records found",
-      "linkedRowListLabel": "{count} linked rows",
-      "unlinkedRowListLabel": "Link another row"
-    },
-    "menuName": "Grid",
-    "referencedGridPrefix": "View of",
-    "calculate": "Calculate",
-    "calculationTypeLabel": {
-      "none": "None",
-      "average": "Average",
-      "max": "Max",
-      "median": "Median",
-      "min": "Min",
-      "sum": "Sum",
-      "count": "Count",
-      "countEmpty": "Count empty",
-      "countEmptyShort": "EMPTY",
-      "countNonEmpty": "Count not empty",
-      "countNonEmptyShort": "FILLED"
-    }
-  },
-  "document": {
-    "menuName": "Document",
-    "date": {
-      "timeHintTextInTwelveHour": "01:00 PM",
-      "timeHintTextInTwentyFourHour": "13:00"
-    },
-    "slashMenu": {
-      "board": {
-        "selectABoardToLinkTo": "Select a Board to link to",
-        "createANewBoard": "Create a new Board"
-      },
-      "grid": {
-        "selectAGridToLinkTo": "Select a Grid to link to",
-        "createANewGrid": "Create a new Grid"
-      },
-      "calendar": {
-        "selectACalendarToLinkTo": "Select a Calendar to link to",
-        "createANewCalendar": "Create a new Calendar"
-      },
-      "document": {
-        "selectADocumentToLinkTo": "Select a Document to link to"
-      }
-    },
-    "selectionMenu": {
-      "outline": "Outline",
-      "codeBlock": "Code Block"
-    },
-    "plugins": {
-      "referencedBoard": "Referenced Board",
-      "referencedGrid": "Referenced Grid",
-      "referencedCalendar": "Referenced Calendar",
-      "referencedDocument": "Referenced Document",
-      "autoGeneratorMenuItemName": "OpenAI Writer",
-      "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
-      "autoGeneratorLearnMore": "Learn more",
-      "autoGeneratorGenerate": "Generate",
-      "autoGeneratorHintText": "Ask OpenAI ...",
-      "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
-      "autoGeneratorRewrite": "Rewrite",
-      "smartEdit": "AI Assistants",
-      "openAI": "OpenAI",
-      "smartEditFixSpelling": "Fix spelling",
-      "warning": "⚠️ AI responses can be inaccurate or misleading.",
-      "smartEditSummarize": "Summarize",
-      "smartEditImproveWriting": "Improve writing",
-      "smartEditMakeLonger": "Make longer",
-      "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
-      "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
-      "smartEditDisabled": "Connect OpenAI in Settings",
-      "appflowyAIEditDisabled": "Sign in to enable AI features",
-      "discardResponse": "Do you want to discard the AI responses?",
-      "createInlineMathEquation": "Create equation",
-      "fonts": "Fonts",
-      "insertDate": "Insert date",
-      "emoji": "Emoji",
-      "toggleList": "Toggle list",
-      "quoteList": "Quote list",
-      "numberedList": "Numbered list",
-      "bulletedList": "Bulleted list",
-      "todoList": "Todo List",
-      "callout": "Callout",
-      "cover": {
-        "changeCover": "Change Cover",
-        "colors": "Colors",
-        "images": "Images",
-        "clearAll": "Clear All",
-        "abstract": "Abstract",
-        "addCover": "Add Cover",
-        "addLocalImage": "Add local image",
-        "invalidImageUrl": "Invalid image URL",
-        "failedToAddImageToGallery": "Failed to add image to gallery",
-        "enterImageUrl": "Enter image URL",
-        "add": "Add",
-        "back": "Back",
-        "saveToGallery": "Save to gallery",
-        "removeIcon": "Remove icon",
-        "pasteImageUrl": "Paste image URL",
-        "or": "OR",
-        "pickFromFiles": "Pick from files",
-        "couldNotFetchImage": "Could not fetch image",
-        "imageSavingFailed": "Image Saving Failed",
-        "addIcon": "Add icon",
-        "changeIcon": "Change icon",
-        "coverRemoveAlert": "It will be removed from cover after it is deleted.",
-        "alertDialogConfirmation": "Are you sure, you want to continue?"
-      },
-      "mathEquation": {
-        "name": "Math Equation",
-        "addMathEquation": "Add a TeX equation",
-        "editMathEquation": "Edit Math Equation"
-      },
-      "optionAction": {
-        "click": "Click",
-        "toOpenMenu": " to open menu",
-        "delete": "Delete",
-        "duplicate": "Duplicate",
-        "turnInto": "Turn into",
-        "moveUp": "Move up",
-        "moveDown": "Move down",
-        "color": "Color",
-        "align": "Align",
-        "left": "Left",
-        "center": "Center",
-        "right": "Right",
-        "defaultColor": "Default",
-        "depth": "Depth"
-      },
-      "image": {
-        "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImage": "Add an image",
-        "imageUploadFailed": "Image upload failed",
-        "errorCode": "Error code"
-      },
-      "math": {
-        "copiedToPasteBoard": "The math equation has been copied to the clipboard"
-      },
-      "urlPreview": {
-        "copiedToPasteBoard": "The link has been copied to the clipboard",
-        "convertToLink": "Convert to embed link"
-      },
-      "outline": {
-        "addHeadingToCreateOutline": "Add headings to create a table of contents.",
-        "noMatchHeadings": "No matching headings found."
-      },
-      "table": {
-        "addAfter": "Add after",
-        "addBefore": "Add before",
-        "delete": "Delete",
-        "clear": "Clear content",
-        "duplicate": "Duplicate",
-        "bgColor": "Background color"
-      },
-      "contextMenu": {
-        "copy": "Copy",
-        "cut": "Cut",
-        "paste": "Paste"
-      },
-      "action": "Actions",
-      "database": {
-        "selectDataSource": "Select data source",
-        "noDataSource": "No data source",
-        "selectADataSource": "Select a data source",
-        "toContinue": "to continue",
-        "newDatabase": "New Database",
-        "linkToDatabase": "Link to Database"
-      },
-      "date": "Date",
-      "video": {
-        "label": "Video",
-        "emptyLabel": "Add a video",
-        "placeholder": "Paste the video link",
-        "copiedToPasteBoard": "The video link has been copied to the clipboard",
-        "insertVideo": "Add video",
-        "invalidVideoUrl": "The source URL is not supported yet.",
-        "invalidVideoUrlYouTube": "YouTube is not supported yet.",
-        "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
-      }
-    },
-    "outlineBlock": {
-      "placeholder": "Table of Contents"
-    },
-    "textBlock": {
-      "placeholder": "Type '/' for commands"
-    },
-    "title": {
-      "placeholder": "Untitled"
-    },
-    "imageBlock": {
-      "placeholder": "Click to add image",
-      "upload": {
-        "label": "Upload",
-        "placeholder": "Click to upload image"
-      },
-      "url": {
-        "label": "Image URL",
-        "placeholder": "Enter image URL"
-      },
-      "ai": {
-        "label": "Generate image from OpenAI",
-        "placeholder": "Please input the prompt for OpenAI to generate image"
-      },
-      "stability_ai": {
-        "label": "Generate image from Stability AI",
-        "placeholder": "Please input the prompt for Stability AI to generate image"
-      },
-      "support": "Image size limit is 5MB. Supported formats: JPEG, PNG, GIF, SVG",
-      "error": {
-        "invalidImage": "Invalid image",
-        "invalidImageSize": "Image size must be less than 5MB",
-        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG, GIF, SVG, WEBP",
-        "invalidImageUrl": "Invalid image URL",
-        "noImage": "No such file or directory"
-      },
-      "embedLink": {
-        "label": "Embed link",
-        "placeholder": "Paste or type an image link"
-      },
-      "unsplash": {
-        "label": "Unsplash"
-      },
-      "searchForAnImage": "Search for an image",
-      "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
-      "saveImageToGallery": "Save image",
-      "failedToAddImageToGallery": "Failed to add image to gallery",
-      "successToAddImageToGallery": "Image added to gallery successfully",
-      "unableToLoadImage": "Unable to load image",
-      "maximumImageSize": "Maximum supported upload image size is 10MB",
-      "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
-      "imageIsUploading": "Image is uploading"
-    },
-    "codeBlock": {
-      "language": {
-        "label": "Language",
-        "placeholder": "Select language",
-        "auto": "Auto"
-      },
-      "copyTooltip": "Copy contents of the code block",
-      "searchLanguageHint": "Search for a language",
-      "codeCopiedSnackbar": "Code copied to clipboard!"
-    },
-    "inlineLink": {
-      "placeholder": "Paste or type a link",
-      "openInNewTab": "Open in new tab",
-      "copyLink": "Copy link",
-      "removeLink": "Remove link",
-      "url": {
-        "label": "Link URL",
-        "placeholder": "Enter link URL"
-      },
-      "title": {
-        "label": "Link Title",
-        "placeholder": "Enter link title"
-      }
-    },
-    "mention": {
-      "placeholder": "Mention a person or a page or date...",
-      "page": {
-        "label": "Link to page",
-        "tooltip": "Click to open page"
-      },
-      "deleted": "Deleted",
-      "deletedContent": "This content does not exist or has been deleted"
-    },
-    "toolbar": {
-      "resetToDefaultFont": "Reset to default"
-    },
-    "errorBlock": {
-      "theBlockIsNotSupported": "Unable to parse the block content",
-      "clickToCopyTheBlockContent": "Click to copy the block content",
-      "blockContentHasBeenCopied": "The block content has been copied."
-    },
-    "mobilePageSelector": {
-      "title": "Select page",
-      "failedToLoad": "Failed to load page list",
-      "noPagesFound": "No pages found"
-    }
-  },
-  "board": {
-    "column": {
-      "createNewCard": "New",
-      "renameGroupTooltip": "Press to rename group",
-      "createNewColumn": "Add a new group",
-      "addToColumnTopTooltip": "Add a new card at the top",
-      "addToColumnBottomTooltip": "Add a new card at the bottom",
-      "renameColumn": "Rename",
-      "hideColumn": "Hide",
-      "newGroup": "New group",
-      "deleteColumn": "Delete",
-      "deleteColumnConfirmation": "This will delete this group and all the cards in it.\nAre you sure you want to continue?"
-    },
-    "hiddenGroupSection": {
-      "sectionTitle": "Hidden Groups",
-      "collapseTooltip": "Hide the hidden groups",
-      "expandTooltip": "View the hidden groups"
-    },
-    "cardDetail": "Card Detail",
-    "cardActions": "Card Actions",
-    "cardDuplicated": "Card has been duplicated",
-    "cardDeleted": "Card has been deleted",
-    "showOnCard": "Show on card detail",
-    "setting": "Setting",
-    "propertyName": "Property name",
-    "menuName": "Board",
-    "showUngrouped": "Show ungrouped items",
-    "ungroupedButtonText": "Ungrouped",
-    "ungroupedButtonTooltip": "Contains cards that don't belong in any group",
-    "ungroupedItemsTitle": "Click to add to the board",
-    "groupBy": "Group by",
-    "groupCondition": "Group condition",
-    "referencedBoardPrefix": "View of",
-    "notesTooltip": "Notes inside",
-    "mobile": {
-      "editURL": "Edit URL",
-      "showGroup": "Show group",
-      "showGroupContent": "Are you sure you want to show this group on the board?",
-      "failedToLoad": "Failed to load board view"
-    },
-    "dateCondition": {
-      "weekOf": "Week of {} - {}",
-      "today": "Today",
-      "yesterday": "Yesterday",
-      "tomorrow": "Tomorrow",
-      "lastSevenDays": "Last 7 days",
-      "nextSevenDays": "Next 7 days",
-      "lastThirtyDays": "Last 30 days",
-      "nextThirtyDays": "Next 30 days"
-    },
-    "noGroup": "No group by property",
-    "noGroupDesc": "Board views require a property to group by in order to display"
-  },
-  "calendar": {
-    "menuName": "Calendar",
-    "defaultNewCalendarTitle": "Untitled",
-    "newEventButtonTooltip": "Add a new event",
-    "navigation": {
-      "today": "Today",
-      "jumpToday": "Jump to Today",
-      "previousMonth": "Previous Month",
-      "nextMonth": "Next Month",
-      "views": {
-        "day": "Day",
-        "week": "Week",
-        "month": "Month",
-        "year": "Year"
-      }
-    },
-    "mobileEventScreen": {
-      "emptyTitle": "No events yet",
-      "emptyBody": "Press the plus button to create an event on this day."
-    },
-    "settings": {
-      "showWeekNumbers": "Show week numbers",
-      "showWeekends": "Show weekends",
-      "firstDayOfWeek": "Start week on",
-      "layoutDateField": "Layout calendar by",
-      "changeLayoutDateField": "Change layout field",
-      "noDateTitle": "No Date",
-      "noDateHint": {
-        "zero": "Unscheduled events will show up here",
-        "one": "{count} unscheduled event",
-        "other": "{count} unscheduled events"
-      },
-      "unscheduledEventsTitle": "Unscheduled events",
-      "clickToAdd": "Click to add to the calendar",
-      "name": "Calendar settings",
-      "clickToOpen": "Click to open the record"
-    },
-    "referencedCalendarPrefix": "View of",
-    "quickJumpYear": "Jump to",
-    "duplicateEvent": "Duplicate event"
-  },
-  "errorDialog": {
-    "title": "@:appName Error",
-    "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
-    "github": "View on GitHub"
-  },
-  "search": {
-    "label": "Search",
-    "placeholder": {
-      "actions": "Search actions..."
-    }
-  },
-  "message": {
-    "copy": {
-      "success": "Copied!",
-      "fail": "Unable to copy"
-    }
-  },
-  "unSupportBlock": "The current version does not support this Block.",
-  "views": {
-    "deleteContentTitle": "Are you sure want to delete the {pageType}?",
-    "deleteContentCaption": "if you delete this {pageType}, you can restore it from the trash."
-  },
-  "colors": {
-    "custom": "Custom",
-    "default": "Default",
-    "red": "Red",
-    "orange": "Orange",
-    "yellow": "Yellow",
-    "green": "Green",
-    "blue": "Blue",
-    "purple": "Purple",
-    "pink": "Pink",
-    "brown": "Brown",
-    "gray": "Gray"
-  },
-  "emoji": {
-    "emojiTab": "Emoji",
-    "search": "Search emoji",
-    "noRecent": "No recent emoji",
-    "noEmojiFound": "No emoji found",
-    "filter": "Filter",
-    "random": "Random",
-    "selectSkinTone": "Select skin tone",
-    "remove": "Remove emoji",
-    "categories": {
-      "smileys": "Smileys & Emotion",
-      "people": "People & Body",
-      "animals": "Animals & Nature",
-      "food": "Food & Drink",
-      "activities": "Activities",
-      "places": "Travel & Places",
-      "objects": "Objects",
-      "symbols": "Symbols",
-      "flags": "Flags",
-      "nature": "Nature",
-      "frequentlyUsed": "Frequently Used"
-    },
-    "skinTone": {
-      "default": "Default",
-      "light": "Light",
-      "mediumLight": "Medium-Light",
-      "medium": "Medium",
-      "mediumDark": "Medium-Dark",
-      "dark": "Dark"
-    }
-  },
-  "inlineActions": {
-    "noResults": "No results",
-    "recentPages": "Recent pages",
-    "pageReference": "Page reference",
-    "docReference": "Document reference",
-    "boardReference": "Board reference",
-    "calReference": "Calendar reference",
-    "gridReference": "Grid reference",
-    "date": "Date",
-    "reminder": {
-      "groupTitle": "Reminder",
-      "shortKeyword": "remind"
-    }
-  },
-  "datePicker": {
-    "dateTimeFormatTooltip": "Change the date and time format in settings",
-    "dateFormat": "Date format",
-    "includeTime": "Include time",
-    "isRange": "End date",
-    "timeFormat": "Time format",
-    "clearDate": "Clear date",
-    "reminderLabel": "Reminder",
-    "selectReminder": "Select reminder",
-    "reminderOptions": {
-      "none": "None",
-      "atTimeOfEvent": "Time of event",
-      "fiveMinsBefore": "5 mins before",
-      "tenMinsBefore": "10 mins before",
-      "fifteenMinsBefore": "15 mins before",
-      "thirtyMinsBefore": "30 mins before",
-      "oneHourBefore": "1 hour before",
-      "twoHoursBefore": "2 hours before",
-      "onDayOfEvent": "On day of event",
-      "oneDayBefore": "1 day before",
-      "twoDaysBefore": "2 days before",
-      "oneWeekBefore": "1 week before",
-      "custom": "Custom"
-    }
-  },
-  "relativeDates": {
-    "yesterday": "Yesterday",
-    "today": "Today",
-    "tomorrow": "Tomorrow",
-    "oneWeek": "1 week"
-  },
-  "notificationHub": {
-    "title": "Notifications",
-    "mobile": {
-      "title": "Updates"
-    },
-    "emptyTitle": "All caught up!",
-    "emptyBody": "No pending notifications or actions. Enjoy the calm.",
-    "tabs": {
-      "inbox": "Inbox",
-      "upcoming": "Upcoming"
-    },
-    "actions": {
-      "markAllRead": "Mark all as read",
-      "showAll": "All",
-      "showUnreads": "Unread"
-    },
-    "filters": {
-      "ascending": "Ascending",
-      "descending": "Descending",
-      "groupByDate": "Group by date",
-      "showUnreadsOnly": "Show unreads only",
-      "resetToDefault": "Reset to default"
-    }
-  },
-  "reminderNotification": {
-    "title": "Reminder",
-    "message": "Remember to check this before you forget!",
-    "tooltipDelete": "Delete",
-    "tooltipMarkRead": "Mark as read",
-    "tooltipMarkUnread": "Mark as unread"
-  },
-  "findAndReplace": {
-    "find": "Find",
-    "previousMatch": "Previous match",
-    "nextMatch": "Next match",
-    "close": "Close",
-    "replace": "Replace",
-    "replaceAll": "Replace all",
-    "noResult": "No results",
-    "caseSensitive": "Case sensitive",
-    "searchMore": "Search to find more results"
-  },
-  "error": {
-    "weAreSorry": "We're sorry",
-    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
-  },
-  "editor": {
-    "bold": "Bold",
-    "bulletedList": "Bulleted List",
-    "bulletedListShortForm": "Bulleted",
-    "checkbox": "Checkbox",
-    "embedCode": "Embed Code",
-    "heading1": "H1",
-    "heading2": "H2",
-    "heading3": "H3",
-    "highlight": "Highlight",
-    "color": "Color",
-    "image": "Image",
-    "date": "Date",
-    "page": "Page",
-    "italic": "Italic",
-    "link": "Link",
-    "numberedList": "Numbered List",
-    "numberedListShortForm": "Numbered",
-    "quote": "Quote",
-    "strikethrough": "Strikethrough",
-    "text": "Text",
-    "underline": "Underline",
-    "fontColorDefault": "Default",
-    "fontColorGray": "Gray",
-    "fontColorBrown": "Brown",
-    "fontColorOrange": "Orange",
-    "fontColorYellow": "Yellow",
-    "fontColorGreen": "Green",
-    "fontColorBlue": "Blue",
-    "fontColorPurple": "Purple",
-    "fontColorPink": "Pink",
-    "fontColorRed": "Red",
-    "backgroundColorDefault": "Default background",
-    "backgroundColorGray": "Gray background",
-    "backgroundColorBrown": "Brown background",
-    "backgroundColorOrange": "Orange background",
-    "backgroundColorYellow": "Yellow background",
-    "backgroundColorGreen": "Green background",
-    "backgroundColorBlue": "Blue background",
-    "backgroundColorPurple": "Purple background",
-    "backgroundColorPink": "Pink background",
-    "backgroundColorRed": "Red background",
-    "backgroundColorLime": "Lime background",
-    "backgroundColorAqua": "Aqua background",
-    "done": "Done",
-    "cancel": "Cancel",
-    "tint1": "Tint 1",
-    "tint2": "Tint 2",
-    "tint3": "Tint 3",
-    "tint4": "Tint 4",
-    "tint5": "Tint 5",
-    "tint6": "Tint 6",
-    "tint7": "Tint 7",
-    "tint8": "Tint 8",
-    "tint9": "Tint 9",
-    "lightLightTint1": "Purple",
-    "lightLightTint2": "Pink",
-    "lightLightTint3": "Light Pink",
-    "lightLightTint4": "Orange",
-    "lightLightTint5": "Yellow",
-    "lightLightTint6": "Lime",
-    "lightLightTint7": "Green",
-    "lightLightTint8": "Aqua",
-    "lightLightTint9": "Blue",
-    "urlHint": "URL",
-    "mobileHeading1": "Heading 1",
-    "mobileHeading2": "Heading 2",
-    "mobileHeading3": "Heading 3",
-    "textColor": "Text Color",
-    "backgroundColor": "Background Color",
-    "addYourLink": "Add your link",
-    "openLink": "Open link",
-    "copyLink": "Copy link",
-    "removeLink": "Remove link",
-    "editLink": "Edit link",
-    "linkText": "Text",
-    "linkTextHint": "Please enter text",
-    "linkAddressHint": "Please enter URL",
-    "highlightColor": "Highlight color",
-    "clearHighlightColor": "Clear highlight color",
-    "customColor": "Custom color",
-    "hexValue": "Hex value",
-    "opacity": "Opacity",
-    "resetToDefaultColor": "Reset to default color",
-    "ltr": "LTR",
-    "rtl": "RTL",
-    "auto": "Auto",
-    "cut": "Cut",
-    "copy": "Copy",
-    "paste": "Paste",
-    "find": "Find",
-    "select": "Select",
-    "selectAll": "Select all",
-    "previousMatch": "Previous match",
-    "nextMatch": "Next match",
-    "closeFind": "Close",
-    "replace": "Replace",
-    "replaceAll": "Replace all",
-    "regex": "Regex",
-    "caseSensitive": "Case sensitive",
-    "uploadImage": "Upload Image",
-    "urlImage": "URL Image",
-    "incorrectLink": "Incorrect Link",
-    "upload": "Upload",
-    "chooseImage": "Choose an image",
-    "loading": "Loading",
-    "imageLoadFailed": "Image load failed",
-    "divider": "Divider",
-    "table": "Table",
-    "colAddBefore": "Add before",
-    "rowAddBefore": "Add before",
-    "colAddAfter": "Add after",
-    "rowAddAfter": "Add after",
-    "colRemove": "Remove",
-    "rowRemove": "Remove",
-    "colDuplicate": "Duplicate",
-    "rowDuplicate": "Duplicate",
-    "colClear": "Clear Content",
-    "rowClear": "Clear Content",
-    "slashPlaceHolder": "Type '/' to insert a block, or start typing",
-    "typeSomething": "Type something...",
-    "toggleListShortForm": "Toggle",
-    "quoteListShortForm": "Quote",
-    "mathEquationShortForm": "Formula",
-    "codeBlockShortForm": "Code"
-  },
-  "favorite": {
-    "noFavorite": "No favorite page",
-    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites",
-    "removeFromSidebar": "Remove from sidebar",
-    "addToSidebar": "Pin to sidebar"
-  },
-  "cardDetails": {
-    "notesPlaceholder": "Enter a / to insert a block, or start typing"
-  },
-  "blockPlaceholders": {
-    "todoList": "To-do",
-    "bulletList": "List",
-    "numberList": "List",
-    "quote": "Quote",
-    "heading": "Heading {}"
-  },
-  "titleBar": {
-    "pageIcon": "Page icon",
-    "language": "Language",
-    "font": "Font",
-    "actions": "Actions",
-    "date": "Date",
-    "addField": "Add field",
-    "userIcon": "User icon"
-  },
-  "noLogFiles": "There're no log files",
-  "newSettings": {
-    "myAccount": {
-      "title": "My account",
-      "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
-      "profileLabel": "Account name & Profile image",
-      "profileNamePlaceholder": "Enter your name",
-      "accountSecurity": "Account security",
-      "2FA": "2-Step Authentication",
-      "aiKeys": "AI keys",
-      "accountLogin": "Account Login",
-      "updateNameError": "Failed to update name",
-      "updateIconError": "Failed to update icon",
-      "deleteAccount": {
-        "title": "Delete Account",
-        "subtitle": "Permanently delete your account and all of your data.",
-        "deleteMyAccount": "Delete my account",
-        "dialogTitle": "Delete account",
-        "dialogContent1": "Are you sure you want to permanently delete your account?",
-        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
-      }
-    },
-    "workplace": {
-      "name": "Workplace",
-      "title": "Workplace Settings",
-      "subtitle": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
-      "workplaceName": "Workplace name",
-      "workplaceNamePlaceholder": "Enter workplace name",
-      "workplaceIcon": "Workplace icon",
-      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications.",
-      "renameError": "Failed to rename workplace",
-      "updateIconError": "Failed to update icon",
-      "chooseAnIcon": "Choose an icon",
-      "appearance": {
-        "name": "Appearance",
-        "themeMode": {
-          "auto": "Auto",
-          "light": "Light",
-          "dark": "Dark"
+        "workplace": {
+            "name": "מקום עבודה",
+            "title": "הגדרות מקום עבודה",
+            "subtitle": "התאמת המראה, ערכת העיצוב, גופן, פריסת הטקסט, התאריך, השעה והשפה של מרחב העבודה שלך.",
+            "workplaceName": "שם מקום העבודה",
+            "workplaceNamePlaceholder": "נא למלא שם למקום העבודה",
+            "workplaceIcon": "סמל מקום עבודה",
+            "workplaceIconSubtitle": "אפשר להעלות תמונה או להשתמש באמוג׳י למרחב העבודה שלך. הסמל יופיע בסרגל הצד ובהתראות שלך.",
+            "renameError": "שינוי שם מקום העבודה נכשל",
+            "updateIconError": "עדכון הסמל נכשל",
+            "chooseAnIcon": "נא לבחור סמל",
+            "appearance": {
+                "name": "מראה",
+                "themeMode": {
+                    "auto": "אוטו׳",
+                    "light": "בהיר",
+                    "dark": "כהה"
+                },
+                "language": "שפה"
+            }
         },
-        "language": "Language"
-      }
+        "syncState": {
+            "syncing": "סנכרון",
+            "synced": "מסונכרן",
+            "noNetworkConnected": "אין רשת מחוברת"
+        }
     },
-    "syncState": {
-      "syncing": "Syncing",
-      "synced": "Synced",
-      "noNetworkConnected": "No network connected"
+    "pageStyle": {
+        "title": "סגנון עמוד",
+        "layout": "פריסה",
+        "coverImage": "תמונת כריכה",
+        "pageIcon": "סמל עמוד",
+        "colors": "צבעים",
+        "gradient": "מדרג",
+        "backgroundImage": "תמונת רקע",
+        "presets": "ערכות מוגדרות",
+        "photo": "צילום",
+        "unsplash": "Unsplash",
+        "pageCover": "כריכת עמוד",
+        "none": "אין",
+        "photoPermissionDescription": "לאפשר גישה לספריית התמונות כדי להעלות תמונות.",
+        "openSettings": "פתיחת הגדרות",
+        "photoPermissionTitle": "@:appName רוצה לגשת לספריית התמונות שלך",
+        "doNotAllow": "לא להרשות",
+        "image": "תמונה"
+    },
+    "commandPalette": {
+        "placeholder": "נא להקליד כדי לחפש…",
+        "bestMatches": "התוצאות הטובות ביותר",
+        "recentHistory": "היסטוריה עדכנית",
+        "navigateHint": "לניווט",
+        "loadingTooltip": "אנו מחפשים תוצאות…",
+        "betaLabel": "בטא",
+        "betaTooltip": "אנו תומכים רק בחיפוש אחר עמודים ותוכן במסמכים",
+        "fromTrashHint": "מהאשפה",
+        "noResultsHint": "לא מצאנו מה שחיפשת, כדאי לנסות לחפש ביטוי אחר.",
+        "clearSearchTooltip": "פינוי שדה חיפוש"
+    },
+    "space": {
+        "delete": "מחיקה",
+        "deleteConfirmation": "מחיקה: ",
+        "deleteConfirmationDescription": "כל העמודים במרחב הזה יימחקו ויעברו לאשפה, ועמודים שפורסמו יוסתרו.",
+        "rename": "שינוי שם מרחב",
+        "changeIcon": "החלפת סמל",
+        "manage": "ניהול מרחב",
+        "addNewSpace": "יצירת מרחב",
+        "collapseAllSubPages": "צמצום כל תת־העמודים",
+        "createNewSpace": "יצירת מרחב חדש",
+        "createSpaceDescription": "אפשר ליצור מגוון מרחבים ציבוריים ופרטיים כדי לארגן את העבודה שלך בצורה טובה יותר.",
+        "spaceName": "שם המרחב",
+        "permission": "הרשאה",
+        "publicPermission": "ציבורי",
+        "publicPermissionDescription": "כל החברים במרחב העבודה שיש להם גישה מלאה",
+        "privatePermission": "פרטי",
+        "privatePermissionDescription": "רק לך יש גישה למרחב הזה",
+        "spaceIconBackground": "צבע הרקע",
+        "spaceIcon": "סמל",
+        "dangerZone": "אזור הסכנה",
+        "unableToDeleteLastSpace": "לא ניתן למחוק את המרחב האחרון",
+        "unableToDeleteSpaceNotCreatedByYou": "לא ניתן למחוק מרחבים שנוצרו על ידי אחרים",
+        "enableSpacesForYourWorkspace": "הפעלת מרחבים למרחב העבודה שלך",
+        "title": "מרחבים",
+        "defaultSpaceName": "כללי",
+        "upgradeSpaceTitle": "הפעלת מרחבים",
+        "upgradeSpaceDescription": "אפשר ליצור מגוון מרחבים ציבוריים ופרטיים כדי לארגן את מרחב העבודה שלך בצורה טובה יותר.",
+        "upgrade": "עדכון",
+        "upgradeYourSpace": "יצירת מרחבים במרוכז",
+        "quicklySwitch": "מעבר למרחב הבא במהירות",
+        "duplicate": "שכפול מרחב",
+        "movePageToSpace": "העבר עמוד למרחב",
+        "switchSpace": "החלפת מרחב"
+    },
+    "publish": {
+        "hasNotBeenPublished": "העמוד הזה לא פורסם עדיין",
+        "reportPage": "דיווח על עמוד",
+        "databaseHasNotBeenPublished": "עדיין אין תמיכה בפרסום למסדי נתונים.",
+        "createdWith": "נוצר עם",
+        "downloadApp": "הורדת AppFlowy",
+        "copy": {
+            "codeBlock": "תוכן מקטע הקוד הועתק ללוח הגזירים",
+            "imageBlock": "קישור התמונה הועתק ללוח הגזירים",
+            "mathBlock": "הנוסחה המתמטית הועתקה ללוח הגזירים"
+        },
+        "containsPublishedPage": "העמוד הזה מכיל עמוד או יותר שפורסמו. המשך בתהליך יסתיר אותם. להמשיך במחיקה?",
+        "publishSuccessfully": "הפרסום הצליח",
+        "unpublishSuccessfully": "ההסתרה הצליחה",
+        "publishFailed": "הפרסום נכשל",
+        "unpublishFailed": "ההסתרה נכשלה",
+        "noAccessToVisit": "אין גישה לעמוד הזה…",
+        "createWithAppFlowy": "יצירת אתר עם AppFlowy",
+        "fastWithAI": "מהיר וקל עם בינה מלאכותית.",
+        "tryItNow": "לנסות כעת"
+    },
+    "web": {
+        "continue": "המשך",
+        "or": "או",
+        "continueWithGoogle": "להמשיך עם Google",
+        "continueWithGithub": "להמשיך עם GitHub",
+        "continueWithDiscord": "להמשיך עם Discord",
+        "signInAgreement": "לחיצה על „המשך” להלן, מהווה את אישורך\nלכך שקראת, הבנת והסכמת לתנאים של AppFlowy",
+        "and": "וגם",
+        "termOfUse": "תנאים",
+        "privacyPolicy": "מדיניות פרטיות",
+        "signInError": "שגיאת כניסה",
+        "login": "הרשמה או כניסה"
     }
-  },
-  "pageStyle": {
-    "title": "Page style",
-    "layout": "Layout",
-    "coverImage": "Cover image",
-    "pageIcon": "Page icon",
-    "colors": "Colors",
-    "gradient": "Gradient",
-    "backgroundImage": "Background image",
-    "presets": "Presets",
-    "photo": "Photo",
-    "unsplash": "Unsplash",
-    "pageCover": "Page cover",
-    "none": "None",
-    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
-    "openSettings": "Open Settings",
-    "photoPermissionTitle": "@:appName would like to access your photo library",
-    "doNotAllow": "Don't Allow",
-    "image": "Image"
-  },
-  "commandPalette": {
-    "placeholder": "Type to search...",
-    "bestMatches": "Best matches",
-    "recentHistory": "Recent history",
-    "navigateHint": "to navigate",
-    "loadingTooltip": "We are looking for results...",
-    "betaLabel": "BETA",
-    "betaTooltip": "We currently only support searching for pages and content in documents",
-    "fromTrashHint": "From trash",
-    "noResultsHint": "We didn't find what you're looking for, try searching for another term.",
-    "clearSearchTooltip": "Clear search field"
-  },
-  "space": {
-    "delete": "Delete",
-    "deleteConfirmation": "Delete: ",
-    "deleteConfirmationDescription": "All pages within this Space will be deleted and moved to the Trash, and any published pages will be unpublished.",
-    "rename": "Rename Space",
-    "changeIcon": "Change icon",
-    "manage": "Manage Space",
-    "addNewSpace": "Create Space",
-    "collapseAllSubPages": "Collapse all subpages",
-    "createNewSpace": "Create a new space",
-    "createSpaceDescription": "Create multiple public and private spaces to better organize your work.",
-    "spaceName": "Space name",
-    "permission": "Permission",
-    "publicPermission": "Public",
-    "publicPermissionDescription": "All workspace members with full access",
-    "privatePermission": "Private",
-    "privatePermissionDescription": "Only you can access this space",
-    "spaceIconBackground": "Background color",
-    "spaceIcon": "Icon",
-    "dangerZone": "Danger Zone",
-    "unableToDeleteLastSpace": "Unable to delete the last Space",
-    "unableToDeleteSpaceNotCreatedByYou": "Unable to delete Spaces created by others",
-    "enableSpacesForYourWorkspace": "Enable Spaces for your workspace",
-    "title": "Spaces",
-    "defaultSpaceName": "General",
-    "upgradeSpaceTitle": "Enable Spaces",
-    "upgradeSpaceDescription": "Create multiple public and private Spaces to better organize your workspace.",
-    "upgrade": "Update",
-    "upgradeYourSpace": "Create multiple Spaces",
-    "quicklySwitch": "Quickly switch to the next space",
-    "duplicate": "Duplicate Space",
-    "movePageToSpace": "Move page to space",
-    "switchSpace": "Switch space"
-  },
-  "publish": {
-    "hasNotBeenPublished": "This page hasn't been published yet",
-    "reportPage": "Report page",
-    "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
-    "createdWith": "Created with",
-    "downloadApp": "Download AppFlowy",
-    "copy": {
-      "codeBlock": "The content of code block has been copied to the clipboard",
-      "imageBlock": "The image link has been copied to the clipboard",
-      "mathBlock": "The math equation has been copied to the clipboard"
-    },
-    "containsPublishedPage": "This page contains one or more published pages. If you continue, they will be unpublished. Do you want to proceed with deletion?",
-    "publishSuccessfully": "Published successfully",
-    "unpublishSuccessfully": "Unpublished successfully",
-    "publishFailed": "Failed to publish",
-    "unpublishFailed": "Failed to unpublish",
-    "noAccessToVisit": "No access to this page...",
-    "createWithAppFlowy": "Create a website with AppFlowy",
-    "fastWithAI": "Fast and easy with AI.",
-    "tryItNow": "Try it now"
-  }
 }
