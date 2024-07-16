@@ -184,6 +184,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
     this.title,
     this.message,
     this.maxWidth,
+    this.titleUpperCase = true,
   });
 
   final VoidCallback? onOkPressed;
@@ -193,6 +194,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   final String? title;
   final String? message;
   final double? maxWidth;
+  final bool titleUpperCase;
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +206,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
         children: <Widget>[
           if (title != null) ...[
             FlowyText.medium(
-              title!.toUpperCase(),
+              titleUpperCase ? title!.toUpperCase() : title!,
               fontSize: FontSizes.s16,
               maxLines: 3,
             ),

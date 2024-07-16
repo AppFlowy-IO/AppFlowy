@@ -1,4 +1,5 @@
 use allo_isolate::{IntoDart, Isolate};
+use anyhow::anyhow;
 use futures::Sink;
 use pin_project::pin_project;
 use std::pin::Pin;
@@ -19,7 +20,7 @@ impl<T> Sink<T> for IsolateSink
 where
   T: IntoDart,
 {
-  type Error = ();
+  type Error = anyhow::Error;
 
   fn poll_ready(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
     Poll::Ready(Ok(()))
@@ -30,7 +31,7 @@ where
     if this.isolate.post(item) {
       Ok(())
     } else {
-      Err(())
+      Err(anyhow!("failed to post message"))
     }
   }
 

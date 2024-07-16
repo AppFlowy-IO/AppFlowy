@@ -142,6 +142,7 @@ dependencies:
   shimmer: ^3.0.0
   isolates: ^3.0.3+8
   markdown_widget: ^2.3.2+6
+  desktop_drop: ^0.4.4
   markdown:
 
   # Window Manager for MacOS and Linux

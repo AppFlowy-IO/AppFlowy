@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/recent/recent_listener.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -7,6 +8,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 
 /// This is a lazy-singleton to share recent views across the application.
@@ -37,7 +39,7 @@ class CachedRecentService {
 
     _listener.start(recentViewsUpdated: _recentViewsUpdated);
     _recentViews = await _readRecentViews().fold(
-      (s) => s.items,
+      (s) => s.items.unique((e) => e.item.id),
       (_) => [],
     );
     _completer.complete();
@@ -68,7 +70,8 @@ class CachedRecentService {
 
   Future<FlowyResult<RepeatedRecentViewPB, FlowyError>>
       _readRecentViews() async {
-    final result = await FolderEventReadRecentViews().send();
+    final payload = ReadRecentViewsPB(start: Int64(), limit: Int64(100));
+    final result = await FolderEventReadRecentViews(payload).send();
     return result.fold(
       (recentViews) {
         return FlowyResult.success(
@@ -101,7 +104,7 @@ class CachedRecentService {
     final viewIds = result.toNullable();
     if (viewIds != null) {
       _recentViews = await _readRecentViews().fold(
-        (s) => s.items,
+        (s) => s.items.unique((e) => e.item.id),
         (_) => [],
       );
     }
