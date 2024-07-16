@@ -58,7 +58,7 @@ function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: 
         <span>
           <Cell readOnly cell={cell} rowId={rowId} fieldId={fieldId} />
         </span>
-        <span>{field?.get(YjsDatabaseKey.name)}</span>
+        <span>{field?.get(YjsDatabaseKey.name) || ''}</span>
       </div>
     );
   }
