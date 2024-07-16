@@ -74,7 +74,13 @@ export const DatabaseBlock = memo(
         setVisibleViewIds(viewIds);
       };
 
-      void loadViewMeta?.(viewId, updateVisibleViewIds);
+      void (async () => {
+        try {
+          await loadViewMeta?.(viewId, updateVisibleViewIds);
+        } catch (e) {
+          setNotFound(true);
+        }
+      })();
     }, [loadViewMeta, viewId]);
 
     return (
