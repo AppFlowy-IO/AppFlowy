@@ -103,9 +103,14 @@ export const PublishProvider = ({
 
         const name = `${namespace}_${publishName}`;
 
-        const meta = await db.view_metas.get(name);
+        const meta = await service?.getPublishViewMeta(namespace, publishName);
 
-        meta && callback?.(meta);
+        if (!meta) {
+          return Promise.reject(new Error('View meta has not been published yet'));
+        }
+
+        callback?.(meta);
+
         if (callback) {
           setSubscribers((prev) => {
             prev.set(name, callback);
