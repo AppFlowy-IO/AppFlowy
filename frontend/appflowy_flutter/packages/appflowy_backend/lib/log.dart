@@ -1,5 +1,6 @@
 // ignore: import_of_legacy_library_into_null_safe
 import 'dart:ffi';
+
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
@@ -14,13 +15,15 @@ class Log {
   Log() {
     _logger = Logger(
       printer: PrettyPrinter(
-        methodCount: 2, // number of method calls to be displayed
-        errorMethodCount: 8, // number of method calls if stacktrace is provided
-        lineLength: 120, // width of the output
-        colors: true, // Colorful log messages
-        printEmojis: true, // Print an emoji for each log message
-        printTime: false, // Should each log print contain a timestamp
-      ),
+          methodCount: 2, // number of method calls to be displayed
+          errorMethodCount:
+              8, // number of method calls if stacktrace is provided
+          lineLength: 120, // width of the output
+          colors: true, // Colorful log messages
+          printEmojis: true, // Print an emoji for each log message
+          dateTimeFormat:
+              DateTimeFormat.none // Should each log print contain a timestamp
+          ),
       level: kDebugMode ? Level.trace : Level.info,
     );
   }

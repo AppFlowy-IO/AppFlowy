@@ -143,7 +143,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             // unpublish the page and all its child pages if they are published
             await _unpublishPage(view);
 
-            final result = await ViewBackendService.delete(viewId: view.id);
+            final result = await ViewBackendService.deleteView(viewId: view.id);
 
             emit(
               result.fold(

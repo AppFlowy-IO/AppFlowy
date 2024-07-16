@@ -292,11 +292,15 @@ class ConfirmPopup extends StatefulWidget {
     required this.title,
     required this.description,
     required this.onConfirm,
+    this.confirmLabel,
+    this.confirmButtonColor,
   });
 
   final String title;
   final String description;
   final VoidCallback onConfirm;
+  final String? confirmLabel;
+  final Color? confirmButtonColor;
   final ConfirmPopupStyle style;
 
   @override
@@ -376,8 +380,9 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             widget.onConfirm();
             Navigator.of(context).pop();
           },
-          confirmButtonName: LocaleKeys.button_ok.tr(),
-          confirmButtonColor: Theme.of(context).colorScheme.primary,
+          confirmButtonName: widget.confirmLabel ?? LocaleKeys.button_ok.tr(),
+          confirmButtonColor: widget.confirmButtonColor ??
+              Theme.of(context).colorScheme.primary,
         );
       case ConfirmPopupStyle.cancelAndOk:
         return SpaceCancelOrConfirmButton(
@@ -386,8 +391,10 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             widget.onConfirm();
             Navigator.of(context).pop();
           },
-          confirmButtonName: LocaleKeys.space_delete.tr(),
-          confirmButtonColor: Theme.of(context).colorScheme.error,
+          confirmButtonName:
+              widget.confirmLabel ?? LocaleKeys.space_delete.tr(),
+          confirmButtonColor:
+              widget.confirmButtonColor ?? Theme.of(context).colorScheme.error,
         );
     }
   }
