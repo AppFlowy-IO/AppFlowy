@@ -1,9 +1,11 @@
 # Release Notes
-## Version 0.6.4 - 15/07/2024
+## Version 0.6.4 - 16/07/2024
 ### New Features
--
+- Enhanced the message style on the AI chat page.
+- Added the ability to choose cursor color and selection color from a palette in settings page.
 ### Bug Fixes
--
+- Optimized the performance for loading recent pages.
+- Fixed an issue where the cursor would jump randomly when typing in the document title on mobile.
 
 ## Version 0.6.3 - 08/07/2024
 ### New Features

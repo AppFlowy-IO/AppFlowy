@@ -190,7 +190,7 @@ pub fn zip(src_dir: PathBuf, output_file_path: PathBuf) -> io::Result<()> {
     .truncate(true)
     .open(&output_file_path)?;
 
-  let options = FileOptions::default().compression_method(CompressionMethod::Deflated);
+  let options = FileOptions::<()>::default().compression_method(CompressionMethod::Deflated);
 
   let mut zip = ZipWriter::new(file);
 

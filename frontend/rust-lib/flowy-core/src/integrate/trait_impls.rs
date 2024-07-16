@@ -1,5 +1,6 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -18,7 +19,8 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, MessageCursor, RepeatedChatMessage, StreamAnswer, StreamComplete,
+  ChatCloudService, ChatMessage, LocalAIConfig, MessageCursor, RepeatedChatMessage, StreamAnswer,
+  StreamComplete,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
@@ -725,6 +727,27 @@ impl ChatCloudService for ServerProvider {
     server
       .chat_service()
       .stream_complete(&workspace_id, &text, complete_type)
+      .await
+  }
+
+  async fn index_file(
+    &self,
+    workspace_id: &str,
+    file_path: PathBuf,
+    chat_id: &str,
+  ) -> Result<(), FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .index_file(workspace_id, file_path, chat_id)
+      .await
+  }
+
+  async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_local_ai_config(workspace_id)
       .await
   }
 }

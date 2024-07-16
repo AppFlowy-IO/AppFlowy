@@ -1,7 +1,7 @@
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+
 import '../../application/cell/bloc/checklist_cell_bloc.dart';
 
 class ChecklistProgressBar extends StatefulWidget {
@@ -68,7 +68,7 @@ class _ChecklistProgressBarState extends State<ChecklistProgressBar> {
           ),
         ),
         SizedBox(
-          width: PlatformExtension.isDesktop ? 36 : 45,
+          width: 45,
           child: Align(
             alignment: AlignmentDirectional.centerEnd,
             child: Text(
