@@ -101,9 +101,7 @@ export class AFClientService implements AFService {
       this.publishViewLoaded.add(name);
     }
 
-    if (!this.cacheDatabaseRowDocMap.has(name)) {
-      this.cacheDatabaseRowDocMap.set(name, rowMapDoc);
-    }
+    this.cacheDatabaseRowDocMap.set(name, rowMapDoc);
 
     return doc;
   }

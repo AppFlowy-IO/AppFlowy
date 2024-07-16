@@ -9,7 +9,8 @@ import {
 import { RelationCell, RelationCellData } from '@/application/database-yjs/cell.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { RelationPrimaryValue } from '@/components/database/components/cell/relation/RelationPrimaryValue';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { debounce } from 'lodash-es';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: string; style?: React.CSSProperties }) {
   const viewId = useContext(DatabaseContext)?.iidIndex;
@@ -59,12 +60,20 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
         const { rows } = await getViewRowsMap(relatedViewId);
 
         setRows(rows);
-        handleUpdateRowIds(rows);
       } catch (e) {
         console.error(e);
       }
     })();
-  }, [getViewRowsMap, relatedViewId, relatedFieldId, handleUpdateRowIds]);
+  });
+
+  const debounceUpdateRowIds = useMemo(() => {
+    return debounce(handleUpdateRowIds, 500);
+  }, [handleUpdateRowIds]);
+
+  useEffect(() => {
+    if (!rows) return;
+    debounceUpdateRowIds(rows);
+  }, [rows, debounceUpdateRowIds]);
 
   useEffect(() => {
     const observerHandler = () => (rows ? handleUpdateRowIds(rows) : setRowIds([]));
@@ -79,6 +88,8 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
     void (async () => {
       try {
         const viewDoc = await loadView?.(relatedViewId);
+
+        console.log('View not loaded, fetching view', relatedViewId);
 
         if (!viewDoc) {
           throw new Error('No access');
