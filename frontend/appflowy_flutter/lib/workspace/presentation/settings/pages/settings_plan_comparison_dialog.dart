@@ -14,6 +14,7 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
+import '../../../../plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 
 class SettingsPlanComparisonDialog extends StatefulWidget {
   const SettingsPlanComparisonDialog({
@@ -37,6 +38,8 @@ class _SettingsPlanComparisonDialogState
 
   late WorkspaceSubscriptionInfoPB currentInfo = widget.subscriptionInfo;
 
+  Loading? loadingIndicator;
+
   @override
   void dispose() {
     horizontalController.dispose();
@@ -54,6 +57,13 @@ class _SettingsPlanComparisonDialogState
 
         if (readyState == null) {
           return;
+        }
+
+        if (readyState.downgradeProcessing) {
+          loadingIndicator = Loading(context)..start();
+        } else {
+          loadingIndicator?.stop();
+          loadingIndicator = null;
         }
 
         if (readyState.successfulPlanUpgrade != null) {
@@ -161,10 +171,13 @@ class _SettingsPlanComparisonDialogState
                             description: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_description
                                 .tr(),
-                            // TODO(Mathias): the price should be dynamic based on the country and currency
                             price: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_price
-                                .tr(args: ['US\$0']),
+                                .tr(
+                              args: [
+                                SubscriptionPlanPB.None.priceMonthBilling,
+                              ],
+                            ),
                             priceInfo: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_priceInfo
                                 .tr(),
@@ -216,13 +229,16 @@ class _SettingsPlanComparisonDialogState
                             description: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_description
                                 .tr(),
-                            // TODO(Mathias): the price should be dynamic based on the country and currency
                             price: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_price
-                                .tr(args: ['US\$10']),
+                                .tr(
+                              args: [SubscriptionPlanPB.Pro.priceAnnualBilling],
+                            ),
                             priceInfo: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_priceInfo
-                                .tr(args: ['US\$12.5']),
+                                .tr(
+                              args: [SubscriptionPlanPB.Pro.priceMonthBilling],
+                            ),
                             cells: _proLabels,
                             isCurrent:
                                 currentInfo.plan == WorkspacePlanPB.ProPlan,

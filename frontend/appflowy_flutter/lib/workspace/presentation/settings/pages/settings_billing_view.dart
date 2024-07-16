@@ -8,22 +8,27 @@ import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_comparison_dialog.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_dashed_divider.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
+import '../../../../plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 
 const _buttonsMinWidth = 100.0;
 
-class SettingsBillingView extends StatelessWidget {
+class SettingsBillingView extends StatefulWidget {
   const SettingsBillingView({
     super.key,
     required this.workspaceId,
@@ -34,14 +39,33 @@ class SettingsBillingView extends StatelessWidget {
   final UserProfilePB user;
 
   @override
+  State<SettingsBillingView> createState() => _SettingsBillingViewState();
+}
+
+class _SettingsBillingViewState extends State<SettingsBillingView> {
+  Loading? loadingIndicator;
+  RecurringIntervalPB? selectedInterval;
+  final ValueNotifier<bool> enablePlanChangeNotifier = ValueNotifier(false);
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsBillingBloc>(
       create: (_) => SettingsBillingBloc(
-        workspaceId: workspaceId,
-        userId: user.id,
+        workspaceId: widget.workspaceId,
+        userId: widget.user.id,
       )..add(const SettingsBillingEvent.started()),
       child: BlocConsumer<SettingsBillingBloc, SettingsBillingState>(
-        listener: (context, state) {},
+        listenWhen: (previous, current) =>
+            previous.mapOrNull(ready: (s) => s.isLoading) !=
+            current.mapOrNull(ready: (s) => s.isLoading),
+        listener: (context, state) {
+          if (state.mapOrNull(ready: (s) => s.isLoading) == true) {
+            loadingIndicator = Loading(context)..start();
+          } else {
+            loadingIndicator?.stop();
+            loadingIndicator = null;
+          }
+        },
         builder: (context, state) {
           return state.map(
             initial: (_) => const SizedBox.shrink(),
@@ -78,8 +102,8 @@ class SettingsBillingView extends StatelessWidget {
                       SingleSettingAction(
                         onPressed: () => _openPricingDialog(
                           context,
-                          workspaceId,
-                          user.id,
+                          widget.workspaceId,
+                          widget.user.id,
                           state.subscriptionInfo,
                         ),
                         fontWeight: FontWeight.w500,
@@ -91,14 +115,49 @@ class SettingsBillingView extends StatelessWidget {
                       ),
                       if (billingPortalEnabled)
                         SingleSettingAction(
-                          onPressed: () => context
-                              .read<SettingsBillingBloc>()
-                              .add(
-                                const SettingsBillingEvent.openCustomerPortal(),
-                              ),
+                          onPressed: () {
+                            SettingsAlertDialog(
+                              title: LocaleKeys
+                                  .settings_billingPage_changePeriod
+                                  .tr(),
+                              enableConfirmNotifier: enablePlanChangeNotifier,
+                              children: [
+                                ChangePeriod(
+                                  plan: state.subscriptionInfo.planSubscription
+                                      .subscriptionPlan,
+                                  selectedInterval: state.subscriptionInfo
+                                      .planSubscription.interval,
+                                  onSelected: (interval) {
+                                    enablePlanChangeNotifier.value = interval !=
+                                        state.subscriptionInfo.planSubscription
+                                            .interval;
+                                    selectedInterval = interval;
+                                  },
+                                ),
+                              ],
+                              confirm: () {
+                                if (selectedInterval !=
+                                    state.subscriptionInfo.planSubscription
+                                        .interval) {
+                                  context.read<SettingsBillingBloc>().add(
+                                        SettingsBillingEvent.updatePeriod(
+                                          plan: state
+                                              .subscriptionInfo
+                                              .planSubscription
+                                              .subscriptionPlan,
+                                          interval: selectedInterval!,
+                                        ),
+                                      );
+                                }
+                                Navigator.of(context).pop();
+                              },
+                            ).show(context);
+                          },
                           label: LocaleKeys
                               .settings_billingPage_plan_billingPeriod
                               .tr(),
+                          description: state
+                              .subscriptionInfo.planSubscription.interval.label,
                           fontWeight: FontWeight.w500,
                           buttonLabel: LocaleKeys
                               .settings_billingPage_plan_periodButtonLabel
@@ -149,6 +208,7 @@ class SettingsBillingView extends StatelessWidget {
                           (a) => a.type == WorkspaceAddOnPBType.AddOnAiMax,
                         ),
                       ),
+                      const SettingsDashedDivider(),
                       _AITile(
                         plan: SubscriptionPlanPB.AiLocal,
                         label: LocaleKeys
@@ -186,7 +246,7 @@ class SettingsBillingView extends StatelessWidget {
         context: context,
         builder: (_) => BlocProvider<SettingsPlanBloc>(
           create: (_) =>
-              SettingsPlanBloc(workspaceId: workspaceId, userId: user.id)
+              SettingsPlanBloc(workspaceId: workspaceId, userId: widget.user.id)
                 ..add(const SettingsPlanEvent.started()),
           child: SettingsPlanComparisonDialog(
             workspaceId: workspaceId,
@@ -202,7 +262,7 @@ class SettingsBillingView extends StatelessWidget {
       });
 }
 
-class _AITile extends StatelessWidget {
+class _AITile extends StatefulWidget {
   const _AITile({
     required this.label,
     required this.description,
@@ -220,69 +280,322 @@ class _AITile extends StatelessWidget {
   final WorkspaceAddOnPB? subscriptionInfo;
 
   @override
+  State<_AITile> createState() => _AITileState();
+}
+
+class _AITileState extends State<_AITile> {
+  RecurringIntervalPB? selectedInterval;
+
+  final enableConfirmNotifier = ValueNotifier<bool>(false);
+
+  @override
   Widget build(BuildContext context) {
-    final isCanceled = subscriptionInfo?.addOnSubscription.status ==
+    final isCanceled = widget.subscriptionInfo?.addOnSubscription.status ==
         WorkspaceSubscriptionStatusPB.Canceled;
 
     final dateFormat = context.read<AppearanceSettingsCubit>().state.dateFormat;
 
-    return SingleSettingAction(
-      label: label,
-      description: subscriptionInfo != null && isCanceled
-          ? canceledDescription.tr(
-              args: [
-                dateFormat.formatDate(
-                  subscriptionInfo!.addOnSubscription.endDate.toDateTime(),
-                  false,
-                ),
-              ],
-            )
-          : subscriptionInfo != null
-              ? activeDescription.tr(
+    return Column(
+      children: [
+        SingleSettingAction(
+          label: widget.label,
+          description: widget.subscriptionInfo != null && isCanceled
+              ? widget.canceledDescription.tr(
                   args: [
                     dateFormat.formatDate(
-                      subscriptionInfo!.addOnSubscription.endDate.toDateTime(),
+                      widget.subscriptionInfo!.addOnSubscription.endDate
+                          .toDateTime(),
                       false,
                     ),
                   ],
                 )
-              : description.tr(),
-      buttonLabel: subscriptionInfo != null
-          ? isCanceled
-              ? LocaleKeys.settings_billingPage_addons_renewLabel.tr()
-              : LocaleKeys.settings_billingPage_addons_removeLabel.tr()
-          : LocaleKeys.settings_billingPage_addons_addLabel.tr(),
-      fontWeight: FontWeight.w500,
-      minWidth: _buttonsMinWidth,
-      onPressed: () {
-        if (subscriptionInfo != null && isCanceled) {
-          // Show customer portal to renew
-          context
-              .read<SettingsBillingBloc>()
-              .add(const SettingsBillingEvent.openCustomerPortal());
-        } else if (subscriptionInfo != null) {
-          showConfirmDialog(
-            context: context,
-            style: ConfirmPopupStyle.cancelAndOk,
-            title: LocaleKeys.settings_billingPage_addons_removeDialog_title
-                .tr(args: [plan.label]).tr(),
-            description: LocaleKeys
-                .settings_billingPage_addons_removeDialog_description
-                .tr(namedArgs: {"plan": plan.label.tr()}),
-            confirmLabel: LocaleKeys.button_confirm.tr(),
-            onConfirm: () {
+              : widget.subscriptionInfo != null
+                  ? widget.activeDescription.tr(
+                      args: [
+                        dateFormat.formatDate(
+                          widget.subscriptionInfo!.addOnSubscription.endDate
+                              .toDateTime(),
+                          false,
+                        ),
+                      ],
+                    )
+                  : widget.description.tr(),
+          buttonLabel: widget.subscriptionInfo != null
+              ? isCanceled
+                  ? LocaleKeys.settings_billingPage_addons_renewLabel.tr()
+                  : LocaleKeys.settings_billingPage_addons_removeLabel.tr()
+              : LocaleKeys.settings_billingPage_addons_addLabel.tr(),
+          fontWeight: FontWeight.w500,
+          minWidth: _buttonsMinWidth,
+          onPressed: () {
+            if (widget.subscriptionInfo != null && isCanceled) {
+              // Show customer portal to renew
               context
                   .read<SettingsBillingBloc>()
-                  .add(SettingsBillingEvent.cancelSubscription(plan));
+                  .add(const SettingsBillingEvent.openCustomerPortal());
+            } else if (widget.subscriptionInfo != null) {
+              showConfirmDialog(
+                context: context,
+                style: ConfirmPopupStyle.cancelAndOk,
+                title: LocaleKeys.settings_billingPage_addons_removeDialog_title
+                    .tr(args: [widget.plan.label]).tr(),
+                description: LocaleKeys
+                    .settings_billingPage_addons_removeDialog_description
+                    .tr(namedArgs: {"plan": widget.plan.label.tr()}),
+                confirmLabel: LocaleKeys.button_confirm.tr(),
+                onConfirm: () {
+                  context.read<SettingsBillingBloc>().add(
+                        SettingsBillingEvent.cancelSubscription(widget.plan),
+                      );
+                },
+              );
+            } else {
+              // Add the addon
+              context
+                  .read<SettingsBillingBloc>()
+                  .add(SettingsBillingEvent.addSubscription(widget.plan));
+            }
+          },
+        ),
+        if (widget.subscriptionInfo != null) ...[
+          const VSpace(10),
+          SingleSettingAction(
+            label: LocaleKeys.settings_billingPage_planPeriod.tr(
+              args: [
+                widget
+                    .subscriptionInfo!.addOnSubscription.subscriptionPlan.label,
+              ],
+            ),
+            description:
+                widget.subscriptionInfo!.addOnSubscription.interval.label,
+            buttonLabel:
+                LocaleKeys.settings_billingPage_plan_periodButtonLabel.tr(),
+            minWidth: _buttonsMinWidth,
+            onPressed: () {
+              enableConfirmNotifier.value = false;
+              SettingsAlertDialog(
+                title: LocaleKeys.settings_billingPage_changePeriod.tr(),
+                enableConfirmNotifier: enableConfirmNotifier,
+                children: [
+                  ChangePeriod(
+                    plan: widget
+                        .subscriptionInfo!.addOnSubscription.subscriptionPlan,
+                    selectedInterval:
+                        widget.subscriptionInfo!.addOnSubscription.interval,
+                    onSelected: (interval) {
+                      enableConfirmNotifier.value = interval !=
+                          widget.subscriptionInfo!.addOnSubscription.interval;
+                      selectedInterval = interval;
+                    },
+                  ),
+                ],
+                confirm: () {
+                  if (selectedInterval !=
+                      widget.subscriptionInfo!.addOnSubscription.interval) {
+                    context.read<SettingsBillingBloc>().add(
+                          SettingsBillingEvent.updatePeriod(
+                            plan: widget.subscriptionInfo!.addOnSubscription
+                                .subscriptionPlan,
+                            interval: selectedInterval!,
+                          ),
+                        );
+                  }
+                  Navigator.of(context).pop();
+                },
+              ).show(context);
             },
-          );
-        } else {
-          // Add the addon
-          context
-              .read<SettingsBillingBloc>()
-              .add(SettingsBillingEvent.addSubscription(plan));
-        }
-      },
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class ChangePeriod extends StatefulWidget {
+  const ChangePeriod({
+    super.key,
+    required this.plan,
+    required this.selectedInterval,
+    required this.onSelected,
+  });
+
+  final SubscriptionPlanPB plan;
+  final RecurringIntervalPB selectedInterval;
+  final Function(RecurringIntervalPB interval) onSelected;
+
+  @override
+  State<ChangePeriod> createState() => _ChangePeriodState();
+}
+
+class _ChangePeriodState extends State<ChangePeriod> {
+  RecurringIntervalPB? _selectedInterval;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedInterval = widget.selectedInterval;
+  }
+
+  @override
+  void didChangeDependencies() {
+    _selectedInterval = widget.selectedInterval;
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _PeriodSelector(
+          price: widget.plan.priceMonthBilling,
+          interval: RecurringIntervalPB.Month,
+          isSelected: _selectedInterval == RecurringIntervalPB.Month,
+          isCurrent: widget.selectedInterval == RecurringIntervalPB.Month,
+          onSelected: () {
+            widget.onSelected(RecurringIntervalPB.Month);
+            setState(
+              () => _selectedInterval = RecurringIntervalPB.Month,
+            );
+          },
+        ),
+        const VSpace(16),
+        _PeriodSelector(
+          price: widget.plan.priceAnnualBilling,
+          interval: RecurringIntervalPB.Year,
+          isSelected: _selectedInterval == RecurringIntervalPB.Year,
+          isCurrent: widget.selectedInterval == RecurringIntervalPB.Year,
+          onSelected: () {
+            widget.onSelected(RecurringIntervalPB.Year);
+            setState(
+              () => _selectedInterval = RecurringIntervalPB.Year,
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _PeriodSelector extends StatelessWidget {
+  const _PeriodSelector({
+    required this.price,
+    required this.interval,
+    required this.onSelected,
+    required this.isSelected,
+    required this.isCurrent,
+  });
+
+  final String price;
+  final RecurringIntervalPB interval;
+  final VoidCallback onSelected;
+  final bool isSelected;
+  final bool isCurrent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: isCurrent && !isSelected ? 0.7 : 1,
+      child: GestureDetector(
+        onTap: isCurrent ? null : onSelected,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).dividerColor,
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        FlowyText(
+                          interval.label,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        if (isCurrent) ...[
+                          const HSpace(8),
+                          DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 1,
+                              ),
+                              child: FlowyText(
+                                LocaleKeys
+                                    .settings_billingPage_currentPeriodBadge
+                                    .tr(),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const VSpace(8),
+                    FlowyText(
+                      price,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    const VSpace(4),
+                    FlowyText(
+                      interval.priceInfo,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                if (!isCurrent && !isSelected || isSelected) ...[
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        width: 1.5,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).dividerColor,
+                      ),
+                    ),
+                    child: SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: Center(
+                        child: SizedBox(
+                          width: 10,
+                          height: 10,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.transparent,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

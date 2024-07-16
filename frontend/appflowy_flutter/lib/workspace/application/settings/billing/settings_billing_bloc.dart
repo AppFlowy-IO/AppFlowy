@@ -88,11 +88,12 @@ class SettingsBillingBloc
         },
         billingPortalFetched: (billingPortal) async => state.maybeWhen(
           orElse: () {},
-          ready: (subscriptionInfo, _, plan) => emit(
+          ready: (subscriptionInfo, _, plan, isLoading) => emit(
             SettingsBillingState.ready(
               subscriptionInfo: subscriptionInfo,
               billingPortal: billingPortal,
               successfulPlanUpgrade: plan,
+              isLoading: isLoading,
             ),
           ),
         ),
@@ -115,7 +116,13 @@ class SettingsBillingBloc
           );
         },
         cancelSubscription: (plan) async {
-          debugPrint("Canceling subscription for $plan");
+          final s = state.mapOrNull(ready: (s) => s);
+          if (s == null) {
+            return;
+          }
+
+          emit(s.copyWith(isLoading: true));
+
           final result =
               await _userService.cancelSubscription(workspaceId, plan);
           final successOrNull = result.fold(
@@ -183,6 +190,47 @@ class SettingsBillingBloc
             );
           }
         },
+        updatePeriod: (plan, interval) async {
+          final s = state.mapOrNull(ready: (s) => s);
+          if (s == null) {
+            return;
+          }
+
+          emit(s.copyWith(isLoading: true));
+
+          final result = await _userService.updateSubscriptionPeriod(
+            workspaceId,
+            plan,
+            interval,
+          );
+          final successOrNull = result.fold((_) => true, (f) {
+            Log.error(
+              'Failed to update subscription period of ${plan.label}: ${f.msg}',
+              f,
+            );
+            return null;
+          });
+
+          if (successOrNull != true) {
+            return emit(s.copyWith(isLoading: false));
+          }
+
+          // Fetch new subscription info
+          final newResult =
+              await UserBackendService.getWorkspaceSubscriptionInfo(
+            workspaceId,
+          );
+
+          final newSubscriptionInfo = newResult.toNullable();
+          if (newSubscriptionInfo != null) {
+            emit(
+              SettingsBillingState.ready(
+                subscriptionInfo: newSubscriptionInfo,
+                billingPortal: _billingPortal,
+              ),
+            );
+          }
+        },
       );
     });
   }
@@ -195,6 +243,12 @@ class SettingsBillingBloc
 
   BillingPortalPB? _billingPortal;
   late final SubscriptionSuccessListenable _successListenable;
+
+  @override
+  Future<void> close() {
+    _successListenable.removeListener(_onPaymentSuccessful);
+    return super.close();
+  }
 
   Future<void> _fetchBillingPortal() async {
     final billingPortalResult = await _service.getBillingPortal();
@@ -228,6 +282,11 @@ class SettingsBillingEvent with _$SettingsBillingEvent {
   const factory SettingsBillingEvent.paymentSuccessful({
     SubscriptionPlanPB? plan,
   }) = _PaymentSuccessful;
+
+  const factory SettingsBillingEvent.updatePeriod({
+    required SubscriptionPlanPB plan,
+    required RecurringIntervalPB interval,
+  }) = _UpdatePeriod;
 }
 
 @freezed
@@ -246,16 +305,18 @@ class SettingsBillingState extends Equatable with _$SettingsBillingState {
     required WorkspaceSubscriptionInfoPB subscriptionInfo,
     required BillingPortalPB? billingPortal,
     @Default(null) SubscriptionPlanPB? successfulPlanUpgrade,
+    @Default(false) bool isLoading,
   }) = _Ready;
 
   @override
   List<Object?> get props => maybeWhen(
         orElse: () => const [],
         error: (error) => [error],
-        ready: (subscription, billingPortal, plan) => [
+        ready: (subscription, billingPortal, plan, isLoading) => [
           subscription,
           billingPortal,
           plan,
+          isLoading,
           ...subscription.addOns,
         ],
       );

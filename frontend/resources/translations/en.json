@@ -746,7 +746,14 @@
           "title": "Remove {}",
           "description": "Are you sure you want to remove {plan}? You will lose access to the features and benefits of {plan} immediately."
         }
-      }
+      },
+      "currentPeriodBadge": "CURRENT",
+      "changePeriod": "Change period",
+      "planPeriod": "{} period",
+      "monthlyInterval": "Monthly",
+      "monthlyPriceInfo": "per seat billed monthly",
+      "annualInterval": "Annually",
+      "annualPriceInfo": "per seat billed annually"
     },
     "comparePlanDialog": {
       "title": "Compare & select plan",
@@ -765,7 +772,7 @@
         "priceInfo": "free forever"
       },
       "proPlan": {
-        "title": "Professional",
+        "title": "Pro",
         "description": "For small teams to manage projects and team knowledge",
         "price": "{}",
         "priceInfo": "/user per month billed annually\n\n{} billed monthly"

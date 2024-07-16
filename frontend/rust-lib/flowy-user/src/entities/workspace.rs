@@ -241,7 +241,7 @@ pub struct SubscribeWorkspacePB {
   pub success_url: String,
 }
 
-#[derive(ProtoBuf_Enum, Clone, Default, Debug)]
+#[derive(ProtoBuf_Enum, Clone, Default, Debug, Serialize, Deserialize)]
 pub enum RecurringIntervalPB {
   #[default]
   Month = 0,
@@ -475,6 +475,7 @@ impl WorkspaceSubscriptionInfoPB {
         subscription_plan: SubscriptionPlanPB::None,
         status: WorkspaceSubscriptionStatusPB::Active,
         end_date: 0,
+        interval: RecurringIntervalPB::Month,
       },
       add_ons: Vec::new(),
     }
@@ -584,6 +585,9 @@ pub struct WorkspaceSubscriptionV2PB {
 
   #[pb(index = 4)]
   pub end_date: i64,
+
+  #[pb(index = 5)]
+  pub interval: RecurringIntervalPB,
 }
 
 impl WorkspaceSubscriptionV2PB {
@@ -593,6 +597,7 @@ impl WorkspaceSubscriptionV2PB {
       subscription_plan: SubscriptionPlanPB::None,
       status: WorkspaceSubscriptionStatusPB::Active,
       end_date: 0,
+      interval: RecurringIntervalPB::Month,
     }
   }
 }
@@ -607,6 +612,7 @@ impl From<WorkspaceSubscriptionStatus> for WorkspaceSubscriptionV2PB {
       } else {
         WorkspaceSubscriptionStatusPB::Active
       },
+      interval: sub.recurring_interval.into(),
       end_date: sub.current_period_end,
     }
   }

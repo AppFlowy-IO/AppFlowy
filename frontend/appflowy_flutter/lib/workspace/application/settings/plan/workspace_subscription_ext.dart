@@ -67,7 +67,7 @@ extension ToRecognizable on SubscriptionPlanPB {
       };
 }
 
-extension IsAddOn on SubscriptionPlanPB {
+extension PlanHelper on SubscriptionPlanPB {
   /// Returns true if the plan is an add-on and not
   /// a workspace plan.
   ///
@@ -75,5 +75,41 @@ extension IsAddOn on SubscriptionPlanPB {
         SubscriptionPlanPB.AiMax => true,
         SubscriptionPlanPB.AiLocal => true,
         _ => false,
+      };
+
+  String get priceMonthBilling => switch (this) {
+        SubscriptionPlanPB.None => 'US\$0',
+        SubscriptionPlanPB.Pro => 'US\$12.5',
+        SubscriptionPlanPB.Team => 'US\$15',
+        SubscriptionPlanPB.AiMax => 'US\$10',
+        SubscriptionPlanPB.AiLocal => 'US\$10',
+        _ => 'US\$0',
+      };
+
+  String get priceAnnualBilling => switch (this) {
+        SubscriptionPlanPB.None => 'US\$0',
+        SubscriptionPlanPB.Pro => 'US\$10',
+        SubscriptionPlanPB.Team => 'US\$12.5',
+        SubscriptionPlanPB.AiMax => 'US\$8',
+        SubscriptionPlanPB.AiLocal => 'US\$8',
+        _ => 'US\$0',
+      };
+}
+
+extension IntervalLabel on RecurringIntervalPB {
+  String get label => switch (this) {
+        RecurringIntervalPB.Month =>
+          LocaleKeys.settings_billingPage_monthlyInterval.tr(),
+        RecurringIntervalPB.Year =>
+          LocaleKeys.settings_billingPage_annualInterval.tr(),
+        _ => LocaleKeys.settings_billingPage_monthlyInterval.tr(),
+      };
+
+  String get priceInfo => switch (this) {
+        RecurringIntervalPB.Month =>
+          LocaleKeys.settings_billingPage_monthlyPriceInfo.tr(),
+        RecurringIntervalPB.Year =>
+          LocaleKeys.settings_billingPage_annualPriceInfo.tr(),
+        _ => LocaleKeys.settings_billingPage_monthlyPriceInfo.tr(),
       };
 }

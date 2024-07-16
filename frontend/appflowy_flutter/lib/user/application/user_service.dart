@@ -270,4 +270,17 @@ class UserBackendService implements IUserBackendService {
 
     return UserEventCancelWorkspaceSubscription(request).send();
   }
+
+  Future<FlowyResult<void, FlowyError>> updateSubscriptionPeriod(
+    String workspaceId,
+    SubscriptionPlanPB plan,
+    RecurringIntervalPB interval,
+  ) {
+    final request = UpdateWorkspaceSubscriptionPaymentPeriodPB()
+      ..workspaceId = workspaceId
+      ..plan = plan
+      ..recurringInterval = interval;
+
+    return UserEventUpdateWorkspaceSubscriptionPaymentPeriod(request).send();
+  }
 }

@@ -22,7 +22,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SettingsPlanView extends StatelessWidget {
+import '../../../../plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
+
+class SettingsPlanView extends StatefulWidget {
   const SettingsPlanView({
     super.key,
     required this.workspaceId,
@@ -33,13 +35,31 @@ class SettingsPlanView extends StatelessWidget {
   final UserProfilePB user;
 
   @override
+  State<SettingsPlanView> createState() => _SettingsPlanViewState();
+}
+
+class _SettingsPlanViewState extends State<SettingsPlanView> {
+  Loading? loadingIndicator;
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsPlanBloc>(
       create: (context) => SettingsPlanBloc(
-        workspaceId: workspaceId,
-        userId: user.id,
+        workspaceId: widget.workspaceId,
+        userId: widget.user.id,
       )..add(const SettingsPlanEvent.started()),
-      child: BlocBuilder<SettingsPlanBloc, SettingsPlanState>(
+      child: BlocConsumer<SettingsPlanBloc, SettingsPlanState>(
+        listenWhen: (previous, current) =>
+            previous.mapOrNull(ready: (s) => s.downgradeProcessing) !=
+            current.mapOrNull(ready: (s) => s.downgradeProcessing),
+        listener: (context, state) {
+          if (state.mapOrNull(ready: (s) => s.downgradeProcessing) == true) {
+            loadingIndicator = Loading(context)..start();
+          } else {
+            loadingIndicator?.stop();
+            loadingIndicator = null;
+          }
+        },
         builder: (context, state) {
           return state.map(
             initial: (_) => const SizedBox.shrink(),
@@ -93,13 +113,17 @@ class SettingsPlanView extends StatelessWidget {
                             .tr(),
                         price: LocaleKeys
                             .settings_planPage_planUsage_addons_aiMax_price
-                            .tr(args: ['US\$8']),
+                            .tr(
+                          args: [SubscriptionPlanPB.AiMax.priceAnnualBilling],
+                        ),
                         priceInfo: LocaleKeys
                             .settings_planPage_planUsage_addons_aiMax_priceInfo
                             .tr(),
                         billingInfo: LocaleKeys
                             .settings_planPage_planUsage_addons_aiMax_billingInfo
-                            .tr(args: ['US\$10']),
+                            .tr(
+                          args: [SubscriptionPlanPB.AiMax.priceMonthBilling],
+                        ),
                         buttonText: state.subscriptionInfo.hasAIMax
                             ? LocaleKeys
                                 .settings_planPage_planUsage_addons_activeLabel
@@ -122,13 +146,17 @@ class SettingsPlanView extends StatelessWidget {
                             .tr(),
                         price: LocaleKeys
                             .settings_planPage_planUsage_addons_aiOnDevice_price
-                            .tr(args: ['US\$8']),
+                            .tr(
+                          args: [SubscriptionPlanPB.AiLocal.priceAnnualBilling],
+                        ),
                         priceInfo: LocaleKeys
                             .settings_planPage_planUsage_addons_aiOnDevice_priceInfo
                             .tr(),
                         billingInfo: LocaleKeys
                             .settings_planPage_planUsage_addons_aiOnDevice_billingInfo
-                            .tr(args: ['US\$10']),
+                            .tr(
+                          args: [SubscriptionPlanPB.AiLocal.priceMonthBilling],
+                        ),
                         buttonText: state.subscriptionInfo.hasAIOnDevice
                             ? LocaleKeys
                                 .settings_planPage_planUsage_addons_activeLabel
