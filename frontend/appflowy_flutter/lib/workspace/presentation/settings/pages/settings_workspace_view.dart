@@ -1142,9 +1142,21 @@ class _DocumentCursorColorSetting extends StatelessWidget {
         return SettingListTile(
           label: label,
           resetButtonKey: const Key('DocumentCursorColorResetButton'),
-          onResetRequested: () => context
-            ..read<AppearanceSettingsCubit>().resetDocumentCursorColor()
-            ..read<DocumentAppearanceCubit>().syncCursorColor(null),
+          onResetRequested: () {
+            showConfirmDialog(
+              context: context,
+              title:
+                  LocaleKeys.settings_workspacePage_resetCursorColor_title.tr(),
+              description: LocaleKeys
+                  .settings_workspacePage_resetCursorColor_description
+                  .tr(),
+              style: ConfirmPopupStyle.cancelAndOk,
+              confirmLabel: LocaleKeys.settings_common_reset.tr(),
+              onConfirm: () => context
+                ..read<AppearanceSettingsCubit>().resetDocumentCursorColor()
+                ..read<DocumentAppearanceCubit>().syncCursorColor(null),
+            );
+          },
           trailing: [
             DocumentColorSettingButton(
               key: const Key('DocumentCursorColorSettingButton'),
@@ -1200,9 +1212,21 @@ class _DocumentSelectionColorSetting extends StatelessWidget {
         return SettingListTile(
           label: label,
           resetButtonKey: const Key('DocumentSelectionColorResetButton'),
-          onResetRequested: () => context
-            ..read<AppearanceSettingsCubit>().resetDocumentSelectionColor()
-            ..read<DocumentAppearanceCubit>().syncSelectionColor(null),
+          onResetRequested: () {
+            showConfirmDialog(
+              context: context,
+              title: LocaleKeys.settings_workspacePage_resetSelectionColor_title
+                  .tr(),
+              description: LocaleKeys
+                  .settings_workspacePage_resetSelectionColor_description
+                  .tr(),
+              style: ConfirmPopupStyle.cancelAndOk,
+              confirmLabel: LocaleKeys.settings_common_reset.tr(),
+              onConfirm: () => context
+                ..read<AppearanceSettingsCubit>().resetDocumentSelectionColor()
+                ..read<DocumentAppearanceCubit>().syncSelectionColor(null),
+            );
+          },
           trailing: [
             DocumentColorSettingButton(
               currentColor: state.selectionColor ??

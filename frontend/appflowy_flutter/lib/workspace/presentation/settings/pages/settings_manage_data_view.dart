@@ -124,7 +124,7 @@ class SettingsManageDataView extends StatelessWidget {
                     buttonLabel:
                         LocaleKeys.settings_manageDataPage_cache_title.tr(),
                     onPressed: () {
-                      showConfirmDialog(
+                      showCancelAndConfirmDialog(
                         context: context,
                         title: LocaleKeys
                             .settings_manageDataPage_cache_dialog_title
@@ -132,12 +132,20 @@ class SettingsManageDataView extends StatelessWidget {
                         description: LocaleKeys
                             .settings_manageDataPage_cache_dialog_description
                             .tr(),
+                        confirmLabel: LocaleKeys.button_ok.tr(),
                         onConfirm: () async {
+                          // clear all cache
                           await getIt<FlowyCacheManager>().clearAllCache();
+
+                          // check the workspace and space health
+                          await WorkspaceDataManager.checkViewHealth(
+                            dryRun: false,
+                          );
+
                           if (context.mounted) {
-                            showSnackBarMessage(
+                            showToastNotification(
                               context,
-                              LocaleKeys
+                              message: LocaleKeys
                                   .settings_manageDataPage_cache_dialog_successHint
                                   .tr(),
                             );
