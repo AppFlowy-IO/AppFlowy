@@ -35,6 +35,9 @@ enum FeatureFlag {
   // used for controlling whether to show plan+billing options in settings
   planBilling,
 
+  // used for space design
+  spaceDesign,
+
   // used for ignore the conflicted feature flag
   unknown;
 
@@ -88,6 +91,8 @@ enum FeatureFlag {
 
   bool get isOn {
     if ([
+      // release this feature in version 0.6.1
+      FeatureFlag.spaceDesign,
       // release this feature in version 0.5.9
       FeatureFlag.search,
       // release this feature in version 0.5.6
@@ -105,15 +110,16 @@ enum FeatureFlag {
     }
 
     switch (this) {
+      case FeatureFlag.search:
+      case FeatureFlag.syncDocument:
+      case FeatureFlag.syncDatabase:
+      case FeatureFlag.spaceDesign:
+        return true;
       case FeatureFlag.collaborativeWorkspace:
       case FeatureFlag.membersSettings:
       case FeatureFlag.planBilling:
       case FeatureFlag.unknown:
         return false;
-      case FeatureFlag.search:
-      case FeatureFlag.syncDocument:
-      case FeatureFlag.syncDatabase:
-        return true;
     }
   }
 
@@ -131,6 +137,8 @@ enum FeatureFlag {
         return 'if it\'s on, the command palette and search button will be available';
       case FeatureFlag.planBilling:
         return 'if it\'s on, plan and billing pages will be available in Settings';
+      case FeatureFlag.spaceDesign:
+        return 'if it\'s on, the space design feature will be available';
       case FeatureFlag.unknown:
         return '';
     }
