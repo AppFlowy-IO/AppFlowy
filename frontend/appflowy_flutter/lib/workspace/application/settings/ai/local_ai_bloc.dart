@@ -20,7 +20,7 @@ class LocalAISettingBloc
     listener.start(
       stateCallback: (newState) {
         if (!isClosed) {
-          add(LocalAISettingEvent.updateLLMRunningState(newState));
+          add(LocalAISettingEvent.updateLLMRunningState(newState.state));
         }
       },
     );
@@ -51,7 +51,11 @@ class LocalAISettingBloc
             );
           },
           (err) {
-            emit(state.copyWith(fetchModelInfoState: LoadingState.finish(error: err)));
+            emit(
+              state.copyWith(
+                fetchModelInfoState: LoadingState.finish(error: err),
+              ),
+            );
           },
         );
       },
@@ -183,6 +187,12 @@ class LocalAISettingBloc
     if (!isClosed) {
       add(LocalAISettingEvent.didLoadModelInfo(result));
     }
+  }
+
+  @override
+  Future<void> close() async {
+    await listener.stop();
+    return super.close();
   }
 }
 

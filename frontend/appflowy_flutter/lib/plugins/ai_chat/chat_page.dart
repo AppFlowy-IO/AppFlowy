@@ -71,19 +71,24 @@ class AIChatPage extends StatelessWidget {
         create: (context) => ChatFileBloc(chatId: view.id.toString()),
         child: BlocBuilder<ChatFileBloc, ChatFileState>(
           builder: (context, state) {
-            return DropTarget(
-              onDragDone: (DropDoneDetails detail) async {
-                for (final file in detail.files) {
-                  context
-                      .read<ChatFileBloc>()
-                      .add(ChatFileEvent.newFile(file.path));
-                }
-              },
-              child: _ChatContentPage(
-                view: view,
-                userProfile: userProfile,
-              ),
-            );
+            return state.supportChatWithFile
+                ? DropTarget(
+                    onDragDone: (DropDoneDetails detail) async {
+                      for (final file in detail.files) {
+                        context
+                            .read<ChatFileBloc>()
+                            .add(ChatFileEvent.newFile(file.path));
+                      }
+                    },
+                    child: _ChatContentPage(
+                      view: view,
+                      userProfile: userProfile,
+                    ),
+                  )
+                : _ChatContentPage(
+                    view: view,
+                    userProfile: userProfile,
+                  );
           },
         ),
       );

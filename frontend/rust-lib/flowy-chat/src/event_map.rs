@@ -41,6 +41,7 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
       cancel_download_llm_resource_handler,
     )
     .event(ChatEvent::GetPluginState, get_plugin_state_handler)
+    .event(ChatEvent::RestartLocalAI, restart_local_ai_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -91,4 +92,7 @@ pub enum ChatEvent {
 
   #[event(output = "PluginStatePB")]
   GetPluginState = 14,
+
+  #[event()]
+  RestartLocalAI = 15,
 }

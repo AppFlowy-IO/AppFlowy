@@ -59,8 +59,8 @@ impl LocalAIController {
     let mut rx = llm_chat.subscribe_running_state();
     tokio::spawn(async move {
       while let Some(state) = rx.next().await {
+        info!("[AI Plugin] state: {:?}", state);
         let new_state = RunningStatePB::from(state);
-        info!("[AI Plugin] state: {:?}", new_state);
         send_notification(
           "appflowy_chat_plugin",
           ChatNotification::UpdateChatPluginState,
@@ -84,7 +84,9 @@ impl LocalAIController {
     tokio::spawn(async move {
       while rx.recv().await.is_some() {
         if let Ok(chat_config) = cloned_llm_res.get_ai_plugin_config() {
-          initialize_chat_plugin(&cloned_llm_chat, chat_config).unwrap();
+          if let Err(err) = initialize_chat_plugin(&cloned_llm_chat, chat_config) {
+            error!("[AI Plugin] failed to setup plugin: {:?}", err);
+          }
         }
       }
     });
@@ -182,6 +184,14 @@ impl LocalAIController {
     let state = self.llm_chat.get_plugin_running_state();
     PluginStatePB {
       state: RunningStatePB::from(state),
+    }
+  }
+
+  pub fn restart(&self) {
+    if let Ok(chat_config) = self.llm_res.get_ai_plugin_config() {
+      if let Err(err) = initialize_chat_plugin(&self.llm_chat, chat_config) {
+        error!("[AI Plugin] failed to setup plugin: {:?}", err);
+      }
     }
   }
 }
