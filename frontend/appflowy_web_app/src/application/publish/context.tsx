@@ -105,11 +105,7 @@ export const PublishProvider = ({
 
         const meta = await db.view_metas.get(name);
 
-        if (!meta) {
-          throw new Error('View meta has not been published yet');
-        }
-
-        callback?.(meta);
+        meta && callback?.(meta);
         if (callback) {
           setSubscribers((prev) => {
             prev.set(name, callback);
