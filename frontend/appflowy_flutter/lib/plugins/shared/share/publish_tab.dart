@@ -3,7 +3,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
-import 'package:appflowy/plugins/shared/share/pubish_color_extension.dart';
+import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
 import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -15,6 +15,7 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -453,32 +454,29 @@ class _PublishDatabaseSelectorState extends State<_PublishDatabaseSelector> {
         final isSelected = selectedDatabases.any(
           (e) => e.$1.id == tabBar.view.id && e.$2,
         );
-        return Opacity(
-          opacity: isPrimaryDatabase ? 0.6 : 1.0,
-          child: _DatabaseSelectorItem(
-            tabBar: tabBar,
-            isSelected: isSelected,
-            onTap: () {
-              // unable to deselect the primary database
-              if (isPrimaryDatabase) {
-                showToastNotification(
-                  context,
-                  message:
-                      LocaleKeys.publish_unableToDeselectPrimaryDatabase.tr(),
-                );
-                return;
-              }
+        return _DatabaseSelectorItem(
+          tabBar: tabBar,
+          isSelected: isSelected,
+          isPrimaryDatabase: isPrimaryDatabase,
+          onTap: () {
+            // unable to deselect the primary database
+            if (isPrimaryDatabase) {
+              showToastNotification(
+                context,
+                message:
+                    LocaleKeys.publish_unableToDeselectPrimaryDatabase.tr(),
+              );
+              return;
+            }
 
-              // toggle the selection status
-              _databaseStatus.value = _databaseStatus.value
-                  .map(
-                    (e) => e.$1.id == tabBar.view.id
-                        ? (e.$1, !e.$2)
-                        : (e.$1, e.$2),
-                  )
-                  .toList();
-            },
-          ),
+            // toggle the selection status
+            _databaseStatus.value = _databaseStatus.value
+                .map(
+                  (e) =>
+                      e.$1.id == tabBar.view.id ? (e.$1, !e.$2) : (e.$1, e.$2),
+                )
+                .toList();
+          },
         );
       },
     );
@@ -490,35 +488,57 @@ class _DatabaseSelectorItem extends StatelessWidget {
     required this.tabBar,
     required this.isSelected,
     required this.onTap,
+    required this.isPrimaryDatabase,
   });
 
   final DatabaseTabBar tabBar;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool isPrimaryDatabase;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: FlowyHover(
+    Widget child = _buildItem(context);
+
+    if (!isPrimaryDatabase) {
+      child = FlowyHover(
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: _buildItem(context),
+          child: child,
         ),
-      ),
+      );
+    } else {
+      child = FlowyTooltip(
+        message: LocaleKeys.publish_mustSelectPrimaryDatabase.tr(),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.forbidden,
+          child: child,
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: child,
     );
   }
 
   Widget _buildItem(BuildContext context) {
+    final svg = isPrimaryDatabase
+        ? FlowySvgs.unable_select_s
+        : isSelected
+            ? FlowySvgs.check_filled_s
+            : FlowySvgs.uncheck_s;
+    final blendMode = isPrimaryDatabase ? BlendMode.srcIn : null;
     return Container(
       height: 30,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         children: [
           FlowySvg(
-            isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
-            blendMode: null,
+            svg,
+            blendMode: blendMode,
             size: const Size.square(18),
           ),
           const HSpace(9.0),
@@ -532,7 +552,6 @@ class _DatabaseSelectorItem extends StatelessWidget {
             fontSize: 14,
             overflow: TextOverflow.ellipsis,
           ),
-          const Spacer(),
         ],
       ),
     );
