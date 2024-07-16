@@ -299,9 +299,15 @@ class ConfirmPopup extends StatefulWidget {
   final String title;
   final String description;
   final VoidCallback onConfirm;
-  final String? confirmLabel;
   final Color? confirmButtonColor;
   final ConfirmPopupStyle style;
+
+  /// The label of the confirm button.
+  ///
+  /// Defaults to 'Delete' for [ConfirmPopupStyle.cancelAndOk] style.
+  /// Defaults to 'Ok' for [ConfirmPopupStyle.onlyOk] style.
+  ///
+  final String? confirmLabel;
 
   @override
   State<ConfirmPopup> createState() => _ConfirmPopupState();
