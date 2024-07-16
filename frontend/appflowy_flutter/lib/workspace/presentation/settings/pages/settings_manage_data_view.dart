@@ -126,26 +126,34 @@ class SettingsManageDataView extends StatelessWidget {
                     buttonLabel:
                         LocaleKeys.settings_manageDataPage_cache_title.tr(),
                     onPressed: () {
-                      SettingsAlertDialog(
+                      showCancelAndConfirmDialog(
+                        context: context,
                         title: LocaleKeys
                             .settings_manageDataPage_cache_dialog_title
                             .tr(),
-                        subtitle: LocaleKeys
+                        description: LocaleKeys
                             .settings_manageDataPage_cache_dialog_description
                             .tr(),
-                        confirm: () async {
+                        confirmLabel: LocaleKeys.button_ok.tr(),
+                        onConfirm: () async {
+                          // clear all cache
                           await getIt<FlowyCacheManager>().clearAllCache();
+
+                          // check the workspace and space health
+                          await WorkspaceDataManager.checkViewHealth(
+                            dryRun: false,
+                          );
+
                           if (context.mounted) {
-                            showSnackBarMessage(
+                            showToastNotification(
                               context,
-                              LocaleKeys
+                              message: LocaleKeys
                                   .settings_manageDataPage_cache_dialog_successHint
                                   .tr(),
                             );
-                            Navigator.of(context).pop();
                           }
                         },
-                      ).show(context);
+                      );
                     },
                   ),
                 ],
