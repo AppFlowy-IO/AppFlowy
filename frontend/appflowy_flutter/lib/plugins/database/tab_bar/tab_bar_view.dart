@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -16,6 +17,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 import 'desktop/tab_bar_header.dart';
 import 'mobile/mobile_tab_bar_header.dart';
@@ -219,6 +221,16 @@ class DatabaseTabBarViewPlugin extends Plugin {
   }
 }
 
+const kDatabasePluginWidgetBuilderHorizontalPadding = 'horizontal_padding';
+
+class DatabasePluginWidgetBuilderSize {
+  const DatabasePluginWidgetBuilderSize({
+    required this.horizontalPadding,
+  });
+
+  final double horizontalPadding;
+}
+
 class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   DatabasePluginWidgetBuilder({
     required this.bloc,
@@ -244,6 +256,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   Widget buildWidget({
     required PluginContext context,
     required bool shrinkWrap,
+    Map<String, dynamic>? data,
   }) {
     notifier.isDeleted.addListener(() {
       final deletedView = notifier.isDeleted.value;
@@ -252,11 +265,20 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
       }
     });
 
-    return DatabaseTabBarView(
-      key: ValueKey(notifier.view.id),
-      view: notifier.view,
-      shrinkWrap: shrinkWrap,
-      initialRowId: initialRowId,
+    final horizontalPadding =
+        data?[kDatabasePluginWidgetBuilderHorizontalPadding] as double? ??
+            GridSize.horizontalHeaderPadding + 40;
+
+    return Provider(
+      create: (context) => DatabasePluginWidgetBuilderSize(
+        horizontalPadding: horizontalPadding,
+      ),
+      child: DatabaseTabBarView(
+        key: ValueKey(notifier.view.id),
+        view: notifier.view,
+        shrinkWrap: shrinkWrap,
+        initialRowId: initialRowId,
+      ),
     );
   }
 

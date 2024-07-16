@@ -1,13 +1,12 @@
 library flowy_plugin;
 
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flutter/widgets.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flutter/widgets.dart';
 
 export "./src/sandbox.dart";
 
@@ -76,6 +75,7 @@ abstract class PluginWidgetBuilder with NavigationItem {
   Widget buildWidget({
     required PluginContext context,
     required bool shrinkWrap,
+    Map<String, dynamic>? data,
   });
 }
 

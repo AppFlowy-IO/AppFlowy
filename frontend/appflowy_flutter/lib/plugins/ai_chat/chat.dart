@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/ai_chat/chat_page.dart';
 import 'package:appflowy/plugins/util.dart';
@@ -9,6 +7,7 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AIChatPluginBuilder extends PluginBuilder {
@@ -96,6 +95,7 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
   Widget buildWidget({
     required PluginContext context,
     required bool shrinkWrap,
+    Map<String, dynamic>? data,
   }) {
     notifier.isDeleted.addListener(() {
       final deletedView = notifier.isDeleted.value;

@@ -109,6 +109,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   Widget buildWidget({
     required PluginContext context,
     required bool shrinkWrap,
+    Map<String, dynamic>? data,
   }) {
     notifier.isDeleted.addListener(() {
       final deletedView = notifier.isDeleted.value;

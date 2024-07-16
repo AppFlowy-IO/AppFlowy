@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:flutter/material.dart';
 
 class DatabaseViewWidget extends StatefulWidget {
   const DatabaseViewWidget({
@@ -55,6 +55,9 @@ class _DatabaseViewWidgetState extends State<DatabaseViewWidget> {
       builder: (_, __, ___) => viewPlugin.widgetBuilder.buildWidget(
         shrinkWrap: widget.shrinkWrap,
         context: PluginContext(),
+        data: {
+          kDatabasePluginWidgetBuilderHorizontalPadding: 40.0,
+        },
       ),
     );
   }

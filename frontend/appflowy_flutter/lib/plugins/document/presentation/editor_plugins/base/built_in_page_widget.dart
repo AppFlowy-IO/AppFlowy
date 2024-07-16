@@ -13,9 +13,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class BuiltInPageWidget extends StatefulWidget {
@@ -127,7 +125,6 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           icon: const FlowySvg(
             FlowySvgs.information_s,
           ),
-          iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
         ),
         // setting
         const Space(7, 0),
@@ -141,7 +138,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             width: 24,
             height: 24,
             iconPadding: const EdgeInsets.all(3),
-            iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+            // iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
             icon: const FlowySvg(
               FlowySvgs.settings_s,
             ),
