@@ -52,7 +52,9 @@ export async function getPublishView(publishNamespace: string, publishName: stri
 
   try {
     const decoder = new TextDecoder('utf-8');
+
     const jsonStr = decoder.decode(new Uint8Array(data.data));
+
     const res = JSON.parse(jsonStr) as {
       database_collab: number[];
       database_row_collabs: Record<RowId, number[]>;

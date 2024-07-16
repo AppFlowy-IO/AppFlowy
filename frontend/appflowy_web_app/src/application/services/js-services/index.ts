@@ -79,6 +79,7 @@ export class AFClientService implements AFService {
         try {
           return await fetchPublishView(namespace, publishName);
         } catch (e) {
+          console.error(e);
           void (async () => {
             if (await hasViewMetaCache(name)) {
               this.publishViewLoaded.delete(name);

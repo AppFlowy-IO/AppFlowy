@@ -20,6 +20,14 @@ export function processUrl(input: string) {
     return processedUrl;
   }
 
+  if (input.startsWith('http')) {
+    return processedUrl;
+  }
+
+  if (input.startsWith('localhost')) {
+    return `http://${input}`;
+  }
+
   const domain = input.split('/')[0];
 
   if (isIP(domain) || isFQDN(domain)) {
