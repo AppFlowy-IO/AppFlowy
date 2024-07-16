@@ -13,7 +13,7 @@ export interface YjsEditor extends Editor {
   connect: () => void;
   disconnect: () => void;
   sharedRoot: YSharedRoot;
-  applyRemoteEvents: (events: Array<YEvent<YSharedRoot>>, transaction: Transaction) => void;
+  applyRemoteEvents: (events: Array<YEvent>, transaction: Transaction) => void;
   flushLocalChanges: () => void;
   storeLocalChange: (op: Operation) => void;
 }
@@ -36,7 +36,7 @@ export const YjsEditor = {
     editor.disconnect();
   },
 
-  applyRemoteEvents(editor: YjsEditor, events: Array<YEvent<YSharedRoot>>, transaction: Transaction): void {
+  applyRemoteEvents(editor: YjsEditor, events: Array<YEvent>, transaction: Transaction): void {
     editor.applyRemoteEvents(events, transaction);
   },
 
@@ -90,7 +90,7 @@ export function withYjs<T extends Editor>(
     apply(op);
   };
 
-  e.applyRemoteEvents = (_events: Array<YEvent<YSharedRoot>>, _: Transaction) => {
+  e.applyRemoteEvents = (_events: Array<YEvent>, _: Transaction) => {
     // Flush local changes to ensure all local changes are applied before processing remote events
     YjsEditor.flushLocalChanges(e);
     // Replace the apply function to avoid storing remote changes as local changes
@@ -103,7 +103,7 @@ export function withYjs<T extends Editor>(
     e.apply = applyIntercept;
   };
 
-  const handleYEvents = (events: Array<YEvent<YSharedRoot>>, transaction: Transaction) => {
+  const handleYEvents = (events: Array<YEvent>, transaction: Transaction) => {
     if (transaction.origin === CollabOrigin.Remote) {
       YjsEditor.applyRemoteEvents(e, events, transaction);
     }

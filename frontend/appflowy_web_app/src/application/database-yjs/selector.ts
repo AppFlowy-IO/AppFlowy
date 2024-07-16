@@ -54,7 +54,12 @@ export function useDatabaseViewsSelector(_iidIndex: string, visibleViewIds?: str
     if (!views) return;
 
     const observerEvent = () => {
-      const viewsObj = views.toJSON();
+      const viewsObj = views.toJSON() as Record<
+        string,
+        {
+          created_at: number;
+        }
+      >;
 
       const viewsSorted = Object.entries(viewsObj).sort((a, b) => {
         const [, viewA] = a;
@@ -99,7 +104,8 @@ export function useFieldsSelector(visibilitys: FieldVisibility[] = defaultVisibl
     const fieldSettings = view?.get(YjsDatabaseKey.field_settings);
     const getColumns = () => {
       if (!fields || !fieldsOrder || !fieldSettings) return [];
-      const fieldIds = fieldsOrder.toJSON().map((item) => item.id) as string[];
+
+      const fieldIds = (fieldsOrder.toJSON() as { id: string }[]).map((item) => item.id);
 
       return fieldIds
         .map((fieldId) => {
@@ -174,7 +180,7 @@ export function useFiltersSelector() {
     if (!filterOrders) return;
 
     const getFilters = () => {
-      return filterOrders.toJSON().map((item) => item.id);
+      return (filterOrders.toJSON() as { id: string }[]).map((item) => item.id);
     };
 
     const observerEvent = () => setFilters(getFilters());
@@ -237,7 +243,7 @@ export function useSortsSelector() {
     if (!sortOrders) return;
 
     const getSorts = () => {
-      return sortOrders.toJSON().map((item) => item.id);
+      return (sortOrders.toJSON() as { id: string }[]).map((item) => item.id);
     };
 
     const observerEvent = () => setSorts(getSorts());
@@ -306,7 +312,7 @@ export function useGroupsSelector() {
     if (!groupOrders) return;
 
     const getGroups = () => {
-      return groupOrders.toJSON().map((item) => item.id);
+      return (groupOrders.toJSON() as { id: string }[]).map((item) => item.id);
     };
 
     const observerEvent = () => setGroups(getGroups());

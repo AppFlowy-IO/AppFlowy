@@ -414,7 +414,7 @@ export interface YDatabase extends Y.Map<unknown> {
   get(key: YjsDatabaseKey.id): string;
 }
 
-export interface YDatabaseViews extends Y.Map<unknown> {
+export interface YDatabaseViews extends Y.Map<YDatabaseView> {
   get(key: ViewId): YDatabaseView;
 }
 
@@ -559,7 +559,7 @@ export interface YDatabaseMetas extends Y.Map<unknown> {
   get(key: YjsDatabaseKey.iid): string;
 }
 
-export interface YDatabaseFields extends Y.Map<unknown> {
+export interface YDatabaseFields extends Y.Map<YDatabaseField> {
   get(key: FieldId): YDatabaseField;
 }
 

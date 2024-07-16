@@ -1,6 +1,5 @@
 import {
   YDatabase,
-  YDatabaseField,
   YDatabaseFields,
   YDatabaseFilters,
   YDatabaseGroup,
@@ -133,11 +132,13 @@ export function withTestingDatabase(viewId: string) {
   const fieldOrder = new Y.Array();
   const rowOrders = new Y.Array();
 
-  Array.from(fields).forEach(([fieldId, field]) => {
+  Array.from(fields).forEach((field) => {
     const setting = new Y.Map();
 
+    const fieldId = field.get(YjsDatabaseKey.id);
+
     if (fieldId === 'text_field') {
-      (field as YDatabaseField).set(YjsDatabaseKey.is_primary, true);
+      field.set(YjsDatabaseKey.is_primary, true);
     }
 
     fieldOrder.push([fieldId]);
