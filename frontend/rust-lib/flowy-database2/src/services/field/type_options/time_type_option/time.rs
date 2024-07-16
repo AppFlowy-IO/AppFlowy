@@ -149,15 +149,6 @@ impl CellDataChangeset for TimeTypeOption {
       },
     };
 
-    if self.precision == TimePrecision::Minutes {
-      if cell_data.time.is_some() {
-        cell_data.time = Some(cell_data.time.unwrap() * 60);
-      }
-      if cell_data.timer_start.is_some() {
-        cell_data.timer_start = Some(cell_data.timer_start.unwrap() * 60);
-      }
-    }
-
     if let Some(err) = cell_data.validate() {
       return Err(err);
     }
