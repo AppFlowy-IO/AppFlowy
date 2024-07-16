@@ -51,6 +51,9 @@ export class AFClientService implements AFService {
   }
 
   async getPublishViewMeta(namespace: string, publishName: string) {
+    const name = `${namespace}_${publishName}`;
+
+    const isLoaded = this.publishViewLoaded.has(name);
     const viewMeta = await getPublishViewMeta(
       () => {
         return fetchPublishViewMeta(namespace, publishName);
@@ -59,7 +62,7 @@ export class AFClientService implements AFService {
         namespace,
         publishName,
       },
-      StrategyType.CACHE_AND_NETWORK
+      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK
     );
 
     if (!viewMeta) {

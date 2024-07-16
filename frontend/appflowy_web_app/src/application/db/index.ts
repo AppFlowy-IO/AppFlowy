@@ -97,6 +97,8 @@ export async function clearData() {
 
 window.addEventListener('keydown', (e) => {
   if (e.key.toLowerCase() === 'r' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+    e.stopPropagation();
+    e.preventDefault();
     void clearData().then(() => {
       window.location.reload();
     });

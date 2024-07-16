@@ -58,7 +58,7 @@ export const DatabaseBlock = memo(
       })();
     }, [viewId, loadView]);
 
-    const [selectedViewId, setSelectedViewId] = useState<string>(viewId);
+    const [selectedViewId, setSelectedViewId] = useState<string>();
     const [visibleViewIds, setVisibleViewIds] = useState<string[]>([]);
     const [iidName, setIidName] = useState<string>('');
 
@@ -68,6 +68,8 @@ export const DatabaseBlock = memo(
 
         if (!viewIds.includes(viewId)) {
           setSelectedViewId(meta.visible_view_ids[0]);
+        } else {
+          setSelectedViewId(viewId);
         }
 
         setIidName(meta.name);
@@ -76,13 +78,11 @@ export const DatabaseBlock = memo(
 
       void (async () => {
         try {
-          const meta = await loadViewMeta?.(viewId);
+          const meta = await loadViewMeta?.(viewId, updateVisibleViewIds);
 
           if (meta) {
             await updateVisibleViewIds(meta);
           }
-
-          await loadViewMeta?.(viewId, updateVisibleViewIds);
         } catch (e) {
           setNotFound(true);
         }
@@ -101,7 +101,7 @@ export const DatabaseBlock = memo(
             {children}
           </div>
           <div contentEditable={false} style={style} className={`container-bg relative flex w-full flex-col px-3`}>
-            {viewId && doc ? (
+            {selectedViewId && doc ? (
               <>
                 <Database
                   doc={doc}

@@ -65,7 +65,7 @@ export function parseCellDataForSort(field: YDatabaseField, data: string | boole
     case FieldType.URL:
       return data ? data : '\uFFFF';
     case FieldType.Number:
-      return data;
+      return data === 'string' && !isNaN(parseInt(data)) ? parseInt(data) : 0;
     case FieldType.Checkbox:
       return data === 'Yes';
     case FieldType.SingleSelect:
