@@ -76,7 +76,11 @@ export const DatabaseBlock = memo(
 
       void (async () => {
         try {
-          await loadViewMeta?.(viewId, updateVisibleViewIds);
+          const meta = await loadViewMeta?.(viewId, updateVisibleViewIds);
+
+          if (meta) {
+            void updateVisibleViewIds(meta);
+          }
         } catch (e) {
           setNotFound(true);
         }
