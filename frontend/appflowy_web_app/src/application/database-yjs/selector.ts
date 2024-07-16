@@ -307,6 +307,7 @@ export function useGroupsSelector() {
   useEffect(() => {
     if (!viewId) return;
     const view = database?.get(YjsDatabaseKey.views)?.get(viewId);
+
     const groupOrders = view?.get(YjsDatabaseKey.groups);
 
     if (!groupOrders) return;
@@ -384,6 +385,8 @@ export function useRowsByGroup(groupId: string) {
   const fields = useDatabaseFields();
   const [notFound, setNotFound] = useState(false);
   const [groupResult, setGroupResult] = useState<Map<string, Row[]>>(new Map());
+  const view = useDatabaseView();
+  const layoutSetting = view?.get(YjsDatabaseKey.layout_settings)?.get('1');
 
   useEffect(() => {
     if (!fieldId || !rowOrders || !rows) return;
@@ -417,7 +420,10 @@ export function useRowsByGroup(groupId: string) {
     };
   }, [fieldId, fields, rowOrders, rows]);
 
-  const visibleColumns = columns.filter((column) => column.visible);
+  const visibleColumns = columns.filter((column) => {
+    if (column.id === fieldId) return !layoutSetting?.get(YjsDatabaseKey.hide_ungrouped_column);
+    return column.visible;
+  });
 
   return {
     fieldId,
@@ -532,19 +538,6 @@ export function useRowDataSelector(rowId: string) {
   const rowSharedRoot = rowDoc?.getMap(YjsEditorKey.data_section);
   const row = rowSharedRoot?.get(YjsEditorKey.database_row);
 
-  useEffect(() => {
-    if (!row) return;
-
-    const observerEvent = () => {
-      console.log('row', row.toJSON());
-    };
-
-    row?.observeDeep(observerEvent);
-
-    return () => {
-      row?.unobserveDeep(observerEvent);
-    };
-  }, [row]);
   return {
     row,
   };

@@ -1,7 +1,6 @@
 import { CalendarEvent } from '@/application/database-yjs';
 import { RichTooltip } from '@/components/_shared/popover';
 import NoDateRow from '@/components/database/components/calendar/toolbar/NoDateRow';
-import Button from '@mui/material/Button';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -30,15 +29,12 @@ function NoDate({ emptyEvents }: { emptyEvents: CalendarEvent[] }) {
         setOpen(false);
       }}
     >
-      <Button
-        size={'small'}
-        variant={'outlined'}
-        className={'whitespace-nowrap rounded-md border-line-divider'}
-        color={'inherit'}
-        onClick={() => setOpen(true)}
+      <span
+        className={' whitespace-nowrap rounded-md border border-line-divider border-line-divider p-1 px-2'}
+        // onClick={() => setOpen(true)}
       >
         {`${t('calendar.settings.noDateTitle')} (${emptyEvents.length})`}
-      </Button>
+      </span>
     </RichTooltip>
   );
 }

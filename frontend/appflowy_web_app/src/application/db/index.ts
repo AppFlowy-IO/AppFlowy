@@ -94,13 +94,3 @@ export async function clearData() {
     console.error('Error listing databases:', e);
   }
 }
-
-window.addEventListener('keydown', (e) => {
-  if (e.key.toLowerCase() === 'r' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
-    e.stopPropagation();
-    e.preventDefault();
-    void clearData().then(() => {
-      window.location.reload();
-    });
-  }
-});
