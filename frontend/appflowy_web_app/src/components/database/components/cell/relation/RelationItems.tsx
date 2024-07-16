@@ -54,11 +54,16 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
 
   useEffect(() => {
     if (!relatedViewId || !getViewRowsMap || !relatedFieldId) return;
+    void (async () => {
+      try {
+        const { rows } = await getViewRowsMap(relatedViewId);
 
-    void getViewRowsMap?.(relatedViewId).then(({ rows }) => {
-      setRows(rows);
-      handleUpdateRowIds(rows);
-    });
+        setRows(rows);
+        handleUpdateRowIds(rows);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
   }, [getViewRowsMap, relatedViewId, relatedFieldId, handleUpdateRowIds]);
 
   useEffect(() => {

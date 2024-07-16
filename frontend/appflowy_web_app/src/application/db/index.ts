@@ -58,3 +58,47 @@ export async function closeCollabDB(docName: string) {
 
   await provider.destroy();
 }
+
+export async function clearData() {
+  try {
+    const databases = await indexedDB.databases();
+
+    databases.forEach((dbInfo) => {
+      const dbName = dbInfo.name as string;
+      const request = indexedDB.open(dbName);
+
+      request.onsuccess = function (event) {
+        const db = (event.target as IDBOpenDBRequest).result;
+
+        db.close();
+        const deleteRequest = indexedDB.deleteDatabase(dbName);
+
+        deleteRequest.onsuccess = function () {
+          console.log(`Database ${dbName} deleted successfully`);
+        };
+
+        deleteRequest.onerror = function (event) {
+          console.error(`Error deleting database ${dbName}`, event);
+        };
+
+        deleteRequest.onblocked = function () {
+          console.warn(`Delete operation blocked for database ${dbName}`);
+        };
+      };
+
+      request.onerror = function (event) {
+        console.error(`Error opening database ${dbName}`, event);
+      };
+    });
+  } catch (e) {
+    console.error('Error listing databases:', e);
+  }
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'r' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+    void clearData().then(() => {
+      window.location.reload();
+    });
+  }
+});
