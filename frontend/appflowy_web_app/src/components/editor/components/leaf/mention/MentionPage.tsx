@@ -7,15 +7,16 @@ import { useTranslation } from 'react-i18next';
 
 function MentionPage({ pageId }: { pageId: string }) {
   const context = useEditorContext();
-  const { navigateToView, loadViewMeta } = context;
+  const { navigateToView, loadViewMeta, loadView } = context;
   const [unPublished, setUnPublished] = useState(false);
   const [meta, setMeta] = useState<ViewMeta | null>(null);
 
   useEffect(() => {
     void (async () => {
-      if (loadViewMeta) {
+      if (loadViewMeta && loadView) {
         setUnPublished(false);
         try {
+          await loadView(pageId);
           const meta = await loadViewMeta(pageId);
 
           setMeta(meta);
@@ -24,7 +25,7 @@ function MentionPage({ pageId }: { pageId: string }) {
         }
       }
     })();
-  }, [loadViewMeta, pageId]);
+  }, [loadViewMeta, pageId, loadView]);
 
   const icon = useMemo(() => {
     return meta?.icon;

@@ -257,7 +257,6 @@ export async function revalidatePublishView<
 
   const state = new Uint8Array(data);
 
-  console.log('revalidatePublishView', name, data.length);
   applyYDoc(collab, state);
 }
 
