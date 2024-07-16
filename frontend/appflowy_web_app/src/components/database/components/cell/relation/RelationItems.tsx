@@ -9,8 +9,7 @@ import {
 import { RelationCell, RelationCellData } from '@/application/database-yjs/cell.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { RelationPrimaryValue } from '@/components/database/components/cell/relation/RelationPrimaryValue';
-import { debounce } from 'lodash-es';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 
 function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: string; style?: React.CSSProperties }) {
   const viewId = useContext(DatabaseContext)?.iidIndex;
@@ -26,6 +25,7 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
   const [rows, setRows] = useState<DatabaseContextState['rowDocMap'] | null>();
   const [relatedFieldId, setRelatedFieldId] = useState<string | undefined>();
   const relatedViewId = relatedDatabaseId ? relations?.[relatedDatabaseId] : null;
+
   const [rowIds, setRowIds] = useState([] as string[]);
 
   // const navigateToRow = useNavigateToRow();
@@ -60,20 +60,12 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
         const { rows } = await getViewRowsMap(relatedViewId);
 
         setRows(rows);
+        handleUpdateRowIds(rows);
       } catch (e) {
         console.error(e);
       }
     })();
-  });
-
-  const debounceUpdateRowIds = useMemo(() => {
-    return debounce(handleUpdateRowIds, 500);
-  }, [handleUpdateRowIds]);
-
-  useEffect(() => {
-    if (!rows) return;
-    debounceUpdateRowIds(rows);
-  }, [rows, debounceUpdateRowIds]);
+  }, [getViewRowsMap, relatedViewId, relatedFieldId, handleUpdateRowIds]);
 
   useEffect(() => {
     const observerHandler = () => (rows ? handleUpdateRowIds(rows) : setRowIds([]));
@@ -88,8 +80,6 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
     void (async () => {
       try {
         const viewDoc = await loadView?.(relatedViewId);
-
-        console.log('View not loaded, fetching view', relatedViewId);
 
         if (!viewDoc) {
           throw new Error('No access');
