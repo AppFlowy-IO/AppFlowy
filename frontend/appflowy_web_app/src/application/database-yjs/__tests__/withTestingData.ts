@@ -132,7 +132,7 @@ export function withTestingDatabase(viewId: string) {
   const fieldOrder = new Y.Array();
   const rowOrders = new Y.Array();
 
-  Array.from(fields).forEach((field) => {
+  fields.forEach((field) => {
     const setting = new Y.Map();
 
     const fieldId = field.get(YjsDatabaseKey.id);

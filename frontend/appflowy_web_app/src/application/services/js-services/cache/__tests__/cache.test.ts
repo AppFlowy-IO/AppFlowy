@@ -53,6 +53,7 @@ describe('Cache functions', () => {
 
   describe('getPublishView', () => {
     it('should call fetcher when no cache found', async () => {
+      (openCollabDB as jest.Mock).mockResolvedValue(normalDoc);
       mockFetcher.mockResolvedValue({ data: [1, 2, 3], meta: { metadata: { view: { id: '1' } } } });
       (db.view_metas.get as jest.Mock).mockResolvedValue(undefined);
       await runTestWithStrategy(StrategyType.CACHE_FIRST);
@@ -67,14 +68,14 @@ describe('Cache functions', () => {
       (db.view_metas.get as jest.Mock).mockResolvedValue({ view_id: '1' });
       mockFetcher.mockResolvedValue({ data: [1, 2, 3], meta: { metadata: { view: { id: '1' } } } });
       await runTestWithStrategy(StrategyType.CACHE_ONLY);
-      expect(openCollabDB).toBeCalledTimes(1);
+      expect(openCollabDB).toBeCalledTimes(2);
 
       await runTestWithStrategy(StrategyType.CACHE_FIRST);
-      expect(openCollabDB).toBeCalledTimes(2);
+      expect(openCollabDB).toBeCalledTimes(4);
       expect(mockFetcher).toBeCalledTimes(0);
 
       await runTestWithStrategy(StrategyType.CACHE_AND_NETWORK);
-      expect(openCollabDB).toBeCalledTimes(3);
+      expect(openCollabDB).toBeCalledTimes(6);
       expect(mockFetcher).toBeCalledTimes(1);
     });
   });

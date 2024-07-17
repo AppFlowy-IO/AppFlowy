@@ -1,4 +1,5 @@
 import { withTestingYDoc } from '@/application/slate-yjs/__tests__/withTestingYjsEditor';
+import * as Y from 'yjs';
 import { AFClientService } from '../index';
 import { fetchViewInfo } from '@/application/services/js-services/fetch';
 import { expect, jest } from '@jest/globals';
@@ -69,18 +70,10 @@ describe('AFClientService', () => {
   it('should get view', async () => {
     const namespace = 'namespace';
     const publishName = 'publishName';
+    const rowDoc = new Y.Doc();
     const mockResponse = {
-      data: [1, 2, 3],
-      meta: {
-        metadata: {
-          view: {
-            name: 'viewName',
-            view_id: 'view_id',
-          },
-          child_views: [],
-          ancestor_views: [],
-        },
-      },
+      doc: withTestingYDoc('1'),
+      rowDocMap: rowDoc.getMap(),
     };
 
     // @ts-ignore
@@ -88,7 +81,7 @@ describe('AFClientService', () => {
 
     const result = await service.getPublishView(namespace, publishName);
 
-    expect(result).toEqual(mockResponse);
+    expect(result).toEqual(mockResponse.doc);
   });
 
   it('should get view info', async () => {
@@ -106,22 +99,6 @@ describe('AFClientService', () => {
     expect(result).toEqual({
       namespace: 'namespace',
       publishName: 'publishName',
-    });
-  });
-
-  it('getPublishDatabaseViewRows', async () => {
-    const namespace = 'namespace';
-    const publishName = 'publishName';
-    const mockResponse = [withTestingYDoc('1'), withTestingYDoc('2'), withTestingYDoc('3')];
-
-    // @ts-ignore
-    (getBatchCollabs as jest.Mock).mockResolvedValue(mockResponse);
-
-    const result = await service.getPublishDatabaseViewRows(namespace, publishName);
-
-    expect(result).toEqual({
-      rows: expect.any(Object),
-      destroy: expect.any(Function),
     });
   });
 });
