@@ -6,4 +6,6 @@ Future<void> main() async {
   ScaledWidgetsFlutterBinding.ensureInitialized(scaleFactor: (_) => 1.0);
 
   await runAppFlowy();
+
+  // trigger the ci
 }
