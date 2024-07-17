@@ -6,7 +6,7 @@ import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
 
 function AfterPaymentPage() {
   return (
-    <div className={'m-0 flex h-screen w-screen items-center justify-center bg-bg-body p-0'}>
+    <div className={'m-0 flex h-screen w-screen items-center justify-center bg-bg-body p-6'}>
       <div className={'flex max-w-[560px] flex-col items-center gap-1 text-center'}>
         <Typography variant='h3' className={'mb-[27px] flex items-center gap-4 text-text-title'} gutterBottom>
           <>
