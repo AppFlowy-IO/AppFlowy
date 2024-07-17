@@ -27,19 +27,19 @@ export function useRenderFields() {
     }));
 
     return [
-      {
-        type: GridColumnType.Action,
-        width: 64,
-      },
+      // {
+      //   type: GridColumnType.Action,
+      //   width: 64,
+      // },
       ...data,
       {
         type: GridColumnType.NewProperty,
         width: 150,
       },
-      {
-        type: GridColumnType.Action,
-        width: 64,
-      },
+      // {
+      //   type: GridColumnType.Action,
+      //   width: 64,
+      // },
     ].filter(Boolean) as RenderColumn[];
   }, [fields]);
 

@@ -39,9 +39,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     };
 
     const className = useMemo(() => {
-      const classList = [
-        'mx-16 -mb-[0.5px] flex items-center overflow-hidden border-line-divider text-text-title max-md:mx-4',
-      ];
+      const classList = ['-mb-[0.5px] flex items-center overflow-hidden border-line-divider text-text-title'];
 
       if (layout === DatabaseViewLayout.Calendar) {
         classList.push('border-b');

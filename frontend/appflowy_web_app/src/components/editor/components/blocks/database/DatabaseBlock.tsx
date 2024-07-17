@@ -28,7 +28,7 @@ export const DatabaseBlock = memo(
       switch (type) {
         case BlockType.GridBlock:
           Object.assign(style, {
-            height: 460,
+            height: 400,
           });
           break;
         case BlockType.CalendarBlock:
@@ -100,7 +100,7 @@ export const DatabaseBlock = memo(
           <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
             {children}
           </div>
-          <div contentEditable={false} style={style} className={`container-bg relative flex w-full flex-col px-3`}>
+          <div contentEditable={false} style={style} className={`container-bg relative flex w-full flex-col`}>
             {selectedViewId && doc ? (
               <>
                 <Database

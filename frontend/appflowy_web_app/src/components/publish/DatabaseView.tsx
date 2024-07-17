@@ -47,7 +47,7 @@ function DatabaseView({ viewMeta, ...props }: DatabaseProps) {
       style={{
         height: 'calc(100vh - 48px)',
       }}
-      className={'relative flex h-full w-full flex-col'}
+      className={'relative flex h-full w-full flex-col px-16 max-md:px-4'}
     >
       <DatabaseHeader {...viewMeta} />
       <Suspense fallback={<ComponentLoading />}>

@@ -23,7 +23,7 @@ export function GridColumn({ column, index }: { column: Column; index: number })
     <Tooltip title={name} enterNextDelay={1000} placement={'right'}>
       <div
         style={{
-          borderLeftWidth: index === 1 ? 0 : 1,
+          borderLeftWidth: index === 0 ? 0 : 1,
         }}
         className={
           'flex h-full w-full items-center overflow-hidden whitespace-nowrap border-t border-b border-l border-line-divider px-1.5 text-xs font-medium hover:bg-fill-list-active'

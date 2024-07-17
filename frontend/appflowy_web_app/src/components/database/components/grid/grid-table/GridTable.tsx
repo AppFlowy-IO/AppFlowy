@@ -87,7 +87,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
           <div
             data-row-id={row.rowId}
             className={classList.join(' ')}
-            style={{ ...style, borderLeftWidth: columnIndex === 1 || column.type === GridColumnType.Action ? 0 : 1 }}
+            style={{ ...style, borderLeftWidth: columnIndex === 0 || column.type === GridColumnType.Action ? 0 : 1 }}
           >
             <GridRowCell
               onResize={onResize}
