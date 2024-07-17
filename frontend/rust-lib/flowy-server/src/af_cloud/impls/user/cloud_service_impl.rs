@@ -2,9 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use client_api::entity::billing_dto::{
-  SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus,
-};
+use client_api::entity::billing_dto::{SubscriptionCancelRequest, SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus};
 use client_api::entity::workspace_dto::{
   CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset, WorkspaceMemberInvitation,
 };
@@ -544,7 +542,11 @@ where
     FutureResult::new(async move {
       let client = try_get_client?;
       client
-        .cancel_subscription(&workspace_id, &SubscriptionPlan::Pro)
+        .cancel_subscription(&SubscriptionCancelRequest {
+          workspace_id,
+          plan: SubscriptionPlan::Pro,
+          sync: false,
+        })
         .await?; // TODO:
       Ok(())
     })
