@@ -138,7 +138,6 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             width: 24,
             height: 24,
             iconPadding: const EdgeInsets.all(3),
-            // iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
             icon: const FlowySvg(
               FlowySvgs.settings_s,
             ),
