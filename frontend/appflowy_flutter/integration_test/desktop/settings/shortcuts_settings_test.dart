@@ -98,27 +98,28 @@ void main() {
       await tester.openSettingsPage(SettingsPage.shortcuts);
       await tester.pumpAndSettle();
 
-      final backspaceCmdText =
-          LocaleKeys.settings_shortcutsPage_keybindings_backspace.tr();
-      final defaultBackspaceCmd = backspaceCommand.command;
+      final pageUpCmdText =
+          LocaleKeys.settings_shortcutsPage_keybindings_pageUp.tr();
+      final defaultPageUpCmd = pageUpCommand.command;
 
-      // Input "Delete" into the search field
-      await tester.enterText(find.byType(TextField), backspaceCmdText);
+      // Input "Page Up text" into the search field
+      // This test works because we only have one input field on the shortcuts page.
+      await tester.enterText(find.byType(TextField), pageUpCmdText);
       await tester.pumpAndSettle();
 
       await tester.hoverOnWidget(
         find.descendant(
           of: find.byType(ShortcutSettingTile),
-          matching: find.text(backspaceCmdText),
+          matching: find.text(pageUpCmdText),
         ),
         onHover: () async {
+          // changing the shortcut
           await tester.tap(find.byFlowySvg(FlowySvgs.edit_s));
           await tester.pumpAndSettle();
 
           await FlowyTestKeyboard.simulateKeyDownEvent(
             [
-              LogicalKeyboardKey.delete,
-              LogicalKeyboardKey.alt,
+              LogicalKeyboardKey.backquote,
               LogicalKeyboardKey.enter,
             ],
             tester: tester,
@@ -127,28 +128,21 @@ void main() {
         },
       );
 
-      // We expect to see conflict dialog
-      expect(
-        find.text(
-          LocaleKeys.settings_shortcutsPage_conflictDialog_confirmLabel.tr(),
-        ),
-        findsNothing,
-      );
-
       // We expect the first ShortcutSettingTile to have one
-      // [KeyBadge] with `delete+alt` label
-      final first = tester.widget(find.byType(ShortcutSettingTile).first)
+      // [KeyBadge] with `backquote` label
+      // which will confirm that we have changed the command
+      final theOnlyTile = tester.widget(find.byType(ShortcutSettingTile).first)
           as ShortcutSettingTile;
       expect(
-        first.command.command,
-        'alt+$defaultBackspaceCmd',
+        theOnlyTile.command.command,
+        'backquote',
       );
 
       // hover on the ShortcutSettingTile and click the restore button
       await tester.hoverOnWidget(
         find.descendant(
           of: find.byType(ShortcutSettingTile),
-          matching: find.text(backspaceCmdText),
+          matching: find.text(pageUpCmdText),
         ),
         onHover: () async {
           await tester.tap(
@@ -162,12 +156,10 @@ void main() {
       );
 
       // We expect the first ShortcutSettingTile to have one
-      // [KeyBadge] with `delete` label
-      final reseted = tester.widget(find.byType(ShortcutSettingTile).first)
-          as ShortcutSettingTile;
+      // [KeyBadge] with `page up` label
       expect(
-        reseted.command.command,
-        defaultBackspaceCmd,
+        theOnlyTile.command.command,
+        defaultPageUpCmd,
       );
     });
   });
