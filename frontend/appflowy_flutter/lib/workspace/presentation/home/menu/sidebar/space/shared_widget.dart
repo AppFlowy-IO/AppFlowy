@@ -778,11 +778,9 @@ class _SpaceHintButtonState extends State<SpaceHintButton> {
 class _MigrationTitle extends StatelessWidget {
   const _MigrationTitle({
     required this.title,
-    required this.onClose,
   });
 
   final String title;
-  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
