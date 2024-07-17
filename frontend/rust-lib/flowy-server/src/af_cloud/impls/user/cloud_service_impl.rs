@@ -551,6 +551,7 @@ where
     &self,
     workspace_id: String,
     plan: SubscriptionPlan,
+    reason: Option<String>,
   ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
@@ -560,6 +561,7 @@ where
           workspace_id,
           plan,
           sync: true,
+          reason,
         })
         .await?;
       Ok(())

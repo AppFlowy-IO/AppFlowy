@@ -303,6 +303,7 @@ pub trait UserCloudService: Send + Sync + 'static {
     &self,
     workspace_id: String,
     plan: SubscriptionPlan,
+    reason: Option<String>,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }

@@ -189,6 +189,9 @@ pub struct CancelWorkspaceSubscriptionPB {
 
   #[pb(index = 2)]
   pub plan: SubscriptionPlanPB,
+
+  #[pb(index = 3)]
+  pub reason: String,
 }
 
 #[derive(ProtoBuf, Default, Clone)]
