@@ -710,7 +710,6 @@ class _SpaceHintButtonState extends State<SpaceHintButton> {
       children: [
         _MigrationTitle(
           title: widget.expandedTitle,
-          onClose: () => setState(() => _isExpanded = false),
         ),
         const VSpace(6.0),
         Opacity(
