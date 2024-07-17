@@ -90,7 +90,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               ),
             );
 
-            if (shouldShowUpgradeDialog && !integrationMode().isTest) {
+            if (spaces.isEmpty &&
+                shouldShowUpgradeDialog &&
+                !integrationMode().isTest) {
               add(const SpaceEvent.migrate());
             }
 
@@ -270,12 +272,18 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           didReceiveSpaceUpdate: () async {
-            final (spaces, _, _) = await _getSpaces();
+            final (spaces, publicViews, privateViews) = await _getSpaces();
             final currentSpace = await _getLastOpenedSpace(spaces);
+            final shouldShowUpgradeDialog = await this.shouldShowUpgradeDialog(
+              spaces: spaces,
+              publicViews: publicViews,
+              privateViews: privateViews,
+            );
             emit(
               state.copyWith(
                 spaces: spaces,
                 currentSpace: currentSpace,
+                shouldShowUpgradeDialog: shouldShowUpgradeDialog,
               ),
             );
           },
@@ -297,6 +305,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           migrate: () async {
             final result = await migrate();
             emit(state.copyWith(shouldShowUpgradeDialog: !result));
+            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
           switchToNextSpace: () async {
             final spaces = state.spaces;
@@ -628,7 +637,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     final publicSpaces = spaces.where(
       (e) => e.spacePermission == SpacePermission.publicToAll,
     );
-    if (publicSpaces.isEmpty && publicViews.isNotEmpty) {
+    if (publicSpaces.length != publicViews.length) {
       return true;
     }
 

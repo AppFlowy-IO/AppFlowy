@@ -1,7 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy_backend/log.dart';
@@ -194,6 +196,60 @@ class WorkspaceDataManager {
     Log.info('[workspace] done checking view health');
 
     return unlistedChildViews;
+  }
+
+  static Future<void> checkViewsOutOfSpace({
+    bool dryRun = true,
+  }) async {
+    try {
+      final currentWorkspace =
+          await UserBackendService.getCurrentWorkspace().getOrThrow();
+      final workspaceService =
+          WorkspaceService(workspaceId: currentWorkspace.id);
+      final publicViews = await workspaceService.getPublicViews().getOrThrow();
+      final publicSpaces = publicViews
+          .where(
+            (e) =>
+                e.isSpace && e.spacePermission == SpacePermission.publicToAll,
+          )
+          .toList();
+
+      if (publicSpaces.isEmpty) {
+        Log.info('[workspace] no public spaces found');
+        return;
+      }
+
+      if (publicViews.length != publicSpaces.length) {
+        Log.info(
+          '[workspace] found an issue: not all public views are public spaces',
+        );
+
+        for (final view in publicViews) {
+          if (view.isSpace) {
+            continue;
+          }
+
+          Log.info(
+            '[workspace] found an issue: view is not a public space: $view',
+          );
+
+          // move the view to the space
+          if (!dryRun) {
+            await ViewBackendService.moveViewV2(
+              viewId: view.id,
+              newParentId: publicSpaces.first.id,
+              prevViewId: null,
+            );
+
+            Log.info(
+              '[workspace] moved view($view) to the public space(${publicSpaces.first})',
+            );
+          }
+        }
+      }
+    } catch (e) {
+      Log.error('[workspace] Failed to check views out of space: $e');
+    }
   }
 
   static void dumpViews(String prefix, List<ViewPB> views) {

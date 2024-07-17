@@ -654,3 +654,186 @@ class _SpaceSearchFieldState extends State<SpaceSearchField> {
     );
   }
 }
+
+class SpaceHintButton extends StatefulWidget {
+  const SpaceHintButton({
+    super.key,
+    required this.collapsedTitle,
+    required this.expandedTitle,
+    required this.expandedDescription,
+    required this.expandedButtonLabel,
+    this.onClick,
+  });
+
+  final String collapsedTitle;
+
+  final String expandedTitle;
+  final String expandedDescription;
+
+  final String expandedButtonLabel;
+
+  final VoidCallback? onClick;
+
+  @override
+  State<SpaceHintButton> createState() => _SpaceHintButtonState();
+}
+
+class _SpaceHintButtonState extends State<SpaceHintButton> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        color: Theme.of(context).isLightMode
+            ? const Color(0x66F5EAFF)
+            : const Color(0x1AFFFFFF),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(
+            strokeAlign: BorderSide.strokeAlignOutside,
+            color: Color(0x339327FF),
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      child: _isExpanded
+          ? _buildExpandedMigrationContent()
+          : _buildCollapsedMigrationContent(),
+    );
+  }
+
+  Widget _buildExpandedMigrationContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _MigrationTitle(
+          title: widget.expandedTitle,
+          onClose: () => setState(() => _isExpanded = false),
+        ),
+        const VSpace(6.0),
+        Opacity(
+          opacity: 0.7,
+          child: FlowyText.regular(
+            widget.expandedDescription,
+            maxLines: null,
+            fontSize: 13.0,
+            lineHeight: 1.3,
+          ),
+        ),
+        const VSpace(12.0),
+        _ExpandedUpgradeButton(
+          label: widget.expandedButtonLabel,
+          onUpgrade: widget.onClick,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCollapsedMigrationContent() {
+    const linearGradient = LinearGradient(
+      begin: Alignment.bottomLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        Color(0xFF8032FF),
+        Color(0xFFEF35FF),
+      ],
+      stops: [
+        0.1545,
+        0.8225,
+      ],
+    );
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => setState(() => _isExpanded = true),
+      child: Row(
+        children: [
+          const FlowySvg(
+            FlowySvgs.upgrade_s,
+            blendMode: null,
+          ),
+          const HSpace(8.0),
+          Expanded(
+            child: ShaderMask(
+              shaderCallback: (Rect bounds) =>
+                  linearGradient.createShader(bounds),
+              blendMode: BlendMode.srcIn,
+              child: FlowyText(
+                widget.collapsedTitle,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          const FlowySvg(
+            FlowySvgs.space_arrow_right_s,
+            blendMode: null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MigrationTitle extends StatelessWidget {
+  const _MigrationTitle({
+    required this.title,
+    required this.onClose,
+  });
+
+  final String title;
+  final VoidCallback? onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const FlowySvg(
+          FlowySvgs.upgrade_s,
+          blendMode: null,
+        ),
+        const HSpace(8.0),
+        Expanded(
+          child: FlowyText(
+            title,
+            maxLines: 3,
+            lineHeight: 1.2,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ExpandedUpgradeButton extends StatelessWidget {
+  const _ExpandedUpgradeButton({
+    required this.label,
+    required this.onUpgrade,
+  });
+
+  final String label;
+  final VoidCallback? onUpgrade;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onUpgrade,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: ShapeDecoration(
+          color: const Color(0xFFA44AFD),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+        ),
+        child: FlowyText(
+          label,
+          color: Colors.white,
+          fontSize: 12.0,
+          strutStyle: const StrutStyle(forceStrutHeight: true),
+        ),
+      ),
+    );
+  }
+}

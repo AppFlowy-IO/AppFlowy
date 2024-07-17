@@ -2062,7 +2062,10 @@
     "quicklySwitch": "Quickly switch to the next space",
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
-    "switchSpace": "Switch space"
+    "switchSpace": "Switch space",
+    "optimizeYourSpace": "Optimize your spaces",
+    "optimizeYourSpaceDescription": "Optimize your spaces storage and performance",
+    "optimize": "Optimize"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",

@@ -26,6 +26,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_migration.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_optimization.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -420,7 +421,9 @@ class _SidebarState extends State<_Sidebar> {
                   right: 4.0,
                   top: 8.0,
                 ),
-            child: const SpaceMigration(),
+            child: spaceState.spaces.isEmpty
+                ? const SpaceMigration()
+                : const SpaceOptimization(),
           );
   }
 
