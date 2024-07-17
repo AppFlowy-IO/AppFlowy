@@ -115,7 +115,9 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       emit(
         state.copyWith(
           status: ShortcutsStatus.failure,
-          error: LocaleKeys.settings_shortcutsPage_couldNotSaveErrorMsg.tr(),
+          error: LocaleKeys
+              .settings_shortcutsPage_couldNotResetShortcutsErrorMsg
+              .tr(),
         ),
       );
     }
@@ -144,8 +146,8 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       emit(
         state.copyWith(
           status: ShortcutsStatus.failure,
-          // TODO: replace this string with the correct localized string.
-          error: LocaleKeys.settings_shortcutsPage_couldNotSaveErrorMsg.tr(),
+          error: LocaleKeys.settings_shortcutsPage_couldNotResetSingleErrorMsg
+              .tr(),
         ),
       );
     }

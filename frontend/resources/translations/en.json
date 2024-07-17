@@ -531,6 +531,7 @@
         "confirmLabel": "Continue"
       },
       "editTooltip": "Press to start editing the keybinding",
+      "resetSingleTooltip":"Reset this shortcut",
       "keybindings": {
         "toggleToDoList": "Toggle to do list",
         "insertNewParagraphInCodeblock": "Insert new paragraph",
@@ -614,7 +615,9 @@
         "textAlignRight": "Align text to the right"
       },
       "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
-      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
+      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again",
+      "couldNotResetSingleErrorMsg": "Could not reset this shortcut, Try again",
+      "couldNotResetShortcutsErrorMsg": "Could not reset all shortcuts, Try again"
     },
     "aiPage": {
       "title": "AI Settings",

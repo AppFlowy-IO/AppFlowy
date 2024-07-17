@@ -429,9 +429,9 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: FlowyTooltip(
-                      message:
-                          //TODO: replace the localized string with the correct one
-                          LocaleKeys.settings_shortcutsPage_editTooltip.tr(),
+                      message: LocaleKeys
+                          .settings_shortcutsPage_resetSingleTooltip
+                          .tr(),
                       child: const FlowySvg(
                         FlowySvgs.restore_s,
                         size: Size.square(16),
