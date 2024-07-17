@@ -15,7 +15,7 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
     listener.start(
       stateCallback: (pluginState) {
         if (!isClosed) {
-          add(ChatFileEvent.updateLocalAIState(pluginState));
+          add(ChatFileEvent.updateLocalAIToggleState(pluginState));
         }
       },
     );
@@ -24,11 +24,13 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            final result = await ChatEventGetPluginState().send();
+            final result = await ChatEventGetLocalAIPluginState().send();
             result.fold(
-              (pluginState) {
+              (toggleState) {
                 if (!isClosed) {
-                  add(ChatFileEvent.updateLocalAIState(pluginState));
+                  add(
+                    ChatFileEvent.updateLocalAIToggleState(toggleState),
+                  );
                 }
               },
               (err) {},
@@ -38,7 +40,7 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
             final payload = ChatFilePB(filePath: filePath, chatId: chatId);
             ChatEventChatWithFile(payload).send();
           },
-          updateLocalAIState: (PluginStatePB pluginState) {
+          updateLocalAIToggleState: (LocalAIPluginStatePB pluginState) {
             emit(
               state.copyWith(
                 supportChatWithFile:
@@ -64,8 +66,9 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
 class ChatFileEvent with _$ChatFileEvent {
   const factory ChatFileEvent.initial() = Initial;
   const factory ChatFileEvent.newFile(String filePath) = _NewFile;
-  const factory ChatFileEvent.updateLocalAIState(PluginStatePB pluginState) =
-      _UpdateLocalAIState;
+  const factory ChatFileEvent.updateLocalAIToggleState(
+    LocalAIPluginStatePB pluginState,
+  ) = _UpdateLocalAIToggleState;
 }
 
 @freezed

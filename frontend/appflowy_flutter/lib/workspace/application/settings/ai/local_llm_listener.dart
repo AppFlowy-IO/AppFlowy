@@ -9,12 +9,12 @@ import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
-typedef PluginStateCallback = void Function(PluginStatePB state);
+typedef PluginStateCallback = void Function(LocalAIPluginStatePB state);
 
 class LocalLLMListener {
   LocalLLMListener() {
     _parser =
-        ChatNotificationParser(id: "appflowy_chat_plugin", callback: _callback);
+        ChatNotificationParser(id: "appflowy_ai_plugin", callback: _callback);
     _subscription = RustStreamReceiver.listen(
       (observable) => _parser?.parse(observable),
     );
@@ -39,7 +39,7 @@ class LocalLLMListener {
     result.map((r) {
       switch (ty) {
         case ChatNotification.UpdateChatPluginState:
-          stateCallback?.call(PluginStatePB.fromBuffer(r));
+          stateCallback?.call(LocalAIPluginStatePB.fromBuffer(r));
           break;
         default:
           break;

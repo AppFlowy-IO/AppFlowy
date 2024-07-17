@@ -40,8 +40,15 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
       ChatEvent::CancelDownloadLLMResource,
       cancel_download_llm_resource_handler,
     )
-    .event(ChatEvent::GetPluginState, get_plugin_state_handler)
-    .event(ChatEvent::RestartLocalAI, restart_local_ai_handler)
+    .event(ChatEvent::GetLocalAIPluginState, get_plugin_state_handler)
+    .event(ChatEvent::ToggleLocalAIChat, toggle_local_ai_chat_handler)
+    .event(
+      ChatEvent::GetLocalAIChatToggleState,
+      get_local_ai_chat_state_handler,
+    )
+    .event(ChatEvent::RestartLocalAIChat, restart_local_ai_chat_handler)
+    .event(ChatEvent::ToggleLocalAI, toggle_local_ai_handler)
+    .event(ChatEvent::GetLocalAIToggleState, get_local_ai_state_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -90,9 +97,21 @@ pub enum ChatEvent {
   #[event()]
   CancelDownloadLLMResource = 13,
 
-  #[event(output = "PluginStatePB")]
-  GetPluginState = 14,
+  #[event(output = "LocalAIPluginStatePB")]
+  GetLocalAIPluginState = 14,
+
+  #[event(output = "LocalAIChatPB")]
+  ToggleLocalAIChat = 15,
+
+  #[event(output = "LocalAIChatPB")]
+  GetLocalAIChatToggleState = 16,
 
   #[event()]
-  RestartLocalAI = 15,
+  RestartLocalAIChat = 17,
+
+  #[event(output = "LocalAIPB")]
+  ToggleLocalAI = 18,
+
+  #[event(output = "LocalAIPB")]
+  GetLocalAIToggleState = 19,
 }

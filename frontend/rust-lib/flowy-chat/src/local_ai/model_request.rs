@@ -5,6 +5,7 @@ use reqwest::{Client, Response, StatusCode};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 use tokio::fs::{self, File};
 use tokio::io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt};
 
@@ -29,6 +30,11 @@ pub async fn download_model(
   let mut part_file = File::create(&partial_path).await?;
   let mut downloaded: u64 = 0;
 
+  let debounce_duration = Duration::from_millis(100);
+  let mut last_update = Instant::now()
+    .checked_sub(debounce_duration)
+    .unwrap_or(Instant::now());
+
   while let Some(chunk) = response.chunk().await? {
     if let Some(cancel_token) = &cancel_token {
       if cancel_token.is_cancelled() {
@@ -42,7 +48,11 @@ pub async fn download_model(
     downloaded += chunk.len() as u64;
 
     if let Some(progress_callback) = &progress_callback {
-      progress_callback(downloaded, total_size_in_bytes);
+      let now = Instant::now();
+      if now.duration_since(last_update) >= debounce_duration {
+        progress_callback(downloaded, total_size_in_bytes);
+        last_update = now;
+      }
     }
   }
 

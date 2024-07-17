@@ -14,9 +14,10 @@ use parking_lot::RwLock;
 use appflowy_local_ai::plugin_request::download_plugin;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Duration;
 use tokio::fs::{self};
 use tokio_util::sync::CancellationToken;
-use tracing::{debug, error, info, instrument, trace};
+use tracing::{debug, error, info, instrument, trace, warn};
 use zip_extensions::zip_extract;
 
 #[async_trait]
@@ -41,7 +42,7 @@ pub struct DownloadTask {
 }
 impl DownloadTask {
   pub fn new() -> Self {
-    let (tx, _) = tokio::sync::broadcast::channel(5);
+    let (tx, _) = tokio::sync::broadcast::channel(100);
     let cancel_token = CancellationToken::new();
     Self { cancel_token, tx }
   }
@@ -302,6 +303,7 @@ impl LLMResourceController {
             let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
             let _ = plugin_progress_tx.send(format!("plugin:progress:{}", progress));
           })),
+          Some(Duration::from_millis(100)),
         )
         .await?;
 
@@ -342,7 +344,11 @@ impl LLMResourceController {
         let cloned_model_name = model_name.clone();
         let progress = Arc::new(move |downloaded, total_size| {
           let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
-          let _ = plugin_progress_tx.send(format!("{}:progress:{}", cloned_model_name, progress));
+          if let Err(err) =
+            plugin_progress_tx.send(format!("{}:progress:{}", cloned_model_name, progress))
+          {
+            warn!("Failed to send progress: {:?}", err);
+          }
         });
         match download_model(
           &url,
@@ -432,6 +438,14 @@ impl LLMResourceController {
         FlowyError::local_ai()
           .with_context("Can't retrieve model info. Please try again later".to_string())
       })
+  }
+
+  pub fn get_selected_model(&self) -> Option<LLMModel> {
+    self
+      .llm_setting
+      .read()
+      .as_ref()
+      .map(|setting| setting.llm_model.clone())
   }
 
   /// Selects the appropriate model based on the current settings or defaults to the first model.

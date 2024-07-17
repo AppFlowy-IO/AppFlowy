@@ -1,4 +1,4 @@
-import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_config.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/model_selection.dart';
 import 'package:flutter/material.dart';
 
@@ -44,10 +44,7 @@ class SettingsAIView extends StatelessWidget {
             const AIModelSelection(),
           ];
 
-          if (state.aiSettings != null &&
-              state.aiSettings!.aiModel == AIModelPB.LocalAIModel) {
-            children.add(const LocalModelConfig());
-          }
+          children.add(const LocalAISetting());
 
           children.add(const _AISearchToggle(value: false));
 
