@@ -467,11 +467,12 @@ impl UserManager {
     &self,
     workspace_id: String,
     plan: SubscriptionPlan,
+    reason: Option<String>,
   ) -> FlowyResult<()> {
     self
       .cloud_services
       .get_user_service()?
-      .cancel_workspace_subscription(workspace_id, plan)
+      .cancel_workspace_subscription(workspace_id, plan, reason)
       .await?;
     Ok(())
   }

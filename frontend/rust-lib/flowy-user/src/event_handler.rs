@@ -794,7 +794,7 @@ pub async fn cancel_workspace_subscription_handler(
   let params = param.into_inner();
   let manager = upgrade_manager(manager)?;
   manager
-    .cancel_workspace_subscription(params.workspace_id, params.plan.into())
+    .cancel_workspace_subscription(params.workspace_id, params.plan.into(), Some(params.reason))
     .await?;
   Ok(())
 }
