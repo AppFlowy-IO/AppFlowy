@@ -207,6 +207,11 @@ impl DatabaseManager {
     })
   }
 
+  pub async fn get_database_row_ids_with_view_id(&self, view_id: &str) -> FlowyResult<Vec<RowId>> {
+    let database = self.get_database_with_view_id(view_id).await?;
+    Ok(database.get_row_ids())
+  }
+
   pub async fn get_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     if let Some(editor) = self.editors.lock().await.get(database_id).cloned() {
       return Ok(editor);

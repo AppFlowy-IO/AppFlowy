@@ -14,6 +14,7 @@ use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
 use crate::entities::{CreateViewParams, ViewLayoutPB};
+use crate::manager::FolderUser;
 use crate::share::ImportType;
 
 pub type ViewData = Bytes;
@@ -66,6 +67,15 @@ pub trait FolderOperationHandler {
 
   /// Encoded the collab data of the given view.
   fn get_encoded_collab_v1(&self, view_id: &str) -> FutureResult<EncodedCollabWrapper, FlowyError>;
+
+  /// get the encoded collab data from the disk.
+  fn get_encode_collab_v1_from_disk(
+    &self,
+    _user: Arc<dyn FolderUser>,
+    _view_id: &str,
+  ) -> FutureResult<EncodedCollabWrapper, FlowyError> {
+    FutureResult::new(async move { Err(FlowyError::not_support()) })
+  }
 
   /// Create a view with the data.
   ///

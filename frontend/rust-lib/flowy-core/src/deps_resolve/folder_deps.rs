@@ -1,5 +1,6 @@
 use bytes::Bytes;
-use collab_entity::EncodedCollab;
+
+use collab_entity::{CollabType, EncodedCollab};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_chat::chat_manager::ChatManager;
@@ -23,6 +24,7 @@ use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
+use flowy_user::services::data_import::{load_collab_by_object_id, load_collab_by_object_ids};
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
 use std::collections::HashMap;
@@ -31,6 +33,8 @@ use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 
 use crate::integrate::server::ServerProvider;
+
+use collab_plugins::local_storage::kv::KVTransactionDB;
 
 pub struct FolderDepsResolver();
 #[allow(clippy::too_many_arguments)]
@@ -210,6 +214,49 @@ impl FolderOperationHandler for DocumentFolderOperation {
     })
   }
 
+  fn get_encode_collab_v1_from_disk(
+    &self,
+    user: Arc<dyn FolderUser>,
+    view_id: &str,
+  ) -> FutureResult<EncodedCollabWrapper, FlowyError> {
+    // get the collab_object_id for the document.
+    // the collab_object_id for the document is the view_id.
+    let oid = view_id.to_string();
+
+    FutureResult::new(async move {
+      let uid = user
+        .user_id()
+        .map_err(|e| e.with_context("unable to get the uid: {}"))?;
+
+      // get the collab db
+      let collab_db = user
+        .collab_db(uid)
+        .map_err(|e| e.with_context("unable to get the collab"))?;
+      let collab_db = collab_db.upgrade().ok_or_else(|| {
+        FlowyError::internal().with_context(
+          "The collab db has been dropped, indicating that the user has switched to a new account",
+        )
+      })?;
+      let collab_read_txn = collab_db.read_txn();
+
+      // read the collab from the db
+      let collab = load_collab_by_object_id(uid, &collab_read_txn, &oid).map_err(|e| {
+        FlowyError::internal().with_context(format!("load document collab failed: {}", e))
+      })?;
+
+      let encoded_collab = collab
+        // encode the collab and check the integrity of the collab
+        .encode_collab_v1(|collab| CollabType::Document.validate_require_data(collab))
+        .map_err(|e| {
+          FlowyError::internal().with_context(format!("encode document collab failed: {}", e))
+        })?;
+
+      Ok(EncodedCollabWrapper::Document(DocumentEncodedCollab {
+        document_encoded_collab: encoded_collab,
+      }))
+    })
+  }
+
   /// Create a view with built-in data.
   fn create_built_in_view(
     &self,
@@ -294,6 +341,88 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         Err(e) => tracing::error!("🔴delete database failed: {}", e),
       }
       Ok(())
+    })
+  }
+
+  fn get_encode_collab_v1_from_disk(
+    &self,
+    user: Arc<dyn FolderUser>,
+    view_id: &str,
+  ) -> FutureResult<EncodedCollabWrapper, FlowyError> {
+    let manager = self.0.clone();
+    let view_id = view_id.to_string();
+
+    FutureResult::new(async move {
+      // get the collab_object_id for the database.
+      //
+      // the collab object_id for the database is not the view_id,
+      //  we should use the view_id to get the database_id
+      let oid = manager.get_database_id_with_view_id(&view_id).await?;
+      let row_oids = manager.get_database_row_ids_with_view_id(&view_id).await?;
+      let row_oids = row_oids
+        .into_iter()
+        .map(|oid| oid.into_inner())
+        .collect::<Vec<_>>();
+      let database_metas = manager.get_all_databases_meta().await;
+
+      let uid = user
+        .user_id()
+        .map_err(|e| e.with_context("unable to get the uid: {}"))?;
+
+      // get the collab db
+      let collab_db = user
+        .collab_db(uid)
+        .map_err(|e| e.with_context("unable to get the collab"))?;
+      let collab_db = collab_db.upgrade().ok_or_else(|| {
+        FlowyError::internal().with_context(
+          "The collab db has been dropped, indicating that the user has switched to a new account",
+        )
+      })?;
+
+      let collab_read_txn = collab_db.read_txn();
+
+      // read the database collab from the db
+      let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &oid).map_err(|e| {
+        FlowyError::internal().with_context(format!("load database collab failed: {}", e))
+      })?;
+
+      let database_encoded_collab = database_collab
+        // encode the collab and check the integrity of the collab
+        .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
+        .map_err(|e| {
+          FlowyError::internal().with_context(format!("encode database collab failed: {}", e))
+        })?;
+
+      // read the database rows collab from the db
+      let database_row_collabs = load_collab_by_object_ids(uid, &collab_read_txn, &row_oids);
+      let database_row_encoded_collabs = database_row_collabs
+        .into_iter()
+        .map(|(oid, collab)| {
+          // encode the collab and check the integrity of the collab
+          let encoded_collab = collab
+            .encode_collab_v1(|collab| CollabType::DatabaseRow.validate_require_data(collab))
+            .map_err(|e| {
+              FlowyError::internal()
+                .with_context(format!("encode database row collab failed: {}", e))
+            })?;
+          Ok((oid, encoded_collab))
+        })
+        .collect::<Result<HashMap<_, _>, FlowyError>>()?;
+
+      // get the relation info from the database meta
+      let database_relations = database_metas
+        .into_iter()
+        .filter_map(|meta| {
+          let linked_views = meta.linked_views.into_iter().next()?;
+          Some((meta.database_id, linked_views))
+        })
+        .collect::<HashMap<_, _>>();
+
+      Ok(EncodedCollabWrapper::Database(DatabaseEncodedCollab {
+        database_encoded_collab,
+        database_row_encoded_collabs,
+        database_relations,
+      }))
     })
   }
 
