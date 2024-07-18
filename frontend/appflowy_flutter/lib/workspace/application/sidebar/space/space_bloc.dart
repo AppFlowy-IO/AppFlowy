@@ -141,7 +141,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             if (deletedSpace == null) {
               return;
             }
-            await ViewBackendService.delete(viewId: deletedSpace.id);
+            await ViewBackendService.deleteView(viewId: deletedSpace.id);
           },
           rename: (space, name) async {
             add(SpaceEvent.update(name: name));
@@ -433,6 +433,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       workspaceId: workspaceId,
     )..start(
         sectionChanged: (result) async {
+          Log.info('did receive section views changed');
           add(const SpaceEvent.didReceiveSpaceUpdate());
         },
       );
@@ -503,6 +504,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     if (_workspaceId == null) {
       return false;
     }
+
     try {
       final user =
           await UserBackendService.getCurrentUserProfile().getOrThrow();
@@ -526,6 +528,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           (e) => e.isSpace && e.spacePermission == SpacePermission.publicToAll,
         );
         publicViews = publicViews.where((e) => !e.isSpace).toList();
+
+        for (final view in publicViews) {
+          Log.info(
+            'migrating: the public view should be migrated: ${view.name}(${view.id})',
+          );
+        }
+
         // if there is already a public space, don't migrate the public space
         // only migrate the public space if there are any public views
         if (publicViews.isEmpty || containsPublicSpace) {
@@ -568,6 +577,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         (e) => e.isSpace && e.spacePermission == SpacePermission.private,
       );
       privateViews = privateViews.where((e) => !e.isSpace).toList();
+
+      for (final view in privateViews) {
+        Log.info(
+          'migrating: the private view should be migrated: ${view.name}(${view.id})',
+        );
+      }
+
       if (privateViews.isEmpty || containsPrivateSpace) {
         return true;
       }

@@ -1,15 +1,18 @@
-export 'package:async/async.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
+import 'dart:io';
+import 'dart:isolate';
+
 import 'package:appflowy_backend/rust_stream.dart';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'dart:ffi';
-import 'ffi.dart' as ffi;
-import 'package:ffi/ffi.dart';
-import 'dart:isolate';
-import 'dart:io';
 import 'package:logger/logger.dart';
+
+import 'ffi.dart' as ffi;
+
+export 'package:async/async.dart';
 
 enum ExceptionType {
   AppearanceSettingsIsEmpty,
@@ -72,7 +75,8 @@ class RustLogStreamReceiver {
         lineLength: 120, // width of the output
         colors: false, // Colorful log messages
         printEmojis: false, // Print an emoji for each log message
-        printTime: false, // Should each log print contain a timestamp
+        dateTimeFormat:
+            DateTimeFormat.none, // Should each log print contain a timestamp
       ),
       level: kDebugMode ? Level.trace : Level.info,
     );

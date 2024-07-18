@@ -52,7 +52,7 @@ class DatabaseTabBarBloc
             _createLinkedView(layout.layoutType, name ?? layout.layoutName);
           },
           deleteView: (String viewId) async {
-            final result = await ViewBackendService.delete(viewId: viewId);
+            final result = await ViewBackendService.deleteView(viewId: viewId);
             result.fold(
               (l) {},
               (r) => Log.error(r),
