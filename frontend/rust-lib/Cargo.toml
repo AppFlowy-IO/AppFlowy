@@ -103,7 +103,7 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "f73
 client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "f73b603dc4569ea3f23c41901564b90691ac1aaa" }
 
 [profile.dev]
-opt-level = 1
+opt-level = 0
 lto = false
 codegen-units = 16
 debug = true
@@ -119,12 +119,8 @@ debug = true
 codegen-units = 16
 lto = false
 
-## debuginfo — it makes ./target much bigger, which again harms caching. Depending on your preferred workflow,
-## you might consider disabling debuginfo unconditionally, this brings some benefits for local builds as well.
 #strip = "debuginfo"
-## For from-scratch builds, incremental adds an extra dependency-tracking overhead. It also significantly increases
-## the amount of IO and the size of ./target, which make caching less effective.
-incremental = false
+incremental = true
 
 [patch.crates-io]
 # TODO(Lucas.Xu) Upgrade to the latest version of RocksDB once PR(https://github.com/rust-rocksdb/rust-rocksdb/pull/869) is merged.

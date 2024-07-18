@@ -182,6 +182,10 @@ impl LocalAIController {
   }
 
   pub fn open_chat(&self, chat_id: &str) {
+    if !self.is_chat_enabled() {
+      return;
+    }
+
     if !self.is_running() {
       return;
     }
