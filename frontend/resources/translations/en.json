@@ -1189,7 +1189,9 @@
       "timeTypeTimer": "Timer",
       "timeTypeStopwatch": "Stopwatch",
       "timePrecisionSeconds": "Seconds",
-      "timePrecisionMinutes": "Minutes"
+      "timePrecisionMinutes": "Minutes",
+      "timeStartTracking": "Start tracking",
+      "timeStopTracking": "Stop tracking"
     },
     "rowPage": {
       "newField": "Add a new field",

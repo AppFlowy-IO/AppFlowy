@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:collection/collection.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/time_entities.pb.dart';
@@ -40,19 +41,19 @@ class TimeCellEditorBloc
             );
           },
           addTimeTrack: (DateTime date, int duration) async {
-            final fromTimeStamp = date.millisecondsSinceEpoch ~/ 1000;
+            final fromTimestamp = date.millisecondsSinceEpoch ~/ 1000;
 
-            await _timeCellBackendService.addTimeTrack(fromTimeStamp, duration);
+            await _timeCellBackendService.addTimeTrack(fromTimestamp, duration);
           },
           deleteTimeTrack: (String id) async {
             await _timeCellBackendService.deleteTimeTrack(id);
           },
           updateTimeTrack: (String id, DateTime date, int duration) async {
-            final fromTimeStamp = date.millisecondsSinceEpoch ~/ 1000;
+            final fromTimestamp = date.millisecondsSinceEpoch ~/ 1000;
 
             await _timeCellBackendService.updateTimeTrack(
               id,
-              fromTimeStamp,
+              fromTimestamp,
               duration,
             );
           },
@@ -61,6 +62,26 @@ class TimeCellEditorBloc
           },
           updateTimer: (int time) async {
             await _timeCellBackendService.updateTimer(time);
+          },
+          startTracking: () async {
+            final fromTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+            await _timeCellBackendService.startTracking(fromTimestamp);
+          },
+          stopTracking: () async {
+            final timeTrack = state.trackingTimeTrack;
+            if (timeTrack == null) {
+              return;
+            }
+
+            final duration = DateTime.now().millisecondsSinceEpoch ~/ 1000 -
+                timeTrack.fromTimestamp.toInt();
+
+            await _timeCellBackendService.updateTimeTrack(
+              timeTrack.id,
+              timeTrack.fromTimestamp.toInt(),
+              duration,
+            );
           },
         );
       },
@@ -110,10 +131,16 @@ class TimeCellEditorEvent with _$TimeCellEditorEvent {
   const factory TimeCellEditorEvent.updateTime(int time) = _updateTime;
 
   const factory TimeCellEditorEvent.updateTimer(int time) = _updateTimer;
+
+  const factory TimeCellEditorEvent.startTracking() = _startTracking;
+
+  const factory TimeCellEditorEvent.stopTracking() = _stopTracking;
 }
 
 @freezed
 class TimeCellEditorState with _$TimeCellEditorState {
+  const TimeCellEditorState._();
+
   const factory TimeCellEditorState({
     required int? time,
     required int? timerStart,
@@ -131,4 +158,9 @@ class TimeCellEditorState with _$TimeCellEditorState {
       timeTracks: cellData?.timeTracks ?? [],
     );
   }
+
+  bool get isTracking => timeTracks.any((tt) => tt.toTimestamp == 0);
+
+  TimeTrackPB? get trackingTimeTrack =>
+      timeTracks.firstWhereOrNull((tt) => tt.toTimestamp == 0);
 }

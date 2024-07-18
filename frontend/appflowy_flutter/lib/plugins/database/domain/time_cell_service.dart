@@ -18,14 +18,14 @@ final class TimeCellBackendService {
   final CellIdPB cellId;
 
   Future<FlowyResult<void, FlowyError>> addTimeTrack(
-    int fromTimeStamp,
+    int fromTimestamp,
     int duration,
   ) {
     final payload = TimeCellChangesetPB.create()..cellId = cellId;
     payload.addTimeTrackings.add(
       TimeTrackPB(
-        fromTimestamp: Int64(fromTimeStamp),
-        toTimestamp: Int64(fromTimeStamp + duration),
+        fromTimestamp: Int64(fromTimestamp),
+        toTimestamp: Int64(fromTimestamp + duration),
       ),
     );
 
@@ -34,15 +34,15 @@ final class TimeCellBackendService {
 
   Future<FlowyResult<void, FlowyError>> updateTimeTrack(
     String id,
-    int fromTimeStamp,
+    int fromTimestamp,
     int duration,
   ) {
     final payload = TimeCellChangesetPB.create()..cellId = cellId;
     payload.updateTimeTrackings.add(
       TimeTrackPB(
         id: id,
-        fromTimestamp: Int64(fromTimeStamp),
-        toTimestamp: Int64(fromTimeStamp + duration),
+        fromTimestamp: Int64(fromTimestamp),
+        toTimestamp: Int64(fromTimestamp + duration),
       ),
     );
 
@@ -68,6 +68,15 @@ final class TimeCellBackendService {
     final payload = TimeCellChangesetPB.create()
       ..cellId = cellId
       ..timerStart = Int64(timerStart);
+
+    return DatabaseEventUpdateTimeCell(payload).send();
+  }
+
+  Future<FlowyResult<void, FlowyError>> startTracking(int fromTimestamp) {
+    final payload = TimeCellChangesetPB.create()..cellId = cellId;
+    payload.addTimeTrackings.add(
+      TimeTrackPB(fromTimestamp: Int64(fromTimestamp)),
+    );
 
     return DatabaseEventUpdateTimeCell(payload).send();
   }
