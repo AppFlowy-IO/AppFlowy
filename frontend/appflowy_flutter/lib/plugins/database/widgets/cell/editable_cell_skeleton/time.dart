@@ -127,7 +127,7 @@ class _TimeCellState extends GridEditableTextCell<EditableTimeCell> {
         !cellBloc.isClosed &&
         cellBloc.state.content != _textEditingController.text.trim()) {
       cellBloc
-          .add(TimeCellEvent.updateCell(_textEditingController.text.trim()));
+          .add(TimeCellEvent.updateTime(_textEditingController.text.trim()));
     }
     return super.focusChanged();
   }

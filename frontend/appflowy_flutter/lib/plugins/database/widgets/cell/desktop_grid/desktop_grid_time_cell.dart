@@ -48,7 +48,9 @@ class DesktopGridTimeCellSkin extends IEditableTimeCellSkin {
           },
           focusNode: focusNode,
           onEditingComplete: () => focusNode.unfocus(),
-          onSubmitted: (_) => focusNode.unfocus(),
+          onSubmitted: (_)  {
+focusNode.unfocus();
+          },
           maxLines: context.watch<TimeCellBloc>().state.wrap ? null : 1,
           style: Theme.of(context).textTheme.bodyMedium,
           textInputAction: TextInputAction.done,

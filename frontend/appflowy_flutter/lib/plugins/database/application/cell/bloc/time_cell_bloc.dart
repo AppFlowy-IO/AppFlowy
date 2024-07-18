@@ -6,17 +6,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
+import 'package:appflowy/plugins/database/domain/time_cell_service.dart';
 
 part 'time_cell_bloc.freezed.dart';
 
 class TimeCellBloc extends Bloc<TimeCellEvent, TimeCellState> {
   TimeCellBloc({
     required this.cellController,
-  }) : super(TimeCellState.initial(cellController)) {
+  })  : _timeCellBackendService = TimeCellBackendService(
+          viewId: cellController.viewId,
+          fieldId: cellController.fieldId,
+          rowId: cellController.rowId,
+        ),
+        super(TimeCellState.initial(cellController)) {
     _dispatch();
     _startListening();
   }
 
+  final TimeCellBackendService _timeCellBackendService;
   final TimeCellController cellController;
   void Function()? _onCellChangedFn;
 
@@ -56,22 +63,10 @@ class TimeCellBloc extends Bloc<TimeCellEvent, TimeCellState> {
               emit(state.copyWith(wrap: wrap));
             }
           },
-          updateCell: (text) async {
-            text =
-                parseTimeToSeconds(text, state.precision)?.toString() ?? text;
+          updateTime: (String text) async {
+            final time = parseTimeToSeconds(text, state.precision);
             if (state.content != text) {
-              emit(state.copyWith(content: text));
-              await cellController.saveCellData(text);
-
-              // If the input content is "abc" that can't parsered as number
-              // then the data stored in the backend will be an empty string.
-              // So for every cell data that will be formatted in the backend.
-              // It needs to get the formatted data after saving.
-              add(
-                TimeCellEvent.didReceiveCellUpdate(
-                  cellController.getCellData(),
-                ),
-              );
+              await _timeCellBackendService.updateTime(time ?? 0);
             }
           },
         );
@@ -103,7 +98,7 @@ class TimeCellEvent with _$TimeCellEvent {
       _DidReceiveCellUpdate;
   const factory TimeCellEvent.didUpdateField(FieldInfo fieldInfo) =
       _DidUpdateField;
-  const factory TimeCellEvent.updateCell(String text) = _UpdateCell;
+  const factory TimeCellEvent.updateTime(String text) = _UpdateCell;
 }
 
 @freezed
