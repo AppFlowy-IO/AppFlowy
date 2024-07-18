@@ -44,7 +44,7 @@ class SettingsAIView extends StatelessWidget {
             const AIModelSelection(),
           ];
 
-          children.add(const LocalAISetting());
+          // children.add(const LocalAISetting());
 
           children.add(const _AISearchToggle(value: false));
 

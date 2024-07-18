@@ -403,4 +403,10 @@ pub struct LocalAIPB {
 pub struct LocalAIChatPB {
   #[pb(index = 1)]
   pub enabled: bool,
+
+  #[pb(index = 2)]
+  pub file_enabled: bool,
+
+  #[pb(index = 3)]
+  pub plugin_state: LocalAIPluginStatePB,
 }

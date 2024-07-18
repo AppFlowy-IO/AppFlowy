@@ -19,7 +19,7 @@ class LocalAIToggleBloc extends Bloc<LocalAIToggleEvent, LocalAIToggleState> {
   ) async {
     await event.when(
       started: () async {
-        final result = await ChatEventGetLocalAIToggleState().send();
+        final result = await ChatEventGetLocalAIState().send();
         _handleResult(emit, result);
       },
       toggle: () async {

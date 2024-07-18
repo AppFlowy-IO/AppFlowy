@@ -22,9 +22,11 @@ use zip_extensions::zip_extract;
 
 #[async_trait]
 pub trait LLMResourceService: Send + Sync + 'static {
-  async fn get_local_ai_config(&self) -> Result<LocalAIConfig, anyhow::Error>;
-  fn store(&self, setting: LLMSetting) -> Result<(), anyhow::Error>;
-  fn retrieve(&self) -> Option<LLMSetting>;
+  /// Get local ai configuration from remote server
+  async fn fetch_local_ai_config(&self) -> Result<LocalAIConfig, anyhow::Error>;
+  fn store_setting(&self, setting: LLMSetting) -> Result<(), anyhow::Error>;
+  fn retrieve_setting(&self) -> Option<LLMSetting>;
+  fn is_rag_enabled(&self) -> bool;
 }
 
 const PLUGIN_DIR: &str = "plugin";
@@ -68,7 +70,7 @@ impl LLMResourceController {
     resource_service: impl LLMResourceService,
     resource_notify: tokio::sync::mpsc::Sender<()>,
   ) -> Self {
-    let llm_setting = RwLock::new(resource_service.retrieve());
+    let llm_setting = RwLock::new(resource_service.retrieve_setting());
     Self {
       user_service,
       resource_service: Arc::new(resource_service),
@@ -103,7 +105,7 @@ impl LLMResourceController {
       llm_model: selected_model.clone(),
     };
     self.llm_setting.write().replace(llm_setting.clone());
-    self.resource_service.store(llm_setting)?;
+    self.resource_service.store_setting(llm_setting)?;
 
     Ok(LLMModelInfo {
       selected_model,
@@ -134,7 +136,7 @@ impl LLMResourceController {
 
     trace!("[LLM Resource] Selected AI setting: {:?}", llm_setting);
     *self.llm_setting.write() = Some(llm_setting.clone());
-    self.resource_service.store(llm_setting)?;
+    self.resource_service.store_setting(llm_setting)?;
     self.get_local_llm_state()
   }
 
@@ -390,7 +392,7 @@ impl LLMResourceController {
   }
 
   #[instrument(level = "debug", skip_all, err)]
-  pub fn get_ai_plugin_config(&self) -> FlowyResult<AIPluginConfig> {
+  pub fn get_chat_config(&self, rag_enabled: bool) -> FlowyResult<AIPluginConfig> {
     if !self.is_resource_ready() {
       return Err(FlowyError::local_ai().with_context("Local AI resources are not ready"));
     }
@@ -403,27 +405,26 @@ impl LLMResourceController {
       .ok_or_else(|| FlowyError::local_ai().with_context("No local llm setting found"))?;
 
     let model_dir = self.user_model_folder()?;
-    let resource_dir = self.resource_dir()?;
-
     let bin_path = self
       .plugin_path(&llm_setting.plugin.etag)?
       .join(llm_setting.plugin.name);
     let chat_model_path = model_dir.join(&llm_setting.llm_model.chat_model.file_name);
-    let embedding_model_path = model_dir.join(&llm_setting.llm_model.embedding_model.file_name);
     let mut config = AIPluginConfig::new(bin_path, chat_model_path)?;
 
-    //
-    let persist_directory = resource_dir.join("rag");
-    if !persist_directory.exists() {
-      std::fs::create_dir_all(&persist_directory)?;
+    if rag_enabled {
+      let resource_dir = self.resource_dir()?;
+      let embedding_model_path = model_dir.join(&llm_setting.llm_model.embedding_model.file_name);
+      let persist_directory = resource_dir.join("vectorstore");
+      if !persist_directory.exists() {
+        std::fs::create_dir_all(&persist_directory)?;
+      }
+      config.set_rag_enabled(&embedding_model_path, &persist_directory)?;
     }
-
-    // Enable RAG when the embedding model path is set
-    config.set_rag_enabled(&embedding_model_path, &persist_directory)?;
 
     if cfg!(debug_assertions) {
       config = config.with_verbose(true);
     }
+    trace!("[AI Chat] use config: {:?}", config);
     Ok(config)
   }
 
@@ -431,7 +432,7 @@ impl LLMResourceController {
   async fn fetch_ai_config(&self) -> FlowyResult<LocalAIConfig> {
     self
       .resource_service
-      .get_local_ai_config()
+      .fetch_local_ai_config()
       .await
       .map_err(|err| {
         error!("[LLM Resource] Failed to fetch local ai config: {:?}", err);
@@ -491,7 +492,7 @@ impl LLMResourceController {
       .map(|dir| dir.join(model_file_name))
   }
 
-  fn resource_dir(&self) -> FlowyResult<PathBuf> {
+  pub(crate) fn resource_dir(&self) -> FlowyResult<PathBuf> {
     let user_data_dir = self.user_service.user_data_dir()?;
     Ok(user_data_dir.join("llm"))
   }

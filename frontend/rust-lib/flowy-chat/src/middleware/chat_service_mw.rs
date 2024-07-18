@@ -1,7 +1,7 @@
 use crate::chat_manager::ChatUserService;
 use crate::entities::{ChatStatePB, ModelTypePB};
 use crate::local_ai::local_llm_chat::LocalAIController;
-use crate::notification::{send_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
+use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use crate::persistence::select_single_message;
 use appflowy_plugin::error::PluginError;
 
@@ -53,14 +53,15 @@ impl ChatServiceMiddleware {
       err,
       PluginError::PluginNotConnected | PluginError::PeerDisconnect
     ) {
-      send_notification(
+      make_notification(
         APPFLOWY_AI_NOTIFICATION_KEY,
         ChatNotification::UpdateChatPluginState,
       )
       .payload(ChatStatePB {
         model_type: ModelTypePB::LocalAI,
         available: false,
-      });
+      })
+      .send();
     }
   }
 }

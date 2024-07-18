@@ -20,7 +20,7 @@ class LocalAIChatToggleBloc
   ) async {
     await event.when(
       started: () async {
-        final result = await ChatEventGetLocalAIChatToggleState().send();
+        final result = await ChatEventGetLocalAIChatState().send();
         _handleResult(emit, result);
       },
       toggle: () async {
@@ -88,7 +88,6 @@ class LocalAIChatToggleState with _$LocalAIChatToggleState {
 
 @freezed
 class LocalAIChatToggleStateIndicator with _$LocalAIChatToggleStateIndicator {
-  // when start downloading the model
   const factory LocalAIChatToggleStateIndicator.error(FlowyError error) =
       _OnError;
   const factory LocalAIChatToggleStateIndicator.ready(bool isEnabled) = _Ready;

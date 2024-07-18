@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:appflowy/plugins/ai_chat/application/chat_notification.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-chat/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 typedef PluginStateCallback = void Function(LocalAIPluginStatePB state);
+typedef LocalAIChatCallback = void Function(LocalAIChatPB chatState);
 
 class LocalLLMListener {
   LocalLLMListener() {
@@ -24,12 +24,15 @@ class LocalLLMListener {
   ChatNotificationParser? _parser;
 
   PluginStateCallback? stateCallback;
+  LocalAIChatCallback? chatStateCallback;
   void Function()? finishStreamingCallback;
 
   void start({
     PluginStateCallback? stateCallback,
+    LocalAIChatCallback? chatStateCallback,
   }) {
     this.stateCallback = stateCallback;
+    this.chatStateCallback = chatStateCallback;
   }
 
   void _callback(
@@ -40,6 +43,9 @@ class LocalLLMListener {
       switch (ty) {
         case ChatNotification.UpdateChatPluginState:
           stateCallback?.call(LocalAIPluginStatePB.fromBuffer(r));
+          break;
+        case ChatNotification.UpdateLocalChatAI:
+          chatStateCallback?.call(LocalAIChatPB.fromBuffer(r));
           break;
         default:
           break;

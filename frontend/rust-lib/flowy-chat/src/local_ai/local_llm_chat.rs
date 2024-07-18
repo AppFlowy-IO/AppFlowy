@@ -3,7 +3,7 @@ use crate::entities::{
   ChatStatePB, LocalAIPluginStatePB, LocalModelResourcePB, ModelTypePB, RunningStatePB,
 };
 use crate::local_ai::local_llm_resource::{LLMResourceController, LLMResourceService};
-use crate::notification::{send_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
+use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use anyhow::Error;
 use appflowy_local_ai::chat_plugin::{AIPluginConfig, LocalChatLLMChat};
 use appflowy_plugin::manager::PluginManager;
@@ -35,6 +35,7 @@ pub struct LLMModelInfo {
 
 const APPFLOWY_LOCAL_AI_ENABLED: &str = "appflowy_local_ai_enabled";
 const APPFLOWY_LOCAL_AI_CHAT_ENABLED: &str = "appflowy_local_ai_chat_enabled";
+const APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED: &str = "appflowy_local_ai_chat_rag_enabled";
 const LOCAL_AI_SETTING_KEY: &str = "appflowy_local_ai_setting:v0";
 
 pub struct LocalAIController {
@@ -67,7 +68,7 @@ impl LocalAIController {
       while let Some(state) = rx.next().await {
         info!("[AI Plugin] state: {:?}", state);
         let new_state = RunningStatePB::from(state);
-        send_notification(
+        make_notification(
           APPFLOWY_AI_NOTIFICATION_KEY,
           ChatNotification::UpdateChatPluginState,
         )
@@ -84,12 +85,21 @@ impl LocalAIController {
 
     let (tx, mut rx) = tokio::sync::mpsc::channel(1);
     let llm_res = Arc::new(LLMResourceController::new(user_service, res_impl, tx));
+    let current_chat_id = Mutex::new(None);
 
-    let cloned_llm_chat = llm_chat.clone();
-    let cloned_llm_res = llm_res.clone();
+    let this = Self {
+      llm_chat,
+      llm_res,
+      current_chat_id,
+      store_preferences,
+    };
+
+    let rag_enabled = this.is_rag_enabled();
+    let cloned_llm_chat = this.llm_chat.clone();
+    let cloned_llm_res = this.llm_res.clone();
     tokio::spawn(async move {
       while rx.recv().await.is_some() {
-        if let Ok(chat_config) = cloned_llm_res.get_ai_plugin_config() {
+        if let Ok(chat_config) = cloned_llm_res.get_chat_config(rag_enabled) {
           if let Err(err) = initialize_chat_plugin(&cloned_llm_chat, chat_config) {
             error!("[AI Plugin] failed to setup plugin: {:?}", err);
           }
@@ -97,12 +107,7 @@ impl LocalAIController {
       }
     });
 
-    Self {
-      llm_chat,
-      llm_res,
-      current_chat_id: Default::default(),
-      store_preferences,
-    }
+    this
   }
   pub async fn refresh(&self) -> FlowyResult<LLMModelInfo> {
     self.llm_res.refresh_llm_resource().await
@@ -112,9 +117,8 @@ impl LocalAIController {
     &self,
     ret: Option<tokio::sync::oneshot::Sender<()>>,
   ) -> FlowyResult<()> {
-    let mut chat_config = self.llm_res.get_ai_plugin_config()?;
+    let mut chat_config = self.llm_res.get_chat_config(self.is_rag_enabled())?;
     let llm_chat = self.llm_chat.clone();
-
     tokio::spawn(async move {
       trace!("[AI Plugin] config: {:?}", chat_config);
       if is_apple_silicon().await.unwrap_or(false) {
@@ -122,24 +126,26 @@ impl LocalAIController {
       }
       match llm_chat.init_chat_plugin(chat_config).await {
         Ok(_) => {
-          send_notification(
+          make_notification(
             APPFLOWY_AI_NOTIFICATION_KEY,
             ChatNotification::UpdateChatPluginState,
           )
           .payload(ChatStatePB {
             model_type: ModelTypePB::LocalAI,
             available: true,
-          });
+          })
+          .send();
         },
         Err(err) => {
-          send_notification(
+          make_notification(
             APPFLOWY_AI_NOTIFICATION_KEY,
             ChatNotification::UpdateChatPluginState,
           )
           .payload(ChatStatePB {
             model_type: ModelTypePB::LocalAI,
             available: false,
-          });
+          })
+          .send();
           error!("[AI Plugin] failed to setup plugin: {:?}", err);
         },
       }
@@ -167,6 +173,12 @@ impl LocalAIController {
     self
       .store_preferences
       .get_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED)
+  }
+
+  pub fn is_rag_enabled(&self) -> bool {
+    self
+      .store_preferences
+      .get_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED)
   }
 
   pub fn open_chat(&self, chat_id: &str) {
@@ -252,7 +264,8 @@ impl LocalAIController {
   }
 
   pub fn restart_chat_plugin(&self) {
-    if let Ok(chat_config) = self.llm_res.get_ai_plugin_config() {
+    let rag_enabled = self.is_rag_enabled();
+    if let Ok(chat_config) = self.llm_res.get_chat_config(rag_enabled) {
       if let Err(err) = initialize_chat_plugin(&self.llm_chat, chat_config) {
         error!("[AI Plugin] failed to setup plugin: {:?}", err);
       }
@@ -286,6 +299,17 @@ impl LocalAIController {
       .store_preferences
       .set_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED, enabled)?;
     self.enable_chat_plugin(enabled).await?;
+
+    Ok(enabled)
+  }
+
+  pub async fn toggle_local_ai_chat_rag(&self) -> FlowyResult<bool> {
+    let enabled = !self
+      .store_preferences
+      .get_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED);
+    self
+      .store_preferences
+      .set_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED, enabled)?;
     Ok(enabled)
   }
 
@@ -317,24 +341,26 @@ fn initialize_chat_plugin(
     }
     match llm_chat.init_chat_plugin(chat_config).await {
       Ok(_) => {
-        send_notification(
+        make_notification(
           APPFLOWY_AI_NOTIFICATION_KEY,
           ChatNotification::UpdateChatPluginState,
         )
         .payload(ChatStatePB {
           model_type: ModelTypePB::LocalAI,
           available: true,
-        });
+        })
+        .send();
       },
       Err(err) => {
-        send_notification(
+        make_notification(
           APPFLOWY_AI_NOTIFICATION_KEY,
           ChatNotification::UpdateChatPluginState,
         )
         .payload(ChatStatePB {
           model_type: ModelTypePB::LocalAI,
           available: false,
-        });
+        })
+        .send();
         error!("[AI Plugin] failed to setup plugin: {:?}", err);
       },
     }
@@ -349,7 +375,7 @@ pub struct LLMResourceServiceImpl {
 }
 #[async_trait]
 impl LLMResourceService for LLMResourceServiceImpl {
-  async fn get_local_ai_config(&self) -> Result<LocalAIConfig, anyhow::Error> {
+  async fn fetch_local_ai_config(&self) -> Result<LocalAIConfig, anyhow::Error> {
     let workspace_id = self.user_service.workspace_id()?;
     let config = self
       .cloud_service
@@ -358,16 +384,22 @@ impl LLMResourceService for LLMResourceServiceImpl {
     Ok(config)
   }
 
-  fn store(&self, setting: LLMSetting) -> Result<(), Error> {
+  fn store_setting(&self, setting: LLMSetting) -> Result<(), Error> {
     self
       .store_preferences
       .set_object(LOCAL_AI_SETTING_KEY, setting)?;
     Ok(())
   }
 
-  fn retrieve(&self) -> Option<LLMSetting> {
+  fn retrieve_setting(&self) -> Option<LLMSetting> {
     self
       .store_preferences
       .get_object::<LLMSetting>(LOCAL_AI_SETTING_KEY)
+  }
+
+  fn is_rag_enabled(&self) -> bool {
+    self
+      .store_preferences
+      .get_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED)
   }
 }

@@ -39,15 +39,24 @@ class LocalAIChatSetting extends StatelessWidget {
               context,
               required: true,
             )!;
-            state.pageIndicator.when(
-              error: (_) => controller.expanded = false,
-              ready: (enabled) {
-                controller.expanded = enabled;
-                context.read<LocalAIChatSettingBloc>().add(
-                      const LocalAIChatSettingEvent.refreshAISetting(),
-                    );
+
+            // Neet to wrap with WidgetsBinding.instance.addPostFrameCallback otherwise the
+            // ExpandablePanel not expanded sometimes. Maybe because the ExpandablePanel is not
+            // built yet when the listener is called.
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) {
+                state.pageIndicator.when(
+                  error: (_) => controller.expanded = false,
+                  ready: (enabled) {
+                    controller.expanded = enabled;
+                    context.read<LocalAIChatSettingBloc>().add(
+                          const LocalAIChatSettingEvent.refreshAISetting(),
+                        );
+                  },
+                  loading: () => controller.expanded = false,
+                );
               },
-              loading: () => controller.expanded = false,
+              debugLabel: 'LocalAI.showLocalAIChatSetting',
             );
           },
           child: ExpandablePanel(
@@ -79,16 +88,20 @@ class LocalAIChatSetting extends StatelessWidget {
                           LocalAIChatSettingState>(
                         builder: (context, state) {
                           return state.fetchModelInfoState.when(
-                            loading: () => Row(
-                              children: [
-                                FlowyText(
-                                  LocaleKeys
-                                      .settings_aiPage_keys_fetchLocalModel
-                                      .tr(),
-                                ),
-                                const Spacer(),
-                                const CircularProgressIndicator.adaptive(),
-                              ],
+                            loading: () => Expanded(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: FlowyText(
+                                      LocaleKeys
+                                          .settings_aiPage_keys_fetchLocalModel
+                                          .tr(),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  const CircularProgressIndicator.adaptive(),
+                                ],
+                              ),
                             ),
                             finish: (err) {
                               return (err == null)
@@ -231,7 +244,7 @@ class _LocalLLMInfoWidget extends StatelessWidget {
             );
 
             return Padding(
-              padding: const EdgeInsets.only(top: 14),
+              padding: const EdgeInsets.only(top: 8),
               child: child,
             );
           } else {
