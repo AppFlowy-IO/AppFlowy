@@ -1,3 +1,4 @@
+use collab::entity::EncodedCollab;
 use std::sync::Arc;
 
 use collab_folder::{FolderData, View};
@@ -5,6 +6,7 @@ use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{entities::*, ViewLayout};
+use flowy_folder_pub::entities::PublishViewPayload;
 use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
   AcceptWorkspaceInvitationPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
@@ -131,6 +133,8 @@ impl EventIntegrationTest {
         set_as_current: false,
         index: None,
         section: None,
+        icon: view.icon,
+        extra: view.extra,
       })
       .collect::<Vec<_>>();
 
@@ -138,7 +142,7 @@ impl EventIntegrationTest {
       self
         .appflowy_core
         .folder_manager
-        .create_view_with_params(params)
+        .create_view_with_params(params, true)
         .await
         .unwrap();
     }
@@ -168,6 +172,30 @@ impl EventIntegrationTest {
     let folder = folder_lock_guard.as_ref().unwrap();
     let workspace_id = self.appflowy_core.user_manager.workspace_id().unwrap();
     folder.get_folder_data(&workspace_id).clone().unwrap()
+  }
+
+  pub async fn get_publish_payload(
+    &self,
+    view_id: &str,
+    include_children: Option<bool>,
+  ) -> Vec<PublishViewPayload> {
+    let manager = self.folder_manager.clone();
+    let payload = manager
+      .get_batch_publish_payload(view_id, None, include_children)
+      .await;
+
+    if payload.is_err() {
+      panic!("Get publish payload failed")
+    }
+
+    payload.unwrap()
+  }
+
+  pub async fn encoded_collab_v1(&self, view_id: &str, layout: ViewLayout) -> EncodedCollab {
+    let manager = self.folder_manager.clone();
+    let handlers = manager.get_operation_handlers();
+    let handler = handlers.get(&layout).unwrap();
+    handler.encoded_collab_v1(view_id, layout).await.unwrap()
   }
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
@@ -235,6 +263,8 @@ impl EventIntegrationTest {
       set_as_current: false,
       index: None,
       section: None,
+      view_id: None,
+      extra: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -255,13 +285,14 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
-  pub async fn import_data(&self, data: ImportPB) -> ViewPB {
+  pub async fn import_data(&self, data: ImportPayloadPB) -> Vec<ViewPB> {
     EventBuilder::new(self.clone())
       .event(FolderEvent::ImportData)
       .payload(data)
       .async_send()
       .await
-      .parse::<ViewPB>()
+      .parse::<RepeatedViewPB>()
+      .items
   }
 
   pub async fn get_view_ancestors(&self, view_id: &str) -> Vec<ViewPB> {
@@ -298,6 +329,8 @@ impl ViewTest {
       set_as_current: true,
       index: None,
       section: None,
+      view_id: None,
+      extra: None,
     };
 
     let view = EventBuilder::new(sdk.clone())

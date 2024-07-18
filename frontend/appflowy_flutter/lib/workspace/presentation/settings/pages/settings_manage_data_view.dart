@@ -1,8 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -13,6 +10,7 @@ import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/setting_file_importer_bloc.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/fix_data_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
@@ -29,6 +27,8 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -110,7 +110,10 @@ class SettingsManageDataView extends StatelessWidget {
               if (kDebugMode) ...[
                 SettingsCategory(
                   title: LocaleKeys.settings_files_exportData.tr(),
-                  children: const [SettingsExportFileWidget()],
+                  children: const [
+                    SettingsExportFileWidget(),
+                    FixDataWidget(),
+                  ],
                 ),
               ],
               SettingsCategory(
@@ -123,26 +126,34 @@ class SettingsManageDataView extends StatelessWidget {
                     buttonLabel:
                         LocaleKeys.settings_manageDataPage_cache_title.tr(),
                     onPressed: () {
-                      SettingsAlertDialog(
+                      showCancelAndConfirmDialog(
+                        context: context,
                         title: LocaleKeys
                             .settings_manageDataPage_cache_dialog_title
                             .tr(),
-                        subtitle: LocaleKeys
+                        description: LocaleKeys
                             .settings_manageDataPage_cache_dialog_description
                             .tr(),
-                        confirm: () async {
+                        confirmLabel: LocaleKeys.button_ok.tr(),
+                        onConfirm: () async {
+                          // clear all cache
                           await getIt<FlowyCacheManager>().clearAllCache();
+
+                          // check the workspace and space health
+                          await WorkspaceDataManager.checkViewHealth(
+                            dryRun: false,
+                          );
+
                           if (context.mounted) {
-                            showSnackBarMessage(
+                            showToastNotification(
                               context,
-                              LocaleKeys
+                              message: LocaleKeys
                                   .settings_manageDataPage_cache_dialog_successHint
                                   .tr(),
                             );
-                            Navigator.of(context).pop();
                           }
                         },
-                      ).show(context);
+                      );
                     },
                   ),
                 ],

@@ -370,13 +370,7 @@ class FieldDetailsEditor extends StatefulWidget {
 }
 
 class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
-  late PopoverMutex popoverMutex;
-
-  @override
-  void initState() {
-    popoverMutex = PopoverMutex();
-    super.initState();
-  }
+  final PopoverMutex popoverMutex = PopoverMutex();
 
   @override
   void dispose() {
@@ -575,10 +569,7 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
 }
 
 class SwitchFieldButton extends StatefulWidget {
-  const SwitchFieldButton({
-    super.key,
-    required this.popoverMutex,
-  });
+  const SwitchFieldButton({super.key, required this.popoverMutex});
 
   final PopoverMutex popoverMutex;
 

@@ -1,3 +1,8 @@
+import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
+import 'package:desktop_drop/desktop_drop.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/ai_message_bubble.dart';
@@ -10,12 +15,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 
 import 'presentation/chat_input.dart';
 import 'presentation/chat_popmenu.dart';
@@ -27,11 +30,11 @@ import 'presentation/message/user_text_message.dart';
 
 class AIChatUILayout {
   static EdgeInsets get chatPadding =>
-      isMobile ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 70);
+      isMobile ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 20);
 
   static EdgeInsets get welcomePagePadding => isMobile
       ? const EdgeInsets.symmetric(horizontal: 20)
-      : const EdgeInsets.symmetric(horizontal: 100);
+      : const EdgeInsets.symmetric(horizontal: 50);
 
   static double get messageWidthRatio => 0.85;
 
@@ -44,11 +47,12 @@ class AIChatUILayout {
             query.padding.right,
             query.viewInsets.bottom + query.padding.bottom,
           )
-        : const EdgeInsets.symmetric(horizontal: 70);
+        : const EdgeInsets.symmetric(horizontal: 50) +
+            const EdgeInsets.only(bottom: 20);
   }
 }
 
-class AIChatPage extends StatefulWidget {
+class AIChatPage extends StatelessWidget {
   const AIChatPage({
     super.key,
     required this.view,
@@ -61,10 +65,58 @@ class AIChatPage extends StatefulWidget {
   final UserProfilePB userProfile;
 
   @override
-  State<AIChatPage> createState() => _AIChatPageState();
+  Widget build(BuildContext context) {
+    if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
+      return BlocProvider(
+        create: (context) => ChatFileBloc(chatId: view.id.toString()),
+        child: BlocBuilder<ChatFileBloc, ChatFileState>(
+          builder: (context, state) {
+            return state.supportChatWithFile
+                ? DropTarget(
+                    onDragDone: (DropDoneDetails detail) async {
+                      for (final file in detail.files) {
+                        context
+                            .read<ChatFileBloc>()
+                            .add(ChatFileEvent.newFile(file.path));
+                      }
+                    },
+                    child: _ChatContentPage(
+                      view: view,
+                      userProfile: userProfile,
+                    ),
+                  )
+                : _ChatContentPage(
+                    view: view,
+                    userProfile: userProfile,
+                  );
+          },
+        ),
+      );
+    }
+
+    return Center(
+      child: FlowyText(
+        LocaleKeys.chat_unsupportedCloudPrompt.tr(),
+        fontSize: 20,
+      ),
+    );
+  }
 }
 
-class _AIChatPageState extends State<AIChatPage> {
+class _ChatContentPage extends StatefulWidget {
+  const _ChatContentPage({
+    required this.view,
+    required this.userProfile,
+  });
+
+  final UserProfilePB userProfile;
+  final ViewPB view;
+
+  @override
+  State<_ChatContentPage> createState() => _ChatContentPageState();
+}
+
+class _ChatContentPageState extends State<_ChatContentPage> {
   late types.User _user;
 
   @override
@@ -77,92 +129,89 @@ class _AIChatPageState extends State<AIChatPage> {
   Widget build(BuildContext context) {
     if (widget.userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
       return buildChatWidget();
-    } else {
-      return Center(
-        child: FlowyText(
-          LocaleKeys.chat_unsupportedCloudPrompt.tr(),
-          fontSize: 20,
-        ),
-      );
     }
+
+    return Center(
+      child: FlowyText(
+        LocaleKeys.chat_unsupportedCloudPrompt.tr(),
+        fontSize: 20,
+      ),
+    );
   }
 
   Widget buildChatWidget() {
-    return SizedBox.expand(
-      child: Padding(
-        padding: AIChatUILayout.chatPadding,
-        child: BlocProvider(
-          create: (context) => ChatBloc(
-            view: widget.view,
-            userProfile: widget.userProfile,
-          )..add(const ChatEvent.initialLoad()),
-          child: BlocBuilder<ChatBloc, ChatState>(
-            builder: (blocContext, state) {
-              return Chat(
-                messages: state.messages,
-                onAttachmentPressed: () {},
-                onSendPressed: (types.PartialText message) {
-                  // We use custom bottom widget for chat input, so
-                  // do not need to handle this event.
-                },
-                customBottomWidget: buildChatInput(blocContext),
-                user: _user,
-                theme: buildTheme(context),
-                onEndReached: () async {
-                  if (state.hasMorePrevMessage &&
-                      state.loadingPreviousStatus !=
-                          const LoadingState.loading()) {
-                    blocContext
-                        .read<ChatBloc>()
-                        .add(const ChatEvent.startLoadingPrevMessage());
-                  }
-                },
-                emptyState: BlocBuilder<ChatBloc, ChatState>(
-                  builder: (context, state) {
-                    return state.initialLoadingStatus ==
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 784),
+            child: BlocProvider(
+              create: (_) => ChatBloc(
+                view: widget.view,
+                userProfile: widget.userProfile,
+              )..add(const ChatEvent.initialLoad()),
+              child: BlocBuilder<ChatBloc, ChatState>(
+                builder: (blocContext, state) => Chat(
+                  messages: state.messages,
+                  onSendPressed: (_) {
+                    // We use custom bottom widget for chat input, so
+                    // do not need to handle this event.
+                  },
+                  customBottomWidget: buildChatInput(blocContext),
+                  user: _user,
+                  theme: buildTheme(context),
+                  onEndReached: () async {
+                    if (state.hasMorePrevMessage &&
+                        state.loadingPreviousStatus !=
+                            const LoadingState.loading()) {
+                      blocContext
+                          .read<ChatBloc>()
+                          .add(const ChatEvent.startLoadingPrevMessage());
+                    }
+                  },
+                  emptyState: BlocBuilder<ChatBloc, ChatState>(
+                    builder: (_, state) => state.initialLoadingStatus ==
                             const LoadingState.finish()
                         ? Padding(
                             padding: AIChatUILayout.welcomePagePadding,
                             child: ChatWelcomePage(
-                              onSelectedQuestion: (question) {
-                                blocContext
-                                    .read<ChatBloc>()
-                                    .add(ChatEvent.sendMessage(question));
-                              },
+                              onSelectedQuestion: (question) => blocContext
+                                  .read<ChatBloc>()
+                                  .add(ChatEvent.sendMessage(question)),
                             ),
                           )
                         : const Center(
                             child: CircularProgressIndicator.adaptive(),
-                          );
+                          ),
+                  ),
+                  messageWidthRatio: AIChatUILayout.messageWidthRatio,
+                  textMessageBuilder: (
+                    textMessage, {
+                    required messageWidth,
+                    required showName,
+                  }) =>
+                      _buildAITextMessage(blocContext, textMessage),
+                  bubbleBuilder: (
+                    child, {
+                    required message,
+                    required nextMessageInGroup,
+                  }) {
+                    if (message.author.id == _user.id) {
+                      return ChatUserMessageBubble(
+                        message: message,
+                        child: child,
+                      );
+                    }
+
+                    return _buildAIBubble(message, blocContext, state, child);
                   },
                 ),
-                messageWidthRatio: AIChatUILayout.messageWidthRatio,
-                textMessageBuilder: (
-                  textMessage, {
-                  required messageWidth,
-                  required showName,
-                }) {
-                  return _buildAITextMessage(blocContext, textMessage);
-                },
-                bubbleBuilder: (
-                  child, {
-                  required message,
-                  required nextMessageInGroup,
-                }) {
-                  if (message.author.id == _user.id) {
-                    return ChatUserMessageBubble(
-                      message: message,
-                      child: child,
-                    );
-                  } else {
-                    return _buildAIBubble(message, blocContext, state, child);
-                  }
-                },
-              );
-            },
+              ),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 

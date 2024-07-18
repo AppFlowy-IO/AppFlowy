@@ -278,12 +278,8 @@ fn merge_updates(update_items: Vec<UpdateItem>, new_update: Vec<u8>) -> Result<M
   if !new_update.is_empty() {
     updates.push(new_update);
   }
-  let updates = updates
-    .iter()
-    .map(|update| update.as_ref())
-    .collect::<Vec<&[u8]>>();
 
-  let new_update = merge_updates_v1(&updates)?;
+  let new_update = merge_updates_v1(updates)?;
   Ok(MergeResult {
     merged_keys,
     new_update,

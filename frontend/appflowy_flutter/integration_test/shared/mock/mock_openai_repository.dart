@@ -44,7 +44,7 @@ class MockOpenAIRepository extends HttpOpenAIRepository {
     required Future<void> Function() onStart,
     required Future<void> Function(TextCompletionResponse response) onProcess,
     required Future<void> Function() onEnd,
-    required void Function(OpenAIError error) onError,
+    required void Function(AIError error) onError,
     String? suffix,
     int maxTokens = 2048,
     double temperature = 0.3,

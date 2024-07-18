@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/application/settings/date_time/date_format_ex
 import 'package:appflowy/workspace/application/settings/date_time/time_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/workspace/workspace_settings_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
@@ -24,12 +25,14 @@ import 'package:appflowy/workspace/presentation/settings/shared/setting_list_til
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dashed_divider.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_input_field.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_select.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -43,7 +46,6 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -85,6 +87,7 @@ class SettingsWorkspaceView extends StatelessWidget {
           return SettingsBody(
             title: LocaleKeys.settings_workspacePage_title.tr(),
             description: LocaleKeys.settings_workspacePage_description.tr(),
+            autoSeparate: false,
             children: [
               // We don't allow changing workspace name/icon for local/offline
               if (userProfile.authenticator != AuthenticatorPB.Local) ...[
@@ -93,6 +96,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                       .tr(),
                   children: [_WorkspaceNameSetting(member: workspaceMember)],
                 ),
+                const SettingsCategorySpacer(),
                 SettingsCategory(
                   title: LocaleKeys.settings_workspacePage_workspaceIcon_title
                       .tr(),
@@ -106,11 +110,14 @@ class SettingsWorkspaceView extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SettingsCategorySpacer(),
               ],
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_appearance_title.tr(),
                 children: const [AppearanceSelector()],
               ),
+              const VSpace(16),
+              // const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_theme_title.tr(),
                 description:
@@ -121,6 +128,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                   _DocumentSelectionColorSetting(),
                 ],
               ),
+              const SettingsCategorySpacer(),
               SettingsCategory(
                 title:
                     LocaleKeys.settings_workspacePage_workspaceFont_title.tr(),
@@ -129,7 +137,9 @@ class SettingsWorkspaceView extends StatelessWidget {
                     currentFont:
                         context.read<AppearanceSettingsCubit>().state.font,
                   ),
-                  const SettingsDashedDivider(),
+                  SettingsDashedDivider(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
                   SettingsCategory(
                     title: LocaleKeys.settings_workspacePage_textDirection_title
                         .tr(),
@@ -140,11 +150,14 @@ class SettingsWorkspaceView extends StatelessWidget {
                   ),
                 ],
               ),
+              const VSpace(16),
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_layoutDirection_title
                     .tr(),
                 children: const [_LayoutDirectionSelect()],
               ),
+              const SettingsCategorySpacer(),
+
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_dateTime_title.tr(),
                 children: [
@@ -156,10 +169,14 @@ class SettingsWorkspaceView extends StatelessWidget {
                   const _DateFormatDropdown(),
                 ],
               ),
+              const SettingsCategorySpacer(),
+
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_language_title.tr(),
                 children: const [LanguageDropdown()],
               ),
+              const SettingsCategorySpacer(),
+
               if (userProfile.authenticator != AuthenticatorPB.Local) ...[
                 SingleSettingAction(
                   label: LocaleKeys.settings_workspacePage_manageWorkspace_title
@@ -1128,9 +1145,21 @@ class _DocumentCursorColorSetting extends StatelessWidget {
         return SettingListTile(
           label: label,
           resetButtonKey: const Key('DocumentCursorColorResetButton'),
-          onResetRequested: () => context
-            ..read<AppearanceSettingsCubit>().resetDocumentCursorColor()
-            ..read<DocumentAppearanceCubit>().syncCursorColor(null),
+          onResetRequested: () {
+            showConfirmDialog(
+              context: context,
+              title:
+                  LocaleKeys.settings_workspacePage_resetCursorColor_title.tr(),
+              description: LocaleKeys
+                  .settings_workspacePage_resetCursorColor_description
+                  .tr(),
+              style: ConfirmPopupStyle.cancelAndOk,
+              confirmLabel: LocaleKeys.settings_common_reset.tr(),
+              onConfirm: () => context
+                ..read<AppearanceSettingsCubit>().resetDocumentCursorColor()
+                ..read<DocumentAppearanceCubit>().syncCursorColor(null),
+            );
+          },
           trailing: [
             DocumentColorSettingButton(
               key: const Key('DocumentCursorColorSettingButton'),
@@ -1186,9 +1215,21 @@ class _DocumentSelectionColorSetting extends StatelessWidget {
         return SettingListTile(
           label: label,
           resetButtonKey: const Key('DocumentSelectionColorResetButton'),
-          onResetRequested: () => context
-            ..read<AppearanceSettingsCubit>().resetDocumentSelectionColor()
-            ..read<DocumentAppearanceCubit>().syncSelectionColor(null),
+          onResetRequested: () {
+            showConfirmDialog(
+              context: context,
+              title: LocaleKeys.settings_workspacePage_resetSelectionColor_title
+                  .tr(),
+              description: LocaleKeys
+                  .settings_workspacePage_resetSelectionColor_description
+                  .tr(),
+              style: ConfirmPopupStyle.cancelAndOk,
+              confirmLabel: LocaleKeys.settings_common_reset.tr(),
+              onConfirm: () => context
+                ..read<AppearanceSettingsCubit>().resetDocumentSelectionColor()
+                ..read<DocumentAppearanceCubit>().syncSelectionColor(null),
+            );
+          },
           trailing: [
             DocumentColorSettingButton(
               currentColor: state.selectionColor ??

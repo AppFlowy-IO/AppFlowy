@@ -9,14 +9,14 @@ use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
-use flowy_chat::manager::ChatManager;
+use flowy_chat::chat_manager::ChatManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
 use flowy_server::af_cloud::define::ServerUser;
 
-use flowy_sqlite::kv::StorePreferences;
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_storage::manager::StorageManager;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::entities::UserConfig;
@@ -25,7 +25,7 @@ use flowy_user::user_manager::UserManager;
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::priority_task::{TaskDispatcher, TaskRunner};
-use lib_infra::util::Platform;
+use lib_infra::util::OperatingSystem;
 use lib_log::stream_log::StreamLogSender;
 use module::make_plugins;
 
@@ -57,7 +57,7 @@ pub struct AppFlowyCore {
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub server_provider: Arc<ServerProvider>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
-  pub store_preference: Arc<StorePreferences>,
+  pub store_preference: Arc<KVStorePreferences>,
   pub search_manager: Arc<SearchManager>,
   pub chat_manager: Arc<ChatManager>,
   pub storage_manager: Arc<StorageManager>,
@@ -69,7 +69,7 @@ impl AppFlowyCore {
     runtime: Arc<AFPluginRuntime>,
     stream_log_sender: Option<Arc<dyn StreamLogSender>>,
   ) -> Self {
-    let platform = Platform::from(&config.platform);
+    let platform = OperatingSystem::from(&config.platform);
 
     #[allow(clippy::if_same_then_else)]
     if cfg!(debug_assertions) {
@@ -86,11 +86,13 @@ impl AppFlowyCore {
       init_log(&config, &platform, stream_log_sender);
     }
 
-    info!(
-      "💡{:?}, platform: {:?}",
-      System::long_os_version(),
-      platform
-    );
+    if sysinfo::IS_SUPPORTED_SYSTEM {
+      info!(
+        "💡{:?}, platform: {:?}",
+        System::long_os_version(),
+        platform
+      );
+    }
 
     Self::init(config, runtime).await
   }
@@ -102,7 +104,7 @@ impl AppFlowyCore {
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     // Init the key value database
-    let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
+    let store_preference = Arc::new(KVStorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
 
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
@@ -175,8 +177,11 @@ impl AppFlowyCore {
         Arc::downgrade(&storage_manager.storage_service),
       );
 
-      let chat_manager =
-        ChatDepsResolver::resolve(Arc::downgrade(&authenticate_user), server_provider.clone());
+      let chat_manager = ChatDepsResolver::resolve(
+        Arc::downgrade(&authenticate_user),
+        server_provider.clone(),
+        store_preference.clone(),
+      );
 
       let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Some(Arc::downgrade(
         &authenticate_user,

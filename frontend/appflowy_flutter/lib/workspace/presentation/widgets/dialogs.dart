@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -10,6 +11,7 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:toastification/toastification.dart';
 
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 
@@ -130,11 +132,6 @@ class NavigatorAlertDialog extends StatefulWidget {
 
 class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return StyledDialog(
       child: Column(
@@ -188,6 +185,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
     this.title,
     this.message,
     this.maxWidth,
+    this.titleUpperCase = true,
   });
 
   final VoidCallback? onOkPressed;
@@ -197,6 +195,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   final String? title;
   final String? message;
   final double? maxWidth;
+  final bool titleUpperCase;
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +207,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
         children: <Widget>[
           if (title != null) ...[
             FlowyText.medium(
-              title!.toUpperCase(),
+              titleUpperCase ? title!.toUpperCase() : title!,
               fontSize: FontSizes.s16,
               maxLines: 3,
             ),
@@ -287,4 +286,119 @@ class OkCancelButton extends StatelessWidget {
       ),
     );
   }
+}
+
+void showToastNotification(
+  BuildContext context, {
+  required String message,
+  String? description,
+  ToastificationType type = ToastificationType.success,
+}) {
+  toastification.show(
+    context: context,
+    type: type,
+    style: ToastificationStyle.flat,
+    title: FlowyText(message),
+    description: description != null
+        ? FlowyText.regular(
+            description,
+            fontSize: 12,
+            lineHeight: 1.2,
+            maxLines: 3,
+          )
+        : null,
+    alignment: Alignment.bottomCenter,
+    autoCloseDuration: const Duration(milliseconds: 3000),
+    showProgressBar: false,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    borderSide: BorderSide(
+      color: Colors.grey.withOpacity(0.4),
+    ),
+  );
+}
+
+Future<void> showConfirmDeletionDialog({
+  required BuildContext context,
+  required String name,
+  required String description,
+  required VoidCallback onConfirm,
+}) {
+  return showDialog(
+    context: context,
+    builder: (_) {
+      final title = LocaleKeys.space_deleteConfirmation.tr() + name;
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: SizedBox(
+          width: 440,
+          child: ConfirmPopup(
+            title: title,
+            description: description,
+            onConfirm: onConfirm,
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<void> showConfirmDialog({
+  required BuildContext context,
+  required String title,
+  required String description,
+  VoidCallback? onConfirm,
+  String? confirmLabel,
+  ConfirmPopupStyle style = ConfirmPopupStyle.onlyOk,
+}) {
+  return showDialog(
+    context: context,
+    builder: (_) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: SizedBox(
+          width: 440,
+          child: ConfirmPopup(
+            title: title,
+            description: description,
+            onConfirm: () => onConfirm?.call(),
+            confirmLabel: confirmLabel,
+            style: style,
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<void> showCancelAndConfirmDialog({
+  required BuildContext context,
+  required String title,
+  required String description,
+  VoidCallback? onConfirm,
+  String? confirmLabel,
+}) {
+  return showDialog(
+    context: context,
+    builder: (_) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: SizedBox(
+          width: 440,
+          child: ConfirmPopup(
+            title: title,
+            description: description,
+            onConfirm: () => onConfirm?.call(),
+            confirmLabel: confirmLabel,
+            confirmButtonColor: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      );
+    },
+  );
 }

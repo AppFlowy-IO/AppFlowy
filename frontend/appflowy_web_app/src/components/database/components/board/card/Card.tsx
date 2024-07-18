@@ -1,4 +1,4 @@
-import { useFieldsSelector, useNavigateToRow } from '@/application/database-yjs';
+import { useFieldsSelector } from '@/application/database-yjs';
 import CardField from '@/components/database/components/field/CardField';
 import React, { memo, useEffect, useMemo } from 'react';
 
@@ -32,12 +32,12 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
     };
   }, [onResize, isDragging]);
 
-  const navigateToRow = useNavigateToRow();
+  // const navigateToRow = useNavigateToRow();
 
   return (
     <div
       onClick={() => {
-        navigateToRow?.(rowId);
+        // navigateToRow?.(rowId);
       }}
       ref={ref}
       style={{

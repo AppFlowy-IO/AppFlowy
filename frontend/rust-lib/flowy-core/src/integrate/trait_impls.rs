@@ -1,10 +1,11 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
-use client_api::entity::ai_dto::RepeatedRelatedQuestion;
+use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
 
@@ -12,14 +13,14 @@ use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
 use tokio_stream::wrappers::WatchStream;
-use tracing::debug;
+use tracing::{debug, info};
 
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageStream, MessageCursor, RepeatedChatMessage,
-  StreamAnswer,
+  ChatCloudService, ChatMessage, LocalAIConfig, MessageCursor, RepeatedChatMessage, StreamAnswer,
+  StreamComplete,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
@@ -31,6 +32,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
@@ -145,6 +147,13 @@ impl UserCloudServiceProvider for ServerProvider {
   fn set_token(&self, token: &str) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server.set_token(token)?;
+    Ok(())
+  }
+
+  fn set_ai_model(&self, ai_model: &str) -> Result<(), FlowyError> {
+    info!("Set AI model: {}", ai_model);
+    let server = self.get_server()?;
+    server.set_ai_model(ai_model)?;
     Ok(())
   }
 
@@ -293,6 +302,65 @@ impl FolderCloudService for ServerProvider {
       .get_server()
       .map(|provider| provider.folder_service().service_name())
       .unwrap_or_default()
+  }
+
+  fn publish_view(
+    &self,
+    workspace_id: &str,
+    payload: Vec<PublishViewPayload>,
+  ) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .publish_view(&workspace_id, payload)
+        .await
+    })
+  }
+
+  fn unpublish_views(&self, workspace_id: &str, view_ids: Vec<String>) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .unpublish_views(&workspace_id, view_ids)
+        .await
+    })
+  }
+
+  fn get_publish_info(&self, view_id: &str) -> FutureResult<PublishInfoResponse, Error> {
+    let view_id = view_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move { server?.folder_service().get_publish_info(&view_id).await })
+  }
+
+  fn set_publish_namespace(
+    &self,
+    workspace_id: &str,
+    new_namespace: &str,
+  ) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let new_namespace = new_namespace.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .set_publish_namespace(&workspace_id, &new_namespace)
+        .await
+    })
+  }
+
+  fn get_publish_namespace(&self, workspace_id: &str) -> FutureResult<String, Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server();
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .get_publish_namespace(&workspace_id)
+        .await
+    })
   }
 }
 
@@ -545,24 +613,7 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  async fn send_chat_message(
-    &self,
-    workspace_id: &str,
-    chat_id: &str,
-    message: &str,
-    message_type: ChatMessageType,
-  ) -> Result<ChatMessageStream, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
-    let message = message.to_string();
-    let server = self.get_server()?;
-    server
-      .chat_service()
-      .send_chat_message(&workspace_id, &chat_id, &message, message_type)
-      .await
-  }
-
-  fn send_question(
+  fn save_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -577,7 +628,7 @@ impl ChatCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .chat_service()
-        .send_question(&workspace_id, &chat_id, &message, message_type)
+        .save_question(&workspace_id, &chat_id, &message, message_type)
         .await
     })
   }
@@ -601,7 +652,7 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  async fn stream_answer(
+  async fn ask_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -612,7 +663,7 @@ impl ChatCloudService for ServerProvider {
     let server = self.get_server()?;
     server
       .chat_service()
-      .stream_answer(&workspace_id, &chat_id, message_id)
+      .ask_question(&workspace_id, &chat_id, message_id)
       .await
   }
 
@@ -651,21 +702,53 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  fn generate_answer(
+  async fn generate_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     question_message_id: i64,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
+  ) -> Result<ChatMessage, FlowyError> {
     let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .generate_answer(&workspace_id, &chat_id, question_message_id)
-        .await
-    })
+    server?
+      .chat_service()
+      .generate_answer(workspace_id, chat_id, question_message_id)
+      .await
+  }
+
+  async fn stream_complete(
+    &self,
+    workspace_id: &str,
+    text: &str,
+    complete_type: CompletionType,
+  ) -> Result<StreamComplete, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let text = text.to_string();
+    let server = self.get_server()?;
+    server
+      .chat_service()
+      .stream_complete(&workspace_id, &text, complete_type)
+      .await
+  }
+
+  async fn index_file(
+    &self,
+    workspace_id: &str,
+    file_path: PathBuf,
+    chat_id: &str,
+  ) -> Result<(), FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .index_file(workspace_id, file_path, chat_id)
+      .await
+  }
+
+  async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_local_ai_config(workspace_id)
+      .await
   }
 }
 

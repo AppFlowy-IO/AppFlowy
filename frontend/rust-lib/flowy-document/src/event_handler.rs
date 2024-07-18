@@ -33,6 +33,22 @@ fn upgrade_document(
   Ok(manager)
 }
 
+// Handler for getting the document state
+#[instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_encode_collab_handler(
+  data: AFPluginData<OpenDocumentPayloadPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> DataResult<EncodedCollabPB, FlowyError> {
+  let manager = upgrade_document(manager)?;
+  let params: OpenDocumentParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let state = manager.encode_collab(&doc_id).await?;
+  data_result_ok(EncodedCollabPB {
+    state_vector: Vec::from(state.state_vector),
+    doc_state: Vec::from(state.doc_state),
+  })
+}
+
 // Handler for creating a new document
 pub(crate) async fn create_document_handler(
   data: AFPluginData<CreateDocumentPayloadPB>,
@@ -420,11 +436,11 @@ pub(crate) async fn upload_file_handler(
   params: AFPluginData<UploadFileParamsPB>,
   manager: AFPluginState<Weak<DocumentManager>>,
 ) -> DataResult<UploadedFilePB, FlowyError> {
-  let AFPluginData(UploadFileParamsPB {
+  let UploadFileParamsPB {
     workspace_id,
     document_id,
     local_file_path,
-  }) = params;
+  } = params.try_into_inner()?;
 
   let manager = upgrade_document(manager)?;
   let url = manager
@@ -442,10 +458,10 @@ pub(crate) async fn download_file_handler(
   params: AFPluginData<UploadedFilePB>,
   manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let AFPluginData(UploadedFilePB {
+  let UploadedFilePB {
     url,
     local_file_path,
-  }) = params;
+  } = params.try_into_inner()?;
 
   let manager = upgrade_document(manager)?;
   manager.download_file(local_file_path, url).await
@@ -456,10 +472,10 @@ pub(crate) async fn delete_file_handler(
   params: AFPluginData<UploadedFilePB>,
   manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let AFPluginData(UploadedFilePB {
+  let UploadedFilePB {
     url,
     local_file_path,
-  }) = params;
+  } = params.try_into_inner()?;
   let manager = upgrade_document(manager)?;
   manager.delete_file(local_file_path, url).await
 }

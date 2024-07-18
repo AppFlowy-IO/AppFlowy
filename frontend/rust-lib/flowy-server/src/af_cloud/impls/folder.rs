@@ -1,6 +1,7 @@
 use anyhow::Error;
 use client_api::entity::{
-  workspace_dto::CreateWorkspaceParam, CollabParams, QueryCollab, QueryCollabParams,
+  workspace_dto::CreateWorkspaceParam, CollabParams, PublishCollabItem, PublishCollabMetadata,
+  QueryCollab, QueryCollabParams,
 };
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
@@ -8,12 +9,14 @@ use collab_entity::CollabType;
 use collab_folder::RepeatedViewIdentifier;
 use std::sync::Arc;
 use tracing::instrument;
+use uuid::Uuid;
 
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_pub::cloud::{
   Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
   WorkspaceRecord,
 };
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::define::ServerUser;
@@ -179,5 +182,96 @@ where
 
   fn service_name(&self) -> String {
     "AppFlowy Cloud".to_string()
+  }
+
+  fn publish_view(
+    &self,
+    workspace_id: &str,
+    payload: Vec<PublishViewPayload>,
+  ) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    FutureResult::new(async move {
+      let params = payload
+        .into_iter()
+        .map(|object| PublishCollabItem {
+          meta: PublishCollabMetadata {
+            view_id: Uuid::parse_str(object.meta.view_id.as_str()).unwrap_or(Uuid::nil()),
+            publish_name: object.meta.publish_name,
+            metadata: object.meta.metadata,
+          },
+          data: object.data,
+        })
+        .collect::<Vec<_>>();
+      try_get_client?
+        .publish_collabs(&workspace_id, params)
+        .await
+        .map_err(FlowyError::from)?;
+      Ok(())
+    })
+  }
+
+  fn unpublish_views(&self, workspace_id: &str, view_ids: Vec<String>) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let view_uuids = view_ids
+      .iter()
+      .map(|id| Uuid::parse_str(id).unwrap_or(Uuid::nil()))
+      .collect::<Vec<_>>();
+    FutureResult::new(async move {
+      try_get_client?
+        .unpublish_collabs(&workspace_id, &view_uuids)
+        .await
+        .map_err(FlowyError::from)?;
+      Ok(())
+    })
+  }
+
+  fn get_publish_info(&self, view_id: &str) -> FutureResult<PublishInfoResponse, Error> {
+    let try_get_client = self.inner.try_get_client();
+    let view_id = Uuid::parse_str(view_id)
+      .map_err(|_| FlowyError::new(ErrorCode::InvalidParams, "Invalid view id"));
+
+    FutureResult::new(async move {
+      let view_id = view_id?;
+      let info = try_get_client?
+        .get_published_collab_info(&view_id)
+        .await
+        .map_err(FlowyError::from)?;
+      Ok(PublishInfoResponse {
+        view_id: info.view_id.to_string(),
+        publish_name: info.publish_name,
+        namespace: info.namespace,
+      })
+    })
+  }
+
+  fn set_publish_namespace(
+    &self,
+    workspace_id: &str,
+    new_namespace: &str,
+  ) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let namespace = new_namespace.to_string();
+    let try_get_client = self.inner.try_get_client();
+    FutureResult::new(async move {
+      try_get_client?
+        .set_workspace_publish_namespace(&workspace_id, &namespace)
+        .await
+        .map_err(FlowyError::from)?;
+      Ok(())
+    })
+  }
+
+  fn get_publish_namespace(&self, workspace_id: &str) -> FutureResult<String, Error> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    FutureResult::new(async move {
+      let namespace = try_get_client?
+        .get_workspace_publish_namespace(&workspace_id)
+        .await
+        .map_err(FlowyError::from)?;
+      Ok(namespace)
+    })
   }
 }

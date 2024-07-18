@@ -6,12 +6,12 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_more_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_pin_action.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -41,7 +41,7 @@ class FavoriteMenu extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const VSpace(4),
-                _FavoriteSearchField(
+                SpaceSearchField(
                   width: minWidth - 2 * _kHorizontalPadding,
                   onSearch: (context, text) {
                     context
@@ -195,74 +195,5 @@ class _FavoriteGroups extends StatelessWidget {
         const VSpace(8),
       ],
     ];
-  }
-}
-
-class _FavoriteSearchField extends StatefulWidget {
-  const _FavoriteSearchField({
-    required this.width,
-    required this.onSearch,
-  });
-
-  final double width;
-  final void Function(BuildContext context, String text) onSearch;
-
-  @override
-  State<_FavoriteSearchField> createState() => _FavoriteSearchFieldState();
-}
-
-class _FavoriteSearchFieldState extends State<_FavoriteSearchField> {
-  final focusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    focusNode.requestFocus();
-  }
-
-  @override
-  void dispose() {
-    focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 30,
-      width: widget.width,
-      clipBehavior: Clip.antiAlias,
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(
-            width: 1.20,
-            strokeAlign: BorderSide.strokeAlignOutside,
-            color: Color(0xFF00BCF0),
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: CupertinoSearchTextField(
-        onChanged: (text) => widget.onSearch(context, text),
-        padding: EdgeInsets.zero,
-        focusNode: focusNode,
-        placeholder: LocaleKeys.search_label.tr(),
-        prefixIcon: const FlowySvg(FlowySvgs.m_search_m),
-        prefixInsets: const EdgeInsets.only(left: 12.0, right: 8.0),
-        suffixIcon: const Icon(Icons.close),
-        suffixInsets: const EdgeInsets.only(right: 8.0),
-        itemSize: 16.0,
-        decoration: const BoxDecoration(
-          color: Colors.transparent,
-        ),
-        placeholderStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).hintColor,
-              fontWeight: FontWeight.w400,
-            ),
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w400,
-            ),
-      ),
-    );
   }
 }

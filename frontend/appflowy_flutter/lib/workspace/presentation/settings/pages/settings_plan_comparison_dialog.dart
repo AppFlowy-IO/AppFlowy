@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -12,6 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsPlanComparisonDialog extends StatefulWidget {
@@ -47,7 +46,7 @@ class _SettingsPlanComparisonDialogState
   Widget build(BuildContext context) {
     final isLM = Theme.of(context).isLightMode;
 
-    return BlocListener<SettingsPlanBloc, SettingsPlanState>(
+    return BlocConsumer<SettingsPlanBloc, SettingsPlanState>(
       listener: (context, state) {
         final readyState = state.mapOrNull(ready: (state) => state);
 
@@ -82,7 +81,7 @@ class _SettingsPlanComparisonDialogState
           currentSubscription = readyState.subscription;
         });
       },
-      child: FlowyDialog(
+      builder: (context, state) => FlowyDialog(
         constraints: const BoxConstraints(maxWidth: 784, minWidth: 674),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,9 +172,10 @@ class _SettingsPlanComparisonDialogState
                             description: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_description
                                 .tr(),
+                            // TODO(Mathias): the price should be dynamic based on the country and currency
                             price: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_price
-                                .tr(),
+                                .tr(args: ['\$0']),
                             priceInfo: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_priceInfo
                                 .tr(),
@@ -185,7 +185,16 @@ class _SettingsPlanComparisonDialogState
                             canDowngrade:
                                 currentSubscription.subscriptionPlan !=
                                     SubscriptionPlanPB.None,
-                            currentCanceled: currentSubscription.hasCanceled,
+                            currentCanceled: currentSubscription.hasCanceled ||
+                                (context
+                                        .watch<SettingsPlanBloc>()
+                                        .state
+                                        .mapOrNull(
+                                          loading: (_) => true,
+                                          ready: (state) =>
+                                              state.downgradeProcessing,
+                                        ) ??
+                                    false),
                             onSelected: () async {
                               if (currentSubscription.subscriptionPlan ==
                                       SubscriptionPlanPB.None ||
@@ -222,9 +231,10 @@ class _SettingsPlanComparisonDialogState
                             description: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_description
                                 .tr(),
+                            // TODO(Mathias): the price should be dynamic based on the country and currency
                             price: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_price
-                                .tr(),
+                                .tr(args: ['\$10 ']),
                             priceInfo: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_priceInfo
                                 .tr(),
@@ -484,8 +494,10 @@ class _ActionButton extends StatelessWidget {
                 cursor: onPressed != null
                     ? SystemMouseCursors.click
                     : MouseCursor.defer,
-                child: _drawGradientBorder(
+                child: _drawBorder(
+                  context,
                   isLM: isLM,
+                  isUpgrade: isUpgrade,
                   child: Container(
                     height: 36,
                     width: 148,
@@ -496,9 +508,7 @@ class _ActionButton extends StatelessWidget {
                       border: Border.all(color: Colors.transparent),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Center(
-                      child: _drawText(label, isLM),
-                    ),
+                    child: Center(child: _drawText(label, isLM, isUpgrade)),
                   ),
                 ),
               ),
@@ -509,13 +519,13 @@ class _ActionButton extends StatelessWidget {
     );
   }
 
-  Widget _drawText(String text, bool isLM) {
+  Widget _drawText(String text, bool isLM, bool isUpgrade) {
     final child = FlowyText(
       text,
       fontSize: 14,
       lineHeight: 1.2,
       fontWeight: useGradientBorder ? FontWeight.w600 : FontWeight.w500,
-      color: const Color(0xFFC49BEC),
+      color: isUpgrade ? const Color(0xFFC49BEC) : null,
     );
 
     if (!useGradientBorder || !isLM) {
@@ -536,18 +546,26 @@ class _ActionButton extends StatelessWidget {
     );
   }
 
-  Widget _drawGradientBorder({required bool isLM, required Widget child}) {
+  Widget _drawBorder(
+    BuildContext context, {
+    required bool isLM,
+    required bool isUpgrade,
+    required Widget child,
+  }) {
     return Container(
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          transform: const GradientRotation(-1.2),
-          stops: const [0.4, 1],
-          colors: [
-            isLM ? const Color(0xFF251D37) : const Color(0xFF7459AD),
-            isLM ? const Color(0xFF7547C0) : const Color(0xFFDDC8FF),
-          ],
-        ),
+        gradient: isUpgrade
+            ? LinearGradient(
+                transform: const GradientRotation(-1.2),
+                stops: const [0.4, 1],
+                colors: [
+                  isLM ? const Color(0xFF251D37) : const Color(0xFF7459AD),
+                  isLM ? const Color(0xFF7547C0) : const Color(0xFFDDC8FF),
+                ],
+              )
+            : null,
+        border: isUpgrade ? null : Border.all(color: const Color(0xFF333333)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: child,

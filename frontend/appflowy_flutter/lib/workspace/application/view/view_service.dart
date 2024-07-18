@@ -38,6 +38,7 @@ class ViewBackendService {
     /// If the index is null, the view will be added to the end of the list.
     int? index,
     ViewSectionPB? section,
+    final String? viewId,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = parentViewId
@@ -61,6 +62,10 @@ class ViewBackendService {
 
     if (section != null) {
       payload.section = section;
+    }
+
+    if (viewId != null) {
+      payload.viewId = viewId;
     }
 
     return FolderEventCreateView(payload).send();
@@ -117,13 +122,6 @@ class ViewBackendService {
     });
   }
 
-  static Future<FlowyResult<void, FlowyError>> delete({
-    required String viewId,
-  }) {
-    final request = RepeatedViewIdPB.create()..items.add(viewId);
-    return FolderEventDeleteView(request).send();
-  }
-
   static Future<FlowyResult<void, FlowyError>> deleteView({
     required String viewId,
   }) {
@@ -131,10 +129,37 @@ class ViewBackendService {
     return FolderEventDeleteView(request).send();
   }
 
+  static Future<FlowyResult<void, FlowyError>> deleteViews({
+    required List<String> viewIds,
+  }) {
+    final request = RepeatedViewIdPB.create()..items.addAll(viewIds);
+    return FolderEventDeleteView(request).send();
+  }
+
   static Future<FlowyResult<void, FlowyError>> duplicate({
     required ViewPB view,
+    required bool openAfterDuplicate,
+    // should include children views
+    required bool includeChildren,
+    String? parentViewId,
+    String? suffix,
+    required bool syncAfterDuplicate,
   }) {
-    return FolderEventDuplicateView(view).send();
+    final payload = DuplicateViewPayloadPB.create()
+      ..viewId = view.id
+      ..openAfterDuplicate = openAfterDuplicate
+      ..includeChildren = includeChildren
+      ..syncAfterCreate = syncAfterDuplicate;
+
+    if (parentViewId != null) {
+      payload.parentViewId = parentViewId;
+    }
+
+    if (suffix != null) {
+      payload.suffix = suffix;
+    }
+
+    return FolderEventDuplicateView(payload).send();
   }
 
   static Future<FlowyResult<void, FlowyError>> favorite({
@@ -265,5 +290,79 @@ class ViewBackendService {
       isPublic: isPublic,
     );
     return FolderEventUpdateViewVisibilityStatus(payload).send();
+  }
+
+  static Future<FlowyResult<PublishInfoResponsePB, FlowyError>> getPublishInfo(
+    ViewPB view,
+  ) async {
+    final payload = ViewIdPB()..value = view.id;
+    return FolderEventGetPublishInfo(payload).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> publish(
+    ViewPB view, {
+    String? name,
+  }) async {
+    final payload = PublishViewParamsPB()..viewId = view.id;
+
+    if (name != null) {
+      payload.publishName = name;
+    }
+    return FolderEventPublishView(payload).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> unpublish(
+    ViewPB view,
+  ) async {
+    final payload = UnpublishViewsPayloadPB(viewIds: [view.id]);
+    return FolderEventUnpublishViews(payload).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> setPublishNameSpace(
+    String name,
+  ) async {
+    final payload = SetPublishNamespacePayloadPB()..newNamespace = name;
+    return FolderEventSetPublishNamespace(payload).send();
+  }
+
+  static Future<FlowyResult<PublishNamespacePB, FlowyError>>
+      getPublishNameSpace() async {
+    return FolderEventGetPublishNamespace().send();
+  }
+
+  static Future<List<ViewPB>> getAllChildViews(ViewPB view) async {
+    final views = <ViewPB>[];
+
+    final childViews =
+        await ViewBackendService.getChildViews(viewId: view.id).fold(
+      (s) => s,
+      (f) => [],
+    );
+
+    for (final child in childViews) {
+      // filter the view itself
+      if (child.id == view.id) {
+        continue;
+      }
+      views.add(child);
+      views.addAll(await getAllChildViews(child));
+    }
+
+    return views;
+  }
+
+  static Future<(bool, List<ViewPB>)> containPublishedPage(ViewPB view) async {
+    final childViews = await ViewBackendService.getAllChildViews(view);
+    final views = [view, ...childViews];
+    final List<ViewPB> publishedPages = [];
+
+    for (final view in views) {
+      final publishInfo = await ViewBackendService.getPublishInfo(view);
+      if (publishInfo.isSuccess) {
+        publishedPages.add(view);
+      }
+    }
+
+    return (publishedPages.isNotEmpty, publishedPages);
   }
 }

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/int64_extension.dart';
@@ -19,6 +17,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsPlanView extends StatelessWidget {
@@ -70,6 +69,7 @@ class SettingsPlanView extends StatelessWidget {
                   usage: state.workspaceUsage,
                   subscription: state.subscription,
                 ),
+                const VSpace(16),
                 _CurrentPlanBox(subscription: state.subscription),
               ],
             ),
@@ -80,10 +80,29 @@ class SettingsPlanView extends StatelessWidget {
   }
 }
 
-class _CurrentPlanBox extends StatelessWidget {
+class _CurrentPlanBox extends StatefulWidget {
   const _CurrentPlanBox({required this.subscription});
 
   final WorkspaceSubscriptionPB subscription;
+
+  @override
+  State<_CurrentPlanBox> createState() => _CurrentPlanBoxState();
+}
+
+class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
+  late SettingsPlanBloc planBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    planBloc = context.read<SettingsPlanBloc>();
+  }
+
+  @override
+  void didChangeDependencies() {
+    planBloc = context.read<SettingsPlanBloc>();
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,13 +124,13 @@ class _CurrentPlanBox extends StatelessWidget {
                   children: [
                     const VSpace(4),
                     FlowyText.semibold(
-                      subscription.label,
+                      widget.subscription.label,
                       fontSize: 24,
                       color: AFThemeExtension.of(context).strongText,
                     ),
                     const VSpace(8),
                     FlowyText.regular(
-                      subscription.info,
+                      widget.subscription.info,
                       fontSize: 16,
                       color: AFThemeExtension.of(context).strongText,
                       maxLines: 3,
@@ -124,10 +143,10 @@ class _CurrentPlanBox extends StatelessWidget {
                       onPressed: () => _openPricingDialog(
                         context,
                         context.read<SettingsPlanBloc>().workspaceId,
-                        subscription,
+                        widget.subscription,
                       ),
                     ),
-                    if (subscription.hasCanceled) ...[
+                    if (widget.subscription.hasCanceled) ...[
                       const VSpace(12),
                       FlowyText(
                         LocaleKeys
@@ -149,10 +168,10 @@ class _CurrentPlanBox extends StatelessWidget {
                   separatorBuilder: () => const VSpace(4),
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ..._getPros(subscription.subscriptionPlan).map(
+                    ..._getPros(widget.subscription.subscriptionPlan).map(
                       (s) => _ProConItem(label: s),
                     ),
-                    ..._getCons(subscription.subscriptionPlan).map(
+                    ..._getCons(widget.subscription.subscriptionPlan).map(
                       (s) => _ProConItem(label: s, isPro: false),
                     ),
                   ],
@@ -185,7 +204,7 @@ class _CurrentPlanBox extends StatelessWidget {
   String _canceledDate(BuildContext context) {
     final appearance = context.read<AppearanceSettingsCubit>().state;
     return appearance.dateFormat.formatDate(
-      subscription.canceledAt.toDateTime(),
+      widget.subscription.canceledAt.toDateTime(),
       true,
       appearance.timeFormat,
     );
@@ -199,7 +218,7 @@ class _CurrentPlanBox extends StatelessWidget {
       showDialog(
         context: context,
         builder: (_) => BlocProvider<SettingsPlanBloc>.value(
-          value: context.read<SettingsPlanBloc>(),
+          value: planBloc,
           child: SettingsPlanComparisonDialog(
             workspaceId: workspaceId,
             subscription: subscription,
@@ -224,6 +243,7 @@ class _CurrentPlanBox extends StatelessWidget {
         LocaleKeys.settings_planPage_planUsage_currentPlan_freeProFour.tr(),
         LocaleKeys.settings_planPage_planUsage_currentPlan_freeProFive.tr(),
       ];
+
   List<String> _freeCons() => [
         LocaleKeys.settings_planPage_planUsage_currentPlan_freeConOne.tr(),
         LocaleKeys.settings_planPage_planUsage_currentPlan_freeConTwo.tr(),
@@ -242,6 +262,7 @@ class _CurrentPlanBox extends StatelessWidget {
         LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProFive
             .tr(),
       ];
+
   List<String> _proCons() => [
         LocaleKeys.settings_planPage_planUsage_currentPlan_professionalConOne
             .tr(),
@@ -314,6 +335,11 @@ class _PlanUsageSummary extends StatelessWidget {
             Expanded(
               child: _UsageBox(
                 title: LocaleKeys.settings_planPage_planUsage_storageLabel.tr(),
+                replacementText: subscription.subscriptionPlan ==
+                        SubscriptionPlanPB.Pro
+                    ? LocaleKeys.settings_planPage_planUsage_storageUnlimited
+                        .tr()
+                    : null,
                 label: LocaleKeys.settings_planPage_planUsage_storageUsage.tr(
                   args: [
                     usage.currentBlobInGb,
@@ -372,11 +398,15 @@ class _UsageBox extends StatelessWidget {
     required this.title,
     required this.label,
     required this.value,
+    this.replacementText,
   });
 
   final String title;
   final String label;
   final double value;
+
+  /// Replaces the progress indicator if not null
+  final String? replacementText;
 
   @override
   Widget build(BuildContext context) {
@@ -388,7 +418,21 @@ class _UsageBox extends StatelessWidget {
           fontSize: 11,
           color: AFThemeExtension.of(context).secondaryTextColor,
         ),
-        _PlanProgressIndicator(label: label, progress: value),
+        if (replacementText != null) ...[
+          Row(
+            children: [
+              Flexible(
+                child: FlowyText.medium(
+                  replacementText!,
+                  fontSize: 11,
+                  color: AFThemeExtension.of(context).secondaryTextColor,
+                ),
+              ),
+            ],
+          ),
+        ] else ...[
+          _PlanProgressIndicator(label: label, progress: value),
+        ],
       ],
     );
   }
@@ -665,7 +709,7 @@ class _PlanProgressIndicator extends StatelessWidget {
 //                       children: [
 //                         FlowyText.semibold(
 //                           LocaleKeys.settings_planPage_planUsage_aiCredit_price
-//                               .tr(),
+//                               .tr(args: ['5\$]),
 //                           fontSize: 24,
 //                         ),
 //                         FlowyText.medium(

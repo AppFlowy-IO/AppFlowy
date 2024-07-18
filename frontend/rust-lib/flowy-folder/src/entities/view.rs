@@ -3,7 +3,7 @@ use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
-use collab_folder::{View, ViewLayout};
+use collab_folder::{View, ViewIcon, ViewLayout};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -182,6 +182,15 @@ pub struct RepeatedFavoriteViewPB {
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct ReadRecentViewsPB {
+  #[pb(index = 1)]
+  pub start: u64,
+
+  #[pb(index = 2)]
+  pub limit: u64,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedRecentViewPB {
   #[pb(index = 1)]
   pub items: Vec<SectionViewPB>,
@@ -258,6 +267,14 @@ pub struct CreateViewPayloadPB {
   // The view in private section will only be shown in the user's private view list.
   #[pb(index = 10, one_of)]
   pub section: Option<ViewSectionPB>,
+
+  #[pb(index = 11, one_of)]
+  pub view_id: Option<String>,
+
+  // The extra data of the view.
+  // Refer to the extra field in the collab
+  #[pb(index = 12, one_of)]
+  pub extra: Option<String>,
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
@@ -305,6 +322,10 @@ pub struct CreateViewParams {
   pub index: Option<u32>,
   // The section of the view.
   pub section: Option<ViewSectionPB>,
+  // The icon of the view.
+  pub icon: Option<ViewIcon>,
+  // The extra data of the view.
+  pub extra: Option<String>,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -313,7 +334,8 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
     let parent_view_id = ViewIdentify::parse(self.parent_view_id)?.0;
-    let view_id = gen_view_id().to_string();
+    // if view_id is not provided, generate a new view_id
+    let view_id = self.view_id.unwrap_or_else(|| gen_view_id().to_string());
 
     Ok(CreateViewParams {
       parent_view_id,
@@ -326,6 +348,8 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       set_as_current: self.set_as_current,
       index: self.index,
       section: self.section,
+      icon: None,
+      extra: self.extra,
     })
   }
 }
@@ -348,6 +372,8 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       set_as_current: false,
       index: None,
       section: None,
+      icon: None,
+      extra: None,
     })
   }
 }
@@ -560,6 +586,62 @@ pub struct UpdateViewVisibilityStatusPayloadPB {
 
   #[pb(index = 2)]
   pub is_public: bool,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct DuplicateViewPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub open_after_duplicate: bool,
+
+  #[pb(index = 3)]
+  pub include_children: bool,
+
+  // duplicate the view to the specified parent view.
+  // if the parent_view_id is None, the view will be duplicated to the same parent view.
+  #[pb(index = 4, one_of)]
+  pub parent_view_id: Option<String>,
+
+  // The suffix of the duplicated view name.
+  // If the suffix is None, the duplicated view will have the same name with (copy) suffix.
+  #[pb(index = 5, one_of)]
+  pub suffix: Option<String>,
+
+  #[pb(index = 6)]
+  pub sync_after_create: bool,
+}
+
+#[derive(Debug)]
+pub struct DuplicateViewParams {
+  pub view_id: String,
+
+  pub open_after_duplicate: bool,
+
+  pub include_children: bool,
+
+  pub parent_view_id: Option<String>,
+
+  pub suffix: Option<String>,
+
+  pub sync_after_create: bool,
+}
+
+impl TryInto<DuplicateViewParams> for DuplicateViewPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<DuplicateViewParams, Self::Error> {
+    let view_id = ViewIdentify::parse(self.view_id)?.0;
+    Ok(DuplicateViewParams {
+      view_id,
+      open_after_duplicate: self.open_after_duplicate,
+      include_children: self.include_children,
+      parent_view_id: self.parent_view_id,
+      suffix: self.suffix,
+      sync_after_create: self.sync_after_create,
+    })
+  }
 }
 
 // impl<'de> Deserialize<'de> for ViewDataType {

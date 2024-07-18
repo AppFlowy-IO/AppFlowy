@@ -242,6 +242,7 @@ where
           authenticator: Authenticator::Supabase,
           encryption_type: EncryptionType::from_sign(&response.encryption_sign),
           updated_at: response.updated_at.timestamp(),
+          ai_model: "".to_string(),
         }),
       }
     })

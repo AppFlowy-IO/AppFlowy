@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
@@ -5,6 +7,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -17,9 +20,10 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.d
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -52,7 +56,7 @@ class ViewItem extends StatelessWidget {
     this.isDraggable = true,
     required this.isFeedback,
     this.height = HomeSpaceViewSizes.viewHeight,
-    this.isHoverEnabled = true,
+    this.isHoverEnabled = false,
     this.isPlaceholder = false,
     this.isHovered,
     this.shouldRenderChildren = true,
@@ -61,6 +65,8 @@ class ViewItem extends StatelessWidget {
     this.shouldLoadChildViews = true,
     this.isExpandedNotifier,
     this.extendBuilder,
+    this.disableSelectedStatus,
+    this.shouldIgnoreView,
   });
 
   final ViewPB view;
@@ -116,6 +122,12 @@ class ViewItem extends StatelessWidget {
 
   final List<Widget> Function(ViewPB view)? extendBuilder;
 
+  // disable the selected status of the view item
+  final bool? disableSelectedStatus;
+
+  // ignore the views when rendering the child views
+  final bool Function(ViewPB view)? shouldIgnoreView;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -129,15 +141,23 @@ class ViewItem extends StatelessWidget {
         listener: (context, state) =>
             context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
+          // filter the child views that should be ignored
+          var childViews = state.view.childViews;
+          if (shouldIgnoreView != null) {
+            childViews = childViews
+                .where((childView) => !shouldIgnoreView!(childView))
+                .toList();
+          }
           return InnerViewItem(
             view: state.view,
             parentView: parentView,
-            childViews: state.view.childViews,
+            childViews: childViews,
             spaceType: spaceType,
             level: level,
             leftPadding: leftPadding,
             showActions: state.isEditing,
             isExpanded: state.isExpanded,
+            disableSelectedStatus: disableSelectedStatus,
             onSelected: onSelected,
             onTertiarySelected: onTertiarySelected,
             isFirstChild: isFirstChild,
@@ -152,6 +172,7 @@ class ViewItem extends StatelessWidget {
             rightIconsBuilder: rightIconsBuilder,
             isExpandedNotifier: isExpandedNotifier,
             extendBuilder: extendBuilder,
+            shouldIgnoreView: shouldIgnoreView,
           );
         },
       ),
@@ -186,6 +207,8 @@ class InnerViewItem extends StatefulWidget {
     required this.rightIconsBuilder,
     this.isExpandedNotifier,
     required this.extendBuilder,
+    this.disableSelectedStatus,
+    required this.shouldIgnoreView,
   });
 
   final ViewPB view;
@@ -209,6 +232,7 @@ class InnerViewItem extends StatefulWidget {
 
   final bool isHoverEnabled;
   final bool isPlaceholder;
+  final bool? disableSelectedStatus;
   final ValueNotifier<bool>? isHovered;
   final bool shouldRenderChildren;
   final ViewItemLeftIconBuilder? leftIconBuilder;
@@ -216,6 +240,7 @@ class InnerViewItem extends StatefulWidget {
 
   final PropertyValueNotifier<bool>? isExpandedNotifier;
   final List<Widget> Function(ViewPB view)? extendBuilder;
+  final bool Function(ViewPB view)? shouldIgnoreView;
 
   @override
   State<InnerViewItem> createState() => _InnerViewItemState();
@@ -236,24 +261,33 @@ class _InnerViewItemState extends State<InnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = SingleInnerViewItem(
-      view: widget.view,
-      parentView: widget.parentView,
-      level: widget.level,
-      showActions: widget.showActions,
-      spaceType: widget.spaceType,
-      onSelected: widget.onSelected,
-      onTertiarySelected: widget.onTertiarySelected,
-      isExpanded: widget.isExpanded,
-      isDraggable: widget.isDraggable,
-      leftPadding: widget.leftPadding,
-      isFeedback: widget.isFeedback,
-      height: widget.height,
-      isPlaceholder: widget.isPlaceholder,
-      isHovered: widget.isHovered,
-      leftIconBuilder: widget.leftIconBuilder,
-      rightIconsBuilder: widget.rightIconsBuilder,
-      extendBuilder: widget.extendBuilder,
+    Widget child = ValueListenableBuilder(
+      valueListenable: getIt<MenuSharedState>().notifier,
+      builder: (context, value, _) {
+        final isSelected = value?.id == widget.view.id;
+        return SingleInnerViewItem(
+          view: widget.view,
+          parentView: widget.parentView,
+          level: widget.level,
+          showActions: widget.showActions,
+          spaceType: widget.spaceType,
+          onSelected: widget.onSelected,
+          onTertiarySelected: widget.onTertiarySelected,
+          isExpanded: widget.isExpanded,
+          isDraggable: widget.isDraggable,
+          leftPadding: widget.leftPadding,
+          isFeedback: widget.isFeedback,
+          height: widget.height,
+          isPlaceholder: widget.isPlaceholder,
+          isHovered: widget.isHovered,
+          leftIconBuilder: widget.leftIconBuilder,
+          rightIconsBuilder: widget.rightIconsBuilder,
+          extendBuilder: widget.extendBuilder,
+          disableSelectedStatus: widget.disableSelectedStatus,
+          shouldIgnoreView: widget.shouldIgnoreView,
+          isSelected: isSelected,
+        );
+      },
     );
 
     // if the view is expanded and has child views, render its child views
@@ -271,6 +305,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
           onSelected: widget.onSelected,
           onTertiarySelected: widget.onTertiarySelected,
           isDraggable: widget.isDraggable,
+          disableSelectedStatus: widget.disableSelectedStatus,
           leftPadding: widget.leftPadding,
           isFeedback: widget.isFeedback,
           isPlaceholder: widget.isPlaceholder,
@@ -278,6 +313,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
           leftIconBuilder: widget.leftIconBuilder,
           rightIconsBuilder: widget.rightIconsBuilder,
           extendBuilder: widget.extendBuilder,
+          shouldIgnoreView: widget.shouldIgnoreView,
         );
       }).toList();
 
@@ -300,7 +336,15 @@ class _InnerViewItemState extends State<InnerViewItem> {
           _isDragging = isDragging;
         },
         onMove: widget.isPlaceholder
-            ? (from, to) => _moveViewCrossSection(context, from, to)
+            ? (from, to) => _moveViewCrossSection(
+                  context,
+                  null,
+                  widget.view,
+                  widget.parentView,
+                  widget.spaceType,
+                  from,
+                  to.parentViewId,
+                )
             : null,
         feedback: (context) {
           return Container(
@@ -324,6 +368,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
               leftIconBuilder: widget.leftIconBuilder,
               rightIconsBuilder: widget.rightIconsBuilder,
               extendBuilder: widget.extendBuilder,
+              shouldIgnoreView: widget.shouldIgnoreView,
             ),
           );
         },
@@ -344,37 +389,6 @@ class _InnerViewItemState extends State<InnerViewItem> {
     if (widget.isExpandedNotifier?.value == true) {
       context.read<ViewBloc>().add(const ViewEvent.collapseAllPages());
     }
-  }
-
-  void _moveViewCrossSection(
-    BuildContext context,
-    ViewPB from,
-    ViewPB to,
-  ) {
-    if (isReferencedDatabaseView(widget.view, widget.parentView)) {
-      return;
-    }
-    final fromSection = widget.spaceType == FolderSpaceType.public
-        ? ViewSectionPB.Private
-        : ViewSectionPB.Public;
-    final toSection = widget.spaceType == FolderSpaceType.public
-        ? ViewSectionPB.Public
-        : ViewSectionPB.Private;
-    context.read<ViewBloc>().add(
-          ViewEvent.move(
-            from,
-            to.parentViewId,
-            null,
-            fromSection,
-            toSection,
-          ),
-        );
-    context.read<ViewBloc>().add(
-          ViewEvent.updateViewVisibility(
-            from,
-            widget.spaceType == FolderSpaceType.public,
-          ),
-        );
   }
 }
 
@@ -399,6 +413,9 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.leftIconBuilder,
     required this.rightIconsBuilder,
     required this.extendBuilder,
+    required this.disableSelectedStatus,
+    required this.shouldIgnoreView,
+    required this.isSelected,
   });
 
   final ViewPB view;
@@ -419,11 +436,14 @@ class SingleInnerViewItem extends StatefulWidget {
 
   final bool isHoverEnabled;
   final bool isPlaceholder;
+  final bool? disableSelectedStatus;
   final ValueNotifier<bool>? isHovered;
   final ViewItemLeftIconBuilder? leftIconBuilder;
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
   final List<Widget> Function(ViewPB view)? extendBuilder;
+  final bool Function(ViewPB view)? shouldIgnoreView;
+  final bool isSelected;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -435,8 +455,11 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    final isSelected =
-        getIt<MenuSharedState>().latestOpenView?.id == widget.view.id;
+    var isSelected = widget.isSelected;
+
+    if (widget.disableSelectedStatus == true) {
+      isSelected = false;
+    }
 
     if (widget.isPlaceholder) {
       return const SizedBox(
@@ -482,7 +505,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           ? Expanded(
               child: Row(
                 children: [
-                  name,
+                  Flexible(child: name),
                   ...widget.extendBuilder!(widget.view),
                 ],
               ),
@@ -672,7 +695,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         spaceType: widget.spaceType,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-        onAction: (action, data) {
+        onAction: (action, data) async {
           switch (action) {
             case ViewMoreActionType.favorite:
             case ViewMoreActionType.unFavorite:
@@ -681,18 +704,36 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                   .add(FavoriteEvent.toggle(widget.view));
               break;
             case ViewMoreActionType.rename:
-              NavigatorTextFieldDialog(
-                title: LocaleKeys.disclosureAction_rename.tr(),
-                autoSelectAllText: true,
-                value: widget.view.name,
-                maxLength: 256,
-                onConfirm: (newValue, _) {
-                  context.read<ViewBloc>().add(ViewEvent.rename(newValue));
-                },
-              ).show(context);
+              unawaited(
+                NavigatorTextFieldDialog(
+                  title: LocaleKeys.disclosureAction_rename.tr(),
+                  autoSelectAllText: true,
+                  value: widget.view.name,
+                  maxLength: 256,
+                  onConfirm: (newValue, _) {
+                    context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+                  },
+                ).show(context),
+              );
               break;
             case ViewMoreActionType.delete:
-              context.read<ViewBloc>().add(const ViewEvent.delete());
+              // get if current page contains published child views
+              final (containPublishedPage, _) =
+                  await ViewBackendService.containPublishedPage(
+                widget.view,
+              );
+              if (containPublishedPage && context.mounted) {
+                await showConfirmDeletionDialog(
+                  context: context,
+                  name: widget.view.name,
+                  description: LocaleKeys.publish_containsPublishedPage.tr(),
+                  onConfirm: () {
+                    context.read<ViewBloc>().add(const ViewEvent.delete());
+                  },
+                );
+              } else if (context.mounted) {
+                context.read<ViewBloc>().add(const ViewEvent.delete());
+              }
               break;
             case ViewMoreActionType.duplicate:
               context.read<ViewBloc>().add(const ViewEvent.duplicate());
@@ -708,12 +749,28 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 return;
               }
               final result = data;
-              ViewBackendService.updateViewIcon(
+              await ViewBackendService.updateViewIcon(
                 viewId: widget.view.id,
                 viewIcon: result.emoji,
                 iconType: result.type.toProto(),
               );
               break;
+            case ViewMoreActionType.moveTo:
+              final value = data;
+              if (value is! (ViewPB, ViewPB)) {
+                return;
+              }
+              final space = value.$1;
+              final target = value.$2;
+              _moveViewCrossSection(
+                context,
+                space,
+                widget.view,
+                widget.parentView,
+                widget.spaceType,
+                widget.view,
+                target.id,
+              );
             default:
               throw UnsupportedError('$action is not supported');
           }
@@ -764,4 +821,55 @@ bool isReferencedDatabaseView(ViewPB view, ViewPB? parentView) {
     return false;
   }
   return view.layout.isDatabaseView && parentView.layout.isDatabaseView;
+}
+
+void _moveViewCrossSection(
+  BuildContext context,
+  ViewPB? toSpace,
+  ViewPB view,
+  ViewPB? parentView,
+  FolderSpaceType spaceType,
+  ViewPB from,
+  String toId,
+) {
+  if (isReferencedDatabaseView(view, parentView)) {
+    return;
+  }
+
+  if (from.id == toId) {
+    return;
+  }
+
+  final fromSection = spaceType == FolderSpaceType.public
+      ? ViewSectionPB.Private
+      : ViewSectionPB.Public;
+  final toSection = spaceType == FolderSpaceType.public
+      ? ViewSectionPB.Public
+      : ViewSectionPB.Private;
+
+  final currentSpace = context.read<SpaceBloc>().state.currentSpace;
+  if (currentSpace != null &&
+      toSpace != null &&
+      currentSpace.id != toSpace.id) {
+    Log.info(
+      'Move view(${from.name}) to another space(${toSpace.name}), unpublish the view',
+    );
+    context.read<ViewBloc>().add(const ViewEvent.unpublish(sync: false));
+  }
+
+  context.read<ViewBloc>().add(
+        ViewEvent.move(
+          from,
+          toId,
+          null,
+          fromSection,
+          toSection,
+        ),
+      );
+  context.read<ViewBloc>().add(
+        ViewEvent.updateViewVisibility(
+          from,
+          spaceType == FolderSpaceType.public,
+        ),
+      );
 }

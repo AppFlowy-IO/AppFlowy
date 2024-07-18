@@ -1,6 +1,14 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    chat_local_setting_table (chat_id) {
+        chat_id -> Text,
+        local_model_path -> Text,
+        local_model_name -> Text,
+    }
+}
+
+diesel::table! {
     chat_message_table (message_id) {
         message_id -> BigInt,
         chat_id -> Text,
@@ -17,6 +25,10 @@ diesel::table! {
         chat_id -> Text,
         created_at -> BigInt,
         name -> Text,
+        local_model_path -> Text,
+        local_model_name -> Text,
+        local_enabled -> Bool,
+        sync_to_cloud -> Bool,
     }
 }
 
@@ -75,6 +87,7 @@ diesel::table! {
         encryption_type -> Text,
         stability_ai_key -> Text,
         updated_at -> BigInt,
+        ai_model -> Text,
     }
 }
 
@@ -102,6 +115,7 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
+  chat_local_setting_table,
   chat_message_table,
   chat_table,
   collab_snapshot,

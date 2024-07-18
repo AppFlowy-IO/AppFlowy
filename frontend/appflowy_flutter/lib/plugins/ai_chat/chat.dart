@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/ai_chat/chat_page.dart';
 import 'package:appflowy/plugins/util.dart';
@@ -7,7 +9,6 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AIChatPluginBuilder extends PluginBuilder {
@@ -65,6 +66,12 @@ class AIChatPagePlugin extends Plugin {
     _viewInfoBloc = ViewInfoBloc(view: notifier.view)
       ..add(const ViewInfoEvent.started());
   }
+
+  @override
+  void dispose() {
+    _viewInfoBloc.close();
+    notifier.dispose();
+  }
 }
 
 class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
@@ -111,4 +118,7 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
 
   @override
   List<NavigationItem> get navigationItems => [this];
+
+  @override
+  EdgeInsets get contentPadding => EdgeInsets.zero;
 }

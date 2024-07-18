@@ -49,7 +49,7 @@ class _MobileRecentSpaceState extends State<MobileRecentSpace>
 
   List<SectionViewPB> _filterRecentViews(List<SectionViewPB> recentViews) {
     final ids = <String>{};
-    final filteredRecentViews = recentViews.reversed.toList();
+    final filteredRecentViews = recentViews.toList();
     filteredRecentViews.retainWhere((e) => ids.add(e.item.id));
     return filteredRecentViews;
   }

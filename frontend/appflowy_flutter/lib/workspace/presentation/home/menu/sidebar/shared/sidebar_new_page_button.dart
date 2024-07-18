@@ -55,6 +55,7 @@ class SidebarNewPageButton extends StatelessWidget {
                   SpaceEvent.createPage(
                     name: viewName,
                     index: 0,
+                    layout: ViewLayoutPB.Document,
                   ),
                 );
           } else {

@@ -29,9 +29,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
         await event.when(
           initial: () async {
             _listener.start(
-              didUpdateUserWorkspaces: (workspaces) =>
+              onUserWorkspaceListUpdated: (workspaces) =>
                   add(UserWorkspaceEvent.updateWorkspaces(workspaces)),
-              didUpdateUserWorkspace: (workspace) {
+              onUserWorkspaceUpdated: (workspace) {
                 // If currentWorkspace is updated, eg. Icon or Name, we should notify
                 // the UI to render the updated information.
                 final currentWorkspace = state.currentWorkspace;
@@ -56,23 +56,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               await _userService.openWorkspace(currentWorkspace.workspaceId);
             }
 
-            WorkspaceMemberPB? currentWorkspaceMember;
-            final workspaceMemberResult =
-                await _userService.getWorkspaceMember();
-            currentWorkspaceMember = workspaceMemberResult.fold(
-              (s) => s,
-              (e) => null,
-            );
-
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
                 workspaces: workspaces,
                 isCollabWorkspaceOn: isCollabWorkspaceOn,
-                currentWorkspaceMember: currentWorkspaceMember,
                 actionResult: null,
               ),
             );
+
+            /// We wait with fetching the workspace member as it may take some time,
+            /// to avoid blocking the UI from rendering (the sidebar).
+            final workspaceMemberResult =
+                await _userService.getWorkspaceMember();
+            final workspaceMember = workspaceMemberResult.toNullable();
+            emit(state.copyWith(currentWorkspaceMember: workspaceMember));
           },
           fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
@@ -209,14 +207,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               (e) => state.currentWorkspace,
             );
 
-            WorkspaceMemberPB? currentWorkspaceMember;
-            final workspaceMemberResult =
-                await _userService.getWorkspaceMember();
-            currentWorkspaceMember = workspaceMemberResult.fold(
-              (s) => s,
-              (e) => null,
-            );
-
             result
               ..onSuccess((s) {
                 Log.info(
@@ -230,7 +220,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
-                currentWorkspaceMember: currentWorkspaceMember,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.open,
                   isLoading: false,
@@ -238,6 +227,14 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 ),
               ),
             );
+
+            /// We wait with fetching the workspace member as it may take some time,
+            /// to avoid blocking the UI from rendering (the sidebar).
+            final workspaceMemberResult =
+                await _userService.getWorkspaceMember();
+            final workspaceMember = workspaceMemberResult.toNullable();
+
+            emit(state.copyWith(currentWorkspaceMember: workspaceMember));
           },
           renameWorkspace: (workspaceId, name) async {
             final result =
@@ -406,7 +403,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       )> _fetchWorkspaces() async {
     try {
       final currentWorkspace =
-          await _userService.getCurrentWorkspace().getOrThrow();
+          await UserBackendService.getCurrentWorkspace().getOrThrow();
       final workspaces = await _userService.getWorkspaces().getOrThrow();
       if (workspaces.isEmpty) {
         workspaces.add(convertWorkspacePBToUserWorkspace(currentWorkspace));
@@ -512,6 +509,7 @@ class UserWorkspaceState with _$UserWorkspaceState {
     if (identical(this, other)) return true;
 
     return other is UserWorkspaceState &&
+        other.currentWorkspaceMember == currentWorkspaceMember &&
         other.currentWorkspace == currentWorkspace &&
         _deepCollectionEquality.equals(other.workspaces, workspaces) &&
         identical(other.actionResult, actionResult);

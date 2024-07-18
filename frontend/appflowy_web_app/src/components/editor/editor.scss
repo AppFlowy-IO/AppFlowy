@@ -1,3 +1,4 @@
+@use "src/styles/mixin.scss";
 
 .block-element:not([data-block-type="table/cell"]) {
   @apply my-[4px];
@@ -195,12 +196,6 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
-.bulleted-icon {
-  &:after {
-    content: attr(data-letter);
-    font-weight: 500;
-  }
-}
 
 .numbered-icon {
   &:after {
@@ -234,11 +229,11 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
     @apply bg-transparent;
   }
 
-  &:hover {
-    .container-bg {
-      background: var(--fill-list-hover) !important;
-    }
-  }
+  //&:hover {
+  //  .container-bg {
+  //    background: var(--fill-list-hover) !important;
+  //  }
+  //}
 }
 
 [data-block-type='heading'] {
@@ -257,7 +252,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 .mention-inline {
   height: inherit;
   overflow: hidden;
-  @apply inline-flex select-none gap-1 relative;
+  @apply inline-flex gap-1 relative;
 
   .mention-icon {
     @apply absolute top-1/2 transform -translate-y-1/2;
@@ -300,4 +295,8 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
     margin-top: 0px;
     margin-bottom: 0px;
   }
+}
+
+.table-block {
+  @include mixin.scrollbar-style;
 }

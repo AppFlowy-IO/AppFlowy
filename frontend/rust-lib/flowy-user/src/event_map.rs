@@ -74,6 +74,9 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::CancelWorkspaceSubscription, cancel_workspace_subscription_handler)
     .event(UserEvent::GetWorkspaceUsage, get_workspace_usage_handler)
     .event(UserEvent::GetBillingPortal, get_billing_portal_handler)
+    // Workspace Setting
+    .event(UserEvent::UpdateWorkspaceSetting, update_workspace_setting)
+    .event(UserEvent::GetWorkspaceSetting, get_workspace_setting)
 
 }
 
@@ -253,6 +256,12 @@ pub enum UserEvent {
 
   #[event(input = "WorkspaceMemberIdPB", output = "WorkspaceMemberPB")]
   GetMemberInfo = 56,
+
+  #[event(input = "UpdateUserWorkspaceSettingPB")]
+  UpdateWorkspaceSetting = 57,
+
+  #[event(input = "UserWorkspaceIdPB", output = "UseAISettingPB")]
+  GetWorkspaceSetting = 58,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

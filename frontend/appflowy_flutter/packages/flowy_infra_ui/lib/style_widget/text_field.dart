@@ -1,9 +1,8 @@
 import 'dart:async';
 
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:flowy_infra/size.dart';
 
 class FlowyTextField extends StatefulWidget {
   final String? hintText;
@@ -39,6 +38,7 @@ class FlowyTextField extends StatefulWidget {
   final bool isDense;
   final bool readOnly;
   final void Function()? onTap;
+  final Color? enableBorderColor;
 
   const FlowyTextField({
     super.key,
@@ -75,6 +75,7 @@ class FlowyTextField extends StatefulWidget {
     this.isDense = true,
     this.readOnly = false,
     this.onTap,
+    this.enableBorderColor,
   });
 
   @override
@@ -141,7 +142,6 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   void _onSubmitted(String text) {
     widget.onSubmitted?.call(text);
     if (widget.autoClearWhenDone) {
-      // using `controller.clear()` instead of `controller.text = ''` which will crash on Windows.
       controller.clear();
     }
   }
@@ -149,8 +149,8 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
       readOnly: widget.readOnly,
+      controller: controller,
       focusNode: focusNode,
       onChanged: (text) {
         if (widget.debounceDuration != null) {
@@ -159,7 +159,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           _onChanged(text);
         }
       },
-      onSubmitted: (text) => _onSubmitted(text),
+      onSubmitted: _onSubmitted,
       onEditingComplete: widget.onEditingComplete,
       onTap: widget.onTap,
       minLines: 1,
@@ -185,7 +185,8 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             enabledBorder: OutlineInputBorder(
               borderRadius: Corners.s8Border,
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
+                color: widget.enableBorderColor ??
+                    Theme.of(context).colorScheme.outline,
               ),
             ),
             isDense: false,
@@ -206,7 +207,10 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             focusedBorder: OutlineInputBorder(
               borderRadius: Corners.s8Border,
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
+                color: widget.readOnly
+                    ? widget.enableBorderColor ??
+                        Theme.of(context).colorScheme.outline
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
             errorBorder: OutlineInputBorder(

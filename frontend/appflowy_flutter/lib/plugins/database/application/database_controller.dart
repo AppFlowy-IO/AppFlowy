@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/view/view_cache.dart';
 import 'package:appflowy/plugins/database/domain/database_view_service.dart';
@@ -12,7 +14,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 
 import 'defines.dart';
 import 'row/row_cache.dart';
@@ -223,6 +224,7 @@ class DatabaseController {
     _databaseCallbacks.clear();
     _groupCallbacks.clear();
     _layoutCallbacks.clear();
+    _isLoading.dispose();
   }
 
   Future<void> _loadGroups() async {

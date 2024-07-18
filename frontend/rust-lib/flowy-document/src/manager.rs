@@ -11,6 +11,7 @@ use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
+use collab_plugins::local_storage::kv::PersistenceError;
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;
@@ -74,6 +75,20 @@ impl DocumentManager {
     }
   }
 
+  /// Get the encoded collab of the document.
+  pub async fn encode_collab(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
+    let doc_state = DataSource::Disk;
+    let uid = self.user_service.user_id()?;
+    let collab = self
+      .collab_for_document(uid, doc_id, doc_state, false)
+      .await?;
+
+    let collab = collab.lock();
+    collab
+      .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+      .map_err(internal_error)
+  }
+
   pub async fn initialize(&self, _uid: i64) -> FlowyResult<()> {
     trace!("initialize document manager");
     self.documents.clear();
@@ -110,25 +125,30 @@ impl DocumentManager {
     uid: i64,
     doc_id: &str,
     data: Option<DocumentData>,
-  ) -> FlowyResult<()> {
+  ) -> FlowyResult<EncodedCollab> {
     if self.is_doc_exist(doc_id).await.unwrap_or(false) {
       Err(FlowyError::new(
         ErrorCode::RecordAlreadyExists,
         format!("document {} already exists", doc_id),
       ))
     } else {
-      let doc_state = doc_state_from_document_data(
+      let encoded_collab = doc_state_from_document_data(
         doc_id,
         data.unwrap_or_else(|| default_document_data(doc_id)),
       )
-      .await?
-      .doc_state
-      .to_vec();
+      .await?;
+      let doc_state = encoded_collab.doc_state.to_vec();
       let collab = self
-        .collab_for_document(uid, doc_id, DataSource::DocStateV1(doc_state), false)
+        .collab_for_document(
+          uid,
+          doc_id,
+          DataSource::DocStateV1(doc_state.clone()),
+          false,
+        )
         .await?;
       collab.lock().flush();
-      Ok(())
+
+      Ok(encoded_collab)
     }
   }
 

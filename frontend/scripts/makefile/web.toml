@@ -1,9 +1,8 @@
-
 [tasks.wasm_build]
 script_runner = "bash"
 script = [
     """
-    #!/bin/bash
+    #!/usr/bin/env bash
     BASE_DIR=$(pwd)
     crates=("lib-dispatch" "flowy-encrypt" "lib-infra" "flowy-notification" "flowy-date" "flowy-error" "collab-integrate" "flowy-document")
 
@@ -28,15 +27,6 @@ run_task = { name = [
     "rm_web_generated_event_files",
     "rm_pkg",
 ] }
-
-
-[tasks.rm_pkg]
-private = true
-script = ["""
-cd ${WEB_LIB_PATH}
-rimraf dist pkg
-"""]
-script_runner = "@duckscript"
 
 [tasks.rm_web_generated_protobuf_files]
 private = true

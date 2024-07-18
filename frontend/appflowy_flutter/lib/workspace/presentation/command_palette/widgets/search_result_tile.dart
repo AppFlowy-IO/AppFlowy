@@ -93,20 +93,25 @@ class _SearchResultTileState extends State<SearchResultTile> {
                       SizedBox(width: 24, child: icon),
                       const HSpace(6),
                     ],
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (widget.isTrashed) ...[
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (widget.isTrashed) ...[
+                            FlowyText(
+                              LocaleKeys.commandPalette_fromTrashHint.tr(),
+                              color: AFThemeExtension.of(context)
+                                  .textColor
+                                  .withAlpha(175),
+                              fontSize: 10,
+                            ),
+                          ],
                           FlowyText(
-                            LocaleKeys.commandPalette_fromTrashHint.tr(),
-                            color: AFThemeExtension.of(context)
-                                .textColor
-                                .withAlpha(175),
-                            fontSize: 10,
+                            widget.result.data,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
-                        FlowyText(widget.result.data),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -142,6 +147,7 @@ class _DocumentPreview extends StatelessWidget {
         color: Theme.of(context).hintColor,
         fontSize: 12,
         maxLines: 3,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

@@ -42,6 +42,8 @@ impl EventIntegrationTest {
       set_as_current: true,
       index: None,
       section: None,
+      view_id: None,
+      extra: None,
     };
     let view = EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -63,6 +65,7 @@ impl EventIntegrationTest {
 
     view
   }
+
   pub async fn open_document(&self, doc_id: String) -> OpenDocumentData {
     let payload = OpenDocumentPayloadPB {
       document_id: doc_id.clone(),

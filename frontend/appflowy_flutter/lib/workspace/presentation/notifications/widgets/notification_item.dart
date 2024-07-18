@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
@@ -12,7 +14,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class NotificationItem extends StatefulWidget {
@@ -69,6 +70,12 @@ class _NotificationItemState extends State<NotificationItem> {
     super.initState();
     widget.block?.then((b) => path = b?.path.first);
     infoString = _buildInfoString();
+  }
+
+  @override
+  void dispose() {
+    mutex.dispose();
+    super.dispose();
   }
 
   String _buildInfoString() {
