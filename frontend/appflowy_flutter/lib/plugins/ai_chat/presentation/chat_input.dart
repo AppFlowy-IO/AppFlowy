@@ -49,7 +49,9 @@ class _ChatInputState extends State<ChatInput> {
           return KeyEventResult.ignored;
         }
         if (event is KeyDownEvent) {
-          _handleSendPressed();
+          if (!widget.isStreaming) {
+            _handleSendPressed();
+          }
         }
         return KeyEventResult.handled;
       } else {
@@ -78,17 +80,13 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   void _handleSendPressed() {
-    if (widget.isStreaming) {
-      widget.onStopStreaming();
-    } else {
-      final trimmedText = _textController.text.trim();
-      if (trimmedText != '') {
-        final partialText = types.PartialText(text: trimmedText);
-        widget.onSendPressed(partialText);
+    final trimmedText = _textController.text.trim();
+    if (trimmedText != '') {
+      final partialText = types.PartialText(text: trimmedText);
+      widget.onSendPressed(partialText);
 
-        if (widget.options.inputClearMode == InputClearMode.always) {
-          _textController.clear();
-        }
+      if (widget.options.inputClearMode == InputClearMode.always) {
+        _textController.clear();
       }
     }
   }
@@ -139,7 +137,6 @@ class _ChatInputState extends State<ChatInput> {
       padding: textPadding,
       child: TextField(
         controller: _textController,
-        readOnly: widget.isStreaming,
         focusNode: _inputFocusNode,
         decoration: InputDecoration(
           border: InputBorder.none,
@@ -151,7 +148,6 @@ class _ChatInputState extends State<ChatInput> {
         style: TextStyle(
           color: AFThemeExtension.of(context).textColor,
         ),
-        enabled: widget.options.enabled,
         autocorrect: widget.options.autocorrect,
         autofocus: widget.options.autofocus,
         enableSuggestions: widget.options.enableSuggestions,
@@ -176,7 +172,10 @@ class _ChatInputState extends State<ChatInput> {
           padding: buttonPadding,
           child: AccessoryButton(
             onSendPressed: () {
-              _handleSendPressed();
+              if (!widget.isStreaming) {
+                widget.onStopStreaming();
+                _handleSendPressed();
+              }
             },
             onStopStreaming: () {
               widget.onStopStreaming();

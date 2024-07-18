@@ -46,8 +46,8 @@ impl ChatManager {
       cloud_service.clone(),
     ));
 
-    if local_ai_controller.is_ready() {
-      if let Err(err) = local_ai_controller.initialize() {
+    if local_ai_controller.can_init() {
+      if let Err(err) = local_ai_controller.initialize_chat_plugin(None) {
         error!("[AI Plugin] failed to initialize local ai: {:?}", err);
       }
     }
@@ -86,7 +86,7 @@ impl ChatManager {
   pub async fn close_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
     trace!("close chat: {}", chat_id);
 
-    if self.local_ai_controller.is_ready() {
+    if self.local_ai_controller.is_running() {
       info!("[AI Plugin] notify close chat: {}", chat_id);
       self.local_ai_controller.close_chat(chat_id);
     }
@@ -97,7 +97,7 @@ impl ChatManager {
     if let Some((_, chat)) = self.chats.remove(chat_id) {
       chat.close();
 
-      if self.local_ai_controller.is_ready() {
+      if self.local_ai_controller.is_running() {
         info!("[AI Plugin] notify close chat: {}", chat_id);
         self.local_ai_controller.close_chat(chat_id);
       }

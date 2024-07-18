@@ -3,6 +3,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
+use crate::af_cloud::define::ServerUser;
 use anyhow::Error;
 use client_api::collab_sync::ServerCollabMessage;
 use client_api::entity::ai_dto::AIModel;
@@ -12,8 +13,18 @@ use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
 use client_api::{Client, ClientConfiguration};
+
 use flowy_chat_pub::cloud::ChatCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_document_pub::cloud::DocumentCloudService;
+use flowy_error::{ErrorCode, FlowyError};
+use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_search_pub::cloud::SearchCloudService;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_storage_pub::cloud::StorageCloudService;
+use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
+use flowy_user_pub::entities::UserTokenState;
+use lib_dispatch::prelude::af_spawn;
 use rand::Rng;
 use semver::Version;
 use tokio::select;
@@ -22,17 +33,6 @@ use tokio_stream::wrappers::WatchStream;
 use tokio_util::sync::CancellationToken;
 use tracing::{error, event, info, warn};
 use uuid::Uuid;
-
-use crate::af_cloud::define::ServerUser;
-use flowy_database_pub::cloud::DatabaseCloudService;
-use flowy_document_pub::cloud::DocumentCloudService;
-use flowy_error::{ErrorCode, FlowyError};
-use flowy_folder_pub::cloud::FolderCloudService;
-use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use flowy_storage_pub::cloud::StorageCloudService;
-use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
-use flowy_user_pub::entities::UserTokenState;
-use lib_dispatch::prelude::af_spawn;
 
 use crate::af_cloud::impls::{
   AFCloudChatCloudServiceImpl, AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl,

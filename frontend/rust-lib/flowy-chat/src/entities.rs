@@ -367,7 +367,7 @@ pub struct PendingResourcePB {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct PluginStatePB {
+pub struct LocalAIPluginStatePB {
   #[pb(index = 1)]
   pub state: RunningStatePB,
 }
@@ -391,4 +391,22 @@ impl From<RunningState> for RunningStatePB {
       RunningState::UnexpectedStop { .. } => RunningStatePB::Stopped,
     }
   }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct LocalAIPB {
+  #[pb(index = 1)]
+  pub enabled: bool,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct LocalAIChatPB {
+  #[pb(index = 1)]
+  pub enabled: bool,
+
+  #[pb(index = 2)]
+  pub file_enabled: bool,
+
+  #[pb(index = 3)]
+  pub plugin_state: LocalAIPluginStatePB,
 }
