@@ -73,6 +73,8 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
                 url: '$_url/${result.namespace}/$publishName',
               ),
             );
+
+            Log.info('publish success: ${result.namespace}/$publishName');
           } catch (e) {
             Log.error('publish error: $e');
 

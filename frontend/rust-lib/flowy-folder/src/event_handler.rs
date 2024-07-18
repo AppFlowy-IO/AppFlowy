@@ -433,7 +433,7 @@ pub(crate) async fn unpublish_views_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, folder), err)]
+#[tracing::instrument(level = "debug", skip(data, folder))]
 pub(crate) async fn get_publish_info_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
