@@ -2103,6 +2103,7 @@ dependencies = [
  "client-api",
  "collab",
  "collab-entity",
+ "flowy-error",
  "lib-infra",
 ]
 

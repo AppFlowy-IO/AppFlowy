@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
+pub use client_api::entity::billing_dto::RecurringInterval;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::*;

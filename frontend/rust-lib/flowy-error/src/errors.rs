@@ -72,6 +72,14 @@ impl FlowyError {
     self.code == ErrorCode::LocalVersionNotSupport
   }
 
+  pub fn is_file_limit_exceeded(&self) -> bool {
+    self.code == ErrorCode::FileStorageLimitExceeded
+  }
+
+  pub fn is_ai_response_limit_exceeded(&self) -> bool {
+    self.code == ErrorCode::AIResponseLimitExceeded
+  }
+
   static_flowy_error!(internal, ErrorCode::Internal);
   static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
   static_flowy_error!(workspace_initialize, ErrorCode::WorkspaceInitializeError);

@@ -182,11 +182,20 @@ class _SettingsPlanComparisonDialogState
                                 .settings_comparePlanDialog_freePlan_priceInfo
                                 .tr(),
                             cells: _freeLabels,
+<<<<<<< HEAD
                             isCurrent:
                                 currentInfo.plan == WorkspacePlanPB.FreePlan,
                             canDowngrade:
                                 currentInfo.plan != WorkspacePlanPB.FreePlan,
                             currentCanceled: currentInfo.isCanceled ||
+=======
+                            isCurrent: currentSubscription.subscriptionPlan ==
+                                SubscriptionPlanPB.Free,
+                            canDowngrade:
+                                currentSubscription.subscriptionPlan !=
+                                    SubscriptionPlanPB.Free,
+                            currentCanceled: currentSubscription.hasCanceled ||
+>>>>>>> billing_error_code
                                 (context
                                         .watch<SettingsPlanBloc>()
                                         .state
@@ -196,9 +205,15 @@ class _SettingsPlanComparisonDialogState
                                         ) ??
                                     false),
                             onSelected: () async {
+<<<<<<< HEAD
                               if (currentInfo.plan ==
                                       WorkspacePlanPB.FreePlan ||
                                   currentInfo.isCanceled) {
+=======
+                              if (currentSubscription.subscriptionPlan ==
+                                      SubscriptionPlanPB.Free ||
+                                  currentSubscription.hasCanceled) {
+>>>>>>> billing_error_code
                                 return;
                               }
 
@@ -240,11 +255,19 @@ class _SettingsPlanComparisonDialogState
                               args: [SubscriptionPlanPB.Pro.priceMonthBilling],
                             ),
                             cells: _proLabels,
+<<<<<<< HEAD
                             isCurrent:
                                 currentInfo.plan == WorkspacePlanPB.ProPlan,
                             canUpgrade:
                                 currentInfo.plan == WorkspacePlanPB.FreePlan,
                             currentCanceled: currentInfo.isCanceled,
+=======
+                            isCurrent: currentSubscription.subscriptionPlan ==
+                                SubscriptionPlanPB.Pro,
+                            canUpgrade: currentSubscription.subscriptionPlan ==
+                                SubscriptionPlanPB.Free,
+                            currentCanceled: currentSubscription.hasCanceled,
+>>>>>>> billing_error_code
                             onSelected: () =>
                                 context.read<SettingsPlanBloc>().add(
                                       const SettingsPlanEvent.addSubscription(

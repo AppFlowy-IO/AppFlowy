@@ -73,7 +73,9 @@ Future<FlowyResult<Uint8List, Uint8List>> _extractPayload(
           case FFIStatusCode.Ok:
             return FlowySuccess(Uint8List.fromList(response.payload));
           case FFIStatusCode.Err:
-            return FlowyFailure(Uint8List.fromList(response.payload));
+            final errorBytes = Uint8List.fromList(response.payload);
+            ErrorCodeNotifier.receiveErrorBytes(errorBytes);
+            return FlowyFailure(errorBytes);
           case FFIStatusCode.Internal:
             final error = utf8.decode(response.payload);
             Log.error("Dispatch internal error: $error");

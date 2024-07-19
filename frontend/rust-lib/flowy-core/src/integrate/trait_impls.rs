@@ -418,7 +418,7 @@ impl DatabaseCloudService for ServerProvider {
     workspace_id: &str,
     object_id: &str,
     summary_row: SummaryRowContent,
-  ) -> FutureResult<String, Error> {
+  ) -> FutureResult<String, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
     let object_id = object_id.to_string();
@@ -435,7 +435,7 @@ impl DatabaseCloudService for ServerProvider {
     workspace_id: &str,
     translate_row: TranslateRowContent,
     language: &str,
-  ) -> FutureResult<TranslateRowResponse, Error> {
+  ) -> FutureResult<TranslateRowResponse, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
     let language = language.to_string();

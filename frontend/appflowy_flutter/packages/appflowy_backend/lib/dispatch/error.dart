@@ -1,4 +1,8 @@
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/dart-ffi/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
+import 'package:flutter/foundation.dart';
 
 class FlowyInternalError {
   late FFIStatusCode _statusCode;
@@ -20,14 +24,12 @@ class FlowyInternalError {
     return "$_statusCode: $_error";
   }
 
-  FlowyInternalError(
-      {required FFIStatusCode statusCode, required String error}) {
+  FlowyInternalError({
+    required FFIStatusCode statusCode,
+    required String error,
+  }) {
     _statusCode = statusCode;
     _error = error;
-  }
-
-  factory FlowyInternalError.from(FFIResponse resp) {
-    return FlowyInternalError(statusCode: resp.code, error: "");
   }
 }
 
@@ -46,5 +48,50 @@ class StackTraceError {
 
   String toString() {
     return '${error.runtimeType}. Stack trace: $trace';
+  }
+}
+
+class ErrorCodeNotifier extends ChangeNotifier {
+  // Static instance
+  static final ErrorCodeNotifier _instance = ErrorCodeNotifier();
+
+  // Factory constructor to return the same instance
+  factory ErrorCodeNotifier() {
+    return _instance;
+  }
+
+  FlowyError? _error;
+
+  static void receiveError(FlowyError error) {
+    if (_instance._error?.code != error.code) {
+      _instance._error = error;
+      _instance.notifyListeners();
+    }
+  }
+
+  static void receiveErrorBytes(Uint8List bytes) {
+    try {
+      final error = FlowyError.fromBuffer(bytes);
+      if (_instance._error?.code != error.code) {
+        _instance._error = error;
+        _instance.notifyListeners();
+      }
+    } catch (e) {
+      Log.error("Can not parse error bytes: $e");
+    }
+  }
+
+  static void onError(
+    void Function(FlowyError error) onError,
+    bool Function(ErrorCode code)? onErrorIf,
+  ) {
+    _instance.addListener(() {
+      final error = _instance._error;
+      if (error != null) {
+        if (onErrorIf == null || onErrorIf(error.code)) {
+          onError(error);
+        }
+      }
+    });
   }
 }

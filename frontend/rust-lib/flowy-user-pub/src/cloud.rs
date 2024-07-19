@@ -1,5 +1,6 @@
 use client_api::entity::billing_dto::RecurringInterval;
 use client_api::entity::billing_dto::SubscriptionPlan;
+pub use client_api::entity::billing_dto::SubscriptionStatus;
 use client_api::entity::billing_dto::WorkspaceSubscriptionStatus;
 use client_api::entity::billing_dto::WorkspaceUsageAndLimit;
 pub use client_api::entity::{AFWorkspaceSettings, AFWorkspaceSettingsChange};

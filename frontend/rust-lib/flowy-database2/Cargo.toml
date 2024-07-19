@@ -17,10 +17,11 @@ flowy-derive.workspace = true
 flowy-notification = { workspace = true }
 parking_lot.workspace = true
 protobuf.workspace = true
-flowy-error = { workspace = true, features = [
+flowy-error = { path = "../flowy-error", features = [
     "impl_from_dispatch_error",
     "impl_from_collab_database",
-] }
+]}
+
 lib-dispatch = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 bytes.workspace = true

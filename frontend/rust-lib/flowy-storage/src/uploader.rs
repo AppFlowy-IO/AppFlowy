@@ -10,7 +10,7 @@ use std::sync::atomic::{AtomicBool, AtomicU8};
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tokio::sync::{watch, RwLock};
-use tracing::{info, trace};
+use tracing::{error, info, trace};
 
 #[derive(Clone)]
 pub enum Signal {
@@ -128,6 +128,11 @@ impl FileUploader {
       } => {
         let record = BoxAny::new(record);
         if let Err(err) = self.storage_service.start_upload(&chunks, &record).await {
+          if err.is_file_limit_exceeded() {
+            error!("Failed to upload file: {}", err);
+            self.pause();
+          }
+
           info!(
             "Failed to upload file: {}, retry_count:{}",
             err, retry_count
@@ -154,6 +159,11 @@ impl FileUploader {
           .resume_upload(&workspace_id, &parent_dir, &file_id)
           .await
         {
+          if err.is_file_limit_exceeded() {
+            error!("Failed to upload file: {}", err);
+            self.pause();
+          }
+
           info!(
             "Failed to resume upload file: {}, retry_count:{}",
             err, retry_count

@@ -40,9 +40,31 @@ class SettingsBillingBloc
 
           FlowyError? error;
 
+<<<<<<< HEAD
           final result = await UserBackendService.getWorkspaceSubscriptionInfo(
             workspaceId,
           );
+=======
+          final subscription = snapshots.first.fold(
+            (s) =>
+                (s as RepeatedWorkspaceSubscriptionPB)
+                    .items
+                    .firstWhereOrNull((i) => i.workspaceId == workspaceId) ??
+                WorkspaceSubscriptionPB(
+                  workspaceId: workspaceId,
+                  subscriptionPlan: SubscriptionPlanPB.Free,
+                  isActive: true,
+                ),
+            (e) {
+              // Not a Cjstomer yet
+              if (e.code == ErrorCode.InvalidParams) {
+                return WorkspaceSubscriptionPB(
+                  workspaceId: workspaceId,
+                  subscriptionPlan: SubscriptionPlanPB.Free,
+                  isActive: true,
+                );
+              }
+>>>>>>> billing_error_code
 
           final subscriptionInfo = result.fold(
             (s) => s,

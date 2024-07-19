@@ -272,7 +272,7 @@ impl From<RecurringInterval> for RecurringIntervalPB {
 #[derive(ProtoBuf_Enum, Clone, Default, Debug, Serialize, Deserialize)]
 pub enum SubscriptionPlanPB {
   #[default]
-  None = 0,
+  Free = 0,
   Pro = 1,
   Team = 2,
 
@@ -284,7 +284,7 @@ pub enum SubscriptionPlanPB {
 impl From<WorkspacePlanPB> for SubscriptionPlanPB {
   fn from(value: WorkspacePlanPB) -> Self {
     match value {
-      WorkspacePlanPB::FreePlan => SubscriptionPlanPB::None,
+      WorkspacePlanPB::FreePlan => SubscriptionPlanPB::Free,
       WorkspacePlanPB::ProPlan => SubscriptionPlanPB::Pro,
       WorkspacePlanPB::TeamPlan => SubscriptionPlanPB::Team,
     }
@@ -296,7 +296,7 @@ impl From<SubscriptionPlanPB> for SubscriptionPlan {
     match value {
       SubscriptionPlanPB::Pro => SubscriptionPlan::Pro,
       SubscriptionPlanPB::Team => SubscriptionPlan::Team,
-      SubscriptionPlanPB::None => SubscriptionPlan::Free,
+      SubscriptionPlanPB::Free => SubscriptionPlan::Free,
       SubscriptionPlanPB::AiMax => SubscriptionPlan::AiMax,
       SubscriptionPlanPB::AiLocal => SubscriptionPlan::AiLocal,
     }
@@ -308,7 +308,7 @@ impl From<SubscriptionPlan> for SubscriptionPlanPB {
     match value {
       SubscriptionPlan::Pro => SubscriptionPlanPB::Pro,
       SubscriptionPlan::Team => SubscriptionPlanPB::Team,
-      SubscriptionPlan::Free => SubscriptionPlanPB::None,
+      SubscriptionPlan::Free => SubscriptionPlanPB::Free,
       SubscriptionPlan::AiMax => SubscriptionPlanPB::AiMax,
       SubscriptionPlan::AiLocal => SubscriptionPlanPB::AiLocal,
     }
@@ -472,7 +472,7 @@ impl WorkspaceSubscriptionInfoPB {
       plan: WorkspacePlanPB::FreePlan,
       plan_subscription: WorkspaceSubscriptionV2PB {
         workspace_id,
-        subscription_plan: SubscriptionPlanPB::None,
+        subscription_plan: SubscriptionPlanPB::Free,
         status: WorkspaceSubscriptionStatusPB::Active,
         end_date: 0,
         interval: RecurringIntervalPB::Month,
@@ -594,7 +594,7 @@ impl WorkspaceSubscriptionV2PB {
   pub fn default_with_workspace_id(workspace_id: String) -> Self {
     Self {
       workspace_id,
-      subscription_plan: SubscriptionPlanPB::None,
+      subscription_plan: SubscriptionPlanPB::Free,
       status: WorkspaceSubscriptionStatusPB::Active,
       end_date: 0,
       interval: RecurringIntervalPB::Month,
