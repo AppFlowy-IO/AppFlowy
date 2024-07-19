@@ -3,7 +3,7 @@ use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB,
 };
 use crate::middleware::chat_service_mw::ChatServiceMiddleware;
-use crate::notification::{send_notification, ChatNotification};
+use crate::notification::{make_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use allo_isolate::Isolate;
 use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
@@ -138,7 +138,7 @@ impl Chat {
                   chat_id: chat_id.clone(),
                   error_message: err.to_string(),
                 };
-                send_notification(&chat_id, ChatNotification::StreamChatMessageError)
+                make_notification(&chat_id, ChatNotification::StreamChatMessageError)
                   .payload(pb)
                   .send();
                 return Err(err);
@@ -153,14 +153,14 @@ impl Chat {
             chat_id: chat_id.clone(),
             error_message: err.to_string(),
           };
-          send_notification(&chat_id, ChatNotification::StreamChatMessageError)
+          make_notification(&chat_id, ChatNotification::StreamChatMessageError)
             .payload(pb)
             .send();
           return Err(err);
         },
       }
 
-      send_notification(&chat_id, ChatNotification::FinishStreaming).send();
+      make_notification(&chat_id, ChatNotification::FinishStreaming).send();
       if stream_buffer.lock().await.is_empty() {
         return Ok(());
       }
@@ -193,7 +193,7 @@ impl Chat {
       vec![answer.clone()],
     )?;
     let pb = ChatMessagePB::from(answer);
-    send_notification(chat_id, ChatNotification::DidReceiveChatMessage)
+    make_notification(chat_id, ChatNotification::DidReceiveChatMessage)
       .payload(pb)
       .send();
 
@@ -234,7 +234,7 @@ impl Chat {
         has_more: true,
         total: 0,
       };
-      send_notification(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
+      make_notification(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
         .payload(pb.clone())
         .send();
       return Ok(pb);
@@ -355,11 +355,11 @@ impl Chat {
             } else {
               *prev_message_state.write().await = PrevMessageState::NoMore;
             }
-            send_notification(&chat_id, ChatNotification::DidLoadPrevChatMessage)
+            make_notification(&chat_id, ChatNotification::DidLoadPrevChatMessage)
               .payload(pb)
               .send();
           } else {
-            send_notification(&chat_id, ChatNotification::DidLoadLatestChatMessage)
+            make_notification(&chat_id, ChatNotification::DidLoadLatestChatMessage)
               .payload(pb)
               .send();
           }

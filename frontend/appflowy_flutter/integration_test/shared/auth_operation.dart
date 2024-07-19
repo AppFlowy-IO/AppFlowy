@@ -15,7 +15,6 @@ extension AppFlowyAuthTest on WidgetTester {
   Future<void> tapGoogleLoginInButton() async {
     await tapButton(
       find.byKey(const Key('signInWithGoogleButton')),
-      milliseconds: 3000,
     );
   }
 
