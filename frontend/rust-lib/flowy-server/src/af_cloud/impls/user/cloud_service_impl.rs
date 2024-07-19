@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use anyhow::anyhow;
 use client_api::entity::billing_dto::{
-  SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus,
+  SubscriptionCancelRequest, SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus,
 };
 use client_api::entity::workspace_dto::{
   CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset, WorkspaceMemberInvitation,
