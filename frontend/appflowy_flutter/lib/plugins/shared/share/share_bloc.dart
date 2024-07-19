@@ -15,7 +15,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'share_bloc.freezed.dart';
 
-const _url = 'https://beta.appflowy.com';
+const _url = 'https://appflowy.com';
 
 class ShareBloc extends Bloc<ShareEvent, ShareState> {
   ShareBloc({
