@@ -14,10 +14,8 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import '../../../../widgets/row/accessory/cell_accessory.dart';
-import '../../../../widgets/row/accessory/time_field.dart';
 import '../../../../widgets/row/cells/cell_container.dart';
 import '../../layout/sizes.dart';
 
@@ -259,16 +257,6 @@ class RowContent extends StatelessWidget {
                   builder: (key) => PrimaryCellAccessory(
                     key: key,
                     onTap: onExpand,
-                    isCellEditing: buildContext.isCellEditing,
-                  ),
-                ),
-              );
-            }
-            if (fieldInfo.fieldType == FieldType.Time) {
-              accessories.add(
-                GridCellAccessoryBuilder(
-                  builder: (key) => TimeFieldAccessory(
-                    key: key,
                     isCellEditing: buildContext.isCellEditing,
                   ),
                 ),

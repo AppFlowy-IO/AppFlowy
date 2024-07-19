@@ -57,7 +57,9 @@ class _TimeCellEditorState extends State<TimeCellEditor> {
             children: [
               if (cellBlocState.timeType == TimeTypePB.Timer)
                 ..._buildTimerStart(context),
-              ..._buildTimeTracks(state.timeTracks),
+              ..._buildTimeTracks(
+                state.timeTracks.where((tt) => tt.toTimestamp != 0).toList(),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 8),
                 child: _TimeTrackInput(

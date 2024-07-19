@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collection/collection.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
@@ -52,6 +53,7 @@ class TimeCellBloc extends Bloc<TimeCellEvent, TimeCellState> {
                 content: cellData != null
                     ? formatTime(cellData.time.toInt(), typeOption.precision)
                     : "",
+                timeTracks: cellData?.timeTracks ?? [],
                 timeType: typeOption.timeType,
                 precision: typeOption.precision,
               ),
@@ -68,6 +70,26 @@ class TimeCellBloc extends Bloc<TimeCellEvent, TimeCellState> {
             if (state.content != text) {
               await _timeCellBackendService.updateTime(time ?? 0);
             }
+          },
+          startTracking: () async {
+            final fromTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+            await _timeCellBackendService.startTracking(fromTimestamp);
+          },
+          stopTracking: () async {
+            final timeTrack = state.trackingTimeTrack;
+            if (timeTrack == null) {
+              return;
+            }
+
+            final duration = DateTime.now().millisecondsSinceEpoch ~/ 1000 -
+                timeTrack.fromTimestamp.toInt();
+
+            await _timeCellBackendService.updateTimeTrack(
+              timeTrack.id,
+              timeTrack.fromTimestamp.toInt(),
+              duration,
+            );
           },
         );
       },
@@ -99,14 +121,21 @@ class TimeCellEvent with _$TimeCellEvent {
   const factory TimeCellEvent.didUpdateField(FieldInfo fieldInfo) =
       _DidUpdateField;
   const factory TimeCellEvent.updateTime(String text) = _UpdateCell;
+
+  const factory TimeCellEvent.startTracking() = _startTracking;
+
+  const factory TimeCellEvent.stopTracking() = _stopTracking;
 }
 
 @freezed
 class TimeCellState with _$TimeCellState {
+  const TimeCellState._();
+
   const factory TimeCellState({
     required String content,
     required TimePrecisionPB precision,
     required TimeTypePB timeType,
+    required List<TimeTrackPB> timeTracks,
     required bool wrap,
   }) = _TimeCellState;
 
@@ -120,11 +149,17 @@ class TimeCellState with _$TimeCellState {
       content: cellData != null
           ? formatTime(cellData.time.toInt(), typeOption.precision)
           : "",
+      timeTracks: cellData?.timeTracks ?? [],
       precision: typeOption.precision,
       timeType: typeOption.timeType,
       wrap: wrap ?? true,
     );
   }
+
+  bool get isTracking => timeTracks.any((tt) => tt.toTimestamp == 0);
+
+  TimeTrackPB? get trackingTimeTrack =>
+      timeTracks.firstWhereOrNull((tt) => tt.toTimestamp == 0);
 }
 
 String formatTimeSeconds(
