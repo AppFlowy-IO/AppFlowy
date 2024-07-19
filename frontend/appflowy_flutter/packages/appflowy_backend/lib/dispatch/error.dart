@@ -51,6 +51,8 @@ class StackTraceError {
   }
 }
 
+typedef void ErrorListener();
+
 class ErrorCodeNotifier extends ChangeNotifier {
   // Static instance
   static final ErrorCodeNotifier _instance = ErrorCodeNotifier();
@@ -81,17 +83,25 @@ class ErrorCodeNotifier extends ChangeNotifier {
     }
   }
 
-  static void onError(
-    void Function(FlowyError error) onError,
+  static ErrorListener add({
+    required void Function(FlowyError error) onError,
     bool Function(ErrorCode code)? onErrorIf,
-  ) {
-    _instance.addListener(() {
+  }) {
+    void listener() {
       final error = _instance._error;
       if (error != null) {
         if (onErrorIf == null || onErrorIf(error.code)) {
           onError(error);
         }
       }
-    });
+    }
+
+    ;
+    _instance.addListener(listener);
+    return listener;
+  }
+
+  static void remove(ErrorListener listener) {
+    _instance.removeListener(listener);
   }
 }

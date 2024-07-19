@@ -8,7 +8,7 @@ class SubscriptionSuccessListenable extends ChangeNotifier {
   String? _plan;
 
   SubscriptionPlanPB? get subscribedPlan => switch (_plan) {
-        'free' => SubscriptionPlanPB.None,
+        'free' => SubscriptionPlanPB.Free,
         'pro' => SubscriptionPlanPB.Pro,
         'team' => SubscriptionPlanPB.Team,
         'ai_max' => SubscriptionPlanPB.AiMax,

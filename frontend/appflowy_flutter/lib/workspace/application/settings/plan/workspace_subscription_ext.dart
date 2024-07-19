@@ -4,7 +4,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbserver.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-<<<<<<< HEAD
 extension SubscriptionLabels on WorkspaceSubscriptionInfoPB {
   String get label => switch (plan) {
         WorkspacePlanPB.FreePlan =>
@@ -29,36 +28,16 @@ extension SubscriptionLabels on WorkspaceSubscriptionInfoPB {
 
 extension AllSubscriptionLabels on SubscriptionPlanPB {
   String get label => switch (this) {
-        SubscriptionPlanPB.None =>
-=======
-extension SubscriptionLabels on WorkspaceSubscriptionPB {
-  String get label => switch (subscriptionPlan) {
         SubscriptionPlanPB.Free =>
->>>>>>> billing_error_code
           LocaleKeys.settings_planPage_planUsage_currentPlan_freeTitle.tr(),
         SubscriptionPlanPB.Pro =>
           LocaleKeys.settings_planPage_planUsage_currentPlan_proTitle.tr(),
         SubscriptionPlanPB.Team =>
           LocaleKeys.settings_planPage_planUsage_currentPlan_teamTitle.tr(),
-<<<<<<< HEAD
         SubscriptionPlanPB.AiMax =>
           LocaleKeys.settings_billingPage_addons_aiMax_label.tr(),
         SubscriptionPlanPB.AiLocal =>
           LocaleKeys.settings_billingPage_addons_aiOnDevice_label.tr(),
-=======
-        // TODO(Mathias): Add AI Local and AI Max
-        _ => 'N/A',
-      };
-
-  String get info => switch (subscriptionPlan) {
-        SubscriptionPlanPB.Free =>
-          LocaleKeys.settings_planPage_planUsage_currentPlan_freeInfo.tr(),
-        SubscriptionPlanPB.Pro =>
-          LocaleKeys.settings_planPage_planUsage_currentPlan_proInfo.tr(),
-        SubscriptionPlanPB.Team =>
-          LocaleKeys.settings_planPage_planUsage_currentPlan_teamInfo.tr(),
-        // TODO(Mathias): Add AI Local and AI Max
->>>>>>> billing_error_code
         _ => 'N/A',
       };
 }
@@ -79,7 +58,7 @@ extension WorkspaceAddonsExt on WorkspaceSubscriptionInfoPB {
 /// These have to match [SubscriptionSuccessListenable.subscribedPlan] labels
 extension ToRecognizable on SubscriptionPlanPB {
   String? toRecognizable() => switch (this) {
-        SubscriptionPlanPB.None => 'free',
+        SubscriptionPlanPB.Free => 'free',
         SubscriptionPlanPB.Pro => 'pro',
         SubscriptionPlanPB.Team => 'team',
         SubscriptionPlanPB.AiMax => 'ai_max',
@@ -99,7 +78,7 @@ extension PlanHelper on SubscriptionPlanPB {
       };
 
   String get priceMonthBilling => switch (this) {
-        SubscriptionPlanPB.None => 'US\$0',
+        SubscriptionPlanPB.Free => 'US\$0',
         SubscriptionPlanPB.Pro => 'US\$12.5',
         SubscriptionPlanPB.Team => 'US\$15',
         SubscriptionPlanPB.AiMax => 'US\$10',
@@ -108,7 +87,7 @@ extension PlanHelper on SubscriptionPlanPB {
       };
 
   String get priceAnnualBilling => switch (this) {
-        SubscriptionPlanPB.None => 'US\$0',
+        SubscriptionPlanPB.Free => 'US\$0',
         SubscriptionPlanPB.Pro => 'US\$10',
         SubscriptionPlanPB.Team => 'US\$12.5',
         SubscriptionPlanPB.AiMax => 'US\$8',

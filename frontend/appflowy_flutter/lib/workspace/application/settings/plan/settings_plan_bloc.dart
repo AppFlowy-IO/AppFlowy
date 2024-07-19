@@ -50,21 +50,8 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             },
           );
 
-<<<<<<< HEAD
           final subscriptionInfo = snapshots[1].fold(
             (s) => s as WorkspaceSubscriptionInfoPB,
-=======
-          final subscription = snapshots[1].fold(
-            (s) =>
-                (s as RepeatedWorkspaceSubscriptionPB)
-                    .items
-                    .firstWhereOrNull((i) => i.workspaceId == workspaceId) ??
-                WorkspaceSubscriptionPB(
-                  workspaceId: workspaceId,
-                  subscriptionPlan: SubscriptionPlanPB.Free,
-                  isActive: true,
-                ),
->>>>>>> billing_error_code
             (f) {
               error = f;
               return null;
@@ -150,7 +137,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             value.planSubscription.freeze();
             value.planSubscription = value.planSubscription.rebuild((sub) {
               sub.status = WorkspaceSubscriptionStatusPB.Active;
-              sub.subscriptionPlan = SubscriptionPlanPB.None;
+              sub.subscriptionPlan = SubscriptionPlanPB.Free;
             });
           });
 
