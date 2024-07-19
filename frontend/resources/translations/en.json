@@ -1399,7 +1399,9 @@
       },
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImage": "Add an image",
+        "addAnImageDesktop": "Drop images or click to add one or more images",
+        "addAnImageMobile": "Click to add one or more images",
+        "dropImageToInsert": "Drop images to insert",
         "imageUploadFailed": "Image upload failed",
         "errorCode": "Error code"
       },
@@ -1458,10 +1460,10 @@
       "placeholder": "Untitled"
     },
     "imageBlock": {
-      "placeholder": "Click to add image",
+      "placeholder": "Click to add image(s)",
       "upload": {
         "label": "Upload",
-        "placeholder": "Click to upload image"
+        "placeholder": "Click to upload image(s)"
       },
       "url": {
         "label": "Image URL",

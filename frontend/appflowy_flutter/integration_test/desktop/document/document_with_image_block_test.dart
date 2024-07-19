@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -14,8 +17,6 @@ import 'package:appflowy_editor/appflowy_editor.dart'
     hide UploadImageMenu, ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
@@ -36,7 +37,7 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithNameUnderParent(
-        name: LocaleKeys.document_plugins_image_addAnImage.tr(),
+        name: LocaleKeys.document_plugins_image_addAnImageDesktop.tr(),
       );
 
       // tap the first line of the document
@@ -84,7 +85,7 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithNameUnderParent(
-        name: LocaleKeys.document_plugins_image_addAnImage.tr(),
+        name: LocaleKeys.document_plugins_image_addAnImageDesktop.tr(),
       );
 
       // tap the first line of the document
@@ -137,7 +138,7 @@ void main() {
 
         // create a new document
         await tester.createNewPageWithNameUnderParent(
-          name: LocaleKeys.document_plugins_image_addAnImage.tr(),
+          name: LocaleKeys.document_plugins_image_addAnImageDesktop.tr(),
         );
 
         // tap the first line of the document

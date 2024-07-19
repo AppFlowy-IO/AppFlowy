@@ -17,6 +17,7 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log, UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -47,12 +48,20 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
   bool showLoading = false;
   String? errorMessage;
 
+  bool isDraggingFiles = false;
+
   @override
   Widget build(BuildContext context) {
     final Widget child = DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(4),
+        border: isDraggingFiles
+            ? Border.all(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              )
+            : null,
       ),
       child: FlowyHover(
         style: HoverStyle(
@@ -115,7 +124,22 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
             },
           );
         },
-        child: child,
+        child: DropTarget(
+          onDragEntered: (_) => setState(() => isDraggingFiles = true),
+          onDragExited: (_) => setState(() => isDraggingFiles = false),
+          onDragDone: (details) {
+            // Only accept files where the mimetype is an image,
+            // otherwise we assume it's a file we cannot display.
+            final imageFiles = details.files
+                .where((file) => file.mimeType?.startsWith('image/') ?? false)
+                .toList();
+            final paths = imageFiles.map((file) => file.path).toList();
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) async => insertLocalImages(paths),
+            );
+          },
+          child: child,
+        ),
       );
     } else {
       return MobileBlockActionButtons(
@@ -150,7 +174,11 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     } else {
       return [
         FlowyText(
-          LocaleKeys.document_plugins_image_addAnImage.tr(),
+          PlatformExtension.isDesktop
+              ? isDraggingFiles
+                  ? LocaleKeys.document_plugins_image_dropImageToInsert.tr()
+                  : LocaleKeys.document_plugins_image_addAnImageDesktop.tr()
+              : LocaleKeys.document_plugins_image_addAnImageMobile.tr(),
         ),
       ];
     }
