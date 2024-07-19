@@ -25,7 +25,6 @@ use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{
   DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
 };
-use collab_entity::{CollabType, EncodedCollab};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
 use lib_infra::box_any::BoxAny;

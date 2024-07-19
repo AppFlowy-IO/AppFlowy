@@ -215,6 +215,16 @@ impl EventIntegrationTest {
       .items
   }
 
+  // get all the views in the current workspace, including the views in the trash and the orphan views
+  pub async fn get_all_views(&self) -> Vec<ViewPB> {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::GetAllViews)
+      .async_send()
+      .await
+      .parse::<RepeatedViewPB>()
+      .items
+  }
+
   pub async fn get_trash(&self) -> RepeatedTrashPB {
     EventBuilder::new(self.clone())
       .event(FolderEvent::ListTrashItems)
