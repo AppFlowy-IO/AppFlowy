@@ -182,6 +182,10 @@ impl LocalAIController {
   }
 
   pub fn open_chat(&self, chat_id: &str) {
+    if !self.is_chat_enabled() {
+      return;
+    }
+
     if !self.is_running() {
       return;
     }
@@ -320,10 +324,8 @@ impl LocalAIController {
         error!("[AI Plugin] failed to initialize local ai: {:?}", err);
       }
       let _ = rx.await;
-    } else {
-      if let Err(err) = self.llm_chat.destroy_chat_plugin().await {
-        error!("[AI Plugin] failed to destroy plugin: {:?}", err);
-      }
+    } else if let Err(err) = self.llm_chat.destroy_chat_plugin().await {
+      error!("[AI Plugin] failed to destroy plugin: {:?}", err);
     }
     Ok(())
   }
