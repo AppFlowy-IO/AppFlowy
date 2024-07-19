@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/align_toolbar_item.dart';
@@ -6,13 +11,13 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
+import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class ImageMenu extends StatefulWidget {
@@ -20,17 +25,19 @@ class ImageMenu extends StatefulWidget {
     super.key,
     required this.node,
     required this.state,
+    this.selectedIndex = 0,
   });
 
   final Node node;
   final CustomImageBlockComponentState state;
+  final int selectedIndex;
 
   @override
   State<ImageMenu> createState() => _ImageMenuState();
 }
 
 class _ImageMenuState extends State<ImageMenu> {
-  late final String? url = widget.node.attributes[ImageBlockKeys.url];
+  late final String? url = widget.node.attributes[CustomImageBlockKeys.url];
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +57,12 @@ class _ImageMenuState extends State<ImageMenu> {
       ),
       child: Row(
         children: [
+          const HSpace(4),
+          MenuBlockButton(
+            tooltip: LocaleKeys.document_imageBlock_openFullScreen.tr(),
+            iconData: FlowySvgs.full_view_s,
+            onTap: openFullScreen,
+          ),
           const HSpace(4),
           // disable the copy link button if the image is hosted on appflowy cloud
           // because the url needs the verification token to be accessible
@@ -95,6 +108,36 @@ class _ImageMenuState extends State<ImageMenu> {
     transaction.afterSelection = null;
     await editorState.apply(transaction);
   }
+
+  void openFullScreen() {
+    final additionalImages =
+        widget.node.attributes[CustomImageBlockKeys.additionalImages];
+    final List<ImageBlockData> images = [
+      ImageBlockData(
+        url: url!,
+        type: CustomImageType.fromIntValue(
+          widget.node.attributes[CustomImageBlockKeys.imageType] ?? 2,
+        ),
+      ),
+    ];
+
+    if (additionalImages != null) {
+      final jsonImages = jsonDecode(additionalImages) as List;
+      for (final jsonImage in jsonImages) {
+        images.add(ImageBlockData.fromJson(jsonImage));
+      }
+    }
+
+    showDialog(
+      context: context,
+      builder: (_) => InteractiveImageViewer(
+        imageProvider: AFBlockImageProvider(
+          images: images,
+          initialIndex: widget.selectedIndex,
+        ),
+      ),
+    );
+  }
 }
 
 class _ImageAlignButton extends StatefulWidget {
@@ -119,7 +162,7 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
   );
 
   String get align =>
-      widget.node.attributes[ImageBlockKeys.align] ?? centerAlignmentKey;
+      widget.node.attributes[CustomImageBlockKeys.align] ?? centerAlignmentKey;
   final popoverController = PopoverController();
   late final EditorState editorState;
 
@@ -165,9 +208,7 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
     popoverController.close();
 
     final transaction = editorState.transaction;
-    transaction.updateNode(widget.node, {
-      ImageBlockKeys.align: align,
-    });
+    transaction.updateNode(widget.node, {CustomImageBlockKeys.align: align});
     editorState.apply(transaction);
 
     allowMenuClose();

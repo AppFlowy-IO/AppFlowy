@@ -1,18 +1,22 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_layouts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsupport_image_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
+import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
@@ -51,6 +55,37 @@ enum CustomImageType {
   }
 }
 
+class ImageBlockData {
+  factory ImageBlockData.fromJson(Map<String, dynamic> json) {
+    return ImageBlockData(
+      url: json['url'] as String,
+      type: CustomImageType.fromIntValue(json['type'] as int),
+    );
+  }
+
+  ImageBlockData({required this.url, required this.type});
+
+  final String url;
+  final CustomImageType type;
+
+  bool get isLocal => type == CustomImageType.local;
+  bool get isNotInternal => type != CustomImageType.internal;
+
+  Map<String, dynamic> toJson() {
+    return {'url': url, 'type': type.toIntValue()};
+  }
+
+  ImageProvider toImageProvider() {
+    switch (type) {
+      case CustomImageType.internal:
+      case CustomImageType.external:
+        return NetworkImage(url);
+      case CustomImageType.local:
+        return FileImage(File(url));
+    }
+  }
+}
+
 class CustomImageBlockKeys {
   const CustomImageBlockKeys._();
 
@@ -82,11 +117,37 @@ class CustomImageBlockKeys {
   ///
   /// The value is a CustomImageType enum.
   static const String imageType = 'image_type';
+
+  /// This stores information about additional images
+  ///
+  /// The value is an encoded JSON String, which contains a [List] of
+  /// image URLs and their corresponding image types.
+  ///
+  /// Example:
+  /// ```json
+  /// [
+  ///   {
+  ///     "url": "C:\\Users\\mathias\\AppData\\Roaming\\io.appflowy\\AppFlowy\\data_dev\\images\\image1.jpg",
+  ///     "type": 1
+  ///   },
+  ///   {
+  ///     "url": "https://appflowy.cloud/123456789/image2.png",
+  ///     "type": 2
+  ///   },
+  ///   {
+  ///     "url": "https://images.unsplash.com/photo-123456789-123456789-image3",
+  ///     "type": 3
+  ///   }
+  /// ]
+  /// ```
+  ///
+  static const String additionalImages = 'additional_images';
 }
 
 typedef CustomImageBlockComponentMenuBuilder = Widget Function(
   Node node,
   CustomImageBlockComponentState state,
+  int selectedIndex,
 );
 
 class CustomImageBlockComponentBuilder extends BlockComponentBuilder {
@@ -158,6 +219,37 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
 
   bool alwaysShowMenu = false;
 
+  final List<ImageBlockData> _allImages = [];
+  late ImageBlockData _selectedImage;
+
+  int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _populateAllImages();
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomImageBlockComponent oldWidget) {
+    _populateAllImages();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _populateAllImages() {
+    _selectedImage = ImageBlockData(
+      url: node.attributes[CustomImageBlockKeys.url],
+      type: CustomImageType.fromIntValue(
+        node.attributes[CustomImageBlockKeys.imageType] ?? 0,
+      ),
+    );
+
+    _allImages.clear();
+    _allImages.add(_selectedImage);
+    _allImages.addAll(_getAdditionalImages());
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final node = widget.node;
@@ -182,7 +274,9 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
       );
     } else if (imageType != CustomImageType.internal &&
         !_checkIfURLIsValid(src)) {
-      child = const UnSupportImageWidget();
+      child = const UnsupportedImageWidget();
+    } else if (_allImages.length > 1) {
+      child = _renderMultiImageLayout();
     } else {
       child = ResizableImage(
         src: src,
@@ -191,6 +285,14 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         editable: editorState.editable,
         alignment: alignment,
         type: imageType,
+        onDoubleTap: () => showDialog(
+          context: context,
+          builder: (_) => InteractiveImageViewer(
+            imageProvider: AFBlockImageProvider(
+              images: [ImageBlockData(url: src, type: imageType)],
+            ),
+          ),
+        ),
         onResize: (width) {
           final transaction = editorState.transaction
             ..updateNode(node, {
@@ -262,6 +364,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
                     widget.menuBuilder!(
                       widget.node,
                       this,
+                      _selectedIndex,
                     ),
                 ],
               );
@@ -282,6 +385,29 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     }
 
     return child;
+  }
+
+  Widget _renderMultiImageLayout() {
+    return ImageBrowserLayout(
+      node: node,
+      editorState: editorState,
+      images: _allImages,
+      selectedImage: _selectedImage,
+      onIndexChanged: (index) => setState(() => _selectedIndex = index),
+    );
+  }
+
+  // Get additional images from the node
+  List<ImageBlockData> _getAdditionalImages() {
+    final additionalImages =
+        node.attributes[CustomImageBlockKeys.additionalImages];
+
+    if (additionalImages is String) {
+      final List<dynamic> decoded = jsonDecode(additionalImages);
+      return decoded.map((e) => ImageBlockData.fromJson(e)).toList();
+    }
+
+    return [];
   }
 
   @override

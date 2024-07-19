@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:unsplash_client/unsplash_client.dart';
 
 const _accessKeyA = 'YyD-LbW5bVolHWZBq5fWRM_';
@@ -48,7 +49,6 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   @override
   void initState() {
     super.initState();
-
     randomPhotos = unsplash.photos
         .random(count: 18, orientation: PhotoOrientation.landscape)
         .goAndGet();
@@ -57,7 +57,6 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   @override
   void dispose() {
     unsplash.close();
-
     super.dispose();
   }
 

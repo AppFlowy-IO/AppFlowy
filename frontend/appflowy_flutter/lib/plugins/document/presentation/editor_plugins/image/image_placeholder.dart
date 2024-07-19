@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
+
+import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -18,7 +21,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
@@ -85,18 +87,18 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         clickHandler: PopoverClickHandler.gestureDetector,
         popupBuilder: (context) {
           return UploadImageMenu(
+            allowMultipleImages: true,
             limitMaximumImageSize: !_isLocalMode(),
             supportTypes: const [
               UploadImageType.local,
               UploadImageType.url,
               UploadImageType.unsplash,
-              // UploadImageType.openAI,
               UploadImageType.stabilityAI,
             ],
-            onSelectedLocalImage: (path) {
+            onSelectedLocalImages: (paths) {
               controller.close();
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-                await insertLocalImage(path);
+                await insertLocalImages(paths);
               });
             },
             onSelectedAIImage: (url) {
@@ -179,9 +181,10 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
                 UploadImageType.url,
                 UploadImageType.unsplash,
               ],
-              onSelectedLocalImage: (path) async {
+              allowMultipleImages: true,
+              onSelectedLocalImages: (paths) async {
                 context.pop();
-                await insertLocalImage(path);
+                await insertLocalImages(paths);
               },
               onSelectedAIImage: (url) async {
                 context.pop();
@@ -198,77 +201,101 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     }
   }
 
-  Future<void> insertLocalImage(String? url) async {
+  Future<void> insertLocalImages(List<String?> urls) async {
     controller.close();
 
-    if (url == null || url.isEmpty) {
+    if (urls.isEmpty || urls.every((path) => path?.isEmpty ?? true)) {
       return;
     }
 
     final transaction = editorState.transaction;
-
-    String? path;
-    String? errorMessage;
-    CustomImageType imageType = CustomImageType.local;
-
-    // if the user is using local authenticator, we need to save the image to local storage
-    if (_isLocalMode()) {
-      // don't limit the image size for local mode.
-      path = await saveImageToLocalStorage(url);
-    } else {
-      final documentId = context.read<DocumentBloc>().documentId;
-      if (documentId.isEmpty) {
-        return;
-      }
-      // else we should save the image to cloud storage
-      setState(() {
-        showLoading = true;
-        this.errorMessage = null;
-      });
-      (path, errorMessage) = await saveImageToCloudStorage(url, documentId);
-      setState(() {
-        showLoading = false;
-        this.errorMessage = errorMessage;
-      });
-      imageType = CustomImageType.internal;
-    }
-
-    if (mounted && path == null) {
-      showSnackBarMessage(
-        context,
-        errorMessage == null
-            ? LocaleKeys.document_imageBlock_error_invalidImage.tr()
-            : ': $errorMessage',
-      );
-      setState(() {
-        this.errorMessage = errorMessage;
-      });
+    final images = await _extractImages(urls);
+    if (images.isEmpty) {
       return;
     }
 
-    transaction.updateNode(widget.node, {
-      CustomImageBlockKeys.url: path,
-      CustomImageBlockKeys.imageType: imageType.toIntValue(),
-    });
+    if (images.length == 1) {
+      final image = images.first;
+      transaction.updateNode(widget.node, {
+        CustomImageBlockKeys.url: image.url,
+        CustomImageBlockKeys.imageType: image.type.toIntValue(),
+      });
+    } else {
+      final root = images.first;
+      final children = images.skip(1).map((data) => data.toJson()).toList();
+
+      transaction.updateNode(widget.node, {
+        CustomImageBlockKeys.url: root.url,
+        CustomImageBlockKeys.imageType: root.type.toIntValue(),
+        CustomImageBlockKeys.additionalImages: jsonEncode(children),
+      });
+    }
 
     await editorState.apply(transaction);
+  }
+
+  Future<List<ImageBlockData>> _extractImages(List<String?> urls) async {
+    final List<ImageBlockData> images = [];
+    for (final url in urls) {
+      if (url == null || url.isEmpty) {
+        continue;
+      }
+
+      String? path;
+      String? errorMsg;
+      CustomImageType imageType = CustomImageType.local;
+
+      // If the user is using local authenticator, we save the image to local storage
+      if (_isLocalMode()) {
+        path = await saveImageToLocalStorage(url);
+      } else {
+        final documentId = context.read<DocumentBloc>().documentId;
+        if (documentId.isEmpty) {
+          continue;
+        }
+        // else we save the image to cloud storage
+        setState(() {
+          showLoading = true;
+          errorMessage = null;
+        });
+        (path, errorMsg) = await saveImageToCloudStorage(url, documentId);
+        setState(() {
+          showLoading = false;
+          errorMessage = errorMsg;
+        });
+        imageType = CustomImageType.internal;
+      }
+
+      if (path != null && errorMsg == null) {
+        images.add(ImageBlockData(url: path, type: imageType));
+      }
+    }
+
+    if (mounted && images.isEmpty) {
+      // TODO(Mathias): Show error
+      // showSnackBarMessage(
+      //   context,
+      //   errorMsg == null
+      //       ? LocaleKeys.document_imageBlock_error_invalidImage.tr()
+      //       : ': $errorMessage',
+      // );
+      // setState(() => errorMessage = errorMessage);
+    }
+
+    return images;
   }
 
   Future<void> insertAIImage(String url) async {
     if (url.isEmpty || !isURL(url)) {
       // show error
-      showSnackBarMessage(
+      return showSnackBarMessage(
         context,
         LocaleKeys.document_imageBlock_error_invalidImage.tr(),
       );
-      return;
     }
 
     final path = await getIt<ApplicationDataStorage>().getPath();
-    final imagePath = p.join(
-      path,
-      'images',
-    );
+    final imagePath = p.join(path, 'images');
     try {
       // create the directory if not exists
       final directory = Directory(imagePath);
@@ -283,7 +310,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
 
       final response = await get(uri);
       await File(copyToPath).writeAsBytes(response.bodyBytes);
-      await insertLocalImage(copyToPath);
+      await insertLocalImages([copyToPath]);
       await File(copyToPath).delete();
     } catch (e) {
       Log.error('cannot save image file', e);
@@ -293,16 +320,16 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
   Future<void> insertNetworkImage(String url) async {
     if (url.isEmpty || !isURL(url)) {
       // show error
-      showSnackBarMessage(
+      return showSnackBarMessage(
         context,
         LocaleKeys.document_imageBlock_error_invalidImage.tr(),
       );
-      return;
     }
 
     final transaction = editorState.transaction;
     transaction.updateNode(widget.node, {
-      ImageBlockKeys.url: url,
+      CustomImageBlockKeys.url: url,
+      CustomImageBlockKeys.imageType: CustomImageType.external.toIntValue(),
     });
     await editorState.apply(transaction);
   }

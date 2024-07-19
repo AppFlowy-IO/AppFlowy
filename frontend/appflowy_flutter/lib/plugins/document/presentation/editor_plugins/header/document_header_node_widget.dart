@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
@@ -23,7 +25,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
@@ -482,9 +483,12 @@ class DocumentCoverState extends State<DocumentCover> {
                                   UploadImageType.url,
                                   UploadImageType.unsplash,
                                 ],
-                                onSelectedLocalImage: (path) async {
+                                onSelectedLocalImages: (paths) async {
                                   context.pop();
-                                  widget.onChangeCover(CoverType.file, path);
+                                  widget.onChangeCover(
+                                    CoverType.file,
+                                    paths.first,
+                                  );
                                 },
                                 onSelectedAIImage: (_) {
                                   throw UnimplementedError();
@@ -608,9 +612,9 @@ class DocumentCoverState extends State<DocumentCover> {
                   UploadImageType.url,
                   UploadImageType.unsplash,
                 ],
-                onSelectedLocalImage: (path) {
+                onSelectedLocalImages: (paths) {
                   popoverController.close();
-                  onCoverChanged(CoverType.file, path);
+                  onCoverChanged(CoverType.file, paths.first);
                 },
                 onSelectedAIImage: (_) {
                   throw UnimplementedError();

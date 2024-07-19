@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
@@ -8,7 +10,6 @@ import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:string_validator/string_validator.dart';
@@ -23,6 +24,7 @@ class ResizableImage extends StatefulWidget {
     required this.width,
     required this.src,
     this.height,
+    this.onDoubleTap,
   });
 
   final String src;
@@ -31,6 +33,7 @@ class ResizableImage extends StatefulWidget {
   final double? height;
   final Alignment alignment;
   final bool editable;
+  final VoidCallback? onDoubleTap;
 
   final void Function(double width) onResize;
 
@@ -60,7 +63,6 @@ class _ResizableImageState extends State<ResizableImage> {
     super.initState();
 
     imageWidth = widget.width;
-
     _userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
   }
 
@@ -78,7 +80,10 @@ class _ResizableImageState extends State<ResizableImage> {
           onExit: (event) => setState(() {
             onFocus = false;
           }),
-          child: _buildResizableImage(context),
+          child: GestureDetector(
+            onDoubleTap: widget.onDoubleTap,
+            child: _buildResizableImage(context),
+          ),
         ),
       ),
     );

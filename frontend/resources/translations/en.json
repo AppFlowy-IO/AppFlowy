@@ -1499,7 +1499,21 @@
       "unableToLoadImage": "Unable to load image",
       "maximumImageSize": "Maximum supported upload image size is 10MB",
       "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
-      "imageIsUploading": "Image is uploading"
+      "imageIsUploading": "Image is uploading",
+      "openFullScreen": "Open in full screen",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "Previous image",
+          "nextImageTooltip": "Next image",
+          "zoomOutTooltip": "Zoom out",
+          "zoomInTooltip": "Zoom in",
+          "changeZoomLevelTooltip": "Change zoom level",
+          "openLocalImage": "Open image",
+          "downloadImage": "Download image",
+          "closeViewer": "Close interactive viewer",
+          "scalePercentage": "{}%"
+        }
+      }
     },
     "codeBlock": {
       "language": {

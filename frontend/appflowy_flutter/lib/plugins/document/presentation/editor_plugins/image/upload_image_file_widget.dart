@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/permission/permission_checker.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -7,18 +9,19 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UploadImageFileWidget extends StatelessWidget {
   const UploadImageFileWidget({
     super.key,
-    required this.onPickFile,
+    required this.onPickFiles,
     this.allowedExtensions = const ['jpg', 'png', 'jpeg'],
+    this.allowMultipleImages = false,
   });
 
-  final void Function(String? path) onPickFile;
+  final void Function(List<String?>) onPickFiles;
   final List<String> allowedExtensions;
+  final bool allowMultipleImages;
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +53,9 @@ class UploadImageFileWidget extends StatelessWidget {
         dialogTitle: '',
         type: FileType.custom,
         allowedExtensions: allowedExtensions,
+        allowMultiple: allowMultipleImages,
       );
-      onPickFile(result?.files.firstOrNull?.path);
+      onPickFiles(result?.files.map((f) => f.path).toList() ?? const []);
     } else {
       final photoPermission =
           await PermissionChecker.checkPhotoPermission(context);
@@ -60,8 +64,8 @@ class UploadImageFileWidget extends StatelessWidget {
         return;
       }
       // on mobile, the users can pick a image file from camera or image library
-      final result = await ImagePicker().pickImage(source: ImageSource.gallery);
-      onPickFile(result?.path);
+      final result = await ImagePicker().pickMultiImage();
+      onPickFiles(result.map((f) => f.path).toList());
     }
   }
 }

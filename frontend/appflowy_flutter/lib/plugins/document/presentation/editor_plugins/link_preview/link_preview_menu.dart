@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
@@ -7,9 +10,9 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
+import '../image/custom_image_block_component.dart';
 
 class LinkPreviewMenu extends StatefulWidget {
   const LinkPreviewMenu({
@@ -72,7 +75,7 @@ class _LinkPreviewMenuState extends State<LinkPreviewMenu> {
   }
 
   void copyImageLink() {
-    final url = widget.node.attributes[ImageBlockKeys.url];
+    final url = widget.node.attributes[CustomImageBlockKeys.url];
     if (url != null) {
       Clipboard.setData(ClipboardData(text: url));
       showSnackBarMessage(

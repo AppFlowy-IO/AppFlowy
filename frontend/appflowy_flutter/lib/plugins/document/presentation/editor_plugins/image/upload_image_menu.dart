@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/embed_image_url_widget.dart';
@@ -11,7 +13,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart';
 
 enum UploadImageType {
   local,
@@ -42,20 +43,22 @@ enum UploadImageType {
 class UploadImageMenu extends StatefulWidget {
   const UploadImageMenu({
     super.key,
-    required this.onSelectedLocalImage,
+    required this.onSelectedLocalImages,
     required this.onSelectedAIImage,
     required this.onSelectedNetworkImage,
     this.onSelectedColor,
     this.supportTypes = UploadImageType.values,
     this.limitMaximumImageSize = false,
+    this.allowMultipleImages = false,
   });
 
-  final void Function(String? path) onSelectedLocalImage;
+  final void Function(List<String?>) onSelectedLocalImages;
   final void Function(String url) onSelectedAIImage;
   final void Function(String url) onSelectedNetworkImage;
   final void Function(String color)? onSelectedColor;
   final List<UploadImageType> supportTypes;
   final bool limitMaximumImageSize;
+  final bool allowMultipleImages;
 
   @override
   State<UploadImageMenu> createState() => _UploadImageMenuState();
@@ -133,9 +136,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
               },
             ).toList(),
           ),
-          const Divider(
-            height: 2,
-          ),
+          const Divider(height: 2),
           _buildTab(),
         ],
       ),
@@ -155,7 +156,8 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
           child: Column(
             children: [
               UploadImageFileWidget(
-                onPickFile: widget.onSelectedLocalImage,
+                allowMultipleImages: widget.allowMultipleImages,
+                onPickFiles: widget.onSelectedLocalImages,
               ),
               if (widget.limitMaximumImageSize) ...[
                 const VSpace(6.0),
@@ -185,30 +187,13 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
             ),
           ),
         );
-      // case UploadImageType.openAI:
-      //   return supportOpenAI
-      //       ? Expanded(
-      //           child: Container(
-      //             padding: const EdgeInsets.all(8.0),
-      //             constraints: constraints,
-      //             child: OpenAIImageWidget(
-      //               onSelectNetworkImage: widget.onSelectedAIImage,
-      //             ),
-      //           ),
-      //         )
-      //       : Padding(
-      //           padding: const EdgeInsets.all(8.0),
-      //           child: FlowyText(
-      //             LocaleKeys.document_imageBlock_pleaseInputYourOpenAIKey.tr(),
-      //           ),
-      //         );
       case UploadImageType.stabilityAI:
         return supportStabilityAI
             ? Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(8.0),
                   child: StabilityAIImageWidget(
-                    onSelectImage: widget.onSelectedLocalImage,
+                    onSelectImage: (url) => widget.onSelectedLocalImages([url]),
                   ),
                 ),
               )
