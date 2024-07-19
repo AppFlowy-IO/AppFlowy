@@ -1,253 +1,93 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
-import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 part 'local_ai_bloc.freezed.dart';
 
-class LocalAISettingBloc
-    extends Bloc<LocalAISettingEvent, LocalAISettingState> {
-  LocalAISettingBloc()
-      : listener = LocalLLMListener(),
-        super(const LocalAISettingState()) {
-    listener.start(
-      stateCallback: (newState) {
-        if (!isClosed) {
-          add(LocalAISettingEvent.updateLLMRunningState(newState.state));
-        }
-      },
-    );
-
-    on<LocalAISettingEvent>(_handleEvent);
+class LocalAIToggleBloc extends Bloc<LocalAIToggleEvent, LocalAIToggleState> {
+  LocalAIToggleBloc() : super(const LocalAIToggleState()) {
+    on<LocalAIToggleEvent>(_handleEvent);
   }
 
-  final LocalLLMListener listener;
-
-  /// Handles incoming events and dispatches them to the appropriate handler.
   Future<void> _handleEvent(
-    LocalAISettingEvent event,
-    Emitter<LocalAISettingState> emit,
+    LocalAIToggleEvent event,
+    Emitter<LocalAIToggleState> emit,
   ) async {
     await event.when(
-      started: _handleStarted,
-      didLoadModelInfo: (FlowyResult<LLMModelInfoPB, FlowyError> result) {
-        result.fold(
-          (modelInfo) {
-            _fetchCurremtLLMState();
-            emit(
-              state.copyWith(
-                modelInfo: modelInfo,
-                models: modelInfo.models,
-                selectedLLMModel: modelInfo.selectedModel,
-                fetchModelInfoState: const LoadingState.finish(),
-              ),
-            );
-          },
-          (err) {
-            emit(
-              state.copyWith(
-                fetchModelInfoState: LoadingState.finish(error: err),
-              ),
-            );
-          },
-        );
+      started: () async {
+        final result = await ChatEventGetLocalAIState().send();
+        _handleResult(emit, result);
       },
-      selectLLMConfig: (LLMModelPB llmModel) async {
-        final result = await ChatEventUpdateLocalLLM(llmModel).send();
-        result.fold(
-          (llmResource) {
-            // If all resources are downloaded, show reload plugin
-            if (llmResource.pendingResources.isNotEmpty) {
-              emit(
-                state.copyWith(
-                  selectedLLMModel: llmModel,
-                  localAIInfo: LocalAIProgress.showDownload(
-                    llmResource,
-                    llmModel,
-                  ),
-                  selectLLMState: const LoadingState.finish(),
-                ),
-              );
-            } else {
-              emit(
-                state.copyWith(
-                  selectedLLMModel: llmModel,
-                  selectLLMState: const LoadingState.finish(),
-                  localAIInfo: const LocalAIProgress.checkPluginState(),
-                ),
-              );
-            }
-          },
-          (err) {
-            emit(
-              state.copyWith(
-                selectLLMState: LoadingState.finish(error: err),
-              ),
-            );
-          },
-        );
-      },
-      refreshLLMState: (LocalModelResourcePB llmResource) {
-        if (state.selectedLLMModel == null) {
-          Log.error(
-            'Unexpected null selected config. It should be set already',
-          );
-          return;
-        }
-
-        // reload plugin if all resources are downloaded
-        if (llmResource.pendingResources.isEmpty) {
-          emit(
-            state.copyWith(
-              localAIInfo: const LocalAIProgress.checkPluginState(),
-            ),
-          );
-        } else {
-          if (state.selectedLLMModel != null) {
-            // Go to download page if the selected model is downloading
-            if (llmResource.isDownloading) {
-              emit(
-                state.copyWith(
-                  localAIInfo:
-                      LocalAIProgress.startDownloading(state.selectedLLMModel!),
-                  selectLLMState: const LoadingState.finish(),
-                ),
-              );
-              return;
-            } else {
-              emit(
-                state.copyWith(
-                  localAIInfo: LocalAIProgress.showDownload(
-                    llmResource,
-                    state.selectedLLMModel!,
-                  ),
-                  selectLLMState: const LoadingState.finish(),
-                ),
-              );
-            }
-          }
-        }
-      },
-      startDownloadModel: (LLMModelPB llmModel) {
+      toggle: () async {
         emit(
           state.copyWith(
-            localAIInfo: LocalAIProgress.startDownloading(llmModel),
-            selectLLMState: const LoadingState.finish(),
+            pageIndicator: const LocalAIToggleStateIndicator.loading(),
+          ),
+        );
+        unawaited(
+          ChatEventToggleLocalAI().send().then(
+            (result) {
+              if (!isClosed) {
+                add(LocalAIToggleEvent.handleResult(result));
+              }
+            },
           ),
         );
       },
-      cancelDownload: () async {
-        final _ = await ChatEventCancelDownloadLLMResource().send();
-        _fetchCurremtLLMState();
+      handleResult: (result) {
+        _handleResult(emit, result);
       },
-      finishDownload: () async {
+    );
+  }
+
+  void _handleResult(
+    Emitter<LocalAIToggleState> emit,
+    FlowyResult<LocalAIPB, FlowyError> result,
+  ) {
+    result.fold(
+      (localAI) {
         emit(
-          state.copyWith(localAIInfo: const LocalAIProgress.finishDownload()),
+          state.copyWith(
+            pageIndicator: LocalAIToggleStateIndicator.ready(localAI.enabled),
+          ),
         );
       },
-      updateLLMRunningState: (RunningStatePB newRunningState) {
-        if (newRunningState == RunningStatePB.Stopped) {
-          emit(
-            state.copyWith(
-              runningState: newRunningState,
-              localAIInfo: const LocalAIProgress.checkPluginState(),
-            ),
-          );
-        } else {
-          emit(state.copyWith(runningState: newRunningState));
-        }
-      },
-    );
-  }
-
-  void _fetchCurremtLLMState() async {
-    final result = await ChatEventGetLocalLLMState().send();
-    result.fold(
-      (llmResource) {
-        if (!isClosed) {
-          add(LocalAISettingEvent.refreshLLMState(llmResource));
-        }
-      },
       (err) {
-        Log.error(err);
+        emit(
+          state.copyWith(
+            pageIndicator: LocalAIToggleStateIndicator.error(err),
+          ),
+        );
       },
     );
   }
-
-  /// Handles the event to fetch local AI settings when the application starts.
-  Future<void> _handleStarted() async {
-    final result = await ChatEventRefreshLocalAIModelInfo().send();
-    if (!isClosed) {
-      add(LocalAISettingEvent.didLoadModelInfo(result));
-    }
-  }
-
-  @override
-  Future<void> close() async {
-    await listener.stop();
-    return super.close();
-  }
 }
 
 @freezed
-class LocalAISettingEvent with _$LocalAISettingEvent {
-  const factory LocalAISettingEvent.started() = _Started;
-  const factory LocalAISettingEvent.didLoadModelInfo(
-    FlowyResult<LLMModelInfoPB, FlowyError> result,
-  ) = _ModelInfo;
-  const factory LocalAISettingEvent.selectLLMConfig(LLMModelPB config) =
-      _SelectLLMConfig;
-
-  const factory LocalAISettingEvent.refreshLLMState(
-    LocalModelResourcePB llmResource,
-  ) = _RefreshLLMResource;
-  const factory LocalAISettingEvent.startDownloadModel(LLMModelPB llmModel) =
-      _StartDownloadModel;
-
-  const factory LocalAISettingEvent.cancelDownload() = _CancelDownload;
-  const factory LocalAISettingEvent.finishDownload() = _FinishDownload;
-  const factory LocalAISettingEvent.updateLLMRunningState(
-    RunningStatePB newRunningState,
-  ) = _RunningState;
+class LocalAIToggleEvent with _$LocalAIToggleEvent {
+  const factory LocalAIToggleEvent.started() = _Started;
+  const factory LocalAIToggleEvent.toggle() = _Toggle;
+  const factory LocalAIToggleEvent.handleResult(
+    FlowyResult<LocalAIPB, FlowyError> result,
+  ) = _HandleResult;
 }
 
 @freezed
-class LocalAISettingState with _$LocalAISettingState {
-  const factory LocalAISettingState({
-    LLMModelInfoPB? modelInfo,
-    LLMModelPB? selectedLLMModel,
-    LocalAIProgress? localAIInfo,
-    @Default(LoadingState.loading()) LoadingState fetchModelInfoState,
-    @Default(LoadingState.loading()) LoadingState selectLLMState,
-    @Default([]) List<LLMModelPB> models,
-    @Default(RunningStatePB.Connecting) RunningStatePB runningState,
-  }) = _LocalAISettingState;
+class LocalAIToggleState with _$LocalAIToggleState {
+  const factory LocalAIToggleState({
+    @Default(LocalAIToggleStateIndicator.loading())
+    LocalAIToggleStateIndicator pageIndicator,
+  }) = _LocalAIToggleState;
 }
 
 @freezed
-class LocalAIProgress with _$LocalAIProgress {
-  // when user select a new model, it will call requestDownload
-  const factory LocalAIProgress.requestDownloadInfo(
-    LocalModelResourcePB llmResource,
-    LLMModelPB llmModel,
-  ) = _RequestDownload;
-
-  // when user comes back to the setting page, it will auto detect current llm state
-  const factory LocalAIProgress.showDownload(
-    LocalModelResourcePB llmResource,
-    LLMModelPB llmModel,
-  ) = _DownloadNeeded;
-
+class LocalAIToggleStateIndicator with _$LocalAIToggleStateIndicator {
   // when start downloading the model
-  const factory LocalAIProgress.startDownloading(LLMModelPB llmModel) =
-      _Downloading;
-  const factory LocalAIProgress.finishDownload() = _Finish;
-  const factory LocalAIProgress.checkPluginState() = _PluginState;
+  const factory LocalAIToggleStateIndicator.error(FlowyError error) = _OnError;
+  const factory LocalAIToggleStateIndicator.ready(bool isEnabled) = _Ready;
+  const factory LocalAIToggleStateIndicator.loading() = _Loading;
 }

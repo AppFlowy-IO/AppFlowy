@@ -519,10 +519,7 @@ impl UserManager {
     &self,
     updated_settings: UpdateUserWorkspaceSettingPB,
   ) -> FlowyResult<()> {
-    let ai_model = updated_settings
-      .ai_model
-      .as_ref()
-      .map(|model| model.to_str().to_string());
+    let ai_model = updated_settings.ai_model.clone();
     let workspace_id = updated_settings.workspace_id.clone();
     let cloud_service = self.cloud_services.get_user_service()?;
     let settings = cloud_service
@@ -535,13 +532,13 @@ impl UserManager {
       .payload(pb)
       .send();
 
-    if let Some(ai_model) = ai_model {
-      if let Err(err) = self.cloud_services.set_ai_model(&ai_model) {
+    if let Some(ai_model) = &ai_model {
+      if let Err(err) = self.cloud_services.set_ai_model(ai_model.to_str()) {
         error!("Set ai model failed: {}", err);
       }
 
       let conn = self.db_connection(uid)?;
-      let params = UpdateUserProfileParams::new(uid).with_ai_model(&ai_model);
+      let params = UpdateUserProfileParams::new(uid).with_ai_model(ai_model.to_str());
       upsert_user_profile_change(uid, conn, UserTableChangeset::new(params))?;
     }
     Ok(())
@@ -550,7 +547,6 @@ impl UserManager {
   pub async fn get_workspace_settings(&self, workspace_id: &str) -> FlowyResult<UseAISettingPB> {
     let cloud_service = self.cloud_services.get_user_service()?;
     let settings = cloud_service.get_workspace_setting(workspace_id).await?;
-
     let uid = self.user_id()?;
     let conn = self.db_connection(uid)?;
     let params = UpdateUserProfileParams::new(uid).with_ai_model(&settings.ai_model);
