@@ -94,32 +94,6 @@ impl DatabaseEditor {
     self.database_views.close_view(view_id).await;
   }
 
-  pub fn get_database_encoded_collab(&self) -> FlowyResult<EncodedCollab> {
-    let database = self.database.lock();
-    let collab = database.get_collab().lock();
-    collab
-      .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
-      .map_err(internal_error)
-  }
-
-  pub fn get_database_rows_encoded_collab(&self) -> FlowyResult<HashMap<String, EncodedCollab>> {
-    let database = self.database.lock();
-    let rows = &database.block.rows;
-
-    let mut result = HashMap::new();
-    for entry in rows.iter() {
-      let row_id = entry.key();
-      let row = entry.value().lock();
-      let collab = row.get_collab().lock();
-      let encoded_collab = collab
-        .encode_collab_v1(|collab| CollabType::DatabaseRow.validate_require_data(collab))
-        .map_err(internal_error)?;
-      result.insert(row_id.to_string(), encoded_collab);
-    }
-
-    Ok(result)
-  }
-
   pub fn get_row_ids(&self) -> Vec<RowId> {
     self
       .database

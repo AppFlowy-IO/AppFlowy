@@ -203,17 +203,6 @@ impl FolderOperationHandler for DocumentFolderOperation {
     })
   }
 
-  fn get_encoded_collab_v1(&self, view_id: &str) -> FutureResult<EncodedCollabWrapper, FlowyError> {
-    let view_id = view_id.to_string();
-    let manager = self.0.clone();
-    FutureResult::new(async move {
-      let encoded_collab = manager.get_encoded_collab_with_view_id(&view_id).await?;
-      Ok(EncodedCollabWrapper::Document(DocumentEncodedCollab {
-        document_encoded_collab: encoded_collab,
-      }))
-    })
-  }
-
   fn get_encode_collab_v1_from_disk(
     &self,
     user: Arc<dyn FolderUser>,
@@ -410,33 +399,6 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         .collect::<Result<HashMap<_, _>, FlowyError>>()?;
 
       // get the relation info from the database meta
-      let database_relations = database_metas
-        .into_iter()
-        .filter_map(|meta| {
-          let linked_views = meta.linked_views.into_iter().next()?;
-          Some((meta.database_id, linked_views))
-        })
-        .collect::<HashMap<_, _>>();
-
-      Ok(EncodedCollabWrapper::Database(DatabaseEncodedCollab {
-        database_encoded_collab,
-        database_row_encoded_collabs,
-        database_relations,
-      }))
-    })
-  }
-
-  fn get_encoded_collab_v1(&self, view_id: &str) -> FutureResult<EncodedCollabWrapper, FlowyError> {
-    let database_manager = self.0.clone();
-    let view_id = view_id.to_string();
-    FutureResult::new(async move {
-      let database_encoded_collab = database_manager
-        .get_database_encoded_collab_with_view_id(&view_id)
-        .await?;
-      let database_row_encoded_collabs = database_manager
-        .get_database_row_encoded_collabs_with_view_id(&view_id)
-        .await?;
-      let database_metas = database_manager.get_all_databases_meta().await;
       let database_relations = database_metas
         .into_iter()
         .filter_map(|meta| {
@@ -709,14 +671,6 @@ impl FolderOperationHandler for ChatFolderOperation {
     _name: &str,
     _path: String,
   ) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async move { Err(FlowyError::not_support()) })
-  }
-
-  fn get_encoded_collab_v1(
-    &self,
-    _view_id: &str,
-  ) -> FutureResult<EncodedCollabWrapper, FlowyError> {
-    // Chat view doesn't support collab
     FutureResult::new(async move { Err(FlowyError::not_support()) })
   }
 }
