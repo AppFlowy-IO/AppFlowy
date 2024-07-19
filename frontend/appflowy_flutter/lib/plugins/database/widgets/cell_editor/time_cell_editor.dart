@@ -10,6 +10,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 
 import '../../application/cell/bloc/time_cell_editor_bloc.dart';
 import '../../application/cell/bloc/time_cell_bloc.dart';
@@ -63,7 +64,7 @@ class _TimeCellEditorState extends State<TimeCellEditor> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 8),
                 child: _TimeTrackInput(
-                  text: 'Add new',
+                  text: LocaleKeys.grid_field_timeTimeTrackAddNew.tr(),
                   onSubmitted: (date, duration) => context
                       .read<TimeCellEditorBloc>()
                       .add(TimeCellEditorEvent.addTimeTrack(date, duration)),
@@ -82,7 +83,7 @@ class _TimeCellEditorState extends State<TimeCellEditor> {
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
         child: Row(
           children: [
-            const FlowyText('Timer start:'),
+            FlowyText(LocaleKeys.grid_field_timeTimerStartFrom.tr()),
             Container(
               padding: const EdgeInsets.only(left: 8),
               width: 180,
@@ -114,9 +115,9 @@ class _TimeCellEditorState extends State<TimeCellEditor> {
 
   List<Widget> _buildTimeTracks(List<TimeTrackPB> timeTracks) {
     return [
-      const Padding(
-        padding: EdgeInsets.symmetric(vertical: 4),
-        child: FlowyText.semibold('Time tracks'),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: FlowyText.semibold(LocaleKeys.grid_field_timeTimeTracks.tr()),
       ),
       if (timeTracks.isNotEmpty) ...[
         Column(
@@ -303,7 +304,7 @@ class _TimeTrackInputState extends State<_TimeTrackInput> {
                   .copyWith(fontSize: 12),
               controller: _dateEditingController,
               autoFocus: false,
-              hintText: 'Date',
+              hintText: LocaleKeys.grid_field_timeDateHintText.tr(),
             ),
           ),
           popupBuilder: (BuildContext popoverContent) {
@@ -311,7 +312,7 @@ class _TimeTrackInputState extends State<_TimeTrackInput> {
               builder: (context, setNewState) => AppFlowyDatePicker(
                 selectedDay: _selectedDay,
                 timeStr: _timeStr,
-                timeHintText: 'Started from (11:30)',
+                timeHintText: LocaleKeys.grid_field_timeTimeHintText.tr(),
                 parseTimeError: _timeError,
                 includeTime: true,
                 dateFormat: DateFormatPB.Friendly,
@@ -320,7 +321,7 @@ class _TimeTrackInputState extends State<_TimeTrackInput> {
                 onDaySelected: (selectedDay, _) => setNewState(() {
                   _selectedDay = selectedDay;
                   if (_timeStr == null) {
-                    _timeError = "started from time is required";
+                    _timeError = LocaleKeys.grid_field_timeTimeError.tr();
                     return;
                   }
 
@@ -364,7 +365,7 @@ class _TimeTrackInputState extends State<_TimeTrackInput> {
                 Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 12),
             controller: _durationEditingController,
             onTap: _popover.close,
-            hintText: 'Duration (20m)',
+            hintText: LocaleKeys.grid_field_timeDurationHintText.tr(),
             autoFocus: false,
             submitOnLeave: true,
             onSubmitted: (durationStr) {

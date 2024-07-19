@@ -1191,7 +1191,14 @@
       "timePrecisionSeconds": "Seconds",
       "timePrecisionMinutes": "Minutes",
       "timeStartTracking": "Start tracking",
-      "timeStopTracking": "Stop tracking"
+      "timeStopTracking": "Stop tracking",
+      "timeTimerStartFrom": "Timer start from:",
+      "timeTimeTracks": "Time tracks",
+      "timeTimeHintText": "Started from (11:30)",
+      "timeDateHintText": "Date",
+      "timeDurationHintText": "Duration (20m)",
+      "timeTimeError": "started from time is required",
+      "timeTimeTrackAddNew": "Add new"
     },
     "rowPage": {
       "newField": "Add a new field",
