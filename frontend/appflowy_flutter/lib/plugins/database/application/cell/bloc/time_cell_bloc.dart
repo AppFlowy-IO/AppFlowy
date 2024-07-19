@@ -61,8 +61,19 @@ class TimeCellBloc extends Bloc<TimeCellEvent, TimeCellState> {
           },
           didUpdateField: (fieldInfo) {
             final wrap = fieldInfo.wrapCellContent;
-            if (wrap != null) {
-              emit(state.copyWith(wrap: wrap));
+            final typeOption = cellController
+                .getTypeOption<TimeTypeOptionPB>(TimeTypeOptionDataParser());
+
+            if (wrap != state.wrap ||
+                state.timeType != typeOption.timeType ||
+                state.precision != typeOption.precision) {
+              emit(
+                state.copyWith(
+                  wrap: wrap ?? true,
+                  timeType: typeOption.timeType,
+                  precision: typeOption.precision,
+                ),
+              );
             }
           },
           updateTime: (String text) async {

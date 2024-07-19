@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,8 +9,6 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/time_cell_editor.d
 import 'package:appflowy/plugins/database/application/cell/bloc/time_cell_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -68,11 +67,22 @@ class _TimeCellView extends StatefulWidget {
 
 class _TimeCellViewState extends State<_TimeCellView> {
   bool isHover = false;
+  TimePrecisionPB? precision;
+  Timer? timer;
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final timeCellState = context.watch<TimeCellBloc>().state;
+
     if (timeCellState.timeType == TimeTypePB.PlainTime) {
+      timer?.cancel();
+
       return _TimeTextView(
         textEditingController: widget.textEditingController,
         focusNode: widget.focusNode,
@@ -83,6 +93,21 @@ class _TimeCellViewState extends State<_TimeCellView> {
     }
 
     final isTracking = timeCellState.isTracking;
+    if (isTracking && _shouldCreateTimer(timeCellState.precision)) {
+      precision = timeCellState.precision;
+      final duration = precision == TimePrecisionPB.Minutes ? 60 : 1;
+
+      timer?.cancel();
+      timer = Timer.periodic(
+        Duration(seconds: duration),
+        (Timer t) => context
+            .read<TimeCellBloc>()
+            .cellController
+            .getCellData(forceLoad: true),
+      );
+    } else if (!isTracking) {
+      timer?.cancel();
+    }
 
     return MouseRegion(
       onEnter: (_) => setState(() => isHover = true),
@@ -106,6 +131,9 @@ class _TimeCellViewState extends State<_TimeCellView> {
       ),
     );
   }
+
+  bool _shouldCreateTimer(currentPrecision) =>
+      !(timer?.isActive ?? false) || currentPrecision != precision;
 }
 
 class _TimeTextView extends StatelessWidget {
