@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use anyhow::anyhow;
 use client_api::entity::billing_dto::{
-  SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus,
+  SubscriptionCancelRequest, SubscriptionPlan, SubscriptionStatus, WorkspaceSubscriptionStatus,
 };
 use client_api::entity::workspace_dto::{
   CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset, WorkspaceMemberInvitation,
@@ -544,7 +544,13 @@ where
     FutureResult::new(async move {
       let client = try_get_client?;
       client
-        .cancel_subscription(&workspace_id, &SubscriptionPlan::Pro)
+        .cancel_subscription(&SubscriptionCancelRequest {
+          // TODO(zack): replace with actual request when merge with billing
+          workspace_id,
+          plan: SubscriptionPlan::Pro,
+          sync: true,
+          reason: Some("".to_string()),
+        })
         .await?; // TODO:
       Ok(())
     })
