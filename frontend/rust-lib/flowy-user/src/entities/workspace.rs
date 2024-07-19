@@ -322,33 +322,6 @@ pub struct PaymentLinkPB {
 }
 
 #[derive(Debug, ProtoBuf, Default, Clone)]
-pub struct RepeatedWorkspaceSubscriptionPB {
-  #[pb(index = 1)]
-  pub items: Vec<WorkspaceSubscriptionPB>,
-}
-
-#[derive(Debug, ProtoBuf, Default, Clone)]
-pub struct WorkspaceSubscriptionPB {
-  #[pb(index = 1)]
-  pub workspace_id: String,
-
-  #[pb(index = 2)]
-  pub subscription_plan: SubscriptionPlanPB,
-
-  #[pb(index = 3)]
-  pub recurring_interval: RecurringIntervalPB,
-
-  #[pb(index = 4)]
-  pub is_active: bool,
-
-  #[pb(index = 5)]
-  pub has_canceled: bool,
-
-  #[pb(index = 6)]
-  pub canceled_at: i64, // value is valid only if has_canceled is true
-}
-
-#[derive(Debug, ProtoBuf, Default, Clone)]
 pub struct WorkspaceUsagePB {
   #[pb(index = 1)]
   pub member_count: u64,
@@ -584,7 +557,7 @@ pub struct WorkspaceSubscriptionV2PB {
   pub status: WorkspaceSubscriptionStatusPB,
 
   #[pb(index = 4)]
-  pub end_date: i64,
+  pub end_date: i64, // Unix timestamp of when this subscription cycle ends
 
   #[pb(index = 5)]
   pub interval: RecurringIntervalPB,

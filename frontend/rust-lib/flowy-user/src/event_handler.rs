@@ -834,8 +834,8 @@ pub async fn update_workspace_subscription_payment_period_handler(
   params: AFPluginData<UpdateWorkspaceSubscriptionPaymentPeriodPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> FlowyResult<()> {
-  let params = params.try_into_inner().unwrap();
-  let manager = upgrade_manager(manager).unwrap();
+  let params = params.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
   manager
     .update_workspace_subscription_payment_period(
       params.workspace_id,
