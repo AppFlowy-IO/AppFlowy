@@ -52,7 +52,7 @@ collab-user = { version = "0.2" }
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "eebdbcad79a35b07305affdd36f16d9ce95c5a18" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "76a8993cac42ff89acb507cdb99942cac7c9bfd0" }
 
 [dependencies]
 serde_json.workspace = true
@@ -128,6 +128,6 @@ collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-
 # To update the commit ID, run:
 # scripts/tool/update_local_ai_rev.sh new_rev_id
 # ⚠️⚠️⚠️️
-appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "346020270a0a3d3c82a60b545cd3f52144d56beb" }
-appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "346020270a0a3d3c82a60b545cd3f52144d56beb" }
+appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "c4ab1db44e96348f9b0770dd8ecc990f68ac415d" }
+appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "c4ab1db44e96348f9b0770dd8ecc990f68ac415d" }
 

@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/settings/ai/local_ai_bloc.dart';
+import 'package:appflowy/workspace/application/settings/ai/local_ai_chat_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -22,7 +22,7 @@ class InitLocalAIIndicator extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: BlocBuilder<LocalAISettingBloc, LocalAISettingState>(
+        child: BlocBuilder<LocalAIChatSettingBloc, LocalAIChatSettingState>(
           builder: (context, state) {
             switch (state.runningState) {
               case RunningStatePB.Connecting:
