@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/presentation/settings/shared/single_setting_a
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +25,7 @@ class FixDataWidget extends StatelessWidget {
               .tr(),
           buttonLabel: LocaleKeys.settings_manageDataPage_data_fixButton.tr(),
           onPressed: () {
-            FixDataManager.checkWorkspaceHealth(dryRun: true);
+            WorkspaceDataManager.checkWorkspaceHealth(dryRun: true);
           },
         ),
       ],
@@ -32,7 +33,7 @@ class FixDataWidget extends StatelessWidget {
   }
 }
 
-class FixDataManager {
+class WorkspaceDataManager {
   static Future<void> checkWorkspaceHealth({
     required bool dryRun,
   }) async {
@@ -63,6 +64,9 @@ class FixDataManager {
       // check the health of the spaces
       await checkSpaceHealth(workspace: workspace, allViews: allViews);
 
+      // check the health of the views
+      await checkViewHealth(workspace: workspace, allViews: allViews);
+
       // add other checks here
       // ...
     } catch (e) {
@@ -83,7 +87,6 @@ class FixDataManager {
           workspaceChildViews.map((e) => e.id).toSet();
       final spaces = allViews.where((e) => e.isSpace).toList();
 
-      //
       for (final space in spaces) {
         // the space is the top level view, so its parent view id should be the workspace id
         // and the workspace should have the space in its child views
@@ -104,6 +107,93 @@ class FixDataManager {
     } catch (e) {
       Log.error('Failed to check space health: $e');
     }
+  }
+
+  static Future<List<ViewPB>> checkViewHealth({
+    ViewPB? workspace,
+    List<ViewPB>? allViews,
+    bool dryRun = true,
+  }) async {
+    // Views whose parent view does not have the view in its child views
+    final List<ViewPB> unlistedChildViews = [];
+    // Views whose parent is not in allViews
+    final List<ViewPB> orphanViews = [];
+
+    try {
+      if (workspace == null || allViews == null) {
+        final currentWorkspace =
+            await UserBackendService.getCurrentWorkspace().getOrThrow();
+        // get all the views in the workspace
+        final result = await ViewBackendService.getAllViews().getOrThrow();
+        allViews = result.items;
+        workspace = allViews.firstWhereOrNull(
+          (e) => e.id == currentWorkspace.id,
+        );
+      }
+
+      for (final view in allViews) {
+        if (view.parentViewId == '') {
+          continue;
+        }
+
+        final parentView = allViews.firstWhereOrNull(
+          (e) => e.id == view.parentViewId,
+        );
+
+        if (parentView == null) {
+          orphanViews.add(view);
+          continue;
+        }
+
+        final childViewsOfParent =
+            await ViewBackendService.getChildViews(viewId: parentView.id)
+                .getOrThrow();
+        final result = childViewsOfParent.any((e) => e.id == view.id);
+        if (!result) {
+          unlistedChildViews.add(view);
+        }
+      }
+    } catch (e) {
+      Log.error('Failed to check space health: $e');
+      return [];
+    }
+
+    for (final view in unlistedChildViews) {
+      Log.info(
+        '[workspace] found an issue: view is not in the parent view\'s child views, view: ${view.toProto3Json()}}',
+      );
+    }
+
+    for (final view in orphanViews) {
+      Log.debug('[workspace] orphanViews: ${view.toProto3Json()}');
+    }
+
+    if (!dryRun && unlistedChildViews.isNotEmpty) {
+      Log.info(
+        '[workspace] start to fix ${unlistedChildViews.length} unlistedChildViews ...',
+      );
+      for (final view in unlistedChildViews) {
+        // move the view to the parent view if it is not in the parent view's child views
+        Log.info(
+          '[workspace] move view: $view to its parent view ${view.parentViewId}',
+        );
+        await ViewBackendService.moveViewV2(
+          viewId: view.id,
+          newParentId: view.parentViewId,
+          prevViewId: null,
+        );
+      }
+
+      Log.info('[workspace] end to fix unlistedChildViews');
+    }
+
+    if (unlistedChildViews.isEmpty && orphanViews.isEmpty) {
+      Log.info('[workspace] all views are healthy');
+    }
+
+    Log.info('[workspace] done checking view health');
+
+    return unlistedChildViews;
   }
 
   static void dumpViews(String prefix, List<ViewPB> views) {

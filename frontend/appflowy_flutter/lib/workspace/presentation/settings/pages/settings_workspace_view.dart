@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/application/settings/date_time/date_format_ex
 import 'package:appflowy/workspace/application/settings/date_time/time_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/workspace/workspace_settings_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
@@ -31,6 +32,7 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_input_f
 import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_select.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -44,7 +46,6 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -1144,9 +1145,21 @@ class _DocumentCursorColorSetting extends StatelessWidget {
         return SettingListTile(
           label: label,
           resetButtonKey: const Key('DocumentCursorColorResetButton'),
-          onResetRequested: () => context
-            ..read<AppearanceSettingsCubit>().resetDocumentCursorColor()
-            ..read<DocumentAppearanceCubit>().syncCursorColor(null),
+          onResetRequested: () {
+            showConfirmDialog(
+              context: context,
+              title:
+                  LocaleKeys.settings_workspacePage_resetCursorColor_title.tr(),
+              description: LocaleKeys
+                  .settings_workspacePage_resetCursorColor_description
+                  .tr(),
+              style: ConfirmPopupStyle.cancelAndOk,
+              confirmLabel: LocaleKeys.settings_common_reset.tr(),
+              onConfirm: () => context
+                ..read<AppearanceSettingsCubit>().resetDocumentCursorColor()
+                ..read<DocumentAppearanceCubit>().syncCursorColor(null),
+            );
+          },
           trailing: [
             DocumentColorSettingButton(
               key: const Key('DocumentCursorColorSettingButton'),
@@ -1202,9 +1215,21 @@ class _DocumentSelectionColorSetting extends StatelessWidget {
         return SettingListTile(
           label: label,
           resetButtonKey: const Key('DocumentSelectionColorResetButton'),
-          onResetRequested: () => context
-            ..read<AppearanceSettingsCubit>().resetDocumentSelectionColor()
-            ..read<DocumentAppearanceCubit>().syncSelectionColor(null),
+          onResetRequested: () {
+            showConfirmDialog(
+              context: context,
+              title: LocaleKeys.settings_workspacePage_resetSelectionColor_title
+                  .tr(),
+              description: LocaleKeys
+                  .settings_workspacePage_resetSelectionColor_description
+                  .tr(),
+              style: ConfirmPopupStyle.cancelAndOk,
+              confirmLabel: LocaleKeys.settings_common_reset.tr(),
+              onConfirm: () => context
+                ..read<AppearanceSettingsCubit>().resetDocumentSelectionColor()
+                ..read<DocumentAppearanceCubit>().syncSelectionColor(null),
+            );
+          },
           trailing: [
             DocumentColorSettingButton(
               currentColor: state.selectionColor ??

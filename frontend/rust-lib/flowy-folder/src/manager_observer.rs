@@ -235,7 +235,6 @@ pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folde
     private_views.len()
   );
 
-  // TODO(Lucas.xu) - Only notify the section changed, not the public/private both.
   // Notify the public views
   send_notification(workspace_id, FolderNotification::DidUpdateSectionViews)
     .payload(SectionViewsPB {

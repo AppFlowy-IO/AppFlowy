@@ -122,17 +122,17 @@ class ViewBackendService {
     });
   }
 
-  static Future<FlowyResult<void, FlowyError>> delete({
+  static Future<FlowyResult<void, FlowyError>> deleteView({
     required String viewId,
   }) {
     final request = RepeatedViewIdPB.create()..items.add(viewId);
     return FolderEventDeleteView(request).send();
   }
 
-  static Future<FlowyResult<void, FlowyError>> deleteView({
-    required String viewId,
+  static Future<FlowyResult<void, FlowyError>> deleteViews({
+    required List<String> viewIds,
   }) {
-    final request = RepeatedViewIdPB.create()..items.add(viewId);
+    final request = RepeatedViewIdPB.create()..items.addAll(viewIds);
     return FolderEventDeleteView(request).send();
   }
 
