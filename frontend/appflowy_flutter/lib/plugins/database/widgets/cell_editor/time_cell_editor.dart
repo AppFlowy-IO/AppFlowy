@@ -116,12 +116,18 @@ class _TimeCellEditorState extends State<TimeCellEditor> {
   List<Widget> _buildTimeTracks(List<TimeTrackPB> timeTracks) {
     return [
       Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.only(bottom: 4, top: 8),
         child: FlowyText.semibold(LocaleKeys.grid_field_timeTimeTracks.tr()),
       ),
       if (timeTracks.isNotEmpty) ...[
-        Column(
-          children: timeTracks.map((tt) => _TimeTrack(timeTrack: tt)).toList(),
+        Flexible(
+          child: ListView.builder(
+            itemCount: timeTracks.length,
+            itemBuilder: (context, index) => Center(
+              child: _TimeTrack(timeTrack: timeTracks[index]),
+            ),
+            shrinkWrap: true,
+          ),
         ),
         const TypeOptionSeparator(spacing: 4.0),
       ],
