@@ -4,6 +4,7 @@ import 'dart:isolate';
 
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -40,7 +41,7 @@ class DownloadModelBloc extends Bloc<DownloadModelEvent, DownloadModelState> {
             add(const DownloadModelEvent.downloadFinish());
           },
           onError: (err) {
-            // emit(state.copyWith(downloadError: err));
+            Log.error(err);
           },
         );
 
@@ -66,6 +67,12 @@ class DownloadModelBloc extends Bloc<DownloadModelEvent, DownloadModelState> {
         emit(state.copyWith(isFinish: true));
       },
     );
+  }
+
+  @override
+  Future<void> close() async {
+    await state.downloadStream?.dispose();
+    return super.close();
   }
 }
 
