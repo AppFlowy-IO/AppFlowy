@@ -193,9 +193,13 @@ impl EventIntegrationTest {
 
   pub async fn encoded_collab_v1(&self, view_id: &str, layout: ViewLayout) -> EncodedCollabWrapper {
     let manager = self.folder_manager.clone();
+    let user = manager.get_user().clone();
     let handlers = manager.get_operation_handlers();
     let handler = handlers.get(&layout).unwrap();
-    handler.get_encoded_collab_v1(view_id).await.unwrap()
+    handler
+      .get_encoded_collab_v1_from_disk(user, view_id)
+      .await
+      .unwrap()
   }
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {

@@ -203,7 +203,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     })
   }
 
-  fn get_encode_collab_v1_from_disk(
+  fn get_encoded_collab_v1_from_disk(
     &self,
     user: Arc<dyn FolderUser>,
     view_id: &str,
@@ -333,7 +333,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     })
   }
 
-  fn get_encode_collab_v1_from_disk(
+  fn get_encoded_collab_v1_from_disk(
     &self,
     user: Arc<dyn FolderUser>,
     view_id: &str,

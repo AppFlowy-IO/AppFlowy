@@ -66,7 +66,7 @@ pub trait FolderOperationHandler {
   fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
 
   /// get the encoded collab data from the disk.
-  fn get_encode_collab_v1_from_disk(
+  fn get_encoded_collab_v1_from_disk(
     &self,
     _user: Arc<dyn FolderUser>,
     _view_id: &str,

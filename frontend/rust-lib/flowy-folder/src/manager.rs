@@ -1218,7 +1218,7 @@ impl FolderManager {
   ) -> FlowyResult<PublishPayload> {
     let handler: Arc<dyn FolderOperationHandler + Sync + Send> = self.get_handler(&layout)?;
     let encoded_collab_wrapper: EncodedCollabWrapper = handler
-      .get_encode_collab_v1_from_disk(self.user.clone(), view_id)
+      .get_encoded_collab_v1_from_disk(self.user.clone(), view_id)
       .await?;
     let view = self.get_view_pb(view_id).await?;
 
