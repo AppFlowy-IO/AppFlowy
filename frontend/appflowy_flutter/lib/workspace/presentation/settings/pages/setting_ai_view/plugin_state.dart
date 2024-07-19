@@ -21,7 +21,8 @@ class CheckPluginStateIndicator extends StatelessWidget {
           return state.action.when(
             init: () => const _InitPlugin(),
             ready: () => const _ReadyToUse(),
-            reloadRequired: () => const _ReloadButton(),
+            restart: () => const _ReloadButton(),
+            loadingPlugin: () => const _InitPlugin(),
           );
         },
       ),
@@ -78,32 +79,29 @@ class _ReadyToUse extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          color: Color(0xFFEDF7ED),
-          borderRadius: BorderRadius.all(
-            Radius.circular(4),
-          ),
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: Color(0xFFEDF7ED),
+        borderRadius: BorderRadius.all(
+          Radius.circular(4),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(
-            children: [
-              const HSpace(8),
-              const FlowySvg(
-                FlowySvgs.download_success_s,
-                color: Color(0xFF2E7D32),
-              ),
-              const HSpace(6),
-              FlowyText(
-                LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
-                fontSize: 11,
-                color: const Color(0xFF1E4620),
-              ),
-            ],
-          ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            const HSpace(8),
+            const FlowySvg(
+              FlowySvgs.download_success_s,
+              color: Color(0xFF2E7D32),
+            ),
+            const HSpace(6),
+            FlowyText(
+              LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
+              fontSize: 11,
+              color: const Color(0xFF1E4620),
+            ),
+          ],
         ),
       ),
     );

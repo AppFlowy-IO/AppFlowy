@@ -2,7 +2,7 @@ use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
 
 const CHAT_OBSERVABLE_SOURCE: &str = "Chat";
-
+pub const APPFLOWY_AI_NOTIFICATION_KEY: &str = "appflowy_ai_plugin";
 #[derive(ProtoBuf_Enum, Debug, Default)]
 pub enum ChatNotification {
   #[default]
@@ -13,7 +13,7 @@ pub enum ChatNotification {
   StreamChatMessageError = 4,
   FinishStreaming = 5,
   UpdateChatPluginState = 6,
-  LocalAIResourceNeeded = 7,
+  UpdateLocalChatAI = 7,
 }
 
 impl std::convert::From<ChatNotification> for i32 {
@@ -30,13 +30,13 @@ impl std::convert::From<i32> for ChatNotification {
       4 => ChatNotification::StreamChatMessageError,
       5 => ChatNotification::FinishStreaming,
       6 => ChatNotification::UpdateChatPluginState,
-      7 => ChatNotification::LocalAIResourceNeeded,
+      7 => ChatNotification::UpdateLocalChatAI,
       _ => ChatNotification::Unknown,
     }
   }
 }
 
 #[tracing::instrument(level = "trace")]
-pub(crate) fn send_notification(id: &str, ty: ChatNotification) -> NotificationBuilder {
+pub(crate) fn make_notification(id: &str, ty: ChatNotification) -> NotificationBuilder {
   NotificationBuilder::new(id, ty, CHAT_OBSERVABLE_SOURCE)
 }

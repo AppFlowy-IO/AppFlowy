@@ -1,5 +1,6 @@
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -9,13 +10,12 @@ part 'chat_file_bloc.freezed.dart';
 class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
   ChatFileBloc({
     required String chatId,
-    dynamic message,
   })  : listener = LocalLLMListener(),
-        super(ChatFileState.initial(message)) {
+        super(const ChatFileState()) {
     listener.start(
-      stateCallback: (pluginState) {
+      chatStateCallback: (chatState) {
         if (!isClosed) {
-          add(ChatFileEvent.updateLocalAIState(pluginState));
+          add(ChatFileEvent.updateChatState(chatState));
         }
       },
     );
@@ -24,26 +24,30 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            final result = await ChatEventGetPluginState().send();
+            final result = await ChatEventGetLocalAIChatState().send();
             result.fold(
-              (pluginState) {
+              (chatState) {
                 if (!isClosed) {
-                  add(ChatFileEvent.updateLocalAIState(pluginState));
+                  add(
+                    ChatFileEvent.updateChatState(chatState),
+                  );
                 }
               },
-              (err) {},
+              (err) {
+                Log.error(err.toString());
+              },
             );
           },
           newFile: (String filePath) {
             final payload = ChatFilePB(filePath: filePath, chatId: chatId);
             ChatEventChatWithFile(payload).send();
           },
-          updateLocalAIState: (PluginStatePB pluginState) {
+          updateChatState: (LocalAIChatPB chatState) {
+            // Only user enable chat with file and the plugin is already running
+            final supportChatWithFile = chatState.fileEnabled &&
+                chatState.pluginState.state == RunningStatePB.Running;
             emit(
-              state.copyWith(
-                supportChatWithFile:
-                    pluginState.state == RunningStatePB.Running,
-              ),
+              state.copyWith(supportChatWithFile: supportChatWithFile),
             );
           },
         );
@@ -64,20 +68,19 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
 class ChatFileEvent with _$ChatFileEvent {
   const factory ChatFileEvent.initial() = Initial;
   const factory ChatFileEvent.newFile(String filePath) = _NewFile;
-  const factory ChatFileEvent.updateLocalAIState(PluginStatePB pluginState) =
-      _UpdateLocalAIState;
+  const factory ChatFileEvent.updateChatState(LocalAIChatPB chatState) =
+      _UpdateChatState;
 }
 
 @freezed
 class ChatFileState with _$ChatFileState {
   const factory ChatFileState({
-    required String text,
     @Default(false) bool supportChatWithFile,
   }) = _ChatFileState;
+}
 
-  factory ChatFileState.initial(dynamic text) {
-    return ChatFileState(
-      text: text is String ? text : "",
-    );
-  }
+@freezed
+class LocalAIChatFileIndicator with _$LocalAIChatFileIndicator {
+  const factory LocalAIChatFileIndicator.ready(bool isEnabled) = _Ready;
+  const factory LocalAIChatFileIndicator.loading() = _Loading;
 }
