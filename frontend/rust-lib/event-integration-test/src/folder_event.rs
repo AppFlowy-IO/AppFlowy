@@ -191,7 +191,11 @@ impl EventIntegrationTest {
     payload.unwrap()
   }
 
-  pub async fn encoded_collab_v1(&self, view_id: &str, layout: ViewLayout) -> EncodedCollabWrapper {
+  pub async fn get_encoded_collab_v1_from_disk(
+    &self,
+    view_id: &str,
+    layout: ViewLayout,
+  ) -> EncodedCollabWrapper {
     let manager = self.folder_manager.clone();
     let user = manager.get_user().clone();
     let handlers = manager.get_operation_handlers();
@@ -256,12 +260,23 @@ impl EventIntegrationTest {
   }
 
   pub async fn create_view(&self, parent_id: &str, name: String) -> ViewPB {
+    self
+      .create_view_with_layout(parent_id, name, Default::default())
+      .await
+  }
+
+  pub async fn create_view_with_layout(
+    &self,
+    parent_id: &str,
+    name: String,
+    layout: ViewLayoutPB,
+  ) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name,
       desc: "".to_string(),
       thumbnail: None,
-      layout: Default::default(),
+      layout,
       initial_data: vec![],
       meta: Default::default(),
       set_as_current: false,

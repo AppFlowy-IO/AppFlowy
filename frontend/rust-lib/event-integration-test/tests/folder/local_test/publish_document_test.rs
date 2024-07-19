@@ -14,7 +14,7 @@ async fn mock_single_document_view_publish_payload(
 ) -> Vec<PublishPayload> {
   let view_id = &view.id;
   let layout: ViewLayout = view.layout.clone().into();
-  let view_encoded_collab = test.encoded_collab_v1(view_id, layout).await;
+  let view_encoded_collab = test.get_encoded_collab_v1_from_disk(view_id, layout).await;
   let publish_view_info = PublishViewInfo {
     view_id: view_id.to_string(),
     name: view.name.to_string(),
@@ -54,7 +54,7 @@ async fn mock_nested_document_view_publish_payload(
 ) -> Vec<PublishPayload> {
   let view_id = &view.id;
   let layout: ViewLayout = view.layout.clone().into();
-  let view_encoded_collab = test.encoded_collab_v1(view_id, layout).await;
+  let view_encoded_collab = test.get_encoded_collab_v1_from_disk(view_id, layout).await;
   let publish_view_info = PublishViewInfo {
     view_id: view_id.to_string(),
     name: view.name.to_string(),
@@ -71,7 +71,9 @@ async fn mock_nested_document_view_publish_payload(
   let child_view_id = &view.child_views[0].id;
   let child_view = test.get_view(child_view_id).await;
   let child_layout: ViewLayout = child_view.layout.clone().into();
-  let child_view_encoded_collab = test.encoded_collab_v1(child_view_id, child_layout).await;
+  let child_view_encoded_collab = test
+    .get_encoded_collab_v1_from_disk(child_view_id, child_layout)
+    .await;
   let child_publish_view_info = PublishViewInfo {
     view_id: child_view_id.to_string(),
     name: child_view.name.to_string(),
