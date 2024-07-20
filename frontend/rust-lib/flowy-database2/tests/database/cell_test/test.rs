@@ -338,7 +338,7 @@ async fn time_cell_stopwatch_delete_time_tracking_test() {
     .await;
 
   test
-    .assert_time(time_field.id, Duration::minutes(15).num_minutes())
+    .assert_time(time_field.id, Duration::minutes(15).num_seconds())
     .await;
 }
 
@@ -411,7 +411,7 @@ async fn time_cell_stopwatch_update_time_tracking_test() {
     .await;
 
   test
-    .assert_time(time_field.id, Duration::minutes(40).num_minutes())
+    .assert_time(time_field.id, Duration::minutes(40).num_seconds())
     .await;
 }
 
@@ -442,7 +442,7 @@ async fn time_cell_timer_add_time_tracking_test() {
       row_id: test.row_details[0].row.id.clone(),
       field_id: time_field.id.clone(),
       changeset: BoxAny::new(TimeCellChangeset {
-        timer_start: Some(Duration::minutes(50).num_minutes()),
+        timer_start: Some(Duration::minutes(50).num_seconds()),
         add_time_trackings: vec![
           TimeTrack {
             from_timestamp: now_timestamp,
@@ -462,6 +462,6 @@ async fn time_cell_timer_add_time_tracking_test() {
     .await;
 
   test
-    .assert_time(time_field.id, Duration::minutes(5).num_minutes())
+    .assert_time(time_field.id, Duration::minutes(5).num_seconds())
     .await;
 }
