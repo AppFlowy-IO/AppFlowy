@@ -112,10 +112,7 @@ impl CellDataDecoder for TimeTypeOption {
 
   fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
     let time_cell_data = self.parse_cell(cell).ok()?;
-    match time_cell_data.time {
-      Some(time) => Some(time as f64),
-      None => None,
-    }
+    time_cell_data.time.map(|time| time as f64)
   }
 }
 

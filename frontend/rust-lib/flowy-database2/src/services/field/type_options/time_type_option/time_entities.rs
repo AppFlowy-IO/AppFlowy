@@ -6,6 +6,7 @@ use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::FlowyError;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use strum_macros::EnumIter;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -30,14 +31,14 @@ impl TimeCellData {
         time_sum = 0;
       }
     }
-    return Some(time_sum);
+    Some(time_sum)
   }
 
   pub fn validate(&self) -> Option<FlowyError> {
     if self.time.unwrap_or(0) < 0 {
       return Some(FlowyError::internal().with_context("time can't get less than 0"));
     }
-    if self.time.is_none() && self.time_tracks.len() != 0 {
+    if self.time.is_none() && !self.time_tracks.is_empty() {
       return Some(
         FlowyError::internal().with_context("time can't get removed when there are time tracks"),
       );
@@ -49,23 +50,27 @@ impl TimeCellData {
       .into_iter()
       .filter(|tt| tt.to_timestamp.is_none())
       .collect();
-    if to_none_time_tracks.len() > 1 {
-      return Some(
-        FlowyError::internal()
-          .with_context("time tracks can't contain two time track with none 'to_timestamp'"),
-      );
-    } else if to_none_time_tracks.len() == 1 {
-      let none_tt = &to_none_time_tracks[0];
-      if self
-        .time_tracks
-        .iter()
-        .any(|tt1| tt1.id != none_tt.id && tt1.from_timestamp > none_tt.from_timestamp)
-      {
-        return Some(FlowyError::internal().with_context(
-          "cant add a time track which starts after the time track that is currently tracking",
-        ));
-      }
-    }
+    match to_none_time_tracks.len().cmp(&1) {
+      Ordering::Greater => {
+        return Some(
+          FlowyError::internal()
+            .with_context("time tracks can't contain two time track with none 'to_timestamp'"),
+        )
+      },
+      Ordering::Equal => {
+        let none_tt = &to_none_time_tracks[0];
+        if self
+          .time_tracks
+          .iter()
+          .any(|tt1| tt1.id != none_tt.id && tt1.from_timestamp > none_tt.from_timestamp)
+        {
+          return Some(FlowyError::internal().with_context(
+            "cant add a time track which starts after the time track that is currently tracking",
+          ));
+        }
+      },
+      Ordering::Less => (),
+    };
 
     if self.time_tracks.iter().any(|tt1| {
       self.time_tracks.iter().any(|tt2| {

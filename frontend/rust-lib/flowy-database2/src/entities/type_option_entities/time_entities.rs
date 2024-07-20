@@ -58,21 +58,21 @@ pub struct TimeTrackPB {
 
 impl From<TimeTrackPB> for TimeTrack {
   fn from(data: TimeTrackPB) -> Self {
-    return Self {
+    Self {
       id: data.id,
       from_timestamp: data.from_timestamp,
       to_timestamp: data.to_timestamp,
-    };
+    }
   }
 }
 
 impl From<TimeTrack> for TimeTrackPB {
   fn from(data: TimeTrack) -> Self {
-    return Self {
+    Self {
       id: data.id,
       from_timestamp: data.from_timestamp,
       to_timestamp: data.to_timestamp,
-    };
+    }
   }
 }
 
