@@ -1,5 +1,5 @@
 use chrono::{Duration, NaiveDateTime, Utc};
-use client_api::entity::billing_dto::RecurringInterval;
+use client_api::entity::billing_dto::{RecurringInterval, SubscriptionPlanDetail};
 use client_api::entity::billing_dto::{SubscriptionPlan, WorkspaceUsageAndLimit};
 
 use std::convert::TryFrom;
@@ -490,6 +490,16 @@ impl UserManager {
       .update_workspace_subscription_payment_period(workspace_id, plan, recurring_interval)
       .await?;
     Ok(())
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn get_subscription_plan_details(&self) -> FlowyResult<Vec<SubscriptionPlanDetail>> {
+    let plan_details = self
+      .cloud_services
+      .get_user_service()?
+      .get_subscription_plan_details()
+      .await?;
+    Ok(plan_details)
   }
 
   #[instrument(level = "info", skip(self), err)]

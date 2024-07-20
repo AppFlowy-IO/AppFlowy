@@ -845,6 +845,20 @@ pub async fn update_workspace_subscription_payment_period_handler(
     .await
 }
 
+// #[tracing::instrument(level = "debug", skip_all, err)]
+// pub async fn get_subscription_plan_details_handler(
+//   manager: AFPluginState<Weak<UserManager>>,
+// ) -> DataResult<RepeatedSubscriptionPlanDetailPB, FlowyError> {
+//   let manager = upgrade_manager(manager)?;
+//   let plans = manager
+//     .get_subscription_plan_details()
+//     .await?
+//     .into_iter()
+//     .map(SubscriptionPlanDetailPB::from)
+//     .collect::<Vec<_>>();
+//   data_result_ok(RepeatedSubscriptionPlanDetailPB { items: plans })
+// }
+
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_workspace_member_info(
   param: AFPluginData<WorkspaceMemberIdPB>,

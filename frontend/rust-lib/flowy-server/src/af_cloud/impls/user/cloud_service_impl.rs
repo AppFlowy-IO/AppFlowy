@@ -4,7 +4,7 @@ use std::sync::Arc;
 use anyhow::anyhow;
 use client_api::entity::billing_dto::{
   RecurringInterval, SetSubscriptionRecurringInterval, SubscriptionCancelRequest, SubscriptionPlan,
-  WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
+  SubscriptionPlanDetail, WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
 };
 use client_api::entity::workspace_dto::{
   CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset, WorkspaceMemberInvitation,
@@ -606,6 +606,15 @@ where
         })
         .await?;
       Ok(())
+    })
+  }
+
+  fn get_subscription_plan_details(&self) -> FutureResult<Vec<SubscriptionPlanDetail>, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let plan_details = client.get_subscription_plan_details().await?;
+      Ok(plan_details)
     })
   }
 

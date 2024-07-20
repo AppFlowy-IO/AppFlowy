@@ -75,6 +75,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetWorkspaceUsage, get_workspace_usage_handler)
     .event(UserEvent::GetBillingPortal, get_billing_portal_handler)
     .event(UserEvent::UpdateWorkspaceSubscriptionPaymentPeriod, update_workspace_subscription_payment_period_handler)
+    // .event(UserEvent::GetSubscriptionPlanDetails, get_subscription_plan_details_handler)
     // Workspace Setting
     .event(UserEvent::UpdateWorkspaceSetting, update_workspace_setting)
     .event(UserEvent::GetWorkspaceSetting, get_workspace_setting)
@@ -265,6 +266,9 @@ pub enum UserEvent {
 
   #[event(input = "UpdateWorkspaceSubscriptionPaymentPeriodPB")]
   UpdateWorkspaceSubscriptionPaymentPeriod = 61,
+
+  #[event(output = "RepeatedSubscriptionPlanDetailPB")]
+  GetSubscriptionPlanDetails = 62,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

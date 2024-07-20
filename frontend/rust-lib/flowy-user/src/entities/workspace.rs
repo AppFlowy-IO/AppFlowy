@@ -1,5 +1,6 @@
 use client_api::entity::billing_dto::{
-  RecurringInterval, SubscriptionPlan, WorkspaceSubscriptionStatus,
+  Currency, RecurringInterval, SubscriptionPlan, SubscriptionPlanDetail,
+  WorkspaceSubscriptionStatus,
 };
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -624,4 +625,47 @@ pub struct UpdateWorkspaceSubscriptionPaymentPeriodPB {
 
   #[pb(index = 3)]
   pub recurring_interval: RecurringIntervalPB,
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct RepeatedSubscriptionPlanDetailPB {
+  #[pb(index = 1)]
+  pub items: Vec<SubscriptionPlanDetailPB>,
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct SubscriptionPlanDetailPB {
+  #[pb(index = 1)]
+  pub currency: CurrencyPB,
+  #[pb(index = 2)]
+  pub price_cents: i64,
+  #[pb(index = 3)]
+  pub recurring_interval: RecurringIntervalPB,
+  #[pb(index = 4)]
+  pub plan: SubscriptionPlanPB,
+}
+
+impl From<SubscriptionPlanDetail> for SubscriptionPlanDetailPB {
+  fn from(value: SubscriptionPlanDetail) -> Self {
+    Self {
+      currency: value.currency.into(),
+      price_cents: value.price_cents,
+      recurring_interval: value.recurring_interval.into(),
+      plan: value.plan.into(),
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Clone, Default)]
+pub enum CurrencyPB {
+  #[default]
+  USD = 0,
+}
+
+impl From<Currency> for CurrencyPB {
+  fn from(value: Currency) -> Self {
+    match value {
+      Currency::USD => CurrencyPB::USD,
+    }
+  }
 }

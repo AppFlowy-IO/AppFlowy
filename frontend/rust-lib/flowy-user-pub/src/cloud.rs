@@ -1,5 +1,6 @@
 use client_api::entity::billing_dto::RecurringInterval;
 use client_api::entity::billing_dto::SubscriptionPlan;
+use client_api::entity::billing_dto::SubscriptionPlanDetail;
 pub use client_api::entity::billing_dto::SubscriptionStatus;
 use client_api::entity::billing_dto::WorkspaceSubscriptionStatus;
 use client_api::entity::billing_dto::WorkspaceUsageAndLimit;
@@ -326,6 +327,10 @@ pub trait UserCloudService: Send + Sync + 'static {
     plan: SubscriptionPlan,
     recurring_interval: RecurringInterval,
   ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
+  fn get_subscription_plan_details(&self) -> FutureResult<Vec<SubscriptionPlanDetail>, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
