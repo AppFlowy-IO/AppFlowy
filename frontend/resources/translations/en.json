@@ -1193,12 +1193,16 @@
       "timeStartTracking": "Start tracking",
       "timeStopTracking": "Stop tracking",
       "timeTimerStartFrom": "Timer start from:",
+      "timeTimerStartFromHintText": "2h 11m",
       "timeTimeTracks": "Time tracks",
       "timeTimeHintText": "Started from (11:30)",
       "timeDateHintText": "Date",
       "timeDurationHintText": "Duration (20m)",
       "timeTimeError": "started from time is required",
-      "timeTimeTrackAddNew": "Add new"
+      "timeTimeTrackAddNew": "Add new",
+      "timeDiscardTimeTrackEdit": "Discard time track edit",
+      "timeEditTimeTrack": "Edit time track",
+      "timeDeleteTimeTrack": "Delete time track"
     },
     "rowPage": {
       "newField": "Add a new field",

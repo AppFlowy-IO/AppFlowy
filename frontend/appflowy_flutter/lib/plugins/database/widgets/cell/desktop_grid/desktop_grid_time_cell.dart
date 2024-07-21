@@ -123,7 +123,7 @@ class _TimeCellViewState extends State<_TimeCellView> {
             onTap: widget.popoverController.show,
           ),
           if (isHover || isTracking)
-            _TimeTrackButton(
+            TimeTrackButton(
               focusNode: widget.focusNode,
               isTracking: isTracking,
             ).positioned(right: GridSize.cellContentInsets.right),
@@ -181,8 +181,10 @@ class _TimeTextView extends StatelessWidget {
   }
 }
 
-class _TimeTrackButton extends StatelessWidget {
-  const _TimeTrackButton({
+@visibleForTesting
+class TimeTrackButton extends StatelessWidget {
+  const TimeTrackButton({
+    super.key,
     required this.focusNode,
     required this.isTracking,
   });

@@ -48,10 +48,10 @@ class _TimeCellEditorState extends State<TimeCellEditor> {
       child: BlocBuilder<TimeCellEditorBloc, TimeCellEditorState>(
         builder: (context, state) {
           final cellBlocState = context.watch<TimeCellBloc>().state;
-          _timeStartEditingController.text = formatTime(
-            state.timerStart ?? 0,
-            cellBlocState.precision,
-          );
+          if (state.timerStart != null) {
+            _timeStartEditingController.text =
+                formatTime(state.timerStart!, cellBlocState.precision);
+          }
 
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -63,7 +63,7 @@ class _TimeCellEditorState extends State<TimeCellEditor> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 8),
-                child: _TimeTrackInput(
+                child: TimeTrackInput(
                   text: LocaleKeys.grid_field_timeTimeTrackAddNew.tr(),
                   onSubmitted: (date, duration) => context
                       .read<TimeCellEditorBloc>()
@@ -91,12 +91,14 @@ class _TimeCellEditorState extends State<TimeCellEditor> {
                 controller: _timeStartEditingController,
                 autoFocus: false,
                 submitOnLeave: true,
+                hintText: LocaleKeys.grid_field_timeTimerStartFromHintText.tr(),
                 onSubmitted: (timeStr) {
                   final timerStart = parseTimeToSeconds(
                     timeStr,
                     context.read<TimeCellBloc>().state.precision,
                   );
                   if (timerStart == null) {
+                    _timeStartEditingController.text = '';
                     return;
                   }
 
@@ -124,7 +126,7 @@ class _TimeCellEditorState extends State<TimeCellEditor> {
           child: ListView.builder(
             itemCount: timeTracks.length,
             itemBuilder: (context, index) => Center(
-              child: _TimeTrack(timeTrack: timeTracks[index]),
+              child: TimeTrack(timeTrack: timeTracks[index]),
             ),
             shrinkWrap: true,
           ),
@@ -135,16 +137,17 @@ class _TimeCellEditorState extends State<TimeCellEditor> {
   }
 }
 
-class _TimeTrack extends StatefulWidget {
-  const _TimeTrack({required this.timeTrack});
+@visibleForTesting
+class TimeTrack extends StatefulWidget {
+  const TimeTrack({super.key, required this.timeTrack});
 
   final TimeTrackPB timeTrack;
 
   @override
-  State<_TimeTrack> createState() => _TimeTrackState();
+  State<TimeTrack> createState() => _TimeTrackState();
 }
 
-class _TimeTrackState extends State<_TimeTrack> {
+class _TimeTrackState extends State<TimeTrack> {
   bool isEditing = false;
 
   late DateTime date;
@@ -170,6 +173,9 @@ class _TimeTrackState extends State<_TimeTrack> {
               icon: isEditing
                   ? const FlowySvg(FlowySvgs.close_s)
                   : const FlowySvg(FlowySvgs.edit_s),
+              tooltipText: isEditing
+                  ? LocaleKeys.grid_field_timeDiscardTimeTrackEdit.tr()
+                  : LocaleKeys.grid_field_timeEditTimeTrack.tr(),
               onPressed: () => setState(() => isEditing = !isEditing),
             ),
           ),
@@ -177,6 +183,7 @@ class _TimeTrackState extends State<_TimeTrack> {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: FlowyIconButton(
               icon: const FlowySvg(FlowySvgs.trash_s),
+              tooltipText: LocaleKeys.grid_field_timeDeleteTimeTrack.tr(),
               onPressed: () {
                 context.read<TimeCellEditorBloc>().add(
                       TimeCellEditorEvent.deleteTimeTrack(widget.timeTrack.id),
@@ -214,7 +221,7 @@ class _TimeTrackState extends State<_TimeTrack> {
   }
 
   Widget _buildEditTimeTrack() {
-    return _TimeTrackInput(
+    return TimeTrackInput(
       date: date,
       duration: duration,
       icon: const FlowySvg(FlowySvgs.checkmark_tiny_s),
@@ -232,8 +239,10 @@ class _TimeTrackState extends State<_TimeTrack> {
   }
 }
 
-class _TimeTrackInput extends StatefulWidget {
-  const _TimeTrackInput({
+@visibleForTesting
+class TimeTrackInput extends StatefulWidget {
+  const TimeTrackInput({
+    super.key,
     this.date,
     this.duration,
     this.text,
@@ -248,10 +257,10 @@ class _TimeTrackInput extends StatefulWidget {
   final Function(DateTime, int) onSubmitted;
 
   @override
-  State<_TimeTrackInput> createState() => _TimeTrackInputState();
+  State<TimeTrackInput> createState() => _TimeTrackInputState();
 }
 
-class _TimeTrackInputState extends State<_TimeTrackInput> {
+class _TimeTrackInputState extends State<TimeTrackInput> {
   final PopoverController _popover = PopoverController();
 
   final TextEditingController _dateEditingController = TextEditingController();

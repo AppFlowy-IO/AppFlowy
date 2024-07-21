@@ -51,10 +51,12 @@ class EditableTimeCell extends EditableCellWidget {
   final IEditableTimeCellSkin skin;
 
   @override
-  GridEditableTextCell<EditableTimeCell> createState() => _TimeCellState();
+  GridEditableTextCell<EditableTimeCell> createState() =>
+      EditableTimeCellState();
 }
 
-class _TimeCellState extends GridEditableTextCell<EditableTimeCell> {
+@visibleForTesting
+class EditableTimeCellState extends GridEditableTextCell<EditableTimeCell> {
   late final TextEditingController _textEditingController;
   final PopoverController _popover = PopoverController();
   late final cellBloc = TimeCellBloc(
