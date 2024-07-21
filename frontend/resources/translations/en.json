@@ -1403,9 +1403,9 @@
       },
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImageDesktop": "Drop images or click to add one or more images",
+        "addAnImageDesktop": "Drop image(s) or click to add image(s)",
         "addAnImageMobile": "Click to add one or more images",
-        "dropImageToInsert": "Drop images to insert",
+        "dropImageToInsert": "Drop image(s) to insert",
         "imageUploadFailed": "Image upload failed",
         "errorCode": "Error code"
       },

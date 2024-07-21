@@ -173,12 +173,14 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       ];
     } else {
       return [
-        FlowyText(
-          PlatformExtension.isDesktop
-              ? isDraggingFiles
-                  ? LocaleKeys.document_plugins_image_dropImageToInsert.tr()
-                  : LocaleKeys.document_plugins_image_addAnImageDesktop.tr()
-              : LocaleKeys.document_plugins_image_addAnImageMobile.tr(),
+        Flexible(
+          child: FlowyText(
+            PlatformExtension.isDesktop
+                ? isDraggingFiles
+                    ? LocaleKeys.document_plugins_image_dropImageToInsert.tr()
+                    : LocaleKeys.document_plugins_image_addAnImageDesktop.tr()
+                : LocaleKeys.document_plugins_image_addAnImageMobile.tr(),
+          ),
         ),
       ];
     }
