@@ -16,7 +16,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 
-import 'custom_image_block_component.dart';
+import 'custom_image_block_component/custom_image_block_component.dart';
 
 const _thumbnailItemSize = 100.0;
 

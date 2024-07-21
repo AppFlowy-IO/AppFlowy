@@ -12,7 +12,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:provider/provider.dart';
 
-import '../image/custom_image_block_component.dart';
+import '../image/custom_image_block_component/custom_image_block_component.dart';
 
 class LinkPreviewMenu extends StatefulWidget {
   const LinkPreviewMenu({

@@ -38,9 +38,7 @@ class UploadImageFileWidget extends StatelessWidget {
     );
 
     if (PlatformExtension.isDesktopOrWeb) {
-      return FlowyHover(
-        child: child,
-      );
+      return FlowyHover(child: child);
     }
 
     return child;

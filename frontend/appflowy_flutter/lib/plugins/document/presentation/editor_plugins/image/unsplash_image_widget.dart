@@ -131,18 +131,16 @@ class _UnsplashImagesState extends State<_UnsplashImages> {
 
   @override
   Widget build(BuildContext context) {
+    const mainAxisSpacing = 16.0;
     final crossAxisCount = switch (widget.type) {
       UnsplashImageType.halfScreen => 3,
       UnsplashImageType.fullScreen => 2,
-    };
-    final mainAxisSpacing = switch (widget.type) {
-      UnsplashImageType.halfScreen => 16.0,
-      UnsplashImageType.fullScreen => 16.0,
     };
     final crossAxisSpacing = switch (widget.type) {
       UnsplashImageType.halfScreen => 10.0,
       UnsplashImageType.fullScreen => 16.0,
     };
+
     return GridView.count(
       crossAxisCount: crossAxisCount,
       mainAxisSpacing: mainAxisSpacing,
@@ -154,15 +152,11 @@ class _UnsplashImagesState extends State<_UnsplashImages> {
         return _UnsplashImage(
           type: widget.type,
           photo: photo,
-          onTap: () {
-            widget.onSelectUnsplashImage(
-              photo.urls.regular.toString(),
-            );
-            setState(() {
-              _selectedPhotoIndex = index;
-            });
-          },
           isSelected: index == _selectedPhotoIndex,
+          onTap: () {
+            widget.onSelectUnsplashImage(photo.urls.regular.toString());
+            setState(() => _selectedPhotoIndex = index);
+          },
         );
       }).toList(),
     );
@@ -218,10 +212,7 @@ class _UnsplashImage extends StatelessWidget {
           ),
         ),
         const HSpace(2.0),
-        FlowyText(
-          'by ${photo.name}',
-          fontSize: 10.0,
-        ),
+        FlowyText('by ${photo.name}', fontSize: 10.0),
       ],
     );
   }
@@ -232,14 +223,12 @@ class _UnsplashImage extends StatelessWidget {
       child: Stack(
         children: [
           LayoutBuilder(
-            builder: (context, constraints) {
-              return Image.network(
-                photo.urls.thumb.toString(),
-                fit: BoxFit.cover,
-                width: constraints.maxWidth,
-                height: constraints.maxHeight,
-              );
-            },
+            builder: (_, constraints) => Image.network(
+              photo.urls.thumb.toString(),
+              fit: BoxFit.cover,
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+            ),
           ),
           Positioned(
             bottom: 9,
@@ -260,13 +249,9 @@ extension on Photo {
   String get name {
     if (user.username.isNotEmpty) {
       return user.username;
-    }
-
-    if (user.name.isNotEmpty) {
+    } else if (user.name.isNotEmpty) {
       return user.name;
-    }
-
-    if (user.email?.isNotEmpty == true) {
+    } else if (user.email?.isNotEmpty == true) {
       return user.email!;
     }
 

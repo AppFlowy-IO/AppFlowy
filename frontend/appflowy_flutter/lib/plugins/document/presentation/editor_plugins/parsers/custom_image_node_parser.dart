@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 
-import '../image/custom_image_block_component.dart';
+import '../image/custom_image_block_component/custom_image_block_component.dart';
 
 class CustomImageNodeParser extends NodeParser {
   const CustomImageNodeParser();

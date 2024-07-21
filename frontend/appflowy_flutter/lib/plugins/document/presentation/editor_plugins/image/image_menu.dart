@@ -7,7 +7,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/align_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -74,10 +74,7 @@ class _ImageMenuState extends State<ImageMenu> {
             ),
             const HSpace(4),
           ],
-          _ImageAlignButton(
-            node: widget.node,
-            state: widget.state,
-          ),
+          _ImageAlignButton(node: widget.node, state: widget.state),
           const _Divider(),
           MenuBlockButton(
             tooltip: LocaleKeys.button_delete.tr(),
@@ -141,10 +138,7 @@ class _ImageMenuState extends State<ImageMenu> {
 }
 
 class _ImageAlignButton extends StatefulWidget {
-  const _ImageAlignButton({
-    required this.node,
-    required this.state,
-  });
+  const _ImageAlignButton({required this.node, required this.state});
 
   final Node node;
   final CustomImageBlockComponentState state;
@@ -169,14 +163,12 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
   @override
   void initState() {
     super.initState();
-
     editorState = context.read<EditorState>();
   }
 
   @override
   void dispose() {
     allowMenuClose();
-
     super.dispose();
   }
 
@@ -196,9 +188,7 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
         ),
         popupBuilder: (_) {
           preventMenuClose();
-          return _AlignButtons(
-            onAlignChanged: onAlignChanged,
-          );
+          return _AlignButtons(onAlignChanged: onAlignChanged);
         },
       ),
     );
@@ -242,9 +232,7 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
 }
 
 class _AlignButtons extends StatelessWidget {
-  const _AlignButtons({
-    required this.onAlignChanged,
-  });
+  const _AlignButtons({required this.onAlignChanged});
 
   final Function(String align) onAlignChanged;
 
@@ -287,10 +275,7 @@ class _Divider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
-      child: Container(
-        width: 1,
-        color: Colors.grey,
-      ),
+      child: Container(width: 1, color: Colors.grey),
     );
   }
 }
