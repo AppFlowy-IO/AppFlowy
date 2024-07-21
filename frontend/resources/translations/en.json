@@ -285,6 +285,11 @@
     "Spaces": "Spaces",
     "upgradeToPro": "Upgrade to Pro Plan",
     "upgradeToAIMax": "Unlock unlimited AI",
+    "storageLimitDialogTitle": "You are running out of storage space. Upgrade to Pro Plan to get more storage",
+    "aiResponseLitmitDialogTitle": "You are running out of AI responses. Upgrade to Pro Plan or AI Max to get more AI responses",
+    "aiResponseLitmit": "You are running out of AI responses. Go to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
+    "purchaseStorageSpace": "Purchase Storage Space",
+    "purchaseAIResponse": "Purchase ",
     "upgradeToAILocal": "AI offline on your device"
   },
   "notifications": {

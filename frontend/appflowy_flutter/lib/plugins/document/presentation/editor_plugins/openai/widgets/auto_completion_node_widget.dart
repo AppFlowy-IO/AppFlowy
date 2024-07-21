@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/text_robot.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/user/application/ai_service.dart';
@@ -16,6 +17,8 @@ import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'ai_limit_dialog.dart';
 
 class AutoCompletionBlockKeys {
   const AutoCompletionBlockKeys._();
@@ -225,11 +228,15 @@ class _AutoCompletionBlockComponentState
       onError: (error) async {
         barrierDialog?.dismiss();
         if (mounted) {
-          showSnackBarMessage(
-            context,
-            error.message,
-            showCancel: true,
-          );
+          if (error.isLimitedExceeded) {
+            showAILimitDialog(context, error.message);
+          } else {
+            showSnackBarMessage(
+              context,
+              error.message,
+              showCancel: true,
+            );
+          }
         }
       },
     );
@@ -304,11 +311,15 @@ class _AutoCompletionBlockComponentState
       onEnd: () async {},
       onError: (error) async {
         if (mounted) {
-          showSnackBarMessage(
-            context,
-            error.message,
-            showCancel: true,
-          );
+          if (error.isLimitedExceeded) {
+            showAILimitDialog(context, error.message);
+          } else {
+            showSnackBarMessage(
+              context,
+              error.message,
+              showCancel: true,
+            );
+          }
         }
       },
     );

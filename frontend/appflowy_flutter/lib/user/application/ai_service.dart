@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/text_completion.dart';
@@ -9,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/wid
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart' as fixnum;
 
 class AppFlowyAIService implements AIRepository {
@@ -85,17 +87,33 @@ class CompletionStream {
     _port.handler = _controller.add;
     _subscription = _controller.stream.listen(
       (event) async {
+        if (event == "AI_RESPONSE_LIMIT") {
+          onError(
+            AIError(
+              message: LocaleKeys.sideBar_aiResponseLitmit.tr(),
+              code: AIErrorCode.aiResponseLimitExceeded,
+            ),
+          );
+        }
+
         if (event.startsWith("start:")) {
           await onStart();
         }
 
         if (event.startsWith("data:")) {
-          await onProcess(event.substring(5));
+          // await onProcess(event.substring(5));
+          onError(
+            AIError(
+              message: LocaleKeys.sideBar_aiResponseLitmit.tr(),
+              code: AIErrorCode.aiResponseLimitExceeded,
+            ),
+          );
         }
 
         if (event.startsWith("finish:")) {
           await onEnd();
         }
+
         if (event.startsWith("error:")) {
           onError(AIError(message: event.substring(6)));
         }

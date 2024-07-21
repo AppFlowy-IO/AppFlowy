@@ -112,10 +112,14 @@ impl ToolTask {
                        let _ = sink.send(format!("data:{}", s)).await;
                      },
                      Some(Err(error)) => {
-                       error!("stream error: {}", error);
+                      let error = FlowyError::from(error);
+                      if error.is_ai_response_limit_exceeded() {
+                        let _ = sink.send(format!("AI_RESPONSE_LIMIT")).await;
+                      } else {
                        let _ = sink.send(format!("error:{}", error)).await;
-                       return;
-                      },
+                      }
+                      return;
+                     },
                      None => {
                        let _ = sink.send(format!("finish:{}", self.task_id)).await;
                        return;
@@ -126,7 +130,11 @@ impl ToolTask {
             },
             Err(error) => {
               error!("stream complete error: {}", error);
-              let _ = sink.send(format!("error:{}", error)).await;
+              if error.is_ai_response_limit_exceeded() {
+                let _ = sink.send(format!("AI_RESPONSE_LIMIT")).await;
+              } else {
+                let _ = sink.send(format!("error:{}", error)).await;
+              }
             },
           }
         },

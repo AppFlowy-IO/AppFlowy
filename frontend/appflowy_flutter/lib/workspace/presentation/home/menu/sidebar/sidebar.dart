@@ -13,7 +13,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
-import 'package:appflowy/workspace/application/sidebar/billing/sidebar_toast_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/billing/sidebar_plan_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -129,8 +129,8 @@ class HomeSideBar extends StatelessWidget {
                 ),
             ),
             BlocProvider(
-              create: (_) => SidebarToastBloc()
-                ..add(SidebarToastEvent.init(workspaceId, userProfile)),
+              create: (_) => SidebarPlanBloc()
+                ..add(SidebarPlanEvent.init(workspaceId, userProfile)),
             ),
           ],
           child: MultiBlocListener(
