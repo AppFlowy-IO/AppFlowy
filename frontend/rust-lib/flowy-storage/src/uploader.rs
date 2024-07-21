@@ -44,6 +44,7 @@ pub struct FileUploader {
   max_uploads: u8,
   current_uploads: AtomicU8,
   pause_sync: AtomicBool,
+  is_exceed_limit: Arc<AtomicBool>,
 }
 
 impl Drop for FileUploader {
@@ -53,13 +54,18 @@ impl Drop for FileUploader {
 }
 
 impl FileUploader {
-  pub fn new(storage_service: Arc<dyn StorageService>, queue: Arc<UploadTaskQueue>) -> Self {
+  pub fn new(
+    storage_service: Arc<dyn StorageService>,
+    queue: Arc<UploadTaskQueue>,
+    is_exceed_limit: Arc<AtomicBool>,
+  ) -> Self {
     Self {
       storage_service,
       queue,
       max_uploads: 3,
       current_uploads: Default::default(),
       pause_sync: Default::default(),
+      is_exceed_limit,
     }
   }
 
@@ -75,6 +81,20 @@ impl FileUploader {
     self
       .pause_sync
       .store(true, std::sync::atomic::Ordering::SeqCst);
+  }
+
+  fn storage_limitation_enabled(&self) {
+    self
+      .is_exceed_limit
+      .store(true, std::sync::atomic::Ordering::SeqCst);
+    self.pause();
+  }
+
+  pub fn storage_limitation_disable(&self) {
+    self
+      .is_exceed_limit
+      .store(false, std::sync::atomic::Ordering::SeqCst);
+    self.resume();
   }
 
   pub fn resume(&self) {
@@ -108,6 +128,14 @@ impl FileUploader {
       return None;
     }
 
+    if self
+      .is_exceed_limit
+      .load(std::sync::atomic::Ordering::SeqCst)
+    {
+      // If the storage limitation is enabled, do not proceed.
+      return None;
+    }
+
     let task = self.queue.tasks.write().await.pop()?;
     if task.retry_count() > 5 {
       // If the task has been retried more than 5 times, we should not retry it anymore.
@@ -130,7 +158,7 @@ impl FileUploader {
         if let Err(err) = self.storage_service.start_upload(&chunks, &record).await {
           if err.is_file_limit_exceeded() {
             error!("Failed to upload file: {}", err);
-            self.pause();
+            self.storage_limitation_enabled();
           }
 
           info!(
@@ -161,7 +189,7 @@ impl FileUploader {
         {
           if err.is_file_limit_exceeded() {
             error!("Failed to upload file: {}", err);
-            self.pause();
+            self.storage_limitation_enabled();
           }
 
           info!(

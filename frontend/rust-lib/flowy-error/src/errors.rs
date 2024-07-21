@@ -129,6 +129,7 @@ impl FlowyError {
   static_flowy_error!(local_ai, ErrorCode::LocalAIError);
   static_flowy_error!(local_ai_unavailable, ErrorCode::LocalAIUnavailable);
   static_flowy_error!(response_timeout, ErrorCode::ResponseTimeout);
+  static_flowy_error!(file_storage_limit, ErrorCode::FileStorageLimitExceeded);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

@@ -443,22 +443,22 @@ pub(crate) async fn upload_file_handler(
   } = params.try_into_inner()?;
 
   let manager = upgrade_document(manager)?;
-  let url = manager
+  let upload = manager
     .upload_file(workspace_id, &document_id, &local_file_path)
     .await?;
 
-  Ok(AFPluginData(UploadedFilePB {
-    url,
+  data_result_ok(UploadedFilePB {
+    url: upload.url,
     local_file_path,
-  }))
+  })
 }
 
 #[instrument(level = "debug", skip_all, err)]
 pub(crate) async fn download_file_handler(
-  params: AFPluginData<UploadedFilePB>,
+  params: AFPluginData<DownloadFilePB>,
   manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let UploadedFilePB {
+  let DownloadFilePB {
     url,
     local_file_path,
   } = params.try_into_inner()?;
@@ -469,10 +469,10 @@ pub(crate) async fn download_file_handler(
 
 // Handler for deleting file
 pub(crate) async fn delete_file_handler(
-  params: AFPluginData<UploadedFilePB>,
+  params: AFPluginData<DownloadFilePB>,
   manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let UploadedFilePB {
+  let DownloadFilePB {
     url,
     local_file_path,
   } = params.try_into_inner()?;

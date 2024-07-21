@@ -136,7 +136,7 @@ class DocumentService {
   }) async {
     final workspace = await FolderEventReadCurrentWorkspace().send();
     return workspace.fold((l) async {
-      final payload = UploadedFilePB(
+      final payload = DownloadFilePB(
         url: url,
       );
       final result = await DocumentEventDownloadFile(payload).send();

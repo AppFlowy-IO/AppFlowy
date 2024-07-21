@@ -20,6 +20,7 @@ use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -36,7 +37,7 @@ pub trait StorageUserService: Send + Sync + 'static {
 pub struct StorageManager {
   pub storage_service: Arc<dyn StorageService>,
   uploader: Arc<FileUploader>,
-  broadcast: tokio::sync::broadcast::Sender<UploadResult>,
+  upload_status_notifier: tokio::sync::broadcast::Sender<UploadResult>,
 }
 
 impl Drop for StorageManager {
@@ -50,23 +51,29 @@ impl StorageManager {
     cloud_service: Arc<dyn StorageCloudService>,
     user_service: Arc<dyn StorageUserService>,
   ) -> Self {
+    let is_exceed_storage_limit = Arc::new(AtomicBool::new(false));
     let temp_storage_path = PathBuf::from(format!(
       "{}/cache_files",
       user_service.get_application_root_dir()
     ));
     let temp_storage = Arc::new(FileTempStorage::new(temp_storage_path));
     let (notifier, notifier_rx) = watch::channel(Signal::Proceed);
-    let (broadcast, _) = tokio::sync::broadcast::channel::<UploadResult>(100);
+    let (upload_status_notifier, _) = tokio::sync::broadcast::channel::<UploadResult>(100);
     let task_queue = Arc::new(UploadTaskQueue::new(notifier));
     let storage_service = Arc::new(StorageServiceImpl {
       cloud_service,
       user_service: user_service.clone(),
       temp_storage,
       task_queue: task_queue.clone(),
-      upload_status_notifier: broadcast.clone(),
+      upload_status_notifier: upload_status_notifier.clone(),
+      is_exceed_storage_limit: is_exceed_storage_limit.clone(),
     });
 
-    let uploader = Arc::new(FileUploader::new(storage_service.clone(), task_queue));
+    let uploader = Arc::new(FileUploader::new(
+      storage_service.clone(),
+      task_queue,
+      is_exceed_storage_limit,
+    ));
     tokio::spawn(FileUploaderRunner::run(
       Arc::downgrade(&uploader),
       notifier_rx,
@@ -86,7 +93,7 @@ impl StorageManager {
     Self {
       storage_service,
       uploader,
-      broadcast,
+      upload_status_notifier,
     }
   }
 
@@ -100,11 +107,11 @@ impl StorageManager {
 
   pub fn storage_purchased(&self) {
     // when storage is purchased, resume the uploader
-    self.uploader.resume();
+    self.uploader.storage_limitation_disable();
   }
 
   pub fn subscribe_upload_result(&self) -> tokio::sync::broadcast::Receiver<UploadResult> {
-    self.broadcast.subscribe()
+    self.upload_status_notifier.subscribe()
   }
 }
 
@@ -136,6 +143,7 @@ pub struct StorageServiceImpl {
   temp_storage: Arc<FileTempStorage>,
   task_queue: Arc<UploadTaskQueue>,
   upload_status_notifier: tokio::sync::broadcast::Sender<UploadResult>,
+  is_exceed_storage_limit: Arc<AtomicBool>,
 }
 
 #[async_trait]
@@ -245,8 +253,14 @@ impl StorageService for StorageServiceImpl {
     let task_queue = self.task_queue.clone();
     let user_service = self.user_service.clone();
     let cloud_service = self.cloud_service.clone();
+    let is_exceed_storage_limit = self.is_exceed_storage_limit.clone();
 
     FutureResult::new(async move {
+      let is_exceed_limit = is_exceed_storage_limit.load(std::sync::atomic::Ordering::Relaxed);
+      if is_exceed_limit {
+        return Err(FlowyError::file_storage_limit());
+      }
+
       let local_file_path = temp_storage
         .create_temp_file_from_existing(Path::new(&file_path))
         .await

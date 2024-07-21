@@ -21,7 +21,7 @@ use tracing::{event, instrument};
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_storage_pub::storage::StorageService;
+use flowy_storage_pub::storage::{CreatedUpload, StorageService};
 use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
@@ -347,13 +347,12 @@ impl DocumentManager {
     workspace_id: String,
     document_id: &str,
     local_file_path: &str,
-  ) -> FlowyResult<String> {
+  ) -> FlowyResult<CreatedUpload> {
     let storage_service = self.storage_service_upgrade()?;
-    let url = storage_service
+    let upload = storage_service
       .create_upload(&workspace_id, document_id, local_file_path)
-      .await?
-      .url;
-    Ok(url)
+      .await?;
+    Ok(upload)
   }
 
   pub async fn download_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
