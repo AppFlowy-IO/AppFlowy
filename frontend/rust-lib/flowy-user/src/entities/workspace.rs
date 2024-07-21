@@ -1,6 +1,6 @@
 use client_api::entity::billing_dto::{
   Currency, RecurringInterval, SubscriptionPlan, SubscriptionPlanDetail,
-  WorkspaceSubscriptionStatus,
+  WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
 };
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -342,6 +342,22 @@ pub struct WorkspaceUsagePB {
   pub ai_responses_unlimited: bool,
   #[pb(index = 9)]
   pub local_ai: bool,
+}
+
+impl From<WorkspaceUsageAndLimit> for WorkspaceUsagePB {
+  fn from(workspace_usage: WorkspaceUsageAndLimit) -> Self {
+    WorkspaceUsagePB {
+      member_count: workspace_usage.member_count as u64,
+      member_count_limit: workspace_usage.member_count_limit as u64,
+      storage_bytes: workspace_usage.storage_bytes as u64,
+      storage_bytes_limit: workspace_usage.storage_bytes_limit as u64,
+      storage_bytes_unlimited: workspace_usage.storage_bytes_unlimited,
+      ai_responses_count: workspace_usage.ai_responses_count as u64,
+      ai_responses_count_limit: workspace_usage.ai_responses_count_limit as u64,
+      ai_responses_unlimited: workspace_usage.ai_responses_unlimited,
+      local_ai: workspace_usage.local_ai,
+    }
+  }
 }
 
 #[derive(Debug, ProtoBuf, Default, Clone)]

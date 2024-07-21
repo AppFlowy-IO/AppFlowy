@@ -1,6 +1,5 @@
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/dart-ffi/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:flutter/foundation.dart';
 
@@ -53,16 +52,20 @@ class StackTraceError {
 
 typedef void ErrorListener();
 
-class ErrorCodeNotifier extends ChangeNotifier {
-  // Static instance
-  static final ErrorCodeNotifier _instance = ErrorCodeNotifier();
-
-  // Factory constructor to return the same instance
-  factory ErrorCodeNotifier() {
-    return _instance;
-  }
+class GlobalErrorCodeNotifier extends ChangeNotifier {
+  // Static instance with lazy initialization
+  static final GlobalErrorCodeNotifier _instance =
+      GlobalErrorCodeNotifier._internal();
 
   FlowyError? _error;
+
+  // Private internal constructor
+  GlobalErrorCodeNotifier._internal();
+
+  // Factory constructor to return the same instance
+  factory GlobalErrorCodeNotifier() {
+    return _instance;
+  }
 
   static void receiveError(FlowyError error) {
     if (_instance._error?.code != error.code) {
@@ -85,18 +88,17 @@ class ErrorCodeNotifier extends ChangeNotifier {
 
   static ErrorListener add({
     required void Function(FlowyError error) onError,
-    bool Function(ErrorCode code)? onErrorIf,
+    bool Function(FlowyError code)? onErrorIf,
   }) {
     void listener() {
       final error = _instance._error;
       if (error != null) {
-        if (onErrorIf == null || onErrorIf(error.code)) {
+        if (onErrorIf == null || onErrorIf(error)) {
           onError(error);
         }
       }
     }
 
-    ;
     _instance.addListener(listener);
     return listener;
   }

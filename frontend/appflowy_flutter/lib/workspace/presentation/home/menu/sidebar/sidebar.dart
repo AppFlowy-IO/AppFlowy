@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
+import 'package:appflowy/workspace/application/sidebar/billing/sidebar_toast_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -37,6 +38,8 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'footer/sidebar_toast.dart';
 
 Loading? _duplicateSpaceLoading;
 
@@ -100,6 +103,9 @@ class HomeSideBar extends StatelessWidget {
         if (state.currentWorkspace == null) {
           return const SizedBox.shrink();
         }
+
+        final workspaceId =
+            state.currentWorkspace?.workspaceId ?? workspaceSetting.workspaceId;
         return MultiBlocProvider(
           providers: [
             BlocProvider.value(value: getIt<ActionNavigationBloc>()),
@@ -108,8 +114,7 @@ class HomeSideBar extends StatelessWidget {
                 ..add(
                   SidebarSectionsEvent.initial(
                     userProfile,
-                    state.currentWorkspace?.workspaceId ??
-                        workspaceSetting.workspaceId,
+                    workspaceId,
                   ),
                 ),
             ),
@@ -118,11 +123,14 @@ class HomeSideBar extends StatelessWidget {
                 ..add(
                   SpaceEvent.initial(
                     userProfile,
-                    state.currentWorkspace?.workspaceId ??
-                        workspaceSetting.workspaceId,
+                    workspaceId,
                     openFirstPage: false,
                   ),
                 ),
+            ),
+            BlocProvider(
+              create: (_) => SidebarToastBloc()
+                ..add(SidebarToastEvent.init(workspaceId, userProfile)),
             ),
           ],
           child: MultiBlocListener(
@@ -350,6 +358,9 @@ class _SidebarState extends State<_Sidebar> {
               child: const SidebarFooter(),
             ),
             const VSpace(14),
+
+            // toast
+            const SidebarToast(),
           ],
         ),
       ),

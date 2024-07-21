@@ -568,6 +568,16 @@ where
     })
   }
 
+  fn get_workspace_plan(&self, workspace_id: String) -> FutureResult<Vec<SubscriptionPlan>, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let plans = client.get_active_workspace_subscriptions(&workspace_id).await?;
+      Ok(plans)
+    })
+  }
+
   fn get_workspace_usage(
     &self,
     workspace_id: String,

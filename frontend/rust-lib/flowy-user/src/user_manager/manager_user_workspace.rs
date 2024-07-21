@@ -617,6 +617,21 @@ impl UserManager {
     upsert_workspace_member(db, record)?;
     Ok(member)
   }
+
+  pub async fn notify_did_switch_plan(&self) -> FlowyResult<()> {
+    let workspace_id = self.workspace_id()?;
+    let plans = self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_plan(workspace_id)
+      .await?;
+    self
+      .user_status_callback
+      .read()
+      .await
+      .did_update_plans(plans);
+    Ok(())
+  }
 }
 
 /// This method is used to save one user workspace to the SQLite database

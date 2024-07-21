@@ -1,4 +1,5 @@
 use crate::file_cache::FileTempStorage;
+use crate::notification::{make_notification, StorageNotification};
 use crate::sqlite_sql::{
   batch_select_upload_file, delete_upload_file, insert_upload_file, insert_upload_part,
   select_upload_file, select_upload_parts, update_upload_file_upload_id, UploadFilePartTable,
@@ -6,7 +7,7 @@ use crate::sqlite_sql::{
 };
 use crate::uploader::{FileUploader, FileUploaderRunner, Signal, UploadTask, UploadTaskQueue};
 use async_trait::async_trait;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use flowy_storage_pub::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
@@ -95,6 +96,11 @@ impl StorageManager {
     } else {
       self.uploader.pause();
     }
+  }
+
+  pub fn storage_purchased(&self) {
+    // when storage is purchased, resume the uploader
+    self.uploader.resume();
   }
 
   pub fn subscribe_upload_result(&self) -> tokio::sync::broadcast::Receiver<UploadResult> {
@@ -256,25 +262,34 @@ impl StorageService for StorageServiceImpl {
 
       // 2. save the record to sqlite
       let conn = user_service.sqlite_connection(user_service.user_id()?)?;
-      insert_upload_file(conn, &record)?;
-
-      // 3. generate url for given file
       let url = cloud_service.get_object_url_v1(
         &record.workspace_id,
         &record.parent_dir,
         &record.file_id,
       )?;
       let file_id = record.file_id.clone();
+      match insert_upload_file(conn, &record) {
+        Ok(_) => {
+          // 3. generate url for given file
+          task_queue
+            .queue_task(UploadTask::Task {
+              chunks,
+              record,
+              retry_count: 0,
+            })
+            .await;
 
-      task_queue
-        .queue_task(UploadTask::Task {
-          chunks,
-          record,
-          retry_count: 0,
-        })
-        .await;
-
-      Ok::<_, FlowyError>(CreatedUpload { url, file_id })
+          Ok::<_, FlowyError>(CreatedUpload { url, file_id })
+        },
+        Err(err) => {
+          if matches!(err.code, ErrorCode::DuplicateSqliteRecord) {
+            info!("upload record already exists, skip creating new upload task");
+            Ok::<_, FlowyError>(CreatedUpload { url, file_id })
+          } else {
+            Err(err.into())
+          }
+        },
+      }
     })
   }
 
@@ -392,14 +407,23 @@ async fn start_upload(
       upload_file.file_id
     );
 
-    let create_upload_resp = cloud_service
+    let create_upload_resp_result = cloud_service
       .create_upload(
         &upload_file.workspace_id,
         &upload_file.parent_dir,
         &upload_file.file_id,
         &upload_file.content_type,
       )
-      .await?;
+      .await;
+    if let Err(err) = create_upload_resp_result.as_ref() {
+      if err.is_file_limit_exceeded() {
+        make_notification(StorageNotification::FileStorageLimitExceeded)
+          .payload(err.clone())
+          .send();
+      }
+    }
+    let create_upload_resp = create_upload_resp_result?;
+
     // 2. update upload_id
     let conn = user_service.sqlite_connection(user_service.user_id()?)?;
     update_upload_file_upload_id(
@@ -468,6 +492,12 @@ async fn start_upload(
         });
       },
       Err(err) => {
+        if err.is_file_limit_exceeded() {
+          make_notification(StorageNotification::FileStorageLimitExceeded)
+            .payload(err.clone())
+            .send();
+        }
+
         error!("[File] {} upload part failed: {}", upload_file.file_id, err);
         return Err(err);
       },
@@ -475,7 +505,7 @@ async fn start_upload(
   }
 
   // mark it as completed
-  complete_upload(
+  let complete_upload_result = complete_upload(
     cloud_service,
     user_service,
     temp_storage,
@@ -483,7 +513,14 @@ async fn start_upload(
     completed_parts,
     notifier,
   )
-  .await?;
+  .await;
+  if let Err(err) = complete_upload_result {
+    if err.is_file_limit_exceeded() {
+      make_notification(StorageNotification::FileStorageLimitExceeded)
+        .payload(err.clone())
+        .send();
+    }
+  }
 
   trace!("[File] {} upload completed", upload_file.file_id);
   Ok(())

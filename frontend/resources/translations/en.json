@@ -282,7 +282,10 @@
     "removeSuccess": "Removed successfully",
     "favoriteSpace": "Favorites",
     "RecentSpace": "Recent",
-    "Spaces": "Spaces"
+    "Spaces": "Spaces",
+    "upgradeToPro": "Upgrade to Pro Plan",
+    "upgradeToAIMax": "Unlock unlimited AI",
+    "upgradeToAILocal": "AI offline on your device"
   },
   "notifications": {
     "export": {

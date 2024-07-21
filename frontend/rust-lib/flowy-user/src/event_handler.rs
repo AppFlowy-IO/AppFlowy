@@ -33,7 +33,9 @@ fn upgrade_store_preferences(
   Ok(store)
 }
 
-#[tracing::instrument(level = "debug", name = "sign_in", skip(data, manager), fields(email = %data.email), err)]
+#[tracing::instrument(level = "debug", name = "sign_in", skip(data, manager), fields(
+    email = % data.email
+), err)]
 pub async fn sign_in_with_email_password_handler(
   data: AFPluginData<SignInPayloadPB>,
   manager: AFPluginState<Weak<UserManager>>,
@@ -59,8 +61,8 @@ pub async fn sign_in_with_email_password_handler(
     name = "sign_up",
     skip(data, manager),
     fields(
-        email = %data.email,
-        name = %data.name,
+        email = % data.email,
+        name = % data.name,
     ),
     err
 )]
@@ -807,17 +809,7 @@ pub async fn get_workspace_usage_handler(
   let workspace_id = param.into_inner().workspace_id;
   let manager = upgrade_manager(manager)?;
   let workspace_usage = manager.get_workspace_usage(workspace_id).await?;
-  data_result_ok(WorkspaceUsagePB {
-    member_count: workspace_usage.member_count as u64,
-    member_count_limit: workspace_usage.member_count_limit as u64,
-    storage_bytes: workspace_usage.storage_bytes as u64,
-    storage_bytes_limit: workspace_usage.storage_bytes_limit as u64,
-    storage_bytes_unlimited: workspace_usage.storage_bytes_unlimited,
-    ai_responses_count: workspace_usage.ai_responses_count as u64,
-    ai_responses_count_limit: workspace_usage.ai_responses_count_limit as u64,
-    ai_responses_unlimited: workspace_usage.ai_responses_unlimited,
-    local_ai: workspace_usage.local_ai,
-  })
+  data_result_ok(WorkspaceUsagePB::from(workspace_usage))
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -845,19 +837,19 @@ pub async fn update_workspace_subscription_payment_period_handler(
     .await
 }
 
-// #[tracing::instrument(level = "debug", skip_all, err)]
-// pub async fn get_subscription_plan_details_handler(
-//   manager: AFPluginState<Weak<UserManager>>,
-// ) -> DataResult<RepeatedSubscriptionPlanDetailPB, FlowyError> {
-//   let manager = upgrade_manager(manager)?;
-//   let plans = manager
-//     .get_subscription_plan_details()
-//     .await?
-//     .into_iter()
-//     .map(SubscriptionPlanDetailPB::from)
-//     .collect::<Vec<_>>();
-//   data_result_ok(RepeatedSubscriptionPlanDetailPB { items: plans })
-// }
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_subscription_plan_details_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<RepeatedSubscriptionPlanDetailPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let plans = manager
+    .get_subscription_plan_details()
+    .await?
+    .into_iter()
+    .map(SubscriptionPlanDetailPB::from)
+    .collect::<Vec<_>>();
+  data_result_ok(RepeatedSubscriptionPlanDetailPB { items: plans })
+}
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_workspace_member_info(
@@ -889,4 +881,13 @@ pub async fn get_workspace_setting(
   let manager = upgrade_manager(manager)?;
   let pb = manager.get_workspace_settings(&params.workspace_id).await?;
   data_result_ok(pb)
+}
+
+#[tracing::instrument(level = "info", skip_all, err)]
+pub async fn notify_did_switch_plan_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  manager.notify_did_switch_plan().await?;
+  Ok(())
 }
