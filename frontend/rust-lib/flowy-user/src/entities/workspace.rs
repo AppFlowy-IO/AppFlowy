@@ -195,6 +195,16 @@ pub struct CancelWorkspaceSubscriptionPB {
   pub reason: String,
 }
 
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct SuccessWorkspaceSubscriptionPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub plan: SubscriptionPlanPB,
+}
+
 #[derive(ProtoBuf, Default, Clone)]
 pub struct WorkspaceMemberIdPB {
   #[pb(index = 1)]

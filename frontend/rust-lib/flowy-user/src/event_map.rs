@@ -272,7 +272,7 @@ pub enum UserEvent {
   #[event(output = "RepeatedSubscriptionPlanDetailPB")]
   GetSubscriptionPlanDetails = 62,
 
-  #[event()]
+  #[event(input = "SuccessWorkspaceSubscriptionPB")]
   NotifyDidSwitchPlan = 63,
 }
 

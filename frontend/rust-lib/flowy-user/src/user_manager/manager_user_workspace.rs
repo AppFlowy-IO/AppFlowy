@@ -20,11 +20,12 @@ use flowy_user_pub::entities::{
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
-  RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, UpdateUserWorkspaceSettingPB,
-  UseAISettingPB, UserWorkspacePB, WorkspaceSubscriptionInfoPB,
+  RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
+  UpdateUserWorkspaceSettingPB, UseAISettingPB, UserWorkspacePB, WorkspaceSubscriptionInfoPB,
 };
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
+use crate::services::billing_check::PeriodicallyCheckBillingState;
 use crate::services::data_import::{
   generate_import_data, upload_collab_objects_data, ImportedFolder, ImportedSource,
 };
@@ -618,13 +619,20 @@ impl UserManager {
     Ok(member)
   }
 
-  pub async fn notify_did_switch_plan(&self) -> FlowyResult<()> {
-    let workspace_id = self.workspace_id()?;
-    let plans = self
-      .cloud_services
-      .get_user_service()?
-      .get_workspace_plan(workspace_id)
-      .await?;
+  pub async fn notify_did_switch_plan(
+    &self,
+    success: SuccessWorkspaceSubscriptionPB,
+  ) -> FlowyResult<()> {
+    // periodically check the billing state
+    let plans = PeriodicallyCheckBillingState::new(
+      success.workspace_id,
+      success.plan.clone().into(),
+      Arc::downgrade(&self.cloud_services),
+      Arc::downgrade(&self.authenticate_user),
+    )
+    .start()
+    .await?;
+
     self
       .user_status_callback
       .read()

@@ -17,15 +17,25 @@ part 'sidebar_toast_bloc.freezed.dart';
 class SidebarToastBloc extends Bloc<SidebarToastEvent, SidebarToastState> {
   SidebarToastBloc() : super(const SidebarToastState()) {
     // After user pays for the subscription, the subscription success listenable will be triggered
-    getIt<SubscriptionSuccessListenable>().addListener(() {
-      if (!isClosed) {
+    final subscriptionListener = getIt<SubscriptionSuccessListenable>();
+    subscriptionListener.addListener(() {
+      final plan = subscriptionListener.subscribedPlan;
+      if (!isClosed && plan != null) {
         Log.info("Subscription success listenable triggered");
 
         // Notify the user that they have switched to a new plan. It would be better if we use websocket to
         // notify the client when plan switching.
-        UserEventNotifyDidSwitchPlan().send();
-
-        _checkWorkspaceUsage();
+        if (state.workspaceId != null) {
+          final payload = SuccessWorkspaceSubscriptionPB(
+            plan: plan,
+            workspaceId: state.workspaceId,
+          );
+          UserEventNotifyDidSwitchPlan(payload).send();
+        } else {
+          Log.error(
+            "Unexpected empty workspace id when subscription success listenable triggered. It should not happen. If happens, it must be a bug",
+          );
+        }
       }
     });
 

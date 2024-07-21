@@ -885,9 +885,11 @@ pub async fn get_workspace_setting(
 
 #[tracing::instrument(level = "info", skip_all, err)]
 pub async fn notify_did_switch_plan_handler(
+  params: AFPluginData<SuccessWorkspaceSubscriptionPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
+  let success = params.into_inner();
   let manager = upgrade_manager(manager)?;
-  manager.notify_did_switch_plan().await?;
+  manager.notify_did_switch_plan(success).await?;
   Ok(())
 }
