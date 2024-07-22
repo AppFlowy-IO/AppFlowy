@@ -39,6 +39,8 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'footer/sidebar_toast.dart';
+
 Loading? _duplicateSpaceLoading;
 
 /// Home Sidebar is the left side bar of the home page.
@@ -365,7 +367,7 @@ class _SidebarState extends State<_Sidebar> {
             const VSpace(14),
 
             // toast
-            // const SidebarToast(),
+            const SidebarToast(),
           ],
         ),
       ),
