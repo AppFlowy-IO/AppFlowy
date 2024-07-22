@@ -238,22 +238,19 @@ class _NotificationContent extends StatelessWidget {
           padding: EdgeInsets.zero,
         );
 
-        return ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 200),
-          child: Transform.scale(
-            scale: .9,
-            alignment: Alignment.centerLeft,
-            child: AppFlowyEditor(
+        return Transform.scale(
+          scale: .9,
+          alignment: Alignment.centerLeft,
+          child: AppFlowyEditor(
+            editorState: editorState,
+            editorStyle: styleCustomizer.style(),
+            editable: false,
+            shrinkWrap: true,
+            blockComponentBuilders: getEditorBuilderMap(
+              context: context,
               editorState: editorState,
-              editorStyle: styleCustomizer.style(),
+              styleCustomizer: styleCustomizer,
               editable: false,
-              shrinkWrap: true,
-              blockComponentBuilders: getEditorBuilderMap(
-                context: context,
-                editorState: editorState,
-                styleCustomizer: styleCustomizer,
-                editable: false,
-              ),
             ),
           ),
         );
