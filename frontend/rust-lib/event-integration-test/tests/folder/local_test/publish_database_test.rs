@@ -51,13 +51,13 @@ async fn publish_databases_from_existing_workspace() {
 
   let publish_calendar_set = publish_database_set
     .iter()
-    // there's 1 built-in calender in the workspace with the name starting with "calendar"
+    // there's 1 built-in calender in the workspace with the name starting with "publish calendar"
     .filter(|view| view.layout == ViewLayoutPB::Calendar && view.name.starts_with("publish calendar"))
     .collect::<Vec<_>>();
 
   let publish_board_set = publish_database_set
     .iter()
-    // there's 1 built-in board in the workspace with the name starting with "kanban board"
+    // there's 1 built-in board in the workspace with the name starting with "publish board"
     .filter(|view| view.layout == ViewLayoutPB::Board && view.name.starts_with("publish board"))
     .collect::<Vec<_>>();
 
