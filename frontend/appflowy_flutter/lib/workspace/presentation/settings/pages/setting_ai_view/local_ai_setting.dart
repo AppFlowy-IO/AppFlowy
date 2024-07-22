@@ -151,7 +151,7 @@ class _ToggleLocalAIDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigatorOkCancelDialog(
-      title: LocaleKeys.settings_aiPage_keys_disableLocalAIDialog.tr(),
+      message: LocaleKeys.settings_aiPage_keys_disableLocalAIDialog.tr(),
       okTitle: LocaleKeys.button_confirm.tr(),
       cancelTitle: LocaleKeys.button_cancel.tr(),
       onOkPressed: onOkPressed,

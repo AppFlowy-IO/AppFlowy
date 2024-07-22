@@ -226,6 +226,10 @@ impl ChatManager {
     chat.index_file(file_path).await?;
     Ok(())
   }
+
+  pub fn local_ai_purchased(&self) {
+    // TODO(nathan): enable local ai
+  }
 }
 
 fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {

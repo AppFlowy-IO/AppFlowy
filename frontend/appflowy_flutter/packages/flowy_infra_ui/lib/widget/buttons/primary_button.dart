@@ -44,7 +44,7 @@ class PrimaryButton extends StatelessWidget {
     return BaseStyledButton(
       minWidth: mode.size.width,
       minHeight: mode.size.height,
-      contentPadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 6),
       bgColor: backgroundColor ?? Theme.of(context).colorScheme.primary,
       hoverColor: Theme.of(context).colorScheme.primaryContainer,
       borderRadius: mode.borderRadius,

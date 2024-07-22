@@ -22,7 +22,6 @@ import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu
 import 'package:appflowy/workspace/presentation/settings/shared/document_color_setting_button.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_list_tile.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
@@ -183,7 +182,8 @@ class SettingsWorkspaceView extends StatelessWidget {
                       .tr(),
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  onPressed: () => SettingsAlertDialog(
+                  onPressed: () => showConfirmDialog(
+                    context: context,
                     title: workspaceMember?.role.isOwner ?? false
                         ? LocaleKeys
                             .settings_workspacePage_deleteWorkspacePrompt_title
@@ -191,24 +191,21 @@ class SettingsWorkspaceView extends StatelessWidget {
                         : LocaleKeys
                             .settings_workspacePage_leaveWorkspacePrompt_title
                             .tr(),
-                    subtitle: workspaceMember?.role.isOwner ?? false
+                    description: workspaceMember?.role.isOwner ?? false
                         ? LocaleKeys
                             .settings_workspacePage_deleteWorkspacePrompt_content
                             .tr()
                         : LocaleKeys
                             .settings_workspacePage_leaveWorkspacePrompt_content
                             .tr(),
-                    isDangerous: true,
-                    confirm: () {
-                      context.read<WorkspaceSettingsBloc>().add(
-                            workspaceMember?.role.isOwner ?? false
-                                ? const WorkspaceSettingsEvent.deleteWorkspace()
-                                : const WorkspaceSettingsEvent.leaveWorkspace(),
-                          );
-                      Navigator.of(context).pop();
-                    },
-                  ).show(context),
-                  isDangerous: true,
+                    style: ConfirmPopupStyle.cancelAndOk,
+                    onConfirm: () => context.read<WorkspaceSettingsBloc>().add(
+                          workspaceMember?.role.isOwner ?? false
+                              ? const WorkspaceSettingsEvent.deleteWorkspace()
+                              : const WorkspaceSettingsEvent.leaveWorkspace(),
+                        ),
+                  ),
+                  buttonType: SingleSettingsButtonType.danger,
                   buttonLabel: workspaceMember?.role.isOwner ?? false
                       ? LocaleKeys
                           .settings_workspacePage_manageWorkspace_deleteWorkspace

@@ -361,15 +361,6 @@
         "loginLabel": "Inicio de sesión",
         "logoutLabel": "Cerrar sesión"
       },
-      "keys": {
-        "title": "Claves API de IA",
-        "openAILabel": "Clave API de OpenAI",
-        "openAITooltip": "La clave API de OpenAI para usar en los modelos de IA",
-        "openAIHint": "Ingresa tu clave API de OpenAI",
-        "stabilityAILabel": "Clave API de Stability",
-        "stabilityAITooltip": "La clave API de Stability que se utilizará en los modelos de IA",
-        "stabilityAIHint": "Ingresa tu clave API de Stability"
-      },
       "description": "Personaliza tu perfil, administra la seguridad de la cuenta y las claves API de IA, o inicia sesión en tu cuenta."
     },
     "menu": {
@@ -577,7 +568,7 @@
       "email": "Correo electrónico",
       "tooltipSelectIcon": "Seleccionar icono",
       "selectAnIcon": "Seleccione un icono",
-      "pleaseInputYourOpenAIKey": "por favor ingrese su clave OpenAI",
+      "pleaseInputYourOpenAIKey": "por favor ingrese su clave AI",
       "pleaseInputYourStabilityAIKey": "por favor ingrese su clave de estabilidad AI",
       "clickToLogout": "Haga clic para cerrar la sesión del usuario actual."
     },
@@ -902,12 +893,12 @@
       "referencedGrid": "Cuadrícula referenciada",
       "referencedCalendar": "Calendario referenciado",
       "referencedDocument": "Documento referenciado",
-      "autoGeneratorMenuItemName": "Escritor de OpenAI",
-      "autoGeneratorTitleName": "OpenAI: Pídele a AI que escriba cualquier cosa...",
+      "autoGeneratorMenuItemName": "Escritor de AI",
+      "autoGeneratorTitleName": "AI: Pídele a AI que escriba cualquier cosa...",
       "autoGeneratorLearnMore": "Aprende más",
       "autoGeneratorGenerate": "Generar",
-      "autoGeneratorHintText": "Pregúntale a OpenAI...",
-      "autoGeneratorCantGetOpenAIKey": "No puedo obtener la clave de OpenAI",
+      "autoGeneratorHintText": "Pregúntale a AI...",
+      "autoGeneratorCantGetOpenAIKey": "No puedo obtener la clave de AI",
       "autoGeneratorRewrite": "Volver a escribir",
       "smartEdit": "Asistentes de IA",
       "openAI": "IA abierta",
@@ -916,9 +907,9 @@
       "smartEditSummarize": "Resumir",
       "smartEditImproveWriting": "Mejorar la escritura",
       "smartEditMakeLonger": "hacer más largo",
-      "smartEditCouldNotFetchResult": "No se pudo obtener el resultado de OpenAI",
-      "smartEditCouldNotFetchKey": "No se pudo obtener la clave de OpenAI",
-      "smartEditDisabled": "Conectar OpenAI en Configuración",
+      "smartEditCouldNotFetchResult": "No se pudo obtener el resultado de AI",
+      "smartEditCouldNotFetchKey": "No se pudo obtener la clave de AI",
+      "smartEditDisabled": "Conectar AI en Configuración",
       "discardResponse": "¿Quieres descartar las respuestas de IA?",
       "createInlineMathEquation": "Crear ecuación",
       "fonts": "Tipo de letra",
@@ -1034,8 +1025,8 @@
         "placeholder": "Introduce la URL de la imagen"
       },
       "ai": {
-        "label": "Generar imagen desde OpenAI",
-        "placeholder": "Ingrese el prompt para que OpenAI genere una imagen"
+        "label": "Generar imagen desde AI",
+        "placeholder": "Ingrese el prompt para que AI genere una imagen"
       },
       "stability_ai": {
         "label": "Generar imagen desde Stability AI",
@@ -1057,7 +1048,7 @@
         "label": "Desempaquetar"
       },
       "searchForAnImage": "Buscar una imagen",
-      "pleaseInputYourOpenAIKey": "ingresa tu clave OpenAI en la página de Configuración",
+      "pleaseInputYourOpenAIKey": "ingresa tu clave AI en la página de Configuración",
       "pleaseInputYourStabilityAIKey": "ingresa tu clave de Stability AI en la página de configuración",
       "saveImageToGallery": "Guardar imagen",
       "failedToAddImageToGallery": "No se pudo agregar la imagen a la galería",

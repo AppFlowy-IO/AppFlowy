@@ -104,6 +104,17 @@ pub struct UploadedFilePB {
   pub local_file_path: String,
 }
 
+#[derive(Default, ProtoBuf, Validate)]
+pub struct DownloadFilePB {
+  #[pb(index = 1)]
+  #[validate(url)]
+  pub url: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "required_valid_path")]
+  pub local_file_path: String,
+}
+
 #[derive(Default, ProtoBuf)]
 pub struct CreateDocumentPayloadPB {
   #[pb(index = 1)]

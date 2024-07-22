@@ -1098,7 +1098,7 @@ impl FolderManager {
 
   /// Get the publish info of the view with the given view id.
   /// The publish info contains the namespace and publish_name of the view.
-  #[tracing::instrument(level = "debug", skip(self), err)]
+  #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_publish_info(&self, view_id: &str) -> FlowyResult<PublishInfoResponse> {
     let publish_info = self.cloud_service.get_publish_info(view_id).await?;
     Ok(publish_info)

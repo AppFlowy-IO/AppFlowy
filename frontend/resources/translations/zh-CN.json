@@ -376,13 +376,6 @@
         "loginLabel": "登录",
         "logoutLabel": "退出登录"
       },
-      "keys": {
-        "title": "AI API 密钥",
-        "openAILabel": "OpenAI API 密钥",
-        "openAIHint": "输入你的 OpenAI API Key",
-        "stabilityAILabel": "Stability API key",
-        "stabilityAIHint": "输入你的 Stability API Key"
-      },
       "description": "自定义您的简介，管理账户安全信息和 AI API keys，或登陆您的账户"
     },
     "workspacePage": {
@@ -694,7 +687,7 @@
       "email": "电子邮件",
       "tooltipSelectIcon": "选择图标",
       "selectAnIcon": "选择一个图标",
-      "pleaseInputYourOpenAIKey": "请输入您的 OpenAI 密钥",
+      "pleaseInputYourOpenAIKey": "请输入您的 AI 密钥",
       "pleaseInputYourStabilityAIKey": "请输入您的 Stability AI 密钥",
       "clickToLogout": "点击退出当前用户"
     },
@@ -1022,23 +1015,23 @@
       "referencedGrid": "引用的网格",
       "referencedCalendar": "引用的日历",
       "referencedDocument": "参考文档",
-      "autoGeneratorMenuItemName": "OpenAI 创作",
-      "autoGeneratorTitleName": "OpenAI: 让 AI 写些什么...",
+      "autoGeneratorMenuItemName": "AI 创作",
+      "autoGeneratorTitleName": "AI: 让 AI 写些什么...",
       "autoGeneratorLearnMore": "学习更多",
       "autoGeneratorGenerate": "生成",
-      "autoGeneratorHintText": "让 OpenAI ...",
-      "autoGeneratorCantGetOpenAIKey": "无法获得 OpenAI 密钥",
+      "autoGeneratorHintText": "让 AI ...",
+      "autoGeneratorCantGetOpenAIKey": "无法获得 AI 密钥",
       "autoGeneratorRewrite": "重写",
       "smartEdit": "AI 助手",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "修正拼写",
       "warning": "⚠️ AI 可能不准确或具有误导性.",
       "smartEditSummarize": "总结",
       "smartEditImproveWriting": "提高写作水平",
       "smartEditMakeLonger": "丰富内容",
-      "smartEditCouldNotFetchResult": "无法从 OpenAI 获取到结果",
-      "smartEditCouldNotFetchKey": "无法获取到 OpenAI 密钥",
-      "smartEditDisabled": "在设置中连接 OpenAI",
+      "smartEditCouldNotFetchResult": "无法从 AI 获取到结果",
+      "smartEditCouldNotFetchKey": "无法获取到 AI 密钥",
+      "smartEditDisabled": "在设置中连接 AI",
       "discardResponse": "您是否要放弃 AI 继续写作?",
       "createInlineMathEquation": "创建方程",
       "fonts": "字体",
@@ -1156,8 +1149,8 @@
         "placeholder": "输入图片网址"
       },
       "ai": {
-        "label": "从 OpenAI 生成图像",
-        "placeholder": "请输入 OpenAI 生成图像的提示"
+        "label": "从 AI 生成图像",
+        "placeholder": "请输入 AI 生成图像的提示"
       },
       "stability_ai": {
         "label": "从 Stability AI 生成图像",
@@ -1179,7 +1172,7 @@
         "label": "Unsplash"
       },
       "searchForAnImage": "搜索图像",
-      "pleaseInputYourOpenAIKey": "请在设置页面输入您的 OpenAI 密钥",
+      "pleaseInputYourOpenAIKey": "请在设置页面输入您的 AI 密钥",
       "pleaseInputYourStabilityAIKey": "请在设置页面输入您的 Stability AI 密钥",
       "saveImageToGallery": "保存图片",
       "failedToAddImageToGallery": "无法将图像添加到图库",

@@ -2,6 +2,7 @@ use anyhow::Error;
 pub use client_api::entity::ai_dto::{TranslateItem, TranslateRowResponse};
 use collab::core::collab::DataSource;
 use collab_entity::CollabType;
+use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 
@@ -40,14 +41,14 @@ pub trait DatabaseCloudService: Send + Sync {
     workspace_id: &str,
     object_id: &str,
     summary_row: SummaryRowContent,
-  ) -> FutureResult<String, Error>;
+  ) -> FutureResult<String, FlowyError>;
 
   fn translate_database_row(
     &self,
     workspace_id: &str,
     translate_row: TranslateRowContent,
     language: &str,
-  ) -> FutureResult<TranslateRowResponse, Error>;
+  ) -> FutureResult<TranslateRowResponse, FlowyError>;
 }
 
 pub struct DatabaseSnapshot {

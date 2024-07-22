@@ -358,7 +358,7 @@
       "email": "ኢሜል",
       "tooltipSelectIcon": "አዶን ይምረጡ",
       "selectAnIcon": "አዶን ይምረጡ",
-      "pleaseInputYourOpenAIKey": "እባክዎን OpenAI ቁልፍዎን ያስገቡ",
+      "pleaseInputYourOpenAIKey": "እባክዎን AI ቁልፍዎን ያስገቡ",
       "pleaseInputYourStabilityAIKey": "እባክዎ Stability AI ቁልፍን ያስገቡ",
       "clickToLogout": "የአሁኑን ተጠቃሚ ለመግባት ጠቅ ያድርጉ"
     },
@@ -556,12 +556,12 @@
       "referencedBoard": "ማጣቀሻ ቦርድ",
       "referencedGrid": "ማጣቀሻ ፍርግርግ",
       "referencedCalendar": "የቀን ቀን መቁጠሪያ",
-      "autoGeneratorMenuItemName": "OpenAI ጸሐፊ",
-      "autoGeneratorTitleName": "OpenAI ማንኛውንም ነገር እንዲጽፉ ይጠይቁ ...",
+      "autoGeneratorMenuItemName": "AI ጸሐፊ",
+      "autoGeneratorTitleName": "AI ማንኛውንም ነገር እንዲጽፉ ይጠይቁ ...",
       "autoGeneratorLearnMore": "ተጨማሪ እወቅ",
       "autoGeneratorGenerate": "ማመንጨት",
-      "autoGeneratorHintText": "OpenAI ይጠይቁ ...",
-      "autoGeneratorCantGetOpenAIKey": "የ OpenAI ቁልፍ ማግኘት አልተቻለም",
+      "autoGeneratorHintText": "AI ይጠይቁ ...",
+      "autoGeneratorCantGetOpenAIKey": "የ AI ቁልፍ ማግኘት አልተቻለም",
       "autoGeneratorRewrite": "እንደገና ይፃፉ",
       "smartEdit": "ረዳቶች",
       "openAI": "ኦፔና",
@@ -572,7 +572,7 @@
       "smartEditMakeLonger": "ረዘም ላለ ጊዜ ያድርጉ",
       "smartEditCouldNotFetchResult": "ከOpenAI ውጤት ማምለጥ አልተቻለም",
       "smartEditCouldNotFetchKey": "ኦፕናይ ቁልፍን ማጣት አልተቻለም",
-      "smartEditDisabled": "በቅንብሮች ውስጥ OpenAI ያገናኙ",
+      "smartEditDisabled": "በቅንብሮች ውስጥ AI ያገናኙ",
       "discardResponse": "የ AI ምላሾችን መጣል ይፈልጋሉ?",
       "createInlineMathEquation": "እኩልነት ይፍጠሩ",
       "toggleList": "የተስተካከለ ዝርዝር",
@@ -657,8 +657,8 @@
         "placeholder": "የምስል ዩአርኤል ያስገቡ"
       },
       "ai": {
-        "label": "ምስል OpenAI ውስጥ ምስልን ማመንጨት",
-        "placeholder": "ምስልን ለማመንጨት እባክዎን ለ OpenAI ይጠይቁ"
+        "label": "ምስል AI ውስጥ ምስልን ማመንጨት",
+        "placeholder": "ምስልን ለማመንጨት እባክዎን ለ AI ይጠይቁ"
       },
       "stability_ai": {
         "label": "ምስልን Stability AI ያመነጫል",

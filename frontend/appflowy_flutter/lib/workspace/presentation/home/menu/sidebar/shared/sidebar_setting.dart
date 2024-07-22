@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -93,6 +94,7 @@ void showSettingsDialog(
   BuildContext context,
   UserProfilePB userProfile, [
   UserWorkspaceBloc? bloc,
+  SettingsPage? initPage,
 ]) {
   AFFocusManager.of(context).notifyLoseFocus();
   showDialog(
@@ -107,6 +109,7 @@ void showSettingsDialog(
       ],
       child: SettingsDialog(
         userProfile,
+        initPage: initPage,
         didLogout: () async {
           // Pop the dialog using the dialog context
           Navigator.of(dialogContext).pop();
