@@ -125,7 +125,7 @@ impl ToolTask {
             }
           },
           Err(error) => {
-            handle_error(&mut sink, FlowyError::from(error)).await;
+            handle_error(&mut sink, error).await;
           },
         }
       }

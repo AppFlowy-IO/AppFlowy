@@ -91,7 +91,13 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
     Emitter<SidebarPlanState> emit,
   ) async {
     await event.when(
-      receiveError: (FlowyError error) async {},
+      receiveError: (FlowyError error) async {
+        emit(
+          state.copyWith(
+            tierIndicator: const SidebarToastTierIndicator.storageLimitHit(),
+          ),
+        );
+      },
       init: (String workspaceId, UserProfilePB userProfile) {
         emit(
           state.copyWith(
