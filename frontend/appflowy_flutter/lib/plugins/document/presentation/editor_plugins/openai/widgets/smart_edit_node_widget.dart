@@ -430,7 +430,6 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
       },
       onError: (error) async {
         if (error.isLimitExceeded) {
-          // TODO(lucas): hide the AutoCompletionBlockComponent
           showAILimitDialog(context, error.message);
         } else {
           showSnackBarMessage(
@@ -438,8 +437,8 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
             error.message,
             showCancel: true,
           );
-          await _onExit();
         }
+        await _onExit();
       },
     );
   }
