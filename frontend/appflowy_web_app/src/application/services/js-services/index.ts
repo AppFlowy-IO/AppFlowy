@@ -38,6 +38,8 @@ export class AFClientService implements AFService {
 
   private cacheDatabaseRowDocMap: Map<string, Y.Doc> = new Map();
 
+  private cacheDatabaseRowFolder: Map<string, Y.Map<YDoc>> = new Map();
+
   constructor(config: AFServiceConfig) {
     initAPIService({
       ...config.cloudConfig,
@@ -122,11 +124,18 @@ export class AFClientService implements AFService {
       return Promise.reject(new Error('Root rows doc not found'));
     }
 
-    const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
+    if (!this.cacheDatabaseRowFolder.has(name)) {
+      const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
+
+      this.cacheDatabaseRowFolder.set(name, rowsFolder);
+    }
+
+    const rowsFolder = this.cacheDatabaseRowFolder.get(name)!;
 
     return {
       rows: rowsFolder,
       destroy: () => {
+        this.cacheDatabaseRowFolder.delete(name);
         this.cacheDatabaseRowDocMap.delete(name);
       },
     };

@@ -12,7 +12,6 @@ import {
   useDatabase,
   useDatabaseFields,
   useDatabaseView,
-  useIsDatabaseRowPage,
   useRowDocMap,
   useViewId,
 } from '@/application/database-yjs/context';
@@ -434,7 +433,6 @@ export function useRowsByGroup(groupId: string) {
 }
 
 export function useRowOrdersSelector() {
-  const isDatabaseRowPage = useIsDatabaseRowPage();
   const { rows, clock } = useRowDocMapSelector();
   const [rowOrders, setRowOrders] = useState<Row[]>();
   const view = useDatabaseView();
@@ -446,7 +444,6 @@ export function useRowOrdersSelector() {
 
     if (!originalRowOrders || !rows) return;
 
-    if (originalRowOrders.length > rows.size && !isDatabaseRowPage) return;
     if (sorts?.length === 0 && filters?.length === 0) {
       setRowOrders(originalRowOrders);
       return;
@@ -467,7 +464,7 @@ export function useRowOrdersSelector() {
     } else {
       setRowOrders(originalRowOrders);
     }
-  }, [fields, filters, rows, sorts, view, isDatabaseRowPage]);
+  }, [fields, filters, rows, sorts, view]);
 
   useEffect(() => {
     onConditionsChange();
