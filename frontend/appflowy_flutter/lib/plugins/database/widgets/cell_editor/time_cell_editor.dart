@@ -11,6 +11,8 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/time.dart';
+import 'package:appflowy/util/int64_extension.dart';
 
 import '../../application/cell/bloc/time_cell_editor_bloc.dart';
 import '../../application/cell/bloc/time_cell_bloc.dart';
@@ -155,9 +157,7 @@ class _TimeTrackState extends State<TimeTrack> {
 
   @override
   Widget build(BuildContext context) {
-    date = DateTime.fromMillisecondsSinceEpoch(
-      widget.timeTrack.fromTimestamp.toInt() * 1000,
-    );
+    date = widget.timeTrack.fromTimestamp.toDateTime();
     duration =
         (widget.timeTrack.toTimestamp - widget.timeTrack.fromTimestamp).toInt();
 
