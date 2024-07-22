@@ -64,7 +64,8 @@
     "alreadyHaveAnAccount": "Du hast bereits ein Konto?",
     "logIn": "Anmeldung",
     "generalError": "Etwas ist schiefgelaufen. Bitte versuche es später noch einmal",
-    "limitRateError": "Aus Sicherheitsgründen kannst du nur alle 60 Sekunden einen Authentifizierungslink anfordern"
+    "limitRateError": "Aus Sicherheitsgründen kannst du nur alle 60 Sekunden einen Authentifizierungslink anfordern",
+    "magicLinkSentDescription": "Ein Magic Link wurde an deine E-Mail-Adresse gesendet. Klicke auf den Link, um deine Anmeldung abzuschließen. Der Link läuft nach 5 Minuten ab."
   },
   "workspace": {
     "chooseWorkspace": "Arbeitsbereich wählen",
@@ -106,7 +107,15 @@
     "html": "HTML",
     "clipboard": "In die Zwischenablage kopieren",
     "csv": "CSV",
-    "copyLink": "Link kopieren"
+    "copyLink": "Link kopieren",
+    "publishToTheWeb": "Im Web veröffentlichen",
+    "publishToTheWebHint": "Erstelle eine Website mit AppFlowy",
+    "publish": "Veröffentlichen",
+    "unPublish": "Veröffentlichung aufheben",
+    "visitSite": "Seite aufrufen",
+    "exportAsTab": "Exportieren als",
+    "publishTab": "Veröffentlichen",
+    "shareTab": "Teilen"
   },
   "moreAction": {
     "small": "klein",
@@ -865,6 +874,9 @@
       "documentSettings": {
         "cursorColor": "Cursor-Farbe",
         "selectionColor": "Auswahl-Farbe",
+        "pickColor": "Wähle eine Farbe",
+        "colorShade": "Farbschattierung",
+        "opacity": "Opazität",
         "hexEmptyError": "Hex-Farbe darf nicht leer sein",
         "hexLengthError": "Hex-Wert muss 6 Zeichen lang sein",
         "hexInvalidError": "Ungültiger Hex-Wert",
@@ -1411,6 +1423,9 @@
         "addAnImage": "Ein Bild hinzufügen",
         "imageUploadFailed": "Bild hochladen gescheitert",
         "errorCode": "Fehlercode"
+      },
+      "math": {
+        "copiedToPasteBoard": "Die mathematische Gleichung wurde in die Zwischenablage kopiert"
       },
       "urlPreview": {
         "copiedToPasteBoard": "Der Link wurde in die Zwischenablage kopiert",
@@ -2067,6 +2082,42 @@
     "upgrade": "Update",
     "upgradeYourSpace": "Mehrere Domänen erstellen",
     "quicklySwitch": "Schnell zur nächsten Domäne wechseln",
-    "duplicate": "Domäne duplizieren"
+    "duplicate": "Domäne duplizieren",
+    "movePageToSpace": "Seite in die Domäne verschieben",
+    "switchSpace": "Domäne wechseln"
+  },
+  "publish": {
+    "hasNotBeenPublished": "Diese Seite wurde noch nicht veröffentlicht",
+    "reportPage": "Berichtsseite",
+    "databaseHasNotBeenPublished": "Das Veröffentlichen einer Datenbank wird noch nicht unterstützt.",
+    "createdWith": "Erstellt mit",
+    "downloadApp": "AppFlowy herunterladen",
+    "copy": {
+      "codeBlock": "Der Inhalt des Codeblocks wurde in die Zwischenablage kopiert",
+      "imageBlock": "Der Bildlink wurde in die Zwischenablage kopiert",
+      "mathBlock": "Die mathematische Gleichung wurde in die Zwischenablage kopiert"
+    },
+    "containsPublishedPage": "Diese Seite enthält eine oder mehrere veröffentlichte Seiten. Wenn du fortfährst, werden sie nicht mehr veröffentlicht. Möchtest du mit dem Löschen fortfahren?",
+    "publishSuccessfully": "Erfolgreich veröffentlicht",
+    "unpublishSuccessfully": "Veröffentlichung erfolgreich aufgehoben",
+    "publishFailed": "Veröffentlichung fehlgeschlagen",
+    "unpublishFailed": "Die Veröffentlichung konnte nicht rückgängig gemacht werden.",
+    "noAccessToVisit": "Kein Zugriff auf diese Seite...",
+    "createWithAppFlowy": "Erstelle eine Website mit AppFlowy",
+    "fastWithAI": "Schnell und einfach mit KI.",
+    "tryItNow": "Probiere es jetzt"
+  },
+  "web": {
+    "continue": "Weiter",
+    "or": "oder",
+    "continueWithGoogle": "Weiter mit Google",
+    "continueWithGithub": "Weiter mit GitHub",
+    "continueWithDiscord": "Weiter mit Discord",
+    "signInAgreement": "Wenn du oben auf \"Weiter\" klickst, bestätigst du, dass\ndu folgende Dokumente gelesen, verstanden und akzeptiert hast:\nAppFlowys",
+    "and": "und",
+    "termOfUse": "Bedingungen",
+    "privacyPolicy": "Datenschutzrichtlinie",
+    "signInError": "Anmeldefehler",
+    "login": "Registrieren oder anmelden"
   }
 }
