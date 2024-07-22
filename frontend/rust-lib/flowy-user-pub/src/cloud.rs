@@ -310,7 +310,10 @@ pub trait UserCloudService: Send + Sync + 'static {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
-  fn get_workspace_plan(&self, workspace_id: String) -> FutureResult<Vec<SubscriptionPlan>, FlowyError> {
+  fn get_workspace_plan(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<Vec<SubscriptionPlan>, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 

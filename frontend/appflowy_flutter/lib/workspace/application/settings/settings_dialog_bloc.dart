@@ -90,7 +90,9 @@ class SettingsDialogState with _$SettingsDialogState {
   }) = _SettingsDialogState;
 
   factory SettingsDialogState.initial(
-          UserProfilePB userProfile, SettingsPage? page) =>
+    UserProfilePB userProfile,
+    SettingsPage? page,
+  ) =>
       SettingsDialogState(
         userProfile: userProfile,
         page: page ?? SettingsPage.account,

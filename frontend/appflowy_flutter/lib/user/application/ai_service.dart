@@ -101,13 +101,7 @@ class CompletionStream {
         }
 
         if (event.startsWith("data:")) {
-          // await onProcess(event.substring(5));
-          onError(
-            AIError(
-              message: LocaleKeys.sideBar_aiResponseLitmit.tr(),
-              code: AIErrorCode.aiResponseLimitExceeded,
-            ),
-          );
+          await onProcess(event.substring(5));
         }
 
         if (event.startsWith("finish:")) {
