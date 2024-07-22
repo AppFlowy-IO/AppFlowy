@@ -1,9 +1,5 @@
 {
   "type": "page",
-  "data": {
-    "delta": [
-    ]
-  },
   "children": [
     {
       "type": "heading",
