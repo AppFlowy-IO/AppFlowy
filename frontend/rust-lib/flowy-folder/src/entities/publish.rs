@@ -1,12 +1,18 @@
 use flowy_derive::ProtoBuf;
 use flowy_folder_pub::entities::PublishInfoResponse;
 
+use super::RepeatedViewIdPB;
+
 #[derive(Default, ProtoBuf)]
 pub struct PublishViewParamsPB {
   #[pb(index = 1)]
   pub view_id: String,
+
   #[pb(index = 2, one_of)]
   pub publish_name: Option<String>,
+
+  #[pb(index = 3, one_of)]
+  pub selected_view_ids: Option<RepeatedViewIdPB>,
 }
 
 #[derive(Default, ProtoBuf)]

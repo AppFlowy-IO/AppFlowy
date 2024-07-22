@@ -106,6 +106,8 @@ class SidebarSectionsBloc
               case ViewSectionPB.Public:
                 emit(
                   state.copyWith(
+                    containsSpace: state.containsSpace ||
+                        sectionViews.views.any((view) => view.isSpace),
                     section: state.section.copyWith(
                       publicViews: sectionViews.views,
                     ),
@@ -114,6 +116,8 @@ class SidebarSectionsBloc
               case ViewSectionPB.Private:
                 emit(
                   state.copyWith(
+                    containsSpace: state.containsSpace ||
+                        sectionViews.views.any((view) => view.isSpace),
                     section: state.section.copyWith(
                       privateViews: sectionViews.views,
                     ),

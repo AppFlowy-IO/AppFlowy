@@ -11,7 +11,6 @@ use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
-use collab_plugins::local_storage::kv::PersistenceError;
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;
@@ -76,7 +75,7 @@ impl DocumentManager {
   }
 
   /// Get the encoded collab of the document.
-  pub async fn encode_collab(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
+  pub async fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
     let doc_state = DataSource::Disk;
     let uid = self.user_service.user_id()?;
     let collab = self
@@ -85,7 +84,7 @@ impl DocumentManager {
 
     let collab = collab.lock();
     collab
-      .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+      .encode_collab_v1(|collab| CollabType::Document.validate_require_data(collab))
       .map_err(internal_error)
   }
 

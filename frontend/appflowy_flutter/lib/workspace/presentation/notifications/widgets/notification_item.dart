@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
@@ -14,6 +12,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class NotificationItem extends StatefulWidget {
@@ -239,19 +238,22 @@ class _NotificationContent extends StatelessWidget {
           padding: EdgeInsets.zero,
         );
 
-        return Transform.scale(
-          scale: .9,
-          alignment: Alignment.centerLeft,
-          child: AppFlowyEditor(
-            editorState: editorState,
-            editorStyle: styleCustomizer.style(),
-            editable: false,
-            shrinkWrap: true,
-            blockComponentBuilders: getEditorBuilderMap(
-              context: context,
+        return ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 200),
+          child: Transform.scale(
+            scale: .9,
+            alignment: Alignment.centerLeft,
+            child: AppFlowyEditor(
               editorState: editorState,
-              styleCustomizer: styleCustomizer,
+              editorStyle: styleCustomizer.style(),
               editable: false,
+              shrinkWrap: true,
+              blockComponentBuilders: getEditorBuilderMap(
+                context: context,
+                editorState: editorState,
+                styleCustomizer: styleCustomizer,
+                editable: false,
+              ),
             ),
           ),
         );

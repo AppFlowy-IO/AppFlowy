@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
+import 'package:appflowy/workspace/application/settings/share/export_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -13,31 +13,31 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'document_share_bloc.freezed.dart';
+part 'share_bloc.freezed.dart';
 
 const _url = 'https://appflowy.com';
 
-class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
-  DocumentShareBloc({
+class ShareBloc extends Bloc<ShareEvent, ShareState> {
+  ShareBloc({
     required this.view,
-  }) : super(DocumentShareState.initial()) {
-    on<DocumentShareEvent>((event, emit) async {
+  }) : super(ShareState.initial()) {
+    on<ShareEvent>((event, emit) async {
       await event.when(
         initial: () async {
           viewListener = ViewListener(viewId: view.id)
             ..start(
               onViewUpdated: (value) {
-                add(DocumentShareEvent.updateViewName(value.name));
+                add(ShareEvent.updateViewName(value.name));
               },
               onViewMoveToTrash: (p0) {
-                add(const DocumentShareEvent.setPublishStatus(false));
+                add(const ShareEvent.setPublishStatus(false));
               },
             );
 
-          add(const DocumentShareEvent.updatePublishStatus());
+          add(const ShareEvent.updatePublishStatus());
         },
         share: (type, path) async {
-          if (DocumentShareType.unimplemented.contains(type)) {
+          if (ShareType.unimplemented.contains(type)) {
             Log.error('DocumentShareType $type is not implemented');
             return;
           }
@@ -53,7 +53,7 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
             ),
           );
         },
-        publish: (nameSpace, publishName) async {
+        publish: (nameSpace, publishName, selectedViewIds) async {
           // set space name
           try {
             final result =
@@ -62,6 +62,7 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
             await ViewBackendService.publish(
               view,
               name: publishName,
+              selectedViewIds: selectedViewIds,
             ).getOrThrow();
 
             emit(
@@ -72,6 +73,8 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
                 url: '$_url/${result.namespace}/$publishName',
               ),
             );
+
+            Log.info('publish success: ${result.namespace}/$publishName');
           } catch (e) {
             Log.error('publish error: $e');
 
@@ -155,7 +158,7 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
   final ViewPB view;
   late final ViewListener viewListener;
 
-  late final exporter = DocumentExporter(view);
+  late final documentExporter = DocumentExporter(view);
 
   @override
   Future<void> close() async {
@@ -163,19 +166,31 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
     return super.close();
   }
 
-  Future<FlowyResult<ExportDataPB, FlowyError>> _export(
-    DocumentShareType type,
+  Future<FlowyResult<ShareType, FlowyError>> _export(
+    ShareType type,
     String? path,
   ) async {
-    final result = await exporter.export(type.exportType);
+    final FlowyResult<String, FlowyError> result;
+    if (type == ShareType.csv) {
+      final exportResult = await BackendExportService.exportDatabaseAsCSV(
+        view.id,
+      );
+      result = exportResult.fold(
+        (s) => FlowyResult.success(s.data),
+        (f) => FlowyResult.failure(f),
+      );
+    } else {
+      result = await documentExporter.export(type.documentExportType);
+    }
     return result.fold(
       (s) {
         if (path != null) {
           switch (type) {
-            case DocumentShareType.markdown:
-              return FlowySuccess(_saveMarkdownToPath(s, path));
-            case DocumentShareType.html:
-              return FlowySuccess(_saveHTMLToPath(s, path));
+            case ShareType.markdown:
+            case ShareType.html:
+            case ShareType.csv:
+              File(path).writeAsStringSync(s);
+              return FlowyResult.success(type);
             default:
               break;
           }
@@ -185,77 +200,69 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
       (f) => FlowyResult.failure(f),
     );
   }
-
-  ExportDataPB _saveMarkdownToPath(String markdown, String path) {
-    File(path).writeAsStringSync(markdown);
-    return ExportDataPB()
-      ..data = markdown
-      ..exportType = ExportType.Markdown;
-  }
-
-  ExportDataPB _saveHTMLToPath(String html, String path) {
-    File(path).writeAsStringSync(html);
-    return ExportDataPB()
-      ..data = html
-      ..exportType = ExportType.HTML;
-  }
 }
 
-enum DocumentShareType {
+enum ShareType {
+  // available in document
   markdown,
   html,
   text,
-  link;
+  link,
 
-  static List<DocumentShareType> get unimplemented => [text, link];
+  // only available in database
+  csv;
 
-  DocumentExportType get exportType {
+  static List<ShareType> get unimplemented => [link];
+
+  DocumentExportType get documentExportType {
     switch (this) {
-      case DocumentShareType.markdown:
+      case ShareType.markdown:
         return DocumentExportType.markdown;
-      case DocumentShareType.html:
+      case ShareType.html:
         return DocumentExportType.html;
-      case DocumentShareType.text:
+      case ShareType.text:
         return DocumentExportType.text;
-      case DocumentShareType.link:
+      case ShareType.csv:
+        throw UnsupportedError('DocumentShareType.csv is not supported');
+      case ShareType.link:
         throw UnsupportedError('DocumentShareType.link is not supported');
     }
   }
 }
 
 @freezed
-class DocumentShareEvent with _$DocumentShareEvent {
-  const factory DocumentShareEvent.initial() = _Initial;
-  const factory DocumentShareEvent.share(
-    DocumentShareType type,
+class ShareEvent with _$ShareEvent {
+  const factory ShareEvent.initial() = _Initial;
+  const factory ShareEvent.share(
+    ShareType type,
     String? path,
   ) = _Share;
-  const factory DocumentShareEvent.publish(
+  const factory ShareEvent.publish(
     String nameSpace,
     String pageId,
+    List<String> selectedViewIds,
   ) = _Publish;
-  const factory DocumentShareEvent.unPublish() = _UnPublish;
-  const factory DocumentShareEvent.updateViewName(String name) =
-      _UpdateViewName;
-  const factory DocumentShareEvent.updatePublishStatus() = _UpdatePublishStatus;
-  const factory DocumentShareEvent.setPublishStatus(bool isPublished) =
+  const factory ShareEvent.unPublish() = _UnPublish;
+  const factory ShareEvent.updateViewName(String name) = _UpdateViewName;
+  const factory ShareEvent.updatePublishStatus() = _UpdatePublishStatus;
+  const factory ShareEvent.setPublishStatus(bool isPublished) =
       _SetPublishStatus;
 }
 
 @freezed
-class DocumentShareState with _$DocumentShareState {
-  const factory DocumentShareState({
+class ShareState with _$ShareState {
+  const factory ShareState({
     required bool isPublished,
     required bool isLoading,
     required String url,
     required String viewName,
     required bool enablePublish,
-    FlowyResult<ExportDataPB, FlowyError>? exportResult,
+    FlowyResult<ShareType, FlowyError>? exportResult,
     FlowyResult<void, FlowyError>? publishResult,
     FlowyResult<void, FlowyError>? unpublishResult,
-  }) = _DocumentShareState;
+  }) = _ShareState;
 
-  factory DocumentShareState.initial() => const DocumentShareState(
+  factory ShareState.initial() => const ShareState(
         isLoading: false,
         isPublished: false,
         enablePublish: true,

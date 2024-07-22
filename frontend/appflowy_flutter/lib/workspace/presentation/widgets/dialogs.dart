@@ -298,7 +298,10 @@ void showToastNotification(
     context: context,
     type: type,
     style: ToastificationStyle.flat,
-    title: FlowyText(message),
+    title: FlowyText(
+      message,
+      maxLines: 3,
+    ),
     description: description != null
         ? FlowyText.regular(
             description,
