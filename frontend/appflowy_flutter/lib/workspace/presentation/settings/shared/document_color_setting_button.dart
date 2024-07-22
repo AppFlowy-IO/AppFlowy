@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
@@ -8,7 +11,6 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
-import 'package:flutter/material.dart';
 
 class DocumentColorSettingButton extends StatefulWidget {
   const DocumentColorSettingButton({
@@ -137,13 +139,19 @@ class DocumentColorSettingDialogState
                 onChanged: (_) => _updateSelectedColor(),
                 onFieldSubmitted: (_) => _updateSelectedColor(),
                 validator: (v) => validateHexValue(v, opacityController.text),
-                suffixIcon: GestureDetector(
-                  onTap: () => _showColorPickerDialog(
-                    context: context,
-                    currentColor: widget.currentColor,
-                    updateColor: _updateColor,
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: FlowyIconButton(
+                    onPressed: () => _showColorPickerDialog(
+                      context: context,
+                      currentColor: widget.currentColor,
+                      updateColor: _updateColor,
+                    ),
+                    icon: const FlowySvg(
+                      FlowySvgs.m_aa_color_s,
+                      size: Size.square(20),
+                    ),
                   ),
-                  child: const Icon(Icons.color_lens_rounded),
                 ),
               ),
               const VSpace(8),
@@ -264,13 +272,13 @@ String? validateOpacityValue(String? value) {
   return null;
 }
 
-const _kColorCircleWidth = 46.0;
-const _kColorCircleHeight = 46.0;
-const _kColorCircleRadius = 23.0;
+const _kColorCircleWidth = 32.0;
+const _kColorCircleHeight = 32.0;
+const _kColorCircleRadius = 20.0;
 const _kColorOpacityThumbRadius = 23.0;
 const _kDialogButtonPaddingHorizontal = 24.0;
 const _kDialogButtonPaddingVertical = 12.0;
-const _kColorsColumnSpacing = 3.0;
+const _kColorsColumnSpacing = 12.0;
 
 class _ColorPicker extends StatelessWidget {
   const _ColorPicker({
@@ -285,31 +293,31 @@ class _ColorPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SingleChildScrollView(
-      child: ColorPicker(
-        width: _kColorCircleWidth,
-        height: _kColorCircleHeight,
-        borderRadius: _kColorCircleRadius,
-        enableOpacity: true,
-        opacityThumbRadius: _kColorOpacityThumbRadius,
-        columnSpacing: _kColorsColumnSpacing,
-        enableTooltips: false,
-        pickersEnabled: const {
-          ColorPickerType.both: false,
-          ColorPickerType.primary: true,
-          ColorPickerType.accent: true,
-          ColorPickerType.wheel: true,
-        },
-        subheading: Text(
-          LocaleKeys.settings_appearance_documentSettings_colorShade.tr(),
-          style: theme.textTheme.labelLarge,
-        ),
-        opacitySubheading: Text(
-          LocaleKeys.settings_appearance_documentSettings_opacity.tr(),
-          style: theme.textTheme.labelLarge,
-        ),
-        onColorChanged: onColorChanged,
+    return ColorPicker(
+      width: _kColorCircleWidth,
+      height: _kColorCircleHeight,
+      borderRadius: _kColorCircleRadius,
+      enableOpacity: true,
+      opacityThumbRadius: _kColorOpacityThumbRadius,
+      columnSpacing: _kColorsColumnSpacing,
+      enableTooltips: false,
+      hasBorder: true,
+      borderColor: theme.colorScheme.outline,
+      pickersEnabled: const {
+        ColorPickerType.both: false,
+        ColorPickerType.primary: true,
+        ColorPickerType.accent: true,
+        ColorPickerType.wheel: true,
+      },
+      subheading: Text(
+        LocaleKeys.settings_appearance_documentSettings_colorShade.tr(),
+        style: theme.textTheme.labelLarge,
       ),
+      opacitySubheading: Text(
+        LocaleKeys.settings_appearance_documentSettings_opacity.tr(),
+        style: theme.textTheme.labelLarge,
+      ),
+      onColorChanged: onColorChanged,
     );
   }
 }
@@ -370,38 +378,52 @@ void _showColorPickerDialog({
   required Color currentColor,
   required void Function(Color) updateColor,
 }) {
-  final style = Theme.of(context);
   Color selectedColor = currentColor;
 
   showDialog(
     context: context,
     barrierColor: const Color.fromARGB(128, 0, 0, 0),
-    builder: (context) {
-      return AlertDialog(
-        icon: const Icon(Icons.palette),
-        title: Text(
-          title ??
-              LocaleKeys.settings_appearance_documentSettings_pickColor.tr(),
-          style: style.textTheme.titleLarge,
-        ),
-        content: _ColorPicker(
-          selectedColor: selectedColor,
-          onColorChanged: (color) => selectedColor = color,
-        ),
-        actionsPadding: const EdgeInsets.all(8),
-        actions: [
-          _ColorPickerActions(
-            onReset: () {
-              updateColor(currentColor);
-              Navigator.of(context).pop();
-            },
-            onUpdate: () {
-              updateColor(selectedColor);
-              Navigator.of(context).pop();
-            },
+    builder: (context) => FlowyDialog(
+      expandHeight: false,
+      title: Row(
+        children: [
+          const FlowySvg(FlowySvgs.m_aa_color_s),
+          const HSpace(12),
+          FlowyText(
+            title ??
+                LocaleKeys.settings_appearance_documentSettings_pickColor.tr(),
+            fontSize: 20,
           ),
         ],
-      );
-    },
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _ColorPicker(
+            selectedColor: selectedColor,
+            onColorChanged: (color) => selectedColor = color,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const HSpace(8),
+                _ColorPickerActions(
+                  onReset: () {
+                    updateColor(currentColor);
+                    Navigator.of(context).pop();
+                  },
+                  onUpdate: () {
+                    updateColor(selectedColor);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
   );
 }

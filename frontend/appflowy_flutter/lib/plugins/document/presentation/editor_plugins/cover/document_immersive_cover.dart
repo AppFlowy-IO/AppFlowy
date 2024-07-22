@@ -75,7 +75,9 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         child: BlocConsumer<DocumentImmersiveCoverBloc,
             DocumentImmersiveCoverState>(
           listener: (context, state) {
-            textEditingController.text = state.name;
+            if (textEditingController.text.isEmpty) {
+              textEditingController.text = state.name;
+            }
           },
           builder: (_, state) {
             final iconAndTitle = _buildIconAndTitle(context, state);
@@ -159,8 +161,16 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
             state.cover.isNone || state.cover.isPresets ? null : Colors.white,
         overflow: TextOverflow.ellipsis,
       ),
-      onChanged: _rename,
-      onSubmitted: _rename,
+      onChanged: (name) => Debounce.debounce(
+        'rename',
+        const Duration(milliseconds: 300),
+        () => _rename(name),
+      ),
+      onSubmitted: (name) => Debounce.debounce(
+        'rename',
+        const Duration(milliseconds: 300),
+        () => _rename(name),
+      ),
     );
   }
 

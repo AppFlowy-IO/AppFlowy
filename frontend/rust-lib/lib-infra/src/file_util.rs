@@ -1,10 +1,10 @@
 use anyhow::Context;
 use std::cmp::Ordering;
 use std::fs::File;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 use std::{fs, io};
-
 use tempfile::tempdir;
 use walkdir::WalkDir;
 use zip::write::FileOptions;
@@ -69,11 +69,13 @@ where
 }
 
 pub fn zip_folder(src_path: impl AsRef<Path>, dest_path: &Path) -> io::Result<()> {
-  if !src_path.as_ref().exists() {
+  let src_path = src_path.as_ref();
+
+  if !src_path.exists() {
     return Err(io::ErrorKind::NotFound.into());
   }
 
-  if src_path.as_ref() == dest_path {
+  if src_path == dest_path {
     return Err(io::ErrorKind::InvalidInput.into());
   }
 
@@ -81,36 +83,39 @@ pub fn zip_folder(src_path: impl AsRef<Path>, dest_path: &Path) -> io::Result<()
   let mut zip = ZipWriter::new(file);
   let options = FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
-  for entry in WalkDir::new(&src_path) {
+  for entry in WalkDir::new(src_path) {
     let entry = entry?;
     let path = entry.path();
-    let name = match path.strip_prefix(&src_path) {
+    let name = match path.strip_prefix(src_path) {
       Ok(n) => n,
       Err(_) => return Err(io::Error::new(io::ErrorKind::Other, "Invalid path")),
     };
 
     if path.is_file() {
-      zip.start_file(
-        name
-          .to_str()
-          .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid file name"))?,
-        options,
-      )?;
-      let mut f = File::open(path)?;
-      io::copy(&mut f, &mut zip)?;
+      let file_name = name
+        .to_str()
+        .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid file name"))?;
+      zip.start_file(file_name, options)?;
+
+      let mut buffer = Vec::new();
+      {
+        let mut f = File::open(path)?;
+        f.read_to_end(&mut buffer)?;
+        drop(f);
+      }
+
+      zip.write_all(&buffer)?;
     } else if !name.as_os_str().is_empty() {
-      zip.add_directory(
-        name
-          .to_str()
-          .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid directory name"))?,
-        options,
-      )?;
+      let dir_name = name
+        .to_str()
+        .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid directory name"))?;
+      zip.add_directory(dir_name, options)?;
     }
   }
+
   zip.finish()?;
   Ok(())
 }
-
 pub fn unzip_and_replace(
   zip_path: impl AsRef<Path>,
   target_folder: &Path,

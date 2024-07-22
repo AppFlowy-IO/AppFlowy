@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -268,6 +269,22 @@ enum ConfirmPopupStyle {
   cancelAndOk,
 }
 
+class ConfirmPopupColor {
+  static Color titleColor(BuildContext context) {
+    if (Theme.of(context).isLightMode) {
+      return const Color(0xFF171717).withOpacity(0.8);
+    }
+    return const Color(0xFFffffff).withOpacity(0.8);
+  }
+
+  static Color descriptionColor(BuildContext context) {
+    if (Theme.of(context).isLightMode) {
+      return const Color(0xFF171717).withOpacity(0.8);
+    }
+    return const Color(0xFFffffff).withOpacity(0.72);
+  }
+}
+
 class ConfirmPopup extends StatefulWidget {
   const ConfirmPopup({
     super.key,
@@ -275,12 +292,22 @@ class ConfirmPopup extends StatefulWidget {
     required this.title,
     required this.description,
     required this.onConfirm,
+    this.confirmLabel,
+    this.confirmButtonColor,
   });
 
   final String title;
   final String description;
   final VoidCallback onConfirm;
+  final Color? confirmButtonColor;
   final ConfirmPopupStyle style;
+
+  /// The label of the confirm button.
+  ///
+  /// Defaults to 'Delete' for [ConfirmPopupStyle.cancelAndOk] style.
+  /// Defaults to 'Ok' for [ConfirmPopupStyle.onlyOk] style.
+  ///
+  final String? confirmLabel;
 
   @override
   State<ConfirmPopup> createState() => _ConfirmPopupState();
@@ -328,6 +355,7 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             widget.title,
             fontSize: 14.0,
             overflow: TextOverflow.ellipsis,
+            color: ConfirmPopupColor.titleColor(context),
           ),
         ),
         const HSpace(6.0),
@@ -344,7 +372,7 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
     return FlowyText.regular(
       widget.description,
       fontSize: 12.0,
-      color: Theme.of(context).hintColor,
+      color: ConfirmPopupColor.descriptionColor(context),
       maxLines: 3,
       lineHeight: 1.4,
     );
@@ -358,8 +386,9 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             widget.onConfirm();
             Navigator.of(context).pop();
           },
-          confirmButtonName: LocaleKeys.button_ok.tr(),
-          confirmButtonColor: Theme.of(context).colorScheme.primary,
+          confirmButtonName: widget.confirmLabel ?? LocaleKeys.button_ok.tr(),
+          confirmButtonColor: widget.confirmButtonColor ??
+              Theme.of(context).colorScheme.primary,
         );
       case ConfirmPopupStyle.cancelAndOk:
         return SpaceCancelOrConfirmButton(
@@ -368,8 +397,10 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
             widget.onConfirm();
             Navigator.of(context).pop();
           },
-          confirmButtonName: LocaleKeys.space_delete.tr(),
-          confirmButtonColor: Theme.of(context).colorScheme.error,
+          confirmButtonName:
+              widget.confirmLabel ?? LocaleKeys.space_delete.tr(),
+          confirmButtonColor:
+              widget.confirmButtonColor ?? Theme.of(context).colorScheme.error,
         );
     }
   }

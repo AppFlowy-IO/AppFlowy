@@ -2,8 +2,8 @@ use crate::chat_manager::ChatUserService;
 use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB,
 };
-use crate::middleware::chat_service_mw::ChatService;
-use crate::notification::{send_notification, ChatNotification};
+use crate::middleware::chat_service_mw::ChatServiceMiddleware;
+use crate::notification::{make_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use allo_isolate::Isolate;
 use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
@@ -11,6 +11,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicI64};
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
@@ -26,7 +27,7 @@ pub struct Chat {
   chat_id: String,
   uid: i64,
   user_service: Arc<dyn ChatUserService>,
-  chat_service: Arc<ChatService>,
+  chat_service: Arc<ChatServiceMiddleware>,
   prev_message_state: Arc<RwLock<PrevMessageState>>,
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
@@ -38,7 +39,7 @@ impl Chat {
     uid: i64,
     chat_id: String,
     user_service: Arc<dyn ChatUserService>,
-    chat_service: Arc<ChatService>,
+    chat_service: Arc<ChatServiceMiddleware>,
   ) -> Chat {
     Chat {
       uid,
@@ -137,7 +138,7 @@ impl Chat {
                   chat_id: chat_id.clone(),
                   error_message: err.to_string(),
                 };
-                send_notification(&chat_id, ChatNotification::StreamChatMessageError)
+                make_notification(&chat_id, ChatNotification::StreamChatMessageError)
                   .payload(pb)
                   .send();
                 return Err(err);
@@ -152,14 +153,14 @@ impl Chat {
             chat_id: chat_id.clone(),
             error_message: err.to_string(),
           };
-          send_notification(&chat_id, ChatNotification::StreamChatMessageError)
+          make_notification(&chat_id, ChatNotification::StreamChatMessageError)
             .payload(pb)
             .send();
           return Err(err);
         },
       }
 
-      send_notification(&chat_id, ChatNotification::FinishStreaming).send();
+      make_notification(&chat_id, ChatNotification::FinishStreaming).send();
       if stream_buffer.lock().await.is_empty() {
         return Ok(());
       }
@@ -192,7 +193,7 @@ impl Chat {
       vec![answer.clone()],
     )?;
     let pb = ChatMessagePB::from(answer);
-    send_notification(chat_id, ChatNotification::DidReceiveChatMessage)
+    make_notification(chat_id, ChatNotification::DidReceiveChatMessage)
       .payload(pb)
       .send();
 
@@ -233,7 +234,7 @@ impl Chat {
         has_more: true,
         total: 0,
       };
-      send_notification(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
+      make_notification(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
         .payload(pb.clone())
         .send();
       return Ok(pb);
@@ -354,11 +355,11 @@ impl Chat {
             } else {
               *prev_message_state.write().await = PrevMessageState::NoMore;
             }
-            send_notification(&chat_id, ChatNotification::DidLoadPrevChatMessage)
+            make_notification(&chat_id, ChatNotification::DidLoadPrevChatMessage)
               .payload(pb)
               .send();
           } else {
-            send_notification(&chat_id, ChatNotification::DidLoadLatestChatMessage)
+            make_notification(&chat_id, ChatNotification::DidLoadLatestChatMessage)
               .payload(pb)
               .send();
           }
@@ -434,6 +435,33 @@ impl Chat {
       .collect::<Vec<_>>();
 
     Ok(messages)
+  }
+
+  #[instrument(level = "debug", skip_all, err)]
+  pub async fn index_file(&self, file_path: PathBuf) -> FlowyResult<()> {
+    if !file_path.exists() {
+      return Err(
+        FlowyError::record_not_found().with_context(format!("{:?} not exist", file_path)),
+      );
+    }
+
+    if !file_path.is_file() {
+      return Err(
+        FlowyError::invalid_data().with_context(format!("{:?} is not a file ", file_path)),
+      );
+    }
+
+    trace!(
+      "[Chat] index file: chat_id={}, file_path={:?}",
+      self.chat_id,
+      file_path
+    );
+    self
+      .chat_service
+      .index_file(&self.user_service.workspace_id()?, file_path, &self.chat_id)
+      .await?;
+
+    Ok(())
   }
 }
 

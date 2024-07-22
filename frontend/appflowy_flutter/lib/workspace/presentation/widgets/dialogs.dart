@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
@@ -9,7 +11,6 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
@@ -184,6 +185,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
     this.title,
     this.message,
     this.maxWidth,
+    this.titleUpperCase = true,
   });
 
   final VoidCallback? onOkPressed;
@@ -193,6 +195,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   final String? title;
   final String? message;
   final double? maxWidth;
+  final bool titleUpperCase;
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +207,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
         children: <Widget>[
           if (title != null) ...[
             FlowyText.medium(
-              title!.toUpperCase(),
+              titleUpperCase ? title!.toUpperCase() : title!,
               fontSize: FontSizes.s16,
               maxLines: 3,
             ),
@@ -346,6 +349,8 @@ Future<void> showConfirmDialog({
   required String title,
   required String description,
   VoidCallback? onConfirm,
+  String? confirmLabel,
+  ConfirmPopupStyle style = ConfirmPopupStyle.onlyOk,
 }) {
   return showDialog(
     context: context,
@@ -360,7 +365,37 @@ Future<void> showConfirmDialog({
             title: title,
             description: description,
             onConfirm: () => onConfirm?.call(),
-            style: ConfirmPopupStyle.onlyOk,
+            confirmLabel: confirmLabel,
+            style: style,
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<void> showCancelAndConfirmDialog({
+  required BuildContext context,
+  required String title,
+  required String description,
+  VoidCallback? onConfirm,
+  String? confirmLabel,
+}) {
+  return showDialog(
+    context: context,
+    builder: (_) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: SizedBox(
+          width: 440,
+          child: ConfirmPopup(
+            title: title,
+            description: description,
+            onConfirm: () => onConfirm?.call(),
+            confirmLabel: confirmLabel,
+            confirmButtonColor: Theme.of(context).colorScheme.primary,
           ),
         ),
       );
