@@ -23,7 +23,7 @@ export function Toolbar({
 
   return (
     <div className={'flex items-center justify-between overflow-x-auto overflow-y-hidden'}>
-      <div className={'whitespace-nowrap text-sm font-medium'}>{dateStr}</div>
+      <div className={'whitespace-nowrap text-base font-medium'}>{dateStr}</div>
       <div className={'flex items-center justify-end gap-2'}>
         <IconButton size={'small'} onClick={() => onNavigate('PREV')}>
           <LeftArrow />

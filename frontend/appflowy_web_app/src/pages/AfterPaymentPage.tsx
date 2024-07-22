@@ -1,10 +1,16 @@
-import { openOrDownload } from '@/components/publish/header/utils';
 import { Button, Typography } from '@mui/material';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
 
 function AfterPaymentPage() {
+  const openAppFlowy = useCallback(() => {
+    window.open(`appflowy-flutter://payment-success/${window.location.search || ''}`, '_self');
+  }, []);
+
+  useEffect(() => {
+    openAppFlowy();
+  }, [openAppFlowy]);
   return (
     <div className={'m-0 flex h-screen w-screen items-center justify-center bg-bg-body p-6'}>
       <div className={'flex max-w-[560px] flex-col items-center gap-1 text-center'}>
@@ -24,7 +30,7 @@ function AfterPaymentPage() {
           </div>
         </div>
         <Button
-          onClick={openOrDownload}
+          onClick={openAppFlowy}
           variant='contained'
           color='primary'
           className={
