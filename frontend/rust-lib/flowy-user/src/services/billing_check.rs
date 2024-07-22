@@ -15,14 +15,14 @@ use std::time::Duration;
 pub struct PeriodicallyCheckBillingState {
   workspace_id: String,
   cloud_service: Weak<dyn UserCloudServiceProvider>,
-  expected_plan: SubscriptionPlan,
+  expected_plan: Option<SubscriptionPlan>,
   user: Weak<AuthenticateUser>,
 }
 
 impl PeriodicallyCheckBillingState {
   pub fn new(
     workspace_id: String,
-    expected_plan: SubscriptionPlan,
+    expected_plan: Option<SubscriptionPlan>,
     cloud_service: Weak<dyn UserCloudServiceProvider>,
     user: Weak<AuthenticateUser>,
   ) -> Self {
@@ -49,13 +49,18 @@ impl PeriodicallyCheckBillingState {
         .get_workspace_plan(self.workspace_id.clone())
         .await?;
 
-      if plans.contains(&self.expected_plan) {
-        return Ok(plans);
+      // If the expected plan is not set, return the plans immediately. Otherwise,
+      // check if the expected plan is found in the list of plans.
+      if let Some(expected_plan) = &self.expected_plan {
+        if plans.contains(expected_plan) {
+          return Ok(plans);
+        }
+        attempts += 1;
+      } else {
+        attempts += 2;
       }
 
-      attempts += 1;
       tokio::time::sleep(delay_duration).await;
-
       if let Some(user) = self.user.upgrade() {
         if let Ok(current_workspace_id) = user.workspace_id() {
           if current_workspace_id != self.workspace_id {
@@ -67,6 +72,11 @@ impl PeriodicallyCheckBillingState {
         } else {
           break;
         }
+      }
+
+      // After last retry, return plans even if the expected plan is not found
+      if attempts >= max_attempts {
+        return Ok(plans);
       }
     }
 

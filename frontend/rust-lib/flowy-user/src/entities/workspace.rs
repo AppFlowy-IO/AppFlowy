@@ -201,8 +201,8 @@ pub struct SuccessWorkspaceSubscriptionPB {
   #[validate(custom = "required_not_empty_str")]
   pub workspace_id: String,
 
-  #[pb(index = 2)]
-  pub plan: SubscriptionPlanPB,
+  #[pb(index = 2, one_of)]
+  pub plan: Option<SubscriptionPlanPB>,
 }
 
 #[derive(ProtoBuf, Default, Clone)]

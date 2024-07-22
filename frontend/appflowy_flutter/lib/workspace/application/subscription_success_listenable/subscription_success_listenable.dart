@@ -1,3 +1,4 @@
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -17,6 +18,7 @@ class SubscriptionSuccessListenable extends ChangeNotifier {
       };
 
   void onPaymentSuccess(String? plan) {
+    Log.info("Payment success: $plan");
     _plan = plan;
     notifyListeners();
   }

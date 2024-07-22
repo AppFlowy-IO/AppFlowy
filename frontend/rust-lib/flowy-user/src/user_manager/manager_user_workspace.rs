@@ -642,13 +642,14 @@ impl UserManager {
     // periodically check the billing state
     let plans = PeriodicallyCheckBillingState::new(
       success.workspace_id,
-      success.plan.clone().into(),
+      success.plan.map(SubscriptionPlan::from),
       Arc::downgrade(&self.cloud_services),
       Arc::downgrade(&self.authenticate_user),
     )
     .start()
     .await?;
 
+    trace!("Current plans: {:?}", plans);
     self
       .user_status_callback
       .read()

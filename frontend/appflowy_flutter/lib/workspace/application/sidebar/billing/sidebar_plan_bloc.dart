@@ -20,16 +20,20 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
     final subscriptionListener = getIt<SubscriptionSuccessListenable>();
     subscriptionListener.addListener(() {
       final plan = subscriptionListener.subscribedPlan;
-      if (!isClosed && plan != null) {
-        Log.info("Subscription success listenable triggered");
+      Log.info("Subscription success listenable triggered: $plan");
 
+      if (!isClosed) {
         // Notify the user that they have switched to a new plan. It would be better if we use websocket to
         // notify the client when plan switching.
         if (state.workspaceId != null) {
           final payload = SuccessWorkspaceSubscriptionPB(
-            plan: plan,
             workspaceId: state.workspaceId,
           );
+
+          if (plan != null) {
+            payload.plan = plan;
+          }
+
           UserEventNotifyDidSwitchPlan(payload).send();
         } else {
           Log.error(
@@ -166,8 +170,7 @@ class SidebarPlanEvent with _$SidebarPlanEvent {
   const factory SidebarPlanEvent.updateTierIndicator(
     SidebarToastTierIndicator indicator,
   ) = _UpdateTierIndicator;
-  const factory SidebarPlanEvent.receiveError(FlowyError error) =
-      _ReceiveError;
+  const factory SidebarPlanEvent.receiveError(FlowyError error) = _ReceiveError;
 }
 
 @freezed
