@@ -35,8 +35,8 @@ export function DateTimeCell({ cell, fieldId, style, placeholder }: CellProps<Da
     ) : null;
   return (
     <div style={style} className={'flex cursor-text items-center gap-1'}>
-      {hasReminder && <ReminderSvg className={'h-4 w-4'} />}
       {dateStr}
+      {hasReminder && <ReminderSvg className={'h-4 w-4'} />}
     </div>
   );
 }

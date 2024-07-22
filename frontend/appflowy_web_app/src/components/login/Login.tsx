@@ -10,11 +10,11 @@ import { useSearchParams } from 'react-router-dom';
 export function Login() {
   const { t } = useTranslation();
   const [search] = useSearchParams();
-  const redirectTo = search.get('redirectTo') || window.location.href;
+  const redirectTo = search.get('redirectTo') || '';
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated || false;
 
   useEffect(() => {
-    if (isAuthenticated && encodeURIComponent(redirectTo) !== window.location.href) {
+    if (isAuthenticated && redirectTo && encodeURIComponent(redirectTo) !== window.location.href) {
       window.location.href = redirectTo;
     }
   }, [isAuthenticated, redirectTo]);

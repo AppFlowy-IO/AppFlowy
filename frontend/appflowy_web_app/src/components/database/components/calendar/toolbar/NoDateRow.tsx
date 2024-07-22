@@ -1,10 +1,10 @@
-import { useCellSelector, useNavigateToRow, usePrimaryFieldId } from '@/application/database-yjs';
+import { useCellSelector, usePrimaryFieldId } from '@/application/database-yjs';
 import { Cell } from '@/components/database/components/cell';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 function NoDateRow({ rowId }: { rowId: string }) {
-  const navigateToRow = useNavigateToRow();
+  // const navigateToRow = useNavigateToRow();
   const primaryFieldId = usePrimaryFieldId();
   const cell = useCellSelector({
     rowId,
@@ -18,15 +18,15 @@ function NoDateRow({ rowId }: { rowId: string }) {
 
   return (
     <div
-      onClick={() => {
-        navigateToRow?.(rowId);
-      }}
+      // onClick={() => {
+      //   navigateToRow?.(rowId);
+      // }}
       className={'w-full hover:text-fill-default'}
     >
       <Cell
-        style={{
-          cursor: 'pointer',
-        }}
+        // style={{
+        //   cursor: 'pointer',
+        // }}
         readOnly
         cell={cell}
         rowId={rowId}

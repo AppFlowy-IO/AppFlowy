@@ -1,3 +1,4 @@
+import { ViewMeta } from '@/application/db/tables/view_metas';
 import * as Y from 'yjs';
 
 export type BlockId = string;
@@ -413,7 +414,7 @@ export interface YDatabase extends Y.Map<unknown> {
   get(key: YjsDatabaseKey.id): string;
 }
 
-export interface YDatabaseViews extends Y.Map<unknown> {
+export interface YDatabaseViews extends Y.Map<YDatabaseView> {
   get(key: ViewId): YDatabaseView;
 }
 
@@ -558,7 +559,7 @@ export interface YDatabaseMetas extends Y.Map<unknown> {
   get(key: YjsDatabaseKey.iid): string;
 }
 
-export interface YDatabaseFields extends Y.Map<unknown> {
+export interface YDatabaseFields extends Y.Map<YDatabaseField> {
   get(key: FieldId): YDatabaseField;
 }
 
@@ -667,3 +668,9 @@ export interface PublishViewMetaData {
   child_views: PublishViewInfo[];
   ancestor_views: PublishViewInfo[];
 }
+
+export type GetViewRowsMap = (viewId: string) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+
+export type LoadView = (viewId: string) => Promise<YDoc>;
+
+export type LoadViewMeta = (viewId: string, onChange?: (meta: ViewMeta) => void) => Promise<ViewMeta>;

@@ -1,10 +1,10 @@
 import { YjsDatabaseKey } from '@/application/collab.type';
-import { useCellSelector, useFieldSelector } from '@/application/database-yjs';
+import { FieldType, useCellSelector, useFieldSelector } from '@/application/database-yjs';
 import Cell from '@/components/database/components/cell/Cell';
-import React, { useMemo } from 'react';
+import React, { CSSProperties, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function CardField({ rowId, fieldId, index }: { rowId: string; fieldId: string; index: number }) {
+function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: number }) {
   const { t } = useTranslation();
   const { field } = useFieldSelector(fieldId);
   const cell = useCellSelector({
@@ -13,8 +13,26 @@ function CardField({ rowId, fieldId, index }: { rowId: string; fieldId: string; 
   });
 
   const isPrimary = field?.get(YjsDatabaseKey.is_primary);
+  const type = field?.get(YjsDatabaseKey.type);
   const style = useMemo(() => {
-    const styleProperties = {};
+    const styleProperties: CSSProperties = {
+      overflow: 'hidden',
+      width: '100%',
+      textAlign: 'left',
+    };
+
+    if ([FieldType.Relation, FieldType.SingleSelect, FieldType.MultiSelect].includes(Number(type))) {
+      Object.assign(styleProperties, {
+        breakWord: 'break-word',
+        whiteSpace: 'normal',
+        flexWrap: 'wrap',
+      });
+    } else {
+      Object.assign(styleProperties, {
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      });
+    }
 
     if (isPrimary) {
       Object.assign(styleProperties, {
@@ -23,19 +41,24 @@ function CardField({ rowId, fieldId, index }: { rowId: string; fieldId: string; 
       });
     }
 
-    if (index !== 0) {
-      Object.assign(styleProperties, {
-        marginTop: '8px',
-      });
-    }
-
     return styleProperties;
-  }, [index, isPrimary]);
+  }, [isPrimary, type]);
 
   if (isPrimary && !cell?.data) {
     return (
       <div className={'text-text-caption'} style={style}>
         {t('grid.row.titlePlaceholder')}
+      </div>
+    );
+  }
+
+  if (Number(type) === FieldType.Checkbox) {
+    return (
+      <div className={'flex items-center gap-1'}>
+        <span>
+          <Cell readOnly cell={cell} rowId={rowId} fieldId={fieldId} />
+        </span>
+        <span>{field?.get(YjsDatabaseKey.name) || ''}</span>
       </div>
     );
   }
