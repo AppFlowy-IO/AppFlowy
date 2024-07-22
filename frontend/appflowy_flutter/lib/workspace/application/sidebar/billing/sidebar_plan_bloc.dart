@@ -92,11 +92,21 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
   ) async {
     await event.when(
       receiveError: (FlowyError error) async {
-        emit(
-          state.copyWith(
-            tierIndicator: const SidebarToastTierIndicator.storageLimitHit(),
-          ),
-        );
+        if (error.code == ErrorCode.AIResponseLimitExceeded) {
+          emit(
+            state.copyWith(
+              tierIndicator: const SidebarToastTierIndicator.aiMaxiLimitHit(),
+            ),
+          );
+        } else if (error.code == ErrorCode.FileStorageLimitExceeded) {
+          emit(
+            state.copyWith(
+              tierIndicator: const SidebarToastTierIndicator.storageLimitHit(),
+            ),
+          );
+        } else {
+          Log.error("Unhandle Unexpected error: $error");
+        }
       },
       init: (String workspaceId, UserProfilePB userProfile) {
         emit(

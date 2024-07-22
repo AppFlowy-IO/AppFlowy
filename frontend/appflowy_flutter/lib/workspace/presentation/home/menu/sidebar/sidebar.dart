@@ -366,7 +366,7 @@ class _SidebarState extends State<_Sidebar> {
             ),
             const VSpace(14),
 
-            // toast
+            //Toast
             const SidebarToast(),
           ],
         ),
