@@ -1,6 +1,7 @@
 import { AUTH_CALLBACK_PATH } from '@/application/session/sign_in';
 import NotFound from '@/components/error/NotFound';
 import LoginAuth from '@/components/login/LoginAuth';
+import AfterPaymentPage from '@/pages/AfterPaymentPage';
 import LoginPage from '@/pages/LoginPage';
 import PublishPage from '@/pages/PublishPage';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -14,6 +15,7 @@ const AppMain = withAppWrapper(() => {
       <Route path={'/login'} element={<LoginPage />} />
       <Route path={AUTH_CALLBACK_PATH} element={<LoginAuth />} />
       <Route path='/404' element={<NotFound />} />
+      <Route path='/after-payment' element={<AfterPaymentPage />} />
       <Route path='*' element={<NotFound />} />
     </Routes>
   );

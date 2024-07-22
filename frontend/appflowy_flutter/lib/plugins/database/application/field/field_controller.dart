@@ -1,7 +1,5 @@
 import 'dart:collection';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/setting/setting_listener.dart';
 import 'package:appflowy/plugins/database/domain/database_view_service.dart';
@@ -19,9 +17,9 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
 import '../setting/setting_service.dart';
-
 import 'field_info.dart';
 
 class _GridFieldNotifier extends ChangeNotifier {
@@ -75,7 +73,6 @@ typedef OnReceiveField = void Function(FieldInfo);
 typedef OnReceiveFields = void Function(List<FieldInfo>);
 typedef OnReceiveFilters = void Function(List<FilterInfo>);
 typedef OnReceiveSorts = void Function(List<SortInfo>);
-
 
 class FieldController {
   FieldController({required this.viewId})
@@ -446,9 +443,13 @@ class FieldController {
 
   /// Listen for field setting changes in the backend.
   void _listenOnFieldSettingsChanged() {
-    FieldInfo updateFieldSettings(FieldSettingsPB updatedFieldSettings) {
+    FieldInfo? updateFieldSettings(FieldSettingsPB updatedFieldSettings) {
       final List<FieldInfo> newFields = fieldInfos;
-      FieldInfo updatedField = newFields[0];
+      var updatedField = newFields.firstOrNull;
+
+      if (updatedField == null) {
+        return null;
+      }
 
       final index = newFields
           .indexWhere((field) => field.id == updatedFieldSettings.fieldId);
@@ -470,6 +471,10 @@ class FieldController {
         result.fold(
           (fieldSettings) {
             final updatedFieldInfo = updateFieldSettings(fieldSettings);
+            if (updatedFieldInfo == null) {
+              return;
+            }
+
             for (final listener in _updatedFieldCallbacks.values) {
               listener([updatedFieldInfo]);
             }

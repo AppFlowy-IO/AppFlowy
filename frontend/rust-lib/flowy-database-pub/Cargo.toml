@@ -11,3 +11,4 @@ collab-entity = { workspace = true }
 collab = { workspace = true }
 anyhow.workspace = true
 client-api = { workspace = true }
+flowy-error = { workspace = true }

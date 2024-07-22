@@ -1,21 +1,20 @@
-import { YDoc } from '@/application/collab.type';
+import { GetViewRowsMap, LoadView, LoadViewMeta } from '@/application/collab.type';
 import { db } from '@/application/db';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { AFConfigContext } from '@/components/app/AppConfig';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { createContext, useCallback, useContext, useEffect, useRef } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as Y from 'yjs';
 
 export interface PublishContextType {
   namespace: string;
   publishName: string;
   viewMeta?: ViewMeta;
   toView: (viewId: string) => Promise<void>;
-  loadViewMeta: (viewId: string) => Promise<ViewMeta>;
-  getViewRowsMap?: (viewId: string, rowIds: string[]) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+  loadViewMeta: LoadViewMeta;
+  getViewRowsMap?: GetViewRowsMap;
 
-  loadView: (viewId: string) => Promise<YDoc>;
+  loadView: LoadView;
 }
 
 export const PublishContext = createContext<PublishContextType | null>(null);
@@ -34,6 +33,39 @@ export const PublishProvider = ({
 
     return db.view_metas.get(name);
   }, [namespace, publishName]);
+  const [subscribers, setSubscribers] = useState<Map<string, (meta: ViewMeta) => void>>(new Map());
+
+  useEffect(() => {
+    return () => {
+      setSubscribers(new Map());
+    };
+  }, []);
+  useEffect(() => {
+    db.view_metas.hook('creating', (primaryKey, obj) => {
+      const subscriber = subscribers.get(primaryKey);
+
+      subscriber?.(obj);
+
+      return obj;
+    });
+    db.view_metas.hook('deleting', (primaryKey, obj) => {
+      const subscriber = subscribers.get(primaryKey);
+
+      subscriber?.(obj);
+
+      return;
+    });
+    db.view_metas.hook('updating', (modifications, primaryKey, obj) => {
+      const subscriber = subscribers.get(primaryKey);
+
+      subscriber?.({
+        ...obj,
+        ...modifications,
+      });
+
+      return modifications;
+    });
+  }, [subscribers]);
 
   const prevViewMeta = useRef(viewMeta);
 
@@ -59,7 +91,7 @@ export const PublishProvider = ({
   );
 
   const loadViewMeta = useCallback(
-    async (viewId: string) => {
+    async (viewId: string, callback?: (meta: ViewMeta) => void) => {
       try {
         const info = await service?.getPublishInfo(viewId);
 
@@ -69,13 +101,25 @@ export const PublishProvider = ({
 
         const { namespace, publishName } = info;
 
-        const res = await service?.getPublishViewMeta(namespace, publishName);
+        const name = `${namespace}_${publishName}`;
 
-        if (!res) {
-          throw new Error('View meta has not been published yet');
+        const meta = await service?.getPublishViewMeta(namespace, publishName);
+
+        if (!meta) {
+          return Promise.reject(new Error('View meta has not been published yet'));
         }
 
-        return res;
+        callback?.(meta);
+
+        if (callback) {
+          setSubscribers((prev) => {
+            prev.set(name, callback);
+
+            return prev;
+          });
+        }
+
+        return meta;
       } catch (e) {
         return Promise.reject(e);
       }
@@ -84,7 +128,7 @@ export const PublishProvider = ({
   );
 
   const getViewRowsMap = useCallback(
-    async (viewId: string, rowIds: string[]) => {
+    async (viewId: string, rowIds?: string[]) => {
       try {
         const info = await service?.getPublishInfo(viewId);
 

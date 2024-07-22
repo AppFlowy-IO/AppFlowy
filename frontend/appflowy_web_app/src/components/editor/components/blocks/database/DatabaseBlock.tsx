@@ -1,4 +1,5 @@
 import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
+import { ViewMeta } from '@/application/db/tables/view_metas';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { Database } from '@/components/database';
 import { DatabaseNode, EditorElementProps } from '@/components/editor/editor.type';
@@ -27,7 +28,7 @@ export const DatabaseBlock = memo(
       switch (type) {
         case BlockType.GridBlock:
           Object.assign(style, {
-            height: 360,
+            height: 400,
           });
           break;
         case BlockType.CalendarBlock:
@@ -57,6 +58,37 @@ export const DatabaseBlock = memo(
       })();
     }, [viewId, loadView]);
 
+    const [selectedViewId, setSelectedViewId] = useState<string>();
+    const [visibleViewIds, setVisibleViewIds] = useState<string[]>([]);
+    const [iidName, setIidName] = useState<string>('');
+
+    useEffect(() => {
+      const updateVisibleViewIds = async (meta: ViewMeta) => {
+        const viewIds = meta.visible_view_ids || [];
+
+        if (!viewIds.includes(viewId)) {
+          setSelectedViewId(meta.visible_view_ids[0]);
+        } else {
+          setSelectedViewId(viewId);
+        }
+
+        setIidName(meta.name);
+        setVisibleViewIds(viewIds);
+      };
+
+      void (async () => {
+        try {
+          const meta = await loadViewMeta?.(viewId, updateVisibleViewIds);
+
+          if (meta) {
+            await updateVisibleViewIds(meta);
+          }
+        } catch (e) {
+          setNotFound(true);
+        }
+      })();
+    }, [loadViewMeta, viewId]);
+
     return (
       <>
         <div
@@ -68,15 +100,20 @@ export const DatabaseBlock = memo(
           <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
             {children}
           </div>
-          <div contentEditable={false} style={style} className={`container-bg relative flex w-full flex-col px-3`}>
-            {viewId && doc ? (
+          <div contentEditable={false} style={style} className={`container-bg relative flex w-full flex-col`}>
+            {selectedViewId && doc ? (
               <>
                 <Database
                   doc={doc}
+                  iidIndex={viewId}
+                  viewId={selectedViewId}
                   getViewRowsMap={getViewRowsMap}
                   loadView={loadView}
                   navigateToView={navigateToView}
                   loadViewMeta={loadViewMeta}
+                  iidName={iidName}
+                  visibleViewIds={visibleViewIds}
+                  onChangeView={setSelectedViewId}
                 />
                 {isHovering && (
                   <div className={'absolute right-4 top-1'}>
@@ -102,7 +139,7 @@ export const DatabaseBlock = memo(
               >
                 {notFound ? (
                   <>
-                    <div className={'text-base font-medium'}>{t('publish.databaseHasNotBeenPublished')}</div>
+                    <div className={'text-base font-medium'}>{t('publish.hasNotBeenPublished')}</div>
                   </>
                 ) : (
                   <CircularProgress />

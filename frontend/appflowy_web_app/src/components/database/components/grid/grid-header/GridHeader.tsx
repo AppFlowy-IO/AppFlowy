@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { areEqual, GridChildComponentProps, VariableSizeGrid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { GridColumnType, RenderColumn, GridColumn } from '../grid-column';
@@ -36,15 +36,17 @@ export const GridHeader = ({ scrollLeft, onScrollLeft, columnWidth, columns }: G
     }
   }, [scrollLeft]);
 
+  const resetGrid = useCallback(() => {
+    ref.current?.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
+  }, []);
+
   useEffect(() => {
-    if (ref.current) {
-      ref.current?.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
-    }
-  }, [columns]);
+    resetGrid();
+  }, [columns, resetGrid]);
 
   return (
     <div className={'h-[36px] w-full'}>
-      <AutoSizer>
+      <AutoSizer onResize={resetGrid}>
         {({ height, width }: { height: number; width: number }) => {
           return (
             <VariableSizeGrid
@@ -54,7 +56,9 @@ export const GridHeader = ({ scrollLeft, onScrollLeft, columnWidth, columns }: G
               rowHeight={() => 36}
               rowCount={1}
               columnCount={columns.length}
-              columnWidth={(index) => columnWidth(index, width)}
+              columnWidth={(index) => {
+                return columnWidth(index, width);
+              }}
               ref={ref}
               onScroll={(props) => {
                 onScrollLeft(props.scrollLeft);

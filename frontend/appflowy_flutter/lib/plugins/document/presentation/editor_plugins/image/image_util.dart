@@ -7,6 +7,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_extension.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:path/path.dart' as p;
@@ -63,6 +64,12 @@ Future<(String? path, String? errorMessage)> saveImageToCloudStorage(
       );
       return (s.url, null);
     },
-    (e) => (null, e.msg),
+    (err) {
+      if (err.code == ErrorCode.FileStorageLimitExceeded) {
+        return (null, LocaleKeys.sideBar_storageLimitDialogTitle.tr());
+      } else {
+        return (null, err.msg);
+      }
+    },
   );
 }

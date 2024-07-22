@@ -54,6 +54,7 @@ class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
   Widget buildWidget({
     required PluginContext context,
     required bool shrinkWrap,
+    Map<String, dynamic>? data,
   }) =>
       const BlankPage();
 

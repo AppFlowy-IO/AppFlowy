@@ -50,7 +50,7 @@ describe('currencyFormaterMap', () => {
   test('should return the correct formatter for EUR', () => {
     const formater = currencyFormaterMap[NumberFormat.EUR];
 
-    const result = ['€0', '€1', '€0.5', '€0.57', '€1,000', '€10,000', '€1,000,000', '€10,000,000', '€1,000,000'];
+    const result = ['€0', '€1', '€0,5', '€0,57', '€1.000', '€10.000', '€1.000.000', '€10.000.000', '€1.000.000'];
 
     testCases.forEach((testCase, index) => {
       expect(formater(testCase)).toBe(result[index]);

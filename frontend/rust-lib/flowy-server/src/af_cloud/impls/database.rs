@@ -16,6 +16,7 @@ use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
   TranslateRowContent, TranslateRowResponse,
 };
+use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::define::ServerUser;
@@ -126,7 +127,7 @@ where
     workspace_id: &str,
     _object_id: &str,
     summary_row: SummaryRowContent,
-  ) -> FutureResult<String, Error> {
+  ) -> FutureResult<String, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
     FutureResult::new(async move {
@@ -148,7 +149,7 @@ where
     workspace_id: &str,
     translate_row: TranslateRowContent,
     language: &str,
-  ) -> FutureResult<TranslateRowResponse, Error> {
+  ) -> FutureResult<TranslateRowResponse, FlowyError> {
     let language = language.to_string();
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();

@@ -86,11 +86,13 @@ impl AppFlowyCore {
       init_log(&config, &platform, stream_log_sender);
     }
 
-    info!(
-      "💡{:?}, platform: {:?}",
-      System::long_os_version(),
-      platform
-    );
+    if sysinfo::IS_SUPPORTED_SYSTEM {
+      info!(
+        "💡{:?}, platform: {:?}",
+        System::long_os_version(),
+        platform
+      );
+    }
 
     Self::init(config, runtime).await
   }
@@ -239,6 +241,7 @@ impl AppFlowyCore {
       document_manager: document_manager.clone(),
       server_provider: server_provider.clone(),
       storage_manager: storage_manager.clone(),
+      chat_manager: chat_manager.clone(),
     };
 
     let collab_interact_impl = CollabInteractImpl {

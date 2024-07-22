@@ -14,9 +14,29 @@ use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
 use crate::entities::{CreateViewParams, ViewLayoutPB};
+use crate::manager::FolderUser;
 use crate::share::ImportType;
 
 pub type ViewData = Bytes;
+
+#[derive(Debug, Clone)]
+pub enum EncodedCollabWrapper {
+  Document(DocumentEncodedCollab),
+  Database(DatabaseEncodedCollab),
+  Unknown,
+}
+
+#[derive(Debug, Clone)]
+pub struct DocumentEncodedCollab {
+  pub document_encoded_collab: EncodedCollab,
+}
+
+#[derive(Debug, Clone)]
+pub struct DatabaseEncodedCollab {
+  pub database_encoded_collab: EncodedCollab,
+  pub database_row_encoded_collabs: HashMap<String, EncodedCollab>,
+  pub database_relations: HashMap<String, String>,
+}
 
 /// The handler will be used to handler the folder operation for a specific
 /// view layout. Each [ViewLayout] will have a handler. So when creating a new
@@ -45,11 +65,14 @@ pub trait FolderOperationHandler {
   /// Returns the [ViewData] that can be used to create the same view.
   fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
 
-  fn encoded_collab_v1(
+  /// get the encoded collab data from the disk.
+  fn get_encoded_collab_v1_from_disk(
     &self,
-    view_id: &str,
-    layout: ViewLayout,
-  ) -> FutureResult<EncodedCollab, FlowyError>;
+    _user: Arc<dyn FolderUser>,
+    _view_id: &str,
+  ) -> FutureResult<EncodedCollabWrapper, FlowyError> {
+    FutureResult::new(async move { Err(FlowyError::not_support()) })
+  }
 
   /// Create a view with the data.
   ///

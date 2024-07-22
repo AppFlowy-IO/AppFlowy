@@ -29,6 +29,7 @@ tokio = "1.34.0"
 tokio-stream = "0.1.14"
 async-trait = "0.1.74"
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
+zip = "2.1.3"
 yrs = "0.19.1"
 # Please use the following script to update collab.
 # Working directory: frontend
@@ -52,7 +53,7 @@ collab-user = { version = "0.2" }
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "a2f92bb" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "c2a839ba8bf9ead44679eb08f3a9680467b767ca" }
 
 [dependencies]
 serde_json.workspace = true
@@ -127,5 +128,5 @@ collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-
 # To update the commit ID, run:
 # scripts/tool/update_local_ai_rev.sh new_rev_id
 # ⚠️⚠️⚠️️
-appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "0820a0d23f7b813dee505e7e29e88a8561699fe8" }
-appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "0820a0d23f7b813dee505e7e29e88a8561699fe8" }
+appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "c4ab1db44e96348f9b0770dd8ecc990f68ac415d" }
+appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "c4ab1db44e96348f9b0770dd8ecc990f68ac415d" }

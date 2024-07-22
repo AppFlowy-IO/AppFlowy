@@ -11,7 +11,7 @@ use crate::event_handler::*;
 
 pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
   let user_service = Arc::downgrade(&chat_manager.upgrade().unwrap().user_service);
-  let cloud_service = Arc::downgrade(&chat_manager.upgrade().unwrap().chat_service);
+  let cloud_service = Arc::downgrade(&chat_manager.upgrade().unwrap().chat_service_wm);
   let ai_tools = Arc::new(AITools::new(cloud_service, user_service));
   AFPlugin::new()
     .name("Flowy-Chat")
@@ -23,13 +23,36 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
     .event(ChatEvent::GetRelatedQuestion, get_related_question_handler)
     .event(ChatEvent::GetAnswerForQuestion, get_answer_handler)
     .event(ChatEvent::StopStream, stop_stream_handler)
-    .event(ChatEvent::GetLocalAISetting, get_local_ai_setting_handler)
     .event(
-      ChatEvent::UpdateLocalAISetting,
-      update_local_ai_setting_handler,
+      ChatEvent::RefreshLocalAIModelInfo,
+      refresh_local_ai_info_handler,
     )
+    .event(ChatEvent::UpdateLocalLLM, update_local_llm_model_handler)
+    .event(ChatEvent::GetLocalLLMState, get_local_llm_state_handler)
     .event(ChatEvent::CompleteText, start_complete_text_handler)
     .event(ChatEvent::StopCompleteText, stop_complete_text_handler)
+    .event(ChatEvent::ChatWithFile, chat_file_handler)
+    .event(
+      ChatEvent::DownloadLLMResource,
+      download_llm_resource_handler,
+    )
+    .event(
+      ChatEvent::CancelDownloadLLMResource,
+      cancel_download_llm_resource_handler,
+    )
+    .event(ChatEvent::GetLocalAIPluginState, get_plugin_state_handler)
+    .event(ChatEvent::ToggleLocalAIChat, toggle_local_ai_chat_handler)
+    .event(
+      ChatEvent::GetLocalAIChatState,
+      get_local_ai_chat_state_handler,
+    )
+    .event(ChatEvent::RestartLocalAIChat, restart_local_ai_chat_handler)
+    .event(ChatEvent::ToggleLocalAI, toggle_local_ai_handler)
+    .event(ChatEvent::GetLocalAIState, get_local_ai_state_handler)
+    .event(
+      ChatEvent::ToggleChatWithFile,
+      toggle_local_ai_chat_file_handler,
+    )
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -54,15 +77,53 @@ pub enum ChatEvent {
   #[event(input = "ChatMessageIdPB", output = "ChatMessagePB")]
   GetAnswerForQuestion = 5,
 
-  #[event(input = "LocalLLMSettingPB")]
-  UpdateLocalAISetting = 6,
+  #[event(input = "LLMModelPB", output = "LocalModelResourcePB")]
+  UpdateLocalLLM = 6,
 
-  #[event(output = "LocalLLMSettingPB")]
-  GetLocalAISetting = 7,
+  #[event(output = "LocalModelResourcePB")]
+  GetLocalLLMState = 7,
+
+  #[event(output = "LLMModelInfoPB")]
+  RefreshLocalAIModelInfo = 8,
 
   #[event(input = "CompleteTextPB", output = "CompleteTextTaskPB")]
-  CompleteText = 8,
+  CompleteText = 9,
 
   #[event(input = "CompleteTextTaskPB")]
-  StopCompleteText = 9,
+  StopCompleteText = 10,
+
+  #[event(input = "ChatFilePB")]
+  ChatWithFile = 11,
+
+  #[event(input = "DownloadLLMPB", output = "DownloadTaskPB")]
+  DownloadLLMResource = 12,
+
+  #[event()]
+  CancelDownloadLLMResource = 13,
+
+  #[event(output = "LocalAIPluginStatePB")]
+  GetLocalAIPluginState = 14,
+
+  #[event(output = "LocalAIChatPB")]
+  ToggleLocalAIChat = 15,
+
+  /// Return Local AI Chat State
+  #[event(output = "LocalAIChatPB")]
+  GetLocalAIChatState = 16,
+
+  /// Restart local AI chat. When plugin quit or user terminate in task manager or activity monitor,
+  /// the plugin will need to restart.
+  #[event()]
+  RestartLocalAIChat = 17,
+
+  /// Enable or disable local AI
+  #[event(output = "LocalAIPB")]
+  ToggleLocalAI = 18,
+
+  /// Return LocalAIPB that contains the current state of the local AI
+  #[event(output = "LocalAIPB")]
+  GetLocalAIState = 19,
+
+  #[event()]
+  ToggleChatWithFile = 20,
 }

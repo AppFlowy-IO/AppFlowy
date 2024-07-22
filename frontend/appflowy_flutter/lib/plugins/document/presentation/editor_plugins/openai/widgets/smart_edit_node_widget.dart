@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -15,6 +16,8 @@ import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+
+import 'ai_limit_dialog.dart';
 
 class SmartEditBlockKeys {
   const SmartEditBlockKeys._();
@@ -426,11 +429,15 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
         });
       },
       onError: (error) async {
-        showSnackBarMessage(
-          context,
-          error.message,
-          showCancel: true,
-        );
+        if (error.isLimitExceeded) {
+          showAILimitDialog(context, error.message);
+        } else {
+          showSnackBarMessage(
+            context,
+            error.message,
+            showCancel: true,
+          );
+        }
         await _onExit();
       },
     );

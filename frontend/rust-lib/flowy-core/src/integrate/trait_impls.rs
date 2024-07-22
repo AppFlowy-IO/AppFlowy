@@ -1,5 +1,6 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -18,7 +19,8 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, MessageCursor, RepeatedChatMessage, StreamAnswer, StreamComplete,
+  ChatCloudService, ChatMessage, LocalAIConfig, MessageCursor, RepeatedChatMessage, StreamAnswer,
+  StreamComplete,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
@@ -30,7 +32,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
@@ -305,7 +307,7 @@ impl FolderCloudService for ServerProvider {
   fn publish_view(
     &self,
     workspace_id: &str,
-    payload: Vec<PublishViewPayload>,
+    payload: Vec<PublishPayload>,
   ) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
@@ -416,7 +418,7 @@ impl DatabaseCloudService for ServerProvider {
     workspace_id: &str,
     object_id: &str,
     summary_row: SummaryRowContent,
-  ) -> FutureResult<String, Error> {
+  ) -> FutureResult<String, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
     let object_id = object_id.to_string();
@@ -433,7 +435,7 @@ impl DatabaseCloudService for ServerProvider {
     workspace_id: &str,
     translate_row: TranslateRowContent,
     language: &str,
-  ) -> FutureResult<TranslateRowResponse, Error> {
+  ) -> FutureResult<TranslateRowResponse, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
     let language = language.to_string();
@@ -725,6 +727,27 @@ impl ChatCloudService for ServerProvider {
     server
       .chat_service()
       .stream_complete(&workspace_id, &text, complete_type)
+      .await
+  }
+
+  async fn index_file(
+    &self,
+    workspace_id: &str,
+    file_path: PathBuf,
+    chat_id: &str,
+  ) -> Result<(), FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .index_file(workspace_id, file_path, chat_id)
+      .await
+  }
+
+  async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_local_ai_config(workspace_id)
       .await
   }
 }

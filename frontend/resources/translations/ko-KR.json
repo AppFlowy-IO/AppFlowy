@@ -275,7 +275,7 @@
     "user": {
       "name": "이름",
       "selectAnIcon": "아이콘을 선택하세요",
-      "pleaseInputYourOpenAIKey": "OpenAI 키를 입력하십시오"
+      "pleaseInputYourOpenAIKey": "AI 키를 입력하십시오"
     }
   },
   "grid": {
@@ -431,23 +431,23 @@
       "referencedBoard": "참조 보드",
       "referencedGrid": "참조된 그리드",
       "referencedCalendar": "참조된 달력",
-      "autoGeneratorMenuItemName": "OpenAI 작성자",
-      "autoGeneratorTitleName": "OpenAI: AI에게 무엇이든 쓰라고 요청하세요...",
+      "autoGeneratorMenuItemName": "AI 작성자",
+      "autoGeneratorTitleName": "AI: AI에게 무엇이든 쓰라고 요청하세요...",
       "autoGeneratorLearnMore": "더 알아보기",
       "autoGeneratorGenerate": "생성하다",
       "autoGeneratorHintText": "OpenAI에게 물어보세요 ...",
-      "autoGeneratorCantGetOpenAIKey": "OpenAI 키를 가져올 수 없습니다.",
+      "autoGeneratorCantGetOpenAIKey": "AI 키를 가져올 수 없습니다.",
       "autoGeneratorRewrite": "고쳐 쓰기",
       "smartEdit": "AI 어시스턴트",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "맞춤법 수정",
       "warning": "⚠️ AI 응답은 부정확하거나 오해의 소지가 있을 수 있습니다.",
       "smartEditSummarize": "요약하다",
       "smartEditImproveWriting": "쓰기 향상",
       "smartEditMakeLonger": "더 길게",
       "smartEditCouldNotFetchResult": "OpenAI에서 결과를 가져올 수 없습니다.",
-      "smartEditCouldNotFetchKey": "OpenAI 키를 가져올 수 없습니다.",
-      "smartEditDisabled": "설정에서 OpenAI 연결",
+      "smartEditCouldNotFetchKey": "AI 키를 가져올 수 없습니다.",
+      "smartEditDisabled": "설정에서 AI 연결",
       "discardResponse": "AI 응답을 삭제하시겠습니까?",
       "createInlineMathEquation": "방정식 만들기",
       "toggleList": "토글 목록",

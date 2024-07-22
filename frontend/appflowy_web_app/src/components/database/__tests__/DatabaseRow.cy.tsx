@@ -74,6 +74,7 @@ function TestDatabaseRow({
 }) {
   return (
     <DatabaseContextProvider
+      iidIndex={viewId}
       viewId={viewId}
       readOnly={true}
       isDatabaseRowPage
