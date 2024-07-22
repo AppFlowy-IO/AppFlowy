@@ -87,7 +87,18 @@ impl EventIntegrationTest {
 
   pub async fn af_cloud_sign_up(&self) -> UserProfilePB {
     let email = unique_email();
-    self.af_cloud_sign_in_with_email(&email).await.unwrap()
+    match self.af_cloud_sign_in_with_email(&email).await {
+      Ok(profile) => profile,
+      Err(err) => {
+        tracing::warn!(
+          "Failed to sign up with email: {}, error: {}, retrying",
+          email,
+          err
+        );
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        self.af_cloud_sign_in_with_email(&email).await.unwrap()
+      },
+    }
   }
 
   pub async fn supabase_party_sign_up(&self) -> UserProfilePB {

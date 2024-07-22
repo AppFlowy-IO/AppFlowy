@@ -19,8 +19,18 @@ mime_guess = "2.0.4"
 fxhash = "0.2.1"
 anyhow = "1.0.86"
 chrono = "0.4.33"
+flowy-notification = { workspace = true }
+flowy-derive.workspace = true
+protobuf = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
 uuid = "1.6.1"
 rand = { version = "0.8", features = ["std_rng"] }
+
+[features]
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
+
+[build-dependencies]
+flowy-codegen.workspace = true

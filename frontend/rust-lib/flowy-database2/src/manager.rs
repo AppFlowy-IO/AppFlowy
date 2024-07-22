@@ -169,6 +169,7 @@ impl DatabaseManager {
     })?;
 
     let lock_guard = database_collab.lock();
+
     Ok(lock_guard.get_inline_view_id())
   }
 
@@ -204,6 +205,11 @@ impl DatabaseManager {
       FlowyError::record_not_found()
         .with_context(format!("The database for view id: {} not found", view_id))
     })
+  }
+
+  pub async fn get_database_row_ids_with_view_id(&self, view_id: &str) -> FlowyResult<Vec<RowId>> {
+    let database = self.get_database_with_view_id(view_id).await?;
+    Ok(database.get_row_ids())
   }
 
   pub async fn get_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {

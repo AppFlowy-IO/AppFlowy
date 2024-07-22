@@ -1,6 +1,6 @@
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 
-use crate::services::data_import::importer::load_collab_by_oid;
+use crate::services::data_import::importer::load_collab_by_object_ids;
 use crate::services::db::UserDBPath;
 use crate::services::entities::UserPaths;
 use crate::services::sqlite_sql::user_sql::select_user_profile;
@@ -200,7 +200,7 @@ pub(crate) fn generate_import_data(
     all_imported_object_ids.retain(|id| !database_view_ids.contains(id));
 
     // 3. load imported collab objects data.
-    let imported_collab_by_oid = load_collab_by_oid(
+    let imported_collab_by_oid = load_collab_by_object_ids(
       imported_session.user_id,
       &imported_collab_read_txn,
       &all_imported_object_ids,
@@ -914,7 +914,7 @@ where
   R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
-  load_collab_by_oid(uid, collab_read, object_ids)
+  load_collab_by_object_ids(uid, collab_read, object_ids)
     .into_iter()
     .filter_map(|(oid, collab)| {
       collab

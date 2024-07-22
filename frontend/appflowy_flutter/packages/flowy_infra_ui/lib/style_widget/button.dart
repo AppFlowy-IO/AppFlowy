@@ -165,6 +165,7 @@ class FlowyTextButton extends StatelessWidget {
     this.decoration,
     this.fontFamily,
     this.isDangerous = false,
+    this.borderColor,
   });
 
   final String text;
@@ -188,6 +189,7 @@ class FlowyTextButton extends StatelessWidget {
 
   final String? fontFamily;
   final bool isDangerous;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +213,7 @@ class FlowyTextButton extends StatelessWidget {
     child = ConstrainedBox(
       constraints: constraints,
       child: TextButton(
-        onPressed: onPressed ?? () {},
+        onPressed: onPressed,
         focusNode: FocusNode(skipTraversal: onPressed == null),
         style: ButtonStyle(
           overlayColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -222,9 +224,10 @@ class FlowyTextButton extends StatelessWidget {
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               side: BorderSide(
-                color: isDangerous
-                    ? Theme.of(context).colorScheme.error
-                    : Colors.transparent,
+                color: borderColor ??
+                    (isDangerous
+                        ? Theme.of(context).colorScheme.error
+                        : Colors.transparent),
               ),
               borderRadius: radius ?? Corners.s6Border,
             ),

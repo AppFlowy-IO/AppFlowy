@@ -1,3 +1,4 @@
+import { clearData } from '@/application/db';
 import { EventType, on } from '@/application/session';
 import { isTokenValid } from '@/application/session/token';
 import { useAppLanguage } from '@/components/app/useAppLanguage';
@@ -87,6 +88,23 @@ function AppConfig({ children }: { children: React.ReactNode }) {
       },
     };
   }, [closeSnackbar, enqueueSnackbar]);
+
+  useEffect(() => {
+    const handleClearData = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'r' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+        e.stopPropagation();
+        e.preventDefault();
+        void clearData().then(() => {
+          window.location.reload();
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleClearData);
+    return () => {
+      window.removeEventListener('keydown', handleClearData);
+    };
+  });
 
   return (
     <AFConfigContext.Provider

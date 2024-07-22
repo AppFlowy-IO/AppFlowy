@@ -16,13 +16,17 @@ function DatabaseViews({
   viewId,
   iidIndex,
   viewName,
+  visibleViewIds,
+  hideConditions = false,
 }: {
   onChangeView: (viewId: string) => void;
   viewId: string;
   iidIndex: string;
   viewName?: string;
+  visibleViewIds?: string[];
+  hideConditions?: boolean;
 }) {
-  const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex);
+  const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex, visibleViewIds);
 
   const value = useMemo(() => {
     return Math.max(
@@ -40,10 +44,12 @@ function DatabaseViews({
     return childViews[value];
   }, [childViews, value]);
 
-  const view = useMemo(() => {
+  const layout = useMemo(() => {
     if (!activeView) return null;
-    const layout = Number(activeView.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
+    return Number(activeView.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
+  }, [activeView]);
 
+  const view = useMemo(() => {
     switch (layout) {
       case DatabaseViewLayout.Grid:
         return <Grid />;
@@ -52,7 +58,7 @@ function DatabaseViews({
       case DatabaseViewLayout.Calendar:
         return <Calendar />;
     }
-  }, [activeView]);
+  }, [layout]);
 
   return (
     <>
@@ -68,8 +74,9 @@ function DatabaseViews({
           selectedViewId={viewId}
           setSelectedViewId={onChangeView}
           viewIds={viewIds}
+          hideConditions={hideConditions}
         />
-        <DatabaseConditions />
+        {layout === DatabaseViewLayout.Calendar || hideConditions ? null : <DatabaseConditions />}
       </DatabaseConditionsContext.Provider>
       <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
         <Suspense fallback={<ComponentLoading />}>

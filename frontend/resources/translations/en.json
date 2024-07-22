@@ -282,7 +282,15 @@
     "removeSuccess": "Removed successfully",
     "favoriteSpace": "Favorites",
     "RecentSpace": "Recent",
-    "Spaces": "Spaces"
+    "Spaces": "Spaces",
+    "upgradeToPro": "Upgrade to Pro Plan",
+    "upgradeToAIMax": "Unlock unlimited AI",
+    "storageLimitDialogTitle": "You are running out of storage space. Upgrade to Pro Plan to get more storage",
+    "aiResponseLitmitDialogTitle": "You are running out of AI responses. Upgrade to Pro Plan or AI Max to get more AI responses",
+    "aiResponseLitmit": "You are running out of AI responses. Go to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
+    "purchaseStorageSpace": "Purchase Storage Space",
+    "purchaseAIResponse": "Purchase ",
+    "upgradeToAILocal": "AI offline on your device"
   },
   "notifications": {
     "export": {
@@ -327,6 +335,7 @@
     "helpCenter": "Help Center",
     "add": "Add",
     "yes": "Yes",
+    "no": "No",
     "clear": "Clear",
     "remove": "Remove",
     "dontRemove": "Don't remove",
@@ -638,17 +647,14 @@
         "downloadAIModelButton": "Download AI model",
         "downloadingModel": "Downloading",
         "localAILoaded": "Local AI Model successfully added and ready to use",
-        "localAILoading": "Local AI Model is loading...",
-        "localAIStopped": "Local AI Model stopped",
+        "localAIStart": "Local AI Chat is starting...",
+        "localAILoading": "Local AI Chat Model is loading...",
+        "localAIStopped": "Local AI stopped",
         "failToLoadLocalAI": "Failed to start local AI",
         "restartLocalAI": "Restart Local AI",
-        "title": "AI API Keys",
-        "openAILabel": "OpenAI API key",
-        "openAITooltip": "You can find your Secret API key on the API key page",
-        "openAIHint": "Input your OpenAI API Key",
-        "stabilityAILabel": "Stability API key",
-        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
-        "stabilityAIHint": "Input your Stability API Key"
+        "disableLocalAIDialog": "Do you want to disable local AI?",
+        "localAIToggleTitle": "Toggle to enable or disable local AI",
+        "fetchLocalModel": "Fetch local model configuration"
       }
     },
     "planPage": {
@@ -658,14 +664,18 @@
         "title": "Plan usage summary",
         "storageLabel": "Storage",
         "storageUsage": "{} of {} GB",
-        "collaboratorsLabel": "Collaborators",
+        "unlimitedStorageLabel": "Unlimited storage",
+        "collaboratorsLabel": "Members",
         "collaboratorsUsage": "{} of {}",
         "aiResponseLabel": "AI Responses",
         "aiResponseUsage": "{} of {}",
+        "unlimitedAILabel": "Unlimited responses",
         "proBadge": "Pro",
-        "memberProToggle": "Unlimited members",
-        "guestCollabToggle": "10 guest collaborators",
-        "storageUnlimited": "Unlimited storage with your Pro Plan",
+        "aiMaxBadge": "AI Max",
+        "aiOnDeviceBadge": "AI On-device",
+        "memberProToggle": "More members & unlimited AI",
+        "aiMaxToggle": "Unlimited AI responses",
+        "aiOnDeviceToggle": "On-device AI for ultimate privacy",
         "aiCredit": {
           "title": "Add @:appName AI Credit",
           "price": "{}",
@@ -683,24 +693,27 @@
           "freeInfo": "Perfect for individuals or small teams up to 3 members.",
           "proInfo": "Perfect for small and medium teams up to 10 members.",
           "teamInfo": "Perfect for all productive and well-organized teams..",
-          "upgrade": "Compare &\n Upgrade",
-          "freeProOne": "Collaborative workspace",
-          "freeProTwo": "Up to 3 members (incl. owner)",
-          "freeProThree": "Unlimited guests (view-only)",
-          "freeProFour": "Storage 5GB",
-          "freeProFive": "30 day revision history",
-          "freeConOne": "Guest collaborators (edit access)",
-          "freeConTwo": "Unlimited storage",
-          "freeConThree": "6 month revision history",
-          "professionalProOne": "Collaborative workspace",
-          "professionalProTwo": "Unlimited members",
-          "professionalProThree": "Unlimited guests (view-only)",
-          "professionalProFour": "Unlimited storage",
-          "professionalProFive": "6 month revision history",
-          "professionalConOne": "Unlimited guest collaborators (edit access)",
-          "professionalConTwo": "Unlimited AI responses",
-          "professionalConThree": "1 year revision history",
+          "upgrade": "Change plan",
           "canceledInfo": "Your plan is cancelled, you will be downgraded to the Free plan on {}."
+        },
+        "addons": {
+          "title": "Add-ons",
+          "addLabel": "Add",
+          "activeLabel": "Added",
+          "aiMax": {
+            "title": "AI Max",
+            "description": "Unlock unlimited AI",
+            "price": "{}",
+            "priceInfo": "/user per month",
+            "billingInfo": "billed annually or {} billed monthly"
+          },
+          "aiOnDevice": {
+            "title": "AI On-device",
+            "description": "AI offline on your device",
+            "price": "{}",
+            "priceInfo": "/user per month",
+            "billingInfo": "billed annually or {} billed monthly"
+          }
         },
         "deal": {
           "bannerLabel": "New year deal!",
@@ -725,7 +738,36 @@
         "title": "Payment details",
         "methodLabel": "Payment method",
         "methodButtonLabel": "Edit method"
-      }
+      },
+      "addons": {
+        "title": "Add-ons",
+        "addLabel": "Add",
+        "removeLabel": "Remove",
+        "renewLabel": "Renew",
+        "aiMax": {
+          "label": "AI Max",
+          "description": "Unlock unlimited AI and advanced models",
+          "activeDescription": "Next invoice due on {}",
+          "canceledDescription": "AI Max will be available until {}"
+        },
+        "aiOnDevice": {
+          "label": "AI On-device",
+          "description": "Unlock unlimited AI offline on your device",
+          "activeDescription": "Next invoice due on {}",
+          "canceledDescription": "AI On-device will be available until {}"
+        },
+        "removeDialog": {
+          "title": "Remove {}",
+          "description": "Are you sure you want to remove {plan}? You will lose access to the features and benefits of {plan} immediately."
+        }
+      },
+      "currentPeriodBadge": "CURRENT",
+      "changePeriod": "Change period",
+      "planPeriod": "{} period",
+      "monthlyInterval": "Monthly",
+      "monthlyPriceInfo": "per seat billed monthly",
+      "annualInterval": "Annually",
+      "annualPriceInfo": "per seat billed annually"
     },
     "comparePlanDialog": {
       "title": "Compare & select plan",
@@ -739,48 +781,44 @@
       },
       "freePlan": {
         "title": "Free",
-        "description": "For organizing every corner of your work & life.",
+        "description": "For individuals and small groups to organize everything",
         "price": "{}",
         "priceInfo": "free forever"
       },
       "proPlan": {
-        "title": "Professional",
-        "description": "A place for small groups to plan & get organized.",
-        "price": "{}/month",
-        "priceInfo": "billed annually"
+        "title": "Pro",
+        "description": "For small teams to manage projects and team knowledge",
+        "price": "{}",
+        "priceInfo": "/user per month billed annually\n\n{} billed monthly"
       },
       "planLabels": {
         "itemOne": "Workspaces",
         "itemTwo": "Members",
-        "itemThree": "Guests",
-        "tooltipThree": "Guests have read-only permission to the specifically shared content",
-        "itemFour": "Guest collaborators",
-        "tooltipFour": "Guest collaborators are billed as one seat",
-        "itemFive": "Storage",
-        "itemSix": "Real-time collaboration",
-        "itemSeven": "Mobile app",
-        "itemEight": "AI Responses",
-        "tooltipEight": "Lifetime means the number of responses never reset"
+        "itemThree": "Storage",
+        "itemFour": "Real-time collaboration",
+        "itemFive": "Mobile app",
+        "itemSix": "AI Responses",
+        "tooltipSix": "Lifetime means the number of responses never reset",
+        "itemSeven": "Custom namespace",
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace"
       },
       "freeLabels": {
         "itemOne": "charged per workspace",
-        "itemTwo": "3",
-        "itemThree": " ",
-        "itemFour": "0",
-        "itemFive": "5 GB",
-        "itemSix": "yes",
-        "itemSeven": "yes",
-        "itemEight": "1,000 lifetime"
+        "itemTwo": "up to 3",
+        "itemThree": "5 GB",
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "100 lifetime",
+        "itemSeven": ""
       },
       "proLabels": {
         "itemOne": "charged per workspace",
         "itemTwo": "up to 10",
-        "itemThree": " ",
-        "itemFour": "10 guests billed as one seat",
-        "itemFive": "unlimited",
-        "itemSix": "yes",
-        "itemSeven": "yes",
-        "itemEight": "10,000 monthly"
+        "itemThree": "unlimited",
+        "itemFour": "yes",
+        "itemFive": "yes",
+        "itemSix": "unlimited",
+        "itemSeven": ""
       },
       "paymentSuccess": {
         "title": "You are now on the {} plan!",
@@ -788,7 +826,7 @@
       },
       "downgradeDialog": {
         "title": "Are you sure you want to downgrade your plan?",
-        "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to workspaces and you may need to free up space to meet the storage limits of the Free plan.",
+        "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to this workspace and you may need to free up space to meet the storage limits of the Free plan.",
         "downgradeLabel": "Downgrade plan"
       }
     },
@@ -803,7 +841,7 @@
       "notifications": "Notifications",
       "open": "Open Settings",
       "logout": "Logout",
-      "logoutPrompt": "Are you sure to logout?",
+      "logoutPrompt": "Are you sure you want to logout?",
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "cloudSettings": "Cloud Settings",
@@ -953,7 +991,10 @@
           "one": "{} member",
           "other": "{} members"
         },
-        "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
+        "memberLimitExceeded": "Member limit reached, to invite more members, please ",
+        "memberLimitExceededUpgrade": "upgrade",
+        "memberLimitExceededPro": "Member limit reached, if you require more members contact ",
+        "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "Failed to add member",
         "addMemberSuccess": "Member added successfully",
         "removeMember": "Remove Member",
@@ -1007,7 +1048,7 @@
       "email": "Email",
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
-      "pleaseInputYourOpenAIKey": "please input your OpenAI key",
+      "pleaseInputYourOpenAIKey": "please input your AI key",
       "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
       "clickToLogout": "Click to logout the current user"
     },
@@ -1342,23 +1383,23 @@
       "referencedGrid": "Referenced Grid",
       "referencedCalendar": "Referenced Calendar",
       "referencedDocument": "Referenced Document",
-      "autoGeneratorMenuItemName": "OpenAI Writer",
-      "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
+      "autoGeneratorMenuItemName": "AI Writer",
+      "autoGeneratorTitleName": "AI: Ask AI to write anything...",
       "autoGeneratorLearnMore": "Learn more",
       "autoGeneratorGenerate": "Generate",
-      "autoGeneratorHintText": "Ask OpenAI ...",
-      "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
+      "autoGeneratorHintText": "Ask AI ...",
+      "autoGeneratorCantGetOpenAIKey": "Can't get AI key",
       "autoGeneratorRewrite": "Rewrite",
       "smartEdit": "AI Assistants",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "Fix spelling",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
       "smartEditImproveWriting": "Improve writing",
       "smartEditMakeLonger": "Make longer",
-      "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
-      "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
-      "smartEditDisabled": "Connect OpenAI in Settings",
+      "smartEditCouldNotFetchResult": "Could not fetch result from AI",
+      "smartEditCouldNotFetchKey": "Could not fetch AI key",
+      "smartEditDisabled": "Connect AI in Settings",
       "appflowyAIEditDisabled": "Sign in to enable AI features",
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
@@ -1488,8 +1529,8 @@
         "placeholder": "Enter image URL"
       },
       "ai": {
-        "label": "Generate image from OpenAI",
-        "placeholder": "Please input the prompt for OpenAI to generate image"
+        "label": "Generate image from AI",
+        "placeholder": "Please input the prompt for AI to generate image"
       },
       "stability_ai": {
         "label": "Generate image from Stability AI",
@@ -1511,7 +1552,7 @@
         "label": "Unsplash"
       },
       "searchForAnImage": "Search for an image",
-      "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
+      "pleaseInputYourOpenAIKey": "please input your AI key in Settings page",
       "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
       "saveImageToGallery": "Save image",
       "failedToAddImageToGallery": "Failed to add image to gallery",
@@ -2103,7 +2144,17 @@
     "noAccessToVisit": "No access to this page...",
     "createWithAppFlowy": "Create a website with AppFlowy",
     "fastWithAI": "Fast and easy with AI.",
-    "tryItNow": "Try it now"
+    "tryItNow": "Try it now",
+    "onlyGridViewCanBePublished": "Only Grid view can be published",
+    "database": {
+      "zero": "Publish {} selected view",
+      "one": "Publish {} selected views",
+      "many": "Publish {} selected views",
+      "other":"Publish {} selected views"
+    },
+    "mustSelectPrimaryDatabase": "The primary database must be selected",
+    "noDatabaseSelected": "No database selected, please select at least one database.",
+    "unableToDeselectPrimaryDatabase": "Unable to deselect primary database"
   },
   "web": {
     "continue": "Continue",

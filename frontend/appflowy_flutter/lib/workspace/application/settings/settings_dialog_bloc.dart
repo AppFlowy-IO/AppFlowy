@@ -26,9 +26,11 @@ enum SettingsPage {
 
 class SettingsDialogBloc
     extends Bloc<SettingsDialogEvent, SettingsDialogState> {
-  SettingsDialogBloc(this.userProfile)
-      : _userListener = UserListener(userProfile: userProfile),
-        super(SettingsDialogState.initial(userProfile)) {
+  SettingsDialogBloc(
+    this.userProfile, {
+    SettingsPage? initPage,
+  })  : _userListener = UserListener(userProfile: userProfile),
+        super(SettingsDialogState.initial(userProfile, initPage)) {
     _dispatch();
   }
 
@@ -87,9 +89,12 @@ class SettingsDialogState with _$SettingsDialogState {
     required SettingsPage page,
   }) = _SettingsDialogState;
 
-  factory SettingsDialogState.initial(UserProfilePB userProfile) =>
+  factory SettingsDialogState.initial(
+    UserProfilePB userProfile,
+    SettingsPage? page,
+  ) =>
       SettingsDialogState(
         userProfile: userProfile,
-        page: SettingsPage.account,
+        page: page ?? SettingsPage.account,
       );
 }

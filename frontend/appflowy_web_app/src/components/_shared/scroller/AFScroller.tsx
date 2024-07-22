@@ -16,9 +16,10 @@ export const AFScroller = React.forwardRef(
       <Scrollbars
         onScroll={onScroll}
         autoHide
+        hideTracksWhenNotNeeded
         ref={(el) => {
           if (!el) return;
-          
+
           const scrollEl = el.container?.firstChild as HTMLElement;
 
           if (!scrollEl) return;

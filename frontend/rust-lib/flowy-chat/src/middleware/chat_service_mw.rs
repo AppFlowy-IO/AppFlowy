@@ -1,7 +1,7 @@
 use crate::chat_manager::ChatUserService;
 use crate::entities::{ChatStatePB, ModelTypePB};
 use crate::local_ai::local_llm_chat::LocalAIController;
-use crate::notification::{send_notification, ChatNotification};
+use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use crate::persistence::select_single_message;
 use appflowy_plugin::error::PluginError;
 
@@ -53,14 +53,15 @@ impl ChatServiceMiddleware {
       err,
       PluginError::PluginNotConnected | PluginError::PeerDisconnect
     ) {
-      send_notification(
-        "appflowy_chat_plugin",
+      make_notification(
+        APPFLOWY_AI_NOTIFICATION_KEY,
         ChatNotification::UpdateChatPluginState,
       )
       .payload(ChatStatePB {
         model_type: ModelTypePB::LocalAI,
         available: false,
-      });
+      })
+      .send();
     }
   }
 }
@@ -106,7 +107,7 @@ impl ChatCloudService for ChatServiceMiddleware {
     chat_id: &str,
     message_id: i64,
   ) -> Result<StreamAnswer, FlowyError> {
-    if self.local_llm_controller.is_ready() {
+    if self.local_llm_controller.is_running() {
       let content = self.get_message_content(message_id)?;
       match self
         .local_llm_controller
@@ -137,7 +138,7 @@ impl ChatCloudService for ChatServiceMiddleware {
     chat_id: &str,
     question_message_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
-    if self.local_llm_controller.is_ready() {
+    if self.local_llm_controller.is_running() {
       let content = self.get_message_content(question_message_id)?;
       match self
         .local_llm_controller
@@ -182,7 +183,7 @@ impl ChatCloudService for ChatServiceMiddleware {
     chat_id: &str,
     message_id: i64,
   ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
-    if self.local_llm_controller.is_ready() {
+    if self.local_llm_controller.is_running() {
       FutureResult::new(async move {
         Ok(RepeatedRelatedQuestion {
           message_id,
@@ -202,7 +203,7 @@ impl ChatCloudService for ChatServiceMiddleware {
     text: &str,
     complete_type: CompletionType,
   ) -> Result<StreamComplete, FlowyError> {
-    if self.local_llm_controller.is_ready() {
+    if self.local_llm_controller.is_running() {
       return Err(
         FlowyError::not_support().with_context("completion with local ai is not supported yet"),
       );
@@ -220,7 +221,7 @@ impl ChatCloudService for ChatServiceMiddleware {
     file_path: PathBuf,
     chat_id: &str,
   ) -> Result<(), FlowyError> {
-    if self.local_llm_controller.is_ready() {
+    if self.local_llm_controller.is_running() {
       self
         .local_llm_controller
         .index_file(chat_id, file_path)

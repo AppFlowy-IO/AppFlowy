@@ -30,7 +30,7 @@ const wrapperCreator =
   (viewId: string, doc: YDoc, rowDocMap: Y.Map<YDoc>) =>
   ({ children }: { children: React.ReactNode }) => {
     return (
-      <DatabaseContextProvider viewId={viewId} databaseDoc={doc} rowDocMap={rowDocMap} readOnly={true}>
+      <DatabaseContextProvider iidIndex={viewId} viewId={viewId} databaseDoc={doc} rowDocMap={rowDocMap} readOnly={true}>
         {children}
       </DatabaseContextProvider>
     );

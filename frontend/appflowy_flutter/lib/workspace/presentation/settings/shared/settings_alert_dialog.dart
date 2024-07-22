@@ -21,6 +21,7 @@ class SettingsAlertDialog extends StatefulWidget {
     this.hideCancelButton = false,
     this.isDangerous = false,
     this.implyLeading = false,
+    this.enableConfirmNotifier,
   });
 
   final Widget? icon;
@@ -32,6 +33,7 @@ class SettingsAlertDialog extends StatefulWidget {
   final String? confirmLabel;
   final bool hideCancelButton;
   final bool isDangerous;
+  final ValueNotifier<bool>? enableConfirmNotifier;
 
   /// If true, a back button will show in the top left corner
   final bool implyLeading;
@@ -41,6 +43,37 @@ class SettingsAlertDialog extends StatefulWidget {
 }
 
 class _SettingsAlertDialogState extends State<SettingsAlertDialog> {
+  bool enableConfirm = true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.enableConfirmNotifier != null) {
+      widget.enableConfirmNotifier!.addListener(_updateEnableConfirm);
+      enableConfirm = widget.enableConfirmNotifier!.value;
+    }
+  }
+
+  void _updateEnableConfirm() {
+    setState(() => enableConfirm = widget.enableConfirmNotifier!.value);
+  }
+
+  @override
+  void dispose() {
+    if (widget.enableConfirmNotifier != null) {
+      widget.enableConfirmNotifier!.removeListener(_updateEnableConfirm);
+    }
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant SettingsAlertDialog oldWidget) {
+    oldWidget.enableConfirmNotifier?.removeListener(_updateEnableConfirm);
+    widget.enableConfirmNotifier?.addListener(_updateEnableConfirm);
+    enableConfirm = widget.enableConfirmNotifier?.value ?? true;
+    super.didUpdateWidget(oldWidget);
+  }
+
   @override
   Widget build(BuildContext context) {
     return StyledDialog(
@@ -136,6 +169,7 @@ class _SettingsAlertDialogState extends State<SettingsAlertDialog> {
             cancel: widget.cancel,
             confirm: widget.confirm,
             isDangerous: widget.isDangerous,
+            enableConfirm: enableConfirm,
           ),
         ],
       ),
@@ -150,6 +184,7 @@ class _Actions extends StatelessWidget {
     this.cancel,
     this.confirm,
     this.isDangerous = false,
+    this.enableConfirm = true,
   });
 
   final bool hideCancelButton;
@@ -157,6 +192,7 @@ class _Actions extends StatelessWidget {
   final VoidCallback? cancel;
   final VoidCallback? confirm;
   final bool isDangerous;
+  final bool enableConfirm;
 
   @override
   Widget build(BuildContext context) {
@@ -197,14 +233,18 @@ class _Actions extends StatelessWidget {
               ),
               radius: Corners.s12Border,
               fontColor: isDangerous ? Colors.white : null,
-              fontHoverColor: Colors.white,
-              fillColor: isDangerous
-                  ? Theme.of(context).colorScheme.error
-                  : Theme.of(context).colorScheme.primary,
-              hoverColor: isDangerous
-                  ? Theme.of(context).colorScheme.error
-                  : const Color(0xFF005483),
-              onPressed: confirm,
+              fontHoverColor: !enableConfirm ? null : Colors.white,
+              fillColor: !enableConfirm
+                  ? Theme.of(context).dividerColor
+                  : isDangerous
+                      ? Theme.of(context).colorScheme.error
+                      : Theme.of(context).colorScheme.primary,
+              hoverColor: !enableConfirm
+                  ? Theme.of(context).dividerColor
+                  : isDangerous
+                      ? Theme.of(context).colorScheme.error
+                      : const Color(0xFF005483),
+              onPressed: enableConfirm ? confirm : null,
             ),
           ),
         ],

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
@@ -26,18 +25,22 @@ class SettingsDialog extends StatelessWidget {
     required this.dismissDialog,
     required this.didLogout,
     required this.restartApp,
+    this.initPage, 
   }) : super(key: ValueKey(user.id));
 
   final VoidCallback dismissDialog;
   final VoidCallback didLogout;
   final VoidCallback restartApp;
   final UserProfilePB user;
+  final SettingsPage? initPage;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsDialogBloc>(
-      create: (context) => getIt<SettingsDialogBloc>(param1: user)
-        ..add(const SettingsDialogEvent.initial()),
+      create: (context) => SettingsDialogBloc(
+        user,
+        initPage: initPage,
+      )..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
         builder: (context, state) => FlowyDialog(
           width: MediaQuery.of(context).size.width * 0.7,
@@ -120,7 +123,10 @@ class SettingsDialog extends StatelessWidget {
           return const AIFeatureOnlySupportedWhenUsingAppFlowyCloud();
         }
       case SettingsPage.member:
-        return WorkspaceMembersPage(userProfile: user);
+        return WorkspaceMembersPage(
+          userProfile: user,
+          workspaceId: workspaceId,
+        );
       case SettingsPage.plan:
         return SettingsPlanView(workspaceId: workspaceId, user: user);
       case SettingsPage.billing:

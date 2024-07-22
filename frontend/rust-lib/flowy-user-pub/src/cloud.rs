@@ -1,3 +1,9 @@
+use client_api::entity::billing_dto::RecurringInterval;
+use client_api::entity::billing_dto::SubscriptionPlan;
+use client_api::entity::billing_dto::SubscriptionPlanDetail;
+pub use client_api::entity::billing_dto::SubscriptionStatus;
+use client_api::entity::billing_dto::WorkspaceSubscriptionStatus;
+use client_api::entity::billing_dto::WorkspaceUsageAndLimit;
 pub use client_api::entity::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
 use collab_entity::{CollabObject, CollabType};
 use flowy_error::{internal_error, ErrorCode, FlowyError};
@@ -13,9 +19,8 @@ use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
 use crate::entities::{
-  AuthResponse, Authenticator, RecurringInterval, Role, SubscriptionPlan, UpdateUserProfileParams,
-  UserCredentials, UserProfile, UserTokenState, UserWorkspace, WorkspaceInvitation,
-  WorkspaceInvitationStatus, WorkspaceMember, WorkspaceSubscription, WorkspaceUsage,
+  AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
+  UserTokenState, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -281,19 +286,58 @@ pub trait UserCloudService: Send + Sync + 'static {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
-  fn get_workspace_subscriptions(&self) -> FutureResult<Vec<WorkspaceSubscription>, FlowyError> {
+  /// Get all subscriptions for all workspaces for a user (email)
+  fn get_workspace_subscriptions(
+    &self,
+  ) -> FutureResult<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
-  fn cancel_workspace_subscription(&self, workspace_id: String) -> FutureResult<(), FlowyError> {
+  /// Get the workspace subscriptions for a workspace
+  fn get_workspace_subscription_one(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<Vec<WorkspaceSubscriptionStatus>, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
-  fn get_workspace_usage(&self, workspace_id: String) -> FutureResult<WorkspaceUsage, FlowyError> {
+  fn cancel_workspace_subscription(
+    &self,
+    workspace_id: String,
+    plan: SubscriptionPlan,
+    reason: Option<String>,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
+  fn get_workspace_plan(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<Vec<SubscriptionPlan>, FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
+  fn get_workspace_usage(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<WorkspaceUsageAndLimit, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 
   fn get_billing_portal_url(&self) -> FutureResult<String, FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
+  fn update_workspace_subscription_payment_period(
+    &self,
+    workspace_id: String,
+    plan: SubscriptionPlan,
+    recurring_interval: RecurringInterval,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
+  fn get_subscription_plan_details(&self) -> FutureResult<Vec<SubscriptionPlanDetail>, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 

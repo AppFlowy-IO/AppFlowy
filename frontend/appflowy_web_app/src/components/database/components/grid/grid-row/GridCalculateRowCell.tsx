@@ -2,38 +2,44 @@ import { YjsDatabaseKey } from '@/application/collab.type';
 import { useDatabaseView } from '@/application/database-yjs';
 import { CalculationType } from '@/application/database-yjs/database.type';
 import { CalculationCell, ICalculationCell } from '../grid-calculation-cell';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 export interface GridCalculateRowCellProps {
   fieldId: string;
 }
 
 export function GridCalculateRowCell({ fieldId }: GridCalculateRowCellProps) {
-  const calculations = useDatabaseView()?.get(YjsDatabaseKey.calculations);
+  const databaseView = useDatabaseView();
   const [calculation, setCalculation] = useState<ICalculationCell>();
 
-  useEffect(() => {
+  const handleObserver = useCallback(() => {
+    const calculations = databaseView?.get(YjsDatabaseKey.calculations);
+
     if (!calculations) return;
+    calculations.forEach((calculation) => {
+      if (calculation.get(YjsDatabaseKey.field_id) === fieldId) {
+        setCalculation({
+          id: calculation.get(YjsDatabaseKey.id),
+          fieldId: calculation.get(YjsDatabaseKey.field_id),
+          value: calculation.get(YjsDatabaseKey.calculation_value),
+          type: Number(calculation.get(YjsDatabaseKey.type)) as CalculationType,
+        });
+      }
+    });
+  }, [databaseView, fieldId]);
+
+  useEffect(() => {
     const observerHandle = () => {
-      calculations.forEach((calculation) => {
-        if (calculation.get(YjsDatabaseKey.field_id) === fieldId) {
-          setCalculation({
-            id: calculation.get(YjsDatabaseKey.id),
-            fieldId: calculation.get(YjsDatabaseKey.field_id),
-            value: calculation.get(YjsDatabaseKey.calculation_value),
-            type: Number(calculation.get(YjsDatabaseKey.type)) as CalculationType,
-          });
-        }
-      });
+      handleObserver();
     };
 
     observerHandle();
-    calculations.observeDeep(observerHandle);
+    databaseView?.observeDeep(handleObserver);
 
     return () => {
-      calculations.unobserveDeep(observerHandle);
+      databaseView?.observeDeep(handleObserver);
     };
-  }, [calculations, fieldId]);
+  }, [databaseView, fieldId, handleObserver]);
   return <CalculationCell cell={calculation} />;
 }
 

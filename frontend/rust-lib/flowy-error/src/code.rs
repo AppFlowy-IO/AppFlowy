@@ -286,6 +286,18 @@ pub enum ErrorCode {
 
   #[error("Local AI unavailable")]
   LocalAIUnavailable = 99,
+
+  #[error("File storage limit exceeded")]
+  FileStorageLimitExceeded = 100,
+
+  #[error("AI Response limit exceeded")]
+  AIResponseLimitExceeded = 101,
+
+  #[error("Duplicate record")]
+  DuplicateSqliteRecord = 102,
+
+  #[error("Response timeout")]
+  ResponseTimeout = 103,
 }
 
 impl ErrorCode {

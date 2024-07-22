@@ -93,6 +93,17 @@ impl DatabaseEditor {
     self.database_views.close_view(view_id).await;
   }
 
+  pub fn get_row_ids(&self) -> Vec<RowId> {
+    self
+      .database
+      .lock()
+      .block
+      .rows
+      .iter()
+      .map(|entry| entry.key().clone())
+      .collect()
+  }
+
   pub async fn num_views(&self) -> usize {
     self.database_views.num_editors().await
   }

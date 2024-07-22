@@ -11,7 +11,11 @@ part 'plugin_state_bloc.freezed.dart';
 class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
   PluginStateBloc()
       : listener = LocalLLMListener(),
-        super(const PluginStateState(action: PluginStateAction.init())) {
+        super(
+          const PluginStateState(
+            action: PluginStateAction.init(),
+          ),
+        ) {
     listener.start(
       stateCallback: (pluginState) {
         if (!isClosed) {
@@ -37,7 +41,7 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
   ) async {
     await event.when(
       started: () async {
-        final result = await ChatEventGetPluginState().send();
+        final result = await ChatEventGetLocalAIPluginState().send();
         result.fold(
           (pluginState) {
             if (!isClosed) {
@@ -47,20 +51,24 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
           (err) => Log.error(err.toString()),
         );
       },
-      updateState: (PluginStatePB pluginState) {
+      updateState: (LocalAIPluginStatePB pluginState) {
         switch (pluginState.state) {
+          case RunningStatePB.Connecting:
+            emit(
+              const PluginStateState(action: PluginStateAction.loadingPlugin()),
+            );
           case RunningStatePB.Running:
             emit(const PluginStateState(action: PluginStateAction.ready()));
             break;
           default:
             emit(
-              state.copyWith(action: const PluginStateAction.reloadRequired()),
+              state.copyWith(action: const PluginStateAction.restart()),
             );
             break;
         }
       },
       restartLocalAI: () {
-        ChatEventRestartLocalAI().send();
+        ChatEventRestartLocalAIChat().send();
       },
     );
   }
@@ -69,7 +77,7 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
 @freezed
 class PluginStateEvent with _$PluginStateEvent {
   const factory PluginStateEvent.started() = _Started;
-  const factory PluginStateEvent.updateState(PluginStatePB pluginState) =
+  const factory PluginStateEvent.updateState(LocalAIPluginStatePB pluginState) =
       _UpdatePluginState;
   const factory PluginStateEvent.restartLocalAI() = _RestartLocalAI;
 }
@@ -83,6 +91,7 @@ class PluginStateState with _$PluginStateState {
 @freezed
 class PluginStateAction with _$PluginStateAction {
   const factory PluginStateAction.init() = _Init;
+  const factory PluginStateAction.loadingPlugin() = _LoadingPlugin;
   const factory PluginStateAction.ready() = _Ready;
-  const factory PluginStateAction.reloadRequired() = _ReloadRequired;
+  const factory PluginStateAction.restart() = _Restart;
 }

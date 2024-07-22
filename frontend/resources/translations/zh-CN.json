@@ -65,6 +65,7 @@
     "logIn": "登陆",
     "generalError": "出现错误，请稍后再试",
     "limitRateError": "出于安全原因，每60秒仅可以发送一次链接",
+    "magicLinkSentDescription": "一个验证链接已发送到您的电子邮箱。点击该链接即可完成登录。该链接将在 5 分钟后失效。",
     "LogInWithGoogle": "使用 Google 登录",
     "LogInWithGithub": "使用 Github 登录",
     "LogInWithDiscord": "使用 Discord 登录",
@@ -111,7 +112,15 @@
     "html": "HTML",
     "clipboard": "拷贝到剪贴板",
     "csv": "CSV",
-    "copyLink": "复制链接"
+    "copyLink": "复制链接",
+    "publishToTheWeb": "发布至网络",
+    "publishToTheWebHint": "利用AppFlowy创建一个网站",
+    "publish": "发布",
+    "unPublish": "取消发布",
+    "visitSite": "访问网站",
+    "exportAsTab": "导出为",
+    "publishTab": "发布",
+    "shareTab": "分享"
   },
   "moreAction": {
     "small": "小",
@@ -157,6 +166,7 @@
     "unsupportedCloudPrompt": "该功能仅在使用 @:appName Cloud 时可用",
     "relatedQuestion": "相关问题",
     "serverUnavailable": "服务暂时不可用，请稍后再试",
+    "aiServerUnavailable": "🌈 不妙！🌈 一只独角兽吃掉了我们的回复。请重试！",
     "clickToRetry": "点击重试",
     "regenerateAnswer": "重新生成",
     "question1": "如何使用 Kanban 来管理任务",
@@ -244,6 +254,7 @@
     "viewDataBase": "查看数据库",
     "referencePage": "这个 {name} 正在被引用",
     "addBlockBelow": "在下面添加一个块",
+    "aiGenerate": "生成",
     "urlLaunchAccessory": "在浏览器中打开",
     "urlCopyAccessory": "复制链接"
   },
@@ -254,6 +265,8 @@
     "private": "私人的",
     "workspace": "工作区",
     "favorites": "收藏夹",
+    "clickToHidePrivate": "点击以隐藏私人空间\n您在此处创建的页面仅对您可见",
+    "clickToHideWorkspace": "点击以隐藏私人空间\n您在此处创建的页面对所有人可见",
     "clickToHidePersonal": "点击隐藏个人部分",
     "clickToHideFavorites": "单击隐藏收藏夹栏目",
     "addAPage": "添加页面",
@@ -362,13 +375,6 @@
         "title": "登录账户",
         "loginLabel": "登录",
         "logoutLabel": "退出登录"
-      },
-      "keys": {
-        "title": "AI API 密钥",
-        "openAILabel": "OpenAI API 密钥",
-        "openAIHint": "输入你的 OpenAI API Key",
-        "stabilityAILabel": "Stability API key",
-        "stabilityAIHint": "输入你的 Stability API Key"
       },
       "description": "自定义您的简介，管理账户安全信息和 AI API keys，或登陆您的账户"
     },
@@ -681,7 +687,7 @@
       "email": "电子邮件",
       "tooltipSelectIcon": "选择图标",
       "selectAnIcon": "选择一个图标",
-      "pleaseInputYourOpenAIKey": "请输入您的 OpenAI 密钥",
+      "pleaseInputYourOpenAIKey": "请输入您的 AI 密钥",
       "pleaseInputYourStabilityAIKey": "请输入您的 Stability AI 密钥",
       "clickToLogout": "点击退出当前用户"
     },
@@ -1009,23 +1015,23 @@
       "referencedGrid": "引用的网格",
       "referencedCalendar": "引用的日历",
       "referencedDocument": "参考文档",
-      "autoGeneratorMenuItemName": "OpenAI 创作",
-      "autoGeneratorTitleName": "OpenAI: 让 AI 写些什么...",
+      "autoGeneratorMenuItemName": "AI 创作",
+      "autoGeneratorTitleName": "AI: 让 AI 写些什么...",
       "autoGeneratorLearnMore": "学习更多",
       "autoGeneratorGenerate": "生成",
-      "autoGeneratorHintText": "让 OpenAI ...",
-      "autoGeneratorCantGetOpenAIKey": "无法获得 OpenAI 密钥",
+      "autoGeneratorHintText": "让 AI ...",
+      "autoGeneratorCantGetOpenAIKey": "无法获得 AI 密钥",
       "autoGeneratorRewrite": "重写",
       "smartEdit": "AI 助手",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "修正拼写",
       "warning": "⚠️ AI 可能不准确或具有误导性.",
       "smartEditSummarize": "总结",
       "smartEditImproveWriting": "提高写作水平",
       "smartEditMakeLonger": "丰富内容",
-      "smartEditCouldNotFetchResult": "无法从 OpenAI 获取到结果",
-      "smartEditCouldNotFetchKey": "无法获取到 OpenAI 密钥",
-      "smartEditDisabled": "在设置中连接 OpenAI",
+      "smartEditCouldNotFetchResult": "无法从 AI 获取到结果",
+      "smartEditCouldNotFetchKey": "无法获取到 AI 密钥",
+      "smartEditDisabled": "在设置中连接 AI",
       "discardResponse": "您是否要放弃 AI 继续写作?",
       "createInlineMathEquation": "创建方程",
       "fonts": "字体",
@@ -1143,8 +1149,8 @@
         "placeholder": "输入图片网址"
       },
       "ai": {
-        "label": "从 OpenAI 生成图像",
-        "placeholder": "请输入 OpenAI 生成图像的提示"
+        "label": "从 AI 生成图像",
+        "placeholder": "请输入 AI 生成图像的提示"
       },
       "stability_ai": {
         "label": "从 Stability AI 生成图像",
@@ -1166,7 +1172,7 @@
         "label": "Unsplash"
       },
       "searchForAnImage": "搜索图像",
-      "pleaseInputYourOpenAIKey": "请在设置页面输入您的 OpenAI 密钥",
+      "pleaseInputYourOpenAIKey": "请在设置页面输入您的 AI 密钥",
       "pleaseInputYourStabilityAIKey": "请在设置页面输入您的 Stability AI 密钥",
       "saveImageToGallery": "保存图片",
       "failedToAddImageToGallery": "无法将图像添加到图库",

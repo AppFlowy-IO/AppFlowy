@@ -1,7 +1,6 @@
 import { CalendarEvent } from '@/application/database-yjs';
 import { RichTooltip } from '@/components/_shared/popover';
 import NoDateRow from '@/components/database/components/calendar/toolbar/NoDateRow';
-import Button from '@mui/material/Button';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -11,7 +10,7 @@ function NoDate({ emptyEvents }: { emptyEvents: CalendarEvent[] }) {
   const content = useMemo(() => {
     return (
       <div className={'flex w-[260px] flex-col gap-3 p-2 text-xs font-medium'}>
-        <div className={'text-text-caption'}>{t('calendar.settings.clickToOpen')}</div>
+        {/*<div className={'text-text-caption'}>{t('calendar.settings.clickToOpen')}</div>*/}
         {emptyEvents.map((event) => {
           const rowId = event.id.split(':')[0];
 
@@ -19,7 +18,7 @@ function NoDate({ emptyEvents }: { emptyEvents: CalendarEvent[] }) {
         })}
       </div>
     );
-  }, [emptyEvents, t]);
+  }, [emptyEvents]);
 
   return (
     <RichTooltip
@@ -30,15 +29,12 @@ function NoDate({ emptyEvents }: { emptyEvents: CalendarEvent[] }) {
         setOpen(false);
       }}
     >
-      <Button
-        size={'small'}
-        variant={'outlined'}
-        className={'whitespace-nowrap rounded-md border-line-divider'}
-        color={'inherit'}
-        onClick={() => setOpen(true)}
+      <span
+        className={' whitespace-nowrap rounded-md border border-line-divider border-line-divider p-1 px-2'}
+        // onClick={() => setOpen(true)}
       >
         {`${t('calendar.settings.noDateTitle')} (${emptyEvents.length})`}
-      </Button>
+      </span>
     </RichTooltip>
   );
 }

@@ -18,6 +18,8 @@ export enum FieldType {
   LastEditedTime = 8,
   CreatedTime = 9,
   Relation = 10,
+  AISummaries = 11,
+  AITranslations = 12,
 }
 
 export enum CalculationType {

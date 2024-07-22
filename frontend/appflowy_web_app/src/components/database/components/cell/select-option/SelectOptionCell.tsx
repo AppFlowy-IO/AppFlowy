@@ -31,10 +31,7 @@ export function SelectOptionCell({ cell, fieldId, style, placeholder }: CellProp
     ) : null;
 
   return (
-    <div
-      style={style}
-      className={'select-option-cell flex h-full w-full cursor-pointer items-center gap-1 overflow-x-hidden'}
-    >
+    <div style={style} className={'select-option-cell flex h-full w-full items-center gap-1 overflow-x-hidden'}>
       {renderSelectedOptions(selectOptionIds)}
     </div>
   );

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import "package:appflowy/generated/locale_keys.g.dart";
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
@@ -7,18 +5,19 @@ import 'package:appflowy/plugins/database/application/field/field_controller.dar
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_bloc.dart';
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../widgets/row/accessory/cell_accessory.dart';
 import '../../../../widgets/row/cells/cell_container.dart';
 import '../../layout/sizes.dart';
-
 import 'action.dart';
 
 class GridRow extends StatefulWidget {
@@ -112,7 +111,9 @@ class _RowLeadingState extends State<_RowLeading> {
       child: Consumer<RegionStateNotifier>(
         builder: (context, state, _) {
           return SizedBox(
-            width: GridSize.horizontalHeaderPadding + 40,
+            width: context
+                .read<DatabasePluginWidgetBuilderSize>()
+                .horizontalPadding,
             child: state.onEnter ? _activeWidget() : null,
           );
         },

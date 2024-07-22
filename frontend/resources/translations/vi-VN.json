@@ -465,7 +465,7 @@
       "email": "Email",
       "tooltipSelectIcon": "Chọn biểu tượng",
       "selectAnIcon": "Chọn một biểu tượng",
-      "pleaseInputYourOpenAIKey": "vui lòng nhập khóa OpenAI của bạn",
+      "pleaseInputYourOpenAIKey": "vui lòng nhập khóa AI của bạn",
       "pleaseInputYourStabilityAIKey": "vui lòng nhập khóa Stability AI của bạn",
       "clickToLogout": "Nhấn để đăng xuất"
     },
@@ -675,7 +675,7 @@
       }
     },
     "plugins": {
-      "openAI": "OpenAI",
+      "aI": "AI",
       "optionAction": {
         "delete": "Xóa",
         "color": "Màu",

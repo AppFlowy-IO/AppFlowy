@@ -72,6 +72,14 @@ impl FlowyError {
     self.code == ErrorCode::LocalVersionNotSupport
   }
 
+  pub fn is_file_limit_exceeded(&self) -> bool {
+    self.code == ErrorCode::FileStorageLimitExceeded
+  }
+
+  pub fn is_ai_response_limit_exceeded(&self) -> bool {
+    self.code == ErrorCode::AIResponseLimitExceeded
+  }
+
   static_flowy_error!(internal, ErrorCode::Internal);
   static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
   static_flowy_error!(workspace_initialize, ErrorCode::WorkspaceInitializeError);
@@ -120,6 +128,8 @@ impl FlowyError {
   static_flowy_error!(workspace_data_not_match, ErrorCode::WorkspaceDataNotMatch);
   static_flowy_error!(local_ai, ErrorCode::LocalAIError);
   static_flowy_error!(local_ai_unavailable, ErrorCode::LocalAIUnavailable);
+  static_flowy_error!(response_timeout, ErrorCode::ResponseTimeout);
+  static_flowy_error!(file_storage_limit, ErrorCode::FileStorageLimitExceeded);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
@@ -185,6 +195,12 @@ impl From<JoinError> for FlowyError {
 
 impl From<tokio::sync::oneshot::error::RecvError> for FlowyError {
   fn from(e: tokio::sync::oneshot::error::RecvError) -> Self {
+    FlowyError::internal().with_context(e)
+  }
+}
+
+impl From<String> for FlowyError {
+  fn from(e: String) -> Self {
     FlowyError::internal().with_context(e)
   }
 }

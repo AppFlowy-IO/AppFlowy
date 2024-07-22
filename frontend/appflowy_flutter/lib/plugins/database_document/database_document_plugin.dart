@@ -104,6 +104,7 @@ class DatabaseDocumentPluginWidgetBuilder extends PluginWidgetBuilder
   Widget buildWidget({
     required PluginContext context,
     required bool shrinkWrap,
+    Map<String, dynamic>? data,
   }) {
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
       builder: (_, state) => DatabaseDocumentPage(

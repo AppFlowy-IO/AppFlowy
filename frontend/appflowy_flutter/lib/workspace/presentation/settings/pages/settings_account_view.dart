@@ -10,7 +10,6 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/magic_link_sign_in_buttons.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_input_field.dart';
@@ -210,18 +209,19 @@ class SignInOutButton extends StatelessWidget {
               if (signIn) {
                 _showSignInDialog(context);
               } else {
-                SettingsAlertDialog(
+                showConfirmDialog(
+                  context: context,
                   title: LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
-                  subtitle: switch (userProfile.encryptionType) {
+                  description: switch (userProfile.encryptionType) {
                     EncryptionTypePB.Symmetric =>
                       LocaleKeys.settings_menu_selfEncryptionLogoutPrompt.tr(),
                     _ => LocaleKeys.settings_menu_logoutPrompt.tr(),
                   },
-                  confirm: () async {
+                  onConfirm: () async {
                     await getIt<AuthService>().signOut();
                     onAction();
                   },
-                ).show(context);
+                );
               }
             },
           ),
