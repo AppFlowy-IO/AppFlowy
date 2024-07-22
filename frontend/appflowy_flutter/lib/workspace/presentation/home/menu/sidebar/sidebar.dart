@@ -343,12 +343,7 @@ class _SidebarState extends State<_Sidebar> {
             ),
             const VSpace(8),
 
-            Column(
-              children: [
-                // ai pay button
-                _renderUpgradeSpaceButton(menuHorizontalInset),
-              ],
-            ),
+            _renderUpgradeSpaceButton(menuHorizontalInset),
 
             const VSpace(8),
             Padding(

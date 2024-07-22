@@ -34,8 +34,4 @@ extension FlowyAsyncResultExtension<S, F extends Object>
   FlowyAsyncResult<S, F> onFailure(void Function(F failure) onFailure) {
     return then((result) => result..onFailure(onFailure));
   }
-
-  FlowyAsyncResult<S, F> onSuccess(void Function(S success) onSuccess) {
-    return then((result) => result..onSuccess(onSuccess));
-  }
 }
