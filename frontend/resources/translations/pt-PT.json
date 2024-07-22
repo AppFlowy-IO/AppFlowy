@@ -362,7 +362,7 @@
       "email": "E-mail",
       "tooltipSelectIcon": "Selecione o ícone",
       "selectAnIcon": "Selecione um ícone",
-      "pleaseInputYourOpenAIKey": "por favor insira sua chave OpenAI",
+      "pleaseInputYourOpenAIKey": "por favor insira sua chave AI",
       "pleaseInputYourStabilityAIKey": "por favor, insira a sua chave Stability AI",
       "clickToLogout": "Clique para fazer logout"
     },
@@ -561,23 +561,23 @@
       "referencedBoard": "Conselho Referenciado",
       "referencedGrid": "grade referenciada",
       "referencedCalendar": "calendário referenciado",
-      "autoGeneratorMenuItemName": "OpenAI Writer",
-      "autoGeneratorTitleName": "OpenAI: Peça à IA para escrever qualquer coisa...",
+      "autoGeneratorMenuItemName": "AI Writer",
+      "autoGeneratorTitleName": "AI: Peça à IA para escrever qualquer coisa...",
       "autoGeneratorLearnMore": "Saber mais",
       "autoGeneratorGenerate": "Gerar",
-      "autoGeneratorHintText": "Pergunte ao OpenAI...",
-      "autoGeneratorCantGetOpenAIKey": "Não é possível obter a chave OpenAI",
+      "autoGeneratorHintText": "Pergunte ao AI...",
+      "autoGeneratorCantGetOpenAIKey": "Não é possível obter a chave AI",
       "autoGeneratorRewrite": "Reescrever",
       "smartEdit": "Assistentes de IA",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "corrigir ortografia",
       "warning": "⚠️ As respostas da IA podem ser imprecisas ou enganosas.",
       "smartEditSummarize": "Resumir",
       "smartEditImproveWriting": "melhorar a escrita",
       "smartEditMakeLonger": "Faça mais",
-      "smartEditCouldNotFetchResult": "Não foi possível obter o resultado do OpenAI",
-      "smartEditCouldNotFetchKey": "Não foi possível obter a chave OpenAI",
-      "smartEditDisabled": "Conecte OpenAI em Configurações",
+      "smartEditCouldNotFetchResult": "Não foi possível obter o resultado do AI",
+      "smartEditCouldNotFetchKey": "Não foi possível obter a chave AI",
+      "smartEditDisabled": "Conecte AI em Configurações",
       "discardResponse": "Deseja descartar as respostas de IA?",
       "createInlineMathEquation": "Criar equação",
       "toggleList": "Alternar lista",
@@ -662,8 +662,8 @@
         "placeholder": "Insira o URL da imagem"
       },
       "ai": {
-        "label": "Gerar imagem da OpenAI",
-        "placeholder": "Por favor, insira o comando para a OpenAI gerar a imagem"
+        "label": "Gerar imagem da AI",
+        "placeholder": "Por favor, insira o comando para a AI gerar a imagem"
       },
       "stability_ai": {
         "label": "Gerar imagem da Stability AI",
@@ -681,7 +681,7 @@
         "placeholder": "Cole ou digite uma hiperligação de imagem"
       },
       "searchForAnImage": "Procure uma imagem",
-      "pleaseInputYourOpenAIKey": "por favor, insira a sua chave OpenAI na página Configurações",
+      "pleaseInputYourOpenAIKey": "por favor, insira a sua chave AI na página Configurações",
       "pleaseInputYourStabilityAIKey": "por favor, insira a sua chave Stability AI na página Configurações"
     },
     "codeBlock": {

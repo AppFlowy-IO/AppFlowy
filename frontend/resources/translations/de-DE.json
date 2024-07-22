@@ -380,15 +380,6 @@
         "loginLabel": "Anmeldung",
         "logoutLabel": "Ausloggen"
       },
-      "keys": {
-        "title": "KI API-Schlüssel",
-        "openAILabel": "OpenAI API-Schlüssel",
-        "openAITooltip": "Der für die KI-Modelle zu verwendende OpenAI-API-Schlüssel",
-        "openAIHint": "OpenAI API-Schlüssel eingeben",
-        "stabilityAILabel": "Stability API-Schlüssel",
-        "stabilityAITooltip": "Der für die KI-Modelle zu verwendende Stability API-Schlüssel",
-        "stabilityAIHint": "Stability API-Schlüssel eingeben"
-      },
       "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und KI API-Schlüssel oder melde dich bei deinem Konto an."
     },
     "workspacePage": {
@@ -633,13 +624,7 @@
         "aiSettingsDescription": "Wähle oder konfiguriere KI-Modelle, die in @:appName verwendet werden. Für eine optimale Leistung empfehlen wir die Verwendung der Standardmodelloptionen",
         "loginToEnableAIFeature": "KI-Funktionen werden erst nach der Anmeldung bei @:appName Cloud aktiviert. Wenn du kein @:appName-Konto hast, gehe zu „Mein Konto“, um dich zu registrieren",
         "llmModel": "Sprachmodell",
-        "title": "KI-API-Schlüssel",
-        "openAILabel": "OpenAI API-Schlüssel",
-        "openAITooltip": "Du findest deinen geheimen API-Schlüssel auf der API-Schlüsselseite",
-        "openAIHint": "Gebe deinen OpenAI API-Schlüssel ein",
-        "stabilityAILabel": "Stability API-Schlüssel",
-        "stabilityAITooltip": "Dein Stability API-Schlüssel, der zur Authentifizierung deiner Anfragen verwendet wird",
-        "stabilityAIHint": "Gebe deinen Stability API-Schlüssel ein"
+        "title": "KI-API-Schlüssel"
       }
     },
     "planPage": {
@@ -994,7 +979,7 @@
       "email": "E-Mail",
       "tooltipSelectIcon": "Symbol auswählen",
       "selectAnIcon": "Ein Symbol auswählen",
-      "pleaseInputYourOpenAIKey": "Bitte gebe den OpenAI-Schlüssel ein",
+      "pleaseInputYourOpenAIKey": "Bitte gebe den AI-Schlüssel ein",
       "pleaseInputYourStabilityAIKey": "Bitte gebe den Stability AI Schlüssel ein",
       "clickToLogout": "Klicken, um den aktuellen Nutzer auszulogen"
     },
@@ -1331,23 +1316,23 @@
       "referencedGrid": "Referenziertes Raster",
       "referencedCalendar": "Referenzierter Kalender",
       "referencedDocument": "Referenziertes Dokument",
-      "autoGeneratorMenuItemName": "OpenAI-Autor",
-      "autoGeneratorTitleName": "OpenAI: Die KI bitten, etwas zu schreiben ...",
+      "autoGeneratorMenuItemName": "AI-Autor",
+      "autoGeneratorTitleName": "AI: Die KI bitten, etwas zu schreiben ...",
       "autoGeneratorLearnMore": "Mehr erfahren",
       "autoGeneratorGenerate": "Erstellen",
-      "autoGeneratorHintText": "OpenAI fragen ...",
-      "autoGeneratorCantGetOpenAIKey": "Der OpenAI-Schlüssel kann nicht abgerufen werden",
+      "autoGeneratorHintText": "AI fragen ...",
+      "autoGeneratorCantGetOpenAIKey": "Der AI-Schlüssel kann nicht abgerufen werden",
       "autoGeneratorRewrite": "Umschreiben",
       "smartEdit": "KI-Assistenten",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "Korrigiere Rechtschreibung",
       "warning": "⚠️ KI-Antworten können ungenau oder irreführend sein.",
       "smartEditSummarize": "Zusammenfassen",
       "smartEditImproveWriting": "Das Geschriebene verbessern",
       "smartEditMakeLonger": "Länger machen",
-      "smartEditCouldNotFetchResult": "Das Ergebnis konnte nicht von OpenAI abgerufen werden",
-      "smartEditCouldNotFetchKey": "Der OpenAI-Schlüssel konnte nicht abgerufen werden",
-      "smartEditDisabled": "OpenAI in den Einstellungen verbinden",
+      "smartEditCouldNotFetchResult": "Das Ergebnis konnte nicht von AI abgerufen werden",
+      "smartEditCouldNotFetchKey": "Der AI-Schlüssel konnte nicht abgerufen werden",
+      "smartEditDisabled": "AI in den Einstellungen verbinden",
       "appflowyAIEditDisabled": "Melde dich an, um KI-Funktionen zu aktivieren",
       "discardResponse": "Möchtest du die KI-Antworten verwerfen?",
       "createInlineMathEquation": "Formel erstellen",
@@ -1474,8 +1459,8 @@
         "placeholder": "Bild-URL eingeben"
       },
       "ai": {
-        "label": "Bild mit OpenAI erstellen",
-        "placeholder": "Bitte den Prompt für OpenAI eingeben, um ein Bild zu erstellen"
+        "label": "Bild mit AI erstellen",
+        "placeholder": "Bitte den Prompt für AI eingeben, um ein Bild zu erstellen"
       },
       "stability_ai": {
         "label": "Bild mit Stability AI erstellen",
@@ -1497,7 +1482,7 @@
         "label": "Unsplash"
       },
       "searchForAnImage": "Nach einem Bild suchen",
-      "pleaseInputYourOpenAIKey": "biitte den OpenAI Schlüssel in der Einstellungsseite eingeben",
+      "pleaseInputYourOpenAIKey": "biitte den AI Schlüssel in der Einstellungsseite eingeben",
       "pleaseInputYourStabilityAIKey": "biitte den Stability AI Schlüssel in der Einstellungsseite eingeben",
       "saveImageToGallery": "Bild speichern",
       "failedToAddImageToGallery": "Das Bild konnte nicht zur Galerie hinzugefügt werden",

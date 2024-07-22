@@ -653,14 +653,7 @@
         "restartLocalAI": "Restart Local AI",
         "disableLocalAIDialog": "Do you want to disable local AI?",
         "localAIToggleTitle": "Toggle to enable or disable local AI",
-        "fetchLocalModel": "Fetch local model configuration",
-        "title": "AI API Keys",
-        "openAILabel": "OpenAI API key",
-        "openAITooltip": "You can find your Secret API key on the API key page",
-        "openAIHint": "Input your OpenAI API Key",
-        "stabilityAILabel": "Stability API key",
-        "stabilityAITooltip": "Your Stability API key, used to authenticate your requests",
-        "stabilityAIHint": "Input your Stability API Key"
+        "fetchLocalModel": "Fetch local model configuration"
       }
     },
     "planPage": {
@@ -1054,7 +1047,7 @@
       "email": "Email",
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
-      "pleaseInputYourOpenAIKey": "please input your OpenAI key",
+      "pleaseInputYourOpenAIKey": "please input your AI key",
       "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
       "clickToLogout": "Click to logout the current user"
     },
@@ -1369,23 +1362,23 @@
       "referencedGrid": "Referenced Grid",
       "referencedCalendar": "Referenced Calendar",
       "referencedDocument": "Referenced Document",
-      "autoGeneratorMenuItemName": "OpenAI Writer",
-      "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
+      "autoGeneratorMenuItemName": "AI Writer",
+      "autoGeneratorTitleName": "AI: Ask AI to write anything...",
       "autoGeneratorLearnMore": "Learn more",
       "autoGeneratorGenerate": "Generate",
-      "autoGeneratorHintText": "Ask OpenAI ...",
-      "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
+      "autoGeneratorHintText": "Ask AI ...",
+      "autoGeneratorCantGetOpenAIKey": "Can't get AI key",
       "autoGeneratorRewrite": "Rewrite",
       "smartEdit": "AI Assistants",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "Fix spelling",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
       "smartEditImproveWriting": "Improve writing",
       "smartEditMakeLonger": "Make longer",
-      "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
-      "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
-      "smartEditDisabled": "Connect OpenAI in Settings",
+      "smartEditCouldNotFetchResult": "Could not fetch result from AI",
+      "smartEditCouldNotFetchKey": "Could not fetch AI key",
+      "smartEditDisabled": "Connect AI in Settings",
       "appflowyAIEditDisabled": "Sign in to enable AI features",
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
@@ -1515,8 +1508,8 @@
         "placeholder": "Enter image URL"
       },
       "ai": {
-        "label": "Generate image from OpenAI",
-        "placeholder": "Please input the prompt for OpenAI to generate image"
+        "label": "Generate image from AI",
+        "placeholder": "Please input the prompt for AI to generate image"
       },
       "stability_ai": {
         "label": "Generate image from Stability AI",
@@ -1538,7 +1531,7 @@
         "label": "Unsplash"
       },
       "searchForAnImage": "Search for an image",
-      "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
+      "pleaseInputYourOpenAIKey": "please input your AI key in Settings page",
       "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
       "saveImageToGallery": "Save image",
       "failedToAddImageToGallery": "Failed to add image to gallery",

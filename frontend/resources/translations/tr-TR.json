@@ -337,7 +337,7 @@
         "logoutLabel": "Çıkış Yap"
       },
       "keys": {
-        "openAIHint": "OpenAI API Anahtarını Gir"
+        "openAIHint": "AI API Anahtarını Gir"
       }
     },
     "workspacePage": {
@@ -553,7 +553,7 @@
       "email": "E-posta",
       "tooltipSelectIcon": "Simge seç",
       "selectAnIcon": "Bir simge seçin",
-      "pleaseInputYourOpenAIKey": "Lütfen OpenAI anahtarınızı girin",
+      "pleaseInputYourOpenAIKey": "Lütfen AI anahtarınızı girin",
       "pleaseInputYourStabilityAIKey": "Lütfen Stability AI anahtarınızı girin",
       "clickToLogout": "Geçerli kullanıcıdan çıkış yapmak için tıklayın"
     },
@@ -882,23 +882,23 @@
       "referencedGrid": "Referans Gösterilen Tablo",
       "referencedCalendar": "Referans Gösterilen Takvim",
       "referencedDocument": "Referans Gösterilen Belge",
-      "autoGeneratorMenuItemName": "OpenAI Yazar",
-      "autoGeneratorTitleName": "OpenAI: AI'dan istediğinizi yazmasını isteyin...",
+      "autoGeneratorMenuItemName": "AI Yazar",
+      "autoGeneratorTitleName": "AI: AI'dan istediğinizi yazmasını isteyin...",
       "autoGeneratorLearnMore": "Daha fazla bilgi edinin",
       "autoGeneratorGenerate": "Oluştur",
-      "autoGeneratorHintText": "OpenAI'ya sorun ...",
-      "autoGeneratorCantGetOpenAIKey": "OpenAI anahtarı alınamıyor",
+      "autoGeneratorHintText": "AI'ya sorun ...",
+      "autoGeneratorCantGetOpenAIKey": "AI anahtarı alınamıyor",
       "autoGeneratorRewrite": "Yeniden yaz",
       "smartEdit": "AI Asistanları",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "Yazımı düzelt",
       "warning": "⚠️ AI yanıtları yanlış veya yanıltıcı olabilir.",
       "smartEditSummarize": "Özetle",
       "smartEditImproveWriting": "Yazımı geliştir",
       "smartEditMakeLonger": "Daha uzun yap",
-      "smartEditCouldNotFetchResult": "OpenAI'dan sonuç alınamadı",
-      "smartEditCouldNotFetchKey": "OpenAI anahtarı alınamadı",
-      "smartEditDisabled": "Ayarlar'da OpenAI'yı bağlayın",
+      "smartEditCouldNotFetchResult": "AI'dan sonuç alınamadı",
+      "smartEditCouldNotFetchKey": "AI anahtarı alınamadı",
+      "smartEditDisabled": "Ayarlar'da AI'yı bağlayın",
       "discardResponse": "AI yanıtlarını silmek ister misiniz?",
       "createInlineMathEquation": "Denklem oluştur",
       "fonts": "Yazı Tipleri",
@@ -1013,8 +1013,8 @@
         "placeholder": "Resim URL'sini girin"
       },
       "ai": {
-        "label": "OpenAI ile resim oluştur",
-        "placeholder": "Lütfen OpenAI'nin resim oluşturması için komutu girin"
+        "label": "AI ile resim oluştur",
+        "placeholder": "Lütfen AI'nin resim oluşturması için komutu girin"
       },
       "stability_ai": {
         "label": "Stability AI ile resim oluştur",
@@ -1036,7 +1036,7 @@
         "label": "Unsplash"
       },
       "searchForAnImage": "Bir resim arayın",
-      "pleaseInputYourOpenAIKey": "Lütfen Ayarlar sayfasında OpenAI anahtarınızı girin",
+      "pleaseInputYourOpenAIKey": "Lütfen Ayarlar sayfasında AI anahtarınızı girin",
       "pleaseInputYourStabilityAIKey": "Lütfen Ayarlar sayfasında Stability AI anahtarınızı girin",
       "saveImageToGallery": "Resmi kaydet",
       "failedToAddImageToGallery": "Resim galeriye eklenemedi",
