@@ -44,7 +44,7 @@ pub struct FileUploader {
   max_uploads: u8,
   current_uploads: AtomicU8,
   pause_sync: AtomicBool,
-  is_exceed_limit: Arc<AtomicBool>,
+  has_exceeded_limit: Arc<AtomicBool>,
 }
 
 impl Drop for FileUploader {
@@ -65,7 +65,7 @@ impl FileUploader {
       max_uploads: 3,
       current_uploads: Default::default(),
       pause_sync: Default::default(),
-      is_exceed_limit,
+      has_exceeded_limit: is_exceed_limit,
     }
   }
 
@@ -83,21 +83,25 @@ impl FileUploader {
       .store(true, std::sync::atomic::Ordering::SeqCst);
   }
 
-  fn storage_limitation_enabled(&self) {
+  pub fn disable_storage_write(&self) {
     self
-      .is_exceed_limit
+      .has_exceeded_limit
       .store(true, std::sync::atomic::Ordering::SeqCst);
     self.pause();
   }
 
-  pub fn storage_limitation_disable(&self) {
+  pub fn enable_storage_write(&self) {
     self
-      .is_exceed_limit
+      .has_exceeded_limit
       .store(false, std::sync::atomic::Ordering::SeqCst);
     self.resume();
   }
 
   pub fn resume(&self) {
+    if self.pause_sync.load(std::sync::atomic::Ordering::Relaxed) {
+      return;
+    }
+
     self
       .pause_sync
       .store(false, std::sync::atomic::Ordering::SeqCst);
@@ -129,7 +133,7 @@ impl FileUploader {
     }
 
     if self
-      .is_exceed_limit
+      .has_exceeded_limit
       .load(std::sync::atomic::Ordering::SeqCst)
     {
       // If the storage limitation is enabled, do not proceed.
@@ -158,7 +162,7 @@ impl FileUploader {
         if let Err(err) = self.storage_service.start_upload(&chunks, &record).await {
           if err.is_file_limit_exceeded() {
             error!("Failed to upload file: {}", err);
-            self.storage_limitation_enabled();
+            self.disable_storage_write();
           }
 
           info!(
@@ -189,7 +193,7 @@ impl FileUploader {
         {
           if err.is_file_limit_exceeded() {
             error!("Failed to upload file: {}", err);
-            self.storage_limitation_enabled();
+            self.disable_storage_write();
           }
 
           info!(

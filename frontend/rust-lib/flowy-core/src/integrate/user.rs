@@ -231,11 +231,19 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       }
     }
     if storage_plan_changed {
-      self.storage_manager.storage_purchased();
+      self.storage_manager.enable_storage_write_access();
     }
 
     if local_ai_enabled {
       self.chat_manager.local_ai_purchased();
+    }
+  }
+
+  fn did_update_storage_limitation(&self, can_write: bool) {
+    if can_write {
+      self.storage_manager.enable_storage_write_access();
+    } else {
+      self.storage_manager.disable_storage_write_access();
     }
   }
 }

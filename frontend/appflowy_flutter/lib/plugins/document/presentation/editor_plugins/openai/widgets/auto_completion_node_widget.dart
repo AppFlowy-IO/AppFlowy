@@ -228,7 +228,7 @@ class _AutoCompletionBlockComponentState
       onError: (error) async {
         barrierDialog?.dismiss();
         if (mounted) {
-          if (error.isLimitedExceeded) {
+          if (error.isLimitExceeded) {
             showAILimitDialog(context, error.message);
           } else {
             showSnackBarMessage(
@@ -311,7 +311,7 @@ class _AutoCompletionBlockComponentState
       onEnd: () async {},
       onError: (error) async {
         if (mounted) {
-          if (error.isLimitedExceeded) {
+          if (error.isLimitExceeded) {
             // TODO(lucas): hide the AutoCompletionBlockComponent
             showAILimitDialog(context, error.message);
           } else {

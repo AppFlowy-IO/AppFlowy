@@ -22,5 +22,5 @@ enum AIErrorCode {
 }
 
 extension AIErrorExtension on AIError {
-  bool get isLimitedExceeded => code == AIErrorCode.aiResponseLimitExceeded;
+  bool get isLimitExceeded => code == AIErrorCode.aiResponseLimitExceeded;
 }

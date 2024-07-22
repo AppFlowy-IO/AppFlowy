@@ -105,9 +105,14 @@ impl StorageManager {
     }
   }
 
-  pub fn storage_purchased(&self) {
+  pub fn disable_storage_write_access(&self) {
     // when storage is purchased, resume the uploader
-    self.uploader.storage_limitation_disable();
+    self.uploader.disable_storage_write();
+  }
+
+  pub fn enable_storage_write_access(&self) {
+    // when storage is purchased, resume the uploader
+    self.uploader.enable_storage_write();
   }
 
   pub fn subscribe_upload_result(&self) -> tokio::sync::broadcast::Receiver<UploadResult> {

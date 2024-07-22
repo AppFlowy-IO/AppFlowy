@@ -310,6 +310,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
   fn did_update_network(&self, _reachable: bool) {}
   fn did_update_plans(&self, _plans: Vec<SubscriptionPlan>) {}
+  fn did_update_storage_limitation(&self, _can_write: bool) {}
 }
 
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function

@@ -513,6 +513,22 @@ impl UserManager {
       .get_user_service()?
       .get_workspace_usage(workspace_id)
       .await?;
+
+    // Check if the current workspace storage is not unlimited. If it is not unlimited,
+    // verify whether the storage bytes exceed the storage limit.
+    // If the storage is unlimited, allow writing. Otherwise, allow writing only if
+    // the storage bytes are less than the storage limit.
+    let can_write = if workspace_usage.storage_bytes_unlimited {
+      true
+    } else {
+      workspace_usage.storage_bytes < workspace_usage.storage_bytes_limit
+    };
+    self
+      .user_status_callback
+      .read()
+      .await
+      .did_update_storage_limitation(can_write);
+
     Ok(workspace_usage)
   }
 

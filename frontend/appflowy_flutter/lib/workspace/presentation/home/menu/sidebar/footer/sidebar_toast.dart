@@ -47,7 +47,7 @@ class _SidebarToastState extends State<SidebarToast> {
                   const Divider(height: 0.6),
                   PlanIndicator(
                     planName: "Pro",
-                    buttonTextKey: LocaleKeys.sideBar_upgradeToPro,
+                    text: LocaleKeys.sideBar_upgradeToPro.tr(),
                     onTap: () {
                       _hanldeOnTap(context, SubscriptionPlanPB.Pro);
                     },
@@ -60,7 +60,7 @@ class _SidebarToastState extends State<SidebarToast> {
                   const Divider(height: 0.6),
                   PlanIndicator(
                     planName: "AI Max",
-                    buttonTextKey: LocaleKeys.sideBar_upgradeToAIMax,
+                    text: LocaleKeys.sideBar_upgradeToAIMax.tr(),
                     onTap: () {
                       _hanldeOnTap(context, SubscriptionPlanPB.AiMax);
                     },
@@ -121,7 +121,7 @@ class _SidebarToastState extends State<SidebarToast> {
 class PlanIndicator extends StatelessWidget {
   const PlanIndicator({
     required this.planName,
-    required this.buttonTextKey,
+    required this.text,
     required this.onTap,
     required this.reason,
     super.key,
@@ -129,7 +129,7 @@ class PlanIndicator extends StatelessWidget {
 
   final String planName;
   final String reason;
-  final String buttonTextKey;
+  final String text;
   final Function() onTap;
 
   final textColor = const Color(0xFFE8E2EE);
@@ -142,7 +142,7 @@ class PlanIndicator extends StatelessWidget {
         FlowyButton(
           margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           text: FlowyText(
-            buttonTextKey.tr(),
+            text,
             color: textColor,
             fontSize: 12,
           ),
@@ -160,14 +160,14 @@ class PlanIndicator extends StatelessWidget {
           onTap: onTap,
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 12, right: 12, bottom: 6),
+          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 6),
           child: Opacity(
             opacity: 0.4,
             child: FlowyText(
               reason,
               textAlign: TextAlign.start,
               color: textColor,
-              fontSize: 10,
+              fontSize: 8,
               maxLines: 10,
             ),
           ),
