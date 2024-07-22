@@ -144,6 +144,18 @@
   "newGridText": "Nueva patrón",
   "newCalendarText": "Nuevo calendario",
   "newBoardText": "Nuevo tablero",
+  "chat": {
+    "newChat": "Chat de IA",
+    "relatedQuestion": "Relacionado",
+    "serverUnavailable": "Servicio temporalmente no disponible. Por favor, inténtelo de nuevo más tarde.",
+    "aiServerUnavailable": "🌈 ¡Uh-oh! 🌈. Un unicornio se comió nuestra respuesta. ¡Por favor, intenta de nuevo!",
+    "clickToRetry": "Haga clic para volver a intentarlo",
+    "regenerateAnswer": "Regenerar",
+    "question1": "Cómo utilizar Kanban para gestionar tareas",
+    "question2": "Explica el método GTD",
+    "question3": "¿Por qué usar Rust?",
+    "aiMistakePrompt": "La IA puede cometer errores. Consulta información importante."
+  },
   "trash": {
     "text": "Papelera",
     "restoreAll": "Recuperar todo",
@@ -222,7 +234,8 @@
     "dragRow": "Pulsación larga para reordenar la fila",
     "viewDataBase": "Ver base de datos",
     "referencePage": "Se hace referencia a este {nombre}",
-    "addBlockBelow": "Añadir un bloque a continuación"
+    "addBlockBelow": "Añadir un bloque a continuación",
+    "aiGenerate": "Generar"
   },
   "sideBar": {
     "closeSidebar": "Cerrar panel lateral",
@@ -238,7 +251,16 @@
     "addAPage": "Añadir una página",
     "addAPageToPrivate": "Agregar una página al espacio privado",
     "addAPageToWorkspace": "Agregar una página al espacio de trabajo",
-    "recent": "Reciente"
+    "recent": "Reciente",
+    "today": "Hoy",
+    "thisWeek": "Esta semana",
+    "others": "Otros favoritos",
+    "justNow": "En este momento",
+    "lastViewed": "Visto por última vez",
+    "emptyRecent": "Sin documentos recientes",
+    "favoriteSpace": "Favoritos",
+    "RecentSpace": "Reciente",
+    "Spaces": "Espacios"
   },
   "notifications": {
     "export": {
@@ -277,6 +299,7 @@
     "update": "Actualizar",
     "share": "Compartir",
     "removeFromFavorites": "Quitar de favoritos",
+    "removeFromRecent": "Eliminar de los recientes",
     "addToFavorites": "Añadir a favoritos",
     "rename": "Renombrar",
     "helpCenter": "Centro de ayuda",
@@ -293,7 +316,10 @@
     "back": "Atrás",
     "signInGoogle": "Inicia sesión con Google",
     "signInGithub": "Iniciar sesión con Github",
-    "signInDiscord": "Iniciar sesión con discordia"
+    "signInDiscord": "Iniciar sesión con discordia",
+    "more": "Más",
+    "create": "Crear",
+    "close": "Cerca"
   },
   "label": {
     "welcome": "¡Bienvenido!",
