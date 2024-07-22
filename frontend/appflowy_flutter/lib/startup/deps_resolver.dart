@@ -182,8 +182,8 @@ void _resolveHomeDeps(GetIt getIt) {
   );
 
   // share
-  getIt.registerFactoryParam<DocumentShareBloc, ViewPB, void>(
-    (view, _) => DocumentShareBloc(view: view),
+  getIt.registerFactoryParam<ShareBloc, ViewPB, void>(
+    (view, _) => ShareBloc(view: view),
   );
 
   getIt.registerSingleton<ActionNavigationBloc>(ActionNavigationBloc());

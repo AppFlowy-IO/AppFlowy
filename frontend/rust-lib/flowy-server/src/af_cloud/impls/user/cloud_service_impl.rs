@@ -676,9 +676,18 @@ async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {
     ClientConfiguration::default(),
     &client.client_version.to_string(),
   );
-  admin_client
+  // When multiple admin_client instances attempt to sign in concurrently, multiple admin user
+  // creation transaction will be created, but only the first attempt will succeed due to the
+  // unique email constraint. Once the user has been created, admin_client instances can sign in
+  // concurrently without issue.
+  let resp = admin_client
     .sign_in_password(&admin_email, &admin_password)
-    .await?;
+    .await;
+  if resp.is_err() {
+    admin_client
+      .sign_in_password(&admin_email, &admin_password)
+      .await?;
+  };
   Ok(admin_client)
 }
 

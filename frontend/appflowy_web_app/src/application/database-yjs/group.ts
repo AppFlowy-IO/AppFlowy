@@ -9,8 +9,31 @@ export function groupByField(rows: Row[], rowMetas: Y.Map<YDoc>, field: YDatabas
   const fieldType = Number(field.get(YjsDatabaseKey.type));
   const isSelectOptionField = [FieldType.SingleSelect, FieldType.MultiSelect].includes(fieldType);
 
-  if (!isSelectOptionField) return;
-  return groupBySelectOption(rows, rowMetas, field);
+  if (isSelectOptionField) {
+    return groupBySelectOption(rows, rowMetas, field);
+  }
+
+  if (fieldType === FieldType.Checkbox) {
+    return groupByCheckbox(rows, rowMetas, field);
+  }
+
+  return;
+}
+
+export function groupByCheckbox(rows: Row[], rowMetas: Y.Map<YDoc>, field: YDatabaseField) {
+  const fieldId = field.get(YjsDatabaseKey.id);
+  const result = new Map<string, Row[]>();
+
+  rows.forEach((row) => {
+    const cellData = getCellData(row.id, fieldId, rowMetas);
+
+    const groupName = cellData === 'Yes' ? 'Yes' : 'No';
+    const group = result.get(groupName) ?? [];
+
+    group.push(row);
+    result.set(groupName, group);
+  });
+  return result;
 }
 
 export function groupBySelectOption(rows: Row[], rowMetas: Y.Map<YDoc>, field: YDatabaseField) {

@@ -6,9 +6,9 @@ import { forwardRef, FunctionComponent, SVGProps, useMemo } from 'react';
 import { ViewTabs, ViewTab } from './ViewTabs';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as GridSvg } from '$icons/16x/grid.svg';
-import { ReactComponent as BoardSvg } from '$icons/16x/board.svg';
-import { ReactComponent as CalendarSvg } from '$icons/16x/date.svg';
+import { ReactComponent as GridSvg } from '@/assets/grid.svg';
+import { ReactComponent as BoardSvg } from '@/assets/board.svg';
+import { ReactComponent as CalendarSvg } from '@/assets/calendar.svg';
 
 export interface DatabaseTabBarProps {
   viewIds: string[];
@@ -16,6 +16,7 @@ export interface DatabaseTabBarProps {
   setSelectedViewId?: (viewId: string) => void;
   viewName?: string;
   iidIndex: string;
+  hideConditions?: boolean;
 }
 
 const DatabaseIcons: {
@@ -27,7 +28,7 @@ const DatabaseIcons: {
 };
 
 export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
-  ({ viewIds, viewName, iidIndex, selectedViewId, setSelectedViewId }, ref) => {
+  ({ viewIds, viewName, hideConditions, iidIndex, selectedViewId, setSelectedViewId }, ref) => {
     const { t } = useTranslation();
     const view = useDatabaseView();
     const views = useDatabase().get(YjsDatabaseKey.views);
@@ -38,9 +39,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     };
 
     const className = useMemo(() => {
-      const classList = [
-        'mx-16 -mb-[0.5px] flex items-center overflow-hidden border-line-divider text-text-title max-md:mx-4',
-      ];
+      const classList = ['-mb-[0.5px] flex items-center overflow-hidden border-line-divider text-text-title'];
 
       if (layout === DatabaseViewLayout.Calendar) {
         classList.push('border-b');
@@ -91,7 +90,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             })}
           </ViewTabs>
         </div>
-        {layout !== DatabaseViewLayout.Calendar ? <DatabaseActions /> : null}
+        {!hideConditions && layout !== DatabaseViewLayout.Calendar ? <DatabaseActions /> : null}
       </div>
     );
   }

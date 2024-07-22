@@ -25,10 +25,16 @@ export function yDataToSlateContent({
   rootId: string;
 }): Element | undefined {
   function traverse(id: string) {
-    const block = blocks.get(id).toJSON() as BlockJson;
+    const block = blocks.get(id)?.toJSON() as BlockJson;
+
+    if (!block) {
+      console.error('Block not found', id);
+      return;
+    }
+
     const childrenId = block.children as string;
 
-    const children = (childrenMap.get(childrenId)?.toJSON() ?? []).map(traverse) as (Element | Text)[];
+    const children = (childrenMap.get(childrenId)?.toJSON() ?? []).map(traverse).filter(Boolean) as (Element | Text)[];
 
     const slateNode = blockToSlateNode(block);
 

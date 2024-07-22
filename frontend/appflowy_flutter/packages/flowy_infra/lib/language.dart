@@ -48,6 +48,8 @@ String languageFromLocale(Locale locale) {
         default:
           return locale.languageCode;
       }
+    case "he":
+      return "עברית";
     case "hu":
       return "Magyar";
     case "id":

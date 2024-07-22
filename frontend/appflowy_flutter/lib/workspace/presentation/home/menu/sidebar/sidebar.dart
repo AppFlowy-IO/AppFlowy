@@ -350,7 +350,14 @@ class _SidebarState extends State<_Sidebar> {
               child: const Divider(height: 0.5, color: Color(0x141F2329)),
             ),
             const VSpace(8),
-            _renderUpgradeSpaceButton(menuHorizontalInset),
+
+            Column(
+              children: [
+                // ai pay button
+                _renderUpgradeSpaceButton(menuHorizontalInset),
+              ],
+            ),
+
             const VSpace(8),
             Padding(
               padding: menuHorizontalInset +

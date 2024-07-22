@@ -24,10 +24,37 @@ describe('Database group', () => {
     const { fields, rowMap } = withTestingData();
     expect(groupByField(rows, rowMap, fields.get('text_field'))).toBeUndefined();
     expect(groupByField(rows, rowMap, fields.get('number_field'))).toBeUndefined();
-    expect(groupByField(rows, rowMap, fields.get('checkbox_field'))).toBeUndefined();
     expect(groupByField(rows, rowMap, fields.get('checklist_field'))).toBeUndefined();
   });
 
+  it('should gourp by checkbox field', () => {
+    const { fields, rowMap } = withTestingData();
+    const field = fields.get('checkbox_field');
+    const result = groupByField(rows, rowMap, field);
+    const expectRes = new Map([
+      [
+        'Yes',
+        [
+          { id: '1', height: 37 },
+          { id: '3', height: 37 },
+          { id: '5', height: 37 },
+          { id: '7', height: 37 },
+          { id: '9', height: 37 },
+        ],
+      ],
+      [
+        'No',
+        [
+          { id: '2', height: 37 },
+          { id: '4', height: 37 },
+          { id: '6', height: 37 },
+          { id: '8', height: 37 },
+          { id: '10', height: 37 },
+        ],
+      ],
+    ]);
+    expect(result).toEqual(expectRes);
+  });
   it('should group by select option field', () => {
     const { fields, rowMap } = withTestingData();
     const field = fields.get('single_select_field');

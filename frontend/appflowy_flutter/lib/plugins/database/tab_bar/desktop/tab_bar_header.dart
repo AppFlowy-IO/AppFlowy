@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -17,14 +17,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'tab_bar_add_button.dart';
 
 class TabBarHeader extends StatelessWidget {
-  const TabBarHeader({super.key});
+  const TabBarHeader({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 30,
       padding: EdgeInsets.symmetric(
-        horizontal: GridSize.horizontalHeaderPadding + 40,
+        horizontal:
+            context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
       ),
       child: Stack(
         children: [
