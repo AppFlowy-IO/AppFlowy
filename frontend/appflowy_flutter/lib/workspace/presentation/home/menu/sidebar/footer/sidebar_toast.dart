@@ -132,7 +132,6 @@ class PlanIndicator extends StatelessWidget {
   final String text;
   final Function() onTap;
 
-  final textColor = const Color(0xFFE8E2EE);
   final secondaryColor = const Color(0xFF653E8C);
 
   @override
@@ -143,7 +142,6 @@ class PlanIndicator extends StatelessWidget {
           margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           text: FlowyText(
             text,
-            color: textColor,
             fontSize: 12,
           ),
           radius: BorderRadius.zero,
@@ -153,8 +151,8 @@ class PlanIndicator extends StatelessWidget {
             backgroundColor: secondaryColor,
             label: FlowyText.semibold(
               planName,
+              color: const Color(0xFFE8E2EE),
               fontSize: 12,
-              color: textColor,
             ),
           ),
           onTap: onTap,
@@ -166,7 +164,6 @@ class PlanIndicator extends StatelessWidget {
             child: FlowyText(
               reason,
               textAlign: TextAlign.start,
-              color: textColor,
               fontSize: 8,
               maxLines: 10,
             ),
