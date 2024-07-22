@@ -229,6 +229,7 @@ class _AutoCompletionBlockComponentState
         barrierDialog?.dismiss();
         if (mounted) {
           if (error.isLimitExceeded) {
+            await _onDiscard();
             showAILimitDialog(context, error.message);
           } else {
             showSnackBarMessage(
