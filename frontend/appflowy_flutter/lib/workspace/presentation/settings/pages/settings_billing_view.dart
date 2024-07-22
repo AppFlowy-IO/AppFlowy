@@ -91,7 +91,7 @@ class _SettingsBillingViewState extends State<SettingsBillingView> {
             },
             ready: (state) {
               final billingPortalEnabled =
-                  state.subscriptionInfo.plan != WorkspacePlanPB.FreePlan;
+                  state.subscriptionInfo.isBillingPortalEnabled;
 
               return SettingsBody(
                 title: LocaleKeys.settings_billingPage_title.tr(),

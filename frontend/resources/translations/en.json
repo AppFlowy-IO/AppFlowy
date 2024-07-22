@@ -283,11 +283,12 @@
     "favoriteSpace": "Favorites",
     "RecentSpace": "Recent",
     "Spaces": "Spaces",
-    "upgradeToPro": "Upgrade to Pro Plan",
+    "upgradeToPro": "Upgrade to Pro",
     "upgradeToAIMax": "Unlock unlimited AI",
-    "storageLimitDialogTitle": "You are running out of storage space. Upgrade to Pro Plan to get more storage",
-    "aiResponseLitmitDialogTitle": "You are running out of AI responses. Upgrade to Pro Plan or AI Max to get more AI responses",
-    "aiResponseLitmit": "You are running out of AI responses. Go to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
+    "storageLimitDialogTitle": "You have run out of storage space, upgrade to Pro Plan to get more storage",
+    "aiResponseLimitTitle": "You have run out of AI responses. Upgrade to Pro Plan or AI Max to get more AI responses",
+    "aiResponseLimitDialogTitle": "AI Responses limit reached",
+    "aiResponseLimit": "You have run out of AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
     "upgradeToAILocal": "AI offline on your device"
@@ -704,14 +705,14 @@
             "title": "AI Max",
             "description": "Unlock unlimited AI",
             "price": "{}",
-            "priceInfo": "/user per month",
+            "priceInfo": "per user per month",
             "billingInfo": "billed annually or {} billed monthly"
           },
           "aiOnDevice": {
             "title": "AI On-device",
             "description": "AI offline on your device",
             "price": "{}",
-            "priceInfo": "/user per month",
+            "priceInfo": "per user per month",
             "billingInfo": "billed annually or {} billed monthly"
           }
         },
@@ -776,7 +777,6 @@
       "actions": {
         "upgrade": "Upgrade",
         "downgrade": "Downgrade",
-        "downgradeDisabledTooltip": "You will automatically downgrade at the end of the billing cycle",
         "current": "Current"
       },
       "freePlan": {
@@ -789,7 +789,7 @@
         "title": "Pro",
         "description": "For small teams to manage projects and team knowledge",
         "price": "{}",
-        "priceInfo": "/user per month billed annually\n\n{} billed monthly"
+        "priceInfo": "per user per month \nbilled annually\n\n{} billed monthly"
       },
       "planLabels": {
         "itemOne": "Workspaces",
@@ -1441,7 +1441,7 @@
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImage": "Add an image",
-        "imageUploadFailed": "Image upload failed",
+        "imageUploadFailed": "Upload failed",
         "errorCode": "Error code"
       },
       "math": {
@@ -2130,7 +2130,7 @@
       "zero": "Publish {} selected view",
       "one": "Publish {} selected views",
       "many": "Publish {} selected views",
-      "other":"Publish {} selected views"
+      "other": "Publish {} selected views"
     },
     "mustSelectPrimaryDatabase": "The primary database must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",

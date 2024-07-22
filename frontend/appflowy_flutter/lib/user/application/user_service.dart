@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:appflowy/env/cloud_env.dart';
-import 'package:appflowy/startup/startup.dart';
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -20,6 +20,9 @@ abstract class IUserBackendService {
     SubscriptionPlanPB plan,
   );
 }
+
+const _baseBetaUrl = 'https://beta.appflowy.com';
+const _baseProdUrl = 'https://appflowy.com';
 
 class UserBackendService implements IUserBackendService {
   UserBackendService({required this.userId});
@@ -255,7 +258,7 @@ class UserBackendService implements IUserBackendService {
       ..recurringInterval = RecurringIntervalPB.Year
       ..workspaceSubscriptionPlan = plan
       ..successUrl =
-          '${getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url}/web/payment-success?plan=${plan.toRecognizable()}';
+          '${kDebugMode ? _baseBetaUrl : _baseProdUrl}/after-payment?plan=${plan.toRecognizable()}';
     return UserEventSubscribeWorkspace(request).send();
   }
 

@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpaceMigration extends StatefulWidget {
@@ -70,14 +71,8 @@ class _SpaceMigrationState extends State<SpaceMigration> {
     const linearGradient = LinearGradient(
       begin: Alignment.bottomLeft,
       end: Alignment.bottomRight,
-      colors: [
-        Color(0xFF8032FF),
-        Color(0xFFEF35FF),
-      ],
-      stops: [
-        0.1545,
-        0.8225,
-      ],
+      colors: [Color(0xFF8032FF), Color(0xFFEF35FF)],
+      stops: [0.1545, 0.8225],
     );
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
