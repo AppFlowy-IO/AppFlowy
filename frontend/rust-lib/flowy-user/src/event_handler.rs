@@ -785,7 +785,7 @@ pub async fn get_workspace_subscription_info_handler(
   let subs = manager
     .get_workspace_subscription_info(params.workspace_id)
     .await?;
-  data_result_ok(WorkspaceSubscriptionInfoPB::from(subs))
+  data_result_ok(subs)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

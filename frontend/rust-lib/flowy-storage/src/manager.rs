@@ -300,7 +300,7 @@ impl StorageService for StorageServiceImpl {
             info!("upload record already exists, skip creating new upload task");
             Ok::<_, FlowyError>(CreatedUpload { url, file_id })
           } else {
-            Err(err.into())
+            Err(err)
           }
         },
       }

@@ -114,7 +114,7 @@ impl ToolTask {
                      Some(Err(error)) => {
                       let error = FlowyError::from(error);
                       if error.is_ai_response_limit_exceeded() {
-                        let _ = sink.send(format!("AI_RESPONSE_LIMIT")).await;
+                        let _ = sink.send("AI_RESPONSE_LIMIT".to_string()).await;
                       } else {
                        let _ = sink.send(format!("error:{}", error)).await;
                       }
@@ -131,7 +131,7 @@ impl ToolTask {
             Err(error) => {
               error!("stream complete error: {}", error);
               if error.is_ai_response_limit_exceeded() {
-                let _ = sink.send(format!("AI_RESPONSE_LIMIT")).await;
+                let _ = sink.send("AI_RESPONSE_LIMIT".to_string()).await;
               } else {
                 let _ = sink.send(format!("error:{}", error)).await;
               }

@@ -540,9 +540,9 @@ pub enum WorkspacePlanPB {
   TeamPlan = 2,
 }
 
-impl Into<i64> for WorkspacePlanPB {
-  fn into(self) -> i64 {
-    self as i64
+impl From<WorkspacePlanPB> for i64 {
+  fn from(val: WorkspacePlanPB) -> Self {
+    val as i64
   }
 }
 
@@ -625,9 +625,9 @@ pub enum WorkspaceSubscriptionStatusPB {
   Canceled = 1,
 }
 
-impl Into<i64> for WorkspaceSubscriptionStatusPB {
-  fn into(self) -> i64 {
-    self as i64
+impl From<WorkspaceSubscriptionStatusPB> for i64 {
+  fn from(val: WorkspaceSubscriptionStatusPB) -> Self {
+    val as i64
   }
 }
 
