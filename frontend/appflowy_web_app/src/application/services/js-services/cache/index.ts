@@ -12,7 +12,7 @@ import {
 import { applyYDoc } from '@/application/ydoc/apply';
 import { closeCollabDB, db, openCollabDB } from '@/application/db';
 import { Fetcher, StrategyType } from '@/application/services/js-services/cache/types';
-import { IndexeddbPersistence } from 'y-indexeddb';
+// import { IndexeddbPersistence } from 'y-indexeddb';
 import * as Y from 'yjs';
 
 export function collabTypeToDBType(type: CollabType) {
@@ -139,19 +139,19 @@ export async function getPublishView<
   const doc = await openCollabDB(name);
   const rowMapDoc = (await openCollabDB(`${name}_rows`)) as Y.Doc;
 
-  const subdocs = Array.from(rowMapDoc.getSubdocs());
-
-  for (const subdoc of subdocs) {
-    const promise = new Promise((resolve) => {
-      const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
-
-      persistence.on('synced', () => {
-        resolve(true);
-      });
-    });
-
-    await promise;
-  }
+  // const subdocs = Array.from(rowMapDoc.getSubdocs());
+  //
+  // for (const subdoc of subdocs) {
+  //   const promise = new Promise((resolve) => {
+  //     const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
+  //
+  //     persistence.on('synced', () => {
+  //       resolve(true);
+  //     });
+  //   });
+  //
+  //   await promise;
+  // }
 
   const exist = (await hasViewMetaCache(name)) && hasCollabCache(doc);
 
@@ -245,14 +245,21 @@ export async function revalidatePublishView<
       const subdoc = new Y.Doc({
         guid: key,
       });
-      const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
 
-      persistence.on('synced', () => {
-        applyYDoc(subdoc, new Uint8Array(value));
-        rowMapDoc.getMap().delete(subdoc.guid);
-        rowMapDoc.getMap().set(subdoc.guid, subdoc);
-      });
+      applyYDoc(subdoc, new Uint8Array(value));
+      rowMapDoc.getMap().delete(subdoc.guid);
+      rowMapDoc.getMap().set(subdoc.guid, subdoc);
+
+      // const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
+      //
+      // persistence.on('synced', () => {
+      //   applyYDoc(subdoc, new Uint8Array(value));
+      //   rowMapDoc.getMap().delete(subdoc.guid);
+      //   rowMapDoc.getMap().set(subdoc.guid, subdoc);
+      // });
     }
+
+    console.log('rows', rows);
   }
 
   const state = new Uint8Array(data);
@@ -268,15 +275,15 @@ export async function deleteView(name: string) {
   console.log('deleteView', name);
   await deleteViewMeta(name);
   await closeCollabDB(name);
-  const rowMapDoc = (await openCollabDB(`${name}_rows`)) as Y.Doc;
-
-  const subdocs = Array.from(rowMapDoc.getSubdocs());
-
-  for (const subdoc of subdocs) {
-    const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
-
-    await persistence.destroy();
-  }
+  // const rowMapDoc = (await openCollabDB(`${name}_rows`)) as Y.Doc;
+  //
+  // const subdocs = Array.from(rowMapDoc.getSubdocs());
+  //
+  // for (const subdoc of subdocs) {
+  //   const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
+  //
+  //   await persistence.destroy();
+  // }
 
   await closeCollabDB(`${name}_rows`);
 }
