@@ -1185,7 +1185,7 @@
       "optionAlreadyExist": "Option already exists",
       "timeType": "Time type",
       "timePrecision": "Time precision",
-      "timeTypePlainTime": "Time",
+      "timeTypePlainTime": "Plain time",
       "timeTypeTimer": "Timer",
       "timeTypeStopwatch": "Stopwatch",
       "timePrecisionSeconds": "Seconds",

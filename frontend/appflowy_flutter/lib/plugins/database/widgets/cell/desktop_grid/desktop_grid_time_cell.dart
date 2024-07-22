@@ -153,29 +153,26 @@ class _TimeTextView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: TextField(
-        controller: textEditingController,
-        readOnly: readOnly,
-        onTap: onTap,
-        focusNode: focusNode,
-        onEditingComplete: () => focusNode.unfocus(),
-        onSubmitted: (_) {
-          focusNode.unfocus();
-        },
-        maxLines: wrap ? null : 1,
-        style: Theme.of(context).textTheme.bodyMedium,
-        textInputAction: TextInputAction.done,
-        decoration: InputDecoration(
-          contentPadding: GridSize.cellContentInsets,
-          border: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          isDense: true,
-        ),
+    return TextField(
+      controller: textEditingController,
+      readOnly: readOnly,
+      onTap: onTap,
+      focusNode: focusNode,
+      onEditingComplete: () => focusNode.unfocus(),
+      onSubmitted: (_) {
+        focusNode.unfocus();
+      },
+      maxLines: wrap ? null : 1,
+      style: Theme.of(context).textTheme.bodyMedium,
+      textInputAction: TextInputAction.done,
+      decoration: InputDecoration(
+        contentPadding: GridSize.cellContentInsets,
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        isDense: true,
       ),
     );
   }
