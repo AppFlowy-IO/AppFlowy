@@ -11,7 +11,7 @@ use lib_infra::isolate_stream::IsolateSink;
 
 use std::sync::{Arc, Weak};
 use tokio::select;
-use tracing::{error, trace};
+use tracing::trace;
 
 pub struct AITools {
   tasks: Arc<DashMap<String, tokio::sync::mpsc::Sender<()>>>,
@@ -83,62 +83,59 @@ impl ToolTask {
   pub async fn start(mut self) {
     tokio::spawn(async move {
       let mut sink = IsolateSink::new(Isolate::new(self.context.stream_port));
-      match self.cloud_service.upgrade() {
-        None => {},
-        Some(cloud_service) => {
-          let complete_type = match self.context.completion_type {
-            CompletionTypePB::UnknownCompletionType => CompletionType::ImproveWriting,
-            CompletionTypePB::ImproveWriting => CompletionType::ImproveWriting,
-            CompletionTypePB::SpellingAndGrammar => CompletionType::SpellingAndGrammar,
-            CompletionTypePB::MakeShorter => CompletionType::MakeShorter,
-            CompletionTypePB::MakeLonger => CompletionType::MakeLonger,
-            CompletionTypePB::ContinueWriting => CompletionType::ContinueWriting,
-          };
-          let _ = sink.send("start:".to_string()).await;
-          match cloud_service
-            .stream_complete(&self.workspace_id, &self.context.text, complete_type)
-            .await
-          {
-            Ok(mut stream) => loop {
-              select! {
+
+      if let Some(cloud_service) = self.cloud_service.upgrade() {
+        let complete_type = match self.context.completion_type {
+          CompletionTypePB::UnknownCompletionType | CompletionTypePB::ImproveWriting => {
+            CompletionType::ImproveWriting
+          },
+          CompletionTypePB::SpellingAndGrammar => CompletionType::SpellingAndGrammar,
+          CompletionTypePB::MakeShorter => CompletionType::MakeShorter,
+          CompletionTypePB::MakeLonger => CompletionType::MakeLonger,
+          CompletionTypePB::ContinueWriting => CompletionType::ContinueWriting,
+        };
+
+        let _ = sink.send("start:".to_string()).await;
+        match cloud_service
+          .stream_complete(&self.workspace_id, &self.context.text, complete_type)
+          .await
+        {
+          Ok(mut stream) => loop {
+            select! {
                 _ = self.stop_rx.recv() => {
-                  return;
+                    return;
                 },
                 result = stream.next() => {
                     match result {
-                     Some(Ok(data)) => {
-                       let s = String::from_utf8(data.to_vec()).unwrap_or_default();
-                       trace!("stream completion data: {}", s);
-                       let _ = sink.send(format!("data:{}", s)).await;
-                     },
-                     Some(Err(error)) => {
-                      let error = FlowyError::from(error);
-                      if error.is_ai_response_limit_exceeded() {
-                        let _ = sink.send("AI_RESPONSE_LIMIT".to_string()).await;
-                      } else {
-                       let _ = sink.send(format!("error:{}", error)).await;
-                      }
-                      return;
-                     },
-                     None => {
-                       let _ = sink.send(format!("finish:{}", self.task_id)).await;
-                       return;
-                     },
-                  }
+                        Some(Ok(data)) => {
+                            let s = String::from_utf8(data.to_vec()).unwrap_or_default();
+                            trace!("stream completion data: {}", s);
+                            let _ = sink.send(format!("data:{}", s)).await;
+                        },
+                        Some(Err(error)) => {
+                            handle_error(&mut sink, FlowyError::from(error)).await;
+                            return;
+                        },
+                        None => {
+                            let _ = sink.send(format!("finish:{}", self.task_id)).await;
+                            return;
+                        },
+                    }
                 }
-              }
-            },
-            Err(error) => {
-              error!("stream complete error: {}", error);
-              if error.is_ai_response_limit_exceeded() {
-                let _ = sink.send("AI_RESPONSE_LIMIT".to_string()).await;
-              } else {
-                let _ = sink.send(format!("error:{}", error)).await;
-              }
-            },
-          }
-        },
+            }
+          },
+          Err(error) => {
+            handle_error(&mut sink, FlowyError::from(error)).await;
+          },
+        }
       }
     });
+  }
+}
+async fn handle_error(sink: &mut IsolateSink, error: FlowyError) {
+  if error.is_ai_response_limit_exceeded() {
+    let _ = sink.send("AI_RESPONSE_LIMIT".to_string()).await;
+  } else {
+    let _ = sink.send(format!("error:{}", error)).await;
   }
 }

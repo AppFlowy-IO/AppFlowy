@@ -263,6 +263,10 @@ impl StorageService for StorageServiceImpl {
     FutureResult::new(async move {
       let is_exceed_limit = is_exceed_storage_limit.load(std::sync::atomic::Ordering::Relaxed);
       if is_exceed_limit {
+        make_notification(StorageNotification::FileStorageLimitExceeded)
+          .payload(FlowyError::file_storage_limit())
+          .send();
+
         return Err(FlowyError::file_storage_limit());
       }
 

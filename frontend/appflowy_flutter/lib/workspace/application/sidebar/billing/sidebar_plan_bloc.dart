@@ -34,7 +34,13 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
             payload.plan = plan;
           }
 
-          UserEventNotifyDidSwitchPlan(payload).send();
+          UserEventNotifyDidSwitchPlan(payload).send().then((result) {
+            result.fold(
+              // After the user has switched to a new plan, we need to refresh the workspace usage.
+              (_) => _checkWorkspaceUsage(),
+              (error) => Log.error("NotifyDidSwitchPlan failed: $error"),
+            );
+          });
         } else {
           Log.error(
             "Unexpected empty workspace id when subscription success listenable triggered. It should not happen. If happens, it must be a bug",
