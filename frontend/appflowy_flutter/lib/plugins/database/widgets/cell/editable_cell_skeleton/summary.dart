@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/summary_cell_bloc.dart';
@@ -7,10 +10,10 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/cell/desktop_grid/desktop_grid_summary_cell.dart';
 import 'package:appflowy/plugins/database/widgets/cell/desktop_row_detail/desktop_row_detail_summary_cell.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/mobile_grid/mobile_grid_summary_cell.dart';
 import 'package:appflowy/plugins/database/widgets/cell/mobile_row_detail/mobile_row_detail_summary_cell.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -19,8 +22,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class IEditableSummaryCellSkin {
@@ -159,7 +160,7 @@ class SummaryCellAccessory extends StatelessWidget {
             if (state.error!.isAIResponseLimitExceeded) {
               showSnackBarMessage(
                 context,
-                LocaleKeys.sideBar_aiResponseLitmitDialogTitle.tr(),
+                LocaleKeys.sideBar_aiResponseLimitDialogTitle.tr(),
               );
             } else {
               showSnackBarMessage(context, state.error!.msg);
