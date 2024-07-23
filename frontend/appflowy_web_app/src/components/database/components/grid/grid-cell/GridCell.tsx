@@ -53,7 +53,7 @@ export function GridCell({ onResize, rowId, fieldId, columnIndex, rowIndex }: Gr
   if (!field) return null;
 
   return (
-    <div ref={ref} className={'grid-cell flex min-h-full w-full cursor-text items-center overflow-hidden text-sm'}>
+    <div ref={ref} className={'grid-cell flex min-h-full w-full cursor-text items-center overflow-hidden'}>
       <Component cell={cell} rowId={rowId} fieldId={fieldId} />
     </div>
   );

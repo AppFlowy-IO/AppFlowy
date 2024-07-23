@@ -1,4 +1,5 @@
 import { CalculationType } from '@/application/database-yjs/database.type';
+import { isNaN } from 'lodash-es';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -39,10 +40,12 @@ export function CalculationCell({ cell }: CalculationCellProps) {
     }
   }, [cell, t]);
 
+  const num = useMemo(() => (cell?.value && !isNaN(cell.value) ? parseFloat(cell.value) : ''), [cell?.value]);
+
   return (
-    <div className={'h-full w-full px-1 text-right text-xs font-medium uppercase leading-[36px] text-text-caption'}>
-      {prefix}
-      <span className={'ml-2 text-text-title'}>{cell?.value ?? ''}</span>
+    <div className={'h-full w-full px-1 text-right uppercase leading-[36px] text-text-caption'}>
+      <span className={'text-sm'}>{prefix}</span>
+      <span className={'ml-2 font-medium text-text-title'}>{num}</span>
     </div>
   );
 }
