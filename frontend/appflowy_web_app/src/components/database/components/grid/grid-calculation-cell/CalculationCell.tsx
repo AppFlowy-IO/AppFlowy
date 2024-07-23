@@ -1,4 +1,7 @@
+import { YjsDatabaseKey } from '@/application/collab.type';
+import { currencyFormaterMap, FieldType, parseNumberTypeOptions, useFieldSelector } from '@/application/database-yjs';
 import { CalculationType } from '@/application/database-yjs/database.type';
+import Decimal from 'decimal.js';
 import { isNaN } from 'lodash-es';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +19,16 @@ export interface CalculationCellProps {
 
 export function CalculationCell({ cell }: CalculationCellProps) {
   const { t } = useTranslation();
+
+  const fieldId = cell?.fieldId || '';
+  const { field } = useFieldSelector(fieldId);
+  const format = useMemo(
+    () =>
+      field && Number(field?.get(YjsDatabaseKey.type)) === FieldType.Number
+        ? parseNumberTypeOptions(field).format
+        : undefined,
+    [field]
+  );
 
   const prefix = useMemo(() => {
     if (!cell) return '';
@@ -40,7 +53,17 @@ export function CalculationCell({ cell }: CalculationCellProps) {
     }
   }, [cell, t]);
 
-  const num = useMemo(() => (cell?.value && !isNaN(cell.value) ? parseFloat(cell.value) : ''), [cell?.value]);
+  const num = useMemo(() => {
+    const value = cell?.value;
+
+    if (value === undefined || isNaN(value)) return '';
+
+    if (format && currencyFormaterMap[format]) {
+      return currencyFormaterMap[format](new Decimal(value).toNumber());
+    }
+
+    return parseFloat(value);
+  }, [cell?.value, format]);
 
   return (
     <div className={'h-full w-full px-1 text-right uppercase leading-[36px] text-text-caption'}>
