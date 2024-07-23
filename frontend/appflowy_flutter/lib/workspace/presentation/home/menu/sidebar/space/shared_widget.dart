@@ -1,7 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -10,6 +6,7 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -22,6 +19,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpacePermissionSwitch extends StatefulWidget {
@@ -55,6 +55,7 @@ class _SpacePermissionSwitchState extends State<SpacePermissionSwitch> {
           LocaleKeys.space_permission.tr(),
           fontSize: 14.0,
           color: Theme.of(context).hintColor,
+          figmaLineHeight: 18.0,
         ),
         const VSpace(6.0),
         AppFlowyPopover(
@@ -72,7 +73,7 @@ class _SpacePermissionSwitchState extends State<SpacePermissionSwitch> {
           child: DecoratedBox(
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
-                side: BorderSide(color: Theme.of(context).colorScheme.outline),
+                side: BorderSide(color: context.enableBorderColor),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -148,9 +149,13 @@ class SpacePermissionButton extends StatelessWidget {
       radius: BorderRadius.circular(10),
       iconPadding: 16.0,
       leftIcon: FlowySvg(icon),
+      leftIconSize: const Size.square(20),
       rightIcon: showArrow
           ? const FlowySvg(FlowySvgs.space_permission_dropdown_s)
           : null,
+      borderColor: Theme.of(context).isLightMode
+          ? const Color(0x1E171717)
+          : const Color(0xFF3A3F49),
       text: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

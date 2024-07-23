@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 
 class FlowyButton extends StatelessWidget {
   final Widget text;
@@ -29,6 +28,7 @@ class FlowyButton extends StatelessWidget {
   final bool showDefaultBoxDecorationOnMobile;
   final double iconPadding;
   final bool expand;
+  final Color? borderColor;
 
   const FlowyButton({
     super.key,
@@ -52,6 +52,7 @@ class FlowyButton extends StatelessWidget {
     this.showDefaultBoxDecorationOnMobile = false,
     this.iconPadding = 6,
     this.expand = false,
+    this.borderColor,
   });
 
   @override
@@ -79,6 +80,7 @@ class FlowyButton extends StatelessWidget {
         style: HoverStyle(
           borderRadius: radius ?? Corners.s6Border,
           hoverColor: color,
+          borderColor: borderColor ?? Colors.transparent,
         ),
         onHover: disable ? null : onHover,
         isSelected: () => isSelected,
@@ -128,7 +130,8 @@ class FlowyButton extends StatelessWidget {
                 (Platform.isIOS || Platform.isAndroid)
             ? BoxDecoration(
                 border: Border.all(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                color: borderColor ??
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
                 width: 1.0,
               ))
             : null);

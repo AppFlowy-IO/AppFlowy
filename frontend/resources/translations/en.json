@@ -2083,6 +2083,7 @@
     "createNewSpace": "Create a new space",
     "createSpaceDescription": "Create multiple public and private spaces to better organize your work.",
     "spaceName": "Space name",
+    "spaceNamePlaceholder": "e.g. Marketing, Engineering, HR",
     "permission": "Permission",
     "publicPermission": "Public",
     "publicPermissionDescription": "All workspace members with full access",
