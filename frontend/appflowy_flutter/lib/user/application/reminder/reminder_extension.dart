@@ -13,4 +13,10 @@ extension ReminderExtension on ReminderPB {
 
     return includeTimeStr != null ? includeTimeStr == true.toString() : null;
   }
+
+  String? get blockId => meta[ReminderMetaKeys.blockId];
+
+  String? get rowId => meta[ReminderMetaKeys.rowId];
+
+  String? get createdAt => meta[ReminderMetaKeys.createdAt];
 }
