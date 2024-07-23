@@ -14,6 +14,7 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dar
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
@@ -150,7 +151,22 @@ class TranslateCellAccessory extends StatelessWidget {
         rowId: rowId,
         fieldId: fieldId,
       ),
-      child: BlocBuilder<TranslateRowBloc, TranslateRowState>(
+      child: BlocConsumer<TranslateRowBloc, TranslateRowState>(
+        listenWhen: (previous, current) {
+          return previous.error != current.error;
+        },
+        listener: (context, state) {
+          if (state.error != null) {
+            if (state.error!.isAIResponseLimitExceeded) {
+              showSnackBarMessage(
+                context,
+                LocaleKeys.sideBar_aiResponseLitmitDialogTitle.tr(),
+              );
+            } else {
+              showSnackBarMessage(context, state.error!.msg);
+            }
+          }
+        },
         builder: (context, state) {
           return const Row(
             children: [TranslateButton(), HSpace(6), CopyButton()],

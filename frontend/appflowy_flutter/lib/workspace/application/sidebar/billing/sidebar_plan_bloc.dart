@@ -16,7 +16,7 @@ part 'sidebar_plan_bloc.freezed.dart';
 
 class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
   SidebarPlanBloc() : super(const SidebarPlanState()) {
-    // After user pays for the subscription, the subscription success listenable will be triggered
+    // 1. Listen to user subscription payment callback. After user client 'Open AppFlowy', this listenable will be triggered.
     final subscriptionListener = getIt<SubscriptionSuccessListenable>();
     subscriptionListener.addListener(() {
       final plan = subscriptionListener.subscribedPlan;
@@ -49,6 +49,7 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
       }
     });
 
+    // 2. Listen to the storage notification
     _storageListener = StoreageNotificationListener(
       onError: (error) {
         if (!isClosed) {
@@ -57,6 +58,7 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
       },
     );
 
+    // 3. Listen to specific error codes
     _globalErrorListener = GlobalErrorCodeNotifier.add(
       onError: (error) {
         if (!isClosed) {

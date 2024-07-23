@@ -184,3 +184,22 @@ class _PlanIndicatorState extends State<PlanIndicator> {
     );
   }
 }
+
+class _AskOwnerToChangePlan extends StatelessWidget {
+  const _AskOwnerToChangePlan({
+    required this.message,
+    required this.onOkPressed,
+  });
+  final String message;
+  final VoidCallback onOkPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigatorOkCancelDialog(
+      message: message,
+      okTitle: LocaleKeys.button_ok.tr(),
+      onOkPressed: onOkPressed,
+      titleUpperCase: false,
+    );
+  }
+}
