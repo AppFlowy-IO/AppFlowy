@@ -153,6 +153,7 @@ class PlanIndicator extends StatelessWidget {
               planName,
               color: const Color(0xFFE8E2EE),
               fontSize: 12,
+              textAlign: TextAlign.center,
             ),
           ),
           onTap: onTap,

@@ -12,6 +12,7 @@ import 'package:appflowy/plugins/database/widgets/cell/mobile_row_detail/mobile_
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -149,7 +150,22 @@ class SummaryCellAccessory extends StatelessWidget {
         rowId: rowId,
         fieldId: fieldId,
       ),
-      child: BlocBuilder<SummaryRowBloc, SummaryRowState>(
+      child: BlocConsumer<SummaryRowBloc, SummaryRowState>(
+        listenWhen: (previous, current) {
+          return previous.error != current.error;
+        },
+        listener: (context, state) {
+          if (state.error != null) {
+            if (state.error!.isAIResponseLimitExceeded) {
+              showSnackBarMessage(
+                context,
+                LocaleKeys.sideBar_aiResponseLitmitDialogTitle.tr(),
+              );
+            } else {
+              showSnackBarMessage(context, state.error!.msg);
+            }
+          }
+        },
         builder: (context, state) {
           return const Row(
             children: [SummaryButton(), HSpace(6), CopyButton()],
@@ -169,13 +185,13 @@ class SummaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SummaryRowBloc, SummaryRowState>(
       builder: (context, state) {
-        return state.loadingState.map(
-          loading: (_) {
+        return state.loadingState.when(
+          loading: () {
             return const Center(
               child: CircularProgressIndicator.adaptive(),
             );
           },
-          finish: (_) {
+          finish: () {
             return FlowyTooltip(
               message: LocaleKeys.tooltip_aiGenerate.tr(),
               child: Container(
