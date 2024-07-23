@@ -467,32 +467,29 @@ class CurrentSpace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = FlowyTooltip(
-      message: LocaleKeys.space_switchSpace.tr(),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SpaceIcon(
-            dimension: 20,
-            space: space,
-            cornerRadius: 6.0,
+    final child = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SpaceIcon(
+          dimension: 20,
+          space: space,
+          cornerRadius: 6.0,
+        ),
+        const HSpace(10),
+        Flexible(
+          child: FlowyText.medium(
+            space.name,
+            fontSize: 14.0,
+            overflow: TextOverflow.ellipsis,
           ),
-          const HSpace(10),
-          Flexible(
-            child: FlowyText.medium(
-              space.name,
-              fontSize: 14.0,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const HSpace(4.0),
-          FlowySvg(
-            context.read<SpaceBloc>().state.isExpanded
-                ? FlowySvgs.workspace_drop_down_menu_show_s
-                : FlowySvgs.workspace_drop_down_menu_hide_s,
-          ),
-        ],
-      ),
+        ),
+        const HSpace(4.0),
+        FlowySvg(
+          context.read<SpaceBloc>().state.isExpanded
+              ? FlowySvgs.workspace_drop_down_menu_show_s
+              : FlowySvgs.workspace_drop_down_menu_hide_s,
+        ),
+      ],
     );
 
     if (onTapBlankArea != null) {
