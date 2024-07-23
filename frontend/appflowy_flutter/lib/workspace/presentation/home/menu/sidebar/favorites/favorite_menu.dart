@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/appflowy_divider.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -137,6 +138,7 @@ class _FavoriteGroups extends StatelessWidget {
       state.otherViews,
       LocaleKeys.sideBar_others.tr(),
     );
+
     return Container(
       width: minWidth - 2 * _kHorizontalPadding,
       constraints: const BoxConstraints(
@@ -149,15 +151,14 @@ class _FavoriteGroups extends StatelessWidget {
           children: [
             if (today.isNotEmpty) ...[
               ...today,
-              const VSpace(8),
-              const Divider(height: 1),
-              const VSpace(8),
+              const FlowyDivider(),
+              const VSpace(16),
             ],
             if (thisWeek.isNotEmpty) ...[
               ...thisWeek,
               const VSpace(8),
-              const Divider(height: 1),
-              const VSpace(8),
+              const FlowyDivider(),
+              const VSpace(16),
             ],
             ...others.isNotEmpty && (today.isNotEmpty || thisWeek.isNotEmpty)
                 ? others
@@ -182,13 +183,10 @@ class _FavoriteGroups extends StatelessWidget {
     return [
       if (views.isNotEmpty) ...[
         if (showHeader)
-          SizedBox(
-            height: 24,
-            child: FlowyText(
-              title,
-              fontSize: 12.0,
-              color: Theme.of(context).hintColor,
-            ),
+          FlowyText(
+            title,
+            fontSize: 12.0,
+            color: Theme.of(context).hintColor,
           ),
         const VSpace(2),
         _FavoriteGroupedViews(views: views),

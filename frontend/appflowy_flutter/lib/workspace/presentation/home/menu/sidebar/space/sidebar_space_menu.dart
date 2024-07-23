@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/appflowy_divider.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -40,9 +41,7 @@ class SidebarSpaceMenu extends StatelessWidget {
             if (showCreateButton) ...[
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Divider(
-                  height: 0.5,
-                ),
+                child: FlowyDivider(),
               ),
               const SizedBox(
                 height: HomeSpaceViewSizes.viewHeight,

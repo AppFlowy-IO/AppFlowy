@@ -4,6 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
+import 'package:appflowy/shared/appflowy_divider.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
@@ -332,10 +333,7 @@ class _SidebarState extends State<_Sidebar> {
                     child: child,
                   );
                 },
-                child: const Divider(
-                  color: Color(0x141F2329),
-                  height: 0.5,
-                ),
+                child: const FlowyDivider(),
               ),
             ),
 
@@ -345,7 +343,7 @@ class _SidebarState extends State<_Sidebar> {
             Padding(
               padding: menuHorizontalInset +
                   const EdgeInsets.symmetric(horizontal: 4.0),
-              child: const Divider(height: 0.5, color: Color(0x141F2329)),
+              child: const FlowyDivider(),
             ),
             const VSpace(8),
 

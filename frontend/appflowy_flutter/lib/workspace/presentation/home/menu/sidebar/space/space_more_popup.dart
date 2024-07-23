@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/appflowy_divider.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_action_type.dart';
@@ -129,7 +130,7 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
   Widget _buildDivider() {
     return const Padding(
       padding: EdgeInsets.all(8.0),
-      child: Divider(height: 1.0),
+      child: FlowyDivider(),
     );
   }
 
