@@ -285,9 +285,11 @@
     "Spaces": "Spaces",
     "upgradeToPro": "Upgrade to Pro Plan",
     "upgradeToAIMax": "Unlock unlimited AI",
-    "storageLimitDialogTitle": "You are running out of storage space. Upgrade to Pro Plan to get more storage",
-    "aiResponseLitmitDialogTitle": "You are running out of AI responses. Upgrade to Pro Plan or AI Max to get more AI responses",
+    "storageLimitDialogTitle": "You have run out of free workspace storage. Upgrade to unlock unlimited storage",
+    "aiResponseLitmitDialogTitle": "You have run out of free AI responses. Upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
     "aiResponseLitmit": "You are running out of AI responses. Go to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
+    "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
+    "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
     "upgradeToAILocal": "AI offline on your device"
@@ -2130,7 +2132,7 @@
       "zero": "Publish {} selected view",
       "one": "Publish {} selected views",
       "many": "Publish {} selected views",
-      "other":"Publish {} selected views"
+      "other": "Publish {} selected views"
     },
     "mustSelectPrimaryDatabase": "The primary database must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",

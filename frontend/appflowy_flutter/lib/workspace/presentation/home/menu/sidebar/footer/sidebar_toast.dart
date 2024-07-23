@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/billing/sidebar_plan_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -107,12 +108,38 @@ class _SidebarToastState extends State<SidebarToast> {
   void _hanldeOnTap(BuildContext context, SubscriptionPlanPB plan) {
     final userProfile = context.read<SidebarPlanBloc>().state.userProfile;
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    if (userProfile != null) {
-      showSettingsDialog(
-        context,
-        userProfile,
-        userWorkspaceBloc,
-        SettingsPage.plan,
+
+    // Only the user is workspace owner, it will navigate to the plan page.
+    final member = userWorkspaceBloc.state.currentWorkspaceMember;
+    if (member == null) {
+      Log.error(
+        "Member is null. It should not happen. If you see this error, it's a bug",
+      );
+      return;
+    }
+
+    if (member.role.isOwner) {
+      if (userProfile != null) {
+        showSettingsDialog(
+          context,
+          userProfile,
+          userWorkspaceBloc,
+          SettingsPage.plan,
+        );
+        return;
+      }
+    } else {
+      final message = plan == SubscriptionPlanPB.AiMax
+          ? LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr()
+          : LocaleKeys.sideBar_askOwnerToUpgradeToPro.tr();
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        useRootNavigator: false,
+        builder: (dialogContext) => _AskOwnerToChangePlan(
+          message: message,
+          onOkPressed: () {},
+        ),
       );
     }
   }
@@ -186,6 +213,25 @@ class _StorageLimitDialog extends StatelessWidget {
     return NavigatorOkCancelDialog(
       message: LocaleKeys.sideBar_storageLimitDialogTitle.tr(),
       okTitle: LocaleKeys.sideBar_purchaseStorageSpace.tr(),
+      onOkPressed: onOkPressed,
+      titleUpperCase: false,
+    );
+  }
+}
+
+class _AskOwnerToChangePlan extends StatelessWidget {
+  const _AskOwnerToChangePlan({
+    required this.message,
+    required this.onOkPressed,
+  });
+  final String message;
+  final VoidCallback onOkPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigatorOkCancelDialog(
+      message: message,
+      okTitle: LocaleKeys.button_ok.tr(),
       onOkPressed: onOkPressed,
       titleUpperCase: false,
     );
