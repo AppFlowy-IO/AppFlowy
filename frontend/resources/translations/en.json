@@ -2132,7 +2132,7 @@
       "many": "Publish {} selected views",
       "other":"Publish {} selected views"
     },
-    "mustSelectPrimaryDatabase": "The primary database must be selected",
+    "mustSelectPrimaryDatabase": "The primary view must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",
     "unableToDeselectPrimaryDatabase": "Unable to deselect primary database"
   },

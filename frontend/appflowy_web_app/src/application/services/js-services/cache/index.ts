@@ -258,10 +258,9 @@ export async function revalidatePublishView<
       //   rowMapDoc.getMap().set(subdoc.guid, subdoc);
       // });
     }
-
-    console.log('rows', rows);
   }
 
+  console.log('====', rows);
   const state = new Uint8Array(data);
 
   applyYDoc(collab, state);

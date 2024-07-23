@@ -15,7 +15,7 @@ function AppTheme({ children }: { children: React.ReactNode }) {
       createTheme({
         typography: {
           fontFamily: ['inherit'].join(','),
-          fontSize: 12,
+          fontSize: 14,
           button: {
             textTransform: 'none',
           },
