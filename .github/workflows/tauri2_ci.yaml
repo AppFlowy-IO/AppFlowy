@@ -1,11 +1,11 @@
 name: Tauri-CI
 on:
   pull_request:
-#    paths:
-#      - ".github/workflows/tauri2_ci.yaml"
-#      - "frontend/rust-lib/**"
-#      - "frontend/appflowy_web_app/**"
-#      - "frontend/resources/**"
+    paths:
+      - ".github/workflows/tauri2_ci.yaml"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_web_app/**"
+      - "frontend/resources/**"
 
 env:
   NODE_VERSION: "18.16.0"
@@ -64,11 +64,10 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
-          override: true
           profile: minimal
 
       - name: Rust cache
-        if: matrix.os != 'self-hosted-frontend'
+        if: matrix.os != 'self-hosted'
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "./frontend/appflowy_web_app/src-tauri -> target"
