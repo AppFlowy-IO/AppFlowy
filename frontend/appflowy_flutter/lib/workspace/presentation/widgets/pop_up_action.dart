@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
@@ -54,7 +54,11 @@ class _PopoverActionListState<T extends PopoverAction>
   @override
   Widget build(BuildContext context) {
     final child = widget.buildChild(popoverController);
-
+    final decoration = FlowyDecoration.decoration(
+      Theme.of(context).cardColor,
+      const Color(0x1E181818),
+      borderRadius: 10.0,
+    );
     return AppFlowyPopover(
       asBarrier: widget.asBarrier,
       controller: popoverController,
@@ -64,6 +68,7 @@ class _PopoverActionListState<T extends PopoverAction>
       offset: widget.offset,
       triggerActions: PopoverTriggerFlags.none,
       onClose: widget.onClosed,
+      decoration: decoration,
       popupBuilder: (BuildContext popoverContext) {
         widget.onPopupBuilder?.call();
         final List<Widget> children = widget.actions.map((action) {

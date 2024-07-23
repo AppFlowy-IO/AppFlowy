@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/appflowy_divider.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/move_to/move_page_menu.dart';
@@ -205,7 +206,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
   Widget _buildDivider() {
     return const Padding(
       padding: EdgeInsets.all(8.0),
-      child: Divider(height: 1.0),
+      child: FlowyDivider(),
     );
   }
 
