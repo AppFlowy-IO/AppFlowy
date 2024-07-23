@@ -23,7 +23,15 @@ env:
 
 jobs:
   test-on-ubuntu:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [
+          self-hosted,
+          #ubuntu-latest
+        ]
+
+    runs-on: ${{ matrix.os }}
     steps:
       # - name: Maximize build space
       #   uses: easimon/maximize-build-space@master
@@ -61,7 +69,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "ubuntu-latest"
+          prefix-key: ${{ matrix.os }}
           workspaces: |
             frontend/rust-lib
 
@@ -74,10 +82,14 @@ jobs:
       - name: Prepare appflowy cloud env
         working-directory: AppFlowy-Cloud
         run: |
-          # log level
           cp deploy.env .env
-          sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-          sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+            sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+          else
+            sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+            sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+          fi
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud

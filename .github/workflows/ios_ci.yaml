@@ -33,7 +33,11 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ macos-14 ]
+        os: [
+          self-hosted,
+          #macos-14
+        ]
+
     runs-on: ${{ matrix.os }}
 
     steps:
