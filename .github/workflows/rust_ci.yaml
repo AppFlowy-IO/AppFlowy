@@ -34,7 +34,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Maximize build space
-        if: runner.os != 'self-hosted'
+        if: matrix.os != 'self-hosted'
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -47,7 +47,7 @@ jobs:
 
       - name: Install Rust toolchain
         id: rust_toolchain
-        if: runner.os != 'self-hosted'
+        if: matrix.os != 'self-hosted'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -56,7 +56,7 @@ jobs:
           profile: minimal
 
       - name: Install prerequisites
-        if: runner.os != 'self-hosted'
+        if: matrix.os != 'self-hosted'
         working-directory: frontend
         run: |
           cargo install --force cargo-make
