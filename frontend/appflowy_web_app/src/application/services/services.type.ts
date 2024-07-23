@@ -1,4 +1,5 @@
 import { YDoc } from '@/application/collab.type';
+import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import * as Y from 'yjs';
 import { DuplicatePublishView, FolderView, User, Workspace } from '@/application/types';
@@ -28,6 +29,12 @@ export interface PublishService {
     rows: Y.Map<YDoc>;
     destroy: () => void;
   }>;
+  getPublishViewGlobalComments: (viewId: string) => Promise<GlobalComment[]>;
+  createCommentOnPublishView: (viewId: string, content: string, replyCommentId?: string) => Promise<void>;
+  deleteCommentOnPublishView: (viewId: string, commentId: string) => Promise<void>;
+  getPublishViewReactions: (viewId: string, commentId?: string) => Promise<Record<string, Reaction[]>>;
+  addPublishViewReaction: (viewId: string, commentId: string, reactionType: string) => Promise<void>;
+  removePublishViewReaction: (viewId: string, commentId: string, reactionType: string) => Promise<void>;
 
   loginAuth: (url: string) => Promise<void>;
   signInMagicLink: (params: { email: string; redirectTo: string }) => Promise<void>;

@@ -5,7 +5,7 @@ import AppConfig from '@/components/app/AppConfig';
 import { Suspense } from 'react';
 import { SnackbarProvider } from 'notistack';
 import { styled } from '@mui/material';
-import InfoSnackbar from '../_shared/notify/InfoSnackbar';
+import { InfoSnackbar } from '../_shared/notify';
 
 const StyledSnackbarProvider = styled(SnackbarProvider)`
   &.notistack-MuiContent-default {

@@ -123,3 +123,25 @@ body {
     @apply flex-wrap py-2;
   }
 }
+
+@keyframes blink {
+  0%, 100% {
+    background-color: var(--content-blue-100);
+  }
+  50% {
+    background-color: unset;
+  }
+}
+
+.blink {
+  animation: blink 2s linear infinite;
+}
+
+.reply-line {
+  width: 28px;
+  height: 16px;
+  border-left: 2px solid;
+  border-top: 2px solid;
+  border-color: var(--line-border);
+  border-top-left-radius: 6px;
+}

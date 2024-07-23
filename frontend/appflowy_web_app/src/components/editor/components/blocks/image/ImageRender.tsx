@@ -5,7 +5,7 @@ import { copyTextToClipboard } from '@/utils/copy';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CircularProgress } from '@mui/material';
-import { ErrorOutline } from '@mui/icons-material';
+import { ReactComponent as ErrorOutline } from '@/assets/error.svg';
 
 const MIN_WIDTH = 100;
 
@@ -35,7 +35,11 @@ function ImageRender({
   }, [hasError, initialWidth, loading]);
   const imageProps: React.ImgHTMLAttributes<HTMLImageElement> = useMemo(() => {
     return {
-      style: { width: loading || hasError ? '0' : newWidth ?? '100%', opacity: selected ? 0.8 : 1 },
+      style: {
+        width: loading || hasError ? '0' : newWidth ?? '100%',
+        opacity: selected ? 0.8 : 1,
+        height: hasError ? 0 : 'auto',
+      },
       className: 'object-cover',
       ref: imgRef,
       src: url,
@@ -54,7 +58,9 @@ function ImageRender({
   const renderErrorNode = useCallback(() => {
     return (
       <div
-        className={'flex h-full w-full items-center justify-center gap-2 rounded border border-function-error bg-red-50'}
+        className={
+          'flex h-[48px] w-full items-center justify-center gap-2 rounded border border-function-error bg-red-50'
+        }
       >
         <ErrorOutline className={'text-function-error'} />
         <div className={'text-function-error'}>{t('editor.imageLoadFailed')}</div>
@@ -68,7 +74,7 @@ function ImageRender({
     <div
       style={{
         minWidth: MIN_WIDTH,
-        width: 'fit-content',
+        width: loading || hasError ? '100%' : 'fit-content',
       }}
       className={`image-render relative min-h-[48px] ${hasError ? 'w-full' : ''}`}
     >

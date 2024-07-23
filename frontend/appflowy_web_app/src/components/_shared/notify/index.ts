@@ -1,4 +1,7 @@
 import { InfoProps } from '@/components/_shared/notify/InfoSnackbar';
+import { lazy } from 'react';
+
+export const InfoSnackbar = lazy(() => import('./InfoSnackbar'));
 
 export const notify = {
   success: (message: string) => {

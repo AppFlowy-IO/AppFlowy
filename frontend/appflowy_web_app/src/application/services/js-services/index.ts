@@ -1,4 +1,5 @@
 import { YDoc } from '@/application/collab.type';
+import { GlobalComment, Reaction } from '@/application/comment.type';
 import {
   deleteView,
   getPublishView,
@@ -14,10 +15,16 @@ import {
   signInGithub,
   signInDiscord,
   signInWithUrl,
+  createGlobalCommentOnPublishView,
+  deleteGlobalCommentOnPublishView,
+  getPublishViewComments,
   getWorkspaces,
   getWorkspaceFolder,
   getCurrentUser,
   duplicatePublishView,
+  getReactions,
+  addReaction,
+  removeReaction,
 } from '@/application/services/js-services/wasm/client_api';
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { emit, EventType } from '@/application/session';
@@ -225,6 +232,7 @@ export class AFClientService implements AFService {
       email: data.email,
       name: data.name,
       avatar: data.icon_url,
+      uuid: data.uuid,
     };
   }
 
@@ -235,5 +243,29 @@ export class AFClientService implements AFService {
       published_view_id: params.viewId,
       published_collab_type: params.collabType,
     });
+  }
+
+  createCommentOnPublishView(viewId: string, content: string, replyCommentId: string | undefined): Promise<void> {
+    return createGlobalCommentOnPublishView(viewId, content, replyCommentId);
+  }
+
+  deleteCommentOnPublishView(viewId: string, commentId: string): Promise<void> {
+    return deleteGlobalCommentOnPublishView(viewId, commentId);
+  }
+
+  getPublishViewGlobalComments(viewId: string): Promise<GlobalComment[]> {
+    return getPublishViewComments(viewId);
+  }
+
+  getPublishViewReactions(viewId: string, commentId?: string): Promise<Record<string, Reaction[]>> {
+    return getReactions(viewId, commentId);
+  }
+
+  addPublishViewReaction(viewId: string, commentId: string, reactionType: string): Promise<void> {
+    return addReaction(viewId, commentId, reactionType);
+  }
+
+  removePublishViewReaction(viewId: string, commentId: string, reactionType: string): Promise<void> {
+    return removeReaction(viewId, commentId, reactionType);
   }
 }

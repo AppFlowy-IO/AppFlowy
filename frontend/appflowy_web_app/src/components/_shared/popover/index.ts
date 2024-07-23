@@ -1,2 +1,4 @@
-export * from './Popover';
-export * from './RichTooltip';
+import { lazy } from 'react';
+
+export const RichTooltip = lazy(() => import('./RichTooltip'));
+export const Popover = lazy(() => import('./Popover'));

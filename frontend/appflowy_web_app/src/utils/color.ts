@@ -73,6 +73,7 @@ export function renderColor(color: string) {
   return argbToRgba(color);
 }
 
+
 export function stringToColor(string: string) {
   let hash = 0;
   let i;
@@ -92,4 +93,13 @@ export function stringToColor(string: string) {
   /* eslint-enable no-bitwise */
 
   return color;
+}
+
+export function stringAvatar(name: string) {
+  return {
+    sx: {
+      bgcolor: stringToColor(name),
+    },
+    children: `${name.split('')[0]}`,
+  };
 }

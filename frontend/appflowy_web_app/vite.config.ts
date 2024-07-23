@@ -112,6 +112,7 @@ export default defineConfig({
                     id.includes('/react-is@') ||
                     id.includes('/yjs@') ||
                     id.includes('/y-indexeddb@') ||
+                    id.includes('/dexie') ||
                     id.includes('/redux') ||
                     id.includes('/react-custom-scrollbars')
                   ) {
@@ -140,9 +141,7 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
-      '@mui/icons-material/ErrorOutline',
-      '@mui/icons-material/CheckCircleOutline',
-      '@mui/icons-material/FunctionsOutlined',
+      '@mui/icons-material/Circle',
       'react-katex',
       // 'react-custom-scrollbars-2',
       // 'react-window',

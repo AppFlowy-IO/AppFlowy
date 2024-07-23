@@ -1,12 +1,14 @@
 import { YDoc } from '@/application/collab.type';
 import { PublishProvider } from '@/application/publish';
+import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { AFScroller } from '@/components/_shared/scroller';
 import { AFConfigContext } from '@/components/app/AppConfig';
+import { GlobalCommentProvider } from '@/components/global-comment';
 import CollabView from '@/components/publish/CollabView';
-import OutlineDrawer from '@/components/publish/outline/OutlineDrawer';
+import { OutlineDrawer } from '@/components/publish/outline';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { PublishViewHeader } from 'src/components/publish/header';
+import React, { Suspense, useCallback, useContext, useEffect, useState } from 'react';
+import { PublishViewHeader } from '@/components/publish/header';
 import NotFound from '@/components/error/NotFound';
 
 export interface PublishViewProps {
@@ -84,8 +86,13 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
           />
 
           <CollabView doc={doc} />
+          <Suspense fallback={<ComponentLoading />}>
+            <GlobalCommentProvider />
+          </Suspense>
         </AFScroller>
-        {open && <OutlineDrawer width={drawerWidth} open={open} onClose={() => setOpen(false)} />}
+        <Suspense fallback={null}>
+          {open && <OutlineDrawer width={drawerWidth} open={open} onClose={() => setOpen(false)} />}
+        </Suspense>
       </div>
     </PublishProvider>
   );

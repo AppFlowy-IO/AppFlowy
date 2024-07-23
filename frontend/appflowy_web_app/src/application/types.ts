@@ -29,6 +29,7 @@ export interface User {
   name: string | null;
   uid: string;
   avatar: string | null;
+  uuid: string;
 }
 
 export interface DuplicatePublishView {

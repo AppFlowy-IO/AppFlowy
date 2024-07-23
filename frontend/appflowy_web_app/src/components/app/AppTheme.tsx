@@ -140,6 +140,7 @@ function AppTheme({ children }: { children: React.ReactNode }) {
                   color: 'var(--text-caption)',
                   WebkitTextFillColor: 'var(--text-caption) !important',
                 },
+                borderRadius: '8px',
               },
             },
             styleOverrides: {

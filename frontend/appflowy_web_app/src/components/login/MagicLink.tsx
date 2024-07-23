@@ -3,7 +3,7 @@ import { AFConfigContext } from '@/components/app/AppConfig';
 import { Button, CircularProgress, OutlinedInput } from '@mui/material';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import validator from 'validator';
+import isEmail from 'validator/lib/isEmail';
 
 function MagicLink({ redirectTo }: { redirectTo: string }) {
   const { t } = useTranslation();
@@ -11,7 +11,7 @@ function MagicLink({ redirectTo }: { redirectTo: string }) {
   const [loading, setLoading] = React.useState<boolean>(false);
   const service = useContext(AFConfigContext)?.service;
   const handleSubmit = async () => {
-    const isValidEmail = validator.isEmail(email);
+    const isValidEmail = isEmail(email);
 
     if (!isValidEmail) {
       notify.error(t('signIn.invalidEmail'));

@@ -38,7 +38,14 @@ export function NormalModal({
   const buttonColor = danger ? 'var(--function-error)' : undefined;
 
   return (
-    <Dialog {...dialogProps}>
+    <Dialog
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          onClose?.();
+        }
+      }}
+      {...dialogProps}
+    >
       <div className={'relative flex flex-col gap-4 p-5'}>
         <div className={'flex w-full items-center justify-between text-base font-medium'}>
           <div className={'flex-1 text-center '}>{title}</div>

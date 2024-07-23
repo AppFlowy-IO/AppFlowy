@@ -29,7 +29,6 @@ $today-highlight-bg: transparent;
 
 .rbc-month-view {
   border: none;
-  @apply h-full overflow-auto;
 
   .rbc-month-row {
     border: 1px solid var(--line-divider);
@@ -79,10 +78,6 @@ $today-highlight-bg: transparent;
   height: fit-content;
   table-layout: fixed;
   width: 100%;
-
-  &:last-child {
-    margin-bottom: 150px;
-  }
 }
 
 .event-properties {
