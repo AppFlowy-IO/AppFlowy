@@ -148,7 +148,12 @@ impl Chat {
         },
         Err(err) => {
           error!("[Chat] failed to stream answer: {}", err);
-          let _ = text_sink.send(format!("error:{}", err)).await;
+          if err.is_ai_response_limit_exceeded() {
+            let _ = text_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
+          } else {
+            let _ = text_sink.send(format!("error:{}", err)).await;
+          }
+
           let pb = ChatMessageErrorPB {
             chat_id: chat_id.clone(),
             error_message: err.to_string(),
