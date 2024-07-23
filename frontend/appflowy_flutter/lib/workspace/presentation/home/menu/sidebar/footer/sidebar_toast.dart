@@ -127,7 +127,13 @@ class PlanIndicator extends StatefulWidget {
 }
 
 class _PlanIndicatorState extends State<PlanIndicator> {
-  bool isExpanded = false;
+  final popoverController = PopoverController();
+
+  @override
+  void dispose() {
+    popoverController.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +154,7 @@ class _PlanIndicatorState extends State<PlanIndicator> {
     );
 
     return AppFlowyPopover(
+      controller: popoverController,
       direction: PopoverDirection.rightWithBottomAligned,
       offset: const Offset(10, -12),
       popupBuilder: (context) {
@@ -178,7 +185,10 @@ class _PlanIndicatorState extends State<PlanIndicator> {
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
                         behavior: HitTestBehavior.translucent,
-                        onTap: widget.onTap,
+                        onTap: () {
+                          popoverController.close();
+                          widget.onTap();
+                        },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
