@@ -8,6 +8,7 @@ class HomeSizes {
   static const double workspaceSectionHeight = 32;
   static const double searchSectionHeight = 30;
   static const double newPageSectionHeight = 30;
+  static const double minimumSidebarWidth = 268;
 }
 
 class HomeInsets {
