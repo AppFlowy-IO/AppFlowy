@@ -17,17 +17,23 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     required this.questionId,
   }) : super(ChatAIMessageState.initial(message)) {
     if (state.stream != null) {
-      _subscription = state.stream!.listen((text) {
-        if (isClosed) {
-          return;
-        }
-
-        if (text.startsWith("data:")) {
-          add(ChatAIMessageEvent.newText(text.substring(5)));
-        } else if (text.startsWith("error:")) {
-          add(ChatAIMessageEvent.receiveError(text.substring(5)));
-        }
-      });
+      _subscription = state.stream!.listen(
+        onData: (text) {
+          if (!isClosed) {
+            add(ChatAIMessageEvent.updateText(text));
+          }
+        },
+        onError: (error) {
+          if (!isClosed) {
+            add(ChatAIMessageEvent.receiveError(error.toString()));
+          }
+        },
+        onAIResponseLimit: () {
+          if (!isClosed) {
+            add(const ChatAIMessageEvent.onAIResponseLimit());
+          }
+        },
+      );
 
       if (state.stream!.error != null) {
         Future.delayed(const Duration(milliseconds: 300), () {
@@ -42,11 +48,16 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
       (event, emit) async {
         await event.when(
           initial: () async {},
-          newText: (newText) {
-            emit(state.copyWith(text: state.text + newText, error: null));
+          updateText: (newText) {
+            emit(
+              state.copyWith(
+                text: newText,
+                messageState: const MessageState.ready(),
+              ),
+            );
           },
           receiveError: (error) {
-            emit(state.copyWith(error: error));
+            emit(state.copyWith(messageState: MessageState.onError(error)));
           },
           retry: () {
             if (questionId is! Int64) {
@@ -55,8 +66,7 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
             }
             emit(
               state.copyWith(
-                retryState: const LoadingState.loading(),
-                error: null,
+                messageState: const MessageState.loading(),
               ),
             );
 
@@ -82,8 +92,14 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
             emit(
               state.copyWith(
                 text: text,
-                error: null,
-                retryState: const LoadingState.finish(),
+                messageState: const MessageState.ready(),
+              ),
+            );
+          },
+          onAIResponseLimit: () {
+            emit(
+              state.copyWith(
+                messageState: const MessageState.onAIResponseLimit(),
               ),
             );
           },
@@ -98,7 +114,7 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     return super.close();
   }
 
-  StreamSubscription<AnswerStreamElement>? _subscription;
+  StreamSubscription<String>? _subscription;
   final String chatId;
   final Int64? questionId;
 }
@@ -106,26 +122,34 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
 @freezed
 class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.initial() = Initial;
-  const factory ChatAIMessageEvent.newText(String text) = _NewText;
+  const factory ChatAIMessageEvent.updateText(String text) = _UpdateText;
   const factory ChatAIMessageEvent.receiveError(String error) = _ReceiveError;
   const factory ChatAIMessageEvent.retry() = _Retry;
   const factory ChatAIMessageEvent.retryResult(String text) = _RetryResult;
+  const factory ChatAIMessageEvent.onAIResponseLimit() = _OnAIResponseLimit;
 }
 
 @freezed
 class ChatAIMessageState with _$ChatAIMessageState {
   const factory ChatAIMessageState({
     AnswerStream? stream,
-    String? error,
     required String text,
-    required LoadingState retryState,
+    required MessageState messageState,
   }) = _ChatAIMessageState;
 
   factory ChatAIMessageState.initial(dynamic text) {
     return ChatAIMessageState(
       text: text is String ? text : "",
       stream: text is AnswerStream ? text : null,
-      retryState: const LoadingState.finish(),
+      messageState: const MessageState.loading(),
     );
   }
+}
+
+@freezed
+class MessageState with _$MessageState {
+  const factory MessageState.onError(String error) = _Error;
+  const factory MessageState.onAIResponseLimit() = _AIResponseLimit;
+  const factory MessageState.ready() = _Ready;
+  const factory MessageState.loading() = _Loading;
 }
