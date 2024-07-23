@@ -156,7 +156,7 @@ class FlowyText extends StatelessWidget {
       fontSize = fontSize * 0.8;
     }
 
-    var lineHeight = 1.1;
+    double? lineHeight;
     if (this.lineHeight != null) {
       lineHeight = this.lineHeight!;
     } else if (figmaLineHeight != null) {
@@ -194,7 +194,7 @@ class FlowyText extends StatelessWidget {
                 textStyle,
                 forceStrutHeight: true,
                 leadingDistribution: TextLeadingDistribution.even,
-                height: lineHeight,
+                height: lineHeight ?? 1.1,
               )
             : null,
       );
