@@ -35,7 +35,7 @@ jobs:
       matrix:
         os: [
           self-hosted,
-          macos-latest
+          #macos-latest
         ]
 
     runs-on: ${{ matrix.os }}
@@ -74,6 +74,7 @@ jobs:
           version: "0.36.6"
 
       - name: Install prerequisites
+        if: matrix.os != 'self-hosted'
         working-directory: frontend
         run: |
           rustup target install aarch64-apple-ios-sim

@@ -28,7 +28,7 @@ jobs:
       matrix:
         os: [
           self-hosted,
-          ubuntu-latest
+          #ubuntu-latest
         ]
 
     runs-on: ${{ matrix.os }}
