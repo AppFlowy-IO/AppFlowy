@@ -19,7 +19,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ ubuntu-20.04 ]
+        platform: [
+          self-hosted,
+          #ubuntu-latest
+        ]
 
     runs-on: ${{ matrix.platform }}
 
@@ -29,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Maximize build space (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform != 'self-hosted'
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -52,6 +55,7 @@ jobs:
 
       - name: Install Rust toolchain
         id: rust_toolchain
+        if: matrix.platform != 'self-hosted'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -85,6 +89,7 @@ jobs:
 
       - name: install cargo-make
         working-directory: frontend
+        if: matrix.platform != 'self-hosted'
         run: |
           cargo install --force cargo-make
           cargo make appflowy-tauri-deps-tools

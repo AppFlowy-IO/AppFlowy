@@ -74,17 +74,21 @@ jobs:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
 
-      - name: Prepare appflowy cloud env
+      - name: Prepare appflowy cloud env (self-hosted)
+        if: matrix.platform == 'self-hosted'
         working-directory: AppFlowy-Cloud
         run: |
-          ls
           cp deploy.env .env
-          if [[ ${{ matrix.os }} == "self-hosted" ]]; then
-            sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-            sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
-          else
-            sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-            sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+          sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+
+      - name: Prepare appflowy cloud env (ubuntu)
+        if: matrix.platform == 'ubuntu-20.04'
+        working-directory: AppFlowy-Cloud
+        run: |
+          cp deploy.env .env
+          sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
