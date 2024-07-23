@@ -101,7 +101,8 @@ class ViewMoreActionButton extends StatelessWidget {
       ]);
 
       // Chat doesn't change collapse
-      if (view.layout != ViewLayoutPB.Chat) {
+      // Only show collapse all pages if the view has child views
+      if (view.layout != ViewLayoutPB.Chat && view.childViews.isNotEmpty) {
         actionTypes.add(ViewMoreActionType.collapseAllPages);
         actionTypes.add(ViewMoreActionType.divider);
       }
