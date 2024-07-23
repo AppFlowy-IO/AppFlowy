@@ -4,20 +4,20 @@ on:
   push:
     branches:
       - "main"
-  #    paths:
-  #      - ".github/workflows/mobile_ci.yaml"
-  #      - "frontend/**"
-  #      - "!frontend/appflowy_tauri/**"
-  #      - "!frontend/appflowy_web_app/**"
+    paths:
+      - ".github/workflows/mobile_ci.yaml"
+      - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
+      - "!frontend/appflowy_web_app/**"
 
   pull_request:
     branches:
       - "main"
-#    paths:
-#      - ".github/workflows/mobile_ci.yaml"
-#      - "frontend/**"
-#      - "!frontend/appflowy_tauri/**"
-#      - "!frontend/appflowy_web_app/**"
+    paths:
+      - ".github/workflows/mobile_ci.yaml"
+      - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
+      - "!frontend/appflowy_web_app/**"
 
 env:
   FLUTTER_VERSION: "3.22.0"
@@ -64,12 +64,14 @@ jobs:
           cache: true
 
       - uses: Swatinem/rust-cache@v2
+        if: matrix.os != 'self-hosted'
         with:
           prefix-key: self-hosted
           workspaces: |
             frontend/rust-lib
 
       - uses: davidB/rust-cargo-make@v1
+        if: matrix.os != 'self-hosted'
         with:
           version: "0.36.6"
 
