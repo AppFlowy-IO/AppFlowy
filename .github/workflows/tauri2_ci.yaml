@@ -22,12 +22,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [
+        os: [
           self-hosted,
           #ubuntu-20.04
         ]
 
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
 
     env:
       CI: true
@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Maximize build space (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-20.04'
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -47,20 +47,20 @@ jobs:
           sudo rm -rf $ANDROID_HOME/ndk
 
       - name: setup node
-        if: matrix.platform != 'self-hosted'
+        if: matrix.os != 'self-hosted'
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
-        if: matrix.platform != 'self-hosted'
+        if: matrix.os != 'self-hosted'
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install Rust toolchain
         id: rust_toolchain
-        if: matrix.platform != 'self-hosted'
+        if: matrix.os != 'self-hosted'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -79,21 +79,21 @@ jobs:
           key: node-modules-${{ runner.os }}
 
       - name: install dependencies (windows only)
-        if: matrix.platform == 'windows-latest'
+        if: matrix.os == 'windows-latest'
         working-directory: frontend
         run: |
           cargo install --force duckscript_cli
           vcpkg integrate install
 
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-20.04'
         working-directory: frontend
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: install cargo-make
-        if: matrix.platform != 'self-hosted'
+        if: matrix.os != 'self-hosted'
         working-directory: frontend
         run: |
           cargo install --force cargo-make
