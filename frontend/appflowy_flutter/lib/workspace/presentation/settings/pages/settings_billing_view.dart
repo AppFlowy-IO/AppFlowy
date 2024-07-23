@@ -327,14 +327,9 @@ class _AITileState extends State<_AITile> {
               : LocaleKeys.settings_billingPage_addons_addLabel.tr(),
           fontWeight: FontWeight.w500,
           minWidth: _buttonsMinWidth,
-          onPressed: () {
-            if (widget.subscriptionInfo != null && isCanceled) {
-              // Show customer portal to renew
-              context
-                  .read<SettingsBillingBloc>()
-                  .add(const SettingsBillingEvent.openCustomerPortal());
-            } else if (widget.subscriptionInfo != null) {
-              showConfirmDialog(
+          onPressed: () async {
+            if (widget.subscriptionInfo != null) {
+              await showConfirmDialog(
                 context: context,
                 style: ConfirmPopupStyle.cancelAndOk,
                 title: LocaleKeys.settings_billingPage_addons_removeDialog_title
@@ -343,11 +338,9 @@ class _AITileState extends State<_AITile> {
                     .settings_billingPage_addons_removeDialog_description
                     .tr(namedArgs: {"plan": widget.plan.label.tr()}),
                 confirmLabel: LocaleKeys.button_confirm.tr(),
-                onConfirm: () {
-                  context.read<SettingsBillingBloc>().add(
-                        SettingsBillingEvent.cancelSubscription(widget.plan),
-                      );
-                },
+                onConfirm: () => context
+                    .read<SettingsBillingBloc>()
+                    .add(SettingsBillingEvent.cancelSubscription(widget.plan)),
               );
             } else {
               // Add the addon

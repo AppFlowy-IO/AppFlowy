@@ -115,7 +115,7 @@ class SettingsBillingBloc
             (f) => Log.error(f.msg, f),
           );
         },
-        cancelSubscription: (plan) async {
+        cancelSubscription: (plan, reason) async {
           final s = state.mapOrNull(ready: (s) => s);
           if (s == null) {
             return;
@@ -124,7 +124,7 @@ class SettingsBillingBloc
           emit(s.copyWith(isLoading: true));
 
           final result =
-              await _userService.cancelSubscription(workspaceId, plan);
+              await _userService.cancelSubscription(workspaceId, plan, reason);
           final successOrNull = result.fold(
             (_) => true,
             (f) {
@@ -276,8 +276,9 @@ class SettingsBillingEvent with _$SettingsBillingEvent {
       _AddSubscription;
 
   const factory SettingsBillingEvent.cancelSubscription(
-    SubscriptionPlanPB plan,
-  ) = _CancelSubscription;
+    SubscriptionPlanPB plan, {
+    @Default(null) String? reason,
+  }) = _CancelSubscription;
 
   const factory SettingsBillingEvent.paymentSuccessful({
     SubscriptionPlanPB? plan,

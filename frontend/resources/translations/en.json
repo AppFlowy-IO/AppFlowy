@@ -351,7 +351,10 @@
     "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
-    "close": "Close"
+    "close": "Close",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit"
   },
   "label": {
     "welcome": "Welcome!",
@@ -828,6 +831,43 @@
         "title": "Are you sure you want to downgrade your plan?",
         "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to this workspace and you may need to free up space to meet the storage limits of the Free plan.",
         "downgradeLabel": "Downgrade plan"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "Sorry to see you go",
+      "description": "We're sorry to see you go. We'd love to hear your feedback to help us improve @:appName. Please take a moment to answer a few questions.",
+      "commonOther": "Other",
+      "otherHint": "Write your answer here",
+      "questionOne": {
+        "question": "What prompted you to cancel your AppFlowy Pro subscription?",
+        "answerOne": "Cost too high",
+        "answerTwo": "Features did not meet expectations",
+        "answerThree": "Found a better alternative",
+        "answerFour": "Did not use it enough to justify the expense",
+        "answerFive": "Service issue or technical difficulties"
+      },
+      "questionTwo": {
+        "question": "How likely are you to consider re-subscribing to AppFlowy Pro in the future?",
+        "answerOne": "Very likely",
+        "answerTwo": "Somewhat likely",
+        "answerThree": "Not sure",
+        "answerFour": "Unlikely",
+        "answerFive": "Very unlikely"
+      },
+      "questionThree": {
+        "question": "Which Pro feature did you value the most during your subscription?",
+        "answerOne": "Multi-user collaboration",
+        "answerTwo": "Longer time version history",
+        "answerThree": "Unlimited AI responses",
+        "answerFour": "Access to local AI models"
+      },
+      "questionFour": {
+        "question": "How would you describe your overall experience with AppFlowy?",
+        "answerOne": "Great",
+        "answerTwo": "Good",
+        "answerThree": "Average",
+        "answerFour": "Below average",
+        "answerFive": "Unsatisfied"
       }
     },
     "common": {

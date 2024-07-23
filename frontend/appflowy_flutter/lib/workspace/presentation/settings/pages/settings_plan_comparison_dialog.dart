@@ -5,6 +5,7 @@ import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/cancel_plan_survey_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -194,6 +195,12 @@ class _SettingsPlanComparisonDialogState
                                 return;
                               }
 
+                              final reason =
+                                  await showCancelSurveyDialog(context);
+                              if (reason == null || !context.mounted) {
+                                return;
+                              }
+
                               await showConfirmDialog(
                                 context: context,
                                 title: LocaleKeys
@@ -208,8 +215,9 @@ class _SettingsPlanComparisonDialogState
                                 style: ConfirmPopupStyle.cancelAndOk,
                                 onConfirm: () =>
                                     context.read<SettingsPlanBloc>().add(
-                                          const SettingsPlanEvent
-                                              .cancelSubscription(),
+                                          SettingsPlanEvent.cancelSubscription(
+                                            reason: reason,
+                                          ),
                                         ),
                               );
                             },

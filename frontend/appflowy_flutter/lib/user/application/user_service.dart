@@ -14,6 +14,7 @@ abstract class IUserBackendService {
   Future<FlowyResult<void, FlowyError>> cancelSubscription(
     String workspaceId,
     SubscriptionPlanPB plan,
+    String? reason,
   );
   Future<FlowyResult<PaymentLinkPB, FlowyError>> createSubscription(
     String workspaceId,
@@ -265,11 +266,16 @@ class UserBackendService implements IUserBackendService {
   @override
   Future<FlowyResult<void, FlowyError>> cancelSubscription(
     String workspaceId,
-    SubscriptionPlanPB plan,
-  ) {
+    SubscriptionPlanPB plan, [
+    String? reason,
+  ]) {
     final request = CancelWorkspaceSubscriptionPB()
       ..workspaceId = workspaceId
       ..plan = plan;
+
+    if (reason != null) {
+      request.reason = reason;
+    }
 
     return UserEventCancelWorkspaceSubscription(request).send();
   }
