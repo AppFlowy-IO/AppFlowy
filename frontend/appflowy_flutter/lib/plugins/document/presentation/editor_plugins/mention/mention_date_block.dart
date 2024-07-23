@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
@@ -27,6 +25,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/non_secure.dart';
 
@@ -375,6 +374,8 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
               meta: {
                 ReminderMetaKeys.includeTime: false.toString(),
                 ReminderMetaKeys.blockId: widget.node.id,
+                ReminderMetaKeys.createdAt:
+                    DateTime.now().millisecondsSinceEpoch.toString(),
               },
               scheduledAt: Int64(parsedDate!.millisecondsSinceEpoch ~/ 1000),
               isAck: parsedDate!.isBefore(DateTime.now()),

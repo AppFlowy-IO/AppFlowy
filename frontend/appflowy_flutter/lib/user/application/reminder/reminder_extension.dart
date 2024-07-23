@@ -4,6 +4,7 @@ class ReminderMetaKeys {
   static String includeTime = "include_time";
   static String blockId = "block_id";
   static String rowId = "row_id";
+  static String createdAt = "created_at";
 }
 
 extension ReminderExtension on ReminderPB {
