@@ -159,22 +159,24 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Opacity(
         opacity: disable ? 0.3 : 1.0,
-        child: FlowyButton(
+        child: FlowyIconTextButton(
           disable: disable,
           margin: const EdgeInsets.symmetric(horizontal: 6),
-          leftIcon: inner.leftIcon,
-          rightIcon: inner.rightIcon,
           iconPadding: 10.0,
-          text: SizedBox(
-            // height: 16.0,
-            child: FlowyText.regular(
-              inner.name,
-              color: inner == SpaceMoreActionType.delete
-                  ? Theme.of(context).colorScheme.error
-                  : null,
-            ),
-          ),
           onTap: onTap,
+          leftIconBuilder: (onHover) => FlowySvg(
+            inner.leftIconSvg,
+            color: inner == SpaceMoreActionType.delete && onHover
+                ? Theme.of(context).colorScheme.error
+                : null,
+          ),
+          rightIconBuilder: (_) => inner.rightIcon,
+          textBuilder: (onHover) => FlowyText.regular(
+            inner.name,
+            color: inner == SpaceMoreActionType.delete && onHover
+                ? Theme.of(context).colorScheme.error
+                : null,
+          ),
         ),
       ),
     );

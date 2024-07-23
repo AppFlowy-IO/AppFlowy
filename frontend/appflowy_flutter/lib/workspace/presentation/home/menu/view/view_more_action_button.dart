@@ -239,18 +239,24 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
     return Container(
       height: 34,
       padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: FlowyButton(
+      child: FlowyIconTextButton(
         margin: const EdgeInsets.symmetric(horizontal: 6),
-        leftIcon: inner.leftIcon,
-        rightIcon: inner.rightIcon,
-        iconPadding: 10.0,
-        text: FlowyText.regular(
-          inner.name,
-          color: inner == ViewMoreActionType.delete
+        onTap: onTap,
+        // show the error color when delete is hovered
+        leftIconBuilder: (onHover) => FlowySvg(
+          inner.leftIconSvg,
+          color: inner == ViewMoreActionType.delete && onHover
               ? Theme.of(context).colorScheme.error
               : null,
         ),
-        onTap: onTap,
+        rightIconBuilder: (_) => inner.rightIcon,
+        iconPadding: 10.0,
+        textBuilder: (onHover) => FlowyText.regular(
+          inner.name,
+          color: inner == ViewMoreActionType.delete && onHover
+              ? Theme.of(context).colorScheme.error
+              : null,
+        ),
       ),
     );
   }
