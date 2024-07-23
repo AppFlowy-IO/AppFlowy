@@ -1,3 +1,4 @@
+import { DEFAULT_ROW_HEIGHT } from '@/application/database-yjs';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { areEqual, GridChildComponentProps, VariableSizeGrid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
@@ -53,7 +54,7 @@ export const GridHeader = ({ scrollLeft, onScrollLeft, columnWidth, columns }: G
               className={'grid-sticky-header w-full text-text-title'}
               height={height}
               width={width}
-              rowHeight={() => 36}
+              rowHeight={() => DEFAULT_ROW_HEIGHT}
               rowCount={1}
               columnCount={columns.length}
               columnWidth={(index) => {
