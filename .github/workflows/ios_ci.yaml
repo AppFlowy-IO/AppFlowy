@@ -30,7 +30,15 @@ concurrency:
 jobs:
   build:
     if: github.event.pull_request.draft != true
-    runs-on: self-hosted
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [
+          self-hosted,
+          macos-latest
+        ]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout source code
@@ -38,6 +46,7 @@ jobs:
 
       - name: Install Rust toolchain
         id: rust_toolchain
+        if: matrix.os != 'self-hosted'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -45,8 +54,9 @@ jobs:
           override: true
           profile: minimal
 
-      - name: Install flutter
+      - name: Install Flutter
         id: flutter
+        if: matrix.os != 'self-hosted'
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
