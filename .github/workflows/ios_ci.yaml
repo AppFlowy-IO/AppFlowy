@@ -30,15 +30,7 @@ concurrency:
 jobs:
   build:
     if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [
-          self-hosted,
-          #macos-14
-        ]
-
-    runs-on: ${{ matrix.os }}
+    runs-on: self-hosted
 
     steps:
       - name: Checkout source code
@@ -63,7 +55,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: ${{ matrix.os }}
+          prefix-key: self-hosted
           workspaces: |
             frontend/rust-lib
 
