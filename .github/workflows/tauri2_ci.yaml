@@ -68,6 +68,7 @@ jobs:
           profile: minimal
 
       - name: Rust cache
+        if: matrix.os != 'self-hosted-frontend'
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "./frontend/appflowy_web_app/src-tauri -> target"

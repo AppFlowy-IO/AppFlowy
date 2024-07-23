@@ -27,14 +27,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [
-          self-hosted,
+          self-hosted-frontend,
           #ubuntu-latest
         ]
 
     runs-on: ${{ matrix.os }}
     steps:
       - name: Maximize build space
-        if: matrix.os != 'self-hosted'
+        if: matrix.os != 'self-hosted-frontend'
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -47,7 +47,7 @@ jobs:
 
       - name: Install Rust toolchain
         id: rust_toolchain
-        if: matrix.os != 'self-hosted'
+        if: matrix.os != 'self-hosted-frontend'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -56,13 +56,14 @@ jobs:
           profile: minimal
 
       - name: Install prerequisites
-        if: matrix.os != 'self-hosted'
+        if: matrix.os != 'self-hosted-frontend'
         working-directory: frontend
         run: |
           cargo install --force cargo-make
           cargo install --force duckscript_cli
 
       - uses: Swatinem/rust-cache@v2
+        if: matrix.os != 'self-hosted-frontend'
         with:
           prefix-key: ${{ matrix.os }}
           workspaces: |
@@ -74,8 +75,8 @@ jobs:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
 
-      - name: Prepare appflowy cloud env (self-hosted)
-        if: matrix.os == 'self-hosted'
+      - name: Prepare appflowy cloud env (self-hosted-frontend)
+        if: matrix.os == 'self-hosted-frontend'
         working-directory: AppFlowy-Cloud
         run: |
           cp deploy.env .env
