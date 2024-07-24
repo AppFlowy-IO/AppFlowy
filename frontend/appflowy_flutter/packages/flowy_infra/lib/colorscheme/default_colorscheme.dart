@@ -75,6 +75,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           toggleButtonBGColor: _lightShader5,
           calendarWeekendBGColor: const Color(0xFFFBFBFC),
           gridRowCountColor: _lightShader1,
+          borderColor: const Color(0xFFEDEDEE),
         );
 
   const DefaultColorScheme.dark()
@@ -129,5 +130,6 @@ class DefaultColorScheme extends FlowyColorScheme {
           toggleButtonBGColor: const Color(0xFF828282),
           calendarWeekendBGColor: _darkShader1,
           gridRowCountColor: _darkShader5,
+          borderColor: const Color(0xFF3A3F49),
         );
 }

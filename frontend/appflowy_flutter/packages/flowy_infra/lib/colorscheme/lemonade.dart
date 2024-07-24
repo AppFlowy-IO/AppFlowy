@@ -83,6 +83,7 @@ class LemonadeColorScheme extends FlowyColorScheme {
           toggleButtonBGColor: _lightDandelionYellow,
           calendarWeekendBGColor: const Color(0xFFFBFBFC),
           gridRowCountColor: _black,
+          borderColor: const Color(0xFFEDEDEE),
         );
 
   const LemonadeColorScheme.dark()
@@ -137,5 +138,6 @@ class LemonadeColorScheme extends FlowyColorScheme {
           toggleButtonBGColor: _darkShader1,
           calendarWeekendBGColor: const Color(0xff121212),
           gridRowCountColor: _darkMain1,
+          borderColor: const Color(0xFF3A3F49),
         );
 }

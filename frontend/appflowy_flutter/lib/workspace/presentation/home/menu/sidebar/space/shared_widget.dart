@@ -16,7 +16,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/cupertino.dart';
@@ -64,11 +63,6 @@ class _SpacePermissionSwitchState extends State<SpacePermissionSwitch> {
           constraints: const BoxConstraints(maxWidth: 500),
           offset: const Offset(0, 4),
           margin: EdgeInsets.zero,
-          decoration: FlowyDecoration.decoration(
-            Theme.of(context).cardColor,
-            Theme.of(context).colorScheme.shadow,
-            borderRadius: 10,
-          ),
           popupBuilder: (_) => _buildPermissionButtons(),
           child: DecoratedBox(
             decoration: ShapeDecoration(

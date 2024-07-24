@@ -38,6 +38,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.gridRowCountColor,
     required this.background,
     required this.onBackground,
+    required this.borderColor,
   });
 
   final Color? warning;
@@ -74,6 +75,11 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final Color background;
   final Color onBackground;
 
+  /// The color of the border of the widget.
+  ///
+  /// This is used in the divider, outline border, etc.
+  final Color borderColor;
+
   @override
   AFThemeExtension copyWith({
     Color? warning,
@@ -105,6 +111,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     TextStyle? caption,
     Color? background,
     Color? onBackground,
+    Color? borderColor,
   }) =>
       AFThemeExtension(
         warning: warning ?? this.warning,
@@ -137,6 +144,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
         caption: caption ?? this.caption,
         onBackground: onBackground ?? this.onBackground,
         background: background ?? this.background,
+        borderColor: borderColor ?? this.borderColor,
       );
 
   @override
@@ -188,6 +196,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       caption: other.caption,
       onBackground: Color.lerp(onBackground, other.onBackground, t)!,
       background: Color.lerp(background, other.background, t)!,
+      borderColor: Color.lerp(borderColor, other.borderColor, t)!,
     );
   }
 }
