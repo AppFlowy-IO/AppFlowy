@@ -32,20 +32,17 @@ class _FlowyScrollbarState extends State<FlowyScrollbar> {
       child: ValueListenableBuilder(
         valueListenable: isHovered,
         builder: (context, isHovered, child) {
-          return RawScrollbar(
+          return Scrollbar(
             thumbVisibility: isHovered,
-            // the thickness should be fixed to 4.0
-            thickness: 4.0,
             // the radius should be fixed to 12
             radius: const Radius.circular(12),
-            trackRadius: const Radius.circular(12),
             controller: widget.controller,
-            // thumbColor: const Color(0x3F171717),
             child: ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(
-                  scrollbars: false,
-                ),
-                child: child!),
+              behavior: ScrollConfiguration.of(context).copyWith(
+                scrollbars: false,
+              ),
+              child: child!,
+            ),
           );
         },
         child: widget.child,

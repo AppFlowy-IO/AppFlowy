@@ -87,6 +87,8 @@ class FlowyColorScheme {
     required this.calendarWeekendBGColor,
     required this.gridRowCountColor,
     required this.borderColor,
+    required this.scrollbarColor,
+    required this.scrollbarHoverColor,
   });
 
   final Color surface;
@@ -146,6 +148,9 @@ class FlowyColorScheme {
   final Color gridRowCountColor;
 
   final Color borderColor;
+
+  final Color scrollbarColor;
+  final Color scrollbarHoverColor;
 
   factory FlowyColorScheme.fromJson(Map<String, dynamic> json) =>
       _$FlowyColorSchemeFromJson(json);

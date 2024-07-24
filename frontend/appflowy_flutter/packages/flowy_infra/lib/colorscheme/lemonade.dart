@@ -84,6 +84,8 @@ class LemonadeColorScheme extends FlowyColorScheme {
           calendarWeekendBGColor: const Color(0xFFFBFBFC),
           gridRowCountColor: _black,
           borderColor: const Color(0xFFEDEDEE),
+          scrollbarColor: const Color(0x3F171717),
+          scrollbarHoverColor: const Color(0x7F171717),
         );
 
   const LemonadeColorScheme.dark()
@@ -139,5 +141,7 @@ class LemonadeColorScheme extends FlowyColorScheme {
           calendarWeekendBGColor: const Color(0xff121212),
           gridRowCountColor: _darkMain1,
           borderColor: const Color(0xFF3A3F49),
+          scrollbarColor: const Color(0x40FFFFFF),
+          scrollbarHoverColor: const Color(0x80FFFFFF),
         );
 }

@@ -74,18 +74,12 @@ class DesktopAppearance extends BaseAppearance {
         contentTextStyle: TextStyle(color: colorScheme.onSurface),
       ),
       scrollbarTheme: ScrollbarThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.any(scrollbarInteractiveStates.contains)) {
-            return theme.shader3;
-          }
-          return theme.shader5;
-        }),
-        thickness: WidgetStateProperty.resolveWith((states) {
-          if (states.any(scrollbarInteractiveStates.contains)) {
-            return 4;
-          }
-          return 3.0;
-        }),
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.any(scrollbarInteractiveStates.contains)
+              ? theme.scrollbarHoverColor
+              : theme.scrollbarColor,
+        ),
+        thickness: WidgetStateProperty.resolveWith((_) => 4.0),
         crossAxisMargin: 0.0,
         mainAxisMargin: 6.0,
         radius: Corners.s10Radius,
