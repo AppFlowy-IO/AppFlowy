@@ -23,17 +23,49 @@ env:
   RUST_TOOLCHAIN: "1.77.2"
 
 jobs:
-  test-on-ubuntu:
+  self-hosted-job:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Checkout Appflowy Cloud
+        uses: actions/checkout@v4
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+
+      - name: Prepare Appflowy Cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          cp deploy.env .env
+          sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+
+      - name: Run rust-lib tests
+        working-directory: frontend/rust-lib
+        env:
+          RUST_LOG: info
+          RUST_BACKTRACE: 1
+          af_cloud_test_base_url: http://localhost
+          af_cloud_test_ws_url: ws://localhost/ws/v1
+          af_cloud_test_gotrue_url: http://localhost/gotrue
+        run: |
+          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart"
+
+      - name: rustfmt rust-lib
+        run: cargo fmt --all -- --check
+        working-directory: frontend/rust-lib/
+
+      - name: clippy rust-lib
+        run: cargo clippy --all-targets -- -D warnings
+        working-directory: frontend/rust-lib
+
+  ubuntu-job:
+    if: github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     steps:
-      # - name: Maximize build space
-      #   uses: easimon/maximize-build-space@master
-      #   with:
-      #     root-reserve-mb: 2048
-      #     swap-size-mb: 1024
-      #     remove-dotnet: 'true'
-
-      # the following step is required to avoid running out of space
       - name: Maximize build space
         run: |
           sudo rm -rf /usr/share/dotnet
@@ -46,7 +78,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Rust toolchain
-        id: rust_toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -55,7 +86,7 @@ jobs:
           profile: minimal
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "ubuntu-latest"
+          prefix-key: ${{ runner.os }}
           cache-on-failure: true
           workspaces: |
             frontend/rust-lib
@@ -69,7 +100,6 @@ jobs:
       - name: Prepare appflowy cloud env
         working-directory: AppFlowy-Cloud
         run: |
-          # log level
           cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
