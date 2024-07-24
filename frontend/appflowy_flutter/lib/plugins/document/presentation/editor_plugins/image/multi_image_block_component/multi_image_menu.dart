@@ -36,11 +36,13 @@ class MultiImageMenu extends StatefulWidget {
     required this.node,
     required this.state,
     this.selectedIndex = 0,
+    this.isLocalMode = true,
   });
 
   final Node node;
   final MultiImageBlockComponentState state;
   final int selectedIndex;
+  final bool isLocalMode;
 
   @override
   State<MultiImageMenu> createState() => _MultiImageMenuState();
@@ -197,7 +199,11 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
       }
 
       final transaction = editorState.transaction;
-      final newImages = await extractAndUploadImages(context, urls, false);
+      final newImages = await extractAndUploadImages(
+        context,
+        urls,
+        widget.isLocalMode,
+      );
       if (newImages.isEmpty) {
         return;
       }

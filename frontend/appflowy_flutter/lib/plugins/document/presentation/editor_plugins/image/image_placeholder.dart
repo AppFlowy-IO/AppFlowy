@@ -105,8 +105,13 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
             ],
             onSelectedLocalImages: (paths) {
               controller.close();
-              WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-                await insertLocalImage(paths.first);
+              WidgetsBinding.instance.addPostFrameCallback((_) async {
+                final List<String> items = List.from(
+                  paths.where((url) => url != null && url.isNotEmpty),
+                );
+                if (items.isNotEmpty) {
+                  await insertMultipleLocalImages(items);
+                }
               });
             },
             onSelectedAIImage: (url) {

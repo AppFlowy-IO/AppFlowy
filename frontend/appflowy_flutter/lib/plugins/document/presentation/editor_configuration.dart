@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
@@ -130,6 +131,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
           node: node,
           state: state,
           selectedIndex: selectedIndex,
+          isLocalMode: context.read<DocumentBloc>().isLocalMode,
         ),
       ),
     ),

@@ -62,91 +62,41 @@ class InteractiveImageToolbar extends StatelessWidget {
               if (imageCount > 1)
                 _renderToolbarItems(
                   children: [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
+                    _ToolbarItem(
+                      isDisabled: isFirstIndex,
+                      tooltip: LocaleKeys
+                          .document_imageBlock_interactiveViewer_toolbar_previousImageTooltip
+                          .tr(),
+                      icon: FlowySvgs.arrow_left_s,
                       onTap: () {
                         if (!isFirstIndex) {
                           onPrevious();
                         }
                       },
-                      child: FlowyTooltip(
-                        message: LocaleKeys
-                            .document_imageBlock_interactiveViewer_toolbar_previousImageTooltip
-                            .tr(),
-                        child: FlowyHover(
-                          resetHoverOnRebuild: false,
-                          style: HoverStyle(
-                            hoverColor: isFirstIndex
-                                ? Colors.transparent
-                                : Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: FlowySvg(
-                              FlowySvgs.arrow_left_s,
-                              color: isFirstIndex ? Colors.grey : Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
+                    _ToolbarItem(
+                      isDisabled: isLastIndex,
+                      tooltip: LocaleKeys
+                          .document_imageBlock_interactiveViewer_toolbar_nextImageTooltip
+                          .tr(),
+                      icon: FlowySvgs.arrow_right_s,
                       onTap: () {
                         if (!isLastIndex) {
                           onNext();
                         }
                       },
-                      child: FlowyTooltip(
-                        message: LocaleKeys
-                            .document_imageBlock_interactiveViewer_toolbar_nextImageTooltip
-                            .tr(),
-                        child: FlowyHover(
-                          resetHoverOnRebuild: false,
-                          style: HoverStyle(
-                            hoverColor: isLastIndex
-                                ? Colors.transparent
-                                : Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: FlowySvg(
-                              FlowySvgs.arrow_right_s,
-                              color: isLastIndex ? Colors.grey : Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
                     ),
                   ],
                 ),
               const HSpace(10),
               _renderToolbarItems(
                 children: [
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
+                  _ToolbarItem(
+                    tooltip: LocaleKeys
+                        .document_imageBlock_interactiveViewer_toolbar_zoomOutTooltip
+                        .tr(),
+                    icon: FlowySvgs.minus_s,
                     onTap: onZoomOut,
-                    child: FlowyTooltip(
-                      message: LocaleKeys
-                          .document_imageBlock_interactiveViewer_toolbar_zoomOutTooltip
-                          .tr(),
-                      child: FlowyHover(
-                        resetHoverOnRebuild: false,
-                        style: HoverStyle(
-                          hoverColor: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: FlowySvg(
-                            FlowySvgs.minus_s,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
                   FlowyTooltip(
                     message: LocaleKeys
@@ -174,93 +124,44 @@ class InteractiveImageToolbar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
+                  _ToolbarItem(
+                    tooltip: LocaleKeys
+                        .document_imageBlock_interactiveViewer_toolbar_zoomInTooltip
+                        .tr(),
+                    icon: FlowySvgs.add_s,
                     onTap: onZoomIn,
-                    child: FlowyTooltip(
-                      message: LocaleKeys
-                          .document_imageBlock_interactiveViewer_toolbar_zoomInTooltip
-                          .tr(),
-                      child: FlowyHover(
-                        resetHoverOnRebuild: false,
-                        style: HoverStyle(
-                          hoverColor: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: FlowySvg(
-                            FlowySvgs.add_s,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
               const HSpace(10),
               _renderToolbarItems(
                 children: [
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
+                  _ToolbarItem(
+                    tooltip: currentImage.isNotInternal
+                        ? LocaleKeys
+                            .document_imageBlock_interactiveViewer_toolbar_openLocalImage
+                            .tr()
+                        : LocaleKeys
+                            .document_imageBlock_interactiveViewer_toolbar_downloadImage
+                            .tr(),
+                    icon: currentImage.isNotInternal
+                        ? currentImage.isLocal
+                            ? FlowySvgs.folder_m
+                            : FlowySvgs.m_aa_link_s
+                        : FlowySvgs.import_s,
                     onTap: () => _locateOrDownloadImage(context),
-                    child: FlowyTooltip(
-                      message: currentImage.isNotInternal
-                          ? LocaleKeys
-                              .document_imageBlock_interactiveViewer_toolbar_openLocalImage
-                              .tr()
-                          : LocaleKeys
-                              .document_imageBlock_interactiveViewer_toolbar_downloadImage
-                              .tr(),
-                      child: FlowyHover(
-                        resetHoverOnRebuild: false,
-                        style: HoverStyle(
-                          hoverColor: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FlowySvg(
-                            currentImage.isNotInternal
-                                ? currentImage.isLocal
-                                    ? FlowySvgs.folder_m
-                                    : FlowySvgs.m_aa_link_s
-                                : FlowySvgs.import_s,
-                            size: const Size.square(16),
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
               const HSpace(10),
               _renderToolbarItems(
                 children: [
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
+                  _ToolbarItem(
+                    tooltip: LocaleKeys
+                        .document_imageBlock_interactiveViewer_toolbar_closeViewer
+                        .tr(),
+                    icon: FlowySvgs.close_s,
                     onTap: () => Navigator.of(context).pop(),
-                    child: FlowyTooltip(
-                      message: LocaleKeys
-                          .document_imageBlock_interactiveViewer_toolbar_closeViewer
-                          .tr(),
-                      child: FlowyHover(
-                        resetHoverOnRebuild: false,
-                        style: HoverStyle(
-                          hoverColor: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: FlowySvg(
-                            FlowySvgs.close_s,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -329,5 +230,46 @@ class InteractiveImageToolbar extends StatelessWidget {
         }
       }
     }
+  }
+}
+
+class _ToolbarItem extends StatelessWidget {
+  const _ToolbarItem({
+    required this.tooltip,
+    required this.icon,
+    required this.onTap,
+    this.isDisabled = false,
+  });
+
+  final String tooltip;
+  final FlowySvgData icon;
+  final VoidCallback onTap;
+  final bool isDisabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: FlowyTooltip(
+        message: tooltip,
+        child: FlowyHover(
+          resetHoverOnRebuild: false,
+          style: HoverStyle(
+            hoverColor:
+                isDisabled ? Colors.transparent : Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FlowySvg(
+              icon,
+              size: const Size.square(16),
+              color: isDisabled ? Colors.grey : Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_placeholder.dart';
@@ -130,6 +131,7 @@ class MultiImageBlockComponentState extends State<MultiImageBlockComponent>
         images: data.images,
         editorState: editorState,
         selectedImage: data.images.first,
+        isLocalMode: context.read<DocumentBloc>().isLocalMode,
         onIndexChanged: (index) => setState(() => _selectedIndex = index),
       );
     }
