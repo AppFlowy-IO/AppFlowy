@@ -95,7 +95,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             ),
           );
         },
-        cancelSubscription: () async {
+        cancelSubscription: (reason) async {
           final newState = state
               .mapOrNull(ready: (state) => state)
               ?.copyWith(downgradeProcessing: true);
@@ -106,6 +106,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
           final result = await _userService.cancelSubscription(
             workspaceId,
             SubscriptionPlanPB.Pro,
+            reason,
           );
 
           final successOrNull = result.fold(
@@ -206,7 +207,9 @@ class SettingsPlanEvent with _$SettingsPlanEvent {
   const factory SettingsPlanEvent.addSubscription(SubscriptionPlanPB plan) =
       _AddSubscription;
 
-  const factory SettingsPlanEvent.cancelSubscription() = _CancelSubscription;
+  const factory SettingsPlanEvent.cancelSubscription({
+    @Default(null) String? reason,
+  }) = _CancelSubscription;
 
   const factory SettingsPlanEvent.paymentSuccessful({
     @Default(null) SubscriptionPlanPB? plan,

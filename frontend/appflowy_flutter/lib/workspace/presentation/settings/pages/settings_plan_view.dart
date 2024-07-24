@@ -232,7 +232,7 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
                         const VSpace(8),
                         FlowyText.regular(
                           widget.subscriptionInfo.info,
-                          fontSize: 16,
+                          fontSize: 14,
                           color: AFThemeExtension.of(context).strongText,
                           maxLines: 3,
                         ),

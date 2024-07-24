@@ -283,11 +283,14 @@
     "favoriteSpace": "Favorites",
     "RecentSpace": "Recent",
     "Spaces": "Spaces",
-    "upgradeToPro": "Upgrade to Pro Plan",
+    "upgradeToPro": "Upgrade to Pro",
     "upgradeToAIMax": "Unlock unlimited AI",
-    "storageLimitDialogTitle": "You are running out of storage space. Upgrade to Pro Plan to get more storage",
-    "aiResponseLitmitDialogTitle": "You are running out of AI responses. Upgrade to Pro Plan or AI Max to get more AI responses",
-    "aiResponseLitmit": "You are running out of AI responses. Go to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
+    "storageLimitDialogTitle": "You have run out of free storage. Upgrade to unlock unlimited storage",
+    "aiResponseLimitTitle": "You have run out of free AI responses. Upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
+    "aiResponseLimitDialogTitle": "AI Responses limit reached",
+    "aiResponseLimit": "You have run out of free AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
+    "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
+    "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
     "upgradeToAILocal": "AI offline on your device"
@@ -350,7 +353,10 @@
     "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
-    "close": "Close"
+    "close": "Close",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit"
   },
   "label": {
     "welcome": "Welcome!",
@@ -638,7 +644,7 @@
       "menuLabel": "AI Settings",
       "keys": {
         "enableAISearchTitle": "AI Search",
-        "aiSettingsDescription": "Select or configure Ai models used on @:appName. For best performance we recommend using the default model options",
+        "aiSettingsDescription": "Select or configure AI models used on @:appName. For best performance we recommend using the default model options",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
         "llmModelType": "Language Model Type",
@@ -704,14 +710,14 @@
             "title": "AI Max",
             "description": "Unlock unlimited AI",
             "price": "{}",
-            "priceInfo": "/user per month",
+            "priceInfo": "per user per month",
             "billingInfo": "billed annually or {} billed monthly"
           },
           "aiOnDevice": {
             "title": "AI On-device",
             "description": "AI offline on your device",
             "price": "{}",
-            "priceInfo": "/user per month",
+            "priceInfo": "per user per month",
             "billingInfo": "billed annually or {} billed monthly"
           }
         },
@@ -776,7 +782,6 @@
       "actions": {
         "upgrade": "Upgrade",
         "downgrade": "Downgrade",
-        "downgradeDisabledTooltip": "You will automatically downgrade at the end of the billing cycle",
         "current": "Current"
       },
       "freePlan": {
@@ -789,7 +794,7 @@
         "title": "Pro",
         "description": "For small teams to manage projects and team knowledge",
         "price": "{}",
-        "priceInfo": "/user per month billed annually\n\n{} billed monthly"
+        "priceInfo": "per user per month \nbilled annually\n\n{} billed monthly"
       },
       "planLabels": {
         "itemOne": "Workspaces",
@@ -828,6 +833,43 @@
         "title": "Are you sure you want to downgrade your plan?",
         "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to this workspace and you may need to free up space to meet the storage limits of the Free plan.",
         "downgradeLabel": "Downgrade plan"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "Sorry to see you go",
+      "description": "We're sorry to see you go. We'd love to hear your feedback to help us improve @:appName. Please take a moment to answer a few questions.",
+      "commonOther": "Other",
+      "otherHint": "Write your answer here",
+      "questionOne": {
+        "question": "What prompted you to cancel your AppFlowy Pro subscription?",
+        "answerOne": "Cost too high",
+        "answerTwo": "Features did not meet expectations",
+        "answerThree": "Found a better alternative",
+        "answerFour": "Did not use it enough to justify the expense",
+        "answerFive": "Service issue or technical difficulties"
+      },
+      "questionTwo": {
+        "question": "How likely are you to consider re-subscribing to AppFlowy Pro in the future?",
+        "answerOne": "Very likely",
+        "answerTwo": "Somewhat likely",
+        "answerThree": "Not sure",
+        "answerFour": "Unlikely",
+        "answerFive": "Very unlikely"
+      },
+      "questionThree": {
+        "question": "Which Pro feature did you value the most during your subscription?",
+        "answerOne": "Multi-user collaboration",
+        "answerTwo": "Longer time version history",
+        "answerThree": "Unlimited AI responses",
+        "answerFour": "Access to local AI models"
+      },
+      "questionFour": {
+        "question": "How would you describe your overall experience with AppFlowy?",
+        "answerOne": "Great",
+        "answerTwo": "Good",
+        "answerThree": "Average",
+        "answerFour": "Below average",
+        "answerFive": "Unsatisfied"
       }
     },
     "common": {
@@ -1441,7 +1483,7 @@
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImage": "Add an image",
-        "imageUploadFailed": "Image upload failed",
+        "imageUploadFailed": "Upload failed",
         "errorCode": "Error code"
       },
       "math": {
@@ -2130,7 +2172,7 @@
       "zero": "Publish {} selected view",
       "one": "Publish {} selected views",
       "many": "Publish {} selected views",
-      "other":"Publish {} selected views"
+      "other": "Publish {} selected views"
     },
     "mustSelectPrimaryDatabase": "The primary view must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",

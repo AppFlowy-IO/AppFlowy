@@ -90,7 +90,7 @@ class CompletionStream {
         if (event == "AI_RESPONSE_LIMIT") {
           onError(
             AIError(
-              message: LocaleKeys.sideBar_aiResponseLitmit.tr(),
+              message: LocaleKeys.sideBar_aiResponseLimit.tr(),
               code: AIErrorCode.aiResponseLimitExceeded,
             ),
           );

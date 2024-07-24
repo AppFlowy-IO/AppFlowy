@@ -72,8 +72,6 @@ class WorkspaceMembersPage extends StatelessWidget {
     final actionResult = state.actionResult!.result;
     final actionType = state.actionResult!.actionType;
 
-    debugPrint("Plan: ${state.subscriptionInfo?.plan}");
-
     if (actionType == WorkspaceMemberActionType.invite &&
         actionResult.isFailure) {
       final error = actionResult.getFailure().code;
