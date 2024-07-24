@@ -5,24 +5,56 @@ on:
     branches:
       - main
       - release/*
-    paths:
-      - frontend/**
+  #    paths:
+  #      - frontend/**
   pull_request:
     branches:
       - main
       - release/*
-    paths:
-      - frontend/**
-    types: [opened, synchronize, reopened, unlocked, ready_for_review]
+    #    paths:
+    #      - frontend/**
+    types: [ opened, synchronize, reopened, unlocked, ready_for_review ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-app:
-    if: github.event.pull_request.draft != true
+  build-app-self-hosted:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        run: |
+          docker-compose --version || {
+            echo "Docker Compose not found, installing..."
+            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose --version
+          }
+
+      - name: Build the app
+        shell: bash
+        run: |
+          set -eu -o pipefail
+          cd frontend/scripts/docker-buildfiles
+          docker-compose build --no-cache --progress=plain \
+          | while read line; do \
+              if [[ "$line" =~ ^Step[[:space:]] ]]; then \
+                echo "$(date -u '+%H:%M:%S') | $line"; \
+              else \
+                echo "$line"; \
+              fi; \
+            done
+
+  build-app-ubuntu:
+    if: github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4

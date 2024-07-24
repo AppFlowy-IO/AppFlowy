@@ -30,13 +30,13 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Checkout appflowy cloud code
+      - name: Checkout Appflowy Cloud
         uses: actions/checkout@v4
         with:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
 
-      - name: Prepare appflowy cloud env
+      - name: Prepare Appflowy Cloud env
         working-directory: AppFlowy-Cloud
         run: |
           cp deploy.env .env
