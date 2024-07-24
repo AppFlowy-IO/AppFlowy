@@ -23,7 +23,10 @@ import '../../shared/mock/mock_file_picker.dart';
 import '../../shared/util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    TestWidgetsFlutterBinding.ensureInitialized();
+  });
 
   group('multi image block in document', () {
     testWidgets('insert two images from local file and use interactive viewer',
@@ -80,8 +83,14 @@ void main() {
       expect(data.images.length, 2);
 
       // Start using the interactive viewer to view the image(s)
-      final imageFinder =
-          find.byWidgetPredicate((w) => w is Image && w.image is FileImage);
+      final imageFinder = find
+          .byWidgetPredicate(
+            (w) =>
+                w is Image &&
+                w.image is FileImage &&
+                (w.image as FileImage).file.path.endsWith('.jpeg'),
+          )
+          .first;
       await tester.tap(imageFinder);
       await tester.pump(kDoubleTapMinTime);
       await tester.tap(imageFinder);
