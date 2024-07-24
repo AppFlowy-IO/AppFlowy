@@ -251,7 +251,7 @@ jobs:
           if [ "$(docker ps --filter name=appflowy-cloud -q)" == "" ]; then
             docker compose pull  
             docker compose up -d
-            sleep(10)
+            sleep 10
           else
             echo "Docker container 'appflowy-cloud' is already running."
           fi
