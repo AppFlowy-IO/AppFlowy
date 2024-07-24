@@ -6,24 +6,66 @@ on:
       - "main"
       - "develop"
       - "release/*"
+  #    paths:
+  #      - "frontend/rust-lib/**"
+
   pull_request:
     branches:
       - "main"
       - "develop"
       - "release/*"
+#    paths:
+#      - "frontend/rust-lib/**"
 
 env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: "1.77.2"
 
 jobs:
-  test:
-    runs-on:
-      ${{ github.event.pull_request.head.repo.full_name == github.repository ? 'self-hosted': 'ubuntu-latest' } }
-
+  self-hosted-job:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
     steps:
-      - name: Maximize build space (ubuntu only)
-        if: runner.os == 'Linux'
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v4
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          cp deploy.env .env
+          sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+
+      - name: Run rust-lib tests
+        working-directory: frontend/rust-lib
+        env:
+          RUST_LOG: info
+          RUST_BACKTRACE: 1
+          af_cloud_test_base_url: http://localhost
+          af_cloud_test_ws_url: ws://localhost/ws/v1
+          af_cloud_test_gotrue_url: http://localhost/gotrue
+        run: |
+          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart"
+
+      - name: rustfmt rust-lib
+        run: cargo fmt --all -- --check
+        working-directory: frontend/rust-lib/
+
+      - name: clippy rust-lib
+        run: cargo clippy --all-targets -- -D warnings
+        working-directory: frontend/rust-lib
+
+  ubuntu-job:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Maximize build space
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -34,8 +76,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install Rust toolchain (ubuntu only)
-        if: runner.os == 'Linux'
+      - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -43,15 +84,13 @@ jobs:
           components: rustfmt, clippy
           profile: minimal
 
-      - name: Install prerequisites (ubuntu only)
-        if: runner.os == 'Linux'
+      - name: Install prerequisites
         working-directory: frontend
         run: |
           cargo install --force cargo-make
           cargo install --force duckscript_cli
 
       - uses: Swatinem/rust-cache@v2
-        if: runner.os == 'Linux'
         with:
           prefix-key: ${{ runner.os }}
           workspaces: |
@@ -63,24 +102,14 @@ jobs:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
 
-      - name: Prepare appflowy cloud env (ubuntu only)
-        if: runner.os == 'Linux'
+      - name: Prepare appflowy cloud env
         working-directory: AppFlowy-Cloud
         run: |
           cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
-      - name: Prepare appflowy cloud env (self-hosted only)
-        if: runner.os != 'Linux'
-        working-directory: AppFlowy-Cloud
-        run: |
-          cp deploy.env .env
-          sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-          sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
-
-      - name: Run Docker-Compose (ubuntu only)
-        if: runner.os == 'Linux'
+      - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         env:
           BACKEND_VERSION: 0.3.24-amd64
@@ -107,8 +136,7 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
         working-directory: frontend/rust-lib
 
-      - name: Clean up Docker images (ubuntu only)
-        if: runner.os == 'Linux'
+      - name: Clean up Docker images
         run: |
           docker image prune -af
           docker volume prune -f
