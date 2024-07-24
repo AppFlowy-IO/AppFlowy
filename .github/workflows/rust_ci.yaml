@@ -106,11 +106,14 @@ jobs:
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
-        env:
-          BACKEND_VERSION: 0.3.24-amd64
         run: |
-          docker pull appflowyinc/appflowy_cloud:latest
-          docker compose up -d
+          if [ "$(docker ps --filter name=appflowy-cloud -q)" == "" ]; then
+            docker compose pull  
+            docker compose up -d
+            sleep(10)
+          else
+            echo "Docker container 'appflowy-cloud' is already running."
+          fi
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
