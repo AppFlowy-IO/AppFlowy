@@ -50,7 +50,7 @@ void main() {
       await tester.tapEscButton();
 
       // wait 2 seconds for the sync to finish
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 6));
     });
   });
 
