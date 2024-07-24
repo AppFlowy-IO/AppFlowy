@@ -35,10 +35,10 @@ class MultiImagePlaceholder extends StatefulWidget {
   final Node node;
 
   @override
-  State<MultiImagePlaceholder> createState() => _MultiImagePlaceholderState();
+  State<MultiImagePlaceholder> createState() => MultiImagePlaceholderState();
 }
 
-class _MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
+class MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
   final controller = PopoverController();
   final documentService = DocumentService();
   late final editorState = context.read<EditorState>();

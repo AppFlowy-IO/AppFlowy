@@ -225,7 +225,12 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
               ],
               onSelectedLocalImages: (paths) async {
                 context.pop();
-                await insertLocalImage(paths.first);
+
+                final List<String> items = List.from(
+                  paths.where((url) => url != null && url.isNotEmpty),
+                );
+
+                await insertMultipleLocalImages(items);
               },
               onSelectedAIImage: (url) async {
                 context.pop();
@@ -240,16 +245,6 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         },
       );
     }
-  }
-
-  Future<void> insertLocalImage(String? url) async {
-    controller.close();
-
-    if (url?.isEmpty ?? true) {
-      return;
-    }
-
-    await insertMultipleLocalImages([url!]);
   }
 
   Future<void> insertMultipleLocalImages(List<String> urls) async {
@@ -362,7 +357,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
 
       final response = await get(uri);
       await File(copyToPath).writeAsBytes(response.bodyBytes);
-      await insertLocalImage(copyToPath);
+      await insertMultipleLocalImages([copyToPath]);
       await File(copyToPath).delete();
     } catch (e) {
       Log.error('cannot save image file', e);

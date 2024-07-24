@@ -8,6 +8,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
@@ -164,21 +165,23 @@ class InteractiveImageToolbar extends StatelessWidget {
                         Navigator.of(context).pop();
                       },
                     ),
-                  _ToolbarItem(
-                    tooltip: currentImage.isNotInternal
-                        ? LocaleKeys
-                            .document_imageBlock_interactiveViewer_toolbar_openLocalImage
-                            .tr()
-                        : LocaleKeys
-                            .document_imageBlock_interactiveViewer_toolbar_downloadImage
-                            .tr(),
-                    icon: currentImage.isNotInternal
-                        ? currentImage.isLocal
-                            ? FlowySvgs.folder_m
-                            : FlowySvgs.m_aa_link_s
-                        : FlowySvgs.import_s,
-                    onTap: () => _locateOrDownloadImage(context),
-                  ),
+                  if (!PlatformExtension.isMobile) ...[
+                    _ToolbarItem(
+                      tooltip: currentImage.isNotInternal
+                          ? LocaleKeys
+                              .document_imageBlock_interactiveViewer_toolbar_openLocalImage
+                              .tr()
+                          : LocaleKeys
+                              .document_imageBlock_interactiveViewer_toolbar_downloadImage
+                              .tr(),
+                      icon: currentImage.isNotInternal
+                          ? currentImage.isLocal
+                              ? FlowySvgs.folder_m
+                              : FlowySvgs.m_aa_link_s
+                          : FlowySvgs.import_s,
+                      onTap: () => _locateOrDownloadImage(context),
+                    ),
+                  ],
                 ],
               ),
               const HSpace(10),
