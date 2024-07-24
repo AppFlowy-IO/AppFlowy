@@ -141,7 +141,7 @@ class ChatAIMessageState with _$ChatAIMessageState {
     return ChatAIMessageState(
       text: text is String ? text : "",
       stream: text is AnswerStream ? text : null,
-      messageState: const MessageState.loading(),
+      messageState: const MessageState.ready(),
     );
   }
 }

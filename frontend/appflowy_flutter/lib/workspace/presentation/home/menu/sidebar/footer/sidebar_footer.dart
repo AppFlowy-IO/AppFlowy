@@ -7,7 +7,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
@@ -18,7 +17,7 @@ class SidebarFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Column(
       children: [
-        SidebarToast(),
+        // SidebarToast(),
         Row(
           children: [
             Expanded(child: SidebarTrashButton()),
