@@ -54,7 +54,7 @@ function SpaceList({ spaceList, value, onChange }: SpaceListProps) {
   return (
     <div className={'flex max-h-[260px] w-[360px] flex-col gap-2 overflow-hidden'}>
       <div className={'text-sm text-text-caption'}>{t('publish.addTo')}</div>
-      <div className={'flex w-full flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden'}>
+      <div className={'appflowy-scroller flex w-full flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden'}>
         {spaceList.map((space) => {
           const isSelected = value === space.id;
 

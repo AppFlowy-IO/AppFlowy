@@ -20,7 +20,7 @@ function Duplicate() {
   return (
     <>
       <Button onClick={handleClick} size={'small'} variant={'outlined'} color={'inherit'}>
-        {t('button.duplicate')}
+        {t('publish.saveThisPage')}
       </Button>
       <LoginModal redirectTo={url} open={loginOpen} onClose={handleLoginClose} />
       <DuplicateModal open={duplicateOpen} onClose={handleDuplicateClose} />

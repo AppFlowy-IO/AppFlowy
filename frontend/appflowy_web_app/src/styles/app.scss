@@ -24,6 +24,7 @@ body {
   }
 
   @apply bg-bg-body text-text-title;
+
   &[data-os="windows"]:not([data-browser="firefox"]) {
     .appflowy-custom-scroller {
       @include mixin.hidden-scrollbar
@@ -45,10 +46,21 @@ body {
 }
 
 
+.appflowy-scroller {
+  @include mixin.scrollbar-style;
+
+}
+
+
 .appflowy-scrollbar-thumb-horizontal, .appflowy-scrollbar-thumb-vertical {
   background-color: var(--scrollbar-thumb);
   border-radius: 4px;
   opacity: 60%;
+}
+
+.appflowy-scrollbar-track-horizontal, .appflowy-scrollbar-track-vertical {
+  background-color: var(--scrollbar-track);
+
 }
 
 .icon {

@@ -29,6 +29,8 @@ export const AFScroller = React.forwardRef(
             ref.current = scrollEl;
           }
         }}
+        renderTrackHorizontal={(props) => <div {...props} className='appflowy-scrollbar-track-horizontal' />}
+        renderTrackVertical={(props) => <div {...props} className='appflowy-scrollbar-track-vertical' />}
         renderThumbHorizontal={(props) => <div {...props} className='appflowy-scrollbar-thumb-horizontal' />}
         renderThumbVertical={(props) => <div {...props} className='appflowy-scrollbar-thumb-vertical' />}
         {...(overflowXHidden && {
