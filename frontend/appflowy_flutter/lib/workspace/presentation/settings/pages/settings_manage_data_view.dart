@@ -65,6 +65,7 @@ class SettingsManageDataView extends StatelessWidget {
                       label: LocaleKeys.settings_common_reset.tr(),
                       onPressed: () => showConfirmDialog(
                         context: context,
+                        confirmLabel: LocaleKeys.button_confirm.tr(),
                         title: LocaleKeys
                             .settings_manageDataPage_dataStorage_resetDialog_title
                             .tr(),

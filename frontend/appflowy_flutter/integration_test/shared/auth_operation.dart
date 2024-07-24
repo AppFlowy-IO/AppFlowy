@@ -29,8 +29,8 @@ extension AppFlowyAuthTest on WidgetTester {
 
     await tapButton(find.byType(SignInOutButton));
 
-    expectToSeeText(LocaleKeys.button_confirm.tr());
-    await tapButtonWithName(LocaleKeys.button_confirm.tr());
+    expectToSeeText(LocaleKeys.button_ok.tr());
+    await tapButtonWithName(LocaleKeys.button_ok.tr());
   }
 
   Future<void> tapSignInAsGuest() async {
