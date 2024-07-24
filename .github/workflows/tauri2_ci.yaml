@@ -2,11 +2,11 @@ name: Tauri-CI
 
 on:
   pull_request:
-#    paths:
-#      - ".github/workflows/tauri2_ci.yaml"
-#      - "frontend/rust-lib/**"
-#      - "frontend/appflowy_web_app/**"
-#      - "frontend/resources/**"
+    paths:
+      - ".github/workflows/tauri2_ci.yaml"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_web_app/**"
+      - "frontend/resources/**"
 
 env:
   NODE_VERSION: "18.16.0"

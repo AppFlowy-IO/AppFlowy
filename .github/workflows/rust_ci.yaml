@@ -6,17 +6,17 @@ on:
       - "main"
       - "develop"
       - "release/*"
-  #    paths:
-  #      - "frontend/rust-lib/**"
-  #      - ".github/workflows/rust_ci.yaml"
+    paths:
+      - "frontend/rust-lib/**"
+      - ".github/workflows/rust_ci.yaml"
 
   pull_request:
     branches:
       - "main"
       - "develop"
       - "release/*"
-#    paths:
-#      - "frontend/rust-lib/**"
+    paths:
+      - "frontend/rust-lib/**"
 
 env:
   CARGO_TERM_COLOR: always
