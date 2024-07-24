@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:easy_localization/easy_localization.dart';
 
 final customImageMenuItem = SelectionMenuItem(
   getName: () => AppFlowyEditorL10n.current.image,
@@ -20,6 +23,29 @@ final customImageMenuItem = SelectionMenuItem(
     WidgetsBinding.instance.addPostFrameCallback((_) {
       imagePlaceholderKey.currentState?.controller.show();
     });
+  },
+);
+
+final multiImageMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_plugins_photoGallery_name.tr(),
+  icon: (_, isSelected, style) => SelectionMenuIconWidget(
+    icon: Icons.photo_library_outlined,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: [
+    LocaleKeys.document_plugins_photoGallery_imageKeyword.tr(),
+    LocaleKeys.document_plugins_photoGallery_imageGalleryKeyword.tr(),
+    LocaleKeys.document_plugins_photoGallery_photoKeyword.tr(),
+    LocaleKeys.document_plugins_photoGallery_photoBrowserKeyword.tr(),
+    LocaleKeys.document_plugins_photoGallery_galleryKeyword.tr(),
+  ],
+  handler: (editorState, _, __) async {
+    final imagePlaceholderKey = GlobalKey<ImagePlaceholderState>();
+    await editorState.insertEmptyMultiImageBlock(imagePlaceholderKey);
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => imagePlaceholderKey.currentState?.controller.show(),
+    );
   },
 );
 
@@ -44,6 +70,35 @@ extension InsertImage on EditorState {
         ..deleteNode(node);
     } else {
       transaction.insertNode(node.path.next, emptyImage);
+    }
+
+    transaction.afterSelection =
+        Selection.collapsed(Position(path: node.path.next));
+    transaction.selectionExtraInfo = {};
+
+    return apply(transaction);
+  }
+
+  Future<void> insertEmptyMultiImageBlock(GlobalKey key) async {
+    final selection = this.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+    final node = getNodeAtPath(selection.end.path);
+    if (node == null) {
+      return;
+    }
+    final emptyBlock = multiImageNode()
+      ..extraInfos = {kMultiImagePlaceholderKey: key};
+    final transaction = this.transaction;
+    // if the current node is empty paragraph, replace it with image node
+    if (node.type == ParagraphBlockKeys.type &&
+        (node.delta?.isEmpty ?? false)) {
+      transaction
+        ..insertNode(node.path, emptyBlock)
+        ..deleteNode(node);
+    } else {
+      transaction.insertNode(node.path.next, emptyBlock);
     }
 
     transaction.afterSelection =

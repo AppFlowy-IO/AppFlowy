@@ -74,7 +74,7 @@ dependencies:
   connectivity_plus: ^5.0.2
   easy_localization: ^3.0.2
   device_info_plus: ^10.1.0
-  fluttertoast: ^8.2.2
+  fluttertoast: ^8.2.6
   json_annotation: ^4.8.1
   table_calendar: ^3.0.9
   reorderables: ^0.6.0

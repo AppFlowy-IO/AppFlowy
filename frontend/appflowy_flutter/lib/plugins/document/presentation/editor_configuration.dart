@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -108,15 +109,24 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     ImageBlockKeys.type: CustomImageBlockComponentBuilder(
       configuration: configuration,
       showMenu: true,
+      menuBuilder: (node, state) => Positioned(
+        top: 10,
+        right: 10,
+        child: ImageMenu(node: node, state: state),
+      ),
+    ),
+    MultiImageBlockKeys.type: MultiImageBlockComponentBuilder(
+      configuration: configuration,
+      showMenu: true,
       menuBuilder: (
         Node node,
-        CustomImageBlockComponentState state,
+        MultiImageBlockComponentState state,
         int selectedIndex,
       ) =>
           Positioned(
         top: 10,
         right: 10,
-        child: ImageMenu(
+        child: MultiImageMenu(
           node: node,
           state: state,
           selectedIndex: selectedIndex,

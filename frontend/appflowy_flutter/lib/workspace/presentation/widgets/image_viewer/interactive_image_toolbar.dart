@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -5,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/separated_flex.dart';
@@ -28,6 +31,7 @@ class InteractiveImageToolbar extends StatelessWidget {
     required this.onNext,
     required this.onZoomIn,
     required this.onZoomOut,
+    this.userProfile,
   });
 
   final ImageBlockData currentImage;
@@ -40,6 +44,7 @@ class InteractiveImageToolbar extends StatelessWidget {
   final VoidCallback onNext;
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
+  final UserProfilePB? userProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +204,7 @@ class InteractiveImageToolbar extends StatelessWidget {
                 children: [
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: _locateOrDownloadImage,
+                    onTap: () => _locateOrDownloadImage(context),
                     child: FlowyTooltip(
                       message: currentImage.isNotInternal
                           ? LocaleKeys
@@ -282,7 +287,7 @@ class InteractiveImageToolbar extends StatelessWidget {
     );
   }
 
-  Future<void> _locateOrDownloadImage() async {
+  Future<void> _locateOrDownloadImage(BuildContext context) async {
     if (currentImage.isLocal) {
       /// If the image type is local, we simply open the image
       await afLaunchUrl(Uri.file(currentImage.url));
@@ -292,6 +297,13 @@ class InteractiveImageToolbar extends StatelessWidget {
       // using the Mime package and read the image to get the proper extension.
       await afLaunchUrl(Uri.parse(currentImage.url));
     } else {
+      if (userProfile == null) {
+        return showSnapBar(
+          context,
+          LocaleKeys.document_plugins_image_imageDownloadFailedToken.tr(),
+        );
+      }
+
       final uri = Uri.parse(currentImage.url);
       final imgFile = File(uri.pathSegments.last);
       final savePath = await FilePicker().saveFile(
@@ -300,9 +312,21 @@ class InteractiveImageToolbar extends StatelessWidget {
 
       if (savePath != null) {
         final uri = Uri.parse(currentImage.url);
-        final imgResponse = await http.get(uri);
-        final imgFile = File(savePath);
-        imgFile.writeAsBytesSync(imgResponse.bodyBytes);
+
+        final token = jsonDecode(userProfile!.token)['access_token'];
+        final response = await http.get(
+          uri,
+          headers: {'Authorization': 'Bearer $token'},
+        );
+        if (response.statusCode == 200) {
+          final imgFile = File(savePath);
+          await imgFile.writeAsBytes(response.bodyBytes);
+        } else if (context.mounted) {
+          showSnapBar(
+            context,
+            LocaleKeys.document_plugins_image_imageDownloadFailed.tr(),
+          );
+        }
       }
     }
   }

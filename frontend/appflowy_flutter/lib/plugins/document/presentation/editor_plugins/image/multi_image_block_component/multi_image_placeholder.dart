@@ -2,56 +2,53 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log, UploadImageMenu;
+import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu, Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
+import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 
-class ImagePlaceholder extends StatefulWidget {
-  const ImagePlaceholder({super.key, required this.node});
+class MultiImagePlaceholder extends StatefulWidget {
+  const MultiImagePlaceholder({super.key, required this.node});
 
   final Node node;
 
   @override
-  State<ImagePlaceholder> createState() => ImagePlaceholderState();
+  State<MultiImagePlaceholder> createState() => _MultiImagePlaceholderState();
 }
 
-class ImagePlaceholderState extends State<ImagePlaceholder> {
+class _MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
   final controller = PopoverController();
   final documentService = DocumentService();
   late final editorState = context.read<EditorState>();
-
-  bool showLoading = false;
-  String? errorMessage;
 
   bool isDraggingFiles = false;
 
   @override
   Widget build(BuildContext context) {
-    final Widget child = DecoratedBox(
+    final child = DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(4),
@@ -66,17 +63,21 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         style: HoverStyle(
           borderRadius: BorderRadius.circular(4),
         ),
-        child: SizedBox(
-          height: 52,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
           child: Row(
             children: [
+              const Icon(Icons.photo_library_outlined, size: 24),
               const HSpace(10),
-              const FlowySvg(
-                FlowySvgs.image_placeholder_s,
-                size: Size.square(24),
+              FlowyText(
+                PlatformExtension.isDesktop
+                    ? isDraggingFiles
+                        ? LocaleKeys.document_plugins_image_dropImageToInsert
+                            .tr()
+                        : LocaleKeys.document_plugins_image_addAnImageDesktop
+                            .tr()
+                    : LocaleKeys.document_plugins_image_addAnImageMobile.tr(),
               ),
-              const HSpace(10),
-              ..._buildTrailing(context),
             ],
           ),
         ),
@@ -93,7 +94,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
           minHeight: 80,
         ),
         clickHandler: PopoverClickHandler.gestureDetector,
-        popupBuilder: (context) {
+        popupBuilder: (_) {
           return UploadImageMenu(
             allowMultipleImages: true,
             limitMaximumImageSize: !_isLocalMode(),
@@ -106,7 +107,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
             onSelectedLocalImages: (paths) {
               controller.close();
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-                await insertLocalImage(paths.first);
+                await insertLocalImages(paths);
               });
             },
             onSelectedAIImage: (url) {
@@ -128,6 +129,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
           onDragExited: (_) => setState(() => isDraggingFiles = false),
           onDragDone: (details) {
             // Only accept files where the mimetype is an image,
+            // or the file extension is a known image format,
             // otherwise we assume it's a file we cannot display.
             final imageFiles = details.files
                 .where(
@@ -137,9 +139,8 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
                 )
                 .toList();
             final paths = imageFiles.map((file) => file.path).toList();
-
             WidgetsBinding.instance.addPostFrameCallback(
-              (_) async => insertMultipleLocalImages(paths),
+              (_) async => insertLocalImages(paths),
             );
           },
           child: child,
@@ -157,39 +158,6 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
           child: child,
         ),
       );
-    }
-  }
-
-  List<Widget> _buildTrailing(BuildContext context) {
-    if (errorMessage != null) {
-      return [
-        Flexible(
-          child: FlowyText(
-            '${LocaleKeys.document_plugins_image_imageUploadFailed.tr()}: ${errorMessage!}',
-            maxLines: 3,
-          ),
-        ),
-      ];
-    } else if (showLoading) {
-      return [
-        FlowyText(
-          LocaleKeys.document_imageBlock_imageIsUploading.tr(),
-        ),
-        const HSpace(8),
-        const CircularProgressIndicator.adaptive(),
-      ];
-    } else {
-      return [
-        Flexible(
-          child: FlowyText(
-            PlatformExtension.isDesktop
-                ? isDraggingFiles
-                    ? LocaleKeys.document_plugins_image_dropImageToInsert.tr()
-                    : LocaleKeys.document_plugins_image_addAnImageDesktop.tr()
-                : LocaleKeys.document_plugins_image_addAnImageMobile.tr(),
-          ),
-        ),
-      ];
     }
   }
 
@@ -213,6 +181,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
             ),
             child: UploadImageMenu(
               limitMaximumImageSize: !isLocalMode,
+              allowMultipleImages: true,
               supportTypes: const [
                 UploadImageType.local,
                 UploadImageType.url,
@@ -220,7 +189,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
               ],
               onSelectedLocalImages: (paths) async {
                 context.pop();
-                await insertLocalImage(paths.first);
+                await insertLocalImages(paths);
               },
               onSelectedAIImage: (url) async {
                 context.pop();
@@ -237,99 +206,28 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     }
   }
 
-  Future<void> insertLocalImage(String? url) async {
+  Future<void> insertLocalImages(List<String?> urls) async {
     controller.close();
 
-    if (url?.isEmpty ?? true) {
+    if (urls.isEmpty || urls.every((path) => path?.isEmpty ?? true)) {
       return;
     }
 
-    await insertMultipleLocalImages([url!]);
-  }
+    final transaction = editorState.transaction;
+    final images = await extractAndUploadImages(context, urls, _isLocalMode());
+    if (images.isEmpty) {
+      return;
+    }
 
-  Future<void> insertMultipleLocalImages(List<String> urls) async {
-    controller.close();
+    final imagesJson = images.map((image) => image.toJson()).toList();
 
-    setState(() {
-      showLoading = true;
-      errorMessage = null;
+    transaction.updateNode(widget.node, {
+      MultiImageBlockKeys.images: imagesJson,
+      // Default to Browser layout
+      MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
     });
 
-    bool hasError = false;
-
-    if (_isLocalMode()) {
-      final first = urls.removeAt(0);
-      final firstPath = await saveImageToLocalStorage(first);
-      final transaction = editorState.transaction;
-      transaction.updateNode(widget.node, {
-        CustomImageBlockKeys.url: firstPath,
-        CustomImageBlockKeys.imageType: CustomImageType.local.toIntValue(),
-      });
-
-      if (urls.isNotEmpty) {
-        // Create new nodes for the rest of the images:
-        final paths = await Future.wait(urls.map(saveImageToLocalStorage));
-        paths.removeWhere((url) => url == null || url.isEmpty);
-
-        transaction.insertNodes(
-          widget.node.path.next,
-          paths.map((url) => customImageNode(url: url!)).toList(),
-        );
-      }
-
-      await editorState.apply(transaction);
-    } else {
-      final transaction = editorState.transaction;
-
-      bool isFirst = true;
-      for (final url in urls) {
-        // Upload to cloud
-        final (path, error) = await saveImageToCloudStorage(
-          url,
-          context.read<DocumentBloc>().documentId,
-        );
-
-        if (error != null) {
-          hasError = true;
-
-          if (isFirst) {
-            setState(() => errorMessage = error);
-          }
-
-          continue;
-        }
-
-        if (path != null) {
-          if (isFirst) {
-            isFirst = false;
-            transaction.updateNode(widget.node, {
-              CustomImageBlockKeys.url: path,
-              CustomImageBlockKeys.imageType:
-                  CustomImageType.internal.toIntValue(),
-            });
-          } else {
-            transaction.insertNode(
-              widget.node.path.next,
-              customImageNode(
-                url: path,
-                type: CustomImageType.internal,
-              ),
-            );
-          }
-        }
-      }
-
-      await editorState.apply(transaction);
-    }
-
-    setState(() => showLoading = false);
-
-    if (hasError && mounted) {
-      showSnapBar(
-        context,
-        LocaleKeys.document_imageBlock_error_multipleImagesFailed.tr(),
-      );
-    }
+    await editorState.apply(transaction);
   }
 
   Future<void> insertAIImage(String url) async {
@@ -357,7 +255,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
 
       final response = await get(uri);
       await File(copyToPath).writeAsBytes(response.bodyBytes);
-      await insertLocalImage(copyToPath);
+      await insertLocalImages([copyToPath]);
       await File(copyToPath).delete();
     } catch (e) {
       Log.error('cannot save image file', e);

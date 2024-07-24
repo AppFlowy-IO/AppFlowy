@@ -1405,9 +1405,19 @@
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImageDesktop": "Drop image(s) or click to add image(s)",
         "addAnImageMobile": "Click to add one or more images",
-        "dropImageToInsert": "Drop image(s) to insert",
+        "dropImageToInsert": "Drop images to insert",
         "imageUploadFailed": "Image upload failed",
+        "imageDownloadFailed": "Image upload failed, please try again",
+        "imageDownloadFailedToken": "Image upload failed due to missing user token, please try again",
         "errorCode": "Error code"
+      },
+      "photoGallery": {
+        "name": "Photo gallery",
+        "imageKeyword": "image",
+        "imageGalleryKeyword": "image gallery",
+        "photoKeyword": "photo",
+        "photoBrowserKeyword": "photo browser",
+        "galleryKeyword": "gallery"
       },
       "math": {
         "copiedToPasteBoard": "The math equation has been copied to the clipboard"
@@ -1467,7 +1477,7 @@
       "placeholder": "Click to add image(s)",
       "upload": {
         "label": "Upload",
-        "placeholder": "Click to upload image(s)"
+        "placeholder": "Click to upload image"
       },
       "url": {
         "label": "Image URL",
@@ -1487,7 +1497,8 @@
         "invalidImageSize": "Image size must be less than 5MB",
         "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG, GIF, SVG, WEBP",
         "invalidImageUrl": "Invalid image URL",
-        "noImage": "No such file or directory"
+        "noImage": "No such file or directory",
+        "multipleImagesFailed": "One or more images failed to upload, please try again"
       },
       "embedLink": {
         "label": "Embed link",

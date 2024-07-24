@@ -1,22 +1,26 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
+import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-
-import 'custom_image_block_component/custom_image_block_component.dart';
+import 'package:provider/provider.dart';
 
 const _thumbnailItemSize = 100.0;
 
@@ -54,25 +58,28 @@ class ImageBrowserLayout extends ImageBlockMultiLayout {
 class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
   int _selectedIndex = 0;
 
+  UserProfilePB? _userProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    _userProfile = context.read<DocumentBloc>().state.userProfilePB;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final attributes = widget.node.attributes;
-    final alignment = AlignmentExtension.fromString(
-      attributes[CustomImageBlockKeys.align] ?? 'center',
-    );
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 300,
+          height: 400,
           width: MediaQuery.of(context).size.width,
           child: GestureDetector(
             onDoubleTap: () => _openInteractiveViewer(context),
-            child: Image(
-              image: widget.images[_selectedIndex].toImageProvider(),
+            child: _ImageRender(
+              image: widget.images[_selectedIndex],
+              userProfile: _userProfile,
               fit: BoxFit.contain,
-              alignment: alignment,
             ),
           ),
         ),
@@ -101,7 +108,7 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                         padding: const EdgeInsets.all(2),
                         margin: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: Corners.s8Border,
                           border: Border.all(
                             width: 2,
                             color: Theme.of(context).dividerColor,
@@ -109,22 +116,45 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                         ),
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            image: DecorationImage(
-                              image: (image.type == CustomImageType.local
-                                  ? FileImage(File(image.url))
-                                  : NetworkImage(image.url)) as ImageProvider,
-                              fit: BoxFit.cover,
-                              opacity: 0.5,
-                            ),
+                            borderRadius: Corners.s6Border,
+                            image: image.type == CustomImageType.local
+                                ? DecorationImage(
+                                    image: FileImage(File(image.url)),
+                                    fit: BoxFit.cover,
+                                    opacity: 0.5,
+                                  )
+                                : null,
                           ),
-                          child: Center(
-                            child: FlowyText(
-                              '+$amountLeft',
-                              color: AFThemeExtension.of(context).strongText,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          child: Stack(
+                            children: [
+                              if (image.type != CustomImageType.local)
+                                Positioned.fill(
+                                  child: Container(
+                                    clipBehavior: Clip.antiAlias,
+                                    decoration: const BoxDecoration(
+                                      borderRadius: Corners.s6Border,
+                                    ),
+                                    child: FlowyNetworkImage(
+                                      url: image.url,
+                                      userProfilePB: _userProfile,
+                                    ),
+                                  ),
+                                ),
+                              DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.5),
+                                ),
+                                child: Center(
+                                  child: FlowyText(
+                                    '+$amountLeft',
+                                    color:
+                                        AFThemeExtension.of(context).strongText,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -143,41 +173,20 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                       images: widget.images,
                       index: index,
                       selectedIndex: _selectedIndex,
+                      userProfile: _userProfile,
                       onDeleted: () async {
                         final transaction = widget.editorState.transaction;
 
-                        final newAdditionals = [...widget.images];
-
-                        final currentRoot = widget.images.first;
-                        String url = currentRoot.url;
-                        int imageType = currentRoot.type.toIntValue();
-
-                        if (index == 0) {
-                          final newMainImage = widget.images[1];
-                          url = newMainImage.url;
-                          imageType = newMainImage.type.toIntValue();
-
-                          newAdditionals.removeWhere(
-                            (i) =>
-                                i.url == newMainImage.url ||
-                                i.url == widget.selectedImage.url,
-                          );
-                        } else {
-                          newAdditionals.removeWhere(
-                            (i) =>
-                                i.url == widget.images[index].url ||
-                                i.url == widget.selectedImage.url,
-                          );
-                        }
+                        final images = widget.images.toList();
+                        images.removeAt(index);
 
                         transaction.updateNode(
                           widget.node,
                           {
-                            CustomImageBlockKeys.url: url,
-                            CustomImageBlockKeys.imageType: imageType,
-                            CustomImageBlockKeys.additionalImages: jsonEncode(
-                              newAdditionals.map((e) => e.toJson()).toList(),
-                            ),
+                            MultiImageBlockKeys.images:
+                                images.map((e) => e.toJson()).toList(),
+                            MultiImageBlockKeys.layout: widget
+                                .node.attributes[MultiImageBlockKeys.layout],
                           },
                         );
 
@@ -190,7 +199,7 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                           widget.onIndexChanged(_selectedIndex);
                         });
                       },
-                    ), // thumbnailItem(context, index),
+                    ),
                   ),
                 );
               }).toList(),
@@ -201,13 +210,10 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
     );
   }
 
-  void _openInteractiveViewer(
-    BuildContext context, [
-    int? index,
-  ]) =>
-      showDialog(
+  void _openInteractiveViewer(BuildContext context, [int? index]) => showDialog(
         context: context,
         builder: (_) => InteractiveImageViewer(
+          userProfile: _userProfile,
           imageProvider: AFBlockImageProvider(
             images: widget.images,
             initialIndex: index ?? _selectedIndex,
@@ -222,12 +228,14 @@ class _ThumbnailItem extends StatefulWidget {
     required this.index,
     required this.selectedIndex,
     required this.onDeleted,
+    this.userProfile,
   });
 
   final List<ImageBlockData> images;
   final int index;
   final int selectedIndex;
   final VoidCallback onDeleted;
+  final UserProfilePB? userProfile;
 
   @override
   State<_ThumbnailItem> createState() => _ThumbnailItemState();
@@ -247,7 +255,7 @@ class _ThumbnailItemState extends State<_ThumbnailItem> {
         padding: const EdgeInsets.all(2),
         margin: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: Corners.s8Border,
           border: Border.all(
             width: 2,
             color: widget.index == widget.selectedIndex
@@ -258,7 +266,10 @@ class _ThumbnailItemState extends State<_ThumbnailItem> {
         child: Stack(
           children: [
             Positioned.fill(
-              child: _ImageRender(image: widget.images[widget.index]),
+              child: _ImageRender(
+                image: widget.images[widget.index],
+                userProfile: widget.userProfile,
+              ),
             ),
             Positioned(
               top: 4,
@@ -297,24 +308,30 @@ class _ThumbnailItemState extends State<_ThumbnailItem> {
 }
 
 class _ImageRender extends StatelessWidget {
-  const _ImageRender({required this.image});
+  const _ImageRender({
+    required this.image,
+    this.userProfile,
+    this.fit = BoxFit.cover,
+  });
 
   final ImageBlockData image;
+  final UserProfilePB? userProfile;
+  final BoxFit fit;
 
   @override
   Widget build(BuildContext context) {
     final child = switch (image.type) {
-      CustomImageType.internal ||
-      CustomImageType.external =>
-        Image.network(image.url, fit: BoxFit.cover),
-      CustomImageType.local => Image.file(File(image.url), fit: BoxFit.cover),
+      CustomImageType.internal || CustomImageType.external => FlowyNetworkImage(
+          url: image.url,
+          userProfilePB: userProfile,
+          fit: fit,
+        ),
+      CustomImageType.local => Image.file(File(image.url), fit: fit),
     };
 
     return Container(
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
-      ),
+      decoration: const BoxDecoration(borderRadius: Corners.s6Border),
       child: child,
     );
   }

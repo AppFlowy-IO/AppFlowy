@@ -1,12 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/align_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/util/string_extension.dart';
@@ -21,16 +21,10 @@ import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:provider/provider.dart';
 
 class ImageMenu extends StatefulWidget {
-  const ImageMenu({
-    super.key,
-    required this.node,
-    required this.state,
-    this.selectedIndex = 0,
-  });
+  const ImageMenu({super.key, required this.node, required this.state});
 
   final Node node;
   final CustomImageBlockComponentState state;
-  final int selectedIndex;
 
   @override
   State<ImageMenu> createState() => _ImageMenuState();
@@ -107,30 +101,19 @@ class _ImageMenuState extends State<ImageMenu> {
   }
 
   void openFullScreen() {
-    final additionalImages =
-        widget.node.attributes[CustomImageBlockKeys.additionalImages];
-    final List<ImageBlockData> images = [
-      ImageBlockData(
-        url: url!,
-        type: CustomImageType.fromIntValue(
-          widget.node.attributes[CustomImageBlockKeys.imageType] ?? 2,
-        ),
-      ),
-    ];
-
-    if (additionalImages != null) {
-      final jsonImages = jsonDecode(additionalImages) as List;
-      for (final jsonImage in jsonImages) {
-        images.add(ImageBlockData.fromJson(jsonImage));
-      }
-    }
-
     showDialog(
       context: context,
       builder: (_) => InteractiveImageViewer(
+        userProfile: context.read<DocumentBloc>().state.userProfilePB,
         imageProvider: AFBlockImageProvider(
-          images: images,
-          initialIndex: widget.selectedIndex,
+          images: [
+            ImageBlockData(
+              url: url!,
+              type: CustomImageType.fromIntValue(
+                widget.node.attributes[CustomImageBlockKeys.imageType] ?? 2,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -147,11 +130,11 @@ class _ImageAlignButton extends StatefulWidget {
   State<_ImageAlignButton> createState() => _ImageAlignButtonState();
 }
 
-const interceptorKey = 'image-align';
+const _interceptorKey = 'image-align';
 
 class _ImageAlignButtonState extends State<_ImageAlignButton> {
   final gestureInterceptor = SelectionGestureInterceptor(
-    key: interceptorKey,
+    key: _interceptorKey,
     canTap: (details) => false,
   );
 
@@ -214,7 +197,7 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
   void allowMenuClose() {
     widget.state.alwaysShowMenu = false;
     editorState.service.selectionService.unregisterGestureInterceptor(
-      interceptorKey,
+      _interceptorKey,
     );
   }
 

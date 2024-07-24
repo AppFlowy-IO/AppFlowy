@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_toolbar.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:provider/provider.dart';
 
 const double _minScaleFactor = .5;
 const double _maxScaleFactor = 5;
 
 class InteractiveImageViewer extends StatefulWidget {
-  const InteractiveImageViewer({super.key, required this.imageProvider});
+  const InteractiveImageViewer({
+    super.key,
+    this.userProfile,
+    required this.imageProvider,
+  });
 
+  final UserProfilePB? userProfile;
   final AFImageProvider imageProvider;
 
   @override
@@ -29,11 +37,15 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
 
   late ImageBlockData currentImage;
 
+  UserProfilePB? userProfile;
+
   @override
   void initState() {
     super.initState();
     controller.addListener(_onControllerChanged);
     currentImage = widget.imageProvider.getImage(currentIndex);
+    userProfile =
+        widget.userProfile ?? context.read<DocumentBloc>().state.userProfilePB;
   }
 
   void _onControllerChanged() {
@@ -97,7 +109,11 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
               child: SizedBox(
                 height: size.height,
                 width: size.width,
-                child: widget.imageProvider.renderImage(context, currentIndex),
+                child: widget.imageProvider.renderImage(
+                  context,
+                  currentIndex,
+                  userProfile,
+                ),
               ),
             ),
           ),
@@ -107,6 +123,7 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
             isFirstIndex: isFirstIndex,
             isLastIndex: isLastIndex,
             currentScale: currentScale,
+            userProfile: userProfile,
             onPrevious: () => _move(-1),
             onNext: () => _move(1),
             onZoomIn: () => _zoom(1.1, size),

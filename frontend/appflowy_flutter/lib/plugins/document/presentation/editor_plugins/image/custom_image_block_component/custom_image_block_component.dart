@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/unsupport_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_layouts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
@@ -23,68 +22,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 
+import '../common.dart';
+
 const kImagePlaceholderKey = 'imagePlaceholderKey';
-
-enum CustomImageType {
-  local,
-  internal, // the images saved in self-host cloud
-  external; // the images linked from network, like unsplash, https://xxx/yyy/zzz.jpg
-
-  static CustomImageType fromIntValue(int value) {
-    switch (value) {
-      case 0:
-        return CustomImageType.local;
-      case 1:
-        return CustomImageType.internal;
-      case 2:
-        return CustomImageType.external;
-      default:
-        throw UnimplementedError();
-    }
-  }
-
-  int toIntValue() {
-    switch (this) {
-      case CustomImageType.local:
-        return 0;
-      case CustomImageType.internal:
-        return 1;
-      case CustomImageType.external:
-        return 2;
-    }
-  }
-}
-
-class ImageBlockData {
-  factory ImageBlockData.fromJson(Map<String, dynamic> json) {
-    return ImageBlockData(
-      url: json['url'] as String,
-      type: CustomImageType.fromIntValue(json['type'] as int),
-    );
-  }
-
-  ImageBlockData({required this.url, required this.type});
-
-  final String url;
-  final CustomImageType type;
-
-  bool get isLocal => type == CustomImageType.local;
-  bool get isNotInternal => type != CustomImageType.internal;
-
-  Map<String, dynamic> toJson() {
-    return {'url': url, 'type': type.toIntValue()};
-  }
-
-  ImageProvider toImageProvider() {
-    switch (type) {
-      case CustomImageType.internal:
-      case CustomImageType.external:
-        return NetworkImage(url);
-      case CustomImageType.local:
-        return FileImage(File(url));
-    }
-  }
-}
 
 class CustomImageBlockKeys {
   const CustomImageBlockKeys._();
@@ -117,37 +57,30 @@ class CustomImageBlockKeys {
   ///
   /// The value is a CustomImageType enum.
   static const String imageType = 'image_type';
+}
 
-  /// This stores information about additional images
-  ///
-  /// The value is an encoded JSON String, which contains a [List] of
-  /// image URLs and their corresponding image types.
-  ///
-  /// Example:
-  /// ```json
-  /// [
-  ///   {
-  ///     "url": "C:\\Users\\mathias\\AppData\\Roaming\\io.appflowy\\AppFlowy\\data_dev\\images\\image1.jpg",
-  ///     "type": 1
-  ///   },
-  ///   {
-  ///     "url": "https://appflowy.cloud/123456789/image2.png",
-  ///     "type": 2
-  ///   },
-  ///   {
-  ///     "url": "https://images.unsplash.com/photo-123456789-123456789-image3",
-  ///     "type": 3
-  ///   }
-  /// ]
-  /// ```
-  ///
-  static const String additionalImages = 'additional_images';
+Node customImageNode({
+  required String url,
+  String align = 'center',
+  double? height,
+  double? width,
+  CustomImageType type = CustomImageType.local,
+}) {
+  return Node(
+    type: CustomImageBlockKeys.type,
+    attributes: {
+      CustomImageBlockKeys.url: url,
+      CustomImageBlockKeys.align: align,
+      CustomImageBlockKeys.height: height,
+      CustomImageBlockKeys.width: width,
+      CustomImageBlockKeys.imageType: type.toIntValue(),
+    },
+  );
 }
 
 typedef CustomImageBlockComponentMenuBuilder = Widget Function(
   Node node,
   CustomImageBlockComponentState state,
-  int selectedIndex,
 );
 
 class CustomImageBlockComponentBuilder extends BlockComponentBuilder {
@@ -219,37 +152,6 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
 
   bool alwaysShowMenu = false;
 
-  final List<ImageBlockData> _allImages = [];
-  late ImageBlockData _selectedImage;
-
-  int _selectedIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _populateAllImages();
-  }
-
-  @override
-  void didUpdateWidget(covariant CustomImageBlockComponent oldWidget) {
-    _populateAllImages();
-    super.didUpdateWidget(oldWidget);
-  }
-
-  void _populateAllImages() {
-    _selectedImage = ImageBlockData(
-      url: node.attributes[CustomImageBlockKeys.url],
-      type: CustomImageType.fromIntValue(
-        node.attributes[CustomImageBlockKeys.imageType] ?? 0,
-      ),
-    );
-
-    _allImages.clear();
-    _allImages.add(_selectedImage);
-    _allImages.addAll(_getAdditionalImages());
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     final node = widget.node;
@@ -275,8 +177,6 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     } else if (imageType != CustomImageType.internal &&
         !_checkIfURLIsValid(src)) {
       child = const UnsupportedImageWidget();
-    } else if (_allImages.length > 1) {
-      child = _renderMultiImageLayout();
     } else {
       child = ResizableImage(
         src: src,
@@ -288,6 +188,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         onDoubleTap: () => showDialog(
           context: context,
           builder: (_) => InteractiveImageViewer(
+            userProfile: context.read<DocumentBloc>().state.userProfilePB,
             imageProvider: AFBlockImageProvider(
               images: [ImageBlockData(url: src, type: imageType)],
             ),
@@ -295,9 +196,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         ),
         onResize: (width) {
           final transaction = editorState.transaction
-            ..updateNode(node, {
-              CustomImageBlockKeys.width: width,
-            });
+            ..updateNode(node, {CustomImageBlockKeys.width: width});
           editorState.apply(transaction);
         },
       );
@@ -309,21 +208,11 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         delegate: this,
         listenable: editorState.selectionNotifier,
         blockColor: editorState.editorStyle.selectionColor,
-        supportTypes: const [
-          BlockSelectionType.block,
-        ],
-        child: Padding(
-          key: imageKey,
-          padding: padding,
-          child: child,
-        ),
+        supportTypes: const [BlockSelectionType.block],
+        child: Padding(key: imageKey, padding: padding, child: child),
       );
     } else {
-      child = Padding(
-        key: imageKey,
-        padding: padding,
-        child: child,
-      );
+      child = Padding(key: imageKey, padding: padding, child: child);
     }
 
     if (widget.showActions && widget.actionBuilder != null) {
@@ -348,7 +237,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
           opaque: false,
           child: ValueListenableBuilder<bool>(
             valueListenable: showActionsNotifier,
-            builder: (context, value, child) {
+            builder: (_, value, child) {
               final url = node.attributes[CustomImageBlockKeys.url];
               return Stack(
                 children: [
@@ -361,11 +250,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
                     child: child!,
                   ),
                   if (value && url.isNotEmpty == true)
-                    widget.menuBuilder!(
-                      widget.node,
-                      this,
-                      _selectedIndex,
-                    ),
+                    widget.menuBuilder!(widget.node, this),
                 ],
               );
             },
@@ -385,29 +270,6 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     }
 
     return child;
-  }
-
-  Widget _renderMultiImageLayout() {
-    return ImageBrowserLayout(
-      node: node,
-      editorState: editorState,
-      images: _allImages,
-      selectedImage: _selectedImage,
-      onIndexChanged: (index) => setState(() => _selectedIndex = index),
-    );
-  }
-
-  // Get additional images from the node
-  List<ImageBlockData> _getAdditionalImages() {
-    final additionalImages =
-        node.attributes[CustomImageBlockKeys.additionalImages];
-
-    if (additionalImages is String) {
-      final List<dynamic> decoded = jsonDecode(additionalImages);
-      return decoded.map((e) => ImageBlockData.fromJson(e)).toList();
-    }
-
-    return [];
   }
 
   @override
