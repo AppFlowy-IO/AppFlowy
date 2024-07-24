@@ -276,6 +276,8 @@ class MobileAppearance extends BaseAppearance {
           onBackground: onBackground,
           background: background,
           borderColor: theme.borderColor,
+          scrollbarColor: theme.scrollbarColor,
+          scrollbarHoverColor: theme.scrollbarHoverColor,
         ),
         ToolbarColorExtension.fromBrightness(brightness),
       ],

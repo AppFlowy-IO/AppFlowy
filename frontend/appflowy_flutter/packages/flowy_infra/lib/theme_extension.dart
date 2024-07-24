@@ -39,6 +39,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.background,
     required this.onBackground,
     required this.borderColor,
+    required this.scrollbarColor,
+    required this.scrollbarHoverColor,
   });
 
   final Color? warning;
@@ -80,6 +82,9 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   /// This is used in the divider, outline border, etc.
   final Color borderColor;
 
+  final Color scrollbarColor;
+  final Color scrollbarHoverColor;
+
   @override
   AFThemeExtension copyWith({
     Color? warning,
@@ -112,6 +117,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     Color? background,
     Color? onBackground,
     Color? borderColor,
+    Color? scrollbarColor,
   }) =>
       AFThemeExtension(
         warning: warning ?? this.warning,
@@ -145,6 +151,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
         onBackground: onBackground ?? this.onBackground,
         background: background ?? this.background,
         borderColor: borderColor ?? this.borderColor,
+        scrollbarColor: scrollbarColor ?? this.scrollbarColor,
+        scrollbarHoverColor: scrollbarHoverColor ?? scrollbarHoverColor,
       );
 
   @override
@@ -197,6 +205,9 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       onBackground: Color.lerp(onBackground, other.onBackground, t)!,
       background: Color.lerp(background, other.background, t)!,
       borderColor: Color.lerp(borderColor, other.borderColor, t)!,
+      scrollbarColor: Color.lerp(scrollbarColor, other.scrollbarColor, t)!,
+      scrollbarHoverColor:
+          Color.lerp(scrollbarHoverColor, other.scrollbarHoverColor, t)!,
     );
   }
 }

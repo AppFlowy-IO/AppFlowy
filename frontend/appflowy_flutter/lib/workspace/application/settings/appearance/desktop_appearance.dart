@@ -141,6 +141,8 @@ class DesktopAppearance extends BaseAppearance {
           onBackground: theme.text,
           background: theme.surface,
           borderColor: theme.borderColor,
+          scrollbarColor: theme.scrollbarColor,
+          scrollbarHoverColor: theme.scrollbarHoverColor,
         ),
       ],
     );
