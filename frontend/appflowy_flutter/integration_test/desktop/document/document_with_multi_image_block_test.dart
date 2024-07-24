@@ -90,8 +90,7 @@ void main() {
       expect(find.byType(InteractiveImageViewer), findsOneWidget);
 
       // remove the temp files
-      firstFile.deleteSync();
-      secondFile.deleteSync();
+      await Future.wait([firstFile.delete(), secondFile.delete()]);
     });
   });
 }
