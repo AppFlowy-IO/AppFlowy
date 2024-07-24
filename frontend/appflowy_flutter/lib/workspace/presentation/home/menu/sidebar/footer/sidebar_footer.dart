@@ -1,3 +1,5 @@
+import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_toast.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -15,10 +17,10 @@ class SidebarFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
-        // SidebarToast(),
-        Row(
+        if (FeatureFlag.planBilling.isOn) const SidebarToast(),
+        const Row(
           children: [
             Expanded(child: SidebarTrashButton()),
             // Enable it when the widget button is ready

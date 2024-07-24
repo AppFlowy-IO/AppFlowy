@@ -91,7 +91,7 @@ enum FeatureFlag {
 
   bool get isOn {
     if ([
-      FeatureFlag.planBilling,
+      // FeatureFlag.planBilling,
       // release this feature in version 0.6.1
       FeatureFlag.spaceDesign,
       // release this feature in version 0.5.9
