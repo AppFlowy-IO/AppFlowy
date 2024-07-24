@@ -1481,6 +1481,7 @@
         "depth": "Depth"
       },
       "image": {
+        "addAnImage": "Add an image",
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImageDesktop": "Drop image(s) or click to add image(s)",
         "addAnImageMobile": "Click to add one or more images",
