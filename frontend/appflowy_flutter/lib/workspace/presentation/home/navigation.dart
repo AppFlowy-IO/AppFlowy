@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -65,23 +64,17 @@ class FlowyNavigation extends StatelessWidget {
       buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
       builder: (context, state) {
         if (!PlatformExtension.isWindows && state.isMenuCollapsed) {
-          final color =
-              Theme.of(context).isLightMode ? Colors.white : Colors.black;
           final textSpan = TextSpan(
             children: [
               TextSpan(
                 text: '${LocaleKeys.sideBar_openSidebar.tr()}\n',
-                style: Theme.of(context)
-                    .tooltipTheme
-                    .textStyle!
-                    .copyWith(color: color),
+                style: context.tooltipTextStyle(),
               ),
               TextSpan(
                 text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
-                style: Theme.of(context)
-                    .tooltipTheme
-                    .textStyle!
-                    .copyWith(color: Theme.of(context).hintColor),
+                style: context
+                    .tooltipTextStyle()
+                    ?.copyWith(color: Theme.of(context).hintColor),
               ),
             ],
           );

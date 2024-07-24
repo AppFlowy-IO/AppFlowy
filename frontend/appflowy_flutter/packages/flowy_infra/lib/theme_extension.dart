@@ -118,6 +118,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     Color? onBackground,
     Color? borderColor,
     Color? scrollbarColor,
+    Color? scrollbarHoverColor,
   }) =>
       AFThemeExtension(
         warning: warning ?? this.warning,
@@ -152,7 +153,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
         background: background ?? this.background,
         borderColor: borderColor ?? this.borderColor,
         scrollbarColor: scrollbarColor ?? this.scrollbarColor,
-        scrollbarHoverColor: scrollbarHoverColor ?? scrollbarHoverColor,
+        scrollbarHoverColor: scrollbarHoverColor ?? this.scrollbarHoverColor,
       );
 
   @override
