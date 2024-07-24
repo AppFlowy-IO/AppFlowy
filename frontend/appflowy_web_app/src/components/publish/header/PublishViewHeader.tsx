@@ -9,6 +9,7 @@ import Breadcrumb from './Breadcrumb';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import MoreActions from './MoreActions';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
+import Duplicate from './duplicate/Duplicate';
 
 export const HEADER_HEIGHT = 48;
 
@@ -92,6 +93,7 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
 
         <div className={'flex items-center gap-2'}>
           <MoreActions />
+          <Duplicate />
           <Divider orientation={'vertical'} className={'mx-2'} flexItem />
           <Tooltip title={t('publish.downloadApp')}>
             <button onClick={openOrDownload}>

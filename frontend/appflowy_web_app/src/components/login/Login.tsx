@@ -1,23 +1,13 @@
-import { AFConfigContext } from '@/components/app/AppConfig';
 import LoginProvider from '@/components/login/LoginProvider';
 import MagicLink from '@/components/login/MagicLink';
 import { Divider } from '@mui/material';
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
 
-export function Login() {
+export function Login({ redirectTo }: { redirectTo: string }) {
   const { t } = useTranslation();
-  const [search] = useSearchParams();
-  const redirectTo = search.get('redirectTo') || '';
-  const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated || false;
 
-  useEffect(() => {
-    if (isAuthenticated && redirectTo && encodeURIComponent(redirectTo) !== window.location.href) {
-      window.location.href = redirectTo;
-    }
-  }, [isAuthenticated, redirectTo]);
   return (
     <div className={'my-10 flex flex-col items-center justify-center gap-[24px] px-4'}>
       <div className={'flex flex-col items-center justify-center gap-[14px]'}>

@@ -58,7 +58,7 @@ function LoginProvider({ redirectTo }: { redirectTo: string }) {
           variant={'outlined'}
           onClick={() => handleClick(option.value)}
           className={
-            'flex h-[46px] w-[380px] items-center justify-center gap-[10px] rounded-[12px] border border-line-divider text-sm font-medium'
+            'flex h-[46px] w-[380px] items-center justify-center gap-[10px] rounded-[12px] border border-line-divider text-sm font-medium text-text-title'
           }
         >
           <option.Icon className={'h-[20px] w-[20px]'} />

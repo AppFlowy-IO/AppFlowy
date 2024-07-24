@@ -2130,11 +2130,25 @@
       "zero": "Publish {} selected view",
       "one": "Publish {} selected views",
       "many": "Publish {} selected views",
-      "other":"Publish {} selected views"
+      "other": "Publish {} selected views"
     },
     "mustSelectPrimaryDatabase": "The primary view must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",
-    "unableToDeselectPrimaryDatabase": "Unable to deselect primary database"
+    "unableToDeselectPrimaryDatabase": "Unable to deselect primary database",
+    "duplicateTitle": "Where would you like to add",
+    "selectWorkspace": "Select a workspace",
+    "addTo": "Add to",
+    "duplicateSuccessfully": "Duplicated success",
+    "duplicateSuccessfullyDescription": "Open in AppFlowy's desktop app? If don't have the app, you can",
+    "downloadIt": "download it here",
+    "openApp": "Open in app",
+    "duplicateFailed": "Duplicated failed",
+    "membersCount": {
+      "zero": "No members",
+      "one": "1 member",
+      "many": "{count} members",
+      "other": "{count} members"
+    }
   },
   "web": {
     "continue": "Continue",
