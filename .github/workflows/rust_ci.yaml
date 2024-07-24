@@ -8,6 +8,7 @@ on:
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
+      - ".github/workflows/rust_ci.yaml"
 
   pull_request:
     branches:
@@ -52,16 +53,10 @@ jobs:
           override: true
           components: rustfmt, clippy
           profile: minimal
-
-      - name: Install prerequisites
-        working-directory: frontend
-        run: |
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
-
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "ubuntu-latest"
+          cache-on-failure: true
           workspaces: |
             frontend/rust-lib
 
@@ -105,6 +100,12 @@ jobs:
       - name: clippy rust-lib
         run: cargo clippy --all-targets -- -D warnings
         working-directory: frontend/rust-lib
+
+      - name: "Debug: show Appflowy-Cloud container logs"
+        if: failure()
+        working-directory: AppFlowy-Cloud
+        run: |
+          docker compose logs appflowy_cloud
 
       - name: Clean up Docker images
         run: |
