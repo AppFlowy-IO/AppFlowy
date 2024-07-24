@@ -41,7 +41,7 @@ function SelectWorkspace({ value, onChange, workspaceList }: SelectWorkspaceProp
   );
 
   return (
-    <div className={'flex w-[360px]  flex-col gap-2'}>
+    <div className={'flex w-[360px] flex-col gap-2 max-sm:w-full'}>
       <div className={'text-sm text-text-caption'}>{t('publish.selectWorkspace')}</div>
       <Button
         ref={ref}
@@ -70,7 +70,7 @@ function SelectWorkspace({ value, onChange, workspaceList }: SelectWorkspaceProp
           setSelectOpen(false);
         }}
       >
-        <div className={'flex max-h-[360px] w-[360px] flex-col gap-1 p-2'}>
+        <div className={'flex max-h-[360px] w-[360px] flex-col gap-1 p-2 max-sm:w-full'}>
           <div className={'w-full px-3 py-2 text-sm font-medium text-text-caption'}>{email}</div>
           <Divider />
           <div className={'appflowy-scroller flex flex-1 flex-col overflow-y-auto overflow-x-hidden'}>

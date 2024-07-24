@@ -34,11 +34,11 @@ function MagicLink({ redirectTo }: { redirectTo: string }) {
   };
 
   return (
-    <div className={'flex flex-col items-center justify-center gap-[12px]'}>
+    <div className={'flex w-full flex-col items-center justify-center gap-[12px]'}>
       <OutlinedInput
         value={email}
         type={'email'}
-        className={'h-[46px] w-[380px] rounded-[12px] py-[15px] px-[20px] text-base'}
+        className={'h-[46px] w-[380px] rounded-[12px] py-[15px] px-[20px] text-base max-sm:w-full'}
         placeholder={t('signIn.pleaseInputYourEmail')}
         inputProps={{
           className: 'px-0 py-0',
@@ -49,7 +49,7 @@ function MagicLink({ redirectTo }: { redirectTo: string }) {
         onClick={handleSubmit}
         disabled={loading}
         variant={'contained'}
-        className={'flex h-[46px] w-[380px] items-center justify-center gap-2 rounded-[12px] text-base'}
+        className={'flex h-[46px] w-[380px] items-center justify-center gap-2 rounded-[12px] text-base max-sm:w-full'}
       >
         {loading ? (
           <>

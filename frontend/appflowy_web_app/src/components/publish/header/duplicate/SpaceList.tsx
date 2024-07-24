@@ -52,7 +52,7 @@ function SpaceList({ spaceList, value, onChange }: SpaceListProps) {
   );
 
   return (
-    <div className={'flex max-h-[260px] w-[360px] flex-col gap-2 overflow-hidden'}>
+    <div className={'flex max-h-[280px] w-[360px] flex-col gap-2 overflow-hidden max-sm:w-full'}>
       <div className={'text-sm text-text-caption'}>{t('publish.addTo')}</div>
       <div className={'appflowy-scroller flex w-full flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden'}>
         {spaceList.map((space) => {

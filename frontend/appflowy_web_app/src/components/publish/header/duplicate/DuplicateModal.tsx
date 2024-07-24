@@ -19,6 +19,7 @@ function DuplicateModal({ open, onClose }: { open: boolean; onClose: () => void 
       title={t('publish.duplicateTitle')}
       open={open}
       onClose={onClose}
+      classes={{ container: 'items-start max-md:mt-auto max-md:items-center mt-[10%] ' }}
       onOk={async () => {
         // submit form
         notify.success(t('publish.duplicateSuccessfully'));
