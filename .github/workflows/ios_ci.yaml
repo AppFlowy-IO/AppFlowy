@@ -4,20 +4,20 @@ on:
   push:
     branches:
       - "main"
-    paths:
-      - ".github/workflows/mobile_ci.yaml"
-      - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
-      - "!frontend/appflowy_web_app/**"
+  #    paths:
+  #      - ".github/workflows/mobile_ci.yaml"
+  #      - "frontend/**"
+  #      - "!frontend/appflowy_tauri/**"
+  #      - "!frontend/appflowy_web_app/**"
 
   pull_request:
     branches:
       - "main"
-    paths:
-      - ".github/workflows/mobile_ci.yaml"
-      - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
-      - "!frontend/appflowy_web_app/**"
+#    paths:
+#      - ".github/workflows/mobile_ci.yaml"
+#      - "frontend/**"
+#      - "!frontend/appflowy_tauri/**"
+#      - "!frontend/appflowy_web_app/**"
 
 env:
   FLUTTER_VERSION: "3.22.0"
@@ -28,25 +28,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [
-          self-hosted,
-          #macos-latest
-        ]
+  build-self-hosted:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
 
-    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
+          cargo make --profile development-ios-arm64-sim code_generation
+
+      - uses: futureware-tech/simulator-action@v3
+        id: simulator-action
+        with:
+          model: 'iPhone 15'
+          shutdown_after_job: false
+
+  build-macos:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: macos-latest
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
 
       - name: Install Rust toolchain
-        id: rust_toolchain
-        if: matrix.os != 'self-hosted'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -55,8 +65,6 @@ jobs:
           profile: minimal
 
       - name: Install Flutter
-        id: flutter
-        if: matrix.os != 'self-hosted'
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
@@ -64,19 +72,16 @@ jobs:
           cache: true
 
       - uses: Swatinem/rust-cache@v2
-        if: matrix.os != 'self-hosted'
         with:
-          prefix-key: self-hosted
+          prefix-key: macos-latest
           workspaces: |
             frontend/rust-lib
 
       - uses: davidB/rust-cargo-make@v1
-        if: matrix.os != 'self-hosted'
         with:
           version: "0.36.6"
 
       - name: Install prerequisites
-        if: matrix.os != 'self-hosted'
         working-directory: frontend
         run: |
           rustup target install aarch64-apple-ios-sim
