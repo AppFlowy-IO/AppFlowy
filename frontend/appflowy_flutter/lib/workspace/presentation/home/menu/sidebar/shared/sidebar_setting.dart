@@ -4,6 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
@@ -93,6 +94,7 @@ void showSettingsDialog(
   BuildContext context,
   UserProfilePB userProfile, [
   UserWorkspaceBloc? bloc,
+  SettingsPage? initPage,
 ]) {
   AFFocusManager.of(context).notifyLoseFocus();
   showDialog(
@@ -107,6 +109,7 @@ void showSettingsDialog(
       ],
       child: SettingsDialog(
         userProfile,
+        initPage: initPage,
         didLogout: () async {
           // Pop the dialog using the dialog context
           Navigator.of(dialogContext).pop();

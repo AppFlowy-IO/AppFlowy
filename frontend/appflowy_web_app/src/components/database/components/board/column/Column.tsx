@@ -1,6 +1,5 @@
 import { Row } from '@/application/database-yjs';
 import { AFScroller } from '@/components/_shared/scroller';
-import { Tag } from '@/components/_shared/tag';
 import ListItem from '@/components/database/components/board/column/ListItem';
 import { useRenderColumn } from '@/components/database/components/board/column/useRenderColumn';
 import { useMeasureHeight } from '@/components/database/components/cell/useMeasure';
@@ -72,9 +71,7 @@ export const Column = memo(
 
     return (
       <div key={id} className='column flex w-[230px] flex-col gap-4'>
-        <div className='column-header flex h-[24px] items-center text-xs font-medium'>
-          <Tag label={header?.name} color={header?.color} />
-        </div>
+        <div className='column-header flex h-[24px] items-center text-sm font-medium'>{header}</div>
 
         <div className={'w-full flex-1 overflow-hidden'}>
           <AutoSizer>
@@ -82,6 +79,7 @@ export const Column = memo(
               return (
                 <VariableSizeList
                   ref={ref}
+                  className={'pb-[150px]'}
                   height={height}
                   itemCount={rowCount}
                   itemSize={getItemSize}

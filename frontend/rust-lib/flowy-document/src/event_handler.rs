@@ -42,7 +42,7 @@ pub(crate) async fn get_encode_collab_handler(
   let manager = upgrade_document(manager)?;
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let state = manager.encode_collab(&doc_id).await?;
+  let state = manager.get_encoded_collab_with_view_id(&doc_id).await?;
   data_result_ok(EncodedCollabPB {
     state_vector: Vec::from(state.state_vector),
     doc_state: Vec::from(state.doc_state),
@@ -443,22 +443,22 @@ pub(crate) async fn upload_file_handler(
   } = params.try_into_inner()?;
 
   let manager = upgrade_document(manager)?;
-  let url = manager
+  let upload = manager
     .upload_file(workspace_id, &document_id, &local_file_path)
     .await?;
 
-  Ok(AFPluginData(UploadedFilePB {
-    url,
+  data_result_ok(UploadedFilePB {
+    url: upload.url,
     local_file_path,
-  }))
+  })
 }
 
 #[instrument(level = "debug", skip_all, err)]
 pub(crate) async fn download_file_handler(
-  params: AFPluginData<UploadedFilePB>,
+  params: AFPluginData<DownloadFilePB>,
   manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let UploadedFilePB {
+  let DownloadFilePB {
     url,
     local_file_path,
   } = params.try_into_inner()?;
@@ -469,10 +469,10 @@ pub(crate) async fn download_file_handler(
 
 // Handler for deleting file
 pub(crate) async fn delete_file_handler(
-  params: AFPluginData<UploadedFilePB>,
+  params: AFPluginData<DownloadFilePB>,
   manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let UploadedFilePB {
+  let DownloadFilePB {
     url,
     local_file_path,
   } = params.try_into_inner()?;

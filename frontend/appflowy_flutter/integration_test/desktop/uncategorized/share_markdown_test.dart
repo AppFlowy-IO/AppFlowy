@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
+import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
@@ -51,9 +51,8 @@ void main() {
           },
         );
 
-        final shareButton = find.byType(DocumentShareButton);
-        final shareButtonState =
-            tester.widget(shareButton) as DocumentShareButton;
+        final shareButton = find.byType(ShareButton);
+        final shareButtonState = tester.widget(shareButton) as ShareButton;
 
         final path = await mockSaveFilePath(
           p.join(

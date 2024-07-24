@@ -15,9 +15,9 @@ export function RelationPrimaryValue({ rowDoc, fieldId }: { rowDoc: YDoc; fieldI
     };
 
     onRowChange();
-    data?.observe(onRowChange);
+    data?.observeDeep(onRowChange);
     return () => {
-      data?.unobserve(onRowChange);
+      data?.unobserveDeep(onRowChange);
     };
   }, [rowDoc]);
 

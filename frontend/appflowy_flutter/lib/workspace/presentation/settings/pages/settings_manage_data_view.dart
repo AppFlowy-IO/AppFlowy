@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -12,7 +15,6 @@ import 'package:appflowy/workspace/application/settings/settings_location_cubit.
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/fix_data_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_action.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
@@ -27,8 +29,6 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -63,15 +63,15 @@ class SettingsManageDataView extends StatelessWidget {
                         size: Size.square(20),
                       ),
                       label: LocaleKeys.settings_common_reset.tr(),
-                      onPressed: () => SettingsAlertDialog(
+                      onPressed: () => showConfirmDialog(
+                        context: context,
                         title: LocaleKeys
                             .settings_manageDataPage_dataStorage_resetDialog_title
                             .tr(),
-                        subtitle: LocaleKeys
+                        description: LocaleKeys
                             .settings_manageDataPage_dataStorage_resetDialog_description
                             .tr(),
-                        implyLeading: true,
-                        confirm: () async {
+                        onConfirm: () async {
                           final directory =
                               await appFlowyApplicationDataDirectory();
                           final path = directory.path;
@@ -85,10 +85,8 @@ class SettingsManageDataView extends StatelessWidget {
                               .read<SettingsLocationCubit>()
                               .resetDataStoragePathToApplicationDefault();
                           await runAppFlowy(isAnon: true);
-
-                          if (context.mounted) Navigator.of(context).pop();
                         },
-                      ).show(context),
+                      ),
                     ),
                 ],
                 children: state

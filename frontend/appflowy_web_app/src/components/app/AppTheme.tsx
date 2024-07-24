@@ -15,7 +15,7 @@ function AppTheme({ children }: { children: React.ReactNode }) {
       createTheme({
         typography: {
           fontFamily: ['inherit'].join(','),
-          fontSize: 12,
+          fontSize: 14,
           button: {
             textTransform: 'none',
           },
@@ -48,7 +48,10 @@ function AppTheme({ children }: { children: React.ReactNode }) {
             styleOverrides: {
               contained: {
                 color: 'var(--content-on-fill)',
-                boxShadow: 'var(--shadow)',
+                boxShadow: 'none',
+                '&:hover': {
+                  backgroundColor: 'var(--content-blue-600)',
+                },
               },
             },
           },
@@ -66,7 +69,7 @@ function AppTheme({ children }: { children: React.ReactNode }) {
 
                 borderRadius: '4px',
                 padding: '2px',
-                boxShadow: 'none',
+                boxShadow: 'none !important',
               },
             },
           },

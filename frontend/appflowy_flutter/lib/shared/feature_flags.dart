@@ -91,6 +91,7 @@ enum FeatureFlag {
 
   bool get isOn {
     if ([
+      // FeatureFlag.planBilling,
       // release this feature in version 0.6.1
       FeatureFlag.spaceDesign,
       // release this feature in version 0.5.9
@@ -110,6 +111,7 @@ enum FeatureFlag {
     }
 
     switch (this) {
+      case FeatureFlag.planBilling:
       case FeatureFlag.search:
       case FeatureFlag.syncDocument:
       case FeatureFlag.syncDatabase:
@@ -117,7 +119,6 @@ enum FeatureFlag {
         return true;
       case FeatureFlag.collaborativeWorkspace:
       case FeatureFlag.membersSettings:
-      case FeatureFlag.planBilling:
       case FeatureFlag.unknown:
         return false;
     }

@@ -32,7 +32,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
@@ -307,7 +307,7 @@ impl FolderCloudService for ServerProvider {
   fn publish_view(
     &self,
     workspace_id: &str,
-    payload: Vec<PublishViewPayload>,
+    payload: Vec<PublishPayload>,
   ) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
@@ -418,7 +418,7 @@ impl DatabaseCloudService for ServerProvider {
     workspace_id: &str,
     object_id: &str,
     summary_row: SummaryRowContent,
-  ) -> FutureResult<String, Error> {
+  ) -> FutureResult<String, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
     let object_id = object_id.to_string();
@@ -435,7 +435,7 @@ impl DatabaseCloudService for ServerProvider {
     workspace_id: &str,
     translate_row: TranslateRowContent,
     language: &str,
-  ) -> FutureResult<TranslateRowResponse, Error> {
+  ) -> FutureResult<TranslateRowResponse, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
     let language = language.to_string();

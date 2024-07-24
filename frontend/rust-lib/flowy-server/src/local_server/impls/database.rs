@@ -8,6 +8,7 @@ use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
   TranslateRowContent, TranslateRowResponse,
 };
+use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDatabaseCloudServiceImpl();
@@ -82,7 +83,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     _workspace_id: &str,
     _object_id: &str,
     _summary_row: SummaryRowContent,
-  ) -> FutureResult<String, Error> {
+  ) -> FutureResult<String, FlowyError> {
     // TODO(lucas): local ai
     FutureResult::new(async move { Ok("".to_string()) })
   }
@@ -92,7 +93,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     _workspace_id: &str,
     _translate_row: TranslateRowContent,
     _language: &str,
-  ) -> FutureResult<TranslateRowResponse, Error> {
+  ) -> FutureResult<TranslateRowResponse, FlowyError> {
     // TODO(lucas): local ai
     FutureResult::new(async move { Ok(TranslateRowResponse::default()) })
   }

@@ -34,7 +34,7 @@ export function RowCreateModifiedTime({
 
   const time = useMemo(() => {
     if (!value) return null;
-    return getDateTimeStr(value, false);
+    return getDateTimeStr(value, true);
   }, [value, getDateTimeStr]);
 
   if (!time) return null;

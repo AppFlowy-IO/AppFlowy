@@ -999,7 +999,7 @@
       "email": "Электронная почта",
       "tooltipSelectIcon": "Выберите иконку",
       "selectAnIcon": "Выбрать иконку",
-      "pleaseInputYourOpenAIKey": "Пожалуйста, введите токен OpenAI",
+      "pleaseInputYourOpenAIKey": "Пожалуйста, введите токен AI",
       "pleaseInputYourStabilityAIKey": "Пожалуйста, введите свой токен Stability AI",
       "clickToLogout": "Нажмите, чтобы выйти из текущего аккаунта"
     },
@@ -1326,15 +1326,15 @@
       "referencedGrid": "Связанные сетки",
       "referencedCalendar": "Связанные календари",
       "referencedDocument": "Связанные документы",
-      "autoGeneratorMenuItemName": "OpenAI Генератор",
-      "autoGeneratorTitleName": "OpenAI: попросить ИИ написать что угодно...",
+      "autoGeneratorMenuItemName": "AI Генератор",
+      "autoGeneratorTitleName": "AI: попросить ИИ написать что угодно...",
       "autoGeneratorLearnMore": "Узнать больше",
       "autoGeneratorGenerate": "Генерировать",
-      "autoGeneratorHintText": "Спросить OpenAI ...",
-      "autoGeneratorCantGetOpenAIKey": "Не могу получить токен OpenAI",
+      "autoGeneratorHintText": "Спросить AI ...",
+      "autoGeneratorCantGetOpenAIKey": "Не могу получить токен AI",
       "autoGeneratorRewrite": "Переписать",
       "smartEdit": "ИИ-ассистенты",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "Исправить правописание",
       "warning": "⚠️ Ответы ИИ могут быть неправильными или неточными.",
       "smartEditSummarize": "Обобщить",
@@ -1472,8 +1472,8 @@
         "placeholder": "Введите URL-адрес изображения"
       },
       "ai": {
-        "label": "Сгенерировать изображение через OpenAI",
-        "placeholder": "Пожалуйста, введите запрос для OpenAI чтобы сгенерировать изображение"
+        "label": "Сгенерировать изображение через AI",
+        "placeholder": "Пожалуйста, введите запрос для AI чтобы сгенерировать изображение"
       },
       "stability_ai": {
         "label": "Сгенерировать изображение через Stability AI",
@@ -1495,7 +1495,7 @@
         "label": "Unsplash"
       },
       "searchForAnImage": "Поиск изображения",
-      "pleaseInputYourOpenAIKey": "пожалуйста, введите свой токен OpenAI на странице настроек",
+      "pleaseInputYourOpenAIKey": "пожалуйста, введите свой токен AI на странице настроек",
       "pleaseInputYourStabilityAIKey": "пожалуйста, введите свой токен Stability AI на странице настроек",
       "saveImageToGallery": "Сохранить изображение",
       "failedToAddImageToGallery": "Ошибка добавления изображения в галерею",

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
@@ -165,7 +166,39 @@ class FlowyTextButton extends StatelessWidget {
     this.decoration,
     this.fontFamily,
     this.isDangerous = false,
+    this.borderColor,
   });
+
+  factory FlowyTextButton.primary({
+    required BuildContext context,
+    required String text,
+    VoidCallback? onPressed,
+  }) =>
+      FlowyTextButton(
+        text,
+        constraints: const BoxConstraints(minHeight: 32),
+        fillColor: Theme.of(context).colorScheme.primary,
+        hoverColor: const Color(0xFF005483),
+        fontColor: AFThemeExtension.of(context).strongText,
+        fontHoverColor: Colors.white,
+        onPressed: onPressed,
+      );
+
+  factory FlowyTextButton.secondary({
+    required BuildContext context,
+    required String text,
+    VoidCallback? onPressed,
+  }) =>
+      FlowyTextButton(
+        text,
+        constraints: const BoxConstraints(minHeight: 32),
+        fillColor: Colors.transparent,
+        hoverColor: Theme.of(context).colorScheme.primary,
+        fontColor: Theme.of(context).colorScheme.primary,
+        borderColor: Theme.of(context).colorScheme.primary,
+        fontHoverColor: Colors.white,
+        onPressed: onPressed,
+      );
 
   final String text;
   final FontWeight? fontWeight;
@@ -188,6 +221,7 @@ class FlowyTextButton extends StatelessWidget {
 
   final String? fontFamily;
   final bool isDangerous;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +245,7 @@ class FlowyTextButton extends StatelessWidget {
     child = ConstrainedBox(
       constraints: constraints,
       child: TextButton(
-        onPressed: onPressed ?? () {},
+        onPressed: onPressed,
         focusNode: FocusNode(skipTraversal: onPressed == null),
         style: ButtonStyle(
           overlayColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -222,9 +256,10 @@ class FlowyTextButton extends StatelessWidget {
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               side: BorderSide(
-                color: isDangerous
-                    ? Theme.of(context).colorScheme.error
-                    : Colors.transparent,
+                color: borderColor ??
+                    (isDangerous
+                        ? Theme.of(context).colorScheme.error
+                        : Colors.transparent),
               ),
               borderRadius: radius ?? Corners.s6Border,
             ),

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/int64_extension.dart';
@@ -14,13 +16,15 @@ import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SettingsPlanView extends StatelessWidget {
+import '../../../../plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
+
+class SettingsPlanView extends StatefulWidget {
   const SettingsPlanView({
     super.key,
     required this.workspaceId,
@@ -31,13 +35,31 @@ class SettingsPlanView extends StatelessWidget {
   final UserProfilePB user;
 
   @override
+  State<SettingsPlanView> createState() => _SettingsPlanViewState();
+}
+
+class _SettingsPlanViewState extends State<SettingsPlanView> {
+  Loading? loadingIndicator;
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsPlanBloc>(
       create: (context) => SettingsPlanBloc(
-        workspaceId: workspaceId,
-        userId: user.id,
+        workspaceId: widget.workspaceId,
+        userId: widget.user.id,
       )..add(const SettingsPlanEvent.started()),
-      child: BlocBuilder<SettingsPlanBloc, SettingsPlanState>(
+      child: BlocConsumer<SettingsPlanBloc, SettingsPlanState>(
+        listenWhen: (previous, current) =>
+            previous.mapOrNull(ready: (s) => s.downgradeProcessing) !=
+            current.mapOrNull(ready: (s) => s.downgradeProcessing),
+        listener: (context, state) {
+          if (state.mapOrNull(ready: (s) => s.downgradeProcessing) == true) {
+            loadingIndicator = Loading(context)..start();
+          } else {
+            loadingIndicator?.stop();
+            loadingIndicator = null;
+          }
+        },
         builder: (context, state) {
           return state.map(
             initial: (_) => const SizedBox.shrink(),
@@ -67,10 +89,87 @@ class SettingsPlanView extends StatelessWidget {
               children: [
                 _PlanUsageSummary(
                   usage: state.workspaceUsage,
-                  subscription: state.subscription,
+                  subscriptionInfo: state.subscriptionInfo,
                 ),
                 const VSpace(16),
-                _CurrentPlanBox(subscription: state.subscription),
+                _CurrentPlanBox(subscriptionInfo: state.subscriptionInfo),
+                const VSpace(16),
+                FlowyText(
+                  LocaleKeys.settings_planPage_planUsage_addons_title.tr(),
+                  fontSize: 18,
+                  color: AFThemeExtension.of(context).strongText,
+                  fontWeight: FontWeight.w600,
+                ),
+                const VSpace(8),
+                Row(
+                  children: [
+                    Flexible(
+                      child: _AddOnBox(
+                        title: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_title
+                            .tr(),
+                        description: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_description
+                            .tr(),
+                        price: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_price
+                            .tr(
+                          args: [SubscriptionPlanPB.AiMax.priceAnnualBilling],
+                        ),
+                        priceInfo: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_priceInfo
+                            .tr(),
+                        billingInfo: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_billingInfo
+                            .tr(
+                          args: [SubscriptionPlanPB.AiMax.priceMonthBilling],
+                        ),
+                        buttonText: state.subscriptionInfo.hasAIMax
+                            ? LocaleKeys
+                                .settings_planPage_planUsage_addons_activeLabel
+                                .tr()
+                            : LocaleKeys
+                                .settings_planPage_planUsage_addons_addLabel
+                                .tr(),
+                        isActive: state.subscriptionInfo.hasAIMax,
+                        plan: SubscriptionPlanPB.AiMax,
+                      ),
+                    ),
+                    const HSpace(8),
+                    Flexible(
+                      child: _AddOnBox(
+                        title: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiOnDevice_title
+                            .tr(),
+                        description: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiOnDevice_description
+                            .tr(),
+                        price: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiOnDevice_price
+                            .tr(
+                          args: [SubscriptionPlanPB.AiLocal.priceAnnualBilling],
+                        ),
+                        priceInfo: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiOnDevice_priceInfo
+                            .tr(),
+                        billingInfo: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiOnDevice_billingInfo
+                            .tr(
+                          args: [SubscriptionPlanPB.AiLocal.priceMonthBilling],
+                        ),
+                        buttonText: state.subscriptionInfo.hasAIOnDevice
+                            ? LocaleKeys
+                                .settings_planPage_planUsage_addons_activeLabel
+                                .tr()
+                            : LocaleKeys
+                                .settings_planPage_planUsage_addons_addLabel
+                                .tr(),
+                        isActive: state.subscriptionInfo.hasAIOnDevice,
+                        plan: SubscriptionPlanPB.AiLocal,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           );
@@ -81,9 +180,9 @@ class SettingsPlanView extends StatelessWidget {
 }
 
 class _CurrentPlanBox extends StatefulWidget {
-  const _CurrentPlanBox({required this.subscription});
+  const _CurrentPlanBox({required this.subscriptionInfo});
 
-  final WorkspaceSubscriptionPB subscription;
+  final WorkspaceSubscriptionInfoPB subscriptionInfo;
 
   @override
   State<_CurrentPlanBox> createState() => _CurrentPlanBoxState();
@@ -115,68 +214,67 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
             border: Border.all(color: const Color(0xFFBDBDBD)),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const VSpace(4),
-                    FlowyText.semibold(
-                      widget.subscription.label,
-                      fontSize: 24,
-                      color: AFThemeExtension.of(context).strongText,
-                    ),
-                    const VSpace(8),
-                    FlowyText.regular(
-                      widget.subscription.info,
-                      fontSize: 16,
-                      color: AFThemeExtension.of(context).strongText,
-                      maxLines: 3,
-                    ),
-                    const VSpace(16),
-                    FlowyGradientButton(
-                      label: LocaleKeys
-                          .settings_planPage_planUsage_currentPlan_upgrade
-                          .tr(),
-                      onPressed: () => _openPricingDialog(
-                        context,
-                        context.read<SettingsPlanBloc>().workspaceId,
-                        widget.subscription,
-                      ),
-                    ),
-                    if (widget.subscription.hasCanceled) ...[
-                      const VSpace(12),
-                      FlowyText(
-                        LocaleKeys
-                            .settings_planPage_planUsage_currentPlan_canceledInfo
-                            .tr(
-                          args: [_canceledDate(context)],
+              Row(
+                children: [
+                  Expanded(
+                    flex: 6,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const VSpace(4),
+                        FlowyText.semibold(
+                          widget.subscriptionInfo.label,
+                          fontSize: 24,
+                          color: AFThemeExtension.of(context).strongText,
                         ),
-                        maxLines: 5,
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const HSpace(16),
-              Expanded(
-                child: SeparatedColumn(
-                  separatorBuilder: () => const VSpace(4),
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ..._getPros(widget.subscription.subscriptionPlan).map(
-                      (s) => _ProConItem(label: s),
+                        const VSpace(8),
+                        FlowyText.regular(
+                          widget.subscriptionInfo.info,
+                          fontSize: 14,
+                          color: AFThemeExtension.of(context).strongText,
+                          maxLines: 3,
+                        ),
+                      ],
                     ),
-                    ..._getCons(widget.subscription.subscriptionPlan).map(
-                      (s) => _ProConItem(label: s, isPro: false),
+                  ),
+                  Flexible(
+                    flex: 5,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 220),
+                          child: FlowyGradientButton(
+                            label: LocaleKeys
+                                .settings_planPage_planUsage_currentPlan_upgrade
+                                .tr(),
+                            onPressed: () => _openPricingDialog(
+                              context,
+                              context.read<SettingsPlanBloc>().workspaceId,
+                              widget.subscriptionInfo,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+              if (widget.subscriptionInfo.isCanceled) ...[
+                const VSpace(12),
+                FlowyText(
+                  LocaleKeys
+                      .settings_planPage_planUsage_currentPlan_canceledInfo
+                      .tr(
+                    args: [_canceledDate(context)],
+                  ),
+                  maxLines: 5,
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ],
             ],
           ),
         ),
@@ -184,14 +282,21 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
           top: 0,
           left: 0,
           child: Container(
-            height: 32,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: const BoxDecoration(color: Color(0xFF4F3F5F)),
+            height: 30,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: const BoxDecoration(
+              color: Color(0xFF4F3F5F),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(4),
+                topRight: Radius.circular(4),
+                bottomRight: Radius.circular(4),
+              ),
+            ),
             child: Center(
               child: FlowyText.semibold(
                 LocaleKeys.settings_planPage_planUsage_currentPlan_bannerLabel
                     .tr(),
-                fontSize: 16,
+                fontSize: 14,
                 color: Colors.white,
               ),
             ),
@@ -204,16 +309,15 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
   String _canceledDate(BuildContext context) {
     final appearance = context.read<AppearanceSettingsCubit>().state;
     return appearance.dateFormat.formatDate(
-      widget.subscription.canceledAt.toDateTime(),
-      true,
-      appearance.timeFormat,
+      widget.subscriptionInfo.planSubscription.endDate.toDateTime(),
+      false,
     );
   }
 
   void _openPricingDialog(
     BuildContext context,
     String workspaceId,
-    WorkspaceSubscriptionPB subscription,
+    WorkspaceSubscriptionInfoPB subscriptionInfo,
   ) =>
       showDialog(
         context: context,
@@ -221,101 +325,20 @@ class _CurrentPlanBoxState extends State<_CurrentPlanBox> {
           value: planBloc,
           child: SettingsPlanComparisonDialog(
             workspaceId: workspaceId,
-            subscription: subscription,
+            subscriptionInfo: subscriptionInfo,
           ),
         ),
       );
-
-  List<String> _getPros(SubscriptionPlanPB plan) => switch (plan) {
-        SubscriptionPlanPB.Pro => _proPros(),
-        _ => _freePros(),
-      };
-
-  List<String> _getCons(SubscriptionPlanPB plan) => switch (plan) {
-        SubscriptionPlanPB.Pro => _proCons(),
-        _ => _freeCons(),
-      };
-
-  List<String> _freePros() => [
-        LocaleKeys.settings_planPage_planUsage_currentPlan_freeProOne.tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_freeProTwo.tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_freeProThree.tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_freeProFour.tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_freeProFive.tr(),
-      ];
-
-  List<String> _freeCons() => [
-        LocaleKeys.settings_planPage_planUsage_currentPlan_freeConOne.tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_freeConTwo.tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_freeConThree.tr(),
-      ];
-
-  List<String> _proPros() => [
-        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProOne
-            .tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProTwo
-            .tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProThree
-            .tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProFour
-            .tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalProFive
-            .tr(),
-      ];
-
-  List<String> _proCons() => [
-        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalConOne
-            .tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalConTwo
-            .tr(),
-        LocaleKeys.settings_planPage_planUsage_currentPlan_professionalConThree
-            .tr(),
-      ];
-}
-
-class _ProConItem extends StatelessWidget {
-  const _ProConItem({
-    required this.label,
-    this.isPro = true,
-  });
-
-  final String label;
-  final bool isPro;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 18,
-          child: FlowySvg(
-            isPro ? FlowySvgs.check_m : FlowySvgs.close_error_s,
-            size: const Size.square(18),
-            color: isPro
-                ? AFThemeExtension.of(context).strongText
-                : const Color(0xFF900000),
-          ),
-        ),
-        const HSpace(4),
-        Flexible(
-          child: FlowyText.regular(
-            label,
-            fontSize: 12,
-            color: AFThemeExtension.of(context).strongText,
-            maxLines: 3,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class _PlanUsageSummary extends StatelessWidget {
-  const _PlanUsageSummary({required this.usage, required this.subscription});
+  const _PlanUsageSummary({
+    required this.usage,
+    required this.subscriptionInfo,
+  });
 
   final WorkspaceUsagePB usage;
-  final WorkspaceSubscriptionPB subscription;
+  final WorkspaceSubscriptionInfoPB subscriptionInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -331,61 +354,101 @@ class _PlanUsageSummary extends StatelessWidget {
         ),
         const VSpace(16),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: _UsageBox(
                 title: LocaleKeys.settings_planPage_planUsage_storageLabel.tr(),
-                replacementText: subscription.subscriptionPlan ==
-                        SubscriptionPlanPB.Pro
-                    ? LocaleKeys.settings_planPage_planUsage_storageUnlimited
-                        .tr()
-                    : null,
+                unlimitedLabel: LocaleKeys
+                    .settings_planPage_planUsage_unlimitedStorageLabel
+                    .tr(),
+                unlimited: usage.storageBytesUnlimited,
                 label: LocaleKeys.settings_planPage_planUsage_storageUsage.tr(
                   args: [
                     usage.currentBlobInGb,
                     usage.totalBlobInGb,
                   ],
                 ),
-                value: usage.totalBlobBytes.toInt() /
-                    usage.totalBlobBytesLimit.toInt(),
+                value: usage.storageBytes.toInt() /
+                    usage.storageBytesLimit.toInt(),
               ),
             ),
             Expanded(
               child: _UsageBox(
-                title: LocaleKeys.settings_planPage_planUsage_collaboratorsLabel
-                    .tr(),
-                label: LocaleKeys.settings_planPage_planUsage_collaboratorsUsage
-                    .tr(
+                title:
+                    LocaleKeys.settings_planPage_planUsage_aiResponseLabel.tr(),
+                label:
+                    LocaleKeys.settings_planPage_planUsage_aiResponseUsage.tr(
                   args: [
-                    usage.memberCount.toString(),
-                    usage.memberCountLimit.toString(),
+                    usage.aiResponsesCount.toString(),
+                    usage.aiResponsesCountLimit.toString(),
                   ],
                 ),
-                value:
-                    usage.memberCount.toInt() / usage.memberCountLimit.toInt(),
+                unlimitedLabel: LocaleKeys
+                    .settings_planPage_planUsage_unlimitedAILabel
+                    .tr(),
+                unlimited: usage.aiResponsesUnlimited,
+                value: usage.aiResponsesCount.toInt() /
+                    usage.aiResponsesCountLimit.toInt(),
               ),
             ),
           ],
         ),
         const VSpace(16),
-        Column(
+        SeparatedColumn(
           crossAxisAlignment: CrossAxisAlignment.start,
+          separatorBuilder: () => const VSpace(4),
           children: [
-            _ToggleMore(
-              value: subscription.subscriptionPlan == SubscriptionPlanPB.Pro,
-              label:
-                  LocaleKeys.settings_planPage_planUsage_memberProToggle.tr(),
-              subscription: subscription,
-              badgeLabel: LocaleKeys.settings_planPage_planUsage_proBadge.tr(),
-            ),
-            const VSpace(8),
-            _ToggleMore(
-              value: subscription.subscriptionPlan == SubscriptionPlanPB.Pro,
-              label:
-                  LocaleKeys.settings_planPage_planUsage_guestCollabToggle.tr(),
-              subscription: subscription,
-              badgeLabel: LocaleKeys.settings_planPage_planUsage_proBadge.tr(),
-            ),
+            if (subscriptionInfo.plan == WorkspacePlanPB.FreePlan) ...[
+              _ToggleMore(
+                value: false,
+                label:
+                    LocaleKeys.settings_planPage_planUsage_memberProToggle.tr(),
+                badgeLabel:
+                    LocaleKeys.settings_planPage_planUsage_proBadge.tr(),
+                onTap: () async {
+                  context.read<SettingsPlanBloc>().add(
+                        const SettingsPlanEvent.addSubscription(
+                          SubscriptionPlanPB.Pro,
+                        ),
+                      );
+                  await Future.delayed(const Duration(seconds: 2), () {});
+                },
+              ),
+            ],
+            if (!subscriptionInfo.hasAIMax && !usage.aiResponsesUnlimited) ...[
+              _ToggleMore(
+                value: false,
+                label: LocaleKeys.settings_planPage_planUsage_aiMaxToggle.tr(),
+                badgeLabel:
+                    LocaleKeys.settings_planPage_planUsage_aiMaxBadge.tr(),
+                onTap: () async {
+                  context.read<SettingsPlanBloc>().add(
+                        const SettingsPlanEvent.addSubscription(
+                          SubscriptionPlanPB.AiMax,
+                        ),
+                      );
+                  await Future.delayed(const Duration(seconds: 2), () {});
+                },
+              ),
+            ],
+            if (!subscriptionInfo.hasAIOnDevice) ...[
+              _ToggleMore(
+                value: false,
+                label: LocaleKeys.settings_planPage_planUsage_aiOnDeviceToggle
+                    .tr(),
+                badgeLabel:
+                    LocaleKeys.settings_planPage_planUsage_aiOnDeviceBadge.tr(),
+                onTap: () async {
+                  context.read<SettingsPlanBloc>().add(
+                        const SettingsPlanEvent.addSubscription(
+                          SubscriptionPlanPB.AiLocal,
+                        ),
+                      );
+                  await Future.delayed(const Duration(seconds: 2), () {});
+                },
+              ),
+            ],
           ],
         ),
       ],
@@ -398,15 +461,18 @@ class _UsageBox extends StatelessWidget {
     required this.title,
     required this.label,
     required this.value,
-    this.replacementText,
+    required this.unlimitedLabel,
+    this.unlimited = false,
   });
 
   final String title;
   final String label;
   final double value;
 
-  /// Replaces the progress indicator if not null
-  final String? replacementText;
+  final String unlimitedLabel;
+
+  // Replaces the progress bar with an unlimited badge
+  final bool unlimited;
 
   @override
   Widget build(BuildContext context) {
@@ -418,19 +484,27 @@ class _UsageBox extends StatelessWidget {
           fontSize: 11,
           color: AFThemeExtension.of(context).secondaryTextColor,
         ),
-        if (replacementText != null) ...[
-          Row(
-            children: [
-              Flexible(
-                child: FlowyText.medium(
-                  replacementText!,
-                  fontSize: 11,
-                  color: AFThemeExtension.of(context).secondaryTextColor,
+        if (unlimited) ...[
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const FlowySvg(
+                  FlowySvgs.check_circle_outlined_s,
+                  color: Color(0xFF9C00FB),
                 ),
-              ),
-            ],
+                const HSpace(4),
+                FlowyText(
+                  unlimitedLabel,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 11,
+                ),
+              ],
+            ),
           ),
         ] else ...[
+          const VSpace(4),
           _PlanProgressIndicator(label: label, progress: value),
         ],
       ],
@@ -442,14 +516,14 @@ class _ToggleMore extends StatefulWidget {
   const _ToggleMore({
     required this.value,
     required this.label,
-    required this.subscription,
     this.badgeLabel,
+    this.onTap,
   });
 
   final bool value;
   final String label;
-  final WorkspaceSubscriptionPB subscription;
   final String? badgeLabel;
+  final Future<void> Function()? onTap;
 
   @override
   State<_ToggleMore> createState() => _ToggleMoreState();
@@ -471,29 +545,17 @@ class _ToggleMoreState extends State<_ToggleMore> {
         Toggle(
           value: toggleValue,
           padding: EdgeInsets.zero,
-          onChanged: (_) {
-            setState(() => toggleValue = !toggleValue);
+          onChanged: (_) async {
+            if (widget.onTap == null || toggleValue) {
+              return;
+            }
 
-            Future.delayed(const Duration(milliseconds: 150), () {
-              if (mounted) {
-                showDialog(
-                  context: context,
-                  builder: (_) => BlocProvider<SettingsPlanBloc>.value(
-                    value: context.read<SettingsPlanBloc>(),
-                    child: SettingsPlanComparisonDialog(
-                      workspaceId: context.read<SettingsPlanBloc>().workspaceId,
-                      subscription: widget.subscription,
-                    ),
-                  ),
-                ).then((_) {
-                  Future.delayed(const Duration(milliseconds: 150), () {
-                    if (mounted) {
-                      setState(() => toggleValue = !toggleValue);
-                    }
-                  });
-                });
-              }
-            });
+            setState(() => toggleValue = !toggleValue);
+            await widget.onTap!();
+
+            if (mounted) {
+              setState(() => toggleValue = !toggleValue);
+            }
           },
         ),
         const HSpace(10),
@@ -553,7 +615,9 @@ class _PlanProgressIndicator extends StatelessWidget {
                     widthFactor: progress,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primary,
+                        color: progress >= 1
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.primary,
                       ),
                     ),
                   ),
@@ -570,6 +634,135 @@ class _PlanProgressIndicator extends StatelessWidget {
         ),
         const HSpace(16),
       ],
+    );
+  }
+}
+
+class _AddOnBox extends StatelessWidget {
+  const _AddOnBox({
+    required this.title,
+    required this.description,
+    required this.price,
+    required this.priceInfo,
+    required this.billingInfo,
+    required this.buttonText,
+    required this.isActive,
+    required this.plan,
+  });
+
+  final String title;
+  final String description;
+  final String price;
+  final String priceInfo;
+  final String billingInfo;
+  final String buttonText;
+  final bool isActive;
+  final SubscriptionPlanPB plan;
+
+  @override
+  Widget build(BuildContext context) {
+    final isLM = Theme.of(context).isLightMode;
+
+    return Container(
+      height: 220,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: isActive ? const Color(0xFFBDBDBD) : const Color(0xFF9C00FB),
+        ),
+        color: const Color(0xFFF7F8FC).withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FlowyText.semibold(
+            title,
+            fontSize: 14,
+            color: AFThemeExtension.of(context).strongText,
+          ),
+          const VSpace(10),
+          FlowyText.regular(
+            description,
+            fontSize: 12,
+            color: AFThemeExtension.of(context).secondaryTextColor,
+            maxLines: 4,
+          ),
+          const VSpace(10),
+          FlowyText(
+            price,
+            fontSize: 24,
+            color: AFThemeExtension.of(context).strongText,
+          ),
+          FlowyText(
+            priceInfo,
+            fontSize: 12,
+            color: AFThemeExtension.of(context).strongText,
+          ),
+          const VSpace(12),
+          Row(
+            children: [
+              Expanded(
+                child: FlowyText(
+                  billingInfo,
+                  color: AFThemeExtension.of(context).secondaryTextColor,
+                  fontSize: 11,
+                  maxLines: 2,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              Expanded(
+                child: FlowyTextButton(
+                  buttonText,
+                  heading: isActive
+                      ? const FlowySvg(
+                          FlowySvgs.check_circle_outlined_s,
+                          color: Color(0xFF9C00FB),
+                        )
+                      : null,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                  fillColor: isActive
+                      ? const Color(0xFFE8E2EE)
+                      : isLM
+                          ? Colors.transparent
+                          : const Color(0xFF5C3699),
+                  constraints: const BoxConstraints(minWidth: 115),
+                  radius: Corners.s16Border,
+                  hoverColor: isActive
+                      ? const Color(0xFFE8E2EE)
+                      : isLM
+                          ? const Color(0xFF5C3699)
+                          : const Color(0xFF4d3472),
+                  fontColor:
+                      isLM || isActive ? const Color(0xFF5C3699) : Colors.white,
+                  fontHoverColor:
+                      isActive ? const Color(0xFF5C3699) : Colors.white,
+                  borderColor: isActive
+                      ? const Color(0xFFE8E2EE)
+                      : isLM
+                          ? const Color(0xFF5C3699)
+                          : const Color(0xFF4d3472),
+                  fontSize: 12,
+                  onPressed: isActive
+                      ? null
+                      : () => context
+                          .read<SettingsPlanBloc>()
+                          .add(SettingsPlanEvent.addSubscription(plan)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

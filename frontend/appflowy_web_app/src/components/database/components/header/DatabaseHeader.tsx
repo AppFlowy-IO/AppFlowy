@@ -18,7 +18,7 @@ function DatabaseHeader({
   return (
     <div
       className={
-        'my-10 flex w-full items-center gap-4 overflow-hidden whitespace-pre-wrap break-words break-all px-16 text-[2.25rem] font-bold leading-[1.5em] max-md:px-4 max-sm:text-[7vw]'
+        'my-10 flex w-full items-center gap-4 overflow-hidden whitespace-pre-wrap break-words break-all text-[2.25rem] font-bold leading-[1.5em] max-sm:text-[7vw]'
       }
     >
       <div className={'relative'}>

@@ -3,18 +3,18 @@ import 'package:flutter/foundation.dart';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbserver.dart';
 import 'package:bloc/bloc.dart';
-import 'package:collection/collection.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'settings_plan_bloc.freezed.dart';
 
@@ -30,13 +30,14 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
     on<SettingsPlanEvent>((event, emit) async {
       await event.when(
-        started: (withShowSuccessful) async {
-          emit(const SettingsPlanState.loading());
+        started: (withSuccessfulUpgrade, shouldLoad) async {
+          if (shouldLoad) {
+            emit(const SettingsPlanState.loading());
+          }
 
           final snapshots = await Future.wait([
             _service.getWorkspaceUsage(),
-            UserBackendService.getWorkspaceSubscriptions(),
-            _service.getBillingPortal(),
+            UserBackendService.getWorkspaceSubscriptionInfo(workspaceId),
           ]);
 
           FlowyError? error;
@@ -49,39 +50,16 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
             },
           );
 
-          final subscription = snapshots[1].fold(
-            (s) =>
-                (s as RepeatedWorkspaceSubscriptionPB)
-                    .items
-                    .firstWhereOrNull((i) => i.workspaceId == workspaceId) ??
-                WorkspaceSubscriptionPB(
-                  workspaceId: workspaceId,
-                  subscriptionPlan: SubscriptionPlanPB.None,
-                  isActive: true,
-                ),
+          final subscriptionInfo = snapshots[1].fold(
+            (s) => s as WorkspaceSubscriptionInfoPB,
             (f) {
               error = f;
               return null;
             },
           );
 
-          final billingPortalResult = snapshots.last;
-          final billingPortal = billingPortalResult.fold(
-            (s) => s as BillingPortalPB,
-            (e) {
-              // Not a customer yet
-              if (e.code == ErrorCode.InvalidParams) {
-                return BillingPortalPB();
-              }
-
-              error = e;
-              return null;
-            },
-          );
-
           if (usageResult == null ||
-              subscription == null ||
-              billingPortal == null ||
+              subscriptionInfo == null ||
               error != null) {
             return emit(SettingsPlanState.error(error: error));
           }
@@ -89,18 +67,16 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
           emit(
             SettingsPlanState.ready(
               workspaceUsage: usageResult,
-              subscription: subscription,
-              billingPortal: billingPortal,
-              showSuccessDialog: withShowSuccessful,
+              subscriptionInfo: subscriptionInfo,
+              successfulPlanUpgrade: withSuccessfulUpgrade,
             ),
           );
 
-          if (withShowSuccessful) {
+          if (withSuccessfulUpgrade != null) {
             emit(
               SettingsPlanState.ready(
                 workspaceUsage: usageResult,
-                subscription: subscription,
-                billingPortal: billingPortal,
+                subscriptionInfo: subscriptionInfo,
               ),
             );
           }
@@ -108,29 +84,96 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
         addSubscription: (plan) async {
           final result = await _userService.createSubscription(
             workspaceId,
-            SubscriptionPlanPB.Pro,
+            plan,
           );
 
           result.fold(
             (pl) => afLaunchUrlString(pl.paymentLink),
-            (f) => Log.error(f.msg, f),
+            (f) => Log.error(
+              'Failed to fetch paymentlink for $plan: ${f.msg}',
+              f,
+            ),
           );
         },
-        cancelSubscription: () async {
+        cancelSubscription: (reason) async {
           final newState = state
               .mapOrNull(ready: (state) => state)
               ?.copyWith(downgradeProcessing: true);
           emit(newState ?? state);
-          await _userService.cancelSubscription(workspaceId);
-          add(const SettingsPlanEvent.started());
+
+          // We can hardcode the subscription plan here because we cannot cancel addons
+          // on the Plan page
+          final result = await _userService.cancelSubscription(
+            workspaceId,
+            SubscriptionPlanPB.Pro,
+            reason,
+          );
+
+          final successOrNull = result.fold(
+            (_) => true,
+            (f) {
+              Log.error('Failed to cancel subscription of Pro: ${f.msg}', f);
+              return null;
+            },
+          );
+
+          if (successOrNull != true) {
+            return;
+          }
+
+          final subscriptionInfo = state.mapOrNull(
+            ready: (s) => s.subscriptionInfo,
+          );
+
+          // This is impossible, but for good measure
+          if (subscriptionInfo == null) {
+            return;
+          }
+
+          // We assume their new plan is Free, since we only have Pro plan
+          // at the moment.
+          subscriptionInfo.freeze();
+          final newInfo = subscriptionInfo.rebuild((value) {
+            value.plan = WorkspacePlanPB.FreePlan;
+            value.planSubscription.freeze();
+            value.planSubscription = value.planSubscription.rebuild((sub) {
+              sub.status = WorkspaceSubscriptionStatusPB.Active;
+              sub.subscriptionPlan = SubscriptionPlanPB.Free;
+            });
+          });
+
+          // We need to remove unlimited indicator for storage and
+          // AI usage, if they don't have an addon that changes this behavior.
+          final usage = state.mapOrNull(ready: (s) => s.workspaceUsage)!;
+
+          usage.freeze();
+          final newUsage = usage.rebuild((value) {
+            if (!newInfo.hasAIMax && !newInfo.hasAIOnDevice) {
+              value.aiResponsesUnlimited = false;
+            }
+
+            value.storageBytesUnlimited = false;
+          });
+
+          emit(
+            SettingsPlanState.ready(
+              subscriptionInfo: newInfo,
+              workspaceUsage: newUsage,
+            ),
+          );
         },
-        paymentSuccessful: () {
+        paymentSuccessful: (plan) {
           final readyState = state.mapOrNull(ready: (state) => state);
           if (readyState == null) {
             return;
           }
 
-          add(const SettingsPlanEvent.started(withShowSuccessful: true));
+          add(
+            SettingsPlanEvent.started(
+              withSuccessfulUpgrade: plan,
+              shouldLoad: false,
+            ),
+          );
         },
       );
     });
@@ -141,9 +184,11 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
   late final IUserBackendService _userService;
   late final SubscriptionSuccessListenable _successListenable;
 
-  void _onPaymentSuccessful() {
-    add(const SettingsPlanEvent.paymentSuccessful());
-  }
+  Future<void> _onPaymentSuccessful() async => add(
+        SettingsPlanEvent.paymentSuccessful(
+          plan: _successListenable.subscribedPlan,
+        ),
+      );
 
   @override
   Future<void> close() async {
@@ -155,12 +200,20 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 @freezed
 class SettingsPlanEvent with _$SettingsPlanEvent {
   const factory SettingsPlanEvent.started({
-    @Default(false) bool withShowSuccessful,
+    @Default(null) SubscriptionPlanPB? withSuccessfulUpgrade,
+    @Default(true) bool shouldLoad,
   }) = _Started;
+
   const factory SettingsPlanEvent.addSubscription(SubscriptionPlanPB plan) =
       _AddSubscription;
-  const factory SettingsPlanEvent.cancelSubscription() = _CancelSubscription;
-  const factory SettingsPlanEvent.paymentSuccessful() = _PaymentSuccessful;
+
+  const factory SettingsPlanEvent.cancelSubscription({
+    @Default(null) String? reason,
+  }) = _CancelSubscription;
+
+  const factory SettingsPlanEvent.paymentSuccessful({
+    @Default(null) SubscriptionPlanPB? plan,
+  }) = _PaymentSuccessful;
 }
 
 @freezed
@@ -175,9 +228,8 @@ class SettingsPlanState with _$SettingsPlanState {
 
   const factory SettingsPlanState.ready({
     required WorkspaceUsagePB workspaceUsage,
-    required WorkspaceSubscriptionPB subscription,
-    required BillingPortalPB? billingPortal,
-    @Default(false) bool showSuccessDialog,
+    required WorkspaceSubscriptionInfoPB subscriptionInfo,
+    @Default(null) SubscriptionPlanPB? successfulPlanUpgrade,
     @Default(false) bool downgradeProcessing,
   }) = _Ready;
 }

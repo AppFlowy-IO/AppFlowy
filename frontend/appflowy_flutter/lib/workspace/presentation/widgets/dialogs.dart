@@ -186,6 +186,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
     this.message,
     this.maxWidth,
     this.titleUpperCase = true,
+    this.autoDismiss = true,
   });
 
   final VoidCallback? onOkPressed;
@@ -196,9 +197,18 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   final String? message;
   final double? maxWidth;
   final bool titleUpperCase;
+  final bool autoDismiss;
 
   @override
   Widget build(BuildContext context) {
+    final onCancel = onCancelPressed == null
+        ? null
+        : () {
+            onCancelPressed?.call();
+            if (autoDismiss) {
+              Navigator.of(context).pop();
+            }
+          };
     return StyledDialog(
       maxWidth: maxWidth ?? 500,
       padding: EdgeInsets.symmetric(horizontal: Insets.xl, vertical: Insets.l),
@@ -227,12 +237,11 @@ class NavigatorOkCancelDialog extends StatelessWidget {
           OkCancelButton(
             onOkPressed: () {
               onOkPressed?.call();
-              Navigator.of(context).pop();
+              if (autoDismiss) {
+                Navigator.of(context).pop();
+              }
             },
-            onCancelPressed: () {
-              onCancelPressed?.call();
-              Navigator.of(context).pop();
-            },
+            onCancelPressed: onCancel,
             okTitle: okTitle?.toUpperCase(),
             cancelTitle: cancelTitle?.toUpperCase(),
           ),
@@ -298,7 +307,10 @@ void showToastNotification(
     context: context,
     type: type,
     style: ToastificationStyle.flat,
-    title: FlowyText(message),
+    title: FlowyText(
+      message,
+      maxLines: 3,
+    ),
     description: description != null
         ? FlowyText.regular(
             description,

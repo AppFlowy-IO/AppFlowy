@@ -1,5 +1,7 @@
+import { YDoc } from '@/application/collab.type';
 import { AFService } from '@/application/services/services.type';
 import { nanoid } from 'nanoid';
+import { YMap } from 'yjs/dist/src/types/YMap';
 
 export class AFClientService implements AFService {
   private deviceId: string = nanoid(8);
@@ -15,10 +17,6 @@ export class AFClientService implements AFService {
   }
 
   async getPublishViewMeta(_namespace: string, _publishName: string) {
-    return Promise.reject('Method not implemented');
-  }
-
-  async getPublishDatabaseViewRows(_namespace: string, _publishName: string, _rowIds: string[]) {
     return Promise.reject('Method not implemented');
   }
 
@@ -44,5 +42,15 @@ export class AFClientService implements AFService {
 
   signInMagicLink(_params: { email: string; redirectTo: string }): Promise<void> {
     return Promise.resolve(undefined);
+  }
+
+  getPublishDatabaseViewRows(
+    _namespace: string,
+    _publishName: string
+  ): Promise<{
+    rows: YMap<YDoc>;
+    destroy: () => void;
+  }> {
+    return Promise.reject('Method not implemented');
   }
 }

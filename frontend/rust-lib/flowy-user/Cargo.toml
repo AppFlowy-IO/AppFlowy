@@ -24,6 +24,7 @@ collab-user = { workspace = true }
 collab-entity = { workspace = true }
 collab-plugins = { workspace = true }
 flowy-user-pub = { workspace = true }
+client-api = { workspace = true }
 anyhow.workspace = true
 tracing.workspace = true
 bytes.workspace = true

@@ -16,7 +16,7 @@ function MentionPage({ pageId }: { pageId: string }) {
       if (loadViewMeta) {
         setUnPublished(false);
         try {
-          const meta = await loadViewMeta(pageId);
+          const meta = await loadViewMeta(pageId, setMeta);
 
           setMeta(meta);
         } catch (e) {
