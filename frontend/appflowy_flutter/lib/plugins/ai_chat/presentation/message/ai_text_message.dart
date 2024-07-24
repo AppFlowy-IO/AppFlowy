@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -38,25 +37,34 @@ class ChatAITextMessageWidget extends StatelessWidget {
       )..add(const ChatAIMessageEvent.initial()),
       child: BlocBuilder<ChatAIMessageBloc, ChatAIMessageState>(
         builder: (context, state) {
-          if (state.error != null) {
-            return StreamingError(
-              onRetryPressed: () {
-                context.read<ChatAIMessageBloc>().add(
-                      const ChatAIMessageEvent.retry(),
-                    );
-              },
-            );
-          }
-
-          if (state.retryState == const LoadingState.loading()) {
-            return const ChatAILoading();
-          }
-
-          if (state.text.isEmpty) {
-            return const ChatAILoading();
-          } else {
-            return AIMarkdownText(markdown: state.text);
-          }
+          return state.messageState.when(
+            onError: (err) {
+              return StreamingError(
+                onRetryPressed: () {
+                  context.read<ChatAIMessageBloc>().add(
+                        const ChatAIMessageEvent.retry(),
+                      );
+                },
+              );
+            },
+            onAIResponseLimit: () {
+              return FlowyText(
+                LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
+                maxLines: 10,
+                lineHeight: 1.5,
+              );
+            },
+            ready: () {
+              if (state.text.isEmpty) {
+                return const ChatAILoading();
+              } else {
+                return AIMarkdownText(markdown: state.text);
+              }
+            },
+            loading: () {
+              return const ChatAILoading();
+            },
+          );
         },
       ),
     );

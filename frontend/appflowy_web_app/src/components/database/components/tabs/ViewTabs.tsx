@@ -12,7 +12,7 @@ export const ViewTabs = styled((props: TabsProps) => <Tabs {...props} />)({
 export const ViewTab = styled((props: TabProps) => <Tab disableRipple {...props} />)({
   padding: '0 12px',
   minHeight: '24px',
-  fontSize: '12px',
+  fontSize: '14px',
   minWidth: 'unset',
   margin: '4px 0',
   borderRadius: 0,

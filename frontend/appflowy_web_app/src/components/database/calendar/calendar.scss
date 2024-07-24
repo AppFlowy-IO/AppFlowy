@@ -15,6 +15,7 @@ $today-highlight-bg: transparent;
 
 .rbc-date-cell, .rbc-header {
   min-width: 97px;
+  font-size: 14px;
 }
 
 .rbc-date-cell.rbc-now {
@@ -78,6 +79,10 @@ $today-highlight-bg: transparent;
   height: fit-content;
   table-layout: fixed;
   width: 100%;
+
+  &:last-child {
+    margin-bottom: 150px;
+  }
 }
 
 .event-properties {

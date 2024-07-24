@@ -1,5 +1,6 @@
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/dart-ffi/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:flutter/foundation.dart';
 
@@ -52,6 +53,8 @@ class StackTraceError {
 
 typedef void ErrorListener();
 
+/// Receive error when Rust backend send error message back to the flutter frontend
+///
 class GlobalErrorCodeNotifier extends ChangeNotifier {
   // Static instance with lazy initialization
   static final GlobalErrorCodeNotifier _instance =
@@ -106,4 +109,11 @@ class GlobalErrorCodeNotifier extends ChangeNotifier {
   static void remove(ErrorListener listener) {
     _instance.removeListener(listener);
   }
+}
+
+extension FlowyErrorExtension on FlowyError {
+  bool get isAIResponseLimitExceeded =>
+      code == ErrorCode.AIResponseLimitExceeded;
+
+  bool get isStorageLimitExceeded => code == ErrorCode.FileStorageLimitExceeded;
 }

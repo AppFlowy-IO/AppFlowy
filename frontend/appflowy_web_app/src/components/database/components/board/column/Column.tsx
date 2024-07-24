@@ -71,7 +71,7 @@ export const Column = memo(
 
     return (
       <div key={id} className='column flex w-[230px] flex-col gap-4'>
-        <div className='column-header flex h-[24px] items-center text-xs font-medium'>{header}</div>
+        <div className='column-header flex h-[24px] items-center text-sm font-medium'>{header}</div>
 
         <div className={'w-full flex-1 overflow-hidden'}>
           <AutoSizer>
@@ -79,6 +79,7 @@ export const Column = memo(
               return (
                 <VariableSizeList
                   ref={ref}
+                  className={'pb-[150px]'}
                   height={height}
                   itemCount={rowCount}
                   itemSize={getItemSize}

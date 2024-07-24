@@ -353,9 +353,6 @@ class _SidebarState extends State<_Sidebar> {
               child: const SidebarFooter(),
             ),
             const VSpace(14),
-
-            // toast
-            // const SidebarToast(),
           ],
         ),
       ),
