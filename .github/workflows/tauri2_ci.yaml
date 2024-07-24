@@ -1,11 +1,12 @@
 name: Tauri-CI
+
 on:
   pull_request:
-    paths:
-      - ".github/workflows/tauri2_ci.yaml"
-      - "frontend/rust-lib/**"
-      - "frontend/appflowy_web_app/**"
-      - "frontend/resources/**"
+#    paths:
+#      - ".github/workflows/tauri2_ci.yaml"
+#      - "frontend/rust-lib/**"
+#      - "frontend/appflowy_web_app/**"
+#      - "frontend/resources/**"
 
 env:
   NODE_VERSION: "18.16.0"
@@ -17,57 +18,98 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tauri-build:
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [
-          self-hosted,
-          #ubuntu-20.04
-        ]
-
-    runs-on: ${{ matrix.os }}
+  tauri-build-self-hosted:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
 
     env:
       CI: true
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Maximize build space (ubuntu only)
-        if: matrix.os == 'ubuntu-20.04'
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v4
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          cp deploy.env .env
+          sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+
+      - name: Run rust-lib tests
+        working-directory: frontend/rust-lib
+        env:
+          RUST_LOG: info
+          RUST_BACKTRACE: 1
+          af_cloud_test_base_url: http://localhost
+          af_cloud_test_ws_url: ws://localhost/ws/v1
+          af_cloud_test_gotrue_url: http://localhost/gotrue
+        run: |
+          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart"
+
+      - name: install frontend dependencies
+        working-directory: frontend/appflowy_web_app
+        run: |
+          mkdir dist
+          pnpm install
+          cd src-tauri && cargo build
+
+      - name: test and lint
+        working-directory: frontend/appflowy_web_app
+        run: |
+          pnpm run lint:tauri
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tauriScript: pnpm tauri
+          projectPath: frontend/appflowy_web_app
+          args: "--debug"
+
+  tauri-build-ubuntu:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+
+    env:
+      CI: true
+
+    steps:
+      - name: Maximize build space
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           sudo docker image prune --all --force
-          sudo rm -rf /opt/hostedtoolcache/codeQL
-          sudo rm -rf ${GITHUB_WORKSPACE}/.git
-          sudo rm -rf $ANDROID_HOME/ndk
 
       - name: setup node
-        if: matrix.os != 'self-hosted'
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
-        if: matrix.os != 'self-hosted'
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install Rust toolchain
-        id: rust_toolchain
-        if: matrix.os != 'self-hosted'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           profile: minimal
 
       - name: Rust cache
-        if: matrix.os != 'self-hosted'
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "./frontend/appflowy_web_app/src-tauri -> target"
@@ -78,26 +120,45 @@ jobs:
           path: frontend/appflowy_web_app/node_modules
           key: node-modules-${{ runner.os }}
 
-      - name: install dependencies (windows only)
-        if: matrix.os == 'windows-latest'
-        working-directory: frontend
-        run: |
-          cargo install --force duckscript_cli
-          vcpkg integrate install
-
-      - name: install dependencies (ubuntu only)
-        if: matrix.os == 'ubuntu-20.04'
+      - name: install dependencies
         working-directory: frontend
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-
-      - name: install cargo-make
-        if: matrix.os != 'self-hosted'
-        working-directory: frontend
-        run: |
           cargo install --force cargo-make
-          cargo make appflowy-tauri-deps-tools
+          cargo install --force duckscript_cli
+
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v4
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          cp deploy.env .env
+          sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+
+      - name: Run Docker-Compose
+        working-directory: AppFlowy-Cloud
+        env:
+          BACKEND_VERSION: 0.3.24-amd64
+        run: |
+          docker pull appflowyinc/appflowy_cloud:latest
+          docker compose up -d
+
+      - name: Run rust-lib tests
+        working-directory: frontend/rust-lib
+        env:
+          RUST_LOG: info
+          RUST_BACKTRACE: 1
+          af_cloud_test_base_url: http://localhost
+          af_cloud_test_ws_url: ws://localhost/ws/v1
+          af_cloud_test_gotrue_url: http://localhost/gotrue
+        run: |
+          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart"
 
       - name: install frontend dependencies
         working-directory: frontend/appflowy_web_app
