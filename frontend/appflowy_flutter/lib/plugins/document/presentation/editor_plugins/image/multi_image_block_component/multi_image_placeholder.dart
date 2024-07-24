@@ -8,7 +8,6 @@ import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
@@ -272,9 +271,19 @@ class _MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
     }
 
     final transaction = editorState.transaction;
+
+    final images = [
+      ImageBlockData(
+        url: url,
+        type: CustomImageType.external,
+      ),
+    ];
+
     transaction.updateNode(widget.node, {
-      CustomImageBlockKeys.url: url,
-      CustomImageBlockKeys.imageType: CustomImageType.external.toIntValue(),
+      MultiImageBlockKeys.images:
+          images.map((image) => image.toJson()).toList(),
+      // Default to Browser layout
+      MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
     });
     await editorState.apply(transaction);
   }

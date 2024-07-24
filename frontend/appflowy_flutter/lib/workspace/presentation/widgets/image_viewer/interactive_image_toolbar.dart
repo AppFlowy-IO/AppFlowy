@@ -8,14 +8,13 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flowy_infra_ui/widget/separated_flex.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 
@@ -31,6 +30,8 @@ class InteractiveImageToolbar extends StatelessWidget {
     required this.onNext,
     required this.onZoomIn,
     required this.onZoomOut,
+    required this.onScaleChanged,
+    this.onDelete,
     this.userProfile,
   });
 
@@ -44,7 +45,9 @@ class InteractiveImageToolbar extends StatelessWidget {
   final VoidCallback onNext;
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
+  final Function(double scale) onScaleChanged;
   final UserProfilePB? userProfile;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -98,26 +101,40 @@ class InteractiveImageToolbar extends StatelessWidget {
                     icon: FlowySvgs.minus_s,
                     onTap: onZoomOut,
                   ),
-                  FlowyTooltip(
-                    message: LocaleKeys
-                        .document_imageBlock_interactiveViewer_toolbar_changeZoomLevelTooltip
-                        .tr(),
-                    child: FlowyHover(
-                      resetHoverOnRebuild: false,
-                      style: HoverStyle(
-                        hoverColor: Colors.white.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: SizedBox(
-                          width: 40,
-                          child: Center(
-                            child: FlowyText(
-                              LocaleKeys
-                                  .document_imageBlock_interactiveViewer_toolbar_scalePercentage
-                                  .tr(args: [currentScale.toString()]),
-                              color: Colors.white,
+                  AppFlowyPopover(
+                    offset: const Offset(0, -8),
+                    decoration: const BoxDecoration(color: Colors.transparent),
+                    direction: PopoverDirection.topWithCenterAligned,
+                    constraints: const BoxConstraints(maxHeight: 50),
+                    popupBuilder: (context) => _renderToolbarItems(
+                      children: [
+                        _ScaleSlider(
+                          currentScale: currentScale,
+                          onScaleChanged: onScaleChanged,
+                        ),
+                      ],
+                    ),
+                    child: FlowyTooltip(
+                      message: LocaleKeys
+                          .document_imageBlock_interactiveViewer_toolbar_changeZoomLevelTooltip
+                          .tr(),
+                      child: FlowyHover(
+                        resetHoverOnRebuild: false,
+                        style: HoverStyle(
+                          hoverColor: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: SizedBox(
+                            width: 40,
+                            child: Center(
+                              child: FlowyText(
+                                LocaleKeys
+                                    .document_imageBlock_interactiveViewer_toolbar_scalePercentage
+                                    .tr(args: [currentScale.toString()]),
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -136,6 +153,17 @@ class InteractiveImageToolbar extends StatelessWidget {
               const HSpace(10),
               _renderToolbarItems(
                 children: [
+                  if (onDelete != null)
+                    _ToolbarItem(
+                      tooltip: LocaleKeys
+                          .document_imageBlock_interactiveViewer_toolbar_deleteImageTooltip
+                          .tr(),
+                      icon: FlowySvgs.delete_s,
+                      onTap: () {
+                        onDelete!();
+                        Navigator.of(context).pop();
+                      },
+                    ),
                   _ToolbarItem(
                     tooltip: currentImage.isNotInternal
                         ? LocaleKeys
@@ -181,6 +209,7 @@ class InteractiveImageToolbar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(4),
         child: SeparatedRow(
+          mainAxisSize: MainAxisSize.min,
           separatorBuilder: () => const HSpace(4),
           children: children,
         ),
@@ -270,6 +299,38 @@ class _ToolbarItem extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ScaleSlider extends StatefulWidget {
+  const _ScaleSlider({
+    required this.currentScale,
+    required this.onScaleChanged,
+  });
+
+  final int currentScale;
+  final Function(double scale) onScaleChanged;
+
+  @override
+  State<_ScaleSlider> createState() => __ScaleSliderState();
+}
+
+class __ScaleSliderState extends State<_ScaleSlider> {
+  late int _currentScale = widget.currentScale;
+
+  @override
+  Widget build(BuildContext context) {
+    return Slider(
+      max: 5.0,
+      min: 0.5,
+      value: _currentScale / 100,
+      onChanged: (scale) {
+        widget.onScaleChanged(scale);
+        setState(
+          () => _currentScale = (scale * 100).toInt(),
+        );
+      },
     );
   }
 }

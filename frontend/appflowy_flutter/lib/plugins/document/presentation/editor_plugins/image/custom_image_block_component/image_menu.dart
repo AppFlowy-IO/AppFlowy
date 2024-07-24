@@ -114,6 +114,11 @@ class _ImageMenuState extends State<ImageMenu> {
               ),
             ),
           ],
+          onDeleteImage: () async {
+            final transaction = widget.state.editorState.transaction;
+            transaction.deleteNode(widget.node);
+            await widget.state.editorState.apply(transaction);
+          },
         ),
       ),
     );

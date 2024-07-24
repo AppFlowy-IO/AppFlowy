@@ -1417,7 +1417,8 @@
         "imageGalleryKeyword": "image gallery",
         "photoKeyword": "photo",
         "photoBrowserKeyword": "photo browser",
-        "galleryKeyword": "gallery"
+        "galleryKeyword": "gallery",
+        "addImageTooltip": "Add image"
       },
       "math": {
         "copiedToPasteBoard": "The math equation has been copied to the clipboard"
@@ -1528,7 +1529,8 @@
           "openLocalImage": "Open image",
           "downloadImage": "Download image",
           "closeViewer": "Close interactive viewer",
-          "scalePercentage": "{}%"
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "Delete image"
         }
       }
     },

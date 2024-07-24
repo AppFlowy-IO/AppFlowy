@@ -35,14 +35,16 @@ class MultiImageMenu extends StatefulWidget {
     super.key,
     required this.node,
     required this.state,
-    this.selectedIndex = 0,
+    required this.indexNotifier,
     this.isLocalMode = true,
+    required this.onImageDeleted,
   });
 
   final Node node;
   final MultiImageBlockComponentState state;
-  final int selectedIndex;
+  final ValueNotifier<int> indexNotifier;
   final bool isLocalMode;
+  final VoidCallback onImageDeleted;
 
   @override
   State<MultiImageMenu> createState() => _MultiImageMenuState();
@@ -54,8 +56,11 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
     canTap: (details) => false,
   );
 
+  final PopoverController controller = PopoverController();
   late List<ImageBlockData> images;
   late final EditorState editorState;
+
+  int selectedIndex = 0;
 
   @override
   void initState() {
@@ -64,12 +69,30 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
     images = MultiImageData.fromJson(
       widget.node.attributes[MultiImageBlockKeys.images] ?? {},
     ).images;
+    widget.indexNotifier.addListener(onIndexChanged);
   }
 
   @override
   void dispose() {
     allowMenuClose();
+    controller.close();
+    widget.indexNotifier.removeListener(onIndexChanged);
     super.dispose();
+  }
+
+  void onIndexChanged() {
+    setState(() {
+      selectedIndex = widget.indexNotifier.value;
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant MultiImageMenu oldWidget) {
+    images = MultiImageData.fromJson(
+      widget.node.attributes[MultiImageBlockKeys.images] ?? {},
+    ).images;
+
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -97,6 +120,7 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
             onTap: openFullScreen,
           ),
           AppFlowyPopover(
+            controller: controller,
             direction: PopoverDirection.bottomWithRightAligned,
             onClose: allowMenuClose,
             constraints: const BoxConstraints(
@@ -121,14 +145,15 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
               );
             },
             child: MenuBlockButton(
-              tooltip: 'Add image',
+              tooltip:
+                  LocaleKeys.document_plugins_photoGallery_addImageTooltip.tr(),
               iconData: FlowySvgs.add_s,
               onTap: () {},
             ),
           ),
           // disable the copy link button if the image is hosted on appflowy cloud
           // because the url needs the verification token to be accessible
-          if (!images[widget.selectedIndex].url.isAppFlowyCloudUrl) ...[
+          if (!images[selectedIndex].url.isAppFlowyCloudUrl) ...[
             const HSpace(4),
             MenuBlockButton(
               tooltip: LocaleKeys.editor_copyLink.tr(),
@@ -149,7 +174,7 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
   }
 
   void copyImageLink() {
-    Clipboard.setData(ClipboardData(text: images[widget.selectedIndex].url));
+    Clipboard.setData(ClipboardData(text: images[selectedIndex].url));
     showSnackBarMessage(
       context,
       LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
@@ -172,7 +197,25 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
         userProfile: context.read<DocumentBloc>().state.userProfilePB,
         imageProvider: AFBlockImageProvider(
           images: images,
-          initialIndex: widget.selectedIndex,
+          initialIndex: selectedIndex,
+          onDeleteImage: () async {
+            final transaction = editorState.transaction;
+            final newImages = List<ImageBlockData>.from(images);
+            newImages.removeAt(selectedIndex);
+
+            images = newImages;
+            widget.onImageDeleted();
+
+            final imagesJson =
+                newImages.map((image) => image.toJson()).toList();
+            transaction.updateNode(widget.node, {
+              MultiImageBlockKeys.images: imagesJson,
+              // Default to Browser layout
+              MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
+            });
+
+            await editorState.apply(transaction);
+          },
         ),
       ),
     );
@@ -193,6 +236,8 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
   }
 
   Future<void> insertLocalImages(List<String?> urls) async {
+    controller.close();
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (urls.isEmpty || urls.every((path) => path?.isEmpty ?? true)) {
         return;
@@ -222,6 +267,8 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
   }
 
   Future<void> insertAIImage(String url) async {
+    controller.close();
+
     if (url.isEmpty || !isURL(url)) {
       // show error
       return showSnackBarMessage(
@@ -254,6 +301,8 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
   }
 
   Future<void> insertNetworkImage(String url) async {
+    controller.close();
+
     if (url.isEmpty || !isURL(url)) {
       // show error
       return showSnackBarMessage(

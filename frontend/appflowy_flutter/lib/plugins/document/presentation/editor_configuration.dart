@@ -122,7 +122,8 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       menuBuilder: (
         Node node,
         MultiImageBlockComponentState state,
-        int selectedIndex,
+        ValueNotifier<int> indexNotifier,
+        VoidCallback onImageDeleted,
       ) =>
           Positioned(
         top: 10,
@@ -130,8 +131,9 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         child: MultiImageMenu(
           node: node,
           state: state,
-          selectedIndex: selectedIndex,
+          indexNotifier: indexNotifier,
           isLocalMode: context.read<DocumentBloc>().isLocalMode,
+          onImageDeleted: onImageDeleted,
         ),
       ),
     ),

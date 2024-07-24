@@ -33,14 +33,14 @@ abstract class ImageBlockMultiLayout extends StatefulWidget {
     required this.node,
     required this.editorState,
     required this.images,
-    required this.selectedImage,
+    required this.indexNotifier,
     required this.isLocalMode,
   });
 
   final Node node;
   final EditorState editorState;
   final List<ImageBlockData> images;
-  final ImageBlockData selectedImage;
+  final ValueNotifier<int> indexNotifier;
   final bool isLocalMode;
 }
 
@@ -50,7 +50,7 @@ class ImageBrowserLayout extends ImageBlockMultiLayout {
     required super.node,
     required super.editorState,
     required super.images,
-    required super.selectedImage,
+    required super.indexNotifier,
     required super.isLocalMode,
     required this.onIndexChanged,
   });
@@ -72,6 +72,19 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
   void initState() {
     super.initState();
     _userProfile = context.read<DocumentBloc>().state.userProfilePB;
+    widget.indexNotifier.addListener(onIndexChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.indexNotifier.removeListener(onIndexChanged);
+    super.dispose();
+  }
+
+  void onIndexChanged() {
+    setState(
+      () => _selectedIndex = widget.indexNotifier.value,
+    );
   }
 
   @override
@@ -283,6 +296,33 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
           imageProvider: AFBlockImageProvider(
             images: widget.images,
             initialIndex: index ?? _selectedIndex,
+            onDeleteImage: () async {
+              final transaction = widget.editorState.transaction;
+              final newImages = widget.images.toList();
+              newImages.removeAt(_selectedIndex);
+
+              setState(
+                () => _selectedIndex =
+                    _selectedIndex != 0 ? _selectedIndex - 1 : 0,
+              );
+              widget.onIndexChanged(_selectedIndex);
+
+              if (newImages.isNotEmpty) {
+                transaction.updateNode(
+                  widget.node,
+                  {
+                    MultiImageBlockKeys.images:
+                        newImages.map((e) => e.toJson()).toList(),
+                    MultiImageBlockKeys.layout:
+                        widget.node.attributes[MultiImageBlockKeys.layout],
+                  },
+                );
+              } else {
+                transaction.deleteNode(widget.node);
+              }
+
+              await widget.editorState.apply(transaction);
+            },
           ),
         ),
       );

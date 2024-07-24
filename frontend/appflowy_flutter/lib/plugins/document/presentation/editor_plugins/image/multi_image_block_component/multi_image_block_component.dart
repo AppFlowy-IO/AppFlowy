@@ -37,7 +37,8 @@ class MultiImageBlockKeys {
 typedef MultiImageBlockComponentMenuBuilder = Widget Function(
   Node node,
   MultiImageBlockComponentState state,
-  int selectedIndex,
+  ValueNotifier<int> indexNotifier,
+  VoidCallback onImageDeleted,
 );
 
 class MultiImageBlockComponentBuilder extends BlockComponentBuilder {
@@ -104,7 +105,7 @@ class MultiImageBlockComponentState extends State<MultiImageBlockComponent>
 
   final showActionsNotifier = ValueNotifier<bool>(false);
 
-  int _selectedIndex = 0;
+  ValueNotifier<int> indexNotifier = ValueNotifier(0);
 
   bool alwaysShowMenu = false;
 
@@ -130,9 +131,9 @@ class MultiImageBlockComponentState extends State<MultiImageBlockComponent>
         node: node,
         images: data.images,
         editorState: editorState,
-        selectedImage: data.images.first,
+        indexNotifier: indexNotifier,
         isLocalMode: context.read<DocumentBloc>().isLocalMode,
-        onIndexChanged: (index) => setState(() => _selectedIndex = index),
+        onIndexChanged: (index) => setState(() => indexNotifier.value = index),
       );
     }
 
@@ -182,7 +183,16 @@ class MultiImageBlockComponentState extends State<MultiImageBlockComponent>
                     child: child!,
                   ),
                   if (value && data.images.isNotEmpty)
-                    widget.menuBuilder!(widget.node, this, _selectedIndex),
+                    widget.menuBuilder!(
+                      widget.node,
+                      this,
+                      indexNotifier,
+                      () => setState(
+                        () => indexNotifier.value = indexNotifier.value > 0
+                            ? indexNotifier.value - 1
+                            : 0,
+                      ),
+                    ),
                 ],
               );
             },

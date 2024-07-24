@@ -7,6 +7,13 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 /// Abstract class for providing images to the [InteractiveImageViewer].
 ///
 abstract class AFImageProvider {
+  const AFImageProvider({this.onDeleteImage});
+
+  /// Provide this callback if you want it to be possible to
+  /// delete the Image through the [InteractiveImageViewer].
+  ///
+  final VoidCallback? onDeleteImage;
+
   int get imageCount;
   int get initialIndex;
 
@@ -19,9 +26,16 @@ abstract class AFImageProvider {
 }
 
 class AFBlockImageProvider implements AFImageProvider {
-  const AFBlockImageProvider({required this.images, this.initialIndex = 0});
+  const AFBlockImageProvider({
+    required this.images,
+    this.initialIndex = 0,
+    required this.onDeleteImage,
+  });
 
   final List<ImageBlockData> images;
+
+  @override
+  final VoidCallback onDeleteImage;
 
   @override
   final int initialIndex;

@@ -46,6 +46,7 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
     currentImage = widget.imageProvider.getImage(currentIndex);
     userProfile =
         widget.userProfile ?? context.read<DocumentBloc>().state.userProfilePB;
+    focusNode.requestFocus();
   }
 
   void _onControllerChanged() {
@@ -128,6 +129,12 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
             onNext: () => _move(1),
             onZoomIn: () => _zoom(1.1, size),
             onZoomOut: () => _zoom(.9, size),
+            onScaleChanged: (scale) {
+              final currentScale = controller.value.getMaxScaleOnAxis();
+              final scaleStep = scale / currentScale;
+              _zoom(scaleStep, size);
+            },
+            onDelete: widget.imageProvider.onDeleteImage,
           ),
         ],
       ),
