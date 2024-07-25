@@ -88,27 +88,7 @@ class AIChatPage extends StatelessWidget {
           listenWhen: (previous, current) =>
               previous.indexFileIndicator != current.indexFileIndicator,
           listener: (context, state) {
-            state.indexFileIndicator?.when(
-              finish: () {
-                showSnackBarMessage(
-                  context,
-                  LocaleKeys.chat_indexFileSuccess.tr(),
-                );
-              },
-              indexing: (fileName) {
-                showSnackBarMessage(
-                  context,
-                  LocaleKeys.chat_indexingFile.tr(args: [fileName]),
-                  duration: const Duration(seconds: 2),
-                );
-              },
-              error: (err) {
-                showSnackBarMessage(
-                  context,
-                  err,
-                );
-              },
-            );
+            _handleIndexIndicator(state.indexFileIndicator, context);
           },
           child: BlocBuilder<ChatFileBloc, ChatFileState>(
             builder: (context, state) {
@@ -148,6 +128,35 @@ class AIChatPage extends StatelessWidget {
         fontSize: 20,
       ),
     );
+  }
+
+  void _handleIndexIndicator(
+    IndexFileIndicator? indicator,
+    BuildContext context,
+  ) {
+    if (indicator != null) {
+      indicator.when(
+        finish: (fileName) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.chat_indexFileSuccess.tr(args: [fileName]),
+          );
+        },
+        indexing: (fileName) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.chat_indexingFile.tr(args: [fileName]),
+            duration: const Duration(seconds: 2),
+          );
+        },
+        error: (err) {
+          showSnackBarMessage(
+            context,
+            err,
+          );
+        },
+      );
+    }
   }
 }
 
