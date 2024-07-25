@@ -51,6 +51,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      - uses: actions/checkout@v4
       - name: Maximize build space
         run: |
           sudo rm -rf /usr/share/dotnet
@@ -99,7 +100,7 @@ jobs:
       - name: install tauri deps tools
         working-directory: frontend
         run: |
-          cargo make appflowy_tauri_deps_tools
+          cargo make appflowy-tauri-deps-tools
         shell: bash
 
       - name: install frontend dependencies
