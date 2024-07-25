@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_placeholder.dart';
@@ -21,6 +22,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../shared/mock/mock_file_picker.dart';
 import '../../shared/util.dart';
+import '../board/board_hide_groups_test.dart';
 
 void main() {
   setUp(() {
@@ -96,7 +98,30 @@ void main() {
       await tester.tap(imageFinder);
       await tester.pumpAndSettle();
 
-      expect(find.byType(InteractiveImageViewer), findsOneWidget);
+      final ivFinder = find.byType(InteractiveImageViewer);
+      expect(ivFinder, findsOneWidget);
+
+      // go to next image
+      await tester.tap(find.byFlowySvg(FlowySvgs.arrow_right_s));
+      await tester.pumpAndSettle();
+
+      // Expect image to end with .gif
+      final gifImageFinder = find.byWidgetPredicate(
+        (w) =>
+            w is Image &&
+            w.image is FileImage &&
+            (w.image as FileImage).file.path.endsWith('.gif'),
+      );
+
+      gifImageFinder.evaluate();
+      expect(gifImageFinder.found.length, 2);
+
+      // go to previous image
+      await tester.tap(find.byFlowySvg(FlowySvgs.arrow_left_s));
+      await tester.pumpAndSettle();
+
+      gifImageFinder.evaluate();
+      expect(gifImageFinder.found.length, 1);
 
       // remove the temp files
       await Future.wait([firstFile.delete(), secondFile.delete()]);
