@@ -586,7 +586,7 @@ class AnswerStream {
     _port.close();
   }
 
-  StreamSubscription<String> listen({
+  void listen({
     void Function(String text)? onData,
     void Function()? onStart,
     void Function()? onEnd,
@@ -602,7 +602,5 @@ class AnswerStream {
     if (_onStart != null) {
       _onStart!();
     }
-
-    return _subscription;
   }
 }

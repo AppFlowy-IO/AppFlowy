@@ -17,7 +17,7 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     required this.questionId,
   }) : super(ChatAIMessageState.initial(message)) {
     if (state.stream != null) {
-      _subscription = state.stream!.listen(
+      state.stream!.listen(
         onData: (text) {
           if (!isClosed) {
             add(ChatAIMessageEvent.updateText(text));
@@ -108,13 +108,6 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     );
   }
 
-  @override
-  Future<void> close() {
-    _subscription?.cancel();
-    return super.close();
-  }
-
-  StreamSubscription<String>? _subscription;
   final String chatId;
   final Int64? questionId;
 }

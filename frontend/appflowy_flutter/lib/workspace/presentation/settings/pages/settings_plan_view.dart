@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -136,38 +138,46 @@ class _SettingsPlanViewState extends State<SettingsPlanView> {
                       ),
                     ),
                     const HSpace(8),
-                    Flexible(
-                      child: _AddOnBox(
-                        title: LocaleKeys
-                            .settings_planPage_planUsage_addons_aiOnDevice_title
-                            .tr(),
-                        description: LocaleKeys
-                            .settings_planPage_planUsage_addons_aiOnDevice_description
-                            .tr(),
-                        price: LocaleKeys
-                            .settings_planPage_planUsage_addons_aiOnDevice_price
-                            .tr(
-                          args: [SubscriptionPlanPB.AiLocal.priceAnnualBilling],
+
+                    // Currently, the AI Local tile is only available on macOS
+                    // TODO(nathan): enable windows and linux
+                    if (Platform.isMacOS)
+                      Flexible(
+                        child: _AddOnBox(
+                          title: LocaleKeys
+                              .settings_planPage_planUsage_addons_aiOnDevice_title
+                              .tr(),
+                          description: LocaleKeys
+                              .settings_planPage_planUsage_addons_aiOnDevice_description
+                              .tr(),
+                          price: LocaleKeys
+                              .settings_planPage_planUsage_addons_aiOnDevice_price
+                              .tr(
+                            args: [
+                              SubscriptionPlanPB.AiLocal.priceAnnualBilling,
+                            ],
+                          ),
+                          priceInfo: LocaleKeys
+                              .settings_planPage_planUsage_addons_aiOnDevice_priceInfo
+                              .tr(),
+                          billingInfo: LocaleKeys
+                              .settings_planPage_planUsage_addons_aiOnDevice_billingInfo
+                              .tr(
+                            args: [
+                              SubscriptionPlanPB.AiLocal.priceMonthBilling,
+                            ],
+                          ),
+                          buttonText: state.subscriptionInfo.hasAIOnDevice
+                              ? LocaleKeys
+                                  .settings_planPage_planUsage_addons_activeLabel
+                                  .tr()
+                              : LocaleKeys
+                                  .settings_planPage_planUsage_addons_addLabel
+                                  .tr(),
+                          isActive: state.subscriptionInfo.hasAIOnDevice,
+                          plan: SubscriptionPlanPB.AiLocal,
                         ),
-                        priceInfo: LocaleKeys
-                            .settings_planPage_planUsage_addons_aiOnDevice_priceInfo
-                            .tr(),
-                        billingInfo: LocaleKeys
-                            .settings_planPage_planUsage_addons_aiOnDevice_billingInfo
-                            .tr(
-                          args: [SubscriptionPlanPB.AiLocal.priceMonthBilling],
-                        ),
-                        buttonText: state.subscriptionInfo.hasAIOnDevice
-                            ? LocaleKeys
-                                .settings_planPage_planUsage_addons_activeLabel
-                                .tr()
-                            : LocaleKeys
-                                .settings_planPage_planUsage_addons_addLabel
-                                .tr(),
-                        isActive: state.subscriptionInfo.hasAIOnDevice,
-                        plan: SubscriptionPlanPB.AiLocal,
                       ),
-                    ),
                   ],
                 ),
               ],

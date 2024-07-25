@@ -151,7 +151,6 @@ impl DocumentManager {
     }
   }
 
-  #[tracing::instrument(level = "info", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
       return Ok(doc);
@@ -160,7 +159,7 @@ impl DocumentManager {
     if let Some(doc) = self.restore_document_from_removing(doc_id) {
       return Ok(doc);
     }
-    return Err(FlowyError::internal().with_context("Call open document first"));
+    Err(FlowyError::internal().with_context("Call open document first"))
   }
 
   /// Returns Document for given object id
