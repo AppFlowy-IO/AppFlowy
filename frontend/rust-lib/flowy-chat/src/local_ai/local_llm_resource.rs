@@ -478,7 +478,7 @@ impl LLMResourceController {
     self.resource_dir().map(|dir| dir.join(PLUGIN_DIR))
   }
 
-  fn user_model_folder(&self) -> FlowyResult<PathBuf> {
+  pub(crate) fn user_model_folder(&self) -> FlowyResult<PathBuf> {
     self.resource_dir().map(|dir| dir.join(LLM_MODEL_DIR))
   }
 

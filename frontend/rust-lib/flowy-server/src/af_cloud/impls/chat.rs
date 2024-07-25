@@ -146,24 +146,19 @@ where
     })
   }
 
-  fn get_related_message(
+  async fn get_related_message(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
-  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
+  ) -> Result<RepeatedRelatedQuestion, FlowyError> {
     let try_get_client = self.inner.try_get_client();
+    let resp = try_get_client?
+      .get_chat_related_question(workspace_id, chat_id, message_id)
+      .await
+      .map_err(FlowyError::from)?;
 
-    FutureResult::new(async move {
-      let resp = try_get_client?
-        .get_chat_related_question(&workspace_id, &chat_id, message_id)
-        .await
-        .map_err(FlowyError::from)?;
-
-      Ok(resp)
-    })
+    Ok(resp)
   }
 
   async fn stream_complete(
@@ -181,7 +176,8 @@ where
       .try_get_client()?
       .stream_completion_text(workspace_id, params)
       .await
-      .map_err(FlowyError::from)?;
+      .map_err(FlowyError::from)?
+      .map_err(FlowyError::from);
     Ok(stream.boxed())
   }
 

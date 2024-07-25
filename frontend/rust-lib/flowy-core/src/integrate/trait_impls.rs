@@ -685,21 +685,17 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  fn get_related_message(
+  async fn get_related_message(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
-  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .get_related_message(&workspace_id, &chat_id, message_id)
-        .await
-    })
+  ) -> Result<RepeatedRelatedQuestion, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_related_message(workspace_id, chat_id, message_id)
+      .await
   }
 
   async fn generate_answer(

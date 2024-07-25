@@ -87,9 +87,15 @@ pub(crate) async fn get_related_question_handler(
 ) -> DataResult<RepeatedRelatedQuestionPB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let data = data.into_inner();
-  let messages = chat_manager
-    .get_related_questions(&data.chat_id, data.message_id)
-    .await?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  tokio::spawn(async move {
+    let messages = chat_manager
+      .get_related_questions(&data.chat_id, data.message_id)
+      .await?;
+    let _ = tx.send(messages);
+    Ok::<_, FlowyError>(())
+  });
+  let messages = rx.await?;
   data_result_ok(messages)
 }
 
@@ -337,4 +343,15 @@ pub(crate) async fn get_local_ai_state_handler(
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let enabled = chat_manager.local_ai_controller.is_enabled();
   data_result_ok(LocalAIPB { enabled })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_model_storage_directory_handler(
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> DataResult<LocalModelStoragePB, FlowyError> {
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let file_path = chat_manager
+    .local_ai_controller
+    .get_model_storage_directory()?;
+  data_result_ok(LocalModelStoragePB { file_path })
 }
