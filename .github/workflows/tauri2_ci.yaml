@@ -80,11 +80,6 @@ jobs:
           override: true
           profile: minimal
 
-      - name: Rust cache
-        uses: swatinem/rust-cache@v2
-        with:
-          workspaces: "./frontend/appflowy_web_app/src-tauri -> target"
-
       - name: Node_modules cache
         uses: actions/cache@v2
         with:
@@ -105,6 +100,7 @@ jobs:
         working-directory: frontend
         run: |
           cargo make appflowy-tauri-deps-tools
+        shell: bash
 
       - name: install frontend dependencies
         working-directory: frontend/appflowy_web_app
