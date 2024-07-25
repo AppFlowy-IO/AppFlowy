@@ -87,7 +87,7 @@ jobs:
         working-directory: frontend
         run: |
           cargo install --force cargo-make
-          cargo make appflowy-tauri-deps-tools
+          cargo make appflowy_tauri_deps_tools
 
       - name: install frontend dependencies
         working-directory: frontend/appflowy_tauri
