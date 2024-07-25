@@ -64,9 +64,14 @@ class _MobileSpaceState extends State<MobileSpace> {
               },
               onPressed: () => _showSpaceMenu(context),
             ),
-            _Pages(
-              key: ValueKey(currentSpace.id),
-              space: currentSpace,
+            Padding(
+              padding: const EdgeInsets.only(
+                left: HomeSpaceViewSizes.mHorizontalPadding,
+              ),
+              child: _Pages(
+                key: ValueKey(currentSpace.id),
+                space: currentSpace,
+              ),
             ),
           ],
         );
@@ -82,6 +87,7 @@ class _MobileSpaceState extends State<MobileSpace> {
       showDragHandle: true,
       showCloseButton: true,
       showDoneButton: true,
+      useRootNavigator: true,
       title: LocaleKeys.space_title.tr(),
       backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) {
@@ -148,7 +154,7 @@ class _Pages extends StatelessWidget {
                             MobilePaneActionType.add,
                         ],
                         spaceType: spaceType,
-                        needSpace: false,
+                        spaceRatio: 4,
                       );
                     },
                   ),

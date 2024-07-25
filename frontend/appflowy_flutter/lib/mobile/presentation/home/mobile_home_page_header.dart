@@ -143,7 +143,7 @@ class _MobileWorkspace extends StatelessWidget {
                   : const HSpace(8),
               FlowyText.semibold(
                 currentWorkspace.name,
-                fontSize: 16.0,
+                fontSize: 20.0,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -162,9 +162,10 @@ class _MobileWorkspace extends StatelessWidget {
       showHeader: true,
       showDragHandle: true,
       showCloseButton: true,
+      useRootNavigator: true,
       title: LocaleKeys.workspace_menuTitle.tr(),
       backgroundColor: Theme.of(context).colorScheme.surface,
-      builder: (_) {
+      builder: (sheetContext) {
         return BlocProvider.value(
           value: context.read<UserWorkspaceBloc>(),
           child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
@@ -179,7 +180,7 @@ class _MobileWorkspace extends StatelessWidget {
                 currentWorkspace: currentWorkspace,
                 workspaces: workspaces,
                 onWorkspaceSelected: (workspace) {
-                  context.pop();
+                  Navigator.of(sheetContext).pop();
 
                   if (workspace == currentWorkspace) {
                     return;

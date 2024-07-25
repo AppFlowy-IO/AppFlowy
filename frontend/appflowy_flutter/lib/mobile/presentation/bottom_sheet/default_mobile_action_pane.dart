@@ -69,6 +69,7 @@ enum MobilePaneActionType {
               showDragHandle: true,
               showCloseButton: true,
               useRootNavigator: true,
+              showDivider: false,
               backgroundColor: Theme.of(context).colorScheme.surface,
               builder: (sheetContext) {
                 return AddNewPageWidgetBottomSheet(
@@ -181,12 +182,13 @@ ActionPane buildEndActionPane(
   bool needSpace = true,
   MobilePageCardType? cardType,
   FolderSpaceType? spaceType,
+  required double spaceRatio,
 }) {
   return ActionPane(
     motion: const ScrollMotion(),
-    extentRatio: actions.length / 5,
+    extentRatio: actions.length / spaceRatio,
     children: [
-      if (needSpace) const HSpace(20),
+      if (needSpace) const HSpace(60),
       ...actions.map(
         (action) => action.actionButton(
           context,

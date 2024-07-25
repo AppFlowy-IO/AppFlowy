@@ -72,8 +72,6 @@ class _RecentViews extends StatelessWidget {
         child: ListView.separated(
           key: const PageStorageKey('recent_views_page_storage_key'),
           padding: EdgeInsets.only(
-            left: HomeSpaceViewSizes.mHorizontalPadding,
-            right: HomeSpaceViewSizes.mHorizontalPadding,
             bottom: HomeSpaceViewSizes.mVerticalPadding +
                 MediaQuery.of(context).padding.bottom,
           ),

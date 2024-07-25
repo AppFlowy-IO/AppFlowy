@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/date_time/time_format_ext.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -76,6 +77,7 @@ class MobileViewPage extends StatelessWidget {
                     : MobilePaneActionType.addToFavorites,
               ],
               cardType: type,
+              spaceRatio: 4,
             ),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -83,6 +85,7 @@ class MobileViewPage extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const HSpace(HomeSpaceViewSizes.mHorizontalPadding),
                   Expanded(child: _buildDescription(context, state)),
                   const HSpace(20.0),
                   SizedBox(
@@ -90,6 +93,7 @@ class MobileViewPage extends StatelessWidget {
                     height: 60,
                     child: _buildCover(context, state),
                   ),
+                  const HSpace(HomeSpaceViewSizes.mHorizontalPadding),
                 ],
               ),
             ),
