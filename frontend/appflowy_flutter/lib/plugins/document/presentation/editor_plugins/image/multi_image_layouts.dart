@@ -83,7 +83,7 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
               width: MediaQuery.of(context).size.width,
               child: GestureDetector(
                 onDoubleTap: () => _openInteractiveViewer(context),
-                child: _ImageRender(
+                child: ImageRender(
                   image: widget.images[widget.indexNotifier.value],
                   userProfile: _userProfile,
                   fit: BoxFit.contain,
@@ -173,7 +173,7 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
                         onTap: () => widget.onIndexChanged(index),
-                        child: _ThumbnailItem(
+                        child: ThumbnailItem(
                           images: widget.images,
                           index: index,
                           selectedIndex: widget.indexNotifier.value,
@@ -331,8 +331,10 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
   }
 }
 
-class _ThumbnailItem extends StatefulWidget {
-  const _ThumbnailItem({
+@visibleForTesting
+class ThumbnailItem extends StatefulWidget {
+  const ThumbnailItem({
+    super.key,
     required this.images,
     required this.index,
     required this.selectedIndex,
@@ -347,10 +349,10 @@ class _ThumbnailItem extends StatefulWidget {
   final UserProfilePB? userProfile;
 
   @override
-  State<_ThumbnailItem> createState() => _ThumbnailItemState();
+  State<ThumbnailItem> createState() => _ThumbnailItemState();
 }
 
-class _ThumbnailItemState extends State<_ThumbnailItem> {
+class _ThumbnailItemState extends State<ThumbnailItem> {
   bool isHovering = false;
 
   @override
@@ -375,7 +377,7 @@ class _ThumbnailItemState extends State<_ThumbnailItem> {
         child: Stack(
           children: [
             Positioned.fill(
-              child: _ImageRender(
+              child: ImageRender(
                 image: widget.images[widget.index],
                 userProfile: widget.userProfile,
               ),
@@ -416,8 +418,10 @@ class _ThumbnailItemState extends State<_ThumbnailItem> {
   }
 }
 
-class _ImageRender extends StatelessWidget {
-  const _ImageRender({
+@visibleForTesting
+class ImageRender extends StatelessWidget {
+  const ImageRender({
+    super.key,
     required this.image,
     this.userProfile,
     this.fit = BoxFit.cover,
