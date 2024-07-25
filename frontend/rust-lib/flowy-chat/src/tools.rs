@@ -111,7 +111,7 @@ impl ToolTask {
                             let _ = sink.send(format!("data:{}", s)).await;
                         },
                         Some(Err(error)) => {
-                            handle_error(&mut sink, FlowyError::from(error)).await;
+                            handle_error(&mut sink, error).await;
                             return;
                         },
                         None => {
