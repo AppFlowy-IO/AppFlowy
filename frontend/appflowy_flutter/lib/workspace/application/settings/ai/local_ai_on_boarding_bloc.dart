@@ -10,9 +10,12 @@ part 'local_ai_on_boarding_bloc.freezed.dart';
 
 class LocalAIOnBoardingBloc
     extends Bloc<LocalAIOnBoardingEvent, LocalAIOnBoardingState> {
-  LocalAIOnBoardingBloc() : super(const LocalAIOnBoardingState()) {
+  LocalAIOnBoardingBloc(this.workspaceId)
+      : super(const LocalAIOnBoardingState()) {
     _dispatch();
   }
+
+  final String workspaceId;
 
   void _dispatch() {
     on<LocalAIOnBoardingEvent>((event, emit) {
@@ -22,12 +25,14 @@ class LocalAIOnBoardingBloc
         },
         didGetSubscriptionPlans: (result) {
           result.fold(
-            (repeatedPlans) {
-              final isPurchaseAILocal = repeatedPlans.items.any(
-                (detail) => detail.plan == SubscriptionPlanPB.AiLocal,
-              );
+            (workspaceSubInfo) {
+              final isPurchaseAILocal = workspaceSubInfo.addOns.any((addOn) {
+                return addOn.type == WorkspaceAddOnPBType.AddOnAiLocal;
+              });
 
-              emit(state.copyWith(isPurchaseAILocal: isPurchaseAILocal));
+              emit(
+                state.copyWith(isPurchaseAILocal: isPurchaseAILocal),
+              );
             },
             (err) {
               Log.error("Failed to get subscription plans: $err");
@@ -39,7 +44,8 @@ class LocalAIOnBoardingBloc
   }
 
   void _loadSubscriptionPlans() {
-    UserEventGetSubscriptionPlanDetails().send().then((result) {
+    final payload = UserWorkspaceIdPB()..workspaceId = workspaceId;
+    UserEventGetWorkspaceSubscriptionInfo(payload).send().then((result) {
       if (!isClosed) {
         add(LocalAIOnBoardingEvent.didGetSubscriptionPlans(result));
       }
@@ -51,7 +57,7 @@ class LocalAIOnBoardingBloc
 class LocalAIOnBoardingEvent with _$LocalAIOnBoardingEvent {
   const factory LocalAIOnBoardingEvent.started() = _Started;
   const factory LocalAIOnBoardingEvent.didGetSubscriptionPlans(
-    FlowyResult<RepeatedSubscriptionPlanDetailPB, FlowyError> result,
+    FlowyResult<WorkspaceSubscriptionInfoPB, FlowyError> result,
   ) = _LoadSubscriptionPlans;
 }
 

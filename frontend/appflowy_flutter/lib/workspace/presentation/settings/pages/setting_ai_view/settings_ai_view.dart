@@ -52,7 +52,11 @@ class SettingsAIView extends StatelessWidget {
           ];
 
           children.add(const _AISearchToggle(value: false));
-          children.add(const _LocalAIOnBoarding());
+          children.add(
+            _LocalAIOnBoarding(
+              workspaceId: userProfile.workspaceId,
+            ),
+          );
 
           return SettingsBody(
             title: LocaleKeys.settings_aiPage_title.tr(),
@@ -110,7 +114,8 @@ class _AISearchToggle extends StatelessWidget {
 }
 
 class _LocalAIOnBoarding extends StatelessWidget {
-  const _LocalAIOnBoarding();
+  const _LocalAIOnBoarding({required this.workspaceId});
+  final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +123,7 @@ class _LocalAIOnBoarding extends StatelessWidget {
       return BillingGateGuard(
         builder: (context) {
           return BlocProvider(
-            create: (context) => LocalAIOnBoardingBloc()
+            create: (context) => LocalAIOnBoardingBloc(workspaceId)
               ..add(const LocalAIOnBoardingEvent.started()),
             child: BlocBuilder<LocalAIOnBoardingBloc, LocalAIOnBoardingState>(
               builder: (context, state) {

@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
@@ -55,6 +56,7 @@ class _LocalAISettingState extends State<LocalAISetting> {
                   collapsed: const SizedBox.shrink(),
                   expanded: Column(
                     children: [
+                      const VSpace(6),
                       DecoratedBox(
                         decoration: BoxDecoration(
                           color: Theme.of(context)
@@ -64,11 +66,8 @@ class _LocalAISettingState extends State<LocalAISetting> {
                               const BorderRadius.all(Radius.circular(4)),
                         ),
                         child: const Padding(
-                          padding: EdgeInsets.only(
-                            left: 12.0,
-                            top: 6,
-                            bottom: 6,
-                          ),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           child: LocalAIChatSetting(),
                         ),
                       ),

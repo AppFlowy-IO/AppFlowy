@@ -356,7 +356,10 @@ class BillingGateGuard extends StatelessWidget {
 Future<bool> isBillingEnabled() async {
   final result = await UserEventGetCloudConfig().send();
   return result.fold((cloudSetting) {
-    final whiteList = ["beta.appflowy.cloud", "test.appflowy.cloud"];
+    final whiteList = [
+      "https://beta.appflowy.cloud",
+      "https://test.appflowy.cloud",
+    ];
     if (kDebugMode) {
       whiteList.add("http://localhost:8000");
     }

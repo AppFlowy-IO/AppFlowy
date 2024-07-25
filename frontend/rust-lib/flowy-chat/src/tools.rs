@@ -12,7 +12,6 @@ use lib_infra::isolate_stream::IsolateSink;
 use std::sync::{Arc, Weak};
 use tokio::select;
 
-
 pub struct AITools {
   tasks: Arc<DashMap<String, tokio::sync::mpsc::Sender<()>>>,
   cloud_service: Weak<dyn ChatCloudService>,

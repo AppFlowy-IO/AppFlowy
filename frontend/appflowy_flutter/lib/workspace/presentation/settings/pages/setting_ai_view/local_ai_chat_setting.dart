@@ -70,7 +70,7 @@ class LocalAIChatSetting extends StatelessWidget {
             header: const LocalAIChatSettingHeader(),
             collapsed: const SizedBox.shrink(),
             expanded: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(vertical: 6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

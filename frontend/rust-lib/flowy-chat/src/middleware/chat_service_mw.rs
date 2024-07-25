@@ -17,7 +17,6 @@ use lib_infra::future::FutureResult;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-
 pub struct CloudServiceMiddleware {
   cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn ChatUserService>,

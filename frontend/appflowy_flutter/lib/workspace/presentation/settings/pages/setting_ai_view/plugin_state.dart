@@ -109,6 +109,7 @@ class _LocalAIReadyToUse extends StatelessWidget {
                 text: FlowyText(
                   LocaleKeys.settings_aiPage_keys_openModelDirectory.tr(),
                   fontSize: 11,
+                  color: const Color(0xFF1E4620),
                 ),
                 onTap: () {
                   context.read<PluginStateBloc>().add(
