@@ -162,5 +162,67 @@ void main() {
         expect(find.byType(UnsplashImageWidget), findsOneWidget);
       });
     });
+
+    testWidgets('insert two images from local file at once', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      // create a new document
+      await tester.createNewPageWithNameUnderParent(
+        name: LocaleKeys.document_plugins_image_addAnImageDesktop.tr(),
+      );
+
+      // tap the first line of the document
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.editor.showSlashMenu();
+      await tester.editor.tapSlashMenuItemWithName('Image');
+      expect(find.byType(CustomImageBlockComponent), findsOneWidget);
+      expect(find.byType(ImagePlaceholder), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(ImagePlaceholder),
+          matching: find.byType(AppFlowyPopover),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(UploadImageMenu), findsOneWidget);
+
+      final firstImage =
+          await rootBundle.load('assets/test/images/sample.jpeg');
+      final secondImage =
+          await rootBundle.load('assets/test/images/sample.gif');
+      final tempDirectory = await getTemporaryDirectory();
+
+      final firstImagePath = p.join(tempDirectory.path, 'sample.jpeg');
+      final firstFile = File(firstImagePath)
+        ..writeAsBytesSync(firstImage.buffer.asUint8List());
+
+      final secondImagePath = p.join(tempDirectory.path, 'sample.gif');
+      final secondFile = File(secondImagePath)
+        ..writeAsBytesSync(secondImage.buffer.asUint8List());
+
+      mockPickFilePaths(paths: [firstImagePath, secondImagePath]);
+
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, '0');
+      await tester.tapButtonWithName(
+        LocaleKeys.document_imageBlock_upload_placeholder.tr(),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ResizableImage), findsNWidgets(2));
+
+      final firstNode =
+          tester.editor.getCurrentEditorState().getNodeAtPath([0])!;
+      expect(firstNode.type, ImageBlockKeys.type);
+      expect(firstNode.attributes[ImageBlockKeys.url], isNotEmpty);
+
+      final secondNode =
+          tester.editor.getCurrentEditorState().getNodeAtPath([0])!;
+      expect(secondNode.type, ImageBlockKeys.type);
+      expect(secondNode.attributes[ImageBlockKeys.url], isNotEmpty);
+
+      // remove the temp files
+      await Future.wait([firstFile.delete(), secondFile.delete()]);
+    });
   });
 }
