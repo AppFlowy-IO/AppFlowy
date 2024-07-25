@@ -159,7 +159,7 @@ impl DocumentManager {
     if let Some(doc) = self.restore_document_from_removing(doc_id) {
       return Ok(doc);
     }
-    return Err(FlowyError::internal().with_context("Call open document first"));
+    Err(FlowyError::internal().with_context("Call open document first"))
   }
 
   /// Returns Document for given object id

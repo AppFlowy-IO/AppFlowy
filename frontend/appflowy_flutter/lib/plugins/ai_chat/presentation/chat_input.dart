@@ -67,8 +67,7 @@ class _ChatInputState extends State<ChatInput> {
   void initState() {
     super.initState();
 
-    _textController =
-        widget.options.textEditingController ?? InputTextFieldController();
+    _textController = InputTextFieldController();
     _handleSendButtonVisibilityModeChange();
   }
 
@@ -85,9 +84,7 @@ class _ChatInputState extends State<ChatInput> {
       final partialText = types.PartialText(text: trimmedText);
       widget.onSendPressed(partialText);
 
-      if (widget.options.inputClearMode == InputClearMode.always) {
-        _textController.clear();
-      }
+      _textController.clear();
     }
   }
 
@@ -106,7 +103,6 @@ class _ChatInputState extends State<ChatInput> {
     const inputPadding = EdgeInsets.all(6);
 
     return Focus(
-      autofocus: !widget.options.autofocus,
       child: Padding(
         padding: inputPadding,
         child: Material(
@@ -148,15 +144,11 @@ class _ChatInputState extends State<ChatInput> {
         style: TextStyle(
           color: AFThemeExtension.of(context).textColor,
         ),
-        autocorrect: widget.options.autocorrect,
-        autofocus: widget.options.autofocus,
-        enableSuggestions: widget.options.enableSuggestions,
-        keyboardType: widget.options.keyboardType,
+        keyboardType: TextInputType.multiline,
         textCapitalization: TextCapitalization.sentences,
         maxLines: 10,
         minLines: 1,
-        onChanged: widget.options.onTextChanged,
-        onTap: widget.options.onTextFieldTap,
+        onChanged: (_) {},
       ),
     );
   }
@@ -205,53 +197,6 @@ class _ChatInputState extends State<ChatInput> {
         onTap: () => _inputFocusNode.requestFocus(),
         child: _inputBuilder(),
       );
-}
-
-@immutable
-class InputOptions {
-  const InputOptions({
-    this.inputClearMode = InputClearMode.always,
-    this.keyboardType = TextInputType.multiline,
-    this.onTextChanged,
-    this.onTextFieldTap,
-    this.textEditingController,
-    this.autocorrect = true,
-    this.autofocus = false,
-    this.enableSuggestions = true,
-    this.enabled = true,
-  });
-
-  /// Controls the [ChatInput] clear behavior. Defaults to [InputClearMode.always].
-  final InputClearMode inputClearMode;
-
-  /// Controls the [ChatInput] keyboard type. Defaults to [TextInputType.multiline].
-  final TextInputType keyboardType;
-
-  /// Will be called whenever the text inside [TextField] changes.
-  final void Function(String)? onTextChanged;
-
-  /// Will be called on [TextField] tap.
-  final VoidCallback? onTextFieldTap;
-
-  /// Custom [TextEditingController]. If not provided, defaults to the
-  /// [InputTextFieldController], which extends [TextEditingController] and has
-  /// additional fatures like markdown support. If you want to keep additional
-  /// features but still need some methods from the default [TextEditingController],
-  /// you can create your own [InputTextFieldController] (imported from this lib)
-  /// and pass it here.
-  final TextEditingController? textEditingController;
-
-  /// Controls the [TextInput] autocorrect behavior. Defaults to [true].
-  final bool autocorrect;
-
-  /// Whether [TextInput] should have focus. Defaults to [false].
-  final bool autofocus;
-
-  /// Controls the [TextInput] enableSuggestions behavior. Defaults to [true].
-  final bool enableSuggestions;
-
-  /// Controls the [TextInput] enabled behavior. Defaults to [true].
-  final bool enabled;
 }
 
 final isMobile = defaultTargetPlatform == TargetPlatform.android ||
