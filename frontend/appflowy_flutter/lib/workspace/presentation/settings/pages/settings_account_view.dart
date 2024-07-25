@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -22,6 +19,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsAccountView extends StatefulWidget {
@@ -217,6 +216,7 @@ class SignInOutButton extends StatelessWidget {
                       LocaleKeys.settings_menu_selfEncryptionLogoutPrompt.tr(),
                     _ => LocaleKeys.settings_menu_logoutPrompt.tr(),
                   },
+                  confirmLabel: LocaleKeys.button_confirm.tr(),
                   onConfirm: () async {
                     await getIt<AuthService>().signOut();
                     onAction();
