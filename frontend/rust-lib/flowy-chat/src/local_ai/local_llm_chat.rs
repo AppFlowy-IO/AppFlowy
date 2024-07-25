@@ -150,7 +150,8 @@ impl LocalAIController {
   pub fn is_rag_enabled(&self) -> bool {
     self
       .store_preferences
-      .get_bool_or_default(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED)
+      .get_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED)
+      .unwrap_or(true)
   }
 
   pub fn open_chat(&self, chat_id: &str) {

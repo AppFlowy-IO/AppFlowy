@@ -4,6 +4,7 @@ import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
 typedef FeatureFlagMap = Map<FeatureFlag, bool>;
 
@@ -91,7 +92,7 @@ enum FeatureFlag {
 
   bool get isOn {
     if ([
-      // if (kDebugMode) FeatureFlag.planBilling,
+      if (kDebugMode) FeatureFlag.planBilling,
       // release this feature in version 0.6.1
       FeatureFlag.spaceDesign,
       // release this feature in version 0.5.9

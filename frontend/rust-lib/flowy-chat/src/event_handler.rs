@@ -12,7 +12,7 @@ use crate::entities::*;
 use crate::local_ai::local_llm_chat::LLMModelInfo;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use crate::tools::AITools;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::isolate_stream::IsolateSink;
 
@@ -208,6 +208,25 @@ pub(crate) async fn chat_file_handler(
 ) -> Result<(), FlowyError> {
   let data = data.try_into_inner()?;
   let file_path = PathBuf::from(&data.file_path);
+
+  let allowed_extensions = ["pdf", "md", "txt"];
+  let extension = file_path
+    .extension()
+    .and_then(|ext| ext.to_str())
+    .ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::UnsupportedFileFormat,
+        "Can't find file extension",
+      )
+    })?;
+
+  if !allowed_extensions.contains(&extension) {
+    return Err(FlowyError::new(
+      ErrorCode::UnsupportedFileFormat,
+      "Only support pdf,md and txt",
+    ));
+  }
+
   let (tx, rx) = oneshot::channel::<Result<(), FlowyError>>();
   tokio::spawn(async move {
     let chat_manager = upgrade_chat_manager(chat_manager)?;
