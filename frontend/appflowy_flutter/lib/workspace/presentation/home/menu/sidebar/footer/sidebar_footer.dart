@@ -1,5 +1,6 @@
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_toast.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -19,7 +20,12 @@ class SidebarFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (FeatureFlag.planBilling.isOn) const SidebarToast(),
+        if (FeatureFlag.planBilling.isOn)
+          BillingGateGuard(
+            builder: (context) {
+              return const SidebarToast();
+            },
+          ),
         const Row(
           children: [
             Expanded(child: SidebarTrashButton()),

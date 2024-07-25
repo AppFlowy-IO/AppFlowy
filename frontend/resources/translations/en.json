@@ -660,7 +660,8 @@
         "restartLocalAI": "Restart Local AI",
         "disableLocalAIDialog": "Do you want to disable local AI?",
         "localAIToggleTitle": "Toggle to enable or disable local AI",
-        "fetchLocalModel": "Fetch local model configuration"
+        "fetchLocalModel": "Fetch local model configuration",
+        "openModelDirectory": "Open folder"
       }
     },
     "planPage": {

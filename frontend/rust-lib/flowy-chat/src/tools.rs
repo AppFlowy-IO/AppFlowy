@@ -11,7 +11,7 @@ use lib_infra::isolate_stream::IsolateSink;
 
 use std::sync::{Arc, Weak};
 use tokio::select;
-use tracing::trace;
+
 
 pub struct AITools {
   tasks: Arc<DashMap<String, tokio::sync::mpsc::Sender<()>>>,
@@ -109,7 +109,6 @@ impl ToolTask {
                     match result {
                         Some(Ok(data)) => {
                             let s = String::from_utf8(data.to_vec()).unwrap_or_default();
-                            trace!("stream completion data: {}", s);
                             let _ = sink.send(format!("data:{}", s)).await;
                         },
                         Some(Err(error)) => {

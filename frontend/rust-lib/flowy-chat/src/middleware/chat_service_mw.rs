@@ -7,7 +7,7 @@ use appflowy_plugin::error::PluginError;
 
 use flowy_chat_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageType, CompletionType, LocalAIConfig, MessageCursor,
-  RepeatedChatMessage, RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
+  RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, StreamExt, TryStreamExt};
@@ -17,13 +17,14 @@ use lib_infra::future::FutureResult;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-pub struct ChatServiceMiddleware {
-  pub cloud_service: Arc<dyn ChatCloudService>,
+
+pub struct CloudServiceMiddleware {
+  cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn ChatUserService>,
   local_llm_controller: Arc<LocalAIController>,
 }
 
-impl ChatServiceMiddleware {
+impl CloudServiceMiddleware {
   pub fn new(
     user_service: Arc<dyn ChatUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
@@ -67,7 +68,7 @@ impl ChatServiceMiddleware {
 }
 
 #[async_trait]
-impl ChatCloudService for ChatServiceMiddleware {
+impl ChatCloudService for CloudServiceMiddleware {
   fn create_chat(
     &self,
     uid: &i64,
@@ -177,23 +178,34 @@ impl ChatCloudService for ChatServiceMiddleware {
       .get_chat_messages(workspace_id, chat_id, offset, limit)
   }
 
-  fn get_related_message(
+  async fn get_related_message(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
-  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
+  ) -> Result<RepeatedRelatedQuestion, FlowyError> {
     if self.local_llm_controller.is_running() {
-      FutureResult::new(async move {
-        Ok(RepeatedRelatedQuestion {
-          message_id,
-          items: vec![],
+      let questions = self
+        .local_llm_controller
+        .get_related_question(chat_id)
+        .await
+        .map_err(|err| FlowyError::local_ai().with_context(err))?
+        .into_iter()
+        .map(|content| RelatedQuestion {
+          content,
+          metadata: None,
         })
+        .collect::<Vec<_>>();
+
+      Ok(RepeatedRelatedQuestion {
+        message_id,
+        items: questions,
       })
     } else {
       self
         .cloud_service
         .get_related_message(workspace_id, chat_id, message_id)
+        .await
     }
   }
 
@@ -204,9 +216,21 @@ impl ChatCloudService for ChatServiceMiddleware {
     complete_type: CompletionType,
   ) -> Result<StreamComplete, FlowyError> {
     if self.local_llm_controller.is_running() {
-      return Err(
-        FlowyError::not_support().with_context("completion with local ai is not supported yet"),
-      );
+      match self
+        .local_llm_controller
+        .complete_text(text, complete_type as u8)
+        .await
+      {
+        Ok(stream) => Ok(
+          stream
+            .map_err(|err| FlowyError::local_ai().with_context(err))
+            .boxed(),
+        ),
+        Err(err) => {
+          self.handle_plugin_error(err);
+          Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
+        },
+      }
     } else {
       self
         .cloud_service

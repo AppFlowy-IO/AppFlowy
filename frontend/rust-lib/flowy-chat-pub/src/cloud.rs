@@ -15,7 +15,7 @@ use std::path::PathBuf;
 
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
 pub type StreamAnswer = BoxStream<'static, Result<Bytes, FlowyError>>;
-pub type StreamComplete = BoxStream<'static, Result<Bytes, AppResponseError>>;
+pub type StreamComplete = BoxStream<'static, Result<Bytes, FlowyError>>;
 #[async_trait]
 pub trait ChatCloudService: Send + Sync + 'static {
   fn create_chat(
@@ -63,12 +63,12 @@ pub trait ChatCloudService: Send + Sync + 'static {
     limit: u64,
   ) -> FutureResult<RepeatedChatMessage, FlowyError>;
 
-  fn get_related_message(
+  async fn get_related_message(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
-  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError>;
+  ) -> Result<RepeatedRelatedQuestion, FlowyError>;
 
   async fn stream_complete(
     &self,

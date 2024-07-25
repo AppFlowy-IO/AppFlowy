@@ -1,3 +1,5 @@
+import 'package:appflowy_backend/log.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -326,4 +328,49 @@ class AppFlowyCloudEnableSync extends StatelessWidget {
       },
     );
   }
+}
+
+class BillingGateGuard extends StatelessWidget {
+  const BillingGateGuard({required this.builder, super.key});
+
+  final Widget Function(BuildContext context) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: isBillingEnabled(),
+      builder: (context, snapshot) {
+        final isBillingEnabled = snapshot.data ?? false;
+        if (isBillingEnabled &&
+            snapshot.connectionState == ConnectionState.done) {
+          return builder(context);
+        }
+
+        // If the billing is not enabled, show nothing
+        return const SizedBox.shrink();
+      },
+    );
+  }
+}
+
+Future<bool> isBillingEnabled() async {
+  final result = await UserEventGetCloudConfig().send();
+  return result.fold((cloudSetting) {
+    final whiteList = ["beta.appflowy.cloud", "test.appflowy.cloud"];
+    if (kDebugMode) {
+      whiteList.add("http://localhost:8000");
+    }
+
+    if (whiteList.contains(cloudSetting.serverUrl)) {
+      return true;
+    } else {
+      Log.warn(
+        "Billing is not enabled for this server:${cloudSetting.serverUrl}",
+      );
+      return false;
+    }
+  }, (err) {
+    Log.error("Failed to get cloud config: $err");
+    return false;
+  });
 }

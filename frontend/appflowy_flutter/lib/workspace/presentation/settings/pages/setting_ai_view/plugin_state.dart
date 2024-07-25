@@ -8,8 +8,8 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CheckPluginStateIndicator extends StatelessWidget {
-  const CheckPluginStateIndicator({super.key});
+class PluginStateIndicator extends StatelessWidget {
+  const PluginStateIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class CheckPluginStateIndicator extends StatelessWidget {
         builder: (context, state) {
           return state.action.when(
             init: () => const _InitPlugin(),
-            ready: () => const _ReadyToUse(),
+            ready: () => const _LocalAIReadyToUse(),
             restart: () => const _ReloadButton(),
             loadingPlugin: () => const _InitPlugin(),
           );
@@ -74,8 +74,8 @@ class _ReloadButton extends StatelessWidget {
   }
 }
 
-class _ReadyToUse extends StatelessWidget {
-  const _ReadyToUse();
+class _LocalAIReadyToUse extends StatelessWidget {
+  const _LocalAIReadyToUse();
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +87,7 @@ class _ReadyToUse extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
             const HSpace(8),
@@ -100,6 +100,22 @@ class _ReadyToUse extends StatelessWidget {
               LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
               fontSize: 11,
               color: const Color(0xFF1E4620),
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: FlowyButton(
+                useIntrinsicWidth: true,
+                text: FlowyText(
+                  LocaleKeys.settings_aiPage_keys_openModelDirectory.tr(),
+                  fontSize: 11,
+                ),
+                onTap: () {
+                  context.read<PluginStateBloc>().add(
+                        const PluginStateEvent.openModelDirectory(),
+                      );
+                },
+              ),
             ),
           ],
         ),

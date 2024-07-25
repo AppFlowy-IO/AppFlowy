@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_chat_bloc.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_chat_toggle_bloc.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/downloading.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/downloading_model.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/init_local_ai.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/plugin_state.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -240,7 +240,7 @@ class _LocalLLMInfoWidget extends StatelessWidget {
                 );
               },
               finishDownload: () => const InitLocalAIIndicator(),
-              checkPluginState: () => const CheckPluginStateIndicator(),
+              checkPluginState: () => const PluginStateIndicator(),
             );
 
             return Padding(
@@ -253,9 +253,12 @@ class _LocalLLMInfoWidget extends StatelessWidget {
         } else {
           return Opacity(
             opacity: 0.5,
-            child: FlowyText(
-              error.msg,
-              maxLines: 10,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: FlowyText(
+                error.msg,
+                maxLines: 10,
+              ),
             ),
           );
         }

@@ -10,7 +10,7 @@ pub fn migrate_session_with_user_uuid(
   session_cache_key: &str,
   store_preferences: &Arc<KVStorePreferences>,
 ) -> Option<Session> {
-  if !store_preferences.get_bool(MIGRATION_USER_NO_USER_UUID)
+  if !store_preferences.get_bool_or_default(MIGRATION_USER_NO_USER_UUID)
     && store_preferences
       .set_bool(MIGRATION_USER_NO_USER_UUID, true)
       .is_ok()
