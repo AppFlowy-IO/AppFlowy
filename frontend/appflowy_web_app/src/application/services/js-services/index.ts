@@ -14,12 +14,17 @@ import {
   signInGithub,
   signInDiscord,
   signInWithUrl,
+  getWorkspaces,
+  getWorkspaceFolder,
+  getCurrentUser,
+  duplicatePublishView,
 } from '@/application/services/js-services/wasm/client_api';
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { emit, EventType } from '@/application/session';
 import { afterAuth, AUTH_CALLBACK_URL, withSignIn } from '@/application/session/sign_in';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
+import { DuplicatePublishView } from '@/application/types';
 
 export class AFClientService implements AFService {
   private deviceId: string = nanoid(8);
@@ -198,5 +203,37 @@ export class AFClientService implements AFService {
   @withSignIn()
   async signInDiscord(_: { redirectTo: string }) {
     return await signInDiscord(AUTH_CALLBACK_URL);
+  }
+
+  async getWorkspaces() {
+    const data = getWorkspaces();
+
+    return data;
+  }
+
+  async getWorkspaceFolder(workspaceId: string) {
+    const data = await getWorkspaceFolder(workspaceId);
+
+    return data;
+  }
+
+  async getCurrentUser() {
+    const data = await getCurrentUser();
+
+    return {
+      uid: data.uid,
+      email: data.email,
+      name: data.name,
+      avatar: data.icon_url,
+    };
+  }
+
+  async duplicatePublishView(params: DuplicatePublishView) {
+    return duplicatePublishView({
+      workspace_id: params.workspaceId,
+      dest_view_id: params.spaceViewId,
+      published_view_id: params.viewId,
+      published_collab_type: params.collabType,
+    });
   }
 }

@@ -9,8 +9,8 @@ export function LoginModal({ redirectTo, open, onClose }: { redirectTo: string; 
       <div className={'relative px-6'}>
         <Login redirectTo={redirectTo} />
         <div className={'absolute top-2 right-2'}>
-          <IconButton color={'inherit'} onClick={onClose}>
-            <CloseIcon className={'h-8 w-8'} />
+          <IconButton size={'small'} color={'inherit'} className={'h-6 w-6'} onClick={onClose}>
+            <CloseIcon className={'h-4 w-4'} />
           </IconButton>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import { getToken, invalidToken, isTokenValid, refreshToken } from '@/application/session/token';
-import { ClientAPI } from '@appflowyinc/client-api-wasm';
+import { ClientAPI, WorkspaceFolder, DuplicatePublishViewPayload } from '@appflowyinc/client-api-wasm';
 import { AFCloudConfig } from '@/application/services/services.type';
 import { DatabaseId, PublishViewMetaData, RowId, ViewId, ViewLayout } from '@/application/collab.type';
+import { FolderView, Workspace } from '@/application/types';
 
 let client: ClientAPI;
 
@@ -114,4 +115,59 @@ export async function signInGithub(redirectTo: string) {
 
 export async function signInDiscord(redirectTo: string) {
   return signInProvider('discord', redirectTo);
+}
+
+export async function getWorkspaces() {
+  try {
+    const { data } = await client.get_workspaces();
+    const res: Workspace[] = [];
+
+    for (const workspace of data) {
+      const members = await client.get_workspace_members(workspace.workspace_id);
+
+      res.push({
+        id: workspace.workspace_id,
+        name: workspace.workspace_name,
+        icon: workspace.icon,
+        memberCount: members.data.length,
+      });
+    }
+
+    return res;
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+export async function getWorkspaceFolder(workspaceId: string): Promise<FolderView> {
+  try {
+    const data = await client.get_folder(workspaceId);
+
+    // eslint-disable-next-line no-inner-declarations
+    function iterateFolder(folder: WorkspaceFolder): FolderView {
+      return {
+        id: folder.view_id,
+        name: folder.name,
+        icon: folder.icon,
+        isSpace: folder.is_space,
+        extra: folder.extra,
+        isPrivate: folder.is_private,
+        children: folder.children.map((child: WorkspaceFolder) => {
+          return iterateFolder(child);
+        }),
+      };
+    }
+
+    return iterateFolder(data);
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+export function getCurrentUser() {
+  return client.get_user();
+}
+
+export function duplicatePublishView(payload: DuplicatePublishViewPayload) {
+  return client.duplicate_publish_view(payload);
 }

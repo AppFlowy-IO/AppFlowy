@@ -1,20 +1,32 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Divider, IconButton, Tooltip } from '@mui/material';
+import { Avatar, Button, CircularProgress, Divider, Tooltip } from '@mui/material';
 import { Workspace } from '@/application/types';
 import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
 import { ReactComponent as CheckIcon } from '@/assets/selected.svg';
 import { Popover } from '@/components/_shared/popover';
+import { stringToColor } from '@/utils/color';
+import { AFConfigContext } from '@/components/app/AppConfig';
 
 export interface SelectWorkspaceProps {
   value: string;
   onChange?: (value: string) => void;
   workspaceList: Workspace[];
+  loading?: boolean;
 }
 
-function SelectWorkspace({ value, onChange, workspaceList }: SelectWorkspaceProps) {
+function stringAvatar(name: string) {
+  return {
+    sx: {
+      bgcolor: stringToColor(name),
+    },
+    children: `${name.split('')[0]}`,
+  };
+}
+
+function SelectWorkspace({ loading, value, onChange, workspaceList }: SelectWorkspaceProps) {
   const { t } = useTranslation();
-  const email = 'lu@appflowy.io';
+  const email = useContext(AFConfigContext)?.currentUser?.email || '';
   const selectedWorkspace = useMemo(() => {
     return workspaceList.find((workspace) => workspace.id === value);
   }, [value, workspaceList]);
@@ -25,7 +37,16 @@ function SelectWorkspace({ value, onChange, workspaceList }: SelectWorkspaceProp
     (workspace: Workspace) => {
       return (
         <div className={'flex items-center gap-[10px] overflow-hidden'}>
-          <div className={'h-8 w-8 text-2xl'}>{workspace.icon}</div>
+          {workspace.icon ? (
+            <div className={'h-10 w-10 text-2xl'}>{workspace.icon}</div>
+          ) : (
+            <Avatar
+              className={'border border-line-border'}
+              sizes={'24px'}
+              variant={'rounded'}
+              {...stringAvatar(workspace.name)}
+            />
+          )}
           <div className={'flex flex-1 flex-col items-start gap-0.5 overflow-hidden'}>
             <div className={'w-full truncate text-left text-sm font-medium'}>{workspace.name}</div>
             <div className={'text-xs text-text-caption'}>
@@ -53,10 +74,20 @@ function SelectWorkspace({ value, onChange, workspaceList }: SelectWorkspaceProp
         color={'inherit'}
       >
         <div className={'flex w-full items-center gap-[10px]'}>
-          <div className={'flex-1 overflow-hidden'}>{selectedWorkspace ? renderWorkspace(selectedWorkspace) : null}</div>
-          <IconButton size={'small'} className={`h-6 w-6 ${selectOpen ? '-rotate-90' : 'rotate-90'} transform`}>
-            <RightIcon className={'h-6 w-6'} />
-          </IconButton>
+          {loading ? (
+            <div className={'flex w-full items-center justify-center'}>
+              <CircularProgress size={24} />
+            </div>
+          ) : (
+            <>
+              <div className={'flex-1 overflow-hidden'}>
+                {selectedWorkspace ? renderWorkspace(selectedWorkspace) : null}
+              </div>
+              <span className={`h-4 w-4 ${selectOpen ? '-rotate-90' : 'rotate-90'} transform`}>
+                <RightIcon className={'h-full w-full'} />
+              </span>
+            </>
+          )}
         </div>
       </Button>
       <Popover
@@ -70,7 +101,7 @@ function SelectWorkspace({ value, onChange, workspaceList }: SelectWorkspaceProp
           setSelectOpen(false);
         }}
       >
-        <div className={'flex max-h-[360px] w-[360px] flex-col gap-1 p-2 max-sm:w-full'}>
+        <div className={'flex max-h-[340px] w-[360px] flex-col gap-1 p-2 max-sm:w-full'}>
           <div className={'w-full px-3 py-2 text-sm font-medium text-text-caption'}>{email}</div>
           <Divider />
           <div className={'appflowy-scroller flex flex-1 flex-col overflow-y-auto overflow-x-hidden'}>

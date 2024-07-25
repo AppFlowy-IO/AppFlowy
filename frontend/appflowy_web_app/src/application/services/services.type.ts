@@ -1,6 +1,7 @@
 import { YDoc } from '@/application/collab.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import * as Y from 'yjs';
+import { DuplicatePublishView, FolderView, User, Workspace } from '@/application/types';
 
 export type AFService = PublishService;
 
@@ -33,4 +34,9 @@ export interface PublishService {
   signInGoogle: (params: { redirectTo: string }) => Promise<void>;
   signInGithub: (params: { redirectTo: string }) => Promise<void>;
   signInDiscord: (params: { redirectTo: string }) => Promise<void>;
+
+  getWorkspaces: () => Promise<Workspace[]>;
+  getWorkspaceFolder: (workspaceId: string) => Promise<FolderView>;
+  getCurrentUser: () => Promise<User>;
+  duplicatePublishView: (params: DuplicatePublishView) => Promise<void>;
 }

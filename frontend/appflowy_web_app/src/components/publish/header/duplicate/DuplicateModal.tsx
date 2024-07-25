@@ -1,36 +1,128 @@
-import React from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NormalModal } from '@/components/_shared/modal';
 import SelectWorkspace from '@/components/publish/header/duplicate/SelectWorkspace';
 import { useLoadWorkspaces } from '@/components/publish/header/duplicate/useDuplicate';
 import SpaceList from '@/components/publish/header/duplicate/SpaceList';
+import { downloadPage, openAppFlowySchema } from '@/utils/url';
+import { AFConfigContext } from '@/components/app/AppConfig';
+import { PublishContext } from '@/application/publish';
+import { CollabType, ViewLayout } from '@/application/collab.type';
 import { notify } from '@/components/_shared/notify';
+
+function getCollabTypeFromViewLayout(layout: ViewLayout) {
+  switch (layout) {
+    case ViewLayout.Document:
+      return CollabType.Document;
+    case ViewLayout.Grid:
+    case ViewLayout.Board:
+    case ViewLayout.Calendar:
+      return CollabType.Database;
+    default:
+      return null;
+  }
+}
 
 function DuplicateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
+  const service = useContext(AFConfigContext)?.service;
+  const viewMeta = useContext(PublishContext)?.viewMeta;
+  const viewId = viewMeta?.view_id;
+  const layout = viewMeta?.layout as ViewLayout;
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [successModalOpen, setSuccessModalOpen] = React.useState<boolean>(false);
+  const {
+    workspaceList,
+    spaceList,
+    setSelectedSpaceId,
+    setSelectedWorkspaceId,
+    selectedWorkspaceId,
+    selectedSpaceId,
+    workspaceLoading,
+    spaceLoading,
+  } = useLoadWorkspaces();
 
-  const { workspaceList, spaceList, setSelectedSpaceId, setSelectedWorkspaceId, selectedWorkspaceId, selectedSpaceId } =
-    useLoadWorkspaces();
+  useEffect(() => {
+    if (!open) {
+      setSelectedWorkspaceId(workspaceList[0]?.id || '');
+      setSelectedSpaceId('');
+    }
+  }, [open, setSelectedSpaceId, setSelectedWorkspaceId, workspaceList]);
+
+  const handleDuplicate = useCallback(async () => {
+    if (!viewId) return;
+    const collabType = getCollabTypeFromViewLayout(layout);
+
+    if (collabType === null) return;
+
+    setLoading(true);
+    try {
+      await service?.duplicatePublishView({
+        workspaceId: selectedWorkspaceId,
+        spaceViewId: selectedSpaceId,
+        viewId,
+        collabType,
+      });
+      onClose();
+      setSuccessModalOpen(true);
+    } catch (e) {
+      notify.error(t('publish.duplicateFailed'));
+    } finally {
+      setLoading(false);
+    }
+  }, [viewId, layout, service, selectedWorkspaceId, selectedSpaceId, onClose, t]);
 
   return (
-    <NormalModal
-      onCancel={onClose}
-      okText={t('button.add')}
-      title={t('publish.duplicateTitle')}
-      open={open}
-      onClose={onClose}
-      classes={{ container: 'items-start max-md:mt-auto max-md:items-center mt-[10%] ' }}
-      onOk={async () => {
-        // submit form
-        notify.success(t('publish.duplicateSuccessfully'));
-        onClose();
-      }}
-    >
-      <div className={'flex flex-col gap-4'}>
-        <SelectWorkspace workspaceList={workspaceList} value={selectedWorkspaceId} onChange={setSelectedWorkspaceId} />
-        <SpaceList spaceList={spaceList} value={selectedSpaceId} onChange={setSelectedSpaceId} />
-      </div>
-    </NormalModal>
+    <>
+      <NormalModal
+        okButtonProps={{
+          disabled: !selectedWorkspaceId || !selectedSpaceId,
+        }}
+        onCancel={onClose}
+        okText={t('button.add')}
+        title={t('publish.duplicateTitle')}
+        open={open}
+        onClose={onClose}
+        classes={{ container: 'items-start max-md:mt-auto max-md:items-center mt-[10%] ' }}
+        onOk={handleDuplicate}
+        okLoading={loading}
+      >
+        <div className={'flex flex-col gap-4'}>
+          <SelectWorkspace
+            loading={workspaceLoading}
+            workspaceList={workspaceList}
+            value={selectedWorkspaceId}
+            onChange={setSelectedWorkspaceId}
+          />
+          <SpaceList
+            loading={spaceLoading}
+            spaceList={spaceList}
+            value={selectedSpaceId}
+            onChange={setSelectedSpaceId}
+          />
+        </div>
+      </NormalModal>
+      <NormalModal
+        PaperProps={{
+          sx: {
+            maxWidth: 420,
+          },
+        }}
+        okText={t('publish.openApp')}
+        cancelText={t('publish.downloadIt')}
+        onOk={() => window.open(openAppFlowySchema, '_self')}
+        onCancel={() => {
+          window.open(downloadPage, '_blank');
+        }}
+        onClose={() => setSuccessModalOpen(false)}
+        open={successModalOpen}
+        title={<div className={'text-left'}>{t('publish.duplicateSuccessfully')}</div>}
+      >
+        <div className={'w-full whitespace-pre-wrap break-words pb-1 text-text-caption'}>
+          {t('publish.duplicateSuccessfullyDescription')}
+        </div>
+      </NormalModal>
+    </>
   );
 }
 

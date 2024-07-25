@@ -41,6 +41,9 @@ function AppTheme({ children }: { children: React.ReactNode }) {
                 },
                 borderRadius: '4px',
                 padding: '2px',
+                '&.MuiIconButton-colorInherit': {
+                  color: 'var(--icon-primary)',
+                },
               },
             },
           },
@@ -59,6 +62,11 @@ function AppTheme({ children }: { children: React.ReactNode }) {
                   backgroundColor: 'var(--content-blue-600)',
                 },
                 borderRadius: '8px',
+                '&.Mui-disabled': {
+                  backgroundColor: 'var(--content-blue-400)',
+                  opacity: 0.3,
+                  color: 'var(--content-on-fill)',
+                },
               },
               outlined: {
                 '&.MuiButton-outlinedInherit': {
