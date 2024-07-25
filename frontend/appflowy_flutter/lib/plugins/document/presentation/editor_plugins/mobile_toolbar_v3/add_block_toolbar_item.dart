@@ -7,6 +7,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
@@ -193,6 +195,19 @@ class _AddBlockMenu extends StatelessWidget {
           Future.delayed(const Duration(milliseconds: 400), () async {
             final imagePlaceholderKey = GlobalKey<ImagePlaceholderState>();
             await editorState.insertEmptyImageBlock(imagePlaceholderKey);
+          });
+        },
+      ),
+      TypeOptionMenuItemValue(
+        value: MultiImageBlockKeys.type,
+        backgroundColor: colorMap[ImageBlockKeys.type]!,
+        text: LocaleKeys.document_plugins_photoGallery_name.tr(),
+        icon: FlowySvgs.m_add_block_photo_gallery_s,
+        onTap: (_, __) async {
+          AppGlobals.rootNavKey.currentContext?.pop(true);
+          Future.delayed(const Duration(milliseconds: 400), () async {
+            final imagePlaceholderKey = GlobalKey<MultiImagePlaceholderState>();
+            await editorState.insertEmptyMultiImageBlock(imagePlaceholderKey);
           });
         },
       ),

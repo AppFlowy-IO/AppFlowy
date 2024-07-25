@@ -13,6 +13,9 @@ const _imgUrlPattern =
     r'(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.gif|.webm)(\?[^\s[",><]*)?';
 final imgUrlRegex = RegExp(_imgUrlPattern);
 
+const _imgExtensionPattern = r'\.(gif|jpe?g|tiff?|png|webp|bmp)$';
+final imgExtensionRegex = RegExp(_imgExtensionPattern);
+
 /// This pattern allows for both HTTP and HTTPS Scheme
 /// It allows for query parameters
 /// It only allows the following video extensions:

@@ -1,5 +1,10 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/flowy_image_picker.dart';
 import 'package:flutter/material.dart';
+
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 
 class MobileImagePickerScreen extends StatelessWidget {
   const MobileImagePickerScreen({super.key});
@@ -7,7 +12,29 @@ class MobileImagePickerScreen extends StatelessWidget {
   static const routeName = '/image_picker';
 
   @override
+  Widget build(BuildContext context) => const ImagePickerPage();
+}
+
+class ImagePickerPage extends StatelessWidget {
+  const ImagePickerPage({super.key});
+
+  @override
   Widget build(BuildContext context) {
-    return const ImagePickerPage();
+    return Scaffold(
+      appBar: AppBar(
+        titleSpacing: 0,
+        title: FlowyText.semibold(
+          LocaleKeys.titleBar_pageIcon.tr(),
+          fontSize: 14.0,
+        ),
+        leading: const AppBarBackButton(),
+      ),
+      body: SafeArea(
+        child: UploadImageMenu(
+          onSubmitted: (_) {},
+          onUpload: (_) {},
+        ),
+      ),
+    );
   }
 }

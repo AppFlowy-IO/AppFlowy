@@ -1,26 +1,27 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/align_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
+import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class ImageMenu extends StatefulWidget {
-  const ImageMenu({
-    super.key,
-    required this.node,
-    required this.state,
-  });
+  const ImageMenu({super.key, required this.node, required this.state});
 
   final Node node;
   final CustomImageBlockComponentState state;
@@ -30,7 +31,7 @@ class ImageMenu extends StatefulWidget {
 }
 
 class _ImageMenuState extends State<ImageMenu> {
-  late final String? url = widget.node.attributes[ImageBlockKeys.url];
+  late final String? url = widget.node.attributes[CustomImageBlockKeys.url];
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +52,12 @@ class _ImageMenuState extends State<ImageMenu> {
       child: Row(
         children: [
           const HSpace(4),
+          MenuBlockButton(
+            tooltip: LocaleKeys.document_imageBlock_openFullScreen.tr(),
+            iconData: FlowySvgs.full_view_s,
+            onTap: openFullScreen,
+          ),
+          const HSpace(4),
           // disable the copy link button if the image is hosted on appflowy cloud
           // because the url needs the verification token to be accessible
           if (!(url?.isAppFlowyCloudUrl ?? false)) ...[
@@ -61,10 +68,7 @@ class _ImageMenuState extends State<ImageMenu> {
             ),
             const HSpace(4),
           ],
-          _ImageAlignButton(
-            node: widget.node,
-            state: widget.state,
-          ),
+          _ImageAlignButton(node: widget.node, state: widget.state),
           const _Divider(),
           MenuBlockButton(
             tooltip: LocaleKeys.button_delete.tr(),
@@ -95,13 +99,34 @@ class _ImageMenuState extends State<ImageMenu> {
     transaction.afterSelection = null;
     await editorState.apply(transaction);
   }
+
+  void openFullScreen() {
+    showDialog(
+      context: context,
+      builder: (_) => InteractiveImageViewer(
+        userProfile: context.read<DocumentBloc>().state.userProfilePB,
+        imageProvider: AFBlockImageProvider(
+          images: [
+            ImageBlockData(
+              url: url!,
+              type: CustomImageType.fromIntValue(
+                widget.node.attributes[CustomImageBlockKeys.imageType] ?? 2,
+              ),
+            ),
+          ],
+          onDeleteImage: (_) async {
+            final transaction = widget.state.editorState.transaction;
+            transaction.deleteNode(widget.node);
+            await widget.state.editorState.apply(transaction);
+          },
+        ),
+      ),
+    );
+  }
 }
 
 class _ImageAlignButton extends StatefulWidget {
-  const _ImageAlignButton({
-    required this.node,
-    required this.state,
-  });
+  const _ImageAlignButton({required this.node, required this.state});
 
   final Node node;
   final CustomImageBlockComponentState state;
@@ -110,30 +135,28 @@ class _ImageAlignButton extends StatefulWidget {
   State<_ImageAlignButton> createState() => _ImageAlignButtonState();
 }
 
-const interceptorKey = 'image-align';
+const _interceptorKey = 'image-align';
 
 class _ImageAlignButtonState extends State<_ImageAlignButton> {
   final gestureInterceptor = SelectionGestureInterceptor(
-    key: interceptorKey,
+    key: _interceptorKey,
     canTap: (details) => false,
   );
 
   String get align =>
-      widget.node.attributes[ImageBlockKeys.align] ?? centerAlignmentKey;
+      widget.node.attributes[CustomImageBlockKeys.align] ?? centerAlignmentKey;
   final popoverController = PopoverController();
   late final EditorState editorState;
 
   @override
   void initState() {
     super.initState();
-
     editorState = context.read<EditorState>();
   }
 
   @override
   void dispose() {
     allowMenuClose();
-
     super.dispose();
   }
 
@@ -153,9 +176,7 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
         ),
         popupBuilder: (_) {
           preventMenuClose();
-          return _AlignButtons(
-            onAlignChanged: onAlignChanged,
-          );
+          return _AlignButtons(onAlignChanged: onAlignChanged);
         },
       ),
     );
@@ -165,9 +186,7 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
     popoverController.close();
 
     final transaction = editorState.transaction;
-    transaction.updateNode(widget.node, {
-      ImageBlockKeys.align: align,
-    });
+    transaction.updateNode(widget.node, {CustomImageBlockKeys.align: align});
     editorState.apply(transaction);
 
     allowMenuClose();
@@ -183,7 +202,7 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
   void allowMenuClose() {
     widget.state.alwaysShowMenu = false;
     editorState.service.selectionService.unregisterGestureInterceptor(
-      interceptorKey,
+      _interceptorKey,
     );
   }
 
@@ -201,9 +220,7 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
 }
 
 class _AlignButtons extends StatelessWidget {
-  const _AlignButtons({
-    required this.onAlignChanged,
-  });
+  const _AlignButtons({required this.onAlignChanged});
 
   final Function(String align) onAlignChanged;
 
@@ -246,10 +263,7 @@ class _Divider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
-      child: Container(
-        width: 1,
-        color: Colors.grey,
-      ),
+      child: Container(width: 1, color: Colors.grey),
     );
   }
 }

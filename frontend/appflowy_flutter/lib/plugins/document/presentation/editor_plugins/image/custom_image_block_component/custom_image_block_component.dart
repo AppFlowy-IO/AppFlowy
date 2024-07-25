@@ -4,52 +4,27 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/unsupport_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsupport_image_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
+import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 
+import '../common.dart';
+
 const kImagePlaceholderKey = 'imagePlaceholderKey';
-
-enum CustomImageType {
-  local,
-  internal, // the images saved in self-host cloud
-  external; // the images linked from network, like unsplash, https://xxx/yyy/zzz.jpg
-
-  static CustomImageType fromIntValue(int value) {
-    switch (value) {
-      case 0:
-        return CustomImageType.local;
-      case 1:
-        return CustomImageType.internal;
-      case 2:
-        return CustomImageType.external;
-      default:
-        throw UnimplementedError();
-    }
-  }
-
-  int toIntValue() {
-    switch (this) {
-      case CustomImageType.local:
-        return 0;
-      case CustomImageType.internal:
-        return 1;
-      case CustomImageType.external:
-        return 2;
-    }
-  }
-}
 
 class CustomImageBlockKeys {
   const CustomImageBlockKeys._();
@@ -82,6 +57,25 @@ class CustomImageBlockKeys {
   ///
   /// The value is a CustomImageType enum.
   static const String imageType = 'image_type';
+}
+
+Node customImageNode({
+  required String url,
+  String align = 'center',
+  double? height,
+  double? width,
+  CustomImageType type = CustomImageType.local,
+}) {
+  return Node(
+    type: CustomImageBlockKeys.type,
+    attributes: {
+      CustomImageBlockKeys.url: url,
+      CustomImageBlockKeys.align: align,
+      CustomImageBlockKeys.height: height,
+      CustomImageBlockKeys.width: width,
+      CustomImageBlockKeys.imageType: type.toIntValue(),
+    },
+  );
 }
 
 typedef CustomImageBlockComponentMenuBuilder = Widget Function(
@@ -182,7 +176,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
       );
     } else if (imageType != CustomImageType.internal &&
         !_checkIfURLIsValid(src)) {
-      child = const UnSupportImageWidget();
+      child = const UnsupportedImageWidget();
     } else {
       child = ResizableImage(
         src: src,
@@ -191,11 +185,22 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         editable: editorState.editable,
         alignment: alignment,
         type: imageType,
+        onDoubleTap: () => showDialog(
+          context: context,
+          builder: (_) => InteractiveImageViewer(
+            userProfile: context.read<DocumentBloc>().state.userProfilePB,
+            imageProvider: AFBlockImageProvider(
+              images: [ImageBlockData(url: src, type: imageType)],
+              onDeleteImage: (_) async {
+                final transaction = editorState.transaction..deleteNode(node);
+                await editorState.apply(transaction);
+              },
+            ),
+          ),
+        ),
         onResize: (width) {
           final transaction = editorState.transaction
-            ..updateNode(node, {
-              CustomImageBlockKeys.width: width,
-            });
+            ..updateNode(node, {CustomImageBlockKeys.width: width});
           editorState.apply(transaction);
         },
       );
@@ -207,21 +212,11 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         delegate: this,
         listenable: editorState.selectionNotifier,
         blockColor: editorState.editorStyle.selectionColor,
-        supportTypes: const [
-          BlockSelectionType.block,
-        ],
-        child: Padding(
-          key: imageKey,
-          padding: padding,
-          child: child,
-        ),
+        supportTypes: const [BlockSelectionType.block],
+        child: Padding(key: imageKey, padding: padding, child: child),
       );
     } else {
-      child = Padding(
-        key: imageKey,
-        padding: padding,
-        child: child,
-      );
+      child = Padding(key: imageKey, padding: padding, child: child);
     }
 
     if (widget.showActions && widget.actionBuilder != null) {
@@ -246,7 +241,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
           opaque: false,
           child: ValueListenableBuilder<bool>(
             valueListenable: showActionsNotifier,
-            builder: (context, value, child) {
+            builder: (_, value, child) {
               final url = node.attributes[CustomImageBlockKeys.url];
               return Stack(
                 children: [
@@ -259,10 +254,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
                     child: child!,
                   ),
                   if (value && url.isNotEmpty == true)
-                    widget.menuBuilder!(
-                      widget.node,
-                      this,
-                    ),
+                    widget.menuBuilder!(widget.node, this),
                 ],
               );
             },
