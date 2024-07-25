@@ -55,8 +55,7 @@ jobs:
       CI: true
 
     steps:
-      - name: Maximize build space (ubuntu only)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Maximize build space
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -96,15 +95,7 @@ jobs:
           path: frontend/appflowy_web_app/node_modules
           key: node-modules-${{ runner.os }}
 
-      - name: install dependencies (windows only)
-        if: matrix.os == 'windows-latest'
-        working-directory: frontend
-        run: |
-          cargo install --force duckscript_cli
-          vcpkg integrate install
-
-      - name: install dependencies (ubuntu only)
-        if: matrix.os == 'ubuntu-latest'
+      - name: install dependencies
         working-directory: frontend
         run: |
           sudo apt-get update
