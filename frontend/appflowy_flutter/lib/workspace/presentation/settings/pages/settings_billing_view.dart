@@ -213,6 +213,7 @@ class _SettingsBillingViewState extends State<SettingsBillingView> {
                       const SettingsDashedDivider(),
 
                       // Currently, the AI Local tile is only available on macOS
+                      // TODO(nathan): enable windows and linux
                       if (Platform.isMacOS)
                         _AITile(
                           plan: SubscriptionPlanPB.AiLocal,

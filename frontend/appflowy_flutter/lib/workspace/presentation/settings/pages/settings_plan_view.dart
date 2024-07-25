@@ -140,6 +140,7 @@ class _SettingsPlanViewState extends State<SettingsPlanView> {
                     const HSpace(8),
 
                     // Currently, the AI Local tile is only available on macOS
+                    // TODO(nathan): enable windows and linux
                     if (Platform.isMacOS)
                       Flexible(
                         child: _AddOnBox(
@@ -153,7 +154,7 @@ class _SettingsPlanViewState extends State<SettingsPlanView> {
                               .settings_planPage_planUsage_addons_aiOnDevice_price
                               .tr(
                             args: [
-                              SubscriptionPlanPB.AiLocal.priceAnnualBilling
+                              SubscriptionPlanPB.AiLocal.priceAnnualBilling,
                             ],
                           ),
                           priceInfo: LocaleKeys
@@ -163,7 +164,7 @@ class _SettingsPlanViewState extends State<SettingsPlanView> {
                               .settings_planPage_planUsage_addons_aiOnDevice_billingInfo
                               .tr(
                             args: [
-                              SubscriptionPlanPB.AiLocal.priceMonthBilling
+                              SubscriptionPlanPB.AiLocal.priceMonthBilling,
                             ],
                           ),
                           buttonText: state.subscriptionInfo.hasAIOnDevice
