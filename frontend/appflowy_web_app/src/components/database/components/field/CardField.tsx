@@ -21,7 +21,7 @@ function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: 
       textAlign: 'left',
     };
 
-    if ([FieldType.Relation, FieldType.SingleSelect, FieldType.MultiSelect].includes(Number(type))) {
+    if (isPrimary || [FieldType.Relation, FieldType.SingleSelect, FieldType.MultiSelect].includes(Number(type))) {
       Object.assign(styleProperties, {
         breakWord: 'break-word',
         whiteSpace: 'normal',
