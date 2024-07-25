@@ -125,7 +125,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
               return child;
             },
           )
-        : child;
+        : SafeArea(child: child);
     return Scaffold(
       extendBodyBehindAppBar: isDocument,
       appBar: appBar,
