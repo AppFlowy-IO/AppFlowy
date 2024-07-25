@@ -60,8 +60,6 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
   late List<ImageBlockData> images;
   late final EditorState editorState;
 
-  int selectedIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -69,21 +67,13 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
     images = MultiImageData.fromJson(
       widget.node.attributes[MultiImageBlockKeys.images] ?? {},
     ).images;
-    widget.indexNotifier.addListener(onIndexChanged);
   }
 
   @override
   void dispose() {
     allowMenuClose();
     controller.close();
-    widget.indexNotifier.removeListener(onIndexChanged);
     super.dispose();
-  }
-
-  void onIndexChanged() {
-    setState(() {
-      selectedIndex = widget.indexNotifier.value;
-    });
   }
 
   @override
@@ -153,7 +143,7 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
           ),
           // disable the copy link button if the image is hosted on appflowy cloud
           // because the url needs the verification token to be accessible
-          if (!images[selectedIndex].url.isAppFlowyCloudUrl) ...[
+          if (!images[widget.indexNotifier.value].url.isAppFlowyCloudUrl) ...[
             const HSpace(4),
             MenuBlockButton(
               tooltip: LocaleKeys.editor_copyLink.tr(),
@@ -174,7 +164,9 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
   }
 
   void copyImageLink() {
-    Clipboard.setData(ClipboardData(text: images[selectedIndex].url));
+    Clipboard.setData(
+      ClipboardData(text: images[widget.indexNotifier.value].url),
+    );
     showSnackBarMessage(
       context,
       LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
@@ -197,11 +189,11 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
         userProfile: context.read<DocumentBloc>().state.userProfilePB,
         imageProvider: AFBlockImageProvider(
           images: images,
-          initialIndex: selectedIndex,
-          onDeleteImage: () async {
+          initialIndex: widget.indexNotifier.value,
+          onDeleteImage: (index) async {
             final transaction = editorState.transaction;
             final newImages = List<ImageBlockData>.from(images);
-            newImages.removeAt(selectedIndex);
+            newImages.removeAt(index);
 
             images = newImages;
             widget.onImageDeleted();
@@ -244,11 +236,8 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
       }
 
       final transaction = editorState.transaction;
-      final newImages = await extractAndUploadImages(
-        context,
-        urls,
-        widget.isLocalMode,
-      );
+      final newImages =
+          await extractAndUploadImages(context, urls, widget.isLocalMode);
       if (newImages.isEmpty) {
         return;
       }

@@ -191,7 +191,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
             userProfile: context.read<DocumentBloc>().state.userProfilePB,
             imageProvider: AFBlockImageProvider(
               images: [ImageBlockData(url: src, type: imageType)],
-              onDeleteImage: () async {
+              onDeleteImage: (_) async {
                 final transaction = editorState.transaction..deleteNode(node);
                 await editorState.apply(transaction);
               },

@@ -12,7 +12,7 @@ abstract class AFImageProvider {
   /// Provide this callback if you want it to be possible to
   /// delete the Image through the [InteractiveImageViewer].
   ///
-  final VoidCallback? onDeleteImage;
+  final Function(int index)? onDeleteImage;
 
   int get imageCount;
   int get initialIndex;
@@ -35,7 +35,7 @@ class AFBlockImageProvider implements AFImageProvider {
   final List<ImageBlockData> images;
 
   @override
-  final VoidCallback onDeleteImage;
+  final Function(int) onDeleteImage;
 
   @override
   final int initialIndex;

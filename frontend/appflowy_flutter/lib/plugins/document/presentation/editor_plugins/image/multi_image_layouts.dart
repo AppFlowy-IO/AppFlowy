@@ -62,29 +62,13 @@ class ImageBrowserLayout extends ImageBlockMultiLayout {
 }
 
 class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
-  int _selectedIndex = 0;
-
   UserProfilePB? _userProfile;
-
   bool isDraggingFiles = false;
 
   @override
   void initState() {
     super.initState();
     _userProfile = context.read<DocumentBloc>().state.userProfilePB;
-    widget.indexNotifier.addListener(onIndexChanged);
-  }
-
-  @override
-  void dispose() {
-    widget.indexNotifier.removeListener(onIndexChanged);
-    super.dispose();
-  }
-
-  void onIndexChanged() {
-    setState(
-      () => _selectedIndex = widget.indexNotifier.value,
-    );
   }
 
   @override
@@ -100,7 +84,7 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
               child: GestureDetector(
                 onDoubleTap: () => _openInteractiveViewer(context),
                 child: _ImageRender(
-                  image: widget.images[_selectedIndex],
+                  image: widget.images[widget.indexNotifier.value],
                   userProfile: _userProfile,
                   fit: BoxFit.contain,
                 ),
@@ -188,14 +172,11 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                     return MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
-                        onTap: () => setState(() {
-                          _selectedIndex = index;
-                          widget.onIndexChanged(_selectedIndex);
-                        }),
+                        onTap: () => widget.onIndexChanged(index),
                         child: _ThumbnailItem(
                           images: widget.images,
                           index: index,
-                          selectedIndex: _selectedIndex,
+                          selectedIndex: widget.indexNotifier.value,
                           userProfile: _userProfile,
                           onDeleted: () async {
                             final transaction = widget.editorState.transaction;
@@ -215,12 +196,11 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
 
                             await widget.editorState.apply(transaction);
 
-                            setState(() {
-                              if (_selectedIndex > 0) {
-                                _selectedIndex--;
-                              }
-                              widget.onIndexChanged(_selectedIndex);
-                            });
+                            widget.onIndexChanged(
+                              widget.indexNotifier.value > 0
+                                  ? widget.indexNotifier.value - 1
+                                  : 0,
+                            );
                           },
                         ),
                       ),
@@ -295,17 +275,17 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
           userProfile: _userProfile,
           imageProvider: AFBlockImageProvider(
             images: widget.images,
-            initialIndex: index ?? _selectedIndex,
-            onDeleteImage: () async {
+            initialIndex: index ?? widget.indexNotifier.value,
+            onDeleteImage: (index) async {
               final transaction = widget.editorState.transaction;
               final newImages = widget.images.toList();
-              newImages.removeAt(_selectedIndex);
+              newImages.removeAt(index);
 
-              setState(
-                () => _selectedIndex =
-                    _selectedIndex != 0 ? _selectedIndex - 1 : 0,
+              widget.onIndexChanged(
+                widget.indexNotifier.value > 0
+                    ? widget.indexNotifier.value - 1
+                    : 0,
               );
-              widget.onIndexChanged(_selectedIndex);
 
               if (newImages.isNotEmpty) {
                 transaction.updateNode(
@@ -332,8 +312,9 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
       return;
     }
 
+    final isLocalMode = context.read<DocumentBloc>().isLocalMode;
     final transaction = widget.editorState.transaction;
-    final images = await extractAndUploadImages(context, urls, false);
+    final images = await extractAndUploadImages(context, urls, isLocalMode);
     if (images.isEmpty) {
       return;
     }
