@@ -353,6 +353,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           },
           child: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
         ),
+        dropTargetStyle: AppFlowyDropTargetStyle(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+          margin: const EdgeInsets.only(left: 44),
+        ),
       ),
     );
 

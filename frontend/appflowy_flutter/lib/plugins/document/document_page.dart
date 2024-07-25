@@ -6,7 +6,10 @@ import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -16,9 +19,16 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+const _excludeFromDropTarget = [
+  ImageBlockKeys.type,
+  CustomImageBlockKeys.type,
+  MultiImageBlockKeys.type,
+];
 
 class DocumentPage extends StatefulWidget {
   const DocumentPage({
@@ -125,15 +135,62 @@ class _DocumentPageState extends State<DocumentPage>
         },
       );
     } else {
-      child = AppFlowyEditorPage(
-        editorState: state.editorState!,
-        styleCustomizer: EditorStyleCustomizer(
-          context: context,
-          // the 44 is the width of the left action list
-          padding: EditorStyleCustomizer.documentPadding,
+      child = DropTarget(
+        onDragExited: (_) =>
+            state.editorState!.selectionService.removeDropTarget(),
+        onDragUpdated: (details) {
+          final data = state.editorState!.selectionService
+              .getDropTargetRenderData(details.globalPosition);
+
+          if (data != null &&
+              data.dropTarget != null &&
+
+              // We implement custom Drop logic for image blocks, this is
+              // how we can exclude them from the Drop Target
+              !_excludeFromDropTarget.contains(data.cursorNode?.type)) {
+            // Render the drop target
+            state.editorState!.selectionService
+                .renderDropTargetForOffset(details.globalPosition);
+          } else {
+            state.editorState!.selectionService.removeDropTarget();
+          }
+        },
+        onDragDone: (details) async {
+          state.editorState!.selectionService.removeDropTarget();
+
+          final data = state.editorState!.selectionService
+              .getDropTargetRenderData(details.globalPosition);
+
+          if (data != null) {
+            if (data.cursorNode != null) {
+              if ([
+                ImageBlockKeys.type,
+                CustomImageBlockKeys.type,
+                MultiImageBlockKeys.type,
+              ].contains(data.cursorNode?.type)) {
+                return;
+              }
+
+              final isLocalMode = context.read<DocumentBloc>().isLocalMode;
+              await editorState!.dropImages(
+                data.dropTarget!,
+                details.files,
+                widget.view.id,
+                isLocalMode,
+              );
+            }
+          }
+        },
+        child: AppFlowyEditorPage(
+          editorState: state.editorState!,
+          styleCustomizer: EditorStyleCustomizer(
+            context: context,
+            // the 44 is the width of the left action list
+            padding: EditorStyleCustomizer.documentPadding,
+          ),
+          header: _buildCoverAndIcon(context, state),
+          initialSelection: widget.initialSelection,
         ),
-        header: _buildCoverAndIcon(context, state),
-        initialSelection: widget.initialSelection,
       );
     }
 
