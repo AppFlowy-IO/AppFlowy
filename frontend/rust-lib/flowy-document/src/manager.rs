@@ -151,7 +151,6 @@ impl DocumentManager {
     }
   }
 
-  #[tracing::instrument(level = "info", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
       return Ok(doc);
