@@ -142,9 +142,12 @@ dependencies:
   shimmer: ^3.0.0
   isolates: ^3.0.3+8
   markdown_widget: ^2.3.2+6
-  desktop_drop: ^0.4.4
   markdown:
   logger: ^2.4.0
+
+  # Desktop Drop uses Cross File (XFile) data type
+  desktop_drop: ^0.4.4
+  cross_file: ^0.3.4+1
 
   # Window Manager for MacOS and Linux
   window_manager: ^0.3.9
@@ -191,7 +194,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "61d4363"
+      ref: "819e579"
 
   appflowy_editor_plugins:
     git:
