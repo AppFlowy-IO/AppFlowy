@@ -1,3 +1,4 @@
+import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
 import 'package:flutter/material.dart';
 
 import 'colorscheme.dart';
@@ -83,7 +84,7 @@ class LemonadeColorScheme extends FlowyColorScheme {
           toggleButtonBGColor: _lightDandelionYellow,
           calendarWeekendBGColor: const Color(0xFFFBFBFC),
           gridRowCountColor: _black,
-          borderColor: const Color(0xFFEDEDEE),
+          borderColor: ColorSchemeConstants.lightBorderColor,
           scrollbarColor: const Color(0x3F171717),
           scrollbarHoverColor: const Color(0x7F171717),
         );
@@ -140,7 +141,7 @@ class LemonadeColorScheme extends FlowyColorScheme {
           toggleButtonBGColor: _darkShader1,
           calendarWeekendBGColor: const Color(0xff121212),
           gridRowCountColor: _darkMain1,
-          borderColor: const Color(0xFF3A3F49),
+          borderColor: ColorSchemeConstants.darkBorderColor,
           scrollbarColor: const Color(0x40FFFFFF),
           scrollbarHoverColor: const Color(0x80FFFFFF),
         );

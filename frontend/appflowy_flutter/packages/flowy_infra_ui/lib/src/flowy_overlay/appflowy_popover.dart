@@ -1,5 +1,5 @@
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
 import 'package:flutter/material.dart';
 
 class AppFlowyPopover extends StatelessWidget {
@@ -123,7 +123,9 @@ extension on BuildContext {
     Color? color,
     BorderRadius? borderRadius,
   }) {
-    final borderColor = AFThemeExtension.of(this).borderColor;
+    final borderColor = Theme.of(this).brightness == Brightness.light
+        ? ColorSchemeConstants.lightBorderColor
+        : ColorSchemeConstants.darkBorderColor;
     final shadows = [
       const BoxShadow(
         color: Color(0x0A1F2329),
