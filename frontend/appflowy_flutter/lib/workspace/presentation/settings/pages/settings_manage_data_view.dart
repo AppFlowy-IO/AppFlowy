@@ -1,8 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -29,6 +26,8 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -72,6 +71,7 @@ class SettingsManageDataView extends StatelessWidget {
                         description: LocaleKeys
                             .settings_manageDataPage_dataStorage_resetDialog_description
                             .tr(),
+                        confirmLabel: LocaleKeys.button_confirm.tr(),
                         onConfirm: () async {
                           final directory =
                               await appFlowyApplicationDataDirectory();

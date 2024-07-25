@@ -51,7 +51,7 @@ void main() {
       await tester.tapButtonWithName(LocaleKeys.button_ok.tr());
 
       // Go to the sign in page again
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       tester.expectToSeeGoogleLoginButton();
     });
 
