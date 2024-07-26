@@ -30,6 +30,7 @@ class _AnimatedGestureDetectorState extends State<AnimatedGestureDetector> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTapUp: (details) {
         setState(() => scale = 1.0);
 

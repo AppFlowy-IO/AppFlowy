@@ -50,18 +50,7 @@ class _MobileSpaceState extends State<MobileSpace> {
             MobileSpaceHeader(
               isExpanded: state.isExpanded,
               space: currentSpace,
-              onAdded: () {
-                context.read<SpaceBloc>().add(
-                      SpaceEvent.createPage(
-                        name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                        layout: ViewLayoutPB.Document,
-                        index: 0,
-                      ),
-                    );
-                context.read<SpaceBloc>().add(
-                      SpaceEvent.expand(currentSpace, true),
-                    );
-              },
+              onAdded: () => _showCreatePageMenu(currentSpace),
               onPressed: () => _showSpaceMenu(context),
             ),
             Padding(
@@ -109,6 +98,38 @@ class _MobileSpaceState extends State<MobileSpace> {
             layout: ViewLayoutPB.Document,
           ),
         );
+  }
+
+  void _showCreatePageMenu(ViewPB space) {
+    final title = space.name;
+    showMobileBottomSheet(
+      context,
+      showHeader: true,
+      title: title,
+      showDragHandle: true,
+      showCloseButton: true,
+      useRootNavigator: true,
+      showDivider: false,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      builder: (sheetContext) {
+        return AddNewPageWidgetBottomSheet(
+          view: space,
+          onAction: (layout) {
+            Navigator.of(sheetContext).pop();
+            context.read<SpaceBloc>().add(
+                  SpaceEvent.createPage(
+                    name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                    layout: layout,
+                    index: 0,
+                  ),
+                );
+            context.read<SpaceBloc>().add(
+                  SpaceEvent.expand(space, true),
+                );
+          },
+        );
+      },
+    );
   }
 }
 

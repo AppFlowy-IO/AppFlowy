@@ -55,6 +55,7 @@ class MobileSpaceHeader extends StatelessWidget {
                 // expand the touch area
                 margin: const EdgeInsets.symmetric(
                   horizontal: HomeSpaceViewSizes.mHorizontalPadding,
+                  vertical: 8.0,
                 ),
                 child: const FlowySvg(
                   FlowySvgs.m_space_add_s,
