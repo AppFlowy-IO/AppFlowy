@@ -48,7 +48,7 @@ class ViewExtKeys {
 }
 
 extension ViewExtension on ViewPB {
-  Widget defaultIcon() => FlowySvg(
+  Widget defaultIcon({Size? size}) => FlowySvg(
         switch (layout) {
           ViewLayoutPB.Board => FlowySvgs.icon_board_s,
           ViewLayoutPB.Calendar => FlowySvgs.icon_calendar_s,
@@ -57,6 +57,7 @@ extension ViewExtension on ViewPB {
           ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
           _ => FlowySvgs.document_s,
         },
+        size: size,
       );
 
   PluginType get pluginType => switch (layout) {
