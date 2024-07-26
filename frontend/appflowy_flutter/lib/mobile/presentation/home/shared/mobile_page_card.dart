@@ -215,7 +215,7 @@ class MobileViewPage extends StatelessWidget {
 
   Widget _buildLastViewed(BuildContext context) {
     final textColor = Theme.of(context).isLightMode
-        ? const Color(0xFF171717)
+        ? const Color(0x7F171717)
         : Colors.white.withOpacity(0.45);
     if (timestamp == null) {
       return const SizedBox.shrink();
