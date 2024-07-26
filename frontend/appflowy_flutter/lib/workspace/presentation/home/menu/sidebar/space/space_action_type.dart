@@ -36,24 +36,24 @@ extension ViewMoreActionTypeExtension on SpaceMoreActionType {
     }
   }
 
-  Widget get leftIcon {
+  FlowySvgData get leftIconSvg {
     switch (this) {
       case SpaceMoreActionType.delete:
-        return const FlowySvg(FlowySvgs.trash_s, blendMode: null);
+        return FlowySvgs.trash_s;
       case SpaceMoreActionType.rename:
-        return const FlowySvg(FlowySvgs.view_item_rename_s);
+        return FlowySvgs.view_item_rename_s;
       case SpaceMoreActionType.changeIcon:
-        return const FlowySvg(FlowySvgs.change_icon_s);
+        return FlowySvgs.change_icon_s;
       case SpaceMoreActionType.collapseAllPages:
-        return const FlowySvg(FlowySvgs.collapse_all_page_s);
+        return FlowySvgs.collapse_all_page_s;
       case SpaceMoreActionType.addNewSpace:
-        return const FlowySvg(FlowySvgs.space_add_s);
+        return FlowySvgs.space_add_s;
       case SpaceMoreActionType.manage:
-        return const FlowySvg(FlowySvgs.space_manage_s);
+        return FlowySvgs.space_manage_s;
       case SpaceMoreActionType.duplicate:
-        return const FlowySvg(FlowySvgs.duplicate_s);
+        return FlowySvgs.duplicate_s;
       case SpaceMoreActionType.divider:
-        return const SizedBox.shrink();
+        throw UnsupportedError('Divider does not have an icon');
     }
   }
 

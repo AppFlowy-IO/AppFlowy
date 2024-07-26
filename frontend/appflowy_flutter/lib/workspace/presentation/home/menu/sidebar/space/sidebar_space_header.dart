@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/manage_space_popup.dart';
@@ -105,20 +104,17 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
   }
 
   Widget _buildChild() {
-    final color = Theme.of(context).isLightMode ? Colors.white : Colors.black;
     final textSpan = TextSpan(
       children: [
         TextSpan(
           text: '${LocaleKeys.space_quicklySwitch.tr()}\n',
-          style:
-              Theme.of(context).tooltipTheme.textStyle!.copyWith(color: color),
+          style: context.tooltipTextStyle(),
         ),
         TextSpan(
           text: Platform.isMacOS ? '⌘+O' : 'Ctrl+O',
-          style: Theme.of(context)
-              .tooltipTheme
-              .textStyle!
-              .copyWith(color: Theme.of(context).hintColor),
+          style: context
+              .tooltipTextStyle()
+              ?.copyWith(color: Theme.of(context).hintColor),
         ),
       ],
     );

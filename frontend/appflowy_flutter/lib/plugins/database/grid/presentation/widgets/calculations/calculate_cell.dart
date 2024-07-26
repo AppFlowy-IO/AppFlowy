@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
@@ -16,6 +14,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalculateCell extends StatefulWidget {
@@ -141,11 +140,14 @@ class _CalculateCellState extends State<CalculateCell> {
                 TextSpan(
                   text: widget.calculation!.calculationType.shortLabel
                       .toUpperCase(),
+                  style: context.tooltipTextStyle(),
                 ),
                 const TextSpan(text: ' '),
                 TextSpan(
                   text: calculateValue,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
+                  style: context
+                      .tooltipTextStyle()
+                      ?.copyWith(fontWeight: FontWeight.w500),
                 ),
               ],
             ),

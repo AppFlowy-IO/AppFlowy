@@ -8,6 +8,7 @@ class FlowyDecoration {
     double blurRadius = 20,
     Offset offset = Offset.zero,
     double borderRadius = 6,
+    BoxBorder? border,
   }) {
     return BoxDecoration(
       color: boxColor,
@@ -20,6 +21,7 @@ class FlowyDecoration {
           offset: offset,
         ),
       ],
+      border: border,
     );
   }
 }
