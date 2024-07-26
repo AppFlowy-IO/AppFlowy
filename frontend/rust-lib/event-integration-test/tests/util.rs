@@ -34,7 +34,7 @@ use flowy_user_pub::cloud::UserCloudService;
 use flowy_user_pub::entities::Authenticator;
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
-  dotenv::from_path(".env.ci").ok()?;
+  dotenvy::from_path(".env.ci").ok()?;
   SupabaseConfiguration::from_env().ok()
 }
 
@@ -80,13 +80,13 @@ pub async fn receive_with_timeout<T>(mut receiver: Receiver<T>, duration: Durati
 }
 
 pub fn get_supabase_ci_config() -> Option<SupabaseConfiguration> {
-  dotenv::from_filename("./.env.ci").ok()?;
+  dotenvy::from_filename("./.env.ci").ok()?;
   SupabaseConfiguration::from_env().ok()
 }
 
 #[allow(dead_code)]
 pub fn get_supabase_dev_config() -> Option<SupabaseConfiguration> {
-  dotenv::from_filename("./.env.dev").ok()?;
+  dotenvy::from_filename("./.env.dev").ok()?;
   SupabaseConfiguration::from_env().ok()
 }
 
