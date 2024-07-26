@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/gesture.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_setting_page.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/workspace_menu_bottom_sheet.dart';
@@ -113,8 +114,9 @@ class _MobileWorkspace extends StatelessWidget {
         if (currentWorkspace == null) {
           return const SizedBox.shrink();
         }
-        return GestureDetector(
-          onTap: () {
+        return AnimatedGestureDetector(
+          alignment: Alignment.centerLeft,
+          onTapUp: () {
             context.read<UserWorkspaceBloc>().add(
                   const UserWorkspaceEvent.fetchWorkspaces(),
                 );
