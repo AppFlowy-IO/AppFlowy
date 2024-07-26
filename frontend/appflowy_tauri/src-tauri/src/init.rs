@@ -3,7 +3,7 @@ use flowy_core::{AppFlowyCore, DEFAULT_NAME};
 use lib_dispatch::runtime::AFPluginRuntime;
 use std::sync::Arc;
 
-use dotenv::dotenv;
+use dotenvy::dotenv;
 
 pub fn read_env() {
   dotenv().ok();

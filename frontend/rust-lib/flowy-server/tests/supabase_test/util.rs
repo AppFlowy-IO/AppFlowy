@@ -23,14 +23,14 @@ use lib_infra::future::FutureResult;
 use crate::setup_log;
 
 pub fn get_supabase_ci_config() -> Option<SupabaseConfiguration> {
-  dotenv::from_filename("./.env.ci").ok()?;
+  dotenvy::from_filename("./.env.ci").ok()?;
   setup_log();
   SupabaseConfiguration::from_env().ok()
 }
 
 #[allow(dead_code)]
 pub fn get_supabase_dev_config() -> Option<SupabaseConfiguration> {
-  dotenv::from_filename("./.env.dev").ok()?;
+  dotenvy::from_filename("./.env.dev").ok()?;
   setup_log();
   SupabaseConfiguration::from_env().ok()
 }

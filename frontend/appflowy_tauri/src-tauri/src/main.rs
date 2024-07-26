@@ -16,7 +16,7 @@ use init::*;
 use notification::*;
 use request::*;
 use tauri::Manager;
-extern crate dotenv;
+extern crate dotenvy;
 
 fn main() {
   tauri_plugin_deep_link::prepare(DEEP_LINK_SCHEME);
