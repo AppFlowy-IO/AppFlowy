@@ -66,9 +66,9 @@ features = [
 [dev-dependencies]
 uuid.workspace = true
 tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
-dotenv = "0.15.0"
 assert-json-diff = "2.0.2"
 serde_json.workspace = true
+dotenvy = "0.15.7"
 
 [features]
 enable_supabase = ["collab-plugins/postgres_plugin"]

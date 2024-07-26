@@ -43,7 +43,6 @@ flowy-ast = { workspace = true, path = "build-tool/flowy-ast" }
 flowy-codegen = { workspace = true, path = "build-tool/flowy-codegen" }
 flowy-derive = { workspace = true, path = "build-tool/flowy-derive" }
 flowy-core = { workspace = true, path = "flowy-core" }
-dart-ffi = { workspace = true, path = "dart-ffi" }
 flowy-user = { workspace = true, path = "flowy-user" }
 flowy-user-pub = { workspace = true, path = "flowy-user-pub" }
 flowy-sqlite = { workspace = true, path = "flowy-sqlite" }

@@ -49,8 +49,6 @@ rand = { version = "0.8.5", features = [] }
 strum = "0.25.0"
 
 [dev-dependencies]
-dotenv = "0.15.0"
-tempdir = "0.3.7"
 uuid.workspace = true
 assert-json-diff = "2.0.2"
 tokio-postgres = { version = "0.7.8" }
@@ -59,6 +57,8 @@ zip.workspace = true
 walkdir = "2.5.0"
 futures = "0.3.30"
 flowy-chat-pub = { workspace = true }
+dotenvy = "0.15.7"
+tempfile = "3.10.1"
 
 [features]
 default = ["supabase_cloud_test"]

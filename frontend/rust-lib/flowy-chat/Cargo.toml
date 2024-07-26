@@ -45,10 +45,10 @@ zip = { workspace = true, features = ["deflate"] }
 zip-extensions = "0.8.0"
 
 [dev-dependencies]
-dotenv = "0.15.0"
 uuid.workspace = true
 tracing-subscriber = { version = "0.3.17", features = ["registry", "env-filter", "ansi", "json"] }
 simsimd = "4.4.0"
+dotenvy = "0.15.7"
 
 [build-dependencies]
 flowy-codegen.workspace = true
