@@ -37,15 +37,10 @@ class DownloadingIndicator extends StatelessWidget {
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                // const DownloadingPrompt(),
-                // const VSpace(12),
-                DownloadingProgressBar(onCancel: onCancel),
-              ],
-            ),
+          child: Column(
+            children: [
+              DownloadingProgressBar(onCancel: onCancel),
+            ],
           ),
         ),
       ),
@@ -65,9 +60,12 @@ class DownloadingProgressBar extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FlowyText(
-              "${LocaleKeys.settings_aiPage_keys_downloadingModel.tr()}: ${state.object}",
-              fontSize: 11,
+            Opacity(
+              opacity: 0.6,
+              child: FlowyText(
+                "${LocaleKeys.settings_aiPage_keys_downloadingModel.tr()}: ${state.object}",
+                fontSize: 11,
+              ),
             ),
             IntrinsicHeight(
               child: Row(

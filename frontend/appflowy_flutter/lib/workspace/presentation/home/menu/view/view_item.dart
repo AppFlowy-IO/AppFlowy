@@ -491,6 +491,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     final name = FlowyText.regular(
       widget.view.name,
       overflow: TextOverflow.ellipsis,
+      // figmaLineHeight: 18.0,
     );
     final children = [
       const HSpace(2),

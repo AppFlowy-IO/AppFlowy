@@ -1,5 +1,7 @@
 import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -71,7 +73,8 @@ class AIChatPage extends StatelessWidget {
       return MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (_) => ChatFileBloc(chatId: view.id.toString()),
+            create: (_) => ChatFileBloc(chatId: view.id.toString())
+              ..add(const ChatFileEvent.initial()),
           ),
           BlocProvider(
             create: (_) => ChatBloc(
@@ -81,28 +84,40 @@ class AIChatPage extends StatelessWidget {
           ),
           BlocProvider(create: (_) => ChatInputBloc()),
         ],
-        child: BlocBuilder<ChatFileBloc, ChatFileState>(
-          builder: (context, state) {
-            Widget child = _ChatContentPage(
-              view: view,
-              userProfile: userProfile,
-            );
-
-            // If the chat supports file upload, wrap the chat content with a drop target
-            if (state.supportChatWithFile) {
-              child = DropTarget(
+        child: BlocListener<ChatFileBloc, ChatFileState>(
+          listenWhen: (previous, current) =>
+              previous.indexFileIndicator != current.indexFileIndicator,
+          listener: (context, state) {
+            _handleIndexIndicator(state.indexFileIndicator, context);
+          },
+          child: BlocBuilder<ChatFileBloc, ChatFileState>(
+            builder: (context, state) {
+              return DropTarget(
                 onDragDone: (DropDoneDetails detail) async {
-                  for (final file in detail.files) {
-                    context
-                        .read<ChatFileBloc>()
-                        .add(ChatFileEvent.newFile(file.path));
+                  if (state.supportChatWithFile) {
+                    await showConfirmDialog(
+                      context: context,
+                      style: ConfirmPopupStyle.cancelAndOk,
+                      title: LocaleKeys.chat_chatWithFilePrompt.tr(),
+                      confirmLabel: LocaleKeys.button_confirm.tr(),
+                      onConfirm: () {
+                        for (final file in detail.files) {
+                          context
+                              .read<ChatFileBloc>()
+                              .add(ChatFileEvent.newFile(file.path, file.name));
+                        }
+                      },
+                      description: '',
+                    );
                   }
                 },
-                child: child,
+                child: _ChatContentPage(
+                  view: view,
+                  userProfile: userProfile,
+                ),
               );
-            }
-            return child;
-          },
+            },
+          ),
         ),
       );
     }
@@ -113,6 +128,35 @@ class AIChatPage extends StatelessWidget {
         fontSize: 20,
       ),
     );
+  }
+
+  void _handleIndexIndicator(
+    IndexFileIndicator? indicator,
+    BuildContext context,
+  ) {
+    if (indicator != null) {
+      indicator.when(
+        finish: (fileName) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.chat_indexFileSuccess.tr(args: [fileName]),
+          );
+        },
+        indexing: (fileName) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.chat_indexingFile.tr(args: [fileName]),
+            duration: const Duration(seconds: 2),
+          );
+        },
+        error: (err) {
+          showSnackBarMessage(
+            context,
+            err,
+          );
+        },
+      );
+    }
   }
 }
 

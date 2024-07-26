@@ -12,7 +12,7 @@ use crate::entities::*;
 use crate::local_ai::local_llm_chat::LLMModelInfo;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use crate::tools::AITools;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::isolate_stream::IsolateSink;
 
@@ -87,9 +87,15 @@ pub(crate) async fn get_related_question_handler(
 ) -> DataResult<RepeatedRelatedQuestionPB, FlowyError> {
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let data = data.into_inner();
-  let messages = chat_manager
-    .get_related_questions(&data.chat_id, data.message_id)
-    .await?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  tokio::spawn(async move {
+    let messages = chat_manager
+      .get_related_questions(&data.chat_id, data.message_id)
+      .await?;
+    let _ = tx.send(messages);
+    Ok::<_, FlowyError>(())
+  });
+  let messages = rx.await?;
   data_result_ok(messages)
 }
 
@@ -202,6 +208,25 @@ pub(crate) async fn chat_file_handler(
 ) -> Result<(), FlowyError> {
   let data = data.try_into_inner()?;
   let file_path = PathBuf::from(&data.file_path);
+
+  let allowed_extensions = ["pdf", "md", "txt"];
+  let extension = file_path
+    .extension()
+    .and_then(|ext| ext.to_str())
+    .ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::UnsupportedFileFormat,
+        "Can't find file extension",
+      )
+    })?;
+
+  if !allowed_extensions.contains(&extension) {
+    return Err(FlowyError::new(
+      ErrorCode::UnsupportedFileFormat,
+      "Only support pdf,md and txt",
+    ));
+  }
+
   let (tx, rx) = oneshot::channel::<Result<(), FlowyError>>();
   tokio::spawn(async move {
     let chat_manager = upgrade_chat_manager(chat_manager)?;
@@ -337,4 +362,15 @@ pub(crate) async fn get_local_ai_state_handler(
   let chat_manager = upgrade_chat_manager(chat_manager)?;
   let enabled = chat_manager.local_ai_controller.is_enabled();
   data_result_ok(LocalAIPB { enabled })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_model_storage_directory_handler(
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> DataResult<LocalModelStoragePB, FlowyError> {
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let file_path = chat_manager
+    .local_ai_controller
+    .get_model_storage_directory()?;
+  data_result_ok(LocalModelStoragePB { file_path })
 }

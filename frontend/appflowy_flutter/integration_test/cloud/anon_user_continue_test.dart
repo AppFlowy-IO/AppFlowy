@@ -42,7 +42,7 @@ void main() {
       await tester.tapAnonymousSignInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
 
-      // reanme the name of the anon user
+      // rename the name of the anon user
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.account);
       await tester.pumpAndSettle();

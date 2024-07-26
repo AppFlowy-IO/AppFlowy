@@ -66,15 +66,13 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     })
   }
 
-  fn get_related_message(
+  async fn get_related_message(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
     _message_id: i64,
-  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
-    })
+  ) -> Result<RepeatedRelatedQuestion, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
   async fn generate_answer(

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -67,8 +68,20 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
             break;
         }
       },
-      restartLocalAI: () {
-        ChatEventRestartLocalAIChat().send();
+      restartLocalAI: () async {
+        emit(
+          const PluginStateState(action: PluginStateAction.loadingPlugin()),
+        );
+        unawaited(ChatEventRestartLocalAIChat().send());
+      },
+      openModelDirectory: () async {
+        final result = await ChatEventGetModelStorageDirectory().send();
+        result.fold(
+          (data) {
+            afLaunchUrl(Uri.file(data.filePath));
+          },
+          (err) => Log.error(err.toString()),
+        );
       },
     );
   }
@@ -80,12 +93,15 @@ class PluginStateEvent with _$PluginStateEvent {
   const factory PluginStateEvent.updateState(LocalAIPluginStatePB pluginState) =
       _UpdatePluginState;
   const factory PluginStateEvent.restartLocalAI() = _RestartLocalAI;
+  const factory PluginStateEvent.openModelDirectory() =
+      _OpenModelStorageDirectory;
 }
 
 @freezed
 class PluginStateState with _$PluginStateState {
-  const factory PluginStateState({required PluginStateAction action}) =
-      _PluginStateState;
+  const factory PluginStateState({
+    required PluginStateAction action,
+  }) = _PluginStateState;
 }
 
 @freezed

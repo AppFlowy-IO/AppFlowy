@@ -49,32 +49,31 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
     }
   }
 
-  Widget get leftIcon {
+  FlowySvgData get leftIconSvg {
     switch (this) {
       case ViewMoreActionType.delete:
-        return const FlowySvg(FlowySvgs.trash_s, blendMode: null);
+        return FlowySvgs.trash_s;
       case ViewMoreActionType.favorite:
-        return const FlowySvg(FlowySvgs.favorite_s);
+        return FlowySvgs.favorite_s;
       case ViewMoreActionType.unFavorite:
-        return const FlowySvg(FlowySvgs.unfavorite_s);
+        return FlowySvgs.unfavorite_s;
       case ViewMoreActionType.duplicate:
-        return const FlowySvg(FlowySvgs.duplicate_s);
-      case ViewMoreActionType.copyLink:
-        return const Icon(Icons.copy);
+        return FlowySvgs.duplicate_s;
       case ViewMoreActionType.rename:
-        return const FlowySvg(FlowySvgs.view_item_rename_s);
+        return FlowySvgs.view_item_rename_s;
       case ViewMoreActionType.moveTo:
-        return const FlowySvg(FlowySvgs.move_to_s);
+        return FlowySvgs.move_to_s;
       case ViewMoreActionType.openInNewTab:
-        return const FlowySvg(FlowySvgs.view_item_open_in_new_tab_s);
+        return FlowySvgs.view_item_open_in_new_tab_s;
       case ViewMoreActionType.changeIcon:
-        return const FlowySvg(FlowySvgs.change_icon_s);
+        return FlowySvgs.change_icon_s;
       case ViewMoreActionType.collapseAllPages:
-        return const FlowySvg(FlowySvgs.collapse_all_page_s);
+        return FlowySvgs.collapse_all_page_s;
       case ViewMoreActionType.divider:
       case ViewMoreActionType.lastModified:
+      case ViewMoreActionType.copyLink:
       case ViewMoreActionType.created:
-        return const SizedBox.shrink();
+        throw UnsupportedError('No left icon for $this');
     }
   }
 

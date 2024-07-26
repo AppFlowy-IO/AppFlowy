@@ -1,14 +1,15 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:string_validator/string_validator.dart';
@@ -23,6 +24,7 @@ class ResizableImage extends StatefulWidget {
     required this.width,
     required this.src,
     this.height,
+    this.onDoubleTap,
   });
 
   final String src;
@@ -31,6 +33,7 @@ class ResizableImage extends StatefulWidget {
   final double? height;
   final Alignment alignment;
   final bool editable;
+  final VoidCallback? onDoubleTap;
 
   final void Function(double width) onResize;
 
@@ -41,26 +44,23 @@ class ResizableImage extends StatefulWidget {
 const _kImageBlockComponentMinWidth = 30.0;
 
 class _ResizableImageState extends State<ResizableImage> {
-  late double imageWidth;
+  final documentService = DocumentService();
 
   double initialOffset = 0;
   double moveDistance = 0;
-
   Widget? _cacheImage;
+
+  late double imageWidth;
 
   @visibleForTesting
   bool onFocus = false;
-
-  final documentService = DocumentService();
 
   UserProfilePB? _userProfilePB;
 
   @override
   void initState() {
     super.initState();
-
     imageWidth = widget.width;
-
     _userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
   }
 
@@ -72,13 +72,12 @@ class _ResizableImageState extends State<ResizableImage> {
         width: max(_kImageBlockComponentMinWidth, imageWidth - moveDistance),
         height: widget.height,
         child: MouseRegion(
-          onEnter: (event) => setState(() {
-            onFocus = true;
-          }),
-          onExit: (event) => setState(() {
-            onFocus = false;
-          }),
-          child: _buildResizableImage(context),
+          onEnter: (_) => setState(() => onFocus = true),
+          onExit: (_) => setState(() => onFocus = false),
+          child: GestureDetector(
+            onDoubleTap: widget.onDoubleTap,
+            child: _buildResizableImage(context),
+          ),
         ),
       ),
     );
@@ -97,12 +96,11 @@ class _ResizableImageState extends State<ResizableImage> {
         url: widget.src,
         width: imageWidth - moveDistance,
         userProfilePB: _userProfilePB,
-        errorWidgetBuilder: (context, url, error) => _ImageLoadFailedWidget(
+        progressIndicatorBuilder: (context, _, __) => _buildLoading(context),
+        errorWidgetBuilder: (_, __, error) => _ImageLoadFailedWidget(
           width: imageWidth,
           error: error,
         ),
-        progressIndicatorBuilder: (context, url, progress) =>
-            _buildLoading(context),
       );
 
       child = _cacheImage!;
@@ -121,11 +119,7 @@ class _ResizableImageState extends State<ResizableImage> {
             left: 5,
             bottom: 0,
             width: 5,
-            onUpdate: (distance) {
-              setState(() {
-                moveDistance = distance;
-              });
-            },
+            onUpdate: (distance) => setState(() => moveDistance = distance),
           ),
           _buildEdgeGesture(
             context,
@@ -133,11 +127,7 @@ class _ResizableImageState extends State<ResizableImage> {
             right: 5,
             bottom: 0,
             width: 5,
-            onUpdate: (distance) {
-              setState(() {
-                moveDistance = -distance;
-              });
-            },
+            onUpdate: (distance) => setState(() => moveDistance = -distance),
           ),
         ],
       ],
@@ -154,9 +144,7 @@ class _ResizableImageState extends State<ResizableImage> {
             size: const Size(18, 18),
             child: const CircularProgressIndicator(),
           ),
-          SizedBox.fromSize(
-            size: const Size(10, 10),
-          ),
+          SizedBox.fromSize(size: const Size(10, 10)),
           Text(AppFlowyEditorL10n.current.loading),
         ],
       ),
@@ -184,7 +172,7 @@ class _ResizableImageState extends State<ResizableImage> {
         },
         onHorizontalDragUpdate: (details) {
           if (onUpdate != null) {
-            var offset = details.globalPosition.dx - initialOffset;
+            double offset = details.globalPosition.dx - initialOffset;
             if (widget.alignment == Alignment.center) {
               offset *= 2.0;
             }
@@ -222,10 +210,7 @@ class _ResizableImageState extends State<ResizableImage> {
 }
 
 class _ImageLoadFailedWidget extends StatelessWidget {
-  const _ImageLoadFailedWidget({
-    required this.width,
-    required this.error,
-  });
+  const _ImageLoadFailedWidget({required this.width, required this.error});
 
   final double width;
   final Object error;
@@ -240,9 +225,7 @@ class _ImageLoadFailedWidget extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.6),
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.6)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -251,9 +234,7 @@ class _ImageLoadFailedWidget extends StatelessWidget {
             FlowySvgs.broken_image_xl,
             size: Size.square(48),
           ),
-          FlowyText(
-            AppFlowyEditorL10n.current.imageLoadFailed,
-          ),
+          FlowyText(AppFlowyEditorL10n.current.imageLoadFailed),
           const VSpace(6),
           if (error != null)
             FlowyText(

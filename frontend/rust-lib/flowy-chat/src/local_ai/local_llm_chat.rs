@@ -1,7 +1,5 @@
 use crate::chat_manager::ChatUserService;
-use crate::entities::{
-  ChatStatePB, LocalAIPluginStatePB, LocalModelResourcePB, ModelTypePB, RunningStatePB,
-};
+use crate::entities::{LocalAIPluginStatePB, LocalModelResourcePB, RunningStatePB};
 use crate::local_ai::local_llm_resource::{LLMResourceController, LLMResourceService};
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use anyhow::Error;
@@ -100,7 +98,7 @@ impl LocalAIController {
     tokio::spawn(async move {
       while rx.recv().await.is_some() {
         if let Ok(chat_config) = cloned_llm_res.get_chat_config(rag_enabled) {
-          if let Err(err) = initialize_chat_plugin(&cloned_llm_chat, chat_config) {
+          if let Err(err) = initialize_chat_plugin(&cloned_llm_chat, chat_config, None) {
             error!("[AI Plugin] failed to setup plugin: {:?}", err);
           }
         }
@@ -113,79 +111,50 @@ impl LocalAIController {
     self.llm_res.refresh_llm_resource().await
   }
 
-  pub fn initialize_chat_plugin(
+  pub fn initialize_ai_plugin(
     &self,
     ret: Option<tokio::sync::oneshot::Sender<()>>,
   ) -> FlowyResult<()> {
-    let mut chat_config = self.llm_res.get_chat_config(self.is_rag_enabled())?;
-    let llm_chat = self.llm_chat.clone();
-    tokio::spawn(async move {
-      trace!("[AI Plugin] config: {:?}", chat_config);
-      if is_apple_silicon().await.unwrap_or(false) {
-        chat_config = chat_config.with_device("gpu");
-      }
-      match llm_chat.init_chat_plugin(chat_config).await {
-        Ok(_) => {
-          make_notification(
-            APPFLOWY_AI_NOTIFICATION_KEY,
-            ChatNotification::UpdateChatPluginState,
-          )
-          .payload(ChatStatePB {
-            model_type: ModelTypePB::LocalAI,
-            available: true,
-          })
-          .send();
-        },
-        Err(err) => {
-          make_notification(
-            APPFLOWY_AI_NOTIFICATION_KEY,
-            ChatNotification::UpdateChatPluginState,
-          )
-          .payload(ChatStatePB {
-            model_type: ModelTypePB::LocalAI,
-            available: false,
-          })
-          .send();
-          error!("[AI Plugin] failed to setup plugin: {:?}", err);
-        },
-      }
-      if let Some(ret) = ret {
-        let _ = ret.send(());
-      }
-    });
+    let chat_config = self.llm_res.get_chat_config(self.is_rag_enabled())?;
+    initialize_chat_plugin(&self.llm_chat, chat_config, ret)?;
     Ok(())
   }
 
   /// Returns true if the local AI is enabled and ready to use.
-  pub fn can_init(&self) -> bool {
+  pub fn can_init_plugin(&self) -> bool {
     self.is_enabled() && self.llm_res.is_resource_ready()
   }
 
+  /// Indicate whether the local AI plugin is running.
   pub fn is_running(&self) -> bool {
     self.llm_chat.get_plugin_running_state().is_ready()
   }
 
+  /// Indicate whether the local AI is enabled.
   pub fn is_enabled(&self) -> bool {
-    self.store_preferences.get_bool(APPFLOWY_LOCAL_AI_ENABLED)
+    self
+      .store_preferences
+      .get_bool(APPFLOWY_LOCAL_AI_ENABLED)
+      .unwrap_or(true)
   }
 
+  /// Indicate whether the local AI chat is enabled. In the future, we can support multiple
+  /// AI plugin.
   pub fn is_chat_enabled(&self) -> bool {
     self
       .store_preferences
       .get_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED)
+      .unwrap_or(true)
   }
 
   pub fn is_rag_enabled(&self) -> bool {
     self
       .store_preferences
       .get_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED)
+      .unwrap_or(true)
   }
 
   pub fn open_chat(&self, chat_id: &str) {
-    if !self.is_chat_enabled() {
-      return;
-    }
-
     if !self.is_running() {
       return;
     }
@@ -234,7 +203,7 @@ impl LocalAIController {
     let state = self.llm_res.use_local_llm(llm_id)?;
     // Re-initialize the plugin if the setting is updated and ready to use
     if self.llm_res.is_resource_ready() {
-      self.initialize_chat_plugin(None)?;
+      self.initialize_ai_plugin(None)?;
     }
     Ok(state)
   }
@@ -270,14 +239,24 @@ impl LocalAIController {
   pub fn restart_chat_plugin(&self) {
     let rag_enabled = self.is_rag_enabled();
     if let Ok(chat_config) = self.llm_res.get_chat_config(rag_enabled) {
-      if let Err(err) = initialize_chat_plugin(&self.llm_chat, chat_config) {
+      if let Err(err) = initialize_chat_plugin(&self.llm_chat, chat_config, None) {
         error!("[AI Plugin] failed to setup plugin: {:?}", err);
       }
     }
   }
 
+  pub fn get_model_storage_directory(&self) -> FlowyResult<String> {
+    self
+      .llm_res
+      .user_model_folder()
+      .map(|path| path.to_string_lossy().to_string())
+  }
+
   pub async fn toggle_local_ai(&self) -> FlowyResult<bool> {
-    let enabled = !self.store_preferences.get_bool(APPFLOWY_LOCAL_AI_ENABLED);
+    let enabled = !self
+      .store_preferences
+      .get_bool(APPFLOWY_LOCAL_AI_ENABLED)
+      .unwrap_or(true);
     self
       .store_preferences
       .set_bool(APPFLOWY_LOCAL_AI_ENABLED, enabled)?;
@@ -287,7 +266,7 @@ impl LocalAIController {
     if enabled {
       let chat_enabled = self
         .store_preferences
-        .get_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED);
+        .get_bool_or_default(APPFLOWY_LOCAL_AI_CHAT_ENABLED);
       self.enable_chat_plugin(chat_enabled).await?;
     } else {
       self.enable_chat_plugin(false).await?;
@@ -298,7 +277,8 @@ impl LocalAIController {
   pub async fn toggle_local_ai_chat(&self) -> FlowyResult<bool> {
     let enabled = !self
       .store_preferences
-      .get_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED);
+      .get_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED)
+      .unwrap_or(true);
     self
       .store_preferences
       .set_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED, enabled)?;
@@ -310,7 +290,7 @@ impl LocalAIController {
   pub async fn toggle_local_ai_chat_rag(&self) -> FlowyResult<bool> {
     let enabled = !self
       .store_preferences
-      .get_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED);
+      .get_bool_or_default(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED);
     self
       .store_preferences
       .set_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED, enabled)?;
@@ -320,7 +300,7 @@ impl LocalAIController {
   async fn enable_chat_plugin(&self, enabled: bool) -> FlowyResult<()> {
     if enabled {
       let (tx, rx) = tokio::sync::oneshot::channel();
-      if let Err(err) = self.initialize_chat_plugin(Some(tx)) {
+      if let Err(err) = self.initialize_ai_plugin(Some(tx)) {
         error!("[AI Plugin] failed to initialize local ai: {:?}", err);
       }
       let _ = rx.await;
@@ -334,6 +314,7 @@ impl LocalAIController {
 fn initialize_chat_plugin(
   llm_chat: &Arc<LocalChatLLMChat>,
   mut chat_config: AIPluginConfig,
+  ret: Option<tokio::sync::oneshot::Sender<()>>,
 ) -> FlowyResult<()> {
   let llm_chat = llm_chat.clone();
   tokio::spawn(async move {
@@ -342,29 +323,12 @@ fn initialize_chat_plugin(
       chat_config = chat_config.with_device("gpu");
     }
     match llm_chat.init_chat_plugin(chat_config).await {
-      Ok(_) => {
-        make_notification(
-          APPFLOWY_AI_NOTIFICATION_KEY,
-          ChatNotification::UpdateChatPluginState,
-        )
-        .payload(ChatStatePB {
-          model_type: ModelTypePB::LocalAI,
-          available: true,
-        })
-        .send();
-      },
-      Err(err) => {
-        make_notification(
-          APPFLOWY_AI_NOTIFICATION_KEY,
-          ChatNotification::UpdateChatPluginState,
-        )
-        .payload(ChatStatePB {
-          model_type: ModelTypePB::LocalAI,
-          available: false,
-        })
-        .send();
-        error!("[AI Plugin] failed to setup plugin: {:?}", err);
-      },
+      Ok(_) => {},
+      Err(err) => error!("[AI Plugin] failed to setup plugin: {:?}", err),
+    }
+
+    if let Some(ret) = ret {
+      let _ = ret.send(());
     }
   });
   Ok(())
@@ -402,6 +366,6 @@ impl LLMResourceService for LLMResourceServiceImpl {
   fn is_rag_enabled(&self) -> bool {
     self
       .store_preferences
-      .get_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED)
+      .get_bool_or_default(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED)
   }
 }

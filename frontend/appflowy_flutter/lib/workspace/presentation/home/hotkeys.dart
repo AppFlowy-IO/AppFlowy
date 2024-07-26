@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
@@ -11,6 +9,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:scaled_app/scaled_app.dart';
@@ -18,6 +17,7 @@ import 'package:scaled_app/scaled_app.dart';
 typedef KeyDownHandler = void Function(HotKey hotKey);
 
 ValueNotifier<int> switchToTheNextSpace = ValueNotifier(0);
+ValueNotifier<int> createNewPageNotifier = ValueNotifier(0);
 
 /// Helper class that utilizes the global [HotKeyManager] to easily
 /// add a [HotKey] with different handlers.
@@ -178,6 +178,16 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => switchToTheNextSpace.value++,
+    ),
+
+    // Create a new page
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.keyN,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => createNewPageNotifier.value++,
     ),
 
     // Open settings dialog

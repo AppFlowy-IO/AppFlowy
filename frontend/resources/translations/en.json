@@ -169,7 +169,10 @@
     "question2": "Explain the GTD method",
     "question3": "Why use Rust",
     "question4": "Recipe with what's in my kitchen",
-    "aiMistakePrompt": "AI can make mistakes. Check important info."
+    "aiMistakePrompt": "AI can make mistakes. Check important info.",
+    "chatWithFilePrompt": "Do you want to chat with the file?",
+    "indexFileSuccess": "Indexing file successfully",
+    "indexingFile": "Indexing {}"
   },
   "trash": {
     "text": "Trash",
@@ -269,7 +272,7 @@
     "recent": "Recent",
     "today": "Today",
     "thisWeek": "This week",
-    "others": "Other favorites",
+    "others": "Earlier favorites",
     "justNow": "just now",
     "minutesAgo": "{count} minutes ago",
     "lastViewed": "Last viewed",
@@ -660,7 +663,8 @@
         "restartLocalAI": "Restart Local AI",
         "disableLocalAIDialog": "Do you want to disable local AI?",
         "localAIToggleTitle": "Toggle to enable or disable local AI",
-        "fetchLocalModel": "Fetch local model configuration"
+        "fetchLocalModel": "Fetch local model configuration",
+        "openModelDirectory": "Open folder"
       }
     },
     "planPage": {
@@ -1481,10 +1485,24 @@
         "depth": "Depth"
       },
       "image": {
-        "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImage": "Add an image",
-        "imageUploadFailed": "Upload failed",
+        "copiedToPasteBoard": "The image link has been copied to the clipboard",
+        "addAnImageDesktop": "Drop image(s) or click to add image(s)",
+        "addAnImageMobile": "Click to add one or more images",
+        "dropImageToInsert": "Drop images to insert",
+        "imageUploadFailed": "Image upload failed",
+        "imageDownloadFailed": "Image upload failed, please try again",
+        "imageDownloadFailedToken": "Image upload failed due to missing user token, please try again",
         "errorCode": "Error code"
+      },
+      "photoGallery": {
+        "name": "Photo gallery",
+        "imageKeyword": "image",
+        "imageGalleryKeyword": "image gallery",
+        "photoKeyword": "photo",
+        "photoBrowserKeyword": "photo browser",
+        "galleryKeyword": "gallery",
+        "addImageTooltip": "Add image"
       },
       "math": {
         "copiedToPasteBoard": "The math equation has been copied to the clipboard"
@@ -1541,7 +1559,7 @@
       "placeholder": "Untitled"
     },
     "imageBlock": {
-      "placeholder": "Click to add image",
+      "placeholder": "Click to add image(s)",
       "upload": {
         "label": "Upload",
         "placeholder": "Click to upload image"
@@ -1564,7 +1582,8 @@
         "invalidImageSize": "Image size must be less than 5MB",
         "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG, GIF, SVG, WEBP",
         "invalidImageUrl": "Invalid image URL",
-        "noImage": "No such file or directory"
+        "noImage": "No such file or directory",
+        "multipleImagesFailed": "One or more images failed to upload, please try again"
       },
       "embedLink": {
         "label": "Embed link",
@@ -1582,7 +1601,22 @@
       "unableToLoadImage": "Unable to load image",
       "maximumImageSize": "Maximum supported upload image size is 10MB",
       "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
-      "imageIsUploading": "Image is uploading"
+      "imageIsUploading": "Image is uploading",
+      "openFullScreen": "Open in full screen",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "Previous image",
+          "nextImageTooltip": "Next image",
+          "zoomOutTooltip": "Zoom out",
+          "zoomInTooltip": "Zoom in",
+          "changeZoomLevelTooltip": "Change zoom level",
+          "openLocalImage": "Open image",
+          "downloadImage": "Download image",
+          "closeViewer": "Close interactive viewer",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "Delete image"
+        }
+      }
     },
     "codeBlock": {
       "language": {
@@ -2125,6 +2159,7 @@
     "createNewSpace": "Create a new space",
     "createSpaceDescription": "Create multiple public and private spaces to better organize your work.",
     "spaceName": "Space name",
+    "spaceNamePlaceholder": "e.g. Marketing, Engineering, HR",
     "permission": "Permission",
     "publicPermission": "Public",
     "publicPermissionDescription": "All workspace members with full access",

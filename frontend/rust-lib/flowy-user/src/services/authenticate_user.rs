@@ -40,7 +40,10 @@ impl AuthenticateUser {
   }
 
   pub fn vacuum_database_if_need(&self) {
-    if !self.store_preferences.get_bool(SQLITE_VACUUM_042) {
+    if !self
+      .store_preferences
+      .get_bool_or_default(SQLITE_VACUUM_042)
+    {
       if let Ok(session) = self.get_session() {
         let _ = self.store_preferences.set_bool(SQLITE_VACUUM_042, true);
         if let Ok(conn) = self.database.get_connection(session.user_id) {

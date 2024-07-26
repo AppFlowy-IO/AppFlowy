@@ -21,8 +21,8 @@ class FavoritePinAction extends StatelessWidget {
         : LocaleKeys.favorite_addToSidebar.tr();
     final icon = FlowySvg(
       view.isPinned
-          ? FlowySvgs.favorite_section_pin_s
-          : FlowySvgs.favorite_section_unpin_s,
+          ? FlowySvgs.favorite_section_unpin_s
+          : FlowySvgs.favorite_section_pin_s,
     );
     return FlowyTooltip(
       message: tooltip,

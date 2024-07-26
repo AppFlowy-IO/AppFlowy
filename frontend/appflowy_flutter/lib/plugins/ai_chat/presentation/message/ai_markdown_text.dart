@@ -52,15 +52,6 @@ class _AppFlowyEditorMarkdown extends StatefulWidget {
 
 class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
   late EditorState editorState;
-  late final styleCustomizer = EditorStyleCustomizer(
-    context: context,
-    padding: EdgeInsets.zero,
-  );
-  late final editorStyle = styleCustomizer.style().copyWith(
-        // hide the cursor
-        cursorColor: Colors.transparent,
-        cursorWidth: 0,
-      );
   late EditorScrollController scrollController;
 
   @override
@@ -99,6 +90,17 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
 
   @override
   Widget build(BuildContext context) {
+    // don't lazy load the styleCustomizer and blockBuilders,
+    //  it needs the context to get the theme.
+    final styleCustomizer = EditorStyleCustomizer(
+      context: context,
+      padding: EdgeInsets.zero,
+    );
+    final editorStyle = styleCustomizer.style().copyWith(
+          // hide the cursor
+          cursorColor: Colors.transparent,
+          cursorWidth: 0,
+        );
     final blockBuilders = getEditorBuilderMap(
       context: context,
       editorState: editorState,

@@ -6,7 +6,6 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 
-
 class RelatedQuestionList extends StatelessWidget {
   const RelatedQuestionList({
     required this.chatId,
@@ -97,6 +96,7 @@ class _RelatedQuestionItemState extends State<RelatedQuestionItem> {
           style: TextStyle(
             color: _isHovered ? Theme.of(context).colorScheme.primary : null,
             fontSize: 14,
+            height: 1.5,
           ),
         ),
         onTap: () {
