@@ -23,7 +23,7 @@ function Duplicate() {
         {t('publish.saveThisPage')}
       </Button>
       <LoginModal redirectTo={url} open={loginOpen} onClose={handleLoginClose} />
-      <DuplicateModal open={duplicateOpen} onClose={handleDuplicateClose} />
+      {duplicateOpen && <DuplicateModal open={duplicateOpen} onClose={handleDuplicateClose} />}
     </>
   );
 }
