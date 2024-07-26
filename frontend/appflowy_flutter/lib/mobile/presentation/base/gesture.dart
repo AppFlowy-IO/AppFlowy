@@ -8,6 +8,7 @@ class AnimatedGestureDetector extends StatefulWidget {
     this.feedback = true,
     this.duration = const Duration(milliseconds: 100),
     this.alignment = Alignment.center,
+    this.behavior = HitTestBehavior.opaque,
     required this.onTapUp,
     required this.child,
   });
@@ -17,6 +18,7 @@ class AnimatedGestureDetector extends StatefulWidget {
   final Duration duration;
   final Alignment alignment;
   final bool feedback;
+  final HitTestBehavior behavior;
   final VoidCallback onTapUp;
 
   @override
@@ -30,7 +32,7 @@ class _AnimatedGestureDetectorState extends State<AnimatedGestureDetector> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      behavior: HitTestBehavior.translucent,
+      behavior: widget.behavior,
       onTapUp: (details) {
         setState(() => scale = 1.0);
 
