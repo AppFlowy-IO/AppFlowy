@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_inline_action_menu.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -36,6 +37,9 @@ class ChatInput extends StatefulWidget {
 
 /// [ChatInput] widget state.
 class _ChatInputState extends State<ChatInput> {
+  final GlobalKey _textFieldKey = GlobalKey();
+  final LayerLink _layerLink = LayerLink();
+
   late final _inputFocusNode = FocusNode(
     onKeyEvent: (node, event) {
       if (event.physicalKey == PhysicalKeyboardKey.enter &&
@@ -128,27 +132,44 @@ class _ChatInputState extends State<ChatInput> {
     );
   }
 
-  Padding _inputTextField(EdgeInsets textPadding) {
-    return Padding(
-      padding: textPadding,
-      child: TextField(
-        controller: _textController,
-        focusNode: _inputFocusNode,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: LocaleKeys.chat_inputMessageHint.tr(),
-          hintStyle: TextStyle(
-            color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
+  Widget _inputTextField(EdgeInsets textPadding) {
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: Padding(
+        padding: textPadding,
+        child: TextField(
+          key: _textFieldKey,
+          controller: _textController,
+          focusNode: _inputFocusNode,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: LocaleKeys.chat_inputMessageHint.tr(),
+            hintStyle: TextStyle(
+              color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
+            ),
           ),
+          style: TextStyle(
+            color: AFThemeExtension.of(context).textColor,
+          ),
+          keyboardType: TextInputType.multiline,
+          textCapitalization: TextCapitalization.sentences,
+          maxLines: 10,
+          minLines: 1,
+          onChanged: (text) {
+            //
+            if (text == "/index ") {
+              ChatActionsMenu(
+                anchor: ChatInputAnchor(
+                  anchorKey: _textFieldKey,
+                  layerLink: _layerLink,
+                ),
+                context: context,
+                items: [ChatIndexMenuItem()],
+                style: ChatActionsMenuStyle.dark(),
+              ).show();
+            }
+          },
         ),
-        style: TextStyle(
-          color: AFThemeExtension.of(context).textColor,
-        ),
-        keyboardType: TextInputType.multiline,
-        textCapitalization: TextCapitalization.sentences,
-        maxLines: 10,
-        minLines: 1,
-        onChanged: (_) {},
       ),
     );
   }
@@ -244,4 +265,22 @@ class AccessoryButton extends StatelessWidget {
       );
     }
   }
+}
+
+class ChatInputAnchor extends ChatAnchor {
+  ChatInputAnchor({
+    required this.anchorKey,
+    required this.layerLink,
+  });
+
+  @override
+  final GlobalKey<State<StatefulWidget>> anchorKey;
+
+  @override
+  final LayerLink layerLink;
+}
+
+class ChatIndexMenuItem extends ChatActionMenuItem {
+  @override
+  String get title => "Index";
 }
