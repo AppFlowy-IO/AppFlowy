@@ -313,7 +313,6 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
                   ? () => customSlashCommand(
                         slashMenuItems,
                         shouldInsertSlash: false,
-                        singleColumn: true,
                         style: styleCustomizer.selectionMenuStyleBuilder(),
                       ).handler.call(editorState)
                   : () {},
