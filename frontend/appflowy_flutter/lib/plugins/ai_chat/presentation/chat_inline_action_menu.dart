@@ -161,6 +161,7 @@ class _ActionListState extends State<ActionList> {
 
   void _handleKeyPress(event) {
     setState(() {
+      // ignore: deprecated_member_use
       if (event is KeyDownEvent || event is RawKeyDownEvent) {
         if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
           _selectedIndex = (_selectedIndex + 1) % widget.handler.items.length;
