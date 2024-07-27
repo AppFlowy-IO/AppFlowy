@@ -10,6 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
+import 'chat_accessory_button.dart';
+import 'chat_command.dart';
+
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
   const ChatInput({
@@ -39,6 +42,8 @@ class ChatInput extends StatefulWidget {
 class _ChatInputState extends State<ChatInput> {
   final GlobalKey _textFieldKey = GlobalKey();
   final LayerLink _layerLink = LayerLink();
+  final ChatTextFieldInterceptor _textFieldInterceptor =
+      ChatTextFieldInterceptor();
 
   late final _inputFocusNode = FocusNode(
     onKeyEvent: (node, event) {
@@ -63,9 +68,9 @@ class _ChatInputState extends State<ChatInput> {
       }
     },
   );
+  late TextEditingController _textController;
 
   bool _sendButtonVisible = false;
-  late TextEditingController _textController;
 
   @override
   void initState() {
@@ -75,33 +80,15 @@ class _ChatInputState extends State<ChatInput> {
     _handleSendButtonVisibilityModeChange();
   }
 
-  void _handleSendButtonVisibilityModeChange() {
-    _textController.removeListener(_handleTextControllerChange);
-    _sendButtonVisible =
-        _textController.text.trim() != '' || widget.isStreaming;
-    _textController.addListener(_handleTextControllerChange);
+  @override
+  void dispose() {
+    _inputFocusNode.dispose();
+    _textController.dispose();
+    super.dispose();
   }
 
-  void _handleSendPressed() {
-    final trimmedText = _textController.text.trim();
-    if (trimmedText != '') {
-      final partialText = types.PartialText(text: trimmedText);
-      widget.onSendPressed(partialText);
-
-      _textController.clear();
-    }
-  }
-
-  void _handleTextControllerChange() {
-    if (_textController.value.isComposingRangeValid) {
-      return;
-    }
-    setState(() {
-      _sendButtonVisible = _textController.text.trim() != '';
-    });
-  }
-
-  Widget _inputBuilder() {
+  @override
+  Widget build(BuildContext context) {
     const textPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 6);
     const buttonPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 6);
     const inputPadding = EdgeInsets.all(6);
@@ -132,6 +119,32 @@ class _ChatInputState extends State<ChatInput> {
     );
   }
 
+  void _handleSendButtonVisibilityModeChange() {
+    _textController.removeListener(_handleTextControllerChange);
+    _sendButtonVisible =
+        _textController.text.trim() != '' || widget.isStreaming;
+    _textController.addListener(_handleTextControllerChange);
+  }
+
+  void _handleSendPressed() {
+    final trimmedText = _textController.text.trim();
+    if (trimmedText != '') {
+      final partialText = types.PartialText(text: trimmedText);
+      widget.onSendPressed(partialText);
+
+      _textController.clear();
+    }
+  }
+
+  void _handleTextControllerChange() {
+    if (_textController.value.isComposingRangeValid) {
+      return;
+    }
+    setState(() {
+      _sendButtonVisible = _textController.text.trim() != '';
+    });
+  }
+
   Widget _inputTextField(EdgeInsets textPadding) {
     return CompositedTransformTarget(
       link: _layerLink,
@@ -156,16 +169,24 @@ class _ChatInputState extends State<ChatInput> {
           maxLines: 10,
           minLines: 1,
           onChanged: (text) {
-            //
-            if (text == "/index ") {
+            final handler = _textFieldInterceptor.onTextChanged(
+              text,
+              _textController,
+              _inputFocusNode,
+            );
+            // If the handler is not null, it means that the text has been
+            // recognized as a command.
+            if (handler != null) {
               ChatActionsMenu(
                 anchor: ChatInputAnchor(
                   anchorKey: _textFieldKey,
                   layerLink: _layerLink,
                 ),
+                handler: handler,
                 context: context,
-                items: [ChatIndexMenuItem()],
-                style: ChatActionsMenuStyle.dark(),
+                style: Theme.of(context).brightness == Brightness.dark
+                    ? const ChatActionsMenuStyle.dark()
+                    : const ChatActionsMenuStyle.light(),
               ).show();
             }
           },
@@ -183,16 +204,14 @@ class _ChatInputState extends State<ChatInput> {
         visible: _sendButtonVisible,
         child: Padding(
           padding: buttonPadding,
-          child: AccessoryButton(
+          child: ChatInputAccessoryButton(
             onSendPressed: () {
               if (!widget.isStreaming) {
                 widget.onStopStreaming();
                 _handleSendPressed();
               }
             },
-            onStopStreaming: () {
-              widget.onStopStreaming();
-            },
+            onStopStreaming: () => widget.onStopStreaming(),
             isStreaming: widget.isStreaming,
           ),
         ),
@@ -205,67 +224,10 @@ class _ChatInputState extends State<ChatInput> {
     super.didUpdateWidget(oldWidget);
     _handleSendButtonVisibilityModeChange();
   }
-
-  @override
-  void dispose() {
-    _inputFocusNode.dispose();
-    _textController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: () => _inputFocusNode.requestFocus(),
-        child: _inputBuilder(),
-      );
 }
 
 final isMobile = defaultTargetPlatform == TargetPlatform.android ||
     defaultTargetPlatform == TargetPlatform.iOS;
-
-class AccessoryButton extends StatelessWidget {
-  const AccessoryButton({
-    required this.onSendPressed,
-    required this.onStopStreaming,
-    required this.isStreaming,
-    super.key,
-  });
-
-  final void Function() onSendPressed;
-  final void Function() onStopStreaming;
-  final bool isStreaming;
-
-  @override
-  Widget build(BuildContext context) {
-    if (isStreaming) {
-      return FlowyIconButton(
-        width: 36,
-        icon: FlowySvg(
-          FlowySvgs.ai_stream_stop_s,
-          size: const Size.square(28),
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        onPressed: onStopStreaming,
-        radius: BorderRadius.circular(18),
-        fillColor: AFThemeExtension.of(context).lightGreyHover,
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      );
-    } else {
-      return FlowyIconButton(
-        width: 36,
-        fillColor: AFThemeExtension.of(context).lightGreyHover,
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        radius: BorderRadius.circular(18),
-        icon: FlowySvg(
-          FlowySvgs.send_s,
-          size: const Size.square(24),
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        onPressed: onSendPressed,
-      );
-    }
-  }
-}
 
 class ChatInputAnchor extends ChatAnchor {
   ChatInputAnchor({
@@ -278,9 +240,4 @@ class ChatInputAnchor extends ChatAnchor {
 
   @override
   final LayerLink layerLink;
-}
-
-class ChatIndexMenuItem extends ChatActionMenuItem {
-  @override
-  String get title => "Index";
 }
