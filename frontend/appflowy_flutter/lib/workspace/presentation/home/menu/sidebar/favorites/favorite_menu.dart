@@ -150,12 +150,16 @@ class _FavoriteGroups extends StatelessWidget {
           children: [
             if (today.isNotEmpty) ...[
               ...today,
-              const FlowyDivider(),
-              const VSpace(16),
             ],
             if (thisWeek.isNotEmpty) ...[
+              if (today.isNotEmpty) ...[
+                const FlowyDivider(),
+                const VSpace(16),
+              ],
               ...thisWeek,
-              const VSpace(8),
+            ],
+            if ((thisWeek.isNotEmpty || today.isNotEmpty) &&
+                others.isNotEmpty) ...[
               const FlowyDivider(),
               const VSpace(16),
             ],
