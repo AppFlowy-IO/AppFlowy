@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -198,9 +199,9 @@ class _SidebarSwitchWorkspaceButtonState
           ),
         );
       },
-      child: FlowyButton(
+      child: FlowyIconTextButton(
         margin: EdgeInsets.zero,
-        text: SizedBox(
+        textBuilder: (onHover) => SizedBox(
           height: 30,
           child: Row(
             children: [
@@ -229,6 +230,10 @@ class _SidebarSwitchWorkspaceButtonState
                 ),
               ),
               const HSpace(4),
+              if (onHover)
+                const FlowySvg(
+                  FlowySvgs.workspace_drop_down_menu_show_s,
+                ),
             ],
           ),
         ),
