@@ -5,6 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/application/recent/recent_view_bloc.dart';
+import 'package:appflowy/mobile/presentation/base/gesture.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/date_time/time_format_ext.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -76,13 +78,14 @@ class MobileViewPage extends StatelessWidget {
                     : MobilePaneActionType.addToFavorites,
               ],
               cardType: type,
+              spaceRatio: 4,
             ),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTapUp: (_) => context.pushView(view),
+            child: AnimatedGestureDetector(
+              onTapUp: () => context.pushView(view),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const HSpace(HomeSpaceViewSizes.mHorizontalPadding),
                   Expanded(child: _buildDescription(context, state)),
                   const HSpace(20.0),
                   SizedBox(
@@ -90,6 +93,7 @@ class MobileViewPage extends StatelessWidget {
                     height: 60,
                     child: _buildCover(context, state),
                   ),
+                  const HSpace(HomeSpaceViewSizes.mHorizontalPadding),
                 ],
               ),
             ),
@@ -211,7 +215,7 @@ class MobileViewPage extends StatelessWidget {
 
   Widget _buildLastViewed(BuildContext context) {
     final textColor = Theme.of(context).isLightMode
-        ? const Color(0xFF171717)
+        ? const Color(0x7F171717)
         : Colors.white.withOpacity(0.45);
     if (timestamp == null) {
       return const SizedBox.shrink();

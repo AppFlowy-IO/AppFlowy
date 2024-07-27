@@ -300,7 +300,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
           )
         : Opacity(
             opacity: 0.7,
-            child: widget.view.defaultIcon(),
+            child: widget.view.defaultIcon(size: const Size.square(18)),
           );
     return SizedBox(width: 18.0, child: icon);
   }
