@@ -159,6 +159,7 @@
   "chat": {
     "newChat": "AI Chat",
     "inputMessageHint": "Message @:appName AI",
+    "inputLocalAIMessageHint": "Message @:appName Local AI",
     "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
     "relatedQuestion": "Related",
     "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",

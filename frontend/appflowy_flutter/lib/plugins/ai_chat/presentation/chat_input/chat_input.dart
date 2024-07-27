@@ -1,9 +1,7 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_inline_action_menu.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +9,6 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 import 'chat_accessory_button.dart';
-import 'chat_command.dart';
 
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
@@ -24,6 +21,7 @@ class ChatInput extends StatefulWidget {
     this.options = const InputOptions(),
     required this.isStreaming,
     required this.onStopStreaming,
+    required this.hintText,
   });
 
   final bool? isAttachmentUploading;
@@ -33,6 +31,7 @@ class ChatInput extends StatefulWidget {
   final InputOptions options;
   final String chatId;
   final bool isStreaming;
+  final String hintText;
 
   @override
   State<ChatInput> createState() => _ChatInputState();
@@ -42,8 +41,8 @@ class ChatInput extends StatefulWidget {
 class _ChatInputState extends State<ChatInput> {
   final GlobalKey _textFieldKey = GlobalKey();
   final LayerLink _layerLink = LayerLink();
-  final ChatTextFieldInterceptor _textFieldInterceptor =
-      ChatTextFieldInterceptor();
+  // final ChatTextFieldInterceptor _textFieldInterceptor =
+  //     ChatTextFieldInterceptor();
 
   late final _inputFocusNode = FocusNode(
     onKeyEvent: (node, event) {
@@ -156,7 +155,7 @@ class _ChatInputState extends State<ChatInput> {
           focusNode: _inputFocusNode,
           decoration: InputDecoration(
             border: InputBorder.none,
-            hintText: LocaleKeys.chat_inputMessageHint.tr(),
+            hintText: widget.hintText,
             hintStyle: TextStyle(
               color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
             ),
@@ -168,28 +167,28 @@ class _ChatInputState extends State<ChatInput> {
           textCapitalization: TextCapitalization.sentences,
           maxLines: 10,
           minLines: 1,
-          onChanged: (text) {
-            final handler = _textFieldInterceptor.onTextChanged(
-              text,
-              _textController,
-              _inputFocusNode,
-            );
-            // If the handler is not null, it means that the text has been
-            // recognized as a command.
-            if (handler != null) {
-              ChatActionsMenu(
-                anchor: ChatInputAnchor(
-                  anchorKey: _textFieldKey,
-                  layerLink: _layerLink,
-                ),
-                handler: handler,
-                context: context,
-                style: Theme.of(context).brightness == Brightness.dark
-                    ? const ChatActionsMenuStyle.dark()
-                    : const ChatActionsMenuStyle.light(),
-              ).show();
-            }
-          },
+          // onChanged: (text) {
+          //   final handler = _textFieldInterceptor.onTextChanged(
+          //     text,
+          //     _textController,
+          //     _inputFocusNode,
+          //   );
+          //   // If the handler is not null, it means that the text has been
+          //   // recognized as a command.
+          //   if (handler != null) {
+          //     ChatActionsMenu(
+          //       anchor: ChatInputAnchor(
+          //         anchorKey: _textFieldKey,
+          //         layerLink: _layerLink,
+          //       ),
+          //       handler: handler,
+          //       context: context,
+          //       style: Theme.of(context).brightness == Brightness.dark
+          //           ? const ChatActionsMenuStyle.dark()
+          //           : const ChatActionsMenuStyle.light(),
+          //     ).show();
+          //   }
+          // },
         ),
       ),
     );
