@@ -5,7 +5,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
-import 'chat_input.dart';
+import 'chat_input/chat_input.dart';
 
 class ChatWelcomePage extends StatelessWidget {
   ChatWelcomePage({required this.onSelectedQuestion, super.key});
