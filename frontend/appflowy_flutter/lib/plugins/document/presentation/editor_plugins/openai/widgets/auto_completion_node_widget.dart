@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/text_robot.dart';
@@ -13,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'ai_limit_dialog.dart';
@@ -178,6 +177,7 @@ class _AutoCompletionBlockComponentState
     await editorState.apply(
       transaction,
       options: const ApplyOptions(recordUndo: false),
+      withUpdateSelection: false,
     );
   }
 
