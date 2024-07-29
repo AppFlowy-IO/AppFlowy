@@ -125,26 +125,28 @@ function MoreActions({ comment }: { comment: GlobalComment }) {
           <MoreIcon className={'h-4 w-4'} />
         </IconButton>
       </RichTooltip>
-      <NormalModal
-        PaperProps={{
-          sx: {
-            maxWidth: 420,
-          },
-        }}
-        okText={t('button.delete')}
-        danger={true}
-        onOk={handleDeleteAction}
-        onCancel={() => {
-          setDeleteModalOpen(false);
-        }}
-        onClose={() => setDeleteModalOpen(false)}
-        open={deleteModalOpen}
-        title={<div className={'text-left'}>{t('globalComment.deleteComment')}</div>}
-      >
-        <div className={'w-full whitespace-pre-wrap break-words pb-1 text-text-caption'}>
-          {t('globalComment.confirmDeleteDescription')}
-        </div>
-      </NormalModal>
+      {deleteModalOpen && (
+        <NormalModal
+          PaperProps={{
+            sx: {
+              maxWidth: 420,
+            },
+          }}
+          okText={t('button.delete')}
+          danger={true}
+          onOk={handleDeleteAction}
+          onCancel={() => {
+            setDeleteModalOpen(false);
+          }}
+          onClose={() => setDeleteModalOpen(false)}
+          open={deleteModalOpen}
+          title={<div className={'text-left'}>{t('globalComment.deleteComment')}</div>}
+        >
+          <div className={'w-full whitespace-pre-wrap break-words pb-1 text-text-caption'}>
+            {t('globalComment.confirmDeleteDescription')}
+          </div>
+        </NormalModal>
+      )}
     </>
   );
 }

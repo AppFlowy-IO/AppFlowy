@@ -167,13 +167,15 @@ function AddComment() {
           </Button>
         </div>
       )}
-      <LoginModal
-        redirectTo={url}
-        open={loginOpen}
-        onClose={() => {
-          setLoginOpen(false);
-        }}
-      />
+      {loginOpen && (
+        <LoginModal
+          redirectTo={url}
+          open={loginOpen}
+          onClose={() => {
+            setLoginOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }

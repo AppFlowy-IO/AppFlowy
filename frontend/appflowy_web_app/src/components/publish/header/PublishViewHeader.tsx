@@ -67,7 +67,7 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
     >
       <div className={'flex w-full items-center justify-between gap-2 overflow-hidden'}>
         <Suspense fallback={null}>
-          {!openDrawer && (
+          {!openDrawer && openPopover && (
             <OutlinePopover
               onMouseEnter={handleOpenPopover}
               onMouseLeave={debounceClosePopover}
