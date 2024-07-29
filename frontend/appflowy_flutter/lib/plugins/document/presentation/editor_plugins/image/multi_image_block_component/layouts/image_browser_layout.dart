@@ -7,13 +7,13 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/layouts/multi_image_layouts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -25,24 +25,9 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:provider/provider.dart';
 
+import '../image_render.dart';
+
 const _thumbnailItemSize = 100.0;
-
-abstract class ImageBlockMultiLayout extends StatefulWidget {
-  const ImageBlockMultiLayout({
-    super.key,
-    required this.node,
-    required this.editorState,
-    required this.images,
-    required this.indexNotifier,
-    required this.isLocalMode,
-  });
-
-  final Node node;
-  final EditorState editorState;
-  final List<ImageBlockData> images;
-  final ValueNotifier<int> indexNotifier;
-  final bool isLocalMode;
-}
 
 class ImageBrowserLayout extends ImageBlockMultiLayout {
   const ImageBrowserLayout({
@@ -327,7 +312,8 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
 
     transaction.updateNode(widget.node, {
       MultiImageBlockKeys.images: imagesJson,
-      MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
+      MultiImageBlockKeys.layout:
+          widget.node.attributes[MultiImageBlockKeys.layout],
     });
 
     await widget.editorState.apply(transaction);
@@ -417,38 +403,6 @@ class _ThumbnailItemState extends State<ThumbnailItem> {
           ],
         ),
       ),
-    );
-  }
-}
-
-@visibleForTesting
-class ImageRender extends StatelessWidget {
-  const ImageRender({
-    super.key,
-    required this.image,
-    this.userProfile,
-    this.fit = BoxFit.cover,
-  });
-
-  final ImageBlockData image;
-  final UserProfilePB? userProfile;
-  final BoxFit fit;
-
-  @override
-  Widget build(BuildContext context) {
-    final child = switch (image.type) {
-      CustomImageType.internal || CustomImageType.external => FlowyNetworkImage(
-          url: image.url,
-          userProfilePB: userProfile,
-          fit: fit,
-        ),
-      CustomImageType.local => Image.file(File(image.url), fit: fit),
-    };
-
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: const BoxDecoration(borderRadius: Corners.s6Border),
-      child: child,
     );
   }
 }

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/layouts/multi_image_layouts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_placeholder.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_layouts.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 
 const kMultiImagePlaceholderKey = 'multiImagePlaceholderKey';
@@ -159,7 +162,7 @@ class MultiImageBlockComponentState extends State<MultiImageBlockComponent>
         node: node,
       );
     } else {
-      child = ImageBrowserLayout(
+      child = ImageLayoutRender(
         node: node,
         images: data.images,
         editorState: editorState,
@@ -334,17 +337,14 @@ class MultiImageData {
 
 enum MultiImageLayout {
   browser,
-  masonry,
   grid;
 
   int toIntValue() {
     switch (this) {
       case MultiImageLayout.browser:
         return 0;
-      case MultiImageLayout.masonry:
-        return 1;
       case MultiImageLayout.grid:
-        return 2;
+        return 1;
     }
   }
 
@@ -353,11 +353,19 @@ enum MultiImageLayout {
       case 0:
         return MultiImageLayout.browser;
       case 1:
-        return MultiImageLayout.masonry;
-      case 2:
         return MultiImageLayout.grid;
       default:
         throw UnimplementedError();
     }
   }
+
+  String get label => switch (this) {
+        browser => LocaleKeys.document_plugins_photoGallery_browserLayout.tr(),
+        grid => LocaleKeys.document_plugins_photoGallery_gridLayout.tr(),
+      };
+
+  FlowySvgData get icon => switch (this) {
+        browser => FlowySvgs.photo_layout_browser_s,
+        grid => FlowySvgs.photo_layout_grid_s,
+      };
 }

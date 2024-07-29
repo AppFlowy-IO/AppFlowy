@@ -21,6 +21,8 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu, Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:http/http.dart';
@@ -57,6 +59,7 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
   );
 
   final PopoverController controller = PopoverController();
+  final PopoverController layoutController = PopoverController();
   late List<ImageBlockData> images;
   late final EditorState editorState;
 
@@ -73,6 +76,7 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
   void dispose() {
     allowMenuClose();
     controller.close();
+    layoutController.close();
     super.dispose();
   }
 
@@ -88,6 +92,9 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final layout = MultiImageLayout.fromIntValue(
+      widget.node.attributes[MultiImageBlockKeys.layout] ?? 0,
+    );
     return Container(
       height: 32,
       decoration: BoxDecoration(
@@ -104,11 +111,6 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
       child: Row(
         children: [
           const HSpace(4),
-          MenuBlockButton(
-            tooltip: LocaleKeys.document_imageBlock_openFullScreen.tr(),
-            iconData: FlowySvgs.full_view_s,
-            onTap: openFullScreen,
-          ),
           AppFlowyPopover(
             controller: controller,
             direction: PopoverDirection.bottomWithRightAligned,
@@ -141,9 +143,57 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
               onTap: () {},
             ),
           ),
+          const HSpace(4),
+          AppFlowyPopover(
+            controller: layoutController,
+            onClose: allowMenuClose,
+            direction: PopoverDirection.bottomWithRightAligned,
+            offset: const Offset(0, 10),
+            constraints: const BoxConstraints(
+              maxHeight: 300,
+              maxWidth: 300,
+            ),
+            popupBuilder: (context) {
+              preventMenuClose();
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _LayoutSelector(
+                    selectedLayout: layout,
+                    onSelected: (layout) {
+                      allowMenuClose();
+                      layoutController.close();
+                      final transaction = editorState.transaction;
+                      transaction.updateNode(widget.node, {
+                        MultiImageBlockKeys.images:
+                            widget.node.attributes[MultiImageBlockKeys.images],
+                        MultiImageBlockKeys.layout: layout.toIntValue(),
+                      });
+                      editorState.apply(transaction);
+                    },
+                  ),
+                ],
+              );
+            },
+            child: MenuBlockButton(
+              tooltip: LocaleKeys
+                  .document_plugins_photoGallery_changeLayoutTooltip
+                  .tr(),
+              iconData: FlowySvgs.edit_layout_s,
+              onTap: () {},
+            ),
+          ),
+          const HSpace(4),
+          MenuBlockButton(
+            tooltip: LocaleKeys.document_imageBlock_openFullScreen.tr(),
+            iconData: FlowySvgs.full_view_s,
+            onTap: openFullScreen,
+          ),
+
           // disable the copy link button if the image is hosted on appflowy cloud
           // because the url needs the verification token to be accessible
-          if (!images[widget.indexNotifier.value].url.isAppFlowyCloudUrl) ...[
+          if (layout == MultiImageLayout.browser &&
+              !images[widget.indexNotifier.value].url.isAppFlowyCloudUrl) ...[
             const HSpace(4),
             MenuBlockButton(
               tooltip: LocaleKeys.editor_copyLink.tr(),
@@ -153,7 +203,8 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
           ],
           const _Divider(),
           MenuBlockButton(
-            tooltip: LocaleKeys.button_delete.tr(),
+            tooltip: LocaleKeys.document_plugins_photoGallery_deleteBlockTooltip
+                .tr(),
             iconData: FlowySvgs.delete_s,
             onTap: deleteImage,
           ),
@@ -202,8 +253,8 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
                 newImages.map((image) => image.toJson()).toList();
             transaction.updateNode(widget.node, {
               MultiImageBlockKeys.images: imagesJson,
-              // Default to Browser layout
-              MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
+              MultiImageBlockKeys.layout:
+                  widget.node.attributes[MultiImageBlockKeys.layout],
             });
 
             await editorState.apply(transaction);
@@ -246,8 +297,8 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
           [...images, ...newImages].map((i) => i.toJson()).toList();
       transaction.updateNode(widget.node, {
         MultiImageBlockKeys.images: imagesJson,
-        // Default to Browser layout
-        MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
+        MultiImageBlockKeys.layout:
+            widget.node.attributes[MultiImageBlockKeys.layout],
       });
 
       await editorState.apply(transaction);
@@ -310,8 +361,8 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
     final imagesJson = newImages.map((image) => image.toJson()).toList();
     transaction.updateNode(widget.node, {
       MultiImageBlockKeys.images: imagesJson,
-      // Default to Browser layout
-      MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
+      MultiImageBlockKeys.layout:
+          widget.node.attributes[MultiImageBlockKeys.layout],
     });
 
     await editorState.apply(transaction);
@@ -327,6 +378,61 @@ class _Divider extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Container(width: 1, color: Colors.grey),
+    );
+  }
+}
+
+class _LayoutSelector extends StatelessWidget {
+  const _LayoutSelector({
+    required this.selectedLayout,
+    required this.onSelected,
+  });
+
+  final MultiImageLayout selectedLayout;
+  final Function(MultiImageLayout) onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SeparatedRow(
+      separatorBuilder: () => const HSpace(6),
+      mainAxisSize: MainAxisSize.min,
+      children: MultiImageLayout.values
+          .map(
+            (layout) => MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => onSelected(layout),
+                child: Container(
+                  height: 80,
+                  width: 80,
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 2,
+                      color: selectedLayout == layout
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).dividerColor,
+                    ),
+                    borderRadius: Corners.s8Border,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FlowySvg(
+                        layout.icon,
+                        color: AFThemeExtension.of(context).strongText,
+                        size: const Size.square(24),
+                      ),
+                      const VSpace(6),
+                      FlowyText(layout.label),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 }

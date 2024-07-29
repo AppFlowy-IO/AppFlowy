@@ -1506,7 +1506,11 @@
         "photoKeyword": "photo",
         "photoBrowserKeyword": "photo browser",
         "galleryKeyword": "gallery",
-        "addImageTooltip": "Add image"
+        "addImageTooltip": "Add image",
+        "changeLayoutTooltip": "Change layout",
+        "browserLayout": "Browser",
+        "gridLayout": "Grid",
+        "deleteBlockTooltip": "Delete whole gallery"
       },
       "math": {
         "copiedToPasteBoard": "The math equation has been copied to the clipboard"
