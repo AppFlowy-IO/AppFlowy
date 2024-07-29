@@ -13,9 +13,9 @@ class ChatInputBloc extends Bloc<ChatInputEvent, ChatInputState> {
       : listener = LocalLLMListener(),
         super(const ChatInputState(aiType: _AppFlowyAI())) {
     listener.start(
-      stateCallback: (pluginState) {
+      chatStateCallback: (aiState) {
         if (!isClosed) {
-          add(ChatInputEvent.updateState(pluginState));
+          add(ChatInputEvent.updateState(aiState));
         }
       },
     );
@@ -37,18 +37,26 @@ class ChatInputBloc extends Bloc<ChatInputEvent, ChatInputState> {
   ) async {
     await event.when(
       started: () async {
-        final result = await ChatEventGetLocalAIPluginState().send();
+        final result = await ChatEventGetLocalAIChatState().send();
         result.fold(
-          (pluginState) {
+          (aiState) {
             if (!isClosed) {
-              add(ChatInputEvent.updateState(pluginState));
+              add(
+                ChatInputEvent.updateState(aiState),
+              );
             }
           },
-          (err) => Log.error(err.toString()),
+          (err) {
+            Log.error(err.toString());
+          },
         );
       },
-      updateState: (LocalAIPluginStatePB aiPluginState) {
-        emit(const ChatInputState(aiType: _AppFlowyAI()));
+      updateState: (aiState) {
+        if (aiState.enabled) {
+          emit(const ChatInputState(aiType: _LocalAI()));
+        } else {
+          emit(const ChatInputState(aiType: _AppFlowyAI()));
+        }
       },
     );
   }
@@ -57,8 +65,8 @@ class ChatInputBloc extends Bloc<ChatInputEvent, ChatInputState> {
 @freezed
 class ChatInputEvent with _$ChatInputEvent {
   const factory ChatInputEvent.started() = _Started;
-  const factory ChatInputEvent.updateState(LocalAIPluginStatePB aiPluginState) =
-      _UpdatePluginState;
+  const factory ChatInputEvent.updateState(LocalAIChatPB aiState) =
+      _UpdateAIState;
 }
 
 @freezed

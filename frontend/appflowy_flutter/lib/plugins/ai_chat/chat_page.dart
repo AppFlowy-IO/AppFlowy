@@ -23,7 +23,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 
-import 'presentation/chat_input.dart';
+import 'presentation/chat_input/chat_input.dart';
 import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
@@ -82,7 +82,9 @@ class AIChatPage extends StatelessWidget {
               userProfile: userProfile,
             )..add(const ChatEvent.initialLoad()),
           ),
-          BlocProvider(create: (_) => ChatInputBloc()),
+          BlocProvider(
+            create: (_) => ChatInputBloc()..add(const ChatInputEvent.started()),
+          ),
         ],
         child: BlocListener<ChatFileBloc, ChatFileState>(
           listenWhen: (previous, current) =>
@@ -391,36 +393,39 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         padding: AIChatUILayout.safeAreaInsets(context),
         child: BlocBuilder<ChatInputBloc, ChatInputState>(
           builder: (context, state) {
-            return state.aiType.when(
-              appflowyAI: () => Column(
-                children: [
-                  BlocSelector<ChatBloc, ChatState, LoadingState>(
-                    selector: (state) => state.streamingStatus,
-                    builder: (context, state) {
-                      return ChatInput(
-                        chatId: widget.view.id,
-                        onSendPressed: (message) =>
-                            onSendPressed(context, message.text),
-                        isStreaming: state != const LoadingState.finish(),
-                        onStopStreaming: () {
-                          context
-                              .read<ChatBloc>()
-                              .add(const ChatEvent.stopStream());
-                        },
-                      );
-                    },
+            final hintText = state.aiType.when(
+              appflowyAI: () => LocaleKeys.chat_inputMessageHint.tr(),
+              localAI: () => LocaleKeys.chat_inputLocalAIMessageHint.tr(),
+            );
+
+            return Column(
+              children: [
+                BlocSelector<ChatBloc, ChatState, LoadingState>(
+                  selector: (state) => state.streamingStatus,
+                  builder: (context, state) {
+                    return ChatInput(
+                      chatId: widget.view.id,
+                      onSendPressed: (message) =>
+                          onSendPressed(context, message.text),
+                      isStreaming: state != const LoadingState.finish(),
+                      onStopStreaming: () {
+                        context
+                            .read<ChatBloc>()
+                            .add(const ChatEvent.stopStream());
+                      },
+                      hintText: hintText,
+                    );
+                  },
+                ),
+                const VSpace(6),
+                Opacity(
+                  opacity: 0.6,
+                  child: FlowyText(
+                    LocaleKeys.chat_aiMistakePrompt.tr(),
+                    fontSize: 12,
                   ),
-                  const VSpace(6),
-                  Opacity(
-                    opacity: 0.6,
-                    child: FlowyText(
-                      LocaleKeys.chat_aiMistakePrompt.tr(),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              localAI: () => const SizedBox.shrink(),
+                ),
+              ],
             );
           },
         ),

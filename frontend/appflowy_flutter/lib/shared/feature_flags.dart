@@ -4,7 +4,6 @@ import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 
 typedef FeatureFlagMap = Map<FeatureFlag, bool>;
 

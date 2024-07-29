@@ -23,6 +23,9 @@ class DocumentPageStyleBloc
         await event.when(
           initial: () async {
             try {
+              if (view.id.isEmpty) {
+                return;
+              }
               final layoutObject =
                   await ViewBackendService.getView(view.id).fold(
                 (s) => jsonDecode(s.extra),

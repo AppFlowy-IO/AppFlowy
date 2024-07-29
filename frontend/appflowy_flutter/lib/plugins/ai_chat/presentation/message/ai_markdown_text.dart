@@ -1,11 +1,14 @@
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 
 import 'selectable_highlight.dart';
@@ -30,7 +33,11 @@ class AIMarkdownText extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (type) {
       case AIMarkdownType.appflowyEditor:
-        return _AppFlowyEditorMarkdown(markdown: markdown);
+        return BlocProvider(
+          create: (context) => DocumentPageStyleBloc(view: ViewPB())
+            ..add(const DocumentPageStyleEvent.initial()),
+          child: _AppFlowyEditorMarkdown(markdown: markdown),
+        );
       case AIMarkdownType.markdownWidget:
         return _ThirdPartyMarkdown(markdown: markdown);
     }
