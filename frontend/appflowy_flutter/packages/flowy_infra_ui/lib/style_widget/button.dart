@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
@@ -311,7 +310,7 @@ class FlowyTextButton extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 32),
         fillColor: Theme.of(context).colorScheme.primary,
         hoverColor: const Color(0xFF005483),
-        fontColor: AFThemeExtension.of(context).strongText,
+        fontColor: Theme.of(context).colorScheme.onPrimary,
         fontHoverColor: Colors.white,
         onPressed: onPressed,
       );

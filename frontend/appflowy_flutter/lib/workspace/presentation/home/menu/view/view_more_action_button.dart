@@ -19,12 +19,14 @@ class ViewMoreActionButton extends StatelessWidget {
     required this.onEditing,
     required this.onAction,
     required this.spaceType,
+    required this.isExpanded,
   });
 
   final ViewPB view;
   final void Function(bool value) onEditing;
   final void Function(ViewMoreActionType type, dynamic data) onAction;
   final FolderSpaceType spaceType;
+  final bool isExpanded;
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +104,9 @@ class ViewMoreActionButton extends StatelessWidget {
 
       // Chat doesn't change collapse
       // Only show collapse all pages if the view has child views
-      if (view.layout != ViewLayoutPB.Chat && view.childViews.isNotEmpty) {
+      if (view.layout != ViewLayoutPB.Chat &&
+          view.childViews.isNotEmpty &&
+          isExpanded) {
         actionTypes.add(ViewMoreActionType.collapseAllPages);
         actionTypes.add(ViewMoreActionType.divider);
       }
