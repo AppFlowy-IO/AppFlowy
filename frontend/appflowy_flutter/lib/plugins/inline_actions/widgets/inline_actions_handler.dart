@@ -49,7 +49,7 @@ extension _StartWithsSort on List<InlineActionsResult> {
       );
 }
 
-const _invalidSearchesAmount = 20;
+const _invalidSearchesAmount = 10;
 
 class InlineActionsHandler extends StatefulWidget {
   const InlineActionsHandler({
@@ -81,8 +81,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   final _focusNode = FocusNode(debugLabel: 'inline_actions_menu_handler');
   final _scrollController = ScrollController();
 
-  Timer? _debounce;
-
   late List<InlineActionsResult> results = widget.results;
   int invalidCounter = 0;
   late int startOffset;
@@ -90,8 +88,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   String _search = '';
   set search(String search) {
     _search = search;
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 200), _doSearch);
+    _doSearch();
   }
 
   Future<void> _doSearch() async {
@@ -109,10 +106,13 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         : 0;
 
     if (invalidCounter >= _invalidSearchesAmount) {
+      widget.onDismiss();
+
       // Workaround to bring focus back to editor
       await widget.editorState
           .updateSelectionWithReason(widget.editorState.selection);
-      return widget.onDismiss();
+
+      return;
     }
 
     _resetSelection();
@@ -143,7 +143,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   void dispose() {
     _scrollController.dispose();
     _focusNode.dispose();
-    _debounce?.cancel();
     super.dispose();
   }
 
