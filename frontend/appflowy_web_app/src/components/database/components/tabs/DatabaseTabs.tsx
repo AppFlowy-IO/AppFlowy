@@ -48,12 +48,14 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
       return classList.join(' ');
     }, [layout]);
 
+    const showActions = !hideConditions && layout !== DatabaseViewLayout.Calendar;
+
     if (viewIds.length === 0) return null;
     return (
       <div ref={ref} className={className}>
         <div
           style={{
-            width: 'calc(100% - 120px)',
+            width: showActions ? 'calc(100% - 120px)' : '100%',
           }}
           className='flex items-center '
         >
@@ -90,7 +92,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             })}
           </ViewTabs>
         </div>
-        {!hideConditions && layout !== DatabaseViewLayout.Calendar ? <DatabaseActions /> : null}
+        {showActions ? <DatabaseActions /> : null}
       </div>
     );
   }

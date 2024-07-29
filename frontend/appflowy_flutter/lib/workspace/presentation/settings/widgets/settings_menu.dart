@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
@@ -111,26 +112,26 @@ class SettingsMenu extends StatelessWidget {
                     ),
                     changeSelectedPage: changeSelectedPage,
                   ),
-                  // if (FeatureFlag.planBilling.isOn &&
-                  //     userProfile.authenticator ==
-                  //         AuthenticatorPB.AppFlowyCloud &&
-                  //     member != null &&
-                  //     member!.role.isOwner) ...[
-                  //   SettingsMenuElement(
-                  //     page: SettingsPage.plan,
-                  //     selectedPage: currentPage,
-                  //     label: LocaleKeys.settings_planPage_menuLabel.tr(),
-                  //     icon: const FlowySvg(FlowySvgs.settings_plan_m),
-                  //     changeSelectedPage: changeSelectedPage,
-                  //   ),
-                  //   SettingsMenuElement(
-                  //     page: SettingsPage.billing,
-                  //     selectedPage: currentPage,
-                  //     label: LocaleKeys.settings_billingPage_menuLabel.tr(),
-                  //     icon: const FlowySvg(FlowySvgs.settings_billing_m),
-                  //     changeSelectedPage: changeSelectedPage,
-                  //   ),
-                  // ],
+                  if (FeatureFlag.planBilling.isOn &&
+                      userProfile.authenticator ==
+                          AuthenticatorPB.AppFlowyCloud &&
+                      member != null &&
+                      member!.role.isOwner) ...[
+                    SettingsMenuElement(
+                      page: SettingsPage.plan,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_planPage_menuLabel.tr(),
+                      icon: const FlowySvg(FlowySvgs.settings_plan_m),
+                      changeSelectedPage: changeSelectedPage,
+                    ),
+                    SettingsMenuElement(
+                      page: SettingsPage.billing,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_billingPage_menuLabel.tr(),
+                      icon: const FlowySvg(FlowySvgs.settings_billing_m),
+                      changeSelectedPage: changeSelectedPage,
+                    ),
+                  ],
                   if (kDebugMode)
                     SettingsMenuElement(
                       // no need to translate this page

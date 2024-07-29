@@ -411,30 +411,32 @@ class _UserProfileSettingState extends State<UserProfileSetting> {
         ),
         const HSpace(16),
         if (!isEditing) ...[
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: FlowyText.medium(
-                    widget.name,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const HSpace(4),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => setState(() => isEditing = true),
-                  child: const FlowyHover(
-                    resetHoverOnRebuild: false,
-                    child: Padding(
-                      padding: EdgeInsets.all(4),
-                      child: FlowySvg(FlowySvgs.edit_s),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: FlowyText.medium(
+                      widget.name,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-              ],
+                  const HSpace(4),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => setState(() => isEditing = true),
+                    child: const FlowyHover(
+                      resetHoverOnRebuild: false,
+                      child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: FlowySvg(FlowySvgs.edit_s),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ] else ...[

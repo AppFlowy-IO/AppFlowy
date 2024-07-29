@@ -5,6 +5,7 @@ import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/cancel_plan_survey_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -141,7 +142,7 @@ class _SettingsPlanComparisonDialogState
                               children: [
                                 const VSpace(30),
                                 SizedBox(
-                                  height: 100,
+                                  height: 116,
                                   child: FlowyText.semibold(
                                     LocaleKeys
                                         .settings_comparePlanDialog_planFeatures
@@ -153,7 +154,7 @@ class _SettingsPlanComparisonDialogState
                                         : const Color(0xFFE8E0FF),
                                   ),
                                 ),
-                                const SizedBox(height: 96),
+                                const SizedBox(height: 116),
                                 const SizedBox(height: 56),
                                 ..._planLabels.map(
                                   (e) => _ComparisonCell(
@@ -184,21 +185,19 @@ class _SettingsPlanComparisonDialogState
                             cells: _freeLabels,
                             isCurrent:
                                 currentInfo.plan == WorkspacePlanPB.FreePlan,
-                            canDowngrade:
-                                currentInfo.plan != WorkspacePlanPB.FreePlan,
-                            currentCanceled: currentInfo.isCanceled ||
-                                (context
-                                        .watch<SettingsPlanBloc>()
-                                        .state
-                                        .mapOrNull(
-                                          loading: (_) => true,
-                                          ready: (s) => s.downgradeProcessing,
-                                        ) ??
-                                    false),
+                            buttonType: WorkspacePlanPB.FreePlan.buttonTypeFor(
+                              currentInfo.plan,
+                            ),
                             onSelected: () async {
                               if (currentInfo.plan ==
                                       WorkspacePlanPB.FreePlan ||
                                   currentInfo.isCanceled) {
+                                return;
+                              }
+
+                              final reason =
+                                  await showCancelSurveyDialog(context);
+                              if (reason == null || !context.mounted) {
                                 return;
                               }
 
@@ -216,8 +215,9 @@ class _SettingsPlanComparisonDialogState
                                 style: ConfirmPopupStyle.cancelAndOk,
                                 onConfirm: () =>
                                     context.read<SettingsPlanBloc>().add(
-                                          const SettingsPlanEvent
-                                              .cancelSubscription(),
+                                          SettingsPlanEvent.cancelSubscription(
+                                            reason: reason,
+                                          ),
                                         ),
                               );
                             },
@@ -242,9 +242,9 @@ class _SettingsPlanComparisonDialogState
                             cells: _proLabels,
                             isCurrent:
                                 currentInfo.plan == WorkspacePlanPB.ProPlan,
-                            canUpgrade:
-                                currentInfo.plan == WorkspacePlanPB.FreePlan,
-                            currentCanceled: currentInfo.isCanceled,
+                            buttonType: WorkspacePlanPB.ProPlan.buttonTypeFor(
+                              currentInfo.plan,
+                            ),
                             onSelected: () =>
                                 context.read<SettingsPlanBloc>().add(
                                       const SettingsPlanEvent.addSubscription(
@@ -266,6 +266,35 @@ class _SettingsPlanComparisonDialogState
   }
 }
 
+enum _PlanButtonType {
+  none,
+  upgrade,
+  downgrade;
+
+  bool get isDowngrade => this == downgrade;
+  bool get isUpgrade => this == upgrade;
+}
+
+extension _ButtonTypeFrom on WorkspacePlanPB {
+  /// Returns the button type for the given plan, taking the
+  /// current plan as [other].
+  ///
+  _PlanButtonType buttonTypeFor(WorkspacePlanPB other) {
+    /// Current plan, no action
+    if (this == other) {
+      return _PlanButtonType.none;
+    }
+
+    // Free plan, can downgrade if not on the free plan
+    if (this == WorkspacePlanPB.FreePlan && other != WorkspacePlanPB.FreePlan) {
+      return _PlanButtonType.downgrade;
+    }
+
+    // Else we can assume it's an upgrade
+    return _PlanButtonType.upgrade;
+  }
+}
+
 class _PlanTable extends StatelessWidget {
   const _PlanTable({
     required this.title,
@@ -275,9 +304,7 @@ class _PlanTable extends StatelessWidget {
     required this.cells,
     required this.isCurrent,
     required this.onSelected,
-    this.canUpgrade = false,
-    this.canDowngrade = false,
-    this.currentCanceled = false,
+    this.buttonType = _PlanButtonType.none,
   });
 
   final String title;
@@ -288,13 +315,11 @@ class _PlanTable extends StatelessWidget {
   final List<_CellItem> cells;
   final bool isCurrent;
   final VoidCallback onSelected;
-  final bool canUpgrade;
-  final bool canDowngrade;
-  final bool currentCanceled;
+  final _PlanButtonType buttonType;
 
   @override
   Widget build(BuildContext context) {
-    final highlightPlan = !isCurrent && !canDowngrade && canUpgrade;
+    final highlightPlan = !isCurrent && buttonType == _PlanButtonType.upgrade;
     final isLM = Theme.of(context).isLightMode;
 
     return Container(
@@ -336,37 +361,29 @@ class _PlanTable extends StatelessWidget {
               title: price,
               description: priceInfo,
               isPrimary: !highlightPlan,
-              height: 96,
             ),
-            if (canUpgrade || canDowngrade) ...[
+            if (buttonType == _PlanButtonType.none) ...[
+              const SizedBox(height: 56),
+            ] else ...[
               Opacity(
-                opacity: canDowngrade && currentCanceled ? 0.5 : 1,
+                opacity: 1,
                 child: Padding(
                   padding: EdgeInsets.only(
-                    left: 12 + (canUpgrade && !canDowngrade ? 12 : 0),
+                    left: 12 + (buttonType.isUpgrade ? 12 : 0),
                   ),
                   child: _ActionButton(
-                    label: canUpgrade && !canDowngrade
+                    label: buttonType.isUpgrade
                         ? LocaleKeys.settings_comparePlanDialog_actions_upgrade
                             .tr()
                         : LocaleKeys
                             .settings_comparePlanDialog_actions_downgrade
                             .tr(),
-                    onPressed: !canUpgrade && canDowngrade && currentCanceled
-                        ? null
-                        : onSelected,
-                    tooltip: !canUpgrade && canDowngrade && currentCanceled
-                        ? LocaleKeys
-                            .settings_comparePlanDialog_actions_downgradeDisabledTooltip
-                            .tr()
-                        : null,
-                    isUpgrade: canUpgrade && !canDowngrade,
-                    useGradientBorder: !isCurrent && canUpgrade,
+                    onPressed: onSelected,
+                    isUpgrade: buttonType.isUpgrade,
+                    useGradientBorder: buttonType.isUpgrade,
                   ),
                 ),
               ),
-            ] else ...[
-              const SizedBox(height: 56),
             ],
             ...cells.map(
               (cell) => _ComparisonCell(
@@ -467,14 +484,12 @@ class _ComparisonCell extends StatelessWidget {
 class _ActionButton extends StatelessWidget {
   const _ActionButton({
     required this.label,
-    this.tooltip,
     required this.onPressed,
     required this.isUpgrade,
     this.useGradientBorder = false,
   });
 
   final String label;
-  final String? tooltip;
   final VoidCallback? onPressed;
   final bool isUpgrade;
   final bool useGradientBorder;
@@ -487,30 +502,27 @@ class _ActionButton extends StatelessWidget {
       height: 56,
       child: Row(
         children: [
-          FlowyTooltip(
-            message: tooltip,
-            child: GestureDetector(
-              onTap: onPressed,
-              child: MouseRegion(
-                cursor: onPressed != null
-                    ? SystemMouseCursors.click
-                    : MouseCursor.defer,
-                child: _drawBorder(
-                  context,
-                  isLM: isLM,
-                  isUpgrade: isUpgrade,
-                  child: Container(
-                    height: 36,
-                    width: 148,
-                    decoration: BoxDecoration(
-                      color: useGradientBorder
-                          ? Theme.of(context).cardColor
-                          : Colors.transparent,
-                      border: Border.all(color: Colors.transparent),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Center(child: _drawText(label, isLM, isUpgrade)),
+          GestureDetector(
+            onTap: onPressed,
+            child: MouseRegion(
+              cursor: onPressed != null
+                  ? SystemMouseCursors.click
+                  : MouseCursor.defer,
+              child: _drawBorder(
+                context,
+                isLM: isLM,
+                isUpgrade: isUpgrade,
+                child: Container(
+                  height: 36,
+                  width: 148,
+                  decoration: BoxDecoration(
+                    color: useGradientBorder
+                        ? Theme.of(context).cardColor
+                        : Colors.transparent,
+                    border: Border.all(color: Colors.transparent),
+                    borderRadius: BorderRadius.circular(14),
                   ),
+                  child: Center(child: _drawText(label, isLM, isUpgrade)),
                 ),
               ),
             ),
@@ -538,10 +550,7 @@ class _ActionButton extends StatelessWidget {
       shaderCallback: (bounds) => const LinearGradient(
         transform: GradientRotation(-1.55),
         stops: [0.4, 1],
-        colors: [
-          Color(0xFF251D37),
-          Color(0xFF7547C0),
-        ],
+        colors: [Color(0xFF251D37), Color(0xFF7547C0)],
       ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
       child: child,
     );
@@ -579,19 +588,17 @@ class _Heading extends StatelessWidget {
     required this.title,
     this.description,
     this.isPrimary = true,
-    this.height = 100,
   });
 
   final String title;
   final String? description;
   final bool isPrimary;
-  final double height;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 185,
-      height: height,
+      height: 116,
       child: Padding(
         padding: EdgeInsets.only(left: 12 + (!isPrimary ? 12 : 0)),
         child: Column(
@@ -615,11 +622,13 @@ class _Heading extends StatelessWidget {
             ),
             if (description != null && description!.isNotEmpty) ...[
               const VSpace(4),
-              FlowyText.regular(
-                description!,
-                fontSize: 12,
-                maxLines: 3,
-                lineHeight: 1.5,
+              Flexible(
+                child: FlowyText.regular(
+                  description!,
+                  fontSize: 12,
+                  maxLines: 5,
+                  lineHeight: 1.5,
+                ),
               ),
             ],
           ],

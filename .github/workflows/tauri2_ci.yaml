@@ -1,4 +1,5 @@
 name: Tauri-CI
+
 on:
   pull_request:
     paths:
@@ -17,22 +18,45 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tauri-build:
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ ubuntu-20.04 ]
-
-    runs-on: ${{ matrix.platform }}
+  tauri-build-self-hosted:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
 
     env:
       CI: true
+
     steps:
       - uses: actions/checkout@v4
+      - name: install frontend dependencies
+        working-directory: frontend/appflowy_web_app
+        run: |
+          mkdir dist
+          pnpm install
+          cd src-tauri && cargo build
 
+      - name: test and lint
+        working-directory: frontend/appflowy_web_app
+        run: |
+          pnpm run lint:tauri
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tauriScript: pnpm tauri
+          projectPath: frontend/appflowy_web_app
+          args: "--debug"
+
+  tauri-build-ubuntu:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+
+    env:
+      CI: true
+
+    steps:
       - name: Maximize build space (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -73,14 +97,14 @@ jobs:
           key: node-modules-${{ runner.os }}
 
       - name: install dependencies (windows only)
-        if: matrix.platform == 'windows-latest'
+        if: matrix.os == 'windows-latest'
         working-directory: frontend
         run: |
           cargo install --force duckscript_cli
           vcpkg integrate install
 
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-latest'
         working-directory: frontend
         run: |
           sudo apt-get update
