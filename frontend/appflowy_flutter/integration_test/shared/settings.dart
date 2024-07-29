@@ -12,6 +12,7 @@ import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../desktop/board/board_hide_groups_test.dart';
+
 import 'base.dart';
 import 'common_operations.dart';
 
@@ -21,7 +22,6 @@ extension AppFlowySettings on WidgetTester {
     final settingsButton = find.byType(UserSettingButton);
     expect(settingsButton, findsOneWidget);
     await tapButton(settingsButton);
-    await pumpAndSettle();
     final settingsDialog = find.byType(SettingsDialog);
     expect(settingsDialog, findsOneWidget);
     return;
