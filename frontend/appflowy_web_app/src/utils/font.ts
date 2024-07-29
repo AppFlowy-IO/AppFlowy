@@ -7,10 +7,22 @@ export function getFontFamily(attribute: string) {
     return fontFamily;
   }
 
-  window.WebFont?.load({
-    google: {
-      families: [fontFamily],
-    },
-  });
+  void (async () => {
+    const script = document.createElement('script');
+
+    script.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js';
+    document.body.appendChild(script);
+    await new Promise((resolve) => {
+      script.onload = () => {
+        resolve(true);
+      };
+    });
+    window.WebFont?.load({
+      google: {
+        families: [fontFamily],
+      },
+    });
+  })();
+
   return fontFamily;
 }

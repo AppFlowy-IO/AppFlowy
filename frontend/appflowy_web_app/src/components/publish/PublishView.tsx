@@ -86,13 +86,13 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
           />
 
           <CollabView doc={doc} />
-          <Suspense fallback={<ComponentLoading />}>
-            <GlobalCommentProvider />
-          </Suspense>
+          {doc && (
+            <Suspense fallback={<ComponentLoading />}>
+              <GlobalCommentProvider />
+            </Suspense>
+          )}
         </AFScroller>
-        <Suspense fallback={null}>
-          {open && <OutlineDrawer width={drawerWidth} open={open} onClose={() => setOpen(false)} />}
-        </Suspense>
+        {open && <OutlineDrawer width={drawerWidth} open={open} onClose={() => setOpen(false)} />}
       </div>
     </PublishProvider>
   );

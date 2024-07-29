@@ -6,7 +6,9 @@ import { useTranslation } from 'react-i18next';
 
 function Reaction({ reaction, onClick }: { reaction: ReactionType; onClick: (reaction: ReactionType) => void }) {
   const { t } = useTranslation();
-
+  const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
+  const openLoginModal = useContext(AFConfigContext)?.openLoginModal;
+  const url = window.location.href + '#comment-' + reaction.commentId;
   const reactCount = useMemo(() => {
     return reaction.reactUsers.length;
   }, [reaction.reactUsers]);
@@ -64,7 +66,14 @@ function Reaction({ reaction, onClick }: { reaction: ReactionType; onClick: (rea
     >
       <div
         style={style}
-        onClick={() => onClick(reaction)}
+        onClick={() => {
+          if (!isAuthenticated && openLoginModal) {
+            openLoginModal(url);
+            return;
+          }
+
+          onClick(reaction);
+        }}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         className={

@@ -6,7 +6,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useDuplicate } from '@/components/publish/header/duplicate/useDuplicate';
 import DuplicateModal from '@/components/publish/header/duplicate/DuplicateModal';
 
-function Duplicate() {
+export function Duplicate() {
   const { t } = useTranslation();
   const { loginOpen, duplicateOpen, handleDuplicateClose, handleLoginClose, url } = useDuplicate();
   const [search, setSearch] = useSearchParams();

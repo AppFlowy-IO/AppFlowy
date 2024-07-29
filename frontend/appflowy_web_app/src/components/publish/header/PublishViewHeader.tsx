@@ -66,28 +66,26 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
       className={'appflowy-top-bar sticky top-0 z-10 flex px-5'}
     >
       <div className={'flex w-full items-center justify-between gap-2 overflow-hidden'}>
-        <Suspense fallback={null}>
-          {!openDrawer && openPopover && (
-            <OutlinePopover
+        {!openDrawer && openPopover && (
+          <OutlinePopover
+            onMouseEnter={handleOpenPopover}
+            onMouseLeave={debounceClosePopover}
+            open={openPopover}
+            onClose={debounceClosePopover}
+          >
+            <IconButton
+              className={'hidden'}
+              onClick={() => {
+                setOpenPopover(false);
+                onOpenDrawer();
+              }}
               onMouseEnter={handleOpenPopover}
               onMouseLeave={debounceClosePopover}
-              open={openPopover}
-              onClose={debounceClosePopover}
             >
-              <IconButton
-                className={'hidden'}
-                onClick={() => {
-                  setOpenPopover(false);
-                  onOpenDrawer();
-                }}
-                onMouseEnter={handleOpenPopover}
-                onMouseLeave={debounceClosePopover}
-              >
-                <SideOutlined className={'h-4 w-4'} />
-              </IconButton>
-            </OutlinePopover>
-          )}
-        </Suspense>
+              <SideOutlined className={'h-4 w-4'} />
+            </IconButton>
+          </OutlinePopover>
+        )}
 
         <div className={'h-full flex-1 overflow-hidden'}>
           <Breadcrumb crumbs={crumbs} />

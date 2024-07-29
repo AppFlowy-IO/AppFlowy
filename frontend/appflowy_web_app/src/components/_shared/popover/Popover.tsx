@@ -10,7 +10,7 @@ const defaultProps: Partial<PopoverComponentProps> = {
   },
 };
 
-function Popover({ children, ...props }: PopoverComponentProps) {
+export function Popover({ children, ...props }: PopoverComponentProps) {
   return (
     <PopoverComponent {...defaultProps} {...props}>
       {children}

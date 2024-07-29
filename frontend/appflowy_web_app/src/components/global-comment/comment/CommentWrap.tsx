@@ -1,8 +1,9 @@
+import { AFConfigContext } from '@/components/app/AppConfig';
 import CommentActions from '@/components/global-comment/actions/CommentActions';
 import Comment from './Comment';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import ReplyComment from '@/components/global-comment/ReplyComment';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 
 export interface CommentWrapProps {
@@ -16,6 +17,7 @@ export function CommentWrap({ commentId, isHovered, onHovered }: CommentWrapProp
   const comment = useMemo(() => getComment(commentId), [commentId, getComment]);
   const ref = React.useRef<HTMLDivElement>(null);
   const [highLight, setHighLight] = React.useState(false);
+  const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
 
   useEffect(() => {
     const hashHasComment = window.location.hash.includes(`#comment-${commentId}`);
@@ -29,15 +31,17 @@ export function CommentWrap({ commentId, isHovered, onHovered }: CommentWrapProp
     void (async () => {
       window.location.hash = '';
 
-      await smoothScrollIntoViewIfNeeded(element, {
-        behavior: 'smooth',
-        block: 'center',
-      });
-      setHighLight(true);
-
       timeout = setTimeout(() => {
-        setHighLight(false);
-      }, 10000);
+        void smoothScrollIntoViewIfNeeded(element, {
+          behavior: 'smooth',
+          block: 'center',
+        });
+        setHighLight(true);
+
+        timeout = setTimeout(() => {
+          setHighLight(false);
+        }, 10000);
+      }, 500);
     })();
 
     return () => {
@@ -70,7 +74,7 @@ export function CommentWrap({ commentId, isHovered, onHovered }: CommentWrapProp
         }}
       >
         <Comment comment={comment} />
-        {isHovered && !comment.isDeleted && (
+        {isHovered && isAuthenticated && !comment.isDeleted && (
           <div className={'absolute right-2 top-2'}>
             <CommentActions comment={comment} />
           </div>

@@ -2,8 +2,9 @@ import { clearData } from '@/application/db';
 import { EventType, on } from '@/application/session';
 import { isTokenValid } from '@/application/session/token';
 import { useAppLanguage } from '@/components/app/useAppLanguage';
+import { LoginModal } from '@/components/login';
 import { useSnackbar } from 'notistack';
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useState } from 'react';
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { getService } from '@/application/services';
 import { InfoSnackbarProps } from '@/components/_shared/notify';
@@ -26,6 +27,7 @@ export const AFConfigContext = createContext<
       service: AFService | undefined;
       isAuthenticated: boolean;
       currentUser?: User;
+      openLoginModal: (redirectTo?: string) => void;
     }
   | undefined
 >(undefined);
@@ -35,6 +37,13 @@ function AppConfig({ children }: { children: React.ReactNode }) {
   const [service, setService] = useState<AFService>();
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(isTokenValid());
   const [currentUser, setCurrentUser] = React.useState<User>();
+  const [loginOpen, setLoginOpen] = React.useState(false);
+  const [loginCompletedRedirectTo, setLoginCompletedRedirectTo] = React.useState<string>('');
+
+  const openLoginModal = useCallback((redirectTo?: string) => {
+    setLoginOpen(true);
+    setLoginCompletedRedirectTo(redirectTo || '');
+  }, []);
 
   useEffect(() => {
     return on(EventType.SESSION_VALID, () => {
@@ -135,9 +144,19 @@ function AppConfig({ children }: { children: React.ReactNode }) {
         service,
         isAuthenticated,
         currentUser,
+        openLoginModal,
       }}
     >
       {children}
+      {loginOpen && (
+        <LoginModal
+          redirectTo={loginCompletedRedirectTo}
+          open={loginOpen}
+          onClose={() => {
+            setLoginOpen(false);
+          }}
+        />
+      )}
     </AFConfigContext.Provider>
   );
 }

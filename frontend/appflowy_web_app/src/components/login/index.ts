@@ -1,5 +1,3 @@
-import { lazy } from 'react';
+export * from './LoginModal';
 
-export const Login = lazy(() => import('./Login'));
-
-export const LoginModal = lazy(() => import('./LoginModal'));
+export * from './Login';

@@ -3,7 +3,7 @@ import { Dialog, IconButton } from '@mui/material';
 import { Login } from './Login';
 import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 
-function LoginModal({ redirectTo, open, onClose }: { redirectTo: string; open: boolean; onClose: () => void }) {
+export function LoginModal({ redirectTo, open, onClose }: { redirectTo: string; open: boolean; onClose: () => void }) {
   return (
     <Dialog open={open} onClose={onClose}>
       <div className={'relative px-6'}>

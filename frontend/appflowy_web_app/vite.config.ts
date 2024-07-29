@@ -114,7 +114,10 @@ export default defineConfig({
                     id.includes('/y-indexeddb@') ||
                     id.includes('/dexie') ||
                     id.includes('/redux') ||
-                    id.includes('/react-custom-scrollbars')
+                    id.includes('/react-custom-scrollbars') ||
+                    id.includes('/dayjs') ||
+                    id.includes('/smooth-scroll-into-view-if-needed') ||
+                    id.includes('/react-virtualized-auto-sizer')
                   ) {
                     return 'common';
                   }

@@ -14,9 +14,6 @@ export function Calendar() {
           toolbar: (props) => <Toolbar {...props} emptyEvents={emptyEvents} />,
           eventWrapper: Event,
         }}
-        style={{
-          marginBottom: '24px',
-        }}
         events={events}
         views={['month']}
         localizer={localizer}

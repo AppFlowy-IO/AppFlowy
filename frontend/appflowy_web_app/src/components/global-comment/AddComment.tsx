@@ -3,7 +3,6 @@ import { notify } from '@/components/_shared/notify';
 import { AFConfigContext } from '@/components/app/AppConfig';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import ReplyComment from '@/components/global-comment/ReplyComment';
-import { LoginModal } from '@/components/login';
 import { Button, TextareaAutosize } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
@@ -16,24 +15,19 @@ function AddComment() {
 
   const { t } = useTranslation();
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
+  const openLoginModal = useContext(AFConfigContext)?.openLoginModal;
   const createCommentOnPublishView = useContext(AFConfigContext)?.service?.createCommentOnPublishView;
   const viewId = useContext(PublishContext)?.viewMeta?.view_id;
   const [content, setContent] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const [loginOpen, setLoginOpen] = React.useState(false);
   const [focus, setFocus] = React.useState(false);
   const url = window.location.href + '#addComment';
 
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleOnFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+  const handleOnFocus = () => {
     setFocus(true);
-    if (!isAuthenticated) {
-      e.preventDefault();
-
-      setLoginOpen(true);
-    }
   };
 
   useEffect(() => {
@@ -118,6 +112,12 @@ function AddComment() {
             ref={inputRef}
             autoComplete={'off'}
             spellCheck={false}
+            onMouseDown={() => {
+              if (!isAuthenticated && openLoginModal) {
+                openLoginModal(url);
+              }
+            }}
+            readOnly={!isAuthenticated}
             onFocus={handleOnFocus}
             onBlur={() => setFocus(false)}
             value={content}
@@ -128,8 +128,9 @@ function AddComment() {
             placeholder={t('globalComment.addComment')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
-                if (!content) return;
                 e.preventDefault();
+                if (!content) return;
+                
                 void handleSubmit();
               }
 
@@ -166,15 +167,6 @@ function AddComment() {
             {loading ? <CircularProgress color={'inherit'} size={20} /> : t('button.save')}
           </Button>
         </div>
-      )}
-      {loginOpen && (
-        <LoginModal
-          redirectTo={url}
-          open={loginOpen}
-          onClose={() => {
-            setLoginOpen(false);
-          }}
-        />
       )}
     </div>
   );

@@ -4,7 +4,7 @@ import Cell from '@/components/database/components/cell/Cell';
 import React, { CSSProperties, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: number }) {
+export function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: number }) {
   const { t } = useTranslation();
   const { field } = useFieldSelector(fieldId);
   const cell = useCellSelector({
