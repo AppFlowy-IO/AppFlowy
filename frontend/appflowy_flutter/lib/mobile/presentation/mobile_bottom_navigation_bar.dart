@@ -50,6 +50,9 @@ class MobileBottomNavigationBar extends StatelessWidget {
     final backgroundColor = isLightMode
         ? Colors.white.withOpacity(0.95)
         : const Color(0xFF23262B).withOpacity(0.95);
+    final borderColor = isLightMode
+        ? const Color(0x141F2329)
+        : const Color(0xFF23262B).withOpacity(0.5);
     return Scaffold(
       body: navigationShell,
       extendBody: true,
@@ -62,9 +65,7 @@ class MobileBottomNavigationBar extends StatelessWidget {
           child: DecoratedBox(
             decoration: BoxDecoration(
               border: isLightMode
-                  ? Border(
-                      top: BorderSide(color: Theme.of(context).dividerColor),
-                    )
+                  ? Border(top: BorderSide(color: borderColor))
                   : null,
               color: backgroundColor,
             ),

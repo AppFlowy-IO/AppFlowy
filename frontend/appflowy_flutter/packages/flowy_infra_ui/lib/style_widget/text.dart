@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,6 +19,7 @@ class FlowyText extends StatelessWidget {
   final bool withTooltip;
   final StrutStyle? strutStyle;
   final bool isEmoji;
+  final double? figmaLineHeight;
 
   /// this is used to control the line height in Flutter.
   final double? lineHeight;
@@ -43,6 +45,7 @@ class FlowyText extends StatelessWidget {
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
+    this.figmaLineHeight,
   });
 
   FlowyText.small(
@@ -160,8 +163,7 @@ class FlowyText extends StatelessWidget {
       fontSize = fontSize * 0.8;
     }
 
-    var lineHeight = 1.1;
-
+    double? lineHeight;
     if (this.lineHeight != null) {
       lineHeight = this.lineHeight!;
     } else if (figmaLineHeight != null) {
@@ -206,7 +208,7 @@ class FlowyText extends StatelessWidget {
     }
 
     if (withTooltip) {
-      child = Tooltip(
+      child = FlowyTooltip(
         message: text,
         child: child,
       );

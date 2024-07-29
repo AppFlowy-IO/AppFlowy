@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 
 final builtInSpaceColors = [
@@ -59,11 +58,6 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       offset: const Offset(0, 4),
-      decoration: FlowyDecoration.decoration(
-        Theme.of(context).cardColor,
-        Theme.of(context).colorScheme.shadow,
-        borderRadius: 10,
-      ),
       constraints: const BoxConstraints(maxWidth: 220),
       margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       direction: PopoverDirection.bottomWithCenterAligned,

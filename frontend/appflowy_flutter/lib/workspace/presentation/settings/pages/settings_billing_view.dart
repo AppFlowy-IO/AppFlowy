@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/util/int64_extension.dart';
@@ -91,7 +93,7 @@ class _SettingsBillingViewState extends State<SettingsBillingView> {
             },
             ready: (state) {
               final billingPortalEnabled =
-                  state.subscriptionInfo.plan != WorkspacePlanPB.FreePlan;
+                  state.subscriptionInfo.isBillingPortalEnabled;
 
               return SettingsBody(
                 title: LocaleKeys.settings_billingPage_title.tr(),
@@ -209,22 +211,26 @@ class _SettingsBillingViewState extends State<SettingsBillingView> {
                         ),
                       ),
                       const SettingsDashedDivider(),
-                      _AITile(
-                        plan: SubscriptionPlanPB.AiLocal,
-                        label: LocaleKeys
-                            .settings_billingPage_addons_aiOnDevice_label
-                            .tr(),
-                        description: LocaleKeys
-                            .settings_billingPage_addons_aiOnDevice_description,
-                        activeDescription: LocaleKeys
-                            .settings_billingPage_addons_aiOnDevice_activeDescription,
-                        canceledDescription: LocaleKeys
-                            .settings_billingPage_addons_aiOnDevice_canceledDescription,
-                        subscriptionInfo:
-                            state.subscriptionInfo.addOns.firstWhereOrNull(
-                          (a) => a.type == WorkspaceAddOnPBType.AddOnAiLocal,
+
+                      // Currently, the AI Local tile is only available on macOS
+                      // TODO(nathan): enable windows and linux
+                      if (Platform.isMacOS)
+                        _AITile(
+                          plan: SubscriptionPlanPB.AiLocal,
+                          label: LocaleKeys
+                              .settings_billingPage_addons_aiOnDevice_label
+                              .tr(),
+                          description: LocaleKeys
+                              .settings_billingPage_addons_aiOnDevice_description,
+                          activeDescription: LocaleKeys
+                              .settings_billingPage_addons_aiOnDevice_activeDescription,
+                          canceledDescription: LocaleKeys
+                              .settings_billingPage_addons_aiOnDevice_canceledDescription,
+                          subscriptionInfo:
+                              state.subscriptionInfo.addOns.firstWhereOrNull(
+                            (a) => a.type == WorkspaceAddOnPBType.AddOnAiLocal,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ],
@@ -327,14 +333,9 @@ class _AITileState extends State<_AITile> {
               : LocaleKeys.settings_billingPage_addons_addLabel.tr(),
           fontWeight: FontWeight.w500,
           minWidth: _buttonsMinWidth,
-          onPressed: () {
-            if (widget.subscriptionInfo != null && isCanceled) {
-              // Show customer portal to renew
-              context
-                  .read<SettingsBillingBloc>()
-                  .add(const SettingsBillingEvent.openCustomerPortal());
-            } else if (widget.subscriptionInfo != null) {
-              showConfirmDialog(
+          onPressed: () async {
+            if (widget.subscriptionInfo != null) {
+              await showConfirmDialog(
                 context: context,
                 style: ConfirmPopupStyle.cancelAndOk,
                 title: LocaleKeys.settings_billingPage_addons_removeDialog_title
@@ -343,11 +344,9 @@ class _AITileState extends State<_AITile> {
                     .settings_billingPage_addons_removeDialog_description
                     .tr(namedArgs: {"plan": widget.plan.label.tr()}),
                 confirmLabel: LocaleKeys.button_confirm.tr(),
-                onConfirm: () {
-                  context.read<SettingsBillingBloc>().add(
-                        SettingsBillingEvent.cancelSubscription(widget.plan),
-                      );
-                },
+                onConfirm: () => context
+                    .read<SettingsBillingBloc>()
+                    .add(SettingsBillingEvent.cancelSubscription(widget.plan)),
               );
             } else {
               // Add the addon

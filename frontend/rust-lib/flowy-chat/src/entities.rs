@@ -410,3 +410,9 @@ pub struct LocalAIChatPB {
   #[pb(index = 3)]
   pub plugin_state: LocalAIPluginStatePB,
 }
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct LocalModelStoragePB {
+  #[pb(index = 1)]
+  pub file_path: String,
+}

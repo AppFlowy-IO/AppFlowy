@@ -1,4 +1,8 @@
 # Release Notes
+## Version 0.6.5 - 24/07/2024
+### New Features
+- Publish a Database to the Web
+
 ## Version 0.6.4 - 16/07/2024
 ### New Features
 - Enhanced the message style on the AI chat page.

@@ -159,6 +159,7 @@
   "chat": {
     "newChat": "AI Chat",
     "inputMessageHint": "Message @:appName AI",
+    "inputLocalAIMessageHint": "Message @:appName Local AI",
     "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
     "relatedQuestion": "Related",
     "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
@@ -169,7 +170,10 @@
     "question2": "Explain the GTD method",
     "question3": "Why use Rust",
     "question4": "Recipe with what's in my kitchen",
-    "aiMistakePrompt": "AI can make mistakes. Check important info."
+    "aiMistakePrompt": "AI can make mistakes. Check important info.",
+    "chatWithFilePrompt": "Do you want to chat with the file?",
+    "indexFileSuccess": "Indexing file successfully",
+    "indexingFile": "Indexing {}"
   },
   "trash": {
     "text": "Trash",
@@ -269,11 +273,11 @@
     "recent": "Recent",
     "today": "Today",
     "thisWeek": "This week",
-    "others": "Other favorites",
+    "others": "Earlier favorites",
     "justNow": "just now",
     "minutesAgo": "{count} minutes ago",
     "lastViewed": "Last viewed",
-    "favoriteAt": "Favorited at",
+    "favoriteAt": "Favorited",
     "emptyRecent": "No Recent Documents",
     "emptyRecentDescription": "As you view documents, they will appear here for easy retrieval",
     "emptyFavorite": "No Favorite Documents",
@@ -283,11 +287,14 @@
     "favoriteSpace": "Favorites",
     "RecentSpace": "Recent",
     "Spaces": "Spaces",
-    "upgradeToPro": "Upgrade to Pro Plan",
+    "upgradeToPro": "Upgrade to Pro",
     "upgradeToAIMax": "Unlock unlimited AI",
-    "storageLimitDialogTitle": "You are running out of storage space. Upgrade to Pro Plan to get more storage",
-    "aiResponseLitmitDialogTitle": "You are running out of AI responses. Upgrade to Pro Plan or AI Max to get more AI responses",
-    "aiResponseLitmit": "You are running out of AI responses. Go to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
+    "storageLimitDialogTitle": "You have run out of free storage. Upgrade to unlock unlimited storage",
+    "aiResponseLimitTitle": "You have run out of free AI responses. Upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
+    "aiResponseLimitDialogTitle": "AI Responses limit reached",
+    "aiResponseLimit": "You have run out of free AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
+    "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
+    "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
     "upgradeToAILocal": "AI offline on your device"
@@ -331,6 +338,8 @@
     "removeFromFavorites": "Remove from favorites",
     "removeFromRecent": "Remove from recent",
     "addToFavorites": "Add to favorites",
+    "favoriteSuccessfully": "Favorited success",
+    "unfavoriteSuccessfully": "Unfavorited success",
     "rename": "Rename",
     "helpCenter": "Help Center",
     "add": "Add",
@@ -350,7 +359,10 @@
     "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
-    "close": "Close"
+    "close": "Close",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit"
   },
   "label": {
     "welcome": "Welcome!",
@@ -638,7 +650,7 @@
       "menuLabel": "AI Settings",
       "keys": {
         "enableAISearchTitle": "AI Search",
-        "aiSettingsDescription": "Select or configure Ai models used on @:appName. For best performance we recommend using the default model options",
+        "aiSettingsDescription": "Select or configure AI models used on @:appName. For best performance we recommend using the default model options",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
         "llmModelType": "Language Model Type",
@@ -654,7 +666,8 @@
         "restartLocalAI": "Restart Local AI",
         "disableLocalAIDialog": "Do you want to disable local AI?",
         "localAIToggleTitle": "Toggle to enable or disable local AI",
-        "fetchLocalModel": "Fetch local model configuration"
+        "fetchLocalModel": "Fetch local model configuration",
+        "openModelDirectory": "Open folder"
       }
     },
     "planPage": {
@@ -704,14 +717,14 @@
             "title": "AI Max",
             "description": "Unlock unlimited AI",
             "price": "{}",
-            "priceInfo": "/user per month",
+            "priceInfo": "per user per month",
             "billingInfo": "billed annually or {} billed monthly"
           },
           "aiOnDevice": {
             "title": "AI On-device",
             "description": "AI offline on your device",
             "price": "{}",
-            "priceInfo": "/user per month",
+            "priceInfo": "per user per month",
             "billingInfo": "billed annually or {} billed monthly"
           }
         },
@@ -776,7 +789,6 @@
       "actions": {
         "upgrade": "Upgrade",
         "downgrade": "Downgrade",
-        "downgradeDisabledTooltip": "You will automatically downgrade at the end of the billing cycle",
         "current": "Current"
       },
       "freePlan": {
@@ -789,7 +801,7 @@
         "title": "Pro",
         "description": "For small teams to manage projects and team knowledge",
         "price": "{}",
-        "priceInfo": "/user per month billed annually\n\n{} billed monthly"
+        "priceInfo": "per user per month \nbilled annually\n\n{} billed monthly"
       },
       "planLabels": {
         "itemOne": "Workspaces",
@@ -828,6 +840,43 @@
         "title": "Are you sure you want to downgrade your plan?",
         "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to this workspace and you may need to free up space to meet the storage limits of the Free plan.",
         "downgradeLabel": "Downgrade plan"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "Sorry to see you go",
+      "description": "We're sorry to see you go. We'd love to hear your feedback to help us improve @:appName. Please take a moment to answer a few questions.",
+      "commonOther": "Other",
+      "otherHint": "Write your answer here",
+      "questionOne": {
+        "question": "What prompted you to cancel your AppFlowy Pro subscription?",
+        "answerOne": "Cost too high",
+        "answerTwo": "Features did not meet expectations",
+        "answerThree": "Found a better alternative",
+        "answerFour": "Did not use it enough to justify the expense",
+        "answerFive": "Service issue or technical difficulties"
+      },
+      "questionTwo": {
+        "question": "How likely are you to consider re-subscribing to AppFlowy Pro in the future?",
+        "answerOne": "Very likely",
+        "answerTwo": "Somewhat likely",
+        "answerThree": "Not sure",
+        "answerFour": "Unlikely",
+        "answerFive": "Very unlikely"
+      },
+      "questionThree": {
+        "question": "Which Pro feature did you value the most during your subscription?",
+        "answerOne": "Multi-user collaboration",
+        "answerTwo": "Longer time version history",
+        "answerThree": "Unlimited AI responses",
+        "answerFour": "Access to local AI models"
+      },
+      "questionFour": {
+        "question": "How would you describe your overall experience with AppFlowy?",
+        "answerOne": "Great",
+        "answerTwo": "Good",
+        "answerThree": "Average",
+        "answerFour": "Below average",
+        "answerFive": "Unsatisfied"
       }
     },
     "common": {
@@ -1439,10 +1488,24 @@
         "depth": "Depth"
       },
       "image": {
-        "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImage": "Add an image",
+        "copiedToPasteBoard": "The image link has been copied to the clipboard",
+        "addAnImageDesktop": "Drop image(s) or click to add image(s)",
+        "addAnImageMobile": "Click to add one or more images",
+        "dropImageToInsert": "Drop images to insert",
         "imageUploadFailed": "Image upload failed",
+        "imageDownloadFailed": "Image upload failed, please try again",
+        "imageDownloadFailedToken": "Image upload failed due to missing user token, please try again",
         "errorCode": "Error code"
+      },
+      "photoGallery": {
+        "name": "Photo gallery",
+        "imageKeyword": "image",
+        "imageGalleryKeyword": "image gallery",
+        "photoKeyword": "photo",
+        "photoBrowserKeyword": "photo browser",
+        "galleryKeyword": "gallery",
+        "addImageTooltip": "Add image"
       },
       "math": {
         "copiedToPasteBoard": "The math equation has been copied to the clipboard"
@@ -1499,7 +1562,7 @@
       "placeholder": "Untitled"
     },
     "imageBlock": {
-      "placeholder": "Click to add image",
+      "placeholder": "Click to add image(s)",
       "upload": {
         "label": "Upload",
         "placeholder": "Click to upload image"
@@ -1522,7 +1585,8 @@
         "invalidImageSize": "Image size must be less than 5MB",
         "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG, GIF, SVG, WEBP",
         "invalidImageUrl": "Invalid image URL",
-        "noImage": "No such file or directory"
+        "noImage": "No such file or directory",
+        "multipleImagesFailed": "One or more images failed to upload, please try again"
       },
       "embedLink": {
         "label": "Embed link",
@@ -1540,7 +1604,22 @@
       "unableToLoadImage": "Unable to load image",
       "maximumImageSize": "Maximum supported upload image size is 10MB",
       "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
-      "imageIsUploading": "Image is uploading"
+      "imageIsUploading": "Image is uploading",
+      "openFullScreen": "Open in full screen",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "Previous image",
+          "nextImageTooltip": "Next image",
+          "zoomOutTooltip": "Zoom out",
+          "zoomInTooltip": "Zoom in",
+          "changeZoomLevelTooltip": "Change zoom level",
+          "openLocalImage": "Open image",
+          "downloadImage": "Download image",
+          "closeViewer": "Close interactive viewer",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "Delete image"
+        }
+      }
     },
     "codeBlock": {
       "language": {
@@ -2083,6 +2162,7 @@
     "createNewSpace": "Create a new space",
     "createSpaceDescription": "Create multiple public and private spaces to better organize your work.",
     "spaceName": "Space name",
+    "spaceNamePlaceholder": "e.g. Marketing, Engineering, HR",
     "permission": "Permission",
     "publicPermission": "Public",
     "publicPermissionDescription": "All workspace members with full access",
@@ -2130,9 +2210,9 @@
       "zero": "Publish {} selected view",
       "one": "Publish {} selected views",
       "many": "Publish {} selected views",
-      "other":"Publish {} selected views"
+      "other": "Publish {} selected views"
     },
-    "mustSelectPrimaryDatabase": "The primary database must be selected",
+    "mustSelectPrimaryDatabase": "The primary view must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",
     "unableToDeselectPrimaryDatabase": "Unable to deselect primary database"
   },

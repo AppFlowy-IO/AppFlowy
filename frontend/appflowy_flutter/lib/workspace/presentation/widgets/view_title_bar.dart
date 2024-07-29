@@ -246,6 +246,7 @@ class _ViewTitleState extends State<_ViewTitle> {
             opacity: isEditable ? 1.0 : 0.5,
             child: FlowyText.regular(
               state.name,
+              fontSize: 14.0,
               overflow: TextOverflow.ellipsis,
             ),
           ),

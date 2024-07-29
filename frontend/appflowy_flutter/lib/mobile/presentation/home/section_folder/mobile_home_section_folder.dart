@@ -82,6 +82,7 @@ class MobileSectionFolder extends StatelessWidget {
                         ],
                         spaceType: spaceType,
                         needSpace: false,
+                        spaceRatio: 5,
                       );
                     },
                   ),

@@ -26,21 +26,47 @@ class FlowyTooltip extends StatelessWidget {
       return child ?? const SizedBox.shrink();
     }
 
-    final isLightMode = Theme.of(context).brightness == Brightness.light;
     return Tooltip(
       margin: margin,
       verticalOffset: 16.0,
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+      padding: const EdgeInsets.only(
+        left: 12.0,
+        right: 12.0,
+        top: 5.0,
+        bottom: 8.0,
+      ),
       decoration: BoxDecoration(
-        color: isLightMode ? const Color(0xE5171717) : const Color(0xE5E5E5E5),
-        borderRadius: BorderRadius.circular(8.0),
+        color: context.tooltipBackgroundColor(),
+        borderRadius: BorderRadius.circular(12.0),
       ),
       waitDuration: _tooltipWaitDuration,
       message: message,
+      textStyle: message != null ? context.tooltipTextStyle() : null,
       richMessage: richMessage,
-      showDuration: showDuration,
       preferBelow: preferBelow,
       child: child,
     );
   }
+}
+
+extension FlowyToolTipExtension on BuildContext {
+  double tooltipFontSize() => 13.0;
+  double tooltipHeight() => 18.0 / tooltipFontSize();
+  Color tooltipFontColor() => Theme.of(this).brightness == Brightness.light
+      ? Colors.white
+      : Colors.black;
+
+  TextStyle? tooltipTextStyle({Color? fontColor}) {
+    return Theme.of(this).textTheme.bodyMedium?.copyWith(
+          color: fontColor ?? tooltipFontColor(),
+          fontSize: tooltipFontSize(),
+          fontWeight: FontWeight.w400,
+          height: tooltipHeight(),
+        );
+  }
+
+  Color tooltipBackgroundColor() =>
+      Theme.of(this).brightness == Brightness.light
+          ? const Color(0xFF1D2129)
+          : const Color(0xE5E5E5E5);
 }

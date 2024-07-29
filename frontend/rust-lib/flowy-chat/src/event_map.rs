@@ -11,7 +11,7 @@ use crate::event_handler::*;
 
 pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
   let user_service = Arc::downgrade(&chat_manager.upgrade().unwrap().user_service);
-  let cloud_service = Arc::downgrade(&chat_manager.upgrade().unwrap().chat_service_wm);
+  let cloud_service = Arc::downgrade(&chat_manager.upgrade().unwrap().cloud_service_wm);
   let ai_tools = Arc::new(AITools::new(cloud_service, user_service));
   AFPlugin::new()
     .name("Flowy-Chat")
@@ -52,6 +52,10 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
     .event(
       ChatEvent::ToggleChatWithFile,
       toggle_local_ai_chat_file_handler,
+    )
+    .event(
+      ChatEvent::GetModelStorageDirectory,
+      get_model_storage_directory_handler,
     )
 }
 
@@ -126,4 +130,7 @@ pub enum ChatEvent {
 
   #[event()]
   ToggleChatWithFile = 20,
+
+  #[event(output = "LocalModelStoragePB")]
+  GetModelStorageDirectory = 21,
 }

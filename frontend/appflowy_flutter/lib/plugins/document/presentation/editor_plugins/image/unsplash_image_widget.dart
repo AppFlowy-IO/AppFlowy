@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:unsplash_client/unsplash_client.dart';
 
 const _accessKeyA = 'YyD-LbW5bVolHWZBq5fWRM_';
@@ -48,7 +49,6 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   @override
   void initState() {
     super.initState();
-
     randomPhotos = unsplash.photos
         .random(count: 18, orientation: PhotoOrientation.landscape)
         .goAndGet();
@@ -57,7 +57,6 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   @override
   void dispose() {
     unsplash.close();
-
     super.dispose();
   }
 
@@ -132,18 +131,16 @@ class _UnsplashImagesState extends State<_UnsplashImages> {
 
   @override
   Widget build(BuildContext context) {
+    const mainAxisSpacing = 16.0;
     final crossAxisCount = switch (widget.type) {
       UnsplashImageType.halfScreen => 3,
       UnsplashImageType.fullScreen => 2,
-    };
-    final mainAxisSpacing = switch (widget.type) {
-      UnsplashImageType.halfScreen => 16.0,
-      UnsplashImageType.fullScreen => 16.0,
     };
     final crossAxisSpacing = switch (widget.type) {
       UnsplashImageType.halfScreen => 10.0,
       UnsplashImageType.fullScreen => 16.0,
     };
+
     return GridView.count(
       crossAxisCount: crossAxisCount,
       mainAxisSpacing: mainAxisSpacing,
@@ -155,15 +152,11 @@ class _UnsplashImagesState extends State<_UnsplashImages> {
         return _UnsplashImage(
           type: widget.type,
           photo: photo,
-          onTap: () {
-            widget.onSelectUnsplashImage(
-              photo.urls.regular.toString(),
-            );
-            setState(() {
-              _selectedPhotoIndex = index;
-            });
-          },
           isSelected: index == _selectedPhotoIndex,
+          onTap: () {
+            widget.onSelectUnsplashImage(photo.urls.regular.toString());
+            setState(() => _selectedPhotoIndex = index);
+          },
         );
       }).toList(),
     );
@@ -219,10 +212,7 @@ class _UnsplashImage extends StatelessWidget {
           ),
         ),
         const HSpace(2.0),
-        FlowyText(
-          'by ${photo.name}',
-          fontSize: 10.0,
-        ),
+        FlowyText('by ${photo.name}', fontSize: 10.0),
       ],
     );
   }
@@ -233,14 +223,12 @@ class _UnsplashImage extends StatelessWidget {
       child: Stack(
         children: [
           LayoutBuilder(
-            builder: (context, constraints) {
-              return Image.network(
-                photo.urls.thumb.toString(),
-                fit: BoxFit.cover,
-                width: constraints.maxWidth,
-                height: constraints.maxHeight,
-              );
-            },
+            builder: (_, constraints) => Image.network(
+              photo.urls.thumb.toString(),
+              fit: BoxFit.cover,
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+            ),
           ),
           Positioned(
             bottom: 9,
@@ -261,13 +249,9 @@ extension on Photo {
   String get name {
     if (user.username.isNotEmpty) {
       return user.username;
-    }
-
-    if (user.name.isNotEmpty) {
+    } else if (user.name.isNotEmpty) {
       return user.name;
-    }
-
-    if (user.email?.isNotEmpty == true) {
+    } else if (user.email?.isNotEmpty == true) {
       return user.email!;
     }
 

@@ -298,6 +298,9 @@ pub enum ErrorCode {
 
   #[error("Response timeout")]
   ResponseTimeout = 103,
+
+  #[error("Unsupported file format")]
+  UnsupportedFileFormat = 104,
 }
 
 impl ErrorCode {

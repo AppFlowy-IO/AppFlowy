@@ -90,19 +90,22 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
               );
             }
 
-            return Stack(
-              children: [
-                _buildCover(context, state),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24.0),
-                    child: iconAndTitle,
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Stack(
+                children: [
+                  _buildCover(context, state),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24.0),
+                      child: iconAndTitle,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         ),

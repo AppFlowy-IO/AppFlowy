@@ -116,18 +116,18 @@ custom-protocol = ["tauri/custom-protocol"]
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20f7814" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20f7814" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20f7814" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20f7814" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20f7814" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20f7814" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20f7814" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1c0611e" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1c0611e" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1c0611e" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1c0611e" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1c0611e" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1c0611e" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1c0611e" }
 
 # Working directory: frontend
 # To update the commit ID, run:
 # scripts/tool/update_local_ai_rev.sh new_rev_id
 # ⚠️⚠️⚠️️
-appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "c4ab1db44e96348f9b0770dd8ecc990f68ac415d" }
-appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "c4ab1db44e96348f9b0770dd8ecc990f68ac415d" }
+appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "f3b678e36f22012b241f8e2f3cb811be2da245c0" }
+appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "f3b678e36f22012b241f8e2f3cb811be2da245c0" }
 

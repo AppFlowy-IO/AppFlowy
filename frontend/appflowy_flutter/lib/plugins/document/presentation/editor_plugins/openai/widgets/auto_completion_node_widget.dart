@@ -10,11 +10,7 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/style_widget/text_field.dart';
-import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
-import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -46,7 +42,7 @@ Node autoCompletionNode({
 SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
   getName: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr,
   iconData: Icons.generating_tokens,
-  keywords: ['ai', 'openai' 'writer', 'autogenerator'],
+  keywords: ['ai', 'openai', 'writer', 'ai writer', 'autogenerator'],
   nodeBuilder: (editorState, _) {
     final node = autoCompletionNode(start: editorState.selection!);
     return node;
@@ -130,7 +126,6 @@ class _AutoCompletionBlockComponentState
     _unsubscribeSelectionGesture();
     controller.dispose();
     textFieldFocusNode.dispose();
-
     super.dispose();
   }
 
@@ -181,9 +176,8 @@ class _AutoCompletionBlockComponentState
     final transaction = editorState.transaction..deleteNode(widget.node);
     await editorState.apply(
       transaction,
-      options: const ApplyOptions(
-        recordUndo: false,
-      ),
+      options: const ApplyOptions(recordUndo: false),
+      withUpdateSelection: false,
     );
   }
 
@@ -230,6 +224,7 @@ class _AutoCompletionBlockComponentState
         if (mounted) {
           if (error.isLimitExceeded) {
             showAILimitDialog(context, error.message);
+            await _onDiscard();
           } else {
             showSnackBarMessage(
               context,
@@ -417,12 +412,10 @@ class _AutoCompletionBlockComponentState
             // show dialog
             showDialog(
               context: context,
-              builder: (context) {
-                return DiscardDialog(
-                  onConfirm: () => _onDiscard(),
-                  onCancel: () {},
-                );
-              },
+              builder: (_) => DiscardDialog(
+                onConfirm: _onDiscard,
+                onCancel: () {},
+              ),
             );
           } else if (controller.text.isEmpty) {
             _onExit();
@@ -445,9 +438,7 @@ class _AutoCompletionBlockComponentState
 }
 
 class AutoCompletionHeader extends StatelessWidget {
-  const AutoCompletionHeader({
-    super.key,
-  });
+  const AutoCompletionHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -471,23 +462,27 @@ class AutoCompletionInputFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        PrimaryTextButton(
-          LocaleKeys.button_generate.tr(),
+        FlowyTextButton.primary(
+          text: LocaleKeys.button_generate.tr(),
+          context: context,
           onPressed: onGenerate,
         ),
         const Space(10, 0),
-        SecondaryTextButton(
-          LocaleKeys.button_cancel.tr(),
+        FlowyTextButton.secondary(
+          text: LocaleKeys.button_cancel.tr(),
+          context: context,
           onPressed: onExit,
         ),
-        Expanded(
+        Flexible(
           child: Container(
             alignment: Alignment.centerRight,
             child: FlowyText.regular(
               LocaleKeys.document_plugins_warning.tr(),
               color: Theme.of(context).hintColor,
               overflow: TextOverflow.ellipsis,
+              fontSize: 12,
             ),
           ),
         ),
@@ -512,18 +507,21 @@ class AutoCompletionFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        PrimaryTextButton(
-          LocaleKeys.button_keep.tr(),
+        FlowyTextButton.primary(
+          context: context,
+          text: LocaleKeys.button_keep.tr(),
           onPressed: onKeep,
         ),
         const Space(10, 0),
-        SecondaryTextButton(
-          LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
+        FlowyTextButton.secondary(
+          context: context,
+          text: LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
           onPressed: onRewrite,
         ),
         const Space(10, 0),
-        SecondaryTextButton(
-          LocaleKeys.button_discard.tr(),
+        FlowyTextButton.secondary(
+          context: context,
+          text: LocaleKeys.button_discard.tr(),
           onPressed: onDiscard,
         ),
       ],

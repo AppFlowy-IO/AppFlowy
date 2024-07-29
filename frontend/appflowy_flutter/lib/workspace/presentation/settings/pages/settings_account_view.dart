@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -22,6 +19,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsAccountView extends StatefulWidget {
@@ -244,80 +243,82 @@ class SignInOutButton extends StatelessWidget {
             child: Scaffold(
               body: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTap: Navigator.of(context).pop,
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: Row(
-                              children: [
-                                const FlowySvg(
-                                  FlowySvgs.arrow_back_m,
-                                  size: Size.square(24),
-                                ),
-                                const HSpace(8),
-                                FlowyText.semibold(
-                                  LocaleKeys.button_back.tr(),
-                                  fontSize: 16,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: Navigator.of(context).pop,
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: FlowySvg(
-                              FlowySvgs.m_close_m,
-                              size: const Size.square(20),
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: FlowyText.medium(
-                            LocaleKeys.settings_accountPage_login_loginLabel
-                                .tr(),
-                            fontSize: 22,
-                            color: Theme.of(context).colorScheme.tertiary,
-                            maxLines: null,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const VSpace(16),
-                    const SignInWithMagicLinkButtons(),
-                    if (isAuthEnabled) ...[
-                      const VSpace(20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          const Flexible(child: Divider(thickness: 1)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                            child: FlowyText.regular(
-                              LocaleKeys.signIn_or.tr(),
+                          GestureDetector(
+                            onTap: Navigator.of(context).pop,
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: Row(
+                                children: [
+                                  const FlowySvg(
+                                    FlowySvgs.arrow_back_m,
+                                    size: Size.square(24),
+                                  ),
+                                  const HSpace(8),
+                                  FlowyText.semibold(
+                                    LocaleKeys.button_back.tr(),
+                                    fontSize: 16,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          const Flexible(child: Divider(thickness: 1)),
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: Navigator.of(context).pop,
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: FlowySvg(
+                                FlowySvgs.m_close_m,
+                                size: const Size.square(20),
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      const VSpace(10),
-                      SettingThirdPartyLogin(didLogin: onAction),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: FlowyText.medium(
+                              LocaleKeys.settings_accountPage_login_loginLabel
+                                  .tr(),
+                              fontSize: 22,
+                              color: Theme.of(context).colorScheme.tertiary,
+                              maxLines: null,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const VSpace(16),
+                      const SignInWithMagicLinkButtons(),
+                      if (isAuthEnabled) ...[
+                        const VSpace(20),
+                        Row(
+                          children: [
+                            const Flexible(child: Divider(thickness: 1)),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              child: FlowyText.regular(
+                                LocaleKeys.signIn_or.tr(),
+                              ),
+                            ),
+                            const Flexible(child: Divider(thickness: 1)),
+                          ],
+                        ),
+                        const VSpace(10),
+                        SettingThirdPartyLogin(didLogin: onAction),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -411,30 +412,32 @@ class _UserProfileSettingState extends State<UserProfileSetting> {
         ),
         const HSpace(16),
         if (!isEditing) ...[
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: FlowyText.medium(
-                    widget.name,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const HSpace(4),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => setState(() => isEditing = true),
-                  child: const FlowyHover(
-                    resetHoverOnRebuild: false,
-                    child: Padding(
-                      padding: EdgeInsets.all(4),
-                      child: FlowySvg(FlowySvgs.edit_s),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: FlowyText.medium(
+                      widget.name,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-              ],
+                  const HSpace(4),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => setState(() => isEditing = true),
+                    child: const FlowyHover(
+                      resetHoverOnRebuild: false,
+                      child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: FlowySvg(FlowySvgs.edit_s),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ] else ...[

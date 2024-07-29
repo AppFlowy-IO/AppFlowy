@@ -29,8 +29,6 @@ class _MobileHomeSpaceState extends State<MobileHomeSpace>
       child: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.only(
-            left: HomeSpaceViewSizes.mHorizontalPadding,
-            right: HomeSpaceViewSizes.mHorizontalPadding,
             top: HomeSpaceViewSizes.mVerticalPadding,
             bottom: HomeSpaceViewSizes.mVerticalPadding +
                 MediaQuery.of(context).padding.bottom,

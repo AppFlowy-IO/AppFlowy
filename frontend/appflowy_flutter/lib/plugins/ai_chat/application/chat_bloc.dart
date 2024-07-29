@@ -525,8 +525,6 @@ OnetimeShotType? onetimeMessageTypeFromMeta(Map<String, dynamic>? metadata) {
   return null;
 }
 
-typedef AnswerStreamElement = String;
-
 class AnswerStream {
   AnswerStream() {
     _port.handler = _controller.add;
@@ -534,23 +532,53 @@ class AnswerStream {
       (event) {
         if (event.startsWith("data:")) {
           _hasStarted = true;
+          final newText = event.substring(5);
+          _text += newText;
+          if (_onData != null) {
+            _onData!(_text);
+          }
         } else if (event.startsWith("error:")) {
           _error = event.substring(5);
+          if (_onError != null) {
+            _onError!(_error!);
+          }
+        } else if (event == "AI_RESPONSE_LIMIT") {
+          if (_onAIResponseLimit != null) {
+            _onAIResponseLimit!();
+          }
+        }
+      },
+      onDone: () {
+        if (_onEnd != null) {
+          _onEnd!();
+        }
+      },
+      onError: (error) {
+        if (_onError != null) {
+          _onError!(error.toString());
         }
       },
     );
   }
 
   final RawReceivePort _port = RawReceivePort();
-  final StreamController<AnswerStreamElement> _controller =
-      StreamController.broadcast();
-  late StreamSubscription<AnswerStreamElement> _subscription;
+  final StreamController<String> _controller = StreamController.broadcast();
+  late StreamSubscription<String> _subscription;
   bool _hasStarted = false;
   String? _error;
+  String _text = "";
+
+  // Callbacks
+  void Function(String text)? _onData;
+  void Function()? _onStart;
+  void Function()? _onEnd;
+  void Function(String error)? _onError;
+  void Function()? _onAIResponseLimit;
 
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
   String? get error => _error;
+  String get text => _text;
 
   Future<void> dispose() async {
     await _controller.close();
@@ -558,9 +586,21 @@ class AnswerStream {
     _port.close();
   }
 
-  StreamSubscription<AnswerStreamElement> listen(
-    void Function(AnswerStreamElement event)? onData,
-  ) {
-    return _controller.stream.listen(onData);
+  void listen({
+    void Function(String text)? onData,
+    void Function()? onStart,
+    void Function()? onEnd,
+    void Function(String error)? onError,
+    void Function()? onAIResponseLimit,
+  }) {
+    _onData = onData;
+    _onStart = onStart;
+    _onEnd = onEnd;
+    _onError = onError;
+    _onAIResponseLimit = onAIResponseLimit;
+
+    if (_onStart != null) {
+      _onStart!();
+    }
   }
 }

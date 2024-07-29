@@ -1,5 +1,7 @@
 import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +23,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 
-import 'presentation/chat_input.dart';
+import 'presentation/chat_input/chat_input.dart';
 import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
@@ -71,7 +73,8 @@ class AIChatPage extends StatelessWidget {
       return MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (_) => ChatFileBloc(chatId: view.id.toString()),
+            create: (_) => ChatFileBloc(chatId: view.id.toString())
+              ..add(const ChatFileEvent.initial()),
           ),
           BlocProvider(
             create: (_) => ChatBloc(
@@ -79,30 +82,44 @@ class AIChatPage extends StatelessWidget {
               userProfile: userProfile,
             )..add(const ChatEvent.initialLoad()),
           ),
-          BlocProvider(create: (_) => ChatInputBloc()),
+          BlocProvider(
+            create: (_) => ChatInputBloc()..add(const ChatInputEvent.started()),
+          ),
         ],
-        child: BlocBuilder<ChatFileBloc, ChatFileState>(
-          builder: (context, state) {
-            Widget child = _ChatContentPage(
-              view: view,
-              userProfile: userProfile,
-            );
-
-            // If the chat supports file upload, wrap the chat content with a drop target
-            if (state.supportChatWithFile) {
-              child = DropTarget(
+        child: BlocListener<ChatFileBloc, ChatFileState>(
+          listenWhen: (previous, current) =>
+              previous.indexFileIndicator != current.indexFileIndicator,
+          listener: (context, state) {
+            _handleIndexIndicator(state.indexFileIndicator, context);
+          },
+          child: BlocBuilder<ChatFileBloc, ChatFileState>(
+            builder: (context, state) {
+              return DropTarget(
                 onDragDone: (DropDoneDetails detail) async {
-                  for (final file in detail.files) {
-                    context
-                        .read<ChatFileBloc>()
-                        .add(ChatFileEvent.newFile(file.path));
+                  if (state.supportChatWithFile) {
+                    await showConfirmDialog(
+                      context: context,
+                      style: ConfirmPopupStyle.cancelAndOk,
+                      title: LocaleKeys.chat_chatWithFilePrompt.tr(),
+                      confirmLabel: LocaleKeys.button_confirm.tr(),
+                      onConfirm: () {
+                        for (final file in detail.files) {
+                          context
+                              .read<ChatFileBloc>()
+                              .add(ChatFileEvent.newFile(file.path, file.name));
+                        }
+                      },
+                      description: '',
+                    );
                   }
                 },
-                child: child,
+                child: _ChatContentPage(
+                  view: view,
+                  userProfile: userProfile,
+                ),
               );
-            }
-            return child;
-          },
+            },
+          ),
         ),
       );
     }
@@ -113,6 +130,35 @@ class AIChatPage extends StatelessWidget {
         fontSize: 20,
       ),
     );
+  }
+
+  void _handleIndexIndicator(
+    IndexFileIndicator? indicator,
+    BuildContext context,
+  ) {
+    if (indicator != null) {
+      indicator.when(
+        finish: (fileName) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.chat_indexFileSuccess.tr(args: [fileName]),
+          );
+        },
+        indexing: (fileName) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.chat_indexingFile.tr(args: [fileName]),
+            duration: const Duration(seconds: 2),
+          );
+        },
+        error: (err) {
+          showSnackBarMessage(
+            context,
+            err,
+          );
+        },
+      );
+    }
   }
 }
 
@@ -347,36 +393,39 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         padding: AIChatUILayout.safeAreaInsets(context),
         child: BlocBuilder<ChatInputBloc, ChatInputState>(
           builder: (context, state) {
-            return state.aiType.when(
-              appflowyAI: () => Column(
-                children: [
-                  BlocSelector<ChatBloc, ChatState, LoadingState>(
-                    selector: (state) => state.streamingStatus,
-                    builder: (context, state) {
-                      return ChatInput(
-                        chatId: widget.view.id,
-                        onSendPressed: (message) =>
-                            onSendPressed(context, message.text),
-                        isStreaming: state != const LoadingState.finish(),
-                        onStopStreaming: () {
-                          context
-                              .read<ChatBloc>()
-                              .add(const ChatEvent.stopStream());
-                        },
-                      );
-                    },
+            final hintText = state.aiType.when(
+              appflowyAI: () => LocaleKeys.chat_inputMessageHint.tr(),
+              localAI: () => LocaleKeys.chat_inputLocalAIMessageHint.tr(),
+            );
+
+            return Column(
+              children: [
+                BlocSelector<ChatBloc, ChatState, LoadingState>(
+                  selector: (state) => state.streamingStatus,
+                  builder: (context, state) {
+                    return ChatInput(
+                      chatId: widget.view.id,
+                      onSendPressed: (message) =>
+                          onSendPressed(context, message.text),
+                      isStreaming: state != const LoadingState.finish(),
+                      onStopStreaming: () {
+                        context
+                            .read<ChatBloc>()
+                            .add(const ChatEvent.stopStream());
+                      },
+                      hintText: hintText,
+                    );
+                  },
+                ),
+                const VSpace(6),
+                Opacity(
+                  opacity: 0.6,
+                  child: FlowyText(
+                    LocaleKeys.chat_aiMistakePrompt.tr(),
+                    fontSize: 12,
                   ),
-                  const VSpace(6),
-                  Opacity(
-                    opacity: 0.6,
-                    child: FlowyText(
-                      LocaleKeys.chat_aiMistakePrompt.tr(),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              localAI: () => const SizedBox.shrink(),
+                ),
+              ],
             );
           },
         ),

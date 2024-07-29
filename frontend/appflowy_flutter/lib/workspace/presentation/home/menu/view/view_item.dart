@@ -491,6 +491,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     final name = FlowyText.regular(
       widget.view.name,
       overflow: TextOverflow.ellipsis,
+      // figmaLineHeight: 18.0,
     );
     final children = [
       const HSpace(2),
@@ -692,6 +693,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
         view: widget.view,
+        isExpanded: widget.isExpanded,
         spaceType: widget.spaceType,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),

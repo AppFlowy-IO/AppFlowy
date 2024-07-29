@@ -2,7 +2,7 @@ use crate::chat_manager::ChatUserService;
 use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB,
 };
-use crate::middleware::chat_service_mw::ChatServiceMiddleware;
+use crate::middleware::chat_service_mw::CloudServiceMiddleware;
 use crate::notification::{make_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use allo_isolate::Isolate;
@@ -27,7 +27,7 @@ pub struct Chat {
   chat_id: String,
   uid: i64,
   user_service: Arc<dyn ChatUserService>,
-  chat_service: Arc<ChatServiceMiddleware>,
+  chat_service: Arc<CloudServiceMiddleware>,
   prev_message_state: Arc<RwLock<PrevMessageState>>,
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
@@ -39,7 +39,7 @@ impl Chat {
     uid: i64,
     chat_id: String,
     user_service: Arc<dyn ChatUserService>,
-    chat_service: Arc<ChatServiceMiddleware>,
+    chat_service: Arc<CloudServiceMiddleware>,
   ) -> Chat {
     Chat {
       uid,
@@ -148,7 +148,12 @@ impl Chat {
         },
         Err(err) => {
           error!("[Chat] failed to stream answer: {}", err);
-          let _ = text_sink.send(format!("error:{}", err)).await;
+          if err.is_ai_response_limit_exceeded() {
+            let _ = text_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
+          } else {
+            let _ = text_sink.send(format!("error:{}", err)).await;
+          }
+
           let pb = ChatMessageErrorPB {
             chat_id: chat_id.clone(),
             error_message: err.to_string(),

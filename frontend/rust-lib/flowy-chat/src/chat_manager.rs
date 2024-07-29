@@ -1,7 +1,7 @@
 use crate::chat::Chat;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
 use crate::local_ai::local_llm_chat::LocalAIController;
-use crate::middleware::chat_service_mw::ChatServiceMiddleware;
+use crate::middleware::chat_service_mw::CloudServiceMiddleware;
 use crate::persistence::{insert_chat, ChatTable};
 
 use appflowy_plugin::manager::PluginManager;
@@ -25,7 +25,7 @@ pub trait ChatUserService: Send + Sync + 'static {
 }
 
 pub struct ChatManager {
-  pub chat_service_wm: Arc<ChatServiceMiddleware>,
+  pub cloud_service_wm: Arc<CloudServiceMiddleware>,
   pub user_service: Arc<dyn ChatUserService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
   pub local_ai_controller: Arc<LocalAIController>,
@@ -46,21 +46,21 @@ impl ChatManager {
       cloud_service.clone(),
     ));
 
-    if local_ai_controller.can_init() {
-      if let Err(err) = local_ai_controller.initialize_chat_plugin(None) {
+    if local_ai_controller.can_init_plugin() {
+      if let Err(err) = local_ai_controller.initialize_ai_plugin(None) {
         error!("[AI Plugin] failed to initialize local ai: {:?}", err);
       }
     }
 
     // setup local chat service
-    let chat_service_wm = Arc::new(ChatServiceMiddleware::new(
+    let cloud_service_wm = Arc::new(CloudServiceMiddleware::new(
       user_service.clone(),
       cloud_service,
       local_ai_controller.clone(),
     ));
 
     Self {
-      chat_service_wm,
+      cloud_service_wm,
       user_service,
       chats: Arc::new(DashMap::new()),
       local_ai_controller,
@@ -74,12 +74,14 @@ impl ChatManager {
         self.user_service.user_id().unwrap(),
         chat_id.to_string(),
         self.user_service.clone(),
-        self.chat_service_wm.clone(),
+        self.cloud_service_wm.clone(),
       ))
     });
 
     trace!("[AI Plugin] notify open chat: {}", chat_id);
-    self.local_ai_controller.open_chat(chat_id);
+    if self.local_ai_controller.is_running() {
+      self.local_ai_controller.open_chat(chat_id);
+    }
     Ok(())
   }
 
@@ -108,7 +110,7 @@ impl ChatManager {
   pub async fn create_chat(&self, uid: &i64, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
     self
-      .chat_service_wm
+      .cloud_service_wm
       .create_chat(uid, &workspace_id, chat_id)
       .await?;
     save_chat(self.user_service.sqlite_connection(*uid)?, chat_id)?;
@@ -117,7 +119,7 @@ impl ChatManager {
       self.user_service.user_id().unwrap(),
       chat_id.to_string(),
       self.user_service.clone(),
-      self.chat_service_wm.clone(),
+      self.cloud_service_wm.clone(),
     ));
     self.chats.insert(chat_id.to_string(), chat.clone());
     Ok(chat)
@@ -145,7 +147,7 @@ impl ChatManager {
           self.user_service.user_id().unwrap(),
           chat_id.to_string(),
           self.user_service.clone(),
-          self.chat_service_wm.clone(),
+          self.cloud_service_wm.clone(),
         ));
         self.chats.insert(chat_id.to_string(), chat.clone());
         Ok(chat)

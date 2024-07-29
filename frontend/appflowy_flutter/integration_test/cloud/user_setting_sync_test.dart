@@ -50,26 +50,28 @@ void main() {
       await tester.tapEscButton();
 
       // wait 2 seconds for the sync to finish
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 6));
+    });
+
+
+    testWidgets('get user icon and name from server', (tester) async {
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+        email: email,
+      );
+      await tester.tapGoogleLoginInButton();
+      await tester.expectToSeeHomePageWithGetStartedPage();
+      await tester.pumpAndSettle();
+
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.account);
+
+      // Verify name
+      final profileSetting =
+          tester.widget(find.byType(UserProfileSetting)) as UserProfileSetting;
+
+      expect(profileSetting.name, name);
     });
   });
 
-  testWidgets('get user icon and name from server', (tester) async {
-    await tester.initializeAppFlowy(
-      cloudType: AuthenticatorType.appflowyCloudSelfHost,
-      email: email,
-    );
-    await tester.tapGoogleLoginInButton();
-    await tester.expectToSeeHomePageWithGetStartedPage();
-    await tester.pumpAndSettle();
-
-    await tester.openSettings();
-    await tester.openSettingsPage(SettingsPage.account);
-
-    // Verify name
-    final profileSetting =
-        tester.widget(find.byType(UserProfileSetting)) as UserProfileSetting;
-
-    expect(profileSetting.name, name);
-  });
 }

@@ -47,11 +47,11 @@ void main() {
       );
       await tester.tapButton(find.byType(SignInOutButton));
 
-      tester.expectToSeeText(LocaleKeys.button_confirm.tr());
-      await tester.tapButtonWithName(LocaleKeys.button_confirm.tr());
+      tester.expectToSeeText(LocaleKeys.button_ok.tr());
+      await tester.tapButtonWithName(LocaleKeys.button_ok.tr());
 
       // Go to the sign in page again
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       tester.expectToSeeGoogleLoginButton();
     });
 

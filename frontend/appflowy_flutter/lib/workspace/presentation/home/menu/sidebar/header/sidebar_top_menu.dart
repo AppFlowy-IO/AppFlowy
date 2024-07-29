@@ -3,7 +3,6 @@ import 'dart:io' show Platform;
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -65,20 +64,17 @@ class SidebarTopMenu extends StatelessWidget {
   }
 
   Widget _buildCollapseMenuButton(BuildContext context) {
-    final color = Theme.of(context).isLightMode ? Colors.white : Colors.black;
     final textSpan = TextSpan(
       children: [
         TextSpan(
           text: '${LocaleKeys.sideBar_closeSidebar.tr()}\n',
-          style:
-              Theme.of(context).tooltipTheme.textStyle!.copyWith(color: color),
+          style: context.tooltipTextStyle(),
         ),
         TextSpan(
           text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
-          style: Theme.of(context)
-              .tooltipTheme
-              .textStyle!
-              .copyWith(color: Theme.of(context).hintColor),
+          style: context
+              .tooltipTextStyle()
+              ?.copyWith(color: Theme.of(context).hintColor),
         ),
       ],
     );

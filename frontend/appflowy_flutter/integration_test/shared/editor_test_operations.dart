@@ -10,7 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/bl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/embed_image_url_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/embed_image_url_widget.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
@@ -171,7 +171,17 @@ class EditorOperations {
   ///
   /// Must call [showSlashMenu] first.
   Future<void> tapSlashMenuItemWithName(String name) async {
+    final slashMenu = find
+        .ancestor(
+          of: find.byType(SelectionMenuItemWidget),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is Scrollable,
+          ),
+        )
+        .first;
     final slashMenuItem = find.text(name, findRichText: true);
+    await tester.scrollUntilVisible(slashMenuItem, 200, scrollable: slashMenu);
+    // await tester.ensureVisible(slashMenuItem);
     await tester.tapButton(slashMenuItem);
   }
 
