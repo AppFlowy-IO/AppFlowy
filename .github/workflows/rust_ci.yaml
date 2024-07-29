@@ -20,7 +20,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_TOOLCHAIN: "1.77.2"
+  RUST_TOOLCHAIN: "1.78"
 
 jobs:
   self-hosted-job:
@@ -108,7 +108,7 @@ jobs:
         working-directory: AppFlowy-Cloud
         run: |
           if [ "$(docker ps --filter name=appflowy-cloud -q)" == "" ]; then
-            docker compose pull  
+            docker compose pull
             docker compose up -d
             sleep 10
           else
