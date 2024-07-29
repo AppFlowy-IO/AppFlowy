@@ -109,6 +109,38 @@ class MultiImageBlockComponentState extends State<MultiImageBlockComponent>
 
   bool alwaysShowMenu = false;
 
+  static const _interceptorKey = 'multi-image-block-interceptor';
+
+  late final interceptor = SelectionGestureInterceptor(
+    key: _interceptorKey,
+    canTap: (details) => _isTapInBounds(details.globalPosition),
+    canPanStart: (details) => _isTapInBounds(details.globalPosition),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    editorState.selectionService.registerGestureInterceptor(interceptor);
+  }
+
+  @override
+  void dispose() {
+    editorState.selectionService.unregisterGestureInterceptor(_interceptorKey);
+    super.dispose();
+  }
+
+  bool _isTapInBounds(Offset offset) {
+    if (_renderBox == null) {
+      // We shouldn't block any actions if the render box is not available.
+      // This has the potential to break taps on the editor completely if we
+      // accidentally return false here.
+      return true;
+    }
+
+    final localPosition = _renderBox!.globalToLocal(offset);
+    return !_renderBox!.paintBounds.contains(localPosition);
+  }
+
   @override
   Widget build(BuildContext context) {
     final data = MultiImageData.fromJson(

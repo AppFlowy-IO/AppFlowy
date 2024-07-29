@@ -242,8 +242,8 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
         return;
       }
 
-      newImages.addAll(images);
-      final imagesJson = newImages.map((image) => image.toJson()).toList();
+      final imagesJson =
+          [...images, ...newImages].map((i) => i.toJson()).toList();
       transaction.updateNode(widget.node, {
         MultiImageBlockKeys.images: imagesJson,
         // Default to Browser layout
