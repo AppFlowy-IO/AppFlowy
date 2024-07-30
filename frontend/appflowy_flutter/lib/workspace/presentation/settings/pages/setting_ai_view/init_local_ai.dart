@@ -38,20 +38,23 @@ class InitLocalAIIndicator extends StatelessWidget {
                   ],
                 );
               case RunningStatePB.Running:
-                return Row(
-                  children: [
-                    const HSpace(8),
-                    const FlowySvg(
-                      FlowySvgs.download_success_s,
-                      color: Color(0xFF2E7D32),
-                    ),
-                    const HSpace(6),
-                    FlowyText(
-                      LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
-                      fontSize: 11,
-                      color: const Color(0xFF1E4620),
-                    ),
-                  ],
+                return SizedBox(
+                  height: 30,
+                  child: Row(
+                    children: [
+                      const HSpace(8),
+                      const FlowySvg(
+                        FlowySvgs.download_success_s,
+                        color: Color(0xFF2E7D32),
+                      ),
+                      const HSpace(6),
+                      FlowyText(
+                        LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
+                        fontSize: 11,
+                        color: const Color(0xFF1E4620),
+                      ),
+                    ],
+                  ),
                 );
               case RunningStatePB.Stopped:
                 return Row(

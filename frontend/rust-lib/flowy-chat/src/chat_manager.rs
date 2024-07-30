@@ -21,7 +21,7 @@ pub trait ChatUserService: Send + Sync + 'static {
   fn device_id(&self) -> Result<String, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
-  fn user_data_dir(&self) -> Result<PathBuf, FlowyError>;
+  fn data_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
 pub struct ChatManager {

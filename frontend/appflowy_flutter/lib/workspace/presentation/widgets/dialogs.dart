@@ -419,6 +419,7 @@ Future<void> showConfirmDialog({
   required String title,
   required String description,
   VoidCallback? onConfirm,
+  VoidCallback? onCancel,
   String? confirmLabel,
   ConfirmPopupStyle style = ConfirmPopupStyle.onlyOk,
 }) {
@@ -435,6 +436,7 @@ Future<void> showConfirmDialog({
             title: title,
             description: description,
             onConfirm: () => onConfirm?.call(),
+            onCancel: () => onCancel?.call(),
             confirmLabel: confirmLabel,
             style: style,
           ),

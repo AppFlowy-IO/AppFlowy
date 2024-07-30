@@ -301,6 +301,9 @@ pub enum ErrorCode {
 
   #[error("Unsupported file format")]
   UnsupportedFileFormat = 104,
+
+  #[error("AI offline not started")]
+  AIOfflineNotInstalled = 105,
 }
 
 impl ErrorCode {

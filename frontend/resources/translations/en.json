@@ -655,6 +655,7 @@
         "llmModel": "Language Model",
         "llmModelType": "Language Model Type",
         "downloadLLMPrompt": "Download {}",
+        "downloadAppFlowyOfflineAI": "Downloading AI offline package will enable AI to run on your device. Do you want to continue?",
         "downloadLLMPromptDetail": "Downloading {} local model will take up to {} of storage. Do you want to continue?",
         "downloadAIModelButton": "Download AI model",
         "downloadingModel": "Downloading",
@@ -667,7 +668,14 @@
         "disableLocalAITitle": "Disable local AI",
         "disableLocalAIDescription": "Do you want to disable local AI?",
         "localAIToggleTitle": "Toggle to enable or disable local AI",
-        "fetchLocalModel": "Fetch local model configuration",
+        "offlineAIInstruction1": "Follow the",
+        "offlineAIInstruction2": "instruction",
+        "offlineAIInstruction3": "to enable offline AI.",
+        "offlineAIDownload1": "If you have not downloaded the AppFlowy AI, please",
+        "offlineAIDownload2": "download",
+        "offlineAIDownload3": "it first",
+        "activeOfflineAI": "Active",
+        "downloadOfflineAI": "Download",
         "openModelDirectory": "Open folder"
       }
     },
