@@ -52,11 +52,12 @@ class SettingsAIView extends StatelessWidget {
           ];
 
           children.add(const _AISearchToggle(value: false));
-          children.add(
-            _LocalAIOnBoarding(
-              workspaceId: userProfile.workspaceId,
-            ),
-          );
+          // TODO(nathan): enable local ai
+          // children.add(
+          //   _LocalAIOnBoarding(
+          //     workspaceId: userProfile.workspaceId,
+          //   ),
+          // );
 
           return SettingsBody(
             title: LocaleKeys.settings_aiPage_title.tr(),

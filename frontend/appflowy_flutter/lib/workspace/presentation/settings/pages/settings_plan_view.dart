@@ -139,6 +139,7 @@ class _SettingsPlanViewState extends State<SettingsPlanView> {
 
                     // Currently, the AI Local tile is only available on macOS
                     // TODO(nathan): enable windows and linux
+                    // TODO(nathan): enable local ai
                     // if (Platform.isMacOS)
                     //   Flexible(
                     //     child: _AddOnBox(

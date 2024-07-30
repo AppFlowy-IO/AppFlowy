@@ -212,6 +212,7 @@ class _SettingsBillingViewState extends State<SettingsBillingView> {
 
                       // Currently, the AI Local tile is only available on macOS
                       // TODO(nathan): enable windows and linux
+                      // TODO(nathan): enable local ai
                       // if (Platform.isMacOS)
                       //   _AITile(
                       //     plan: SubscriptionPlanPB.AiLocal,
