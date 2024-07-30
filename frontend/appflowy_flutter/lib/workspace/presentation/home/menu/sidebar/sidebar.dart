@@ -275,7 +275,6 @@ class _SidebarState extends State<_Sidebar> {
   @override
   Widget build(BuildContext context) {
     const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 8);
-    final userState = context.read<UserWorkspaceBloc>().state;
     return MouseRegion(
       onEnter: (_) => _isHovered.value = true,
       onExit: (_) => _isHovered.value = false,
@@ -297,15 +296,19 @@ class _SidebarState extends State<_Sidebar> {
               ),
             ),
             // user or workspace, setting
-            Container(
-              height: HomeSizes.workspaceSectionHeight,
-              padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
-              child:
-                  // if the workspaces are empty, show the user profile instead
-                  userState.isCollabWorkspaceOn &&
-                          userState.workspaces.isNotEmpty
-                      ? SidebarWorkspace(userProfile: widget.userProfile)
-                      : SidebarUser(userProfile: widget.userProfile),
+            BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+              builder: (context, state) {
+                return Container(
+                  height: HomeSizes.workspaceSectionHeight,
+                  padding:
+                      menuHorizontalInset - const EdgeInsets.only(right: 6),
+                  child:
+                      // if the workspaces are empty, show the user profile instead
+                      state.isCollabWorkspaceOn && state.workspaces.isNotEmpty
+                          ? SidebarWorkspace(userProfile: widget.userProfile)
+                          : SidebarUser(userProfile: widget.userProfile),
+                );
+              },
             ),
             if (FeatureFlag.search.isOn) ...[
               const VSpace(6),

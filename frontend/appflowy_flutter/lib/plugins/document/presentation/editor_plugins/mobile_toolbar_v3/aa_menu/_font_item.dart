@@ -75,7 +75,7 @@ class FontFamilyItem extends StatelessWidget {
           }
         });
       },
-      text: (fontFamily ?? systemFonFamily).parseFontFamilyName(),
+      text: (fontFamily ?? systemFonFamily).fontFamilyDisplayName,
       fontFamily: fontFamily ?? systemFonFamily,
       backgroundColor: theme.toolbarMenuItemBackgroundColor,
       isSelected: false,

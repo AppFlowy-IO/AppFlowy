@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -201,7 +202,7 @@ class FlowyText extends StatelessWidget {
     }
 
     if (withTooltip) {
-      child = Tooltip(
+      child = FlowyTooltip(
         message: text,
         child: child,
       );
