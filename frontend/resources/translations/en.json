@@ -944,6 +944,14 @@
       "showNotificationsIcon": {
         "label": "Show notifications icon",
         "hint": "Toggle off to hide the notification icon in the sidebar."
+      },
+      "archiveNotifications": {
+        "allSuccess": "Archived all notifications successfully",
+        "success": "Archived notification successfully"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Marked all as read successfully",
+        "success": "Marked as read successfully"
       }
     },
     "appearance": {

@@ -1,10 +1,17 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
+import 'package:appflowy/workspace/application/settings/date_time/time_format_ext.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:provider/provider.dart';
 import 'package:time/time.dart';
 
 part 'notification_reminder_bloc.freezed.dart';
@@ -13,16 +20,117 @@ class NotificationReminderBloc
     extends Bloc<NotificationReminderEvent, NotificationReminderState> {
   NotificationReminderBloc() : super(NotificationReminderState.initial()) {
     on<NotificationReminderEvent>((event, emit) async {
-      event.when(
-        initial: (reminder) {
-          final createdAt = reminder.createdAt;
+      await event.when(
+        initial: (reminder, dateFormat, timeFormat) async {
+          this.reminder = reminder;
+
+          final createdAt = await _getCreatedAt(
+            reminder,
+            dateFormat,
+            timeFormat,
+          );
+          final view = await _getView(reminder);
+          final node = await _getContent(reminder);
+
+          if (view == null || node == null) {
+            emit(
+              NotificationReminderState(
+                createdAt: createdAt,
+                pageTitle: '',
+                reminderContent: '',
+                status: NotificationReminderStatus.error,
+              ),
+            );
+          } else {
+            emit(
+              NotificationReminderState(
+                createdAt: createdAt,
+                pageTitle: view.name,
+                view: view,
+                reminderContent: node.delta?.toPlainText() ?? '',
+                nodes: [node],
+                status: NotificationReminderStatus.loaded,
+              ),
+            );
+          }
         },
-        reset: () => emit(const NotificationReminderState()),
+        reset: () {},
       );
     });
   }
 
-  String _formatTimestamp(int timestamp) {
+  late final ReminderPB reminder;
+
+  Future<String> _getCreatedAt(
+    ReminderPB reminder,
+    UserDateFormatPB dateFormat,
+    UserTimeFormatPB timeFormat,
+  ) async {
+    final rCreatedAt = reminder.createdAt;
+    final createdAt = rCreatedAt != null
+        ? _formatTimestamp(
+            rCreatedAt,
+            timeFormat: timeFormat,
+            dateFormate: dateFormat,
+          )
+        : '';
+    return createdAt;
+  }
+
+  Future<ViewPB?> _getView(ReminderPB reminder) async {
+    return ViewBackendService.getView(reminder.objectId)
+        .fold((s) => s, (_) => null);
+  }
+
+  Future<Node?> _getContent(ReminderPB reminder) async {
+    final blockId = reminder.meta[ReminderMetaKeys.blockId];
+
+    if (blockId == null) {
+      return null;
+    }
+
+    final document = await DocumentService()
+        .openDocument(
+          documentId: reminder.objectId,
+        )
+        .fold((s) => s.toDocument(), (_) => null);
+
+    if (document == null) {
+      return null;
+    }
+
+    final node = _searchById(document.root, blockId);
+
+    if (node == null) {
+      return null;
+    }
+
+    return node;
+  }
+
+  Node? _searchById(Node current, String id) {
+    if (current.id == id) {
+      return current;
+    }
+
+    if (current.children.isNotEmpty) {
+      for (final child in current.children) {
+        final node = _searchById(child, id);
+
+        if (node != null) {
+          return node;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  String _formatTimestamp(
+    int timestamp, {
+    required UserDateFormatPB dateFormate,
+    required UserTimeFormatPB timeFormat,
+  }) {
     final now = DateTime.now();
     final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
     final difference = now.difference(dateTime);
@@ -41,18 +149,17 @@ class NotificationReminderBloc
       date = dateFormate.formatDate(dateTime, false);
     }
 
-    if (difference.inHours >= 1) {
-      return '${type.lastOperationHintText} $date';
-    }
-
     return date;
   }
 }
 
 @freezed
 class NotificationReminderEvent with _$NotificationReminderEvent {
-  const factory NotificationReminderEvent.initial(ReminderPB reminder) =
-      _Initial;
+  const factory NotificationReminderEvent.initial(
+    ReminderPB reminder,
+    UserDateFormatPB dateFormat,
+    UserTimeFormatPB timeFormat,
+  ) = _Initial;
 
   const factory NotificationReminderEvent.reset() = _Reset;
 }
@@ -61,6 +168,7 @@ enum NotificationReminderStatus {
   initial,
   loading,
   loaded,
+  error,
 }
 
 @freezed
@@ -72,7 +180,9 @@ class NotificationReminderState with _$NotificationReminderState {
     required String pageTitle,
     required String reminderContent,
     @Default(NotificationReminderStatus.initial)
-    required NotificationReminderStatus status,
+    NotificationReminderStatus status,
+    @Default([]) List<Node> nodes,
+    ViewPB? view,
   }) = _NotificationReminderState;
 
   factory NotificationReminderState.initial() =>

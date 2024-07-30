@@ -5,6 +5,7 @@ class ReminderMetaKeys {
   static String blockId = "block_id";
   static String rowId = "row_id";
   static String createdAt = "created_at";
+  static String isArchived = "is_archived";
 }
 
 extension ReminderExtension on ReminderPB {
@@ -18,5 +19,13 @@ extension ReminderExtension on ReminderPB {
 
   String? get rowId => meta[ReminderMetaKeys.rowId];
 
-  String? get createdAt => meta[ReminderMetaKeys.createdAt];
+  int? get createdAt {
+    final t = meta[ReminderMetaKeys.createdAt];
+    return t != null ? int.tryParse(t) : null;
+  }
+
+  bool get isArchived {
+    final t = meta[ReminderMetaKeys.isArchived];
+    return t != null ? t == true.toString() : false;
+  }
 }

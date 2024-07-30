@@ -1,7 +1,5 @@
 import 'package:appflowy/mobile/application/user_profile/user_profile_bloc.dart';
-import 'package:appflowy/mobile/presentation/notifications/widgets/_header.dart';
-import 'package:appflowy/mobile/presentation/notifications/widgets/_inbox.dart';
-import 'package:appflowy/mobile/presentation/notifications/widgets/_tab_bar.dart';
+import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/notification_filter/notification_filter_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -110,7 +108,7 @@ class _MobileNotificationsTabState extends State<MobileNotificationsTab>
                 controller: tabController,
                 children: const [
                   NotificationInboxTab(),
-                  NotificationInboxTab(),
+                  NotificationUnreadTab(),
                   NotificationInboxTab(),
                 ],
               ),

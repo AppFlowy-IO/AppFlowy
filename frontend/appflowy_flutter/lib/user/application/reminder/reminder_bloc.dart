@@ -259,6 +259,7 @@ class ReminderUpdate {
     this.isRead,
     this.scheduledAt,
     this.includeTime,
+    this.isArchived,
   });
 
   final String id;
@@ -266,6 +267,7 @@ class ReminderUpdate {
   final bool? isRead;
   final DateTime? scheduledAt;
   final bool? includeTime;
+  final bool? isArchived;
 
   ReminderPB merge({required ReminderPB a}) {
     final isAcknowledged = isAck == null && scheduledAt != null
@@ -275,6 +277,10 @@ class ReminderUpdate {
     final meta = a.meta;
     if (includeTime != a.includeTime) {
       meta[ReminderMetaKeys.includeTime] = includeTime.toString();
+    }
+
+    if (isArchived != a.isArchived) {
+      meta[ReminderMetaKeys.isArchived] = isArchived.toString();
     }
 
     return ReminderPB(

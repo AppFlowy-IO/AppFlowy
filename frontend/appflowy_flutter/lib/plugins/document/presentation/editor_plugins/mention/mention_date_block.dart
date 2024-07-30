@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -76,7 +75,8 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
       return const SizedBox.shrink();
     }
 
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    final textStyle =
+        widget.editorState.editorStyle.textStyleConfiguration.text;
 
     return MultiBlocProvider(
       providers: [
@@ -227,32 +227,32 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   }
                 }
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FlowySvg(
-                        widget.reminderId != null
-                            ? FlowySvgs.clock_alarm_s
-                            : FlowySvgs.date_s,
-                        size: const Size.square(18.0),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.reminderId != null
+                          ? '@$formattedDate'
+                          : formattedDate,
+                      style: textStyle.copyWith(
                         color: reminder?.isAck == true
                             ? Theme.of(context).colorScheme.error
                             : null,
                       ),
-                      const HSpace(2),
-                      FlowyText(
-                        formattedDate,
-                        fontSize: fontSize,
-                        color: reminder?.isAck == true
-                            ? Theme.of(context).colorScheme.error
-                            : null,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const HSpace(4),
+                    FlowySvg(
+                      widget.reminderId != null
+                          ? FlowySvgs.reminder_clock_s
+                          : FlowySvgs.date_s,
+                      size: const Size.square(16.0),
+                      color: reminder?.isAck == true
+                          ? Theme.of(context).colorScheme.error
+                          : null,
+                    ),
+                  ],
                 ),
               ),
             );
