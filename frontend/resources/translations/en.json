@@ -665,7 +665,8 @@
         "localAIStopped": "Local AI stopped",
         "failToLoadLocalAI": "Failed to start local AI",
         "restartLocalAI": "Restart Local AI",
-        "disableLocalAIDialog": "Do you want to disable local AI?",
+        "disableLocalAITitle": "Disable local AI",
+        "disableLocalAIDescription": "Do you want to disable local AI?",
         "localAIToggleTitle": "Toggle to enable or disable local AI",
         "offlineAIInstruction1": "Follow the",
         "offlineAIInstruction2": "instruction",
@@ -1513,7 +1514,11 @@
         "photoKeyword": "photo",
         "photoBrowserKeyword": "photo browser",
         "galleryKeyword": "gallery",
-        "addImageTooltip": "Add image"
+        "addImageTooltip": "Add image",
+        "changeLayoutTooltip": "Change layout",
+        "browserLayout": "Browser",
+        "gridLayout": "Grid",
+        "deleteBlockTooltip": "Delete whole gallery"
       },
       "math": {
         "copiedToPasteBoard": "The math equation has been copied to the clipboard"

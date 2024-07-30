@@ -208,11 +208,6 @@ void _resolveFolderDeps(GetIt getIt) {
     ),
   );
 
-  // Settings
-  getIt.registerFactoryParam<SettingsDialogBloc, UserProfilePB, void>(
-    (user, _) => SettingsDialogBloc(user),
-  );
-
   // User
   getIt.registerFactoryParam<SettingsUserViewBloc, UserProfilePB, void>(
     (user, _) => SettingsUserViewBloc(user),

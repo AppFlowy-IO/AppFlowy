@@ -110,10 +110,14 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
               child: SizedBox(
                 height: size.height,
                 width: size.width,
-                child: widget.imageProvider.renderImage(
-                  context,
-                  currentIndex,
-                  userProfile,
+                child: GestureDetector(
+                  // We can consider adding zoom behavior instead in a later iteration
+                  onDoubleTap: () => Navigator.of(context).pop(),
+                  child: widget.imageProvider.renderImage(
+                    context,
+                    currentIndex,
+                    userProfile,
+                  ),
                 ),
               ),
             ),
