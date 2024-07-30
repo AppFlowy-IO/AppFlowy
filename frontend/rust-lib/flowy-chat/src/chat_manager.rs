@@ -14,7 +14,7 @@ use flowy_sqlite::DBConnection;
 use lib_infra::util::timestamp;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tracing::{error, info, trace};
+use tracing::{info, trace};
 
 pub trait ChatUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
