@@ -1,10 +1,13 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 final PropertyValueNotifier<ViewLayoutPB?> createNewPageNotifier =
@@ -25,10 +28,9 @@ final _items = <BottomNavigationBarItem>[
   ),
   const BottomNavigationBarItem(
     label: _notificationLabel,
-    icon: FlowySvg(FlowySvgs.m_home_notification_m),
-    activeIcon: FlowySvg(
-      FlowySvgs.m_home_active_notification_m,
-      blendMode: null,
+    icon: _NotificationNavigationBarItemIcon(),
+    activeIcon: _NotificationNavigationBarItemIcon(
+      isActive: true,
     ),
   ),
 ];
@@ -105,6 +107,62 @@ class MobileBottomNavigationBar extends StatelessWidget {
       // already active. This example demonstrates how to support this behavior,
       // using the initialLocation parameter of goBranch.
       initialLocation: bottomBarIndex == navigationShell.currentIndex,
+    );
+  }
+}
+
+class _NotificationNavigationBarItemIcon extends StatelessWidget {
+  const _NotificationNavigationBarItemIcon({
+    this.isActive = false,
+  });
+
+  final bool isActive;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: getIt<ReminderBloc>(),
+      child: BlocBuilder<ReminderBloc, ReminderState>(
+        builder: (context, state) {
+          return Stack(
+            children: [
+              isActive
+                  ? const FlowySvg(
+                      FlowySvgs.m_home_active_notification_m,
+                      blendMode: null,
+                    )
+                  : const FlowySvg(
+                      FlowySvgs.m_home_notification_m,
+                    ),
+              if (state.hasUnreads)
+                const Positioned(
+                  top: 2,
+                  right: 4,
+                  child: _RedDot(),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _RedDot extends StatelessWidget {
+  const _RedDot({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 6,
+      height: 6,
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        color: const Color(0xFFFF2214),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
     );
   }
 }

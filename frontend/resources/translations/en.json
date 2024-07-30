@@ -974,6 +974,11 @@
       "emptyArchived": {
         "title": "No archived notifications",
         "description": "You haven't archived any notifications yet"
+      },
+      "tabs": {
+        "inbox": "Inbox",
+        "unread": "Unread",
+        "archived": "Archived"
       }
     },
     "appearance": {

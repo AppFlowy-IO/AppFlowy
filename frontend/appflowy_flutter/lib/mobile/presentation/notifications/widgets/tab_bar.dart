@@ -1,5 +1,7 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/tab/_round_underline_tab_indicator.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_tabbar/reorderable_tabbar.dart';
 
@@ -11,11 +13,11 @@ enum MobileNotificationTabType {
   String get tr {
     switch (this) {
       case MobileNotificationTabType.inbox:
-        return 'Inbox';
+        return LocaleKeys.settings_notifications_tabs_inbox.tr();
       case MobileNotificationTabType.unread:
-        return 'Unread';
+        return LocaleKeys.settings_notifications_tabs_unread.tr();
       case MobileNotificationTabType.archive:
-        return 'Archived';
+        return LocaleKeys.settings_notifications_tabs_archived.tr();
     }
   }
 
