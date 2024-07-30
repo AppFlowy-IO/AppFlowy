@@ -15,6 +15,7 @@ use lib_infra::util::{get_operating_system, OperatingSystem};
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use crate::local_ai::watch::{watch_path, WatchContext, WatchDiskEvent};
 use tokio::fs::{self};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, instrument, trace, warn};
@@ -60,6 +61,8 @@ pub struct LLMResourceController {
   ai_config: RwLock<Option<LocalAIConfig>>,
   download_task: Arc<RwLock<Option<DownloadTask>>>,
   resource_notify: tokio::sync::mpsc::Sender<()>,
+  offline_app_disk_watch: RwLock<Option<WatchContext>>,
+  offline_app_state_sender: tokio::sync::broadcast::Sender<WatchDiskEvent>,
 }
 
 impl LLMResourceController {
@@ -68,6 +71,7 @@ impl LLMResourceController {
     resource_service: impl LLMResourceService,
     resource_notify: tokio::sync::mpsc::Sender<()>,
   ) -> Self {
+    let (offline_app_ready_sender, _) = tokio::sync::broadcast::channel(1);
     let llm_setting = RwLock::new(resource_service.retrieve_setting());
     Self {
       user_service,
@@ -76,6 +80,39 @@ impl LLMResourceController {
       ai_config: Default::default(),
       download_task: Default::default(),
       resource_notify,
+      offline_app_disk_watch: Default::default(),
+      offline_app_state_sender: offline_app_ready_sender,
+    }
+  }
+
+  #[allow(dead_code)]
+  pub fn subscribe_offline_app_state(&self) -> tokio::sync::broadcast::Receiver<WatchDiskEvent> {
+    self.offline_app_state_sender.subscribe()
+  }
+
+  fn set_llm_setting(&self, llm_setting: LLMSetting) {
+    let offline_app_path = self.offline_app_path(&llm_setting.app.ai_plugin_name);
+    *self.llm_setting.write() = Some(llm_setting);
+
+    let is_diff = self
+      .offline_app_disk_watch
+      .read()
+      .as_ref()
+      .map(|watch_context| watch_context.path == offline_app_path)
+      .unwrap_or(true);
+
+    // If the offline app path is different from the current watch path, update the watch path.
+    if is_diff {
+      if let Ok((watcher, mut rx)) = watch_path(offline_app_path) {
+        let offline_app_ready_sender = self.offline_app_state_sender.clone();
+        tokio::spawn(async move {
+          while let Some(event) = rx.recv().await {
+            info!("Offline app file changed: {:?}", event);
+            let _ = offline_app_ready_sender.send(event);
+          }
+        });
+        self.offline_app_disk_watch.write().replace(watcher);
+      }
     }
   }
 
@@ -94,7 +131,7 @@ impl LLMResourceController {
         false
       },
       Some(setting) => {
-        let path = self.offline_plugin_path(&setting.app.ai_plugin_name);
+        let path = self.offline_app_path(&setting.app.ai_plugin_name);
         path.exists()
       },
     }
@@ -120,7 +157,7 @@ impl LLMResourceController {
       app: ai_config.plugin.clone(),
       llm_model: selected_model.clone(),
     };
-    self.llm_setting.write().replace(llm_setting.clone());
+    self.set_llm_setting(llm_setting.clone());
     self.resource_service.store_setting(llm_setting)?;
 
     Ok(LLMModelInfo {
@@ -151,7 +188,7 @@ impl LLMResourceController {
     };
 
     trace!("[LLM Resource] Selected AI setting: {:?}", llm_setting);
-    *self.llm_setting.write() = Some(llm_setting.clone());
+    self.set_llm_setting(llm_setting.clone());
     self.resource_service.store_setting(llm_setting)?;
     self.get_local_llm_state()
   }
@@ -207,7 +244,7 @@ impl LLMResourceController {
       None => Err(FlowyError::local_ai().with_context("Can't find any llm config")),
       Some(llm_setting) => {
         let mut resources = vec![];
-        let plugin_path = self.offline_plugin_path(&llm_setting.app.ai_plugin_name);
+        let plugin_path = self.offline_app_path(&llm_setting.app.ai_plugin_name);
         if !plugin_path.exists() {
           trace!("[LLM Resource] offline plugin not found: {:?}", plugin_path);
           resources.push(PendingResource::OfflineApp);
@@ -424,7 +461,7 @@ impl LLMResourceController {
     let model_dir = self.user_model_folder()?;
     let bin_path = match get_operating_system() {
       OperatingSystem::MacOS => {
-        let path = self.offline_plugin_path(&llm_setting.app.ai_plugin_name);
+        let path = self.offline_app_path(&llm_setting.app.ai_plugin_name);
         if !path.exists() {
           return Err(FlowyError::new(
             ErrorCode::AIOfflineNotInstalled,
@@ -511,7 +548,7 @@ impl LLMResourceController {
     self.resource_dir().map(|dir| dir.join(LLM_MODEL_DIR))
   }
 
-  fn offline_plugin_path(&self, plugin_name: &str) -> PathBuf {
+  pub(crate) fn offline_app_path(&self, plugin_name: &str) -> PathBuf {
     PathBuf::from(format!("/usr/local/bin/{}", plugin_name))
   }
 

@@ -58,8 +58,6 @@ impl LocalAIController {
     cloud_service: Arc<dyn ChatCloudService>,
   ) -> Self {
     let llm_chat = Arc::new(LocalChatLLMChat::new(plugin_manager));
-
-    let _weak_store_preferences = Arc::downgrade(&store_preferences);
     let res_impl = LLMResourceServiceImpl {
       user_service: user_service.clone(),
       cloud_service,
@@ -198,11 +196,6 @@ impl LocalAIController {
       return Err(FlowyError::local_ai_unavailable());
     }
 
-    let llm_chat = self.llm_chat.clone();
-    match llm_chat.destroy_chat_plugin().await {
-      Ok(_) => info!("[AI Plugin] destroy plugin successfully"),
-      Err(err) => error!("[AI Plugin] failed to destroy plugin: {:?}", err),
-    }
     let state = self.llm_res.use_local_llm(llm_id)?;
     // Re-initialize the plugin if the setting is updated and ready to use
     if self.llm_res.is_resource_ready() {
@@ -326,6 +319,7 @@ fn initialize_chat_plugin(
   ret: Option<tokio::sync::oneshot::Sender<()>>,
 ) -> FlowyResult<()> {
   let llm_chat = llm_chat.clone();
+
   tokio::spawn(async move {
     trace!("[AI Plugin] config: {:?}", chat_config);
     if is_apple_silicon().await.unwrap_or(false) {

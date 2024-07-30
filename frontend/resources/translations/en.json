@@ -667,8 +667,13 @@
         "restartLocalAI": "Restart Local AI",
         "disableLocalAIDialog": "Do you want to disable local AI?",
         "localAIToggleTitle": "Toggle to enable or disable local AI",
-        "offlineAINotReady": "Open AppFlowy Offline AI, or download it if you haven't already, and follow the instructions to enable offline AI",
-        "retryOfflineAI": "Retry",
+        "offlineAIInstruction1": "Follow the",
+        "offlineAIInstruction2": "instruction",
+        "offlineAIInstruction3": "to enable offline AI.",
+        "offlineAIDownload1": "If you have not downloaded the AppFlowy AI, please",
+        "offlineAIDownload2": "download",
+        "offlineAIDownload3": "it first",
+        "activeOfflineAI": "Active",
         "downloadOfflineAI": "Download",
         "openModelDirectory": "Open folder"
       }

@@ -43,6 +43,7 @@ futures-util = "0.3.30"
 md5 = "0.7.0"
 zip = { workspace = true, features = ["deflate"] }
 zip-extensions = "0.8.0"
+notify = "6.1.1"
 
 [dev-dependencies]
 dotenv = "0.15.0"
