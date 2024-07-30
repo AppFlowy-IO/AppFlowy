@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
@@ -11,7 +13,6 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
@@ -465,6 +466,40 @@ Future<void> showCancelAndConfirmDialog({
             onConfirm: () => onConfirm?.call(),
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<void> showCustomConfirmDialog({
+  required BuildContext context,
+  required String title,
+  required String description,
+  required Widget Function(BuildContext) builder,
+  VoidCallback? onConfirm,
+  String? confirmLabel,
+  ConfirmPopupStyle style = ConfirmPopupStyle.onlyOk,
+  bool closeOnConfirm = true,
+}) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: SizedBox(
+          width: 440,
+          child: ConfirmPopup(
+            title: title,
+            description: description,
+            onConfirm: () => onConfirm?.call(),
+            confirmLabel: confirmLabel,
+            style: style,
+            closeOnAction: closeOnConfirm,
+            child: builder(context),
           ),
         ),
       );
