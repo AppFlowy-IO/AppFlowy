@@ -4,13 +4,14 @@ import {
   useLoadComments,
   useLoadReactions,
 } from '@/components/global-comment/GlobalComment.hooks';
-import React, { useCallback, useState } from 'react';
+import { debounce } from 'lodash-es';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 export function GlobalCommentProvider() {
   const { comments, loading, reload } = useLoadComments();
   const { reactions, toggleReaction } = useLoadReactions();
   const [replyCommentId, setReplyCommentId] = useState<string | null>(null);
-
+  const [highLightCommentId, setHighLightCommentId] = useState<string | null>(null);
   const getComment = useCallback(
     (commentId: string) => {
       return comments?.find((comment) => comment.commentId === commentId);
@@ -21,6 +22,20 @@ export function GlobalCommentProvider() {
   const replyComment = useCallback((commentId: string | null) => {
     setReplyCommentId(commentId);
   }, []);
+
+  const debounceClearHighLightCommentId = useMemo(() => {
+    return debounce(() => {
+      setHighLightCommentId(null);
+    }, 5000);
+  }, []);
+
+  useEffect(() => {
+    if (highLightCommentId) {
+      debounceClearHighLightCommentId();
+    } else {
+      debounceClearHighLightCommentId.cancel();
+    }
+  }, [highLightCommentId, debounceClearHighLightCommentId]);
 
   return (
     <GlobalCommentContext.Provider
@@ -33,6 +48,8 @@ export function GlobalCommentProvider() {
         comments,
         replyComment,
         toggleReaction,
+        highLightCommentId,
+        setHighLightCommentId,
       }}
     >
       <GlobalComment />

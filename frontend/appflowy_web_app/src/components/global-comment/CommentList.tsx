@@ -4,7 +4,7 @@ import { useGlobalCommentContext } from '@/components/global-comment/GlobalComme
 import React, { memo } from 'react';
 
 function CommentList() {
-  const { comments } = useGlobalCommentContext();
+  const { comments, highLightCommentId } = useGlobalCommentContext();
 
   const isEmpty = !comments || comments.length === 0;
 
@@ -27,6 +27,7 @@ function CommentList() {
           onHovered={() => {
             setHoverId(comment.commentId);
           }}
+          isHighLight={comment.commentId === highLightCommentId}
           key={comment.commentId}
           commentId={comment.commentId}
         />

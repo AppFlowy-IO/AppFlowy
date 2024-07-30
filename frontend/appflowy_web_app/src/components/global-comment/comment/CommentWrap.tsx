@@ -10,13 +10,13 @@ export interface CommentWrapProps {
   commentId: string;
   isHovered: boolean;
   onHovered: () => void;
+  isHighLight: boolean;
 }
 
-export function CommentWrap({ commentId, isHovered, onHovered }: CommentWrapProps) {
-  const { getComment } = useGlobalCommentContext();
+export function CommentWrap({ commentId, isHighLight, isHovered, onHovered }: CommentWrapProps) {
+  const { getComment, setHighLightCommentId } = useGlobalCommentContext();
   const comment = useMemo(() => getComment(commentId), [commentId, getComment]);
   const ref = React.useRef<HTMLDivElement>(null);
-  const [highLight, setHighLight] = React.useState(false);
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
 
   useEffect(() => {
@@ -36,18 +36,14 @@ export function CommentWrap({ commentId, isHovered, onHovered }: CommentWrapProp
           behavior: 'smooth',
           block: 'center',
         });
-        setHighLight(true);
-
-        timeout = setTimeout(() => {
-          setHighLight(false);
-        }, 10000);
+        setHighLightCommentId(commentId);
       }, 500);
     })();
 
     return () => {
       timeout && clearTimeout(timeout);
     };
-  }, [commentId]);
+  }, [commentId, setHighLightCommentId]);
 
   const renderReplyComment = useCallback((replyCommentId: string) => {
     return (
@@ -66,11 +62,10 @@ export function CommentWrap({ commentId, isHovered, onHovered }: CommentWrapProp
     <div ref={ref} className={'flex flex-col gap-1'} data-comment-id={comment.commentId}>
       {comment.replyCommentId && renderReplyComment(comment.replyCommentId)}
       <div
-        className={`relative rounded-[8px] p-2 py-2.5 hover:bg-fill-list-hover ${highLight ? 'blink' : ''}`}
+        className={`relative rounded-[8px] p-2 py-2.5 hover:bg-fill-list-hover ${isHighLight ? 'blink' : ''}`}
         {...(comment.isDeleted ? { style: { opacity: 0.5 } } : {})}
         onMouseEnter={() => {
           onHovered();
-          setHighLight(false);
         }}
       >
         <Comment comment={comment} />

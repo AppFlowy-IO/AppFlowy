@@ -15,6 +15,8 @@ export const GlobalCommentContext = React.createContext<{
   replyCommentId: string | null;
   reactions: Record<string, Reaction[]> | null;
   toggleReaction: (commentId: string, reactionType: string) => void;
+  setHighLightCommentId: (commentId: string | null) => void;
+  highLightCommentId: string | null;
 }>({
   reload: () => Promise.resolve(),
   getComment: () => undefined,
@@ -24,6 +26,8 @@ export const GlobalCommentContext = React.createContext<{
   replyCommentId: null,
   reactions: null,
   toggleReaction: () => undefined,
+  setHighLightCommentId: () => undefined,
+  highLightCommentId: null,
 });
 
 export function useGlobalCommentContext() {
