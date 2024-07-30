@@ -16,8 +16,9 @@ export function Reactions({ comment }: { comment: GlobalComment }) {
     [comment.commentId, toggleReaction]
   );
 
+  if (!commentReactions.length) return null;
   return (
-    <div className={'flex w-full flex-wrap items-center gap-2 overflow-hidden'}>
+    <div className={'flex w-full flex-wrap items-center gap-2 overflow-hidden pt-1'}>
       {commentReactions.map((reaction) => {
         return <Reaction reaction={reaction} onClick={handleReactionClick} key={reaction.reactionType} />;
       })}
