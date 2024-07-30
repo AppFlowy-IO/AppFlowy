@@ -374,3 +374,22 @@ pub(crate) async fn get_model_storage_directory_handler(
     .get_model_storage_directory()?;
   data_result_ok(LocalModelStoragePB { file_path })
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_offline_app_handler(
+  chat_manager: AFPluginState<Weak<ChatManager>>,
+) -> DataResult<OfflineAIPB, FlowyError> {
+  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let (tx, rx) = oneshot::channel::<Result<String, FlowyError>>();
+  tokio::spawn(async move {
+    let link = chat_manager
+      .local_ai_controller
+      .get_offline_ai_app_download_link()
+      .await?;
+    let _ = tx.send(Ok(link));
+    Ok::<_, FlowyError>(())
+  });
+
+  let link = rx.await??;
+  data_result_ok(OfflineAIPB { link })
+}

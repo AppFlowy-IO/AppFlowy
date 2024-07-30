@@ -7,6 +7,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:url_launcher/url_launcher.dart' show launchUrl;
 part 'plugin_state_bloc.freezed.dart';
 
 class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
@@ -53,19 +54,31 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
         );
       },
       updateState: (LocalAIPluginStatePB pluginState) {
-        switch (pluginState.state) {
-          case RunningStatePB.Connecting:
-            emit(
-              const PluginStateState(action: PluginStateAction.loadingPlugin()),
-            );
-          case RunningStatePB.Running:
-            emit(const PluginStateState(action: PluginStateAction.ready()));
-            break;
-          default:
-            emit(
-              state.copyWith(action: const PluginStateAction.restart()),
-            );
-            break;
+        // if the offline ai is not started, ask user to start it
+        if (pluginState.offlineAiReady) {
+          // Chech state of the plugin
+          switch (pluginState.state) {
+            case RunningStatePB.Connecting:
+              emit(
+                const PluginStateState(
+                  action: PluginStateAction.loadingPlugin(),
+                ),
+              );
+            case RunningStatePB.Running:
+              emit(const PluginStateState(action: PluginStateAction.ready()));
+              break;
+            default:
+              emit(
+                state.copyWith(action: const PluginStateAction.restartPlugin()),
+              );
+              break;
+          }
+        } else {
+          emit(
+            const PluginStateState(
+              action: PluginStateAction.startAIOfflineApp(),
+            ),
+          );
         }
       },
       restartLocalAI: () async {
@@ -83,6 +96,15 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
           (err) => Log.error(err.toString()),
         );
       },
+      downloadOfflineAIApp: () async {
+        final result = await ChatEventGetOfflineAIAppLink().send();
+        await result.fold(
+          (app) async {
+            await launchUrl(Uri.parse(app.link));
+          },
+          (err) {},
+        );
+      },
     );
   }
 }
@@ -95,6 +117,7 @@ class PluginStateEvent with _$PluginStateEvent {
   const factory PluginStateEvent.restartLocalAI() = _RestartLocalAI;
   const factory PluginStateEvent.openModelDirectory() =
       _OpenModelStorageDirectory;
+  const factory PluginStateEvent.downloadOfflineAIApp() = _DownloadOfflineAIApp;
 }
 
 @freezed
@@ -109,5 +132,6 @@ class PluginStateAction with _$PluginStateAction {
   const factory PluginStateAction.init() = _Init;
   const factory PluginStateAction.loadingPlugin() = _LoadingPlugin;
   const factory PluginStateAction.ready() = _Ready;
-  const factory PluginStateAction.restart() = _Restart;
+  const factory PluginStateAction.restartPlugin() = _RestartPlugin;
+  const factory PluginStateAction.startAIOfflineApp() = _StartAIOfflineApp;
 }

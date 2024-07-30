@@ -20,7 +20,7 @@ class LocalAIChatSettingBloc
     listener.start(
       stateCallback: (newState) {
         if (!isClosed) {
-          add(LocalAIChatSettingEvent.updateLLMRunningState(newState.state));
+          add(LocalAIChatSettingEvent.updatePluginState(newState));
         }
       },
     );
@@ -46,14 +46,14 @@ class LocalAIChatSettingBloc
                 modelInfo: modelInfo,
                 models: modelInfo.models,
                 selectedLLMModel: modelInfo.selectedModel,
-                fetchModelInfoState: const LoadingState.finish(),
+                aiModelProgress: const AIModelProgress.finish(),
               ),
             );
           },
           (err) {
             emit(
               state.copyWith(
-                fetchModelInfoState: LoadingState.finish(error: err),
+                aiModelProgress: AIModelProgress.finish(error: err),
               ),
             );
           },
@@ -68,7 +68,7 @@ class LocalAIChatSettingBloc
               emit(
                 state.copyWith(
                   selectedLLMModel: llmModel,
-                  localAIInfo: LocalAIProgress.showDownload(
+                  progressIndicator: LocalAIProgress.showDownload(
                     llmResource,
                     llmModel,
                   ),
@@ -80,7 +80,7 @@ class LocalAIChatSettingBloc
                 state.copyWith(
                   selectedLLMModel: llmModel,
                   selectLLMState: const LoadingState.finish(),
-                  localAIInfo: const LocalAIProgress.checkPluginState(),
+                  progressIndicator: const LocalAIProgress.checkPluginState(),
                 ),
               );
             }
@@ -106,7 +106,7 @@ class LocalAIChatSettingBloc
         if (llmResource.pendingResources.isEmpty) {
           emit(
             state.copyWith(
-              localAIInfo: const LocalAIProgress.checkPluginState(),
+              progressIndicator: const LocalAIProgress.checkPluginState(),
             ),
           );
         } else {
@@ -115,7 +115,7 @@ class LocalAIChatSettingBloc
             if (llmResource.isDownloading) {
               emit(
                 state.copyWith(
-                  localAIInfo:
+                  progressIndicator:
                       LocalAIProgress.startDownloading(state.selectedLLMModel!),
                   selectLLMState: const LoadingState.finish(),
                 ),
@@ -124,7 +124,7 @@ class LocalAIChatSettingBloc
             } else {
               emit(
                 state.copyWith(
-                  localAIInfo: LocalAIProgress.showDownload(
+                  progressIndicator: LocalAIProgress.showDownload(
                     llmResource,
                     state.selectedLLMModel!,
                   ),
@@ -138,7 +138,7 @@ class LocalAIChatSettingBloc
       startDownloadModel: (LLMModelPB llmModel) {
         emit(
           state.copyWith(
-            localAIInfo: LocalAIProgress.startDownloading(llmModel),
+            progressIndicator: LocalAIProgress.startDownloading(llmModel),
             selectLLMState: const LoadingState.finish(),
           ),
         );
@@ -149,19 +149,39 @@ class LocalAIChatSettingBloc
       },
       finishDownload: () async {
         emit(
-          state.copyWith(localAIInfo: const LocalAIProgress.finishDownload()),
+          state.copyWith(
+            progressIndicator: const LocalAIProgress.finishDownload(),
+          ),
         );
       },
-      updateLLMRunningState: (RunningStatePB newRunningState) {
-        if (newRunningState == RunningStatePB.Stopped) {
+      updatePluginState: (LocalAIPluginStatePB pluginState) {
+        if (pluginState.offlineAiReady) {
+          ChatEventRefreshLocalAIModelInfo().send().then((result) {
+            if (!isClosed) {
+              add(LocalAIChatSettingEvent.didLoadModelInfo(result));
+            }
+          });
+
+          if (pluginState.state == RunningStatePB.Stopped) {
+            emit(
+              state.copyWith(
+                runningState: pluginState.state,
+                progressIndicator: const LocalAIProgress.checkPluginState(),
+              ),
+            );
+          } else {
+            emit(
+              state.copyWith(
+                runningState: pluginState.state,
+              ),
+            );
+          }
+        } else {
           emit(
             state.copyWith(
-              runningState: newRunningState,
-              localAIInfo: const LocalAIProgress.checkPluginState(),
+              progressIndicator: const LocalAIProgress.startOfflineAIApp(),
             ),
           );
-        } else {
-          emit(state.copyWith(runningState: newRunningState));
         }
       },
     );
@@ -183,10 +203,21 @@ class LocalAIChatSettingBloc
 
   /// Handles the event to fetch local AI settings when the application starts.
   Future<void> _handleStarted() async {
-    final result = await ChatEventRefreshLocalAIModelInfo().send();
-    if (!isClosed) {
-      add(LocalAIChatSettingEvent.didLoadModelInfo(result));
-    }
+    final result = await ChatEventGetLocalAIPluginState().send();
+    result.fold(
+      (pluginState) async {
+        if (!isClosed) {
+          add(LocalAIChatSettingEvent.updatePluginState(pluginState));
+          if (pluginState.offlineAiReady) {
+            final result = await ChatEventRefreshLocalAIModelInfo().send();
+            if (!isClosed) {
+              add(LocalAIChatSettingEvent.didLoadModelInfo(result));
+            }
+          }
+        }
+      },
+      (err) => Log.error(err.toString()),
+    );
   }
 
   @override
@@ -214,9 +245,9 @@ class LocalAIChatSettingEvent with _$LocalAIChatSettingEvent {
 
   const factory LocalAIChatSettingEvent.cancelDownload() = _CancelDownload;
   const factory LocalAIChatSettingEvent.finishDownload() = _FinishDownload;
-  const factory LocalAIChatSettingEvent.updateLLMRunningState(
-    RunningStatePB newRunningState,
-  ) = _RunningState;
+  const factory LocalAIChatSettingEvent.updatePluginState(
+    LocalAIPluginStatePB pluginState,
+  ) = _PluginState;
 }
 
 @freezed
@@ -224,29 +255,16 @@ class LocalAIChatSettingState with _$LocalAIChatSettingState {
   const factory LocalAIChatSettingState({
     LLMModelInfoPB? modelInfo,
     LLMModelPB? selectedLLMModel,
-    LocalAIProgress? localAIInfo,
-    @Default(LoadingState.loading()) LoadingState fetchModelInfoState,
+    LocalAIProgress? progressIndicator,
+    @Default(AIModelProgress.init()) AIModelProgress aiModelProgress,
     @Default(LoadingState.loading()) LoadingState selectLLMState,
     @Default([]) List<LLMModelPB> models,
     @Default(RunningStatePB.Connecting) RunningStatePB runningState,
   }) = _LocalAIChatSettingState;
 }
 
-// @freezed
-// class LocalChatAIStateIndicator with _$LocalChatAIStateIndicator {
-//   // when start downloading the model
-//   const factory LocalChatAIStateIndicator.error(FlowyError error) = _OnError;
-//   const factory LocalChatAIStateIndicator.ready(bool isEnabled) = _Ready;
-// }
-
 @freezed
 class LocalAIProgress with _$LocalAIProgress {
-  // when user select a new model, it will call requestDownload
-  const factory LocalAIProgress.requestDownloadInfo(
-    LocalModelResourcePB llmResource,
-    LLMModelPB llmModel,
-  ) = _RequestDownload;
-
   // when user comes back to the setting page, it will auto detect current llm state
   const factory LocalAIProgress.showDownload(
     LocalModelResourcePB llmResource,
@@ -257,5 +275,13 @@ class LocalAIProgress with _$LocalAIProgress {
   const factory LocalAIProgress.startDownloading(LLMModelPB llmModel) =
       _Downloading;
   const factory LocalAIProgress.finishDownload() = _Finish;
-  const factory LocalAIProgress.checkPluginState() = _PluginState;
+  const factory LocalAIProgress.checkPluginState() = _CheckPluginState;
+  const factory LocalAIProgress.startOfflineAIApp() = _StartOfflineAIApp;
+}
+
+@freezed
+class AIModelProgress with _$AIModelProgress {
+  const factory AIModelProgress.init() = _AIModelProgressInit;
+  const factory AIModelProgress.loading() = _AIModelDownloading;
+  const factory AIModelProgress.finish({FlowyError? error}) = _AIModelFinish;
 }

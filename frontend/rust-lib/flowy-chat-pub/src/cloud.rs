@@ -1,6 +1,6 @@
 use bytes::Bytes;
 pub use client_api::entity::ai_dto::{
-  AppFlowyAIPlugin, CompletionType, LLMModel, LocalAIConfig, ModelInfo, RelatedQuestion,
+  AppFlowyOfflineAI, CompletionType, LLMModel, LocalAIConfig, ModelInfo, RelatedQuestion,
   RepeatedRelatedQuestion, StringOrMessage,
 };
 pub use client_api::entity::{

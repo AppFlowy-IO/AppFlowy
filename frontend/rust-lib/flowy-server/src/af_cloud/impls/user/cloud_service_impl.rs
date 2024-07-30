@@ -217,7 +217,7 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let workspaces = try_get_client?.get_workspaces().await?;
-      to_user_workspaces(workspaces.0)
+      to_user_workspaces(workspaces)
     })
   }
 

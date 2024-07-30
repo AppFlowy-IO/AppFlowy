@@ -7,7 +7,6 @@ import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/m
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -53,11 +52,12 @@ class SettingsAIView extends StatelessWidget {
           ];
 
           children.add(const _AISearchToggle(value: false));
-          children.add(
-            _LocalAIOnBoarding(
-              workspaceId: userProfile.workspaceId,
-            ),
-          );
+          // TODO(nathan): enable local ai
+          // children.add(
+          //   _LocalAIOnBoarding(
+          //     workspaceId: userProfile.workspaceId,
+          //   ),
+          // );
 
           return SettingsBody(
             title: LocaleKeys.settings_aiPage_title.tr(),
@@ -114,6 +114,7 @@ class _AISearchToggle extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _LocalAIOnBoarding extends StatelessWidget {
   const _LocalAIOnBoarding({required this.workspaceId});
   final String workspaceId;
@@ -129,7 +130,7 @@ class _LocalAIOnBoarding extends StatelessWidget {
             child: BlocBuilder<LocalAIOnBoardingBloc, LocalAIOnBoardingState>(
               builder: (context, state) {
                 // Show the local AI settings if the user has purchased the AI Local plan
-                if (kDebugMode || state.isPurchaseAILocal) {
+                if (state.isPurchaseAILocal) {
                   return const LocalAISetting();
                 } else {
                   // Show the upgrade to AI Local plan button if the user has not purchased the AI Local plan

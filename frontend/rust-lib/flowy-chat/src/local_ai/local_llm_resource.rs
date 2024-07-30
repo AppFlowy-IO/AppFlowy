@@ -1,24 +1,25 @@
 use crate::chat_manager::ChatUserService;
-use crate::entities::{LocalModelResourcePB, PendingResourcePB};
+use crate::entities::{LocalModelResourcePB, PendingResourcePB, PendingResourceTypePB};
 use crate::local_ai::local_llm_chat::{LLMModelInfo, LLMSetting};
 use crate::local_ai::model_request::download_model;
 
 use appflowy_local_ai::chat_plugin::AIPluginConfig;
 use flowy_chat_pub::cloud::{LLMModel, LocalAIConfig, ModelInfo};
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use futures::Sink;
 use futures_util::SinkExt;
 use lib_infra::async_trait::async_trait;
 use parking_lot::RwLock;
 
-use appflowy_local_ai::plugin_request::download_plugin;
+use lib_infra::util::{get_operating_system, OperatingSystem};
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::time::Duration;
+
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+use crate::local_ai::watch::{watch_path, WatchContext};
 use tokio::fs::{self};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, instrument, trace, warn};
-use zip_extensions::zip_extract;
 
 #[async_trait]
 pub trait LLMResourceService: Send + Sync + 'static {
@@ -29,12 +30,17 @@ pub trait LLMResourceService: Send + Sync + 'static {
   fn is_rag_enabled(&self) -> bool;
 }
 
-const PLUGIN_DIR: &str = "plugin";
 const LLM_MODEL_DIR: &str = "models";
 const DOWNLOAD_FINISH: &str = "finish";
 
+#[derive(Debug, Clone)]
+pub enum WatchDiskEvent {
+  Create,
+  Remove,
+}
+
 pub enum PendingResource {
-  PluginRes,
+  OfflineApp,
   ModelInfoRes(Vec<ModelInfo>),
 }
 #[derive(Clone)]
@@ -62,6 +68,9 @@ pub struct LLMResourceController {
   ai_config: RwLock<Option<LocalAIConfig>>,
   download_task: Arc<RwLock<Option<DownloadTask>>>,
   resource_notify: tokio::sync::mpsc::Sender<()>,
+  #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+  offline_app_disk_watch: RwLock<Option<WatchContext>>,
+  offline_app_state_sender: tokio::sync::broadcast::Sender<WatchDiskEvent>,
 }
 
 impl LLMResourceController {
@@ -70,6 +79,7 @@ impl LLMResourceController {
     resource_service: impl LLMResourceService,
     resource_notify: tokio::sync::mpsc::Sender<()>,
   ) -> Self {
+    let (offline_app_ready_sender, _) = tokio::sync::broadcast::channel(1);
     let llm_setting = RwLock::new(resource_service.retrieve_setting());
     Self {
       user_service,
@@ -78,6 +88,43 @@ impl LLMResourceController {
       ai_config: Default::default(),
       download_task: Default::default(),
       resource_notify,
+      #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+      offline_app_disk_watch: Default::default(),
+      offline_app_state_sender: offline_app_ready_sender,
+    }
+  }
+
+  #[allow(dead_code)]
+  pub fn subscribe_offline_app_state(&self) -> tokio::sync::broadcast::Receiver<WatchDiskEvent> {
+    self.offline_app_state_sender.subscribe()
+  }
+
+  fn set_llm_setting(&self, llm_setting: LLMSetting) {
+    let offline_app_path = self.offline_app_path(&llm_setting.app.ai_plugin_name);
+    *self.llm_setting.write() = Some(llm_setting);
+
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+    {
+      let is_diff = self
+        .offline_app_disk_watch
+        .read()
+        .as_ref()
+        .map(|watch_context| watch_context.path == offline_app_path)
+        .unwrap_or(true);
+
+      // If the offline app path is different from the current watch path, update the watch path.
+      if is_diff {
+        if let Ok((watcher, mut rx)) = watch_path(offline_app_path) {
+          let offline_app_ready_sender = self.offline_app_state_sender.clone();
+          tokio::spawn(async move {
+            while let Some(event) = rx.recv().await {
+              info!("Offline app file changed: {:?}", event);
+              let _ = offline_app_ready_sender.send(event);
+            }
+          });
+          self.offline_app_disk_watch.write().replace(watcher);
+        }
+      }
     }
   }
 
@@ -87,6 +134,24 @@ impl LLMResourceController {
       Ok(res) => res.is_empty(),
       Err(_) => false,
     }
+  }
+
+  pub fn is_offline_ai_ready(&self) -> bool {
+    match self.llm_setting.read().as_ref() {
+      None => {
+        trace!("[LLM Resource] No local ai setting found");
+        false
+      },
+      Some(setting) => {
+        let path = self.offline_app_path(&setting.app.ai_plugin_name);
+        path.exists()
+      },
+    }
+  }
+
+  pub async fn get_offline_ai_app_download_link(&self) -> FlowyResult<String> {
+    let ai_config = self.fetch_ai_config().await?;
+    Ok(ai_config.plugin.url)
   }
 
   /// Retrieves model information and updates the current model settings.
@@ -101,10 +166,10 @@ impl LLMResourceController {
     let selected_model = self.select_model(&ai_config)?;
 
     let llm_setting = LLMSetting {
-      plugin: ai_config.plugin.clone(),
+      app: ai_config.plugin.clone(),
       llm_model: selected_model.clone(),
     };
-    self.llm_setting.write().replace(llm_setting.clone());
+    self.set_llm_setting(llm_setting.clone());
     self.resource_service.store_setting(llm_setting)?;
 
     Ok(LLMModelInfo {
@@ -130,12 +195,12 @@ impl LLMResourceController {
       .ok_or_else(|| FlowyError::local_ai().with_context("No local ai config found"))?;
 
     let llm_setting = LLMSetting {
-      plugin: package,
+      app: package,
       llm_model: llm_config.clone(),
     };
 
     trace!("[LLM Resource] Selected AI setting: {:?}", llm_setting);
-    *self.llm_setting.write() = Some(llm_setting.clone());
+    self.set_llm_setting(llm_setting.clone());
     self.resource_service.store_setting(llm_setting)?;
     self.get_local_llm_state()
   }
@@ -157,17 +222,19 @@ impl LLMResourceController {
     let pending_resources: Vec<_> = pending_resources
       .into_iter()
       .flat_map(|res| match res {
-        PendingResource::PluginRes => vec![PendingResourcePB {
+        PendingResource::OfflineApp => vec![PendingResourcePB {
           name: "AppFlowy Plugin".to_string(),
-          file_size: 0,
+          file_size: "0 GB".to_string(),
           requirements: "".to_string(),
+          res_type: PendingResourceTypePB::OfflineApp,
         }],
         PendingResource::ModelInfoRes(model_infos) => model_infos
           .into_iter()
           .map(|model_info| PendingResourcePB {
             name: model_info.name,
-            file_size: model_info.file_size,
+            file_size: bytes_to_readable_format(model_info.file_size as u64),
             requirements: model_info.requirements,
+            res_type: PendingResourceTypePB::AIModel,
           })
           .collect::<Vec<_>>(),
       })
@@ -189,11 +256,10 @@ impl LLMResourceController {
       None => Err(FlowyError::local_ai().with_context("Can't find any llm config")),
       Some(llm_setting) => {
         let mut resources = vec![];
-        let plugin_path = self.plugin_path(&llm_setting.plugin.etag)?;
-
+        let plugin_path = self.offline_app_path(&llm_setting.app.ai_plugin_name);
         if !plugin_path.exists() {
-          trace!("[LLM Resource] Plugin file not found: {:?}", plugin_path);
-          resources.push(PendingResource::PluginRes);
+          trace!("[LLM Resource] offline plugin not found: {:?}", plugin_path);
+          resources.push(PendingResource::OfflineApp);
         }
 
         let chat_model = self.model_path(&llm_setting.llm_model.chat_model.file_name)?;
@@ -271,12 +337,12 @@ impl LLMResourceController {
     *self.download_task.write() = Some(download_task.clone());
     progress_notify(download_task.tx.subscribe());
 
-    let plugin_dir = self.user_plugin_folder()?;
-    if !plugin_dir.exists() {
-      fs::create_dir_all(&plugin_dir).await.map_err(|err| {
-        FlowyError::local_ai().with_context(format!("Failed to create plugin dir: {:?}", err))
-      })?;
-    }
+    // let plugin_dir = self.user_plugin_folder()?;
+    // if !plugin_dir.exists() {
+    //   fs::create_dir_all(&plugin_dir).await.map_err(|err| {
+    //     FlowyError::local_ai().with_context(format!("Failed to create plugin dir: {:?}", err))
+    //   })?;
+    // }
 
     let model_dir = self.user_model_folder()?;
     if !model_dir.exists() {
@@ -286,42 +352,42 @@ impl LLMResourceController {
     }
 
     tokio::spawn(async move {
-      let plugin_file_etag_dir = plugin_dir.join(&llm_setting.plugin.etag);
+      // let plugin_file_etag_dir = plugin_dir.join(&llm_setting.app.etag);
       // We use the ETag as the identifier for the plugin file. If a file with the given ETag
       // already exists, skip downloading it.
-      if !plugin_file_etag_dir.exists() {
-        let plugin_progress_tx = download_task.tx.clone();
-        info!(
-          "[LLM Resource] Downloading plugin: {:?}",
-          llm_setting.plugin.etag
-        );
-        let file_name = format!("{}.zip", llm_setting.plugin.etag);
-        let zip_plugin_file = download_plugin(
-          &llm_setting.plugin.url,
-          &plugin_dir,
-          &file_name,
-          Some(download_task.cancel_token.clone()),
-          Some(Arc::new(move |downloaded, total_size| {
-            let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
-            let _ = plugin_progress_tx.send(format!("plugin:progress:{}", progress));
-          })),
-          Some(Duration::from_millis(100)),
-        )
-        .await?;
-
-        // unzip file
-        info!(
-          "[LLM Resource] unzip {:?} to {:?}",
-          zip_plugin_file, plugin_file_etag_dir
-        );
-        zip_extract(&zip_plugin_file, &plugin_file_etag_dir)?;
-
-        // delete zip file
-        info!("[LLM Resource] Delete zip file: {:?}", file_name);
-        if let Err(err) = fs::remove_file(&zip_plugin_file).await {
-          error!("Failed to delete zip file: {:?}", err);
-        }
-      }
+      // if !plugin_file_etag_dir.exists() {
+      //   let plugin_progress_tx = download_task.tx.clone();
+      //   info!(
+      //     "[LLM Resource] Downloading plugin: {:?}",
+      //     llm_setting.app.etag
+      //   );
+      //   let file_name = format!("{}.zip", llm_setting.app.etag);
+      //   let zip_plugin_file = download_plugin(
+      //     &llm_setting.app.url,
+      //     &plugin_dir,
+      //     &file_name,
+      //     Some(download_task.cancel_token.clone()),
+      //     Some(Arc::new(move |downloaded, total_size| {
+      //       let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
+      //       let _ = plugin_progress_tx.send(format!("plugin:progress:{}", progress));
+      //     })),
+      //     Some(Duration::from_millis(100)),
+      //   )
+      //   .await?;
+      //
+      //   // unzip file
+      //   info!(
+      //     "[LLM Resource] unzip {:?} to {:?}",
+      //     zip_plugin_file, plugin_file_etag_dir
+      //   );
+      //   zip_extract(&zip_plugin_file, &plugin_file_etag_dir)?;
+      //
+      //   // delete zip file
+      //   info!("[LLM Resource] Delete zip file: {:?}", file_name);
+      //   if let Err(err) = fs::remove_file(&zip_plugin_file).await {
+      //     error!("Failed to delete zip file: {:?}", err);
+      //   }
+      // }
 
       // After download the plugin, start downloading models
       let chat_model_file = (
@@ -391,7 +457,7 @@ impl LLMResourceController {
     Ok(())
   }
 
-  #[instrument(level = "debug", skip_all, err)]
+  #[instrument(level = "info", skip_all, err)]
   pub fn get_chat_config(&self, rag_enabled: bool) -> FlowyResult<AIPluginConfig> {
     if !self.is_resource_ready() {
       return Err(FlowyError::local_ai().with_context("Local AI resources are not ready"));
@@ -405,9 +471,25 @@ impl LLMResourceController {
       .ok_or_else(|| FlowyError::local_ai().with_context("No local llm setting found"))?;
 
     let model_dir = self.user_model_folder()?;
-    let bin_path = self
-      .plugin_path(&llm_setting.plugin.etag)?
-      .join(llm_setting.plugin.name);
+    let bin_path = match get_operating_system() {
+      OperatingSystem::MacOS => {
+        let path = self.offline_app_path(&llm_setting.app.ai_plugin_name);
+        if !path.exists() {
+          return Err(FlowyError::new(
+            ErrorCode::AIOfflineNotInstalled,
+            format!("AppFlowy Offline not installed at path: {:?}", path),
+          ));
+        }
+        path
+      },
+      _ => {
+        return Err(
+          FlowyError::local_ai_unavailable()
+            .with_context("Local AI not available on current platform"),
+        );
+      },
+    };
+
     let chat_model_path = model_dir.join(&llm_setting.llm_model.chat_model.file_name);
     let mut config = AIPluginConfig::new(bin_path, chat_model_path)?;
 
@@ -474,16 +556,12 @@ impl LLMResourceController {
     Ok(selected_model)
   }
 
-  fn user_plugin_folder(&self) -> FlowyResult<PathBuf> {
-    self.resource_dir().map(|dir| dir.join(PLUGIN_DIR))
-  }
-
   pub(crate) fn user_model_folder(&self) -> FlowyResult<PathBuf> {
     self.resource_dir().map(|dir| dir.join(LLM_MODEL_DIR))
   }
 
-  fn plugin_path(&self, etag: &str) -> FlowyResult<PathBuf> {
-    self.user_plugin_folder().map(|dir| dir.join(etag))
+  pub(crate) fn offline_app_path(&self, plugin_name: &str) -> PathBuf {
+    PathBuf::from(format!("/usr/local/bin/{}", plugin_name))
   }
 
   fn model_path(&self, model_file_name: &str) -> FlowyResult<PathBuf> {
@@ -493,7 +571,19 @@ impl LLMResourceController {
   }
 
   pub(crate) fn resource_dir(&self) -> FlowyResult<PathBuf> {
-    let user_data_dir = self.user_service.user_data_dir()?;
-    Ok(user_data_dir.join("llm"))
+    let user_data_dir = self.user_service.data_root_dir()?;
+    Ok(user_data_dir.join("ai"))
+  }
+}
+fn bytes_to_readable_format(bytes: u64) -> String {
+  const BYTES_IN_GIGABYTE: u64 = 1024 * 1024 * 1024;
+  const BYTES_IN_MEGABYTE: u64 = 1024 * 1024;
+
+  if bytes >= BYTES_IN_GIGABYTE {
+    let gigabytes = (bytes as f64) / (BYTES_IN_GIGABYTE as f64);
+    format!("{:.1} GB", gigabytes)
+  } else {
+    let megabytes = (bytes as f64) / (BYTES_IN_MEGABYTE as f64);
+    format!("{:.2} MB", megabytes)
   }
 }

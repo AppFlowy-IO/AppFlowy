@@ -222,8 +222,9 @@ class MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
 
     transaction.updateNode(widget.node, {
       MultiImageBlockKeys.images: imagesJson,
-      // Default to Browser layout
-      MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
+      MultiImageBlockKeys.layout:
+          widget.node.attributes[MultiImageBlockKeys.layout] ??
+              MultiImageLayout.browser.toIntValue(),
     });
 
     await editorState.apply(transaction);
@@ -282,8 +283,9 @@ class MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
     transaction.updateNode(widget.node, {
       MultiImageBlockKeys.images:
           images.map((image) => image.toJson()).toList(),
-      // Default to Browser layout
-      MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
+      MultiImageBlockKeys.layout:
+          widget.node.attributes[MultiImageBlockKeys.layout] ??
+              MultiImageLayout.browser.toIntValue(),
     });
     await editorState.apply(transaction);
   }

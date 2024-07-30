@@ -52,7 +52,9 @@ impl ChatUserService for ChatUserServiceImpl {
     self.upgrade_user()?.get_sqlite_connection(uid)
   }
 
-  fn user_data_dir(&self) -> Result<PathBuf, FlowyError> {
-    self.upgrade_user()?.get_user_data_dir()
+  fn data_root_dir(&self) -> Result<PathBuf, FlowyError> {
+    Ok(PathBuf::from(
+      self.upgrade_user()?.get_application_root_dir(),
+    ))
   }
 }

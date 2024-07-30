@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_bloc.dart';
+import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_chat_setting.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
@@ -7,9 +10,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
-
-import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LocalAISetting extends StatefulWidget {
@@ -108,20 +108,18 @@ class LocalAISettingHeader extends StatelessWidget {
                   value: isEnabled,
                   onChanged: (value) {
                     if (isEnabled) {
-                      showDialog(
+                      showConfirmDialog(
                         context: context,
-                        barrierDismissible: false,
-                        useRootNavigator: false,
-                        builder: (dialogContext) {
-                          return _ToggleLocalAIDialog(
-                            onOkPressed: () {
-                              context
-                                  .read<LocalAIToggleBloc>()
-                                  .add(const LocalAIToggleEvent.toggle());
-                            },
-                            onCancelPressed: () {},
-                          );
-                        },
+                        title: LocaleKeys
+                            .settings_aiPage_keys_disableLocalAITitle
+                            .tr(),
+                        description: LocaleKeys
+                            .settings_aiPage_keys_disableLocalAIDescription
+                            .tr(),
+                        confirmLabel: LocaleKeys.button_confirm.tr(),
+                        onConfirm: () => context
+                            .read<LocalAIToggleBloc>()
+                            .add(const LocalAIToggleEvent.toggle()),
                       );
                     } else {
                       context
@@ -135,27 +133,6 @@ class LocalAISettingHeader extends StatelessWidget {
           },
         );
       },
-    );
-  }
-}
-
-class _ToggleLocalAIDialog extends StatelessWidget {
-  const _ToggleLocalAIDialog({
-    required this.onOkPressed,
-    required this.onCancelPressed,
-  });
-  final VoidCallback onOkPressed;
-  final VoidCallback onCancelPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return NavigatorOkCancelDialog(
-      message: LocaleKeys.settings_aiPage_keys_disableLocalAIDialog.tr(),
-      okTitle: LocaleKeys.button_confirm.tr(),
-      cancelTitle: LocaleKeys.button_cancel.tr(),
-      onOkPressed: onOkPressed,
-      onCancelPressed: onCancelPressed,
-      titleUpperCase: false,
     );
   }
 }
