@@ -1,3 +1,4 @@
+import 'package:appflowy/mobile/presentation/notifications/widgets/empty.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/notification_item.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -16,6 +17,13 @@ class NotificationInboxTab extends StatelessWidget {
         final unArchivedReminders = state.reminders.reversed
             .where((reminder) => !reminder.isArchived)
             .toList();
+
+        if (unArchivedReminders.isEmpty) {
+          return const EmptyNotification(
+            type: MobileNotificationTabType.inbox,
+          );
+        }
+
         return ListView.separated(
           itemCount: unArchivedReminders.length,
           separatorBuilder: (context, index) => const VSpace(8.0),

@@ -16,6 +16,13 @@ class NotificationArchivedTab extends StatelessWidget {
         final archivedReminders = state.reminders.reversed
             .where((reminder) => reminder.isArchived)
             .toList();
+
+        if (archivedReminders.isEmpty) {
+          return const EmptyNotification(
+            type: MobileNotificationTabType.archive,
+          );
+        }
+
         return ListView.separated(
           itemCount: archivedReminders.length,
           separatorBuilder: (context, index) => const VSpace(8.0),

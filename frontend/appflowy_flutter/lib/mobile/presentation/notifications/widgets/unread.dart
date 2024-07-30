@@ -15,6 +15,13 @@ class NotificationUnreadTab extends StatelessWidget {
         final unreadReminders = state.reminders.reversed
             .where((reminder) => !reminder.isRead)
             .toList();
+
+        if (unreadReminders.isEmpty) {
+          return const EmptyNotification(
+            type: MobileNotificationTabType.unread,
+          );
+        }
+
         return ListView.separated(
           itemCount: unreadReminders.length,
           separatorBuilder: (context, index) => const VSpace(8.0),

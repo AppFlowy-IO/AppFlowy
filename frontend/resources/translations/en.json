@@ -962,6 +962,18 @@
         "settings": "Settings",
         "markAllAsRead": "Mark all as read",
         "archiveAll": "Archive all"
+      },
+      "emptyInbox": {
+        "title": "No notifications yet",
+        "description": "You'll be notified here for @mentions"
+      },
+      "emptyUnread": {
+        "title": "No unread notifications",
+        "description": "You're all caught up!"
+      },
+      "emptyArchived": {
+        "title": "No archived notifications",
+        "description": "You haven't archived any notifications yet"
       }
     },
     "appearance": {
