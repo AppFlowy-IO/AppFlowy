@@ -53,8 +53,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: aac7729
-      resolved-ref: aac77292a1a175fd7450eef30167032d3cec7fea
+      ref: "5bf57ad"
+      resolved-ref: "5bf57ad7ab794ce296062b18384ed04f6f8360a8"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "3.1.0"
@@ -806,6 +806,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  flutter_staggered_grid_view:
+    dependency: "direct main"
+    description:
+      name: flutter_staggered_grid_view
+      sha256: "19e7abb550c96fbfeb546b23f3ff356ee7c59a019a651f8f102a4ba9b7349395"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0"
   flutter_sticky_header:
     dependency: transitive
     description:

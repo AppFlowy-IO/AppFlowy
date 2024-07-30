@@ -249,7 +249,11 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                           : formattedDate,
                       style: widget.textStyle?.copyWith(
                         color: color,
+                        leadingDistribution: TextLeadingDistribution.even,
                       ),
+                      strutStyle: widget.textStyle != null
+                          ? StrutStyle.fromTextStyle(widget.textStyle!)
+                          : null,
                     ),
                     const HSpace(4),
                     FlowySvg(

@@ -149,7 +149,7 @@ class DocumentPageStyleBloc
   ) {
     double padding = switch (fontLayout) {
       PageStyleFontLayout.small => 1.0,
-      PageStyleFontLayout.normal => 2.0,
+      PageStyleFontLayout.normal => 1.0,
       PageStyleFontLayout.large => 4.0,
     };
     switch (lineHeightLayout) {
@@ -163,6 +163,16 @@ class DocumentPageStyleBloc
         break;
     }
     return max(0, padding);
+  }
+
+  double calculateIconScale(
+    PageStyleFontLayout fontLayout,
+  ) {
+    return switch (fontLayout) {
+      PageStyleFontLayout.small => 0.8,
+      PageStyleFontLayout.normal => 1.0,
+      PageStyleFontLayout.large => 1.2,
+    };
   }
 
   PageStyleFontLayout _getSelectedFontLayout(Map layoutObject) {
