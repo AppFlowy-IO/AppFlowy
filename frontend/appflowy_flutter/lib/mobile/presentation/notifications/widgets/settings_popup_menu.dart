@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -89,10 +90,23 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
   }
 
   void _onMarkAllAsRead(BuildContext context) {
+    showToastNotification(
+      context,
+      message: LocaleKeys
+          .settings_notifications_markAsReadNotifications_allSuccess
+          .tr(),
+    );
+
     context.read<ReminderBloc>().add(const ReminderEvent.markAllRead());
   }
 
   void _onArchiveAll(BuildContext context) {
+    showToastNotification(
+      context,
+      message: LocaleKeys.settings_notifications_archiveNotifications_allSuccess
+          .tr(),
+    );
+
     context.read<ReminderBloc>().add(const ReminderEvent.archiveAll());
   }
 }

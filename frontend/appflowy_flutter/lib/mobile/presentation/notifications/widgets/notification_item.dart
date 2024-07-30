@@ -111,7 +111,7 @@ class _SlidableNotificationItem extends StatelessWidget {
     final List<NotificationPaneActionType> actions = switch (tabType) {
       MobileNotificationTabType.inbox => [
           NotificationPaneActionType.more,
-          NotificationPaneActionType.markAsRead,
+          if (!reminder.isRead) NotificationPaneActionType.markAsRead,
         ],
       MobileNotificationTabType.unread => [],
       MobileNotificationTabType.archive => [
@@ -208,10 +208,13 @@ class _NotificationContent extends StatelessWidget {
             _buildTimeAndPageName(state.createdAt, state.pageTitle),
 
             // content
-            IntrinsicHeight(
-              child: BlocProvider(
-                create: (context) => DocumentPageStyleBloc(view: state.view!),
-                child: _NotificationDocumentContent(nodes: state.nodes),
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: IntrinsicHeight(
+                child: BlocProvider(
+                  create: (context) => DocumentPageStyleBloc(view: state.view!),
+                  child: _NotificationDocumentContent(nodes: state.nodes),
+                ),
               ),
             ),
           ],

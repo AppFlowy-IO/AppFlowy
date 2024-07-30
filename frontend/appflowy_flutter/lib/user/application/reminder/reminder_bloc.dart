@@ -156,26 +156,35 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             }
           },
           markAllRead: () async {
-            final unreadReminders =
-                state.pastReminders.where((reminder) => !reminder.isRead);
+            final unreadReminders = state.reminders.where(
+              (reminder) => !reminder.isRead,
+            );
 
-            final reminders = [...state.reminders];
-            final updatedReminders = <ReminderPB>[];
             for (final reminder in unreadReminders) {
-              reminders.remove(reminder);
-
               reminder.isRead = true;
               await _reminderService.updateReminder(reminder: reminder);
-
-              updatedReminders.add(reminder);
             }
 
-            reminders.addAll(updatedReminders);
-            emit(state.copyWith(reminders: reminders));
+            final reminder = [...state.reminders].map((e) {
+              if (e.isRead) {
+                return e;
+              }
+              e.freeze();
+              return e.rebuild((update) {
+                update.isRead = true;
+              });
+            }).toList();
+
+            emit(
+              state.copyWith(
+                reminders: reminder,
+              ),
+            );
           },
           archiveAll: () async {
-            final unArchivedReminders =
-                state.pastReminders.where((reminder) => !reminder.isArchived);
+            final unArchivedReminders = state.reminders.where(
+              (reminder) => !reminder.isArchived,
+            );
 
             for (final reminder in unArchivedReminders) {
               reminder.isRead = true;
@@ -183,16 +192,29 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               await _reminderService.updateReminder(reminder: reminder);
             }
 
+            final reminder = [...state.reminders].map((e) {
+              if (e.isRead && e.isArchived) {
+                return e;
+              }
+              e.freeze();
+              return e.rebuild((update) {
+                update.isRead = true;
+                update.meta[ReminderMetaKeys.isArchived] = true.toString();
+              });
+            }).toList();
+
             emit(
               state.copyWith(
-                reminders: [...state.reminders].map((e) {
-                  e.freeze();
-                  return e.rebuild((update) {
-                    update.isRead = true;
-                    update.meta[ReminderMetaKeys.isArchived] = true.toString();
-                  });
-                }).toList(),
+                reminders: reminder,
               ),
+            );
+          },
+          refresh: () async {
+            final remindersOrFailure = await _reminderService.fetchReminders();
+
+            remindersOrFailure.fold(
+              (reminders) => emit(state.copyWith(reminders: reminders)),
+              (error) => emit(state),
             );
           },
         );
@@ -273,6 +295,8 @@ class ReminderEvent with _$ReminderEvent {
     @Default(null) int? path,
     @Default(null) ViewPB? view,
   }) = _PressReminder;
+
+  const factory ReminderEvent.refresh() = _Refresh;
 }
 
 /// Object used to merge updates with

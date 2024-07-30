@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 enum NotificationPaneActionType {
   more,
   markAsRead,
+  // only used in the debug mode.
   unArchive;
 
   MobileSlideActionButton actionButton(
@@ -45,6 +46,7 @@ enum NotificationPaneActionType {
                 );
           },
         );
+      // this action is only used in the debug mode.
       case NotificationPaneActionType.unArchive:
         return MobileSlideActionButton(
           backgroundColor: const Color(0xFF00C8FF),
@@ -53,9 +55,7 @@ enum NotificationPaneActionType {
           onPressed: (context) {
             showToastNotification(
               context,
-              message: LocaleKeys
-                  .settings_notifications_markAsReadNotifications_success
-                  .tr(),
+              message: 'Unarchive notification success',
             );
 
             context.read<ReminderBloc>().add(

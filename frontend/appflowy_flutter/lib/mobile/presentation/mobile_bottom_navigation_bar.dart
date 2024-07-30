@@ -124,6 +124,9 @@ class _NotificationNavigationBarItemIcon extends StatelessWidget {
       value: getIt<ReminderBloc>(),
       child: BlocBuilder<ReminderBloc, ReminderState>(
         builder: (context, state) {
+          final hasUnreads = state.reminders.any(
+            (reminder) => !reminder.isRead,
+          );
           return Stack(
             children: [
               isActive
@@ -134,7 +137,7 @@ class _NotificationNavigationBarItemIcon extends StatelessWidget {
                   : const FlowySvg(
                       FlowySvgs.m_home_notification_m,
                     ),
-              if (state.hasUnreads)
+              if (hasUnreads)
                 const Positioned(
                   top: 2,
                   right: 4,

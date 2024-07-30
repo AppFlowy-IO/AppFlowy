@@ -106,11 +106,7 @@ class _MobileNotificationsTabState extends State<MobileNotificationsTab>
             Expanded(
               child: TabBarView(
                 controller: tabController,
-                children: const [
-                  NotificationInboxTab(),
-                  NotificationUnreadTab(),
-                  NotificationArchivedTab(),
-                ],
+                children: tabs.map((e) => NotificationTab(tabType: e)).toList(),
               ),
             ),
           ],
