@@ -57,6 +57,7 @@ pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
       ChatEvent::GetModelStorageDirectory,
       get_model_storage_directory_handler,
     )
+    .event(ChatEvent::GetOfflineAIAppLink, get_offline_app_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -133,4 +134,7 @@ pub enum ChatEvent {
 
   #[event(output = "LocalModelStoragePB")]
   GetModelStorageDirectory = 21,
+
+  #[event(output = "OfflineAIPB")]
+  GetOfflineAIAppLink = 22,
 }

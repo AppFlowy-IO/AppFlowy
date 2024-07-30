@@ -292,6 +292,7 @@ class ConfirmPopup extends StatefulWidget {
     required this.title,
     required this.description,
     required this.onConfirm,
+    this.onCancel,
     this.confirmLabel,
     this.confirmButtonColor,
   });
@@ -299,6 +300,7 @@ class ConfirmPopup extends StatefulWidget {
   final String title;
   final String description;
   final VoidCallback onConfirm;
+  final VoidCallback? onCancel;
   final Color? confirmButtonColor;
   final ConfirmPopupStyle style;
 
@@ -392,7 +394,10 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         );
       case ConfirmPopupStyle.cancelAndOk:
         return SpaceCancelOrConfirmButton(
-          onCancel: () => Navigator.of(context).pop(),
+          onCancel: () {
+            widget.onCancel?.call();
+            Navigator.of(context).pop();
+          },
           onConfirm: () {
             widget.onConfirm();
             Navigator.of(context).pop();

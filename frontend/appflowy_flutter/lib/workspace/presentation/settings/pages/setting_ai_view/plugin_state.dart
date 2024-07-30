@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/settings/ai/download_offline_ai_app_bloc.dart';
 import 'package:appflowy/workspace/application/settings/ai/plugin_state_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -21,8 +22,15 @@ class PluginStateIndicator extends StatelessWidget {
           return state.action.when(
             init: () => const _InitPlugin(),
             ready: () => const _LocalAIReadyToUse(),
-            restart: () => const _ReloadButton(),
+            restartPlugin: () => const _ReloadButton(),
             loadingPlugin: () => const _InitPlugin(),
+            startAIOfflineApp: () => OpenOrDownloadOfflineAIApp(
+              onRetry: () {
+                context
+                    .read<PluginStateBloc>()
+                    .add(const PluginStateEvent.started());
+              },
+            ),
           );
         },
       ),
@@ -120,6 +128,67 @@ class _LocalAIReadyToUse extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class OpenOrDownloadOfflineAIApp extends StatelessWidget {
+  const OpenOrDownloadOfflineAIApp({required this.onRetry, super.key});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => DownloadOfflineAIBloc(),
+      child: BlocBuilder<DownloadOfflineAIBloc, DownloadOfflineAIState>(
+        builder: (context, state) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              children: [
+                FlowyText(
+                  LocaleKeys.settings_aiPage_keys_offlineAINotReady.tr(),
+                  lineHeight: 1.5,
+                  maxLines: 6,
+                ),
+                const VSpace(12),
+                Row(
+                  children: [
+                    SizedBox(
+                      height: 30,
+                      child: FlowyButton(
+                        useIntrinsicWidth: true,
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
+                        text: FlowyText(
+                          LocaleKeys.settings_aiPage_keys_retryOfflineAI.tr(),
+                        ),
+                        onTap: () => onRetry(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                      child: FlowyButton(
+                        useIntrinsicWidth: true,
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
+                        text: FlowyText(
+                          LocaleKeys.settings_aiPage_keys_downloadOfflineAI
+                              .tr(),
+                        ),
+                        onTap: () {
+                          context.read<DownloadOfflineAIBloc>().add(
+                                const DownloadOfflineAIEvent.started(),
+                              );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

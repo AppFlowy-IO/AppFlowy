@@ -1,6 +1,7 @@
 use crate::local_ai::local_llm_chat::LLMModelInfo;
 use appflowy_plugin::core::plugin::RunningState;
 
+use crate::local_ai::local_llm_resource::PendingResource;
 use flowy_chat_pub::cloud::{
   ChatMessage, LLMModel, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
 };
@@ -360,16 +361,38 @@ pub struct PendingResourcePB {
   pub name: String,
 
   #[pb(index = 2)]
-  pub file_size: i64,
+  pub file_size: String,
 
   #[pb(index = 3)]
   pub requirements: String,
+
+  #[pb(index = 4)]
+  pub res_type: PendingResourceTypePB,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
+pub enum PendingResourceTypePB {
+  #[default]
+  OfflineApp = 0,
+  AIModel = 1,
+}
+
+impl From<PendingResource> for PendingResourceTypePB {
+  fn from(value: PendingResource) -> Self {
+    match value {
+      PendingResource::OfflineApp { .. } => PendingResourceTypePB::OfflineApp,
+      PendingResource::ModelInfoRes { .. } => PendingResourceTypePB::AIModel,
+    }
+  }
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct LocalAIPluginStatePB {
   #[pb(index = 1)]
   pub state: RunningStatePB,
+
+  #[pb(index = 2)]
+  pub offline_ai_ready: bool,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
@@ -415,4 +438,10 @@ pub struct LocalAIChatPB {
 pub struct LocalModelStoragePB {
   #[pb(index = 1)]
   pub file_path: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct OfflineAIPB {
+  #[pb(index = 1)]
+  pub link: String,
 }
