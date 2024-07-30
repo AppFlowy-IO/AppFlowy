@@ -36,7 +36,7 @@ class _AnimatedGestureDetectorState extends State<AnimatedGestureDetector> {
       onTapUp: (details) {
         setState(() => scale = 1.0);
 
-        HapticFeedbackType.vibrate.call();
+        HapticFeedbackType.light.call();
 
         widget.onTapUp();
       },
