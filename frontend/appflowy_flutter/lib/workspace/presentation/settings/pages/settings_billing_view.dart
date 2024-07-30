@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/util/int64_extension.dart';
@@ -212,24 +214,23 @@ class _SettingsBillingViewState extends State<SettingsBillingView> {
 
                       // Currently, the AI Local tile is only available on macOS
                       // TODO(nathan): enable windows and linux
-                      // TODO(nathan): enable local ai
-                      // if (Platform.isMacOS)
-                      //   _AITile(
-                      //     plan: SubscriptionPlanPB.AiLocal,
-                      //     label: LocaleKeys
-                      //         .settings_billingPage_addons_aiOnDevice_label
-                      //         .tr(),
-                      //     description: LocaleKeys
-                      //         .settings_billingPage_addons_aiOnDevice_description,
-                      //     activeDescription: LocaleKeys
-                      //         .settings_billingPage_addons_aiOnDevice_activeDescription,
-                      //     canceledDescription: LocaleKeys
-                      //         .settings_billingPage_addons_aiOnDevice_canceledDescription,
-                      //     subscriptionInfo:
-                      //         state.subscriptionInfo.addOns.firstWhereOrNull(
-                      //       (a) => a.type == WorkspaceAddOnPBType.AddOnAiLocal,
-                      //     ),
-                      //   ),
+                      if (Platform.isMacOS)
+                        _AITile(
+                          plan: SubscriptionPlanPB.AiLocal,
+                          label: LocaleKeys
+                              .settings_billingPage_addons_aiOnDevice_label
+                              .tr(),
+                          description: LocaleKeys
+                              .settings_billingPage_addons_aiOnDevice_description,
+                          activeDescription: LocaleKeys
+                              .settings_billingPage_addons_aiOnDevice_activeDescription,
+                          canceledDescription: LocaleKeys
+                              .settings_billingPage_addons_aiOnDevice_canceledDescription,
+                          subscriptionInfo:
+                              state.subscriptionInfo.addOns.firstWhereOrNull(
+                            (a) => a.type == WorkspaceAddOnPBType.AddOnAiLocal,
+                          ),
+                        ),
                     ],
                   ),
                 ],

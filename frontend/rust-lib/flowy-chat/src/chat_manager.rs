@@ -46,12 +46,6 @@ impl ChatManager {
       cloud_service.clone(),
     ));
 
-    if local_ai_controller.can_init_plugin() {
-      if let Err(err) = local_ai_controller.initialize_ai_plugin(None) {
-        error!("[AI Plugin] failed to initialize local ai: {:?}", err);
-      }
-    }
-
     // setup local chat service
     let cloud_service_wm = Arc::new(CloudServiceMiddleware::new(
       user_service.clone(),
