@@ -952,6 +952,16 @@
       "markAsReadNotifications": {
         "allSuccess": "Marked all as read successfully",
         "success": "Marked as read successfully"
+      },
+      "action": {
+        "markAsRead": "Mark as read",
+        "multipleChoice": "Multiple choice",
+        "archive": "Archive"
+      },
+      "settings": {
+        "settings": "Settings",
+        "markAllAsRead": "Mark all as read",
+        "archiveAll": "Archive all"
       }
     },
     "appearance": {

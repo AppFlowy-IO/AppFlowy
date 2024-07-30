@@ -1,4 +1,4 @@
-import 'package:appflowy/mobile/presentation/notifications/widgets/_settings_popup_menu.dart';
+import 'package:appflowy/mobile/presentation/notifications/widgets/settings_popup_menu.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 

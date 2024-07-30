@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
@@ -162,6 +163,12 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   _updateReminder(reminderOption, reminder),
             );
 
+            final color = reminder?.isAck == true
+                ? Theme.of(context).isLightMode
+                    ? const Color(0xFFFE0299)
+                    : Theme.of(context).colorScheme.error
+                : null;
+
             return GestureDetector(
               onTapDown: (details) {
                 if (widget.editorState.editable) {
@@ -237,9 +244,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                           ? '@$formattedDate'
                           : formattedDate,
                       style: textStyle.copyWith(
-                        color: reminder?.isAck == true
-                            ? Theme.of(context).colorScheme.error
-                            : null,
+                        color: color,
                       ),
                     ),
                     const HSpace(4),
@@ -248,9 +253,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                           ? FlowySvgs.reminder_clock_s
                           : FlowySvgs.date_s,
                       size: const Size.square(16.0),
-                      color: reminder?.isAck == true
-                          ? Theme.of(context).colorScheme.error
-                          : null,
+                      color: color,
                     ),
                   ],
                 ),

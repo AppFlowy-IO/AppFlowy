@@ -1,13 +1,25 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+enum _NotificationSettingsPopupMenuItem {
+  settings,
+  markAllAsRead,
+  archiveAll,
+}
 
 class NotificationSettingsPopupMenu extends StatelessWidget {
   const NotificationSettingsPopupMenu({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
+    return PopupMenuButton<_NotificationSettingsPopupMenuItem>(
       offset: const Offset(0, 36),
       padding: EdgeInsets.zero,
       shape: const RoundedRectangleBorder(
@@ -25,27 +37,38 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
           blendMode: null,
         ),
       ),
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+      itemBuilder: (BuildContext context) =>
+          <PopupMenuEntry<_NotificationSettingsPopupMenuItem>>[
         _buildItem(
-          value: 'settings',
+          value: _NotificationSettingsPopupMenuItem.settings,
           svg: FlowySvgs.m_notification_settings_s,
-          text: 'Settings',
+          text: LocaleKeys.settings_notifications_settings_settings.tr(),
         ),
         const PopupMenuDivider(height: 0.5),
         _buildItem(
-          value: 'mark_read',
+          value: _NotificationSettingsPopupMenuItem.markAllAsRead,
           svg: FlowySvgs.m_notification_mark_as_read_s,
-          text: 'Mark all as read',
+          text: LocaleKeys.settings_notifications_settings_markAllAsRead.tr(),
         ),
         const PopupMenuDivider(height: 0.5),
         _buildItem(
-          value: 'archive',
+          value: _NotificationSettingsPopupMenuItem.archiveAll,
           svg: FlowySvgs.m_notification_archived_s,
-          text: 'Archive all',
+          text: LocaleKeys.settings_notifications_settings_archiveAll.tr(),
         ),
       ],
-      onSelected: (String value) {
-        // Handle menu item selection
+      onSelected: (_NotificationSettingsPopupMenuItem value) {
+        switch (value) {
+          case _NotificationSettingsPopupMenuItem.markAllAsRead:
+            _onMarkAllAsRead(context);
+            break;
+          case _NotificationSettingsPopupMenuItem.archiveAll:
+            _onArchiveAll(context);
+            break;
+          case _NotificationSettingsPopupMenuItem.settings:
+            context.push(MobileHomeSettingPage.routeName);
+            break;
+        }
       },
     );
   }
@@ -63,6 +86,14 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
         text: text,
       ),
     );
+  }
+
+  void _onMarkAllAsRead(BuildContext context) {
+    context.read<ReminderBloc>().add(const ReminderEvent.markAllRead());
+  }
+
+  void _onArchiveAll(BuildContext context) {
+    context.read<ReminderBloc>().add(const ReminderEvent.archiveAll());
   }
 }
 

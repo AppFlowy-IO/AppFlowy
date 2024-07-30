@@ -1,4 +1,5 @@
 import 'package:appflowy/mobile/presentation/home/tab/_round_underline_tab_indicator.dart';
+import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_tabbar/reorderable_tabbar.dart';
 
@@ -15,6 +16,19 @@ enum MobileNotificationTabType {
         return 'Unread';
       case MobileNotificationTabType.archive:
         return 'Archived';
+    }
+  }
+
+  List<NotificationPaneActionType> get actions {
+    switch (this) {
+      case MobileNotificationTabType.inbox:
+        return [
+          NotificationPaneActionType.more,
+          NotificationPaneActionType.markAsRead,
+        ];
+      case MobileNotificationTabType.unread:
+      case MobileNotificationTabType.archive:
+        return [];
     }
   }
 }

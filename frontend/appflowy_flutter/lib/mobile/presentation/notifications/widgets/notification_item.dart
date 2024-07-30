@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/application/notification/notification_reminder_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/base/gesture.dart';
-import 'package:appflowy/mobile/presentation/page_item/mobile_slide_action_button.dart';
+import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -10,6 +10,7 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -17,9 +18,11 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 class NotificationItem extends StatelessWidget {
   const NotificationItem({
     super.key,
+    required this.tabType,
     required this.reminder,
   });
 
+  final MobileNotificationTabType tabType;
   final ReminderPB reminder;
 
   @override
@@ -60,9 +63,12 @@ class NotificationItem extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: _SlidableNotificationItem(
+                tabType: tabType,
+                reminder: reminder,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const HSpace(8.0),
                     !reminder.isRead
                         ? const _UnreadRedDot()
                         : const HSpace(6.0),
@@ -85,25 +91,50 @@ class NotificationItem extends StatelessWidget {
 
 class _SlidableNotificationItem extends StatelessWidget {
   const _SlidableNotificationItem({
+    required this.tabType,
+    required this.reminder,
     required this.child,
   });
 
+  final MobileNotificationTabType tabType;
+  final ReminderPB reminder;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
+    // only show the actions in the inbox tab
+
+    final List<NotificationPaneActionType> actions = switch (tabType) {
+      MobileNotificationTabType.inbox => [
+          NotificationPaneActionType.more,
+          NotificationPaneActionType.markAsRead,
+        ],
+      MobileNotificationTabType.unread => [],
+      MobileNotificationTabType.archive => [
+          if (kDebugMode) NotificationPaneActionType.unArchive,
+        ],
+    };
+
+    if (actions.isEmpty) {
+      return child;
+    }
+
+    final children = actions
+        .map(
+          (action) => action.actionButton(
+            context,
+            tabType: tabType,
+          ),
+        )
+        .toList();
+
+    final extentRatio = actions.length == 1 ? 1 / 5 : 1 / 3;
+
     return Slidable(
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
-        extentRatio: 1 / 5,
-        children: [
-          MobileSlideActionButton(
-            backgroundColor: Colors.red,
-            svg: FlowySvgs.delete_s,
-            size: 30.0,
-            onPressed: (context) {},
-          ),
-        ],
+        extentRatio: extentRatio,
+        children: children,
       ),
       child: child,
     );
@@ -265,6 +296,7 @@ class _NotificationDocumentContentState
             fontSize: 14,
             color: Color(0xFF171717),
             height: 22 / 14,
+            fontWeight: FontWeight.w400,
             leadingDistribution: TextLeadingDistribution.even,
           ),
         ),

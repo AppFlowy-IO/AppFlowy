@@ -109,7 +109,7 @@ class _MobileNotificationsTabState extends State<MobileNotificationsTab>
                 children: const [
                   NotificationInboxTab(),
                   NotificationUnreadTab(),
-                  NotificationInboxTab(),
+                  NotificationArchivedTab(),
                 ],
               ),
             ),

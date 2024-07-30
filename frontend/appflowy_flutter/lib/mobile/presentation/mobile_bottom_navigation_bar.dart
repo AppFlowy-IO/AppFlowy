@@ -27,7 +27,8 @@ final _items = <BottomNavigationBarItem>[
     label: _notificationLabel,
     icon: FlowySvg(FlowySvgs.m_home_notification_m),
     activeIcon: FlowySvg(
-      FlowySvgs.m_home_notification_m,
+      FlowySvgs.m_home_active_notification_m,
+      blendMode: null,
     ),
   ),
 ];

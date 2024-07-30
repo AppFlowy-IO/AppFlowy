@@ -1,5 +1,7 @@
-export '_header.dart';
-export '_inbox.dart';
-export '_settings_popup_menu.dart';
-export '_tab_bar.dart';
-export '_unread.dart';
+export 'archived.dart';
+export 'header.dart';
+export 'inbox.dart';
+export 'settings_popup_menu.dart';
+export 'slide_actions.dart';
+export 'tab_bar.dart';
+export 'unread.dart';
