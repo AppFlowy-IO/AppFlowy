@@ -44,7 +44,7 @@ md5 = "0.7.0"
 zip = { workspace = true, features = ["deflate"] }
 zip-extensions = "0.8.0"
 
-[target.'cfg(target_os = "macos")'.dependencies]
+[target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 notify = "6.1.1"
 
 [dev-dependencies]

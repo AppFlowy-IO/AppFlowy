@@ -7,7 +7,6 @@ import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/m
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
