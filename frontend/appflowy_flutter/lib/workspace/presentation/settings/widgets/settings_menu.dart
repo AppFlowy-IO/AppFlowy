@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
@@ -17,12 +16,14 @@ class SettingsMenu extends StatelessWidget {
     required this.changeSelectedPage,
     required this.currentPage,
     required this.userProfile,
+    required this.isBillingEnabled,
     this.member,
   });
 
   final Function changeSelectedPage;
   final SettingsPage currentPage;
   final UserProfilePB userProfile;
+  final bool isBillingEnabled;
   final WorkspaceMemberPB? member;
 
   @override
@@ -112,11 +113,7 @@ class SettingsMenu extends StatelessWidget {
                     ),
                     changeSelectedPage: changeSelectedPage,
                   ),
-                  if (FeatureFlag.planBilling.isOn &&
-                      userProfile.authenticator ==
-                          AuthenticatorPB.AppFlowyCloud &&
-                      member != null &&
-                      member!.role.isOwner) ...[
+                  if (FeatureFlag.planBilling.isOn && isBillingEnabled) ...[
                     SettingsMenuElement(
                       page: SettingsPage.plan,
                       selectedPage: currentPage,

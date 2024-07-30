@@ -43,6 +43,9 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
           emit(state.copyWith(userProfile: userProfile));
         },
         toggleAISearch: () {
+          emit(
+            state.copyWith(enableSearchIndexing: !state.enableSearchIndexing),
+          );
           _updateUserWorkspaceSetting(
             disableSearchIndexing:
                 !(state.aiSettings?.disableSearchIndexing ?? false),
