@@ -51,38 +51,42 @@ class NotificationItem extends StatelessWidget {
             return const SizedBox.shrink();
           }
 
-          return AnimatedGestureDetector(
-            scaleFactor: 0.99,
-            onTapUp: () {
-              context.read<ReminderBloc>().add(
-                    ReminderEvent.update(
-                      ReminderUpdate(id: reminder.id, isRead: true),
-                    ),
-                  );
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: _SlidableNotificationItem(
-                tabType: tabType,
-                reminder: reminder,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const HSpace(8.0),
-                    !reminder.isRead
-                        ? const _UnreadRedDot()
-                        : const HSpace(6.0),
-                    const HSpace(4.0),
-                    _NotificationIcon(reminder: reminder),
-                    const HSpace(12.0),
-                    Expanded(
-                      child: _NotificationContent(reminder: reminder),
-                    ),
-                  ],
-                ),
+          final child = Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: _SlidableNotificationItem(
+              tabType: tabType,
+              reminder: reminder,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const HSpace(8.0),
+                  !reminder.isRead ? const _UnreadRedDot() : const HSpace(6.0),
+                  const HSpace(4.0),
+                  _NotificationIcon(reminder: reminder),
+                  const HSpace(12.0),
+                  Expanded(
+                    child: _NotificationContent(reminder: reminder),
+                  ),
+                ],
               ),
             ),
           );
+
+          if (tabType == MobileNotificationTabType.inbox) {
+            return AnimatedGestureDetector(
+              scaleFactor: 0.99,
+              onTapUp: () {
+                context.read<ReminderBloc>().add(
+                      ReminderEvent.update(
+                        ReminderUpdate(id: reminder.id, isRead: true),
+                      ),
+                    );
+              },
+              child: child,
+            );
+          }
+
+          return child;
         },
       ),
     );
