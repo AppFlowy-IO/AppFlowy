@@ -1,4 +1,5 @@
 import { YDoc } from '@/application/collab.type';
+import { GlobalComment, Reaction } from '@/application/comment.type';
 import { AFService } from '@/application/services/services.type';
 import { nanoid } from 'nanoid';
 import { YMap } from 'yjs/dist/src/types/YMap';
@@ -26,23 +27,23 @@ export class AFClientService implements AFService {
   }
 
   loginAuth(_: string): Promise<void> {
-    return Promise.resolve(undefined);
+    return Promise.reject('Method not implemented');
   }
 
   signInDiscord(_params: { redirectTo: string }): Promise<void> {
-    return Promise.resolve(undefined);
+    return Promise.reject('Method not implemented');
   }
 
   signInGithub(_params: { redirectTo: string }): Promise<void> {
-    return Promise.resolve(undefined);
+    return Promise.reject('Method not implemented');
   }
 
   signInGoogle(_params: { redirectTo: string }): Promise<void> {
-    return Promise.resolve(undefined);
+    return Promise.reject('Method not implemented');
   }
 
   signInMagicLink(_params: { email: string; redirectTo: string }): Promise<void> {
-    return Promise.resolve(undefined);
+    return Promise.reject('Method not implemented');
   }
 
   getPublishDatabaseViewRows(
@@ -56,7 +57,7 @@ export class AFClientService implements AFService {
   }
 
   duplicatePublishView(_params: DuplicatePublishView): Promise<void> {
-    return Promise.resolve(undefined);
+    return Promise.reject('Method not implemented');
   }
 
   getCurrentUser(): Promise<User> {
@@ -68,6 +69,30 @@ export class AFClientService implements AFService {
   }
 
   getWorkspaces(): Promise<Workspace[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  addPublishViewReaction(_viewId: string, _commentId: string, _reactionType: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  createCommentOnPublishView(_viewId: string, _content: string, _replyCommentId: string | undefined): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  deleteCommentOnPublishView(_viewId: string, _commentId: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getPublishViewGlobalComments(_viewId: string): Promise<GlobalComment[]> {
+    return Promise.resolve([]);
+  }
+
+  getPublishViewReactions(_viewId: string, _commentId: string | undefined): Promise<Record<string, Reaction[]>> {
+    return Promise.reject('Method not implemented');
+  }
+
+  removePublishViewReaction(_viewId: string, _commentId: string, _reactionType: string): Promise<void> {
     return Promise.reject('Method not implemented');
   }
 }
