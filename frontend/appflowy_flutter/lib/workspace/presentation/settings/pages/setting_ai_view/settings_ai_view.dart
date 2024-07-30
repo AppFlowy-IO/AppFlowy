@@ -129,7 +129,7 @@ class _LocalAIOnBoarding extends StatelessWidget {
             child: BlocBuilder<LocalAIOnBoardingBloc, LocalAIOnBoardingState>(
               builder: (context, state) {
                 // Show the local AI settings if the user has purchased the AI Local plan
-                if (kDebugMode || state.isPurchaseAILocal) {
+                if (state.isPurchaseAILocal) {
                   return const LocalAISetting();
                 } else {
                   // Show the upgrade to AI Local plan button if the user has not purchased the AI Local plan

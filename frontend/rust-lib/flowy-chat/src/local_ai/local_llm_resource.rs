@@ -15,7 +15,8 @@ use lib_infra::util::{get_operating_system, OperatingSystem};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use crate::local_ai::watch::{watch_path, WatchContext, WatchDiskEvent};
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+use crate::local_ai::watch::{watch_path, WatchContext};
 use tokio::fs::{self};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, instrument, trace, warn};
@@ -31,6 +32,12 @@ pub trait LLMResourceService: Send + Sync + 'static {
 
 const LLM_MODEL_DIR: &str = "models";
 const DOWNLOAD_FINISH: &str = "finish";
+
+#[derive(Debug, Clone)]
+pub enum WatchDiskEvent {
+  Create,
+  Remove,
+}
 
 pub enum PendingResource {
   OfflineApp,
@@ -61,6 +68,7 @@ pub struct LLMResourceController {
   ai_config: RwLock<Option<LocalAIConfig>>,
   download_task: Arc<RwLock<Option<DownloadTask>>>,
   resource_notify: tokio::sync::mpsc::Sender<()>,
+  #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
   offline_app_disk_watch: RwLock<Option<WatchContext>>,
   offline_app_state_sender: tokio::sync::broadcast::Sender<WatchDiskEvent>,
 }
@@ -80,6 +88,7 @@ impl LLMResourceController {
       ai_config: Default::default(),
       download_task: Default::default(),
       resource_notify,
+      #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
       offline_app_disk_watch: Default::default(),
       offline_app_state_sender: offline_app_ready_sender,
     }
@@ -94,24 +103,27 @@ impl LLMResourceController {
     let offline_app_path = self.offline_app_path(&llm_setting.app.ai_plugin_name);
     *self.llm_setting.write() = Some(llm_setting);
 
-    let is_diff = self
-      .offline_app_disk_watch
-      .read()
-      .as_ref()
-      .map(|watch_context| watch_context.path == offline_app_path)
-      .unwrap_or(true);
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+    {
+      let is_diff = self
+        .offline_app_disk_watch
+        .read()
+        .as_ref()
+        .map(|watch_context| watch_context.path == offline_app_path)
+        .unwrap_or(true);
 
-    // If the offline app path is different from the current watch path, update the watch path.
-    if is_diff {
-      if let Ok((watcher, mut rx)) = watch_path(offline_app_path) {
-        let offline_app_ready_sender = self.offline_app_state_sender.clone();
-        tokio::spawn(async move {
-          while let Some(event) = rx.recv().await {
-            info!("Offline app file changed: {:?}", event);
-            let _ = offline_app_ready_sender.send(event);
-          }
-        });
-        self.offline_app_disk_watch.write().replace(watcher);
+      // If the offline app path is different from the current watch path, update the watch path.
+      if is_diff {
+        if let Ok((watcher, mut rx)) = watch_path(offline_app_path) {
+          let offline_app_ready_sender = self.offline_app_state_sender.clone();
+          tokio::spawn(async move {
+            while let Some(event) = rx.recv().await {
+              info!("Offline app file changed: {:?}", event);
+              let _ = offline_app_ready_sender.send(event);
+            }
+          });
+          self.offline_app_disk_watch.write().replace(watcher);
+        }
       }
     }
   }

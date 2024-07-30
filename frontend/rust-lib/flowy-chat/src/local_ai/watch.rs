@@ -1,14 +1,9 @@
+use crate::local_ai::local_llm_resource::WatchDiskEvent;
 use flowy_error::{FlowyError, FlowyResult};
 use notify::{Event, RecursiveMode, Watcher};
 use std::path::PathBuf;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use tracing::error;
-
-#[derive(Debug, Clone)]
-pub enum WatchDiskEvent {
-  Create,
-  Remove,
-}
 
 pub struct WatchContext {
   #[allow(dead_code)]
