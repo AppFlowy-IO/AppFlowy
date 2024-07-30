@@ -167,15 +167,16 @@ class _Pages extends StatelessWidget {
                     onSelected: context.pushView,
                     endActionPane: (context) {
                       final view = context.read<ViewBloc>().state.view;
+                      final actions = [
+                        MobilePaneActionType.more,
+                        if (view.layout == ViewLayoutPB.Document)
+                          MobilePaneActionType.add,
+                      ];
                       return buildEndActionPane(
                         context,
-                        [
-                          MobilePaneActionType.more,
-                          if (view.layout == ViewLayoutPB.Document)
-                            MobilePaneActionType.add,
-                        ],
+                        actions,
                         spaceType: spaceType,
-                        spaceRatio: 4,
+                        spaceRatio: actions.length == 1 ? 3 : 4,
                       );
                     },
                   ),

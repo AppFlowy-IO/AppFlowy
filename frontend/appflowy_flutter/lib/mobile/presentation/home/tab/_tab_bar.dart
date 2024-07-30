@@ -23,10 +23,12 @@ class MobileSpaceTabBar extends StatelessWidget {
     final labelStyle = baseStyle?.copyWith(
       fontWeight: FontWeight.w600,
       fontSize: 16.0,
+      height: 20 / 16,
     );
     final unselectedLabelStyle = baseStyle?.copyWith(
       fontWeight: FontWeight.w400,
       fontSize: 15.0,
+      height: 20 / 15,
     );
 
     return Container(
