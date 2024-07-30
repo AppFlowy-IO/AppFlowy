@@ -979,7 +979,8 @@
         "inbox": "Inbox",
         "unread": "Unread",
         "archived": "Archived"
-      }
+      },
+      "refreshSuccess": "Notifications refreshed successfully"
     },
     "appearance": {
       "resetSetting": "Reset",

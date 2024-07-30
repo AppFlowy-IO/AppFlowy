@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -15,6 +12,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
@@ -25,6 +24,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   bool editable = true,
   ShowPlaceholder? showParagraphPlaceholder,
   String Function(Node)? placeholderText,
+  EdgeInsets? customHeadingPadding,
 }) {
   final standardActions = [OptionAction.delete, OptionAction.duplicate];
 
@@ -85,6 +85,10 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     HeadingBlockKeys.type: HeadingBlockComponentBuilder(
       configuration: configuration.copyWith(
         padding: (node) {
+          if (customHeadingPadding != null) {
+            return customHeadingPadding;
+          }
+
           if (PlatformExtension.isMobile) {
             final pageStyle = context.read<DocumentPageStyleBloc>().state;
             final factor = pageStyle.fontLayout.factor;

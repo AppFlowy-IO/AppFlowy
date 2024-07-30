@@ -209,7 +209,7 @@ class _NotificationContent extends StatelessWidget {
 
             // content
             Padding(
-              padding: const EdgeInsets.only(right: 8.0),
+              padding: const EdgeInsets.only(right: 16.0),
               child: IntrinsicHeight(
                 child: BlocProvider(
                   create: (context) => DocumentPageStyleBloc(view: state.view!),
@@ -299,6 +299,7 @@ class _NotificationDocumentContentState
         cursorColor: Colors.transparent,
         cursorWidth: 0,
         textStyleConfiguration: const TextStyleConfiguration(
+          lineHeight: 22 / 14,
           text: TextStyle(
             fontSize: 14,
             color: Color(0xFF171717),
@@ -323,6 +324,7 @@ class _NotificationDocumentContentState
       styleCustomizer: styleCustomizer,
       // the editor is not editable in the chat
       editable: false,
+      customHeadingPadding: EdgeInsets.zero,
     );
 
     return AppFlowyEditor(

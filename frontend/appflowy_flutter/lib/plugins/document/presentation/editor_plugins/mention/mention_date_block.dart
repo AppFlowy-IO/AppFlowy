@@ -36,6 +36,7 @@ class MentionDateBlock extends StatefulWidget {
     required this.date,
     required this.index,
     required this.node,
+    this.textStyle,
     this.reminderId,
     this.reminderOption,
     this.includeTime = false,
@@ -53,6 +54,8 @@ class MentionDateBlock extends StatefulWidget {
   final ReminderOption? reminderOption;
 
   final bool includeTime;
+
+  final TextStyle? textStyle;
 
   @override
   State<MentionDateBlock> createState() => _MentionDateBlockState();
@@ -75,9 +78,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     if (parsedDate == null) {
       return const SizedBox.shrink();
     }
-
-    final textStyle =
-        widget.editorState.editorStyle.textStyleConfiguration.text;
 
     return MultiBlocProvider(
       providers: [
@@ -169,6 +169,10 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                     : Theme.of(context).colorScheme.error
                 : null;
 
+            // when font size equals 14, the icon size is 16.0.
+            // scale the icon size based on the font size.
+            final iconSize = (widget.textStyle?.fontSize ?? 14.0) / 14.0 * 16.0;
+
             return GestureDetector(
               onTapDown: (details) {
                 if (widget.editorState.editable) {
@@ -243,7 +247,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                       widget.reminderId != null
                           ? '@$formattedDate'
                           : formattedDate,
-                      style: textStyle.copyWith(
+                      style: widget.textStyle?.copyWith(
                         color: color,
                       ),
                     ),
@@ -252,7 +256,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                       widget.reminderId != null
                           ? FlowySvgs.reminder_clock_s
                           : FlowySvgs.date_s,
-                      size: const Size.square(16.0),
+                      size: Size.square(iconSize),
                       color: color,
                     ),
                   ],

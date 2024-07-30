@@ -57,8 +57,8 @@ class MobileNotificationTabBar extends StatelessWidget {
     );
     final unselectedLabelStyle = baseStyle?.copyWith(
       fontWeight: FontWeight.w400,
-      fontSize: 14.0,
-      height: 20.0 / 14.0,
+      fontSize: 15.0,
+      height: 22.0 / 15.0,
     );
 
     return Container(
