@@ -2,11 +2,10 @@ import { GlobalComment } from '@/application/comment.type';
 import { PublishContext } from '@/application/publish';
 import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
-import { RichTooltip } from '@/components/_shared/popover';
+import { Popover } from '@/components/_shared/popover';
 import { AFConfigContext } from '@/components/app/AppConfig';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import { Button, IconButton, Tooltip, TooltipProps } from '@mui/material';
-import { debounce } from 'lodash-es';
 import React, { memo, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as MoreIcon } from '@/assets/more.svg';
@@ -25,18 +24,14 @@ function MoreActions({ comment }: { comment: GlobalComment }) {
   const { reload } = useGlobalCommentContext();
   const canDeleted = comment.canDeleted;
 
+  const ref = React.useRef<HTMLButtonElement>(null);
   const [open, setOpen] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const handleClose = useCallback(() => {
     setOpen(false);
   }, []);
 
-  const debounceClose = useMemo(() => {
-    return debounce(handleClose, 200);
-  }, [handleClose]);
-
   const handleOpen = () => {
-    debounceClose.cancel();
     setOpen(true);
   };
 
@@ -94,37 +89,35 @@ function MoreActions({ comment }: { comment: GlobalComment }) {
 
   return (
     <>
-      <RichTooltip
-        content={
-          <div
-            className={'flex min-w-[150px] flex-col items-start p-2'}
-            onMouseEnter={handleOpen}
-            onMouseLeave={debounceClose}
-          >
-            {actions.map((action, index) => {
-              if (action.tooltip) {
-                return (
-                  <Tooltip key={index} {...action.tooltip}>
-                    <div className={'w-full'}>{renderItem(action)}</div>
-                  </Tooltip>
-                );
-              }
-
-              return (
-                <div key={index} className={'w-full'}>
-                  {renderItem(action)}
-                </div>
-              );
-            })}
-          </div>
-        }
+      <IconButton ref={ref} size={'small'} onClick={handleOpen}>
+        <MoreIcon className={'h-5 w-5'} />
+      </IconButton>
+      <Popover
+        anchorEl={ref.current}
         open={open}
         onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <IconButton size={'small'} onMouseEnter={handleOpen} onMouseLeave={debounceClose}>
-          <MoreIcon className={'h-4 w-4'} />
-        </IconButton>
-      </RichTooltip>
+        <div className={'flex min-w-[150px] flex-col items-start p-2'}>
+          {actions.map((action, index) => {
+            if (action.tooltip) {
+              return (
+                <Tooltip key={index} {...action.tooltip}>
+                  <div className={'w-full'}>{renderItem(action)}</div>
+                </Tooltip>
+              );
+            }
+
+            return (
+              <div key={index} className={'w-full'}>
+                {renderItem(action)}
+              </div>
+            );
+          })}
+        </div>
+      </Popover>
+
       {deleteModalOpen && (
         <NormalModal
           PaperProps={{

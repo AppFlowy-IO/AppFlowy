@@ -71,7 +71,7 @@ function EmojiPickerCategories({
       return (
         <div style={style} data-index={index}>
           {item.type === 'category' ? (
-            <div className={'pt-2 text-xs font-medium text-text-caption'}>{getCategoryName(item.id)}</div>
+            <div className={'pt-2 text-base font-medium text-text-caption'}>{getCategoryName(item.id)}</div>
           ) : null}
           <div className={'flex'}>
             {item.emojis?.map((emoji, columnIndex) => {
@@ -80,7 +80,7 @@ function EmojiPickerCategories({
               const isDefaultEmoji = defaultEmoji === emoji.native;
 
               return (
-                <Tooltip key={emoji.id} title={emoji.name} placement={'top'} enterDelay={500}>
+                <Tooltip key={emoji.id} title={emoji.name} placement={'top'} enterDelay={500} disableInteractive={true}>
                   <div
                     data-key={emoji.id}
                     style={{
@@ -105,7 +105,7 @@ function EmojiPickerCategories({
                       mouseX.current = e.clientX;
                       mouseY.current = e.clientY;
                     }}
-                    className={`icon flex cursor-pointer items-center justify-center rounded hover:bg-fill-list-hover ${
+                    className={`flex cursor-pointer items-center justify-center rounded text-[20px] hover:bg-fill-list-hover ${
                       isSelected ? 'bg-fill-list-hover' : 'hover:bg-transparent'
                     } ${isDefaultEmoji ? 'bg-fill-list-active' : ''}`}
                   >

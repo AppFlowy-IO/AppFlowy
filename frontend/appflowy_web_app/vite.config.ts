@@ -144,7 +144,6 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
-      '@mui/icons-material/Circle',
       'react-katex',
       // 'react-custom-scrollbars-2',
       // 'react-window',

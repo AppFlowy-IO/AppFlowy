@@ -10,5 +10,5 @@ export async function randomEmoji(skin = 0) {
 }
 
 export async function loadEmojiData() {
-  return import('@emoji-mart/data/sets/15/all.json');
+  return import('@emoji-mart/data/sets/15/native.json');
 }

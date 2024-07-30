@@ -1,8 +1,7 @@
 import { useSelectSkinPopoverProps } from './EmojiPicker.hooks';
-import React from 'react';
-import { Box, IconButton } from '@mui/material';
-import { Circle } from '@mui/icons-material';
-import TextField from '@mui/material/TextField';
+import React, { useCallback } from 'react';
+import { Button, OutlinedInput } from '@mui/material';
+
 import Tooltip from '@mui/material/Tooltip';
 import { randomEmoji } from '@/utils/emoji';
 import { ReactComponent as ShuffleIcon } from '@/assets/shuffle.svg';
@@ -14,27 +13,27 @@ import { ReactComponent as SearchOutlined } from '@/assets/search.svg';
 const skinTones = [
   {
     value: 0,
-    color: '#ffc93a',
+    icon: '👋',
   },
   {
-    color: '#ffdab7',
     value: 1,
+    icon: '👋🏻',
   },
   {
-    color: '#e7b98f',
     value: 2,
+    icon: '👋🏼',
   },
   {
-    color: '#c88c61',
     value: 3,
+    icon: '👋🏽',
   },
   {
-    color: '#a46134',
     value: 4,
+    icon: '👋🏾',
   },
   {
-    color: '#5d4437',
     value: 5,
+    icon: '👋🏿',
   },
 ];
 
@@ -51,83 +50,101 @@ function EmojiPickerHeader({ hideRemove, onEmojiSelect, onSkinSelect, searchValu
   const { onOpen, ...popoverProps } = useSelectSkinPopoverProps();
   const { t } = useTranslation();
 
+  const renderButton = useCallback(
+    ({
+      onClick,
+      tooltip,
+      children,
+    }: {
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+      tooltip: string;
+      children: React.ReactNode;
+    }) => {
+      return (
+        <Tooltip title={tooltip}>
+          <Button
+            size={'small'}
+            variant={'outlined'}
+            color={'inherit'}
+            className={'h-9 w-9 min-w-[36px] px-0 py-0'}
+            onClick={onClick}
+          >
+            {children}
+          </Button>
+        </Tooltip>
+      );
+    },
+    []
+  );
+
   return (
     <div className={'px-0.5 py-2'}>
       <div className={'search-input flex items-end justify-between gap-2'}>
-        <Box className={'mr-1 flex flex-1 items-center gap-2'}>
-          <SearchOutlined className={'h-5 h-5'} />
-          <TextField
-            value={searchValue}
-            onChange={(e) => {
-              onSearchChange(e.target.value);
-            }}
-            autoFocus={true}
-            fullWidth={true}
-            autoCorrect={'off'}
-            autoComplete={'off'}
-            spellCheck={false}
-            className={'search-emoji-input'}
-            placeholder={t('search.label')}
-            variant='standard'
-          />
-        </Box>
-        <div className={'flex gap-1'}>
-          <Tooltip title={t('emoji.random')}>
-            <IconButton
-              size={'small'}
-              onClick={async () => {
-                const emoji = await randomEmoji();
+        <OutlinedInput
+          startAdornment={<SearchOutlined className={'h-6 h-6'} />}
+          value={searchValue}
+          onChange={(e) => {
+            onSearchChange(e.target.value);
+          }}
+          autoFocus={true}
+          fullWidth={true}
+          size={'small'}
+          autoCorrect={'off'}
+          autoComplete={'off'}
+          spellCheck={false}
+          inputProps={{
+            className: 'px-2 py-1.5 text-base',
+          }}
+          className={'search-emoji-input'}
+          placeholder={t('search.label')}
+        />
+        <div className={'flex items-center gap-1'}>
+          {renderButton({
+            onClick: async () => {
+              const emoji = await randomEmoji();
 
-                onEmojiSelect(emoji);
-              }}
-            >
-              <ShuffleIcon className={'h-5 h-5'} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('emoji.selectSkinTone')}>
-            <IconButton size={'small'} className={'h-[25px] w-[25px]'} onClick={onOpen}>
-              <Circle
-                style={{
-                  fill: skinTones[skin].color,
-                }}
-                className={'h-5 h-5'}
-              />
-            </IconButton>
-          </Tooltip>
-          {hideRemove ? null : (
-            <Tooltip title={t('emoji.remove')}>
-              <IconButton
-                size={'small'}
-                onClick={() => {
+              onEmojiSelect(emoji);
+            },
+            tooltip: t('emoji.random'),
+            children: <ShuffleIcon className={'h-5 w-5'} />,
+          })}
+
+          {renderButton({
+            onClick: onOpen,
+            tooltip: t('emoji.selectSkinTone'),
+            children: <span className={'text-xl'}>{skinTones[skin].icon}</span>,
+          })}
+
+          {hideRemove
+            ? null
+            : renderButton({
+                onClick: () => {
                   onEmojiSelect('');
-                }}
-              >
-                <DeleteOutlineRounded className={'h-5 h-5'} />
-              </IconButton>
-            </Tooltip>
-          )}
+                },
+                tooltip: t('emoji.remove'),
+                children: <DeleteOutlineRounded className={'h-5 w-5'} />,
+              })}
         </div>
       </div>
       <Popover {...popoverProps}>
         <div className={'flex items-center p-2'}>
           {skinTones.map((skinTone) => (
             <div className={'mx-0.5'} key={skinTone.value}>
-              <IconButton
+              <Button
                 style={{
                   backgroundColor: skinTone.value === skin ? 'var(--fill-list-hover)' : undefined,
                 }}
                 size={'small'}
+                variant={'outlined'}
+                color={'inherit'}
+                className={'h-9 w-9 min-w-[36px] text-xl'}
                 onClick={() => {
                   onSkinSelect(skinTone.value);
                   popoverProps.onClose?.();
                 }}
               >
-                <Circle
-                  style={{
-                    fill: skinTone.color,
-                  }}
-                />
-              </IconButton>
+                {skinTone.icon}
+              </Button>
             </div>
           ))}
         </div>

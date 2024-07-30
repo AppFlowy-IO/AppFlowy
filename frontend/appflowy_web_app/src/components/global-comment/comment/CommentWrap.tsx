@@ -52,7 +52,7 @@ export function CommentWrap({ commentId, isHovered, onHovered }: CommentWrapProp
   const renderReplyComment = useCallback((replyCommentId: string) => {
     return (
       <div className={'relative flex w-full items-center gap-2'}>
-        <div className={'reply-line relative top-2 ml-[1.75em] min-w-[28px]'} />
+        <div className={'reply-line relative top-2 ml-[1.5em] w-[25px]'} />
         <div className={'flex-1 overflow-hidden '}> {<ReplyComment commentId={replyCommentId} />}</div>
       </div>
     );
@@ -63,10 +63,10 @@ export function CommentWrap({ commentId, isHovered, onHovered }: CommentWrapProp
   }
 
   return (
-    <div ref={ref} className={'flex flex-col gap-2'} data-comment-id={comment.commentId}>
+    <div ref={ref} className={'flex flex-col gap-1'} data-comment-id={comment.commentId}>
       {comment.replyCommentId && renderReplyComment(comment.replyCommentId)}
       <div
-        className={`relative rounded-[8px] p-2 hover:bg-fill-list-hover ${highLight ? 'blink' : ''}`}
+        className={`relative rounded-[8px] p-2 py-2.5 hover:bg-fill-list-hover ${highLight ? 'blink' : ''}`}
         {...(comment.isDeleted ? { style: { opacity: 0.5 } } : {})}
         onMouseEnter={() => {
           onHovered();

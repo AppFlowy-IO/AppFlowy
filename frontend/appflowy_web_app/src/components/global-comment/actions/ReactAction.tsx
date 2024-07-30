@@ -34,7 +34,7 @@ function ReactAction({ comment }: { comment: GlobalComment }) {
     <>
       <Tooltip title={t('globalComment.addReaction')}>
         <IconButton ref={ref} onClick={handleOpen} size='small'>
-          <AddReactionRounded className={'h-4 w-4'} />
+          <AddReactionRounded className={'h-5 w-5'} />
         </IconButton>
       </Tooltip>
       {open && (
@@ -42,6 +42,8 @@ function ReactAction({ comment }: { comment: GlobalComment }) {
           anchorEl={ref.current}
           open={open}
           onClose={handleClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           sx={{
             '& .MuiPopover-paper': {
               width: PER_ROW_EMOJI_COUNT * EMOJI_SIZE,

@@ -11,10 +11,12 @@ function ReplyComment({ commentId }: { commentId?: string | null }) {
     return getComment(commentId);
   }, [commentId, getComment]);
 
+  const avatar = useMemo(() => (replyComment ? getAvatar(replyComment) : null), [replyComment]);
+
   if (!replyComment) return null;
   return (
     <div className={'flex items-center gap-1 text-sm text-text-caption'}>
-      <Avatar {...getAvatar(replyComment)} className={'h-4 w-4 text-xs'} />
+      <Avatar {...avatar} className={'h-4 w-4 text-xs'} />
       <div className={'text-xs font-medium'}>@{replyComment.user?.name}</div>
       <div className={'truncate px-1'}>
         {replyComment.isDeleted ? (

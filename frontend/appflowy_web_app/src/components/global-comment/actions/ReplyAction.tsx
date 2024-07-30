@@ -18,7 +18,7 @@ function ReplyAction({ comment }: { comment: GlobalComment }) {
         }}
         size='small'
       >
-        <ReplyOutlined className={'h-4 w-4'} />
+        <ReplyOutlined className={'h-5 w-5'} />
       </IconButton>
     </Tooltip>
   );

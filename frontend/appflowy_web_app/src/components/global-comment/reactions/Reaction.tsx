@@ -80,7 +80,7 @@ function Reaction({ reaction, onClick }: { reaction: ReactionType; onClick: (rea
           'flex cursor-pointer items-center gap-1 rounded-full border border-transparent bg-fill-list-hover px-1 py-0.5 text-sm'
         }
       >
-        <span className={'icon'}>{reaction.reactionType}</span>
+        <span className={''}>{reaction.reactionType}</span>
         {<div className={'text-xs font-medium'}>{reactCount}</div>}
       </div>
     </Tooltip>

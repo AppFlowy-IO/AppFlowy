@@ -1771,16 +1771,16 @@
     "remove": "Remove emoji",
     "categories": {
       "smileys": "Smileys & Emotion",
-      "people": "People & Body",
-      "animals": "Animals & Nature",
-      "food": "Food & Drink",
-      "activities": "Activities",
-      "places": "Travel & Places",
-      "objects": "Objects",
-      "symbols": "Symbols",
-      "flags": "Flags",
-      "nature": "Nature",
-      "frequentlyUsed": "Frequently Used"
+      "people": "people",
+      "animals": "nature",
+      "food": "foods",
+      "activities": "activities",
+      "places": "places",
+      "objects": "objects",
+      "symbols": "symbols",
+      "flags": "flags",
+      "nature": "nature",
+      "frequentlyUsed": "frequently Used"
     },
     "skinTone": {
       "default": "Default",
