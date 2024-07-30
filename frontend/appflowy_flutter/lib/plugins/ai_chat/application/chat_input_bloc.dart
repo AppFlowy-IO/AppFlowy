@@ -52,7 +52,7 @@ class ChatInputBloc extends Bloc<ChatInputEvent, ChatInputState> {
         );
       },
       updateState: (aiState) {
-        if (aiState.enabled) {
+        if (aiState.pluginState.state == RunningStatePB.Running) {
           emit(const ChatInputState(aiType: _LocalAI()));
         } else {
           emit(const ChatInputState(aiType: _AppFlowyAI()));
