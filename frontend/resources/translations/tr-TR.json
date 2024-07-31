@@ -818,7 +818,7 @@
         "itemFour": "evet",
         "itemFive": "evet",
         "itemSix": "100 ömür boyu",
-        "itemSeven": ""
+        "itemSeven": " "
       },
       "proLabels": {
         "itemOne": "çalışma alanı başına ücretlendirilir",
@@ -827,7 +827,7 @@
         "itemFour": "evet",
         "itemFive": "evet",
         "itemSix": "sınırsız",
-        "itemSeven": ""
+        "itemSeven": " "
       },
       "paymentSuccess": {
         "title": "Artık {} planındasınız!",
