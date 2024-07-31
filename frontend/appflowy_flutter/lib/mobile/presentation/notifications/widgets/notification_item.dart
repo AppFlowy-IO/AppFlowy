@@ -330,7 +330,9 @@ class _NotificationDocumentContentState
     return AppFlowyEditor(
       editorState: editorState,
       editorStyle: editorStyle,
-      disableSelection: true,
+      disableSelectionService: true,
+      disableKeyboardService: true,
+      disableScrollService: true,
       editable: false,
       shrinkWrap: true,
       blockComponentBuilders: blockBuilders,

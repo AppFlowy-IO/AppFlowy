@@ -168,6 +168,10 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                     ? const Color(0xFFFE0299)
                     : Theme.of(context).colorScheme.error
                 : null;
+            final textStyle = widget.textStyle?.copyWith(
+              color: color,
+              leadingDistribution: TextLeadingDistribution.even,
+            );
 
             // when font size equals 14, the icon size is 16.0.
             // scale the icon size based on the font size.
@@ -261,7 +265,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                           ? FlowySvgs.reminder_clock_s
                           : FlowySvgs.date_s,
                       size: Size.square(iconSize),
-                      color: color,
+                      color: textStyle?.color,
                     ),
                   ],
                 ),

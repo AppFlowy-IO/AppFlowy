@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,9 +16,13 @@ class TodoListIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconPadding = PlatformExtension.isMobile
-        ? context.read<DocumentPageStyleBloc>().state.iconPadding
-        : 0.0;
+    // the icon height should be equal to the text height * text font size
+    final textStyle =
+        context.read<EditorState>().editorStyle.textStyleConfiguration;
+    final fontSize = textStyle.text.fontSize ?? 16.0;
+    final height = textStyle.lineHeight;
+    final iconSize = fontSize * height;
+
     final checked = node.attributes[TodoListBlockKeys.checked] ?? false;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -28,16 +31,18 @@ class TodoListIcon extends StatelessWidget {
         onCheck();
       },
       child: Container(
-        constraints: const BoxConstraints(
-          minWidth: 22,
-          minHeight: 22,
+        constraints: BoxConstraints(
+          minWidth: iconSize,
+          minHeight: iconSize,
         ),
-        margin: EdgeInsets.only(top: iconPadding, right: 8.0),
+        margin: const EdgeInsets.only(right: 6.0),
+        alignment: Alignment.center,
         child: FlowySvg(
           checked
               ? FlowySvgs.m_todo_list_checked_s
               : FlowySvgs.m_todo_list_unchecked_s,
           blendMode: checked ? null : BlendMode.srcIn,
+          size: Size.square(iconSize * 0.9),
         ),
       ),
     );
