@@ -829,7 +829,8 @@
         "itemThree": "5 GB",
         "itemFour": "yes",
         "itemFive": "yes",
-        "itemSix": "100 lifetime"
+        "itemSix": "100 lifetime",
+        "itemSeven": ""
       },
       "proLabels": {
         "itemOne": "charged per workspace",
@@ -837,7 +838,8 @@
         "itemThree": "unlimited",
         "itemFour": "yes",
         "itemFive": "yes",
-        "itemSix": "unlimited"
+        "itemSix": "unlimited",
+        "itemSeven": ""
       },
       "paymentSuccess": {
         "title": "You are now on the {} plan!",
