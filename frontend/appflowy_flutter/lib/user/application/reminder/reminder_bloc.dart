@@ -182,30 +182,18 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             );
           },
           archiveAll: () async {
-            final unArchivedReminders = state.reminders.where(
-              (reminder) => !reminder.isArchived,
-            );
-
-            for (final reminder in unArchivedReminders) {
-              reminder.isRead = true;
-              reminder.meta[ReminderMetaKeys.isArchived] = true.toString();
-              await _reminderService.updateReminder(reminder: reminder);
-            }
-
-            final reminder = [...state.reminders].map((e) {
-              if (e.isRead && e.isArchived) {
-                return e;
-              }
-              e.freeze();
-              return e.rebuild((update) {
-                update.isRead = true;
-                update.meta[ReminderMetaKeys.isArchived] = true.toString();
-              });
-            }).toList();
-
+            final reminders = await _onArchived(isArchived: true);
             emit(
               state.copyWith(
-                reminders: reminder,
+                reminders: reminders,
+              ),
+            );
+          },
+          unarchiveAll: () async {
+            final reminders = await _onArchived(isArchived: false);
+            emit(
+              state.copyWith(
+                reminders: reminders,
               ),
             );
           },
@@ -220,6 +208,31 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
         );
       },
     );
+  }
+
+  Future<List<ReminderPB>> _onArchived({
+    required bool isArchived,
+  }) async {
+    final remindersToUpdate = state.reminders.where(
+      (reminder) => reminder.isArchived != isArchived,
+    );
+
+    for (final reminder in remindersToUpdate) {
+      reminder.isRead = isArchived;
+      reminder.meta[ReminderMetaKeys.isArchived] = isArchived.toString();
+      await _reminderService.updateReminder(reminder: reminder);
+    }
+
+    return state.reminders.map((e) {
+      if (e.isArchived == isArchived) {
+        return e;
+      }
+      e.freeze();
+      return e.rebuild((update) {
+        update.isRead = isArchived;
+        update.meta[ReminderMetaKeys.isArchived] = isArchived.toString();
+      });
+    }).toList();
   }
 
   Timer _periodicCheck() {
@@ -289,6 +302,8 @@ class ReminderEvent with _$ReminderEvent {
   const factory ReminderEvent.markAllRead() = _MarkAllRead;
 
   const factory ReminderEvent.archiveAll() = _ArchiveAll;
+
+  const factory ReminderEvent.unarchiveAll() = _UnarchiveAll;
 
   const factory ReminderEvent.pressReminder({
     required String reminderId,

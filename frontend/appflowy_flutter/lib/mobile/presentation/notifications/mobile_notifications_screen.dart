@@ -23,6 +23,7 @@ class _MobileNotificationsScreenV2State
     with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
+    // todo: remove the unused bloc here
     return MultiBlocProvider(
       providers: [
         BlocProvider<UserProfileBloc>(
@@ -52,10 +53,7 @@ class _MobileNotificationsScreenV2State
 class MobileNotificationsTab extends StatefulWidget {
   const MobileNotificationsTab({
     super.key,
-    // required this.userProfile,
   });
-
-  // final UserProfilePB userProfile;
 
   @override
   State<MobileNotificationsTab> createState() => _MobileNotificationsTabState();

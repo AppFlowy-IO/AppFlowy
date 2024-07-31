@@ -30,3 +30,48 @@ class MobileNotificationPageHeader extends StatelessWidget {
     );
   }
 }
+
+class MobileNotificationMultiSelectPageHeader extends StatelessWidget {
+  const MobileNotificationMultiSelectPageHeader({
+    super.key,
+    required this.selectedCount,
+  });
+
+  final ValueNotifier<int> selectedCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 56),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildCancelButton(isOpaque: false),
+          ValueListenableBuilder(
+            valueListenable: selectedCount,
+            builder: (context, value, child) {
+              return FlowyText(
+                '$value Selected',
+                fontSize: 17.0,
+                figmaLineHeight: 24.0,
+                fontWeight: FontWeight.w500,
+              );
+            },
+          ),
+          _buildCancelButton(isOpaque: true),
+        ],
+      ),
+    );
+  }
+
+  //
+  Widget _buildCancelButton({required bool isOpaque}) {
+    return FlowyText(
+      'Cancel',
+      fontSize: 17.0,
+      figmaLineHeight: 24.0,
+      fontWeight: FontWeight.w400,
+      color: isOpaque ? Colors.transparent : null,
+    );
+  }
+}

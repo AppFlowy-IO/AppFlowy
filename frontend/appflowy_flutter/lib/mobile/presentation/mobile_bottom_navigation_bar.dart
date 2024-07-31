@@ -10,8 +10,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+enum BottomNavigationBarActionType {
+  home,
+  notification,
+}
+
 final PropertyValueNotifier<ViewLayoutPB?> createNewPageNotifier =
     PropertyValueNotifier(null);
+final ValueNotifier<BottomNavigationBarActionType> bottomNavigationActionType =
+    ValueNotifier(BottomNavigationBarActionType.home);
 
 const _homeLabel = 'home';
 const _addLabel = 'add';
@@ -37,7 +44,7 @@ final _items = <BottomNavigationBarItem>[
 
 /// Builds the "shell" for the app by building a Scaffold with a
 /// BottomNavigationBar, where [child] is placed in the body of the Scaffold.
-class MobileBottomNavigationBar extends StatelessWidget {
+class MobileBottomNavigationBar extends StatefulWidget {
   /// Constructs an [MobileBottomNavigationBar].
   const MobileBottomNavigationBar({
     required this.navigationShell,
@@ -48,66 +55,76 @@ class MobileBottomNavigationBar extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   @override
+  State<MobileBottomNavigationBar> createState() =>
+      _MobileBottomNavigationBarState();
+}
+
+class _MobileBottomNavigationBarState extends State<MobileBottomNavigationBar> {
+  Widget? _bottomNavigationBar;
+
+  @override
+  void initState() {
+    super.initState();
+
+    bottomNavigationActionType.addListener(_animate);
+  }
+
+  @override
+  void dispose() {
+    bottomNavigationActionType.removeListener(_animate);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isLightMode = Theme.of(context).isLightMode;
-    final backgroundColor = isLightMode
-        ? Colors.white.withOpacity(0.95)
-        : const Color(0xFF23262B).withOpacity(0.95);
-    final borderColor = isLightMode
-        ? const Color(0x141F2329)
-        : const Color(0xFF23262B).withOpacity(0.5);
+    _bottomNavigationBar ??= _buildHomePageNavigationBar(context);
+
     return Scaffold(
-      body: navigationShell,
+      body: widget.navigationShell,
       extendBody: true,
-      bottomNavigationBar: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: 3,
-            sigmaY: 3,
-          ),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              border: isLightMode
-                  ? Border(top: BorderSide(color: borderColor))
-                  : null,
-              color: backgroundColor,
-            ),
-            child: BottomNavigationBar(
-              showSelectedLabels: false,
-              showUnselectedLabels: false,
-              enableFeedback: false,
-              type: BottomNavigationBarType.fixed,
-              elevation: 0,
-              items: _items,
-              backgroundColor: Colors.transparent,
-              currentIndex: navigationShell.currentIndex,
-              onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
-            ),
-          ),
-        ),
+      bottomNavigationBar: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        switchInCurve: Curves.easeInOut,
+        switchOutCurve: Curves.easeInOut,
+        transitionBuilder: _transitionBuilder,
+        child: _bottomNavigationBar,
       ),
     );
   }
 
-  /// Navigate to the current location of the branch at the provided index when
-  /// tapping an item in the BottomNavigationBar.
-  void _onTap(BuildContext context, int bottomBarIndex) {
-    if (_items[bottomBarIndex].label == _addLabel) {
-      // show an add dialog
-      createNewPageNotifier.value = ViewLayoutPB.Document;
-      return;
-    }
-    // When navigating to a new branch, it's recommended to use the goBranch
-    // method, as doing so makes sure the last navigation state of the
-    // Navigator for the branch is restored.
-    navigationShell.goBranch(
-      bottomBarIndex,
-      // A common pattern when using bottom navigation bars is to support
-      // navigating to the initial location when tapping the item that is
-      // already active. This example demonstrates how to support this behavior,
-      // using the initialLocation parameter of goBranch.
-      initialLocation: bottomBarIndex == navigationShell.currentIndex,
+  Widget _buildHomePageNavigationBar(BuildContext context) {
+    return _HomePageNavigationBar(
+      navigationShell: widget.navigationShell,
     );
+  }
+
+  Widget _buildNotificationNavigationBar(BuildContext context) {
+    return const _NotificationNavigationBar();
+  }
+
+  // widget A going down, widget B going up
+  Widget _transitionBuilder(
+    Widget child,
+    Animation<double> animation,
+  ) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(animation),
+      child: child,
+    );
+  }
+
+  void _animate() {
+    setState(() {
+      _bottomNavigationBar = switch (bottomNavigationActionType.value) {
+        BottomNavigationBarActionType.home =>
+          _buildHomePageNavigationBar(context),
+        BottomNavigationBarActionType.notification =>
+          _buildNotificationNavigationBar(context),
+      };
+    });
   }
 }
 
@@ -165,6 +182,90 @@ class _RedDot extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
+      ),
+    );
+  }
+}
+
+class _HomePageNavigationBar extends StatelessWidget {
+  const _HomePageNavigationBar({
+    required this.navigationShell,
+  });
+
+  final StatefulNavigationShell navigationShell;
+
+  @override
+  Widget build(BuildContext context) {
+    final isLightMode = Theme.of(context).isLightMode;
+    final backgroundColor = isLightMode
+        ? Colors.white.withOpacity(0.95)
+        : const Color(0xFF23262B).withOpacity(0.95);
+    final borderColor = isLightMode
+        ? const Color(0x141F2329)
+        : const Color(0xFF23262B).withOpacity(0.5);
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: 3,
+          sigmaY: 3,
+        ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: isLightMode
+                ? Border(top: BorderSide(color: borderColor))
+                : null,
+            color: backgroundColor,
+          ),
+          child: BottomNavigationBar(
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            enableFeedback: false,
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
+            items: _items,
+            backgroundColor: Colors.transparent,
+            currentIndex: navigationShell.currentIndex,
+            onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Navigate to the current location of the branch at the provided index when
+  /// tapping an item in the BottomNavigationBar.
+  void _onTap(BuildContext context, int bottomBarIndex) {
+    if (_items[bottomBarIndex].label == _addLabel) {
+      // show an add dialog
+      createNewPageNotifier.value = ViewLayoutPB.Document;
+      return;
+    }
+    // When navigating to a new branch, it's recommended to use the goBranch
+    // method, as doing so makes sure the last navigation state of the
+    // Navigator for the branch is restored.
+    navigationShell.goBranch(
+      bottomBarIndex,
+      // A common pattern when using bottom navigation bars is to support
+      // navigating to the initial location when tapping the item that is
+      // already active. This example demonstrates how to support this behavior,
+      // using the initialLocation parameter of goBranch.
+      initialLocation: bottomBarIndex == navigationShell.currentIndex,
+    );
+  }
+}
+
+class _NotificationNavigationBar extends StatelessWidget {
+  const _NotificationNavigationBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        bottomNavigationActionType.value = BottomNavigationBarActionType.home;
+      },
+      child: Container(
+        height: 90,
+        color: Colors.red,
       ),
     );
   }

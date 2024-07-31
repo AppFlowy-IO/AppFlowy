@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/application/notification/notification_reminder_b
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_slide_action_button.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
@@ -88,13 +89,20 @@ enum NotificationPaneActionType {
               showDivider: false,
               useRootNavigator: true,
               backgroundColor: Theme.of(context).colorScheme.surface,
-              builder: (context) {
+              builder: (_) {
                 return MultiBlocProvider(
                   providers: [
                     BlocProvider.value(value: reminderBloc),
                     BlocProvider.value(value: notificationReminderBloc),
                   ],
-                  child: const _NotificationMoreActions(),
+                  child: _NotificationMoreActions(
+                    onClickMultipleChoice: () {
+                      Future.delayed(const Duration(milliseconds: 250), () {
+                        bottomNavigationActionType.value =
+                            BottomNavigationBarActionType.notification;
+                      });
+                    },
+                  ),
                 );
               },
             );
@@ -105,7 +113,11 @@ enum NotificationPaneActionType {
 }
 
 class _NotificationMoreActions extends StatelessWidget {
-  const _NotificationMoreActions();
+  const _NotificationMoreActions({
+    required this.onClickMultipleChoice,
+  });
+
+  final VoidCallback onClickMultipleChoice;
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +184,8 @@ class _NotificationMoreActions extends StatelessWidget {
 
   void _onMultipleChoice(BuildContext context) {
     Navigator.of(context).pop();
+
+    onClickMultipleChoice();
   }
 
   void _onArchive(BuildContext context) {
