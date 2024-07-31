@@ -473,7 +473,6 @@
       "autoGeneratorCantGetOpenAIKey": "کلید AI را نمی توان دریافت کرد",
       "autoGeneratorRewrite": "بازنویس",
       "smartEdit": "دستیاران هوشمند",
-      "openAI": "AI",
       "smartEditFixSpelling": "اصلاح نگارش",
       "warning": "⚠️ پاسخ‌های هوش مصنوعی می‌توانند نادرست یا گمراه‌کننده باشند",
       "smartEditSummarize": "خلاصه‌نویسی",
@@ -533,7 +532,8 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "برای ایجاد فهرست مطالب سر‌فصل‌ها را وارد کنید"
-      }
+      },
+      "openAI": "AI"
     },
     "textBlock": {
       "placeholder": "برای دستورات '/' را تایپ کنید"
