@@ -189,16 +189,11 @@ class _DocumentPageState extends State<DocumentPage>
 
           if (data != null) {
             if (data.cursorNode != null) {
-              if ([
-                ImageBlockKeys.type,
-                CustomImageBlockKeys.type,
-                MultiImageBlockKeys.type,
-              ].contains(data.cursorNode?.type)) {
+              if (_excludeFromDropTarget.contains(data.cursorNode?.type)) {
                 return;
               }
 
               final isLocalMode = context.read<DocumentBloc>().isLocalMode;
-
               final List<XFile> imageFiles = [];
               final List<XFile> otherfiles = [];
               for (final file in details.files) {
