@@ -34,7 +34,7 @@ class BulletedListIcon extends StatelessWidget {
     final textStyle =
         context.read<EditorState>().editorStyle.textStyleConfiguration;
     final fontSize = textStyle.text.fontSize ?? 16.0;
-    final height = textStyle.lineHeight;
+    final height = textStyle.text.height ?? textStyle.lineHeight;
     final size = fontSize * height;
     final index = level % bulletedListIcons.length;
     final icon = FlowySvg(

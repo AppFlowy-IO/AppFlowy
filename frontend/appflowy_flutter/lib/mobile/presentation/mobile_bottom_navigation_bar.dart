@@ -152,7 +152,7 @@ class _NotificationNavigationBarItemIcon extends StatelessWidget {
 }
 
 class _RedDot extends StatelessWidget {
-  const _RedDot({super.key});
+  const _RedDot();
 
   @override
   Widget build(BuildContext context) {

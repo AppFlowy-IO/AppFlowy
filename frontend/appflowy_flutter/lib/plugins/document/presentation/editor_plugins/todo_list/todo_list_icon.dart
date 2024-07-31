@@ -20,7 +20,7 @@ class TodoListIcon extends StatelessWidget {
     final textStyle =
         context.read<EditorState>().editorStyle.textStyleConfiguration;
     final fontSize = textStyle.text.fontSize ?? 16.0;
-    final height = textStyle.lineHeight;
+    final height = textStyle.text.height ?? textStyle.lineHeight;
     final iconSize = fontSize * height;
 
     final checked = node.attributes[TodoListBlockKeys.checked] ?? false;

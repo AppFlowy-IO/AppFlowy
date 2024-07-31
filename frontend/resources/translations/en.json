@@ -989,7 +989,11 @@
         "unread": "Unread",
         "archived": "Archived"
       },
-      "refreshSuccess": "Notifications refreshed successfully"
+      "refreshSuccess": "Notifications refreshed successfully",
+      "titles": {
+        "notifications": "Notifications",
+        "reminder": "Reminder"
+      }
     },
     "appearance": {
       "resetSetting": "Reset",

@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/notification/notification_reminder_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/base/gesture.dart';
@@ -7,8 +8,10 @@ import 'package:appflowy/plugins/document/presentation/editor_configuration.dart
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -72,24 +75,39 @@ class NotificationItem extends StatelessWidget {
             ),
           );
 
-          if (tabType == MobileNotificationTabType.inbox) {
-            return AnimatedGestureDetector(
-              scaleFactor: 0.99,
-              onTapUp: () {
-                context.read<ReminderBloc>().add(
-                      ReminderEvent.update(
-                        ReminderUpdate(id: reminder.id, isRead: true),
-                      ),
-                    );
-              },
-              child: child,
-            );
+          if (reminder.isRead) {
+            return child;
           }
 
-          return child;
+          return AnimatedGestureDetector(
+            scaleFactor: 0.99,
+            onTapUp: () => _onMarkAsRead(context),
+            child: child,
+          );
         },
       ),
     );
+  }
+
+  void _onMarkAsRead(BuildContext context) {
+    if (reminder.isRead) {
+      return;
+    }
+
+    showToastNotification(
+      context,
+      message: LocaleKeys.settings_notifications_markAsReadNotifications_success
+          .tr(),
+    );
+
+    context.read<ReminderBloc>().add(
+          ReminderEvent.update(
+            ReminderUpdate(
+              id: context.read<NotificationReminderBloc>().reminder.id,
+              isRead: true,
+            ),
+          ),
+        );
   }
 }
 
@@ -113,7 +131,10 @@ class _SlidableNotificationItem extends StatelessWidget {
           NotificationPaneActionType.more,
           if (!reminder.isRead) NotificationPaneActionType.markAsRead,
         ],
-      MobileNotificationTabType.unread => [],
+      MobileNotificationTabType.unread => [
+          NotificationPaneActionType.more,
+          NotificationPaneActionType.markAsRead,
+        ],
       MobileNotificationTabType.archive => [
           if (kDebugMode) NotificationPaneActionType.unArchive,
         ],
@@ -224,8 +245,8 @@ class _NotificationContent extends StatelessWidget {
   }
 
   Widget _buildHeader() {
-    return const FlowyText.semibold(
-      'Reminder',
+    return FlowyText.semibold(
+      LocaleKeys.settings_notifications_titles_reminder.tr(),
       fontSize: 14,
       figmaLineHeight: 20,
     );
@@ -300,6 +321,8 @@ class _NotificationDocumentContentState
         cursorWidth: 0,
         textStyleConfiguration: const TextStyleConfiguration(
           lineHeight: 22 / 14,
+          applyHeightToFirstAscent: true,
+          applyHeightToLastDescent: true,
           text: TextStyle(
             fontSize: 14,
             color: Color(0xFF171717),
