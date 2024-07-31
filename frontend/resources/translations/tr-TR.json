@@ -817,7 +817,8 @@
         "itemThree": "5 GB",
         "itemFour": "evet",
         "itemFive": "evet",
-        "itemSix": "100 ömür boyu"
+        "itemSix": "100 ömür boyu",
+        "itemSeven": ""
       },
       "proLabels": {
         "itemOne": "çalışma alanı başına ücretlendirilir",
@@ -825,7 +826,8 @@
         "itemThree": "sınırsız",
         "itemFour": "evet",
         "itemFive": "evet",
-        "itemSix": "sınırsız"
+        "itemSix": "sınırsız",
+        "itemSeven": ""
       },
       "paymentSuccess": {
         "title": "Artık {} planındasınız!",
