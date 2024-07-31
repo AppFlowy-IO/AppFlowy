@@ -255,7 +255,7 @@ class _HomePageNavigationBar extends StatelessWidget {
 }
 
 class _NotificationNavigationBar extends StatelessWidget {
-  const _NotificationNavigationBar({super.key});
+  const _NotificationNavigationBar();
 
   @override
   Widget build(BuildContext context) {
