@@ -114,6 +114,7 @@ class _AISearchToggle extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _LocalAIOnBoarding extends StatelessWidget {
   const _LocalAIOnBoarding({required this.workspaceId});
   final String workspaceId;

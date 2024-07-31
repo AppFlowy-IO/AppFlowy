@@ -7,13 +7,13 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/layouts/multi_image_layouts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -25,24 +25,9 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:provider/provider.dart';
 
+import '../image_render.dart';
+
 const _thumbnailItemSize = 100.0;
-
-abstract class ImageBlockMultiLayout extends StatefulWidget {
-  const ImageBlockMultiLayout({
-    super.key,
-    required this.node,
-    required this.editorState,
-    required this.images,
-    required this.indexNotifier,
-    required this.isLocalMode,
-  });
-
-  final Node node;
-  final EditorState editorState;
-  final List<ImageBlockData> images;
-  final ValueNotifier<int> indexNotifier;
-  final bool isLocalMode;
-}
 
 class ImageBrowserLayout extends ImageBlockMultiLayout {
   const ImageBrowserLayout({
@@ -97,115 +82,118 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                     (constraints.maxWidth / (_thumbnailItemSize + 4)).floor();
                 final items = widget.images.take(maxItems).toList();
 
-                return Wrap(
-                  children: items.mapIndexed((index, image) {
-                    final isLast = items.last == image;
-                    final amountLeft = widget.images.length - items.length;
-                    if (isLast && amountLeft > 0) {
+                return Center(
+                  child: Wrap(
+                    children: items.mapIndexed((index, image) {
+                      final isLast = items.last == image;
+                      final amountLeft = widget.images.length - items.length;
+                      if (isLast && amountLeft > 0) {
+                        return MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () => _openInteractiveViewer(
+                              context,
+                              maxItems - 1,
+                            ),
+                            child: Container(
+                              width: _thumbnailItemSize,
+                              height: _thumbnailItemSize,
+                              padding: const EdgeInsets.all(2),
+                              margin: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                borderRadius: Corners.s8Border,
+                                border: Border.all(
+                                  width: 2,
+                                  color: Theme.of(context).dividerColor,
+                                ),
+                              ),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: Corners.s6Border,
+                                  image: image.type == CustomImageType.local
+                                      ? DecorationImage(
+                                          image: FileImage(File(image.url)),
+                                          fit: BoxFit.cover,
+                                          opacity: 0.5,
+                                        )
+                                      : null,
+                                ),
+                                child: Stack(
+                                  children: [
+                                    if (image.type != CustomImageType.local)
+                                      Positioned.fill(
+                                        child: Container(
+                                          clipBehavior: Clip.antiAlias,
+                                          decoration: const BoxDecoration(
+                                            borderRadius: Corners.s6Border,
+                                          ),
+                                          child: FlowyNetworkImage(
+                                            url: image.url,
+                                            userProfilePB: _userProfile,
+                                          ),
+                                        ),
+                                      ),
+                                    DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.5),
+                                      ),
+                                      child: Center(
+                                        child: FlowyText(
+                                          '+$amountLeft',
+                                          color: AFThemeExtension.of(context)
+                                              .strongText,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
                       return MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
-                          onTap: () => _openInteractiveViewer(
-                            context,
-                            maxItems - 1,
-                          ),
-                          child: Container(
-                            width: _thumbnailItemSize,
-                            height: _thumbnailItemSize,
-                            padding: const EdgeInsets.all(2),
-                            margin: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              borderRadius: Corners.s8Border,
-                              border: Border.all(
-                                width: 2,
-                                color: Theme.of(context).dividerColor,
-                              ),
-                            ),
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                borderRadius: Corners.s6Border,
-                                image: image.type == CustomImageType.local
-                                    ? DecorationImage(
-                                        image: FileImage(File(image.url)),
-                                        fit: BoxFit.cover,
-                                        opacity: 0.5,
-                                      )
-                                    : null,
-                              ),
-                              child: Stack(
-                                children: [
-                                  if (image.type != CustomImageType.local)
-                                    Positioned.fill(
-                                      child: Container(
-                                        clipBehavior: Clip.antiAlias,
-                                        decoration: const BoxDecoration(
-                                          borderRadius: Corners.s6Border,
-                                        ),
-                                        child: FlowyNetworkImage(
-                                          url: image.url,
-                                          userProfilePB: _userProfile,
-                                        ),
-                                      ),
-                                    ),
-                                  DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.5),
-                                    ),
-                                    child: Center(
-                                      child: FlowyText(
-                                        '+$amountLeft',
-                                        color: AFThemeExtension.of(context)
-                                            .strongText,
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                          onTap: () => widget.onIndexChanged(index),
+                          child: ThumbnailItem(
+                            images: widget.images,
+                            index: index,
+                            selectedIndex: widget.indexNotifier.value,
+                            userProfile: _userProfile,
+                            onDeleted: () async {
+                              final transaction =
+                                  widget.editorState.transaction;
+
+                              final images = widget.images.toList();
+                              images.removeAt(index);
+
+                              transaction.updateNode(
+                                widget.node,
+                                {
+                                  MultiImageBlockKeys.images:
+                                      images.map((e) => e.toJson()).toList(),
+                                  MultiImageBlockKeys.layout: widget.node
+                                      .attributes[MultiImageBlockKeys.layout],
+                                },
+                              );
+
+                              await widget.editorState.apply(transaction);
+
+                              widget.onIndexChanged(
+                                widget.indexNotifier.value > 0
+                                    ? widget.indexNotifier.value - 1
+                                    : 0,
+                              );
+                            },
                           ),
                         ),
                       );
-                    }
-
-                    return MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () => widget.onIndexChanged(index),
-                        child: ThumbnailItem(
-                          images: widget.images,
-                          index: index,
-                          selectedIndex: widget.indexNotifier.value,
-                          userProfile: _userProfile,
-                          onDeleted: () async {
-                            final transaction = widget.editorState.transaction;
-
-                            final images = widget.images.toList();
-                            images.removeAt(index);
-
-                            transaction.updateNode(
-                              widget.node,
-                              {
-                                MultiImageBlockKeys.images:
-                                    images.map((e) => e.toJson()).toList(),
-                                MultiImageBlockKeys.layout: widget.node
-                                    .attributes[MultiImageBlockKeys.layout],
-                              },
-                            );
-
-                            await widget.editorState.apply(transaction);
-
-                            widget.onIndexChanged(
-                              widget.indexNotifier.value > 0
-                                  ? widget.indexNotifier.value - 1
-                                  : 0,
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                    }).toList(),
+                  ),
                 );
               },
             ),
@@ -324,7 +312,8 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
 
     transaction.updateNode(widget.node, {
       MultiImageBlockKeys.images: imagesJson,
-      MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
+      MultiImageBlockKeys.layout:
+          widget.node.attributes[MultiImageBlockKeys.layout],
     });
 
     await widget.editorState.apply(transaction);
@@ -414,38 +403,6 @@ class _ThumbnailItemState extends State<ThumbnailItem> {
           ],
         ),
       ),
-    );
-  }
-}
-
-@visibleForTesting
-class ImageRender extends StatelessWidget {
-  const ImageRender({
-    super.key,
-    required this.image,
-    this.userProfile,
-    this.fit = BoxFit.cover,
-  });
-
-  final ImageBlockData image;
-  final UserProfilePB? userProfile;
-  final BoxFit fit;
-
-  @override
-  Widget build(BuildContext context) {
-    final child = switch (image.type) {
-      CustomImageType.internal || CustomImageType.external => FlowyNetworkImage(
-          url: image.url,
-          userProfilePB: userProfile,
-          fit: fit,
-        ),
-      CustomImageType.local => Image.file(File(image.url), fit: fit),
-    };
-
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: const BoxDecoration(borderRadius: Corners.s6Border),
-      child: child,
     );
   }
 }

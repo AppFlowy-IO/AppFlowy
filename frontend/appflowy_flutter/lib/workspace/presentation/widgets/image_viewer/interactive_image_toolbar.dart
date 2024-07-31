@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -14,7 +16,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 
@@ -190,7 +191,7 @@ class InteractiveImageToolbar extends StatelessWidget {
                     tooltip: LocaleKeys
                         .document_imageBlock_interactiveViewer_toolbar_closeViewer
                         .tr(),
-                    icon: FlowySvgs.close_s,
+                    icon: FlowySvgs.close_viewer_s,
                     onTap: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -291,11 +292,12 @@ class _ToolbarItem extends StatelessWidget {
                 isDisabled ? Colors.transparent : Colors.white.withOpacity(0.1),
             borderRadius: BorderRadius.circular(4),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
+          child: Container(
+            width: 32,
+            height: 32,
+            padding: const EdgeInsets.all(8),
             child: FlowySvg(
               icon,
-              size: const Size.square(16),
               color: isDisabled ? Colors.grey : Colors.white,
             ),
           ),

@@ -1,4 +1,12 @@
 # Release Notes
+## Version 0.6.6 - 30/07/2024
+### New Features
+- Upgrade your workspace to a premium plan to unlock more features and storage.
+- Image galleries and drag-and-drop image support in documents.
+
+### Bug Fixes
+- Fix minor UI issues on Desktop and Mobile.
+
 ## Version 0.6.5 - 24/07/2024
 ### New Features
 - Publish a Database to the Web

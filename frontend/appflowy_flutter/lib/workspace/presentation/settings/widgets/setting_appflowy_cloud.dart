@@ -1,4 +1,3 @@
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,9 @@ import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_bu
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -355,25 +356,25 @@ class BillingGateGuard extends StatelessWidget {
 
 Future<bool> isBillingEnabled() async {
   final result = await UserEventGetCloudConfig().send();
-  return result.fold((cloudSetting) {
-    final whiteList = [
-      "https://beta.appflowy.cloud",
-      "https://test.appflowy.cloud",
-    ];
-    if (kDebugMode) {
-      whiteList.add("http://localhost:8000");
-    }
+  return result.fold(
+    (cloudSetting) {
+      final whiteList = [
+        "https://beta.appflowy.cloud",
+        "https://test.appflowy.cloud",
+      ];
+      if (kDebugMode) {
+        whiteList.add("http://localhost:8000");
+      }
 
-    if (whiteList.contains(cloudSetting.serverUrl)) {
-      return true;
-    } else {
-      Log.warn(
-        "Billing is not enabled for this server:${cloudSetting.serverUrl}",
-      );
+      final isWhiteListed = whiteList.contains(cloudSetting.serverUrl);
+      if (!isWhiteListed) {
+        Log.warn("Billing is not enabled for server ${cloudSetting.serverUrl}");
+      }
+      return isWhiteListed;
+    },
+    (err) {
+      Log.error("Failed to get cloud config: $err");
       return false;
-    }
-  }, (err) {
-    Log.error("Failed to get cloud config: $err");
-    return false;
-  });
+    },
+  );
 }
