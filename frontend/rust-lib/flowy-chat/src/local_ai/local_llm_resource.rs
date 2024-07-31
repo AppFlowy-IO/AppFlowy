@@ -15,9 +15,8 @@ use lib_infra::util::{get_operating_system, OperatingSystem};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use crate::local_ai::watch::offline_app_path;
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-use crate::local_ai::watch::{watch_offline_app, WatchContext};
+use crate::local_ai::watch::{offline_app_path, watch_offline_app, WatchContext};
 use tokio::fs::{self};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, instrument, trace, warn};
@@ -83,7 +82,9 @@ impl LLMResourceController {
   ) -> Self {
     let (offline_app_state_sender, _) = tokio::sync::broadcast::channel(1);
     let llm_setting = RwLock::new(resource_service.retrieve_setting());
-    let mut offline_app_disk_watch = None;
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+    let mut offline_app_disk_watch: Option<WatchContext> = None;
+
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     {
       match watch_offline_app() {

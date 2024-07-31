@@ -286,7 +286,8 @@ impl LocalAIController {
     if enabled {
       let chat_enabled = self
         .store_preferences
-        .get_bool_or_default(APPFLOWY_LOCAL_AI_CHAT_ENABLED);
+        .get_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED)
+        .unwrap_or(true);
       self.enable_chat_plugin(chat_enabled).await?;
     } else {
       self.enable_chat_plugin(false).await?;
@@ -318,6 +319,7 @@ impl LocalAIController {
   }
 
   async fn enable_chat_plugin(&self, enabled: bool) -> FlowyResult<()> {
+    info!("[AI Plugin] enable chat plugin: {}", enabled);
     if enabled {
       let (tx, rx) = tokio::sync::oneshot::channel();
       let chat_config = self.llm_res.get_chat_config(self.is_rag_enabled())?;

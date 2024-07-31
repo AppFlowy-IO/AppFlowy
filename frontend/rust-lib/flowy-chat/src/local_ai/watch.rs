@@ -11,15 +11,15 @@ pub struct WatchContext {
   pub path: PathBuf,
 }
 
-pub(crate) fn install_path() -> PathBuf {
+pub(crate) fn install_path() -> Option<PathBuf> {
   #[cfg(target_os = "windows")]
-  return PathBuf::from("/usr/local/bin");
+  return None;
 
   #[cfg(target_os = "macos")]
-  return PathBuf::from("/usr/local/bin");
+  return Some(PathBuf::from("/usr/local/bin"));
 
   #[cfg(target_os = "linux")]
-  return PathBuf::from("/usr/local/bin");
+  return None;
 }
 
 pub(crate) fn offline_app_path() -> PathBuf {
@@ -35,7 +35,9 @@ pub(crate) fn offline_app_path() -> PathBuf {
 }
 
 pub fn watch_offline_app() -> FlowyResult<(WatchContext, UnboundedReceiver<WatchDiskEvent>)> {
-  let install_path = install_path();
+  let install_path = install_path().ok_or_else(|| {
+    FlowyError::internal().with_context("Unsupported platform for offline app watching")
+  })?;
   trace!(
     "[LLM Resource] Start watching offline app path: {:?}",
     install_path,
