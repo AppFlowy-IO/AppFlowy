@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_service.dart';
@@ -17,6 +18,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'reminder_bloc.freezed.dart';
 
@@ -37,24 +39,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
     on<ReminderEvent>(
       (event, emit) async {
         await event.when(
-          markAllRead: () async {
-            final unreadReminders =
-                state.pastReminders.where((reminder) => !reminder.isRead);
-
-            final reminders = [...state.reminders];
-            final updatedReminders = <ReminderPB>[];
-            for (final reminder in unreadReminders) {
-              reminders.remove(reminder);
-
-              reminder.isRead = true;
-              await _reminderService.updateReminder(reminder: reminder);
-
-              updatedReminders.add(reminder);
-            }
-
-            reminders.addAll(updatedReminders);
-            emit(state.copyWith(reminders: reminders));
-          },
           started: () async {
             final remindersOrFailure = await _reminderService.fetchReminders();
 
@@ -171,6 +155,68 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               );
             }
           },
+          markAllRead: () async {
+            final unreadReminders = state.reminders.where(
+              (reminder) => !reminder.isRead,
+            );
+
+            for (final reminder in unreadReminders) {
+              reminder.isRead = true;
+              await _reminderService.updateReminder(reminder: reminder);
+            }
+
+            final reminder = [...state.reminders].map((e) {
+              if (e.isRead) {
+                return e;
+              }
+              e.freeze();
+              return e.rebuild((update) {
+                update.isRead = true;
+              });
+            }).toList();
+
+            emit(
+              state.copyWith(
+                reminders: reminder,
+              ),
+            );
+          },
+          archiveAll: () async {
+            final unArchivedReminders = state.reminders.where(
+              (reminder) => !reminder.isArchived,
+            );
+
+            for (final reminder in unArchivedReminders) {
+              reminder.isRead = true;
+              reminder.meta[ReminderMetaKeys.isArchived] = true.toString();
+              await _reminderService.updateReminder(reminder: reminder);
+            }
+
+            final reminder = [...state.reminders].map((e) {
+              if (e.isRead && e.isArchived) {
+                return e;
+              }
+              e.freeze();
+              return e.rebuild((update) {
+                update.isRead = true;
+                update.meta[ReminderMetaKeys.isArchived] = true.toString();
+              });
+            }).toList();
+
+            emit(
+              state.copyWith(
+                reminders: reminder,
+              ),
+            );
+          },
+          refresh: () async {
+            final remindersOrFailure = await _reminderService.fetchReminders();
+
+            remindersOrFailure.fold(
+              (reminders) => emit(state.copyWith(reminders: reminders)),
+              (error) => emit(state),
+            );
+          },
         );
       },
     );
@@ -242,11 +288,15 @@ class ReminderEvent with _$ReminderEvent {
   // Mark all unread reminders as read
   const factory ReminderEvent.markAllRead() = _MarkAllRead;
 
+  const factory ReminderEvent.archiveAll() = _ArchiveAll;
+
   const factory ReminderEvent.pressReminder({
     required String reminderId,
     @Default(null) int? path,
     @Default(null) ViewPB? view,
   }) = _PressReminder;
+
+  const factory ReminderEvent.refresh() = _Refresh;
 }
 
 /// Object used to merge updates with
@@ -259,6 +309,7 @@ class ReminderUpdate {
     this.isRead,
     this.scheduledAt,
     this.includeTime,
+    this.isArchived,
   });
 
   final String id;
@@ -266,6 +317,7 @@ class ReminderUpdate {
   final bool? isRead;
   final DateTime? scheduledAt;
   final bool? includeTime;
+  final bool? isArchived;
 
   ReminderPB merge({required ReminderPB a}) {
     final isAcknowledged = isAck == null && scheduledAt != null
@@ -275,6 +327,10 @@ class ReminderUpdate {
     final meta = a.meta;
     if (includeTime != a.includeTime) {
       meta[ReminderMetaKeys.includeTime] = includeTime.toString();
+    }
+
+    if (isArchived != a.isArchived) {
+      meta[ReminderMetaKeys.isArchived] = isArchived.toString();
     }
 
     return ReminderPB(
@@ -327,7 +383,7 @@ class ReminderState {
   }
 
   late final List<ReminderPB> _reminders;
-  List<ReminderPB> get reminders => _reminders;
+  List<ReminderPB> get reminders => _reminders.unique((e) => e.id);
 
   late final List<ReminderPB> pastReminders;
   late final List<ReminderPB> upcomingReminders;

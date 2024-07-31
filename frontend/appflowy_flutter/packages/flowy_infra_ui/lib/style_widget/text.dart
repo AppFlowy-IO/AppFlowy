@@ -16,10 +16,14 @@ class FlowyText extends StatelessWidget {
   final bool selectable;
   final String? fontFamily;
   final List<String>? fallbackFontFamily;
-  final double? lineHeight;
   final bool withTooltip;
   final StrutStyle? strutStyle;
   final bool isEmoji;
+
+  /// this is used to control the line height in Flutter.
+  final double? lineHeight;
+
+  /// this is used to control the line height from Figma.
   final double? figmaLineHeight;
 
   const FlowyText(
@@ -36,10 +40,10 @@ class FlowyText extends StatelessWidget {
     this.fontFamily,
     this.fallbackFontFamily,
     this.lineHeight,
+    this.figmaLineHeight,
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
-    this.figmaLineHeight,
   });
 
   FlowyText.small(
@@ -195,7 +199,7 @@ class FlowyText extends StatelessWidget {
                 textStyle,
                 forceStrutHeight: true,
                 leadingDistribution: TextLeadingDistribution.even,
-                height: lineHeight ?? 1.1,
+                height: lineHeight,
               )
             : null,
       );

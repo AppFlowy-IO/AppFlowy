@@ -953,6 +953,46 @@
       "showNotificationsIcon": {
         "label": "Show notifications icon",
         "hint": "Toggle off to hide the notification icon in the sidebar."
+      },
+      "archiveNotifications": {
+        "allSuccess": "Archived all notifications successfully",
+        "success": "Archived notification successfully"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Marked all as read successfully",
+        "success": "Marked as read successfully"
+      },
+      "action": {
+        "markAsRead": "Mark as read",
+        "multipleChoice": "Multiple choice",
+        "archive": "Archive"
+      },
+      "settings": {
+        "settings": "Settings",
+        "markAllAsRead": "Mark all as read",
+        "archiveAll": "Archive all"
+      },
+      "emptyInbox": {
+        "title": "No notifications yet",
+        "description": "You'll be notified here for @mentions"
+      },
+      "emptyUnread": {
+        "title": "No unread notifications",
+        "description": "You're all caught up!"
+      },
+      "emptyArchived": {
+        "title": "No archived notifications",
+        "description": "You haven't archived any notifications yet"
+      },
+      "tabs": {
+        "inbox": "Inbox",
+        "unread": "Unread",
+        "archived": "Archived"
+      },
+      "refreshSuccess": "Notifications refreshed successfully",
+      "titles": {
+        "notifications": "Notifications",
+        "reminder": "Reminder"
       }
     },
     "appearance": {

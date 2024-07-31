@@ -10,7 +10,7 @@ import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_scr
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
-import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_page.dart';
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/cloud/appflowy_cloud_page.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
@@ -159,33 +159,11 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
           ),
         ],
       ),
-      // Enable search feature after we have a search page.
-      // StatefulShellBranch(
-      //   routes: <RouteBase>[
-      //     GoRoute(
-      //       path: '/d',
-      //       builder: (BuildContext context, GoRouterState state) =>
-      //           const RootPlaceholderScreen(
-      //         label: 'Search',
-      //         detailsPath: '/d/details',
-      //       ),
-      //       routes: <RouteBase>[
-      //         GoRoute(
-      //           path: 'details',
-      //           builder: (BuildContext context, GoRouterState state) =>
-      //               const DetailsPlaceholderScreen(
-      //             label: 'Search Page details',
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //   ],
-      // ),
       StatefulShellBranch(
         routes: <RouteBase>[
           GoRoute(
-            path: MobileNotificationsScreen.routeName,
-            builder: (_, __) => const MobileNotificationsScreen(),
+            path: MobileNotificationsScreenV2.routeName,
+            builder: (_, __) => const MobileNotificationsScreenV2(),
           ),
         ],
       ),

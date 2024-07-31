@@ -1,14 +1,12 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
@@ -27,6 +25,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/non_secure.dart';
 
@@ -37,6 +36,7 @@ class MentionDateBlock extends StatefulWidget {
     required this.date,
     required this.index,
     required this.node,
+    this.textStyle,
     this.reminderId,
     this.reminderOption,
     this.includeTime = false,
@@ -54,6 +54,8 @@ class MentionDateBlock extends StatefulWidget {
   final ReminderOption? reminderOption;
 
   final bool includeTime;
+
+  final TextStyle? textStyle;
 
   @override
   State<MentionDateBlock> createState() => _MentionDateBlockState();
@@ -76,8 +78,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     if (parsedDate == null) {
       return const SizedBox.shrink();
     }
-
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
 
     return MultiBlocProvider(
       providers: [
@@ -163,6 +163,20 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   _updateReminder(reminderOption, reminder),
             );
 
+            final color = reminder?.isAck == true
+                ? Theme.of(context).isLightMode
+                    ? const Color(0xFFFE0299)
+                    : Theme.of(context).colorScheme.error
+                : null;
+            final textStyle = widget.textStyle?.copyWith(
+              color: color,
+              leadingDistribution: TextLeadingDistribution.even,
+            );
+
+            // when font size equals 14, the icon size is 16.0.
+            // scale the icon size based on the font size.
+            final iconSize = (widget.textStyle?.fontSize ?? 14.0) / 14.0 * 16.0;
+
             return GestureDetector(
               onTapDown: (details) {
                 if (widget.editorState.editable) {
@@ -228,32 +242,32 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   }
                 }
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FlowySvg(
-                        widget.reminderId != null
-                            ? FlowySvgs.clock_alarm_s
-                            : FlowySvgs.date_s,
-                        size: const Size.square(18.0),
-                        color: reminder?.isAck == true
-                            ? Theme.of(context).colorScheme.error
-                            : null,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.reminderId != null
+                          ? '@$formattedDate'
+                          : formattedDate,
+                      style: widget.textStyle?.copyWith(
+                        color: color,
+                        leadingDistribution: TextLeadingDistribution.even,
                       ),
-                      const HSpace(2),
-                      FlowyText(
-                        formattedDate,
-                        fontSize: fontSize,
-                        color: reminder?.isAck == true
-                            ? Theme.of(context).colorScheme.error
-                            : null,
-                      ),
-                    ],
-                  ),
+                      strutStyle: widget.textStyle != null
+                          ? StrutStyle.fromTextStyle(widget.textStyle!)
+                          : null,
+                    ),
+                    const HSpace(4),
+                    FlowySvg(
+                      widget.reminderId != null
+                          ? FlowySvgs.reminder_clock_s
+                          : FlowySvgs.date_s,
+                      size: Size.square(iconSize),
+                      color: textStyle?.color,
+                    ),
+                  ],
                 ),
               ),
             );
@@ -375,6 +389,8 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
               meta: {
                 ReminderMetaKeys.includeTime: false.toString(),
                 ReminderMetaKeys.blockId: widget.node.id,
+                ReminderMetaKeys.createdAt:
+                    DateTime.now().millisecondsSinceEpoch.toString(),
               },
               scheduledAt: Int64(parsedDate!.millisecondsSinceEpoch ~/ 1000),
               isAck: parsedDate!.isBefore(DateTime.now()),
