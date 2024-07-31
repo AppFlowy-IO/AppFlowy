@@ -26,7 +26,7 @@ pub(crate) struct UserStatusCallbackImpl {
   pub(crate) document_manager: Arc<DocumentManager>,
   pub(crate) server_provider: Arc<ServerProvider>,
   pub(crate) storage_manager: Arc<StorageManager>,
-  pub(crate) chat_manager: Arc<AIManager>,
+  pub(crate) ai_manager: Arc<AIManager>,
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
@@ -235,7 +235,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     }
 
     if local_ai_enabled {
-      self.chat_manager.local_ai_purchased();
+      self.ai_manager.local_ai_purchased();
     }
   }
 

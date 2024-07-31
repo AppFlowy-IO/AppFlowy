@@ -8,29 +8,27 @@ use tokio::sync::oneshot;
 use validator::Validate;
 
 use crate::ai_manager::AIManager;
+use crate::completion::AICompletion;
 use crate::entities::*;
 use crate::local_ai::local_llm_chat::LLMModelInfo;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
-use crate::tools::AITools;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::isolate_stream::IsolateSink;
 
-fn upgrade_chat_manager(
-  chat_manager: AFPluginState<Weak<AIManager>>,
-) -> FlowyResult<Arc<AIManager>> {
-  let chat_manager = chat_manager
+fn upgrade_ai_manager(ai_manager: AFPluginState<Weak<AIManager>>) -> FlowyResult<Arc<AIManager>> {
+  let ai_manager = ai_manager
     .upgrade()
     .ok_or(FlowyError::internal().with_context("The chat manager is already dropped"))?;
-  Ok(chat_manager)
+  Ok(ai_manager)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn stream_chat_message_handler(
   data: AFPluginData<StreamChatPayloadPB>,
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<ChatMessagePB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = data.into_inner();
   data.validate()?;
 
@@ -39,7 +37,7 @@ pub(crate) async fn stream_chat_message_handler(
     ChatMessageTypePB::User => ChatMessageType::User,
   };
 
-  let question = chat_manager
+  let question = ai_manager
     .stream_chat_message(
       &data.chat_id,
       &data.message,
@@ -53,13 +51,13 @@ pub(crate) async fn stream_chat_message_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn load_prev_message_handler(
   data: AFPluginData<LoadPrevChatMessagePB>,
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<ChatMessageListPB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = data.into_inner();
   data.validate()?;
 
-  let messages = chat_manager
+  let messages = ai_manager
     .load_prev_chat_messages(&data.chat_id, data.limit, data.before_message_id)
     .await?;
   data_result_ok(messages)
@@ -68,13 +66,13 @@ pub(crate) async fn load_prev_message_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn load_next_message_handler(
   data: AFPluginData<LoadNextChatMessagePB>,
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<ChatMessageListPB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = data.into_inner();
   data.validate()?;
 
-  let messages = chat_manager
+  let messages = ai_manager
     .load_latest_chat_messages(&data.chat_id, data.limit, data.after_message_id)
     .await?;
   data_result_ok(messages)
@@ -83,13 +81,13 @@ pub(crate) async fn load_next_message_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_related_question_handler(
   data: AFPluginData<ChatMessageIdPB>,
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<RepeatedRelatedQuestionPB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = data.into_inner();
   let (tx, rx) = tokio::sync::oneshot::channel();
   tokio::spawn(async move {
-    let messages = chat_manager
+    let messages = ai_manager
       .get_related_questions(&data.chat_id, data.message_id)
       .await?;
     let _ = tx.send(messages);
@@ -102,13 +100,13 @@ pub(crate) async fn get_related_question_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_answer_handler(
   data: AFPluginData<ChatMessageIdPB>,
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<ChatMessagePB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = data.into_inner();
   let (tx, rx) = tokio::sync::oneshot::channel();
   tokio::spawn(async move {
-    let message = chat_manager
+    let message = ai_manager
       .generate_answer(&data.chat_id, data.message_id)
       .await?;
     let _ = tx.send(message);
@@ -121,26 +119,26 @@ pub(crate) async fn get_answer_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn stop_stream_handler(
   data: AFPluginData<StopStreamPB>,
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> Result<(), FlowyError> {
   let data = data.into_inner();
   data.validate()?;
 
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  chat_manager.stop_stream(&data.chat_id).await?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager.stop_stream(&data.chat_id).await?;
   Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn refresh_local_ai_info_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LLMModelInfoPB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
   let (tx, rx) = oneshot::channel::<Result<LLMModelInfo, FlowyError>>();
   tokio::spawn(async move {
-    let model_info = chat_manager.local_ai_controller.refresh().await;
+    let model_info = ai_manager.local_ai_controller.refresh().await;
     if model_info.is_err() {
-      if let Some(llm_model) = chat_manager.local_ai_controller.get_current_model() {
+      if let Some(llm_model) = ai_manager.local_ai_controller.get_current_model() {
         let model_info = LLMModelInfo {
           selected_model: llm_model.clone(),
           models: vec![llm_model],
@@ -160,11 +158,11 @@ pub(crate) async fn refresh_local_ai_info_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_local_llm_model_handler(
   data: AFPluginData<LLMModelPB>,
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalModelResourcePB, FlowyError> {
   let data = data.into_inner();
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let state = chat_manager
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let state = ai_manager
     .local_ai_controller
     .select_local_llm(data.llm_id)
     .await?;
@@ -173,19 +171,16 @@ pub(crate) async fn update_local_llm_model_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_local_llm_state_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalModelResourcePB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let state = chat_manager
-    .local_ai_controller
-    .get_local_llm_state()
-    .await?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let state = ai_manager.local_ai_controller.get_local_llm_state().await?;
   data_result_ok(state)
 }
 
 pub(crate) async fn start_complete_text_handler(
   data: AFPluginData<CompleteTextPB>,
-  tools: AFPluginState<Arc<AITools>>,
+  tools: AFPluginState<Arc<AICompletion>>,
 ) -> DataResult<CompleteTextTaskPB, FlowyError> {
   let task = tools.create_complete_task(data.into_inner()).await?;
   data_result_ok(task)
@@ -194,7 +189,7 @@ pub(crate) async fn start_complete_text_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn stop_complete_text_handler(
   data: AFPluginData<CompleteTextTaskPB>,
-  tools: AFPluginState<Arc<AITools>>,
+  tools: AFPluginState<Arc<AICompletion>>,
 ) -> Result<(), FlowyError> {
   let data = data.into_inner();
   tools.cancel_complete_task(&data.task_id).await;
@@ -204,7 +199,7 @@ pub(crate) async fn stop_complete_text_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn chat_file_handler(
   data: AFPluginData<ChatFilePB>,
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> Result<(), FlowyError> {
   let data = data.try_into_inner()?;
   let file_path = PathBuf::from(&data.file_path);
@@ -229,10 +224,8 @@ pub(crate) async fn chat_file_handler(
 
   let (tx, rx) = oneshot::channel::<Result<(), FlowyError>>();
   tokio::spawn(async move {
-    let chat_manager = upgrade_chat_manager(chat_manager)?;
-    chat_manager
-      .chat_with_file(&data.chat_id, file_path)
-      .await?;
+    let ai_manager = upgrade_ai_manager(ai_manager)?;
+    ai_manager.chat_with_file(&data.chat_id, file_path).await?;
     let _ = tx.send(Ok(()));
     Ok::<_, FlowyError>(())
   });
@@ -243,12 +236,12 @@ pub(crate) async fn chat_file_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn download_llm_resource_handler(
   data: AFPluginData<DownloadLLMPB>,
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<DownloadTaskPB, FlowyError> {
   let data = data.into_inner();
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
   let text_sink = IsolateSink::new(Isolate::new(data.progress_stream));
-  let task_id = chat_manager
+  let task_id = ai_manager
     .local_ai_controller
     .start_downloading(text_sink)
     .await?;
@@ -257,32 +250,32 @@ pub(crate) async fn download_llm_resource_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn cancel_download_llm_resource_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> Result<(), FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  chat_manager.local_ai_controller.cancel_download()?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager.local_ai_controller.cancel_download()?;
   Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_plugin_state_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalAIPluginStatePB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let state = chat_manager.local_ai_controller.get_chat_plugin_state();
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let state = ai_manager.local_ai_controller.get_chat_plugin_state();
   data_result_ok(state)
 }
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn toggle_local_ai_chat_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalAIChatPB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let enabled = chat_manager
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let enabled = ai_manager
     .local_ai_controller
     .toggle_local_ai_chat()
     .await?;
-  let file_enabled = chat_manager.local_ai_controller.is_rag_enabled();
-  let plugin_state = chat_manager.local_ai_controller.get_chat_plugin_state();
+  let file_enabled = ai_manager.local_ai_controller.is_rag_enabled();
+  let plugin_state = ai_manager.local_ai_controller.get_chat_plugin_state();
   let pb = LocalAIChatPB {
     enabled,
     file_enabled,
@@ -299,15 +292,15 @@ pub(crate) async fn toggle_local_ai_chat_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn toggle_local_ai_chat_file_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalAIChatPB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let enabled = chat_manager.local_ai_controller.is_chat_enabled();
-  let file_enabled = chat_manager
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let enabled = ai_manager.local_ai_controller.is_chat_enabled();
+  let file_enabled = ai_manager
     .local_ai_controller
     .toggle_local_ai_chat_rag()
     .await?;
-  let plugin_state = chat_manager.local_ai_controller.get_chat_plugin_state();
+  let plugin_state = ai_manager.local_ai_controller.get_chat_plugin_state();
   let pb = LocalAIChatPB {
     enabled,
     file_enabled,
@@ -325,12 +318,12 @@ pub(crate) async fn toggle_local_ai_chat_file_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_local_ai_chat_state_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalAIChatPB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let enabled = chat_manager.local_ai_controller.is_chat_enabled();
-  let file_enabled = chat_manager.local_ai_controller.is_rag_enabled();
-  let plugin_state = chat_manager.local_ai_controller.get_chat_plugin_state();
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let enabled = ai_manager.local_ai_controller.is_chat_enabled();
+  let file_enabled = ai_manager.local_ai_controller.is_rag_enabled();
+  let plugin_state = ai_manager.local_ai_controller.get_chat_plugin_state();
   data_result_ok(LocalAIChatPB {
     enabled,
     file_enabled,
@@ -339,37 +332,37 @@ pub(crate) async fn get_local_ai_chat_state_handler(
 }
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn restart_local_ai_chat_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> Result<(), FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  chat_manager.local_ai_controller.restart_chat_plugin();
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager.local_ai_controller.restart_chat_plugin();
   Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn toggle_local_ai_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalAIPB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let enabled = chat_manager.local_ai_controller.toggle_local_ai().await?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let enabled = ai_manager.local_ai_controller.toggle_local_ai().await?;
   data_result_ok(LocalAIPB { enabled })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_local_ai_state_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalAIPB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let enabled = chat_manager.local_ai_controller.is_enabled();
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let enabled = ai_manager.local_ai_controller.is_enabled();
   data_result_ok(LocalAIPB { enabled })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_model_storage_directory_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalModelStoragePB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
-  let file_path = chat_manager
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let file_path = ai_manager
     .local_ai_controller
     .get_model_storage_directory()?;
   data_result_ok(LocalModelStoragePB { file_path })
@@ -377,12 +370,12 @@ pub(crate) async fn get_model_storage_directory_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_offline_app_handler(
-  chat_manager: AFPluginState<Weak<AIManager>>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<OfflineAIPB, FlowyError> {
-  let chat_manager = upgrade_chat_manager(chat_manager)?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
   let (tx, rx) = oneshot::channel::<Result<String, FlowyError>>();
   tokio::spawn(async move {
-    let link = chat_manager
+    let link = ai_manager
       .local_ai_controller
       .get_offline_ai_app_download_link()
       .await?;

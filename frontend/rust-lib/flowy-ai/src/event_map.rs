@@ -2,20 +2,20 @@ use std::sync::{Arc, Weak};
 
 use strum_macros::Display;
 
-use crate::tools::AITools;
+use crate::completion::AICompletion;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 
 use crate::ai_manager::AIManager;
 use crate::event_handler::*;
 
-pub fn init(chat_manager: Weak<AIManager>) -> AFPlugin {
-  let user_service = Arc::downgrade(&chat_manager.upgrade().unwrap().user_service);
-  let cloud_service = Arc::downgrade(&chat_manager.upgrade().unwrap().cloud_service_wm);
-  let ai_tools = Arc::new(AITools::new(cloud_service, user_service));
+pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
+  let user_service = Arc::downgrade(&ai_manager.upgrade().unwrap().user_service);
+  let cloud_service = Arc::downgrade(&ai_manager.upgrade().unwrap().cloud_service_wm);
+  let ai_tools = Arc::new(AICompletion::new(cloud_service, user_service));
   AFPlugin::new()
     .name("flowy-ai")
-    .state(chat_manager)
+    .state(ai_manager)
     .state(ai_tools)
     .event(AIEvent::StreamMessage, stream_chat_message_handler)
     .event(AIEvent::LoadPrevMessage, load_prev_message_handler)

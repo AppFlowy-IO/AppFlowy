@@ -59,7 +59,7 @@ pub struct AppFlowyCore {
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<KVStorePreferences>,
   pub search_manager: Arc<SearchManager>,
-  pub chat_manager: Arc<AIManager>,
+  pub ai_manager: Arc<AIManager>,
   pub storage_manager: Arc<StorageManager>,
 }
 
@@ -143,7 +143,7 @@ impl AppFlowyCore {
       document_manager,
       collab_builder,
       search_manager,
-      chat_manager,
+      ai_manager,
       storage_manager,
     ) = async {
       let storage_manager = FileStorageResolver::resolve(
@@ -177,7 +177,7 @@ impl AppFlowyCore {
         Arc::downgrade(&storage_manager.storage_service),
       );
 
-      let chat_manager = ChatDepsResolver::resolve(
+      let ai_manager = ChatDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         server_provider.clone(),
         store_preference.clone(),
@@ -190,7 +190,7 @@ impl AppFlowyCore {
       let folder_operation_handlers = folder_operation_handlers(
         document_manager.clone(),
         database_manager.clone(),
-        chat_manager.clone(),
+        ai_manager.clone(),
       );
 
       let folder_manager = FolderDepsResolver::resolve(
@@ -228,7 +228,7 @@ impl AppFlowyCore {
         document_manager,
         collab_builder,
         search_manager,
-        chat_manager,
+        ai_manager,
         storage_manager,
       )
     }
@@ -241,7 +241,7 @@ impl AppFlowyCore {
       document_manager: document_manager.clone(),
       server_provider: server_provider.clone(),
       storage_manager: storage_manager.clone(),
-      chat_manager: chat_manager.clone(),
+      ai_manager: ai_manager.clone(),
     };
 
     let collab_interact_impl = CollabInteractImpl {
@@ -266,7 +266,7 @@ impl AppFlowyCore {
         Arc::downgrade(&user_manager),
         Arc::downgrade(&document_manager),
         Arc::downgrade(&search_manager),
-        Arc::downgrade(&chat_manager),
+        Arc::downgrade(&ai_manager),
       ),
     ));
 
@@ -281,7 +281,7 @@ impl AppFlowyCore {
       task_dispatcher,
       store_preference,
       search_manager,
-      chat_manager,
+      ai_manager,
       storage_manager,
     }
   }
