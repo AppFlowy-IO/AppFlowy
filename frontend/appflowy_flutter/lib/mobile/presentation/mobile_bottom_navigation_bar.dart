@@ -1,11 +1,13 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/mobile/presentation/widgets/navigation_bar_button.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -18,7 +20,7 @@ enum BottomNavigationBarActionType {
 final PropertyValueNotifier<ViewLayoutPB?> createNewPageNotifier =
     PropertyValueNotifier(null);
 final ValueNotifier<BottomNavigationBarActionType> bottomNavigationActionType =
-    ValueNotifier(BottomNavigationBarActionType.home);
+    ValueNotifier(BottomNavigationBarActionType.notification);
 
 const _homeLabel = 'home';
 const _addLabel = 'add';
@@ -77,7 +79,8 @@ class _MobileBottomNavigationBarState extends State<MobileBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    _bottomNavigationBar ??= _buildHomePageNavigationBar(context);
+    // _bottomNavigationBar ??= _buildHomePageNavigationBar(context);
+    _bottomNavigationBar ??= _buildNotificationNavigationBar(context);
 
     return Scaffold(
       body: widget.navigationShell,
@@ -196,13 +199,6 @@ class _HomePageNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLightMode = Theme.of(context).isLightMode;
-    final backgroundColor = isLightMode
-        ? Colors.white.withOpacity(0.95)
-        : const Color(0xFF23262B).withOpacity(0.95);
-    final borderColor = isLightMode
-        ? const Color(0x141F2329)
-        : const Color(0xFF23262B).withOpacity(0.5);
     return ClipRRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(
@@ -211,10 +207,8 @@ class _HomePageNavigationBar extends StatelessWidget {
         ),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            border: isLightMode
-                ? Border(top: BorderSide(color: borderColor))
-                : null,
-            color: backgroundColor,
+            border: context.border,
+            color: context.backgroundColor,
           ),
           child: BottomNavigationBar(
             showSelectedLabels: false,
@@ -264,9 +258,55 @@ class _NotificationNavigationBar extends StatelessWidget {
         bottomNavigationActionType.value = BottomNavigationBarActionType.home;
       },
       child: Container(
+        // todo: use real height here.
         height: 90,
-        color: Colors.red,
+        decoration: BoxDecoration(
+          border: context.border,
+          color: context.backgroundColor,
+        ),
+        padding: const EdgeInsets.only(bottom: 20),
+        child: Row(
+          children: [
+            const HSpace(20),
+            Expanded(
+              child: NavigationBarButton(
+                icon: FlowySvgs.m_notification_action_mark_as_read_s,
+                text: 'Mark as read',
+                onTap: () {},
+              ),
+            ),
+            const HSpace(16),
+            Expanded(
+              child: NavigationBarButton(
+                icon: FlowySvgs.m_notification_action_archive_s,
+                text: 'Archive all',
+                onTap: () {},
+              ),
+            ),
+            const HSpace(20),
+          ],
+        ),
       ),
     );
+  }
+}
+
+extension on BuildContext {
+  Color get backgroundColor {
+    return Theme.of(this).isLightMode
+        ? Colors.white.withOpacity(0.95)
+        : const Color(0xFF23262B).withOpacity(0.95);
+  }
+
+  Color get borderColor {
+    return Theme.of(this).isLightMode
+        ? const Color(0x141F2329)
+        : const Color(0xFF23262B).withOpacity(0.5);
+  }
+
+  Border? get border {
+    return Theme.of(this).isLightMode
+        ? Border(top: BorderSide(color: borderColor))
+        : null;
   }
 }
