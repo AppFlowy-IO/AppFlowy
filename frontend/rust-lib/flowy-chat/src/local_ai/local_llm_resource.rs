@@ -15,8 +15,9 @@ use lib_infra::util::{get_operating_system, OperatingSystem};
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use crate::local_ai::path::offline_app_path;
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-use crate::local_ai::watch::{offline_app_path, watch_offline_app, WatchContext};
+use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use tokio::fs::{self};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, instrument, trace, warn};
@@ -136,7 +137,7 @@ impl LLMResourceController {
   }
 
   pub fn is_offline_app_ready(&self) -> bool {
-    offline_app_path().exists()
+    return offline_app_path().exists();
   }
 
   pub async fn get_offline_ai_app_download_link(&self) -> FlowyResult<String> {
