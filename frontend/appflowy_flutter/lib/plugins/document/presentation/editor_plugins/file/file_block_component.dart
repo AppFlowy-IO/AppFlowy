@@ -186,7 +186,10 @@ class FileBlockComponentState extends State<FileBlockComponent>
         behavior: HitTestBehavior.translucent,
         onTap: url != null && url.isNotEmpty
             ? () => afLaunchUrlString(url)
-            : controller.show,
+            : () {
+                controller.show();
+                dropManagerState.add(FileBlockKeys.type);
+              },
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: isHovering
