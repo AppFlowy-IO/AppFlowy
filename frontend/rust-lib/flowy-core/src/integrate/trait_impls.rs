@@ -18,7 +18,7 @@ use tracing::{debug, info};
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use flowy_chat_pub::cloud::{
+use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, LocalAIConfig, MessageCursor, RepeatedChatMessage, StreamAnswer,
   StreamComplete,
 };

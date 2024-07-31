@@ -1,4 +1,4 @@
-use crate::chat_manager::ChatUserService;
+use crate::ai_manager::AIUserService;
 use crate::entities::{LocalAIPluginStatePB, LocalModelResourcePB, RunningStatePB};
 use crate::local_ai::local_llm_resource::{LLMResourceController, LLMResourceService};
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
@@ -6,7 +6,7 @@ use anyhow::Error;
 use appflowy_local_ai::chat_plugin::{AIPluginConfig, LocalChatLLMChat};
 use appflowy_plugin::manager::PluginManager;
 use appflowy_plugin::util::is_apple_silicon;
-use flowy_chat_pub::cloud::{AppFlowyOfflineAI, ChatCloudService, LLMModel, LocalAIConfig};
+use flowy_ai_pub::cloud::{AppFlowyOfflineAI, ChatCloudService, LLMModel, LocalAIConfig};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::Sink;
@@ -18,7 +18,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 use tokio::select;
 use tokio_stream::StreamExt;
-use tracing::{debug, error, info, instrument, trace};
+use tracing::{debug, error, info, instrument};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LLMSetting {
@@ -55,7 +55,7 @@ impl LocalAIController {
   pub fn new(
     plugin_manager: Arc<PluginManager>,
     store_preferences: Arc<KVStorePreferences>,
-    user_service: Arc<dyn ChatUserService>,
+    user_service: Arc<dyn AIUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
   ) -> Self {
     let llm_chat = Arc::new(LocalChatLLMChat::new(plugin_manager));
@@ -366,7 +366,7 @@ fn initialize_ai_plugin(
 }
 
 pub struct LLMResourceServiceImpl {
-  user_service: Arc<dyn ChatUserService>,
+  user_service: Arc<dyn AIUserService>,
   cloud_service: Arc<dyn ChatCloudService>,
   store_preferences: Arc<KVStorePreferences>,
 }

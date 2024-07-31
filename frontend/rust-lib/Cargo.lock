@@ -1625,8 +1625,8 @@ dependencies = [
  "collab-folder",
  "collab-plugins",
  "dotenv",
- "flowy-chat",
- "flowy-chat-pub",
+ "flowy-ai",
+ "flowy-ai-pub",
  "flowy-core",
  "flowy-database-pub",
  "flowy-database2",
@@ -1774,16 +1774,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-ast"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "flowy-chat"
+name = "flowy-ai"
 version = "0.1.0"
 dependencies = [
  "allo-isolate",
@@ -1794,7 +1785,7 @@ dependencies = [
  "bytes",
  "dashmap",
  "dotenv",
- "flowy-chat-pub",
+ "flowy-ai-pub",
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
@@ -1827,7 +1818,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-chat-pub"
+name = "flowy-ai-pub"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -1835,6 +1826,15 @@ dependencies = [
  "flowy-error",
  "futures",
  "lib-infra",
+]
+
+[[package]]
+name = "flowy-ast"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -1889,8 +1889,8 @@ dependencies = [
  "collab-plugins",
  "console-subscriber",
  "diesel",
- "flowy-chat",
- "flowy-chat-pub",
+ "flowy-ai",
+ "flowy-ai-pub",
  "flowy-config",
  "flowy-database-pub",
  "flowy-database2",
@@ -2241,7 +2241,7 @@ dependencies = [
  "collab-folder",
  "collab-plugins",
  "dotenv",
- "flowy-chat-pub",
+ "flowy-ai-pub",
  "flowy-database-pub",
  "flowy-document-pub",
  "flowy-encrypt",

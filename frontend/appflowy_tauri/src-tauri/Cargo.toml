@@ -76,7 +76,7 @@ flowy-core = { path = "../../rust-lib/flowy-core", features = [
 flowy-user = { path = "../../rust-lib/flowy-user", features = ["tauri_ts"] }
 flowy-config = { path = "../../rust-lib/flowy-config", features = ["tauri_ts"] }
 flowy-date = { path = "../../rust-lib/flowy-date", features = ["tauri_ts"] }
-flowy-chat = { path = "../../rust-lib/flowy-chat", features = ["tauri_ts"] }
+flowy-ai = { path = "../../rust-lib/flowy-ai", features = ["tauri_ts"] }
 flowy-error = { path = "../../rust-lib/flowy-error", features = [
     "impl_from_sqlite",
     "impl_from_dispatch_error",

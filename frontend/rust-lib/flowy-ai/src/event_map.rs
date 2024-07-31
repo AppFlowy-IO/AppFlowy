@@ -6,63 +6,60 @@ use crate::tools::AITools;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 
-use crate::chat_manager::ChatManager;
+use crate::ai_manager::AIManager;
 use crate::event_handler::*;
 
-pub fn init(chat_manager: Weak<ChatManager>) -> AFPlugin {
+pub fn init(chat_manager: Weak<AIManager>) -> AFPlugin {
   let user_service = Arc::downgrade(&chat_manager.upgrade().unwrap().user_service);
   let cloud_service = Arc::downgrade(&chat_manager.upgrade().unwrap().cloud_service_wm);
   let ai_tools = Arc::new(AITools::new(cloud_service, user_service));
   AFPlugin::new()
-    .name("Flowy-Chat")
+    .name("flowy-ai")
     .state(chat_manager)
     .state(ai_tools)
-    .event(ChatEvent::StreamMessage, stream_chat_message_handler)
-    .event(ChatEvent::LoadPrevMessage, load_prev_message_handler)
-    .event(ChatEvent::LoadNextMessage, load_next_message_handler)
-    .event(ChatEvent::GetRelatedQuestion, get_related_question_handler)
-    .event(ChatEvent::GetAnswerForQuestion, get_answer_handler)
-    .event(ChatEvent::StopStream, stop_stream_handler)
+    .event(AIEvent::StreamMessage, stream_chat_message_handler)
+    .event(AIEvent::LoadPrevMessage, load_prev_message_handler)
+    .event(AIEvent::LoadNextMessage, load_next_message_handler)
+    .event(AIEvent::GetRelatedQuestion, get_related_question_handler)
+    .event(AIEvent::GetAnswerForQuestion, get_answer_handler)
+    .event(AIEvent::StopStream, stop_stream_handler)
     .event(
-      ChatEvent::RefreshLocalAIModelInfo,
+      AIEvent::RefreshLocalAIModelInfo,
       refresh_local_ai_info_handler,
     )
-    .event(ChatEvent::UpdateLocalLLM, update_local_llm_model_handler)
-    .event(ChatEvent::GetLocalLLMState, get_local_llm_state_handler)
-    .event(ChatEvent::CompleteText, start_complete_text_handler)
-    .event(ChatEvent::StopCompleteText, stop_complete_text_handler)
-    .event(ChatEvent::ChatWithFile, chat_file_handler)
+    .event(AIEvent::UpdateLocalLLM, update_local_llm_model_handler)
+    .event(AIEvent::GetLocalLLMState, get_local_llm_state_handler)
+    .event(AIEvent::CompleteText, start_complete_text_handler)
+    .event(AIEvent::StopCompleteText, stop_complete_text_handler)
+    .event(AIEvent::ChatWithFile, chat_file_handler)
+    .event(AIEvent::DownloadLLMResource, download_llm_resource_handler)
     .event(
-      ChatEvent::DownloadLLMResource,
-      download_llm_resource_handler,
-    )
-    .event(
-      ChatEvent::CancelDownloadLLMResource,
+      AIEvent::CancelDownloadLLMResource,
       cancel_download_llm_resource_handler,
     )
-    .event(ChatEvent::GetLocalAIPluginState, get_plugin_state_handler)
-    .event(ChatEvent::ToggleLocalAIChat, toggle_local_ai_chat_handler)
+    .event(AIEvent::GetLocalAIPluginState, get_plugin_state_handler)
+    .event(AIEvent::ToggleLocalAIChat, toggle_local_ai_chat_handler)
     .event(
-      ChatEvent::GetLocalAIChatState,
+      AIEvent::GetLocalAIChatState,
       get_local_ai_chat_state_handler,
     )
-    .event(ChatEvent::RestartLocalAIChat, restart_local_ai_chat_handler)
-    .event(ChatEvent::ToggleLocalAI, toggle_local_ai_handler)
-    .event(ChatEvent::GetLocalAIState, get_local_ai_state_handler)
+    .event(AIEvent::RestartLocalAIChat, restart_local_ai_chat_handler)
+    .event(AIEvent::ToggleLocalAI, toggle_local_ai_handler)
+    .event(AIEvent::GetLocalAIState, get_local_ai_state_handler)
     .event(
-      ChatEvent::ToggleChatWithFile,
+      AIEvent::ToggleChatWithFile,
       toggle_local_ai_chat_file_handler,
     )
     .event(
-      ChatEvent::GetModelStorageDirectory,
+      AIEvent::GetModelStorageDirectory,
       get_model_storage_directory_handler,
     )
-    .event(ChatEvent::GetOfflineAIAppLink, get_offline_app_handler)
+    .event(AIEvent::GetOfflineAIAppLink, get_offline_app_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
-pub enum ChatEvent {
+pub enum AIEvent {
   /// Create a new workspace
   #[event(input = "LoadPrevChatMessagePB", output = "ChatMessageListPB")]
   LoadPrevMessage = 0,

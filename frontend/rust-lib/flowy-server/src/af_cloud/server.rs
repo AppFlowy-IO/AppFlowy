@@ -14,7 +14,7 @@ use client_api::ws::{
 };
 use client_api::{Client, ClientConfiguration};
 
-use flowy_chat_pub::cloud::ChatCloudService;
+use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};

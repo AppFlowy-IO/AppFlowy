@@ -29,8 +29,8 @@ members = [
     "build-tool/flowy-codegen",
     "build-tool/flowy-derive",
     "flowy-search-pub",
-    "flowy-chat",
-    "flowy-chat-pub",
+    "flowy-ai",
+    "flowy-ai-pub",
     "flowy-storage-pub",
 ]
 resolver = "2"
@@ -65,8 +65,8 @@ flowy-search = { workspace = true, path = "flowy-search" }
 flowy-search-pub = { workspace = true, path = "flowy-search-pub" }
 collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-date = { workspace = true, path = "flowy-date" }
-flowy-chat = { workspace = true, path = "flowy-chat" }
-flowy-chat-pub = { workspace = true, path = "flowy-chat-pub" }
+flowy-ai = { workspace = true, path = "flowy-ai" }
+flowy-ai-pub = { workspace = true, path = "flowy-ai-pub" }
 anyhow = "1.0"
 tracing = "0.1.40"
 bytes = "1.5.0"

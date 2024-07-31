@@ -1,9 +1,9 @@
-use crate::chat_manager::ChatUserService;
+use crate::ai_manager::AIUserService;
 use crate::entities::{CompleteTextPB, CompleteTextTaskPB, CompletionTypePB};
 use allo_isolate::Isolate;
 
 use dashmap::DashMap;
-use flowy_chat_pub::cloud::{ChatCloudService, CompletionType};
+use flowy_ai_pub::cloud::{ChatCloudService, CompletionType};
 use flowy_error::{FlowyError, FlowyResult};
 
 use futures::{SinkExt, StreamExt};
@@ -15,13 +15,13 @@ use tokio::select;
 pub struct AITools {
   tasks: Arc<DashMap<String, tokio::sync::mpsc::Sender<()>>>,
   cloud_service: Weak<dyn ChatCloudService>,
-  user_service: Weak<dyn ChatUserService>,
+  user_service: Weak<dyn AIUserService>,
 }
 
 impl AITools {
   pub fn new(
     cloud_service: Weak<dyn ChatCloudService>,
-    user_service: Weak<dyn ChatUserService>,
+    user_service: Weak<dyn AIUserService>,
   ) -> Self {
     Self {
       tasks: Arc::new(DashMap::new()),

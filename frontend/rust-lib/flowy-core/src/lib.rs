@@ -9,7 +9,7 @@ use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
-use flowy_chat::chat_manager::ChatManager;
+use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
@@ -59,7 +59,7 @@ pub struct AppFlowyCore {
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<KVStorePreferences>,
   pub search_manager: Arc<SearchManager>,
-  pub chat_manager: Arc<ChatManager>,
+  pub chat_manager: Arc<AIManager>,
   pub storage_manager: Arc<StorageManager>,
 }
 

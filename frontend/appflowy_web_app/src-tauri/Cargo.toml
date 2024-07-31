@@ -89,7 +89,7 @@ flowy-document = { path = "../../rust-lib/flowy-document", features = [
 flowy-notification = { path = "../../rust-lib/flowy-notification", features = [
     "tauri_ts",
 ] }
-flowy-chat = { path = "../../rust-lib/flowy-chat", features = [
+flowy-ai = { path = "../../rust-lib/flowy-ai", features = [
     "tauri_ts",
 ] }
 

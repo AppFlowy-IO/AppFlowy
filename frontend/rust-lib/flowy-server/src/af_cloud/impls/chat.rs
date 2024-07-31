@@ -4,7 +4,7 @@ use client_api::entity::{
   CreateAnswerMessageParams, CreateChatMessageParams, CreateChatParams, MessageCursor,
   RepeatedChatMessage,
 };
-use flowy_chat_pub::cloud::{
+use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageType, LocalAIConfig, StreamAnswer, StreamComplete,
 };
 use flowy_error::FlowyError;

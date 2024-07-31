@@ -6,7 +6,7 @@ use tracing::{event, trace};
 
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
-use flowy_chat::chat_manager::ChatManager;
+use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
@@ -26,7 +26,7 @@ pub(crate) struct UserStatusCallbackImpl {
   pub(crate) document_manager: Arc<DocumentManager>,
   pub(crate) server_provider: Arc<ServerProvider>,
   pub(crate) storage_manager: Arc<StorageManager>,
-  pub(crate) chat_manager: Arc<ChatManager>,
+  pub(crate) chat_manager: Arc<AIManager>,
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {

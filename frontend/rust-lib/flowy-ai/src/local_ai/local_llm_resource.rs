@@ -1,10 +1,10 @@
-use crate::chat_manager::ChatUserService;
+use crate::ai_manager::AIUserService;
 use crate::entities::{LocalModelResourcePB, PendingResourcePB, PendingResourceTypePB};
 use crate::local_ai::local_llm_chat::{LLMModelInfo, LLMSetting};
 use crate::local_ai::model_request::download_model;
 
 use appflowy_local_ai::chat_plugin::AIPluginConfig;
-use flowy_chat_pub::cloud::{LLMModel, LocalAIConfig, ModelInfo};
+use flowy_ai_pub::cloud::{LLMModel, LocalAIConfig, ModelInfo};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use futures::Sink;
 use futures_util::SinkExt;
@@ -62,7 +62,7 @@ impl DownloadTask {
 }
 
 pub struct LLMResourceController {
-  user_service: Arc<dyn ChatUserService>,
+  user_service: Arc<dyn AIUserService>,
   resource_service: Arc<dyn LLMResourceService>,
   llm_setting: RwLock<Option<LLMSetting>>,
   // The ai_config will be set when user try to get latest local ai config from server
@@ -77,7 +77,7 @@ pub struct LLMResourceController {
 
 impl LLMResourceController {
   pub fn new(
-    user_service: Arc<dyn ChatUserService>,
+    user_service: Arc<dyn AIUserService>,
     resource_service: impl LLMResourceService,
     resource_notify: tokio::sync::mpsc::Sender<()>,
   ) -> Self {
