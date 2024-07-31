@@ -33,7 +33,7 @@ function ReactAction({ comment }: { comment: GlobalComment }) {
   return (
     <>
       <Tooltip title={t('globalComment.addReaction')}>
-        <IconButton ref={ref} onClick={handleOpen} size='small'>
+        <IconButton ref={ref} onClick={handleOpen} size='small' className={'h-full'}>
           <AddReactionRounded className={'h-5 w-5'} />
         </IconButton>
       </Tooltip>

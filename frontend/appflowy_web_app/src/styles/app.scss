@@ -145,3 +145,8 @@ body {
   border-color: var(--line-border);
   border-top-left-radius: 6px;
 }
+
+.read-more {
+  box-shadow: 0px -15px 20px 12px var(--bg-body);
+  background-color: transparent;
+}

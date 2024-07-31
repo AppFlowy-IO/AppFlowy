@@ -1,5 +1,6 @@
 import { Reaction as ReactionType } from '@/application/comment.type';
 import { AFConfigContext } from '@/components/app/AppConfig';
+import { getPlatform } from '@/utils/platform';
 import { Tooltip } from '@mui/material';
 import React, { memo, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -54,6 +55,19 @@ function Reaction({ reaction, onClick }: { reaction: ReactionType; onClick: (rea
     return styleProperties;
   }, [hover, isCurrentUserReacted]);
 
+  const handleSelected = () => {
+    if (!isAuthenticated && openLoginModal) {
+      openLoginModal(url);
+      return;
+    }
+
+    onClick(reaction);
+  };
+
+  const isMobile = useMemo(() => {
+    return getPlatform().isMobile;
+  }, []);
+
   return (
     <Tooltip
       title={
@@ -66,15 +80,12 @@ function Reaction({ reaction, onClick }: { reaction: ReactionType; onClick: (rea
     >
       <div
         style={style}
-        onClick={() => {
-          if (!isAuthenticated && openLoginModal) {
-            openLoginModal(url);
-            return;
-          }
-
-          onClick(reaction);
+        onClick={!isMobile ? handleSelected : undefined}
+        onTouchEnd={isMobile ? handleSelected : undefined}
+        onMouseEnter={() => {
+          if (isMobile) return;
+          setHover(true);
         }}
-        onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         className={
           'flex cursor-pointer items-center gap-1 rounded-full border border-transparent bg-fill-list-hover px-1 py-0.5 text-sm'

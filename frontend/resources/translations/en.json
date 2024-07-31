@@ -2249,6 +2249,9 @@
     "confirmDeleteDescription": "Are you sure you want to delete this comment?",
     "hasBeenDeleted": "Deleted",
     "replyingTo": "Replying to",
-    "noAccessDeleteComment": "You're not allowed to delete this comment"
+    "noAccessDeleteComment": "You're not allowed to delete this comment",
+    "collapse": "Collapse",
+    "readMore": "Read more",
+    "failedToAddComment": "Failed to add comment"
   }
 }

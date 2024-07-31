@@ -89,7 +89,7 @@ function MoreActions({ comment }: { comment: GlobalComment }) {
 
   return (
     <>
-      <IconButton ref={ref} size={'small'} onClick={handleOpen}>
+      <IconButton ref={ref} size={'small'} onClick={handleOpen} className={'h-full'}>
         <MoreIcon className={'h-5 w-5'} />
       </IconButton>
       <Popover

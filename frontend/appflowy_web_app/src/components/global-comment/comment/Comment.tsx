@@ -1,18 +1,39 @@
 import { GlobalComment } from '@/application/comment.type';
 import { useCommentRender } from '@/components/global-comment/GlobalComment.hooks';
 import { Reactions } from '@/components/global-comment/reactions';
-import { Avatar, Tooltip } from '@mui/material';
-import React, { memo } from 'react';
+import { Avatar, Divider, Tooltip } from '@mui/material';
+import React, { memo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as BulletedListIcon } from '@/assets/bulleted_list_icon_1.svg';
+import { ReactComponent as DoubleArrow } from '@/assets/double_arrow.svg';
 
 interface CommentProps {
   comment: GlobalComment;
 }
 
+const MAX_HEIGHT = 320;
+
 function Comment({ comment }: CommentProps) {
   const { avatar, time, timeFormat } = useCommentRender(comment);
   const { t } = useTranslation();
+  const contentRef = React.useRef<HTMLSpanElement>(null);
+  const [showExpand, setShowExpand] = React.useState(false);
+  const [isExpand, setIsExpand] = React.useState(false);
+
+  useEffect(() => {
+    const contentEl = contentRef.current;
+
+    if (!contentEl) return;
+    const contentHeight = contentEl.offsetHeight;
+
+    setShowExpand(contentHeight > MAX_HEIGHT);
+  }, []);
+
+  const toggleExpand = useCallback(() => {
+    setIsExpand((prev) => {
+      return !prev;
+    });
+  }, []);
 
   return (
     <div className={'flex flex-col gap-2'}>
@@ -29,13 +50,40 @@ function Comment({ comment }: CommentProps) {
         </Tooltip>
       </div>
       <div className={'ml-12 flex flex-col gap-2'}>
-        <div className={'whitespace-pre-wrap break-words'}>
-          {comment.isDeleted ? (
-            <span className={'text-text-caption'}>{`[${t('globalComment.hasBeenDeleted')}]`}</span>
-          ) : (
-            comment.content
-          )}
-        </div>
+        {comment.isDeleted ? (
+          <span className={'text-text-caption'}>{`[${t('globalComment.hasBeenDeleted')}]`}</span>
+        ) : (
+          <div
+            style={{
+              height: showExpand && !isExpand ? MAX_HEIGHT : 'auto',
+              overflow: isExpand ? 'unset' : 'hidden',
+              transition: 'height 0.8s ease-in-out',
+            }}
+          >
+            <span ref={contentRef} className={'transform whitespace-pre-wrap break-words'}>
+              {comment.content}
+            </span>
+          </div>
+        )}
+        {showExpand && (
+          <>
+            <Tooltip
+              title={isExpand ? t('globalComment.collapse') : t('globalComment.readMore')}
+              disableInteractive={true}
+            >
+              <div
+                onClick={toggleExpand}
+                className={
+                  'relative flex cursor-pointer items-center justify-center gap-2 bg-transparent text-text-caption hover:text-content-blue-400'
+                }
+              >
+                <Divider className={'flex-1'} />
+                <DoubleArrow className={`h-5 w-5 transform ${isExpand ? '-rotate-90' : 'rotate-90'} `} />
+                <Divider className={'flex-1'} />
+              </div>
+            </Tooltip>
+          </>
+        )}
         {!comment.isDeleted && <Reactions comment={comment} />}
       </div>
     </div>

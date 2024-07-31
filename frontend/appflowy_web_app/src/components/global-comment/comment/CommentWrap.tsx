@@ -63,14 +63,14 @@ export function CommentWrap({ commentId, isHighLight, isHovered, onHovered }: Co
       {comment.replyCommentId && renderReplyComment(comment.replyCommentId)}
       <div
         className={`relative rounded-[8px] p-2 py-2.5 hover:bg-fill-list-hover ${isHighLight ? 'blink' : ''}`}
-        {...(comment.isDeleted ? { style: { opacity: 0.5 } } : {})}
+        {...(comment.isDeleted ? { style: { opacity: 0.5, backgroundColor: 'var(--bg-body)' } } : {})}
         onMouseEnter={() => {
           onHovered();
         }}
       >
         <Comment comment={comment} />
         {isHovered && isAuthenticated && !comment.isDeleted && (
-          <div className={'absolute right-2 top-2'}>
+          <div className={'absolute right-2 top-2.5 flex h-8 items-center gap-2'}>
             <CommentActions comment={comment} />
           </div>
         )}

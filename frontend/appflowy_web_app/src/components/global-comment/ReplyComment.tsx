@@ -32,13 +32,8 @@ function ReplyComment({ commentId }: { commentId?: string | null }) {
   return (
     <div className={'flex items-center gap-1 text-sm text-text-caption'}>
       <Avatar {...avatar} className={'h-4 w-4 text-xs'} />
-      <div
-        onClick={handleClick}
-        className={'cursor-pointer whitespace-nowrap text-xs font-medium text-content-blue-400'}
-      >
-        @{replyComment.user?.name}
-      </div>
-      <div className={'truncate px-1'}>
+      <div className={'whitespace-nowrap text-xs font-medium text-content-blue-400'}>@{replyComment.user?.name}</div>
+      <div onClick={handleClick} className={'cursor-pointer truncate px-1 hover:text-text-title'}>
         {replyComment.isDeleted ? (
           <span className={'text-xs'}>{`[${t('globalComment.hasBeenDeleted')}]`}</span>
         ) : (

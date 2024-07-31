@@ -11,7 +11,7 @@ function GlobalComment() {
   const { loading, comments } = useGlobalCommentContext();
 
   return (
-    <div className={'mb-[100px] mt-16 flex h-fit w-full justify-center'}>
+    <div className={'mb-[480px] mt-16 flex h-fit w-full justify-center max-md:mb-[100px]'}>
       <div
         className={
           'flex w-[964px] min-w-0 max-w-full transform flex-col gap-2 px-16 transition-all duration-300 ease-in-out max-sm:px-4'

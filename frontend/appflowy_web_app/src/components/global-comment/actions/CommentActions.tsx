@@ -6,11 +6,11 @@ import React, { memo } from 'react';
 
 function CommentActions({ comment }: { comment: GlobalComment }) {
   return (
-    <div className={'flex gap-2'}>
+    <>
       <ReactAction comment={comment} />
       <ReplyAction comment={comment} />
       <MoreActions comment={comment} />
-    </div>
+    </>
   );
 }
 

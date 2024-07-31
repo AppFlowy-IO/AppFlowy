@@ -60,6 +60,8 @@ function AddComment() {
       return;
     }
 
+    if (!content || content.trim().length === 0) return;
+
     setLoading(true);
     try {
       await createCommentOnPublishView(viewId, content, replyCommentId || undefined);
@@ -68,11 +70,11 @@ function AddComment() {
 
       setReplyCommentId(null);
     } catch (_e) {
-      notify.error('Failed to create comment');
+      notify.error(t('globalComment.failedToAddComment'));
     } finally {
       setLoading(false);
     }
-  }, [loading, content, createCommentOnPublishView, viewId, replyCommentId, reload, setReplyCommentId]);
+  }, [createCommentOnPublishView, viewId, loading, content, replyCommentId, reload, setReplyCommentId, t]);
 
   return (
     <div className={'my-2 flex flex-col gap-2'}>
@@ -129,8 +131,6 @@ function AddComment() {
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
                 e.preventDefault();
-                if (!content) return;
-
                 void handleSubmit();
               }
 
@@ -164,7 +164,7 @@ function AddComment() {
             onClick={handleSubmit}
             variant={'contained'}
           >
-            {loading ? <CircularProgress color={'inherit'} size={20} /> : t('button.save')}
+            {loading ? <CircularProgress color={'inherit'} size={20} /> : t('button.add')}
           </Button>
         </div>
       )}
