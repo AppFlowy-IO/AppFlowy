@@ -211,6 +211,12 @@ impl LocalAIController {
       return Err(FlowyError::local_ai_unavailable());
     }
 
+    if let Some(model) = self.llm_res.get_selected_model() {
+      if model.llm_id == llm_id {
+        return self.llm_res.get_local_llm_state();
+      }
+    }
+
     let state = self.llm_res.use_local_llm(llm_id)?;
     // Re-initialize the plugin if the setting is updated and ready to use
     if self.llm_res.is_resource_ready() {
@@ -343,7 +349,7 @@ fn initialize_ai_plugin(
   let llm_chat = llm_chat.clone();
 
   tokio::spawn(async move {
-    trace!("[AI Plugin] config: {:?}", chat_config);
+    info!("[AI Plugin] config: {:?}", chat_config);
     if is_apple_silicon().await.unwrap_or(false) {
       chat_config = chat_config.with_device("gpu");
     }

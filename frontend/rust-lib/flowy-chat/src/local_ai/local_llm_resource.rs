@@ -171,7 +171,7 @@ impl LLMResourceController {
 
   #[instrument(level = "info", skip_all, err)]
   pub fn use_local_llm(&self, llm_id: i64) -> FlowyResult<LocalModelResourcePB> {
-    let (package, llm_config) = self
+    let (app, llm_model) = self
       .ai_config
       .read()
       .as_ref()
@@ -186,8 +186,8 @@ impl LLMResourceController {
       .ok_or_else(|| FlowyError::local_ai().with_context("No local ai config found"))?;
 
     let llm_setting = LLMSetting {
-      app: package,
-      llm_model: llm_config.clone(),
+      app,
+      llm_model: llm_model.clone(),
     };
 
     trace!("[LLM Resource] Selected AI setting: {:?}", llm_setting);
