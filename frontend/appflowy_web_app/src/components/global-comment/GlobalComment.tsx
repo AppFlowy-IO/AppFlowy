@@ -1,4 +1,4 @@
-import AddComment from '@/components/global-comment/AddComment';
+import { AddCommentWrapper } from '@/components/global-comment/add-comment';
 import CommentList from '@/components/global-comment/CommentList';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import { Divider } from '@mui/material';
@@ -19,7 +19,8 @@ function GlobalComment() {
       >
         <div className={'text-[24px]'}>{t('globalComment.comments')}</div>
         <Divider />
-        <AddComment />
+        <AddCommentWrapper />
+
         {loading && !comments?.length ? (
           <div className={'flex h-[200px] w-full items-center justify-center'}>
             <CircularProgress />

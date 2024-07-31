@@ -6,6 +6,7 @@ import React, { memo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as BulletedListIcon } from '@/assets/bulleted_list_icon_1.svg';
 import { ReactComponent as DoubleArrow } from '@/assets/double_arrow.svg';
+import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 
 interface CommentProps {
   comment: GlobalComment;
@@ -16,6 +17,7 @@ const MAX_HEIGHT = 320;
 function Comment({ comment }: CommentProps) {
   const { avatar, time, timeFormat } = useCommentRender(comment);
   const { t } = useTranslation();
+  const ref = React.useRef<HTMLDivElement>(null);
   const contentRef = React.useRef<HTMLSpanElement>(null);
   const [showExpand, setShowExpand] = React.useState(false);
   const [isExpand, setIsExpand] = React.useState(false);
@@ -36,7 +38,7 @@ function Comment({ comment }: CommentProps) {
   }, []);
 
   return (
-    <div className={'flex flex-col gap-2'}>
+    <div className={'comment flex flex-col gap-2'} ref={ref}>
       <div className={'flex items-center gap-2'}>
         <div className={'flex items-center gap-4'}>
           <Avatar {...avatar} className={'h-8 w-8'} />
@@ -72,7 +74,18 @@ function Comment({ comment }: CommentProps) {
               disableInteractive={true}
             >
               <div
-                onClick={toggleExpand}
+                onClick={() => {
+                  const originalExpand = isExpand;
+
+                  toggleExpand();
+
+                  if (originalExpand && ref.current) {
+                    void smoothScrollIntoViewIfNeeded(ref.current, {
+                      behavior: 'smooth',
+                      block: 'start',
+                    });
+                  }
+                }}
                 className={
                   'relative flex cursor-pointer items-center justify-center gap-2 bg-transparent text-text-caption hover:text-content-blue-400'
                 }
