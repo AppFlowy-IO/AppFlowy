@@ -223,20 +223,20 @@ class OpenOrDownloadOfflineAIApp extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 6,
-              ), // Replaced VSpace with SizedBox for simplicity
-              SizedBox(
-                height: 30,
-                child: FlowyButton(
-                  useIntrinsicWidth: true,
-                  margin: const EdgeInsets.symmetric(horizontal: 12),
-                  text: FlowyText(
-                    LocaleKeys.settings_aiPage_keys_activeOfflineAI.tr(),
-                  ),
-                  onTap: onRetry,
-                ),
-              ),
+              // const SizedBox(
+              //   height: 6,
+              // ), // Replaced VSpace with SizedBox for simplicity
+              // SizedBox(
+              //   height: 30,
+              //   child: FlowyButton(
+              //     useIntrinsicWidth: true,
+              //     margin: const EdgeInsets.symmetric(horizontal: 12),
+              //     text: FlowyText(
+              //       LocaleKeys.settings_aiPage_keys_activeOfflineAI.tr(),
+              //     ),
+              //     onTap: onRetry,
+              //   ),
+              // ),
             ],
           );
         },

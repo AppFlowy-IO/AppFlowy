@@ -15,8 +15,9 @@ use lib_infra::util::{get_operating_system, OperatingSystem};
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use crate::local_ai::path::offline_app_path;
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-use crate::local_ai::watch::{watch_path, WatchContext};
+use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use tokio::fs::{self};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, instrument, trace, warn};
@@ -69,7 +70,8 @@ pub struct LLMResourceController {
   download_task: Arc<RwLock<Option<DownloadTask>>>,
   resource_notify: tokio::sync::mpsc::Sender<()>,
   #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-  offline_app_disk_watch: RwLock<Option<WatchContext>>,
+  #[allow(dead_code)]
+  offline_app_disk_watch: Option<WatchContext>,
   offline_app_state_sender: tokio::sync::broadcast::Sender<WatchDiskEvent>,
 }
 
@@ -79,8 +81,31 @@ impl LLMResourceController {
     resource_service: impl LLMResourceService,
     resource_notify: tokio::sync::mpsc::Sender<()>,
   ) -> Self {
-    let (offline_app_ready_sender, _) = tokio::sync::broadcast::channel(1);
+    let (offline_app_state_sender, _) = tokio::sync::broadcast::channel(1);
     let llm_setting = RwLock::new(resource_service.retrieve_setting());
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+    let mut offline_app_disk_watch: Option<WatchContext> = None;
+
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+    {
+      match watch_offline_app() {
+        Ok((new_watcher, mut rx)) => {
+          let sender = offline_app_state_sender.clone();
+          tokio::spawn(async move {
+            while let Some(event) = rx.recv().await {
+              if let Err(err) = sender.send(event) {
+                error!("[LLM Resource] Failed to send offline app state: {:?}", err);
+              }
+            }
+          });
+          offline_app_disk_watch = Some(new_watcher);
+        },
+        Err(err) => {
+          error!("[LLM Resource] Failed to watch offline app path: {:?}", err);
+        },
+      }
+    }
+
     Self {
       user_service,
       resource_service: Arc::new(resource_service),
@@ -89,8 +114,8 @@ impl LLMResourceController {
       download_task: Default::default(),
       resource_notify,
       #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-      offline_app_disk_watch: Default::default(),
-      offline_app_state_sender: offline_app_ready_sender,
+      offline_app_disk_watch,
+      offline_app_state_sender,
     }
   }
 
@@ -100,32 +125,7 @@ impl LLMResourceController {
   }
 
   fn set_llm_setting(&self, llm_setting: LLMSetting) {
-    let offline_app_path = self.offline_app_path(&llm_setting.app.ai_plugin_name);
     *self.llm_setting.write() = Some(llm_setting);
-
-    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-    {
-      let is_diff = self
-        .offline_app_disk_watch
-        .read()
-        .as_ref()
-        .map(|watch_context| watch_context.path == offline_app_path)
-        .unwrap_or(true);
-
-      // If the offline app path is different from the current watch path, update the watch path.
-      if is_diff {
-        if let Ok((watcher, mut rx)) = watch_path(offline_app_path) {
-          let offline_app_ready_sender = self.offline_app_state_sender.clone();
-          tokio::spawn(async move {
-            while let Some(event) = rx.recv().await {
-              info!("Offline app file changed: {:?}", event);
-              let _ = offline_app_ready_sender.send(event);
-            }
-          });
-          self.offline_app_disk_watch.write().replace(watcher);
-        }
-      }
-    }
   }
 
   /// Returns true when all resources are downloaded and ready to use.
@@ -136,17 +136,8 @@ impl LLMResourceController {
     }
   }
 
-  pub fn is_offline_ai_ready(&self) -> bool {
-    match self.llm_setting.read().as_ref() {
-      None => {
-        trace!("[LLM Resource] No local ai setting found");
-        false
-      },
-      Some(setting) => {
-        let path = self.offline_app_path(&setting.app.ai_plugin_name);
-        path.exists()
-      },
-    }
+  pub fn is_offline_app_ready(&self) -> bool {
+    offline_app_path().exists()
   }
 
   pub async fn get_offline_ai_app_download_link(&self) -> FlowyResult<String> {
@@ -256,9 +247,9 @@ impl LLMResourceController {
       None => Err(FlowyError::local_ai().with_context("Can't find any llm config")),
       Some(llm_setting) => {
         let mut resources = vec![];
-        let plugin_path = self.offline_app_path(&llm_setting.app.ai_plugin_name);
-        if !plugin_path.exists() {
-          trace!("[LLM Resource] offline plugin not found: {:?}", plugin_path);
+        let app_path = offline_app_path();
+        if !app_path.exists() {
+          trace!("[LLM Resource] offline app not found: {:?}", app_path);
           resources.push(PendingResource::OfflineApp);
         }
 
@@ -337,13 +328,6 @@ impl LLMResourceController {
     *self.download_task.write() = Some(download_task.clone());
     progress_notify(download_task.tx.subscribe());
 
-    // let plugin_dir = self.user_plugin_folder()?;
-    // if !plugin_dir.exists() {
-    //   fs::create_dir_all(&plugin_dir).await.map_err(|err| {
-    //     FlowyError::local_ai().with_context(format!("Failed to create plugin dir: {:?}", err))
-    //   })?;
-    // }
-
     let model_dir = self.user_model_folder()?;
     if !model_dir.exists() {
       fs::create_dir_all(&model_dir).await.map_err(|err| {
@@ -352,43 +336,6 @@ impl LLMResourceController {
     }
 
     tokio::spawn(async move {
-      // let plugin_file_etag_dir = plugin_dir.join(&llm_setting.app.etag);
-      // We use the ETag as the identifier for the plugin file. If a file with the given ETag
-      // already exists, skip downloading it.
-      // if !plugin_file_etag_dir.exists() {
-      //   let plugin_progress_tx = download_task.tx.clone();
-      //   info!(
-      //     "[LLM Resource] Downloading plugin: {:?}",
-      //     llm_setting.app.etag
-      //   );
-      //   let file_name = format!("{}.zip", llm_setting.app.etag);
-      //   let zip_plugin_file = download_plugin(
-      //     &llm_setting.app.url,
-      //     &plugin_dir,
-      //     &file_name,
-      //     Some(download_task.cancel_token.clone()),
-      //     Some(Arc::new(move |downloaded, total_size| {
-      //       let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
-      //       let _ = plugin_progress_tx.send(format!("plugin:progress:{}", progress));
-      //     })),
-      //     Some(Duration::from_millis(100)),
-      //   )
-      //   .await?;
-      //
-      //   // unzip file
-      //   info!(
-      //     "[LLM Resource] unzip {:?} to {:?}",
-      //     zip_plugin_file, plugin_file_etag_dir
-      //   );
-      //   zip_extract(&zip_plugin_file, &plugin_file_etag_dir)?;
-      //
-      //   // delete zip file
-      //   info!("[LLM Resource] Delete zip file: {:?}", file_name);
-      //   if let Err(err) = fs::remove_file(&zip_plugin_file).await {
-      //     error!("Failed to delete zip file: {:?}", err);
-      //   }
-      // }
-
       // After download the plugin, start downloading models
       let chat_model_file = (
         model_dir.join(&llm_setting.llm_model.chat_model.file_name),
@@ -473,7 +420,7 @@ impl LLMResourceController {
     let model_dir = self.user_model_folder()?;
     let bin_path = match get_operating_system() {
       OperatingSystem::MacOS => {
-        let path = self.offline_app_path(&llm_setting.app.ai_plugin_name);
+        let path = offline_app_path();
         if !path.exists() {
           return Err(FlowyError::new(
             ErrorCode::AIOfflineNotInstalled,
@@ -558,10 +505,6 @@ impl LLMResourceController {
 
   pub(crate) fn user_model_folder(&self) -> FlowyResult<PathBuf> {
     self.resource_dir().map(|dir| dir.join(LLM_MODEL_DIR))
-  }
-
-  pub(crate) fn offline_app_path(&self, plugin_name: &str) -> PathBuf {
-    PathBuf::from(format!("/usr/local/bin/{}", plugin_name))
   }
 
   fn model_path(&self, model_file_name: &str) -> FlowyResult<PathBuf> {

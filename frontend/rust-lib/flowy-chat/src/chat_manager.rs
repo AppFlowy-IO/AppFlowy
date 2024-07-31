@@ -14,7 +14,7 @@ use flowy_sqlite::DBConnection;
 use lib_infra::util::timestamp;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tracing::{error, info, trace};
+use tracing::{info, trace};
 
 pub trait ChatUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -45,12 +45,6 @@ impl ChatManager {
       user_service.clone(),
       cloud_service.clone(),
     ));
-
-    if local_ai_controller.can_init_plugin() {
-      if let Err(err) = local_ai_controller.initialize_ai_plugin(None) {
-        error!("[AI Plugin] failed to initialize local ai: {:?}", err);
-      }
-    }
 
     // setup local chat service
     let cloud_service_wm = Arc::new(CloudServiceMiddleware::new(
