@@ -1,5 +1,5 @@
 import { GetViewRowsMap, LoadView, LoadViewMeta, YDoc } from '@/application/collab.type';
-import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
+import DocumentSkeleton from '@/components/document/DocumentSkeleton';
 import { Editor } from '@/components/editor';
 import React, { Suspense } from 'react';
 import ViewMetaPreview, { ViewMetaProps } from '@/components/view-meta/ViewMetaPreview';
@@ -17,7 +17,7 @@ export const Document = ({ doc, loadView, navigateToView, loadViewMeta, getViewR
   return (
     <div className={'mb-16 flex h-full w-full flex-col items-center justify-center'}>
       <ViewMetaPreview {...viewMeta} />
-      <Suspense fallback={<ComponentLoading />}>
+      <Suspense fallback={<DocumentSkeleton />}>
         <div className={'mx-16 w-[964px] min-w-0 max-w-full'}>
           <Editor
             loadView={loadView}
