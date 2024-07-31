@@ -332,15 +332,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
                       editorState: editorState,
                     );
                   },
-                  child: const FlowyHover(
-                    resetHoverOnRebuild: false,
-                    child: Padding(
-                      padding: EdgeInsets.all(4),
-                      child: FlowySvg(
-                        FlowySvgs.three_dots_s,
-                      ),
-                    ),
-                  ),
+                  child: const FileMenuTrigger(),
                 ),
               );
             },
@@ -484,4 +476,22 @@ class FileBlockComponentState extends State<FileBlockComponent>
     bool shiftWithBaseOffset = false,
   }) =>
       _renderBox!.localToGlobal(offset);
+}
+
+@visibleForTesting
+class FileMenuTrigger extends StatelessWidget {
+  const FileMenuTrigger({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const FlowyHover(
+      resetHoverOnRebuild: false,
+      child: Padding(
+        padding: EdgeInsets.all(4),
+        child: FlowySvg(
+          FlowySvgs.three_dots_s,
+        ),
+      ),
+    );
+  }
 }

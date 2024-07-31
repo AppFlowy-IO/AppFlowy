@@ -23,14 +23,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('file block in document', () {
-    testWidgets('insert a file from local file', (tester) async {
+    testWidgets('insert a file from local file + rename file', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
       // create a new document
-      await tester.createNewPageWithNameUnderParent(
-        name: LocaleKeys.document_plugins_file_name.tr(),
-      );
+      await tester.createNewPageWithNameUnderParent(name: 'Insert file test');
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -39,6 +37,8 @@ void main() {
       expect(find.byType(FileBlockComponent), findsOneWidget);
 
       await tester.tap(find.byType(FileBlockComponent));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
       expect(find.byType(FileUploadMenu), findsOneWidget);
 
       final image = await rootBundle.load('assets/test/images/sample.jpeg');
@@ -50,7 +50,7 @@ void main() {
 
       await getIt<KeyValueStorage>().set(KVKeys.kCloudType, '0');
       await tester.tap(
-        find.text(LocaleKeys.document_plugins_file_placeholderText.tr()),
+        find.text(LocaleKeys.document_plugins_file_fileUploadHint.tr()),
       );
       await tester.pumpAndSettle();
 
@@ -65,6 +65,38 @@ void main() {
         FileUrlType.local.toIntValue(),
       );
 
+      // Check the name of the file is correctly extracted
+      expect(node.attributes[FileBlockKeys.name], 'sample.jpeg');
+      expect(find.text('sample.jpeg'), findsOneWidget);
+
+      const newName = "Renamed file";
+
+      // Hover on the widget to see the three dots to open FileBlockMenu
+      await tester.hoverOnWidget(
+        find.byType(FileBlockComponent),
+        onHover: () async {
+          await tester.tap(find.byType(FileMenuTrigger));
+          await tester.pumpAndSettle();
+
+          await tester.tap(
+            find.text(LocaleKeys.document_plugins_file_renameFile_title.tr()),
+          );
+        },
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FlowyTextField), findsOneWidget);
+      await tester.enterText(find.byType(FlowyTextField), newName);
+      await tester.pump();
+
+      await tester.tap(find.text(LocaleKeys.button_save.tr()));
+      await tester.pumpAndSettle();
+
+      final updatedNode =
+          tester.editor.getCurrentEditorState().getNodeAtPath([0])!;
+      expect(updatedNode.attributes[FileBlockKeys.name], newName);
+      expect(find.text(newName), findsOneWidget);
+
       // remove the temp file
       file.deleteSync();
     });
@@ -74,9 +106,7 @@ void main() {
       await tester.tapAnonymousSignInButton();
 
       // create a new document
-      await tester.createNewPageWithNameUnderParent(
-        name: LocaleKeys.document_plugins_file_name.tr(),
-      );
+      await tester.createNewPageWithNameUnderParent(name: 'Insert file test');
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -85,6 +115,7 @@ void main() {
       expect(find.byType(FileBlockComponent), findsOneWidget);
 
       await tester.tap(find.byType(FileBlockComponent));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
       expect(find.byType(FileUploadMenu), findsOneWidget);
 
       // Navigate to integrate link tab
@@ -123,6 +154,13 @@ void main() {
         node.attributes[FileBlockKeys.urlType],
         FileUrlType.network.toIntValue(),
       );
+
+      // Check the name is correctly extracted from the url
+      expect(
+        node.attributes[FileBlockKeys.name],
+        'photo-1469474968028-56623f02e42e',
+      );
+      expect(find.text('photo-1469474968028-56623f02e42e'), findsOneWidget);
     });
   });
 }

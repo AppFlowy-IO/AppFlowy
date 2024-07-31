@@ -12,7 +12,7 @@ final fileMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['file', 'pdf', 'zip', 'archive', 'upload'],
+  keywords: ['file upload', 'pdf', 'zip', 'archive', 'upload'],
   handler: (editorState, _, __) async => editorState.insertEmptyFileBlock(),
 );
 
