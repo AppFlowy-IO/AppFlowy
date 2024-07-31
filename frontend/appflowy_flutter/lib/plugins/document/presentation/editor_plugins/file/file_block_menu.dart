@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_block.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FileBlockMenu extends StatefulWidget {
   const FileBlockMenu({
@@ -42,8 +45,24 @@ class _FileBlockMenuState extends State<FileBlockMenu> {
   }
 
   @override
+  void dispose() {
+    errorMessage.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final uploadedAtInMS =
+        widget.node.attributes[FileBlockKeys.uploadedAt] as int?;
+    final uploadedAt = uploadedAtInMS != null
+        ? DateTime.fromMillisecondsSinceEpoch(uploadedAtInMS)
+        : null;
+    final dateFormat = context.read<AppearanceSettingsCubit>().state.dateFormat;
+    final urlType =
+        FileUrlType.fromIntValue(widget.node.attributes[FileBlockKeys.urlType]);
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         HoverButton(
@@ -84,6 +103,25 @@ class _FileBlockMenuState extends State<FileBlockMenu> {
             widget.controller.close();
           },
         ),
+        if (uploadedAt != null) ...[
+          const Divider(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: FlowyText.regular(
+              [FileUrlType.cloud, FileUrlType.local].contains(urlType)
+                  ? LocaleKeys.document_plugins_file_uploadedAt.tr(
+                      args: [dateFormat.formatDate(uploadedAt, false)],
+                    )
+                  : LocaleKeys.document_plugins_file_linkedAt.tr(
+                      args: [dateFormat.formatDate(uploadedAt, false)],
+                    ),
+              fontSize: 14,
+              maxLines: 2,
+              color: Theme.of(context).hintColor,
+            ),
+          ),
+          const VSpace(2),
+        ],
       ],
     );
   }
@@ -133,6 +171,7 @@ class _RenameTextFieldState extends State<_RenameTextField> {
   @override
   void dispose() {
     widget.errorMessage.removeListener(_setState);
+    widget.nameController.dispose();
     super.dispose();
   }
 

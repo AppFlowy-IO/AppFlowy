@@ -7,12 +7,14 @@ import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_file.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -20,6 +22,7 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -195,9 +198,27 @@ class _DocumentPageState extends State<DocumentPage>
               }
 
               final isLocalMode = context.read<DocumentBloc>().isLocalMode;
+
+              final List<XFile> imageFiles = [];
+              final List<XFile> otherfiles = [];
+              for (final file in details.files) {
+                if (file.mimeType?.startsWith('image/') ??
+                    false || imgExtensionRegex.hasMatch(file.name)) {
+                  imageFiles.add(file);
+                } else {
+                  otherfiles.add(file);
+                }
+              }
+
               await editorState!.dropImages(
                 data.dropTarget!,
-                details.files,
+                imageFiles,
+                widget.view.id,
+                isLocalMode,
+              );
+              await editorState!.dropFiles(
+                data.dropTarget!,
+                otherfiles,
                 widget.view.id,
                 isLocalMode,
               );

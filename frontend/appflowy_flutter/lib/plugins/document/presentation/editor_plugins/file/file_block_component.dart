@@ -90,12 +90,15 @@ enum FileUrlType {
 Node fileNode({
   required String url,
   FileUrlType type = FileUrlType.local,
+  String? name,
 }) {
   return Node(
     type: FileBlockKeys.type,
     attributes: {
       FileBlockKeys.url: url,
       FileBlockKeys.urlType: type.toIntValue(),
+      FileBlockKeys.name: name,
+      FileBlockKeys.uploadedAt: DateTime.now().millisecondsSinceEpoch,
     },
   );
 }
@@ -149,33 +152,12 @@ class FileBlockComponentState extends State<FileBlockComponent>
   final showActionsNotifier = ValueNotifier<bool>(false);
   final controller = PopoverController();
   final menuController = PopoverController();
-  final menuMutex = PopoverMutex();
 
   late final editorState = Provider.of<EditorState>(context, listen: false);
 
   bool alwaysShowMenu = false;
   bool isDragging = false;
   bool isHovering = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    final url = node.attributes[FileBlockKeys.url] as String?;
-    if (url != null && url.isNotEmpty) {
-      // If the name attribute is not set, extract the file name from the url.
-      final name = node.attributes[FileBlockKeys.name] as String?;
-      if (name == null || name.isEmpty) {
-        final name = Uri.tryParse(url)?.pathSegments.last ?? url;
-        final attributes = node.attributes;
-        attributes[FileBlockKeys.name] = name;
-
-        final transaction = editorState.transaction;
-        transaction.updateNode(node, attributes);
-        editorState.apply(transaction);
-      }
-    }
-  }
 
   @override
   void didChangeDependencies() {
@@ -202,8 +184,9 @@ class FileBlockComponentState extends State<FileBlockComponent>
       opaque: false,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap:
-            url != null && url.isNotEmpty ? () => afLaunchUrlString(url) : null,
+        onTap: url != null && url.isNotEmpty
+            ? () => afLaunchUrlString(url)
+            : controller.show,
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: isHovering
@@ -328,7 +311,6 @@ class FileBlockComponentState extends State<FileBlockComponent>
                 onTap: menuController.show,
                 child: AppFlowyPopover(
                   controller: menuController,
-                  mutex: menuMutex,
                   triggerActions: PopoverTriggerFlags.none,
                   direction: PopoverDirection.bottomWithRightAligned,
                   onClose: () {
@@ -406,6 +388,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
       FileBlockKeys.url: url,
       FileBlockKeys.urlType: urlType.toIntValue(),
       FileBlockKeys.name: name,
+      FileBlockKeys.uploadedAt: DateTime.now().millisecondsSinceEpoch,
     });
     await editorState.apply(transaction);
   }
@@ -428,6 +411,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
       FileBlockKeys.url: url,
       FileBlockKeys.urlType: FileUrlType.network.toIntValue(),
       FileBlockKeys.name: name,
+      FileBlockKeys.uploadedAt: DateTime.now().millisecondsSinceEpoch,
     });
     await editorState.apply(transaction);
   }

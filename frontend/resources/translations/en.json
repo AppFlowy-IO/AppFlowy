@@ -1580,7 +1580,9 @@
           "title": "Rename file",
           "description": "Enter the new name for this file",
           "nameEmptyError": "File name cannot be left empty."
-        }
+        },
+        "uploadedAt": "Uploaded on {}",
+        "linkedAt": "Link added on {}"
       }
     },
     "outlineBlock": {
