@@ -130,7 +130,7 @@ function AddComment() {
               if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
                 e.preventDefault();
                 if (!content) return;
-                
+
                 void handleSubmit();
               }
 

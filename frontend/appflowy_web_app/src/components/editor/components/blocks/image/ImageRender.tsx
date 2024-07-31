@@ -4,7 +4,7 @@ import { ImageBlockNode } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CircularProgress } from '@mui/material';
+import { Skeleton } from '@mui/material';
 import { ReactComponent as ErrorOutline } from '@/assets/error.svg';
 
 const MIN_WIDTH = 100;
@@ -92,14 +92,7 @@ function ImageRender({
           }}
         />
       )}
-      {hasError ? (
-        renderErrorNode()
-      ) : loading ? (
-        <div className={'flex h-full w-full items-center justify-center gap-2 rounded bg-gray-100'}>
-          <CircularProgress size={24} />
-          <div className={'text-text-caption'}>{t('editor.loading')}</div>
-        </div>
-      ) : null}
+      {hasError ? renderErrorNode() : loading ? <Skeleton variant='rounded' width={'100%'} height={200} /> : null}
     </div>
   );
 }
