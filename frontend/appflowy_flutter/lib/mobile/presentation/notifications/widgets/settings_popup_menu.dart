@@ -35,7 +35,6 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
         padding: EdgeInsets.all(8.0),
         child: FlowySvg(
           FlowySvgs.m_settings_more_s,
-          blendMode: null,
         ),
       ),
       itemBuilder: (BuildContext context) =>

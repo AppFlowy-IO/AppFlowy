@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/notification/notification_reminder_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/base/gesture.dart';
+import 'package:appflowy/mobile/presentation/notifications/widgets/color.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
@@ -226,7 +227,11 @@ class _NotificationContent extends StatelessWidget {
             _buildHeader(),
 
             // time & page name
-            _buildTimeAndPageName(state.createdAt, state.pageTitle),
+            _buildTimeAndPageName(
+              context,
+              state.createdAt,
+              state.pageTitle,
+            ),
 
             // content
             Padding(
@@ -252,7 +257,11 @@ class _NotificationContent extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeAndPageName(String createdAt, String pageTitle) {
+  Widget _buildTimeAndPageName(
+    BuildContext context,
+    String createdAt,
+    String pageTitle,
+  ) {
     return Opacity(
       opacity: 0.5,
       child: Row(
@@ -263,7 +272,7 @@ class _NotificationContent extends StatelessWidget {
               createdAt,
               fontSize: 12,
               figmaLineHeight: 18,
-              color: const Color(0xFF171717),
+              color: context.notificationItemTextColor,
             ),
             const _Ellipse(),
           ],
@@ -271,7 +280,7 @@ class _NotificationContent extends StatelessWidget {
             pageTitle,
             fontSize: 12,
             figmaLineHeight: 18,
-            color: const Color(0xFF171717),
+            color: context.notificationItemTextColor,
           ),
         ],
       ),
@@ -288,15 +297,15 @@ class _Ellipse extends StatelessWidget {
       width: 2.50,
       height: 2.50,
       margin: const EdgeInsets.symmetric(horizontal: 5.0),
-      decoration: const ShapeDecoration(
-        color: Color(0xFF171717),
-        shape: OvalBorder(),
+      decoration: ShapeDecoration(
+        color: context.notificationItemTextColor,
+        shape: const OvalBorder(),
       ),
     );
   }
 }
 
-class _NotificationDocumentContent extends StatefulWidget {
+class _NotificationDocumentContent extends StatelessWidget {
   const _NotificationDocumentContent({
     required this.nodes,
   });
@@ -304,42 +313,35 @@ class _NotificationDocumentContent extends StatefulWidget {
   final List<Node> nodes;
 
   @override
-  State<_NotificationDocumentContent> createState() =>
-      _NotificationDocumentContentState();
-}
-
-class _NotificationDocumentContentState
-    extends State<_NotificationDocumentContent> {
-  late final styleCustomizer = EditorStyleCustomizer(
-    context: context,
-    padding: EdgeInsets.zero,
-  );
-
-  late final editorStyle = styleCustomizer.style().copyWith(
-        // hide the cursor
-        cursorColor: Colors.transparent,
-        cursorWidth: 0,
-        textStyleConfiguration: const TextStyleConfiguration(
-          lineHeight: 22 / 14,
-          applyHeightToFirstAscent: true,
-          applyHeightToLastDescent: true,
-          text: TextStyle(
-            fontSize: 14,
-            color: Color(0xFF171717),
-            height: 22 / 14,
-            fontWeight: FontWeight.w400,
-            leadingDistribution: TextLeadingDistribution.even,
-          ),
-        ),
-      );
-
-  @override
   Widget build(BuildContext context) {
     final editorState = EditorState(
       document: Document(
-        root: pageNode(children: widget.nodes),
+        root: pageNode(children: nodes),
       ),
     );
+
+    final styleCustomizer = EditorStyleCustomizer(
+      context: context,
+      padding: EdgeInsets.zero,
+    );
+
+    final editorStyle = styleCustomizer.style().copyWith(
+          // hide the cursor
+          cursorColor: Colors.transparent,
+          cursorWidth: 0,
+          textStyleConfiguration: TextStyleConfiguration(
+            lineHeight: 22 / 14,
+            applyHeightToFirstAscent: true,
+            applyHeightToLastDescent: true,
+            text: TextStyle(
+              fontSize: 14,
+              color: context.notificationItemTextColor,
+              height: 22 / 14,
+              fontWeight: FontWeight.w400,
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+          ),
+        );
 
     final blockBuilders = getEditorBuilderMap(
       context: context,
