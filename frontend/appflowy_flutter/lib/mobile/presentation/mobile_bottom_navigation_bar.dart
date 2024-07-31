@@ -14,13 +14,13 @@ import 'package:go_router/go_router.dart';
 
 enum BottomNavigationBarActionType {
   home,
-  notification,
+  notificationMultiSelect,
 }
 
 final PropertyValueNotifier<ViewLayoutPB?> createNewPageNotifier =
     PropertyValueNotifier(null);
-final ValueNotifier<BottomNavigationBarActionType> bottomNavigationActionType =
-    ValueNotifier(BottomNavigationBarActionType.notification);
+final ValueNotifier<BottomNavigationBarActionType> bottomNavigationBarType =
+    ValueNotifier(BottomNavigationBarActionType.home);
 
 const _homeLabel = 'home';
 const _addLabel = 'add';
@@ -68,19 +68,23 @@ class _MobileBottomNavigationBarState extends State<MobileBottomNavigationBar> {
   void initState() {
     super.initState();
 
-    bottomNavigationActionType.addListener(_animate);
+    bottomNavigationBarType.addListener(_animate);
   }
 
   @override
   void dispose() {
-    bottomNavigationActionType.removeListener(_animate);
+    bottomNavigationBarType.removeListener(_animate);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // _bottomNavigationBar ??= _buildHomePageNavigationBar(context);
-    _bottomNavigationBar ??= _buildNotificationNavigationBar(context);
+    _bottomNavigationBar = switch (bottomNavigationBarType.value) {
+      BottomNavigationBarActionType.home =>
+        _buildHomePageNavigationBar(context),
+      BottomNavigationBarActionType.notificationMultiSelect =>
+        _buildNotificationNavigationBar(context),
+    };
 
     return Scaffold(
       body: widget.navigationShell,
@@ -120,14 +124,7 @@ class _MobileBottomNavigationBarState extends State<MobileBottomNavigationBar> {
   }
 
   void _animate() {
-    setState(() {
-      _bottomNavigationBar = switch (bottomNavigationActionType.value) {
-        BottomNavigationBarActionType.home =>
-          _buildHomePageNavigationBar(context),
-        BottomNavigationBarActionType.notification =>
-          _buildNotificationNavigationBar(context),
-      };
-    });
+    setState(() {});
   }
 }
 
@@ -255,7 +252,7 @@ class _NotificationNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        bottomNavigationActionType.value = BottomNavigationBarActionType.home;
+        bottomNavigationBarType.value = BottomNavigationBarActionType.home;
       },
       child: Container(
         // todo: use real height here.

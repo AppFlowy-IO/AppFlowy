@@ -98,8 +98,9 @@ enum NotificationPaneActionType {
                   child: _NotificationMoreActions(
                     onClickMultipleChoice: () {
                       Future.delayed(const Duration(milliseconds: 250), () {
-                        bottomNavigationActionType.value =
-                            BottomNavigationBarActionType.notification;
+                        bottomNavigationBarType.value =
+                            BottomNavigationBarActionType
+                                .notificationMultiSelect;
                       });
                     },
                   ),

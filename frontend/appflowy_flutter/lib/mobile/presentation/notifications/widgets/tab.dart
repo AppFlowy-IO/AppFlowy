@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/notifications/widgets/notification_item.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
@@ -37,25 +36,41 @@ class _NotificationTabState extends State<NotificationTab>
         final reminders = _filterReminders(state.reminders);
 
         if (reminders.isEmpty) {
+          // add refresh indicator to the empty notification.
           return EmptyNotification(
             type: widget.tabType,
           );
         }
 
-        return RefreshIndicator.adaptive(
-          onRefresh: () async => _onRefresh(context),
-          child: ListView.separated(
-            itemCount: reminders.length,
-            separatorBuilder: (context, index) => const VSpace(8.0),
-            itemBuilder: (context, index) {
-              final reminder = reminders[index];
+        final child = ListView.separated(
+          itemCount: reminders.length,
+          separatorBuilder: (context, index) => const VSpace(8.0),
+          itemBuilder: (context, index) {
+            final reminder = reminders[index];
+            if (widget.tabType == MobileNotificationTabType.multiSelect) {
+              return MultiSelectNotificationItem(
+                key: ValueKey('${widget.tabType}_${reminder.id}'),
+                tabType: widget.tabType,
+                reminder: reminder,
+              );
+            } else {
               return NotificationItem(
                 key: ValueKey('${widget.tabType}_${reminder.id}'),
                 tabType: widget.tabType,
                 reminder: reminder,
               );
-            },
-          ),
+            }
+          },
+        );
+
+        // no need to add refresh indicator to the multi-select tab.
+        if (widget.tabType == MobileNotificationTabType.multiSelect) {
+          return child;
+        }
+
+        return RefreshIndicator.adaptive(
+          onRefresh: () async => _onRefresh(context),
+          child: child,
         );
       },
     );
@@ -91,6 +106,8 @@ class _NotificationTabState extends State<NotificationTab>
         return reminders.reversed
             .where((reminder) => !reminder.isRead)
             .toList();
+      case MobileNotificationTabType.multiSelect:
+        return reminders.reversed.toList();
     }
   }
 }

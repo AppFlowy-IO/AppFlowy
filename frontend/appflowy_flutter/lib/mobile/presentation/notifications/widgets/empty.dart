@@ -18,6 +18,8 @@ class EmptyNotification extends StatelessWidget {
     final title = switch (type) {
       MobileNotificationTabType.inbox =>
         LocaleKeys.settings_notifications_emptyInbox_title.tr(),
+      MobileNotificationTabType.multiSelect =>
+        LocaleKeys.settings_notifications_emptyInbox_title.tr(),
       MobileNotificationTabType.archive =>
         LocaleKeys.settings_notifications_emptyArchived_title.tr(),
       MobileNotificationTabType.unread =>
@@ -25,6 +27,8 @@ class EmptyNotification extends StatelessWidget {
     };
     final desc = switch (type) {
       MobileNotificationTabType.inbox =>
+        LocaleKeys.settings_notifications_emptyInbox_description.tr(),
+      MobileNotificationTabType.multiSelect =>
         LocaleKeys.settings_notifications_emptyInbox_description.tr(),
       MobileNotificationTabType.archive =>
         LocaleKeys.settings_notifications_emptyArchived_description.tr(),

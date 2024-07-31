@@ -9,7 +9,7 @@ class AnimatedGestureDetector extends StatefulWidget {
     this.duration = const Duration(milliseconds: 100),
     this.alignment = Alignment.center,
     this.behavior = HitTestBehavior.opaque,
-    required this.onTapUp,
+    this.onTapUp,
     required this.child,
   });
 
@@ -19,7 +19,7 @@ class AnimatedGestureDetector extends StatefulWidget {
   final Alignment alignment;
   final bool feedback;
   final HitTestBehavior behavior;
-  final VoidCallback onTapUp;
+  final VoidCallback? onTapUp;
 
   @override
   State<AnimatedGestureDetector> createState() =>
@@ -38,7 +38,7 @@ class _AnimatedGestureDetectorState extends State<AnimatedGestureDetector> {
 
         HapticFeedbackType.light.call();
 
-        widget.onTapUp();
+        widget.onTapUp?.call();
       },
       onTapDown: (details) {
         setState(() => scale = widget.scaleFactor);

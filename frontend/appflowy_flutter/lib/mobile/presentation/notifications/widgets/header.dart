@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/settings_popup_menu.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,12 @@ class MobileNotificationMultiSelectPageHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildCancelButton(isOpaque: false),
+          _buildCancelButton(
+            isOpaque: false,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            onTap: () => bottomNavigationBarType.value =
+                BottomNavigationBarActionType.home,
+          ),
           ValueListenableBuilder(
             valueListenable: selectedCount,
             builder: (context, value, child) {
@@ -58,20 +64,34 @@ class MobileNotificationMultiSelectPageHeader extends StatelessWidget {
               );
             },
           ),
-          _buildCancelButton(isOpaque: true),
+          // this button is used to align the text to the center
+          _buildCancelButton(
+            isOpaque: true,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+          ),
         ],
       ),
     );
   }
 
   //
-  Widget _buildCancelButton({required bool isOpaque}) {
-    return FlowyText(
-      'Cancel',
-      fontSize: 17.0,
-      figmaLineHeight: 24.0,
-      fontWeight: FontWeight.w400,
-      color: isOpaque ? Colors.transparent : null,
+  Widget _buildCancelButton({
+    required bool isOpaque,
+    required EdgeInsets padding,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: padding,
+        child: FlowyText(
+          LocaleKeys.button_cancel.tr(),
+          fontSize: 17.0,
+          figmaLineHeight: 24.0,
+          fontWeight: FontWeight.w400,
+          color: isOpaque ? Colors.transparent : null,
+        ),
+      ),
     );
   }
 }
