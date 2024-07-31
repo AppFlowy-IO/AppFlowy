@@ -1,8 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
@@ -31,6 +28,8 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final codeBlockLocalization = CodeBlockLocalizations(
@@ -481,6 +480,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   void _customizeBlockComponentBackgroundColorDecorator() {
+    if (!context.mounted) {
+      return;
+    }
     blockComponentBackgroundColorDecorator = (Node node, String colorString) =>
         buildEditorCustomizedColor(context, node, colorString);
   }

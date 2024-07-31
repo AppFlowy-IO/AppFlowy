@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,22 +29,25 @@ class BulletedListIcon extends StatelessWidget {
     return level;
   }
 
-  FlowySvg get icon {
-    final index = level % bulletedListIcons.length;
-    return FlowySvg(bulletedListIcons[index]);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final iconPadding = PlatformExtension.isMobile
-        ? context.read<DocumentPageStyleBloc>().state.iconPadding
-        : 0.0;
+    final textStyle =
+        context.read<EditorState>().editorStyle.textStyleConfiguration;
+    final fontSize = textStyle.text.fontSize ?? 16.0;
+    final height = textStyle.lineHeight;
+    final size = fontSize * height;
+    final index = level % bulletedListIcons.length;
+    final icon = FlowySvg(
+      bulletedListIcons[index],
+      size: Size.square(size * 0.8),
+    );
     return Container(
-      constraints: const BoxConstraints(
-        minWidth: 22,
-        minHeight: 22,
+      constraints: BoxConstraints(
+        minWidth: size,
+        minHeight: size,
       ),
-      margin: EdgeInsets.only(top: iconPadding, right: 8.0),
+      margin: const EdgeInsets.only(right: 8.0),
+      alignment: Alignment.center,
       child: icon,
     );
   }

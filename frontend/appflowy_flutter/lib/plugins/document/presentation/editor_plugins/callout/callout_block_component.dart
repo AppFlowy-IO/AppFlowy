@@ -194,6 +194,7 @@ class _CalloutBlockComponentWidgetState
               key: ValueKey(
                 emoji.toString(),
               ), // force to refresh the popover state
+              enable: editorState.editable,
               title: '',
               emoji: emoji,
               emojiSize: 16.0,
@@ -205,7 +206,7 @@ class _CalloutBlockComponentWidgetState
           ),
           Flexible(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: buildCalloutBlockComponent(context, textDirection),
             ),
           ),

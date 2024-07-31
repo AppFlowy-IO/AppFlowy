@@ -19,6 +19,7 @@ class EmojiPickerButton extends StatelessWidget {
     this.direction,
     this.title,
     this.showBorder = true,
+    this.enable = true,
   });
 
   final String emoji;
@@ -31,6 +32,7 @@ class EmojiPickerButton extends StatelessWidget {
   final PopoverDirection? direction;
   final String? title;
   final bool showBorder;
+  final bool enable;
 
   @override
   Widget build(BuildContext context) {
@@ -71,30 +73,33 @@ class EmojiPickerButton extends StatelessWidget {
             text: emoji.isEmpty && defaultIcon != null
                 ? defaultIcon!
                 : FlowyText.emoji(emoji, fontSize: emojiSize),
-            onTap: popoverController.show,
+            onTap: enable ? popoverController.show : null,
           ),
         ),
       );
     }
+
     return FlowyTextButton(
       emoji,
       overflow: TextOverflow.visible,
       fontSize: emojiSize,
       padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(minWidth: 35.0),
+      constraints: const BoxConstraints.tightFor(width: 36.0),
       fillColor: Colors.transparent,
       mainAxisAlignment: MainAxisAlignment.center,
-      onPressed: () async {
-        final result = await context.push<EmojiPickerResult>(
-          Uri(
-            path: MobileEmojiPickerScreen.routeName,
-            queryParameters: {MobileEmojiPickerScreen.pageTitle: title},
-          ).toString(),
-        );
-        if (result != null) {
-          onSubmitted(result.emoji, null);
-        }
-      },
+      onPressed: enable
+          ? () async {
+              final result = await context.push<EmojiPickerResult>(
+                Uri(
+                  path: MobileEmojiPickerScreen.routeName,
+                  queryParameters: {MobileEmojiPickerScreen.pageTitle: title},
+                ).toString(),
+              );
+              if (result != null) {
+                onSubmitted(result.emoji, null);
+              }
+            }
+          : null,
     );
   }
 }

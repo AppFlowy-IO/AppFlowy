@@ -35,7 +35,7 @@ class TodoListIcon extends StatelessWidget {
           minWidth: iconSize,
           minHeight: iconSize,
         ),
-        margin: const EdgeInsets.only(right: 6.0),
+        margin: const EdgeInsets.only(right: 8.0),
         alignment: Alignment.center,
         child: FlowySvg(
           checked
