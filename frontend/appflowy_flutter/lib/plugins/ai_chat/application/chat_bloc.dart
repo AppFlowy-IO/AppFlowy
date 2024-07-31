@@ -70,7 +70,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               chatId: state.view.id,
               limit: Int64(10),
             );
-            ChatEventLoadNextMessage(payload).send().then(
+            AIEventLoadNextMessage(payload).send().then(
               (result) {
                 result.fold((list) {
                   if (!isClosed) {
@@ -202,7 +202,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             }
 
             final payload = StopStreamPB(chatId: chatId);
-            await ChatEventStopStream(payload).send();
+            await AIEventStopStream(payload).send();
             final allMessages = _perminentMessages();
             if (state.streamingStatus != const LoadingState.finish()) {
               // If the streaming is not started, remove the message from the list
@@ -273,7 +273,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               messageId: state.lastSentMessage!.messageId,
             );
             //  When user message was sent to the server, we start gettting related question
-            ChatEventGetRelatedQuestion(payload).send().then((result) {
+            AIEventGetRelatedQuestion(payload).send().then((result) {
               if (!isClosed) {
                 result.fold(
                   (list) {
@@ -322,7 +322,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       limit: Int64(10),
       beforeMessageId: beforeMessageId,
     );
-    ChatEventLoadPrevMessage(payload).send();
+    AIEventLoadPrevMessage(payload).send();
   }
 
   Future<void> _startStreamingMessage(
@@ -344,7 +344,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
 
     // Stream message to the server
-    final result = await ChatEventStreamMessage(payload).send();
+    final result = await AIEventStreamMessage(payload).send();
     result.fold(
       (ChatMessagePB question) {
         if (!isClosed) {

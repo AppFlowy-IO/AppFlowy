@@ -37,7 +37,7 @@ class ChatInputBloc extends Bloc<ChatInputEvent, ChatInputState> {
   ) async {
     await event.when(
       started: () async {
-        final result = await ChatEventGetLocalAIPluginState().send();
+        final result = await AIEventGetLocalAIPluginState().send();
         result.fold(
           (pluginState) {
             if (!isClosed) {

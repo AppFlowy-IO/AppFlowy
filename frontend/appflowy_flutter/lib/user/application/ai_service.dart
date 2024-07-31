@@ -59,7 +59,7 @@ class AppFlowyAIService implements AIRepository {
     );
 
     // ignore: unawaited_futures
-    ChatEventCompleteText(payload).send();
+    AIEventCompleteText(payload).send();
     return stream;
   }
 }

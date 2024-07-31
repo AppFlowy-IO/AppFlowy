@@ -31,7 +31,7 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            final result = await ChatEventGetLocalAIChatState().send();
+            final result = await AIEventGetLocalAIChatState().send();
             result.fold(
               (chatState) {
                 if (!isClosed) {
@@ -53,7 +53,7 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
             );
             final payload = ChatFilePB(filePath: filePath, chatId: chatId);
             unawaited(
-              ChatEventChatWithFile(payload).send().then((result) {
+              AIEventChatWithFile(payload).send().then((result) {
                 if (!isClosed) {
                   result.fold((_) {
                     add(

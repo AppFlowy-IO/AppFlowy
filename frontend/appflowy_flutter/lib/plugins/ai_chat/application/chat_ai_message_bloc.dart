@@ -74,7 +74,7 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               chatId: chatId,
               messageId: questionId,
             );
-            ChatEventGetAnswerForQuestion(payload).send().then((result) {
+            AIEventGetAnswerForQuestion(payload).send().then((result) {
               if (!isClosed) {
                 result.fold(
                   (answer) {
