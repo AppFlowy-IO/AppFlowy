@@ -253,6 +253,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         imageUrl: imageUrl,
       ),
     ),
+    FileBlockKeys.type: FileBlockComponentBuilder(configuration: configuration),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
       configuration: configuration,
     ),

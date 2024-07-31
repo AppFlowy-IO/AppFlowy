@@ -4,14 +4,17 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
+import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_file.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -19,15 +22,18 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 const _excludeFromDropTarget = [
   ImageBlockKeys.type,
   CustomImageBlockKeys.type,
   MultiImageBlockKeys.type,
+  FileBlockKeys.type,
 ];
 
 class DocumentPage extends StatefulWidget {
@@ -79,46 +85,65 @@ class _DocumentPageState extends State<DocumentPage>
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
-        BlocProvider.value(value: documentBloc),
-      ],
-      child: BlocBuilder<DocumentBloc, DocumentState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator.adaptive());
-          }
+    return ChangeNotifierProvider(
+      // Due to how DropTarget works, there is no way to differentiate if an overlay is
+      // blocking the target visibly, so when we have an overlay with a drop target,
+      // we should disable the drop target for the Editor, until it is closed.
+      //
+      // See FileBlockComponent for sample use.
+      //
+      // Relates to:
+      // - https://github.com/MixinNetwork/flutter-plugins/issues/2
+      // - https://github.com/MixinNetwork/flutter-plugins/issues/331
+      //
+      create: (_) => EditorDropManagerState(),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: getIt<ActionNavigationBloc>()),
+          BlocProvider.value(value: documentBloc),
+        ],
+        child: BlocBuilder<DocumentBloc, DocumentState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator.adaptive());
+            }
 
-          final editorState = state.editorState;
-          this.editorState = editorState;
-          final error = state.error;
-          if (error != null || editorState == null) {
-            Log.error(error);
-            return FlowyErrorPage.message(
-              error.toString(),
-              howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+            final editorState = state.editorState;
+            this.editorState = editorState;
+            final error = state.error;
+            if (error != null || editorState == null) {
+              Log.error(error);
+              return FlowyErrorPage.message(
+                error.toString(),
+                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+              );
+            }
+
+            if (state.forceClose) {
+              widget.onDeleted();
+              return const SizedBox.shrink();
+            }
+
+            return BlocListener<ActionNavigationBloc, ActionNavigationState>(
+              listenWhen: (_, curr) => curr.action != null,
+              listener: _onNotificationAction,
+              child: Consumer<EditorDropManagerState>(
+                builder: (context, dropState, _) =>
+                    _buildEditorPage(context, state, dropState),
+              ),
             );
-          }
-
-          if (state.forceClose) {
-            widget.onDeleted();
-            return const SizedBox.shrink();
-          }
-
-          return BlocListener<ActionNavigationBloc, ActionNavigationState>(
-            listenWhen: (_, curr) => curr.action != null,
-            listener: _onNotificationAction,
-            child: _buildEditorPage(context, state),
-          );
-        },
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildEditorPage(BuildContext context, DocumentState state) {
+  Widget _buildEditorPage(
+    BuildContext context,
+    DocumentState state,
+    EditorDropManagerState dropState,
+  ) {
     final Widget child;
-
     if (PlatformExtension.isMobile) {
       child = BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
         builder: (context, styleState) {
@@ -136,6 +161,7 @@ class _DocumentPageState extends State<DocumentPage>
       );
     } else {
       child = DropTarget(
+        enable: dropState.isDropEnabled,
         onDragExited: (_) =>
             state.editorState!.selectionService.removeDropTarget(),
         onDragUpdated: (details) {
@@ -163,18 +189,31 @@ class _DocumentPageState extends State<DocumentPage>
 
           if (data != null) {
             if (data.cursorNode != null) {
-              if ([
-                ImageBlockKeys.type,
-                CustomImageBlockKeys.type,
-                MultiImageBlockKeys.type,
-              ].contains(data.cursorNode?.type)) {
+              if (_excludeFromDropTarget.contains(data.cursorNode?.type)) {
                 return;
               }
 
               final isLocalMode = context.read<DocumentBloc>().isLocalMode;
+              final List<XFile> imageFiles = [];
+              final List<XFile> otherfiles = [];
+              for (final file in details.files) {
+                if (file.mimeType?.startsWith('image/') ??
+                    false || imgExtensionRegex.hasMatch(file.name)) {
+                  imageFiles.add(file);
+                } else {
+                  otherfiles.add(file);
+                }
+              }
+
               await editorState!.dropImages(
                 data.dropTarget!,
-                details.files,
+                imageFiles,
+                widget.view.id,
+                isLocalMode,
+              );
+              await editorState!.dropFiles(
+                data.dropTarget!,
+                otherfiles,
                 widget.view.id,
                 isLocalMode,
               );

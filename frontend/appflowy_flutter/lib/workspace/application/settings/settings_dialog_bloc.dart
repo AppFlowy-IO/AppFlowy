@@ -110,9 +110,6 @@ class SettingsDialogBloc
           "https://beta.appflowy.cloud",
           "https://test.appflowy.cloud",
         ];
-        if (kDebugMode) {
-          whiteList.add("http://localhost:8000");
-        }
 
         return whiteList.contains(cloudSetting.serverUrl);
       },

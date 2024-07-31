@@ -420,6 +420,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       autoGeneratorMenuItem,
       dateMenuItem,
       multiImageMenuItem,
+      fileMenuItem,
     ];
   }
 

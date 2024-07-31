@@ -1603,6 +1603,26 @@
         "invalidVideoUrl": "The source URL is not supported yet.",
         "invalidVideoUrlYouTube": "YouTube is not supported yet.",
         "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "File",
+        "uploadTab": "Upload",
+        "networkTab": "Integrate link",
+        "placeholderText": "Click or drag and drop to upload a file",
+        "placeholderDragging": "Drop the file to upload",
+        "dropFileToUpload": "Drop the file to upload",
+        "fileUploadHint": "Drag and drop a file here\nor click to select a file.",
+        "networkHint": "Enter a link to a file",
+        "networkUrlInvalid": "Invalid URL, please correct the URL and try again",
+        "networkAction": "Embed file link",
+        "fileTooBigError": "File size is too big, please upload a file with size less than 10MB",
+        "renameFile": {
+          "title": "Rename file",
+          "description": "Enter the new name for this file",
+          "nameEmptyError": "File name cannot be left empty."
+        },
+        "uploadedAt": "Uploaded on {}",
+        "linkedAt": "Link added on {}"
       }
     },
     "outlineBlock": {
