@@ -137,7 +137,7 @@ impl LLMResourceController {
   }
 
   pub fn is_offline_app_ready(&self) -> bool {
-    return offline_app_path().exists();
+    offline_app_path().exists()
   }
 
   pub async fn get_offline_ai_app_download_link(&self) -> FlowyResult<String> {
