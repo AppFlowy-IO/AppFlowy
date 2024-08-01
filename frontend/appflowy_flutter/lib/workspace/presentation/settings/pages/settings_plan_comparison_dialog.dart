@@ -427,13 +427,13 @@ class _CurrentBadge extends StatelessWidget {
 
 class _ComparisonCell extends StatelessWidget {
   const _ComparisonCell({
-    required this.label,
+    this.label,
     this.icon,
     this.tooltip,
     this.isHighlighted = false,
   });
 
-  final String label;
+  final String? label;
   final FlowySvgData? icon;
   final String? tooltip;
   final bool isHighlighted;
@@ -458,10 +458,10 @@ class _ComparisonCell extends StatelessWidget {
               icon!,
               color: AFThemeExtension.of(context).strongText,
             ),
-          ] else ...[
+          ] else if (label != null) ...[
             Expanded(
               child: FlowyText.medium(
-                label,
+                label!,
                 lineHeight: 1.2,
                 color: AFThemeExtension.of(context).strongText,
               ),
@@ -672,61 +672,58 @@ final _planLabels = [
 ];
 
 class _CellItem {
-  const _CellItem(this.label, {this.icon});
+  const _CellItem({this.label, this.icon});
 
-  final String label;
+  final String? label;
   final FlowySvgData? icon;
 }
 
 final List<_CellItem> _freeLabels = [
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemOne.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemOne.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemTwo.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemTwo.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemThree.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemThree.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
   ),
-  _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
-  ),
+  // Empty cell
+  const _CellItem(),
 ];
 
 final List<_CellItem> _proLabels = [
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemOne.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemOne.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemTwo.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemTwo.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemThree.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemThree.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
   ),
-  _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
-    icon: FlowySvgs.check_m,
-  ),
+  // Empty cell w/ check mark
+  const _CellItem(icon: FlowySvgs.check_m),
 ];
