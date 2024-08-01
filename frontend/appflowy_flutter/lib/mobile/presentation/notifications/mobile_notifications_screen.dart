@@ -1,4 +1,3 @@
-import 'package:appflowy/mobile/application/user_profile/user_profile_bloc.dart';
 import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_multiple_select_page.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
@@ -29,19 +28,25 @@ class _MobileNotificationsScreenV2State
   bool get wantKeepAlive => true;
 
   @override
+  void initState() {
+    super.initState();
+
+    mCurrentWorkspace.addListener(_onRefresh);
+  }
+
+  @override
+  void dispose() {
+    mCurrentWorkspace.removeListener(_onRefresh);
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<UserProfileBloc>(
-          create: (context) => UserProfileBloc()
-            ..add(
-              const UserProfileEvent.started(),
-            ),
-        ),
-        BlocProvider<ReminderBloc>.value(value: getIt<ReminderBloc>()),
-      ],
+    return BlocProvider<ReminderBloc>.value(
+      value: getIt<ReminderBloc>(),
       child: ValueListenableBuilder(
         valueListenable: bottomNavigationBarType,
         builder: (_, value, __) {
@@ -54,6 +59,10 @@ class _MobileNotificationsScreenV2State
         },
       ),
     );
+  }
+
+  void _onRefresh() {
+    getIt<ReminderBloc>().add(const ReminderEvent.refresh());
   }
 }
 
