@@ -221,15 +221,17 @@ class NotificationDocumentContent extends StatelessWidget {
       customHeadingPadding: EdgeInsets.zero,
     );
 
-    return AppFlowyEditor(
-      editorState: editorState,
-      editorStyle: editorStyle,
-      disableSelectionService: true,
-      disableKeyboardService: true,
-      disableScrollService: true,
-      editable: false,
-      shrinkWrap: true,
-      blockComponentBuilders: blockBuilders,
+    return IgnorePointer(
+      child: AppFlowyEditor(
+        editorState: editorState,
+        editorStyle: editorStyle,
+        disableSelectionService: true,
+        disableKeyboardService: true,
+        disableScrollService: true,
+        editable: false,
+        shrinkWrap: true,
+        blockComponentBuilders: blockBuilders,
+      ),
     );
   }
 }

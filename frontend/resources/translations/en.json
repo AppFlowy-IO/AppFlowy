@@ -964,7 +964,7 @@
       },
       "action": {
         "markAsRead": "Mark as read",
-        "multipleChoice": "Multiple choice",
+        "multipleChoice": "Select more",
         "archive": "Archive"
       },
       "settings": {
