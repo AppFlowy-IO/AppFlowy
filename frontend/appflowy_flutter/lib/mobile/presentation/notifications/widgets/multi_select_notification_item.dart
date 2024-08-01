@@ -8,25 +8,13 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MultiSelectNotificationItem extends StatefulWidget {
+class MultiSelectNotificationItem extends StatelessWidget {
   const MultiSelectNotificationItem({
     super.key,
     required this.reminder,
   });
 
   final ReminderPB reminder;
-
-  @override
-  State<MultiSelectNotificationItem> createState() =>
-      _MultiSelectNotificationItemState();
-}
-
-class _MultiSelectNotificationItemState
-    extends State<MultiSelectNotificationItem> {
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +25,7 @@ class _MultiSelectNotificationItemState
       create: (context) => NotificationReminderBloc()
         ..add(
           NotificationReminderEvent.initial(
-            widget.reminder,
+            reminder,
             dateFormate,
             timeFormate,
           ),
@@ -59,7 +47,7 @@ class _MultiSelectNotificationItemState
             builder: (_, selectedIds, child) {
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: selectedIds.contains(widget.reminder.id)
+                decoration: selectedIds.contains(reminder.id)
                     ? ShapeDecoration(
                         color: const Color(0x1900BCF0),
                         shape: RoundedRectangleBorder(
@@ -73,7 +61,7 @@ class _MultiSelectNotificationItemState
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: _InnerNotificationItem(
-                reminder: widget.reminder,
+                reminder: reminder,
               ),
             ),
           );
@@ -81,12 +69,12 @@ class _MultiSelectNotificationItemState
           return AnimatedGestureDetector(
             scaleFactor: 0.99,
             onTapUp: () {
-              if (mSelectedNotificationIds.value.contains(widget.reminder.id)) {
+              if (mSelectedNotificationIds.value.contains(reminder.id)) {
                 mSelectedNotificationIds.value = mSelectedNotificationIds.value
-                  ..remove(widget.reminder.id);
+                  ..remove(reminder.id);
               } else {
                 mSelectedNotificationIds.value = mSelectedNotificationIds.value
-                  ..add(widget.reminder.id);
+                  ..add(reminder.id);
               }
             },
             child: child,

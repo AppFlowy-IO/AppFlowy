@@ -1,6 +1,8 @@
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/application/notification/notification_reminder_bloc.dart';
 import 'package:appflowy/mobile/presentation/base/gesture.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -60,8 +62,19 @@ class NotificationItem extends StatelessWidget {
           return AnimatedGestureDetector(
             scaleFactor: 0.99,
             child: child,
-            onTapUp: () {
-              // todo: go to the page
+            onTapUp: () async {
+              final view = state.view;
+              if (view == null) {
+                return;
+              }
+
+              await context.pushView(view);
+
+              if (!reminder.isRead && context.mounted) {
+                context.read<ReminderBloc>().add(
+                      ReminderEvent.markAsRead([reminder.id]),
+                    );
+              }
             },
           );
         },

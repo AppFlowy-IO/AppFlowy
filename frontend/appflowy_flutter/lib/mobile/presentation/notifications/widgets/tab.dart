@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
+import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -84,15 +85,18 @@ class _NotificationTabState extends State<NotificationTab>
       case MobileNotificationTabType.inbox:
         return reminders.reversed
             .where((reminder) => !reminder.isArchived)
-            .toList();
+            .toList()
+            .unique((reminder) => reminder.id);
       case MobileNotificationTabType.archive:
         return reminders.reversed
             .where((reminder) => reminder.isArchived)
-            .toList();
+            .toList()
+            .unique((reminder) => reminder.id);
       case MobileNotificationTabType.unread:
         return reminders.reversed
             .where((reminder) => !reminder.isRead)
-            .toList();
+            .toList()
+            .unique((reminder) => reminder.id);
     }
   }
 }

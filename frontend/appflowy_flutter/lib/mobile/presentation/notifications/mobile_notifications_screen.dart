@@ -1,3 +1,4 @@
+import 'package:appflowy/mobile/application/user_profile/user_profile_bloc.dart';
 import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_multiple_select_page.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
@@ -31,8 +32,16 @@ class _MobileNotificationsScreenV2State
   Widget build(BuildContext context) {
     super.build(context);
 
-    return BlocProvider<ReminderBloc>.value(
-      value: getIt<ReminderBloc>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<UserProfileBloc>(
+          create: (context) => UserProfileBloc()
+            ..add(
+              const UserProfileEvent.started(),
+            ),
+        ),
+        BlocProvider<ReminderBloc>.value(value: getIt<ReminderBloc>()),
+      ],
       child: ValueListenableBuilder(
         valueListenable: bottomNavigationBarType,
         builder: (_, value, __) {

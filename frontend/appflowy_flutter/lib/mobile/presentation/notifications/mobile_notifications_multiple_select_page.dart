@@ -34,7 +34,7 @@ class _MobileNotificationMultiSelectState
     extends State<MobileNotificationMultiSelect> {
   @override
   void dispose() {
-    mSelectedNotificationIds.value = [];
+    mSelectedNotificationIds.value.clear();
 
     super.dispose();
   }

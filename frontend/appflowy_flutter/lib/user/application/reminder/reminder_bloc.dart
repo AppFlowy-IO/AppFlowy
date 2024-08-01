@@ -239,9 +239,14 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
     }
 
     return state.reminders.map((e) {
+      if (reminderIds != null && !reminderIds.contains(e.id)) {
+        return e;
+      }
+
       if (e.isRead) {
         return e;
       }
+
       e.freeze();
       return e.rebuild((update) {
         update.isRead = true;
