@@ -1,3 +1,4 @@
+import ImageRender from '@/components/_shared/image-render/ImageRender';
 import { renderColor } from '@/utils/color';
 import React, { useCallback } from 'react';
 
@@ -14,7 +15,11 @@ function ViewCover({ coverValue, coverType }: { coverValue?: string; coverType?:
   }, []);
 
   const renderCoverImage = useCallback((url: string) => {
-    return <img draggable={false} src={url} alt={''} className={'h-full w-full object-cover'} />;
+    return (
+      <>
+        <ImageRender draggable={false} src={url} alt={''} className={'h-full w-full object-cover'} />
+      </>
+    );
   }, []);
 
   if (!coverType || !coverValue) {

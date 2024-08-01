@@ -1,3 +1,8 @@
+import { InfoProps } from '@/components/_shared/notify/InfoSnackbar';
+import { lazy } from 'react';
+
+export const InfoSnackbar = lazy(() => import('./InfoSnackbar'));
+
 export const notify = {
   success: (message: string) => {
     window.toast.success(message);
@@ -11,10 +16,19 @@ export const notify = {
   warning: (message: string) => {
     window.toast.warning(message);
   },
-  info: (message: string) => {
-    window.toast.info(message);
+  info: (props: InfoProps) => {
+    window.toast.info({
+      ...props,
+      variant: 'info',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+    });
   },
   clear: () => {
     window.toast.clear();
   },
 };
+
+export * from './InfoSnackbar';

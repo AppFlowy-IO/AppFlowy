@@ -4,7 +4,7 @@ import Cell from '@/components/database/components/cell/Cell';
 import React, { CSSProperties, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: number }) {
+export function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: number }) {
   const { t } = useTranslation();
   const { field } = useFieldSelector(fieldId);
   const cell = useCellSelector({
@@ -21,7 +21,7 @@ function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: 
       textAlign: 'left',
     };
 
-    if ([FieldType.Relation, FieldType.SingleSelect, FieldType.MultiSelect].includes(Number(type))) {
+    if (isPrimary || [FieldType.Relation, FieldType.SingleSelect, FieldType.MultiSelect].includes(Number(type))) {
       Object.assign(styleProperties, {
         breakWord: 'break-word',
         whiteSpace: 'normal',

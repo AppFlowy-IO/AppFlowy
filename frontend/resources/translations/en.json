@@ -1881,16 +1881,16 @@
     "remove": "Remove emoji",
     "categories": {
       "smileys": "Smileys & Emotion",
-      "people": "People & Body",
-      "animals": "Animals & Nature",
-      "food": "Food & Drink",
-      "activities": "Activities",
-      "places": "Travel & Places",
-      "objects": "Objects",
-      "symbols": "Symbols",
-      "flags": "Flags",
-      "nature": "Nature",
-      "frequentlyUsed": "Frequently Used"
+      "people": "people",
+      "animals": "nature",
+      "food": "foods",
+      "activities": "activities",
+      "places": "places",
+      "objects": "objects",
+      "symbols": "symbols",
+      "flags": "flags",
+      "nature": "nature",
+      "frequentlyUsed": "frequently Used"
     },
     "skinTone": {
       "default": "Default",
@@ -2287,7 +2287,22 @@
     },
     "mustSelectPrimaryDatabase": "The primary view must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",
-    "unableToDeselectPrimaryDatabase": "Unable to deselect primary database"
+    "unableToDeselectPrimaryDatabase": "Unable to deselect primary database",
+    "saveThisPage": "Save this page",
+    "duplicateTitle": "Where would you like to add",
+    "selectWorkspace": "Select a workspace",
+    "addTo": "Add to",
+    "duplicateSuccessfully": "Duplicated success. Want to view documents?",
+    "duplicateSuccessfullyDescription": "Don't have the app? Your download will begin automatically after clicking the 'Download'.",
+    "downloadIt": "Download",
+    "openApp": "Open in app",
+    "duplicateFailed": "Duplicated failed",
+    "membersCount": {
+      "zero": "No members",
+      "one": "1 member",
+      "many": "{count} members",
+      "other": "{count} members"
+    }
   },
   "web": {
     "continue": "Continue",
@@ -2301,5 +2316,55 @@
     "privacyPolicy": "Privacy Policy",
     "signInError": "Sign in error",
     "login": "Sign up or log in"
+  },
+  "globalComment": {
+    "comments": "Comments",
+    "addComment": "Add a comment",
+    "reactedBy": "reacted by",
+    "addReaction": "Add reaction",
+    "reactedByMore": "and {count} others",
+    "showSeconds": {
+      "one": "1 second ago",
+      "other": "{count} seconds ago",
+      "zero": "Just now",
+      "many": "{count} seconds ago"
+    },
+    "showMinutes": {
+      "one": "1 minute ago",
+      "other": "{count} minutes ago",
+      "many": "{count} minutes ago"
+    },
+    "showHours": {
+      "one": "1 hour ago",
+      "other": "{count} hours ago",
+      "many": "{count} hours ago"
+    },
+    "showDays": {
+      "one": "1 day ago",
+      "other": "{count} days ago",
+      "many": "{count} days ago"
+    },
+    "showMonths": {
+      "one": "1 month ago",
+      "other": "{count} months ago",
+      "many": "{count} months ago"
+    },
+    "showYears": {
+      "one": "1 year ago",
+      "other": "{count} years ago",
+      "many": "{count} years ago"
+    },
+    "reply": "Reply",
+    "deleteComment": "Delete comment",
+    "youAreNotOwner": "You are not the owner of this comment",
+    "confirmDeleteDescription": "Are you sure you want to delete this comment?",
+    "hasBeenDeleted": "Deleted",
+    "replyingTo": "Replying to",
+    "noAccessDeleteComment": "You're not allowed to delete this comment",
+    "collapse": "Collapse",
+    "readMore": "Read more",
+    "failedToAddComment": "Failed to add comment",
+    "commentAddedSuccessfully": "Comment added successfully.",
+    "askForViewComment": "Do you want to view the comment?"
   }
 }
