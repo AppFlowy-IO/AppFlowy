@@ -8,8 +8,7 @@ import 'package:reorderable_tabbar/reorderable_tabbar.dart';
 enum MobileNotificationTabType {
   inbox,
   unread,
-  archive,
-  multiSelect;
+  archive;
 
   String get tr {
     switch (this) {
@@ -19,8 +18,6 @@ enum MobileNotificationTabType {
         return LocaleKeys.settings_notifications_tabs_unread.tr();
       case MobileNotificationTabType.archive:
         return LocaleKeys.settings_notifications_tabs_archived.tr();
-      case MobileNotificationTabType.multiSelect:
-        return '';
     }
   }
 
@@ -33,7 +30,6 @@ enum MobileNotificationTabType {
         ];
       case MobileNotificationTabType.unread:
       case MobileNotificationTabType.archive:
-      case MobileNotificationTabType.multiSelect:
         return [];
     }
   }

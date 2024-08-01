@@ -10,7 +10,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class NotificationTab extends StatefulWidget {
+class NotificationTab extends StatelessWidget {
   const NotificationTab({
     super.key,
     required this.tabType,
@@ -19,18 +19,7 @@ class NotificationTab extends StatefulWidget {
   final MobileNotificationTabType tabType;
 
   @override
-  State<NotificationTab> createState() => _NotificationTabState();
-}
-
-class _NotificationTabState extends State<NotificationTab>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
   Widget build(BuildContext context) {
-    super.build(context);
-
     return BlocBuilder<ReminderBloc, ReminderState>(
       builder: (context, state) {
         final reminders = _filterReminders(state.reminders);
@@ -38,7 +27,7 @@ class _NotificationTabState extends State<NotificationTab>
         if (reminders.isEmpty) {
           // add refresh indicator to the empty notification.
           return EmptyNotification(
-            type: widget.tabType,
+            type: tabType,
           );
         }
 
@@ -47,26 +36,13 @@ class _NotificationTabState extends State<NotificationTab>
           separatorBuilder: (context, index) => const VSpace(8.0),
           itemBuilder: (context, index) {
             final reminder = reminders[index];
-            if (widget.tabType == MobileNotificationTabType.multiSelect) {
-              return MultiSelectNotificationItem(
-                key: ValueKey('${widget.tabType}_${reminder.id}'),
-                tabType: widget.tabType,
-                reminder: reminder,
-              );
-            } else {
-              return NotificationItem(
-                key: ValueKey('${widget.tabType}_${reminder.id}'),
-                tabType: widget.tabType,
-                reminder: reminder,
-              );
-            }
+            return NotificationItem(
+              key: ValueKey('${tabType}_${reminder.id}'),
+              tabType: tabType,
+              reminder: reminder,
+            );
           },
         );
-
-        // no need to add refresh indicator to the multi-select tab.
-        if (widget.tabType == MobileNotificationTabType.multiSelect) {
-          return child;
-        }
 
         return RefreshIndicator.adaptive(
           onRefresh: () async => _onRefresh(context),
@@ -93,7 +69,7 @@ class _NotificationTabState extends State<NotificationTab>
   }
 
   List<ReminderPB> _filterReminders(List<ReminderPB> reminders) {
-    switch (widget.tabType) {
+    switch (tabType) {
       case MobileNotificationTabType.inbox:
         return reminders.reversed
             .where((reminder) => !reminder.isArchived)
@@ -106,8 +82,38 @@ class _NotificationTabState extends State<NotificationTab>
         return reminders.reversed
             .where((reminder) => !reminder.isRead)
             .toList();
-      case MobileNotificationTabType.multiSelect:
-        return reminders.reversed.toList();
     }
+  }
+}
+
+class MultiSelectNotificationTab extends StatelessWidget {
+  const MultiSelectNotificationTab({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ReminderBloc, ReminderState>(
+      builder: (context, state) {
+        final reminders = state.reminders.reversed.toList();
+
+        if (reminders.isEmpty) {
+          // add refresh indicator to the empty notification.
+          return const SizedBox.shrink();
+        }
+
+        return ListView.separated(
+          itemCount: reminders.length,
+          separatorBuilder: (context, index) => const VSpace(8.0),
+          itemBuilder: (context, index) {
+            final reminder = reminders[index];
+            return MultiSelectNotificationItem(
+              key: ValueKey(reminder.id),
+              reminder: reminder,
+            );
+          },
+        );
+      },
+    );
   }
 }

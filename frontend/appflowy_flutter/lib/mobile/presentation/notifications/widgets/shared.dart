@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/notification/notification_reminder_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/color.dart';
-import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -14,36 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 const _kNotificationIconHeight = 36.0;
-
-class InnerNotificationItem extends StatelessWidget {
-  const InnerNotificationItem({
-    super.key,
-    required this.reminder,
-    required this.tabType,
-    required this.isSelected,
-  });
-
-  final MobileNotificationTabType tabType;
-  final ReminderPB reminder;
-  final ValueNotifier<bool> isSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const HSpace(10.0),
-        NotificationCheckIcon(isSelected: isSelected),
-        const HSpace(12.0),
-        NotificationIcon(reminder: reminder),
-        const HSpace(12.0),
-        Expanded(
-          child: NotificationContent(reminder: reminder),
-        ),
-      ],
-    );
-  }
-}
 
 class NotificationIcon extends StatelessWidget {
   const NotificationIcon({
@@ -66,23 +35,18 @@ class NotificationIcon extends StatelessWidget {
 class NotificationCheckIcon extends StatelessWidget {
   const NotificationCheckIcon({super.key, required this.isSelected});
 
-  final ValueNotifier<bool> isSelected;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: _kNotificationIconHeight,
       child: Center(
-        child: ValueListenableBuilder(
-          valueListenable: isSelected,
-          builder: (_, isSelected, __) {
-            return FlowySvg(
-              isSelected
-                  ? FlowySvgs.m_notification_multi_select_s
-                  : FlowySvgs.m_notification_multi_unselect_s,
-              blendMode: isSelected ? null : BlendMode.srcIn,
-            );
-          },
+        child: FlowySvg(
+          isSelected
+              ? FlowySvgs.m_notification_multi_select_s
+              : FlowySvgs.m_notification_multi_unselect_s,
+          blendMode: isSelected ? null : BlendMode.srcIn,
         ),
       ),
     );

@@ -1,12 +1,15 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/widgets/navigation_bar_button.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -250,25 +253,36 @@ class _NotificationNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        bottomNavigationBarType.value = BottomNavigationBarActionType.home;
-      },
-      child: Container(
-        // todo: use real height here.
-        height: 90,
-        decoration: BoxDecoration(
-          border: context.border,
-          color: context.backgroundColor,
-        ),
-        padding: const EdgeInsets.only(bottom: 20),
+    return Container(
+      // todo: use real height here.
+      height: 90,
+      decoration: BoxDecoration(
+        border: context.border,
+        color: context.backgroundColor,
+      ),
+      padding: const EdgeInsets.only(bottom: 20),
+      child: ValueListenableBuilder(
+        valueListenable: mSelectedNotificationIds,
+        builder: (context, value, child) {
+          if (value.isEmpty) {
+            // not editable
+            return IgnorePointer(
+              child: Opacity(
+                opacity: 0.3,
+                child: child,
+              ),
+            );
+          }
+
+          return child!;
+        },
         child: Row(
           children: [
             const HSpace(20),
             Expanded(
               child: NavigationBarButton(
                 icon: FlowySvgs.m_notification_action_mark_as_read_s,
-                text: 'Mark as read',
+                text: LocaleKeys.settings_notifications_action_markAsRead.tr(),
                 onTap: () {},
               ),
             ),
@@ -276,7 +290,7 @@ class _NotificationNavigationBar extends StatelessWidget {
             Expanded(
               child: NavigationBarButton(
                 icon: FlowySvgs.m_notification_action_archive_s,
-                text: 'Archive all',
+                text: LocaleKeys.settings_notifications_action_archive.tr(),
                 onTap: () {},
               ),
             ),

@@ -122,7 +122,6 @@ class _SlidableNotificationItem extends StatelessWidget {
       MobileNotificationTabType.archive => [
           if (kDebugMode) NotificationPaneActionType.unArchive,
         ],
-      MobileNotificationTabType.multiSelect => [],
     };
 
     if (actions.isEmpty) {

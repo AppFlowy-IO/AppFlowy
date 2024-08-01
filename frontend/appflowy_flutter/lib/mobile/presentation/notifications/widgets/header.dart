@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/settings_popup_menu.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -35,10 +36,7 @@ class MobileNotificationPageHeader extends StatelessWidget {
 class MobileNotificationMultiSelectPageHeader extends StatelessWidget {
   const MobileNotificationMultiSelectPageHeader({
     super.key,
-    required this.selectedCount,
   });
-
-  final ValueNotifier<int> selectedCount;
 
   @override
   Widget build(BuildContext context) {
@@ -54,10 +52,11 @@ class MobileNotificationMultiSelectPageHeader extends StatelessWidget {
                 BottomNavigationBarActionType.home,
           ),
           ValueListenableBuilder(
-            valueListenable: selectedCount,
-            builder: (context, value, child) {
+            valueListenable: mSelectedNotificationIds,
+            builder: (_, value, __) {
               return FlowyText(
-                '$value Selected',
+                // todo: i18n
+                '${value.length} Selected',
                 fontSize: 17.0,
                 figmaLineHeight: 24.0,
                 fontWeight: FontWeight.w500,

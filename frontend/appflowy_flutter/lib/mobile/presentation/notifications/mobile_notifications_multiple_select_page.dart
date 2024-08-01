@@ -1,3 +1,4 @@
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -31,30 +32,24 @@ class MobileNotificationMultiSelect extends StatefulWidget {
 
 class _MobileNotificationMultiSelectState
     extends State<MobileNotificationMultiSelect> {
-  final ValueNotifier<int> selectedCount = ValueNotifier(0);
-
   @override
   void dispose() {
-    selectedCount.dispose();
+    mSelectedNotificationIds.value = [];
 
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MobileNotificationMultiSelectPageHeader(
-              selectedCount: selectedCount,
-            ),
-            const VSpace(12.0),
-            const Expanded(
-              child: NotificationTab(
-                tabType: MobileNotificationTabType.multiSelect,
-              ),
+            MobileNotificationMultiSelectPageHeader(),
+            VSpace(12.0),
+            Expanded(
+              child: MultiSelectNotificationTab(),
             ),
           ],
         ),

@@ -1,5 +1,6 @@
 import 'package:appflowy/mobile/application/notification/notification_reminder_bloc.dart';
 import 'package:appflowy/mobile/presentation/base/gesture.dart';
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -10,11 +11,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class MultiSelectNotificationItem extends StatefulWidget {
   const MultiSelectNotificationItem({
     super.key,
-    required this.tabType,
     required this.reminder,
   });
 
-  final MobileNotificationTabType tabType;
   final ReminderPB reminder;
 
   @override
@@ -24,12 +23,8 @@ class MultiSelectNotificationItem extends StatefulWidget {
 
 class _MultiSelectNotificationItemState
     extends State<MultiSelectNotificationItem> {
-  final ValueNotifier<bool> isSelected = ValueNotifier(false);
-
   @override
   void dispose() {
-    isSelected.dispose();
-
     super.dispose();
   }
 
@@ -60,11 +55,11 @@ class _MultiSelectNotificationItemState
           }
 
           final child = ValueListenableBuilder(
-            valueListenable: isSelected,
-            builder: (_, isSelected, child) {
+            valueListenable: mSelectedNotificationIds,
+            builder: (_, selectedIds, child) {
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: isSelected
+                decoration: selectedIds.contains(widget.reminder.id)
                     ? ShapeDecoration(
                         color: const Color(0x1900BCF0),
                         shape: RoundedRectangleBorder(
@@ -78,9 +73,7 @@ class _MultiSelectNotificationItemState
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: _InnerNotificationItem(
-                tabType: widget.tabType,
                 reminder: widget.reminder,
-                isSelected: isSelected,
               ),
             ),
           );
@@ -88,8 +81,12 @@ class _MultiSelectNotificationItemState
           return AnimatedGestureDetector(
             scaleFactor: 0.99,
             onTapUp: () {
-              if (widget.tabType == MobileNotificationTabType.multiSelect) {
-                isSelected.value = !isSelected.value;
+              if (mSelectedNotificationIds.value.contains(widget.reminder.id)) {
+                mSelectedNotificationIds.value = mSelectedNotificationIds.value
+                  ..remove(widget.reminder.id);
+              } else {
+                mSelectedNotificationIds.value = mSelectedNotificationIds.value
+                  ..add(widget.reminder.id);
               }
             },
             child: child,
@@ -103,13 +100,9 @@ class _MultiSelectNotificationItemState
 class _InnerNotificationItem extends StatelessWidget {
   const _InnerNotificationItem({
     required this.reminder,
-    required this.tabType,
-    required this.isSelected,
   });
 
-  final MobileNotificationTabType tabType;
   final ReminderPB reminder;
-  final ValueNotifier<bool> isSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +110,9 @@ class _InnerNotificationItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const HSpace(10.0),
-        NotificationCheckIcon(isSelected: isSelected),
+        NotificationCheckIcon(
+          isSelected: mSelectedNotificationIds.value.contains(reminder.id),
+        ),
         const HSpace(12.0),
         NotificationIcon(reminder: reminder),
         const HSpace(12.0),
