@@ -491,7 +491,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     final name = FlowyText.regular(
       widget.view.name,
       overflow: TextOverflow.ellipsis,
-      // figmaLineHeight: 18.0,
+      fontSize: 14.0,
+      figmaLineHeight: 18.0,
     );
     final children = [
       const HSpace(2),
@@ -573,6 +574,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         ? FlowyText.emoji(
             widget.view.icon.value,
             fontSize: 16.0,
+            figmaLineHeight: 21.0,
           )
         : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
 
