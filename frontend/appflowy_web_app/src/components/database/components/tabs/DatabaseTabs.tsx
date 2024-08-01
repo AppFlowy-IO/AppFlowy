@@ -1,8 +1,9 @@
 import { DatabaseViewLayout, YDatabaseView, YjsDatabaseKey } from '@/application/collab.type';
-import { useDatabase, useDatabaseView } from '@/application/database-yjs';
+import { DatabaseContext, useDatabase, useDatabaseView } from '@/application/database-yjs';
+import { ViewMeta } from '@/application/db/tables/view_metas';
 import { DatabaseActions } from '@/components/database/components/conditions';
 import { Tooltip } from '@mui/material';
-import { forwardRef, FunctionComponent, SVGProps, useMemo } from 'react';
+import { forwardRef, FunctionComponent, SVGProps, useContext, useEffect, useMemo, useState } from 'react';
 import { ViewTabs, ViewTab } from './ViewTabs';
 import { useTranslation } from 'react-i18next';
 
@@ -32,11 +33,27 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     const { t } = useTranslation();
     const view = useDatabaseView();
     const views = useDatabase().get(YjsDatabaseKey.views);
+    const loadViewMeta = useContext(DatabaseContext)?.loadViewMeta;
+    const [meta, setMeta] = useState<ViewMeta | null>(null);
     const layout = Number(view?.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
 
     const handleChange = (_: React.SyntheticEvent, newValue: string) => {
       setSelectedViewId?.(newValue);
     };
+
+    useEffect(() => {
+      void (async () => {
+        if (loadViewMeta) {
+          try {
+            const meta = await loadViewMeta(iidIndex, setMeta);
+
+            setMeta(meta);
+          } catch (e) {
+            // do nothing
+          }
+        }
+      })();
+    }, [loadViewMeta, iidIndex]);
 
     const className = useMemo(() => {
       const classList = ['-mb-[0.5px] flex items-center overflow-hidden border-line-divider text-text-title'];
@@ -72,7 +89,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
               if (!view) return null;
               const layout = Number(view.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
               const Icon = DatabaseIcons[layout];
-              const name = viewId === iidIndex ? viewName : view.get(YjsDatabaseKey.name);
+              const name = viewId === iidIndex ? viewName : meta?.child_views?.find((v) => v.view_id === viewId)?.name;
 
               return (
                 <ViewTab

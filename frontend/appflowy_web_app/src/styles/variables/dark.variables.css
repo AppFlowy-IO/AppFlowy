@@ -33,8 +33,14 @@
     --bg-tips: #005174;
     --bg-brand: #2c144b;
     --function-error: #d32772;
+    --function-error-hover: #d36f8b;
+    --function-error-opacity: rgba(211, 39, 114, 0.1);
     --function-warning: #e9b320;
+    --function-warning-hover: #e9c94b;
+    --function-warning-opacity: rgba(233, 179, 32, 0.1);
     --function-success: #3ba856;
+    --function-success-hover: #5dbb7a;
+    --function-success-opacity: rgba(59, 168, 86, 0.1);
     --function-info: #2e9dbb;
     --tint-red: #56363F;
     --tint-green: #3C5133;

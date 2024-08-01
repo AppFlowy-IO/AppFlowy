@@ -1,3 +1,4 @@
+import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import { getScrollParent } from '@/components/global-comment/utils';
 import { HEADER_HEIGHT } from '@/components/publish/header';
 import React, { useEffect, useRef, useState } from 'react';
@@ -5,10 +6,17 @@ import AddComment from './AddComment';
 import { Portal } from '@mui/material';
 
 export function AddCommentWrapper() {
+  const { replyCommentId } = useGlobalCommentContext();
   const addCommentRef = useRef<HTMLDivElement>(null);
   const [showFixedAddComment, setShowFixedAddComment] = useState(false);
   const [focus, setFocus] = useState(false);
   const [content, setContent] = useState('');
+
+  useEffect(() => {
+    if (replyCommentId) {
+      setFocus(true);
+    }
+  }, [replyCommentId]);
 
   useEffect(() => {
     const element = addCommentRef.current;
@@ -36,7 +44,7 @@ export function AddCommentWrapper() {
 
   return (
     <>
-      <div className={'my-2'} ref={addCommentRef}>
+      <div className={'my-2'} id='addComment' ref={addCommentRef}>
         <AddComment
           content={content}
           setContent={setContent}

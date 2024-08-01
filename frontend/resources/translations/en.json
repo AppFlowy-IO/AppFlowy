@@ -2252,6 +2252,8 @@
     "noAccessDeleteComment": "You're not allowed to delete this comment",
     "collapse": "Collapse",
     "readMore": "Read more",
-    "failedToAddComment": "Failed to add comment"
+    "failedToAddComment": "Failed to add comment",
+    "commentAddedSuccessfully": "Comment added successfully.",
+    "askForViewComment": "Do you want to view the comment?"
   }
 }

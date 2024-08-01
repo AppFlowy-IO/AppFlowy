@@ -6,9 +6,10 @@ import ReplyComment from '@/components/global-comment/ReplyComment';
 
 import { Button, TextareaAutosize } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as CloseIcon } from '@/assets/close.svg';
+import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 
 interface AddCommentProps {
   content: string;
@@ -49,18 +50,24 @@ function AddComment({ content, setContent, focus, setFocus }: AddCommentProps) {
       setContent('');
 
       setReplyCommentId(null);
+      notify.info({
+        type: 'success',
+        title: t('globalComment.commentAddedSuccessfully'),
+        message: t('globalComment.askForViewComment'),
+        okText: t('button.yes'),
+        onOk: () => {
+          const element = document.getElementById('addComment') as HTMLElement;
+
+          if (!element) return;
+          void smoothScrollIntoViewIfNeeded(element, { behavior: 'smooth', scrollMode: 'if-needed', block: 'start' });
+        },
+      });
     } catch (_e) {
       notify.error(t('globalComment.failedToAddComment'));
     } finally {
       setLoading(false);
     }
   }, [createCommentOnPublishView, viewId, loading, content, replyCommentId, reload, setReplyCommentId, t, setContent]);
-
-  useEffect(() => {
-    if (!focus) {
-      inputRef.current?.blur();
-    }
-  }, [focus]);
 
   return (
     <div className={'flex flex-col gap-2'}>
@@ -95,11 +102,12 @@ function AddComment({ content, setContent, focus, setFocus }: AddCommentProps) {
                 transition: 'width 0.3s ease-in-out',
               }}
               className={
-                'flex flex-1 transform flex-col gap-4 rounded-[8px] border border-line-divider bg-bg-body px-3 py-1.5'
+                'flex flex-1 transform flex-col gap-4 rounded-[8px] border border-line-border bg-bg-body px-3 py-1.5'
               }
             >
               <TextareaAutosize
                 minRows={1}
+                autoFocus={focus}
                 ref={inputRef}
                 autoComplete={'off'}
                 spellCheck={false}
