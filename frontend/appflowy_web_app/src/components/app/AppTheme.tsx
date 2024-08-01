@@ -41,20 +41,42 @@ function AppTheme({ children }: { children: React.ReactNode }) {
                 },
                 borderRadius: '4px',
                 padding: '2px',
+                '&.MuiIconButton-colorInherit': {
+                  color: 'var(--icon-primary)',
+                },
               },
             },
           },
           MuiButton: {
             styleOverrides: {
+              text: {
+                borderRadius: '8px',
+                '&:hover': {
+                  backgroundColor: 'var(--fill-list-hover)',
+                },
+              },
               contained: {
                 color: 'var(--content-on-fill)',
                 boxShadow: 'none',
                 '&:hover': {
                   backgroundColor: 'var(--content-blue-600)',
                 },
+                borderRadius: '8px',
+                '&.Mui-disabled': {
+                  backgroundColor: 'var(--content-blue-400)',
+                  opacity: 0.3,
+                  color: 'var(--content-on-fill)',
+                },
+              },
+              outlined: {
+                '&.MuiButton-outlinedInherit': {
+                  borderColor: 'var(--line-divider)',
+                },
+                borderRadius: '8px',
               },
             },
           },
+
           MuiButtonBase: {
             styleOverrides: {
               root: {
@@ -78,10 +100,16 @@ function AppTheme({ children }: { children: React.ReactNode }) {
               root: {
                 backgroundImage: 'none',
                 boxShadow: 'var(--shadow)',
+                borderRadius: '10px',
               },
             },
           },
           MuiDialog: {
+            styleOverrides: {
+              paper: {
+                borderRadius: '12px',
+              },
+            },
             defaultProps: {
               sx: {
                 '& .MuiBackdrop-root': {
@@ -112,6 +140,7 @@ function AppTheme({ children }: { children: React.ReactNode }) {
                   color: 'var(--text-caption)',
                   WebkitTextFillColor: 'var(--text-caption) !important',
                 },
+                borderRadius: '8px',
               },
             },
             styleOverrides: {

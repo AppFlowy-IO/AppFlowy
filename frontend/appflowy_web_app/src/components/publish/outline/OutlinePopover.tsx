@@ -2,7 +2,7 @@ import { usePublishContext } from '@/application/publish';
 import Outline from '@/components/publish/outline/Outline';
 import { Divider, PopperPlacementType } from '@mui/material';
 import React, { ReactElement, useMemo } from 'react';
-import RichTooltip from 'src/components/_shared/popover/RichTooltip';
+import { RichTooltip } from '@/components/_shared/popover';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
 

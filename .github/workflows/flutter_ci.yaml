@@ -249,7 +249,7 @@ jobs:
           BACKEND_VERSION: 0.3.24-amd64
         run: |
           if [ "$(docker ps --filter name=appflowy-cloud -q)" == "" ]; then
-            docker compose pull  
+            docker compose pull
             docker compose up -d
             sleep 10
           else

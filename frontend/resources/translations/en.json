@@ -1603,6 +1603,26 @@
         "invalidVideoUrl": "The source URL is not supported yet.",
         "invalidVideoUrlYouTube": "YouTube is not supported yet.",
         "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "File",
+        "uploadTab": "Upload",
+        "networkTab": "Integrate link",
+        "placeholderText": "Click or drag and drop to upload a file",
+        "placeholderDragging": "Drop the file to upload",
+        "dropFileToUpload": "Drop the file to upload",
+        "fileUploadHint": "Drag and drop a file here\nor click to select a file.",
+        "networkHint": "Enter a link to a file",
+        "networkUrlInvalid": "Invalid URL, please correct the URL and try again",
+        "networkAction": "Embed file link",
+        "fileTooBigError": "File size is too big, please upload a file with size less than 10MB",
+        "renameFile": {
+          "title": "Rename file",
+          "description": "Enter the new name for this file",
+          "nameEmptyError": "File name cannot be left empty."
+        },
+        "uploadedAt": "Uploaded on {}",
+        "linkedAt": "Link added on {}"
       }
     },
     "outlineBlock": {
@@ -1861,16 +1881,16 @@
     "remove": "Remove emoji",
     "categories": {
       "smileys": "Smileys & Emotion",
-      "people": "People & Body",
-      "animals": "Animals & Nature",
-      "food": "Food & Drink",
-      "activities": "Activities",
-      "places": "Travel & Places",
-      "objects": "Objects",
-      "symbols": "Symbols",
-      "flags": "Flags",
-      "nature": "Nature",
-      "frequentlyUsed": "Frequently Used"
+      "people": "people",
+      "animals": "nature",
+      "food": "foods",
+      "activities": "activities",
+      "places": "places",
+      "objects": "objects",
+      "symbols": "symbols",
+      "flags": "flags",
+      "nature": "nature",
+      "frequentlyUsed": "frequently Used"
     },
     "skinTone": {
       "default": "Default",
@@ -2267,7 +2287,22 @@
     },
     "mustSelectPrimaryDatabase": "The primary view must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",
-    "unableToDeselectPrimaryDatabase": "Unable to deselect primary database"
+    "unableToDeselectPrimaryDatabase": "Unable to deselect primary database",
+    "saveThisPage": "Save this page",
+    "duplicateTitle": "Where would you like to add",
+    "selectWorkspace": "Select a workspace",
+    "addTo": "Add to",
+    "duplicateSuccessfully": "Duplicated success. Want to view documents?",
+    "duplicateSuccessfullyDescription": "Don't have the app? Your download will begin automatically after clicking the 'Download'.",
+    "downloadIt": "Download",
+    "openApp": "Open in app",
+    "duplicateFailed": "Duplicated failed",
+    "membersCount": {
+      "zero": "No members",
+      "one": "1 member",
+      "many": "{count} members",
+      "other": "{count} members"
+    }
   },
   "web": {
     "continue": "Continue",
@@ -2281,5 +2316,55 @@
     "privacyPolicy": "Privacy Policy",
     "signInError": "Sign in error",
     "login": "Sign up or log in"
+  },
+  "globalComment": {
+    "comments": "Comments",
+    "addComment": "Add a comment",
+    "reactedBy": "reacted by",
+    "addReaction": "Add reaction",
+    "reactedByMore": "and {count} others",
+    "showSeconds": {
+      "one": "1 second ago",
+      "other": "{count} seconds ago",
+      "zero": "Just now",
+      "many": "{count} seconds ago"
+    },
+    "showMinutes": {
+      "one": "1 minute ago",
+      "other": "{count} minutes ago",
+      "many": "{count} minutes ago"
+    },
+    "showHours": {
+      "one": "1 hour ago",
+      "other": "{count} hours ago",
+      "many": "{count} hours ago"
+    },
+    "showDays": {
+      "one": "1 day ago",
+      "other": "{count} days ago",
+      "many": "{count} days ago"
+    },
+    "showMonths": {
+      "one": "1 month ago",
+      "other": "{count} months ago",
+      "many": "{count} months ago"
+    },
+    "showYears": {
+      "one": "1 year ago",
+      "other": "{count} years ago",
+      "many": "{count} years ago"
+    },
+    "reply": "Reply",
+    "deleteComment": "Delete comment",
+    "youAreNotOwner": "You are not the owner of this comment",
+    "confirmDeleteDescription": "Are you sure you want to delete this comment?",
+    "hasBeenDeleted": "Deleted",
+    "replyingTo": "Replying to",
+    "noAccessDeleteComment": "You're not allowed to delete this comment",
+    "collapse": "Collapse",
+    "readMore": "Read more",
+    "failedToAddComment": "Failed to add comment",
+    "commentAddedSuccessfully": "Comment added successfully.",
+    "commentAddedSuccessTip": "You've just added or replied to a comment. Would you like to jump to the top to see the latest comments?"
   }
 }

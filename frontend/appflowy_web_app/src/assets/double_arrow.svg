@@ -1,0 +1,8 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="double_arrow">
+        <g id="Vector">
+            <path d="M15.25 5H10.75L15.75 12L10.75 19H15.25L20.25 12L15.25 5Z" fill="currentColor"/>
+            <path d="M8.25 5H3.75L8.75 12L3.75 19H8.25L13.25 12L8.25 5Z" fill="currentColor"/>
+        </g>
+    </g>
+</svg>

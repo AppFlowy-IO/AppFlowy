@@ -17,3 +17,5 @@ export function Popover({ children, ...props }: PopoverComponentProps) {
     </PopoverComponent>
   );
 }
+
+export default Popover;

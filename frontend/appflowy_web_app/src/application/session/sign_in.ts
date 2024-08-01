@@ -28,7 +28,6 @@ export function withSignIn() {
 
       saveRedirectTo(redirectTo);
 
-      console.log('=====saveRedirectTo', redirectTo);
       try {
         await originalMethod.apply(this, [args]);
       } catch (e) {

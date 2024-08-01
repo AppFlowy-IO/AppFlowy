@@ -27,17 +27,24 @@ $today-highlight-bg: transparent;
   }
 }
 
+.rbc-calendar {
+  height: fit-content;
+  @apply w-full overflow-x-scroll;
+  @include mixin.scrollbar-style;
+
+}
+
 .rbc-month-view {
   border: none;
-  @apply h-full overflow-auto;
+  height: fit-content;
 
   .rbc-month-row {
     border: 1px solid var(--line-divider);
     border-top: none;
-    min-width: 700px;
+    min-width: 1200px;
+    @apply max-sm:w-[650vw];
   }
 
-  @include mixin.scrollbar-style;
 
 }
 
@@ -51,7 +58,9 @@ $today-highlight-bg: transparent;
   top: 0;
   background: var(--bg-body);
   z-index: 50;
-  min-width: 700px;
+  min-width: 1200px;
+
+  @apply max-sm:w-[650vw];
 
   .rbc-header {
     border: none;
@@ -79,10 +88,6 @@ $today-highlight-bg: transparent;
   height: fit-content;
   table-layout: fixed;
   width: 100%;
-
-  &:last-child {
-    margin-bottom: 150px;
-  }
 }
 
 .event-properties {

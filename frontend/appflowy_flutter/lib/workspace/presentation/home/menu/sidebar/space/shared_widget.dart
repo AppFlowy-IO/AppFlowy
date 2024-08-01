@@ -1,3 +1,7 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -18,9 +22,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpacePermissionSwitch extends StatefulWidget {
@@ -295,6 +296,8 @@ class ConfirmPopup extends StatefulWidget {
     this.onCancel,
     this.confirmLabel,
     this.confirmButtonColor,
+    this.child,
+    this.closeOnAction = true,
   });
 
   final String title;
@@ -310,6 +313,18 @@ class ConfirmPopup extends StatefulWidget {
   /// Defaults to 'Ok' for [ConfirmPopupStyle.onlyOk] style.
   ///
   final String? confirmLabel;
+
+  /// Allows to add a child to the popup.
+  ///
+  /// This is useful when you want to add more content to the popup.
+  /// The child will be placed below the description.
+  ///
+  final Widget? child;
+
+  /// Decides whether the popup should be closed when the confirm button is clicked.
+  /// Defaults to true.
+  ///
+  final bool closeOnAction;
 
   @override
   State<ConfirmPopup> createState() => _ConfirmPopupState();
@@ -339,9 +354,13 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildTitle(),
-            const VSpace(6.0),
+            const VSpace(6),
             _buildDescription(),
-            const VSpace(20.0),
+            if (widget.child != null) ...[
+              const VSpace(12),
+              widget.child!,
+            ],
+            const VSpace(20),
             _buildStyledButton(context),
           ],
         ),
@@ -386,7 +405,9 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         return SpaceOkButton(
           onConfirm: () {
             widget.onConfirm();
-            Navigator.of(context).pop();
+            if (widget.closeOnAction) {
+              Navigator.of(context).pop();
+            }
           },
           confirmButtonName: widget.confirmLabel ?? LocaleKeys.button_ok.tr(),
           confirmButtonColor: widget.confirmButtonColor ??
@@ -400,7 +421,9 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
           },
           onConfirm: () {
             widget.onConfirm();
-            Navigator.of(context).pop();
+            if (widget.closeOnAction) {
+              Navigator.of(context).pop();
+            }
           },
           confirmButtonName:
               widget.confirmLabel ?? LocaleKeys.space_delete.tr(),

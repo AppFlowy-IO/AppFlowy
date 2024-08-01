@@ -79,7 +79,6 @@ export const Column = memo(
               return (
                 <VariableSizeList
                   ref={ref}
-                  className={'pb-[150px]'}
                   height={height}
                   itemCount={rowCount}
                   itemSize={getItemSize}

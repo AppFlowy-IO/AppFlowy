@@ -112,8 +112,12 @@ export default defineConfig({
                     id.includes('/react-is@') ||
                     id.includes('/yjs@') ||
                     id.includes('/y-indexeddb@') ||
+                    id.includes('/dexie') ||
                     id.includes('/redux') ||
-                    id.includes('/react-custom-scrollbars')
+                    id.includes('/react-custom-scrollbars') ||
+                    id.includes('/dayjs') ||
+                    id.includes('/smooth-scroll-into-view-if-needed') ||
+                    id.includes('/react-virtualized-auto-sizer')
                   ) {
                     return 'common';
                   }
@@ -140,9 +144,6 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
-      '@mui/icons-material/ErrorOutline',
-      '@mui/icons-material/CheckCircleOutline',
-      '@mui/icons-material/FunctionsOutlined',
       'react-katex',
       // 'react-custom-scrollbars-2',
       // 'react-window',

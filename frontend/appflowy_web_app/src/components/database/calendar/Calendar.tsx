@@ -8,14 +8,11 @@ export function Calendar() {
   const { dayPropGetter, localizer, formats, events, emptyEvents } = useCalendarSetup();
 
   return (
-    <div className={'database-calendar h-full max-h-[960px] pb-4 pt-4 text-sm'}>
+    <div className={'database-calendar h-fit  pb-4 pt-4 text-sm'}>
       <BigCalendar
         components={{
           toolbar: (props) => <Toolbar {...props} emptyEvents={emptyEvents} />,
           eventWrapper: Event,
-        }}
-        style={{
-          marginBottom: '24px',
         }}
         events={events}
         views={['month']}
