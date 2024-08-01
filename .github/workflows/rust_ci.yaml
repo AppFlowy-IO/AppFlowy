@@ -108,7 +108,7 @@ jobs:
         working-directory: AppFlowy-Cloud
         run: |
           if [ "$(docker ps --filter name=appflowy-cloud -q)" == "" ]; then
-            docker compose pull  
+            docker compose pull
             docker compose up -d
             sleep 10
           else
