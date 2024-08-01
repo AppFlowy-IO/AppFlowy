@@ -2365,6 +2365,6 @@
     "readMore": "Read more",
     "failedToAddComment": "Failed to add comment",
     "commentAddedSuccessfully": "Comment added successfully.",
-    "askForViewComment": "Do you want to view the comment?"
+    "commentAddedSuccessTip": "You've just added or replied to a comment. Would you like to jump to the top to see the latest comments?"
   }
 }

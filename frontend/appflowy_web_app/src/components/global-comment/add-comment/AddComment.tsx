@@ -16,9 +16,10 @@ interface AddCommentProps {
   setContent: (content: string) => void;
   focus: boolean;
   setFocus: (focus: boolean) => void;
+  fixed: boolean;
 }
 
-function AddComment({ content, setContent, focus, setFocus }: AddCommentProps) {
+function AddComment({ content, setContent, focus, setFocus, fixed }: AddCommentProps) {
   const { reload, replyCommentId, replyComment: setReplyCommentId } = useGlobalCommentContext();
 
   const { t } = useTranslation();
@@ -50,24 +51,37 @@ function AddComment({ content, setContent, focus, setFocus }: AddCommentProps) {
       setContent('');
 
       setReplyCommentId(null);
-      notify.info({
-        type: 'success',
-        title: t('globalComment.commentAddedSuccessfully'),
-        message: t('globalComment.askForViewComment'),
-        okText: t('button.yes'),
-        onOk: () => {
-          const element = document.getElementById('addComment') as HTMLElement;
+      if (fixed) {
+        notify.info({
+          type: 'success',
+          title: t('globalComment.commentAddedSuccessfully'),
+          message: t('globalComment.commentAddedSuccessTip'),
+          okText: t('button.yes'),
+          onOk: () => {
+            const element = document.getElementById('addComment') as HTMLElement;
 
-          if (!element) return;
-          void smoothScrollIntoViewIfNeeded(element, { behavior: 'smooth', scrollMode: 'if-needed', block: 'start' });
-        },
-      });
+            if (!element) return;
+            void smoothScrollIntoViewIfNeeded(element, { behavior: 'smooth', scrollMode: 'if-needed', block: 'start' });
+          },
+        });
+      }
     } catch (_e) {
       notify.error(t('globalComment.failedToAddComment'));
     } finally {
       setLoading(false);
     }
-  }, [createCommentOnPublishView, viewId, loading, content, replyCommentId, reload, setReplyCommentId, t, setContent]);
+  }, [
+    fixed,
+    createCommentOnPublishView,
+    viewId,
+    loading,
+    content,
+    replyCommentId,
+    reload,
+    setReplyCommentId,
+    t,
+    setContent,
+  ]);
 
   return (
     <div className={'flex flex-col gap-2'}>

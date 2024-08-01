@@ -31,8 +31,8 @@ const InfoSnackbar = forwardRef<HTMLDivElement, InfoSnackbarProps>(
     };
 
     return (
-      <SnackbarContent ref={ref}>
-        <Paper className={`relative flex flex-col gap-4 border p-4 ${getBorderColor(type)}`}>
+      <SnackbarContent ref={ref} className={'flex items-center justify-center'}>
+        <Paper className={`relative flex flex-col gap-4 border p-5 ${getBorderColor(type)}`}>
           <div className={'flex w-full items-center justify-between text-base font-medium'}>
             <div className={'flex flex-1 items-center gap-2 text-left font-semibold'}>
               {getIcon(type)}
@@ -45,7 +45,7 @@ const InfoSnackbar = forwardRef<HTMLDivElement, InfoSnackbarProps>(
             </div>
           </div>
 
-          <div className={'flex-1 pr-10'}>{message}</div>
+          <div className={'mx-8 flex-1'}>{message}</div>
           {showActions && (
             <div className={'flex w-full justify-end gap-4'}>
               <Button

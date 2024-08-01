@@ -50,13 +50,14 @@ export function AddCommentWrapper() {
           setContent={setContent}
           focus={focus && !showFixedAddComment}
           setFocus={setFocus}
+          fixed={false}
         />
       </div>
       {showFixedAddComment && (
         <Portal container={document.body}>
           <div className={'fixed top-[48px] flex w-full justify-center'}>
             <div className={'w-[964px] min-w-0 max-w-full px-16 max-sm:px-4'}>
-              <AddComment content={content} setContent={setContent} focus={focus} setFocus={setFocus} />
+              <AddComment fixed content={content} setContent={setContent} focus={focus} setFocus={setFocus} />
             </div>
           </div>
         </Portal>
