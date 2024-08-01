@@ -8,6 +8,7 @@ use flowy_database_pub::cloud::{
 };
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::af_spawn;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::{
@@ -25,6 +26,7 @@ impl<T> SupabaseDatabaseServiceImpl<T> {
   }
 }
 
+#[async_trait]
 impl<T> DatabaseCloudService for SupabaseDatabaseServiceImpl<T>
 where
   T: SupabaseServerService,
@@ -99,21 +101,21 @@ where
     })
   }
 
-  fn summary_database_row(
+  async fn summary_database_row(
     &self,
     _workspace_id: &str,
     _object_id: &str,
     _summary_row: SummaryRowContent,
-  ) -> FutureResult<String, FlowyError> {
-    FutureResult::new(async move { Ok("".to_string()) })
+  ) -> Result<String, FlowyError> {
+    Ok("".to_string())
   }
 
-  fn translate_database_row(
+  async fn translate_database_row(
     &self,
     _workspace_id: &str,
     _translate_row: TranslateRowContent,
     _language: &str,
-  ) -> FutureResult<TranslateRowResponse, FlowyError> {
-    FutureResult::new(async move { Ok(TranslateRowResponse::default()) })
+  ) -> Result<TranslateRowResponse, FlowyError> {
+    Ok(TranslateRowResponse::default())
   }
 }

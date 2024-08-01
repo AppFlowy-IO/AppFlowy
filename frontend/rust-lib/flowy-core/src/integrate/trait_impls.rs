@@ -364,6 +364,7 @@ impl FolderCloudService for ServerProvider {
   }
 }
 
+#[async_trait]
 impl DatabaseCloudService for ServerProvider {
   fn get_database_object_doc_state(
     &self,
@@ -413,38 +414,30 @@ impl DatabaseCloudService for ServerProvider {
     })
   }
 
-  fn summary_database_row(
+  async fn summary_database_row(
     &self,
     workspace_id: &str,
     object_id: &str,
     summary_row: SummaryRowContent,
-  ) -> FutureResult<String, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    let object_id = object_id.to_string();
-    FutureResult::new(async move {
-      server?
-        .database_service()
-        .summary_database_row(&workspace_id, &object_id, summary_row)
-        .await
-    })
+  ) -> Result<String, FlowyError> {
+    self
+      .get_server()?
+      .database_service()
+      .summary_database_row(workspace_id, object_id, summary_row)
+      .await
   }
 
-  fn translate_database_row(
+  async fn translate_database_row(
     &self,
     workspace_id: &str,
     translate_row: TranslateRowContent,
     language: &str,
-  ) -> FutureResult<TranslateRowResponse, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    let language = language.to_string();
-    FutureResult::new(async move {
-      server?
-        .database_service()
-        .translate_database_row(&workspace_id, translate_row, &language)
-        .await
-    })
+  ) -> Result<TranslateRowResponse, FlowyError> {
+    self
+      .get_server()?
+      .database_service()
+      .translate_database_row(workspace_id, translate_row, language)
+      .await
   }
 }
 

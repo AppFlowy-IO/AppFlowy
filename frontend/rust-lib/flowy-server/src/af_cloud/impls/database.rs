@@ -17,6 +17,7 @@ use flowy_database_pub::cloud::{
   TranslateRowContent, TranslateRowResponse,
 };
 use flowy_error::FlowyError;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::define::ServerUser;
@@ -28,6 +29,7 @@ pub(crate) struct AFCloudDatabaseCloudServiceImpl<T> {
   pub user: Arc<dyn ServerUser>,
 }
 
+#[async_trait]
 impl<T> DatabaseCloudService for AFCloudDatabaseCloudServiceImpl<T>
 where
   T: AFServer,
@@ -122,47 +124,41 @@ where
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn summary_database_row(
+  async fn summary_database_row(
     &self,
     workspace_id: &str,
     _object_id: &str,
     summary_row: SummaryRowContent,
-  ) -> FutureResult<String, FlowyError> {
-    let workspace_id = workspace_id.to_string();
+  ) -> Result<String, FlowyError> {
     let try_get_client = self.inner.try_get_client();
-    FutureResult::new(async move {
-      let map: Map<String, Value> = summary_row
-        .into_iter()
-        .map(|(key, value)| (key, Value::String(value)))
-        .collect();
-      let params = SummarizeRowParams {
-        workspace_id,
-        data: SummarizeRowData::Content(map),
-      };
-      let data = try_get_client?.summarize_row(params).await?;
-      Ok(data.text)
-    })
+    let map: Map<String, Value> = summary_row
+      .into_iter()
+      .map(|(key, value)| (key, Value::String(value)))
+      .collect();
+    let params = SummarizeRowParams {
+      workspace_id: workspace_id.to_string(),
+      data: SummarizeRowData::Content(map),
+    };
+    let data = try_get_client?.summarize_row(params).await?;
+    Ok(data.text)
   }
 
-  fn translate_database_row(
+  async fn translate_database_row(
     &self,
     workspace_id: &str,
     translate_row: TranslateRowContent,
     language: &str,
-  ) -> FutureResult<TranslateRowResponse, FlowyError> {
-    let language = language.to_string();
+  ) -> Result<TranslateRowResponse, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
-    FutureResult::new(async move {
-      let data = TranslateRowData {
-        cells: translate_row,
-        language,
-        include_header: false,
-      };
+    let data = TranslateRowData {
+      cells: translate_row,
+      language: language.to_string(),
+      include_header: false,
+    };
 
-      let params = TranslateRowParams { workspace_id, data };
-      let data = try_get_client?.translate_row(params).await?;
-      Ok(data)
-    })
+    let params = TranslateRowParams { workspace_id, data };
+    let data = try_get_client?.translate_row(params).await?;
+    Ok(data)
   }
 }

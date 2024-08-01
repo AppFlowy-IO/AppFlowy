@@ -1,7 +1,7 @@
 use crate::chat::Chat;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
 use crate::local_ai::local_llm_chat::LocalAIController;
-use crate::middleware::chat_service_mw::CloudServiceMiddleware;
+use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::persistence::{insert_chat, ChatTable};
 
 use appflowy_plugin::manager::PluginManager;
@@ -25,7 +25,7 @@ pub trait AIUserService: Send + Sync + 'static {
 }
 
 pub struct AIManager {
-  pub cloud_service_wm: Arc<CloudServiceMiddleware>,
+  pub cloud_service_wm: Arc<AICloudServiceMiddleware>,
   pub user_service: Arc<dyn AIUserService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
   pub local_ai_controller: Arc<LocalAIController>,
@@ -47,7 +47,7 @@ impl AIManager {
     ));
 
     // setup local chat service
-    let cloud_service_wm = Arc::new(CloudServiceMiddleware::new(
+    let cloud_service_wm = Arc::new(AICloudServiceMiddleware::new(
       user_service.clone(),
       chat_cloud_service,
       local_ai_controller.clone(),

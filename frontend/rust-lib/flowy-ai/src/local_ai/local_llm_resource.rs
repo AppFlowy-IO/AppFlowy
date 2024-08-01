@@ -61,7 +61,7 @@ impl DownloadTask {
   }
 }
 
-pub struct LLMResourceController {
+pub struct LocalAIResourceController {
   user_service: Arc<dyn AIUserService>,
   resource_service: Arc<dyn LLMResourceService>,
   llm_setting: RwLock<Option<LLMSetting>>,
@@ -75,7 +75,7 @@ pub struct LLMResourceController {
   offline_app_state_sender: tokio::sync::broadcast::Sender<WatchDiskEvent>,
 }
 
-impl LLMResourceController {
+impl LocalAIResourceController {
   pub fn new(
     user_service: Arc<dyn AIUserService>,
     resource_service: impl LLMResourceService,

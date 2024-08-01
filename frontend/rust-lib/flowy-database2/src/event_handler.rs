@@ -1099,9 +1099,15 @@ pub(crate) async fn summarize_row_handler(
   let manager = upgrade_manager(manager)?;
   let data = data.into_inner();
   let row_id = RowId::from(data.row_id);
-  manager
-    .summarize_row(data.view_id, row_id, data.field_id)
-    .await?;
+  let (tx, rx) = oneshot::channel();
+  af_spawn(async move {
+    let result = manager
+      .summarize_row(data.view_id, row_id, data.field_id)
+      .await;
+    let _ = tx.send(result);
+  });
+
+  let _ = rx.await??;
   Ok(())
 }
 
@@ -1112,8 +1118,14 @@ pub(crate) async fn translate_row_handler(
   let manager = upgrade_manager(manager)?;
   let data = data.try_into_inner()?;
   let row_id = RowId::from(data.row_id);
-  manager
-    .translate_row(data.view_id, row_id, data.field_id)
-    .await?;
+  let (tx, rx) = oneshot::channel();
+  af_spawn(async move {
+    let result = manager
+      .translate_row(data.view_id, row_id, data.field_id)
+      .await;
+    let _ = tx.send(result);
+  });
+
+  let _ = rx.await??;
   Ok(())
 }

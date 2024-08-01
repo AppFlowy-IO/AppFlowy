@@ -17,13 +17,13 @@ use lib_infra::future::FutureResult;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-pub struct CloudServiceMiddleware {
+pub struct AICloudServiceMiddleware {
   cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn AIUserService>,
   local_llm_controller: Arc<LocalAIController>,
 }
 
-impl CloudServiceMiddleware {
+impl AICloudServiceMiddleware {
   pub fn new(
     user_service: Arc<dyn AIUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
@@ -67,7 +67,7 @@ impl CloudServiceMiddleware {
 }
 
 #[async_trait]
-impl ChatCloudService for CloudServiceMiddleware {
+impl ChatCloudService for AICloudServiceMiddleware {
   fn create_chat(
     &self,
     uid: &i64,

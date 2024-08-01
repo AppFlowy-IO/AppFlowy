@@ -9,10 +9,12 @@ use flowy_database_pub::cloud::{
   TranslateRowContent, TranslateRowResponse,
 };
 use flowy_error::FlowyError;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDatabaseCloudServiceImpl();
 
+#[async_trait]
 impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
   fn get_database_object_doc_state(
     &self,
@@ -78,23 +80,23 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn summary_database_row(
+  async fn summary_database_row(
     &self,
     _workspace_id: &str,
     _object_id: &str,
     _summary_row: SummaryRowContent,
-  ) -> FutureResult<String, FlowyError> {
+  ) -> Result<String, FlowyError> {
     // TODO(lucas): local ai
-    FutureResult::new(async move { Ok("".to_string()) })
+    Ok("".to_string())
   }
 
-  fn translate_database_row(
+  async fn translate_database_row(
     &self,
     _workspace_id: &str,
     _translate_row: TranslateRowContent,
     _language: &str,
-  ) -> FutureResult<TranslateRowResponse, FlowyError> {
+  ) -> Result<TranslateRowResponse, FlowyError> {
     // TODO(lucas): local ai
-    FutureResult::new(async move { Ok(TranslateRowResponse::default()) })
+    Ok(TranslateRowResponse::default())
   }
 }

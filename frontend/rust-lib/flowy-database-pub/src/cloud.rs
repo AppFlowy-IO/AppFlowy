@@ -3,6 +3,7 @@ pub use client_api::entity::ai_dto::{TranslateItem, TranslateRowResponse};
 use collab::core::collab::DataSource;
 use collab_entity::CollabType;
 use flowy_error::FlowyError;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 
@@ -15,6 +16,8 @@ pub type TranslateRowContent = Vec<TranslateItem>;
 ///
 /// returns the doc state of the object with the given object_id.
 /// None if the object is not found.
+///
+#[async_trait]
 pub trait DatabaseCloudService: Send + Sync {
   fn get_database_object_doc_state(
     &self,
@@ -36,19 +39,19 @@ pub trait DatabaseCloudService: Send + Sync {
     limit: usize,
   ) -> FutureResult<Vec<DatabaseSnapshot>, Error>;
 
-  fn summary_database_row(
+  async fn summary_database_row(
     &self,
     workspace_id: &str,
     object_id: &str,
     summary_row: SummaryRowContent,
-  ) -> FutureResult<String, FlowyError>;
+  ) -> Result<String, FlowyError>;
 
-  fn translate_database_row(
+  async fn translate_database_row(
     &self,
     workspace_id: &str,
     translate_row: TranslateRowContent,
     language: &str,
-  ) -> FutureResult<TranslateRowResponse, FlowyError>;
+  ) -> Result<TranslateRowResponse, FlowyError>;
 }
 
 pub struct DatabaseSnapshot {
