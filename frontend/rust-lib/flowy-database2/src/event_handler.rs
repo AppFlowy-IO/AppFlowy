@@ -1107,7 +1107,7 @@ pub(crate) async fn summarize_row_handler(
     let _ = tx.send(result);
   });
 
-  let _ = rx.await??;
+  rx.await??;
   Ok(())
 }
 
@@ -1126,6 +1126,6 @@ pub(crate) async fn translate_row_handler(
     let _ = tx.send(result);
   });
 
-  let _ = rx.await??;
+  rx.await??;
   Ok(())
 }

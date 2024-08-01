@@ -426,7 +426,7 @@ impl DatabaseAIService for ServerProvider {
     self
       .get_server()?
       .database_ai_service()
-      .ok_or_else(|| FlowyError::not_support())?
+      .ok_or_else(FlowyError::not_support)?
       .summary_database_row(workspace_id, object_id, summary_row)
       .await
   }
@@ -440,7 +440,7 @@ impl DatabaseAIService for ServerProvider {
     self
       .get_server()?
       .database_ai_service()
-      .ok_or_else(|| FlowyError::not_support())?
+      .ok_or_else(FlowyError::not_support)?
       .translate_database_row(workspace_id, translate_row, language)
       .await
   }
