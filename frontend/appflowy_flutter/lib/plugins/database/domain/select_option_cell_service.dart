@@ -70,7 +70,7 @@ class SelectOptionCellBackendService {
     return DatabaseEventUpdateSelectOptionCell(payload).send();
   }
 
-  Future<FlowyResult<void, FlowyError>> unSelect({
+  Future<FlowyResult<void, FlowyError>> unselect({
     required Iterable<String> optionIds,
   }) {
     final payload = SelectOptionCellChangesetPB()

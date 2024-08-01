@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/select_type_option_actions.dart';
@@ -9,7 +11,6 @@ import 'package:appflowy/plugins/database/domain/select_option_cell_service.dart
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -109,16 +110,16 @@ class SelectOptionCellEditorBloc
           selectOption: (optionId) async {
             await _selectOptionService.select(optionIds: [optionId]);
           },
-          unSelectOption: (optionId) async {
-            await _selectOptionService.unSelect(optionIds: [optionId]);
+          unselectOption: (optionId) async {
+            await _selectOptionService.unselect(optionIds: [optionId]);
           },
-          unSelectLastOption: () async {
+          unselectLastOption: () async {
             if (state.selectedOptions.isEmpty) {
               return;
             }
             final lastSelectedOptionId = state.selectedOptions.last.id;
             await _selectOptionService
-                .unSelect(optionIds: [lastSelectedOptionId]);
+                .unselect(optionIds: [lastSelectedOptionId]);
           },
           submitTextField: () {
             _submitTextFieldValue(emit);
@@ -353,10 +354,10 @@ class SelectOptionCellEditorEvent with _$SelectOptionCellEditorEvent {
   const factory SelectOptionCellEditorEvent.createOption() = _CreateOption;
   const factory SelectOptionCellEditorEvent.selectOption(String optionId) =
       _SelectOption;
-  const factory SelectOptionCellEditorEvent.unSelectOption(String optionId) =
-      _UnSelectOption;
-  const factory SelectOptionCellEditorEvent.unSelectLastOption() =
-      _UnSelectLastOption;
+  const factory SelectOptionCellEditorEvent.unselectOption(String optionId) =
+      _UnselectOption;
+  const factory SelectOptionCellEditorEvent.unselectLastOption() =
+      _UnselectLastOption;
   const factory SelectOptionCellEditorEvent.updateOption(
     SelectOptionPB option,
   ) = _UpdateOption;

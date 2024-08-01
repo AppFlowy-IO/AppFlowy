@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
-import 'package:flutter/material.dart';
 
 class AppFlowyPopover extends StatelessWidget {
   final Widget child;
@@ -152,7 +153,7 @@ extension on BuildContext {
         side: BorderSide(
           width: 1,
           strokeAlign: BorderSide.strokeAlignOutside,
-          color: borderColor,
+          color: color != Colors.transparent ? borderColor : color!,
         ),
         borderRadius: borderRadius ?? BorderRadius.circular(10),
       ),
