@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/notifications/widgets/notification_item.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
+import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -37,25 +37,28 @@ class _NotificationTabState extends State<NotificationTab>
         final reminders = _filterReminders(state.reminders);
 
         if (reminders.isEmpty) {
+          // add refresh indicator to the empty notification.
           return EmptyNotification(
             type: widget.tabType,
           );
         }
 
+        final child = ListView.separated(
+          itemCount: reminders.length,
+          separatorBuilder: (context, index) => const VSpace(8.0),
+          itemBuilder: (context, index) {
+            final reminder = reminders[index];
+            return NotificationItem(
+              key: ValueKey('${widget.tabType}_${reminder.id}'),
+              tabType: widget.tabType,
+              reminder: reminder,
+            );
+          },
+        );
+
         return RefreshIndicator.adaptive(
           onRefresh: () async => _onRefresh(context),
-          child: ListView.separated(
-            itemCount: reminders.length,
-            separatorBuilder: (context, index) => const VSpace(8.0),
-            itemBuilder: (context, index) {
-              final reminder = reminders[index];
-              return NotificationItem(
-                key: ValueKey('${widget.tabType}_${reminder.id}'),
-                tabType: widget.tabType,
-                reminder: reminder,
-              );
-            },
-          ),
+          child: child,
         );
       },
     );
@@ -82,15 +85,53 @@ class _NotificationTabState extends State<NotificationTab>
       case MobileNotificationTabType.inbox:
         return reminders.reversed
             .where((reminder) => !reminder.isArchived)
-            .toList();
+            .toList()
+            .unique((reminder) => reminder.id);
       case MobileNotificationTabType.archive:
         return reminders.reversed
             .where((reminder) => reminder.isArchived)
-            .toList();
+            .toList()
+            .unique((reminder) => reminder.id);
       case MobileNotificationTabType.unread:
         return reminders.reversed
             .where((reminder) => !reminder.isRead)
-            .toList();
+            .toList()
+            .unique((reminder) => reminder.id);
     }
+  }
+}
+
+class MultiSelectNotificationTab extends StatelessWidget {
+  const MultiSelectNotificationTab({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ReminderBloc, ReminderState>(
+      builder: (context, state) {
+        // find the reminders that are not archived or read.
+        final reminders = state.reminders.reversed
+            .where((reminder) => !reminder.isArchived || !reminder.isRead)
+            .toList();
+
+        if (reminders.isEmpty) {
+          // add refresh indicator to the empty notification.
+          return const SizedBox.shrink();
+        }
+
+        return ListView.separated(
+          itemCount: reminders.length,
+          separatorBuilder: (context, index) => const VSpace(8.0),
+          itemBuilder: (context, index) {
+            final reminder = reminders[index];
+            return MultiSelectNotificationItem(
+              key: ValueKey(reminder.id),
+              reminder: reminder,
+            );
+          },
+        );
+      },
+    );
   }
 }

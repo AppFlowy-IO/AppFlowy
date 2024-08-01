@@ -5,6 +5,7 @@ import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,8 @@ enum _NotificationSettingsPopupMenuItem {
   settings,
   markAllAsRead,
   archiveAll,
+  // only visible in debug mode
+  unarchiveAll;
 }
 
 class NotificationSettingsPopupMenu extends StatelessWidget {
@@ -56,6 +59,15 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
           svg: FlowySvgs.m_notification_archived_s,
           text: LocaleKeys.settings_notifications_settings_archiveAll.tr(),
         ),
+        // only visible in debug mode
+        if (kDebugMode) ...[
+          const PopupMenuDivider(height: 0.5),
+          _buildItem(
+            value: _NotificationSettingsPopupMenuItem.unarchiveAll,
+            svg: FlowySvgs.m_notification_archived_s,
+            text: 'Unarchive all (Debug Mode)',
+          ),
+        ],
       ],
       onSelected: (_NotificationSettingsPopupMenuItem value) {
         switch (value) {
@@ -67,6 +79,9 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
             break;
           case _NotificationSettingsPopupMenuItem.settings:
             context.push(MobileHomeSettingPage.routeName);
+            break;
+          case _NotificationSettingsPopupMenuItem.unarchiveAll:
+            _onUnarchiveAll(context);
             break;
         }
       },
@@ -107,6 +122,19 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
     );
 
     context.read<ReminderBloc>().add(const ReminderEvent.archiveAll());
+  }
+
+  void _onUnarchiveAll(BuildContext context) {
+    if (!kDebugMode) {
+      return;
+    }
+
+    showToastNotification(
+      context,
+      message: 'Unarchive all success (Debug Mode)',
+    );
+
+    context.read<ReminderBloc>().add(const ReminderEvent.unarchiveAll());
   }
 }
 

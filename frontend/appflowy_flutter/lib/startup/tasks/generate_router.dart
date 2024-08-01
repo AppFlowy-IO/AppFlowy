@@ -10,6 +10,7 @@ import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_scr
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_multiple_select_page.dart';
 import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/cloud/appflowy_cloud_page.dart';
@@ -92,6 +93,9 @@ GoRouter generateRouter(Widget child) {
         _mobileCalendarEventsPageRoute(),
 
         _mobileBlockSettingsPageRoute(),
+
+        // notifications
+        _mobileNotificationMultiSelectPageRoute(),
       ],
 
       // Desktop and Mobile
@@ -177,6 +181,18 @@ GoRoute _mobileHomeSettingPageRoute() {
     path: MobileHomeSettingPage.routeName,
     pageBuilder: (context, state) {
       return const MaterialExtendedPage(child: MobileHomeSettingPage());
+    },
+  );
+}
+
+GoRoute _mobileNotificationMultiSelectPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileNotificationsMultiSelectScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialExtendedPage(
+        child: MobileNotificationsMultiSelectScreen(),
+      );
     },
   );
 }

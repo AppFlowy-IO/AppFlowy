@@ -1,17 +1,30 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
+import 'package:appflowy/mobile/presentation/widgets/navigation_bar_button.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+enum BottomNavigationBarActionType {
+  home,
+  notificationMultiSelect,
+}
+
 final PropertyValueNotifier<ViewLayoutPB?> createNewPageNotifier =
     PropertyValueNotifier(null);
+final ValueNotifier<BottomNavigationBarActionType> bottomNavigationBarType =
+    ValueNotifier(BottomNavigationBarActionType.home);
 
 const _homeLabel = 'home';
 const _addLabel = 'add';
@@ -37,7 +50,7 @@ final _items = <BottomNavigationBarItem>[
 
 /// Builds the "shell" for the app by building a Scaffold with a
 /// BottomNavigationBar, where [child] is placed in the body of the Scaffold.
-class MobileBottomNavigationBar extends StatelessWidget {
+class MobileBottomNavigationBar extends StatefulWidget {
   /// Constructs an [MobileBottomNavigationBar].
   const MobileBottomNavigationBar({
     required this.navigationShell,
@@ -48,66 +61,74 @@ class MobileBottomNavigationBar extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   @override
+  State<MobileBottomNavigationBar> createState() =>
+      _MobileBottomNavigationBarState();
+}
+
+class _MobileBottomNavigationBarState extends State<MobileBottomNavigationBar> {
+  Widget? _bottomNavigationBar;
+
+  @override
+  void initState() {
+    super.initState();
+
+    bottomNavigationBarType.addListener(_animate);
+  }
+
+  @override
+  void dispose() {
+    bottomNavigationBarType.removeListener(_animate);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isLightMode = Theme.of(context).isLightMode;
-    final backgroundColor = isLightMode
-        ? Colors.white.withOpacity(0.95)
-        : const Color(0xFF23262B).withOpacity(0.95);
-    final borderColor = isLightMode
-        ? const Color(0x141F2329)
-        : const Color(0xFF23262B).withOpacity(0.5);
+    _bottomNavigationBar = switch (bottomNavigationBarType.value) {
+      BottomNavigationBarActionType.home =>
+        _buildHomePageNavigationBar(context),
+      BottomNavigationBarActionType.notificationMultiSelect =>
+        _buildNotificationNavigationBar(context),
+    };
+
     return Scaffold(
-      body: navigationShell,
+      body: widget.navigationShell,
       extendBody: true,
-      bottomNavigationBar: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: 3,
-            sigmaY: 3,
-          ),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              border: isLightMode
-                  ? Border(top: BorderSide(color: borderColor))
-                  : null,
-              color: backgroundColor,
-            ),
-            child: BottomNavigationBar(
-              showSelectedLabels: false,
-              showUnselectedLabels: false,
-              enableFeedback: false,
-              type: BottomNavigationBarType.fixed,
-              elevation: 0,
-              items: _items,
-              backgroundColor: Colors.transparent,
-              currentIndex: navigationShell.currentIndex,
-              onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
-            ),
-          ),
-        ),
+      bottomNavigationBar: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        switchInCurve: Curves.easeInOut,
+        switchOutCurve: Curves.easeInOut,
+        transitionBuilder: _transitionBuilder,
+        child: _bottomNavigationBar,
       ),
     );
   }
 
-  /// Navigate to the current location of the branch at the provided index when
-  /// tapping an item in the BottomNavigationBar.
-  void _onTap(BuildContext context, int bottomBarIndex) {
-    if (_items[bottomBarIndex].label == _addLabel) {
-      // show an add dialog
-      createNewPageNotifier.value = ViewLayoutPB.Document;
-      return;
-    }
-    // When navigating to a new branch, it's recommended to use the goBranch
-    // method, as doing so makes sure the last navigation state of the
-    // Navigator for the branch is restored.
-    navigationShell.goBranch(
-      bottomBarIndex,
-      // A common pattern when using bottom navigation bars is to support
-      // navigating to the initial location when tapping the item that is
-      // already active. This example demonstrates how to support this behavior,
-      // using the initialLocation parameter of goBranch.
-      initialLocation: bottomBarIndex == navigationShell.currentIndex,
+  Widget _buildHomePageNavigationBar(BuildContext context) {
+    return _HomePageNavigationBar(
+      navigationShell: widget.navigationShell,
     );
+  }
+
+  Widget _buildNotificationNavigationBar(BuildContext context) {
+    return const _NotificationNavigationBar();
+  }
+
+  // widget A going down, widget B going up
+  Widget _transitionBuilder(
+    Widget child,
+    Animation<double> animation,
+  ) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(animation),
+      child: child,
+    );
+  }
+
+  void _animate() {
+    setState(() {});
   }
 }
 
@@ -167,5 +188,172 @@ class _RedDot extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _HomePageNavigationBar extends StatelessWidget {
+  const _HomePageNavigationBar({
+    required this.navigationShell,
+  });
+
+  final StatefulNavigationShell navigationShell;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: 3,
+          sigmaY: 3,
+        ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: context.border,
+            color: context.backgroundColor,
+          ),
+          child: BottomNavigationBar(
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            enableFeedback: false,
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
+            items: _items,
+            backgroundColor: Colors.transparent,
+            currentIndex: navigationShell.currentIndex,
+            onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Navigate to the current location of the branch at the provided index when
+  /// tapping an item in the BottomNavigationBar.
+  void _onTap(BuildContext context, int bottomBarIndex) {
+    if (_items[bottomBarIndex].label == _addLabel) {
+      // show an add dialog
+      createNewPageNotifier.value = ViewLayoutPB.Document;
+      return;
+    }
+    // When navigating to a new branch, it's recommended to use the goBranch
+    // method, as doing so makes sure the last navigation state of the
+    // Navigator for the branch is restored.
+    navigationShell.goBranch(
+      bottomBarIndex,
+      // A common pattern when using bottom navigation bars is to support
+      // navigating to the initial location when tapping the item that is
+      // already active. This example demonstrates how to support this behavior,
+      // using the initialLocation parameter of goBranch.
+      initialLocation: bottomBarIndex == navigationShell.currentIndex,
+    );
+  }
+}
+
+class _NotificationNavigationBar extends StatelessWidget {
+  const _NotificationNavigationBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      // todo: use real height here.
+      height: 90,
+      decoration: BoxDecoration(
+        border: context.border,
+        color: context.backgroundColor,
+      ),
+      padding: const EdgeInsets.only(bottom: 20),
+      child: ValueListenableBuilder(
+        valueListenable: mSelectedNotificationIds,
+        builder: (context, value, child) {
+          if (value.isEmpty) {
+            // not editable
+            return IgnorePointer(
+              child: Opacity(
+                opacity: 0.3,
+                child: child,
+              ),
+            );
+          }
+
+          return child!;
+        },
+        child: Row(
+          children: [
+            const HSpace(20),
+            Expanded(
+              child: NavigationBarButton(
+                icon: FlowySvgs.m_notification_action_mark_as_read_s,
+                text: LocaleKeys.settings_notifications_action_markAsRead.tr(),
+                onTap: () => _onMarkAsRead(context),
+              ),
+            ),
+            const HSpace(16),
+            Expanded(
+              child: NavigationBarButton(
+                icon: FlowySvgs.m_notification_action_archive_s,
+                text: LocaleKeys.settings_notifications_action_archive.tr(),
+                onTap: () => _onArchive(context),
+              ),
+            ),
+            const HSpace(20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onMarkAsRead(BuildContext context) {
+    if (mSelectedNotificationIds.value.isEmpty) {
+      return;
+    }
+
+    showToastNotification(
+      context,
+      message: LocaleKeys
+          .settings_notifications_markAsReadNotifications_allSuccess
+          .tr(),
+    );
+
+    getIt<ReminderBloc>()
+        .add(ReminderEvent.markAsRead(mSelectedNotificationIds.value));
+
+    mSelectedNotificationIds.value = [];
+  }
+
+  void _onArchive(BuildContext context) {
+    if (mSelectedNotificationIds.value.isEmpty) {
+      return;
+    }
+
+    showToastNotification(
+      context,
+      message: LocaleKeys.settings_notifications_archiveNotifications_allSuccess
+          .tr(),
+    );
+
+    getIt<ReminderBloc>()
+        .add(ReminderEvent.archive(mSelectedNotificationIds.value));
+
+    mSelectedNotificationIds.value = [];
+  }
+}
+
+extension on BuildContext {
+  Color get backgroundColor {
+    return Theme.of(this).isLightMode
+        ? Colors.white.withOpacity(0.95)
+        : const Color(0xFF23262B).withOpacity(0.95);
+  }
+
+  Color get borderColor {
+    return Theme.of(this).isLightMode
+        ? const Color(0x141F2329)
+        : const Color(0xFF23262B).withOpacity(0.5);
+  }
+
+  Border? get border {
+    return Theme.of(this).isLightMode
+        ? Border(top: BorderSide(color: borderColor))
+        : null;
   }
 }

@@ -1,12 +1,16 @@
 import 'package:appflowy/mobile/application/user_profile/user_profile_bloc.dart';
+import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_multiple_select_page.dart';
 import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/notification_filter/notification_filter_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+final PropertyValueNotifier<List<String>> mSelectedNotificationIds =
+    PropertyValueNotifier([]);
 
 class MobileNotificationsScreenV2 extends StatefulWidget {
   const MobileNotificationsScreenV2({super.key});
@@ -20,29 +24,33 @@ class MobileNotificationsScreenV2 extends StatefulWidget {
 
 class _MobileNotificationsScreenV2State
     extends State<MobileNotificationsScreenV2>
-    with SingleTickerProviderStateMixin {
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<UserProfileBloc>(
-          create: (context) =>
-              UserProfileBloc()..add(const UserProfileEvent.started()),
+          create: (context) => UserProfileBloc()
+            ..add(
+              const UserProfileEvent.started(),
+            ),
         ),
         BlocProvider<ReminderBloc>.value(value: getIt<ReminderBloc>()),
-        BlocProvider<NotificationFilterBloc>(
-          create: (_) => NotificationFilterBloc(),
-        ),
       ],
-      child: BlocBuilder<UserProfileBloc, UserProfileState>(
-        builder: (context, state) {
-          return state.maybeWhen(
-            orElse: () =>
-                const Center(child: CircularProgressIndicator.adaptive()),
-            workspaceFailure: () => const WorkspaceFailedScreen(),
-            success: (workspaceSetting, userProfile) =>
-                const MobileNotificationsTab(),
-          );
+      child: ValueListenableBuilder(
+        valueListenable: bottomNavigationBarType,
+        builder: (_, value, __) {
+          switch (value) {
+            case BottomNavigationBarActionType.home:
+              return const MobileNotificationsTab();
+            case BottomNavigationBarActionType.notificationMultiSelect:
+              return const MobileNotificationMultiSelect();
+          }
         },
       ),
     );
@@ -52,10 +60,7 @@ class _MobileNotificationsScreenV2State
 class MobileNotificationsTab extends StatefulWidget {
   const MobileNotificationsTab({
     super.key,
-    // required this.userProfile,
   });
-
-  // final UserProfilePB userProfile;
 
   @override
   State<MobileNotificationsTab> createState() => _MobileNotificationsTabState();
@@ -79,12 +84,10 @@ class _MobileNotificationsTabState extends State<MobileNotificationsTab>
       length: 3,
       vsync: this,
     );
-    tabController.addListener(_onTabChange);
   }
 
   @override
   void dispose() {
-    tabController.removeListener(_onTabChange);
     tabController.dispose();
 
     super.dispose();
@@ -114,6 +117,4 @@ class _MobileNotificationsTabState extends State<MobileNotificationsTab>
       ),
     );
   }
-
-  void _onTabChange() {}
 }
