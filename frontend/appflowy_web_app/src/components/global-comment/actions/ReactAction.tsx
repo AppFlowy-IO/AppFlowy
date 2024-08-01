@@ -3,15 +3,18 @@ import { EmojiPicker } from '@/components/_shared/emoji-picker';
 import { EMOJI_SIZE, PER_ROW_EMOJI_COUNT } from '@/components/_shared/emoji-picker/const';
 import { Popover } from '@/components/_shared/popover';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
+import { AFConfigContext } from '@/components/app/AppConfig';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import { ReactComponent as AddReactionRounded } from '@/assets/add_reaction.svg';
 import { IconButton, Tooltip } from '@mui/material';
-import React, { memo, Suspense, useCallback } from 'react';
+import React, { memo, Suspense, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 
 function ReactAction({ comment }: { comment: GlobalComment }) {
   const { toggleReaction } = useGlobalCommentContext();
   const { t } = useTranslation();
+  const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated || false;
+  const openLoginModal = useContext(AFConfigContext)?.openLoginModal;
   const ref = React.useRef<HTMLButtonElement>(null);
   const [open, setOpen] = React.useState(false);
   const handleClose = useCallback(() => {
@@ -19,6 +22,13 @@ function ReactAction({ comment }: { comment: GlobalComment }) {
   }, []);
 
   const handleOpen = () => {
+    if (!isAuthenticated && openLoginModal) {
+      const url = window.location.href + '#comment-' + comment.commentId;
+
+      openLoginModal(url);
+      return;
+    }
+
     setOpen(true);
   };
 
