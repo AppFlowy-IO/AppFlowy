@@ -13,7 +13,7 @@ use tokio_stream::wrappers::WatchStream;
 use {collab_entity::CollabObject, collab_plugins::cloud_storage::RemoteCollabStorage};
 
 use crate::default_impl::DefaultChatCloudServiceImpl;
-use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_storage_pub::cloud::StorageCloudService;
@@ -92,6 +92,8 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   ///
   /// An `Arc` wrapping the `DatabaseCloudService` interface.
   fn database_service(&self) -> Arc<dyn DatabaseCloudService>;
+
+  fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>>;
 
   /// Facilitates cloud-based document management. This service offers operations for updating documents,
   /// fetching snapshots, and accessing primary document data in an asynchronous manner.

@@ -161,11 +161,19 @@ impl AppFlowyCore {
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
+      let ai_manager = ChatDepsResolver::resolve(
+        Arc::downgrade(&authenticate_user),
+        server_provider.clone(),
+        store_preference.clone(),
+      );
+
       let database_manager = DatabaseDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         task_dispatcher.clone(),
         collab_builder.clone(),
         server_provider.clone(),
+        server_provider.clone(),
+        ai_manager.clone(),
       )
       .await;
 
@@ -175,12 +183,6 @@ impl AppFlowyCore {
         collab_builder.clone(),
         server_provider.clone(),
         Arc::downgrade(&storage_manager.storage_service),
-      );
-
-      let ai_manager = ChatDepsResolver::resolve(
-        Arc::downgrade(&authenticate_user),
-        server_provider.clone(),
-        store_preference.clone(),
       );
 
       let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Some(Arc::downgrade(

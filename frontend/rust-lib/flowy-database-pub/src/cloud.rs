@@ -10,6 +10,28 @@ use std::collections::HashMap;
 pub type CollabDocStateByOid = HashMap<String, DataSource>;
 pub type SummaryRowContent = HashMap<String, String>;
 pub type TranslateRowContent = Vec<TranslateItem>;
+
+#[async_trait]
+pub trait DatabaseAIService: Send + Sync {
+  async fn summary_database_row(
+    &self,
+    _workspace_id: &str,
+    _object_id: &str,
+    _summary_row: SummaryRowContent,
+  ) -> Result<String, FlowyError> {
+    Ok("".to_string())
+  }
+
+  async fn translate_database_row(
+    &self,
+    _workspace_id: &str,
+    _translate_row: TranslateRowContent,
+    _language: &str,
+  ) -> Result<TranslateRowResponse, FlowyError> {
+    Ok(TranslateRowResponse::default())
+  }
+}
+
 /// A trait for database cloud service.
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
 /// [flowy-server] crate for more information.
@@ -38,20 +60,6 @@ pub trait DatabaseCloudService: Send + Sync {
     object_id: &str,
     limit: usize,
   ) -> FutureResult<Vec<DatabaseSnapshot>, Error>;
-
-  async fn summary_database_row(
-    &self,
-    workspace_id: &str,
-    object_id: &str,
-    summary_row: SummaryRowContent,
-  ) -> Result<String, FlowyError>;
-
-  async fn translate_database_row(
-    &self,
-    workspace_id: &str,
-    translate_row: TranslateRowContent,
-    language: &str,
-  ) -> Result<TranslateRowResponse, FlowyError>;
 }
 
 pub struct DatabaseSnapshot {

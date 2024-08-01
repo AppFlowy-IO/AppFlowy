@@ -35,6 +35,8 @@ flowy-storage-pub = { workspace = true }
 client-api.workspace = true
 flowy-ai = { workspace = true }
 flowy-ai-pub = { workspace = true }
+appflowy-local-ai = { version = "0.1.0" }
+
 
 tracing.workspace = true
 futures-core = { version = "0.3", default-features = false }

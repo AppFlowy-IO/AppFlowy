@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/ai_chat/presentation/chat_inline_action_menu.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_command.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -40,8 +39,8 @@ class ChatInput extends StatefulWidget {
 class _ChatInputState extends State<ChatInput> {
   final GlobalKey _textFieldKey = GlobalKey();
   final LayerLink _layerLink = LayerLink();
-  final ChatTextFieldInterceptor _textFieldInterceptor =
-      ChatTextFieldInterceptor();
+  // final ChatTextFieldInterceptor _textFieldInterceptor =
+  //     ChatTextFieldInterceptor();
 
   late final _inputFocusNode = FocusNode(
     onKeyEvent: (node, event) {
@@ -166,28 +165,28 @@ class _ChatInputState extends State<ChatInput> {
           textCapitalization: TextCapitalization.sentences,
           maxLines: 10,
           minLines: 1,
-          onChanged: (text) {
-            final handler = _textFieldInterceptor.onTextChanged(
-              text,
-              _textController,
-              _inputFocusNode,
-            );
-            // If the handler is not null, it means that the text has been
-            // recognized as a command.
-            if (handler != null) {
-              ChatActionsMenu(
-                anchor: ChatInputAnchor(
-                  anchorKey: _textFieldKey,
-                  layerLink: _layerLink,
-                ),
-                handler: handler,
-                context: context,
-                style: Theme.of(context).brightness == Brightness.dark
-                    ? const ChatActionsMenuStyle.dark()
-                    : const ChatActionsMenuStyle.light(),
-              ).show();
-            }
-          },
+          // onChanged: (text) {
+          //   final handler = _textFieldInterceptor.onTextChanged(
+          //     text,
+          //     _textController,
+          //     _inputFocusNode,
+          //   );
+          //   // If the handler is not null, it means that the text has been
+          //   // recognized as a command.
+          //   if (handler != null) {
+          //     ChatActionsMenu(
+          //       anchor: ChatInputAnchor(
+          //         anchorKey: _textFieldKey,
+          //         layerLink: _layerLink,
+          //       ),
+          //       handler: handler,
+          //       context: context,
+          //       style: Theme.of(context).brightness == Brightness.dark
+          //           ? const ChatActionsMenuStyle.dark()
+          //           : const ChatActionsMenuStyle.light(),
+          //     ).show();
+          //   }
+          // },
         ),
       ),
     );

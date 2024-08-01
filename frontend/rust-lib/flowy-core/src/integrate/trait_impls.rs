@@ -23,8 +23,8 @@ use flowy_ai_pub::cloud::{
   StreamComplete,
 };
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
-  TranslateRowContent, TranslateRowResponse,
+  CollabDocStateByOid, DatabaseAIService, DatabaseCloudService, DatabaseSnapshot,
+  SummaryRowContent, TranslateRowContent, TranslateRowResponse,
 };
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
@@ -413,7 +413,10 @@ impl DatabaseCloudService for ServerProvider {
         .await
     })
   }
+}
 
+#[async_trait]
+impl DatabaseAIService for ServerProvider {
   async fn summary_database_row(
     &self,
     workspace_id: &str,
@@ -422,7 +425,8 @@ impl DatabaseCloudService for ServerProvider {
   ) -> Result<String, FlowyError> {
     self
       .get_server()?
-      .database_service()
+      .database_ai_service()
+      .ok_or_else(|| FlowyError::not_support())?
       .summary_database_row(workspace_id, object_id, summary_row)
       .await
   }
@@ -435,7 +439,8 @@ impl DatabaseCloudService for ServerProvider {
   ) -> Result<TranslateRowResponse, FlowyError> {
     self
       .get_server()?
-      .database_service()
+      .database_ai_service()
+      .ok_or_else(|| FlowyError::not_support())?
       .translate_database_row(workspace_id, translate_row, language)
       .await
   }

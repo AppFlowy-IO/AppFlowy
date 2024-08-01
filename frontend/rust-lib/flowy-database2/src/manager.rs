@@ -18,7 +18,7 @@ use tracing::{event, instrument, trace};
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
 use flowy_database_pub::cloud::{
-  DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
+  DatabaseAIService, DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
@@ -47,6 +47,7 @@ pub struct DatabaseManager {
   editors: Mutex<HashMap<String, Arc<DatabaseEditor>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   cloud_service: Arc<dyn DatabaseCloudService>,
+  ai_service: Arc<dyn DatabaseAIService>,
 }
 
 impl DatabaseManager {
@@ -55,6 +56,7 @@ impl DatabaseManager {
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
+    ai_service: Arc<dyn DatabaseAIService>,
   ) -> Self {
     Self {
       user: database_user,
@@ -63,6 +65,7 @@ impl DatabaseManager {
       editors: Default::default(),
       collab_builder,
       cloud_service,
+      ai_service,
     }
   }
 
@@ -479,7 +482,7 @@ impl DatabaseManager {
       summary_row_content
     );
     let response = self
-      .cloud_service
+      .ai_service
       .summary_database_row(&self.user.workspace_id()?, &row_id, summary_row_content)
       .await?;
     trace!("[AI]:summarize row response: {}", response);
@@ -540,7 +543,7 @@ impl DatabaseManager {
       translate_row_content
     );
     let response = self
-      .cloud_service
+      .ai_service
       .translate_database_row(&self.user.workspace_id()?, translate_row_content, &language)
       .await?;
 

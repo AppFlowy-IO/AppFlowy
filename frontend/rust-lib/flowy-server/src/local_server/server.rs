@@ -4,7 +4,7 @@ use std::sync::Arc;
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
-use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::FolderCloudService;
@@ -73,6 +73,10 @@ impl AppFlowyServer for LocalServer {
   }
 
   fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+    None
+  }
+
+  fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
     None
   }
 }

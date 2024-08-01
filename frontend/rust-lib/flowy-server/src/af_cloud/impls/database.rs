@@ -13,8 +13,8 @@ use std::sync::Arc;
 use tracing::{error, instrument};
 
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
-  TranslateRowContent, TranslateRowResponse,
+  CollabDocStateByOid, DatabaseAIService, DatabaseCloudService, DatabaseSnapshot,
+  SummaryRowContent, TranslateRowContent, TranslateRowResponse,
 };
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
@@ -123,7 +123,13 @@ where
   ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
     FutureResult::new(async move { Ok(vec![]) })
   }
+}
 
+#[async_trait]
+impl<T> DatabaseAIService for AFCloudDatabaseCloudServiceImpl<T>
+where
+  T: AFServer,
+{
   async fn summary_database_row(
     &self,
     workspace_id: &str,
