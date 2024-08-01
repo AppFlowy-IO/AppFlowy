@@ -113,7 +113,9 @@ class _InnerNotificationItem extends StatelessWidget {
         NotificationCheckIcon(
           isSelected: mSelectedNotificationIds.value.contains(reminder.id),
         ),
-        const HSpace(12.0),
+        const HSpace(3.0),
+        !reminder.isRead ? const UnreadRedDot() : const HSpace(6.0),
+        const HSpace(3.0),
         NotificationIcon(reminder: reminder),
         const HSpace(12.0),
         Expanded(

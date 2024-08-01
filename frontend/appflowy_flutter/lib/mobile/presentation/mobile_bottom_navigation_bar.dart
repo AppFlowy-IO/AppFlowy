@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/presentation/widgets/navigation_bar_button.dart'
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -283,7 +284,7 @@ class _NotificationNavigationBar extends StatelessWidget {
               child: NavigationBarButton(
                 icon: FlowySvgs.m_notification_action_mark_as_read_s,
                 text: LocaleKeys.settings_notifications_action_markAsRead.tr(),
-                onTap: () {},
+                onTap: () => _onMarkAsRead(context),
               ),
             ),
             const HSpace(16),
@@ -291,7 +292,7 @@ class _NotificationNavigationBar extends StatelessWidget {
               child: NavigationBarButton(
                 icon: FlowySvgs.m_notification_action_archive_s,
                 text: LocaleKeys.settings_notifications_action_archive.tr(),
-                onTap: () {},
+                onTap: () => _onArchive(context),
               ),
             ),
             const HSpace(20),
@@ -299,6 +300,41 @@ class _NotificationNavigationBar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _onMarkAsRead(BuildContext context) {
+    if (mSelectedNotificationIds.value.isEmpty) {
+      return;
+    }
+
+    showToastNotification(
+      context,
+      message: LocaleKeys
+          .settings_notifications_markAsReadNotifications_allSuccess
+          .tr(),
+    );
+
+    getIt<ReminderBloc>()
+        .add(ReminderEvent.markAsRead(mSelectedNotificationIds.value));
+
+    mSelectedNotificationIds.value = [];
+  }
+
+  void _onArchive(BuildContext context) {
+    if (mSelectedNotificationIds.value.isEmpty) {
+      return;
+    }
+
+    showToastNotification(
+      context,
+      message: LocaleKeys.settings_notifications_archiveNotifications_allSuccess
+          .tr(),
+    );
+
+    getIt<ReminderBloc>()
+        .add(ReminderEvent.archive(mSelectedNotificationIds.value));
+
+    mSelectedNotificationIds.value = [];
   }
 }
 

@@ -10,7 +10,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class NotificationTab extends StatelessWidget {
+class NotificationTab extends StatefulWidget {
   const NotificationTab({
     super.key,
     required this.tabType,
@@ -19,7 +19,18 @@ class NotificationTab extends StatelessWidget {
   final MobileNotificationTabType tabType;
 
   @override
+  State<NotificationTab> createState() => _NotificationTabState();
+}
+
+class _NotificationTabState extends State<NotificationTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return BlocBuilder<ReminderBloc, ReminderState>(
       builder: (context, state) {
         final reminders = _filterReminders(state.reminders);
@@ -27,7 +38,7 @@ class NotificationTab extends StatelessWidget {
         if (reminders.isEmpty) {
           // add refresh indicator to the empty notification.
           return EmptyNotification(
-            type: tabType,
+            type: widget.tabType,
           );
         }
 
@@ -37,8 +48,8 @@ class NotificationTab extends StatelessWidget {
           itemBuilder: (context, index) {
             final reminder = reminders[index];
             return NotificationItem(
-              key: ValueKey('${tabType}_${reminder.id}'),
-              tabType: tabType,
+              key: ValueKey('${widget.tabType}_${reminder.id}'),
+              tabType: widget.tabType,
               reminder: reminder,
             );
           },
@@ -69,7 +80,7 @@ class NotificationTab extends StatelessWidget {
   }
 
   List<ReminderPB> _filterReminders(List<ReminderPB> reminders) {
-    switch (tabType) {
+    switch (widget.tabType) {
       case MobileNotificationTabType.inbox:
         return reminders.reversed
             .where((reminder) => !reminder.isArchived)
@@ -95,7 +106,10 @@ class MultiSelectNotificationTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ReminderBloc, ReminderState>(
       builder: (context, state) {
-        final reminders = state.reminders.reversed.toList();
+        // find the reminders that are not archived or read.
+        final reminders = state.reminders.reversed
+            .where((reminder) => !reminder.isArchived || !reminder.isRead)
+            .toList();
 
         if (reminders.isEmpty) {
           // add refresh indicator to the empty notification.
