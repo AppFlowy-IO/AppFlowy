@@ -95,7 +95,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
             final newReminder = updateObject.merge(a: reminder);
             final failureOrUnit = await _reminderService.updateReminder(
-              reminder: updateObject.merge(a: reminder),
+              reminder: newReminder,
             );
 
             failureOrUnit.fold(
@@ -402,6 +402,7 @@ class ReminderUpdate {
     this.scheduledAt,
     this.includeTime,
     this.isArchived,
+    this.date,
   });
 
   final String id;
@@ -410,6 +411,7 @@ class ReminderUpdate {
   final DateTime? scheduledAt;
   final bool? includeTime;
   final bool? isArchived;
+  final DateTime? date;
 
   ReminderPB merge({required ReminderPB a}) {
     final isAcknowledged = isAck == null && scheduledAt != null
@@ -423,6 +425,10 @@ class ReminderUpdate {
 
     if (isArchived != a.isArchived) {
       meta[ReminderMetaKeys.isArchived] = isArchived.toString();
+    }
+
+    if (date != a.date && date != null) {
+      meta[ReminderMetaKeys.date] = date!.millisecondsSinceEpoch.toString();
     }
 
     return ReminderPB(
