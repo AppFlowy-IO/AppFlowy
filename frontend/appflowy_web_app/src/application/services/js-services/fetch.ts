@@ -1,4 +1,4 @@
-import { APIService } from '@/application/services/js-services/wasm';
+import { APIService } from '@/application/services/js-services/http';
 
 const pendingRequests = new Map();
 

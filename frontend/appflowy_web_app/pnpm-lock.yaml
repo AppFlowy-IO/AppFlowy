@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@appflowyinc/client-api-wasm':
-    specifier: 0.1.4
-    version: 0.1.4
   '@atlaskit/primitives':
     specifier: ^5.5.3
     version: 5.7.0(@types/react@18.2.66)(react@18.2.0)
@@ -453,10 +450,6 @@ packages:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
-
-  /@appflowyinc/client-api-wasm@0.1.4:
-    resolution: {integrity: sha512-3uBpy3n+aIG0fapPAroMfL8JLdAPtqPAkpV+LOxlRnMW4Au2JQcW8TW0P3K1YAe16tDZ62ZIZPoG6Bi40RDRoQ==}
-    dev: false
 
   /@atlaskit/analytics-next-stable-react-context@1.0.1(react@18.2.0):
     resolution: {integrity: sha512-iO6+hIp09dF4iAZQarVz3vKY1kM5Ij5CExYcK9jgc2q+OH8nv8n+BPFeJTdzGOGopmbUZn5Opj9pYQvge1Gr4Q==}

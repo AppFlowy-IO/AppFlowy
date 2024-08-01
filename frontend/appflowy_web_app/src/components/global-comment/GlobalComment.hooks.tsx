@@ -185,7 +185,7 @@ export function useCommentRender(comment: GlobalComment) {
   }, [comment]);
 
   const timeFormat = useMemo(() => {
-    const time = dayjs.unix(Number(comment.lastUpdatedAt));
+    const time = dayjs(comment.lastUpdatedAt);
 
     return time.format('YYYY-MM-DD HH:mm:ss');
   }, [comment.lastUpdatedAt]);
@@ -193,7 +193,7 @@ export function useCommentRender(comment: GlobalComment) {
   const time = useMemo(() => {
     if (!comment.lastUpdatedAt) return '';
     const now = dayjs();
-    const past = dayjs.unix(Number(comment.lastUpdatedAt));
+    const past = dayjs(comment.lastUpdatedAt);
     const diffSec = now.diff(past, 'second');
     const diffMin = now.diff(past, 'minute');
     const diffHour = now.diff(past, 'hour');

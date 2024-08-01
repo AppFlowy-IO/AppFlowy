@@ -18,3 +18,21 @@ export function isTokenValid() {
 export function getToken() {
   return localStorage.getItem('token');
 }
+
+export function getTokenParsed(): {
+  access_token: string;
+  expires_at: number;
+  refresh_token: string;
+} | null {
+  const token = getToken();
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(token);
+  } catch (e) {
+    return null;
+  }
+}

@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
-import wasm from 'vite-plugin-wasm';
 import { visualizer } from 'rollup-plugin-visualizer';
 import usePluginImport from 'vite-plugin-importer';
 import { totalBundleSize } from 'vite-plugin-total-bundle-size';
@@ -14,7 +13,6 @@ const isDev = process.env.NODE_ENV === 'development';
 export default defineConfig({
   plugins: [
     react(),
-    wasm(),
     svgr({
       svgrOptions: {
         prettier: false,
@@ -141,13 +139,6 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'react-katex',
-      // 'react-custom-scrollbars-2',
-      // 'react-window',
-      // 'react-virtualized-auto-sizer',
-    ],
+    include: ['react', 'react-dom', 'react-katex'],
   },
 });

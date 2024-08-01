@@ -8,24 +8,8 @@ import {
 } from '@/application/services/js-services/cache';
 import { StrategyType } from '@/application/services/js-services/cache/types';
 import { fetchPublishView, fetchPublishViewMeta, fetchViewInfo } from '@/application/services/js-services/fetch';
-import {
-  initAPIService,
-  signInGoogle,
-  signInWithMagicLink,
-  signInGithub,
-  signInDiscord,
-  signInWithUrl,
-  createGlobalCommentOnPublishView,
-  deleteGlobalCommentOnPublishView,
-  getPublishViewComments,
-  getWorkspaces,
-  getWorkspaceFolder,
-  getCurrentUser,
-  duplicatePublishView,
-  getReactions,
-  addReaction,
-  removeReaction,
-} from '@/application/services/js-services/wasm/client_api';
+import { APIService } from '@/application/services/js-services/http';
+
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { emit, EventType } from '@/application/session';
 import { afterAuth, AUTH_CALLBACK_URL, withSignIn } from '@/application/session/sign_in';
@@ -53,11 +37,7 @@ export class AFClientService implements AFService {
   private cacheDatabaseRowFolder: Map<string, Y.Map<YDoc>> = new Map();
 
   constructor(config: AFServiceConfig) {
-    initAPIService({
-      ...config.cloudConfig,
-      deviceId: this.deviceId,
-      clientId: this.clientId,
-    });
+    APIService.initAPIService(config.cloudConfig);
   }
 
   getClientId() {
@@ -182,7 +162,7 @@ export class AFClientService implements AFService {
   async loginAuth(url: string) {
     try {
       console.log('loginAuth', url);
-      await signInWithUrl(url);
+      await APIService.signInWithUrl(url);
       emit(EventType.SESSION_VALID);
       afterAuth();
       return;
@@ -194,51 +174,45 @@ export class AFClientService implements AFService {
 
   @withSignIn()
   async signInMagicLink({ email }: { email: string; redirectTo: string }) {
-    return await signInWithMagicLink(email, AUTH_CALLBACK_URL);
+    return await APIService.signInWithMagicLink(email, AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
   async signInGoogle(_: { redirectTo: string }) {
-    return await signInGoogle(AUTH_CALLBACK_URL);
+    return APIService.signInGoogle(AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
   async signInGithub(_: { redirectTo: string }) {
-    return await signInGithub(AUTH_CALLBACK_URL);
+    return APIService.signInGithub(AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
   async signInDiscord(_: { redirectTo: string }) {
-    return await signInDiscord(AUTH_CALLBACK_URL);
+    return APIService.signInDiscord(AUTH_CALLBACK_URL);
   }
 
   async getWorkspaces() {
-    const data = getWorkspaces();
+    const data = APIService.getWorkspaces();
 
     return data;
   }
 
   async getWorkspaceFolder(workspaceId: string) {
-    const data = await getWorkspaceFolder(workspaceId);
+    const data = await APIService.getWorkspaceFolder(workspaceId);
 
     return data;
   }
 
   async getCurrentUser() {
-    const data = await getCurrentUser();
+    const data = await APIService.getCurrentUser();
 
-    return {
-      uid: data.uid,
-      email: data.email,
-      name: data.name,
-      avatar: data.icon_url,
-      uuid: data.uuid,
-    };
+    await APIService.getWorkspaces();
+    return data;
   }
 
   async duplicatePublishView(params: DuplicatePublishView) {
-    return duplicatePublishView({
-      workspace_id: params.workspaceId,
+    return APIService.duplicatePublishView(params.workspaceId, {
       dest_view_id: params.spaceViewId,
       published_view_id: params.viewId,
       published_collab_type: params.collabType,
@@ -246,26 +220,26 @@ export class AFClientService implements AFService {
   }
 
   createCommentOnPublishView(viewId: string, content: string, replyCommentId: string | undefined): Promise<void> {
-    return createGlobalCommentOnPublishView(viewId, content, replyCommentId);
+    return APIService.createGlobalCommentOnPublishView(viewId, content, replyCommentId);
   }
 
   deleteCommentOnPublishView(viewId: string, commentId: string): Promise<void> {
-    return deleteGlobalCommentOnPublishView(viewId, commentId);
+    return APIService.deleteGlobalCommentOnPublishView(viewId, commentId);
   }
 
   getPublishViewGlobalComments(viewId: string): Promise<GlobalComment[]> {
-    return getPublishViewComments(viewId);
+    return APIService.getPublishViewComments(viewId);
   }
 
   getPublishViewReactions(viewId: string, commentId?: string): Promise<Record<string, Reaction[]>> {
-    return getReactions(viewId, commentId);
+    return APIService.getReactions(viewId, commentId);
   }
 
   addPublishViewReaction(viewId: string, commentId: string, reactionType: string): Promise<void> {
-    return addReaction(viewId, commentId, reactionType);
+    return APIService.addReaction(viewId, commentId, reactionType);
   }
 
   removePublishViewReaction(viewId: string, commentId: string, reactionType: string): Promise<void> {
-    return removeReaction(viewId, commentId, reactionType);
+    return APIService.removeReaction(viewId, commentId, reactionType);
   }
 }
