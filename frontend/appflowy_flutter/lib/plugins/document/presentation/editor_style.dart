@@ -185,11 +185,23 @@ class EditorStyleCustomizer {
   }
 
   TextStyle calloutBlockStyleBuilder() {
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    return baseTextStyle(null).copyWith(
-      fontSize: fontSize,
-      height: 1.5,
-    );
+    if (PlatformExtension.isMobile) {
+      final afThemeExtension = AFThemeExtension.of(context);
+      final pageStyle = context.read<DocumentPageStyleBloc>().state;
+      final fontSize = pageStyle.fontLayout.fontSize;
+      final fontFamily = pageStyle.fontFamily ?? defaultFontFamily;
+      final baseTextStyle = this.baseTextStyle(fontFamily);
+      return baseTextStyle.copyWith(
+        fontSize: fontSize,
+        color: afThemeExtension.onBackground,
+      );
+    } else {
+      final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+      return baseTextStyle(null).copyWith(
+        fontSize: fontSize,
+        height: 1.5,
+      );
+    }
   }
 
   TextStyle outlineBlockPlaceholderStyleBuilder() {

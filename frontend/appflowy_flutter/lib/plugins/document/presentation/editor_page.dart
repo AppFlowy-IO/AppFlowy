@@ -516,6 +516,10 @@ Color? buildEditorCustomizedColor(
   Node node,
   String colorString,
 ) {
+  if (!context.mounted) {
+    return null;
+  }
+
   // the color string is from FlowyTint.
   final tintColor = FlowyTint.values.firstWhereOrNull(
     (e) => e.id == colorString,

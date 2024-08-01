@@ -189,10 +189,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
     ),
     CalloutBlockKeys.type: CalloutBlockComponentBuilder(
-      configuration: configuration.copyWith(
-        textStyle: (_) => styleCustomizer.calloutBlockStyleBuilder(),
-        placeholderTextStyle: (_) => styleCustomizer.calloutBlockStyleBuilder(),
-      ),
+      configuration: configuration.copyWith(),
       defaultColor: calloutBGColor,
     ),
     DividerBlockKeys.type: DividerBlockComponentBuilder(

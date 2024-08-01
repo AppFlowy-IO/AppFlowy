@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
@@ -18,6 +16,8 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -74,6 +74,9 @@ class MobileHomeScreen extends StatelessWidget {
   }
 }
 
+final PropertyValueNotifier<UserWorkspacePB?> mCurrentWorkspace =
+    PropertyValueNotifier<UserWorkspacePB?>(null);
+
 class MobileHomePage extends StatefulWidget {
   const MobileHomePage({
     super.key,
@@ -122,7 +125,10 @@ class _MobileHomePageState extends State<MobileHomePage> {
         buildWhen: (previous, current) =>
             previous.currentWorkspace?.workspaceId !=
             current.currentWorkspace?.workspaceId,
-        listener: (context, state) => getIt<CachedRecentService>().reset(),
+        listener: (context, state) {
+          getIt<CachedRecentService>().reset();
+          mCurrentWorkspace.value = state.currentWorkspace;
+        },
         builder: (context, state) {
           if (state.currentWorkspace == null) {
             return const SizedBox.shrink();

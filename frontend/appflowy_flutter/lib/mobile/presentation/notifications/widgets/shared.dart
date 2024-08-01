@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.
 import 'package:appflowy/mobile/presentation/notifications/widgets/color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -107,7 +108,10 @@ class NotificationContent extends StatelessWidget {
               child: IntrinsicHeight(
                 child: BlocProvider(
                   create: (context) => DocumentPageStyleBloc(view: state.view!),
-                  child: NotificationDocumentContent(nodes: state.nodes),
+                  child: NotificationDocumentContent(
+                    reminder: reminder,
+                    nodes: state.nodes,
+                  ),
                 ),
               ),
             ),
@@ -176,9 +180,11 @@ class NotificationEllipse extends StatelessWidget {
 class NotificationDocumentContent extends StatelessWidget {
   const NotificationDocumentContent({
     super.key,
+    required this.reminder,
     required this.nodes,
   });
 
+  final ReminderPB reminder;
   final List<Node> nodes;
 
   @override
@@ -222,15 +228,18 @@ class NotificationDocumentContent extends StatelessWidget {
     );
 
     return IgnorePointer(
-      child: AppFlowyEditor(
-        editorState: editorState,
-        editorStyle: editorStyle,
-        disableSelectionService: true,
-        disableKeyboardService: true,
-        disableScrollService: true,
-        editable: false,
-        shrinkWrap: true,
-        blockComponentBuilders: blockBuilders,
+      child: Opacity(
+        opacity: reminder.type == ReminderType.past ? 0.3 : 1,
+        child: AppFlowyEditor(
+          editorState: editorState,
+          editorStyle: editorStyle,
+          disableSelectionService: true,
+          disableKeyboardService: true,
+          disableScrollService: true,
+          editable: false,
+          shrinkWrap: true,
+          blockComponentBuilders: blockBuilders,
+        ),
       ),
     );
   }
