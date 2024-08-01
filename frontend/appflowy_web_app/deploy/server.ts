@@ -82,6 +82,20 @@ const createServer = async (req: Request) => {
     });
   }
 
+  if (reqUrl.pathname === '/login') {
+    timer();
+    const htmlData = fs.readFileSync(indexPath, 'utf8');
+    const $ = load(htmlData);
+
+    $('title').text('Login | AppFlowy');
+    $('link[rel="icon"]').attr('href', '/appflowy.svg');
+    setOrUpdateMetaTag($, 'meta[name="description"]', 'name', 'Login to AppFlowy');
+
+    return new Response($.html(), {
+      headers: { 'Content-Type': 'text/html' },
+    });
+  }
+
   const [namespace, publishName] = reqUrl.pathname.slice(1).split('/');
 
   logger.info(`Namespace: ${namespace}, Publish Name: ${publishName}`);
