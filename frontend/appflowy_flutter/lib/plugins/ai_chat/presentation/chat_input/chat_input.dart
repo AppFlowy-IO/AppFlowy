@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/ai_chat/presentation/chat_inline_action_menu.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_command.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -39,41 +40,35 @@ class ChatInput extends StatefulWidget {
 class _ChatInputState extends State<ChatInput> {
   final GlobalKey _textFieldKey = GlobalKey();
   final LayerLink _layerLink = LayerLink();
-  // final ChatTextFieldInterceptor _textFieldInterceptor =
-  //     ChatTextFieldInterceptor();
-
-  late final _inputFocusNode = FocusNode(
-    onKeyEvent: (node, event) {
-      if (event.physicalKey == PhysicalKeyboardKey.enter &&
-          !HardwareKeyboard.instance.physicalKeysPressed.any(
-            (el) => <PhysicalKeyboardKey>{
-              PhysicalKeyboardKey.shiftLeft,
-              PhysicalKeyboardKey.shiftRight,
-            }.contains(el),
-          )) {
-        if (kIsWeb && _textController.value.isComposingRangeValid) {
-          return KeyEventResult.ignored;
-        }
-        if (event is KeyDownEvent) {
-          if (!widget.isStreaming) {
-            _handleSendPressed();
-          }
-        }
-        return KeyEventResult.handled;
-      } else {
-        return KeyEventResult.ignored;
-      }
-    },
-  );
+  late ChatTextFieldInterceptor _textFieldInterceptor;
+  late FocusNode _inputFocusNode;
   late TextEditingController _textController;
-
   bool _sendButtonVisible = false;
 
   @override
   void initState() {
     super.initState();
-
     _textController = InputTextFieldController();
+    _inputFocusNode = FocusNode(
+      onKeyEvent: (node, event) {
+        if (_textFieldInterceptor.canHandleKeyEvent(event)) {
+          _textFieldInterceptor.handleKeyEvent(event);
+          return KeyEventResult.handled;
+        } else {
+          return _handleEnterKeyWithoutShift(
+            event,
+            _textController,
+            widget.isStreaming,
+            _handleSendPressed,
+          );
+        }
+      },
+    );
+
+    _textFieldInterceptor = ChatTextFieldInterceptor(
+      textController: _textController,
+      textFieldFocusNode: _inputFocusNode,
+    );
     _handleSendButtonVisibilityModeChange();
   }
 
@@ -81,6 +76,7 @@ class _ChatInputState extends State<ChatInput> {
   void dispose() {
     _inputFocusNode.dispose();
     _textController.dispose();
+    _textFieldInterceptor.dispose();
     super.dispose();
   }
 
@@ -165,28 +161,21 @@ class _ChatInputState extends State<ChatInput> {
           textCapitalization: TextCapitalization.sentences,
           maxLines: 10,
           minLines: 1,
-          // onChanged: (text) {
-          //   final handler = _textFieldInterceptor.onTextChanged(
-          //     text,
-          //     _textController,
-          //     _inputFocusNode,
-          //   );
-          //   // If the handler is not null, it means that the text has been
-          //   // recognized as a command.
-          //   if (handler != null) {
-          //     ChatActionsMenu(
-          //       anchor: ChatInputAnchor(
-          //         anchorKey: _textFieldKey,
-          //         layerLink: _layerLink,
-          //       ),
-          //       handler: handler,
-          //       context: context,
-          //       style: Theme.of(context).brightness == Brightness.dark
-          //           ? const ChatActionsMenuStyle.dark()
-          //           : const ChatActionsMenuStyle.light(),
-          //     ).show();
-          //   }
-          // },
+          onChanged: (text) {
+            if (_textFieldInterceptor.onTextChanged(text)) {
+              ChatActionsMenu(
+                anchor: ChatInputAnchor(
+                  anchorKey: _textFieldKey,
+                  layerLink: _layerLink,
+                ),
+                handler: _textFieldInterceptor,
+                context: context,
+                style: Theme.of(context).brightness == Brightness.dark
+                    ? const ChatActionsMenuStyle.dark()
+                    : const ChatActionsMenuStyle.light(),
+              ).show();
+            }
+          },
         ),
       ),
     );
@@ -237,4 +226,39 @@ class ChatInputAnchor extends ChatAnchor {
 
   @override
   final LayerLink layerLink;
+}
+
+/// Handles the key press event for the Enter key without Shift.
+///
+/// This function checks if the Enter key is pressed without either of the Shift keys.
+/// If the conditions are met, it performs the action of sending a message if the
+/// text controller is not in a composing range and if the event is a key down event.
+///
+/// - Returns: A `KeyEventResult` indicating whether the key event was handled or ignored.
+KeyEventResult _handleEnterKeyWithoutShift(
+  KeyEvent event,
+  TextEditingController textController,
+  bool isStreaming,
+  void Function() handleSendPressed,
+) {
+  if (event.physicalKey == PhysicalKeyboardKey.enter &&
+      !HardwareKeyboard.instance.physicalKeysPressed.any(
+        (el) => <PhysicalKeyboardKey>{
+          PhysicalKeyboardKey.shiftLeft,
+          PhysicalKeyboardKey.shiftRight,
+        }.contains(el),
+      )) {
+    if (textController.value.isComposingRangeValid) {
+      return KeyEventResult.ignored;
+    }
+
+    if (event is KeyDownEvent) {
+      if (!isStreaming) {
+        handleSendPressed();
+      }
+    }
+    return KeyEventResult.handled;
+  } else {
+    return KeyEventResult.ignored;
+  }
 }

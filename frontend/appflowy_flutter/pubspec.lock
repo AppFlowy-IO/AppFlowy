@@ -1755,7 +1755,7 @@ packages:
     source: hosted
     version: "0.1.9"
   scroll_to_index:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: scroll_to_index
       sha256: b707546e7500d9f070d63e5acf74fd437ec7eeeb68d3412ef7b0afada0b4f176

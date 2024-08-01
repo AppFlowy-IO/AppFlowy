@@ -1,17 +1,24 @@
+import 'dart:math';
+
+import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 abstract class ChatActionMenuItem {
   String get title;
+  String get id;
 }
 
 abstract class ChatActionHandler {
-  List<ChatActionMenuItem> get items;
   void onEnter();
   void onSelected(ChatActionMenuItem item);
   void onExit();
+  ChatInputActionBloc get commandBloc;
+  void onFilter(String filter);
 }
 
 abstract class ChatAnchor {
@@ -57,38 +64,57 @@ class ChatActionsMenu {
     }
 
     handler.onEnter();
+    const double maxHeight = 300;
 
-    final height = handler.items.length * (_itemHeight + _itemVerticalPadding);
     _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          CompositedTransformFollower(
-            link: anchor.layerLink,
-            showWhenUnlinked: false,
-            offset: Offset(0, -height - 4),
-            child: Material(
-              elevation: 4.0,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minWidth: 200,
-                  maxWidth: 200,
-                  maxHeight: 200,
-                ),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(6.0),
+      builder: (context) => BlocProvider.value(
+        value: handler.commandBloc,
+        child: BlocBuilder<ChatInputActionBloc, ChatInputActionState>(
+          builder: (context, state) {
+            final height = min(
+              state.items.length * (_itemHeight + _itemVerticalPadding),
+              maxHeight,
+            );
+            return Stack(
+              children: [
+                CompositedTransformFollower(
+                  link: anchor.layerLink,
+                  showWhenUnlinked: false,
+                  offset: Offset(0, -height - 4),
+                  child: Material(
+                    elevation: 4.0,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: 200,
+                        maxWidth: 200,
+                        maxHeight: maxHeight,
+                      ),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(6.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 2,
+                            vertical: 4,
+                          ),
+                          child: ActionList(
+                            handler: handler,
+                            onDismiss: () => dismiss(),
+                            items: state.items,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  child: ActionList(
-                    handler: handler,
-                    onDismiss: () => dismiss(),
-                  ),
                 ),
-              ),
-            ),
-          ),
-        ],
+              ],
+            );
+          },
+        ),
       ),
     );
 
@@ -131,77 +157,97 @@ class _ActionItem extends StatelessWidget {
 }
 
 class ActionList extends StatefulWidget {
-  const ActionList({super.key, required this.handler, required this.onDismiss});
+  const ActionList({
+    super.key,
+    required this.handler,
+    required this.onDismiss,
+    required this.items,
+  });
 
   final ChatActionHandler handler;
   final VoidCallback? onDismiss;
+  final List<ChatActionMenuItem> items;
 
   @override
   State<ActionList> createState() => _ActionListState();
 }
 
 class _ActionListState extends State<ActionList> {
-  final FocusScopeNode _focusNode =
-      FocusScopeNode(debugLabel: 'ChatActionsMenu');
   int _selectedIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
-    });
-  }
+  final _scrollController = AutoScrollController();
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _handleKeyPress(event) {
+  KeyEventResult _handleKeyPress(event) {
+    bool isHandle = false;
     setState(() {
       // ignore: deprecated_member_use
       if (event is KeyDownEvent || event is RawKeyDownEvent) {
         if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-          _selectedIndex = (_selectedIndex + 1) % widget.handler.items.length;
+          _selectedIndex = (_selectedIndex + 1) % widget.items.length;
+          _scrollToSelectedIndex();
+          isHandle = true;
         } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-          _selectedIndex = (_selectedIndex - 1 + widget.handler.items.length) %
-              widget.handler.items.length;
+          _selectedIndex =
+              (_selectedIndex - 1 + widget.items.length) % widget.items.length;
+          _scrollToSelectedIndex();
+          isHandle = true;
         } else if (event.logicalKey == LogicalKeyboardKey.enter) {
-          widget.handler.onSelected(widget.handler.items[_selectedIndex]);
+          widget.handler.onSelected(widget.items[_selectedIndex]);
           widget.onDismiss?.call();
+          isHandle = true;
         } else if (event.logicalKey == LogicalKeyboardKey.escape) {
           widget.onDismiss?.call();
+          isHandle = true;
         }
       }
     });
+    return isHandle ? KeyEventResult.handled : KeyEventResult.ignored;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FocusScope(
-      node: _focusNode,
-      onKey: (node, event) {
-        _handleKeyPress(event);
-        return KeyEventResult.handled;
+    return BlocListener<ChatInputActionBloc, ChatInputActionState>(
+      listenWhen: (previous, current) => previous.keyEvent != current.keyEvent,
+      listener: (context, state) {
+        if (state.keyEvent != null) {
+          _handleKeyPress(state.keyEvent!);
+        }
       },
       child: ListView(
         shrinkWrap: true,
+        controller: _scrollController,
         padding: const EdgeInsets.all(8),
-        children: widget.handler.items.asMap().entries.map((entry) {
+        children: widget.items.asMap().entries.map((entry) {
           final index = entry.key;
           final ChatActionMenuItem item = entry.value;
-          return _ActionItem(
-            item: item,
-            onTap: () {
-              widget.handler.onSelected(item);
-              widget.onDismiss?.call();
-            },
-            isSelected: _selectedIndex == index,
+          return AutoScrollTag(
+            key: ValueKey(item.id),
+            index: index,
+            controller: _scrollController,
+            child: _ActionItem(
+              item: item,
+              onTap: () {
+                widget.handler.onSelected(item);
+                widget.onDismiss?.call();
+              },
+              isSelected: _selectedIndex == index,
+            ),
           );
         }).toList(),
       ),
+    );
+  }
+
+  void _scrollToSelectedIndex() {
+    _scrollController.scrollToIndex(
+      _selectedIndex,
+      duration: const Duration(milliseconds: 200),
+      preferPosition: AutoScrollPosition.begin,
     );
   }
 }

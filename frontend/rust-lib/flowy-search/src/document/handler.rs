@@ -57,7 +57,11 @@ impl SearchHandler for DocumentSearchHandler {
 
     // Grab all views from folder cache
     // Notice that `get_all_view_pb` returns Views that don't include trashed and private views
-    let mut views = self.folder_manager.get_all_views_pb().await?.into_iter();
+    let mut views = self
+      .folder_manager
+      .get_all_views_pb(vec![])
+      .await?
+      .into_iter();
     let mut search_results: Vec<SearchResultPB> = vec![];
 
     for result in results {
