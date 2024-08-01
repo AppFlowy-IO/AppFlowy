@@ -1,12 +1,12 @@
 use crate::chat::Chat;
 use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
 use crate::local_ai::local_llm_chat::LocalAIController;
-use crate::middleware::chat_service_mw::CloudServiceMiddleware;
+use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::persistence::{insert_chat, ChatTable};
 
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessageType};
+use flowy_ai_pub::cloud::{ChatCloudService, ChatMessageType};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
@@ -16,7 +16,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tracing::{info, trace};
 
-pub trait ChatUserService: Send + Sync + 'static {
+pub trait AIUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn device_id(&self) -> Result<String, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
@@ -24,32 +24,32 @@ pub trait ChatUserService: Send + Sync + 'static {
   fn data_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
-pub struct ChatManager {
-  pub cloud_service_wm: Arc<CloudServiceMiddleware>,
-  pub user_service: Arc<dyn ChatUserService>,
+pub struct AIManager {
+  pub cloud_service_wm: Arc<AICloudServiceMiddleware>,
+  pub user_service: Arc<dyn AIUserService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
   pub local_ai_controller: Arc<LocalAIController>,
 }
 
-impl ChatManager {
+impl AIManager {
   pub fn new(
-    cloud_service: Arc<dyn ChatCloudService>,
-    user_service: impl ChatUserService,
+    chat_cloud_service: Arc<dyn ChatCloudService>,
+    user_service: impl AIUserService,
     store_preferences: Arc<KVStorePreferences>,
-  ) -> ChatManager {
+  ) -> AIManager {
     let user_service = Arc::new(user_service);
     let plugin_manager = Arc::new(PluginManager::new());
     let local_ai_controller = Arc::new(LocalAIController::new(
       plugin_manager.clone(),
       store_preferences.clone(),
       user_service.clone(),
-      cloud_service.clone(),
+      chat_cloud_service.clone(),
     ));
 
     // setup local chat service
-    let cloud_service_wm = Arc::new(CloudServiceMiddleware::new(
+    let cloud_service_wm = Arc::new(AICloudServiceMiddleware::new(
       user_service.clone(),
-      cloud_service,
+      chat_cloud_service,
       local_ai_controller.clone(),
     ));
 

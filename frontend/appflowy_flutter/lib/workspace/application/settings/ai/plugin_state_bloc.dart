@@ -4,7 +4,7 @@ import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:url_launcher/url_launcher.dart' show launchUrl;
@@ -43,7 +43,7 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
   ) async {
     await event.when(
       started: () async {
-        final result = await ChatEventGetLocalAIPluginState().send();
+        final result = await AIEventGetLocalAIPluginState().send();
         result.fold(
           (pluginState) {
             if (!isClosed) {
@@ -85,10 +85,10 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
         emit(
           const PluginStateState(action: PluginStateAction.loadingPlugin()),
         );
-        unawaited(ChatEventRestartLocalAIChat().send());
+        unawaited(AIEventRestartLocalAIChat().send());
       },
       openModelDirectory: () async {
-        final result = await ChatEventGetModelStorageDirectory().send();
+        final result = await AIEventGetModelStorageDirectory().send();
         result.fold(
           (data) {
             afLaunchUrl(Uri.file(data.filePath));
@@ -97,7 +97,7 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
         );
       },
       downloadOfflineAIApp: () async {
-        final result = await ChatEventGetOfflineAIAppLink().send();
+        final result = await AIEventGetOfflineAIAppLink().send();
         await result.fold(
           (app) async {
             await launchUrl(Uri.parse(app.link));

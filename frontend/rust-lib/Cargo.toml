@@ -29,8 +29,8 @@ members = [
     "build-tool/flowy-codegen",
     "build-tool/flowy-derive",
     "flowy-search-pub",
-    "flowy-chat",
-    "flowy-chat-pub",
+    "flowy-ai",
+    "flowy-ai-pub",
     "flowy-storage-pub",
 ]
 resolver = "2"
@@ -65,8 +65,8 @@ flowy-search = { workspace = true, path = "flowy-search" }
 flowy-search-pub = { workspace = true, path = "flowy-search-pub" }
 collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-date = { workspace = true, path = "flowy-date" }
-flowy-chat = { workspace = true, path = "flowy-chat" }
-flowy-chat-pub = { workspace = true, path = "flowy-chat-pub" }
+flowy-ai = { workspace = true, path = "flowy-ai" }
+flowy-ai-pub = { workspace = true, path = "flowy-ai-pub" }
 anyhow = "1.0"
 tracing = "0.1.40"
 bytes = "1.5.0"
@@ -99,8 +99,8 @@ zip = "2.1.3"
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "0062c950677f7f633f5b7edabc827a35d3bc92c3" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "0062c950677f7f633f5b7edabc827a35d3bc92c3" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f61e6d03469aac73b9ad88e37ac6898a691289d" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f61e6d03469aac73b9ad88e37ac6898a691289d" }
 
 [profile.dev]
 opt-level = 0
@@ -147,5 +147,5 @@ collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-
 # To update the commit ID, run:
 # scripts/tool/update_local_ai_rev.sh new_rev_id
 # ⚠️⚠️⚠️️
-appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "8ef7d3e4c38fbf92ff9b3630fe79017e95a496ec" }
-appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "8ef7d3e4c38fbf92ff9b3630fe79017e95a496ec" }
+appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "7dd879a6b9b3246e5cd06f1647e620553db9b960" }
+appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "7dd879a6b9b3246e5cd06f1647e620553db9b960" }

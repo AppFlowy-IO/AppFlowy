@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -74,7 +74,7 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               chatId: chatId,
               messageId: questionId,
             );
-            ChatEventGetAnswerForQuestion(payload).send().then((result) {
+            AIEventGetAnswerForQuestion(payload).send().then((result) {
               if (!isClosed) {
                 result.fold(
                   (answer) {

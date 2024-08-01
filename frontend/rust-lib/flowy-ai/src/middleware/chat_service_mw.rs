@@ -1,11 +1,11 @@
-use crate::chat_manager::ChatUserService;
+use crate::ai_manager::AIUserService;
 use crate::entities::{ChatStatePB, ModelTypePB};
 use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use crate::persistence::select_single_message;
 use appflowy_plugin::error::PluginError;
 
-use flowy_chat_pub::cloud::{
+use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageType, CompletionType, LocalAIConfig, MessageCursor,
   RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
 };
@@ -17,15 +17,15 @@ use lib_infra::future::FutureResult;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-pub struct CloudServiceMiddleware {
+pub struct AICloudServiceMiddleware {
   cloud_service: Arc<dyn ChatCloudService>,
-  user_service: Arc<dyn ChatUserService>,
+  user_service: Arc<dyn AIUserService>,
   local_llm_controller: Arc<LocalAIController>,
 }
 
-impl CloudServiceMiddleware {
+impl AICloudServiceMiddleware {
   pub fn new(
-    user_service: Arc<dyn ChatUserService>,
+    user_service: Arc<dyn AIUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
     local_llm_controller: Arc<LocalAIController>,
   ) -> Self {
@@ -67,7 +67,7 @@ impl CloudServiceMiddleware {
 }
 
 #[async_trait]
-impl ChatCloudService for CloudServiceMiddleware {
+impl ChatCloudService for AICloudServiceMiddleware {
   fn create_chat(
     &self,
     uid: &i64,

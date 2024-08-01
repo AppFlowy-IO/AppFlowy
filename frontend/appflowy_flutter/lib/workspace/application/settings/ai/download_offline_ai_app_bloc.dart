@@ -18,7 +18,7 @@ class DownloadOfflineAIBloc
   ) async {
     await event.when(
       started: () async {
-        final result = await ChatEventGetOfflineAIAppLink().send();
+        final result = await AIEventGetOfflineAIAppLink().send();
         await result.fold(
           (app) async {
             await launchUrl(Uri.parse(app.link));

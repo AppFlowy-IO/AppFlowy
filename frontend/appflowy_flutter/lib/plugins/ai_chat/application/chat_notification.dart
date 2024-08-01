@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:appflowy/core/notification/notification_helper.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:appflowy_backend/rust_stream.dart';

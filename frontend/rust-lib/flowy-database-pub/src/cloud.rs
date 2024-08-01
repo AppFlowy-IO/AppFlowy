@@ -3,18 +3,43 @@ pub use client_api::entity::ai_dto::{TranslateItem, TranslateRowResponse};
 use collab::core::collab::DataSource;
 use collab_entity::CollabType;
 use flowy_error::FlowyError;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 
 pub type CollabDocStateByOid = HashMap<String, DataSource>;
 pub type SummaryRowContent = HashMap<String, String>;
 pub type TranslateRowContent = Vec<TranslateItem>;
+
+#[async_trait]
+pub trait DatabaseAIService: Send + Sync {
+  async fn summary_database_row(
+    &self,
+    _workspace_id: &str,
+    _object_id: &str,
+    _summary_row: SummaryRowContent,
+  ) -> Result<String, FlowyError> {
+    Ok("".to_string())
+  }
+
+  async fn translate_database_row(
+    &self,
+    _workspace_id: &str,
+    _translate_row: TranslateRowContent,
+    _language: &str,
+  ) -> Result<TranslateRowResponse, FlowyError> {
+    Ok(TranslateRowResponse::default())
+  }
+}
+
 /// A trait for database cloud service.
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
 /// [flowy-server] crate for more information.
 ///
 /// returns the doc state of the object with the given object_id.
 /// None if the object is not found.
+///
+#[async_trait]
 pub trait DatabaseCloudService: Send + Sync {
   fn get_database_object_doc_state(
     &self,
@@ -35,20 +60,6 @@ pub trait DatabaseCloudService: Send + Sync {
     object_id: &str,
     limit: usize,
   ) -> FutureResult<Vec<DatabaseSnapshot>, Error>;
-
-  fn summary_database_row(
-    &self,
-    workspace_id: &str,
-    object_id: &str,
-    summary_row: SummaryRowContent,
-  ) -> FutureResult<String, FlowyError>;
-
-  fn translate_database_row(
-    &self,
-    workspace_id: &str,
-    translate_row: TranslateRowContent,
-    language: &str,
-  ) -> FutureResult<TranslateRowResponse, FlowyError>;
 }
 
 pub struct DatabaseSnapshot {

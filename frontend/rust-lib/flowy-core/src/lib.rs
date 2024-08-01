@@ -9,7 +9,7 @@ use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
-use flowy_chat::chat_manager::ChatManager;
+use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
@@ -59,7 +59,7 @@ pub struct AppFlowyCore {
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<KVStorePreferences>,
   pub search_manager: Arc<SearchManager>,
-  pub chat_manager: Arc<ChatManager>,
+  pub ai_manager: Arc<AIManager>,
   pub storage_manager: Arc<StorageManager>,
 }
 
@@ -143,7 +143,7 @@ impl AppFlowyCore {
       document_manager,
       collab_builder,
       search_manager,
-      chat_manager,
+      ai_manager,
       storage_manager,
     ) = async {
       let storage_manager = FileStorageResolver::resolve(
@@ -161,11 +161,19 @@ impl AppFlowyCore {
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
+      let ai_manager = ChatDepsResolver::resolve(
+        Arc::downgrade(&authenticate_user),
+        server_provider.clone(),
+        store_preference.clone(),
+      );
+
       let database_manager = DatabaseDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         task_dispatcher.clone(),
         collab_builder.clone(),
         server_provider.clone(),
+        server_provider.clone(),
+        ai_manager.clone(),
       )
       .await;
 
@@ -177,12 +185,6 @@ impl AppFlowyCore {
         Arc::downgrade(&storage_manager.storage_service),
       );
 
-      let chat_manager = ChatDepsResolver::resolve(
-        Arc::downgrade(&authenticate_user),
-        server_provider.clone(),
-        store_preference.clone(),
-      );
-
       let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Some(Arc::downgrade(
         &authenticate_user,
       ))));
@@ -190,7 +192,7 @@ impl AppFlowyCore {
       let folder_operation_handlers = folder_operation_handlers(
         document_manager.clone(),
         database_manager.clone(),
-        chat_manager.clone(),
+        ai_manager.clone(),
       );
 
       let folder_manager = FolderDepsResolver::resolve(
@@ -228,7 +230,7 @@ impl AppFlowyCore {
         document_manager,
         collab_builder,
         search_manager,
-        chat_manager,
+        ai_manager,
         storage_manager,
       )
     }
@@ -241,7 +243,7 @@ impl AppFlowyCore {
       document_manager: document_manager.clone(),
       server_provider: server_provider.clone(),
       storage_manager: storage_manager.clone(),
-      chat_manager: chat_manager.clone(),
+      ai_manager: ai_manager.clone(),
     };
 
     let collab_interact_impl = CollabInteractImpl {
@@ -266,7 +268,7 @@ impl AppFlowyCore {
         Arc::downgrade(&user_manager),
         Arc::downgrade(&document_manager),
         Arc::downgrade(&search_manager),
-        Arc::downgrade(&chat_manager),
+        Arc::downgrade(&ai_manager),
       ),
     ));
 
@@ -281,7 +283,7 @@ impl AppFlowyCore {
       task_dispatcher,
       store_preference,
       search_manager,
-      chat_manager,
+      ai_manager,
       storage_manager,
     }
   }

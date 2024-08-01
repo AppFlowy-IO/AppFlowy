@@ -1,5 +1,5 @@
-use flowy_chat::chat_manager::{ChatManager, ChatUserService};
-use flowy_chat_pub::cloud::ChatCloudService;
+use flowy_ai::ai_manager::{AIManager, AIUserService};
+use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_error::FlowyError;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
@@ -14,9 +14,9 @@ impl ChatDepsResolver {
     authenticate_user: Weak<AuthenticateUser>,
     cloud_service: Arc<dyn ChatCloudService>,
     store_preferences: Arc<KVStorePreferences>,
-  ) -> Arc<ChatManager> {
+  ) -> Arc<AIManager> {
     let user_service = ChatUserServiceImpl(authenticate_user);
-    Arc::new(ChatManager::new(
+    Arc::new(AIManager::new(
       cloud_service,
       user_service,
       store_preferences,
@@ -35,7 +35,7 @@ impl ChatUserServiceImpl {
   }
 }
 
-impl ChatUserService for ChatUserServiceImpl {
+impl AIUserService for ChatUserServiceImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self.upgrade_user()?.user_id()
   }

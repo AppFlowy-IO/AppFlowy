@@ -1,10 +1,10 @@
-use crate::chat_manager::ChatUserService;
+use crate::ai_manager::AIUserService;
 use crate::entities::{LocalModelResourcePB, PendingResourcePB, PendingResourceTypePB};
 use crate::local_ai::local_llm_chat::{LLMModelInfo, LLMSetting};
 use crate::local_ai::model_request::download_model;
 
 use appflowy_local_ai::chat_plugin::AIPluginConfig;
-use flowy_chat_pub::cloud::{LLMModel, LocalAIConfig, ModelInfo};
+use flowy_ai_pub::cloud::{LLMModel, LocalAIConfig, ModelInfo};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use futures::Sink;
 use futures_util::SinkExt;
@@ -61,8 +61,8 @@ impl DownloadTask {
   }
 }
 
-pub struct LLMResourceController {
-  user_service: Arc<dyn ChatUserService>,
+pub struct LocalAIResourceController {
+  user_service: Arc<dyn AIUserService>,
   resource_service: Arc<dyn LLMResourceService>,
   llm_setting: RwLock<Option<LLMSetting>>,
   // The ai_config will be set when user try to get latest local ai config from server
@@ -75,9 +75,9 @@ pub struct LLMResourceController {
   offline_app_state_sender: tokio::sync::broadcast::Sender<WatchDiskEvent>,
 }
 
-impl LLMResourceController {
+impl LocalAIResourceController {
   pub fn new(
-    user_service: Arc<dyn ChatUserService>,
+    user_service: Arc<dyn AIUserService>,
     resource_service: impl LLMResourceService,
     resource_notify: tokio::sync::mpsc::Sender<()>,
   ) -> Self {
@@ -171,7 +171,7 @@ impl LLMResourceController {
 
   #[instrument(level = "info", skip_all, err)]
   pub fn use_local_llm(&self, llm_id: i64) -> FlowyResult<LocalModelResourcePB> {
-    let (package, llm_config) = self
+    let (app, llm_model) = self
       .ai_config
       .read()
       .as_ref()
@@ -186,8 +186,8 @@ impl LLMResourceController {
       .ok_or_else(|| FlowyError::local_ai().with_context("No local ai config found"))?;
 
     let llm_setting = LLMSetting {
-      app: package,
-      llm_model: llm_config.clone(),
+      app,
+      llm_model: llm_model.clone(),
     };
 
     trace!("[LLM Resource] Selected AI setting: {:?}", llm_setting);

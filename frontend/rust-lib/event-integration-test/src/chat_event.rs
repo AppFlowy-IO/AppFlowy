@@ -1,10 +1,10 @@
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
-use flowy_chat::entities::{
+use flowy_ai::entities::{
   ChatMessageListPB, ChatMessageTypePB, CompleteTextPB, CompleteTextTaskPB, CompletionTypePB,
   LoadNextChatMessagePB, LoadPrevChatMessagePB, SendChatPayloadPB,
 };
-use flowy_chat::event_map::ChatEvent;
+use flowy_ai::event_map::AIEvent;
 use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
 use flowy_folder::event_map::FolderEvent;
 
@@ -45,7 +45,7 @@ impl EventIntegrationTest {
     };
 
     EventBuilder::new(self.clone())
-      .event(ChatEvent::StreamMessage)
+      .event(AIEvent::StreamMessage)
       .payload(payload)
       .async_send()
       .await;
@@ -63,7 +63,7 @@ impl EventIntegrationTest {
       before_message_id,
     };
     EventBuilder::new(self.clone())
-      .event(ChatEvent::LoadPrevMessage)
+      .event(AIEvent::LoadPrevMessage)
       .payload(payload)
       .async_send()
       .await
@@ -82,7 +82,7 @@ impl EventIntegrationTest {
       after_message_id,
     };
     EventBuilder::new(self.clone())
-      .event(ChatEvent::LoadNextMessage)
+      .event(AIEvent::LoadNextMessage)
       .payload(payload)
       .async_send()
       .await
@@ -100,7 +100,7 @@ impl EventIntegrationTest {
       stream_port: 0,
     };
     EventBuilder::new(self.clone())
-      .event(ChatEvent::CompleteText)
+      .event(AIEvent::CompleteText)
       .payload(payload)
       .async_send()
       .await

@@ -1,12 +1,12 @@
-use crate::chat_manager::ChatUserService;
+use crate::ai_manager::AIUserService;
 use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB,
 };
-use crate::middleware::chat_service_mw::CloudServiceMiddleware;
+use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::notification::{make_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use allo_isolate::Isolate;
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
+use flowy_ai_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
@@ -26,8 +26,8 @@ enum PrevMessageState {
 pub struct Chat {
   chat_id: String,
   uid: i64,
-  user_service: Arc<dyn ChatUserService>,
-  chat_service: Arc<CloudServiceMiddleware>,
+  user_service: Arc<dyn AIUserService>,
+  chat_service: Arc<AICloudServiceMiddleware>,
   prev_message_state: Arc<RwLock<PrevMessageState>>,
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
@@ -38,8 +38,8 @@ impl Chat {
   pub fn new(
     uid: i64,
     chat_id: String,
-    user_service: Arc<dyn ChatUserService>,
-    chat_service: Arc<CloudServiceMiddleware>,
+    user_service: Arc<dyn AIUserService>,
+    chat_service: Arc<AICloudServiceMiddleware>,
   ) -> Chat {
     Chat {
       uid,
@@ -189,7 +189,7 @@ impl Chat {
   fn save_answer(
     uid: i64,
     chat_id: &str,
-    user_service: &Arc<dyn ChatUserService>,
+    user_service: &Arc<dyn AIUserService>,
     answer: ChatMessage,
   ) -> Result<(), FlowyError> {
     save_chat_message(

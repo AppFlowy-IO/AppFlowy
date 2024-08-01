@@ -43,7 +43,7 @@ flowy-search-pub = { workspace = true }
 flowy-encrypt = { workspace = true }
 flowy-storage = { workspace = true }
 flowy-storage-pub = { workspace = true }
-flowy-chat-pub = { workspace = true }
+flowy-ai-pub = { workspace = true }
 mime_guess = "2.0"
 url = "2.4"
 tokio-util = "0.7"

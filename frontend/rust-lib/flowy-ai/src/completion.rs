@@ -1,9 +1,9 @@
-use crate::chat_manager::ChatUserService;
+use crate::ai_manager::AIUserService;
 use crate::entities::{CompleteTextPB, CompleteTextTaskPB, CompletionTypePB};
 use allo_isolate::Isolate;
 
 use dashmap::DashMap;
-use flowy_chat_pub::cloud::{ChatCloudService, CompletionType};
+use flowy_ai_pub::cloud::{ChatCloudService, CompletionType};
 use flowy_error::{FlowyError, FlowyResult};
 
 use futures::{SinkExt, StreamExt};
@@ -12,16 +12,16 @@ use lib_infra::isolate_stream::IsolateSink;
 use std::sync::{Arc, Weak};
 use tokio::select;
 
-pub struct AITools {
+pub struct AICompletion {
   tasks: Arc<DashMap<String, tokio::sync::mpsc::Sender<()>>>,
   cloud_service: Weak<dyn ChatCloudService>,
-  user_service: Weak<dyn ChatUserService>,
+  user_service: Weak<dyn AIUserService>,
 }
 
-impl AITools {
+impl AICompletion {
   pub fn new(
     cloud_service: Weak<dyn ChatCloudService>,
-    user_service: Weak<dyn ChatUserService>,
+    user_service: Weak<dyn AIUserService>,
   ) -> Self {
     Self {
       tasks: Arc::new(DashMap::new()),
@@ -40,7 +40,7 @@ impl AITools {
       .ok_or_else(FlowyError::internal)?
       .workspace_id()?;
     let (tx, rx) = tokio::sync::mpsc::channel(1);
-    let task = ToolTask::new(workspace_id, complete, self.cloud_service.clone(), rx);
+    let task = CompletionTask::new(workspace_id, complete, self.cloud_service.clone(), rx);
     let task_id = task.task_id.clone();
     self.tasks.insert(task_id.clone(), tx);
 
@@ -55,7 +55,7 @@ impl AITools {
   }
 }
 
-pub struct ToolTask {
+pub struct CompletionTask {
   workspace_id: String,
   task_id: String,
   stop_rx: tokio::sync::mpsc::Receiver<()>,
@@ -63,7 +63,7 @@ pub struct ToolTask {
   cloud_service: Weak<dyn ChatCloudService>,
 }
 
-impl ToolTask {
+impl CompletionTask {
   pub fn new(
     workspace_id: String,
     context: CompleteTextPB,

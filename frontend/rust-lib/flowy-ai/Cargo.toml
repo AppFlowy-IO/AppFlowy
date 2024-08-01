@@ -1,5 +1,5 @@
 [package]
-name = "flowy-chat"
+name = "flowy-ai"
 version = "0.1.0"
 edition = "2021"
 
@@ -21,7 +21,7 @@ protobuf.workspace = true
 bytes.workspace = true
 validator = { workspace = true, features = ["derive"] }
 lib-infra = { workspace = true, features = ["isolate_flutter"] }
-flowy-chat-pub.workspace = true
+flowy-ai-pub.workspace = true
 dashmap = "5.5"
 flowy-sqlite = { workspace = true }
 tokio.workspace = true

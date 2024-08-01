@@ -2,7 +2,7 @@ use crate::local_ai::local_llm_chat::LLMModelInfo;
 use appflowy_plugin::core::plugin::RunningState;
 
 use crate::local_ai::local_llm_resource::PendingResource;
-use flowy_chat_pub::cloud::{
+use flowy_ai_pub::cloud::{
   ChatMessage, LLMModel, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
