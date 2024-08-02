@@ -1,10 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/home/home.dart';
 import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder.dart';
 import 'package:appflowy/mobile/presentation/home/space/mobile_space.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -33,78 +31,56 @@ class MobileFolders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => SidebarSectionsBloc()
-            ..add(SidebarSectionsEvent.initial(user, workspaceId)),
-        ),
-        BlocProvider(
-          create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
-        ),
-        BlocProvider(
-          create: (_) => SpaceBloc()
-            ..add(SpaceEvent.initial(user, workspaceId, openFirstPage: false)),
-        ),
-      ],
-      child: BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
-        listener: (context, state) {
-          context.read<SidebarSectionsBloc>().add(
-                SidebarSectionsEvent.initial(
-                  user,
-                  state.currentWorkspace?.workspaceId ?? workspaceId,
+    final workspaceId =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
+            '';
+    return BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
+      listener: (context, state) {
+        context.read<SidebarSectionsBloc>().add(
+              SidebarSectionsEvent.initial(
+                user,
+                state.currentWorkspace?.workspaceId ?? workspaceId,
+              ),
+            );
+        context.read<SpaceBloc>().add(
+              SpaceEvent.reset(
+                user,
+                state.currentWorkspace?.workspaceId ?? workspaceId,
+              ),
+            );
+      },
+      child: const _MobileFolder(),
+    );
+  }
+}
+
+class _MobileFolder extends StatefulWidget {
+  const _MobileFolder();
+
+  @override
+  State<_MobileFolder> createState() => _MobileFolderState();
+}
+
+class _MobileFolderState extends State<_MobileFolder> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SidebarSectionsBloc, SidebarSectionsState>(
+      builder: (context, state) {
+        return SlidableAutoCloseBehavior(
+          child: Column(
+            children: [
+              ..._buildSpaceOrSection(context, state),
+              const VSpace(4.0),
+              const Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: HomeSpaceViewSizes.mHorizontalPadding,
                 ),
-              );
-          context.read<SpaceBloc>().add(
-                SpaceEvent.reset(
-                  user,
-                  state.currentWorkspace?.workspaceId ?? workspaceId,
-                ),
-              );
-        },
-        child: MultiBlocListener(
-          listeners: [
-            BlocListener<SpaceBloc, SpaceState>(
-              listenWhen: (p, c) =>
-                  p.lastCreatedPage?.id != c.lastCreatedPage?.id,
-              listener: (context, state) {
-                final lastCreatedPage = state.lastCreatedPage;
-                if (lastCreatedPage != null) {
-                  context.pushView(lastCreatedPage);
-                }
-              },
-            ),
-            BlocListener<SidebarSectionsBloc, SidebarSectionsState>(
-              listenWhen: (p, c) =>
-                  p.lastCreatedRootView?.id != c.lastCreatedRootView?.id,
-              listener: (context, state) {
-                final lastCreatedPage = state.lastCreatedRootView;
-                if (lastCreatedPage != null) {
-                  context.pushView(lastCreatedPage);
-                }
-              },
-            ),
-          ],
-          child: BlocBuilder<SidebarSectionsBloc, SidebarSectionsState>(
-            builder: (context, state) {
-              return SlidableAutoCloseBehavior(
-                child: Column(
-                  children: [
-                    ..._buildSpaceOrSection(context, state),
-                    const VSpace(4.0),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: HomeSpaceViewSizes.mHorizontalPadding,
-                      ),
-                      child: _TrashButton(),
-                    ),
-                  ],
-                ),
-              );
-            },
+                child: _TrashButton(),
+              ),
+            ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

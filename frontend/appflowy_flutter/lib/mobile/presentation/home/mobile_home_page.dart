@@ -7,7 +7,9 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -102,6 +104,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
   @override
   void dispose() {
     getIt<MenuSharedState>().removeLatestViewListener(_onLatestViewChange);
+
     super.dispose();
   }
 
@@ -134,6 +137,8 @@ class _MobileHomePageState extends State<MobileHomePage> {
             return const SizedBox.shrink();
           }
 
+          final workspaceId = state.currentWorkspace!.workspaceId;
+
           return Column(
             children: [
               // Header
@@ -149,9 +154,36 @@ class _MobileHomePageState extends State<MobileHomePage> {
               ),
 
               Expanded(
-                child: BlocProvider(
-                  create: (context) =>
-                      SpaceOrderBloc()..add(const SpaceOrderEvent.initial()),
+                child: MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (_) => SpaceOrderBloc()
+                        ..add(const SpaceOrderEvent.initial()),
+                    ),
+                    BlocProvider(
+                      create: (_) => SidebarSectionsBloc()
+                        ..add(
+                          SidebarSectionsEvent.initial(
+                            widget.userProfile,
+                            workspaceId,
+                          ),
+                        ),
+                    ),
+                    BlocProvider(
+                      create: (_) =>
+                          FavoriteBloc()..add(const FavoriteEvent.initial()),
+                    ),
+                    BlocProvider(
+                      create: (_) => SpaceBloc()
+                        ..add(
+                          SpaceEvent.initial(
+                            widget.userProfile,
+                            workspaceId,
+                            openFirstPage: false,
+                          ),
+                        ),
+                    ),
+                  ],
                   child: MobileSpaceTab(
                     userProfile: widget.userProfile,
                   ),
