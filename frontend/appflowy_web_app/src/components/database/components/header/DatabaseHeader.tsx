@@ -1,6 +1,7 @@
 import { ViewLayout, ViewMetaIcon } from '@/application/collab.type';
 import { ViewIcon } from '@/components/_shared/view-icon';
-import React from 'react';
+import { isFlagEmoji } from '@/utils/emoji';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 function DatabaseHeader({
@@ -14,6 +15,9 @@ function DatabaseHeader({
   layout?: ViewLayout;
 }) {
   const { t } = useTranslation();
+  const isFlag = useMemo(() => {
+    return icon ? isFlagEmoji(icon.value) : false;
+  }, [icon]);
 
   return (
     <div
@@ -23,7 +27,7 @@ function DatabaseHeader({
     >
       <div className={'relative'}>
         {icon?.value ? (
-          <div className={'view-icon'}>{icon?.value}</div>
+          <div className={`view-icon ${isFlag ? 'icon' : ''}`}>{icon?.value}</div>
         ) : (
           <ViewIcon layout={layout || ViewLayout.Grid} size={10} />
         )}

@@ -5,7 +5,7 @@ import { fetchViewInfo } from '@/application/services/js-services/fetch';
 import { expect, jest } from '@jest/globals';
 import { getPublishView, getPublishViewMeta } from '@/application/services/js-services/cache';
 
-jest.mock('@/application/services/js-services/wasm/client_api', () => {
+jest.mock('@/application/services/js-services/http/http_api', () => {
   return {
     initAPIService: jest.fn(),
   };

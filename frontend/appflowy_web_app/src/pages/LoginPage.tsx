@@ -9,8 +9,8 @@ function LoginPage() {
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated || false;
 
   useEffect(() => {
-    if (isAuthenticated && redirectTo && encodeURIComponent(redirectTo) !== window.location.href) {
-      window.location.href = redirectTo;
+    if (isAuthenticated && redirectTo && decodeURIComponent(redirectTo) !== window.location.href) {
+      window.location.href = decodeURIComponent(redirectTo);
     }
   }, [isAuthenticated, redirectTo]);
   return (

@@ -93,9 +93,7 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
 
         <div className={'flex items-center gap-2'}>
           <MoreActions />
-          {/*<Suspense fallback={null}>*/}
-          {/*  <Duplicate />*/}
-          {/*</Suspense>*/}
+          {/*<Duplicate />*/}
           <Divider orientation={'vertical'} className={'mx-2'} flexItem />
           <Tooltip title={t('publish.downloadApp')}>
             <button onClick={openOrDownload}>
