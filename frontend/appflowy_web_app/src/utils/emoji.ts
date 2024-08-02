@@ -12,3 +12,7 @@ export async function randomEmoji(skin = 0) {
 export async function loadEmojiData() {
   return import('@emoji-mart/data/sets/15/native.json');
 }
+
+export function isFlagEmoji(emoji: string) {
+  return /\uD83C[\uDDE6-\uDDFF]/.test(emoji);
+}

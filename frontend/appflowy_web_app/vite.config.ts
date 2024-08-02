@@ -115,7 +115,8 @@ export default defineConfig({
                     id.includes('/react-custom-scrollbars') ||
                     id.includes('/dayjs') ||
                     id.includes('/smooth-scroll-into-view-if-needed') ||
-                    id.includes('/react-virtualized-auto-sizer')
+                    id.includes('/react-virtualized-auto-sizer') ||
+                    id.includes('/react-window')
                   ) {
                     return 'common';
                   }
