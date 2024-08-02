@@ -21,7 +21,7 @@ enum BottomNavigationBarActionType {
   notificationMultiSelect,
 }
 
-final PropertyValueNotifier<ViewLayoutPB?> createNewPageNotifier =
+final PropertyValueNotifier<ViewLayoutPB?> mobileCreateNewPageNotifier =
     PropertyValueNotifier(null);
 final ValueNotifier<BottomNavigationBarActionType> bottomNavigationBarType =
     ValueNotifier(BottomNavigationBarActionType.home);
@@ -232,7 +232,8 @@ class _HomePageNavigationBar extends StatelessWidget {
   void _onTap(BuildContext context, int bottomBarIndex) {
     if (_items[bottomBarIndex].label == _addLabel) {
       // show an add dialog
-      createNewPageNotifier.value = ViewLayoutPB.Document;
+      mobileCreateNewPageNotifier.value = ViewLayoutPB.Document;
+
       return;
     }
     // When navigating to a new branch, it's recommended to use the goBranch

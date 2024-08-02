@@ -1,16 +1,27 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/favorite_folder/favorite_space.dart';
 import 'package:appflowy/mobile/presentation/home/home_space/home_space.dart';
 import 'package:appflowy/mobile/presentation/home/recent_folder/recent_space.dart';
 import 'package:appflowy/mobile/presentation/home/tab/_tab_bar.dart';
 import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 class MobileSpaceTab extends StatefulWidget {
-  const MobileSpaceTab({super.key, required this.userProfile});
+  const MobileSpaceTab({
+    super.key,
+    required this.userProfile,
+  });
 
   final UserProfilePB userProfile;
 
@@ -23,9 +34,18 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
   TabController? tabController;
 
   @override
+  void initState() {
+    super.initState();
+
+    mobileCreateNewPageNotifier.addListener(_createNewPage);
+  }
+
+  @override
   void dispose() {
     tabController?.removeListener(_onTabChange);
     tabController?.dispose();
+    mobileCreateNewPageNotifier.removeListener(_createNewPage);
+
     super.dispose();
   }
 
@@ -33,36 +53,60 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
   Widget build(BuildContext context) {
     return Provider.value(
       value: widget.userProfile,
-      child: BlocBuilder<SpaceOrderBloc, SpaceOrderState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const SizedBox.shrink();
-          }
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<SpaceBloc, SpaceState>(
+            listenWhen: (p, c) =>
+                p.lastCreatedPage?.id != c.lastCreatedPage?.id,
+            listener: (context, state) {
+              final lastCreatedPage = state.lastCreatedPage;
+              if (lastCreatedPage != null) {
+                context.pushView(lastCreatedPage);
+              }
+            },
+          ),
+          BlocListener<SidebarSectionsBloc, SidebarSectionsState>(
+            listenWhen: (p, c) =>
+                p.lastCreatedRootView?.id != c.lastCreatedRootView?.id,
+            listener: (context, state) {
+              final lastCreatedPage = state.lastCreatedRootView;
+              if (lastCreatedPage != null) {
+                context.pushView(lastCreatedPage);
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<SpaceOrderBloc, SpaceOrderState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const SizedBox.shrink();
+            }
 
-          _initTabController(state);
+            _initTabController(state);
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MobileSpaceTabBar(
-                tabController: tabController!,
-                tabs: state.tabsOrder,
-                onReorder: (from, to) {
-                  context.read<SpaceOrderBloc>().add(
-                        SpaceOrderEvent.reorder(from, to),
-                      );
-                },
-              ),
-              const HSpace(12.0),
-              Expanded(
-                child: TabBarView(
-                  controller: tabController,
-                  children: _buildTabs(state),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MobileSpaceTabBar(
+                  tabController: tabController!,
+                  tabs: state.tabsOrder,
+                  onReorder: (from, to) {
+                    context.read<SpaceOrderBloc>().add(
+                          SpaceOrderEvent.reorder(from, to),
+                        );
+                  },
                 ),
-              ),
-            ],
-          );
-        },
+                const HSpace(12.0),
+                Expanded(
+                  child: TabBarView(
+                    controller: tabController,
+                    children: _buildTabs(state),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -103,5 +147,28 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
           throw Exception('Unknown tab type: $tab');
       }
     }).toList();
+  }
+
+  // quick create new page when clicking the add button in navigation bar
+  void _createNewPage() {
+    if (context.read<SpaceBloc>().state.spaces.isNotEmpty) {
+      context.read<SpaceBloc>().add(
+            SpaceEvent.createPage(
+              name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+              layout: ViewLayoutPB.Document,
+            ),
+          );
+    } else {
+      context.read<SidebarSectionsBloc>().add(
+            SidebarSectionsEvent.createRootViewInSection(
+              name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+              index: 0,
+              viewSection: FolderSpaceType.public.toViewSectionPB,
+            ),
+          );
+      context.read<FolderBloc>().add(
+            const FolderEvent.expandOrUnExpand(isExpanded: true),
+          );
+    }
   }
 }

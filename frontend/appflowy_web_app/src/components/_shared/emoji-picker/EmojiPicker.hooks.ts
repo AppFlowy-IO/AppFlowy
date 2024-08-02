@@ -1,9 +1,7 @@
-import { MAX_FREQUENTLY_ROW_COUNT, PER_ROW_EMOJI_COUNT } from '@/components/_shared/emoji-picker/const';
 import { loadEmojiData } from '@/utils/emoji';
 import { EmojiMartData } from '@emoji-mart/data';
 import { PopoverProps } from '@mui/material/Popover';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
-import { FrequentlyUsed, getEmojiDataFromNative, init, Store } from 'emoji-mart';
 import chunk from 'lodash-es/chunk';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -22,12 +20,12 @@ export function useLoadEmojiData({ onEmojiSelect }: { onEmojiSelect: (emoji: str
   const [searchValue, setSearchValue] = useState('');
   const [emojiCategories, setEmojiCategories] = useState<EmojiCategory[]>([]);
   const [skin, setSkin] = useState<number>(() => {
-    return Number(Store.get('skin')) || 0;
+    return Number(localStorage.getItem('emoji-mart.skin')) || 0;
   });
 
   const onSkinChange = useCallback((val: number) => {
     setSkin(val);
-    Store.set('skin', String(val));
+    localStorage.setItem('emoji-mart.skin', String(val));
   }, []);
 
   const searchEmojiData = useCallback(
@@ -70,10 +68,6 @@ export function useLoadEmojiData({ onEmojiSelect }: { onEmojiSelect: (emoji: str
 
   useEffect(() => {
     void (async () => {
-      await init({
-        maxFrequentRows: MAX_FREQUENTLY_ROW_COUNT,
-        perLine: PER_ROW_EMOJI_COUNT,
-      });
       await searchEmojiData();
     })();
   }, [searchEmojiData]);
@@ -85,17 +79,6 @@ export function useLoadEmojiData({ onEmojiSelect }: { onEmojiSelect: (emoji: str
   const onSelect = useCallback(
     async (native: string) => {
       onEmojiSelect(native);
-      if (!native) {
-        return;
-      }
-
-      try {
-        const data = await getEmojiDataFromNative(native);
-
-        FrequentlyUsed.add(data);
-      } catch (e) {
-        // do nothing
-      }
     },
     [onEmojiSelect]
   );
@@ -156,6 +139,7 @@ export function getRowsWithCategories(emojiCategories: EmojiCategory[], rowSize:
     id: string;
     type: 'category' | 'emojis';
     emojis?: Emoji[];
+    category?: string;
   }[] = [];
 
   emojiCategories.forEach((category) => {
@@ -165,6 +149,7 @@ export function getRowsWithCategories(emojiCategories: EmojiCategory[], rowSize:
     });
     chunk(category.emojis, rowSize).forEach((chunk, index) => {
       rows.push({
+        category: category.id,
         type: 'emojis',
         emojis: chunk,
         id: `${category.id}-${index}`,

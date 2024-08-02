@@ -4,6 +4,7 @@ import { notify } from '@/components/_shared/notify';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import SpaceIcon from '@/components/publish/header/SpaceIcon';
 import { renderColor } from '@/utils/color';
+import { isFlagEmoji } from '@/utils/emoji';
 import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +35,9 @@ function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disable
 
   const { t } = useTranslation();
   const onNavigateToView = usePublishContext()?.toView;
+  const isFlag = useMemo(() => {
+    return icon ? isFlagEmoji(icon) : false;
+  }, [icon]);
 
   return (
     <Tooltip title={name} placement={'bottom'} enterDelay={1000} enterNextDelay={1000}>
@@ -59,7 +63,7 @@ function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disable
             <SpaceIcon value={extraObj.space_icon || ''} />
           </span>
         ) : (
-          <span className={'icon flex h-5 w-5 items-center justify-center'}>
+          <span className={`${isFlag ? 'icon' : ''} flex h-5 w-5 items-center justify-center`}>
             {icon || <ViewIcon layout={layout} size={'small'} />}
           </span>
         )}

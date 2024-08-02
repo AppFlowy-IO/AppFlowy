@@ -1,5 +1,6 @@
 import { Reaction as ReactionType } from '@/application/comment.type';
 import { AFConfigContext } from '@/components/app/AppConfig';
+import { isFlagEmoji } from '@/utils/emoji';
 import { getPlatform } from '@/utils/platform';
 import { Tooltip } from '@mui/material';
 import React, { memo, useContext, useMemo } from 'react';
@@ -68,6 +69,10 @@ function Reaction({ reaction, onClick }: { reaction: ReactionType; onClick: (rea
     return getPlatform().isMobile;
   }, []);
 
+  const isFlag = useMemo(() => {
+    return isFlagEmoji(reaction.reactionType);
+  }, [reaction.reactionType]);
+
   return (
     <Tooltip
       title={
@@ -91,7 +96,7 @@ function Reaction({ reaction, onClick }: { reaction: ReactionType; onClick: (rea
           'flex cursor-pointer items-center gap-1 rounded-full border border-transparent bg-fill-list-hover px-1 py-0.5 text-sm'
         }
       >
-        <span className={''}>{reaction.reactionType}</span>
+        <span className={`${isFlag ? 'icon' : ''}`}>{reaction.reactionType}</span>
         {<div className={'text-xs font-medium'}>{reactCount}</div>}
       </div>
     </Tooltip>

@@ -67,17 +67,36 @@ function EmojiPickerCategories({
   const renderRow = useCallback(
     ({ index, style }: { index: number; style: React.CSSProperties }) => {
       const item = rows[index];
+      const tagName = getCategoryName(item.id);
+      const isFlags = item.category === 'flags';
 
       return (
         <div style={style} data-index={index}>
           {item.type === 'category' ? (
-            <div className={'pt-2 text-base font-medium text-text-caption'}>{getCategoryName(item.id)}</div>
+            <div className={'pt-2 text-base font-medium text-text-caption'}>{tagName}</div>
           ) : null}
           <div className={'flex'}>
             {item.emojis?.map((emoji, columnIndex) => {
               const isSelected = selectCell.row === index && selectCell.column === columnIndex;
 
               const isDefaultEmoji = defaultEmoji === emoji.native;
+              const classList = [
+                'flex cursor-pointer items-center justify-center rounded text-[20px] hover:bg-fill-list-hover',
+              ];
+
+              if (isSelected) {
+                classList.push('bg-fill-list-hover');
+              } else {
+                classList.push('hover:bg-transparent');
+              }
+
+              if (isDefaultEmoji) {
+                classList.push('bg-fill-list-active');
+              }
+
+              if (isFlags) {
+                classList.push('icon');
+              }
 
               return (
                 <Tooltip key={emoji.id} title={emoji.name} placement={'top'} enterDelay={500} disableInteractive={true}>
@@ -105,9 +124,7 @@ function EmojiPickerCategories({
                       mouseX.current = e.clientX;
                       mouseY.current = e.clientY;
                     }}
-                    className={`flex cursor-pointer items-center justify-center rounded text-[20px] hover:bg-fill-list-hover ${
-                      isSelected ? 'bg-fill-list-hover' : 'hover:bg-transparent'
-                    } ${isDefaultEmoji ? 'bg-fill-list-active' : ''}`}
+                    className={classList.join(' ')}
                   >
                     {emoji.native}
                   </div>
