@@ -268,8 +268,11 @@ class FlowyButton extends StatelessWidget {
     return Container(
       decoration: decoration,
       child: Padding(
-        padding:
-            margin ?? const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        padding: margin ??
+            const EdgeInsets.symmetric(
+              horizontal: 6,
+              vertical: 4,
+            ),
         child: child,
       ),
     );
