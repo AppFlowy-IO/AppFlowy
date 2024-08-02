@@ -45,6 +45,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
             child: FlowyText.emoji(
               widget.workspace.icon,
               fontSize: widget.emojiSize ?? widget.iconSize,
+              figmaLineHeight: 21.0,
             ),
           )
         : Container(
