@@ -1,4 +1,5 @@
-import React from 'react';
+import { getIconSvgEncodedContent } from '@/utils/emoji';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ReactComponent as SpaceIcon1 } from '@/assets/space_icon/space_icon_1.svg';
 import { ReactComponent as SpaceIcon2 } from '@/assets/space_icon/space_icon_2.svg';
 import { ReactComponent as SpaceIcon3 } from '@/assets/space_icon/space_icon_3.svg';
@@ -18,6 +19,7 @@ import { ReactComponent as SpaceIcon15 } from '@/assets/space_icon/space_icon_15
 export const getIconComponent = (icon: string) => {
   switch (icon) {
     case 'space_icon_1':
+    case '':
       return SpaceIcon1;
     case 'space_icon_2':
       return SpaceIcon2;
@@ -47,15 +49,40 @@ export const getIconComponent = (icon: string) => {
       return SpaceIcon14;
     case 'space_icon_15':
       return SpaceIcon15;
+
     default:
-      return SpaceIcon1;
+      return null;
   }
 };
 
 function SpaceIcon({ value }: { value: string }) {
   const IconComponent = getIconComponent(value);
+  const [iconEncodeContent, setIconEncodeContent] = useState<string | null>(null);
 
-  return <IconComponent className={'h-5 w-5'} />;
+  useEffect(() => {
+    if (value && !IconComponent) {
+      void getIconSvgEncodedContent(value, 'white').then((res) => {
+        setIconEncodeContent(res);
+      });
+    }
+  }, [IconComponent, value]);
+
+  const customIcon = useMemo(() => {
+    if (!iconEncodeContent) {
+      return null;
+    }
+
+    /**
+     * value eg: 'artificial_intelligence/ai-cloud-spark.svg';
+     */
+    return <img src={iconEncodeContent} className={'h-full w-full p-1 text-white'} alt={value} />;
+  }, [iconEncodeContent, value]);
+
+  if (!IconComponent) {
+    return customIcon;
+  }
+
+  return <IconComponent className={'h-full w-full'} />;
 }
 
 export default SpaceIcon;
