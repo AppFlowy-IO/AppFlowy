@@ -141,20 +141,23 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
               onAction: _onAction,
             ),
             const HSpace(8.0),
-            ViewAddButton(
-              parentViewId: widget.space.id,
-              onEditing: (_) {},
-              onSelected: (
-                pluginBuilder,
-                name,
-                initialDataBytes,
-                openAfterCreated,
-                createNewView,
-              ) {
-                if (createNewView) {
-                  widget.onAdded(pluginBuilder.layoutType!);
-                }
-              },
+            FlowyTooltip(
+              message: LocaleKeys.sideBar_addAPage.tr(),
+              child: ViewAddButton(
+                parentViewId: widget.space.id,
+                onEditing: (_) {},
+                onSelected: (
+                  pluginBuilder,
+                  name,
+                  initialDataBytes,
+                  openAfterCreated,
+                  createNewView,
+                ) {
+                  if (createNewView) {
+                    widget.onAdded(pluginBuilder.layoutType!);
+                  }
+                },
+              ),
             ),
           ],
         ),
