@@ -6,7 +6,9 @@ use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::notification::{make_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use allo_isolate::Isolate;
-use flowy_ai_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
+use flowy_ai_pub::cloud::{
+  ChatCloudService, ChatMessage, ChatMessageContext, ChatMessageType, MessageCursor,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
@@ -79,6 +81,7 @@ impl Chat {
     message: &str,
     message_type: ChatMessageType,
     text_stream_port: i64,
+    metadata: Option<ChatMessageContext>,
   ) -> Result<ChatMessagePB, FlowyError> {
     if message.len() > 2000 {
       return Err(FlowyError::text_too_long().with_context("Exceeds maximum message 2000 length"));
@@ -95,7 +98,13 @@ impl Chat {
 
     let question = self
       .chat_service
-      .save_question(&workspace_id, &self.chat_id, message, message_type)
+      .save_question(
+        &workspace_id,
+        &self.chat_id,
+        message,
+        message_type,
+        metadata,
+      )
       .await
       .map_err(|err| {
         error!("Failed to send question: {}", err);

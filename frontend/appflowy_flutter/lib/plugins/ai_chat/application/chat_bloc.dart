@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:ffi';
 import 'dart:isolate';
 
+import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
@@ -18,6 +19,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nanoid/nanoid.dart';
 
+import 'chat_input_action_control.dart';
 import 'chat_message_listener.dart';
 
 part 'chat_bloc.freezed.dart';
@@ -153,8 +155,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
-          sendMessage: (String message) {
-            _startStreamingMessage(message, emit);
+          sendMessage: (String message, Map<String, dynamic>? metadata) async {
+            unawaited(_startStreamingMessage(message, metadata, emit));
             final allMessages = _perminentMessages();
             emit(
               state.copyWith(
@@ -327,6 +329,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> _startStreamingMessage(
     String message,
+    Map<String, dynamic>? metadata,
     Emitter<ChatState> emit,
   ) async {
     if (state.answerStream != null) {
@@ -342,6 +345,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       messageType: ChatMessageTypePB.User,
       textStreamPort: Int64(answerStream.nativePort),
     );
+
+    if (metadata != null) {
+      for (final entry in metadata.entries) {
+        if (entry.value is ViewActionPage) {
+          if (entry.value.page is ViewPB) {
+            final view = entry.value.page as ViewPB;
+            //
+          }
+        }
+      }
+    }
 
     // Stream message to the server
     final result = await AIEventStreamMessage(payload).send();
@@ -417,7 +431,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 @freezed
 class ChatEvent with _$ChatEvent {
   const factory ChatEvent.initialLoad() = _InitialLoadMessage;
-  const factory ChatEvent.sendMessage(String message) = _SendMessage;
+  const factory ChatEvent.sendMessage({
+    required String message,
+    Map<String, dynamic>? metadata,
+  }) = _SendMessage;
   const factory ChatEvent.startLoadingPrevMessage() = _StartLoadPrevMessage;
   const factory ChatEvent.didLoadPreviousMessages(
     List<Message> messages,

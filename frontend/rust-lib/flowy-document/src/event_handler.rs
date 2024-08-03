@@ -74,7 +74,7 @@ pub(crate) async fn open_document_handler(
   let doc_id = params.document_id;
   manager.open_document(&doc_id).await?;
 
-  let document = manager.get_document(&doc_id).await?;
+  let document = manager.get_opened_document(&doc_id).await?;
   let document_data = document.lock().get_document_data()?;
   data_result_ok(DocumentDataPB::from(document_data))
 }
@@ -103,6 +103,17 @@ pub(crate) async fn get_document_data_handler(
   data_result_ok(DocumentDataPB::from(document_data))
 }
 
+pub(crate) async fn get_document_text_handler(
+  data: AFPluginData<OpenDocumentPayloadPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> DataResult<DocumentTextPB, FlowyError> {
+  let manager = upgrade_document(manager)?;
+  let params: OpenDocumentParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let text = manager.get_document_text(&doc_id).await?;
+  data_result_ok(DocumentTextPB { text })
+}
+
 // Handler for applying an action to a document
 pub(crate) async fn apply_action_handler(
   data: AFPluginData<ApplyActionPayloadPB>,
@@ -111,7 +122,7 @@ pub(crate) async fn apply_action_handler(
   let manager = upgrade_document(manager)?;
   let params: ApplyActionParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
+  let document = manager.get_opened_document(&doc_id).await?;
   let actions = params.actions;
   if cfg!(feature = "verbose_log") {
     tracing::trace!("{} applying actions: {:?}", doc_id, actions);
@@ -128,7 +139,7 @@ pub(crate) async fn create_text_handler(
   let manager = upgrade_document(manager)?;
   let params: TextDeltaParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
+  let document = manager.get_opened_document(&doc_id).await?;
   let document = document.lock();
   document.create_text(&params.text_id, params.delta);
   Ok(())
@@ -142,7 +153,7 @@ pub(crate) async fn apply_text_delta_handler(
   let manager = upgrade_document(manager)?;
   let params: TextDeltaParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
+  let document = manager.get_opened_document(&doc_id).await?;
   let text_id = params.text_id;
   let delta = params.delta;
   let document = document.lock();
@@ -183,7 +194,7 @@ pub(crate) async fn redo_handler(
   let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
+  let document = manager.get_opened_document(&doc_id).await?;
   let document = document.lock();
   let redo = document.redo();
   let can_redo = document.can_redo();
@@ -202,7 +213,7 @@ pub(crate) async fn undo_handler(
   let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
+  let document = manager.get_opened_document(&doc_id).await?;
   let document = document.lock();
   let undo = document.undo();
   let can_redo = document.can_redo();
@@ -221,7 +232,7 @@ pub(crate) async fn can_undo_redo_handler(
   let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
+  let document = manager.get_opened_document(&doc_id).await?;
   let document = document.lock();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
@@ -377,7 +388,7 @@ pub async fn convert_document_handler(
   let manager = upgrade_document(manager)?;
   let params: ConvertDocumentParams = data.into_inner().try_into()?;
 
-  let document = manager.get_document(&params.document_id).await?;
+  let document = manager.get_opened_document(&params.document_id).await?;
   let document_data = document.lock().get_document_data()?;
   let parser = DocumentDataParser::new(Arc::new(document_data), params.range);
 

@@ -6,8 +6,9 @@ use crate::persistence::select_single_message;
 use appflowy_plugin::error::PluginError;
 
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageType, CompletionType, LocalAIConfig, MessageCursor,
-  RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
+  ChatCloudService, ChatMessage, ChatMessageContext, ChatMessageType, CompletionType,
+  CreateTextChatContext, LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage,
+  RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, StreamExt, TryStreamExt};
@@ -83,10 +84,11 @@ impl ChatCloudService for AICloudServiceMiddleware {
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
+    metadata: Option<ChatMessageContext>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     self
       .cloud_service
-      .save_question(workspace_id, chat_id, message, message_type)
+      .save_question(workspace_id, chat_id, message, message_type, metadata)
   }
 
   fn save_answer(
@@ -261,5 +263,21 @@ impl ChatCloudService for AICloudServiceMiddleware {
 
   async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError> {
     self.cloud_service.get_local_ai_config(workspace_id).await
+  }
+
+  async fn create_chat_context(
+    &self,
+    workspace_id: &str,
+    chat_context: CreateTextChatContext,
+  ) -> Result<(), FlowyError> {
+    if self.local_llm_controller.is_running() {
+      // TODO(nathan): support offline ai context
+      Ok(())
+    } else {
+      self
+        .cloud_service
+        .create_chat_context(workspace_id, chat_context)
+        .await
+    }
   }
 }

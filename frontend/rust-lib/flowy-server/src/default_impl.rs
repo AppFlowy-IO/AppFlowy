@@ -1,6 +1,8 @@
 use client_api::entity::ai_dto::{CompletionType, LocalAIConfig, RepeatedRelatedQuestion};
 use client_api::entity::{ChatMessageType, MessageCursor, RepeatedChatMessage};
-use flowy_ai_pub::cloud::{ChatCloudService, ChatMessage, StreamAnswer, StreamComplete};
+use flowy_ai_pub::cloud::{
+  ChatCloudService, ChatMessage, ChatMessageContext, StreamAnswer, StreamComplete,
+};
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
@@ -27,6 +29,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     _chat_id: &str,
     _message: &str,
     _message_type: ChatMessageType,
+    _context: Option<ChatMessageContext>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     FutureResult::new(async move {
       Err(FlowyError::not_support().with_context("Chat is not supported in local server."))

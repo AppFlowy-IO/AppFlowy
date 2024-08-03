@@ -1,17 +1,22 @@
 use crate::chat::Chat;
-use crate::entities::{ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB};
+use crate::entities::{
+  ChatMessageListPB, ChatMessagePB, CreateChatContextPB, RepeatedRelatedQuestionPB,
+};
 use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::persistence::{insert_chat, ChatTable};
 
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
-use flowy_ai_pub::cloud::{ChatCloudService, ChatMessageType};
+use flowy_ai_pub::cloud::{
+  ChatCloudService, ChatMessageContext, ChatMessageType, CreateTextChatContext,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 
 use lib_infra::util::timestamp;
+use serde_json::json;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tracing::{info, trace};
@@ -101,6 +106,27 @@ impl AIManager {
     Ok(())
   }
 
+  pub async fn create_chat_context(&self, context: CreateChatContextPB) -> FlowyResult<()> {
+    let workspace_id = self.user_service.workspace_id()?;
+    let context = CreateTextChatContext {
+      chat_id: context.chat_id,
+      content_type: context.content_type,
+      text: context.text,
+      chunk_size: 2000,
+      chunk_overlap: 20,
+      metadata: context
+        .metadata
+        .into_iter()
+        .map(|(k, v)| (k, json!(v)))
+        .collect(),
+    };
+    self
+      .cloud_service_wm
+      .create_chat_context(&workspace_id, context)
+      .await?;
+    Ok(())
+  }
+
   pub async fn create_chat(&self, uid: &i64, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
     self
@@ -125,10 +151,11 @@ impl AIManager {
     message: &str,
     message_type: ChatMessageType,
     text_stream_port: i64,
+    metadata: Option<ChatMessageContext>,
   ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     let question = chat
-      .stream_chat_message(message, message_type, text_stream_port)
+      .stream_chat_message(message, message_type, text_stream_port, metadata)
       .await?;
     Ok(question)
   }

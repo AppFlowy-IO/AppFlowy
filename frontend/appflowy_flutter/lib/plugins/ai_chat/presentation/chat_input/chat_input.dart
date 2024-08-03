@@ -1,5 +1,6 @@
-import 'package:appflowy/plugins/ai_chat/presentation/chat_inline_action_menu.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_command.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
+import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 import 'chat_accessory_button.dart';
+import 'chat_input_span.dart';
 
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
@@ -40,7 +42,7 @@ class ChatInput extends StatefulWidget {
 class _ChatInputState extends State<ChatInput> {
   final GlobalKey _textFieldKey = GlobalKey();
   final LayerLink _layerLink = LayerLink();
-  late ChatTextFieldInterceptor _textFieldInterceptor;
+  late ChatInputActionControl _inputActionControl;
   late FocusNode _inputFocusNode;
   late TextEditingController _textController;
   bool _sendButtonVisible = false;
@@ -51,8 +53,8 @@ class _ChatInputState extends State<ChatInput> {
     _textController = InputTextFieldController();
     _inputFocusNode = FocusNode(
       onKeyEvent: (node, event) {
-        if (_textFieldInterceptor.canHandleKeyEvent(event)) {
-          _textFieldInterceptor.handleKeyEvent(event);
+        if (_inputActionControl.canHandleKeyEvent(event)) {
+          _inputActionControl.handleKeyEvent(event);
           return KeyEventResult.handled;
         } else {
           return _handleEnterKeyWithoutShift(
@@ -65,7 +67,8 @@ class _ChatInputState extends State<ChatInput> {
       },
     );
 
-    _textFieldInterceptor = ChatTextFieldInterceptor(
+    _inputActionControl = ChatInputActionControl(
+      chatId: widget.chatId,
       textController: _textController,
       textFieldFocusNode: _inputFocusNode,
     );
@@ -76,7 +79,7 @@ class _ChatInputState extends State<ChatInput> {
   void dispose() {
     _inputFocusNode.dispose();
     _textController.dispose();
-    _textFieldInterceptor.dispose();
+    _inputActionControl.dispose();
     super.dispose();
   }
 
@@ -122,7 +125,10 @@ class _ChatInputState extends State<ChatInput> {
   void _handleSendPressed() {
     final trimmedText = _textController.text.trim();
     if (trimmedText != '') {
-      final partialText = types.PartialText(text: trimmedText);
+      final partialText = types.PartialText(
+        text: trimmedText,
+        metadata: _inputActionControl.metaData,
+      );
       widget.onSendPressed(partialText);
 
       _textController.clear();
@@ -143,8 +149,10 @@ class _ChatInputState extends State<ChatInput> {
       link: _layerLink,
       child: Padding(
         padding: textPadding,
-        child: TextField(
+        child: ExtendedTextField(
           key: _textFieldKey,
+          specialTextSpanBuilder:
+              ChatInputTextSpanBuilder(inputActionControl: _inputActionControl),
           controller: _textController,
           focusNode: _inputFocusNode,
           decoration: InputDecoration(
@@ -156,19 +164,20 @@ class _ChatInputState extends State<ChatInput> {
           ),
           style: TextStyle(
             color: AFThemeExtension.of(context).textColor,
+            fontSize: 15,
           ),
           keyboardType: TextInputType.multiline,
           textCapitalization: TextCapitalization.sentences,
-          maxLines: 10,
           minLines: 1,
+          maxLines: 10,
           onChanged: (text) {
-            if (_textFieldInterceptor.onTextChanged(text)) {
+            if (_inputActionControl.onTextChanged(text)) {
               ChatActionsMenu(
                 anchor: ChatInputAnchor(
                   anchorKey: _textFieldKey,
                   layerLink: _layerLink,
                 ),
-                handler: _textFieldInterceptor,
+                handler: _inputActionControl,
                 context: context,
                 style: Theme.of(context).brightness == Brightness.dark
                     ? const ChatActionsMenuStyle.dark()

@@ -161,6 +161,8 @@ dependencies:
   custom_sliding_segmented_control: ^1.8.3
   toastification: ^2.0.0
   scroll_to_index: ^3.0.1
+  extended_text_field: ^15.0.0
+  extended_text_library: ^12.0.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1

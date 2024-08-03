@@ -1,20 +1,20 @@
-use flowy_ai_pub::cloud::ChatMessageType;
-
 use std::path::PathBuf;
-
-use allo_isolate::Isolate;
-use std::sync::{Arc, Weak};
-use tokio::sync::oneshot;
-use validator::Validate;
 
 use crate::ai_manager::AIManager;
 use crate::completion::AICompletion;
 use crate::entities::*;
 use crate::local_ai::local_llm_chat::LLMModelInfo;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
+use allo_isolate::Isolate;
+use flowy_ai_pub::cloud::{
+  ChatMessageContext, ChatMessageMetadata, ChatMessageType, ChatMetadataData,
+};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::isolate_stream::IsolateSink;
+use std::sync::{Arc, Weak};
+use tokio::sync::oneshot;
+use validator::Validate;
 
 fn upgrade_ai_manager(ai_manager: AFPluginState<Weak<AIManager>>) -> FlowyResult<Arc<AIManager>> {
   let ai_manager = ai_manager
@@ -37,12 +37,28 @@ pub(crate) async fn stream_chat_message_handler(
     ChatMessageTypePB::User => ChatMessageType::User,
   };
 
+  let mut metadata = None;
+  let metadatas = data
+    .metadatas
+    .into_iter()
+    .map(|metadata| ChatMessageMetadata {
+      data: ChatMetadataData::new_text(metadata.text),
+      id: metadata.id,
+      name: metadata.name,
+    })
+    .collect::<Vec<_>>();
+
+  if !metadatas.is_empty() {
+    metadata = Some(ChatMessageContext { metadatas });
+  }
+
   let question = ai_manager
     .stream_chat_message(
       &data.chat_id,
       &data.message,
       message_type,
       data.text_stream_port,
+      metadata,
     )
     .await?;
   data_result_ok(question)
@@ -385,4 +401,14 @@ pub(crate) async fn get_offline_app_handler(
 
   let link = rx.await??;
   data_result_ok(OfflineAIPB { link })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn create_chat_context_handler(
+  data: AFPluginData<CreateChatContextPB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.try_into_inner()?;
+
+  Ok(())
 }

@@ -1,10 +1,11 @@
 use bytes::Bytes;
 pub use client_api::entity::ai_dto::{
-  AppFlowyOfflineAI, CompletionType, LLMModel, LocalAIConfig, ModelInfo, RelatedQuestion,
-  RepeatedRelatedQuestion, StringOrMessage,
+  AppFlowyOfflineAI, CompletionType, CreateTextChatContext, LLMModel, LocalAIConfig, ModelInfo,
+  RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage,
 };
 pub use client_api::entity::{
-  ChatAuthorType, ChatMessage, ChatMessageType, MessageCursor, QAChatMessage, RepeatedChatMessage,
+  ChatAuthorType, ChatMessage, ChatMessageContext, ChatMessageMetadata, ChatMessageType,
+  ChatMetadataData, MessageCursor, QAChatMessage, RepeatedChatMessage,
 };
 use client_api::error::AppResponseError;
 use flowy_error::FlowyError;
@@ -31,6 +32,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
+    context: Option<ChatMessageContext>,
   ) -> FutureResult<ChatMessage, FlowyError>;
 
   fn save_answer(
@@ -85,4 +87,12 @@ pub trait ChatCloudService: Send + Sync + 'static {
   ) -> Result<(), FlowyError>;
 
   async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError>;
+
+  async fn create_chat_context(
+    &self,
+    workspace_id: &str,
+    chat_context: CreateTextChatContext,
+  ) -> Result<(), FlowyError> {
+    Ok(())
+  }
 }

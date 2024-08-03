@@ -2,7 +2,7 @@ use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
   CreateViewParams, CreateWorkspaceParams, DeletedViewPB, DuplicateViewParams, FolderSnapshotPB,
-  GetViewsFilterPB, MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB,
+   MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB,
   UpdateViewParams, ViewLayoutPB, ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{

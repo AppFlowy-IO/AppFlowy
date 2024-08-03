@@ -1,17 +1,21 @@
 use crate::af_cloud::AFServer;
-use client_api::entity::ai_dto::{CompleteTextParams, CompletionType, RepeatedRelatedQuestion};
+use client_api::entity::ai_dto::{
+  CompleteTextParams, CompletionType, CreateTextChatContext, RepeatedRelatedQuestion,
+};
 use client_api::entity::{
   CreateAnswerMessageParams, CreateChatMessageParams, CreateChatParams, MessageCursor,
   RepeatedChatMessage,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageType, LocalAIConfig, StreamAnswer, StreamComplete,
+  ChatCloudService, ChatMessage, ChatMessageContext, ChatMessageType, LocalAIConfig, StreamAnswer,
+  StreamComplete,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_infra::util::{get_operating_system, OperatingSystem};
+use serde_json::json;
 use std::path::PathBuf;
 
 pub(crate) struct AFCloudChatCloudServiceImpl<T> {
@@ -54,6 +58,7 @@ where
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
+    context: Option<ChatMessageContext>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
@@ -61,6 +66,7 @@ where
     let params = CreateChatMessageParams {
       content: message.to_string(),
       message_type,
+      context: context.map(|data| json!(data)),
     };
 
     FutureResult::new(async move {
@@ -210,5 +216,18 @@ where
       .get_local_ai_config(workspace_id, platform)
       .await?;
     Ok(config)
+  }
+
+  async fn create_chat_context(
+    &self,
+    workspace_id: &str,
+    chat_context: CreateTextChatContext,
+  ) -> Result<(), FlowyError> {
+    self
+      .inner
+      .try_get_client()?
+      .create_chat_context(workspace_id, chat_context)
+      .await?;
+    Ok(())
   }
 }

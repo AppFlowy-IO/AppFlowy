@@ -6,7 +6,7 @@ use std::sync::Arc;
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
-use client_api::entity::ChatMessageType;
+use client_api::entity::{ChatMessageContext, ChatMessageType};
 use collab::core::origin::{CollabClient, CollabOrigin};
 
 use collab::preclude::CollabPlugin;
@@ -19,8 +19,8 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, LocalAIConfig, MessageCursor, RepeatedChatMessage, StreamAnswer,
-  StreamComplete,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, LocalAIConfig, MessageCursor,
+  RepeatedChatMessage, StreamAnswer, StreamComplete,
 };
 use flowy_database_pub::cloud::{
   CollabDocStateByOid, DatabaseAIService, DatabaseCloudService, DatabaseSnapshot,
@@ -617,6 +617,7 @@ impl ChatCloudService for ServerProvider {
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
+    context: Option<ChatMessageContext>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
@@ -626,7 +627,7 @@ impl ChatCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .chat_service()
-        .save_question(&workspace_id, &chat_id, &message, message_type)
+        .save_question(&workspace_id, &chat_id, &message, message_type, context)
         .await
     })
   }

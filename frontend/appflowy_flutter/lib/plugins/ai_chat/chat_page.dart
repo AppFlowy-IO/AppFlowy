@@ -72,18 +72,27 @@ class AIChatPage extends StatelessWidget {
     if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
       return MultiBlocProvider(
         providers: [
-          BlocProvider(
-            create: (_) => ChatFileBloc(chatId: view.id.toString())
-              ..add(const ChatFileEvent.initial()),
-          ),
+          /// [ChatBloc] is used to handle chat messages including send/receive message
+          ///
           BlocProvider(
             create: (_) => ChatBloc(
               view: view,
               userProfile: userProfile,
             )..add(const ChatEvent.initialLoad()),
           ),
+
+          /// [ChatFileBloc] is used to handle file indexing as a chat context
+          ///
           BlocProvider(
-            create: (_) => ChatInputBloc()..add(const ChatInputEvent.started()),
+            create: (_) => ChatFileBloc(chatId: view.id.toString())
+              ..add(const ChatFileEvent.initial()),
+          ),
+
+          /// [ChatInputStateBloc] is used to handle chat input text field state
+          ///
+          BlocProvider(
+            create: (_) =>
+                ChatInputStateBloc()..add(const ChatInputStateEvent.started()),
           ),
         ],
         child: BlocListener<ChatFileBloc, ChatFileState>(
@@ -225,19 +234,19 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                   }
                 },
                 emptyState: BlocBuilder<ChatBloc, ChatState>(
-                  builder: (_, state) =>
-                      state.initialLoadingStatus == const LoadingState.finish()
-                          ? Padding(
-                              padding: AIChatUILayout.welcomePagePadding,
-                              child: ChatWelcomePage(
-                                onSelectedQuestion: (question) => blocContext
-                                    .read<ChatBloc>()
-                                    .add(ChatEvent.sendMessage(question)),
-                              ),
-                            )
-                          : const Center(
-                              child: CircularProgressIndicator.adaptive(),
-                            ),
+                  builder: (_, state) => state.initialLoadingStatus ==
+                          const LoadingState.finish()
+                      ? Padding(
+                          padding: AIChatUILayout.welcomePagePadding,
+                          child: ChatWelcomePage(
+                            onSelectedQuestion: (question) => blocContext
+                                .read<ChatBloc>()
+                                .add(ChatEvent.sendMessage(message: question)),
+                          ),
+                        )
+                      : const Center(
+                          child: CircularProgressIndicator.adaptive(),
+                        ),
                 ),
                 messageWidthRatio: AIChatUILayout.messageWidthRatio,
                 textMessageBuilder: (
@@ -309,7 +318,9 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     if (messageType == OnetimeShotType.relatedQuestion) {
       return RelatedQuestionList(
         onQuestionSelected: (question) {
-          blocContext.read<ChatBloc>().add(ChatEvent.sendMessage(question));
+          blocContext
+              .read<ChatBloc>()
+              .add(ChatEvent.sendMessage(message: question));
           blocContext
               .read<ChatBloc>()
               .add(const ChatEvent.clearReleatedQuestion());
@@ -391,8 +402,9 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     return ClipRect(
       child: Padding(
         padding: AIChatUILayout.safeAreaInsets(context),
-        child: BlocBuilder<ChatInputBloc, ChatInputState>(
+        child: BlocBuilder<ChatInputStateBloc, ChatInputStateState>(
           builder: (context, state) {
+            // Show different hint text based on the AI type
             final hintText = state.aiType.when(
               appflowyAI: () => LocaleKeys.chat_inputMessageHint.tr(),
               localAI: () => LocaleKeys.chat_inputLocalAIMessageHint.tr(),
@@ -405,8 +417,14 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                   builder: (context, state) {
                     return ChatInput(
                       chatId: widget.view.id,
-                      onSendPressed: (message) =>
-                          onSendPressed(context, message.text),
+                      onSendPressed: (message) {
+                        context.read<ChatBloc>().add(
+                              ChatEvent.sendMessage(
+                                message: message.text,
+                                metadata: message.metadata,
+                              ),
+                            );
+                      },
                       isStreaming: state != const LoadingState.finish(),
                       onStopStreaming: () {
                         context
@@ -432,54 +450,50 @@ class _ChatContentPageState extends State<_ChatContentPage> {
       ),
     );
   }
+}
 
-  AFDefaultChatTheme buildTheme(BuildContext context) {
-    return AFDefaultChatTheme(
-      backgroundColor: AFThemeExtension.of(context).background,
-      primaryColor: Theme.of(context).colorScheme.primary,
-      secondaryColor: AFThemeExtension.of(context).tint1,
-      receivedMessageDocumentIconColor: Theme.of(context).primaryColor,
-      receivedMessageCaptionTextStyle: TextStyle(
-        color: AFThemeExtension.of(context).textColor,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        height: 1.5,
-      ),
-      receivedMessageBodyTextStyle: TextStyle(
-        color: AFThemeExtension.of(context).textColor,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        height: 1.5,
-      ),
-      receivedMessageLinkTitleTextStyle: TextStyle(
-        color: AFThemeExtension.of(context).textColor,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        height: 1.5,
-      ),
-      receivedMessageBodyLinkTextStyle: const TextStyle(
-        color: Colors.lightBlue,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        height: 1.5,
-      ),
-      sentMessageBodyTextStyle: TextStyle(
-        color: AFThemeExtension.of(context).textColor,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        height: 1.5,
-      ),
-      sentMessageBodyLinkTextStyle: const TextStyle(
-        color: Colors.blue,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        height: 1.5,
-      ),
-      inputElevation: 2,
-    );
-  }
-
-  void onSendPressed(BuildContext context, String message) {
-    context.read<ChatBloc>().add(ChatEvent.sendMessage(message));
-  }
+AFDefaultChatTheme buildTheme(BuildContext context) {
+  return AFDefaultChatTheme(
+    backgroundColor: AFThemeExtension.of(context).background,
+    primaryColor: Theme.of(context).colorScheme.primary,
+    secondaryColor: AFThemeExtension.of(context).tint1,
+    receivedMessageDocumentIconColor: Theme.of(context).primaryColor,
+    receivedMessageCaptionTextStyle: TextStyle(
+      color: AFThemeExtension.of(context).textColor,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.5,
+    ),
+    receivedMessageBodyTextStyle: TextStyle(
+      color: AFThemeExtension.of(context).textColor,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.5,
+    ),
+    receivedMessageLinkTitleTextStyle: TextStyle(
+      color: AFThemeExtension.of(context).textColor,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.5,
+    ),
+    receivedMessageBodyLinkTextStyle: const TextStyle(
+      color: Colors.lightBlue,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.5,
+    ),
+    sentMessageBodyTextStyle: TextStyle(
+      color: AFThemeExtension.of(context).textColor,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.5,
+    ),
+    sentMessageBodyLinkTextStyle: const TextStyle(
+      color: Colors.blue,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.5,
+    ),
+    inputElevation: 2,
+  );
 }

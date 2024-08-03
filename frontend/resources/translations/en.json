@@ -173,6 +173,7 @@
     "aiMistakePrompt": "AI can make mistakes. Check important info.",
     "chatWithFilePrompt": "Do you want to chat with the file?",
     "indexFileSuccess": "Indexing file successfully",
+    "inputActionNoPages": "No page results",
     "indexingFile": "Indexing {}"
   },
   "trash": {
