@@ -7,7 +7,7 @@ use crate::notification::{make_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageContext, ChatMessageType, MessageCursor,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, MessageCursor,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
@@ -81,7 +81,7 @@ impl Chat {
     message: &str,
     message_type: ChatMessageType,
     text_stream_port: i64,
-    metadata: Option<ChatMessageContext>,
+    metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
     if message.len() > 2000 {
       return Err(FlowyError::text_too_long().with_context("Exceeds maximum message 2000 length"));
@@ -98,7 +98,7 @@ impl Chat {
 
     let question = self
       .chat_service
-      .save_question(
+      .create_question(
         &workspace_id,
         &self.chat_id,
         message,
@@ -125,7 +125,7 @@ impl Chat {
     tokio::spawn(async move {
       let mut text_sink = IsolateSink::new(Isolate::new(text_stream_port));
       match cloud_service
-        .ask_question(&workspace_id, &chat_id, question_id)
+        .stream_answer(&workspace_id, &chat_id, question_id)
         .await
       {
         Ok(mut stream) => {
@@ -179,12 +179,14 @@ impl Chat {
         return Ok(());
       }
 
+      // TODO(nathan): metadata
       let answer = cloud_service
-        .save_answer(
+        .create_answer(
           &workspace_id,
           &chat_id,
           &stream_buffer.lock().await,
           question_id,
+          None,
         )
         .await?;
       Self::save_answer(uid, &chat_id, &user_service, answer)?;
@@ -414,7 +416,7 @@ impl Chat {
     let workspace_id = self.user_service.workspace_id()?;
     let answer = self
       .chat_service
-      .generate_answer(&workspace_id, &self.chat_id, question_message_id)
+      .get_answer(&workspace_id, &self.chat_id, question_message_id)
       .await?;
 
     Self::save_answer(self.uid, &self.chat_id, &self.user_service, answer.clone())?;

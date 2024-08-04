@@ -6,7 +6,7 @@ use std::sync::Arc;
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
-use client_api::entity::{ChatMessageContext, ChatMessageType};
+use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
 
 use collab::preclude::CollabPlugin;
@@ -611,13 +611,13 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  fn save_question(
+  fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    context: Option<ChatMessageContext>,
+    metadata: Vec<ChatMessageMetadata>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
@@ -627,17 +627,18 @@ impl ChatCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .chat_service()
-        .save_question(&workspace_id, &chat_id, &message, message_type, context)
+        .create_question(&workspace_id, &chat_id, &message, message_type, metadata)
         .await
     })
   }
 
-  fn save_answer(
+  fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
+    metadata: Option<serde_json::Value>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
@@ -646,12 +647,12 @@ impl ChatCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .chat_service()
-        .save_answer(&workspace_id, &chat_id, &message, question_id)
+        .create_answer(&workspace_id, &chat_id, &message, question_id, metadata)
         .await
     })
   }
 
-  async fn ask_question(
+  async fn stream_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -662,7 +663,7 @@ impl ChatCloudService for ServerProvider {
     let server = self.get_server()?;
     server
       .chat_service()
-      .ask_question(&workspace_id, &chat_id, message_id)
+      .stream_answer(&workspace_id, &chat_id, message_id)
       .await
   }
 
@@ -697,7 +698,7 @@ impl ChatCloudService for ServerProvider {
       .await
   }
 
-  async fn generate_answer(
+  async fn get_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -706,7 +707,7 @@ impl ChatCloudService for ServerProvider {
     let server = self.get_server();
     server?
       .chat_service()
-      .generate_answer(workspace_id, chat_id, question_message_id)
+      .get_answer(workspace_id, chat_id, question_message_id)
       .await
   }
 

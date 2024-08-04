@@ -6,9 +6,7 @@ use crate::entities::*;
 use crate::local_ai::local_llm_chat::LLMModelInfo;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use allo_isolate::Isolate;
-use flowy_ai_pub::cloud::{
-  ChatMessageContext, ChatMessageMetadata, ChatMessageType, ChatMetadataData,
-};
+use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType, ChatMetadataData};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::isolate_stream::IsolateSink;
@@ -37,20 +35,16 @@ pub(crate) async fn stream_chat_message_handler(
     ChatMessageTypePB::User => ChatMessageType::User,
   };
 
-  let mut metadata = None;
-  let metadatas = data
+  let metadata = data
     .metadatas
     .into_iter()
     .map(|metadata| ChatMessageMetadata {
       data: ChatMetadataData::new_text(metadata.text),
       id: metadata.id,
-      name: metadata.name,
+      name: metadata.name.clone(),
+      source: metadata.name,
     })
     .collect::<Vec<_>>();
-
-  if !metadatas.is_empty() {
-    metadata = Some(ChatMessageContext { metadatas });
-  }
 
   let question = ai_manager
     .stream_chat_message(
@@ -406,9 +400,9 @@ pub(crate) async fn get_offline_app_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn create_chat_context_handler(
   data: AFPluginData<CreateChatContextPB>,
-  ai_manager: AFPluginState<Weak<AIManager>>,
+  _ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> Result<(), FlowyError> {
-  let data = data.try_into_inner()?;
+  let _data = data.try_into_inner()?;
 
   Ok(())
 }

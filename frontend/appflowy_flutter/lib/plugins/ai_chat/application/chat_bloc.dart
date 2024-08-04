@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
@@ -19,8 +18,8 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nanoid/nanoid.dart';
 
-import 'chat_input_action_control.dart';
 import 'chat_message_listener.dart';
+import 'chat_message_service.dart';
 
 part 'chat_bloc.freezed.dart';
 
@@ -344,18 +343,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       message: message,
       messageType: ChatMessageTypePB.User,
       textStreamPort: Int64(answerStream.nativePort),
+      metadatas: metadataPBFromMetadata(metadata),
     );
-
-    if (metadata != null) {
-      for (final entry in metadata.entries) {
-        if (entry.value is ViewActionPage) {
-          if (entry.value.page is ViewPB) {
-            final view = entry.value.page as ViewPB;
-            //
-          }
-        }
-      }
-    }
 
     // Stream message to the server
     final result = await AIEventStreamMessage(payload).send();

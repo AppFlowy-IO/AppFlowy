@@ -6,7 +6,7 @@ use crate::persistence::select_single_message;
 use appflowy_plugin::error::PluginError;
 
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageContext, ChatMessageType, CompletionType,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionType,
   CreateTextChatContext, LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage,
   RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
 };
@@ -78,32 +78,33 @@ impl ChatCloudService for AICloudServiceMiddleware {
     self.cloud_service.create_chat(uid, workspace_id, chat_id)
   }
 
-  fn save_question(
+  fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    metadata: Option<ChatMessageContext>,
+    metadata: Vec<ChatMessageMetadata>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     self
       .cloud_service
-      .save_question(workspace_id, chat_id, message, message_type, metadata)
+      .create_question(workspace_id, chat_id, message, message_type, metadata)
   }
 
-  fn save_answer(
+  fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
+    metadata: Option<serde_json::Value>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     self
       .cloud_service
-      .save_answer(workspace_id, chat_id, message, question_id)
+      .create_answer(workspace_id, chat_id, message, question_id, metadata)
   }
 
-  async fn ask_question(
+  async fn stream_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -129,12 +130,12 @@ impl ChatCloudService for AICloudServiceMiddleware {
     } else {
       self
         .cloud_service
-        .ask_question(workspace_id, chat_id, message_id)
+        .stream_answer(workspace_id, chat_id, message_id)
         .await
     }
   }
 
-  async fn generate_answer(
+  async fn get_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -148,9 +149,10 @@ impl ChatCloudService for AICloudServiceMiddleware {
         .await
       {
         Ok(answer) => {
+          // TODO(nathan): metadata
           let message = self
             .cloud_service
-            .save_answer(workspace_id, chat_id, &answer, question_message_id)
+            .create_answer(workspace_id, chat_id, &answer, question_message_id, None)
             .await?;
           Ok(message)
         },
@@ -162,7 +164,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     } else {
       self
         .cloud_service
-        .generate_answer(workspace_id, chat_id, question_message_id)
+        .get_answer(workspace_id, chat_id, question_message_id)
         .await
     }
   }

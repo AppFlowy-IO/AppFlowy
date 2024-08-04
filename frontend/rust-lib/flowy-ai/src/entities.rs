@@ -41,11 +41,11 @@ pub struct StreamChatPayloadPB {
   pub text_stream_port: i64,
 
   #[pb(index = 5)]
-  pub metadatas: Vec<ChatMessageContextPB>,
+  pub metadatas: Vec<ChatMessageMetaPB>,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
-pub struct ChatMessageContextPB {
+pub struct ChatMessageMetaPB {
   #[pb(index = 1)]
   pub id: String,
 

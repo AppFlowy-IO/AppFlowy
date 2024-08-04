@@ -9,7 +9,7 @@ use crate::persistence::{insert_chat, ChatTable};
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessageContext, ChatMessageType, CreateTextChatContext,
+  ChatCloudService, ChatMessageMetadata, ChatMessageType, CreateTextChatContext,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
@@ -151,7 +151,7 @@ impl AIManager {
     message: &str,
     message_type: ChatMessageType,
     text_stream_port: i64,
-    metadata: Option<ChatMessageContext>,
+    metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     let question = chat

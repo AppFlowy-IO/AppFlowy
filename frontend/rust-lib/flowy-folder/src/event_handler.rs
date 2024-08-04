@@ -1,4 +1,3 @@
-use collab_folder::ViewLayout;
 use std::sync::{Arc, Weak};
 use tracing::instrument;
 
