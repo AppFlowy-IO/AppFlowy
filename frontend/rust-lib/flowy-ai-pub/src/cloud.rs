@@ -15,7 +15,7 @@ use lib_infra::future::FutureResult;
 use std::path::PathBuf;
 
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
-pub type StreamAnswer = BoxStream<'static, Result<Bytes, FlowyError>>;
+pub type StreamAnswer = BoxStream<'static, Result<QuestionStreamValue, FlowyError>>;
 pub type StreamComplete = BoxStream<'static, Result<Bytes, FlowyError>>;
 #[async_trait]
 pub trait ChatCloudService: Send + Sync + 'static {

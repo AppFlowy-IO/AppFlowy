@@ -1799,6 +1799,7 @@ dependencies = [
  "md5",
  "notify",
  "parking_lot 0.12.1",
+ "pin-project",
  "protobuf",
  "reqwest",
  "serde",

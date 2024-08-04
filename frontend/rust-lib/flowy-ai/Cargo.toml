@@ -43,6 +43,7 @@ futures-util = "0.3.30"
 md5 = "0.7.0"
 zip = { workspace = true, features = ["deflate"] }
 zip-extensions = "0.8.0"
+pin-project = "1.1.5"
 
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 notify = "6.1.1"

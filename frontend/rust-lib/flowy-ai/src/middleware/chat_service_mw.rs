@@ -15,6 +15,7 @@ use futures::{stream, StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
+use crate::local_ai::stream_util::LocalAIStreamAdaptor;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -117,11 +118,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
         .stream_question(chat_id, &content)
         .await
       {
-        Ok(stream) => Ok(
-          stream
-            .map_err(|err| FlowyError::local_ai().with_context(err))
-            .boxed(),
-        ),
+        Ok(stream) => Ok(LocalAIStreamAdaptor::new(stream).boxed()),
         Err(err) => {
           self.handle_plugin_error(err);
           Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())

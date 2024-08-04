@@ -8,6 +8,7 @@ use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessage
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, MessageCursor,
+  QuestionStreamValue,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
@@ -136,9 +137,15 @@ impl Chat {
                   trace!("[Chat] stop streaming message");
                   break;
                 }
-                let s = String::from_utf8(message.to_vec()).unwrap_or_default();
-                stream_buffer.lock().await.push_str(&s);
-                let _ = text_sink.send(format!("data:{}", s)).await;
+                match message {
+                  QuestionStreamValue::Answer { value } => {
+                    stream_buffer.lock().await.push_str(&value);
+                    let _ = text_sink.send(format!("data:{}", value)).await;
+                  },
+                  QuestionStreamValue::Metadata { value } => {
+                    let _ = text_sink.send(format!("metadata:{}", value.to_string())).await;
+                  },
+                }
               },
               Err(err) => {
                 error!("[Chat] failed to stream answer: {}", err);
