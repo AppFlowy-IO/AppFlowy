@@ -1089,6 +1089,8 @@
           "one": "{} member",
           "other": "{} members"
         },
+        "inviteFailedDialogTitle": "Failed to send invite",
+        "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
         "memberLimitExceededUpgrade": "upgrade",
         "memberLimitExceededPro": "Member limit reached, if you require more members contact ",
