@@ -1,9 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Icon;
 
 final builtInSpaceColors = [
   '0xFFA34AFD',
@@ -34,7 +37,7 @@ class SpaceIconPopup extends StatefulWidget {
 
   final String? icon;
   final String? iconColor;
-  final void Function(String icon, String color) onIconChanged;
+  final void Function(String? icon, String? color) onIconChanged;
   final double cornerRadius;
 
   @override
@@ -42,10 +45,12 @@ class SpaceIconPopup extends StatefulWidget {
 }
 
 class _SpaceIconPopupState extends State<SpaceIconPopup> {
-  late ValueNotifier<String> selectedColor =
-      ValueNotifier<String>(widget.iconColor ?? builtInSpaceColors.first);
-  late ValueNotifier<String> selectedIcon =
-      ValueNotifier<String>(widget.icon ?? builtInSpaceIcons.first);
+  late ValueNotifier<String?> selectedIcon = ValueNotifier<String?>(
+    widget.icon,
+  );
+  late ValueNotifier<String> selectedColor = ValueNotifier<String>(
+    widget.iconColor ?? builtInSpaceColors.first,
+  );
 
   @override
   void dispose() {
@@ -58,19 +63,26 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       offset: const Offset(0, 4),
-      constraints: const BoxConstraints(maxWidth: 220),
-      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+      constraints: BoxConstraints.loose(const Size(380, 432)),
+      margin: const EdgeInsets.all(0),
       direction: PopoverDirection.bottomWithCenterAligned,
       child: _buildPreview(),
-      popupBuilder: (_) => SpaceIconPicker(
-        icon: selectedIcon.value,
-        iconColor: selectedColor.value,
-        onIconChanged: (icon, iconColor) {
-          selectedIcon.value = icon;
-          selectedColor.value = iconColor;
-          widget.onIconChanged(icon, iconColor);
-        },
-      ),
+      popupBuilder: (context) {
+        return FlowyIconEmojiPicker(
+          tabs: const [PickerTabType.icon],
+          onSelectedIcon: (group, icon, color) {
+            if (group == null || icon == null) {
+              selectedIcon.value = null;
+            } else {
+              selectedIcon.value = '${group.name}/${icon.name}';
+            }
+
+            if (color != null) {
+              selectedColor.value = color;
+            }
+          },
+        );
+      },
     );
   }
 
@@ -87,13 +99,25 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
             builder: (_, color, __) {
               return ValueListenableBuilder(
                 valueListenable: selectedIcon,
-                builder: (_, icon, __) {
+                builder: (_, value, __) {
+                  if (value == null) {
+                    return const SizedBox.shrink();
+                  }
+                  final content = kIconGroups?.findSvgContent(value);
+                  if (content == null) {
+                    return const SizedBox.shrink();
+                  }
                   final child = ClipRRect(
                     borderRadius: BorderRadius.circular(widget.cornerRadius),
-                    child: FlowySvg(
-                      FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
+                    child: Container(
                       color: Color(int.parse(color)),
-                      blendMode: BlendMode.srcOut,
+                      child: Align(
+                        child: FlowySvg.string(
+                          content,
+                          size: const Size.square(24),
+                          color: Theme.of(context).colorScheme.surface,
+                        ),
+                      ),
                     ),
                   );
                   if (onHover) {

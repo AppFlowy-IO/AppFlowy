@@ -136,7 +136,7 @@ extension ViewExtension on ViewPB {
     }
   }
 
-  FlowySvg? buildSpaceIconSvg(BuildContext context) {
+  FlowySvg? buildSpaceIconSvg(BuildContext context, {Size? size}) {
     try {
       final ext = jsonDecode(extra);
       final icon = ext[ViewExtKeys.spaceIconKey];
@@ -173,6 +173,7 @@ extension ViewExtension on ViewPB {
       return FlowySvg.string(
         svgString,
         color: Theme.of(context).colorScheme.surface,
+        size: size,
       );
     } catch (e) {
       return null;

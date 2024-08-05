@@ -6,6 +6,7 @@ import 'package:appflowy/shared/icon_emoji_picker/icon_search_bar.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter/services.dart';
@@ -14,6 +15,27 @@ import 'icon_color_picker.dart';
 
 // cache the icon groups to avoid loading them multiple times
 List<IconGroup>? kIconGroups;
+
+extension IconGroupFilter on List<IconGroup> {
+  String? findSvgContent(String key) {
+    final values = key.split('/');
+    if (values.length != 2) {
+      return null;
+    }
+    final groupName = values[0];
+    final iconName = values[1];
+    final svgString = kIconGroups
+        ?.firstWhereOrNull(
+          (group) => group.name == groupName,
+        )
+        ?.icons
+        .firstWhereOrNull(
+          (icon) => icon.name == iconName,
+        )
+        ?.content;
+    return svgString;
+  }
+}
 
 Future<List<IconGroup>> loadIconGroups() async {
   if (kIconGroups != null) {

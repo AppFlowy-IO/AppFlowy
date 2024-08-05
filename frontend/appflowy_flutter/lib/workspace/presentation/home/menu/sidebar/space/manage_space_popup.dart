@@ -77,7 +77,7 @@ class _SpaceNameTextField extends StatelessWidget {
   });
 
   final void Function(String name) onNameChanged;
-  final void Function(String icon, String color) onIconChanged;
+  final void Function(String? icon, String? color) onIconChanged;
 
   @override
   Widget build(BuildContext context) {

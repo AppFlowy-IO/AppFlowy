@@ -32,6 +32,13 @@ class IconGroup {
     return IconGroup(name: name, icons: filteredIcons);
   }
 
+  String? getSvgContent(String iconName) {
+    final icon = icons.firstWhere(
+      (icon) => icon.name == iconName,
+    );
+    return icon.content;
+  }
+
   Map<String, dynamic> toJson() => _$IconGroupToJson(this);
 }
 
