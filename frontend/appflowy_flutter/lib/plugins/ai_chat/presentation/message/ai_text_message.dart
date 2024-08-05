@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 
+import 'ai_metadata.dart';
+
 class ChatAITextMessageWidget extends StatelessWidget {
   const ChatAITextMessageWidget({
     super.key,
@@ -21,6 +23,7 @@ class ChatAITextMessageWidget extends StatelessWidget {
     required this.questionId,
     required this.chatId,
     required this.metadata,
+    required this.onSelectedMetadata,
   });
 
   final User user;
@@ -29,6 +32,7 @@ class ChatAITextMessageWidget extends StatelessWidget {
   final Int64? questionId;
   final String chatId;
   final String? metadata;
+  final void Function(ChatMessageMetadata metadata) onSelectedMetadata;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +70,10 @@ class ChatAITextMessageWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AIMarkdownText(markdown: state.text),
-                    AIMessageMetadata(metadata: state.metadata),
+                    AIMessageMetadata(
+                      metadata: state.metadata,
+                      onSelectedMetadata: onSelectedMetadata,
+                    ),
                   ],
                 );
               }
@@ -134,53 +141,6 @@ class StreamingError extends StatelessWidget {
         LocaleKeys.chat_aiServerUnavailable.tr(),
         fontSize: 14,
       ),
-    );
-  }
-}
-
-class AIMessageMetadata extends StatelessWidget {
-  const AIMessageMetadata({required this.metadata, super.key});
-
-  final List<ChatMessageMetadata> metadata;
-  @override
-  Widget build(BuildContext context) {
-    final title = metadata.length == 1
-        ? LocaleKeys.chat_referenceSource.tr(args: [metadata.length.toString()])
-        : LocaleKeys.chat_referenceSources
-            .tr(args: [metadata.length.toString()]);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (metadata.isNotEmpty)
-          Opacity(
-            opacity: 0.5,
-            child: FlowyText(title, fontSize: 12),
-          ),
-        const VSpace(6),
-        Wrap(
-          spacing: 8.0,
-          runSpacing: 4.0,
-          children: metadata
-              .map(
-                (m) => SizedBox(
-                  height: 24,
-                  child: FlowyButton(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 4,
-                    ),
-                    useIntrinsicWidth: true,
-                    radius: BorderRadius.circular(6),
-                    text: FlowyText(
-                      m.source,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-      ],
     );
   }
 }

@@ -176,6 +176,7 @@
     "inputActionNoPages": "No page results",
     "referenceSource": "{} source found",
     "referenceSources": "{} sources found",
+    "clickToMention": "Click to mention a page",
     "indexingFile": "Indexing {}"
   },
   "trash": {

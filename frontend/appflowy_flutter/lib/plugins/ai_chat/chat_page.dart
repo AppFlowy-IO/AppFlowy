@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:flowy_infra/platform_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -22,9 +25,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
+import 'package:styled_widget/styled_widget.dart';
 
+import 'application/chat_side_pannel_bloc.dart';
 import 'presentation/chat_input/chat_input.dart';
 import 'presentation/chat_popmenu.dart';
+import 'presentation/chat_side_pannel.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
 import 'presentation/chat_welcome_page.dart';
@@ -94,6 +100,7 @@ class AIChatPage extends StatelessWidget {
             create: (_) =>
                 ChatInputStateBloc()..add(const ChatInputStateEvent.started()),
           ),
+          BlocProvider(create: (_) => ChatSidePannelBloc(chatId: view.id)),
         ],
         child: BlocListener<ChatFileBloc, ChatFileState>(
           listenWhen: (previous, current) =>
@@ -196,7 +203,71 @@ class _ChatContentPageState extends State<_ChatContentPage> {
   @override
   Widget build(BuildContext context) {
     if (widget.userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
-      return buildChatWidget();
+      if (PlatformExtension.isDesktop) {
+        return BlocSelector<ChatSidePannelBloc, ChatSidePannelState, bool>(
+          selector: (state) => state.isShowPannel,
+          builder: (context, isShowPannel) {
+            return LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                final double chatOffsetX = isShowPannel
+                    ? 60
+                    : (constraints.maxWidth > 784
+                        ? (constraints.maxWidth - 784) / 2.0
+                        : 60);
+
+                final double width = isShowPannel
+                    ? (constraints.maxWidth - chatOffsetX * 2) * 0.46
+                    : min(constraints.maxWidth - chatOffsetX * 2, 784);
+
+                final double sidePannelOffsetX = chatOffsetX + width;
+
+                return Stack(
+                  alignment: AlignmentDirectional.centerStart,
+                  children: [
+                    buildChatWidget()
+                        .constrained(width: width)
+                        .positioned(
+                          top: 0,
+                          bottom: 0,
+                          left: chatOffsetX,
+                          animate: true,
+                        )
+                        .animate(
+                          const Duration(milliseconds: 200),
+                          Curves.easeOut,
+                        ),
+                    if (isShowPannel)
+                      buildChatSidePannel()
+                          .positioned(
+                            left: sidePannelOffsetX,
+                            right: 0,
+                            top: 0,
+                            bottom: 0,
+                            animate: true,
+                          )
+                          .animate(
+                            const Duration(milliseconds: 200),
+                            Curves.easeOut,
+                          ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      } else {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 784),
+                child: buildChatWidget(),
+              ),
+            ),
+          ],
+        );
+      }
     }
 
     return Center(
@@ -207,73 +278,79 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     );
   }
 
-  Widget buildChatWidget() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Flexible(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 784),
-            child: BlocBuilder<ChatBloc, ChatState>(
-              builder: (blocContext, state) => Chat(
-                messages: state.messages,
-                onSendPressed: (_) {
-                  // We use custom bottom widget for chat input, so
-                  // do not need to handle this event.
-                },
-                customBottomWidget: buildChatInput(blocContext),
-                user: _user,
-                theme: buildTheme(context),
-                onEndReached: () async {
-                  if (state.hasMorePrevMessage &&
-                      state.loadingPreviousStatus !=
-                          const LoadingState.loading()) {
-                    blocContext
-                        .read<ChatBloc>()
-                        .add(const ChatEvent.startLoadingPrevMessage());
-                  }
-                },
-                emptyState: BlocBuilder<ChatBloc, ChatState>(
-                  builder: (_, state) => state.initialLoadingStatus ==
-                          const LoadingState.finish()
-                      ? Padding(
-                          padding: AIChatUILayout.welcomePagePadding,
-                          child: ChatWelcomePage(
-                            onSelectedQuestion: (question) => blocContext
-                                .read<ChatBloc>()
-                                .add(ChatEvent.sendMessage(message: question)),
-                          ),
-                        )
-                      : const Center(
-                          child: CircularProgressIndicator.adaptive(),
-                        ),
-                ),
-                messageWidthRatio: AIChatUILayout.messageWidthRatio,
-                textMessageBuilder: (
-                  textMessage, {
-                  required messageWidth,
-                  required showName,
-                }) =>
-                    _buildAITextMessage(blocContext, textMessage),
-                bubbleBuilder: (
-                  child, {
-                  required message,
-                  required nextMessageInGroup,
-                }) {
-                  if (message.author.id == _user.id) {
-                    return ChatUserMessageBubble(
-                      message: message,
-                      child: child,
-                    );
-                  }
+  Widget buildChatSidePannel() {
+    if (PlatformExtension.isDesktop) {
+      return BlocBuilder<ChatSidePannelBloc, ChatSidePannelState>(
+        builder: (context, state) {
+          if (state.metadata != null) {
+            return const ChatSidePannel();
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      );
+    } else {
+      // TODO(lucas): implement mobile chat side panel
+      return const SizedBox.shrink();
+    }
+  }
 
-                  return _buildAIBubble(message, blocContext, state, child);
-                },
-              ),
-            ),
-          ),
+  Widget buildChatWidget() {
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (blocContext, state) => Chat(
+        messages: state.messages,
+        onSendPressed: (_) {
+          // We use custom bottom widget for chat input, so
+          // do not need to handle this event.
+        },
+        customBottomWidget: buildChatInput(blocContext),
+        user: _user,
+        theme: buildTheme(context),
+        onEndReached: () async {
+          if (state.hasMorePrevMessage &&
+              state.loadingPreviousStatus != const LoadingState.loading()) {
+            blocContext
+                .read<ChatBloc>()
+                .add(const ChatEvent.startLoadingPrevMessage());
+          }
+        },
+        emptyState: BlocBuilder<ChatBloc, ChatState>(
+          builder: (_, state) =>
+              state.initialLoadingStatus == const LoadingState.finish()
+                  ? Padding(
+                      padding: AIChatUILayout.welcomePagePadding,
+                      child: ChatWelcomePage(
+                        onSelectedQuestion: (question) => blocContext
+                            .read<ChatBloc>()
+                            .add(ChatEvent.sendMessage(message: question)),
+                      ),
+                    )
+                  : const Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
         ),
-      ],
+        messageWidthRatio: AIChatUILayout.messageWidthRatio,
+        textMessageBuilder: (
+          textMessage, {
+          required messageWidth,
+          required showName,
+        }) =>
+            _buildAITextMessage(blocContext, textMessage),
+        bubbleBuilder: (
+          child, {
+          required message,
+          required nextMessageInGroup,
+        }) {
+          if (message.author.id == _user.id) {
+            return ChatUserMessageBubble(
+              message: message,
+              child: child,
+            );
+          }
+
+          return _buildAIBubble(message, blocContext, state, child);
+        },
+      ),
     );
   }
 
@@ -297,6 +374,11 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         questionId: questionId,
         chatId: widget.view.id,
         metadata: metadata,
+        onSelectedMetadata: (ChatMessageMetadata metadata) {
+          context.read<ChatSidePannelBloc>().add(
+                ChatSidePannelEvent.selectedMetadata(metadata),
+              );
+        },
       );
     }
   }

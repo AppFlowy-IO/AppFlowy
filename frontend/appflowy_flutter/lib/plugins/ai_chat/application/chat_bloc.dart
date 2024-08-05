@@ -625,15 +625,7 @@ class AnswerStream {
 }
 
 List<ChatMessageMetadata> chatMessageMetadataFromString(String? s) {
-  if (s == null) {
-    return [];
-  }
-
-  if (s.isEmpty) {
-    return [];
-  }
-
-  if (s == "null") {
+  if (s == null || s.isEmpty || s == "null") {
     return [];
   }
 
