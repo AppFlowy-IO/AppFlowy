@@ -173,7 +173,9 @@
     "question2": "介绍一下 GTD 工作法",
     "question3": "为什么使用 Rust",
     "question4": "使用现有食材制定一份菜谱",
-    "aiMistakePrompt": "AI 可能出错，请验证重要信息"
+    "aiMistakePrompt": "AI 可能出错，请验证重要信息",
+    "chatWithFilePrompt": "您想与文件聊天吗？",
+    "indexFileSuccess": "成功索引文件"
   },
   "trash": {
     "text": "回收站",
@@ -279,7 +281,16 @@
     "justNow": "现在",
     "minutesAgo": "{count} 分钟以前",
     "lastViewed": "最近一次查看",
-    "removeSuccess": "成功移除"
+    "favoriteAt": "已收藏",
+    "emptyRecent": "没有最近文件",
+    "emptyRecentDescription": "查看文档将显示在这",
+    "emptyFavorite": "没有收藏文档",
+    "removeSuccess": "成功移除",
+    "favoriteSpace": "收藏",
+    "RecentSpace": "最近",
+    "aiResponseLimitDialogTitle": "AI答案已达到限制点",
+    "purchaseStorageSpace": "购买存储空间",
+    "purchaseAIResponse": "购买"
   },
   "notifications": {
     "export": {
@@ -323,6 +334,7 @@
     "helpCenter": "帮助中心",
     "add": "添加",
     "yes": "是",
+    "no": "拒",
     "clear": "清空",
     "remove": "移除",
     "dontRemove": "不移除",
@@ -336,6 +348,10 @@
     "signInGithub": "使用 Github 账户登录",
     "signInDiscord": "使用 Discord 账户登录",
     "more": "更多",
+    "create": "创建",
+    "close": "关",
+    "next": "下一个",
+    "previous": "上一个",
     "Done": "完成",
     "Cancel": "取消",
     "OK": "确认"
@@ -365,6 +381,9 @@
     "accountPage": {
       "menuLabel": "我的账户",
       "title": "我的账户",
+      "general": {
+        "changeProfilePicture": "更改个人图片"
+      },
       "email": {
         "title": "邮箱",
         "actions": {
@@ -423,6 +442,8 @@
         "24HourTime": "24 小时制",
         "dateFormat": {
           "label": "日期格式",
+          "local": "机器时间",
+          "us": "美国",
           "dmy": "日/月/年"
         }
       },
@@ -459,6 +480,7 @@
           "resetTooltip": "重置为默认位置"
         },
         "resetDialog": {
+          "title": "确认?",
           "description": "将数据路径重置为默认位置不会删除你的数据。如果你想重新导入当前数据，你应该先复制当前位置的路径。"
         }
       },
@@ -484,6 +506,34 @@
           "description": "清除缓存会导致加载时重新下载图像和字体。此操作不会删除或修改你的数据。",
           "successHint": "缓存已清除！"
         }
+      },
+      "data": {
+        "fixYourData": "修复数据",
+        "fixButton": "修复"
+      }
+    },
+    "shortcutsPage": {
+      "searchHint": "搜索",
+      "resetDialog": {
+        "buttonLabel": "重置"
+      },
+      "keybindings": {
+        "selectAllCodeblock": "全选",
+        "copy": "复制选择",
+        "cut": "剪切选择",
+        "undo": "撤消",
+        "backspace": "删除",
+        "deleteLeftWord": "删除左边单词",
+        "deleteLeftSentence": "删除左边句子",
+        "delete": "删除右边字母",
+        "deleteMacOS": "删除左边字母",
+        "deleteRightWord": "删除右边单词"
+      }
+    },
+    "aiPage": {
+      "keys": {
+        "downloadAIModelButton": "下载",
+        "downloadingModel": "下载中"
       }
     },
     "planPage": {
@@ -491,6 +541,11 @@
         "currentPlan": {
           "freeTitle": "免费"
         }
+      }
+    },
+    "comparePlanDialog": {
+      "freeLabels": {
+        "itemThree": "5千兆"
       }
     },
     "menu": {
@@ -636,6 +691,7 @@
         "guest": "访客",
         "member": "成员",
         "emailSent": "邮件已发送，请检查您的邮箱",
+        "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "添加成员失败",
         "addMemberSuccess": "添加成员成功",
         "removeMember": "移除成员",
@@ -1089,8 +1145,12 @@
         "defaultColor": "默认"
       },
       "image": {
-        "copiedToPasteBoard": "图片链接已复制到剪贴板",
-        "addAnImage": "添加图像"
+        "addAnImage": "添加图像",
+        "copiedToPasteBoard": "图片链接已复制到剪贴板"
+      },
+      "photoGallery": {
+        "name": "照片库",
+        "addImageTooltip": "添加图片"
       },
       "urlPreview": {
         "copiedToPasteBoard": "链接已复制到剪贴板"
@@ -1126,7 +1186,11 @@
         "emptyLabel": "添加视频",
         "placeholder": "粘贴视频链接",
         "copiedToPasteBoard": "视频链接已复制到剪贴板",
-        "insertVideo": "添加视频"
+        "insertVideo": "添加视频",
+        "supportedFormats": "支持格式: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "uploadTab": "上传"
       }
     },
     "outlineBlock": {
@@ -1180,7 +1244,12 @@
       "unableToLoadImage": "无法加载图像",
       "maximumImageSize": "支持的最大上传图片大小为 10MB",
       "uploadImageErrorImageSizeTooBig": "图片大小必须小于 10MB",
-      "imageIsUploading": "图片正在上传"
+      "imageIsUploading": "图片正在上传",
+      "interactiveViewer": {
+        "toolbar": {
+          "deleteImageTooltip": "删除图片"
+        }
+      }
     },
     "codeBlock": {
       "language": {
@@ -1209,7 +1278,8 @@
       "page": {
         "label": "链接到页面",
         "tooltip": "点击打开页面"
-      }
+      },
+      "deleted": "已删除"
     },
     "toolbar": {
       "resetToDefaultFont": "重置为默认"
@@ -1294,10 +1364,10 @@
       "firstDayOfWeek": "一周开始于",
       "layoutDateField": "以……为日历布局",
       "noDateTitle": "没有日期",
+      "noDateHint": "计划外事件将显示在此处",
       "unscheduledEventsTitle": "未安排的事件",
       "clickToAdd": "单击以添加到日历",
-      "name": "日历布局",
-      "noDateHint": "计划外事件将显示在此处"
+      "name": "日历布局"
     },
     "referencedCalendarPrefix": "视图",
     "quickJumpYear": "跳转到"
@@ -1500,7 +1570,7 @@
     "lightLightTint7": "绿色",
     "lightLightTint8": "淡绿色",
     "lightLightTint9": "蓝色",
-    "urlHint": "URL",
+    "urlHint": "网址",
     "mobileHeading1": "标题 1",
     "mobileHeading2": "标题 2",
     "mobileHeading3": "标题 3",
@@ -1615,10 +1685,15 @@
   },
   "pageStyle": {
     "pageIcon": "页面图标",
+    "colors": "颜色",
+    "backgroundImage": "背景图",
     "openSettings": "打开设置",
     "image": "图像"
   },
   "commandPalette": {
     "placeholder": "输入你要搜索的内容..."
+  },
+  "publish": {
+    "tryItNow": "试试看"
   }
 }

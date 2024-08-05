@@ -901,7 +901,6 @@
       "autoGeneratorCantGetOpenAIKey": "No puedo obtener la clave de AI",
       "autoGeneratorRewrite": "Volver a escribir",
       "smartEdit": "Asistentes de IA",
-      "openAI": "IA abierta",
       "smartEditFixSpelling": "Corregir ortografía",
       "warning": "⚠️ Las respuestas de la IA pueden ser inexactas o engañosas.",
       "smartEditSummarize": "Resumir",
@@ -968,8 +967,8 @@
         "depth": "Profundidad"
       },
       "image": {
-        "copiedToPasteBoard": "El enlace de la imagen se ha copiado en el portapapeles.",
         "addAnImage": "Añadir una imagen",
+        "copiedToPasteBoard": "El enlace de la imagen se ha copiado en el portapapeles.",
         "imageUploadFailed": "Error al subir la imagen",
         "errorCode": "Código de error"
       },
@@ -1003,7 +1002,8 @@
         "newDatabase": "Nueva base de datos",
         "linkToDatabase": "Enlace a la base de datos"
       },
-      "date": "Fecha"
+      "date": "Fecha",
+      "openAI": "IA abierta"
     },
     "outlineBlock": {
       "placeholder": "Tabla de contenidos"
