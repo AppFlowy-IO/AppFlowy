@@ -34,7 +34,7 @@ pub struct Chat {
   prev_message_state: Arc<RwLock<PrevMessageState>>,
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
-  steam_buffer: Arc<Mutex<String>>,
+  stream_buffer: Arc<Mutex<StringBuffer>>,
 }
 
 impl Chat {
@@ -52,7 +52,7 @@ impl Chat {
       prev_message_state: Arc::new(RwLock::new(PrevMessageState::HasMore)),
       latest_message_id: Default::default(),
       stop_stream: Arc::new(AtomicBool::new(false)),
-      steam_buffer: Arc::new(Mutex::new("".to_string())),
+      stream_buffer: Arc::new(Mutex::new(StringBuffer::default())),
     }
   }
 
@@ -91,9 +91,9 @@ impl Chat {
     self
       .stop_stream
       .store(false, std::sync::atomic::Ordering::SeqCst);
-    self.steam_buffer.lock().await.clear();
+    self.stream_buffer.lock().await.clear();
 
-    let stream_buffer = self.steam_buffer.clone();
+    let stream_buffer = self.stream_buffer.clone();
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
 
@@ -143,7 +143,10 @@ impl Chat {
                     let _ = text_sink.send(format!("data:{}", value)).await;
                   },
                   QuestionStreamValue::Metadata { value } => {
-                    let _ = text_sink.send(format!("metadata:{}", value.to_string())).await;
+                    if let Ok(s) = serde_json::to_string(&value) {
+                      stream_buffer.lock().await.set_metadata(value);
+                      let _ = text_sink.send(format!("metadata:{}", s)).await;
+                    }
                   },
                 }
               },
@@ -185,16 +188,11 @@ impl Chat {
       if stream_buffer.lock().await.is_empty() {
         return Ok(());
       }
+      let content = stream_buffer.lock().await.take_content();
+      let metadata = stream_buffer.lock().await.take_metadata();
 
-      // TODO(nathan): metadata
       let answer = cloud_service
-        .create_answer(
-          &workspace_id,
-          &chat_id,
-          &stream_buffer.lock().await,
-          question_id,
-          None,
-        )
+        .create_answer(&workspace_id, &chat_id, &content, question_id, metadata)
         .await?;
       Self::save_answer(uid, &chat_id, &user_service, answer)?;
       Ok::<(), FlowyError>(())
@@ -210,6 +208,7 @@ impl Chat {
     user_service: &Arc<dyn AIUserService>,
     answer: ChatMessage,
   ) -> Result<(), FlowyError> {
+    trace!("[Chat] save answer: answer={:?}", answer);
     save_chat_message(
       user_service.sqlite_connection(uid)?,
       chat_id,
@@ -454,6 +453,7 @@ impl Chat {
         author_type: record.author_type,
         author_id: record.author_id,
         reply_message_id: record.reply_message_id,
+        metadata: record.metadata,
       })
       .collect::<Vec<_>>();
 
@@ -503,8 +503,42 @@ fn save_chat_message(
       author_type: message.author.author_type as i64,
       author_id: message.author.author_id.to_string(),
       reply_message_id: message.reply_message_id,
+      metadata: Some(serde_json::to_string(&message.meta_data).unwrap_or_default()),
     })
     .collect::<Vec<_>>();
   insert_chat_messages(conn, &records)?;
   Ok(())
+}
+
+#[derive(Debug, Default)]
+struct StringBuffer {
+  content: String,
+  metadata: Option<serde_json::Value>,
+}
+
+impl StringBuffer {
+  fn clear(&mut self) {
+    self.content.clear();
+    self.metadata = None;
+  }
+
+  fn push_str(&mut self, value: &str) {
+    self.content.push_str(value);
+  }
+
+  fn set_metadata(&mut self, value: serde_json::Value) {
+    self.metadata = Some(value);
+  }
+
+  fn is_empty(&self) -> bool {
+    self.content.is_empty()
+  }
+
+  fn take_metadata(&mut self) -> Option<serde_json::Value> {
+    self.metadata.take()
+  }
+
+  fn take_content(&mut self) -> String {
+    std::mem::take(&mut self.content)
+  }
 }

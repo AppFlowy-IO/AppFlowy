@@ -288,6 +288,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     } else {
       final stream = message.metadata?["$AnswerStream"];
       final questionId = message.metadata?["question"];
+      final metadata = message.metadata?["metadata"] as String?;
       return ChatAITextMessageWidget(
         user: message.author,
         messageUserId: message.id,
@@ -295,6 +296,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         key: ValueKey(message.id),
         questionId: questionId,
         chatId: widget.view.id,
+        metadata: metadata,
       );
     }
   }

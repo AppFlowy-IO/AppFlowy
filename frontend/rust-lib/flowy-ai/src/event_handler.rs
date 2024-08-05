@@ -36,7 +36,7 @@ pub(crate) async fn stream_chat_message_handler(
   };
 
   let metadata = data
-    .metadatas
+    .metadata
     .into_iter()
     .map(|metadata| ChatMessageMetadata {
       data: ChatMetadataData::new_text(metadata.text),
