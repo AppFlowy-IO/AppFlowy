@@ -280,6 +280,7 @@ flutter:
     - assets/images/emoji/
     - assets/images/login/
     - assets/translations/
+    - assets/icons/icons.json
 
     # The following assets will be excluded in release.
     # BEGIN: EXCLUDE_IN_RELEASE
