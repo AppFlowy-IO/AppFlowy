@@ -5,23 +5,26 @@ import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_search_bar.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter/services.dart';
 
-// cache the icon groups to avoid loading them multiple times
-List<IconGroup>? _iconGroups;
+import 'icon_color_picker.dart';
 
-Future<List<IconGroup>> _loadIconGroups() async {
-  if (_iconGroups != null) {
-    return _iconGroups!;
+// cache the icon groups to avoid loading them multiple times
+List<IconGroup>? kIconGroups;
+
+Future<List<IconGroup>> loadIconGroups() async {
+  if (kIconGroups != null) {
+    return kIconGroups!;
   }
 
   final jsonString = await rootBundle.loadString('assets/icons/icons.json');
   try {
     final json = jsonDecode(jsonString) as Map<String, dynamic>;
     final iconGroups = json.entries.map(IconGroup.fromMapEntry).toList();
-    _iconGroups = iconGroups;
+    kIconGroups = iconGroups;
     return iconGroups;
   } catch (e) {
     Log.error('Failed to decode icons.json', e);
@@ -32,7 +35,10 @@ Future<List<IconGroup>> _loadIconGroups() async {
 class FlowyIconPicker extends StatefulWidget {
   const FlowyIconPicker({
     super.key,
+    required this.onSelectedIcon,
   });
+
+  final void Function(IconGroup group, Icon icon, String color) onSelectedIcon;
 
   @override
   State<FlowyIconPicker> createState() => _FlowyIconPickerState();
@@ -47,7 +53,7 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
   void initState() {
     super.initState();
 
-    iconGroups = _loadIconGroups();
+    iconGroups = loadIconGroups();
   }
 
   @override
@@ -71,59 +77,76 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
           },
         ),
         Expanded(
-          child: FutureBuilder(
-            future: iconGroups,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Center(
-                  child: SizedBox.square(
-                    dimension: 24.0,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.0,
-                    ),
-                  ),
-                );
-              }
-              final iconGroups = snapshot.data as List<IconGroup>;
-              return ValueListenableBuilder(
-                valueListenable: keyword,
-                builder: (_, keyword, __) {
-                  if (keyword.isNotEmpty) {
-                    final filteredIconGroups = iconGroups
-                        .map((iconGroup) => iconGroup.filter(keyword))
-                        .where((iconGroup) => iconGroup.icons.isNotEmpty)
-                        .toList();
-                    return IconPicker(
-                      iconGroups: filteredIconGroups,
-                    );
-                  }
-                  return IconPicker(
-                    iconGroups: iconGroups,
-                  );
-                },
-              );
-            },
-          ),
+          child: kIconGroups != null
+              ? _buildIcons(kIconGroups!)
+              : FutureBuilder(
+                  future: iconGroups,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState != ConnectionState.done) {
+                      return const Center(
+                        child: SizedBox.square(
+                          dimension: 24.0,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.0,
+                          ),
+                        ),
+                      );
+                    }
+                    final iconGroups = snapshot.data as List<IconGroup>;
+                    return _buildIcons(iconGroups);
+                  },
+                ),
         ),
       ],
     );
   }
+
+  Widget _buildIcons(List<IconGroup> iconGroups) {
+    return ValueListenableBuilder(
+      valueListenable: keyword,
+      builder: (_, keyword, __) {
+        if (keyword.isNotEmpty) {
+          final filteredIconGroups = iconGroups
+              .map((iconGroup) => iconGroup.filter(keyword))
+              .where((iconGroup) => iconGroup.icons.isNotEmpty)
+              .toList();
+          return IconPicker(
+            iconGroups: filteredIconGroups,
+            onSelectedIcon: widget.onSelectedIcon,
+          );
+        }
+        return IconPicker(
+          iconGroups: iconGroups,
+          onSelectedIcon: widget.onSelectedIcon,
+        );
+      },
+    );
+  }
 }
 
-class IconPicker extends StatelessWidget {
+class IconPicker extends StatefulWidget {
   const IconPicker({
     super.key,
+    required this.onSelectedIcon,
     required this.iconGroups,
   });
 
   final List<IconGroup> iconGroups;
+  final void Function(IconGroup group, Icon icon, String color) onSelectedIcon;
+
+  @override
+  State<IconPicker> createState() => _IconPickerState();
+}
+
+class _IconPickerState extends State<IconPicker> {
+  final mutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: iconGroups.length,
+      itemCount: widget.iconGroups.length,
       itemBuilder: (context, index) {
-        final iconGroup = iconGroups[index];
+        final iconGroup = widget.iconGroups[index];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -139,7 +162,10 @@ class IconPicker extends StatelessWidget {
                   .map(
                     (icon) => _Icon(
                       icon: icon,
-                      onTap: () {},
+                      mutex: mutex,
+                      onSelectedColor: (color) {
+                        widget.onSelectedIcon(iconGroup, icon, color);
+                      },
                     ),
                   )
                   .toList(),
@@ -155,29 +181,44 @@ class IconPicker extends StatelessWidget {
 class _Icon extends StatelessWidget {
   const _Icon({
     required this.icon,
-    required this.onTap,
+    required this.mutex,
+    required this.onSelectedColor,
   });
 
   final Icon icon;
-  final VoidCallback onTap;
+  final PopoverMutex mutex;
+  final void Function(String color) onSelectedColor;
 
   @override
   Widget build(BuildContext context) {
-    return FlowyTooltip(
-      message: icon.displayName,
-      child: FlowyButton(
-        onTap: onTap,
-        useIntrinsicWidth: true,
-        margin: const EdgeInsets.all(8.0),
-        text: Center(
-          child: FlowySvg.string(
-            icon.content,
-            size: const Size.square(20),
-            color: const Color(0xFF171717),
-            opacity: 0.7,
+    return AppFlowyPopover(
+      direction: PopoverDirection.bottomWithCenterAligned,
+      offset: const Offset(0, 6),
+      mutex: mutex,
+      child: FlowyTooltip(
+        message: icon.displayName,
+        preferBelow: false,
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          margin: const EdgeInsets.all(8.0),
+          text: Center(
+            child: FlowySvg.string(
+              icon.content,
+              size: const Size.square(20),
+              color: const Color(0xFF171717),
+              opacity: 0.7,
+            ),
           ),
         ),
       ),
+      popupBuilder: (_) {
+        return Container(
+          padding: const EdgeInsets.all(6.0),
+          child: IconColorPicker(
+            onSelected: onSelectedColor,
+          ),
+        );
+      },
     );
   }
 }

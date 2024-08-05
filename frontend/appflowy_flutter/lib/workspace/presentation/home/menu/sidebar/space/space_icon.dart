@@ -16,11 +16,23 @@ class SpaceIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: dimension,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(cornerRadius),
-        child: space.spaceIconSvg,
+    final spaceIconColor = space.spaceIconColor;
+    final color = spaceIconColor != null
+        ? Color(int.parse(spaceIconColor))
+        : Colors.transparent;
+    final svg = space.buildSpaceIconSvg(context);
+    if (svg == null) {
+      return const SizedBox.shrink();
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(cornerRadius),
+      child: Container(
+        width: dimension,
+        height: dimension,
+        color: color,
+        child: Center(
+          child: space.buildSpaceIconSvg(context),
+        ),
       ),
     );
   }

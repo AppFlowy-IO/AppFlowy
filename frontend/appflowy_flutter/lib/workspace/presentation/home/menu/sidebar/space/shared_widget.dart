@@ -490,16 +490,21 @@ class CurrentSpace extends StatelessWidget {
     final child = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SpaceIcon(
-          dimension: 20,
-          space: space,
-          cornerRadius: 6.0,
-        ),
-        const HSpace(10),
+        if (space.spaceIcon != null) ...[
+          SpaceIcon(
+            dimension: 22,
+            space: space,
+            cornerRadius: 8.0,
+          ),
+          const HSpace(10),
+        ] else ...[
+          const HSpace(2),
+        ],
         Flexible(
           child: FlowyText.medium(
             space.name,
             fontSize: 14.0,
+            figmaLineHeight: 18.0,
             overflow: TextOverflow.ellipsis,
           ),
         ),

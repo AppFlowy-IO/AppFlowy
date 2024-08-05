@@ -355,7 +355,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
             return FlowyIconEmojiPicker(
-              onSelected: (result) {
+              onSelectedEmoji: (result) {
                 widget.onIconOrCoverChanged(icon: result.emoji);
                 _popoverController.close();
               },
@@ -727,7 +727,7 @@ class _DocumentIconState extends State<DocumentIcon> {
         child: child,
         popupBuilder: (BuildContext popoverContext) {
           return FlowyIconEmojiPicker(
-            onSelected: (result) {
+            onSelectedEmoji: (result) {
               widget.onChangeIcon(result.emoji);
               _popoverController.close();
             },

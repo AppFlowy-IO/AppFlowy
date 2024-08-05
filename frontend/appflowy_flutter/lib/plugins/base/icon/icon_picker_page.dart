@@ -21,7 +21,7 @@ class IconPickerPage extends StatelessWidget {
         titleText: title ?? LocaleKeys.titleBar_pageIcon.tr(),
       ),
       body: SafeArea(
-        child: FlowyIconEmojiPicker(onSelected: onSelected),
+        child: FlowyIconEmojiPicker(onSelectedEmoji: onSelected),
       ),
     );
   }

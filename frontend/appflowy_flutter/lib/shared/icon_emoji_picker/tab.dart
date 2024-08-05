@@ -18,12 +18,14 @@ enum PickerTabType {
 class PickerTab extends StatelessWidget {
   const PickerTab({
     super.key,
+    this.onTap,
     required this.controller,
     required this.tabs,
   });
 
   final List<PickerTabType> tabs;
   final TabController controller;
+  final ValueChanged<int>? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +54,7 @@ class PickerTab extends StatelessWidget {
           width: 3,
         ),
       ),
+      onTap: onTap,
       tabs: tabs
           .map(
             (tab) => Tab(

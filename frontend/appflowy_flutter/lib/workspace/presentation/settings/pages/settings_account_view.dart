@@ -18,7 +18,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -466,9 +465,9 @@ class _UserProfileSettingState extends State<UserProfileSetting> {
           Container(
             height: 380,
             width: 360,
-            margin: const EdgeInsets.symmetric(horizontal: 12),
+            margin: const EdgeInsets.all(0),
             child: FlowyIconEmojiPicker(
-              onSelected: (r) {
+              onSelectedEmoji: (r) {
                 context
                     .read<SettingsUserViewBloc>()
                     .add(SettingsUserEvent.updateUserIcon(iconUrl: r.emoji));

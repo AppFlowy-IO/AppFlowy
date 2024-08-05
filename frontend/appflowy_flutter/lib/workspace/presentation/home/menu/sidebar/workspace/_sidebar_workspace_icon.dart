@@ -76,8 +76,9 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         direction: PopoverDirection.bottomWithLeftAligned,
         constraints: BoxConstraints.loose(const Size(364, 356)),
         clickHandler: PopoverClickHandler.gestureDetector,
+        margin: const EdgeInsets.all(0),
         popupBuilder: (_) => FlowyIconEmojiPicker(
-          onSelected: (result) {
+          onSelectedEmoji: (result) {
             widget.onSelected(result);
             controller.close();
           },

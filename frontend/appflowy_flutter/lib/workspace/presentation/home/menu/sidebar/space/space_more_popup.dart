@@ -1,16 +1,15 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_action_type.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -108,20 +107,19 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
     PopoverController controller,
   ) {
     final child = _buildActionButton(context, null);
-    final spaceBloc = context.read<SpaceBloc>();
-    final color = spaceBloc.state.currentSpace?.spaceIconColor;
-
     return AppFlowyPopover(
-      constraints: BoxConstraints.loose(const Size(216, 256)),
-      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+      constraints: BoxConstraints.loose(const Size(380, 432)),
+      margin: const EdgeInsets.all(0),
       clickHandler: PopoverClickHandler.gestureDetector,
-      popupBuilder: (_) => SpaceIconPicker(
-        iconColor: color,
-        skipFirstNotification: true,
-        onIconChanged: (icon, color) {
-          onTap(controller, (icon, color));
-        },
-      ),
+      offset: const Offset(0, -40),
+      popupBuilder: (context) {
+        return FlowyIconEmojiPicker(
+          tabs: const [PickerTabType.icon],
+          onSelectedIcon: (group, icon, color) {
+            onTap(controller, (group, icon, color));
+          },
+        );
+      },
       child: child,
     );
   }

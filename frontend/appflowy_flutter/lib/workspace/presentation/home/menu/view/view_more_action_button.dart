@@ -161,10 +161,10 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
 
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(364, 356)),
-      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+      margin: const EdgeInsets.all(0),
       clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (_) => FlowyIconEmojiPicker(
-        onSelected: (result) => onTap(controller, result),
+        onSelectedEmoji: (result) => onTap(controller, result),
       ),
       child: child,
     );

@@ -6,7 +6,9 @@ import 'package:appflowy_backend/protobuf/flowy-folder/icon.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Icon;
+
+import 'icon.dart';
 
 extension ToProto on FlowyIconType {
   ViewIconTypePB toProto() {
@@ -46,10 +48,15 @@ class EmojiPickerResult {
 class FlowyIconEmojiPicker extends StatefulWidget {
   const FlowyIconEmojiPicker({
     super.key,
-    required this.onSelected,
+    this.onSelectedEmoji,
+    this.onSelectedIcon,
+    this.tabs = const [PickerTabType.emoji],
   });
 
-  final void Function(EmojiPickerResult result) onSelected;
+  final void Function(EmojiPickerResult result)? onSelectedEmoji;
+  final void Function(IconGroup? group, Icon? icon, String? color)?
+      onSelectedIcon;
+  final List<PickerTabType> tabs;
 
   @override
   State<FlowyIconEmojiPicker> createState() => _FlowyIconEmojiPickerState();
@@ -58,9 +65,10 @@ class FlowyIconEmojiPicker extends StatefulWidget {
 class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
     with SingleTickerProviderStateMixin {
   late final controller = TabController(
-    length: 2,
+    length: widget.tabs.length,
     vsync: this,
   );
+  int currentIndex = 0;
 
   @override
   void dispose() {
@@ -81,14 +89,21 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
               Expanded(
                 child: PickerTab(
                   controller: controller,
-                  tabs: const [
-                    PickerTabType.emoji,
-                    PickerTabType.icon,
-                  ],
+                  tabs: widget.tabs,
+                  onTap: (index) => currentIndex = index,
                 ),
               ),
               _RemoveIconButton(
-                onTap: () => widget.onSelected(EmojiPickerResult.none()),
+                onTap: () {
+                  final currentTab = widget.tabs[currentIndex];
+                  if (currentTab == PickerTabType.emoji) {
+                    widget.onSelectedEmoji?.call(
+                      EmojiPickerResult.none(),
+                    );
+                  } else {
+                    widget.onSelectedIcon?.call(null, null, null);
+                  }
+                },
               ),
             ],
           ),
@@ -97,10 +112,14 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
         Expanded(
           child: TabBarView(
             controller: controller,
-            children: [
-              _buildEmojiPicker(),
-              _buildIconPicker(),
-            ],
+            children: widget.tabs.map((tab) {
+              switch (tab) {
+                case PickerTabType.emoji:
+                  return _buildEmojiPicker();
+                case PickerTabType.icon:
+                  return _buildIconPicker();
+              }
+            }).toList(),
           ),
         ),
       ],
@@ -113,8 +132,9 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: FlowyEmojiPicker(
           emojiPerLine: _getEmojiPerLine(context),
-          onEmojiSelected: (_, emoji) =>
-              widget.onSelected(EmojiPickerResult.emoji(emoji)),
+          onEmojiSelected: (_, emoji) => widget.onSelectedEmoji?.call(
+            EmojiPickerResult.emoji(emoji),
+          ),
         ),
       ),
     );
@@ -129,10 +149,15 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
   }
 
   Widget _buildIconPicker() {
-    return const Expanded(
+    return Expanded(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: FlowyIconPicker(),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: FlowyIconPicker(
+          onSelectedIcon: (iconGroup, icon, color) {
+            debugPrint('icon: ${icon.toJson()}, color: $color');
+            widget.onSelectedIcon?.call(iconGroup, icon, color);
+          },
+        ),
       ),
     );
   }

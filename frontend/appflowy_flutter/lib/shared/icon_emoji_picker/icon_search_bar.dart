@@ -123,6 +123,7 @@ class _SearchTextFieldState extends State<_SearchTextField> {
               fontWeight: FontWeight.w400,
               color: Theme.of(context).hintColor,
             ),
+        enableBorderColor: const Color(0x1E171717),
         controller: controller,
         onChanged: widget.onKeywordChanged,
         prefixIcon: const Padding(
