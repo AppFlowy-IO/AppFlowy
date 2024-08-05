@@ -23,7 +23,7 @@ async fn restore_document() {
   test.open_document(&doc_id).await.unwrap();
 
   let data_b = test
-    .get_document(&doc_id)
+    .get_opened_document(&doc_id)
     .await
     .unwrap()
     .lock()
@@ -37,7 +37,7 @@ async fn restore_document() {
   _ = test.create_document(uid, &doc_id, Some(data.clone())).await;
   // open a document
   let data_b = test
-    .get_document(&doc_id)
+    .get_opened_document(&doc_id)
     .await
     .unwrap()
     .lock()
@@ -61,7 +61,7 @@ async fn document_apply_insert_action() {
 
   // open a document
   test.open_document(&doc_id).await.unwrap();
-  let document = test.get_document(&doc_id).await.unwrap();
+  let document = test.get_opened_document(&doc_id).await.unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   // insert a text block
@@ -91,7 +91,7 @@ async fn document_apply_insert_action() {
 
   // re-open the document
   let data_b = test
-    .get_document(&doc_id)
+    .get_opened_document(&doc_id)
     .await
     .unwrap()
     .lock()
@@ -115,7 +115,7 @@ async fn document_apply_update_page_action() {
 
   // open a document
   test.open_document(&doc_id).await.unwrap();
-  let document = test.get_document(&doc_id).await.unwrap();
+  let document = test.get_opened_document(&doc_id).await.unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   let mut page_block_clone = page_block;
@@ -141,7 +141,7 @@ async fn document_apply_update_page_action() {
   _ = test.close_document(&doc_id).await;
 
   // re-open the document
-  let document = test.get_document(&doc_id).await.unwrap();
+  let document = test.get_opened_document(&doc_id).await.unwrap();
   let page_block_new = document.lock().get_block(&data.page_id).unwrap();
   assert_eq!(page_block_old, page_block_new);
   assert!(page_block_new.data.contains_key("delta"));
@@ -159,7 +159,7 @@ async fn document_apply_update_action() {
 
   // open a document
   test.open_document(&doc_id).await.unwrap();
-  let document = test.get_document(&doc_id).await.unwrap();
+  let document = test.get_opened_document(&doc_id).await.unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   // insert a text block
@@ -213,7 +213,7 @@ async fn document_apply_update_action() {
   _ = test.close_document(&doc_id).await;
 
   // re-open the document
-  let document = test.get_document(&doc_id).await.unwrap();
+  let document = test.get_opened_document(&doc_id).await.unwrap();
   let block = document.lock().get_block(&text_block_id).unwrap();
   assert_eq!(block.data, updated_text_block_data);
   // close a document

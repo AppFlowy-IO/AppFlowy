@@ -1,17 +1,21 @@
 use crate::af_cloud::AFServer;
-use client_api::entity::ai_dto::{CompleteTextParams, CompletionType, RepeatedRelatedQuestion};
+use client_api::entity::ai_dto::{
+  CompleteTextParams, CompletionType, CreateTextChatContext, RepeatedRelatedQuestion,
+};
 use client_api::entity::{
   CreateAnswerMessageParams, CreateChatMessageParams, CreateChatParams, MessageCursor,
   RepeatedChatMessage,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageType, LocalAIConfig, StreamAnswer, StreamComplete,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, LocalAIConfig, StreamAnswer,
+  StreamComplete,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_infra::util::{get_operating_system, OperatingSystem};
+use serde_json::json;
 use std::path::PathBuf;
 
 pub(crate) struct AFCloudChatCloudServiceImpl<T> {
@@ -48,12 +52,13 @@ where
     })
   }
 
-  fn save_question(
+  fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
+    metadata: Vec<ChatMessageMetadata>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
@@ -61,29 +66,32 @@ where
     let params = CreateChatMessageParams {
       content: message.to_string(),
       message_type,
+      metadata: Some(json!(metadata)),
     };
 
     FutureResult::new(async move {
       let message = try_get_client?
-        .save_question(&workspace_id, &chat_id, params)
+        .create_question(&workspace_id, &chat_id, params)
         .await
         .map_err(FlowyError::from)?;
       Ok(message)
     })
   }
 
-  fn save_answer(
+  fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
+    metadata: Option<serde_json::Value>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let params = CreateAnswerMessageParams {
       content: message.to_string(),
+      metadata,
       question_message_id: question_id,
     };
 
@@ -96,7 +104,7 @@ where
     })
   }
 
-  async fn ask_question(
+  async fn stream_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -104,14 +112,14 @@ where
   ) -> Result<StreamAnswer, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let stream = try_get_client?
-      .ask_question(workspace_id, chat_id, message_id)
+      .stream_answer_v2(workspace_id, chat_id, message_id)
       .await
       .map_err(FlowyError::from)?
       .map_err(FlowyError::from);
     Ok(stream.boxed())
   }
 
-  async fn generate_answer(
+  async fn get_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -119,7 +127,7 @@ where
   ) -> Result<ChatMessage, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let resp = try_get_client?
-      .generate_answer(workspace_id, chat_id, question_message_id)
+      .get_answer(workspace_id, chat_id, question_message_id)
       .await
       .map_err(FlowyError::from)?;
     Ok(resp)
@@ -210,5 +218,18 @@ where
       .get_local_ai_config(workspace_id, platform)
       .await?;
     Ok(config)
+  }
+
+  async fn create_chat_context(
+    &self,
+    workspace_id: &str,
+    chat_context: CreateTextChatContext,
+  ) -> Result<(), FlowyError> {
+    self
+      .inner
+      .try_get_client()?
+      .create_chat_context(workspace_id, chat_context)
+      .await?;
+    Ok(())
   }
 }

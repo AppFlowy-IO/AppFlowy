@@ -203,6 +203,11 @@ pub struct DocumentDataPB {
   pub meta: MetaPB,
 }
 
+#[derive(Default, Debug, ProtoBuf)]
+pub struct DocumentTextPB {
+  #[pb(index = 1)]
+  pub text: String,
+}
 #[derive(Default, ProtoBuf, Debug, Clone)]
 pub struct BlockPB {
   #[pb(index = 1)]

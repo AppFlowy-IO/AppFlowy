@@ -1,6 +1,8 @@
 use client_api::entity::ai_dto::{CompletionType, LocalAIConfig, RepeatedRelatedQuestion};
 use client_api::entity::{ChatMessageType, MessageCursor, RepeatedChatMessage};
-use flowy_ai_pub::cloud::{ChatCloudService, ChatMessage, StreamAnswer, StreamComplete};
+use flowy_ai_pub::cloud::{
+  ChatCloudService, ChatMessage, ChatMessageMetadata, StreamAnswer, StreamComplete,
+};
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
@@ -21,31 +23,33 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     })
   }
 
-  fn save_question(
+  fn create_question(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
     _message: &str,
     _message_type: ChatMessageType,
+    _metadata: Vec<ChatMessageMetadata>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     FutureResult::new(async move {
       Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
     })
   }
 
-  fn save_answer(
+  fn create_answer(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
     _message: &str,
     _question_id: i64,
+    _metadata: Option<serde_json::Value>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     FutureResult::new(async move {
       Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
     })
   }
 
-  async fn ask_question(
+  async fn stream_answer(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
@@ -75,7 +79,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
-  async fn generate_answer(
+  async fn get_answer(
     &self,
     _workspace_id: &str,
     _chat_id: &str,

@@ -173,6 +173,10 @@
     "aiMistakePrompt": "AI can make mistakes. Check important info.",
     "chatWithFilePrompt": "Do you want to chat with the file?",
     "indexFileSuccess": "Indexing file successfully",
+    "inputActionNoPages": "No page results",
+    "referenceSource": "{} source found",
+    "referenceSources": "{} sources found",
+    "clickToMention": "Click to mention a page",
     "indexingFile": "Indexing {}"
   },
   "trash": {

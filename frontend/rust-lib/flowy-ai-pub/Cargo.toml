@@ -11,3 +11,4 @@ flowy-error = { workspace = true }
 client-api = { workspace = true }
 bytes.workspace = true
 futures.workspace = true
+serde_json.workspace = true

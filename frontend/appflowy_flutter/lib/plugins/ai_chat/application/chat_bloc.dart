@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -19,7 +20,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nanoid/nanoid.dart';
 
 import 'chat_message_listener.dart';
+import 'chat_message_service.dart';
 
+part 'chat_bloc.g.dart';
 part 'chat_bloc.freezed.dart';
 
 const sendMessageErrorKey = "sendMessageError";
@@ -153,8 +156,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
-          sendMessage: (String message) {
-            _startStreamingMessage(message, emit);
+          sendMessage: (String message, Map<String, dynamic>? metadata) async {
+            unawaited(_startStreamingMessage(message, metadata, emit));
             final allMessages = _perminentMessages();
             emit(
               state.copyWith(
@@ -327,6 +330,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> _startStreamingMessage(
     String message,
+    Map<String, dynamic>? metadata,
     Emitter<ChatState> emit,
   ) async {
     if (state.answerStream != null) {
@@ -341,6 +345,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       message: message,
       messageType: ChatMessageTypePB.User,
       textStreamPort: Int64(answerStream.nativePort),
+      metadata: await metadataPBFromMetadata(metadata),
     );
 
     // Stream message to the server
@@ -410,6 +415,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       id: messageId,
       text: message.content,
       createdAt: message.createdAt.toInt() * 1000,
+      metadata: {
+        "metadata": message.metadata,
+      },
     );
   }
 }
@@ -417,7 +425,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 @freezed
 class ChatEvent with _$ChatEvent {
   const factory ChatEvent.initialLoad() = _InitialLoadMessage;
-  const factory ChatEvent.sendMessage(String message) = _SendMessage;
+  const factory ChatEvent.sendMessage({
+    required String message,
+    Map<String, dynamic>? metadata,
+  }) = _SendMessage;
   const factory ChatEvent.startLoadingPrevMessage() = _StartLoadPrevMessage;
   const factory ChatEvent.didLoadPreviousMessages(
     List<Message> messages,
@@ -542,6 +553,11 @@ class AnswerStream {
           if (_onError != null) {
             _onError!(_error!);
           }
+        } else if (event.startsWith("metadata:")) {
+          if (_onMetadata != null) {
+            final s = event.substring(9);
+            _onMetadata!(chatMessageMetadataFromString(s));
+          }
         } else if (event == "AI_RESPONSE_LIMIT") {
           if (_onAIResponseLimit != null) {
             _onAIResponseLimit!();
@@ -574,6 +590,7 @@ class AnswerStream {
   void Function()? _onEnd;
   void Function(String error)? _onError;
   void Function()? _onAIResponseLimit;
+  void Function(List<ChatMessageMetadata> metadata)? _onMetadata;
 
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
@@ -592,15 +609,66 @@ class AnswerStream {
     void Function()? onEnd,
     void Function(String error)? onError,
     void Function()? onAIResponseLimit,
+    void Function(List<ChatMessageMetadata> metadata)? onMetadata,
   }) {
     _onData = onData;
     _onStart = onStart;
     _onEnd = onEnd;
     _onError = onError;
     _onAIResponseLimit = onAIResponseLimit;
+    _onMetadata = onMetadata;
 
     if (_onStart != null) {
       _onStart!();
     }
   }
+}
+
+List<ChatMessageMetadata> chatMessageMetadataFromString(String? s) {
+  if (s == null || s.isEmpty || s == "null") {
+    return [];
+  }
+
+  final List<ChatMessageMetadata> metadata = [];
+  try {
+    final metadataJson = jsonDecode(s);
+    if (metadataJson == null) {
+      Log.warn("metadata is null");
+      return [];
+    }
+
+    if (metadataJson is Map<String, dynamic>) {
+      metadata.add(ChatMessageMetadata.fromJson(metadataJson));
+    } else if (metadataJson is List) {
+      metadata.addAll(
+        metadataJson.map(
+          (e) => ChatMessageMetadata.fromJson(e as Map<String, dynamic>),
+        ),
+      );
+    } else {
+      Log.error("Invalid metadata: $metadataJson");
+    }
+  } catch (e) {
+    Log.error("Failed to parse metadata: $e");
+  }
+
+  return metadata;
+}
+
+@JsonSerializable()
+class ChatMessageMetadata {
+  ChatMessageMetadata({
+    required this.id,
+    required this.name,
+    required this.source,
+  });
+
+  factory ChatMessageMetadata.fromJson(Map<String, dynamic> json) =>
+      _$ChatMessageMetadataFromJson(json);
+
+  final String id;
+  final String name;
+  final String source;
+
+  Map<String, dynamic> toJson() => _$ChatMessageMetadataToJson(this);
 }

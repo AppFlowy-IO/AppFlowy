@@ -6,6 +6,7 @@ use collab::core::origin::CollabOrigin;
 use collab::entity::EncodedCollab;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
+use collab_document::conversions::convert_document_to_plain_text;
 use collab_document::document::Document;
 use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
@@ -151,7 +152,7 @@ impl DocumentManager {
     }
   }
 
-  pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
+  pub async fn get_opened_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
       return Ok(doc);
     }
@@ -166,7 +167,7 @@ impl DocumentManager {
   /// If the document does not exist in local disk, try get the doc state from the cloud.
   /// If the document exists, open the document and cache it
   #[tracing::instrument(level = "info", skip(self), err)]
-  async fn create_document_instance(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
+  async fn init_document_instance(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
       return Ok(doc);
     }
@@ -220,6 +221,16 @@ impl DocumentManager {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
+    let document = self.get_document(doc_id).await?;
+    document.get_document_data().map_err(internal_error)
+  }
+  pub async fn get_document_text(&self, doc_id: &str) -> FlowyResult<String> {
+    let document = self.get_document(doc_id).await?;
+    let text = convert_document_to_plain_text(document)?;
+    Ok(text)
+  }
+
+  async fn get_document(&self, doc_id: &str) -> FlowyResult<Document> {
     let mut doc_state = DataSource::Disk;
     if !self.is_doc_exist(doc_id).await? {
       doc_state = DataSource::DocStateV1(
@@ -233,9 +244,8 @@ impl DocumentManager {
     let collab = self
       .collab_for_document(uid, doc_id, doc_state, false)
       .await?;
-    Document::open(collab)?
-      .get_document_data()
-      .map_err(internal_error)
+    let document = Document::open(collab)?;
+    Ok(document)
   }
 
   pub async fn open_document(&self, doc_id: &str) -> FlowyResult<()> {
@@ -243,7 +253,7 @@ impl DocumentManager {
       mutex_document.start_init_sync();
     }
 
-    let _ = self.create_document_instance(doc_id).await?;
+    let _ = self.init_document_instance(doc_id).await?;
     Ok(())
   }
 
@@ -290,7 +300,7 @@ impl DocumentManager {
   ) -> FlowyResult<bool> {
     let uid = self.user_service.user_id()?;
     let device_id = self.user_service.device_id()?;
-    if let Ok(doc) = self.get_document(doc_id).await {
+    if let Ok(doc) = self.get_opened_document(doc_id).await {
       if let Some(doc) = doc.try_lock() {
         let user = DocumentAwarenessUser { uid, device_id };
         let selection = state.selection.map(|s| s.into());
