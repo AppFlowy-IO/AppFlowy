@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_svg/flowy_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
