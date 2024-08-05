@@ -32,11 +32,18 @@ export const currencyFormaterMap: Record<NumberFormat, (n: number) => string> = 
     })
       .format(n)
       .replace('$', 'CA$'),
-  [NumberFormat.EUR]: (n: number) =>
-    new Intl.NumberFormat('en-IE', {
+  [NumberFormat.EUR]: (n: number) => {
+    const formattedAmount = new Intl.NumberFormat('de-DE', {
       ...commonProps,
       currency: 'EUR',
-    }).format(n),
+    })
+      .format(n)
+      .replace('€', '')
+      .trim();
+
+    return `€${formattedAmount}`;
+  },
+
   [NumberFormat.Pound]: (n: number) =>
     new Intl.NumberFormat('en-GB', {
       ...commonProps,

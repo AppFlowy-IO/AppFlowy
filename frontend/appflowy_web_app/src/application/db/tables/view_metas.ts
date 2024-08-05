@@ -8,6 +8,7 @@ export type ViewMeta = {
   ancestor_views: PublishViewInfo[];
 
   visible_view_ids: string[];
+  database_relations: Record<string, string>;
 } & PublishViewInfo;
 
 export type ViewMetasTable = {

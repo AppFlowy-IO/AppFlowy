@@ -15,6 +15,7 @@ $today-highlight-bg: transparent;
 
 .rbc-date-cell, .rbc-header {
   min-width: 97px;
+  font-size: 14px;
 }
 
 .rbc-date-cell.rbc-now {
@@ -26,20 +27,30 @@ $today-highlight-bg: transparent;
   }
 }
 
-.rbc-month-view {
-  border: none;
-  @apply h-full overflow-auto;
-
-  .rbc-month-row {
-    border: 1px solid var(--line-divider);
-    border-top: none;
-
-  }
-
+.rbc-calendar {
+  height: fit-content;
+  @apply w-full overflow-x-scroll;
   @include mixin.scrollbar-style;
 
 }
 
+.rbc-month-view {
+  border: none;
+  height: fit-content;
+
+  .rbc-month-row {
+    border: 1px solid var(--line-divider);
+    border-top: none;
+    min-width: 1200px;
+    @apply max-sm:w-[650vw];
+  }
+
+
+}
+
+.rbc-day-bg + .rbc-day-bg {
+  border-left-color: var(--line-divider);
+}
 
 .rbc-month-header {
   height: 40px;
@@ -47,6 +58,9 @@ $today-highlight-bg: transparent;
   top: 0;
   background: var(--bg-body);
   z-index: 50;
+  min-width: 1200px;
+
+  @apply max-sm:w-[650vw];
 
   .rbc-header {
     border: none;
@@ -72,6 +86,8 @@ $today-highlight-bg: transparent;
   flex: 0 0 0 !important;
   min-height: 97px !important;
   height: fit-content;
+  table-layout: fixed;
+  width: 100%;
 }
 
 .event-properties {

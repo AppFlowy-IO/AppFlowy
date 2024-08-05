@@ -2,6 +2,7 @@ import { ViewLayout } from '@/application/collab.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import { useEditorContext } from '@/components/editor/EditorContext';
+import { isFlagEmoji } from '@/utils/emoji';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -16,7 +17,7 @@ function MentionPage({ pageId }: { pageId: string }) {
       if (loadViewMeta) {
         setUnPublished(false);
         try {
-          const meta = await loadViewMeta(pageId);
+          const meta = await loadViewMeta(pageId, setMeta);
 
           setMeta(meta);
         } catch (e) {
@@ -32,6 +33,10 @@ function MentionPage({ pageId }: { pageId: string }) {
 
   const { t } = useTranslation();
 
+  const isFlag = useMemo(() => {
+    return icon ? isFlagEmoji(icon.value) : false;
+  }, [icon]);
+
   return (
     <span
       onClick={() => {
@@ -44,7 +49,7 @@ function MentionPage({ pageId }: { pageId: string }) {
         <span className={'mention-unpublished cursor-text font-semibold text-text-caption'}>No Access</span>
       ) : (
         <>
-          <span className={'mention-icon icon'}>
+          <span className={`mention-icon ${isFlag ? 'icon' : ''}`}>
             {icon?.value || <ViewIcon layout={meta?.layout || ViewLayout.Document} size={'small'} />}
           </span>
 

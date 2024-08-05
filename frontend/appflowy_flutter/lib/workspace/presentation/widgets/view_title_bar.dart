@@ -230,6 +230,7 @@ class _ViewTitleState extends State<_ViewTitle> {
             FlowyText.emoji(
               state.icon,
               fontSize: 14.0,
+              figmaLineHeight: 18.0,
             ),
             const HSpace(4.0),
           ],
@@ -246,7 +247,9 @@ class _ViewTitleState extends State<_ViewTitle> {
             opacity: isEditable ? 1.0 : 0.5,
             child: FlowyText.regular(
               state.name,
+              fontSize: 14.0,
               overflow: TextOverflow.ellipsis,
+              figmaLineHeight: 18.0,
             ),
           ),
         ],

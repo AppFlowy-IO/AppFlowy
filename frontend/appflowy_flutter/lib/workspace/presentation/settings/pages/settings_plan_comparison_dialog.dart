@@ -1,27 +1,31 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/cancel_plan_survey_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../generated/locale_keys.g.dart';
+import '../../../../plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 
 class SettingsPlanComparisonDialog extends StatefulWidget {
   const SettingsPlanComparisonDialog({
     super.key,
     required this.workspaceId,
-    required this.subscription,
+    required this.subscriptionInfo,
   });
 
   final String workspaceId;
-  final WorkspaceSubscriptionPB subscription;
+  final WorkspaceSubscriptionInfoPB subscriptionInfo;
 
   @override
   State<SettingsPlanComparisonDialog> createState() =>
@@ -33,7 +37,9 @@ class _SettingsPlanComparisonDialogState
   final horizontalController = ScrollController();
   final verticalController = ScrollController();
 
-  late WorkspaceSubscriptionPB currentSubscription = widget.subscription;
+  late WorkspaceSubscriptionInfoPB currentInfo = widget.subscriptionInfo;
+
+  Loading? loadingIndicator;
 
   @override
   void dispose() {
@@ -54,32 +60,27 @@ class _SettingsPlanComparisonDialogState
           return;
         }
 
-        if (readyState.showSuccessDialog) {
-          SettingsAlertDialog(
-            icon: Center(
-              child: SizedBox(
-                height: 90,
-                width: 90,
-                child: FlowySvg(
-                  FlowySvgs.check_circle_s,
-                  color: AFThemeExtension.of(context).success,
-                ),
-              ),
-            ),
-            title: LocaleKeys.settings_comparePlanDialog_paymentSuccess_title
-                .tr(args: [readyState.subscription.label]),
-            subtitle: LocaleKeys
-                .settings_comparePlanDialog_paymentSuccess_description
-                .tr(args: [readyState.subscription.label]),
-            hideCancelButton: true,
-            confirm: Navigator.of(context).pop,
-            confirmLabel: LocaleKeys.button_close.tr(),
-          ).show(context);
+        if (readyState.downgradeProcessing) {
+          loadingIndicator = Loading(context)..start();
+        } else {
+          loadingIndicator?.stop();
+          loadingIndicator = null;
         }
 
-        setState(() {
-          currentSubscription = readyState.subscription;
-        });
+        if (readyState.successfulPlanUpgrade != null) {
+          showConfirmDialog(
+            context: context,
+            title: LocaleKeys.settings_comparePlanDialog_paymentSuccess_title
+                .tr(args: [readyState.successfulPlanUpgrade!.label]),
+            description: LocaleKeys
+                .settings_comparePlanDialog_paymentSuccess_description
+                .tr(args: [readyState.successfulPlanUpgrade!.label]),
+            confirmLabel: LocaleKeys.button_close.tr(),
+            onConfirm: () {},
+          );
+        }
+
+        setState(() => currentInfo = readyState.subscriptionInfo);
       },
       builder: (context, state) => FlowyDialog(
         constraints: const BoxConstraints(maxWidth: 784, minWidth: 674),
@@ -99,8 +100,7 @@ class _SettingsPlanComparisonDialogState
                   const Spacer(),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(
-                      currentSubscription.subscriptionPlan !=
-                          widget.subscription.subscriptionPlan,
+                      currentInfo.plan != widget.subscriptionInfo.plan,
                     ),
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
@@ -142,7 +142,7 @@ class _SettingsPlanComparisonDialogState
                               children: [
                                 const VSpace(30),
                                 SizedBox(
-                                  height: 100,
+                                  height: 116,
                                   child: FlowyText.semibold(
                                     LocaleKeys
                                         .settings_comparePlanDialog_planFeatures
@@ -154,7 +154,7 @@ class _SettingsPlanComparisonDialogState
                                         : const Color(0xFFE8E0FF),
                                   ),
                                 ),
-                                const SizedBox(height: 64),
+                                const SizedBox(height: 116),
                                 const SizedBox(height: 56),
                                 ..._planLabels.map(
                                   (e) => _ComparisonCell(
@@ -172,56 +172,54 @@ class _SettingsPlanComparisonDialogState
                             description: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_description
                                 .tr(),
-                            // TODO(Mathias): the price should be dynamic based on the country and currency
                             price: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_price
-                                .tr(args: ['\$0']),
+                                .tr(
+                              args: [
+                                SubscriptionPlanPB.Free.priceMonthBilling,
+                              ],
+                            ),
                             priceInfo: LocaleKeys
                                 .settings_comparePlanDialog_freePlan_priceInfo
                                 .tr(),
                             cells: _freeLabels,
-                            isCurrent: currentSubscription.subscriptionPlan ==
-                                SubscriptionPlanPB.None,
-                            canDowngrade:
-                                currentSubscription.subscriptionPlan !=
-                                    SubscriptionPlanPB.None,
-                            currentCanceled: currentSubscription.hasCanceled ||
-                                (context
-                                        .watch<SettingsPlanBloc>()
-                                        .state
-                                        .mapOrNull(
-                                          loading: (_) => true,
-                                          ready: (state) =>
-                                              state.downgradeProcessing,
-                                        ) ??
-                                    false),
+                            isCurrent:
+                                currentInfo.plan == WorkspacePlanPB.FreePlan,
+                            buttonType: WorkspacePlanPB.FreePlan.buttonTypeFor(
+                              currentInfo.plan,
+                            ),
                             onSelected: () async {
-                              if (currentSubscription.subscriptionPlan ==
-                                      SubscriptionPlanPB.None ||
-                                  currentSubscription.hasCanceled) {
+                              if (currentInfo.plan ==
+                                      WorkspacePlanPB.FreePlan ||
+                                  currentInfo.isCanceled) {
                                 return;
                               }
 
-                              await SettingsAlertDialog(
+                              final reason =
+                                  await showCancelSurveyDialog(context);
+                              if (reason == null || !context.mounted) {
+                                return;
+                              }
+
+                              await showConfirmDialog(
+                                context: context,
                                 title: LocaleKeys
                                     .settings_comparePlanDialog_downgradeDialog_title
-                                    .tr(args: [currentSubscription.label]),
-                                subtitle: LocaleKeys
+                                    .tr(args: [currentInfo.label]),
+                                description: LocaleKeys
                                     .settings_comparePlanDialog_downgradeDialog_description
                                     .tr(),
-                                isDangerous: true,
-                                confirm: () {
-                                  context.read<SettingsPlanBloc>().add(
-                                        const SettingsPlanEvent
-                                            .cancelSubscription(),
-                                      );
-
-                                  Navigator.of(context).pop();
-                                },
                                 confirmLabel: LocaleKeys
                                     .settings_comparePlanDialog_downgradeDialog_downgradeLabel
                                     .tr(),
-                              ).show(context);
+                                style: ConfirmPopupStyle.cancelAndOk,
+                                onConfirm: () =>
+                                    context.read<SettingsPlanBloc>().add(
+                                          SettingsPlanEvent.cancelSubscription(
+                                            reason: reason,
+                                          ),
+                                        ),
+                              );
                             },
                           ),
                           _PlanTable(
@@ -231,19 +229,22 @@ class _SettingsPlanComparisonDialogState
                             description: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_description
                                 .tr(),
-                            // TODO(Mathias): the price should be dynamic based on the country and currency
                             price: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_price
-                                .tr(args: ['\$10 ']),
+                                .tr(
+                              args: [SubscriptionPlanPB.Pro.priceAnnualBilling],
+                            ),
                             priceInfo: LocaleKeys
                                 .settings_comparePlanDialog_proPlan_priceInfo
-                                .tr(),
+                                .tr(
+                              args: [SubscriptionPlanPB.Pro.priceMonthBilling],
+                            ),
                             cells: _proLabels,
-                            isCurrent: currentSubscription.subscriptionPlan ==
-                                SubscriptionPlanPB.Pro,
-                            canUpgrade: currentSubscription.subscriptionPlan ==
-                                SubscriptionPlanPB.None,
-                            currentCanceled: currentSubscription.hasCanceled,
+                            isCurrent:
+                                currentInfo.plan == WorkspacePlanPB.ProPlan,
+                            buttonType: WorkspacePlanPB.ProPlan.buttonTypeFor(
+                              currentInfo.plan,
+                            ),
                             onSelected: () =>
                                 context.read<SettingsPlanBloc>().add(
                                       const SettingsPlanEvent.addSubscription(
@@ -265,6 +266,35 @@ class _SettingsPlanComparisonDialogState
   }
 }
 
+enum _PlanButtonType {
+  none,
+  upgrade,
+  downgrade;
+
+  bool get isDowngrade => this == downgrade;
+  bool get isUpgrade => this == upgrade;
+}
+
+extension _ButtonTypeFrom on WorkspacePlanPB {
+  /// Returns the button type for the given plan, taking the
+  /// current plan as [other].
+  ///
+  _PlanButtonType buttonTypeFor(WorkspacePlanPB other) {
+    /// Current plan, no action
+    if (this == other) {
+      return _PlanButtonType.none;
+    }
+
+    // Free plan, can downgrade if not on the free plan
+    if (this == WorkspacePlanPB.FreePlan && other != WorkspacePlanPB.FreePlan) {
+      return _PlanButtonType.downgrade;
+    }
+
+    // Else we can assume it's an upgrade
+    return _PlanButtonType.upgrade;
+  }
+}
+
 class _PlanTable extends StatelessWidget {
   const _PlanTable({
     required this.title,
@@ -274,9 +304,7 @@ class _PlanTable extends StatelessWidget {
     required this.cells,
     required this.isCurrent,
     required this.onSelected,
-    this.canUpgrade = false,
-    this.canDowngrade = false,
-    this.currentCanceled = false,
+    this.buttonType = _PlanButtonType.none,
   });
 
   final String title;
@@ -287,13 +315,11 @@ class _PlanTable extends StatelessWidget {
   final List<_CellItem> cells;
   final bool isCurrent;
   final VoidCallback onSelected;
-  final bool canUpgrade;
-  final bool canDowngrade;
-  final bool currentCanceled;
+  final _PlanButtonType buttonType;
 
   @override
   Widget build(BuildContext context) {
-    final highlightPlan = !isCurrent && !canDowngrade && canUpgrade;
+    final highlightPlan = !isCurrent && buttonType == _PlanButtonType.upgrade;
     final isLM = Theme.of(context).isLightMode;
 
     return Container(
@@ -335,37 +361,29 @@ class _PlanTable extends StatelessWidget {
               title: price,
               description: priceInfo,
               isPrimary: !highlightPlan,
-              height: 64,
             ),
-            if (canUpgrade || canDowngrade) ...[
+            if (buttonType == _PlanButtonType.none) ...[
+              const SizedBox(height: 56),
+            ] else ...[
               Opacity(
-                opacity: canDowngrade && currentCanceled ? 0.5 : 1,
+                opacity: 1,
                 child: Padding(
                   padding: EdgeInsets.only(
-                    left: 12 + (canUpgrade && !canDowngrade ? 12 : 0),
+                    left: 12 + (buttonType.isUpgrade ? 12 : 0),
                   ),
                   child: _ActionButton(
-                    label: canUpgrade && !canDowngrade
+                    label: buttonType.isUpgrade
                         ? LocaleKeys.settings_comparePlanDialog_actions_upgrade
                             .tr()
                         : LocaleKeys
                             .settings_comparePlanDialog_actions_downgrade
                             .tr(),
-                    onPressed: !canUpgrade && canDowngrade && currentCanceled
-                        ? null
-                        : onSelected,
-                    tooltip: !canUpgrade && canDowngrade && currentCanceled
-                        ? LocaleKeys
-                            .settings_comparePlanDialog_actions_downgradeDisabledTooltip
-                            .tr()
-                        : null,
-                    isUpgrade: canUpgrade && !canDowngrade,
-                    useGradientBorder: !isCurrent && canUpgrade,
+                    onPressed: onSelected,
+                    isUpgrade: buttonType.isUpgrade,
+                    useGradientBorder: buttonType.isUpgrade,
                   ),
                 ),
               ),
-            ] else ...[
-              const SizedBox(height: 56),
             ],
             ...cells.map(
               (cell) => _ComparisonCell(
@@ -466,14 +484,12 @@ class _ComparisonCell extends StatelessWidget {
 class _ActionButton extends StatelessWidget {
   const _ActionButton({
     required this.label,
-    this.tooltip,
     required this.onPressed,
     required this.isUpgrade,
     this.useGradientBorder = false,
   });
 
   final String label;
-  final String? tooltip;
   final VoidCallback? onPressed;
   final bool isUpgrade;
   final bool useGradientBorder;
@@ -486,30 +502,27 @@ class _ActionButton extends StatelessWidget {
       height: 56,
       child: Row(
         children: [
-          FlowyTooltip(
-            message: tooltip,
-            child: GestureDetector(
-              onTap: onPressed,
-              child: MouseRegion(
-                cursor: onPressed != null
-                    ? SystemMouseCursors.click
-                    : MouseCursor.defer,
-                child: _drawBorder(
-                  context,
-                  isLM: isLM,
-                  isUpgrade: isUpgrade,
-                  child: Container(
-                    height: 36,
-                    width: 148,
-                    decoration: BoxDecoration(
-                      color: useGradientBorder
-                          ? Theme.of(context).cardColor
-                          : Colors.transparent,
-                      border: Border.all(color: Colors.transparent),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Center(child: _drawText(label, isLM, isUpgrade)),
+          GestureDetector(
+            onTap: onPressed,
+            child: MouseRegion(
+              cursor: onPressed != null
+                  ? SystemMouseCursors.click
+                  : MouseCursor.defer,
+              child: _drawBorder(
+                context,
+                isLM: isLM,
+                isUpgrade: isUpgrade,
+                child: Container(
+                  height: 36,
+                  width: 148,
+                  decoration: BoxDecoration(
+                    color: useGradientBorder
+                        ? Theme.of(context).cardColor
+                        : Colors.transparent,
+                    border: Border.all(color: Colors.transparent),
+                    borderRadius: BorderRadius.circular(14),
                   ),
+                  child: Center(child: _drawText(label, isLM, isUpgrade)),
                 ),
               ),
             ),
@@ -537,10 +550,7 @@ class _ActionButton extends StatelessWidget {
       shaderCallback: (bounds) => const LinearGradient(
         transform: GradientRotation(-1.55),
         stops: [0.4, 1],
-        colors: [
-          Color(0xFF251D37),
-          Color(0xFF7547C0),
-        ],
+        colors: [Color(0xFF251D37), Color(0xFF7547C0)],
       ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
       child: child,
     );
@@ -578,40 +588,47 @@ class _Heading extends StatelessWidget {
     required this.title,
     this.description,
     this.isPrimary = true,
-    this.height = 100,
   });
 
   final String title;
   final String? description;
   final bool isPrimary;
-  final double height;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 175,
-      height: height,
+      width: 185,
+      height: 116,
       child: Padding(
         padding: EdgeInsets.only(left: 12 + (!isPrimary ? 12 : 0)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FlowyText.semibold(
-              title,
-              fontSize: 24,
-              color: isPrimary
-                  ? AFThemeExtension.of(context).strongText
-                  : Theme.of(context).isLightMode
-                      ? const Color(0xFF5C3699)
-                      : const Color(0xFFC49BEC),
+            Row(
+              children: [
+                Expanded(
+                  child: FlowyText.semibold(
+                    title,
+                    fontSize: 24,
+                    overflow: TextOverflow.ellipsis,
+                    color: isPrimary
+                        ? AFThemeExtension.of(context).strongText
+                        : Theme.of(context).isLightMode
+                            ? const Color(0xFF5C3699)
+                            : const Color(0xFFC49BEC),
+                  ),
+                ),
+              ],
             ),
             if (description != null && description!.isNotEmpty) ...[
               const VSpace(4),
-              FlowyText.regular(
-                description!,
-                fontSize: 12,
-                maxLines: 3,
-                lineHeight: 1.5,
+              Flexible(
+                child: FlowyText.regular(
+                  description!,
+                  fontSize: 12,
+                  maxLines: 5,
+                  lineHeight: 1.5,
+                ),
               ),
             ],
           ],
@@ -637,24 +654,20 @@ final _planLabels = [
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemThree.tr(),
-    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipThree.tr(),
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemFour.tr(),
-    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipFour.tr(),
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemFive.tr(),
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSix.tr(),
+    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSix.tr(),
   ),
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSeven.tr(),
-  ),
-  _PlanItem(
-    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemEight.tr(),
-    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipEight.tr(),
+    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSeven.tr(),
   ),
 ];
 
@@ -677,20 +690,17 @@ final List<_CellItem> _freeLabels = [
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
+    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
+    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
-    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
-    icon: FlowySvgs.check_m,
-  ),
-  _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemEight.tr(),
   ),
 ];
 
@@ -706,19 +716,17 @@ final List<_CellItem> _proLabels = [
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
+    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
+    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
-    icon: FlowySvgs.check_m,
   ),
   _CellItem(
     LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
     icon: FlowySvgs.check_m,
-  ),
-  _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemEight.tr(),
   ),
 ];

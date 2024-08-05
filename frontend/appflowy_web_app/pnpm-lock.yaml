@@ -1,9 +1,10 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
-  '@appflowyinc/client-api-wasm':
-    specifier: 0.1.2
-    version: 0.1.2
   '@atlaskit/primitives':
     specifier: ^5.5.3
     version: 5.7.0(@types/react@18.2.66)(react@18.2.0)
@@ -36,7 +37,7 @@ dependencies:
     version: 2.0.0(react-redux@8.1.3)(react@18.2.0)
   '@slate-yjs/core':
     specifier: ^1.0.2
-    version: 1.0.2(slate@0.101.5)(yjs@13.6.15)
+    version: 1.0.2(slate@0.101.5)(yjs@14.0.0-1)
   '@tauri-apps/api':
     specifier: ^1.5.3
     version: 1.5.6
@@ -76,6 +77,9 @@ dependencies:
   google-protobuf:
     specifier: ^3.15.12
     version: 3.21.2
+  highlight.js:
+    specifier: ^11.10.0
+    version: 11.10.0
   i18next:
     specifier: ^22.4.10
     version: 22.5.1
@@ -222,10 +226,10 @@ dependencies:
     version: 3.3.0(vite@5.2.0)
   y-indexeddb:
     specifier: 9.0.12
-    version: 9.0.12(yjs@13.6.15)
+    version: 9.0.12(yjs@14.0.0-1)
   yjs:
-    specifier: ^13.6.14
-    version: 13.6.15
+    specifier: 14.0.0-1
+    version: 14.0.0-1
 
 devDependencies:
   '@babel/preset-env':
@@ -446,10 +450,6 @@ packages:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
-
-  /@appflowyinc/client-api-wasm@0.1.2:
-    resolution: {integrity: sha512-+v0hs7/7BVKtgev/Bcbr0u2HLDhUuw4ZvZTaMddI+06HK8vt5S52dMaZKUcMvh1eUjVX8hjC6Mfe0X/yHqvFgA==}
-    dev: false
 
   /@atlaskit/analytics-next-stable-react-context@1.0.1(react@18.2.0):
     resolution: {integrity: sha512-iO6+hIp09dF4iAZQarVz3vKY1kM5Ij5CExYcK9jgc2q+OH8nv8n+BPFeJTdzGOGopmbUZn5Opj9pYQvge1Gr4Q==}
@@ -3589,15 +3589,15 @@ packages:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  /@slate-yjs/core@1.0.2(slate@0.101.5)(yjs@13.6.15):
+  /@slate-yjs/core@1.0.2(slate@0.101.5)(yjs@14.0.0-1):
     resolution: {integrity: sha512-X0hLFJbQu9c1ItWBaNuEn0pqcXYK76KCp8C4Gvy/VaTQVMo1VgAb2WiiJ0Je/AyuIYEPPSTNVOcyrGHwgA7e6Q==}
     peerDependencies:
       slate: '>=0.70.0'
       yjs: ^13.5.29
     dependencies:
       slate: 0.101.5
-      y-protocols: 1.0.6(yjs@13.6.15)
-      yjs: 13.6.15
+      y-protocols: 1.0.6(yjs@14.0.0-1)
+      yjs: 14.0.0-1
     dev: false
 
   /@svgr/babel-plugin-add-jsx-attribute@7.0.0(@babel/core@7.24.3):
@@ -7063,6 +7063,11 @@ packages:
   /help-me@5.0.0:
     resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
     dev: true
+
+  /highlight.js@11.10.0:
+    resolution: {integrity: sha512-SYVnVFswQER+zu1laSya563s+F8VDGt7o35d4utbamowvUNLLMovFqwCLSocpZTz3MgaSRA1IbqRWZv97dtErQ==}
+    engines: {node: '>=12.0.0'}
+    dev: false
 
   /hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
@@ -11556,24 +11561,24 @@ packages:
     engines: {node: '>=0.4'}
     dev: true
 
-  /y-indexeddb@9.0.12(yjs@13.6.15):
+  /y-indexeddb@9.0.12(yjs@14.0.0-1):
     resolution: {integrity: sha512-9oCFRSPPzBK7/w5vOkJBaVCQZKHXB/v6SIT+WYhnJxlEC61juqG0hBrAf+y3gmSMLFLwICNH9nQ53uscuse6Hg==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
       yjs: ^13.0.0
     dependencies:
       lib0: 0.2.94
-      yjs: 13.6.15
+      yjs: 14.0.0-1
     dev: false
 
-  /y-protocols@1.0.6(yjs@13.6.15):
+  /y-protocols@1.0.6(yjs@14.0.0-1):
     resolution: {integrity: sha512-vHRF2L6iT3rwj1jub/K5tYcTT/mEYDUppgNPXwp8fmLpui9f7Yeq3OEtTLVF012j39QnV+KEQpNqoN7CWU7Y9Q==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
       yjs: ^13.0.0
     dependencies:
       lib0: 0.2.94
-      yjs: 13.6.15
+      yjs: 14.0.0-1
     dev: false
 
   /y18n@4.0.3:
@@ -11642,9 +11647,9 @@ packages:
       fd-slicer: 1.1.0
     dev: true
 
-  /yjs@13.6.15:
-    resolution: {integrity: sha512-moFv4uNYhp8BFxIk3AkpoAnnjts7gwdpiG8RtyFiKbMtxKCS0zVZ5wPaaGpwC3V2N/K8TK8MwtSI3+WO9CHWjQ==}
-    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+  /yjs@14.0.0-1:
+    resolution: {integrity: sha512-w0iJlEx+XvkvPkdBH0L8pb4Da2DvTEA7UdDl/dOFCQfA0siT4cUtbJ8LfoiliH2juYFqdIoqxbScHakKBiIv0g==}
+    requiresBuild: true
     dependencies:
       lib0: 0.2.94
     dev: false
@@ -11662,7 +11667,3 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false

@@ -383,7 +383,7 @@
       "email": "Correu electrònic",
       "tooltipSelectIcon": "Seleccioneu la icona",
       "selectAnIcon": "Seleccioneu una icona",
-      "pleaseInputYourOpenAIKey": "si us plau, introduïu la vostra clau OpenAI"
+      "pleaseInputYourOpenAIKey": "si us plau, introduïu la vostra clau AI"
     },
     "mobile": {
       "personalInfo": "Informació personal",
@@ -602,23 +602,23 @@
       "referencedBoard": "Junta de referència",
       "referencedGrid": "Quadrícula de referència",
       "referencedCalendar": "Calendari de referència",
-      "autoGeneratorMenuItemName": "OpenAI Writer",
-      "autoGeneratorTitleName": "OpenAI: Demana a AI que escrigui qualsevol cosa...",
+      "autoGeneratorMenuItemName": "AI Writer",
+      "autoGeneratorTitleName": "AI: Demana a AI que escrigui qualsevol cosa...",
       "autoGeneratorLearnMore": "Aprèn més",
       "autoGeneratorGenerate": "Generar",
-      "autoGeneratorHintText": "Pregunta a OpenAI...",
-      "autoGeneratorCantGetOpenAIKey": "No es pot obtenir la clau OpenAI",
+      "autoGeneratorHintText": "Pregunta a AI...",
+      "autoGeneratorCantGetOpenAIKey": "No es pot obtenir la clau AI",
       "autoGeneratorRewrite": "Reescriure",
       "smartEdit": "Assistents d'IA",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "Corregir l'ortografia",
       "warning": "⚠️ Les respostes de la IA poden ser inexactes o enganyoses.",
       "smartEditSummarize": "Resumir",
       "smartEditImproveWriting": "Millorar l'escriptura",
       "smartEditMakeLonger": "Fer més llarg",
-      "smartEditCouldNotFetchResult": "No s'ha pogut obtenir el resultat d'OpenAI",
-      "smartEditCouldNotFetchKey": "No s'ha pogut obtenir la clau OpenAI",
-      "smartEditDisabled": "Connecteu OpenAI a Configuració",
+      "smartEditCouldNotFetchResult": "No s'ha pogut obtenir el resultat d'AI",
+      "smartEditCouldNotFetchKey": "No s'ha pogut obtenir la clau AI",
+      "smartEditDisabled": "Connecteu AI a Configuració",
       "discardResponse": "Voleu descartar les respostes d'IA?",
       "createInlineMathEquation": "Crea una equació",
       "fonts": "Fonts",
@@ -714,7 +714,7 @@
         "placeholder": "Introduïu l'URL de la imatge"
       },
       "ai": {
-        "label": "Generar imatge des d'OpenAI"
+        "label": "Generar imatge des d'AI"
       },
       "support": "El límit de mida de la imatge és de 5 MB. Formats admesos: JPEG, PNG, GIF, SVG",
       "error": {

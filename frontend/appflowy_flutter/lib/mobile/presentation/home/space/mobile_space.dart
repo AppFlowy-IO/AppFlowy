@@ -4,7 +4,6 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/space/mobile_space_header.dart';
 import 'package:appflowy/mobile/presentation/home/space/mobile_space_menu.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
-import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -15,25 +14,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobileSpace extends StatefulWidget {
+class MobileSpace extends StatelessWidget {
   const MobileSpace({super.key});
-
-  @override
-  State<MobileSpace> createState() => _MobileSpaceState();
-}
-
-class _MobileSpaceState extends State<MobileSpace> {
-  @override
-  void initState() {
-    super.initState();
-    createNewPageNotifier.addListener(_createNewPage);
-  }
-
-  @override
-  void dispose() {
-    createNewPageNotifier.removeListener(_createNewPage);
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,23 +32,17 @@ class _MobileSpaceState extends State<MobileSpace> {
             MobileSpaceHeader(
               isExpanded: state.isExpanded,
               space: currentSpace,
-              onAdded: () {
-                context.read<SpaceBloc>().add(
-                      SpaceEvent.createPage(
-                        name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                        layout: ViewLayoutPB.Document,
-                        index: 0,
-                      ),
-                    );
-                context.read<SpaceBloc>().add(
-                      SpaceEvent.expand(currentSpace, true),
-                    );
-              },
+              onAdded: () => _showCreatePageMenu(context, currentSpace),
               onPressed: () => _showSpaceMenu(context),
             ),
-            _Pages(
-              key: ValueKey(currentSpace.id),
-              space: currentSpace,
+            Padding(
+              padding: const EdgeInsets.only(
+                left: HomeSpaceViewSizes.mHorizontalPadding,
+              ),
+              child: _Pages(
+                key: ValueKey(currentSpace.id),
+                space: currentSpace,
+              ),
             ),
           ],
         );
@@ -82,6 +58,7 @@ class _MobileSpaceState extends State<MobileSpace> {
       showDragHandle: true,
       showCloseButton: true,
       showDoneButton: true,
+      useRootNavigator: true,
       title: LocaleKeys.space_title.tr(),
       backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) {
@@ -96,13 +73,36 @@ class _MobileSpaceState extends State<MobileSpace> {
     );
   }
 
-  void _createNewPage() {
-    context.read<SpaceBloc>().add(
-          SpaceEvent.createPage(
-            name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-            layout: ViewLayoutPB.Document,
-          ),
+  void _showCreatePageMenu(BuildContext context, ViewPB space) {
+    final title = space.name;
+    showMobileBottomSheet(
+      context,
+      showHeader: true,
+      title: title,
+      showDragHandle: true,
+      showCloseButton: true,
+      useRootNavigator: true,
+      showDivider: false,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      builder: (sheetContext) {
+        return AddNewPageWidgetBottomSheet(
+          view: space,
+          onAction: (layout) {
+            Navigator.of(sheetContext).pop();
+            context.read<SpaceBloc>().add(
+                  SpaceEvent.createPage(
+                    name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                    layout: layout,
+                    index: 0,
+                  ),
+                );
+            context.read<SpaceBloc>().add(
+                  SpaceEvent.expand(space, true),
+                );
+          },
         );
+      },
+    );
   }
 }
 
@@ -140,15 +140,16 @@ class _Pages extends StatelessWidget {
                     onSelected: context.pushView,
                     endActionPane: (context) {
                       final view = context.read<ViewBloc>().state.view;
+                      final actions = [
+                        MobilePaneActionType.more,
+                        if (view.layout == ViewLayoutPB.Document)
+                          MobilePaneActionType.add,
+                      ];
                       return buildEndActionPane(
                         context,
-                        [
-                          MobilePaneActionType.more,
-                          if (view.layout == ViewLayoutPB.Document)
-                            MobilePaneActionType.add,
-                        ],
+                        actions,
                         spaceType: spaceType,
-                        needSpace: false,
+                        spaceRatio: actions.length == 1 ? 3 : 4,
                       );
                     },
                   ),

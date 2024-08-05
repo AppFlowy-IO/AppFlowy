@@ -4,7 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_input.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_input.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_popmenu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';

@@ -5,6 +5,7 @@ import BuiltInImage4 from '@/assets/cover/m_cover_image_4.png';
 import BuiltInImage5 from '@/assets/cover/m_cover_image_5.png';
 import BuiltInImage6 from '@/assets/cover/m_cover_image_6.png';
 import ViewCover, { CoverType } from '@/components/view-meta/ViewCover';
+import { isFlagEmoji } from '@/utils/emoji';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ViewLayout, ViewMetaIcon } from '@/application/collab.type';
@@ -20,6 +21,7 @@ export interface ViewMetaProps {
   name?: string;
   viewId?: string;
   layout?: ViewLayout;
+  visibleViewIds?: string[];
 }
 
 export function ViewMetaPreview({ icon, cover, name }: ViewMetaProps) {
@@ -53,6 +55,10 @@ export function ViewMetaPreview({ icon, cover, name }: ViewMetaProps) {
   }, [coverType, cover?.value]);
   const { t } = useTranslation();
 
+  const isFlag = useMemo(() => {
+    return icon ? isFlagEmoji(icon.value) : false;
+  }, [icon]);
+
   return (
     <div className={'flex w-full flex-col items-center'}>
       {cover && <ViewCover coverType={coverType} coverValue={coverValue} />}
@@ -62,7 +68,7 @@ export function ViewMetaPreview({ icon, cover, name }: ViewMetaProps) {
             'flex gap-4 overflow-hidden whitespace-pre-wrap break-words break-all px-16 text-[2.25rem] font-bold leading-[1.5em] max-md:px-4 max-sm:text-[7vw]'
           }
         >
-          {icon?.value ? <div className={'view-icon'}>{icon?.value}</div> : null}
+          {icon?.value ? <div className={`view-icon ${isFlag ? 'icon' : ''}`}>{icon?.value}</div> : null}
 
           <div className={'relative top-1.5'}>
             {name || <span className={'text-text-placeholder'}>{t('menuAppHeader.defaultNewPageName')}</span>}

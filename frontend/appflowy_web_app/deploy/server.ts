@@ -68,6 +68,31 @@ const createServer = async (req: Request) => {
 
   logger.info(`Request URL: ${hostname}${reqUrl.pathname}`);
 
+  if (['/after-payment', '/login'].includes(reqUrl.pathname)) {
+    timer();
+    const htmlData = fs.readFileSync(indexPath, 'utf8');
+    const $ = load(htmlData);
+
+    let title, description;
+
+    if (reqUrl.pathname === '/after-payment') {
+      title = 'Payment Success | AppFlowy';
+      description = 'Payment success on AppFlowy';
+    }
+
+    if (reqUrl.pathname === '/login') {
+      title = 'Login | AppFlowy';
+      description = 'Login to AppFlowy';
+    }
+
+    if (title) $('title').text(title);
+    if (description) setOrUpdateMetaTag($, 'meta[name="description"]', 'name', description);
+
+    return new Response($.html(), {
+      headers: { 'Content-Type': 'text/html' },
+    });
+  }
+
   const [namespace, publishName] = reqUrl.pathname.slice(1).split('/');
 
   logger.info(`Namespace: ${namespace}, Publish Name: ${publishName}`);

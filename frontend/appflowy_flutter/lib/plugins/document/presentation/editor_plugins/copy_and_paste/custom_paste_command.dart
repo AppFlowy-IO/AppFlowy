@@ -6,7 +6,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_in_app_json.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_plain_text.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,6 +43,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
 
     // paste as link preview
     if (await _pasteAsLinkPreview(editorState, plainText)) {
+      Log.info('Pasted as link preview');
       return;
     }
 
@@ -53,20 +55,16 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
 
     // try to paste the content in order, if any of them is failed, then try the next one
     if (inAppJson != null && inAppJson.isNotEmpty) {
-      debugPrint('paste in app json: $inAppJson');
       await editorState.deleteSelectionIfNeeded();
       if (await editorState.pasteInAppJson(inAppJson)) {
+        Log.info('Pasted in app json');
         return;
       }
     }
 
-    if (html != null && html.isNotEmpty) {
-      await editorState.deleteSelectionIfNeeded();
-      if (await editorState.pasteHtml(html)) {
-        return;
-      }
-    }
-
+    // if the image data is not null, we should handle it first
+    // because the image URL in the HTML may not be reachable due to permission issues
+    // For example, when pasting an image from Slack, the image URL provided is not public.
     if (image != null && image.$2?.isNotEmpty == true) {
       final documentBloc =
           editorState.document.root.context?.read<DocumentBloc>();
@@ -81,11 +79,21 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
         documentId,
       );
       if (result) {
+        Log.info('Pasted image');
+        return;
+      }
+    }
+
+    if (html != null && html.isNotEmpty) {
+      await editorState.deleteSelectionIfNeeded();
+      if (await editorState.pasteHtml(html)) {
+        Log.info('Pasted html');
         return;
       }
     }
 
     if (plainText != null && plainText.isNotEmpty) {
+      Log.info('Pasted plain text');
       await editorState.pastePlainText(plainText);
     }
   }();

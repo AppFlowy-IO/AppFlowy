@@ -479,6 +479,24 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/af_build_cache:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/af_build_cache:buildcache,mode=max
 
+  notify-failure:
+    runs-on: ubuntu-latest
+    needs:
+      - build-for-macOS-x86_64
+      - build-for-windows
+      - build-for-linux
+    if: failure()
+    steps:
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            🔴🔴🔴Workflow ${{ github.workflow }} in repository ${{ github.repository }} was failed 🔴🔴🔴.
+          fields: repo,message,author,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.RELEASE_SLACK_WEBHOOK }}
+        if: always()
+
   notify-discord:
     runs-on: ubuntu-latest
     needs:

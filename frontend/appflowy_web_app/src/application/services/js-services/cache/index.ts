@@ -1,7 +1,10 @@
 import {
   CollabType,
+  DatabaseId,
   PublishViewInfo,
   PublishViewMetaData,
+  RowId,
+  ViewId,
   YDoc,
   YjsEditorKey,
   YSharedRoot,
@@ -9,6 +12,8 @@ import {
 import { applyYDoc } from '@/application/ydoc/apply';
 import { closeCollabDB, db, openCollabDB } from '@/application/db';
 import { Fetcher, StrategyType } from '@/application/services/js-services/cache/types';
+// import { IndexeddbPersistence } from 'y-indexeddb';
+import * as Y from 'yjs';
 
 export function collabTypeToDBType(type: CollabType) {
   switch (type) {
@@ -109,9 +114,10 @@ export async function getPublishViewMeta<
 
 export async function getPublishView<
   T extends {
-    data: number[];
-    rows?: Record<string, number[]>;
-    visibleViewIds?: string[];
+    data: Uint8Array;
+    rows?: Record<RowId, number[]>;
+    visibleViewIds?: ViewId[];
+    relations?: Record<DatabaseId, ViewId>;
     meta: {
       view: PublishViewInfo;
       child_views: PublishViewInfo[];
@@ -131,6 +137,22 @@ export async function getPublishView<
 ) {
   const name = `${namespace}_${publishName}`;
   const doc = await openCollabDB(name);
+  const rowMapDoc = (await openCollabDB(`${name}_rows`)) as Y.Doc;
+
+  // const subdocs = Array.from(rowMapDoc.getSubdocs());
+  //
+  // for (const subdoc of subdocs) {
+  //   const promise = new Promise((resolve) => {
+  //     const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
+  //
+  //     persistence.on('synced', () => {
+  //       resolve(true);
+  //     });
+  //   });
+  //
+  //   await promise;
+  // }
+
   const exist = (await hasViewMetaCache(name)) && hasCollabCache(doc);
 
   switch (strategy) {
@@ -144,7 +166,7 @@ export async function getPublishView<
 
     case StrategyType.CACHE_FIRST: {
       if (!exist) {
-        await revalidatePublishView(name, fetcher, doc);
+        await revalidatePublishView(name, fetcher, doc, rowMapDoc);
       }
 
       break;
@@ -152,21 +174,21 @@ export async function getPublishView<
 
     case StrategyType.CACHE_AND_NETWORK: {
       if (!exist) {
-        await revalidatePublishView(name, fetcher, doc);
+        await revalidatePublishView(name, fetcher, doc, rowMapDoc);
       } else {
-        void revalidatePublishView(name, fetcher, doc);
+        void revalidatePublishView(name, fetcher, doc, rowMapDoc);
       }
 
       break;
     }
 
     default: {
-      await revalidatePublishView(name, fetcher, doc);
+      await revalidatePublishView(name, fetcher, doc, rowMapDoc);
       break;
     }
   }
 
-  return doc;
+  return { doc, rowMapDoc };
 }
 
 export async function revalidatePublishViewMeta<
@@ -187,6 +209,7 @@ export async function revalidatePublishViewMeta<
       child_views: child_views,
       ancestor_views: ancestor_views,
       visible_view_ids: dbView?.visible_view_ids ?? [],
+      database_relations: dbView?.database_relations ?? {},
     },
     name
   );
@@ -196,13 +219,14 @@ export async function revalidatePublishViewMeta<
 
 export async function revalidatePublishView<
   T extends {
-    data: number[];
-    rows?: Record<string, number[]>;
-    visibleViewIds?: string[];
+    data: Uint8Array;
+    rows?: Record<RowId, number[]>;
+    visibleViewIds?: ViewId[];
+    relations?: Record<DatabaseId, ViewId>;
     meta: PublishViewMetaData;
   }
->(name: string, fetcher: Fetcher<T>, collab: YDoc) {
-  const { data, meta, rows, visibleViewIds = [] } = await fetcher();
+>(name: string, fetcher: Fetcher<T>, collab: YDoc, rowMapDoc: Y.Doc) {
+  const { data, meta, rows, visibleViewIds = [], relations = {} } = await fetcher();
 
   await db.view_metas.put(
     {
@@ -211,42 +235,34 @@ export async function revalidatePublishView<
       child_views: meta.child_views,
       ancestor_views: meta.ancestor_views,
       visible_view_ids: visibleViewIds,
+      database_relations: relations,
     },
     name
   );
 
   if (rows) {
     for (const [key, value] of Object.entries(rows)) {
-      const row = await openCollabDB(`${name}_${key}`);
+      const subdoc = new Y.Doc({
+        guid: key,
+      });
 
-      applyYDoc(row, new Uint8Array(value));
+      applyYDoc(subdoc, new Uint8Array(value));
+      rowMapDoc.getMap().delete(subdoc.guid);
+      rowMapDoc.getMap().set(subdoc.guid, subdoc);
+
+      // const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
+      //
+      // persistence.on('synced', () => {
+      //   applyYDoc(subdoc, new Uint8Array(value));
+      //   rowMapDoc.getMap().delete(subdoc.guid);
+      //   rowMapDoc.getMap().set(subdoc.guid, subdoc);
+      // });
     }
   }
 
-  const state = new Uint8Array(data);
+  console.log('====', data);
 
-  applyYDoc(collab, state);
-}
-
-export async function getBatchCollabs(names: string[]) {
-  const getRowDoc = async (name: string) => {
-    const doc = await openCollabDB(name);
-    const exist = hasCollabCache(doc);
-
-    if (!exist) {
-      return Promise.reject(new Error('No cache found'));
-    }
-
-    return doc;
-  };
-
-  const collabs = await Promise.all(
-    names.map((name) => {
-      return getRowDoc(name);
-    })
-  );
-
-  return collabs;
+  applyYDoc(collab, data);
 }
 
 export async function deleteViewMeta(name: string) {
@@ -257,4 +273,15 @@ export async function deleteView(name: string) {
   console.log('deleteView', name);
   await deleteViewMeta(name);
   await closeCollabDB(name);
+  // const rowMapDoc = (await openCollabDB(`${name}_rows`)) as Y.Doc;
+  //
+  // const subdocs = Array.from(rowMapDoc.getSubdocs());
+  //
+  // for (const subdoc of subdocs) {
+  //   const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
+  //
+  //   await persistence.destroy();
+  // }
+
+  await closeCollabDB(`${name}_rows`);
 }

@@ -8,6 +8,7 @@ on:
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
+      - ".github/workflows/rust_ci.yaml"
 
   pull_request:
     branches:
@@ -22,70 +23,25 @@ env:
   RUST_TOOLCHAIN: "1.77.2"
 
 jobs:
-  test-on-ubuntu:
-    runs-on: ubuntu-latest
+  self-hosted-job:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
     steps:
-      # - name: Maximize build space
-      #   uses: easimon/maximize-build-space@master
-      #   with:
-      #     root-reserve-mb: 2048
-      #     swap-size-mb: 1024
-      #     remove-dotnet: 'true'
-
-      # the following step is required to avoid running out of space
-      - name: Maximize build space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          sudo docker image prune --all --force
-
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        id: rust_toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          override: true
-          components: rustfmt, clippy
-          profile: minimal
-
-      - name: Install prerequisites
-        working-directory: frontend
-        run: |
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: "ubuntu-latest"
-          workspaces: |
-            frontend/rust-lib
-
-      - name: Checkout appflowy cloud code
+      - name: Checkout Appflowy Cloud
         uses: actions/checkout@v4
         with:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
 
-      - name: Prepare appflowy cloud env
+      - name: Prepare Appflowy Cloud env
         working-directory: AppFlowy-Cloud
         run: |
-          # log level
           cp deploy.env .env
-          sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-          sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
-
-      - name: Run Docker-Compose
-        working-directory: AppFlowy-Cloud
-        env:
-          BACKEND_VERSION: 0.3.24-amd64
-        run: |
-          docker pull appflowyinc/appflowy_cloud:latest
-          docker compose up -d
+          sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
@@ -105,6 +61,84 @@ jobs:
       - name: clippy rust-lib
         run: cargo clippy --all-targets -- -D warnings
         working-directory: frontend/rust-lib
+
+  ubuntu-job:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Maximize build space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+          components: rustfmt, clippy
+          profile: minimal
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ runner.os }}
+          cache-on-failure: true
+          workspaces: |
+            frontend/rust-lib
+
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v4
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          cp deploy.env .env
+          sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+
+      - name: Run Docker-Compose
+        working-directory: AppFlowy-Cloud
+        run: |
+          if [ "$(docker ps --filter name=appflowy-cloud -q)" == "" ]; then
+            docker compose pull
+            docker compose up -d
+            sleep 10
+          else
+            echo "Docker container 'appflowy-cloud' is already running."
+          fi
+
+      - name: Run rust-lib tests
+        working-directory: frontend/rust-lib
+        env:
+          RUST_LOG: info
+          RUST_BACKTRACE: 1
+          af_cloud_test_base_url: http://localhost
+          af_cloud_test_ws_url: ws://localhost/ws/v1
+          af_cloud_test_gotrue_url: http://localhost/gotrue
+        run: |
+          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart"
+
+      - name: rustfmt rust-lib
+        run: cargo fmt --all -- --check
+        working-directory: frontend/rust-lib/
+
+      - name: clippy rust-lib
+        run: cargo clippy --all-targets -- -D warnings
+        working-directory: frontend/rust-lib
+
+      - name: "Debug: show Appflowy-Cloud container logs"
+        if: failure()
+        working-directory: AppFlowy-Cloud
+        run: |
+          docker compose logs appflowy_cloud
 
       - name: Clean up Docker images
         run: |

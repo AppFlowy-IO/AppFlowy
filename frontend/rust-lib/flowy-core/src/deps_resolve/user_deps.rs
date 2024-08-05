@@ -11,6 +11,7 @@ use flowy_user_pub::workspace_service::UserWorkspaceService;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;
+use tracing::info;
 
 pub struct UserDepsResolver();
 
@@ -61,9 +62,14 @@ impl UserWorkspaceService for UserWorkspaceServiceImpl {
   }
 
   fn did_delete_workspace(&self, workspace_id: String) -> FlowyResult<()> {
-    self
+    // The remove_indices_for_workspace should not block the deletion of the workspace
+    // Log the error and continue
+    if let Err(err) = self
       .folder_manager
-      .remove_indices_for_workspace(workspace_id)?;
+      .remove_indices_for_workspace(workspace_id)
+    {
+      info!("Error removing indices for workspace: {}", err);
+    }
 
     Ok(())
   }

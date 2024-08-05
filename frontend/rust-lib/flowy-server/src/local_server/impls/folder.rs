@@ -7,7 +7,7 @@ use flowy_folder_pub::cloud::{
   gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
   WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
 use lib_infra::future::FutureResult;
 
 use crate::local_server::LocalServerDB;
@@ -82,7 +82,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
   fn publish_view(
     &self,
     _workspace_id: &str,
-    _payload: Vec<PublishViewPayload>,
+    _payload: Vec<PublishPayload>,
   ) -> FutureResult<(), Error> {
     FutureResult::new(async { Err(anyhow!("Local server doesn't support publish view")) })
   }

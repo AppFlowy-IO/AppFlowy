@@ -4,7 +4,8 @@ import 'dart:isolate';
 
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:fixnum/fixnum.dart';
@@ -40,13 +41,13 @@ class DownloadModelBloc extends Bloc<DownloadModelEvent, DownloadModelState> {
             add(const DownloadModelEvent.downloadFinish());
           },
           onError: (err) {
-            // emit(state.copyWith(downloadError: err));
+            Log.error(err);
           },
         );
 
         final payload =
             DownloadLLMPB(progressStream: Int64(downloadStream.nativePort));
-        final result = await ChatEventDownloadLLMResource(payload).send();
+        final result = await AIEventDownloadLLMResource(payload).send();
         result.fold((_) {
           emit(
             state.copyWith(
@@ -66,6 +67,12 @@ class DownloadModelBloc extends Bloc<DownloadModelEvent, DownloadModelState> {
         emit(state.copyWith(isFinish: true));
       },
     );
+  }
+
+  @override
+  Future<void> close() async {
+    await state.downloadStream?.dispose();
+    return super.close();
   }
 }
 

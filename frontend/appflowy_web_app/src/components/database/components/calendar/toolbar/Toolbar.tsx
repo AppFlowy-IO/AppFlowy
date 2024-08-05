@@ -22,7 +22,7 @@ export function Toolbar({
   const { t } = useTranslation();
 
   return (
-    <div className={'flex items-center justify-between overflow-x-auto overflow-y-hidden'}>
+    <div className={'sticky left-0 flex items-center justify-between overflow-x-auto overflow-y-hidden'}>
       <div className={'whitespace-nowrap text-sm font-medium'}>{dateStr}</div>
       <div className={'flex items-center justify-end gap-2'}>
         <IconButton size={'small'} onClick={() => onNavigate('PREV')}>
@@ -43,6 +43,7 @@ export function Toolbar({
         <Button
           size={'small'}
           variant={'outlined'}
+          disabled
           className={'rounded-md border-line-divider'}
           color={'inherit'}
           onClick={() => onNavigate('TODAY')}

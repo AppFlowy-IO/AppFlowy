@@ -3,39 +3,49 @@ import { useEditorContext } from '@/components/editor/EditorContext';
 import { useCallback, useEffect } from 'react';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { Element as SlateElement, Transforms } from 'slate';
-
-const Prism = window.Prism;
-const hljs = window.hljs;
+import Prism from 'prismjs';
 
 export function useCodeBlock(node: CodeNode) {
   const language = node.data.language;
   const editor = useSlateStatic() as ReactEditor;
-
   const addCodeGrammars = useEditorContext().addCodeGrammars;
 
   useEffect(() => {
-    const path = ReactEditor.findPath(editor, node);
-    let detectedLanguage = language;
+    void (async () => {
+      const path = ReactEditor.findPath(editor, node);
+      let detectedLanguage = language;
 
-    if (!language) {
-      const codeSnippet = editor.string(path);
+      if (!language) {
+        const codeSnippet = editor.string(path);
+        const script = document.createElement('script');
 
-      detectedLanguage = hljs.highlightAuto(codeSnippet).language;
-    }
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js';
+        document.body.appendChild(script);
+        const promise = new Promise((resolve) => {
+          script.onload = () => {
+            resolve(true);
+          };
+        });
 
-    const prismLanguage = Prism.languages[detectedLanguage.toLowerCase()];
+        await promise;
 
-    if (!prismLanguage) {
-      const script = document.createElement('script');
+        detectedLanguage = window.hljs.highlightAuto(codeSnippet).language || 'plaintext';
+      }
 
-      script.src = `https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/components/prism-${detectedLanguage.toLowerCase()}.min.js`;
-      document.head.appendChild(script);
-      script.onload = () => {
+      const prismLanguage = Prism.languages[detectedLanguage.toLowerCase()];
+
+      if (!prismLanguage) {
+        const script = document.createElement('script');
+
+        script.src = `https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/components/prism-${detectedLanguage.toLowerCase()}.min.js`;
+        document.body.appendChild(script);
+        script.onload = () => {
+          addCodeGrammars?.(node.blockId, detectedLanguage);
+        };
+      } else {
         addCodeGrammars?.(node.blockId, detectedLanguage);
-      };
-    } else {
-      addCodeGrammars?.(node.blockId, detectedLanguage);
-    }
+      }
+    })();
   }, [addCodeGrammars, editor, language, node]);
 
   const handleChangeLanguage = useCallback(

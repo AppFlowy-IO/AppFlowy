@@ -40,9 +40,7 @@ class SidebarSpaceMenu extends StatelessWidget {
             if (showCreateButton) ...[
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Divider(
-                  height: 0.5,
-                ),
+                child: FlowyDivider(),
               ),
               const SizedBox(
                 height: HomeSpaceViewSizes.viewHeight,

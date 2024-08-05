@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
@@ -6,6 +5,7 @@ import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -109,16 +109,6 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
     await _showConfirmDialog(
       onDelete: () {
         recentViewsBloc.add(RecentViewsEvent.removeRecentViews([viewId]));
-
-        fToast.showToast(
-          child: const _RemoveToast(),
-          positionedToastBuilder: (context, child) {
-            return Positioned.fill(
-              top: 450,
-              child: child,
-            );
-          },
-        );
       },
     );
   }
@@ -136,38 +126,14 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
       ),
       onRightButtonPressed: (context) {
         onDelete();
+
         Navigator.pop(context);
+
+        showToastNotification(
+          context,
+          message: LocaleKeys.sideBar_removeSuccess.tr(),
+        );
       },
-    );
-  }
-}
-
-class _RemoveToast extends StatelessWidget {
-  const _RemoveToast();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 13.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        color: const Color(0xE5171717),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const FlowySvg(
-            FlowySvgs.success_s,
-            blendMode: null,
-          ),
-          const HSpace(8.0),
-          FlowyText.regular(
-            LocaleKeys.sideBar_removeSuccess.tr(),
-            fontSize: 16.0,
-            color: Colors.white,
-          ),
-        ],
-      ),
     );
   }
 }

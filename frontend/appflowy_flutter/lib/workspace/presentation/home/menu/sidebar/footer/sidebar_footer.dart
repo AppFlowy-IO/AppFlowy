@@ -1,3 +1,8 @@
+import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_toast.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -7,31 +12,38 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 
 class SidebarFooter extends StatelessWidget {
   const SidebarFooter({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Column(
       children: [
-        Expanded(child: SidebarTrashButton()),
-        // Enable it when the widget button is ready
-        // SizedBox(
-        //   height: 16,
-        //   child: VerticalDivider(width: 1, color: Color(0x141F2329)),
-        // ),
-        // Expanded(child: SidebarWidgetButton()),
+        if (FeatureFlag.planBilling.isOn)
+          BillingGateGuard(
+            builder: (context) {
+              return const SidebarToast();
+            },
+          ),
+        const Row(
+          children: [
+            Expanded(child: SidebarTrashButton()),
+            // Enable it when the widget button is ready
+            // SizedBox(
+            //   height: 16,
+            //   child: VerticalDivider(width: 1, color: Color(0x141F2329)),
+            // ),
+            // Expanded(child: SidebarWidgetButton()),
+          ],
+        ),
       ],
     );
   }
 }
 
 class SidebarTrashButton extends StatelessWidget {
-  const SidebarTrashButton({
-    super.key,
-  });
+  const SidebarTrashButton({super.key});
 
   @override
   Widget build(BuildContext context) {

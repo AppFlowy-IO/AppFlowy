@@ -1,4 +1,4 @@
-use collab::entity::EncodedCollab;
+use flowy_folder::view_operation::EncodedCollabWrapper;
 use std::sync::Arc;
 
 use collab_folder::{FolderData, View};
@@ -6,7 +6,7 @@ use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{entities::*, ViewLayout};
-use flowy_folder_pub::entities::PublishViewPayload;
+use flowy_folder_pub::entities::PublishPayload;
 use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
   AcceptWorkspaceInvitationPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
@@ -177,8 +177,8 @@ impl EventIntegrationTest {
   pub async fn get_publish_payload(
     &self,
     view_id: &str,
-    include_children: Option<bool>,
-  ) -> Vec<PublishViewPayload> {
+    include_children: bool,
+  ) -> Vec<PublishPayload> {
     let manager = self.folder_manager.clone();
     let payload = manager
       .get_batch_publish_payload(view_id, None, include_children)
@@ -191,16 +191,34 @@ impl EventIntegrationTest {
     payload.unwrap()
   }
 
-  pub async fn encoded_collab_v1(&self, view_id: &str, layout: ViewLayout) -> EncodedCollab {
+  pub async fn get_encoded_collab_v1_from_disk(
+    &self,
+    view_id: &str,
+    layout: ViewLayout,
+  ) -> EncodedCollabWrapper {
     let manager = self.folder_manager.clone();
+    let user = manager.get_user().clone();
     let handlers = manager.get_operation_handlers();
     let handler = handlers.get(&layout).unwrap();
-    handler.encoded_collab_v1(view_id, layout).await.unwrap()
+    handler
+      .get_encoded_collab_v1_from_disk(user, view_id)
+      .await
+      .unwrap()
   }
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
     EventBuilder::new(self.clone())
       .event(FolderEvent::ReadCurrentWorkspaceViews)
+      .async_send()
+      .await
+      .parse::<RepeatedViewPB>()
+      .items
+  }
+
+  // get all the views in the current workspace, including the views in the trash and the orphan views
+  pub async fn get_all_views(&self) -> Vec<ViewPB> {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::GetAllViews)
       .async_send()
       .await
       .parse::<RepeatedViewPB>()
@@ -252,12 +270,23 @@ impl EventIntegrationTest {
   }
 
   pub async fn create_view(&self, parent_id: &str, name: String) -> ViewPB {
+    self
+      .create_view_with_layout(parent_id, name, Default::default())
+      .await
+  }
+
+  pub async fn create_view_with_layout(
+    &self,
+    parent_id: &str,
+    name: String,
+    layout: ViewLayoutPB,
+  ) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name,
       desc: "".to_string(),
       thumbnail: None,
-      layout: Default::default(),
+      layout,
       initial_data: vec![],
       meta: Default::default(),
       set_as_current: false,

@@ -11,7 +11,6 @@ use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
-use collab_plugins::local_storage::kv::PersistenceError;
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;
@@ -21,7 +20,7 @@ use tracing::{event, instrument};
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_storage_pub::storage::StorageService;
+use flowy_storage_pub::storage::{CreatedUpload, StorageService};
 use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
@@ -76,7 +75,7 @@ impl DocumentManager {
   }
 
   /// Get the encoded collab of the document.
-  pub async fn encode_collab(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
+  pub async fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
     let doc_state = DataSource::Disk;
     let uid = self.user_service.user_id()?;
     let collab = self
@@ -85,7 +84,7 @@ impl DocumentManager {
 
     let collab = collab.lock();
     collab
-      .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+      .encode_collab_v1(|collab| CollabType::Document.validate_require_data(collab))
       .map_err(internal_error)
   }
 
@@ -152,7 +151,6 @@ impl DocumentManager {
     }
   }
 
-  #[tracing::instrument(level = "info", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
       return Ok(doc);
@@ -161,7 +159,7 @@ impl DocumentManager {
     if let Some(doc) = self.restore_document_from_removing(doc_id) {
       return Ok(doc);
     }
-    return Err(FlowyError::internal().with_context("Call open document first"));
+    Err(FlowyError::internal().with_context("Call open document first"))
   }
 
   /// Returns Document for given object id
@@ -347,13 +345,12 @@ impl DocumentManager {
     workspace_id: String,
     document_id: &str,
     local_file_path: &str,
-  ) -> FlowyResult<String> {
+  ) -> FlowyResult<CreatedUpload> {
     let storage_service = self.storage_service_upgrade()?;
-    let url = storage_service
+    let upload = storage_service
       .create_upload(&workspace_id, document_id, local_file_path)
-      .await?
-      .url;
-    Ok(url)
+      .await?;
+    Ok(upload)
   }
 
   pub async fn download_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {

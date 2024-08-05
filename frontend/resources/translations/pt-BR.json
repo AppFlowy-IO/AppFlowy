@@ -421,7 +421,7 @@
       "email": "E-mail",
       "tooltipSelectIcon": "Selecionar ícone",
       "selectAnIcon": "Escolha um ícone",
-      "pleaseInputYourOpenAIKey": "por favor insira sua chave OpenAI",
+      "pleaseInputYourOpenAIKey": "por favor insira sua chave AI",
       "pleaseInputYourStabilityAIKey": "insira sua chave Stability AI",
       "clickToLogout": "Clique para sair do usuário atual"
     },
@@ -696,18 +696,18 @@
       "autoGeneratorLearnMore": "Saiba mais",
       "autoGeneratorGenerate": "Gerar",
       "autoGeneratorHintText": "Diga-nos o que você deseja gerar por IA ...",
-      "autoGeneratorCantGetOpenAIKey": "Não foi possível obter a chave da OpenAI",
+      "autoGeneratorCantGetOpenAIKey": "Não foi possível obter a chave da AI",
       "autoGeneratorRewrite": "Reescrever",
       "smartEdit": "Assistentes de IA",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "Corrigir ortografia",
       "warning": "⚠️ As respostas da IA podem ser imprecisas ou enganosas.",
       "smartEditSummarize": "Resumir",
       "smartEditImproveWriting": "melhorar a escrita",
       "smartEditMakeLonger": "Faça mais",
-      "smartEditCouldNotFetchResult": "Não foi possível obter o resultado do OpenAI",
-      "smartEditCouldNotFetchKey": "Não foi possível obter a chave OpenAI",
-      "smartEditDisabled": "Conecte OpenAI em Configurações",
+      "smartEditCouldNotFetchResult": "Não foi possível obter o resultado do AI",
+      "smartEditCouldNotFetchKey": "Não foi possível obter a chave AI",
+      "smartEditDisabled": "Conecte AI em Configurações",
       "discardResponse": "Deseja descartar as respostas de IA?",
       "createInlineMathEquation": "Criar equação",
       "fonts": "Fontes",
@@ -815,8 +815,8 @@
         "placeholder": "Insira o URL da imagem"
       },
       "ai": {
-        "label": "Gerar imagem da OpenAI",
-        "placeholder": "Insira o prompt para OpenAI gerar imagem"
+        "label": "Gerar imagem da AI",
+        "placeholder": "Insira o prompt para AI gerar imagem"
       },
       "stability_ai": {
         "label": "Gerar imagem da Stability AI",
@@ -837,7 +837,7 @@
         "label": "Remover respingo"
       },
       "searchForAnImage": "Procurar uma imagem",
-      "pleaseInputYourOpenAIKey": "insira sua chave OpenAI na página configurações",
+      "pleaseInputYourOpenAIKey": "insira sua chave AI na página configurações",
       "pleaseInputYourStabilityAIKey": "insira sua chave Stability AI na página Configurações",
       "saveImageToGallery": "Salvar imagem",
       "failedToAddImageToGallery": "Falha ao adicionar imagem à galeria",

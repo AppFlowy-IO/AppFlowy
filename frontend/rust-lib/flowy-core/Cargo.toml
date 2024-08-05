@@ -33,8 +33,10 @@ uuid.workspace = true
 flowy-storage = { workspace = true }
 flowy-storage-pub = { workspace = true }
 client-api.workspace = true
-flowy-chat = { workspace = true }
-flowy-chat-pub = { workspace = true }
+flowy-ai = { workspace = true }
+flowy-ai-pub = { workspace = true }
+appflowy-local-ai = { version = "0.1.0" }
+
 
 tracing.workspace = true
 futures-core = { version = "0.3", default-features = false }
@@ -65,7 +67,8 @@ dart = [
     "flowy-search/dart",
     "flowy-folder/dart",
     "flowy-database2/dart",
-    "flowy-chat/dart",
+    "flowy-ai/dart",
+    "flowy-storage/dart",
 ]
 ts = [
     "flowy-user/tauri_ts",
@@ -73,7 +76,8 @@ ts = [
     "flowy-search/tauri_ts",
     "flowy-database2/ts",
     "flowy-config/tauri_ts",
-    "flowy-chat/tauri_ts",
+    "flowy-ai/tauri_ts",
+    "flowy-storage/tauri_ts",
 ]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
 

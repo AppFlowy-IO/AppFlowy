@@ -48,7 +48,7 @@ class ViewExtKeys {
 }
 
 extension ViewExtension on ViewPB {
-  Widget defaultIcon() => FlowySvg(
+  Widget defaultIcon({Size? size}) => FlowySvg(
         switch (layout) {
           ViewLayoutPB.Board => FlowySvgs.icon_board_s,
           ViewLayoutPB.Calendar => FlowySvgs.icon_calendar_s,
@@ -57,6 +57,7 @@ extension ViewExtension on ViewPB {
           ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
           _ => FlowySvgs.document_s,
         },
+        size: size,
       );
 
   PluginType get pluginType => switch (layout) {
@@ -231,7 +232,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
   FlowySvgData get icon => switch (this) {
         ViewLayoutPB.Grid => FlowySvgs.grid_s,
         ViewLayoutPB.Board => FlowySvgs.board_s,
-        ViewLayoutPB.Calendar => FlowySvgs.date_s,
+        ViewLayoutPB.Calendar => FlowySvgs.calendar_s,
         ViewLayoutPB.Document => FlowySvgs.document_s,
         ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
         _ => throw Exception('Unknown layout type'),

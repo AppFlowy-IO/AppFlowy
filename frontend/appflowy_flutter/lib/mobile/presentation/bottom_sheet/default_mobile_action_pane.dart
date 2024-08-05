@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -40,18 +41,32 @@ enum MobilePaneActionType {
           backgroundColor: const Color(0xFFFA217F),
           svg: FlowySvgs.favorite_section_remove_from_favorite_s,
           size: 24.0,
-          onPressed: (context) => context
-              .read<FavoriteBloc>()
-              .add(FavoriteEvent.toggle(context.read<ViewBloc>().view)),
+          onPressed: (context) {
+            showToastNotification(
+              context,
+              message: LocaleKeys.button_unfavoriteSuccessfully.tr(),
+            );
+
+            context
+                .read<FavoriteBloc>()
+                .add(FavoriteEvent.toggle(context.read<ViewBloc>().view));
+          },
         );
       case MobilePaneActionType.addToFavorites:
         return MobileSlideActionButton(
           backgroundColor: const Color(0xFF00C8FF),
           svg: FlowySvgs.favorite_s,
           size: 24.0,
-          onPressed: (context) => context
-              .read<FavoriteBloc>()
-              .add(FavoriteEvent.toggle(context.read<ViewBloc>().view)),
+          onPressed: (context) {
+            showToastNotification(
+              context,
+              message: LocaleKeys.button_favoriteSuccessfully.tr(),
+            );
+
+            context
+                .read<FavoriteBloc>()
+                .add(FavoriteEvent.toggle(context.read<ViewBloc>().view));
+          },
         );
       case MobilePaneActionType.add:
         return MobileSlideActionButton(
@@ -69,6 +84,7 @@ enum MobilePaneActionType {
               showDragHandle: true,
               showCloseButton: true,
               useRootNavigator: true,
+              showDivider: false,
               backgroundColor: Theme.of(context).colorScheme.surface,
               builder: (sheetContext) {
                 return AddNewPageWidgetBottomSheet(
@@ -145,8 +161,6 @@ enum MobilePaneActionType {
                 ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
                 : MobileViewItemBottomSheetBodyAction.addToFavorites,
             MobileViewItemBottomSheetBodyAction.divider,
-            if (view.layout != ViewLayoutPB.Chat)
-              MobileViewItemBottomSheetBodyAction.duplicate,
             MobileViewItemBottomSheetBodyAction.divider,
             MobileViewItemBottomSheetBodyAction.removeFromRecent,
           ];
@@ -156,7 +170,6 @@ enum MobilePaneActionType {
                 ? MobileViewItemBottomSheetBodyAction.removeFromFavorites
                 : MobileViewItemBottomSheetBodyAction.addToFavorites,
             MobileViewItemBottomSheetBodyAction.divider,
-            MobileViewItemBottomSheetBodyAction.duplicate,
           ];
       }
     }
@@ -181,12 +194,13 @@ ActionPane buildEndActionPane(
   bool needSpace = true,
   MobilePageCardType? cardType,
   FolderSpaceType? spaceType,
+  required double spaceRatio,
 }) {
   return ActionPane(
     motion: const ScrollMotion(),
-    extentRatio: actions.length / 5,
+    extentRatio: actions.length / spaceRatio,
     children: [
-      if (needSpace) const HSpace(20),
+      if (needSpace) const HSpace(60),
       ...actions.map(
         (action) => action.actionButton(
           context,

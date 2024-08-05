@@ -376,7 +376,7 @@
       "email": "Surel",
       "tooltipSelectIcon": "Pilih ikon",
       "selectAnIcon": "Pilih ikon",
-      "pleaseInputYourOpenAIKey": "silakan masukkan kunci OpenAI Anda",
+      "pleaseInputYourOpenAIKey": "silakan masukkan kunci AI Anda",
       "pleaseInputYourStabilityAIKey": "Masukkan kunci Stability AI anda",
       "clickToLogout": "Klik untuk keluar dari pengguna saat ini"
     },
@@ -589,23 +589,23 @@
       "referencedBoard": "Papan Referensi",
       "referencedGrid": "Kisi yang Direferensikan",
       "referencedCalendar": "Kalender Referensi",
-      "autoGeneratorMenuItemName": "Penulis OpenAI",
-      "autoGeneratorTitleName": "OpenAI: Minta AI untuk menulis apa saja...",
+      "autoGeneratorMenuItemName": "Penulis AI",
+      "autoGeneratorTitleName": "AI: Minta AI untuk menulis apa saja...",
       "autoGeneratorLearnMore": "Belajarlah lagi",
       "autoGeneratorGenerate": "Menghasilkan",
-      "autoGeneratorHintText": "Tanya OpenAI...",
-      "autoGeneratorCantGetOpenAIKey": "Tidak bisa mendapatkan kunci OpenAI",
+      "autoGeneratorHintText": "Tanya AI...",
+      "autoGeneratorCantGetOpenAIKey": "Tidak bisa mendapatkan kunci AI",
       "autoGeneratorRewrite": "Menulis kembali",
       "smartEdit": "Asisten AI",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "Perbaiki ejaan",
       "warning": "⚠️ Respons AI bisa jadi tidak akurat atau menyesatkan.",
       "smartEditSummarize": "Meringkaskan",
       "smartEditImproveWriting": "Perbaiki tulisan",
       "smartEditMakeLonger": "Buat lebih lama",
-      "smartEditCouldNotFetchResult": "Tidak dapat mengambil hasil dari OpenAI",
-      "smartEditCouldNotFetchKey": "Tidak dapat mengambil kunci OpenAI",
-      "smartEditDisabled": "Hubungkan OpenAI di Pengaturan",
+      "smartEditCouldNotFetchResult": "Tidak dapat mengambil hasil dari AI",
+      "smartEditCouldNotFetchKey": "Tidak dapat mengambil kunci AI",
+      "smartEditDisabled": "Hubungkan AI di Pengaturan",
       "discardResponse": "Apakah Anda ingin membuang respons AI?",
       "createInlineMathEquation": "Buat persamaan",
       "toggleList": "Beralih Daftar",
@@ -690,8 +690,8 @@
         "placeholder": "Masukkan URL gambar"
       },
       "ai": {
-        "label": "Buat gambar dari OpenAI",
-        "placeholder": "Masukkan perintah agar OpenAI menghasilkan gambar"
+        "label": "Buat gambar dari AI",
+        "placeholder": "Masukkan perintah agar AI menghasilkan gambar"
       },
       "stability_ai": {
         "label": "Buat gambar dari Stability AI",
@@ -709,7 +709,7 @@
         "placeholder": "Tempel atau ketik tautan gambar"
       },
       "searchForAnImage": "Mencari gambar",
-      "pleaseInputYourOpenAIKey": "masukkan kunci OpenAI Anda di halaman Pengaturan",
+      "pleaseInputYourOpenAIKey": "masukkan kunci AI Anda di halaman Pengaturan",
       "pleaseInputYourStabilityAIKey": "masukkan kunci AI Stabilitas Anda di halaman Pengaturan"
     },
     "codeBlock": {

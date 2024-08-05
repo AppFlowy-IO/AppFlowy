@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbenum.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:http/http.dart' as http;
 

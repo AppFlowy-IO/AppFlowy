@@ -18,13 +18,13 @@ use tracing::{debug, info};
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use flowy_chat_pub::cloud::{
+use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, LocalAIConfig, MessageCursor, RepeatedChatMessage, StreamAnswer,
   StreamComplete,
 };
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
-  TranslateRowContent, TranslateRowResponse,
+  CollabDocStateByOid, DatabaseAIService, DatabaseCloudService, DatabaseSnapshot,
+  SummaryRowContent, TranslateRowContent, TranslateRowResponse,
 };
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
@@ -32,7 +32,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
@@ -307,7 +307,7 @@ impl FolderCloudService for ServerProvider {
   fn publish_view(
     &self,
     workspace_id: &str,
-    payload: Vec<PublishViewPayload>,
+    payload: Vec<PublishPayload>,
   ) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
@@ -364,6 +364,7 @@ impl FolderCloudService for ServerProvider {
   }
 }
 
+#[async_trait]
 impl DatabaseCloudService for ServerProvider {
   fn get_database_object_doc_state(
     &self,
@@ -412,39 +413,36 @@ impl DatabaseCloudService for ServerProvider {
         .await
     })
   }
+}
 
-  fn summary_database_row(
+#[async_trait]
+impl DatabaseAIService for ServerProvider {
+  async fn summary_database_row(
     &self,
     workspace_id: &str,
     object_id: &str,
     summary_row: SummaryRowContent,
-  ) -> FutureResult<String, Error> {
-    let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    let object_id = object_id.to_string();
-    FutureResult::new(async move {
-      server?
-        .database_service()
-        .summary_database_row(&workspace_id, &object_id, summary_row)
-        .await
-    })
+  ) -> Result<String, FlowyError> {
+    self
+      .get_server()?
+      .database_ai_service()
+      .ok_or_else(FlowyError::not_support)?
+      .summary_database_row(workspace_id, object_id, summary_row)
+      .await
   }
 
-  fn translate_database_row(
+  async fn translate_database_row(
     &self,
     workspace_id: &str,
     translate_row: TranslateRowContent,
     language: &str,
-  ) -> FutureResult<TranslateRowResponse, Error> {
-    let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    let language = language.to_string();
-    FutureResult::new(async move {
-      server?
-        .database_service()
-        .translate_database_row(&workspace_id, translate_row, &language)
-        .await
-    })
+  ) -> Result<TranslateRowResponse, FlowyError> {
+    self
+      .get_server()?
+      .database_ai_service()
+      .ok_or_else(FlowyError::not_support)?
+      .translate_database_row(workspace_id, translate_row, language)
+      .await
   }
 }
 
@@ -685,21 +683,17 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  fn get_related_message(
+  async fn get_related_message(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
-  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .get_related_message(&workspace_id, &chat_id, message_id)
-        .await
-    })
+  ) -> Result<RepeatedRelatedQuestion, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_related_message(workspace_id, chat_id, message_id)
+      .await
   }
 
   async fn generate_answer(

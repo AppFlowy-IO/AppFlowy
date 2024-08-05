@@ -61,7 +61,6 @@ List<AIModelPB> _availableModels = [
   AIModelPB.Claude3Sonnet,
   AIModelPB.GPT35,
   AIModelPB.GPT4o,
-  // AIModelPB.LocalAIModel,
 ];
 
 String _titleForAIModel(AIModelPB model) {
@@ -76,8 +75,6 @@ String _titleForAIModel(AIModelPB model) {
       return "GPT-3.5";
     case AIModelPB.GPT4o:
       return "GPT-4o";
-    case AIModelPB.LocalAIModel:
-      return "Local";
     default:
       Log.error("Unknown AI model: $model, fallback to default");
       return "Default";

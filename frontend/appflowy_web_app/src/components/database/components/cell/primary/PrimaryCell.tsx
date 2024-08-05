@@ -1,8 +1,8 @@
-import { useNavigateToRow, useRowMetaSelector } from '@/application/database-yjs';
+import { useRowMetaSelector } from '@/application/database-yjs';
 import { TextCell as CellType, CellProps } from '@/application/database-yjs/cell.type';
 import { TextCell } from '@/components/database/components/cell/text';
-import { getPlatform } from '@/utils/platform';
-import React, { useEffect, useMemo, useState } from 'react';
+// import { getPlatform } from '@/utils/platform';
+import React, { useEffect, useState } from 'react';
 
 export function PrimaryCell(props: CellProps<CellType>) {
   const { rowId } = props;
@@ -40,19 +40,19 @@ export function PrimaryCell(props: CellProps<CellType>) {
     };
   }, [rowId]);
 
-  const isMobile = useMemo(() => {
-    return getPlatform().isMobile;
-  }, []);
-
-  const navigateToRow = useNavigateToRow();
+  // const isMobile = useMemo(() => {
+  //   return getPlatform().isMobile;
+  // }, []);
+  //
+  // const navigateToRow = useNavigateToRow();
 
   return (
     <div
-      onClick={() => {
-        if (isMobile) {
-          navigateToRow?.(rowId);
-        }
-      }}
+      // onClick={() => {
+      //   if (isMobile) {
+      //     navigateToRow?.(rowId);
+      //   }
+      // }}
       className={'primary-cell relative flex min-h-full w-full items-center gap-2'}
     >
       {icon && <div className={'h-4 w-4'}>{icon}</div>}

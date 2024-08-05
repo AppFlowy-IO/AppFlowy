@@ -7,6 +7,7 @@ use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use collab_folder::RepeatedViewIdentifier;
+use serde_json::to_vec;
 use std::sync::Arc;
 use tracing::instrument;
 use uuid::Uuid;
@@ -16,7 +17,7 @@ use flowy_folder_pub::cloud::{
   Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
   WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishViewPayload};
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::define::ServerUser;
@@ -187,22 +188,31 @@ where
   fn publish_view(
     &self,
     workspace_id: &str,
-    payload: Vec<PublishViewPayload>,
+    payload: Vec<PublishPayload>,
   ) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
-    FutureResult::new(async move {
-      let params = payload
-        .into_iter()
-        .map(|object| PublishCollabItem {
-          meta: PublishCollabMetadata {
-            view_id: Uuid::parse_str(object.meta.view_id.as_str()).unwrap_or(Uuid::nil()),
-            publish_name: object.meta.publish_name,
-            metadata: object.meta.metadata,
+    let params = payload
+      .into_iter()
+      .filter_map(|object| {
+        let (meta, data) = match object {
+          PublishPayload::Document(payload) => (payload.meta, payload.data),
+          PublishPayload::Database(payload) => {
+            (payload.meta, to_vec(&payload.data).unwrap_or_default())
           },
-          data: object.data,
+          PublishPayload::Unknown => return None,
+        };
+        Some(PublishCollabItem {
+          meta: PublishCollabMetadata {
+            view_id: Uuid::parse_str(&meta.view_id).unwrap_or(Uuid::nil()),
+            publish_name: meta.publish_name,
+            metadata: meta.metadata,
+          },
+          data,
         })
-        .collect::<Vec<_>>();
+      })
+      .collect::<Vec<_>>();
+    FutureResult::new(async move {
       try_get_client?
         .publish_collabs(&workspace_id, params)
         .await

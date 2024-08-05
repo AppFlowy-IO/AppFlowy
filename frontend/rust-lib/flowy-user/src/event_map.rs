@@ -1,5 +1,5 @@
+use client_api::entity::billing_dto::SubscriptionPlan;
 use std::sync::Weak;
-
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
@@ -70,13 +70,16 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::AcceptWorkspaceInvitation, accept_workspace_invitations_handler)
     // Billing
     .event(UserEvent::SubscribeWorkspace, subscribe_workspace_handler)
-    .event(UserEvent::GetWorkspaceSubscriptions, get_workspace_subscriptions_handler)
+    .event(UserEvent::GetWorkspaceSubscriptionInfo, get_workspace_subscription_info_handler)
     .event(UserEvent::CancelWorkspaceSubscription, cancel_workspace_subscription_handler)
     .event(UserEvent::GetWorkspaceUsage, get_workspace_usage_handler)
     .event(UserEvent::GetBillingPortal, get_billing_portal_handler)
+    .event(UserEvent::UpdateWorkspaceSubscriptionPaymentPeriod, update_workspace_subscription_payment_period_handler)
+    .event(UserEvent::GetSubscriptionPlanDetails, get_subscription_plan_details_handler)
     // Workspace Setting
     .event(UserEvent::UpdateWorkspaceSetting, update_workspace_setting)
     .event(UserEvent::GetWorkspaceSetting, get_workspace_setting)
+    .event(UserEvent::NotifyDidSwitchPlan, notify_did_switch_plan_handler)
 
 }
 
@@ -242,10 +245,7 @@ pub enum UserEvent {
   #[event(input = "SubscribeWorkspacePB", output = "PaymentLinkPB")]
   SubscribeWorkspace = 51,
 
-  #[event(output = "RepeatedWorkspaceSubscriptionPB")]
-  GetWorkspaceSubscriptions = 52,
-
-  #[event(input = "UserWorkspaceIdPB")]
+  #[event(input = "CancelWorkspaceSubscriptionPB")]
   CancelWorkspaceSubscription = 53,
 
   #[event(input = "UserWorkspaceIdPB", output = "WorkspaceUsagePB")]
@@ -262,6 +262,18 @@ pub enum UserEvent {
 
   #[event(input = "UserWorkspaceIdPB", output = "UseAISettingPB")]
   GetWorkspaceSetting = 58,
+
+  #[event(input = "UserWorkspaceIdPB", output = "WorkspaceSubscriptionInfoPB")]
+  GetWorkspaceSubscriptionInfo = 59,
+
+  #[event(input = "UpdateWorkspaceSubscriptionPaymentPeriodPB")]
+  UpdateWorkspaceSubscriptionPaymentPeriod = 61,
+
+  #[event(output = "RepeatedSubscriptionPlanDetailPB")]
+  GetSubscriptionPlanDetails = 62,
+
+  #[event(input = "SuccessWorkspaceSubscriptionPB")]
+  NotifyDidSwitchPlan = 63,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
@@ -297,6 +309,8 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
   fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
   fn did_update_network(&self, _reachable: bool) {}
+  fn did_update_plans(&self, _plans: Vec<SubscriptionPlan>) {}
+  fn did_update_storage_limitation(&self, _can_write: bool) {}
 }
 
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function

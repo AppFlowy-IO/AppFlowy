@@ -1,4 +1,6 @@
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_sqlite::result::DatabaseErrorKind;
+use flowy_sqlite::result::Error::DatabaseError;
 use flowy_sqlite::schema::{upload_file_part, upload_file_table};
 use flowy_sqlite::{
   diesel, AsChangeset, BoolExpressionMethods, DBConnection, ExpressionMethods, Identifiable,
@@ -52,10 +54,17 @@ pub fn insert_upload_file(
   mut conn: DBConnection,
   upload_file: &UploadFileTable,
 ) -> FlowyResult<()> {
-  diesel::insert_into(upload_file_table::table)
+  match diesel::insert_into(upload_file_table::table)
     .values(upload_file)
-    .execute(&mut *conn)?;
-  Ok(())
+    .execute(&mut *conn)
+  {
+    Ok(_) => Ok(()),
+    Err(DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => Err(FlowyError::new(
+      flowy_error::ErrorCode::DuplicateSqliteRecord,
+      "Upload file already exists",
+    )),
+    Err(e) => Err(e.into()),
+  }
 }
 
 pub fn update_upload_file_upload_id(

@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
 use anyhow::Context;
+use client_api::entity::billing_dto::SubscriptionPlan;
 use tracing::{event, trace};
 
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_error::{FlowyError, FlowyResult};
@@ -24,6 +26,7 @@ pub(crate) struct UserStatusCallbackImpl {
   pub(crate) document_manager: Arc<DocumentManager>,
   pub(crate) server_provider: Arc<ServerProvider>,
   pub(crate) storage_manager: Arc<StorageManager>,
+  pub(crate) ai_manager: Arc<AIManager>,
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
@@ -215,5 +218,32 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     trace!("Notify did update network: reachable: {}", reachable);
     self.collab_builder.update_network(reachable);
     self.storage_manager.update_network_reachable(reachable);
+  }
+
+  fn did_update_plans(&self, plans: Vec<SubscriptionPlan>) {
+    let mut storage_plan_changed = false;
+    let mut local_ai_enabled = false;
+    for plan in &plans {
+      match plan {
+        SubscriptionPlan::Pro | SubscriptionPlan::Team => storage_plan_changed = true,
+        SubscriptionPlan::AiLocal => local_ai_enabled = true,
+        _ => {},
+      }
+    }
+    if storage_plan_changed {
+      self.storage_manager.enable_storage_write_access();
+    }
+
+    if local_ai_enabled {
+      self.ai_manager.local_ai_purchased();
+    }
+  }
+
+  fn did_update_storage_limitation(&self, can_write: bool) {
+    if can_write {
+      self.storage_manager.enable_storage_write_access();
+    } else {
+      self.storage_manager.disable_storage_write_access();
+    }
   }
 }

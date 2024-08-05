@@ -248,10 +248,13 @@ jobs:
         env:
           BACKEND_VERSION: 0.3.24-amd64
         run: |
-          docker compose down -v --remove-orphans
-          docker compose pull
-          docker compose up -d
-          sleep 10
+          if [ "$(docker ps --filter name=appflowy-cloud -q)" == "" ]; then
+            docker compose pull
+            docker compose up -d
+            sleep 10
+          else
+            echo "Docker container 'appflowy-cloud' is already running."
+          fi
 
       - name: Checkout source code
         uses: actions/checkout@v4

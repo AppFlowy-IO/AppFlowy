@@ -1,6 +1,3 @@
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
@@ -9,6 +6,7 @@ import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -16,6 +14,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
@@ -24,7 +23,6 @@ import '../../application/row/row_controller.dart';
 import '../../tab_bar/tab_bar_view.dart';
 import '../../widgets/row/row_detail.dart';
 import '../application/grid_bloc.dart';
-
 import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
@@ -504,7 +502,10 @@ class _PositionedCalculationsRowState
       left: 0,
       right: 0,
       child: Container(
-        margin: EdgeInsets.only(left: GridSize.horizontalHeaderPadding + 40),
+        margin: EdgeInsets.only(
+          left:
+              context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
+        ),
         padding: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: Theme.of(context).canvasColor,

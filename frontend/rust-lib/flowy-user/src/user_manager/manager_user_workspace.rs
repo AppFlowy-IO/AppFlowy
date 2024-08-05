@@ -1,4 +1,7 @@
 use chrono::{Duration, NaiveDateTime, Utc};
+use client_api::entity::billing_dto::{RecurringInterval, SubscriptionPlanDetail};
+use client_api::entity::billing_dto::{SubscriptionPlan, WorkspaceUsageAndLimit};
+
 use std::convert::TryFrom;
 use std::sync::Arc;
 
@@ -12,16 +15,17 @@ use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{
   Role, UpdateUserProfileParams, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus,
-  WorkspaceMember, WorkspaceSubscription, WorkspaceUsage,
+  WorkspaceMember,
 };
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
-  RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, UpdateUserWorkspaceSettingPB,
-  UseAISettingPB, UserWorkspacePB,
+  RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
+  UpdateUserWorkspaceSettingPB, UseAISettingPB, UserWorkspacePB, WorkspaceSubscriptionInfoPB,
 };
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
+use crate::services::billing_check::PeriodicallyCheckBillingState;
 use crate::services::data_import::{
   generate_import_data, upload_collab_objects_data, ImportedFolder, ImportedSource,
 };
@@ -446,32 +450,85 @@ impl UserManager {
   }
 
   #[instrument(level = "info", skip(self), err)]
-  pub async fn get_workspace_subscriptions(&self) -> FlowyResult<Vec<WorkspaceSubscription>> {
-    let res = self
+  pub async fn get_workspace_subscription_info(
+    &self,
+    workspace_id: String,
+  ) -> FlowyResult<WorkspaceSubscriptionInfoPB> {
+    let subscriptions = self
       .cloud_services
       .get_user_service()?
-      .get_workspace_subscriptions()
+      .get_workspace_subscription_one(workspace_id.clone())
       .await?;
-    Ok(res)
+
+    Ok(WorkspaceSubscriptionInfoPB::from(subscriptions))
   }
 
   #[instrument(level = "info", skip(self), err)]
-  pub async fn cancel_workspace_subscription(&self, workspace_id: String) -> FlowyResult<()> {
+  pub async fn cancel_workspace_subscription(
+    &self,
+    workspace_id: String,
+    plan: SubscriptionPlan,
+    reason: Option<String>,
+  ) -> FlowyResult<()> {
     self
       .cloud_services
       .get_user_service()?
-      .cancel_workspace_subscription(workspace_id)
+      .cancel_workspace_subscription(workspace_id, plan, reason)
       .await?;
     Ok(())
   }
 
   #[instrument(level = "info", skip(self), err)]
-  pub async fn get_workspace_usage(&self, workspace_id: String) -> FlowyResult<WorkspaceUsage> {
+  pub async fn update_workspace_subscription_payment_period(
+    &self,
+    workspace_id: String,
+    plan: SubscriptionPlan,
+    recurring_interval: RecurringInterval,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .update_workspace_subscription_payment_period(workspace_id, plan, recurring_interval)
+      .await?;
+    Ok(())
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn get_subscription_plan_details(&self) -> FlowyResult<Vec<SubscriptionPlanDetail>> {
+    let plan_details = self
+      .cloud_services
+      .get_user_service()?
+      .get_subscription_plan_details()
+      .await?;
+    Ok(plan_details)
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn get_workspace_usage(
+    &self,
+    workspace_id: String,
+  ) -> FlowyResult<WorkspaceUsageAndLimit> {
     let workspace_usage = self
       .cloud_services
       .get_user_service()?
       .get_workspace_usage(workspace_id)
       .await?;
+
+    // Check if the current workspace storage is not unlimited. If it is not unlimited,
+    // verify whether the storage bytes exceed the storage limit.
+    // If the storage is unlimited, allow writing. Otherwise, allow writing only if
+    // the storage bytes are less than the storage limit.
+    let can_write = if workspace_usage.storage_bytes_unlimited {
+      true
+    } else {
+      workspace_usage.storage_bytes < workspace_usage.storage_bytes_limit
+    };
+    self
+      .user_status_callback
+      .read()
+      .await
+      .did_update_storage_limitation(can_write);
+
     Ok(workspace_usage)
   }
 
@@ -489,10 +546,7 @@ impl UserManager {
     &self,
     updated_settings: UpdateUserWorkspaceSettingPB,
   ) -> FlowyResult<()> {
-    let ai_model = updated_settings
-      .ai_model
-      .as_ref()
-      .map(|model| model.to_str().to_string());
+    let ai_model = updated_settings.ai_model.clone();
     let workspace_id = updated_settings.workspace_id.clone();
     let cloud_service = self.cloud_services.get_user_service()?;
     let settings = cloud_service
@@ -505,13 +559,13 @@ impl UserManager {
       .payload(pb)
       .send();
 
-    if let Some(ai_model) = ai_model {
-      if let Err(err) = self.cloud_services.set_ai_model(&ai_model) {
+    if let Some(ai_model) = &ai_model {
+      if let Err(err) = self.cloud_services.set_ai_model(ai_model.to_str()) {
         error!("Set ai model failed: {}", err);
       }
 
       let conn = self.db_connection(uid)?;
-      let params = UpdateUserProfileParams::new(uid).with_ai_model(&ai_model);
+      let params = UpdateUserProfileParams::new(uid).with_ai_model(ai_model.to_str());
       upsert_user_profile_change(uid, conn, UserTableChangeset::new(params))?;
     }
     Ok(())
@@ -520,7 +574,6 @@ impl UserManager {
   pub async fn get_workspace_settings(&self, workspace_id: &str) -> FlowyResult<UseAISettingPB> {
     let cloud_service = self.cloud_services.get_user_service()?;
     let settings = cloud_service.get_workspace_setting(workspace_id).await?;
-
     let uid = self.user_id()?;
     let conn = self.db_connection(uid)?;
     let params = UpdateUserProfileParams::new(uid).with_ai_model(&settings.ai_model);
@@ -580,6 +633,29 @@ impl UserManager {
     let db = self.authenticate_user.get_sqlite_connection(uid)?;
     upsert_workspace_member(db, record)?;
     Ok(member)
+  }
+
+  pub async fn notify_did_switch_plan(
+    &self,
+    success: SuccessWorkspaceSubscriptionPB,
+  ) -> FlowyResult<()> {
+    // periodically check the billing state
+    let plans = PeriodicallyCheckBillingState::new(
+      success.workspace_id,
+      success.plan.map(SubscriptionPlan::from),
+      Arc::downgrade(&self.cloud_services),
+      Arc::downgrade(&self.authenticate_user),
+    )
+    .start()
+    .await?;
+
+    trace!("Current plans: {:?}", plans);
+    self
+      .user_status_callback
+      .read()
+      .await
+      .did_update_plans(plans);
+    Ok(())
   }
 }
 

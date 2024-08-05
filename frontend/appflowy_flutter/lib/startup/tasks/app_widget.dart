@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -24,8 +21,11 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:toastification/toastification.dart';
 
 import 'prelude.dart';
 
@@ -74,6 +74,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('el', 'GR'),
           Locale('fr', 'FR'),
           Locale('fr', 'CA'),
+          Locale('he'),
           Locale('hu', 'HU'),
           Locale('id', 'ID'),
           Locale('it', 'IT'),
@@ -196,31 +197,33 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
         child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
           builder: (context, state) {
             _setSystemOverlayStyle(state);
-            return MaterialApp.router(
-              builder: (context, child) => MediaQuery(
-                // use the 1.0 as the textScaleFactor to avoid the text size
-                //  affected by the system setting.
-                data: MediaQuery.of(context).copyWith(
-                  textScaler: TextScaler.linear(state.textScaleFactor),
+            return ToastificationWrapper(
+              child: MaterialApp.router(
+                builder: (context, child) => MediaQuery(
+                  // use the 1.0 as the textScaleFactor to avoid the text size
+                  //  affected by the system setting.
+                  data: MediaQuery.of(context).copyWith(
+                    textScaler: TextScaler.linear(state.textScaleFactor),
+                  ),
+                  child: overlayManagerBuilder(
+                    context,
+                    !PlatformExtension.isMobile && FeatureFlag.search.isOn
+                        ? CommandPalette(
+                            notifier: _commandPaletteNotifier,
+                            child: child,
+                          )
+                        : child,
+                  ),
                 ),
-                child: overlayManagerBuilder(
-                  context,
-                  !PlatformExtension.isMobile && FeatureFlag.search.isOn
-                      ? CommandPalette(
-                          notifier: _commandPaletteNotifier,
-                          child: child,
-                        )
-                      : child,
-                ),
+                debugShowCheckedModeBanner: false,
+                theme: state.lightTheme,
+                darkTheme: state.darkTheme,
+                themeMode: state.themeMode,
+                localizationsDelegates: context.localizationDelegates,
+                supportedLocales: context.supportedLocales,
+                locale: state.locale,
+                routerConfig: routerConfig,
               ),
-              debugShowCheckedModeBanner: false,
-              theme: state.lightTheme,
-              darkTheme: state.darkTheme,
-              themeMode: state.themeMode,
-              localizationsDelegates: context.localizationDelegates,
-              supportedLocales: context.supportedLocales,
-              locale: state.locale,
-              routerConfig: routerConfig,
             );
           },
         ),

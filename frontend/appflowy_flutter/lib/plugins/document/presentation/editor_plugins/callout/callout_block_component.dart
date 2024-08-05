@@ -186,7 +186,7 @@ class _CalloutBlockComponentWidgetState
           // the emoji picker button for the note
           Padding(
             padding: const EdgeInsets.only(
-              top: 8.0,
+              top: 6.0,
               left: 4.0,
               right: 4.0,
             ),
@@ -194,6 +194,7 @@ class _CalloutBlockComponentWidgetState
               key: ValueKey(
                 emoji.toString(),
               ), // force to refresh the popover state
+              enable: editorState.editable,
               title: '',
               emoji: emoji,
               emojiSize: 16.0,
@@ -205,7 +206,7 @@ class _CalloutBlockComponentWidgetState
           ),
           Flexible(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: buildCalloutBlockComponent(context, textDirection),
             ),
           ),

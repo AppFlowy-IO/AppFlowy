@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/gesture.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_setting_page.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/workspace_menu_bottom_sheet.dart';
@@ -50,9 +51,10 @@ class MobileHomePageHeader extends StatelessWidget {
                   ),
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: FlowySvg(FlowySvgs.m_setting_m),
+                    child: FlowySvg(FlowySvgs.m_notification_settings_s),
                   ),
                 ),
+                const HSpace(8.0),
               ],
             ),
           );
@@ -113,8 +115,9 @@ class _MobileWorkspace extends StatelessWidget {
         if (currentWorkspace == null) {
           return const SizedBox.shrink();
         }
-        return GestureDetector(
-          onTap: () {
+        return AnimatedGestureDetector(
+          alignment: Alignment.centerLeft,
+          onTapUp: () {
             context.read<UserWorkspaceBloc>().add(
                   const UserWorkspaceEvent.fetchWorkspaces(),
                 );
@@ -143,7 +146,7 @@ class _MobileWorkspace extends StatelessWidget {
                   : const HSpace(8),
               FlowyText.semibold(
                 currentWorkspace.name,
-                fontSize: 16.0,
+                fontSize: 20.0,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -162,9 +165,10 @@ class _MobileWorkspace extends StatelessWidget {
       showHeader: true,
       showDragHandle: true,
       showCloseButton: true,
+      useRootNavigator: true,
       title: LocaleKeys.workspace_menuTitle.tr(),
       backgroundColor: Theme.of(context).colorScheme.surface,
-      builder: (_) {
+      builder: (sheetContext) {
         return BlocProvider.value(
           value: context.read<UserWorkspaceBloc>(),
           child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
@@ -179,7 +183,7 @@ class _MobileWorkspace extends StatelessWidget {
                 currentWorkspace: currentWorkspace,
                 workspaces: workspaces,
                 onWorkspaceSelected: (workspace) {
-                  context.pop();
+                  Navigator.of(sheetContext).pop();
 
                   if (workspace == currentWorkspace) {
                     return;

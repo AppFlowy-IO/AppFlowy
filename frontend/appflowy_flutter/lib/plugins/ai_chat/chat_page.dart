@@ -1,4 +1,7 @@
 import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +23,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 
-import 'presentation/chat_input.dart';
+import 'presentation/chat_input/chat_input.dart';
 import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
@@ -67,29 +70,56 @@ class AIChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
-      return BlocProvider(
-        create: (context) => ChatFileBloc(chatId: view.id.toString()),
-        child: BlocBuilder<ChatFileBloc, ChatFileState>(
-          builder: (context, state) {
-            return state.supportChatWithFile
-                ? DropTarget(
-                    onDragDone: (DropDoneDetails detail) async {
-                      for (final file in detail.files) {
-                        context
-                            .read<ChatFileBloc>()
-                            .add(ChatFileEvent.newFile(file.path));
-                      }
-                    },
-                    child: _ChatContentPage(
-                      view: view,
-                      userProfile: userProfile,
-                    ),
-                  )
-                : _ChatContentPage(
-                    view: view,
-                    userProfile: userProfile,
-                  );
+      return MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => ChatFileBloc(chatId: view.id.toString())
+              ..add(const ChatFileEvent.initial()),
+          ),
+          BlocProvider(
+            create: (_) => ChatBloc(
+              view: view,
+              userProfile: userProfile,
+            )..add(const ChatEvent.initialLoad()),
+          ),
+          BlocProvider(
+            create: (_) => ChatInputBloc()..add(const ChatInputEvent.started()),
+          ),
+        ],
+        child: BlocListener<ChatFileBloc, ChatFileState>(
+          listenWhen: (previous, current) =>
+              previous.indexFileIndicator != current.indexFileIndicator,
+          listener: (context, state) {
+            _handleIndexIndicator(state.indexFileIndicator, context);
           },
+          child: BlocBuilder<ChatFileBloc, ChatFileState>(
+            builder: (context, state) {
+              return DropTarget(
+                onDragDone: (DropDoneDetails detail) async {
+                  if (state.supportChatWithFile) {
+                    await showConfirmDialog(
+                      context: context,
+                      style: ConfirmPopupStyle.cancelAndOk,
+                      title: LocaleKeys.chat_chatWithFilePrompt.tr(),
+                      confirmLabel: LocaleKeys.button_confirm.tr(),
+                      onConfirm: () {
+                        for (final file in detail.files) {
+                          context
+                              .read<ChatFileBloc>()
+                              .add(ChatFileEvent.newFile(file.path, file.name));
+                        }
+                      },
+                      description: '',
+                    );
+                  }
+                },
+                child: _ChatContentPage(
+                  view: view,
+                  userProfile: userProfile,
+                ),
+              );
+            },
+          ),
         ),
       );
     }
@@ -100,6 +130,35 @@ class AIChatPage extends StatelessWidget {
         fontSize: 20,
       ),
     );
+  }
+
+  void _handleIndexIndicator(
+    IndexFileIndicator? indicator,
+    BuildContext context,
+  ) {
+    if (indicator != null) {
+      indicator.when(
+        finish: (fileName) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.chat_indexFileSuccess.tr(args: [fileName]),
+          );
+        },
+        indexing: (fileName) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.chat_indexingFile.tr(args: [fileName]),
+            duration: const Duration(seconds: 2),
+          );
+        },
+        error: (err) {
+          showSnackBarMessage(
+            context,
+            err,
+          );
+        },
+      );
+    }
   }
 }
 
@@ -146,67 +205,61 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         Flexible(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 784),
-            child: BlocProvider(
-              create: (_) => ChatBloc(
-                view: widget.view,
-                userProfile: widget.userProfile,
-              )..add(const ChatEvent.initialLoad()),
-              child: BlocBuilder<ChatBloc, ChatState>(
-                builder: (blocContext, state) => Chat(
-                  messages: state.messages,
-                  onSendPressed: (_) {
-                    // We use custom bottom widget for chat input, so
-                    // do not need to handle this event.
-                  },
-                  customBottomWidget: buildChatInput(blocContext),
-                  user: _user,
-                  theme: buildTheme(context),
-                  onEndReached: () async {
-                    if (state.hasMorePrevMessage &&
-                        state.loadingPreviousStatus !=
-                            const LoadingState.loading()) {
-                      blocContext
-                          .read<ChatBloc>()
-                          .add(const ChatEvent.startLoadingPrevMessage());
-                    }
-                  },
-                  emptyState: BlocBuilder<ChatBloc, ChatState>(
-                    builder: (_, state) => state.initialLoadingStatus ==
-                            const LoadingState.finish()
-                        ? Padding(
-                            padding: AIChatUILayout.welcomePagePadding,
-                            child: ChatWelcomePage(
-                              onSelectedQuestion: (question) => blocContext
-                                  .read<ChatBloc>()
-                                  .add(ChatEvent.sendMessage(question)),
+            child: BlocBuilder<ChatBloc, ChatState>(
+              builder: (blocContext, state) => Chat(
+                messages: state.messages,
+                onSendPressed: (_) {
+                  // We use custom bottom widget for chat input, so
+                  // do not need to handle this event.
+                },
+                customBottomWidget: buildChatInput(blocContext),
+                user: _user,
+                theme: buildTheme(context),
+                onEndReached: () async {
+                  if (state.hasMorePrevMessage &&
+                      state.loadingPreviousStatus !=
+                          const LoadingState.loading()) {
+                    blocContext
+                        .read<ChatBloc>()
+                        .add(const ChatEvent.startLoadingPrevMessage());
+                  }
+                },
+                emptyState: BlocBuilder<ChatBloc, ChatState>(
+                  builder: (_, state) =>
+                      state.initialLoadingStatus == const LoadingState.finish()
+                          ? Padding(
+                              padding: AIChatUILayout.welcomePagePadding,
+                              child: ChatWelcomePage(
+                                onSelectedQuestion: (question) => blocContext
+                                    .read<ChatBloc>()
+                                    .add(ChatEvent.sendMessage(question)),
+                              ),
+                            )
+                          : const Center(
+                              child: CircularProgressIndicator.adaptive(),
                             ),
-                          )
-                        : const Center(
-                            child: CircularProgressIndicator.adaptive(),
-                          ),
-                  ),
-                  messageWidthRatio: AIChatUILayout.messageWidthRatio,
-                  textMessageBuilder: (
-                    textMessage, {
-                    required messageWidth,
-                    required showName,
-                  }) =>
-                      _buildAITextMessage(blocContext, textMessage),
-                  bubbleBuilder: (
-                    child, {
-                    required message,
-                    required nextMessageInGroup,
-                  }) {
-                    if (message.author.id == _user.id) {
-                      return ChatUserMessageBubble(
-                        message: message,
-                        child: child,
-                      );
-                    }
-
-                    return _buildAIBubble(message, blocContext, state, child);
-                  },
                 ),
+                messageWidthRatio: AIChatUILayout.messageWidthRatio,
+                textMessageBuilder: (
+                  textMessage, {
+                  required messageWidth,
+                  required showName,
+                }) =>
+                    _buildAITextMessage(blocContext, textMessage),
+                bubbleBuilder: (
+                  child, {
+                  required message,
+                  required nextMessageInGroup,
+                }) {
+                  if (message.author.id == _user.id) {
+                    return ChatUserMessageBubble(
+                      message: message,
+                      child: child,
+                    );
+                  }
+
+                  return _buildAIBubble(message, blocContext, state, child);
+                },
               ),
             ),
           ),
@@ -338,31 +391,43 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     return ClipRect(
       child: Padding(
         padding: AIChatUILayout.safeAreaInsets(context),
-        child: Column(
-          children: [
-            BlocSelector<ChatBloc, ChatState, LoadingState>(
-              selector: (state) => state.streamingStatus,
-              builder: (context, state) {
-                return ChatInput(
-                  chatId: widget.view.id,
-                  onSendPressed: (message) =>
-                      onSendPressed(context, message.text),
-                  isStreaming: state != const LoadingState.finish(),
-                  onStopStreaming: () {
-                    context.read<ChatBloc>().add(const ChatEvent.stopStream());
+        child: BlocBuilder<ChatInputBloc, ChatInputState>(
+          builder: (context, state) {
+            final hintText = state.aiType.when(
+              appflowyAI: () => LocaleKeys.chat_inputMessageHint.tr(),
+              localAI: () => LocaleKeys.chat_inputLocalAIMessageHint.tr(),
+            );
+
+            return Column(
+              children: [
+                BlocSelector<ChatBloc, ChatState, LoadingState>(
+                  selector: (state) => state.streamingStatus,
+                  builder: (context, state) {
+                    return ChatInput(
+                      chatId: widget.view.id,
+                      onSendPressed: (message) =>
+                          onSendPressed(context, message.text),
+                      isStreaming: state != const LoadingState.finish(),
+                      onStopStreaming: () {
+                        context
+                            .read<ChatBloc>()
+                            .add(const ChatEvent.stopStream());
+                      },
+                      hintText: hintText,
+                    );
                   },
-                );
-              },
-            ),
-            const VSpace(6),
-            Opacity(
-              opacity: 0.6,
-              child: FlowyText(
-                LocaleKeys.chat_aiMistakePrompt.tr(),
-                fontSize: 12,
-              ),
-            ),
-          ],
+                ),
+                const VSpace(6),
+                Opacity(
+                  opacity: 0.6,
+                  child: FlowyText(
+                    LocaleKeys.chat_aiMistakePrompt.tr(),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

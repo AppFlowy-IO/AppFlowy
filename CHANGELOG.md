@@ -1,9 +1,23 @@
 # Release Notes
-## Version 0.6.4 - 15/07/2024
+## Version 0.6.6 - 30/07/2024
 ### New Features
--
+- Upgrade your workspace to a premium plan to unlock more features and storage.
+- Image galleries and drag-and-drop image support in documents.
+
 ### Bug Fixes
--
+- Fix minor UI issues on Desktop and Mobile.
+
+## Version 0.6.5 - 24/07/2024
+### New Features
+- Publish a Database to the Web
+
+## Version 0.6.4 - 16/07/2024
+### New Features
+- Enhanced the message style on the AI chat page.
+- Added the ability to choose cursor color and selection color from a palette in settings page.
+### Bug Fixes
+- Optimized the performance for loading recent pages.
+- Fixed an issue where the cursor would jump randomly when typing in the document title on mobile.
 
 ## Version 0.6.3 - 08/07/2024
 ### New Features

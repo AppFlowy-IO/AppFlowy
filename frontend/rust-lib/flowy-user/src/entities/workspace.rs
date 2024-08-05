@@ -1,12 +1,14 @@
+use client_api::entity::billing_dto::{
+  Currency, RecurringInterval, SubscriptionPlan, SubscriptionPlanDetail,
+  WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
+};
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::cloud::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
-use flowy_user_pub::entities::{
-  RecurringInterval, Role, SubscriptionPlan, WorkspaceInvitation, WorkspaceMember,
-  WorkspaceSubscription,
-};
+use flowy_user_pub::entities::{Role, WorkspaceInvitation, WorkspaceMember};
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -180,6 +182,29 @@ pub struct UserWorkspaceIdPB {
   pub workspace_id: String,
 }
 
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct CancelWorkspaceSubscriptionPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub plan: SubscriptionPlanPB,
+
+  #[pb(index = 3)]
+  pub reason: String,
+}
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct SuccessWorkspaceSubscriptionPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2, one_of)]
+  pub plan: Option<SubscriptionPlanPB>,
+}
+
 #[derive(ProtoBuf, Default, Clone)]
 pub struct WorkspaceMemberIdPB {
   #[pb(index = 1)]
@@ -230,7 +255,7 @@ pub struct SubscribeWorkspacePB {
   pub success_url: String,
 }
 
-#[derive(ProtoBuf_Enum, Clone, Default, Debug)]
+#[derive(ProtoBuf_Enum, Clone, Default, Debug, Serialize, Deserialize)]
 pub enum RecurringIntervalPB {
   #[default]
   Month = 0,
@@ -255,12 +280,26 @@ impl From<RecurringInterval> for RecurringIntervalPB {
   }
 }
 
-#[derive(ProtoBuf_Enum, Clone, Default, Debug)]
+#[derive(ProtoBuf_Enum, Clone, Default, Debug, Serialize, Deserialize)]
 pub enum SubscriptionPlanPB {
   #[default]
-  None = 0,
+  Free = 0,
   Pro = 1,
   Team = 2,
+
+  // Add-ons
+  AiMax = 3,
+  AiLocal = 4,
+}
+
+impl From<WorkspacePlanPB> for SubscriptionPlanPB {
+  fn from(value: WorkspacePlanPB) -> Self {
+    match value {
+      WorkspacePlanPB::FreePlan => SubscriptionPlanPB::Free,
+      WorkspacePlanPB::ProPlan => SubscriptionPlanPB::Pro,
+      WorkspacePlanPB::TeamPlan => SubscriptionPlanPB::Team,
+    }
+  }
 }
 
 impl From<SubscriptionPlanPB> for SubscriptionPlan {
@@ -268,7 +307,9 @@ impl From<SubscriptionPlanPB> for SubscriptionPlan {
     match value {
       SubscriptionPlanPB::Pro => SubscriptionPlan::Pro,
       SubscriptionPlanPB::Team => SubscriptionPlan::Team,
-      SubscriptionPlanPB::None => SubscriptionPlan::None,
+      SubscriptionPlanPB::Free => SubscriptionPlan::Free,
+      SubscriptionPlanPB::AiMax => SubscriptionPlan::AiMax,
+      SubscriptionPlanPB::AiLocal => SubscriptionPlan::AiLocal,
     }
   }
 }
@@ -278,7 +319,9 @@ impl From<SubscriptionPlan> for SubscriptionPlanPB {
     match value {
       SubscriptionPlan::Pro => SubscriptionPlanPB::Pro,
       SubscriptionPlan::Team => SubscriptionPlanPB::Team,
-      SubscriptionPlan::None => SubscriptionPlanPB::None,
+      SubscriptionPlan::Free => SubscriptionPlanPB::Free,
+      SubscriptionPlan::AiMax => SubscriptionPlanPB::AiMax,
+      SubscriptionPlan::AiLocal => SubscriptionPlanPB::AiLocal,
     }
   }
 }
@@ -290,55 +333,41 @@ pub struct PaymentLinkPB {
 }
 
 #[derive(Debug, ProtoBuf, Default, Clone)]
-pub struct RepeatedWorkspaceSubscriptionPB {
-  #[pb(index = 1)]
-  pub items: Vec<WorkspaceSubscriptionPB>,
-}
-
-#[derive(Debug, ProtoBuf, Default, Clone)]
-pub struct WorkspaceSubscriptionPB {
-  #[pb(index = 1)]
-  pub workspace_id: String,
-
-  #[pb(index = 2)]
-  pub subscription_plan: SubscriptionPlanPB,
-
-  #[pb(index = 3)]
-  pub recurring_interval: RecurringIntervalPB,
-
-  #[pb(index = 4)]
-  pub is_active: bool,
-
-  #[pb(index = 5)]
-  pub has_canceled: bool,
-
-  #[pb(index = 6)]
-  pub canceled_at: i64, // value is valid only if has_canceled is true
-}
-
-impl From<WorkspaceSubscription> for WorkspaceSubscriptionPB {
-  fn from(s: WorkspaceSubscription) -> Self {
-    Self {
-      workspace_id: s.workspace_id,
-      subscription_plan: s.subscription_plan.into(),
-      recurring_interval: s.recurring_interval.into(),
-      is_active: s.is_active,
-      has_canceled: s.canceled_at.is_some(),
-      canceled_at: s.canceled_at.unwrap_or_default(),
-    }
-  }
-}
-
-#[derive(Debug, ProtoBuf, Default, Clone)]
 pub struct WorkspaceUsagePB {
   #[pb(index = 1)]
   pub member_count: u64,
   #[pb(index = 2)]
   pub member_count_limit: u64,
   #[pb(index = 3)]
-  pub total_blob_bytes: u64,
+  pub storage_bytes: u64,
   #[pb(index = 4)]
-  pub total_blob_bytes_limit: u64,
+  pub storage_bytes_limit: u64,
+  #[pb(index = 5)]
+  pub storage_bytes_unlimited: bool,
+  #[pb(index = 6)]
+  pub ai_responses_count: u64,
+  #[pb(index = 7)]
+  pub ai_responses_count_limit: u64,
+  #[pb(index = 8)]
+  pub ai_responses_unlimited: bool,
+  #[pb(index = 9)]
+  pub local_ai: bool,
+}
+
+impl From<WorkspaceUsageAndLimit> for WorkspaceUsagePB {
+  fn from(workspace_usage: WorkspaceUsageAndLimit) -> Self {
+    WorkspaceUsagePB {
+      member_count: workspace_usage.member_count as u64,
+      member_count_limit: workspace_usage.member_count_limit as u64,
+      storage_bytes: workspace_usage.storage_bytes as u64,
+      storage_bytes_limit: workspace_usage.storage_bytes_limit as u64,
+      storage_bytes_unlimited: workspace_usage.storage_bytes_unlimited,
+      ai_responses_count: workspace_usage.ai_responses_count as u64,
+      ai_responses_count_limit: workspace_usage.ai_responses_count_limit as u64,
+      ai_responses_unlimited: workspace_usage.ai_responses_unlimited,
+      local_ai: workspace_usage.local_ai,
+    }
+  }
 }
 
 #[derive(Debug, ProtoBuf, Default, Clone)]
@@ -399,7 +428,6 @@ pub enum AIModelPB {
   GPT4o = 2,
   Claude3Sonnet = 3,
   Claude3Opus = 4,
-  LocalAIModel = 5,
 }
 
 impl AIModelPB {
@@ -410,7 +438,6 @@ impl AIModelPB {
       AIModelPB::GPT4o => "gpt-4o",
       AIModelPB::Claude3Sonnet => "claude-3-sonnet",
       AIModelPB::Claude3Opus => "claude-3-opus",
-      AIModelPB::LocalAIModel => "local",
     }
   }
 }
@@ -424,8 +451,247 @@ impl FromStr for AIModelPB {
       "gpt-4o" => Ok(AIModelPB::GPT4o),
       "claude-3-sonnet" => Ok(AIModelPB::Claude3Sonnet),
       "claude-3-opus" => Ok(AIModelPB::Claude3Opus),
-      "local" => Ok(AIModelPB::LocalAIModel),
       _ => Ok(AIModelPB::DefaultModel),
+    }
+  }
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct WorkspaceSubscriptionInfoPB {
+  #[pb(index = 1)]
+  pub plan: WorkspacePlanPB,
+  #[pb(index = 2)]
+  pub plan_subscription: WorkspaceSubscriptionV2PB, // valid if plan is not WorkspacePlanFree
+  #[pb(index = 3)]
+  pub add_ons: Vec<WorkspaceAddOnPB>,
+}
+
+impl WorkspaceSubscriptionInfoPB {
+  pub fn default_from_workspace_id(workspace_id: String) -> Self {
+    Self {
+      plan: WorkspacePlanPB::FreePlan,
+      plan_subscription: WorkspaceSubscriptionV2PB {
+        workspace_id,
+        subscription_plan: SubscriptionPlanPB::Free,
+        status: WorkspaceSubscriptionStatusPB::Active,
+        end_date: 0,
+        interval: RecurringIntervalPB::Month,
+      },
+      add_ons: Vec::new(),
+    }
+  }
+}
+
+impl From<Vec<WorkspaceSubscriptionStatus>> for WorkspaceSubscriptionInfoPB {
+  fn from(subs: Vec<WorkspaceSubscriptionStatus>) -> Self {
+    let mut plan = WorkspacePlanPB::FreePlan;
+    let mut plan_subscription = WorkspaceSubscriptionV2PB::default();
+    let mut add_ons = Vec::new();
+    for sub in subs {
+      match sub.workspace_plan {
+        SubscriptionPlan::Free => {
+          plan = WorkspacePlanPB::FreePlan;
+        },
+        SubscriptionPlan::Pro => {
+          plan = WorkspacePlanPB::ProPlan;
+          plan_subscription = sub.into();
+        },
+        SubscriptionPlan::Team => {
+          plan = WorkspacePlanPB::TeamPlan;
+        },
+        SubscriptionPlan::AiMax => {
+          if plan_subscription.workspace_id.is_empty() {
+            plan_subscription =
+              WorkspaceSubscriptionV2PB::default_with_workspace_id(sub.workspace_id.clone());
+          }
+
+          add_ons.push(WorkspaceAddOnPB {
+            type_: WorkspaceAddOnPBType::AddOnAiMax,
+            add_on_subscription: sub.into(),
+          });
+        },
+        SubscriptionPlan::AiLocal => {
+          if plan_subscription.workspace_id.is_empty() {
+            plan_subscription =
+              WorkspaceSubscriptionV2PB::default_with_workspace_id(sub.workspace_id.clone());
+          }
+
+          add_ons.push(WorkspaceAddOnPB {
+            type_: WorkspaceAddOnPBType::AddOnAiLocal,
+            add_on_subscription: sub.into(),
+          });
+        },
+      }
+    }
+
+    WorkspaceSubscriptionInfoPB {
+      plan,
+      plan_subscription,
+      add_ons,
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default)]
+pub enum WorkspacePlanPB {
+  #[default]
+  FreePlan = 0,
+  ProPlan = 1,
+  TeamPlan = 2,
+}
+
+impl From<WorkspacePlanPB> for i64 {
+  fn from(val: WorkspacePlanPB) -> Self {
+    val as i64
+  }
+}
+
+impl From<i64> for WorkspacePlanPB {
+  fn from(value: i64) -> Self {
+    match value {
+      0 => WorkspacePlanPB::FreePlan,
+      1 => WorkspacePlanPB::ProPlan,
+      2 => WorkspacePlanPB::TeamPlan,
+      _ => WorkspacePlanPB::FreePlan,
+    }
+  }
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone, Serialize, Deserialize)]
+pub struct WorkspaceAddOnPB {
+  #[pb(index = 1)]
+  type_: WorkspaceAddOnPBType,
+  #[pb(index = 2)]
+  add_on_subscription: WorkspaceSubscriptionV2PB,
+}
+
+#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
+pub enum WorkspaceAddOnPBType {
+  #[default]
+  AddOnAiLocal = 0,
+  AddOnAiMax = 1,
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone, Serialize, Deserialize)]
+pub struct WorkspaceSubscriptionV2PB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub subscription_plan: SubscriptionPlanPB,
+
+  #[pb(index = 3)]
+  pub status: WorkspaceSubscriptionStatusPB,
+
+  #[pb(index = 4)]
+  pub end_date: i64, // Unix timestamp of when this subscription cycle ends
+
+  #[pb(index = 5)]
+  pub interval: RecurringIntervalPB,
+}
+
+impl WorkspaceSubscriptionV2PB {
+  pub fn default_with_workspace_id(workspace_id: String) -> Self {
+    Self {
+      workspace_id,
+      subscription_plan: SubscriptionPlanPB::Free,
+      status: WorkspaceSubscriptionStatusPB::Active,
+      end_date: 0,
+      interval: RecurringIntervalPB::Month,
+    }
+  }
+}
+
+impl From<WorkspaceSubscriptionStatus> for WorkspaceSubscriptionV2PB {
+  fn from(sub: WorkspaceSubscriptionStatus) -> Self {
+    Self {
+      workspace_id: sub.workspace_id,
+      subscription_plan: sub.workspace_plan.clone().into(),
+      status: if sub.cancel_at.is_some() {
+        WorkspaceSubscriptionStatusPB::Canceled
+      } else {
+        WorkspaceSubscriptionStatusPB::Active
+      },
+      interval: sub.recurring_interval.into(),
+      end_date: sub.current_period_end,
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
+pub enum WorkspaceSubscriptionStatusPB {
+  #[default]
+  Active = 0,
+  Canceled = 1,
+}
+
+impl From<WorkspaceSubscriptionStatusPB> for i64 {
+  fn from(val: WorkspaceSubscriptionStatusPB) -> Self {
+    val as i64
+  }
+}
+
+impl From<i64> for WorkspaceSubscriptionStatusPB {
+  fn from(value: i64) -> Self {
+    match value {
+      0 => WorkspaceSubscriptionStatusPB::Active,
+      _ => WorkspaceSubscriptionStatusPB::Canceled,
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct UpdateWorkspaceSubscriptionPaymentPeriodPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub plan: SubscriptionPlanPB,
+
+  #[pb(index = 3)]
+  pub recurring_interval: RecurringIntervalPB,
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct RepeatedSubscriptionPlanDetailPB {
+  #[pb(index = 1)]
+  pub items: Vec<SubscriptionPlanDetailPB>,
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct SubscriptionPlanDetailPB {
+  #[pb(index = 1)]
+  pub currency: CurrencyPB,
+  #[pb(index = 2)]
+  pub price_cents: i64,
+  #[pb(index = 3)]
+  pub recurring_interval: RecurringIntervalPB,
+  #[pb(index = 4)]
+  pub plan: SubscriptionPlanPB,
+}
+
+impl From<SubscriptionPlanDetail> for SubscriptionPlanDetailPB {
+  fn from(value: SubscriptionPlanDetail) -> Self {
+    Self {
+      currency: value.currency.into(),
+      price_cents: value.price_cents,
+      recurring_interval: value.recurring_interval.into(),
+      plan: value.plan.into(),
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Clone, Default)]
+pub enum CurrencyPB {
+  #[default]
+  USD = 0,
+}
+
+impl From<Currency> for CurrencyPB {
+  fn from(value: Currency) -> Self {
+    match value {
+      Currency::USD => CurrencyPB::USD,
     }
   }
 }

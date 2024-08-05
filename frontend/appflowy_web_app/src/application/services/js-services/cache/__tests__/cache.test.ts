@@ -1,15 +1,9 @@
 import { CollabType } from '@/application/collab.type';
 import { withTestingYDoc } from '@/application/slate-yjs/__tests__/withTestingYjsEditor';
 import { expect } from '@jest/globals';
-import {
-  collabTypeToDBType,
-  getPublishView,
-  getPublishViewMeta,
-  getBatchCollabs,
-} from '@/application/services/js-services/cache';
+import { collabTypeToDBType, getPublishView, getPublishViewMeta } from '@/application/services/js-services/cache';
 import { openCollabDB, db } from '@/application/db';
 import { StrategyType } from '@/application/services/js-services/cache/types';
-import * as Y from 'yjs';
 
 jest.mock('@/application/ydoc/apply', () => ({
   applyYDoc: jest.fn(),
@@ -59,6 +53,7 @@ describe('Cache functions', () => {
 
   describe('getPublishView', () => {
     it('should call fetcher when no cache found', async () => {
+      (openCollabDB as jest.Mock).mockResolvedValue(normalDoc);
       mockFetcher.mockResolvedValue({ data: [1, 2, 3], meta: { metadata: { view: { id: '1' } } } });
       (db.view_metas.get as jest.Mock).mockResolvedValue(undefined);
       await runTestWithStrategy(StrategyType.CACHE_FIRST);
@@ -73,14 +68,14 @@ describe('Cache functions', () => {
       (db.view_metas.get as jest.Mock).mockResolvedValue({ view_id: '1' });
       mockFetcher.mockResolvedValue({ data: [1, 2, 3], meta: { metadata: { view: { id: '1' } } } });
       await runTestWithStrategy(StrategyType.CACHE_ONLY);
-      expect(openCollabDB).toBeCalledTimes(1);
+      expect(openCollabDB).toBeCalledTimes(2);
 
       await runTestWithStrategy(StrategyType.CACHE_FIRST);
-      expect(openCollabDB).toBeCalledTimes(2);
+      expect(openCollabDB).toBeCalledTimes(4);
       expect(mockFetcher).toBeCalledTimes(0);
 
       await runTestWithStrategy(StrategyType.CACHE_AND_NETWORK);
-      expect(openCollabDB).toBeCalledTimes(3);
+      expect(openCollabDB).toBeCalledTimes(6);
       expect(mockFetcher).toBeCalledTimes(1);
     });
   });
@@ -114,20 +109,6 @@ describe('Cache functions', () => {
       await runGetPublishViewMetaWithStrategy(StrategyType.CACHE_AND_NETWORK);
       expect(openCollabDB).toBeCalledTimes(0);
       expect(mockFetcher).toBeCalledTimes(1);
-    });
-  });
-
-  describe('getBatchCollabs', () => {
-    it('should return empty array when no cache found', async () => {
-      (openCollabDB as jest.Mock).mockResolvedValue(new Y.Doc());
-      await expect(getBatchCollabs(['1', '2', '3'])).rejects.toThrow('No cache found');
-    });
-
-    it('should return collabs when cache found', async () => {
-      (openCollabDB as jest.Mock).mockResolvedValue(normalDoc);
-      (db.view_metas.get as jest.Mock).mockResolvedValue({ view_id: '1' });
-      const collabs = await getBatchCollabs(['1', '2', '3']);
-      expect(collabs).toEqual([normalDoc, normalDoc, normalDoc]);
     });
   });
 });

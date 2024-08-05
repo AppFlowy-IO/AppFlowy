@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
-import wasm from 'vite-plugin-wasm';
 import { visualizer } from 'rollup-plugin-visualizer';
 import usePluginImport from 'vite-plugin-importer';
 import { totalBundleSize } from 'vite-plugin-total-bundle-size';
@@ -14,7 +13,6 @@ const isDev = process.env.NODE_ENV === 'development';
 export default defineConfig({
   plugins: [
     react(),
-    wasm(),
     svgr({
       svgrOptions: {
         prettier: false,
@@ -112,8 +110,13 @@ export default defineConfig({
                     id.includes('/react-is@') ||
                     id.includes('/yjs@') ||
                     id.includes('/y-indexeddb@') ||
+                    id.includes('/dexie') ||
                     id.includes('/redux') ||
-                    id.includes('/react-custom-scrollbars')
+                    id.includes('/react-custom-scrollbars') ||
+                    id.includes('/dayjs') ||
+                    id.includes('/smooth-scroll-into-view-if-needed') ||
+                    id.includes('/react-virtualized-auto-sizer') ||
+                    id.includes('/react-window')
                   ) {
                     return 'common';
                   }
@@ -137,16 +140,6 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      '@mui/icons-material/ErrorOutline',
-      '@mui/icons-material/CheckCircleOutline',
-      '@mui/icons-material/FunctionsOutlined',
-      'react-katex',
-      // 'react-custom-scrollbars-2',
-      // 'react-window',
-      // 'react-virtualized-auto-sizer',
-    ],
+    include: ['react', 'react-dom', 'react-katex'],
   },
 });

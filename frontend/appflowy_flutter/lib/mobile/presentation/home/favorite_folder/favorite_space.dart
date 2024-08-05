@@ -100,8 +100,6 @@ class _FavoriteViews extends StatelessWidget {
       child: ListView.separated(
         key: const PageStorageKey('favorite_views_page_storage_key'),
         padding: EdgeInsets.only(
-          left: HomeSpaceViewSizes.mHorizontalPadding,
-          right: HomeSpaceViewSizes.mHorizontalPadding,
           bottom: HomeSpaceViewSizes.mVerticalPadding +
               MediaQuery.of(context).padding.bottom,
         ),

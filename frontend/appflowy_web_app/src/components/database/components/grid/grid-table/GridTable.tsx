@@ -31,11 +31,13 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
     }
   }, [scrollLeft]);
 
+  const resetGrid = useCallback(() => {
+    ref.current?.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
+  }, []);
+
   useEffect(() => {
-    if (ref.current) {
-      ref.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
-    }
-  }, [columns]);
+    resetGrid();
+  }, [columns, resetGrid]);
 
   const getItemKey = useCallback(
     ({ columnIndex, rowIndex }: { columnIndex: number; rowIndex: number }) => {
@@ -85,7 +87,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
           <div
             data-row-id={row.rowId}
             className={classList.join(' ')}
-            style={{ ...style, borderLeftWidth: columnIndex === 1 || column.type === GridColumnType.Action ? 0 : 1 }}
+            style={{ ...style, borderLeftWidth: columnIndex === 0 || column.type === GridColumnType.Action ? 0 : 1 }}
           >
             <GridRowCell
               onResize={onResize}
@@ -113,7 +115,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
   );
 
   return (
-    <AutoSizer>
+    <AutoSizer onResize={resetGrid}>
       {({ height, width }: { height: number; width: number }) => (
         <VariableSizeGrid
           ref={ref}

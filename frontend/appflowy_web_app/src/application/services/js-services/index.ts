@@ -1,26 +1,21 @@
 import { YDoc } from '@/application/collab.type';
+import { GlobalComment, Reaction } from '@/application/comment.type';
 import {
   deleteView,
-  getBatchCollabs,
   getPublishView,
   getPublishViewMeta,
   hasViewMetaCache,
 } from '@/application/services/js-services/cache';
 import { StrategyType } from '@/application/services/js-services/cache/types';
 import { fetchPublishView, fetchPublishViewMeta, fetchViewInfo } from '@/application/services/js-services/fetch';
-import {
-  initAPIService,
-  signInGoogle,
-  signInWithMagicLink,
-  signInGithub,
-  signInDiscord,
-  signInWithUrl,
-} from '@/application/services/js-services/wasm/client_api';
+import { APIService } from '@/application/services/js-services/http';
+
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { emit, EventType } from '@/application/session';
 import { afterAuth, AUTH_CALLBACK_URL, withSignIn } from '@/application/session/sign_in';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
+import { DuplicatePublishView } from '@/application/types';
 
 export class AFClientService implements AFService {
   private deviceId: string = nanoid(8);
@@ -39,12 +34,10 @@ export class AFClientService implements AFService {
 
   private cacheDatabaseRowDocMap: Map<string, Y.Doc> = new Map();
 
+  private cacheDatabaseRowFolder: Map<string, Y.Map<YDoc>> = new Map();
+
   constructor(config: AFServiceConfig) {
-    initAPIService({
-      ...config.cloudConfig,
-      deviceId: this.deviceId,
-      clientId: this.clientId,
-    });
+    APIService.initAPIService(config.cloudConfig);
   }
 
   getClientId() {
@@ -52,6 +45,9 @@ export class AFClientService implements AFService {
   }
 
   async getPublishViewMeta(namespace: string, publishName: string) {
+    const name = `${namespace}_${publishName}`;
+
+    const isLoaded = this.publishViewLoaded.has(name);
     const viewMeta = await getPublishViewMeta(
       () => {
         return fetchPublishViewMeta(namespace, publishName);
@@ -60,7 +56,7 @@ export class AFClientService implements AFService {
         namespace,
         publishName,
       },
-      StrategyType.CACHE_AND_NETWORK
+      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK
     );
 
     if (!viewMeta) {
@@ -75,11 +71,12 @@ export class AFClientService implements AFService {
 
     const isLoaded = this.publishViewLoaded.has(name);
 
-    const doc = await getPublishView(
+    const { doc, rowMapDoc } = await getPublishView(
       async () => {
         try {
           return await fetchPublishView(namespace, publishName);
         } catch (e) {
+          console.error(e);
           void (async () => {
             if (await hasViewMetaCache(name)) {
               this.publishViewLoaded.delete(name);
@@ -101,39 +98,37 @@ export class AFClientService implements AFService {
       this.publishViewLoaded.add(name);
     }
 
+    this.cacheDatabaseRowDocMap.set(name, rowMapDoc);
+
     return doc;
   }
 
-  async getPublishDatabaseViewRows(namespace: string, publishName: string, rowIds: string[]) {
+  async getPublishDatabaseViewRows(namespace: string, publishName: string) {
     const name = `${namespace}_${publishName}`;
 
-    if (!this.publishViewLoaded.has(name)) {
+    if (!this.publishViewLoaded.has(name) || !this.cacheDatabaseRowDocMap.has(name)) {
       await this.getPublishView(namespace, publishName);
     }
 
-    const rootRowsDoc =
-      this.cacheDatabaseRowDocMap.get(name) ??
-      new Y.Doc({
-        guid: name,
-      });
+    const rootRowsDoc = this.cacheDatabaseRowDocMap.get(name);
 
-    if (!this.cacheDatabaseRowDocMap.has(name)) {
-      this.cacheDatabaseRowDocMap.set(name, rootRowsDoc);
+    if (!rootRowsDoc) {
+      return Promise.reject(new Error('Root rows doc not found'));
     }
 
-    const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
-    const docs = await getBatchCollabs(rowIds.map((id) => `${name}_${id}`));
+    if (!this.cacheDatabaseRowFolder.has(name)) {
+      const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
 
-    docs.forEach((doc, index) => {
-      rowsFolder.set(rowIds[index], doc);
-    });
+      this.cacheDatabaseRowFolder.set(name, rowsFolder);
+    }
 
-    console.log('getPublishDatabaseViewRows', docs);
+    const rowsFolder = this.cacheDatabaseRowFolder.get(name)!;
+
     return {
       rows: rowsFolder,
       destroy: () => {
+        this.cacheDatabaseRowFolder.delete(name);
         this.cacheDatabaseRowDocMap.delete(name);
-        rootRowsDoc.destroy();
       },
     };
   }
@@ -167,7 +162,7 @@ export class AFClientService implements AFService {
   async loginAuth(url: string) {
     try {
       console.log('loginAuth', url);
-      await signInWithUrl(url);
+      await APIService.signInWithUrl(url);
       emit(EventType.SESSION_VALID);
       afterAuth();
       return;
@@ -179,21 +174,72 @@ export class AFClientService implements AFService {
 
   @withSignIn()
   async signInMagicLink({ email }: { email: string; redirectTo: string }) {
-    return await signInWithMagicLink(email, AUTH_CALLBACK_URL);
+    return await APIService.signInWithMagicLink(email, AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
   async signInGoogle(_: { redirectTo: string }) {
-    return await signInGoogle(AUTH_CALLBACK_URL);
+    return APIService.signInGoogle(AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
   async signInGithub(_: { redirectTo: string }) {
-    return await signInGithub(AUTH_CALLBACK_URL);
+    return APIService.signInGithub(AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
   async signInDiscord(_: { redirectTo: string }) {
-    return await signInDiscord(AUTH_CALLBACK_URL);
+    return APIService.signInDiscord(AUTH_CALLBACK_URL);
+  }
+
+  async getWorkspaces() {
+    const data = APIService.getWorkspaces();
+
+    return data;
+  }
+
+  async getWorkspaceFolder(workspaceId: string) {
+    const data = await APIService.getWorkspaceFolder(workspaceId);
+
+    return data;
+  }
+
+  async getCurrentUser() {
+    const data = await APIService.getCurrentUser();
+
+    await APIService.getWorkspaces();
+    return data;
+  }
+
+  async duplicatePublishView(params: DuplicatePublishView) {
+    return APIService.duplicatePublishView(params.workspaceId, {
+      dest_view_id: params.spaceViewId,
+      published_view_id: params.viewId,
+      published_collab_type: params.collabType,
+    });
+  }
+
+  createCommentOnPublishView(viewId: string, content: string, replyCommentId: string | undefined): Promise<void> {
+    return APIService.createGlobalCommentOnPublishView(viewId, content, replyCommentId);
+  }
+
+  deleteCommentOnPublishView(viewId: string, commentId: string): Promise<void> {
+    return APIService.deleteGlobalCommentOnPublishView(viewId, commentId);
+  }
+
+  getPublishViewGlobalComments(viewId: string): Promise<GlobalComment[]> {
+    return APIService.getPublishViewComments(viewId);
+  }
+
+  getPublishViewReactions(viewId: string, commentId?: string): Promise<Record<string, Reaction[]>> {
+    return APIService.getReactions(viewId, commentId);
+  }
+
+  addPublishViewReaction(viewId: string, commentId: string, reactionType: string): Promise<void> {
+    return APIService.addReaction(viewId, commentId, reactionType);
+  }
+
+  removePublishViewReaction(viewId: string, commentId: string, reactionType: string): Promise<void> {
+    return APIService.removeReaction(viewId, commentId, reactionType);
   }
 }

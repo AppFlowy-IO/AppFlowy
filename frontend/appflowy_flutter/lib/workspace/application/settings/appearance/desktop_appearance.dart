@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flutter/material.dart';
 
 class DesktopAppearance extends BaseAppearance {
   @override
@@ -75,18 +74,12 @@ class DesktopAppearance extends BaseAppearance {
         contentTextStyle: TextStyle(color: colorScheme.onSurface),
       ),
       scrollbarTheme: ScrollbarThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.any(scrollbarInteractiveStates.contains)) {
-            return theme.shader3;
-          }
-          return theme.shader5;
-        }),
-        thickness: WidgetStateProperty.resolveWith((states) {
-          if (states.any(scrollbarInteractiveStates.contains)) {
-            return 4;
-          }
-          return 3.0;
-        }),
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.any(scrollbarInteractiveStates.contains)
+              ? theme.scrollbarHoverColor
+              : theme.scrollbarColor,
+        ),
+        thickness: WidgetStateProperty.resolveWith((_) => 4.0),
         crossAxisMargin: 0.0,
         mainAxisMargin: 6.0,
         radius: Corners.s10Radius,
@@ -147,6 +140,9 @@ class DesktopAppearance extends BaseAppearance {
           ),
           onBackground: theme.text,
           background: theme.surface,
+          borderColor: theme.borderColor,
+          scrollbarColor: theme.scrollbarColor,
+          scrollbarHoverColor: theme.scrollbarHoverColor,
         ),
       ],
     );

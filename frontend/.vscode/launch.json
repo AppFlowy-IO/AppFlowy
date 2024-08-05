@@ -13,7 +13,6 @@
             "type": "dart",
             "env": {
                 "RUST_LOG": "debug",
-                "RUST_BACKTRACE": "1"
             },
             // uncomment the following line to testing performance.
             // "flutterMode": "profile",

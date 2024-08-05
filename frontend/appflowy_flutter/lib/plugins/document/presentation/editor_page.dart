@@ -352,6 +352,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           },
           child: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
         ),
+        dropTargetStyle: AppFlowyDropTargetStyle(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+          margin: const EdgeInsets.only(left: 44),
+        ),
       ),
     );
 
@@ -415,6 +419,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       emojiMenuItem,
       autoGeneratorMenuItem,
       dateMenuItem,
+      multiImageMenuItem,
+      fileMenuItem,
     ];
   }
 
@@ -475,6 +481,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   void _customizeBlockComponentBackgroundColorDecorator() {
+    if (!context.mounted) {
+      return;
+    }
     blockComponentBackgroundColorDecorator = (Node node, String colorString) =>
         buildEditorCustomizedColor(context, node, colorString);
   }
@@ -507,6 +516,10 @@ Color? buildEditorCustomizedColor(
   Node node,
   String colorString,
 ) {
+  if (!context.mounted) {
+    return null;
+  }
+
   // the color string is from FlowyTint.
   final tintColor = FlowyTint.values.firstWhereOrNull(
     (e) => e.id == colorString,

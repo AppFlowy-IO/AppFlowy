@@ -11,7 +11,12 @@ export function applyYDoc(doc: Y.Doc, state: Uint8Array) {
   Y.transact(
     doc,
     () => {
-      Y.applyUpdate(doc, state);
+      try {
+        Y.applyUpdate(doc, state);
+      } catch (e) {
+        console.error('Error applying', doc, e);
+        throw e;
+      }
     },
     CollabOrigin.Remote
   );
