@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_copy_command.dart';
@@ -337,6 +338,14 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
     context.read<ShortcutsCubit>().resetIndividualShortcut(shortcut);
   }
 
+  bool canResetCommand(CommandShortcutEvent shortcut) {
+    final defaultShortcut = defaultCommandShortcutEvents.firstWhere(
+      (el) => el.key == shortcut.key && el.handler == shortcut.handler,
+    );
+
+    return defaultShortcut.command != shortcut.command;
+  }
+
   @override
   void dispose() {
     focusNode.dispose();
@@ -389,49 +398,59 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
     );
   }
 
-  Widget _renderKeybindings(bool isHovering) => Row(
-        children: [
-          if (widget.command.keybindings.isNotEmpty) ...[
-            ..._toParts(widget.command.keybindings.first).map(
-              (key) => KeyBadge(keyLabel: key),
-            ),
-          ] else ...[
-            const SizedBox(height: 24),
-          ],
-          const Spacer(),
-          if (isHovering)
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    if (widget.canStartEditing()) {
-                      setState(() {
-                        widget.onStartEditing();
-                        isEditing = true;
-                      });
-                    }
-                  },
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: FlowyTooltip(
-                      message:
-                          LocaleKeys.settings_shortcutsPage_editTooltip.tr(),
-                      child: const FlowySvg(
-                        FlowySvgs.edit_s,
-                        size: Size.square(16),
-                      ),
+  Widget _renderKeybindings(bool isHovering) {
+    final canReset = canResetCommand(widget.command);
+
+    return Row(
+      children: [
+        if (widget.command.keybindings.isNotEmpty) ...[
+          ..._toParts(widget.command.keybindings.first).map(
+            (key) => KeyBadge(keyLabel: key),
+          ),
+        ] else ...[
+          const SizedBox(height: 24),
+        ],
+        const Spacer(),
+        if (isHovering)
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  if (widget.canStartEditing()) {
+                    setState(() {
+                      widget.onStartEditing();
+                      isEditing = true;
+                    });
+                  }
+                },
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: FlowyTooltip(
+                    message: LocaleKeys.settings_shortcutsPage_editTooltip.tr(),
+                    child: const FlowySvg(
+                      FlowySvgs.edit_s,
+                      size: Size.square(16),
                     ),
                   ),
                 ),
-                const HSpace(16),
-                GestureDetector(
-                  onTap: () => _resetIndividualCommand(widget.command),
+              ),
+              const HSpace(16),
+              Opacity(
+                opacity: canReset ? 1 : 0.5,
+                child: GestureDetector(
+                  onTap: canReset
+                      ? () => _resetIndividualCommand(widget.command)
+                      : null,
                   child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
+                    cursor:
+                        canReset ? SystemMouseCursors.click : MouseCursor.defer,
                     child: FlowyTooltip(
-                      message: LocaleKeys
-                          .settings_shortcutsPage_resetSingleTooltip
-                          .tr(),
+                      message: canReset
+                          ? LocaleKeys.settings_shortcutsPage_resetSingleTooltip
+                              .tr()
+                          : LocaleKeys
+                              .settings_shortcutsPage_unavailableResetSingleTooltip
+                              .tr(),
                       child: const FlowySvg(
                         FlowySvgs.restore_s,
                         size: Size.square(16),
@@ -439,11 +458,13 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                     ),
                   ),
                 ),
-              ],
-            ),
-          const HSpace(8),
-        ],
-      );
+              ),
+            ],
+          ),
+        const HSpace(8),
+      ],
+    );
+  }
 
   Widget _renderKeybindEditor() => TapRegion(
         onTapOutside: canClickOutside ? null : (_) => _finishEditing(),

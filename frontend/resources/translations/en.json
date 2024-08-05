@@ -560,7 +560,8 @@
         "confirmLabel": "Continue"
       },
       "editTooltip": "Press to start editing the keybinding",
-      "resetSingleTooltip":"Reset this shortcut",
+      "unavailableResetSingleTooltip": "This shortcut is already the default",
+      "resetSingleTooltip": "Reset this shortcut",
       "keybindings": {
         "toggleToDoList": "Toggle to do list",
         "insertNewParagraphInCodeblock": "Insert new paragraph",
