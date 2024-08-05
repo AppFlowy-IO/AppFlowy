@@ -7,6 +7,12 @@ class IconGroup {
   factory IconGroup.fromJson(Map<String, dynamic> json) =>
       _$IconGroupFromJson(json);
 
+  factory IconGroup.fromMapEntry(MapEntry<String, dynamic> entry) =>
+      IconGroup.fromJson({
+        'name': entry.key,
+        'icons': entry.value,
+      });
+
   IconGroup({
     required this.name,
     required this.icons,

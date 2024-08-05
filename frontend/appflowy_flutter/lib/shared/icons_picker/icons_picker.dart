@@ -16,18 +16,7 @@ Future<List<IconGroup>> _loadIconGroups() async {
   final jsonString = await rootBundle.loadString('assets/icons/icons.json');
   try {
     final json = jsonDecode(jsonString) as Map<String, dynamic>;
-
-    // convert json to IconGroups
-
-    final List<IconGroup> iconGroups = [];
-    json.forEach((key, value) {
-      final iconGroup = IconGroup.fromJson({
-        'name': key,
-        'icons': value,
-      });
-      iconGroups.add(iconGroup);
-    });
-
+    final iconGroups = json.entries.map(IconGroup.fromMapEntry).toList();
     _iconGroups = iconGroups;
     return iconGroups;
   } catch (e) {
