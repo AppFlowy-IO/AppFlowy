@@ -691,7 +691,6 @@
         "guest": "访客",
         "member": "成员",
         "emailSent": "邮件已发送，请检查您的邮箱",
-        "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "添加成员失败",
         "addMemberSuccess": "添加成员成功",
         "removeMember": "移除成员",
@@ -1364,10 +1363,10 @@
       "firstDayOfWeek": "一周开始于",
       "layoutDateField": "以……为日历布局",
       "noDateTitle": "没有日期",
-      "noDateHint": "计划外事件将显示在此处",
       "unscheduledEventsTitle": "未安排的事件",
       "clickToAdd": "单击以添加到日历",
-      "name": "日历布局"
+      "name": "日历布局",
+      "noDateHint": "计划外事件将显示在此处"
     },
     "referencedCalendarPrefix": "视图",
     "quickJumpYear": "跳转到"
