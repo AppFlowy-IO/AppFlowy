@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/icon.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -41,8 +42,8 @@ class EmojiPickerResult {
   final String emoji;
 }
 
-class FlowyIconPicker extends StatelessWidget {
-  const FlowyIconPicker({
+class FlowyIconEmojiPicker extends StatefulWidget {
+  const FlowyIconEmojiPicker({
     super.key,
     required this.onSelected,
   });
@@ -50,33 +51,56 @@ class FlowyIconPicker extends StatelessWidget {
   final void Function(EmojiPickerResult result) onSelected;
 
   @override
+  State<FlowyIconEmojiPicker> createState() => _FlowyIconEmojiPickerState();
+}
+
+class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
+    with SingleTickerProviderStateMixin {
+  late final controller = TabController(length: 2, vsync: this);
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const VSpace(8.0),
-          Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 46,
+          padding: const EdgeInsets.only(left: 4.0, right: 12.0),
+          child: Row(
             children: [
-              FlowyText(LocaleKeys.newSettings_workplace_chooseAnIcon.tr()),
-              const Spacer(),
+              Expanded(
+                child: PickerTab(
+                  controller: controller,
+                  tabs: const [
+                    PickerTabType.emoji,
+                    PickerTabType.icon,
+                  ],
+                ),
+              ),
               _RemoveIconButton(
-                onTap: () => onSelected(EmojiPickerResult.none()),
+                onTap: () => widget.onSelected(EmojiPickerResult.none()),
               ),
             ],
           ),
-          const VSpace(12.0),
-          const Divider(height: 0.5),
-          Expanded(
+        ),
+        const FlowyDivider(),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: FlowyEmojiPicker(
               emojiPerLine: _getEmojiPerLine(context),
               onEmojiSelected: (_, emoji) =>
-                  onSelected(EmojiPickerResult.emoji(emoji)),
+                  widget.onSelected(EmojiPickerResult.emoji(emoji)),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -97,11 +121,14 @@ class _RemoveIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 24,
+      height: 32,
       child: FlowyButton(
         onTap: onTap,
         useIntrinsicWidth: true,
-        text: FlowyText.regular(
+        text: FlowyText(
+          fontSize: 14.0,
+          figmaLineHeight: 16.0,
+          fontWeight: FontWeight.w500,
           LocaleKeys.button_remove.tr(),
           color: Theme.of(context).hintColor,
         ),

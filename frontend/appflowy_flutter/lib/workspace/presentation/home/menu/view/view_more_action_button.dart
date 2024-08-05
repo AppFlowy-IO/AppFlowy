@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/move_to/move_page_menu.dart';
@@ -163,7 +163,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
       constraints: BoxConstraints.loose(const Size(364, 356)),
       margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       clickHandler: PopoverClickHandler.gestureDetector,
-      popupBuilder: (_) => FlowyIconPicker(
+      popupBuilder: (_) => FlowyIconEmojiPicker(
         onSelected: (result) => onTap(controller, result),
       ),
       child: child,

@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker_page.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/shared/icons_picker/icon.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+// cache the icon groups to avoid loading them multiple times
 List<IconGroup>? _iconGroups;
 
 Future<List<IconGroup>> _loadIconGroups() async {
@@ -25,19 +26,16 @@ Future<List<IconGroup>> _loadIconGroups() async {
   }
 }
 
-class IconsPicker extends StatefulWidget {
-  const IconsPicker({
+class FlowyIconPicker extends StatefulWidget {
+  const FlowyIconPicker({
     super.key,
-    // required this.iconGroups,
   });
 
-  // final List<IconGroup> iconGroups;
-
   @override
-  State<IconsPicker> createState() => _IconsPickerState();
+  State<FlowyIconPicker> createState() => _FlowyIconPickerState();
 }
 
-class _IconsPickerState extends State<IconsPicker> {
+class _FlowyIconPickerState extends State<FlowyIconPicker> {
   late final Future<List<IconGroup>> iconGroups;
 
   @override

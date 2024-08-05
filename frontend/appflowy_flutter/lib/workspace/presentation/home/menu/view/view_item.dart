@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
@@ -583,6 +583,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       controller: controller,
       direction: PopoverDirection.rightWithCenterAligned,
       constraints: BoxConstraints.loose(const Size(364, 356)),
+      margin: const EdgeInsets.all(0),
       onClose: () => setState(() => isIconPickerOpened = false),
       child: GestureDetector(
         // prevent the tap event from being passed to the parent widget
@@ -594,7 +595,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       ),
       popupBuilder: (context) {
         isIconPickerOpened = true;
-        return FlowyIconPicker(
+        return FlowyIconEmojiPicker(
           onSelected: (result) {
             ViewBackendService.updateViewIcon(
               viewId: widget.view.id,

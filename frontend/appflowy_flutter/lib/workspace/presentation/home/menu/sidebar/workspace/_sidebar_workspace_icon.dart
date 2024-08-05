@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -76,7 +76,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         direction: PopoverDirection.bottomWithLeftAligned,
         constraints: BoxConstraints.loose(const Size(364, 356)),
         clickHandler: PopoverClickHandler.gestureDetector,
-        popupBuilder: (_) => FlowyIconPicker(
+        popupBuilder: (_) => FlowyIconEmojiPicker(
           onSelected: (result) {
             widget.onSelected(result);
             controller.close();

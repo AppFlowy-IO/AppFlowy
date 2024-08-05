@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/shared/icons_picker/icons_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_picker.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -465,7 +465,7 @@ class SpacePopup extends StatelessWidget {
         //   ),
         // ),
         popupBuilder: (_) {
-          return const IconsPicker();
+          return const FlowyIconPicker();
         },
         child: FlowyButton(
           useIntrinsicWidth: useIntrinsicWidth,

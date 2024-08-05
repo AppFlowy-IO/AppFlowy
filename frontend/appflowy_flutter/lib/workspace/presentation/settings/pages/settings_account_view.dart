@@ -1,7 +1,7 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
@@ -467,7 +467,7 @@ class _UserProfileSettingState extends State<UserProfileSetting> {
             height: 380,
             width: 360,
             margin: const EdgeInsets.symmetric(horizontal: 12),
-            child: FlowyIconPicker(
+            child: FlowyIconEmojiPicker(
               onSelected: (r) {
                 context
                     .read<SettingsUserViewBloc>()
