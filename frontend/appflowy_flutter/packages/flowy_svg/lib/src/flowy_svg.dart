@@ -33,7 +33,7 @@ class FlowySvg extends StatelessWidget {
     Key? key,
     Size? size,
     Color? color,
-    BlendMode? blendMode,
+    BlendMode? blendMode = BlendMode.srcIn,
     double opacity = 1.0,
   }) {
     return FlowySvg(

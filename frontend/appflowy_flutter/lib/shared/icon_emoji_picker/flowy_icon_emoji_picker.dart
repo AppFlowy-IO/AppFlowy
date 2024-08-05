@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/icon.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -56,7 +57,10 @@ class FlowyIconEmojiPicker extends StatefulWidget {
 
 class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
     with SingleTickerProviderStateMixin {
-  late final controller = TabController(length: 2, vsync: this);
+  late final controller = TabController(
+    length: 2,
+    vsync: this,
+  );
 
   @override
   void dispose() {
@@ -91,16 +95,28 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
         ),
         const FlowyDivider(),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: FlowyEmojiPicker(
-              emojiPerLine: _getEmojiPerLine(context),
-              onEmojiSelected: (_, emoji) =>
-                  widget.onSelected(EmojiPickerResult.emoji(emoji)),
-            ),
+          child: TabBarView(
+            controller: controller,
+            children: [
+              _buildEmojiPicker(),
+              _buildIconPicker(),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildEmojiPicker() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: FlowyEmojiPicker(
+          emojiPerLine: _getEmojiPerLine(context),
+          onEmojiSelected: (_, emoji) =>
+              widget.onSelected(EmojiPickerResult.emoji(emoji)),
+        ),
+      ),
     );
   }
 
@@ -110,6 +126,15 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
     }
     final width = MediaQuery.of(context).size.width;
     return width ~/ 40.0; // the size of the emoji
+  }
+
+  Widget _buildIconPicker() {
+    return const Expanded(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        child: FlowyIconPicker(),
+      ),
+    );
   }
 }
 

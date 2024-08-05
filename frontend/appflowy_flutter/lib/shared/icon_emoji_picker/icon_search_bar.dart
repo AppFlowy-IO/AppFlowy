@@ -1,35 +1,29 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 
-typedef EmojiKeywordChangedCallback = void Function(String keyword);
+typedef IconKeywordChangedCallback = void Function(String keyword);
 typedef EmojiSkinToneChanged = void Function(EmojiSkinTone skinTone);
 
-class FlowyEmojiSearchBar extends StatefulWidget {
-  const FlowyEmojiSearchBar({
+class IconSearchBar extends StatefulWidget {
+  const IconSearchBar({
     super.key,
-    required this.emojiData,
+    required this.onRandomTap,
     required this.onKeywordChanged,
-    required this.onSkinToneChanged,
-    required this.onRandomEmojiSelected,
   });
 
-  final EmojiData emojiData;
-  final EmojiKeywordChangedCallback onKeywordChanged;
-  final EmojiSkinToneChanged onSkinToneChanged;
-  final EmojiSelectedCallback onRandomEmojiSelected;
+  final VoidCallback onRandomTap;
+  final IconKeywordChangedCallback onKeywordChanged;
 
   @override
-  State<FlowyEmojiSearchBar> createState() => _FlowyEmojiSearchBarState();
+  State<IconSearchBar> createState() => _IconSearchBarState();
 }
 
-class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
+class _IconSearchBarState extends State<IconSearchBar> {
   final TextEditingController controller = TextEditingController();
 
   @override
@@ -53,13 +47,8 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
             ),
           ),
           const HSpace(8.0),
-          _RandomEmojiButton(
-            emojiData: widget.emojiData,
-            onRandomEmojiSelected: widget.onRandomEmojiSelected,
-          ),
-          const HSpace(8.0),
-          FlowyEmojiSkinToneSelector(
-            onEmojiSkinToneChanged: widget.onSkinToneChanged,
+          _RandomIconButton(
+            onRandomTap: widget.onRandomTap,
           ),
         ],
       ),
@@ -67,14 +56,12 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
   }
 }
 
-class _RandomEmojiButton extends StatelessWidget {
-  const _RandomEmojiButton({
-    required this.emojiData,
-    required this.onRandomEmojiSelected,
+class _RandomIconButton extends StatelessWidget {
+  const _RandomIconButton({
+    required this.onRandomTap,
   });
 
-  final EmojiData emojiData;
-  final EmojiSelectedCallback onRandomEmojiSelected;
+  final VoidCallback onRandomTap;
 
   @override
   Widget build(BuildContext context) {
@@ -94,13 +81,7 @@ class _RandomEmojiButton extends StatelessWidget {
           text: const FlowySvg(
             FlowySvgs.icon_shuffle_s,
           ),
-          onTap: () {
-            final random = emojiData.random;
-            onRandomEmojiSelected(
-              random.$1,
-              random.$2,
-            );
-          },
+          onTap: () {},
         ),
       ),
     );
@@ -112,7 +93,7 @@ class _SearchTextField extends StatefulWidget {
     required this.onKeywordChanged,
   });
 
-  final EmojiKeywordChangedCallback onKeywordChanged;
+  final IconKeywordChangedCallback onKeywordChanged;
 
   @override
   State<_SearchTextField> createState() => _SearchTextFieldState();

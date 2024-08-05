@@ -21,6 +21,8 @@ class IconGroup {
   final String name;
   final List<Icon> icons;
 
+  String get displayName => name.replaceAll('_', ' ');
+
   Map<String, dynamic> toJson() => _$IconGroupToJson(this);
 }
 
@@ -37,6 +39,8 @@ class Icon {
   final String name;
   final List<String> keywords;
   final String content;
+
+  String get displayName => name.replaceAll('-', ' ');
 
   Map<String, dynamic> toJson() => _$IconToJson(this);
 }
