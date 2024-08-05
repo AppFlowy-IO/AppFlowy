@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_search_bar.dart';
+import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
@@ -39,6 +40,8 @@ class FlowyIconPicker extends StatefulWidget {
 
 class _FlowyIconPickerState extends State<FlowyIconPicker> {
   late final Future<List<IconGroup>> iconGroups;
+  final ValueNotifier<String> keyword = ValueNotifier('');
+  final debounce = Debounce(duration: const Duration(milliseconds: 150));
 
   @override
   void initState() {
@@ -48,13 +51,24 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
   }
 
   @override
+  void dispose() {
+    keyword.dispose();
+    debounce.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         IconSearchBar(
           onRandomTap: () {},
-          onKeywordChanged: (keyword) {},
+          onKeywordChanged: (keyword) => {
+            debounce.call(() {
+              this.keyword.value = keyword;
+            }),
+          },
         ),
         Expanded(
           child: FutureBuilder(
@@ -71,8 +85,22 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
                 );
               }
               final iconGroups = snapshot.data as List<IconGroup>;
-              return IconPicker(
-                iconGroups: iconGroups,
+              return ValueListenableBuilder(
+                valueListenable: keyword,
+                builder: (_, keyword, __) {
+                  if (keyword.isNotEmpty) {
+                    final filteredIconGroups = iconGroups
+                        .map((iconGroup) => iconGroup.filter(keyword))
+                        .where((iconGroup) => iconGroup.icons.isNotEmpty)
+                        .toList();
+                    return IconPicker(
+                      iconGroups: filteredIconGroups,
+                    );
+                  }
+                  return IconPicker(
+                    iconGroups: iconGroups,
+                  );
+                },
               );
             },
           ),

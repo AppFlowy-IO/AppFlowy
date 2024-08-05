@@ -23,6 +23,15 @@ class IconGroup {
 
   String get displayName => name.replaceAll('_', ' ');
 
+  IconGroup filter(String keyword) {
+    final filteredIcons = icons
+        .where(
+          (icon) => icon.keywords.any((k) => k.contains(keyword.toLowerCase())),
+        )
+        .toList();
+    return IconGroup(name: name, icons: filteredIcons);
+  }
+
   Map<String, dynamic> toJson() => _$IconGroupToJson(this);
 }
 
