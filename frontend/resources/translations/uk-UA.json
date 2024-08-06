@@ -612,7 +612,7 @@
         "localAIToggleTitle": "Перемикач, щоб увімкнути або вимкнути локальний ШІ",
         "offlineAIInstruction1": "Дотримуйтесь",
         "offlineAIInstruction2": "інструкція",
-        "offlineAIInstruction3": "щоб увімкнути автономний AI.",
+        "offlineAIInstruction3": "увімкнути автономний AI.",
         "offlineAIDownload1": "Якщо ви не завантажили AppFlowy AI, будь ласка",
         "offlineAIDownload2": "завантажити",
         "offlineAIDownload3": "це перше",
@@ -625,7 +625,35 @@
       "menuLabel": "План",
       "title": "Ціновий план",
       "planUsage": {
-        "title": "Підсумок використання плану"
+        "title": "Підсумок використання плану",
+        "storageLabel": "Зберігання",
+        "storageUsage": "{} із {} Гб",
+        "unlimitedStorageLabel": "Необмежене зберігання",
+        "collaboratorsLabel": "Члени",
+        "collaboratorsUsage": "{} з {}",
+        "aiResponseLabel": "Відповіді ШІ",
+        "aiResponseUsage": "{} з {}",
+        "unlimitedAILabel": "Необмежена кількість відповідей",
+        "proBadge": "Pro",
+        "aiMaxBadge": "AI Макс",
+        "aiOnDeviceBadge": "ШІ на пристрої для Mac",
+        "memberProToggle": "Більше учасників і необмежений ШІ",
+        "aiMaxToggle": "Необмежений ШІ та доступ до вдосконалених моделей",
+        "aiOnDeviceToggle": "Локальний штучний інтелект для повної конфіденційності",
+        "aiCredit": {
+          "title": "Додати кредит @:appName AI",
+          "price": "{}",
+          "priceDescription": "за 1000 кредитів",
+          "purchase": "Придбайте ШІ",
+          "info": "Додайте 1000 кредитів штучного інтелекту на робочий простір і плавно інтегруйте настроюваний штучний інтелект у свій робочий процес, щоб отримати розумніші та швидші результати з до:",
+          "infoItemOne": "10 000 відповідей на базу даних",
+          "infoItemTwo": "1000 відповідей на робочу область"
+        },
+        "currentPlan": {
+          "bannerLabel": "Поточний план",
+          "freeTitle": "Безкоштовно",
+          "proTitle": "Pro"
+        }
       }
     },
     "menu": {
@@ -981,10 +1009,12 @@
         "couldNotFetchImage": "Не вдалося отримати зображення",
         "imageSavingFailed": "Не вдалося зберегти зображення",
         "addIcon": "Додати іконку",
+        "changeIcon": "Змінити значок",
         "coverRemoveAlert": "Це буде видалено з обгортки після видалення.",
         "alertDialogConfirmation": "Ви впевнені, що хочете продовжити?"
       },
       "mathEquation": {
+        "name": "Математичне рівняння",
         "addMathEquation": "Додати математичне рівняння",
         "editMathEquation": "Редагувати математичне рівняння"
       },
@@ -1001,14 +1031,43 @@
         "left": "Ліворуч",
         "center": "По центру",
         "right": "По праву",
-        "defaultColor": "За замовчуванням"
+        "defaultColor": "За замовчуванням",
+        "depth": "Глибина"
       },
       "image": {
         "addAnImage": "Додати зображення",
-        "copiedToPasteBoard": "Посилання на зображення скопійовано в буфер обміну"
+        "copiedToPasteBoard": "Посилання на зображення скопійовано в буфер обміну",
+        "addAnImageDesktop": "Перетягніть зображення або натисніть, щоб додати зображення",
+        "addAnImageMobile": "Натисніть, щоб додати одне або кілька зображень",
+        "dropImageToInsert": "Перетягніть зображення, щоб вставити",
+        "imageUploadFailed": "Помилка завантаження зображення",
+        "imageDownloadFailed": "Помилка завантаження зображення, повторіть спробу",
+        "imageDownloadFailedToken": "Помилка завантаження зображення через відсутність маркера користувача. Повторіть спробу",
+        "errorCode": "Код помилки"
+      },
+      "photoGallery": {
+        "name": "Фотогалерея",
+        "imageKeyword": "зображення",
+        "imageGalleryKeyword": "галерея зображень",
+        "photoKeyword": "фото",
+        "photoBrowserKeyword": "браузер фотографій",
+        "galleryKeyword": "галерея",
+        "addImageTooltip": "Додайте зображення",
+        "changeLayoutTooltip": "Змінити макет",
+        "browserLayout": "Браузер",
+        "gridLayout": "Сітка",
+        "deleteBlockTooltip": "Видалити всю галерею"
+      },
+      "math": {
+        "copiedToPasteBoard": "Математичне рівняння скопійовано в буфер обміну"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "Посилання скопійовано в буфер обміну",
+        "convertToLink": "Перетворити на вбудоване посилання"
       },
       "outline": {
-        "addHeadingToCreateOutline": "Додайте заголовки, щоб створити зміст."
+        "addHeadingToCreateOutline": "Додайте заголовки, щоб створити зміст.",
+        "noMatchHeadings": "Відповідних заголовків не знайдено."
       },
       "table": {
         "addAfter": "Додати після",
@@ -1022,7 +1081,50 @@
         "copy": "Копіювати",
         "cut": "Вирізати",
         "paste": "Вставити"
+      },
+      "action": "Дії",
+      "database": {
+        "selectDataSource": "Виберіть джерело даних",
+        "noDataSource": "Немає джерела даних",
+        "selectADataSource": "Виберіть джерело даних",
+        "toContinue": "продовжувати",
+        "newDatabase": "Нова база даних",
+        "linkToDatabase": "Посилання на базу даних"
+      },
+      "date": "Дата",
+      "video": {
+        "label": "відео",
+        "emptyLabel": "Додайте відео",
+        "placeholder": "Вставте посилання на відео",
+        "copiedToPasteBoard": "Посилання на відео скопійовано в буфер обміну",
+        "insertVideo": "Додайте відео",
+        "invalidVideoUrl": "Вихідна URL-адреса ще не підтримується.",
+        "invalidVideoUrlYouTube": "YouTube ще не підтримується.",
+        "supportedFormats": "Підтримувані формати: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "Файл",
+        "uploadTab": "Завантажити",
+        "networkTab": "Інтегрувати посилання",
+        "placeholderText": "Натисніть або перетягніть, щоб завантажити файл",
+        "placeholderDragging": "Перетягніть файл, щоб завантажити",
+        "dropFileToUpload": "Перетягніть файл, щоб завантажити",
+        "fileUploadHint": "Перетягніть файл сюди\nабо натисніть, щоб вибрати файл.",
+        "networkHint": "Введіть посилання на файл",
+        "networkUrlInvalid": "Недійсна URL-адреса, виправте URL-адресу та повторіть спробу",
+        "networkAction": "Вставити посилання на файл",
+        "fileTooBigError": "Розмір файлу завеликий, будь ласка, завантажте файл розміром менше 10 МБ",
+        "renameFile": {
+          "title": "Перейменувати файл",
+          "description": "Введіть нову назву для цього файлу",
+          "nameEmptyError": "Ім'я файлу не може бути пустим."
+        },
+        "uploadedAt": "Завантажено {}",
+        "linkedAt": "Посилання додано {}"
       }
+    },
+    "outlineBlock": {
+      "placeholder": "Зміст"
     },
     "textBlock": {
       "placeholder": "Тип '/' для команд"
@@ -1040,24 +1142,65 @@
         "label": "URL зображення",
         "placeholder": "Введіть URL зображення"
       },
+      "ai": {
+        "label": "Створення зображення за допомогою AI",
+        "placeholder": "Будь ласка, введіть підказку для AI для створення зображення"
+      },
+      "stability_ai": {
+        "label": "Створюйте зображення за допомогою Stability AI",
+        "placeholder": "Будь ласка, введіть підказку для ШІ стабільності, щоб створити зображення"
+      },
       "support": "Розмір зображення обмежений 5 МБ. Підтримувані формати: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "Невірне зображення",
         "invalidImageSize": "Розмір зображення повинен бути менше 5 МБ",
         "invalidImageFormat": "Формат зображення не підтримується. Підтримувані формати: JPEG, PNG, GIF, SVG",
-        "invalidImageUrl": "Невірний URL зображення"
+        "invalidImageUrl": "Невірний URL зображення",
+        "noImage": "Такого файлу чи каталогу немає",
+        "multipleImagesFailed": "Не вдалося завантажити одне чи кілька зображень. Повторіть спробу"
       },
       "embedLink": {
         "label": "Вставити посилання",
         "placeholder": "Вставте або введіть посилання на зображення"
       },
-      "searchForAnImage": "Пошук зображення"
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "searchForAnImage": "Пошук зображення",
+      "pleaseInputYourOpenAIKey": "будь ласка, введіть ключ ШІ на сторінці налаштувань",
+      "pleaseInputYourStabilityAIKey": "будь ласка, введіть ключ стабільності AI на сторінці налаштувань",
+      "saveImageToGallery": "Зберегти зображення",
+      "failedToAddImageToGallery": "Не вдалося додати зображення до галереї",
+      "successToAddImageToGallery": "Зображення додано до галереї",
+      "unableToLoadImage": "Не вдалося завантажити зображення",
+      "maximumImageSize": "Максимальний підтримуваний розмір зображення для завантаження становить 10 МБ",
+      "uploadImageErrorImageSizeTooBig": "Розмір зображення має бути менше 10 Мб",
+      "imageIsUploading": "Зображення завантажується",
+      "openFullScreen": "Відкрити на весь екран",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "Попереднє зображення",
+          "nextImageTooltip": "Наступне зображення",
+          "zoomOutTooltip": "Зменшення",
+          "zoomInTooltip": "Збільшувати",
+          "changeZoomLevelTooltip": "Змінити рівень масштабування",
+          "openLocalImage": "Відкрите зображення",
+          "downloadImage": "Завантажити зображення",
+          "closeViewer": "Закрити інтерактивний засіб перегляду",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "Видалити зображення"
+        }
+      }
     },
     "codeBlock": {
       "language": {
         "label": "Мова",
-        "placeholder": "Виберіть мову"
-      }
+        "placeholder": "Виберіть мову",
+        "auto": "Авто"
+      },
+      "copyTooltip": "Скопіюйте вміст блоку коду",
+      "searchLanguageHint": "Пошук мови",
+      "codeCopiedSnackbar": "Код скопійовано в буфер обміну!"
     },
     "inlineLink": {
       "placeholder": "Вставте або введіть посилання",
@@ -1078,10 +1221,22 @@
       "page": {
         "label": "Посилання на сторінку",
         "tooltip": "Клацніть, щоб відкрити сторінку"
-      }
+      },
+      "deleted": "Видалено",
+      "deletedContent": "Цей вміст не існує або його видалено"
     },
     "toolbar": {
       "resetToDefaultFont": "Скинути до стандартного"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "Не вдалося проаналізувати вміст блоку",
+      "clickToCopyTheBlockContent": "Натисніть, щоб скопіювати вміст блоку",
+      "blockContentHasBeenCopied": "Вміст блоку скопійовано."
+    },
+    "mobilePageSelector": {
+      "title": "Виберіть сторінку",
+      "failedToLoad": "Не вдалося завантажити список сторінок",
+      "noPagesFound": "Сторінок не знайдено"
     },
     "board": {
       "column": {
@@ -1148,7 +1303,136 @@
       "gray": "Сірий"
     }
   },
+  "board": {
+    "column": {
+      "createNewCard": "новий",
+      "renameGroupTooltip": "Натисніть, щоб перейменувати групу",
+      "createNewColumn": "Додайте нову групу",
+      "addToColumnTopTooltip": "Додайте нову картку вгорі",
+      "addToColumnBottomTooltip": "Додайте нову картку внизу",
+      "renameColumn": "Перейменувати",
+      "hideColumn": "Сховати",
+      "newGroup": "Нова група",
+      "deleteColumn": "Видалити",
+      "deleteColumnConfirmation": "Це призведе до видалення цієї групи та всіх карток у ній.\nВи впевнені, що бажаєте продовжити?"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "Приховані групи",
+      "collapseTooltip": "Приховати приховані групи",
+      "expandTooltip": "Переглянути приховані групи"
+    },
+    "cardDetail": "Деталі картки",
+    "cardActions": "Дії з картками",
+    "cardDuplicated": "Картку дублювали",
+    "cardDeleted": "Картку видалено",
+    "showOnCard": "Показати на реквізитах картки",
+    "setting": "Налаштування",
+    "propertyName": "Назва власності",
+    "menuName": "дошка",
+    "showUngrouped": "Показати не згруповані елементи",
+    "ungroupedButtonText": "Розгрупований",
+    "ungroupedButtonTooltip": "Містить картки, які не належать до жодної групи",
+    "ungroupedItemsTitle": "Натисніть, щоб додати до дошки",
+    "groupBy": "Групувати за",
+    "groupCondition": "Стан групи",
+    "referencedBoardPrefix": "Вид на",
+    "notesTooltip": "Нотатки всередині",
+    "mobile": {
+      "editURL": "Редагувати URL",
+      "showGroup": "Показати групу",
+      "showGroupContent": "Ви впевнені, що хочете показати цю групу на дошці?",
+      "failedToLoad": "Не вдалося завантажити вигляд дошки"
+    },
+    "dateCondition": {
+      "weekOf": "Тиждень з {} по {}",
+      "today": "Сьогодні",
+      "yesterday": "вчора",
+      "tomorrow": "завтра",
+      "lastSevenDays": "Останні 7 днів",
+      "nextSevenDays": "Наступні 7 днів",
+      "lastThirtyDays": "Останні 30 днів",
+      "nextThirtyDays": "Наступні 30 днів"
+    },
+    "noGroup": "Немає груп за властивостями",
+    "noGroupDesc": "Для відображення подання дошки потрібна властивість для групування"
+  },
+  "calendar": {
+    "menuName": "Календар",
+    "defaultNewCalendarTitle": "Без назви",
+    "newEventButtonTooltip": "Додайте нову подію",
+    "navigation": {
+      "today": "Сьогодні",
+      "jumpToday": "Перейти до сьогоднішнього дня",
+      "previousMonth": "Попередній місяць",
+      "nextMonth": "Наступного місяця",
+      "views": {
+        "day": "День",
+        "week": "тиждень",
+        "month": "місяць",
+        "year": "рік"
+      }
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "Подій ще немає",
+      "emptyBody": "Натисніть кнопку плюс, щоб створити подію в цей день."
+    },
+    "settings": {
+      "showWeekNumbers": "Показати номери тижнів",
+      "showWeekends": "Показати вихідні",
+      "firstDayOfWeek": "Почніть тиждень",
+      "layoutDateField": "Верстка календаря по",
+      "changeLayoutDateField": "Змінити поле макета",
+      "noDateTitle": "Без дати",
+      "noDateHint": {
+        "zero": "Тут відображатимуться незаплановані події",
+        "one": "{count} незапланована подія",
+        "other": "{count} незапланованих подій"
+      },
+      "unscheduledEventsTitle": "Позапланові заходи",
+      "clickToAdd": "Натисніть, щоб додати до календаря",
+      "name": "Налаштування календаря",
+      "clickToOpen": "Натисніть, щоб відкрити запис"
+    },
+    "referencedCalendarPrefix": "Вид на",
+    "quickJumpYear": "Перейти до",
+    "duplicateEvent": "Дубльована подія"
+  },
+  "errorDialog": {
+    "title": "@:appName Помилка",
+    "howToFixFallback": "Просимо вибачення за незручності! Надішліть проблему на нашій сторінці GitHub з описом вашої помилки."
+  },
+  "search": {
+    "label": "Пошук",
+    "placeholder": {
+      "actions": "Пошукові дії..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Скопійовано!",
+      "fail": "Неможливо скопіювати"
+    }
+  },
+  "unSupportBlock": "Поточна версія не підтримує цей блок.",
+  "views": {
+    "deleteContentTitle": "Ви дійсно хочете видалити {pageType}?",
+    "deleteContentCaption": "якщо ви видалите цей {pageType}, ви зможете відновити його з кошика."
+  },
+  "colors": {
+    "custom": "Custom",
+    "default": "За замовчуванням",
+    "red": "Червоний",
+    "orange": "Помаранчевий",
+    "yellow": "Жовтий",
+    "green": "Зелений",
+    "blue": "Синій",
+    "purple": "Фіолетовий",
+    "pink": "Рожевий",
+    "brown": "Коричневий",
+    "gray": "Сірий"
+  },
   "emoji": {
+    "emojiTab": "Emoji",
     "search": "Пошук емодзі",
     "noRecent": "Немає недавніх емодзі",
     "noEmojiFound": "Емодзі не знайдено",
@@ -1168,15 +1452,52 @@
       "flags": "Прапори",
       "nature": "Природа",
       "frequentlyUsed": "Часто використовувані"
+    },
+    "skinTone": {
+      "default": "За замовчуванням",
+      "light": "світло",
+      "mediumLight": "Середньосвітлий",
+      "medium": "Середній",
+      "mediumDark": "Середньо-темний",
+      "dark": "Темний"
     }
   },
   "inlineActions": {
     "noResults": "Немає результатів",
+    "recentPages": "Останні сторінки",
     "pageReference": "Посилання на сторінку",
+    "docReference": "Посилання на документ",
+    "boardReference": "Довідка дошки",
+    "gridReference": "Посилання на сітку",
     "date": "Дата",
     "reminder": {
       "groupTitle": "Нагадування",
       "shortKeyword": "нагадати"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Змініть формат дати та часу в налаштуваннях",
+    "dateFormat": "Формат дати",
+    "includeTime": "Включіть час",
+    "isRange": "Дата закінчення",
+    "timeFormat": "Формат часу",
+    "clearDate": "Ясна дата",
+    "reminderLabel": "Нагадування",
+    "selectReminder": "Виберіть нагадування",
+    "reminderOptions": {
+      "none": "Жодного",
+      "atTimeOfEvent": "Час події",
+      "fiveMinsBefore": "5 хвилин до",
+      "tenMinsBefore": "за 10 хвилин до",
+      "fifteenMinsBefore": "15 хвилин до",
+      "thirtyMinsBefore": "30 хвилин до",
+      "oneHourBefore": "за 1 годину до",
+      "twoHoursBefore": "за 2 години до",
+      "onDayOfEvent": "У день події",
+      "oneDayBefore": "за 1 день до",
+      "twoDaysBefore": "за 2 дні до",
+      "oneWeekBefore": "1 тиждень тому",
+      "custom": "Custom"
     }
   },
   "relativeDates": {
@@ -1187,6 +1508,27 @@
   },
   "notificationHub": {
     "title": "Сповіщення",
+    "mobile": {
+      "title": "Оновлення"
+    },
+    "emptyTitle": "Все наздогнали!",
+    "emptyBody": "Немає незавершених сповіщень або дій. Насолоджуйся спокоєм.",
+    "tabs": {
+      "inbox": "Вхідні",
+      "upcoming": "Майбутні"
+    },
+    "actions": {
+      "markAllRead": "Позначити все як прочитане",
+      "showAll": "все",
+      "showUnreads": "Непрочитаний"
+    },
+    "filters": {
+      "ascending": "Висхідний",
+      "descending": "Спускається",
+      "groupByDate": "Групувати за датою",
+      "showUnreadsOnly": "Показати лише непрочитані",
+      "resetToDefault": "Скинути до замовчування"
+    },
     "empty": "Тут нічого немає!"
   },
   "reminderNotification": {
@@ -1204,6 +1546,310 @@
     "replace": "Замінити",
     "replaceAll": "Замінити всі",
     "noResult": "Немає результатів",
-    "caseSensitive": "З урахуванням регістру"
+    "caseSensitive": "З урахуванням регістру",
+    "searchMore": "Шукайте, щоб знайти більше результатів"
+  },
+  "error": {
+    "weAreSorry": "Нам шкода",
+    "loadingViewError": "У нас виникла проблема із завантаженням цього перегляду. Перевірте підключення до Інтернету, оновіть програму та не соромтеся зв’язатися з командою, якщо проблема не зникне."
+  },
+  "editor": {
+    "bold": "жирний",
+    "bulletedList": "Маркірований список",
+    "bulletedListShortForm": "Маркірований",
+    "checkbox": "Прапорець",
+    "embedCode": "Вставити код",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Виділіть",
+    "color": "Колір",
+    "image": "Зображення",
+    "date": "Дата",
+    "page": "Сторінка",
+    "italic": "Курсив",
+    "link": "Посилання",
+    "numberedList": "Нумерований список",
+    "numberedListShortForm": "Пронумерований",
+    "quote": "Цитата",
+    "strikethrough": "Закреслення",
+    "text": "текст",
+    "underline": "Підкреслити",
+    "fontColorDefault": "За замовчуванням",
+    "fontColorGray": "Сірий",
+    "fontColorBrown": "Коричневий",
+    "fontColorOrange": "Помаранчевий",
+    "fontColorYellow": "Жовтий",
+    "fontColorGreen": "Зелений",
+    "fontColorBlue": "Синій",
+    "fontColorPurple": "Фіолетовий",
+    "fontColorPink": "Рожевий",
+    "fontColorRed": "Червоний",
+    "backgroundColorDefault": "Фон за умовчанням",
+    "backgroundColorGray": "Сірий фон",
+    "backgroundColorBrown": "Коричневий фон",
+    "backgroundColorOrange": "Помаранчевий фон",
+    "backgroundColorYellow": "Жовтий фон",
+    "backgroundColorGreen": "Зелений фон",
+    "backgroundColorBlue": "Блакитний фон",
+    "backgroundColorPurple": "Фіолетовий фон",
+    "backgroundColorPink": "Рожевий фон",
+    "backgroundColorRed": "Червоний фон",
+    "backgroundColorLime": "Вапно фону",
+    "backgroundColorAqua": "Аква фону",
+    "done": "Готово",
+    "cancel": "Скасувати",
+    "tint1": "Відтінок 1",
+    "tint2": "Відтінок 2",
+    "tint3": "Відтінок 3",
+    "tint4": "Відтінок 4",
+    "tint5": "Відтінок 5",
+    "tint6": "Відтінок 6",
+    "tint7": "Відтінок 7",
+    "tint8": "Відтінок 8",
+    "tint9": "Відтінок 9",
+    "lightLightTint1": "Фіолетовий",
+    "lightLightTint2": "Рожевий",
+    "lightLightTint3": "Світло-рожевий",
+    "lightLightTint4": "Помаранчевий",
+    "lightLightTint5": "Жовтий",
+    "lightLightTint6": "Вапно",
+    "lightLightTint7": "Зелений",
+    "lightLightTint8": "Аква",
+    "lightLightTint9": "Синій",
+    "urlHint": "URL",
+    "mobileHeading1": "Заголовок 1",
+    "mobileHeading2": "Заголовок 2",
+    "mobileHeading3": "Заголовок 3",
+    "textColor": "Колір тексту",
+    "backgroundColor": "Колір фону",
+    "addYourLink": "Додайте своє посилання",
+    "openLink": "Відкрити посилання",
+    "copyLink": "Копіювати посилання",
+    "removeLink": "Видалити посилання",
+    "editLink": "Редагувати посилання",
+    "linkText": "текст",
+    "linkTextHint": "Будь ласка, введіть текст",
+    "linkAddressHint": "Будь ласка, введіть URL",
+    "highlightColor": "Колір виділення",
+    "clearHighlightColor": "Чіткий колір виділення",
+    "customColor": "Індивідуальний колір",
+    "hexValue": "Шістнадцяткове значення",
+    "opacity": "Непрозорість",
+    "resetToDefaultColor": "Відновити колір за замовчуванням",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "Авто",
+    "cut": "Вирізати",
+    "copy": "Копіювати",
+    "paste": "Вставити",
+    "find": "знайти",
+    "select": "Виберіть",
+    "selectAll": "Вибрати все",
+    "previousMatch": "Попередній матч",
+    "nextMatch": "Наступний матч",
+    "closeFind": "Закрити",
+    "replace": "Замінити",
+    "replaceAll": "Замінити все",
+    "regex": "Регулярний вираз",
+    "caseSensitive": "Чутливий до регістру",
+    "uploadImage": "Завантажити зображення",
+    "urlImage": "URL зображення",
+    "incorrectLink": "Невірне посилання",
+    "upload": "Завантажити",
+    "chooseImage": "Виберіть зображення",
+    "loading": "Завантаження",
+    "imageLoadFailed": "Не вдалося завантажити зображення",
+    "table": "Таблиця",
+    "colAddBefore": "Додати перед",
+    "rowAddBefore": "Додати перед",
+    "colAddAfter": "Додайте після",
+    "rowAddAfter": "Додайте після",
+    "colRemove": "видалити",
+    "rowRemove": "видалити",
+    "colDuplicate": "дублікат",
+    "rowDuplicate": "дублікат",
+    "colClear": "Очистити вміст",
+    "rowClear": "Очистити вміст",
+    "slashPlaceHolder": "Введіть '/', щоб вставити блок, або почніть вводити",
+    "typeSomething": "Введіть щось...",
+    "toggleListShortForm": "Перемикач",
+    "quoteListShortForm": "Цитата",
+    "mathEquationShortForm": "Формула",
+    "codeBlockShortForm": "Код"
+  },
+  "favorite": {
+    "noFavorite": "Немає улюбленої сторінки",
+    "noFavoriteHintText": "Проведіть пальцем по сторінці вліво, щоб додати її до вибраного",
+    "removeFromSidebar": "Видалити з бічної панелі",
+    "addToSidebar": "Закріпити на бічній панелі"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Введіть /, щоб вставити блок, або почніть вводити текст"
+  },
+  "blockPlaceholders": {
+    "todoList": "Зробити",
+    "bulletList": "Список",
+    "numberList": "Список",
+    "quote": "Цитата",
+    "heading": "Заголовок {}"
+  },
+  "titleBar": {
+    "pageIcon": "Значок сторінки",
+    "language": "Мова",
+    "font": "Шрифт",
+    "actions": "Дії",
+    "date": "Дата",
+    "addField": "Додати поле",
+    "userIcon": "Значок користувача"
+  },
+  "noLogFiles": "Немає файлів журналу",
+  "newSettings": {
+    "myAccount": {
+      "title": "Мій рахунок",
+      "subtitle": "Налаштуйте свій профіль, керуйте безпекою облікового запису, відкривайте ключі AI або ввійдіть у свій обліковий запис.",
+      "profileLabel": "Назва облікового запису та зображення профілю",
+      "profileNamePlaceholder": "Введіть ім'я",
+      "accountSecurity": "Безпека облікового запису",
+      "2FA": "2-етапна автентифікація",
+      "aiKeys": "AI ключі",
+      "accountLogin": "Вхід до облікового запису",
+      "updateNameError": "Не вдалося оновити назву",
+      "updateIconError": "Не вдалося оновити значок",
+      "deleteAccount": {
+        "title": "Видалити аккаунт",
+        "subtitle": "Назавжди видалити свій обліковий запис і всі ваші дані.",
+        "deleteMyAccount": "Видалити мій обліковий запис",
+        "dialogTitle": "Видалити аккаунт",
+        "dialogContent1": "Ви впевнені, що хочете остаточно видалити свій обліковий запис?",
+        "dialogContent2": "Цю дію неможливо скасувати. Вона призведе до скасування доступу до всіх командних просторів, видалення всього вашого облікового запису, включаючи приватні робочі простори, і видалення вас із усіх спільних робочих просторів."
+      }
+    },
+    "workplace": {
+      "name": "робоче місце",
+      "title": "Налаштування робочого місця",
+      "subtitle": "Налаштуйте зовнішній вигляд робочої області, тему, шрифт, макет тексту, дату, час і мову.",
+      "workplaceName": "Назва робочого місця",
+      "workplaceNamePlaceholder": "Введіть назву робочого місця",
+      "workplaceIcon": "Значок на робочому місці",
+      "workplaceIconSubtitle": "Завантажте зображення або використовуйте емодзі для свого робочого простору. Значок з’явиться на бічній панелі та в сповіщеннях.",
+      "renameError": "Не вдалося перейменувати робоче місце",
+      "updateIconError": "Не вдалося оновити значок",
+      "chooseAnIcon": "Виберіть значок",
+      "appearance": {
+        "name": "Зовнішній вигляд",
+        "themeMode": {
+          "auto": "Авто",
+          "light": "світло",
+          "dark": "Темний"
+        },
+        "language": "Мова"
+      }
+    },
+    "syncState": {
+      "syncing": "Синхронізація",
+      "synced": "Синхронізовано",
+      "noNetworkConnected": "Немає підключення до мережі"
+    }
+  },
+  "pageStyle": {
+    "title": "Стиль сторінки",
+    "layout": "Макет",
+    "coverImage": "Зображення обкладинки",
+    "pageIcon": "Значок сторінки",
+    "colors": "Кольори",
+    "gradient": "Градієнт",
+    "backgroundImage": "Фонове зображення",
+    "presets": "Предустановки",
+    "photo": "Фото",
+    "unsplash": "Unsplash",
+    "pageCover": "Обкладинка сторінки",
+    "none": "Жодного",
+    "photoPermissionDescription": "Дозвольте доступ до бібліотеки фотографій для завантаження зображень.",
+    "openSettings": "Відкрийте налаштування",
+    "photoPermissionTitle": "@:appName хоче отримати доступ до вашої бібліотеки фотографій",
+    "doNotAllow": "Не дозволяти",
+    "image": "Зображення"
+  },
+  "commandPalette": {
+    "placeholder": "Введіть для пошуку...",
+    "bestMatches": "Найкращі збіги",
+    "recentHistory": "Новітня історія",
+    "navigateHint": "для навігації",
+    "loadingTooltip": "Чекаємо результатів...",
+    "betaLabel": "БЕТА",
+    "betaTooltip": "Зараз ми підтримуємо лише пошук сторінок і вмісту в документах",
+    "fromTrashHint": "Зі сміття",
+    "noResultsHint": "Ми не знайшли те, що ви шукали, спробуйте знайти інший термін.",
+    "clearSearchTooltip": "Очистити поле пошуку"
+  },
+  "space": {
+    "delete": "Видалити",
+    "deleteConfirmation": "Видалити: ",
+    "deleteConfirmationDescription": "Усі сторінки в цьому просторі буде видалено та переміщено до кошика, а опубліковані сторінки буде скасовано.",
+    "rename": "Перейменувати простір",
+    "changeIcon": "Змінити значок",
+    "manage": "Керуйте простором",
+    "addNewSpace": "Створити простір",
+    "collapseAllSubPages": "Згорнути всі підсторінки",
+    "createNewSpace": "Створіть новий простір",
+    "createSpaceDescription": "Створіть кілька публічних і приватних просторів, щоб краще організувати свою роботу.",
+    "spaceName": "Назва простору",
+    "spaceNamePlaceholder": "наприклад, маркетинг, інженерія, HR",
+    "permission": "Дозвіл",
+    "publicPermission": "Громадський",
+    "publicPermissionDescription": "Усі учасники робочої області з повним доступом",
+    "privatePermission": "Приватний",
+    "privatePermissionDescription": "Тільки ви маєте доступ до цього простору",
+    "spaceIconBackground": "Колір фону",
+    "spaceIcon": "значок",
+    "dangerZone": "НЕБЕЗПЕЧНА ЗОНА",
+    "unableToDeleteLastSpace": "Неможливо видалити останній пробіл",
+    "unableToDeleteSpaceNotCreatedByYou": "Неможливо видалити простори, створені іншими",
+    "enableSpacesForYourWorkspace": "Увімкніть Spaces для своєї робочої області",
+    "title": "Пробіли",
+    "defaultSpaceName": "Загальний",
+    "upgradeSpaceTitle": "Увімкнути Spaces",
+    "upgradeSpaceDescription": "Створіть кілька публічних і приватних просторів, щоб краще організувати свій робочий простір.",
+    "upgrade": "оновлення",
+    "upgradeYourSpace": "Створіть кілька просторів",
+    "quicklySwitch": "Швидко перейдіть до наступного місця",
+    "duplicate": "Дубльований простір",
+    "movePageToSpace": "Перемістити сторінку в простір",
+    "switchSpace": "Переключити простір"
+  },
+  "publish": {
+    "hasNotBeenPublished": "Ця сторінка ще не опублікована",
+    "reportPage": "Сторінка звіту",
+    "databaseHasNotBeenPublished": "Публікація бази даних ще не підтримується.",
+    "createdWith": "Створено за допомогою",
+    "downloadApp": "Завантажити AppFlowy",
+    "copy": {
+      "codeBlock": "Вміст блоку коду скопійовано в буфер обміну",
+      "imageBlock": "Посилання на зображення скопійовано в буфер обміну",
+      "mathBlock": "Математичне рівняння скопійовано в буфер обміну"
+    },
+    "containsPublishedPage": "Ця сторінка містить одну або кілька опублікованих сторінок. Якщо ви продовжите, їх публікацію буде скасовано. Ви хочете продовжити видалення?",
+    "publishSuccessfully": "Успішно опубліковано",
+    "unpublishSuccessfully": "Публікацію скасовано",
+    "publishFailed": "Не вдалося опублікувати",
+    "unpublishFailed": "Не вдалося скасувати публікацію",
+    "noAccessToVisit": "Немає доступу до цієї сторінки...",
+    "createWithAppFlowy": "Створіть веб-сайт за допомогою AppFlowy",
+    "fastWithAI": "Швидко та легко з AI.",
+    "tryItNow": "Спробуй зараз",
+    "onlyGridViewCanBePublished": "Можна опублікувати лише режим сітки",
+    "database": {
+      "zero": "Опублікувати {} вибране представлення",
+      "one": "Опублікувати {} вибраних представлень",
+      "many": "Опублікувати {} вибраних представлень",
+      "other": "Опублікувати {} вибраних представлень"
+    },
+    "mustSelectPrimaryDatabase": "Необхідно вибрати основний вид",
+    "noDatabaseSelected": "Базу даних не вибрано, виберіть принаймні одну базу даних.",
+    "unableToDeselectPrimaryDatabase": "Неможливо скасувати вибір основної бази даних",
+    "saveThisPage": "Зберегти цю сторінку",
+    "duplicateTitle": "Куди б ви хотіли додати",
+    "selectWorkspace": "Виберіть робочу область"
   }
 }
