@@ -144,6 +144,7 @@ class _WorkspaceMenuItem extends StatelessWidget {
                 enableEdit: false,
                 iconSize: 26,
                 fontSize: 16.0,
+                figmaLineHeight: 16.0,
                 workspace: workspace,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(

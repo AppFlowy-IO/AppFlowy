@@ -171,6 +171,7 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
           workspace: widget.workspace,
           iconSize: 22,
           fontSize: 16,
+          figmaLineHeight: 32.0,
           enableEdit: true,
           onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                 UserWorkspaceEvent.updateWorkspaceIcon(

@@ -18,6 +18,7 @@ class WorkspaceIcon extends StatefulWidget {
     this.borderRadius = 4,
     this.emojiSize,
     this.alignment,
+    required this.figmaLineHeight,
   });
 
   final UserWorkspacePB workspace;
@@ -28,6 +29,7 @@ class WorkspaceIcon extends StatefulWidget {
   final void Function(EmojiPickerResult) onSelected;
   final double borderRadius;
   final Alignment? alignment;
+  final double figmaLineHeight;
 
   @override
   State<WorkspaceIcon> createState() => _WorkspaceIconState();
@@ -45,7 +47,8 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
             child: FlowyText.emoji(
               widget.workspace.icon,
               fontSize: widget.emojiSize ?? widget.iconSize,
-              figmaLineHeight: 21.0,
+              figmaLineHeight: widget.figmaLineHeight,
+              optimizeEmojiAlign: true,
             ),
           )
         : Container(

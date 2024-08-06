@@ -278,9 +278,9 @@ class ConfirmPopupColor {
 
   static Color descriptionColor(BuildContext context) {
     if (Theme.of(context).isLightMode) {
-      return const Color(0xFF171717).withOpacity(0.8);
+      return const Color(0xFF171717).withOpacity(0.7);
     }
-    return const Color(0xFFffffff).withOpacity(0.72);
+    return const Color(0xFFffffff).withOpacity(0.7);
   }
 }
 
@@ -372,15 +372,21 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         Expanded(
           child: FlowyText(
             widget.title,
-            fontSize: 14.0,
+            fontSize: 16.0,
+            figmaLineHeight: 22.0,
+            fontWeight: FontWeight.w500,
             overflow: TextOverflow.ellipsis,
             color: ConfirmPopupColor.titleColor(context),
           ),
         ),
         const HSpace(6.0),
         FlowyButton(
+          margin: const EdgeInsets.all(3),
           useIntrinsicWidth: true,
-          text: const FlowySvg(FlowySvgs.upgrade_close_s),
+          text: const FlowySvg(
+            FlowySvgs.upgrade_close_s,
+            size: Size.square(18.0),
+          ),
           onTap: () => Navigator.of(context).pop(),
         ),
       ],
@@ -390,10 +396,10 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
   Widget _buildDescription() {
     return FlowyText.regular(
       widget.description,
-      fontSize: 12.0,
+      fontSize: 16.0,
       color: ConfirmPopupColor.descriptionColor(context),
-      maxLines: 3,
-      lineHeight: 1.4,
+      maxLines: 5,
+      figmaLineHeight: 22.0,
     );
   }
 

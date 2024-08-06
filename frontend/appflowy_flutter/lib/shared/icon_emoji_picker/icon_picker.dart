@@ -51,6 +51,7 @@ Future<List<IconGroup>> loadIconGroups() async {
     return kIconGroups!;
   }
 
+  final stopwatch = Stopwatch()..start();
   final jsonString = await rootBundle.loadString('assets/icons/icons.json');
   try {
     final json = jsonDecode(jsonString) as Map<String, dynamic>;
@@ -60,6 +61,9 @@ Future<List<IconGroup>> loadIconGroups() async {
   } catch (e) {
     Log.error('Failed to decode icons.json', e);
     return [];
+  } finally {
+    stopwatch.stop();
+    Log.info('Loaded icon groups in ${stopwatch.elapsedMilliseconds}ms');
   }
 }
 

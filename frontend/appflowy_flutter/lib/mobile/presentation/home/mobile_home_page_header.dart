@@ -133,6 +133,7 @@ class _MobileWorkspace extends StatelessWidget {
                   fontSize: 16.0,
                   enableEdit: false,
                   alignment: Alignment.centerLeft,
+                  figmaLineHeight: 16.0,
                   onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                         UserWorkspaceEvent.updateWorkspaceIcon(
                           currentWorkspace.workspaceId,
