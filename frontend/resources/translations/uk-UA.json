@@ -2178,15 +2178,16 @@
     "chooseImage": "Виберіть зображення",
     "loading": "Завантаження",
     "imageLoadFailed": "Не вдалося завантажити зображення",
+    "divider": "Роздільник",
     "table": "Таблиця",
     "colAddBefore": "Додати перед",
     "rowAddBefore": "Додати перед",
     "colAddAfter": "Додайте після",
     "rowAddAfter": "Додайте після",
-    "colRemove": "видалити",
-    "rowRemove": "видалити",
-    "colDuplicate": "дублікат",
-    "rowDuplicate": "дублікат",
+    "colRemove": "Видалити",
+    "rowRemove": "Видалити",
+    "colDuplicate": "Дублювати",
+    "rowDuplicate": "Дублювати",
     "colClear": "Очистити вміст",
     "rowClear": "Очистити вміст",
     "slashPlaceHolder": "Введіть '/', щоб вставити блок, або почніть вводити",
@@ -2244,7 +2245,7 @@
       }
     },
     "workplace": {
-      "name": "робоче місце",
+      "name": "Робоче місце",
       "title": "Налаштування робочого місця",
       "subtitle": "Налаштуйте зовнішній вигляд робочої області, тему, шрифт, макет тексту, дату, час і мову.",
       "workplaceName": "Назва робочого місця",
@@ -2258,8 +2259,8 @@
         "name": "Зовнішній вигляд",
         "themeMode": {
           "auto": "Авто",
-          "light": "світло",
-          "dark": "Темний"
+          "light": "Світла",
+          "dark": "Темна"
         },
         "language": "Мова"
       }
@@ -2391,14 +2392,21 @@
     "signInAgreement": "Натиснувши «Продовжити» вище, ви підтверджуєте це\nви прочитали, зрозуміли та погодилися\nAppFlowy",
     "and": "і",
     "termOfUse": "Умови",
-    "privacyPolicy": "Політика конфіденційності"
+    "privacyPolicy": "Політика конфіденційності",
+    "signInError": "Помилка входу",
+    "login": "Зареєструйтесь або увійдіть"
   },
   "globalComment": {
+    "comments": "Коментарі",
+    "addComment": "Додати коментар",
+    "reactedBy": "відреагував",
     "addReaction": "Додайте реакцію",
     "reactedByMore": "та {count} інших",
     "showSeconds": {
       "one": "1 секунду тому",
-      "other": "{count} секунд тому"
+      "other": "{count} секунд тому",
+      "zero": "Прямо зараз",
+      "many": "{count} секунд тому"
     },
     "showMinutes": {
       "one": "1 хвилину тому",
