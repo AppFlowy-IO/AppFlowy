@@ -774,8 +774,8 @@
         "defaultColor": "Défaut"
       },
       "image": {
-        "copiedToPasteBoard": "Le lien de l'image a été copié dans le presse-papiers",
-        "addAnImage": "Ajouter une image"
+        "addAnImage": "Ajouter une image",
+        "copiedToPasteBoard": "Le lien de l'image a été copié dans le presse-papiers"
       },
       "urlPreview": {
         "copiedToPasteBoard": "Le lien a été copié dans le presse-papier"

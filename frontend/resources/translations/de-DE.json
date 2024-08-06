@@ -649,8 +649,6 @@
         "aiResponseUsage": "{} von {}",
         "proBadge": "Pro",
         "memberProToggle": "Unbegrenzte Mitgliederzahl",
-        "guestCollabToggle": "10 Gastmitarbeiter",
-        "storageUnlimited": "Unbegrenzter Speicherplatz mit deinem Pro-Plan",
         "aiCredit": {
           "title": "@:appName KI-Guthaben hinzufügen",
           "price": "{}",
@@ -669,6 +667,7 @@
           "proInfo": "Perfekt für kleine und mittlere Teams mit bis zu 10 Mitgliedern.",
           "teamInfo": "Perfekt für alle produktiven und gut organisierten Teams.",
           "upgrade": "Vergleichen &\n Upgraden",
+          "canceledInfo": "Dein Plan wurde gekündigt und du wirst am {} auf den kostenlosen Plan herabgestuft.",
           "freeProOne": "Gemeinsamer Arbeitsbereich",
           "freeProTwo": "Bis zu 3 Mitglieder (inkl. Eigentümer)",
           "freeProThree": "Unbegrenzte Anzahl an Gästen (nur anzeigen)",
@@ -684,15 +683,16 @@
           "professionalProFive": "6 Monate Änderungshistorie",
           "professionalConOne": "Unbegrenzte Anzahl an Gastmitarbeitern (Bearbeitungszugriff)",
           "professionalConTwo": "Unbegrenzte KI-Antworten",
-          "professionalConThree": "1 Jahr Änderungshistorie",
-          "canceledInfo": "Dein Plan wurde gekündigt und du wirst am {} auf den kostenlosen Plan herabgestuft."
+          "professionalConThree": "1 Jahr Änderungshistorie"
         },
         "deal": {
           "bannerLabel": "Neujahrsangebot!",
           "title": "Erweiter dein Team!",
           "info": "Upgraden und 10 % auf Pro- und Team-Pläne sparen! Steiger die Produktivität deines Arbeitsplatzes mit leistungsstarken neuen Funktionen, einschließlich @:appName KI.",
           "viewPlans": "Pläne anzeigen"
-        }
+        },
+        "guestCollabToggle": "10 Gastmitarbeiter",
+        "storageUnlimited": "Unbegrenzter Speicherplatz mit deinem Pro-Plan"
       }
     },
     "billingPage": {
@@ -719,8 +719,8 @@
       "actions": {
         "upgrade": "Upgrade",
         "downgrade": "Downgrade",
-        "downgradeDisabledTooltip": "Du wirst am Ende des Abrechnungszeitraums automatisch herabgestuft",
-        "current": "Aktuell"
+        "current": "Aktuell",
+        "downgradeDisabledTooltip": "Du wirst am Ende des Abrechnungszeitraums automatisch herabgestuft"
       },
       "freePlan": {
         "title": "Kostenlos",
@@ -738,12 +738,12 @@
         "itemOne": "Arbeitsbereiche",
         "itemTwo": "Mitglieder",
         "itemThree": "Gäste",
-        "tooltipThree": "Gäste haben nur Leserechte für die speziell freigegebenen Inhalte",
         "itemFour": "Gäste",
-        "tooltipFour": "Gäste werden als ein Sitzplatz abgerechnet",
         "itemFive": "Speicher",
         "itemSix": "Zusammenarbeit in Echtzeit",
         "itemSeven": "Mobile App",
+        "tooltipThree": "Gäste haben nur Leserechte für die speziell freigegebenen Inhalte",
+        "tooltipFour": "Gäste werden als ein Sitzplatz abgerechnet",
         "itemEight": "AI-Antworten",
         "tooltipEight": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird."
       },
@@ -1404,8 +1404,8 @@
         "depth": "Tiefe"
       },
       "image": {
-        "copiedToPasteBoard": "Der Bildlink wurde in die Zwischenablage kopiert",
         "addAnImage": "Ein Bild hinzufügen",
+        "copiedToPasteBoard": "Der Bildlink wurde in die Zwischenablage kopiert",
         "imageUploadFailed": "Bild hochladen gescheitert",
         "errorCode": "Fehlercode"
       },

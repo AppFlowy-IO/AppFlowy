@@ -625,8 +625,8 @@
         "defaultColor": "Padrão"
       },
       "image": {
-        "copiedToPasteBoard": "O link da imagem foi copiado para a área de transferência",
-        "addAnImage": "Adicione uma imagem"
+        "addAnImage": "Adicione uma imagem",
+        "copiedToPasteBoard": "O link da imagem foi copiado para a área de transferência"
       },
       "outline": {
         "addHeadingToCreateOutline": "Adicione títulos para criar um sumário."
