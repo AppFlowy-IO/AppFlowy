@@ -1,12 +1,18 @@
-import 'package:appflowy/plugins/ai_chat/presentation/chat_inline_action_menu.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
+import 'package:extended_text_field/extended_text_field.dart';
+import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
-import 'chat_accessory_button.dart';
+import 'chat_at_button.dart';
+import 'chat_send_button.dart';
+import 'chat_input_span.dart';
 
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
@@ -39,41 +45,41 @@ class ChatInput extends StatefulWidget {
 class _ChatInputState extends State<ChatInput> {
   final GlobalKey _textFieldKey = GlobalKey();
   final LayerLink _layerLink = LayerLink();
-  // final ChatTextFieldInterceptor _textFieldInterceptor =
-  //     ChatTextFieldInterceptor();
-
-  late final _inputFocusNode = FocusNode(
-    onKeyEvent: (node, event) {
-      if (event.physicalKey == PhysicalKeyboardKey.enter &&
-          !HardwareKeyboard.instance.physicalKeysPressed.any(
-            (el) => <PhysicalKeyboardKey>{
-              PhysicalKeyboardKey.shiftLeft,
-              PhysicalKeyboardKey.shiftRight,
-            }.contains(el),
-          )) {
-        if (kIsWeb && _textController.value.isComposingRangeValid) {
-          return KeyEventResult.ignored;
-        }
-        if (event is KeyDownEvent) {
-          if (!widget.isStreaming) {
-            _handleSendPressed();
-          }
-        }
-        return KeyEventResult.handled;
-      } else {
-        return KeyEventResult.ignored;
-      }
-    },
-  );
+  late ChatInputActionControl _inputActionControl;
+  late FocusNode _inputFocusNode;
   late TextEditingController _textController;
-
-  bool _sendButtonVisible = false;
+  bool _sendButtonEnabled = false;
 
   @override
   void initState() {
     super.initState();
-
     _textController = InputTextFieldController();
+    _inputFocusNode = FocusNode(
+      onKeyEvent: (node, event) {
+        // TODO(lucas): support mobile
+        if (PlatformExtension.isDesktop) {
+          if (_inputActionControl.canHandleKeyEvent(event)) {
+            _inputActionControl.handleKeyEvent(event);
+            return KeyEventResult.handled;
+          } else {
+            return _handleEnterKeyWithoutShift(
+              event,
+              _textController,
+              widget.isStreaming,
+              _handleSendPressed,
+            );
+          }
+        } else {
+          return KeyEventResult.ignored;
+        }
+      },
+    );
+
+    _inputActionControl = ChatInputActionControl(
+      chatId: widget.chatId,
+      textController: _textController,
+      textFieldFocusNode: _inputFocusNode,
+    );
     _handleSendButtonVisibilityModeChange();
   }
 
@@ -81,13 +87,14 @@ class _ChatInputState extends State<ChatInput> {
   void dispose() {
     _inputFocusNode.dispose();
     _textController.dispose();
+    _inputActionControl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const textPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 6);
-    const buttonPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 6);
+    const textPadding = EdgeInsets.symmetric(horizontal: 16);
+    const buttonPadding = EdgeInsets.symmetric(horizontal: 2);
     const inputPadding = EdgeInsets.all(6);
 
     return Focus(
@@ -108,7 +115,11 @@ class _ChatInputState extends State<ChatInput> {
                   padding: buttonPadding,
                 ),
               Expanded(child: _inputTextField(textPadding)),
+
+              // TODO(lucas): support mobile
+              if (PlatformExtension.isDesktop) _atButton(buttonPadding),
               _sendButton(buttonPadding),
+              const HSpace(14),
             ],
           ),
         ),
@@ -118,7 +129,7 @@ class _ChatInputState extends State<ChatInput> {
 
   void _handleSendButtonVisibilityModeChange() {
     _textController.removeListener(_handleTextControllerChange);
-    _sendButtonVisible =
+    _sendButtonEnabled =
         _textController.text.trim() != '' || widget.isStreaming;
     _textController.addListener(_handleTextControllerChange);
   }
@@ -126,9 +137,11 @@ class _ChatInputState extends State<ChatInput> {
   void _handleSendPressed() {
     final trimmedText = _textController.text.trim();
     if (trimmedText != '') {
-      final partialText = types.PartialText(text: trimmedText);
+      final partialText = types.PartialText(
+        text: trimmedText,
+        metadata: _inputActionControl.metaData,
+      );
       widget.onSendPressed(partialText);
-
       _textController.clear();
     }
   }
@@ -138,7 +151,7 @@ class _ChatInputState extends State<ChatInput> {
       return;
     }
     setState(() {
-      _sendButtonVisible = _textController.text.trim() != '';
+      _sendButtonEnabled = _textController.text.trim() != '';
     });
   }
 
@@ -147,8 +160,10 @@ class _ChatInputState extends State<ChatInput> {
       link: _layerLink,
       child: Padding(
         padding: textPadding,
-        child: TextField(
+        child: ExtendedTextField(
           key: _textFieldKey,
+          specialTextSpanBuilder:
+              ChatInputTextSpanBuilder(inputActionControl: _inputActionControl),
           controller: _textController,
           focusNode: _inputFocusNode,
           decoration: InputDecoration(
@@ -160,58 +175,70 @@ class _ChatInputState extends State<ChatInput> {
           ),
           style: TextStyle(
             color: AFThemeExtension.of(context).textColor,
+            fontSize: 15,
           ),
           keyboardType: TextInputType.multiline,
           textCapitalization: TextCapitalization.sentences,
-          maxLines: 10,
           minLines: 1,
-          // onChanged: (text) {
-          //   final handler = _textFieldInterceptor.onTextChanged(
-          //     text,
-          //     _textController,
-          //     _inputFocusNode,
-          //   );
-          //   // If the handler is not null, it means that the text has been
-          //   // recognized as a command.
-          //   if (handler != null) {
-          //     ChatActionsMenu(
-          //       anchor: ChatInputAnchor(
-          //         anchorKey: _textFieldKey,
-          //         layerLink: _layerLink,
-          //       ),
-          //       handler: handler,
-          //       context: context,
-          //       style: Theme.of(context).brightness == Brightness.dark
-          //           ? const ChatActionsMenuStyle.dark()
-          //           : const ChatActionsMenuStyle.light(),
-          //     ).show();
-          //   }
-          // },
+          maxLines: 10,
+          onChanged: (text) {
+            _handleOnTextChange(context, text);
+          },
         ),
       ),
     );
   }
 
-  ConstrainedBox _sendButton(EdgeInsets buttonPadding) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        minHeight: buttonPadding.bottom + buttonPadding.top + 24,
-      ),
-      child: Visibility(
-        visible: _sendButtonVisible,
-        child: Padding(
-          padding: buttonPadding,
-          child: ChatInputAccessoryButton(
-            onSendPressed: () {
-              if (!widget.isStreaming) {
-                widget.onStopStreaming();
-                _handleSendPressed();
-              }
-            },
-            onStopStreaming: () => widget.onStopStreaming(),
-            isStreaming: widget.isStreaming,
+  void _handleOnTextChange(BuildContext context, String text) {
+    if (PlatformExtension.isDesktop) {
+      if (_inputActionControl.onTextChanged(text)) {
+        ChatActionsMenu(
+          anchor: ChatInputAnchor(
+            anchorKey: _textFieldKey,
+            layerLink: _layerLink,
           ),
-        ),
+          handler: _inputActionControl,
+          context: context,
+          style: Theme.of(context).brightness == Brightness.dark
+              ? const ChatActionsMenuStyle.dark()
+              : const ChatActionsMenuStyle.light(),
+        ).show();
+      }
+    } else {
+      // TODO(lucas): support mobile
+    }
+  }
+
+  Widget _sendButton(EdgeInsets buttonPadding) {
+    return Padding(
+      padding: buttonPadding,
+      child: ChatInputSendButton(
+        onSendPressed: () {
+          if (!_sendButtonEnabled) {
+            return;
+          }
+
+          if (!widget.isStreaming) {
+            widget.onStopStreaming();
+            _handleSendPressed();
+          }
+        },
+        onStopStreaming: () => widget.onStopStreaming(),
+        isStreaming: widget.isStreaming,
+        enabled: _sendButtonEnabled,
+      ),
+    );
+  }
+
+  Widget _atButton(EdgeInsets buttonPadding) {
+    return Padding(
+      padding: buttonPadding,
+      child: ChatInputAtButton(
+        onTap: () {
+          _textController.text += '@';
+          _inputFocusNode.requestFocus();
+          _handleOnTextChange(context, _textController.text);
+        },
       ),
     );
   }
@@ -237,4 +264,39 @@ class ChatInputAnchor extends ChatAnchor {
 
   @override
   final LayerLink layerLink;
+}
+
+/// Handles the key press event for the Enter key without Shift.
+///
+/// This function checks if the Enter key is pressed without either of the Shift keys.
+/// If the conditions are met, it performs the action of sending a message if the
+/// text controller is not in a composing range and if the event is a key down event.
+///
+/// - Returns: A `KeyEventResult` indicating whether the key event was handled or ignored.
+KeyEventResult _handleEnterKeyWithoutShift(
+  KeyEvent event,
+  TextEditingController textController,
+  bool isStreaming,
+  void Function() handleSendPressed,
+) {
+  if (event.physicalKey == PhysicalKeyboardKey.enter &&
+      !HardwareKeyboard.instance.physicalKeysPressed.any(
+        (el) => <PhysicalKeyboardKey>{
+          PhysicalKeyboardKey.shiftLeft,
+          PhysicalKeyboardKey.shiftRight,
+        }.contains(el),
+      )) {
+    if (textController.value.isComposingRangeValid) {
+      return KeyEventResult.ignored;
+    }
+
+    if (event is KeyDownEvent) {
+      if (!isStreaming) {
+        handleSendPressed();
+      }
+    }
+    return KeyEventResult.handled;
+  } else {
+    return KeyEventResult.ignored;
+  }
 }

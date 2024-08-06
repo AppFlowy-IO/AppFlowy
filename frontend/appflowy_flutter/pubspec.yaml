@@ -111,7 +111,7 @@ dependencies:
   flutter_emoji_mart:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
-      ref: "4a5cac"
+      ref: "38c2c42"
 
   # Notifications
   # TODO: Consider implementing custom package
@@ -160,6 +160,9 @@ dependencies:
   flutter_highlight: ^0.7.0
   custom_sliding_segmented_control: ^1.8.3
   toastification: ^2.0.0
+  scroll_to_index: ^3.0.1
+  extended_text_field: ^15.0.0
+  extended_text_library: ^12.0.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -196,7 +199,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "7202c34"
+      ref: "c064543"
 
   appflowy_editor_plugins:
     git:
@@ -280,6 +283,7 @@ flutter:
     - assets/images/emoji/
     - assets/images/login/
     - assets/translations/
+    - assets/icons/icons.json
 
     # The following assets will be excluded in release.
     # BEGIN: EXCLUDE_IN_RELEASE

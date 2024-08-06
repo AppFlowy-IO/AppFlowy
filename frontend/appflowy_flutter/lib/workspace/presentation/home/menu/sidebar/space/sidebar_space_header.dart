@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/manage_space_popup.dart';
@@ -13,8 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarSpaceHeader extends StatefulWidget {
@@ -171,8 +171,19 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
         await _showRenameDialog();
         break;
       case SpaceMoreActionType.changeIcon:
-        final (String icon, String iconColor) = data;
-        context.read<SpaceBloc>().add(SpaceEvent.changeIcon(icon, iconColor));
+        final (IconGroup? group, Icon? icon, String? iconColor) = data;
+
+        final groupName = group?.name;
+        final iconName = icon?.name;
+        final name = groupName != null && iconName != null
+            ? '$groupName/$iconName'
+            : null;
+        context.read<SpaceBloc>().add(
+              SpaceEvent.changeIcon(
+                name,
+                iconColor,
+              ),
+            );
         break;
       case SpaceMoreActionType.manage:
         _showManageSpaceDialog(context);

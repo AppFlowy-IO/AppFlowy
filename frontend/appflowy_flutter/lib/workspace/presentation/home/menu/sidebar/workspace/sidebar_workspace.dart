@@ -242,6 +242,7 @@ class _SidebarSwitchWorkspaceButtonState
                 emojiSize: 18,
                 enableEdit: false,
                 borderRadius: 8.0,
+                figmaLineHeight: 21.0,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
                         widget.currentWorkspace.workspaceId,

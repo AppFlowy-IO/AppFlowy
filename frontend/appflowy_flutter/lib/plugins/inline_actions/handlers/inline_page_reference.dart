@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
@@ -17,6 +16,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
@@ -228,11 +228,11 @@ class InlinePageReferenceService extends InlineActionsDelegate {
         keywords: [view.name.toLowerCase()],
         label: view.name,
         icon: (onSelected) => view.icon.value.isNotEmpty
-            ? EmojiText(
-                emoji: view.icon.value,
-                fontSize: 12,
-                textAlign: TextAlign.center,
-                lineHeight: 1.3,
+            ? FlowyText.emoji(
+                view.icon.value,
+                fontSize: 14,
+                figmaLineHeight: 18.0,
+                // optimizeEmojiAlign: true,
               )
             : view.defaultIcon(),
         onSelected: (context, editorState, menu, replace) => insertPage

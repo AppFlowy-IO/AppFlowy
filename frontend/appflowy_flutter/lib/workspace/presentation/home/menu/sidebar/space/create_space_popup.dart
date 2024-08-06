@@ -17,8 +17,8 @@ class CreateSpacePopup extends StatefulWidget {
 
 class _CreateSpacePopupState extends State<CreateSpacePopup> {
   String spaceName = LocaleKeys.space_defaultSpaceName.tr();
-  String spaceIcon = builtInSpaceIcons.first;
-  String spaceIconColor = builtInSpaceColors.first;
+  String? spaceIcon = builtInSpaceIcons.first;
+  String? spaceIconColor = builtInSpaceColors.first;
   SpacePermission spacePermission = SpacePermission.publicToAll;
 
   @override
@@ -80,8 +80,9 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
     context.read<SpaceBloc>().add(
           SpaceEvent.create(
             name: spaceName,
-            icon: spaceIcon,
-            iconColor: spaceIconColor,
+            // fixme: space issue
+            icon: spaceIcon!,
+            iconColor: spaceIconColor!,
             permission: spacePermission,
             createNewPageByDefault: true,
           ),
