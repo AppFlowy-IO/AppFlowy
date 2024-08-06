@@ -489,6 +489,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         child: BlocBuilder<ChatInputStateBloc, ChatInputStateState>(
           builder: (context, state) {
             // Show different hint text based on the AI type
+            final aiType = state.aiType;
             final hintText = state.aiType.when(
               appflowyAI: () => LocaleKeys.chat_inputMessageHint.tr(),
               localAI: () => LocaleKeys.chat_inputLocalAIMessageHint.tr(),
@@ -500,6 +501,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                   selector: (state) => state.streamingStatus,
                   builder: (context, state) {
                     return ChatInput(
+                      aiType: aiType,
                       chatId: widget.view.id,
                       onSendPressed: (message) {
                         context.read<ChatBloc>().add(

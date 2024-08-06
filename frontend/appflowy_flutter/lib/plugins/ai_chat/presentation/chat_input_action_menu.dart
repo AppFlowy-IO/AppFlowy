@@ -78,6 +78,8 @@ class ChatActionsMenu {
               ),
               maxHeight,
             );
+            final isLoading =
+                state.indicator == const ChatActionMenuIndicator.loading();
 
             return Stack(
               children: [
@@ -106,6 +108,7 @@ class ChatActionsMenu {
                             vertical: 2,
                           ),
                           child: ActionList(
+                            isLoading: isLoading,
                             handler: handler,
                             onDismiss: () => dismiss(),
                             pages: state.pages,
@@ -149,6 +152,7 @@ class _ActionItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(4.0),
       ),
       child: FlowyButton(
+        leftIcon: item.icon,
         margin: const EdgeInsets.symmetric(horizontal: 6),
         iconPadding: 10.0,
         text: FlowyText.regular(
@@ -166,11 +170,13 @@ class ActionList extends StatefulWidget {
     required this.handler,
     required this.onDismiss,
     required this.pages,
+    required this.isLoading,
   });
 
   final ChatActionHandler handler;
   final VoidCallback? onDismiss;
   final List<ChatInputActionPage> pages;
+  final bool isLoading;
 
   @override
   State<ActionList> createState() => _ActionListState();
@@ -223,13 +229,22 @@ class _ActionListState extends State<ActionList> {
       child: ListView(
         shrinkWrap: true,
         controller: _scrollController,
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(4),
         children: _buildPages(),
       ),
     );
   }
 
   List<Widget> _buildPages() {
+    if (widget.isLoading) {
+      return [
+        SizedBox(
+          height: _noPageHeight.toDouble(),
+          child: const Center(child: CircularProgressIndicator.adaptive()),
+        ),
+      ];
+    }
+
     if (widget.pages.isEmpty) {
       return [
         SizedBox(

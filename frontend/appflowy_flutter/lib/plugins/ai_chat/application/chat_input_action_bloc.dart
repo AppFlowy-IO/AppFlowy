@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'chat_input_action_control.dart';
@@ -43,34 +45,28 @@ class ChatInputActionBloc
         );
       },
       refreshViews: (List<ViewPB> views) {
+        final List<ViewActionPage> pages = _filterPages(
+          views,
+          state.selectedPages,
+          state.filter,
+        );
         emit(
           state.copyWith(
             views: views,
-            pages: views.map((v) => ViewActionPage(view: v)).toList(),
+            pages: pages,
+            indicator: const ChatActionMenuIndicator.ready(),
           ),
         );
       },
       filter: (String filter) {
-        final List<ViewActionPage> pages = [];
-        if (filter.isEmpty) {
-          pages.addAll(state.views.map((v) => ViewActionPage(view: v)));
-        } else {
-          pages.addAll(
-            state.views
-                .where(
-                  (v) => v.name.toLowerCase().contains(
-                        filter.toLowerCase(),
-                      ),
-                )
-                .map(
-                  (v) => ViewActionPage(view: v),
-                ),
-          );
-        }
-        pages.retainWhere((view) {
-          return !state.selectedPages.contains(view);
-        });
-        emit(state.copyWith(pages: pages));
+        Log.debug("Filter chat input pages: $filter");
+        final List<ViewActionPage> pages = _filterPages(
+          state.views,
+          state.selectedPages,
+          filter,
+        );
+
+        emit(state.copyWith(pages: pages, filter: filter));
       },
       handleKeyEvent: (PhysicalKeyboardKey physicalKey) {
         emit(
@@ -81,8 +77,14 @@ class ChatInputActionBloc
       },
       addPage: (ChatInputActionPage page) {
         if (!state.selectedPages.any((p) => p.pageId == page.pageId)) {
+          final List<ViewActionPage> pages = _filterPages(
+            state.views,
+            state.selectedPages,
+            state.filter,
+          );
           emit(
             state.copyWith(
+              pages: pages,
               selectedPages: [...state.selectedPages, page],
             ),
           );
@@ -93,9 +95,11 @@ class ChatInputActionBloc
             List.from(state.selectedPages);
         selectedPages.retainWhere((t) => !text.contains(t.title));
 
-        final allPages =
-            state.views.map((v) => ViewActionPage(view: v)).toList();
-        allPages.retainWhere((view) => !selectedPages.contains(view));
+        final List<ViewActionPage> allPages = _filterPages(
+          state.views,
+          state.selectedPages,
+          state.filter,
+        );
 
         emit(
           state.copyWith(
@@ -106,6 +110,32 @@ class ChatInputActionBloc
       },
     );
   }
+}
+
+List<ViewActionPage> _filterPages(
+  List<ViewPB> views,
+  List<ChatInputActionPage> selectedPages,
+  String filter,
+) {
+  final pages = views
+      .map(
+        (v) => ViewActionPage(view: v),
+      )
+      .toList();
+
+  pages.retainWhere((page) {
+    return !selectedPages.contains(page);
+  });
+
+  if (filter.isEmpty) {
+    return pages;
+  }
+
+  return pages
+      .where(
+        (v) => v.title.toLowerCase().contains(filter.toLowerCase()),
+      )
+      .toList();
 }
 
 class ViewActionPage extends ChatInputActionPage {
@@ -124,6 +154,9 @@ class ViewActionPage extends ChatInputActionPage {
 
   @override
   dynamic get page => view;
+
+  @override
+  Widget get icon => view.defaultIcon();
 }
 
 @freezed
@@ -146,7 +179,10 @@ class ChatInputActionState with _$ChatInputActionState {
     @Default([]) List<ViewPB> views,
     @Default([]) List<ChatInputActionPage> pages,
     @Default([]) List<ChatInputActionPage> selectedPages,
+    @Default("") String filter,
     ChatInputKeyboardEvent? keyboardKey,
+    @Default(ChatActionMenuIndicator.loading())
+    ChatActionMenuIndicator indicator,
   }) = _ChatInputActionState;
 }
 
@@ -158,4 +194,10 @@ class ChatInputKeyboardEvent extends Equatable {
 
   @override
   List<Object?> get props => [timestamp];
+}
+
+@freezed
+class ChatActionMenuIndicator with _$ChatActionMenuIndicator {
+  const factory ChatActionMenuIndicator.ready() = _Ready;
+  const factory ChatActionMenuIndicator.loading() = _Loading;
 }

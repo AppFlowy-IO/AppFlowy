@@ -9,6 +9,7 @@ abstract class ChatInputActionPage extends Equatable {
   String get title;
   String get pageId;
   dynamic get page;
+  Widget get icon;
 }
 
 typedef ChatInputMetadata = Map<String, ChatInputActionPage>;
@@ -26,10 +27,9 @@ class ChatInputActionControl extends ChatActionHandler {
   final String chatId;
 
   // Private attributes
-  bool _isShowActionMenu = false;
   String _atText = "";
   String _prevText = "";
-  bool _didLoadViews = false;
+  String _showMenuText = "";
 
   // Getter
   List<String> get tags =>
@@ -43,12 +43,12 @@ class ChatInputActionControl extends ChatActionHandler {
   void handleKeyEvent(KeyEvent event) {
     // ignore: deprecated_member_use
     if (event is KeyDownEvent || event is RawKeyDownEvent) {
-      commandBloc.add(ChatInputActionEvent.handleKeyEvent(event.physicalKey));
+      _commandBloc.add(ChatInputActionEvent.handleKeyEvent(event.physicalKey));
     }
   }
 
   bool canHandleKeyEvent(KeyEvent event) {
-    return _isShowActionMenu &&
+    return _showMenuText.isNotEmpty &&
         <PhysicalKeyboardKey>{
           PhysicalKeyboardKey.arrowDown,
           PhysicalKeyboardKey.arrowUp,
@@ -58,35 +58,29 @@ class ChatInputActionControl extends ChatActionHandler {
   }
 
   void dispose() {
-    commandBloc.close();
+    _commandBloc.close();
   }
 
   @override
   void onSelected(ChatInputActionPage page) {
-    _atText = "";
-    _isShowActionMenu = false;
-
     _commandBloc.add(ChatInputActionEvent.addPage(page));
-    textController.text =
-        "${textController.text.replaceAll(_atText, '')}${page.title}";
-    _prevText = textController.text;
+    textController.text = "$_showMenuText${page.title}";
+
+    onExit();
   }
 
   @override
   void onExit() {
     _atText = "";
-    _isShowActionMenu = false;
-    _didLoadViews = false;
-    commandBloc.add(const ChatInputActionEvent.filter(""));
+    _showMenuText = "";
+    _prevText = "";
+    _commandBloc.add(const ChatInputActionEvent.filter(""));
   }
 
   @override
   void onEnter() {
-    if (!_didLoadViews) {
-      _didLoadViews = true;
-      commandBloc.add(const ChatInputActionEvent.started());
-    }
-    _isShowActionMenu = true;
+    _commandBloc.add(const ChatInputActionEvent.started());
+    _showMenuText = textController.text;
   }
 
   @override
@@ -134,16 +128,15 @@ class ChatInputActionControl extends ChatActionHandler {
     }
 
     // If the action menu is shown, filter the views
-    if (_isShowActionMenu) {
-      // before filter the views, remove the first character '@' if it exists
-      if (inputText.startsWith("@")) {
-        final filter = inputText.substring(1);
-        commandBloc.add(ChatInputActionEvent.filter(filter));
+    if (_showMenuText.isNotEmpty) {
+      if (text.length >= _showMenuText.length) {
+        final filterText = inputText.substring(_showMenuText.length);
+        _commandBloc.add(ChatInputActionEvent.filter(filterText));
       }
 
       // If the text change from "xxx @"" to "xxx", which means user delete the @, we should hide the action menu
       if (_atText.isNotEmpty && !inputText.contains(_atText)) {
-        commandBloc.add(
+        _commandBloc.add(
           const ChatInputActionEvent.handleKeyEvent(PhysicalKeyboardKey.escape),
         );
       }
