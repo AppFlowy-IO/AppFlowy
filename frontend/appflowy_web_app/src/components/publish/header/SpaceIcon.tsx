@@ -73,7 +73,7 @@ function SpaceIcon({ value }: { value: string }) {
     }
 
     /**
-     * value eg: 'artificial_intelligence/ai-cloud-spark.svg';
+     * value eg: 'artificial_intelligence/ai-cloud-spark';
      */
     return <img src={iconEncodeContent} className={'h-full w-full p-1 text-white'} alt={value} />;
   }, [iconEncodeContent, value]);

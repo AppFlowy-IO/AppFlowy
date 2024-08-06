@@ -53,7 +53,7 @@ export async function loadIcons(): Promise<
 
 export async function getIconSvgEncodedContent(id: string, color: string) {
   try {
-    const { data } = await axios.get(`/af_icons/${id}`);
+    const { data } = await axios.get(`/af_icons/${id}.svg`);
 
     const urlEncodedContent = encodeURIComponent(data.replaceAll('black', color));
 
