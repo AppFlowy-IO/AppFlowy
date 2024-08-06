@@ -183,6 +183,21 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               } catch (e) {
                 Log.error('Failed to migrating cover: $e');
               }
+            } else if (icon == null) {
+              try {
+                final extra = space.extra;
+                final Map<String, dynamic> current = extra.isNotEmpty == true
+                    ? jsonDecode(extra)
+                    : <String, dynamic>{};
+                current.remove(ViewExtKeys.spaceIconKey);
+                current.remove(ViewExtKeys.spaceIconColorKey);
+                await ViewBackendService.updateView(
+                  viewId: space.id,
+                  extra: jsonEncode(current),
+                );
+              } catch (e) {
+                Log.error('Failed to migrating cover: $e');
+              }
             }
 
             if (permission != null) {
@@ -691,8 +706,10 @@ class SpaceEvent with _$SpaceEvent {
     required bool createNewPageByDefault,
   }) = _Create;
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
-  const factory SpaceEvent.changeIcon(String icon, String iconColor) =
-      _ChangeIcon;
+  const factory SpaceEvent.changeIcon(
+    String? icon,
+    String? iconColor,
+  ) = _ChangeIcon;
   const factory SpaceEvent.duplicate() = _Duplicate;
   const factory SpaceEvent.update({
     String? name,

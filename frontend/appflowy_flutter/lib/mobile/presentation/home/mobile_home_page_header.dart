@@ -5,7 +5,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_setting_page.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/workspace_menu_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/built_in_svgs.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
@@ -133,6 +133,7 @@ class _MobileWorkspace extends StatelessWidget {
                   fontSize: 16.0,
                   enableEdit: false,
                   alignment: Alignment.centerLeft,
+                  figmaLineHeight: 16.0,
                   onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                         UserWorkspaceEvent.updateWorkspaceIcon(
                           currentWorkspace.workspaceId,
