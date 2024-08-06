@@ -158,7 +158,7 @@
   "newBoardText": "Neues Board",
   "chat": {
     "newChat": "Neuer Chat",
-    "inputMessageHint": "Nachricht an @:appName AI",
+    "inputMessageHint": "Fragen Sie @:appName AI",
     "unsupportedCloudPrompt": "Diese Funktion ist nur bei Verwendung der @:appName Cloud verfügbar",
     "relatedQuestion": "Verwandt",
     "serverUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
