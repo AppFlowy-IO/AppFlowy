@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -53,28 +52,28 @@ class DefaultSpaceIcon extends StatelessWidget {
   const DefaultSpaceIcon({
     super.key,
     required this.dimension,
+    required this.iconDimension,
     this.cornerRadius = 0,
   });
 
   final double dimension;
   final double cornerRadius;
+  final double iconDimension;
 
   @override
   Widget build(BuildContext context) {
     final svg = builtInSpaceIcons.first;
-    final color = Color(int.parse(builtInAssetImages.first));
+    final color = Color(int.parse(builtInSpaceColors.first));
     return ClipRRect(
       borderRadius: BorderRadius.circular(cornerRadius),
       child: Container(
         width: dimension,
         height: dimension,
         color: color,
-        child: Center(
-          child: FlowySvg(
-            FlowySvgData('assets/flowy_icons/16x/$svg.svg'),
-            color: color,
-            blendMode: BlendMode.srcOut,
-          ),
+        child: FlowySvg(
+          FlowySvgData('assets/flowy_icons/16x/$svg.svg'),
+          color: Theme.of(context).colorScheme.surface,
+          size: Size.square(iconDimension),
         ),
       ),
     );

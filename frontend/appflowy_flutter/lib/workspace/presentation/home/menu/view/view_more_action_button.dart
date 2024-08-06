@@ -256,6 +256,8 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
         iconPadding: 10.0,
         textBuilder: (onHover) => FlowyText.regular(
           inner.name,
+          fontSize: 14.0,
+          figmaLineHeight: 18.0,
           color: inner == ViewMoreActionType.delete && onHover
               ? Theme.of(context).colorScheme.error
               : null,

@@ -180,17 +180,18 @@ class _IconPickerState extends State<IconPicker> {
             ),
             const VSpace(4.0),
             Wrap(
-              children: iconGroup.icons
-                  .map(
-                    (icon) => _Icon(
-                      icon: icon,
-                      mutex: mutex,
-                      onSelectedColor: (color) {
-                        widget.onSelectedIcon(iconGroup, icon, color);
-                      },
-                    ),
-                  )
-                  .toList(),
+              children: iconGroup.icons.map(
+                (icon) {
+                  return _Icon(
+                    icon: icon,
+                    mutex: mutex,
+                    onSelectedColor: (context, color) {
+                      widget.onSelectedIcon(iconGroup, icon, color);
+                      PopoverContainer.of(context).close();
+                    },
+                  );
+                },
+              ).toList(),
             ),
             const VSpace(12.0),
           ],
@@ -209,7 +210,7 @@ class _Icon extends StatelessWidget {
 
   final Icon icon;
   final PopoverMutex mutex;
-  final void Function(String color) onSelectedColor;
+  final void Function(BuildContext context, String color) onSelectedColor;
 
   @override
   Widget build(BuildContext context) {
@@ -233,11 +234,11 @@ class _Icon extends StatelessWidget {
           ),
         ),
       ),
-      popupBuilder: (_) {
+      popupBuilder: (context) {
         return Container(
           padding: const EdgeInsets.all(6.0),
           child: IconColorPicker(
-            onSelected: onSelectedColor,
+            onSelected: (color) => onSelectedColor(context, color),
           ),
         );
       },

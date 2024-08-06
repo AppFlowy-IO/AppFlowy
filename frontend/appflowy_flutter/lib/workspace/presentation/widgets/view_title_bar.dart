@@ -241,7 +241,7 @@ class _ViewTitleState extends State<_ViewTitle> {
           if (state.view?.isSpace == true && spaceIcon != null) ...[
             SpaceIcon(
               dimension: 14,
-              svgSize: 10.0,
+              svgSize: 8.5,
               space: state.view!,
               cornerRadius: 4,
             ),

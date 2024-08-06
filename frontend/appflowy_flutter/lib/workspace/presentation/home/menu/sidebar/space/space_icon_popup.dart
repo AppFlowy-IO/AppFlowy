@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -80,6 +81,10 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
             if (color != null) {
               selectedColor.value = color;
             }
+
+            widget.onIconChanged(selectedIcon.value, selectedColor.value);
+
+            PopoverContainer.of(context).close();
           },
         );
       },
@@ -100,26 +105,35 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
               return ValueListenableBuilder(
                 valueListenable: selectedIcon,
                 builder: (_, value, __) {
+                  Widget child;
                   if (value == null) {
-                    return const SizedBox.shrink();
-                  }
-                  final content = kIconGroups?.findSvgContent(value);
-                  if (content == null) {
-                    return const SizedBox.shrink();
-                  }
-                  final child = ClipRRect(
-                    borderRadius: BorderRadius.circular(widget.cornerRadius),
-                    child: Container(
-                      color: Color(int.parse(color)),
-                      child: Align(
-                        child: FlowySvg.string(
-                          content,
-                          size: const Size.square(24),
-                          color: Theme.of(context).colorScheme.surface,
+                    child = const DefaultSpaceIcon(
+                      cornerRadius: 16.0,
+                      dimension: 32,
+                      iconDimension: 32,
+                    );
+                  } else {
+                    final content = kIconGroups?.findSvgContent(value);
+                    if (content == null) {
+                      child = const SizedBox.shrink();
+                    } else {
+                      child = ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(widget.cornerRadius),
+                        child: Container(
+                          color: Color(int.parse(color)),
+                          child: Align(
+                            child: FlowySvg.string(
+                              content,
+                              size: const Size.square(24),
+                              color: Theme.of(context).colorScheme.surface,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  );
+                      );
+                    }
+                  }
+
                   if (onHover) {
                     return Stack(
                       children: [

@@ -170,6 +170,8 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
           rightIconBuilder: (_) => inner.rightIcon,
           textBuilder: (onHover) => FlowyText.regular(
             inner.name,
+            fontSize: 14.0,
+            figmaLineHeight: 18.0,
             color: inner == SpaceMoreActionType.delete && onHover
                 ? Theme.of(context).colorScheme.error
                 : null,
