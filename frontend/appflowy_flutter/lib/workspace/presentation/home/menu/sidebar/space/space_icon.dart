@@ -39,9 +39,10 @@ class SpaceIcon extends StatelessWidget {
         height: dimension,
         color: color,
         child: Center(
-          child: svgSize == null
-              ? svg
-              : SizedBox.square(dimension: svgSize!, child: svg),
+          child:
+              svgSize == null || space.spaceIcon?.contains('space_icon') == true
+                  ? svg
+                  : SizedBox.square(dimension: svgSize!, child: svg),
         ),
       ),
     );

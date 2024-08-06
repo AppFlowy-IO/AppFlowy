@@ -119,6 +119,20 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
                       dimension: 32,
                       iconDimension: 32,
                     );
+                  } else if (value.contains('space_icon')) {
+                    child = ClipRRect(
+                      borderRadius: BorderRadius.circular(widget.cornerRadius),
+                      child: Container(
+                        color: Color(int.parse(color)),
+                        child: Align(
+                          child: FlowySvg(
+                            FlowySvgData('assets/flowy_icons/16x/$value.svg'),
+                            size: const Size.square(42),
+                            color: Theme.of(context).colorScheme.surface,
+                          ),
+                        ),
+                      ),
+                    );
                   } else {
                     final content = kIconGroups?.findSvgContent(value);
                     if (content == null) {
