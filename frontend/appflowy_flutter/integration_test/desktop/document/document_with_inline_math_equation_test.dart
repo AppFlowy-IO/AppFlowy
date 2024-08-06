@@ -93,11 +93,8 @@ void main() {
       );
 
       // expect to the see the inline math equation button is highlighted
-      inlineMathEquationButton = find.byWidgetPredicate(
-        (widget) =>
-            widget is SVGIconItemWidget &&
-            widget.tooltip ==
-                LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+      inlineMathEquationButton = find.byTooltip(
+        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       );
       expect(
         tester.widget<SVGIconItemWidget>(inlineMathEquationButton).isHighlight,

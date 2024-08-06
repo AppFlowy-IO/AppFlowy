@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/application/settings/appearance/base_appearan
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -392,6 +393,20 @@ class EditorStyleCustomizer {
       text,
       before,
       after,
+    );
+  }
+
+  Widget buildToolbarItemTooltip(
+    BuildContext context,
+    String id,
+    String message,
+    Widget child,
+  ) {
+    return FlowyTooltip(
+      message: message,
+      preferBelow: false,
+      verticalOffset: 20,
+      child: child,
     );
   }
 }

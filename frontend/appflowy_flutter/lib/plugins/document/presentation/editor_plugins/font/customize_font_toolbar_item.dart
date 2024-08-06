@@ -1,6 +1,3 @@
-import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -9,6 +6,7 @@ import 'package:appflowy/util/font_family_extension.dart';
 import 'package:appflowy/util/levenshtein.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_list_tile.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_value_dropdown.dart';
 import 'package:appflowy_backend/log.dart';
@@ -20,20 +18,23 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+const _kFontToolbarItemId = 'editor.font';
+
 final customizeFontToolbarItem = ToolbarItem(
-  id: 'editor.font',
+  id: _kFontToolbarItemId,
   group: 4,
   isActive: onlyShowInTextType,
-  builder: (context, editorState, highlightColor, _) {
+  builder: (context, editorState, highlightColor, _, tooltipBuilder) {
     final selection = editorState.selection!;
     final popoverController = PopoverController();
     final String? currentFontFamily = editorState
         .getDeltaAttributeValueInSelection(AppFlowyRichTextKeys.fontFamily);
-    return MouseRegion(
+
+    Widget child = MouseRegion(
       cursor: SystemMouseCursors.click,
       child: FontFamilyDropDown(
         currentFontFamily: currentFontFamily ?? '',
@@ -57,19 +58,27 @@ final customizeFontToolbarItem = ToolbarItem(
           await editorState
               .formatDelta(selection, {AppFlowyRichTextKeys.fontFamily: null});
         },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: FlowyTooltip(
-            message: LocaleKeys.document_plugins_fonts.tr(),
-            child: const FlowySvg(
-              FlowySvgs.font_family_s,
-              size: Size.square(16.0),
-              color: Colors.white,
-            ),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.0),
+          child: FlowySvg(
+            FlowySvgs.font_family_s,
+            size: Size.square(16.0),
+            color: Colors.white,
           ),
         ),
       ),
     );
+
+    if (tooltipBuilder != null) {
+      child = tooltipBuilder(
+        context,
+        _kFontToolbarItemId,
+        LocaleKeys.document_plugins_fonts.tr(),
+        child,
+      );
+    }
+
+    return child;
   },
 );
 

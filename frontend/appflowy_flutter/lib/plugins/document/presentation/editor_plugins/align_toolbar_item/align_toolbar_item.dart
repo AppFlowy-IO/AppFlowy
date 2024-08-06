@@ -9,12 +9,13 @@ import 'package:flutter/material.dart';
 const String leftAlignmentKey = 'left';
 const String centerAlignmentKey = 'center';
 const String rightAlignmentKey = 'right';
+const String _kAlignToolbarItemId = 'editor.align';
 
 final alignToolbarItem = ToolbarItem(
-  id: 'editor.align',
+  id: _kAlignToolbarItemId,
   group: 4,
   isActive: onlyShowInTextType,
-  builder: (context, editorState, highlightColor, _) {
+  builder: (context, editorState, highlightColor, _, tooltipBuilder) {
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
 
@@ -37,35 +38,43 @@ final alignToolbarItem = ToolbarItem(
       data = FlowySvgs.toolbar_align_right_s;
     }
 
-    final child = FlowySvg(
+    Widget child = FlowySvg(
       data,
       size: const Size.square(16),
       color: isHighlight ? highlightColor : Colors.white,
     );
 
-    return MouseRegion(
+    child = MouseRegion(
       cursor: SystemMouseCursors.click,
-      child: FlowyTooltip(
-        message: LocaleKeys.document_plugins_optionAction_align.tr(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: _AlignmentButtons(
-            child: child,
-            onAlignChanged: (align) async {
-              await editorState.updateNode(
-                selection,
-                (node) => node.copyWith(
-                  attributes: {
-                    ...node.attributes,
-                    blockComponentAlign: align,
-                  },
-                ),
-              );
-            },
-          ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: _AlignmentButtons(
+          child: child,
+          onAlignChanged: (align) async {
+            await editorState.updateNode(
+              selection,
+              (node) => node.copyWith(
+                attributes: {
+                  ...node.attributes,
+                  blockComponentAlign: align,
+                },
+              ),
+            );
+          },
         ),
       ),
     );
+
+    if (tooltipBuilder != null) {
+      child = tooltipBuilder(
+        context,
+        _kAlignToolbarItemId,
+        LocaleKeys.document_plugins_optionAction_align.tr(),
+        child,
+      );
+    }
+
+    return child;
   },
 );
 
