@@ -53,8 +53,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: c064543
-      resolved-ref: c064543e0e40f862f1db2db36725d48465a8aea5
+      ref: "7202c34"
+      resolved-ref: "7202c340724eef2c20e3f32ec75c0d91e4290cb0"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "3.1.0"
@@ -538,22 +538,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.1"
-  extended_text_field:
-    dependency: "direct main"
-    description:
-      name: extended_text_field
-      sha256: "954c7eea1e82728a742f7ddf09b9a51cef087d4f52b716ba88cb3eb78ccd7c6e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "15.0.0"
-  extended_text_library:
-    dependency: "direct main"
-    description:
-      name: extended_text_library
-      sha256: "55d09098ec56fab0d9a8a68950ca0bbf2efa1327937f7cec6af6dfa066234829"
-      url: "https://pub.dev"
-    source: hosted
-    version: "12.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -740,8 +724,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "38c2c42"
-      resolved-ref: "38c2c429212af6b72a0af829bb0dd3f3eb4ce2c7"
+      ref: "4a5cac"
+      resolved-ref: "4a5cac57e31c0ffd49cd6257a9e078f084ae342c"
       url: "https://github.com/LucasXu0/emoji_mart.git"
     source: git
     version: "1.0.2"
@@ -1771,7 +1755,7 @@ packages:
     source: hosted
     version: "0.1.9"
   scroll_to_index:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: scroll_to_index
       sha256: b707546e7500d9f070d63e5acf74fd437ec7eeeb68d3412ef7b0afada0b4f176
