@@ -81,7 +81,7 @@ class _RandomIconButton extends StatelessWidget {
           text: const FlowySvg(
             FlowySvgs.icon_shuffle_s,
           ),
-          onTap: () {},
+          onTap: onRandomTap,
         ),
       ),
     );

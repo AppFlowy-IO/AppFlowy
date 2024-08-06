@@ -494,6 +494,7 @@ class CurrentSpace extends StatelessWidget {
           SpaceIcon(
             dimension: 22,
             space: space,
+            svgSize: 13,
             cornerRadius: 8.0,
           ),
           const HSpace(10),

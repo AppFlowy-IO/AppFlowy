@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
@@ -23,6 +25,11 @@ final builtInSpaceColors = [
   '0xFF409BF8',
   '0xFFFF8933',
 ];
+
+String generateRandomSpaceColor() {
+  final random = Random();
+  return builtInSpaceColors[random.nextInt(builtInSpaceColors.length)];
+}
 
 final builtInSpaceIcons =
     List.generate(15, (index) => 'space_icon_${index + 1}');

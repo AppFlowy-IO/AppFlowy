@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_search_bar.dart';
 import 'package:appflowy/util/debounce.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
@@ -34,6 +36,13 @@ extension IconGroupFilter on List<IconGroup> {
         )
         ?.content;
     return svgString;
+  }
+
+  (IconGroup, Icon) randomIcon() {
+    final random = Random();
+    final group = this[random.nextInt(length)];
+    final icon = group.icons[random.nextInt(group.icons.length)];
+    return (group, icon);
   }
 }
 
@@ -93,7 +102,14 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: IconSearchBar(
-            onRandomTap: () {},
+            onRandomTap: () {
+              final value = kIconGroups?.randomIcon();
+              if (value == null) {
+                return;
+              }
+              final color = generateRandomSpaceColor();
+              widget.onSelectedIcon(value.$1, value.$2, color);
+            },
             onKeywordChanged: (keyword) => {
               debounce.call(() {
                 this.keyword.value = keyword;
