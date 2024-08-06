@@ -144,13 +144,11 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
   }
 
   Widget _buildIconPicker() {
-    return Expanded(
-      child: FlowyIconPicker(
-        onSelectedIcon: (iconGroup, icon, color) {
-          debugPrint('icon: ${icon.toJson()}, color: $color');
-          widget.onSelectedIcon?.call(iconGroup, icon, color);
-        },
-      ),
+    return FlowyIconPicker(
+      onSelectedIcon: (iconGroup, icon, color) {
+        debugPrint('icon: ${icon.toJson()}, color: $color');
+        widget.onSelectedIcon?.call(iconGroup, icon, color);
+      },
     );
   }
 }
