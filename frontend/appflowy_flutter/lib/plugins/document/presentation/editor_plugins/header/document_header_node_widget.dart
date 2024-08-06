@@ -351,6 +351,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
           constraints: BoxConstraints.loose(const Size(360, 380)),
+          margin: EdgeInsets.zero,
           child: child,
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
@@ -724,6 +725,7 @@ class _DocumentIconState extends State<DocumentIcon> {
         controller: _popoverController,
         offset: const Offset(0, 8),
         constraints: BoxConstraints.loose(const Size(360, 380)),
+        margin: EdgeInsets.zero,
         child: child,
         popupBuilder: (BuildContext popoverContext) {
           return FlowyIconEmojiPicker(

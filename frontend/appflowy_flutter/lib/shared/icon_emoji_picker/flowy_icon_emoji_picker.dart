@@ -127,12 +127,10 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
   }
 
   Widget _buildEmojiPicker() {
-    return Expanded(
-      child: FlowyEmojiPicker(
-        emojiPerLine: _getEmojiPerLine(context),
-        onEmojiSelected: (_, emoji) => widget.onSelectedEmoji?.call(
-          EmojiPickerResult.emoji(emoji),
-        ),
+    return FlowyEmojiPicker(
+      emojiPerLine: _getEmojiPerLine(context),
+      onEmojiSelected: (_, emoji) => widget.onSelectedEmoji?.call(
+        EmojiPickerResult.emoji(emoji),
       ),
     );
   }
