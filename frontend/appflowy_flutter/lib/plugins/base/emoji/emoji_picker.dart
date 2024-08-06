@@ -64,6 +64,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         perLine: widget.emojiPerLine,
       ),
       onEmojiSelected: widget.onEmojiSelected,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       headerBuilder: (context, category) {
         return FlowyEmojiHeader(
           category: category,
@@ -88,15 +89,18 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         );
       },
       searchBarBuilder: (context, keyword, skinTone) {
-        return FlowyEmojiSearchBar(
-          emojiData: emojiData!,
-          onKeywordChanged: (value) {
-            keyword.value = value;
-          },
-          onSkinToneChanged: (value) {
-            skinTone.value = value;
-          },
-          onRandomEmojiSelected: widget.onEmojiSelected,
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: FlowyEmojiSearchBar(
+            emojiData: emojiData!,
+            onKeywordChanged: (value) {
+              keyword.value = value;
+            },
+            onSkinToneChanged: (value) {
+              skinTone.value = value;
+            },
+            onRandomEmojiSelected: widget.onEmojiSelected,
+          ),
         );
       },
     );

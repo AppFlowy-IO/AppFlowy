@@ -128,13 +128,10 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
 
   Widget _buildEmojiPicker() {
     return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: FlowyEmojiPicker(
-          emojiPerLine: _getEmojiPerLine(context),
-          onEmojiSelected: (_, emoji) => widget.onSelectedEmoji?.call(
-            EmojiPickerResult.emoji(emoji),
-          ),
+      child: FlowyEmojiPicker(
+        emojiPerLine: _getEmojiPerLine(context),
+        onEmojiSelected: (_, emoji) => widget.onSelectedEmoji?.call(
+          EmojiPickerResult.emoji(emoji),
         ),
       ),
     );
@@ -150,14 +147,11 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
 
   Widget _buildIconPicker() {
     return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: FlowyIconPicker(
-          onSelectedIcon: (iconGroup, icon, color) {
-            debugPrint('icon: ${icon.toJson()}, color: $color');
-            widget.onSelectedIcon?.call(iconGroup, icon, color);
-          },
-        ),
+      child: FlowyIconPicker(
+        onSelectedIcon: (iconGroup, icon, color) {
+          debugPrint('icon: ${icon.toJson()}, color: $color');
+          widget.onSelectedIcon?.call(iconGroup, icon, color);
+        },
       ),
     );
   }

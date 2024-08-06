@@ -111,7 +111,7 @@ dependencies:
   flutter_emoji_mart:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
-      ref: "4a5cac"
+      ref: "38c2c42"
 
   # Notifications
   # TODO: Consider implementing custom package

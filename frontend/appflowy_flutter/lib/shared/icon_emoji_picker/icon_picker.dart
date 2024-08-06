@@ -90,13 +90,16 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconSearchBar(
-          onRandomTap: () {},
-          onKeywordChanged: (keyword) => {
-            debounce.call(() {
-              this.keyword.value = keyword;
-            }),
-          },
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: IconSearchBar(
+            onRandomTap: () {},
+            onKeywordChanged: (keyword) => {
+              debounce.call(() {
+                this.keyword.value = keyword;
+              }),
+            },
+          ),
         ),
         Expanded(
           child: kIconGroups != null
@@ -167,6 +170,7 @@ class _IconPickerState extends State<IconPicker> {
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: widget.iconGroups.length,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       itemBuilder: (context, index) {
         final iconGroup = widget.iconGroups[index];
         return Column(
