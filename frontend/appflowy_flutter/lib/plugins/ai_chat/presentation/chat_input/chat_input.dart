@@ -174,6 +174,7 @@ class _ChatInputState extends State<ChatInput> {
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: widget.hintText,
+            focusedBorder: InputBorder.none,
             hintStyle: TextStyle(
               color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
             ),

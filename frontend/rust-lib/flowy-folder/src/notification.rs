@@ -2,7 +2,7 @@ use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
 use lib_dispatch::prelude::ToBytes;
 
-use crate::entities::{ViewPB, WorkspaceSettingPB};
+
 
 const FOLDER_OBSERVABLE_SOURCE: &str = "Workspace";
 
