@@ -178,7 +178,7 @@
     "indexFileSuccess": "Файл успішно індексується",
     "inputActionNoPages": "Сторінка не знайдена",
     "referenceSource": "{} джерело знайдено",
-    "referenceSources": "Знайдено {} джерел",
+    "referenceSources": "{} джерел знайдено",
     "clickToMention": "Натисніть, щоб згадати сторінку",
     "indexingFile": "Індексація {}"
   },
@@ -350,7 +350,25 @@
     "helpCenter": "Центр допомоги",
     "add": "додати",
     "yes": "Так",
-    "no": "Немає"
+    "no": "Немає",
+    "clear": "Очистити",
+    "remove": "Видалити",
+    "dontRemove": "Не видаляйте",
+    "copyLink": "Копіювати посилання",
+    "align": "Вирівняти",
+    "login": "Логін",
+    "logout": "Вийти",
+    "deleteAccount": "Видалити аккаунт",
+    "back": "Назад",
+    "signInGoogle": "Продовжуйте з Google",
+    "signInGithub": "Продовжуйте з Github",
+    "signInDiscord": "Продовжуйте з Discord",
+    "more": "більше",
+    "create": "Створити",
+    "close": "Закрити",
+    "next": "Далі",
+    "previous": "Попередній",
+    "submit": "Надіслати"
   },
   "label": {
     "welcome": "Ласкаво просимо!",
@@ -374,8 +392,51 @@
   },
   "settings": {
     "title": "Налаштування",
+    "accountPage": {
+      "menuLabel": "Мій рахунок",
+      "title": "Мій рахунок",
+      "general": {
+        "title": "Назва облікового запису та зображення профілю",
+        "changeProfilePicture": "Змінити зображення профілю"
+      },
+      "email": {
+        "title": "Електронна пошта",
+        "actions": {
+          "change": "Змінити електронну адресу"
+        }
+      },
+      "login": {
+        "title": "Вхід в обліковий запис",
+        "loginLabel": "авторизуватися",
+        "logoutLabel": "Вийти"
+      }
+    },
     "workspacePage": {
+      "menuLabel": "Робоча область",
+      "title": "Робоча область",
+      "description": "Налаштуйте зовнішній вигляд робочої області, тему, шрифт, макет тексту, формат дати/часу та мову.",
+      "workspaceName": {
+        "title": "Назва робочої області"
+      },
+      "workspaceIcon": {
+        "title": "Значок робочої області",
+        "description": "Завантажте зображення або використовуйте емодзі для свого робочого простору. Значок відображатиметься на бічній панелі та в сповіщеннях."
+      },
+      "appearance": {
+        "title": "Зовнішній вигляд",
+        "description": "Налаштуйте зовнішній вигляд робочої області, тему, шрифт, макет тексту, дату, час і мову.",
+        "options": {
+          "system": "Авто",
+          "light": "світло",
+          "dark": "Темний"
+        }
+      },
+      "resetCursorColor": {
+        "title": "Скинути колір курсора документа",
+        "description": "Ви впевнені, що хочете скинути колір курсору?"
+      },
       "resetSelectionColor": {
+        "title": "Скинути колір вибору документа",
         "description": "Ви впевнені, що бажаєте скинути колір виділення?"
       },
       "theme": {
@@ -461,6 +522,7 @@
         "descriptionNoEncryption": "Якщо ввімкнути шифрування, усі дані будуть зашифровані. Це не може бути скасоване.",
         "action": "Шифрувати дані",
         "dialog": {
+          "title": "Зашифрувати всі ваші дані?",
           "description": "Шифрування всіх ваших даних збереже ваші дані в безпеці. Цю дію НЕ можна скасувати. Ви впевнені, що бажаєте продовжити?"
         }
       },
@@ -539,6 +601,7 @@
         "moveCursorEndSelect": "Виберіть і перемістіть курсор до кінця",
         "moveCursorRightWordSelect": "Виділіть і перемістіть курсор на одне слово вправо",
         "moveCursorUp": "Перемістіть курсор вгору",
+        "moveCursorTopSelect": "Виберіть і перемістіть курсор угору",
         "moveCursorTop": "Перемістіть курсор вгору",
         "moveCursorUpSelect": "Виберіть і перемістіть курсор вгору",
         "moveCursorBottomSelect": "Виберіть і перемістіть курсор униз",
@@ -652,41 +715,319 @@
         "currentPlan": {
           "bannerLabel": "Поточний план",
           "freeTitle": "Безкоштовно",
-          "proTitle": "Pro"
+          "proTitle": "Pro",
+          "teamTitle": "команда",
+          "freeInfo": "Ідеально підходить для окремих осіб до 2 учасників, щоб організувати все",
+          "proInfo": "Ідеально підходить для малих і середніх команд до 10 учасників.",
+          "teamInfo": "Ідеально підходить для всіх продуктивних і добре організованих команд.",
+          "upgrade": "Змінити план",
+          "canceledInfo": "Ваш план скасовано, вас буде переведено на безкоштовний план {}."
+        },
+        "addons": {
+          "title": "Додатки",
+          "addLabel": "додати",
+          "activeLabel": "Додано",
+          "aiMax": {
+            "title": "AI Макс",
+            "description": "Необмежені відповіді AI на основі GPT-4o, Claude 3.5 Sonnet тощо",
+            "price": "{}",
+            "priceInfo": "на користувача на місяць",
+            "billingInfo": "рахунок виставляється щорічно або {} щомісяця"
+          },
+          "aiOnDevice": {
+            "title": "ШІ на пристрої для Mac",
+            "description": "Запустіть Mistral 7B, LLAMA 3 та інші локальні моделі на вашому комп’ютері",
+            "price": "{}",
+            "priceInfo": "на користувача на місяць",
+            "billingInfo": "рахунок виставляється щорічно або {} щомісяця"
+          }
+        },
+        "deal": {
+          "bannerLabel": "Новорічна угода!",
+          "title": "Розвивайте свою команду!",
+          "viewPlans": "Переглянути плани"
         }
       }
+    },
+    "billingPage": {
+      "menuLabel": "Виставлення рахунків",
+      "title": "Виставлення рахунків",
+      "plan": {
+        "title": "План",
+        "freeLabel": "безкоштовно",
+        "proLabel": "Pro",
+        "planButtonLabel": "Змінити план",
+        "billingPeriod": "Розрахунковий період",
+        "periodButtonLabel": "Період редагування"
+      },
+      "paymentDetails": {
+        "title": "Платіжні реквізити",
+        "methodLabel": "Спосіб оплати",
+        "methodButtonLabel": "Метод редагування"
+      },
+      "addons": {
+        "title": "Додатки",
+        "addLabel": "додати",
+        "removeLabel": "видалити",
+        "renewLabel": "Відновити",
+        "aiMax": {
+          "label": "AI Макс",
+          "description": "Розблокуйте необмежену кількість штучного інтелекту та вдосконалених моделей",
+          "activeDescription": "Наступний рахунок-фактура має бути виставлено {}",
+          "canceledDescription": "AI Max буде доступний до {}"
+        },
+        "aiOnDevice": {
+          "label": "ШІ на пристрої для Mac",
+          "description": "Розблокуйте необмежений ШІ офлайн на своєму пристрої",
+          "activeDescription": "Наступний рахунок-фактура має бути виставлено {}",
+          "canceledDescription": "AI On-device для Mac буде доступний до {}"
+        },
+        "removeDialog": {
+          "title": "Видалити {}",
+          "description": "Ви впевнені, що хочете видалити {plan}? Ви негайно втратите доступ до функцій і переваг {plan}."
+        }
+      },
+      "currentPeriodBadge": "ПОТОМ",
+      "changePeriod": "Період зміни",
+      "planPeriod": "{} період",
+      "monthlyInterval": "Щомісяця",
+      "monthlyPriceInfo": "за місце сплачується щомісяця",
+      "annualInterval": "Щорічно",
+      "annualPriceInfo": "за місце, що виставляється щорічно"
+    },
+    "comparePlanDialog": {
+      "title": "Порівняйте та виберіть план",
+      "planFeatures": "План\nособливості",
+      "current": "поточний",
+      "actions": {
+        "upgrade": "Оновлення",
+        "downgrade": "Понизити",
+        "current": "поточний"
+      },
+      "freePlan": {
+        "title": "безкоштовно",
+        "description": "Для окремих осіб до 2 учасників, щоб організувати все",
+        "price": "{}",
+        "priceInfo": "безкоштовно назавжди"
+      },
+      "proPlan": {
+        "title": "Pro",
+        "description": "Для невеликих команд для управління проектами та знаннями команди",
+        "price": "{}",
+        "priceInfo": "на користувача на місяць\nвиставляється щорічно<inlang-LineFeed>\n{} виставляється щомісяця"
+      },
+      "planLabels": {
+        "itemOne": "Робочі області",
+        "itemTwo": "Члени",
+        "itemThree": "Зберігання",
+        "itemFour": "Співпраця в реальному часі",
+        "itemFive": "Мобільний додаток",
+        "itemSix": "Відповіді ШІ",
+        "tooltipSix": "Термін служби означає кількість відповідей, які ніколи не скидаються",
+        "intelligentSearch": "Інтелектуальний пошук",
+        "itemSeven": "Спеціальний простір імен",
+        "tooltipSeven": "Дозволяє налаштувати частину URL-адреси для вашої робочої області"
+      },
+      "freeLabels": {
+        "itemOne": "сплачується за робоче місце",
+        "itemTwo": "до 2",
+        "itemThree": "5 ГБ",
+        "itemFour": "так",
+        "itemFive": "так",
+        "itemSix": "100 років життя",
+        "intelligentSearch": "Інтелектуальний пошук"
+      },
+      "proLabels": {
+        "itemOne": "сплачується за робоче місце",
+        "itemTwo": "до 10",
+        "itemThree": "необмежений",
+        "itemFour": "так",
+        "itemFive": "так",
+        "itemSix": "необмежений",
+        "intelligentSearch": "Інтелектуальний пошук"
+      },
+      "paymentSuccess": {
+        "title": "Тепер ви на плані {}!",
+        "description": "Ваш платіж успішно оброблено, і ваш план оновлено до @:appName {}. Ви можете переглянути деталі свого плану на сторінці План"
+      },
+      "downgradeDialog": {
+        "title": "Ви впевнені, що хочете понизити свій план?",
+        "description": "Пониження вашого плану призведе до повернення до безкоштовного плану. Учасники можуть втратити доступ до цього робочого простору, і вам може знадобитися звільнити місце, щоб досягти лімітів пам’яті безкоштовного плану.",
+        "downgradeLabel": "Пониження плану"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "Шкода, що ви йдете",
+      "description": "Нам шкода, що ви йдете. Ми будемо раді почути ваш відгук, щоб допомогти нам покращити @:appName . Знайдіть хвилинку, щоб відповісти на кілька запитань.",
+      "commonOther": "Інший",
+      "otherHint": "Напишіть свою відповідь тут",
+      "questionOne": {
+        "question": "Що спонукало вас скасувати підписку на AppFlowy Pro?",
+        "answerOne": "Зависока вартість",
+        "answerTwo": "Характеристики не виправдали очікувань",
+        "answerThree": "Знайшов кращу альтернативу",
+        "answerFour": "Використовував недостатньо, щоб виправдати витрати",
+        "answerFive": "Проблема з обслуговуванням або технічні проблеми"
+      },
+      "questionTwo": {
+        "question": "Наскільки ймовірно, що ви подумаєте про повторну підписку на AppFlowy Pro у майбутньому?",
+        "answerOne": "Ймовірно",
+        "answerTwo": "Певною мірою ймовірно",
+        "answerThree": "Не впевнений",
+        "answerFour": "Малоймовірно",
+        "answerFive": "Дуже малоймовірно"
+      },
+      "questionThree": {
+        "question": "Яку функцію Pro ви цінували найбільше під час підписки?",
+        "answerOne": "Багатокористувацька співпраця",
+        "answerTwo": "Довша історія версій",
+        "answerThree": "Необмежена кількість відповідей ШІ",
+        "answerFour": "Доступ до локальних моделей ШІ"
+      },
+      "questionFour": {
+        "question": "Як би ви описали свій загальний досвід роботи з AppFlowy?",
+        "answerOne": "чудово",
+        "answerTwo": "добре",
+        "answerThree": "Середній",
+        "answerFour": "Нижче середнього",
+        "answerFive": "Незадоволений"
+      }
+    },
+    "common": {
+      "reset": "Скинути"
     },
     "menu": {
       "appearance": "Вигляд",
       "language": "Мова",
       "user": "Користувач",
       "files": "Файли",
+      "notifications": "Сповіщення",
       "open": "Відкрити налаштування",
       "logout": "Вийти",
       "logoutPrompt": "Ви впевнені, що хочете вийти?",
       "selfEncryptionLogoutPrompt": "Ви впевнені, що хочете вийти? Будь ласка, переконайтеся, що ви скопіювали секрет шифрування",
       "syncSetting": "Налаштування синхронізації",
+      "cloudSettings": "Налаштування хмари",
       "enableSync": "Увімкнути синхронізацію",
       "enableEncrypt": "Шифрувати дані",
+      "cloudURL": "Базовий URL",
+      "invalidCloudURLScheme": "Недійсна схема",
+      "cloudServerType": "Хмарний сервер",
+      "cloudServerTypeTip": "Зауважте, що після перемикання хмарного сервера ваш поточний обліковий запис може вийти з системи",
+      "cloudLocal": "Місцевий",
+      "cloudSupabase": "Надбаза",
+      "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "Надбазова URL-адреса не може бути порожньою",
+      "cloudSupabaseAnonKey": "Аноновий ключ Supabase",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "Аноновий ключ не може бути порожнім",
+      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
+      "appFlowyCloudUrlCanNotBeEmpty": "URL-адреса хмари не може бути пустою",
+      "clickToCopy": "Натисніть, щоб скопіювати",
+      "selfHostStart": "Якщо у вас немає сервера, зверніться до",
+      "selfHostContent": "документ",
+      "selfHostEnd": "для вказівок щодо самостійного розміщення власного сервера",
+      "cloudURLHint": "Введіть базову URL-адресу вашого сервера",
+      "cloudWSURL": "URL-адреса Websocket",
+      "cloudWSURLHint": "Введіть адресу веб-сокета вашого сервера",
+      "restartApp": "Перезапустіть",
+      "restartAppTip": "Перезапустіть програму, щоб зміни набули чинності. Зауважте, що це може привести до виходу з вашого поточного облікового запису.",
+      "changeServerTip": "Після зміни сервера необхідно натиснути кнопку перезавантаження, щоб зміни набули чинності",
       "enableEncryptPrompt": "Активуйте шифрування для захисту ваших даних за допомогою цього секретного ключа. Зберігайте його надійно; після увімкнення його неможливо вимкнути. Якщо втрачено, ваші дані стають недоступними. Клацніть, щоб скопіювати",
       "inputEncryptPrompt": "Будь ласка, введіть свій секрет для шифрування для",
       "clickToCopySecret": "Клацніть, щоб скопіювати секрет",
+      "configServerSetting": "Налаштуйте параметри свого сервера",
+      "configServerGuide": "Вибравши `Швидкий старт`, перейдіть до `Налаштування`, а потім до «Налаштування хмари», щоб налаштувати свій автономний сервер.",
       "inputTextFieldHint": "Ваш секрет",
       "historicalUserList": "Історія входу користувача",
       "historicalUserListTooltip": "У цьому списку відображаються ваші анонімні облікові записи. Ви можете клацнути на обліковий запис, щоб переглянути його деталі. Анонімні облікові записи створюються, натискаючи кнопку 'Розпочати роботу'",
-      "openHistoricalUser": "Клацніть, щоб відкрити анонімний обліковий запис"
+      "openHistoricalUser": "Клацніть, щоб відкрити анонімний обліковий запис",
+      "customPathPrompt": "Зберігання папки даних @:appName у папці, що синхронізується з хмарою, як-от Google Drive, може становити ризик. Якщо база даних у цій папці доступна або змінена з кількох місць одночасно, це може призвести до конфліктів синхронізації та можливого пошкодження даних",
+      "importAppFlowyData": "Імпорт даних із зовнішньої @:appName",
+      "importingAppFlowyDataTip": "Виконується імпорт даних. Будь ласка, не закривайте додаток",
+      "importAppFlowyDataDescription": "Скопіюйте дані із зовнішньої папки @:appName та імпортуйте їх у поточну папку даних AppFlowy",
+      "importSuccess": "Папку даних @:appName успішно імпортовано",
+      "importFailed": "Не вдалося імпортувати папку даних @:appName",
+      "importGuide": "Щоб отримати додаткові відомості, перегляньте документ, на який посилається"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Увімкнути сповіщення",
+        "hint": "Вимкніть, щоб локальні сповіщення не з’являлися."
+      },
+      "showNotificationsIcon": {
+        "label": "Показати значок сповіщень",
+        "hint": "Вимкніть, щоб приховати піктограму сповіщень на бічній панелі."
+      },
+      "archiveNotifications": {
+        "allSuccess": "Усі сповіщення успішно заархівовано",
+        "success": "Сповіщення успішно заархівовано"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Усі позначені як успішно прочитані",
+        "success": "Позначено як успішно прочитане"
+      },
+      "action": {
+        "markAsRead": "Відзначити як прочитане",
+        "multipleChoice": "Виберіть більше",
+        "archive": "Архів"
+      },
+      "settings": {
+        "settings": "Налаштування",
+        "markAllAsRead": "Позначити все як прочитане",
+        "archiveAll": "Архівувати все"
+      },
+      "emptyInbox": {
+        "title": "Ще немає сповіщень",
+        "description": "Тут ви отримуватимете сповіщення про @згадки"
+      },
+      "emptyUnread": {
+        "title": "Немає непрочитаних сповіщень",
+        "description": "Ви все наздогнали!"
+      },
+      "emptyArchived": {
+        "title": "Немає архівованих сповіщень",
+        "description": "Ви ще не заархівували жодного сповіщення"
+      },
+      "tabs": {
+        "inbox": "Вхідні",
+        "unread": "Непрочитаний",
+        "archived": "Архівовано"
+      },
+      "refreshSuccess": "Сповіщення успішно оновлено",
+      "titles": {
+        "notifications": "Сповіщення",
+        "reminder": "Нагадування"
+      }
     },
     "appearance": {
       "resetSetting": "Скинути це налаштування",
       "fontFamily": {
         "label": "Шрифт",
-        "search": "Пошук"
+        "search": "Пошук",
+        "defaultFont": "система"
       },
       "themeMode": {
         "label": "Режим теми",
         "light": "Світлий режим",
         "dark": "Темний режим",
         "system": "Системна"
+      },
+      "fontScaleFactor": "Коефіцієнт масштабування шрифту",
+      "documentSettings": {
+        "cursorColor": "Колір курсору документа",
+        "selectionColor": "Колір виділення документа",
+        "pickColor": "Виберіть колір",
+        "colorShade": "Колірний відтінок",
+        "opacity": "Непрозорість",
+        "hexEmptyError": "Шістнадцяткове поле кольору не може бути порожнім",
+        "hexLengthError": "Шістнадцяткове значення має містити 6 цифр",
+        "hexInvalidError": "Недійсне шістнадцяткове значення",
+        "opacityEmptyError": "Непрозорість не може бути пустою",
+        "opacityRangeError": "Непрозорість має бути від 1 до 100",
+        "app": "додаток",
+        "flowy": "Текучий",
+        "apply": "Застосувати"
       },
       "layoutDirection": {
         "label": "Напрямок макету",
@@ -729,7 +1070,43 @@
         "twelveHour": "Дванадцятигодинний",
         "twentyFourHour": "Двадцять чотири години"
       },
-      "showNamingDialogWhenCreatingPage": "Показувати діалогове вікно імені при створенні сторінки"
+      "showNamingDialogWhenCreatingPage": "Показувати діалогове вікно імені при створенні сторінки",
+      "enableRTLToolbarItems": "Увімкнути елементи панелі інструментів RTL",
+      "members": {
+        "title": "Налаштування учасників",
+        "inviteMembers": "Запросити учасників",
+        "inviteHint": "Запросити електронною поштою",
+        "sendInvite": "Надіслати запрошення",
+        "copyInviteLink": "Копіювати посилання для запрошення",
+        "label": "Члени",
+        "user": "Користувач",
+        "role": "роль",
+        "removeFromWorkspace": "Видалити з робочої області",
+        "owner": "Власник",
+        "guest": "Гість",
+        "member": "Член",
+        "memberHintText": "Учасник може читати та редагувати сторінки",
+        "guestHintText": "Гість може читати, реагувати, коментувати та редагувати певні сторінки з дозволу.",
+        "emailInvalidError": "Недійсна електронна адреса, будь ласка, перевірте та повторіть спробу",
+        "emailSent": "Електронний лист надіслано, перевірте папку \"Вхідні\".",
+        "members": "членів",
+        "membersCount": {
+          "zero": "{} учасників",
+          "one": "{} член",
+          "other": "{} учасників"
+        },
+        "inviteFailedMemberLimit": "Досягнуто ліміту учасників. Оновіть його, щоб запросити більше учасників.",
+        "memberLimitExceeded": "Досягнуто обмеження кількості учасників, будь ласка, запросіть більше учасників ",
+        "memberLimitExceededUpgrade": "оновлення",
+        "memberLimitExceededPro": "Досягнуто ліміту учасників, якщо вам потрібно більше учасників, зв’яжіться ",
+        "memberLimitExceededProContact": "support@appflowy.io",
+        "failedToAddMember": "Не вдалося додати учасника",
+        "addMemberSuccess": "Учасника успішно додано",
+        "removeMember": "Видалити учасника",
+        "areYouSureToRemoveMember": "Ви впевнені, що хочете видалити цього учасника?",
+        "inviteMemberSuccess": "Запрошення успішно надіслано",
+        "failedToInviteMember": "Не вдалося запросити учасника"
+      }
     },
     "files": {
       "copy": "Копіювати",
@@ -765,7 +1142,11 @@
       "recoverLocationTooltips": "Скинути до каталогу даних за замовчуванням @:appName",
       "exportFileSuccess": "Файл успішно експортовано!",
       "exportFileFail": "Помилка експорту файлу!",
-      "export": "Експорт"
+      "export": "Експорт",
+      "clearCache": "Очистити кеш",
+      "clearCacheDesc": "Якщо у вас виникли проблеми із завантаженням зображень або неправильним відображенням шрифтів, спробуйте очистити кеш. Ця дія не видалить ваші дані користувача.",
+      "areYouSureToClearCache": "Ви впевнені, що хочете очистити кеш?",
+      "clearCacheSuccess": "Кеш успішно очищено!"
     },
     "user": {
       "name": "Ім'я",
@@ -773,7 +1154,25 @@
       "tooltipSelectIcon": "Обрати значок",
       "selectAnIcon": "Обрати значок",
       "pleaseInputYourOpenAIKey": "Будь ласка, введіть ваш ключ AI",
+      "pleaseInputYourStabilityAIKey": "будь ласка, введіть ключ стабільності ШІ",
       "clickToLogout": "Натисніть, щоб вийти з поточного облікового запису"
+    },
+    "mobile": {
+      "personalInfo": "Персональна інформація",
+      "username": "Ім'я користувача",
+      "usernameEmptyError": "Ім'я користувача не може бути пустим",
+      "about": "про",
+      "pushNotifications": "Push-сповіщення",
+      "support": "Підтримка",
+      "joinDiscord": "Приєднуйтесь до нас у Discord",
+      "privacyPolicy": "Політика конфіденційності",
+      "userAgreement": "Угода користувача",
+      "termsAndConditions": "Правила та умови",
+      "userprofileError": "Не вдалося завантажити профіль користувача",
+      "userprofileErrorDescription": "Будь ласка, спробуйте вийти та увійти знову, щоб перевірити, чи проблема не зникає.",
+      "selectLayout": "Виберіть макет",
+      "selectStartingDay": "Виберіть день початку",
+      "version": "Версія"
     },
     "shortcuts": {
       "shortcutsLabel": "Сполучення клавіш",
@@ -805,7 +1204,19 @@
       "filterBy": "Фільтрувати за...",
       "typeAValue": "Введіть значення...",
       "layout": "Макет",
-      "databaseLayout": "Вид бази даних"
+      "databaseLayout": "Вид бази даних",
+      "viewList": {
+        "zero": "0 переглядів",
+        "one": "{count} перегляд",
+        "other": "{count} переглядів"
+      },
+      "editView": "Редагувати перегляд",
+      "boardSettings": "Налаштування дошки",
+      "calendarSettings": "Налаштування календаря",
+      "createView": "Новий вигляд",
+      "duplicateView": "Дубльований перегляд",
+      "deleteView": "Видалити перегляд",
+      "numberOfVisibleFields": "показано {}"
     },
     "textFilter": {
       "contains": "Містить",
@@ -843,6 +1254,34 @@
       "isEmpty": "порожнє",
       "isNotEmpty": "не порожнє"
     },
+    "dateFilter": {
+      "is": "Є",
+      "before": "Є раніше",
+      "after": "Є після",
+      "onOrBefore": "Увімкнено або раніше",
+      "onOrAfter": "Увімкнено або після",
+      "between": "Знаходиться між",
+      "empty": "Пусто",
+      "notEmpty": "Не порожній",
+      "choicechipPrefix": {
+        "before": "Раніше",
+        "after": "після",
+        "onOrBefore": "На або раніше",
+        "onOrAfter": "На або після",
+        "isEmpty": "Пусто",
+        "isNotEmpty": "Не порожній"
+      }
+    },
+    "numberFilter": {
+      "equal": "Дорівнює",
+      "notEqual": "Не дорівнює",
+      "lessThan": "Менше ніж",
+      "greaterThan": "Більше ніж",
+      "lessThanOrEqualTo": "Менше або дорівнює",
+      "greaterThanOrEqualTo": "Більше або дорівнює",
+      "isEmpty": "Пусто",
+      "isNotEmpty": "Не порожній"
+    },
     "field": {
       "hide": "Сховати",
       "show": "Показати",
@@ -850,6 +1289,8 @@
       "insertRight": "Вставити справа",
       "duplicate": "Дублювати",
       "delete": "Видалити",
+      "wrapCellContent": "Обернути текст",
+      "clear": "Очистити комірки",
       "textFieldName": "Текст",
       "checkboxFieldName": "Чекбокс",
       "dateFieldName": "Дата",
@@ -860,6 +1301,11 @@
       "multiSelectFieldName": "Вибір кількох",
       "urlFieldName": "URL",
       "checklistFieldName": "Чек-лист",
+      "relationFieldName": "Відношення",
+      "summaryFieldName": "AI Резюме",
+      "timeFieldName": "час",
+      "translateFieldName": "AI Translate",
+      "translateTo": "Перекласти на",
       "numberFormat": "Формат числа",
       "dateFormat": "Формат дати",
       "includeTime": "Включити час",
@@ -874,16 +1320,30 @@
       "timeFormatTwelveHour": "12 годин",
       "timeFormatTwentyFourHour": "24 години",
       "clearDate": "Очистити дату",
+      "dateTime": "Дата, час",
+      "startDateTime": "Дата початку час",
+      "endDateTime": "Кінцева дата час",
+      "failedToLoadDate": "Не вдалося завантажити значення дати",
+      "selectTime": "Виберіть час",
+      "selectDate": "Виберіть дату",
+      "visibility": "Видимість",
+      "propertyType": "Тип власності",
       "addSelectOption": "Додати опцію",
+      "typeANewOption": "Введіть новий параметр",
       "optionTitle": "Опції",
       "addOption": "Додати опцію",
       "editProperty": "Редагувати властивість",
       "newProperty": "Додати колонку",
       "deleteFieldPromptMessage": "Ви впевнені? Ця властивість буде видалена",
-      "newColumn": "Нова колонка"
+      "clearFieldPromptMessage": "Ти впевнений? Усі клітинки в цьому стовпці будуть порожні",
+      "newColumn": "Нова колонка",
+      "format": "Формат",
+      "reminderOnDateTooltip": "Ця клітинка має заплановане нагадування",
+      "optionAlreadyExist": "Варіант вже існує"
     },
     "rowPage": {
       "newField": "Додати нове поле",
+      "fieldDragElementTooltip": "Натисніть, щоб відкрити меню",
       "showHiddenFields": {
         "one": "Показати {} приховане поле",
         "many": "Показати {} приховані поля",
@@ -893,13 +1353,20 @@
         "one": "Сховати {} приховане поле",
         "many": "Сховати {} приховані поля",
         "other": "Сховати {} приховані поля"
-      }
+      },
+      "openAsFullPage": "Відкрити як повну сторінку",
+      "moreRowActions": "Більше дій рядків"
     },
     "sort": {
       "ascending": "У висхідному порядку",
       "descending": "У спадному порядку",
+      "by": "за",
+      "empty": "Немає активних сортувань",
+      "cannotFindCreatableField": "Не вдається знайти відповідне поле для сортування",
       "deleteAllSorts": "Видалити всі сортування",
-      "addSort": "Додати сортування"
+      "addSort": "Додати сортування",
+      "removeSorting": "Ви хочете видалити сортування?",
+      "fieldInUse": "Ви вже сортуєте за цим полем"
     },
     "row": {
       "duplicate": "Дублювати",
@@ -911,7 +1378,13 @@
       "newRow": "Новий рядок",
       "action": "Дія",
       "add": "Клацніть, щоб додати нижче",
-      "drag": "Перетягніть для переміщення"
+      "drag": "Перетягніть для переміщення",
+      "deleteRowPrompt": "Ви впевнені, що хочете видалити цей рядок? Цю дію не можна скасувати",
+      "deleteCardPrompt": "Ви впевнені, що хочете видалити цю картку? Цю дію не можна скасувати",
+      "dragAndClick": "Перетягніть, щоб перемістити, натисніть, щоб відкрити меню",
+      "insertRecordAbove": "Вставте запис вище",
+      "insertRecordBelow": "Вставте запис нижче",
+      "noContent": "Немає вмісту"
     },
     "selectOption": {
       "create": "Створити",
@@ -930,15 +1403,49 @@
       "searchOption": "Шукати опцію",
       "searchOrCreateOption": "Шукати чи створити опцію...",
       "createNew": "Створити нову",
-      "orSelectOne": "Або виберіть опцію"
+      "orSelectOne": "Або виберіть опцію",
+      "typeANewOption": "Введіть новий параметр",
+      "tagName": "Назва тегу"
     },
     "checklist": {
       "taskHint": "Опис завдання",
       "addNew": "Додати нове завдання",
-      "submitNewTask": "Створити"
+      "submitNewTask": "Створити",
+      "hideComplete": "Сховати виконані завдання",
+      "showComplete": "Показати всі завдання"
+    },
+    "url": {
+      "launch": "Відкрити посилання в браузері",
+      "copy": "Копіювати посилання в буфер обміну",
+      "textFieldHint": "Введіть URL",
+      "copiedNotification": "Скопійовано в буфер обміну!"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Пов'язана база даних",
+      "relatedDatabasePlaceholder": "Жодного",
+      "inRelatedDatabase": "в",
+      "rowSearchTextFieldPlaceholder": "Пошук",
+      "noDatabaseSelected": "Базу даних не вибрано, будь ласка, спочатку виберіть одну зі списку нижче:",
+      "emptySearchResult": "Записів не знайдено",
+      "linkedRowListLabel": "{count} пов’язаних рядків",
+      "unlinkedRowListLabel": "Зв'яжіть інший ряд"
     },
     "menuName": "Сітка",
-    "referencedGridPrefix": "Вигляд"
+    "referencedGridPrefix": "Вигляд",
+    "calculate": "Обчислити",
+    "calculationTypeLabel": {
+      "none": "Жодного",
+      "average": "Середній",
+      "max": "Макс",
+      "median": "Медіана",
+      "min": "Хв",
+      "sum": "сума",
+      "count": "Рахувати",
+      "countEmpty": "Рахунок порожній",
+      "countEmptyShort": "ПУСТИЙ",
+      "countNonEmpty": "Граф не пустий",
+      "countNonEmptyShort": "ЗАПОВНЕНО"
+    }
   },
   "document": {
     "menuName": "Документ",
@@ -968,6 +1475,7 @@
       "referencedBoard": "Пов'язані дошки",
       "referencedGrid": "Пов'язані сітки",
       "referencedCalendar": "Календар посилань",
+      "referencedDocument": "Посилальний документ",
       "autoGeneratorMenuItemName": "AI Writer",
       "autoGeneratorTitleName": "AI: Запитайте штучний інтелект написати будь-що...",
       "autoGeneratorLearnMore": "Дізнатися більше",
@@ -985,9 +1493,18 @@
       "smartEditCouldNotFetchResult": "Не вдалося отримати результат від AI",
       "smartEditCouldNotFetchKey": "Не вдалося отримати ключ AI",
       "smartEditDisabled": "Підключіть AI в Налаштуваннях",
+      "appflowyAIEditDisabled": "Увійдіть, щоб увімкнути функції ШІ",
       "discardResponse": "Ви хочете відкинути відповіді AI?",
       "createInlineMathEquation": "Створити рівняння",
+      "fonts": "Шрифти",
+      "insertDate": "Вставте дату",
+      "emoji": "Emoji",
       "toggleList": "Перемкнути список",
+      "quoteList": "Цитатний список",
+      "numberedList": "Нумерований список",
+      "bulletedList": "Маркірований список",
+      "todoList": "Список справ",
+      "callout": "Виноска",
       "cover": {
         "changeCover": "Змінити Обгортку",
         "colors": "Кольори",
@@ -1468,6 +1985,7 @@
     "pageReference": "Посилання на сторінку",
     "docReference": "Посилання на документ",
     "boardReference": "Довідка дошки",
+    "calReference": "Довідка календаря",
     "gridReference": "Посилання на сітку",
     "date": "Дата",
     "reminder": {
@@ -1850,6 +2368,74 @@
     "unableToDeselectPrimaryDatabase": "Неможливо скасувати вибір основної бази даних",
     "saveThisPage": "Зберегти цю сторінку",
     "duplicateTitle": "Куди б ви хотіли додати",
-    "selectWorkspace": "Виберіть робочу область"
+    "selectWorkspace": "Виберіть робочу область",
+    "addTo": "Додати до",
+    "duplicateSuccessfully": "Дубльований успіх. Хочете переглянути документи?",
+    "duplicateSuccessfullyDescription": "Немає програми? Ваше завантаження розпочнеться автоматично після натискання кнопки «Завантажити».",
+    "downloadIt": "Завантажити",
+    "openApp": "Відкрити в додатку",
+    "duplicateFailed": "Не вдалося створити копію",
+    "membersCount": {
+      "zero": "Немає учасників",
+      "one": "1 учасник",
+      "many": "{count} учасників",
+      "other": "{count} учасників"
+    }
+  },
+  "web": {
+    "continue": "Продовжити",
+    "or": "або",
+    "continueWithGoogle": "Продовжуйте з Google",
+    "continueWithGithub": "Продовжити з GitHub",
+    "continueWithDiscord": "Продовжуйте з Discord",
+    "signInAgreement": "Натиснувши «Продовжити» вище, ви підтверджуєте це\nви прочитали, зрозуміли та погодилися\nAppFlowy",
+    "and": "і",
+    "termOfUse": "Умови",
+    "privacyPolicy": "Політика конфіденційності"
+  },
+  "globalComment": {
+    "addReaction": "Додайте реакцію",
+    "reactedByMore": "та {count} інших",
+    "showSeconds": {
+      "one": "1 секунду тому",
+      "other": "{count} секунд тому"
+    },
+    "showMinutes": {
+      "one": "1 хвилину тому",
+      "other": "{count} хвилин тому",
+      "many": "{count} хвилин тому"
+    },
+    "showHours": {
+      "one": "1 годину тому",
+      "other": "{count} годин тому",
+      "many": "{count} годин тому"
+    },
+    "showDays": {
+      "one": "1 день тому",
+      "other": "{count} днів тому",
+      "many": "{count} днів тому"
+    },
+    "showMonths": {
+      "one": "1 місяць тому",
+      "other": "{count} місяців тому",
+      "many": "{count} місяців тому"
+    },
+    "showYears": {
+      "one": "1 рік тому",
+      "other": "{count} років тому",
+      "many": "{count} років тому"
+    },
+    "reply": "Відповісти",
+    "deleteComment": "Видалити коментар",
+    "youAreNotOwner": "Ви не є власником цього коментаря",
+    "confirmDeleteDescription": "Ви впевнені, що хочете видалити цей коментар?",
+    "hasBeenDeleted": "Видалено",
+    "replyingTo": "Відповідаючи на",
+    "noAccessDeleteComment": "Ви не можете видалити цей коментар",
+    "collapse": "Згорнути",
+    "readMore": "Читати далі",
+    "failedToAddComment": "Не вдалося додати коментар",
+    "commentAddedSuccessfully": "Коментар успішно додано.",
+    "commentAddedSuccessTip": "Ви щойно додали коментар або відповіли на нього. Бажаєте перейти вгору, щоб переглянути останні коментарі?"
   }
 }
