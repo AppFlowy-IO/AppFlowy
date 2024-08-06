@@ -158,8 +158,8 @@
   "newBoardText": "New board",
   "chat": {
     "newChat": "AI Chat",
-    "inputMessageHint": "Message @:appName AI",
-    "inputLocalAIMessageHint": "Message @:appName Local AI",
+    "inputMessageHint": "Ask @:appName AI",
+    "inputLocalAIMessageHint": "Ask @:appName Local AI",
     "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
     "relatedQuestion": "Related",
     "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
@@ -698,10 +698,10 @@
         "unlimitedAILabel": "Unlimited responses",
         "proBadge": "Pro",
         "aiMaxBadge": "AI Max",
-        "aiOnDeviceBadge": "AI On-device",
+        "aiOnDeviceBadge": "AI On-device for Mac",
         "memberProToggle": "More members & unlimited AI",
-        "aiMaxToggle": "Unlimited AI responses",
-        "aiOnDeviceToggle": "On-device AI for ultimate privacy",
+        "aiMaxToggle": "Unlimited AI and access to advanced models",
+        "aiOnDeviceToggle": "Local AI for ultimate privacy",
         "aiCredit": {
           "title": "Add @:appName AI Credit",
           "price": "{}",
@@ -716,7 +716,7 @@
           "freeTitle": "Free",
           "proTitle": "Pro",
           "teamTitle": "Team",
-          "freeInfo": "Perfect for individuals or small teams up to 3 members.",
+          "freeInfo": "Perfect for individuals up to 2 members to organize everything",
           "proInfo": "Perfect for small and medium teams up to 10 members.",
           "teamInfo": "Perfect for all productive and well-organized teams..",
           "upgrade": "Change plan",
@@ -728,14 +728,14 @@
           "activeLabel": "Added",
           "aiMax": {
             "title": "AI Max",
-            "description": "Unlock unlimited AI",
+            "description": "Unlimited AI responses powered by GPT-4o, Claude 3.5 Sonnet, and more",
             "price": "{}",
             "priceInfo": "per user per month",
             "billingInfo": "billed annually or {} billed monthly"
           },
           "aiOnDevice": {
-            "title": "AI On-device",
-            "description": "AI offline on your device",
+            "title": "AI On-device for Mac",
+            "description": "Run Mistral 7B, LLAMA 3, and more local models on your machine",
             "price": "{}",
             "priceInfo": "per user per month",
             "billingInfo": "billed annually or {} billed monthly"
@@ -777,10 +777,10 @@
           "canceledDescription": "AI Max will be available until {}"
         },
         "aiOnDevice": {
-          "label": "AI On-device",
+          "label": "AI On-device for Mac",
           "description": "Unlock unlimited AI offline on your device",
           "activeDescription": "Next invoice due on {}",
-          "canceledDescription": "AI On-device will be available until {}"
+          "canceledDescription": "AI On-device for Mac will be available until {}"
         },
         "removeDialog": {
           "title": "Remove {}",
@@ -806,7 +806,7 @@
       },
       "freePlan": {
         "title": "Free",
-        "description": "For individuals and small groups to organize everything",
+        "description": "For individuals up to 2 members to organize everything",
         "price": "{}",
         "priceInfo": "free forever"
       },
@@ -824,16 +824,18 @@
         "itemFive": "Mobile app",
         "itemSix": "AI Responses",
         "tooltipSix": "Lifetime means the number of responses never reset",
+        "intelligentSearch": "Intelligent search",
         "itemSeven": "Custom namespace",
         "tooltipSeven": "Allows you to customize part of the URL for your workspace"
       },
       "freeLabels": {
         "itemOne": "charged per workspace",
-        "itemTwo": "up to 3",
+        "itemTwo": "up to 2",
         "itemThree": "5 GB",
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "100 lifetime",
+        "intelligentSearch": "Intelligent search",
         "itemSeven": ""
       },
       "proLabels": {
@@ -843,6 +845,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "unlimited",
+        "intelligentSearch": "Intelligent search",
         "itemSeven": ""
       },
       "paymentSuccess": {
