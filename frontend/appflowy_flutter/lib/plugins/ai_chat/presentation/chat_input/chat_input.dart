@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
 import 'package:extended_text_field/extended_text_field.dart';
@@ -26,6 +27,7 @@ class ChatInput extends StatefulWidget {
     required this.isStreaming,
     required this.onStopStreaming,
     required this.hintText,
+    required this.aiType,
   });
 
   final bool? isAttachmentUploading;
@@ -36,6 +38,7 @@ class ChatInput extends StatefulWidget {
   final String chatId;
   final bool isStreaming;
   final String hintText;
+  final AIType aiType;
 
   @override
   State<ChatInput> createState() => _ChatInputState();
@@ -117,7 +120,9 @@ class _ChatInputState extends State<ChatInput> {
               Expanded(child: _inputTextField(textPadding)),
 
               // TODO(lucas): support mobile
-              if (PlatformExtension.isDesktop) _atButton(buttonPadding),
+              if (PlatformExtension.isDesktop &&
+                  widget.aiType == const AIType.appflowyAI())
+                _atButton(buttonPadding),
               _sendButton(buttonPadding),
               const HSpace(14),
             ],
@@ -190,6 +195,10 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   void _handleOnTextChange(BuildContext context, String text) {
+    if (widget.aiType != const AIType.appflowyAI()) {
+      return;
+    }
+
     if (PlatformExtension.isDesktop) {
       if (_inputActionControl.onTextChanged(text)) {
         ChatActionsMenu(

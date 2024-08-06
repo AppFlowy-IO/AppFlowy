@@ -30,13 +30,13 @@ impl Stream for LocalAIStreamAdaptor {
 
   fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
     let this = self.project();
-    return match ready!(this.stream.as_mut().poll_next(cx)) {
+    match ready!(this.stream.as_mut().poll_next(cx)) {
       Some(Ok(bytes)) => match String::from_utf8(bytes.to_vec()) {
         Ok(s) => Poll::Ready(Some(Ok(QuestionStreamValue::Answer { value: s }))),
         Err(err) => Poll::Ready(Some(Err(FlowyError::internal().with_context(err)))),
       },
       Some(Err(err)) => Poll::Ready(Some(Err(FlowyError::local_ai().with_context(err)))),
       None => Poll::Ready(None),
-    };
+    }
   }
 }
