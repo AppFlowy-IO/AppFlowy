@@ -5,6 +5,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 
+import 'colors.dart';
+
 // use a temporary global value to store last selected skin tone
 EmojiSkinTone? lastSelectedEmojiSkinTone;
 
@@ -68,7 +70,7 @@ class _FlowyEmojiSkinToneSelectorState
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0x1E171717)),
+        border: Border.all(color: context.pickerButtonBoarderColor),
         borderRadius: BorderRadius.circular(8),
       ),
       child: FlowyButton(

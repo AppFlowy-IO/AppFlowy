@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/base/emoji/emoji_picker_header.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
+import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
 import 'package:appflowy/shared/icon_emoji_picker/emoji_search_bar.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
