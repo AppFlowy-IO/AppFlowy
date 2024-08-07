@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
@@ -11,13 +9,14 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter/material.dart';
 
-Future<String?> showPageSelectorSheet(
+Future<ViewPB?> showPageSelectorSheet(
   BuildContext context, {
   String? currentViewId,
   String? selectedViewId,
 }) async {
-  return showMobileBottomSheet<String>(
+  return showMobileBottomSheet<ViewPB>(
     context,
     title: LocaleKeys.document_mobilePageSelector_title.tr(),
     showHeader: true,
@@ -38,7 +37,10 @@ Future<String?> showPageSelectorSheet(
 }
 
 class _MobilePageSelectorBody extends StatefulWidget {
-  const _MobilePageSelectorBody({this.currentViewId, this.selectedViewId});
+  const _MobilePageSelectorBody({
+    this.currentViewId,
+    this.selectedViewId,
+  });
 
   final String? currentViewId;
   final String? selectedViewId;
@@ -118,7 +120,7 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
                               ),
                         text: view.name,
                         isSelected: view.id == widget.selectedViewId,
-                        onTap: () => Navigator.of(context).pop(view.id),
+                        onTap: () => Navigator.of(context).pop(view),
                       ),
                     )
                     .toList(),

@@ -1,6 +1,8 @@
+import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -96,15 +98,18 @@ class _ChatInputState extends State<ChatInput> {
 
   @override
   Widget build(BuildContext context) {
-    const textPadding = EdgeInsets.symmetric(horizontal: 16);
     const buttonPadding = EdgeInsets.symmetric(horizontal: 2);
     const inputPadding = EdgeInsets.all(6);
 
-    final borderRadius = BorderRadius.circular(isMobile ? 0 : 30);
+    final textPadding = isMobile
+        ? const EdgeInsets.only(left: 8.0, right: 4.0)
+        : const EdgeInsets.symmetric(horizontal: 16);
+    final borderRadius = BorderRadius.circular(isMobile ? 10 : 30);
     final color = isMobile
-        ? Theme.of(context).colorScheme.surfaceContainer
+        ? Colors.transparent
         : Theme.of(context).colorScheme.surfaceContainerHighest;
     final elevation = isMobile ? 0.0 : 0.6;
+    final space = isMobile ? 8.0 : 14.0;
 
     return Focus(
       child: Padding(
@@ -124,13 +129,10 @@ class _ChatInputState extends State<ChatInput> {
               Expanded(
                 child: _inputTextField(context, textPadding),
               ),
-
-              // TODO(lucas): support mobile
-              if (PlatformExtension.isDesktop &&
-                  widget.aiType == const AIType.appflowyAI())
+              if (widget.aiType == const AIType.appflowyAI())
                 _atButton(buttonPadding),
               _sendButton(buttonPadding),
-              const HSpace(14),
+              HSpace(space),
             ],
           ),
         ),
@@ -241,27 +243,38 @@ class _ChatInputState extends State<ChatInput> {
         );
   }
 
-  void _handleOnTextChange(BuildContext context, String text) {
+  Future<void> _handleOnTextChange(BuildContext context, String text) async {
     if (widget.aiType != const AIType.appflowyAI()) {
       return;
     }
 
+    if (!_inputActionControl.onTextChanged(text)) {
+      return;
+    }
+
     if (PlatformExtension.isDesktop) {
-      if (_inputActionControl.onTextChanged(text)) {
-        ChatActionsMenu(
-          anchor: ChatInputAnchor(
-            anchorKey: _textFieldKey,
-            layerLink: _layerLink,
-          ),
-          handler: _inputActionControl,
-          context: context,
-          style: Theme.of(context).brightness == Brightness.dark
-              ? const ChatActionsMenuStyle.dark()
-              : const ChatActionsMenuStyle.light(),
-        ).show();
-      }
+      ChatActionsMenu(
+        anchor: ChatInputAnchor(
+          anchorKey: _textFieldKey,
+          layerLink: _layerLink,
+        ),
+        handler: _inputActionControl,
+        context: context,
+        style: Theme.of(context).brightness == Brightness.dark
+            ? const ChatActionsMenuStyle.dark()
+            : const ChatActionsMenuStyle.light(),
+      ).show();
     } else {
-      // TODO(lucas): support mobile
+      // if the focus node is on focus, unfocus it for better animation
+      // otherwise, the page sheet animation will be blocked by the keyboard
+      if (_inputFocusNode.hasFocus) {
+        _inputFocusNode.unfocus();
+        Future.delayed(const Duration(milliseconds: 100), () async {
+          await _referPage(_inputActionControl);
+        });
+      } else {
+        await _referPage(_inputActionControl);
+      }
     }
   }
 
@@ -292,11 +305,24 @@ class _ChatInputState extends State<ChatInput> {
       child: ChatInputAtButton(
         onTap: () {
           _textController.text += '@';
-          _inputFocusNode.requestFocus();
+          if (!isMobile) {
+            _inputFocusNode.requestFocus();
+          }
           _handleOnTextChange(context, _textController.text);
         },
       ),
     );
+  }
+
+  Future<void> _referPage(ChatActionHandler handler) async {
+    handler.onEnter();
+    final selectedView = await showPageSelectorSheet(context);
+    if (selectedView == null) {
+      handler.onExit();
+      return;
+    }
+    handler.onSelected(ViewActionPage(view: selectedView));
+    handler.onExit();
   }
 
   @override

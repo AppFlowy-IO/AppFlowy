@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'chat_input_action_control.dart';
+
 part 'chat_input_action_bloc.freezed.dart';
 
 class ChatInputActionBloc
@@ -34,7 +35,7 @@ class ChatInputActionBloc
               final views = result
                       .toNullable()
                       ?.items
-                      .where((v) => v.layout.isDocumentView)
+                      .where((v) => v.layout.isDocumentView && !v.isSpace)
                       .toList() ??
                   [];
               if (!isClosed) {
