@@ -93,7 +93,7 @@ void main() {
       );
 
       // expect to the see the inline math equation button is highlighted
-      inlineMathEquationButton = find.byTooltip(
+      inlineMathEquationButton = find.findFlowyTooltip(
         LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       );
       expect(
