@@ -304,6 +304,9 @@ pub enum ErrorCode {
 
   #[error("AI offline not started")]
   AIOfflineNotInstalled = 105,
+
+  #[error("Invalid Request")]
+  InvalidRequest = 106,
 }
 
 impl ErrorCode {

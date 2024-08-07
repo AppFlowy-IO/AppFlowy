@@ -35,10 +35,18 @@ class ChatInputActionControl extends ChatActionHandler {
   List<String> get tags =>
       _commandBloc.state.selectedPages.map((e) => e.title).toList();
 
-  ChatInputMetadata get metaData => _commandBloc.state.selectedPages.fold(
-        <String, ChatInputActionPage>{},
-        (map, page) => map..putIfAbsent(page.pageId, () => page),
-      );
+  ChatInputMetadata consumeMetaData() {
+    final metadata = _commandBloc.state.selectedPages.fold(
+      <String, ChatInputActionPage>{},
+      (map, page) => map..putIfAbsent(page.pageId, () => page),
+    );
+
+    if (metadata.isNotEmpty) {
+      _commandBloc.add(const ChatInputActionEvent.clear());
+    }
+
+    return metadata;
+  }
 
   void handleKeyEvent(KeyEvent event) {
     // ignore: deprecated_member_use

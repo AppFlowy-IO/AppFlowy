@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/ai_message_bubble.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/other_user_message_bubble.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/user_message_bubble.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -25,6 +26,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:styled_widget/styled_widget.dart';
 
+import 'application/chat_member_bloc.dart';
 import 'application/chat_side_pannel_bloc.dart';
 import 'presentation/chat_input/chat_input.dart';
 import 'presentation/chat_popmenu.dart';
@@ -99,6 +101,7 @@ class AIChatPage extends StatelessWidget {
                 ChatInputStateBloc()..add(const ChatInputStateEvent.started()),
           ),
           BlocProvider(create: (_) => ChatSidePannelBloc(chatId: view.id)),
+          BlocProvider(create: (_) => ChatMemberBloc()),
         ],
         child: BlocListener<ChatFileBloc, ChatFileState>(
           listenWhen: (previous, current) =>
@@ -296,6 +299,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
   Widget buildChatWidget() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (blocContext, state) => Chat(
+        key: ValueKey(widget.view.id),
         messages: state.messages,
         onSendPressed: (_) {
           // We use custom bottom widget for chat input, so
@@ -333,7 +337,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
           required messageWidth,
           required showName,
         }) =>
-            _buildAITextMessage(blocContext, textMessage),
+            _buildTextMessage(blocContext, textMessage),
         bubbleBuilder: (
           child, {
           required message,
@@ -344,17 +348,21 @@ class _ChatContentPageState extends State<_ChatContentPage> {
               message: message,
               child: child,
             );
+          } else if (isOtherUserMessage(message)) {
+            return OtherUserMessageBubble(
+              message: message,
+              child: child,
+            );
+          } else {
+            return _buildAIBubble(message, blocContext, state, child);
           }
-
-          return _buildAIBubble(message, blocContext, state, child);
         },
       ),
     );
   }
 
-  Widget _buildAITextMessage(BuildContext context, TextMessage message) {
-    final isAuthor = message.author.id == _user.id;
-    if (isAuthor) {
+  Widget _buildTextMessage(BuildContext context, TextMessage message) {
+    if (message.author.id == _user.id) {
       return ChatTextMessageWidget(
         user: message.author,
         messageUserId: message.id,
@@ -495,9 +503,9 @@ class _ChatContentPageState extends State<_ChatContentPage> {
 
             return Column(
               children: [
-                BlocSelector<ChatBloc, ChatState, LoadingState>(
-                  selector: (state) => state.streamingStatus,
-                  builder: (context, state) {
+                BlocSelector<ChatBloc, ChatState, bool>(
+                  selector: (state) => state.canSendMessage,
+                  builder: (context, canSendMessage) {
                     return ChatInput(
                       aiType: aiType,
                       chatId: widget.view.id,
@@ -509,7 +517,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                               ),
                             );
                       },
-                      isStreaming: state != const LoadingState.finish(),
+                      isStreaming: !canSendMessage,
                       onStopStreaming: () {
                         context
                             .read<ChatBloc>()

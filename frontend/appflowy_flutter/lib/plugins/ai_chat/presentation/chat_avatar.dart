@@ -55,11 +55,13 @@ class ChatUserAvatar extends StatelessWidget {
     required this.name,
     required this.size,
     this.isHovering = false,
+    this.defaultName,
   });
 
   final String iconUrl;
   final String name;
   final double size;
+  final String? defaultName;
 
   // If true, a border will be applied on top of the avatar
   final bool isHovering;
@@ -76,7 +78,8 @@ class ChatUserAvatar extends StatelessWidget {
   }
 
   Widget _buildEmptyAvatar(BuildContext context) {
-    final String nameOrDefault = _userName(name);
+    final String nameOrDefault = _userName(name, defaultName);
+
     final Color color = ColorGenerator(name).toColor();
     const initialsCount = 2;
 
@@ -170,8 +173,8 @@ class ChatUserAvatar extends StatelessWidget {
   /// Return the user name, if the user name is empty,
   /// return the default user name.
   ///
-  String _userName(String name) =>
-      name.isEmpty ? LocaleKeys.defaultUsername.tr() : name;
+  String _userName(String name, String? defaultName) =>
+      name.isEmpty ? (defaultName ?? LocaleKeys.defaultUsername.tr()) : name;
 
   /// Used to darken the generated color for the hover border effect.
   /// The color is darkened by 15% - Hence the 0.15 value.

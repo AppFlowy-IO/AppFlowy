@@ -114,6 +114,14 @@ class ChatInputActionBloc
           ),
         );
       },
+      clear: () {
+        emit(
+          state.copyWith(
+            selectedPages: [],
+            filter: "",
+          ),
+        );
+      },
     );
   }
 }
@@ -177,6 +185,7 @@ class ChatInputActionEvent with _$ChatInputActionEvent {
   const factory ChatInputActionEvent.addPage(ChatInputActionPage page) =
       _AddPage;
   const factory ChatInputActionEvent.removePage(String text) = _RemovePage;
+  const factory ChatInputActionEvent.clear() = _Clear;
 }
 
 @freezed

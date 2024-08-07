@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_member_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -27,49 +27,53 @@ class ChatUserMessageBubble extends StatelessWidget {
     const borderRadius = BorderRadius.all(Radius.circular(6));
     final backgroundColor =
         Theme.of(context).colorScheme.surfaceContainerHighest;
+    if (context.read<ChatMemberBloc>().state.members[message.author.id] ==
+        null) {
+      context
+          .read<ChatMemberBloc>()
+          .add(ChatMemberEvent.getMemberInfo(message.author.id));
+    }
 
-    return BlocProvider(
-      create: (context) => ChatUserMessageBloc(message: message)
-        ..add(const ChatUserMessageEvent.initial()),
-      child: BlocBuilder<ChatUserMessageBloc, ChatUserMessageState>(
-        builder: (context, state) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // _wrapHover(
-              Flexible(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: borderRadius,
-                    color: backgroundColor,
+    return BlocConsumer<ChatMemberBloc, ChatMemberState>(
+      listenWhen: (previous, current) {
+        return previous.members[message.author.id] !=
+            current.members[message.author.id];
+      },
+      listener: (context, state) {},
+      builder: (context, state) {
+        final member = state.members[message.author.id];
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // _wrapHover(
+            Flexible(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: borderRadius,
+                  color: backgroundColor,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: child,
-                  ),
+                  child: child,
                 ),
               ),
-              // ),
-              BlocBuilder<ChatUserMessageBloc, ChatUserMessageState>(
-                builder: (context, state) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: ChatUserAvatar(
-                      iconUrl: state.member?.avatarUrl ?? "",
-                      name: state.member?.name ?? "",
-                      size: 36,
-                    ),
-                  );
-                },
+            ),
+            // ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ChatUserAvatar(
+                iconUrl: member?.info.avatarUrl ?? "",
+                name: member?.info.name ?? "",
+                size: 36,
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

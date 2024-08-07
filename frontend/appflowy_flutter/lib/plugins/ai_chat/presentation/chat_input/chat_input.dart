@@ -153,7 +153,7 @@ class _ChatInputState extends State<ChatInput> {
     if (trimmedText != '') {
       final partialText = types.PartialText(
         text: trimmedText,
-        metadata: _inputActionControl.metaData,
+        metadata: _inputActionControl.consumeMetaData(),
       );
       widget.onSendPressed(partialText);
       _textController.clear();
