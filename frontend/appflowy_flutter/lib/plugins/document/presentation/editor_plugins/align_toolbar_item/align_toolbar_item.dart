@@ -94,9 +94,9 @@ class _AlignmentButtonsState extends State<_AlignmentButtons> {
       windowPadding: const EdgeInsets.all(0),
       margin: const EdgeInsets.symmetric(vertical: 2.0),
       direction: PopoverDirection.bottomWithCenterAligned,
-      offset: const Offset(0, 12),
+      offset: const Offset(0, 10),
       decorationColor: Theme.of(context).colorScheme.onTertiary,
-      borderRadius: const BorderRadius.all(Radius.circular(4)),
+      borderRadius: BorderRadius.circular(6.0),
       popupBuilder: (_) {
         keepEditorFocusNotifier.increase();
         return _AlignButtons(onAlignChanged: widget.onAlignChanged);

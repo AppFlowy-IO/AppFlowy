@@ -30,51 +30,45 @@ final headingsToolbarItem = ToolbarItem(
     final svg = _headingData[level - 1].$1;
     final message = _headingData[level - 1].$2;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: FlowyTooltip(
-        message: message,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: _HeadingPopup(
-            currentLevel: isHighlight ? level : -1,
-            highlightColor: highlightColor,
-            child: Row(
-              children: [
-                FlowySvg(
-                  svg,
-                  size: const Size.square(18),
-                  color: isHighlight ? highlightColor : Colors.white,
-                ),
-                const HSpace(2.0),
-                const FlowySvg(
-                  FlowySvgs.arrow_down_s,
-                  size: Size.square(12),
-                  color: Colors.grey,
-                ),
-              ],
-            ),
-            onLevelChanged: (level) async {
-              await editorState.formatNode(
-                selection,
-                (node) => node.copyWith(
-                  type: isHighlight
-                      ? ParagraphBlockKeys.type
-                      : HeadingBlockKeys.type,
-                  attributes: {
-                    HeadingBlockKeys.level: level,
-                    blockComponentBackgroundColor:
-                        node.attributes[blockComponentBackgroundColor],
-                    blockComponentTextDirection:
-                        node.attributes[blockComponentTextDirection],
-                    blockComponentDelta: delta,
-                  },
-                ),
-              );
+    final child = FlowyTooltip(
+      message: message,
+      preferBelow: false,
+      child: Row(
+        children: [
+          FlowySvg(
+            svg,
+            size: const Size.square(18),
+            color: isHighlight ? highlightColor : Colors.white,
+          ),
+          const HSpace(2.0),
+          const FlowySvg(
+            FlowySvgs.arrow_down_s,
+            size: Size.square(12),
+            color: Colors.grey,
+          ),
+        ],
+      ),
+    );
+    return _HeadingPopup(
+      currentLevel: isHighlight ? level : -1,
+      highlightColor: highlightColor,
+      child: child,
+      onLevelChanged: (level) async {
+        await editorState.formatNode(
+          selection,
+          (node) => node.copyWith(
+            type: isHighlight ? ParagraphBlockKeys.type : HeadingBlockKeys.type,
+            attributes: {
+              HeadingBlockKeys.level: level,
+              blockComponentBackgroundColor:
+                  node.attributes[blockComponentBackgroundColor],
+              blockComponentTextDirection:
+                  node.attributes[blockComponentTextDirection],
+              blockComponentDelta: delta,
             },
           ),
-        ),
-      ),
+        );
+      },
     );
   },
 );
@@ -96,11 +90,11 @@ class _HeadingPopup extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       windowPadding: const EdgeInsets.all(0),
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsets.symmetric(vertical: 2.0),
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 10),
       decorationColor: Theme.of(context).colorScheme.onTertiary,
-      borderRadius: const BorderRadius.all(Radius.circular(4)),
+      borderRadius: BorderRadius.circular(6.0),
       popupBuilder: (_) {
         keepEditorFocusNotifier.increase();
         return _HeadingButtons(
@@ -112,7 +106,11 @@ class _HeadingPopup extends StatelessWidget {
       onClose: () {
         keepEditorFocusNotifier.decrease();
       },
-      child: child,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        hoverColor: Colors.grey.withOpacity(0.3),
+        text: child,
+      ),
     );
   }
 }
@@ -176,18 +174,17 @@ class _HeadingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onTap,
-        child: FlowyTooltip(
-          message: tooltip,
-          preferBelow: true,
-          child: FlowySvg(
-            icon,
-            size: const Size.square(18),
-            color: isHighlight ? highlightColor : Colors.white,
-          ),
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      hoverColor: Colors.grey.withOpacity(0.3),
+      onTap: onTap,
+      text: FlowyTooltip(
+        message: tooltip,
+        preferBelow: true,
+        child: FlowySvg(
+          icon,
+          size: const Size.square(18),
+          color: isHighlight ? highlightColor : Colors.white,
         ),
       ),
     );
@@ -200,7 +197,7 @@ class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(4),
       child: Container(
         width: 1,
         color: Colors.grey,
