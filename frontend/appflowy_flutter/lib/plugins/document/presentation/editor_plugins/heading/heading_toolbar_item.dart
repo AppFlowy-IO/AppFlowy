@@ -36,11 +36,23 @@ final headingsToolbarItem = ToolbarItem(
         message: message,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: _HeadingButtons(
-            child: FlowySvg(
-              svg,
-              size: const Size.square(18),
-              color: isHighlight ? highlightColor : Colors.white,
+          child: _HeadingPopup(
+            currentLevel: isHighlight ? level : -1,
+            highlightColor: highlightColor,
+            child: Row(
+              children: [
+                FlowySvg(
+                  svg,
+                  size: const Size.square(18),
+                  color: isHighlight ? highlightColor : Colors.white,
+                ),
+                const HSpace(2.0),
+                const FlowySvg(
+                  FlowySvgs.arrow_down_s,
+                  size: Size.square(12),
+                  color: Colors.grey,
+                ),
+              ],
             ),
             onLevelChanged: (level) async {
               await editorState.formatNode(
@@ -67,20 +79,19 @@ final headingsToolbarItem = ToolbarItem(
   },
 );
 
-class _HeadingButtons extends StatefulWidget {
-  const _HeadingButtons({
-    required this.child,
+class _HeadingPopup extends StatelessWidget {
+  const _HeadingPopup({
+    required this.currentLevel,
+    required this.highlightColor,
     required this.onLevelChanged,
+    required this.child,
   });
 
-  final Widget child;
+  final int currentLevel;
+  final Color highlightColor;
   final Function(int level) onLevelChanged;
+  final Widget child;
 
-  @override
-  State<_HeadingButtons> createState() => _HeadingButtonsState();
-}
-
-class _HeadingButtonsState extends State<_HeadingButtons> {
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
@@ -92,27 +103,35 @@ class _HeadingButtonsState extends State<_HeadingButtons> {
       borderRadius: const BorderRadius.all(Radius.circular(4)),
       popupBuilder: (_) {
         keepEditorFocusNotifier.increase();
-        return _AlignButtons(onLevelChanged: widget.onLevelChanged);
+        return _HeadingButtons(
+          currentLevel: currentLevel,
+          highlightColor: highlightColor,
+          onLevelChanged: onLevelChanged,
+        );
       },
       onClose: () {
         keepEditorFocusNotifier.decrease();
       },
-      child: widget.child,
+      child: child,
     );
   }
 }
 
-class _AlignButtons extends StatelessWidget {
-  const _AlignButtons({
+class _HeadingButtons extends StatelessWidget {
+  const _HeadingButtons({
+    required this.highlightColor,
+    required this.currentLevel,
     required this.onLevelChanged,
   });
 
+  final int currentLevel;
+  final Color highlightColor;
   final Function(int level) onLevelChanged;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 32,
+      height: 28,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -125,6 +144,8 @@ class _AlignButtons extends StatelessWidget {
                 icon: svg,
                 tooltip: message,
                 onTap: () => onLevelChanged(index + 1),
+                isHighlight: index + 1 == currentLevel,
+                highlightColor: highlightColor,
               ),
               index != _headingData.length - 1
                   ? const _Divider()
@@ -143,11 +164,15 @@ class _HeadingButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onTap,
+    required this.highlightColor,
+    required this.isHighlight,
   });
 
+  final Color highlightColor;
   final FlowySvgData icon;
   final String tooltip;
   final VoidCallback onTap;
+  final bool isHighlight;
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +186,7 @@ class _HeadingButton extends StatelessWidget {
           child: FlowySvg(
             icon,
             size: const Size.square(18),
-            color: Colors.white,
+            color: isHighlight ? highlightColor : Colors.white,
           ),
         ),
       ),
