@@ -18,6 +18,7 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -407,12 +408,24 @@ class EditorStyleCustomizer {
     Widget child,
   ) {
     final tooltipMessage = _buildTooltipMessage(id, message);
-    return FlowyTooltip(
+    child = FlowyTooltip(
       richMessage: tooltipMessage,
       preferBelow: false,
       verticalOffset: 20,
       child: child,
     );
+
+    // the align toolbar item doesn't need the hover effect
+    if (id != kAlignToolbarItemId) {
+      child = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: FlowyHover(
+          child: child,
+        ),
+      );
+    }
+
+    return child;
   }
 
   TextSpan _buildTooltipMessage(String id, String message) {
@@ -459,9 +472,3 @@ class EditorStyleCustomizer {
     return textSpan;
   }
 }
-
-// lutter: buildToolbarItemTooltip: underline
-// flutter: buildToolbarItemTooltip: bold
-// flutter: buildToolbarItemTooltip: italic
-// flutter: buildToolbarItemTooltip: strikethrough
-// flutter: buildToolbarItemTooltip: code

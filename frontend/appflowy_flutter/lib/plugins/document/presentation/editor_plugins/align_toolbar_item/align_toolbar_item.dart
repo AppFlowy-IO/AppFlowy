@@ -9,10 +9,10 @@ import 'package:flutter/material.dart';
 const String leftAlignmentKey = 'left';
 const String centerAlignmentKey = 'center';
 const String rightAlignmentKey = 'right';
-const String _kAlignToolbarItemId = 'editor.align';
+const String kAlignToolbarItemId = 'editor.align';
 
 final alignToolbarItem = ToolbarItem(
-  id: _kAlignToolbarItemId,
+  id: kAlignToolbarItemId,
   group: 4,
   isActive: onlyShowInTextType,
   builder: (context, editorState, highlightColor, _, tooltipBuilder) {
@@ -44,31 +44,25 @@ final alignToolbarItem = ToolbarItem(
       color: isHighlight ? highlightColor : Colors.white,
     );
 
-    child = MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: _AlignmentButtons(
-          child: child,
-          onAlignChanged: (align) async {
-            await editorState.updateNode(
-              selection,
-              (node) => node.copyWith(
-                attributes: {
-                  ...node.attributes,
-                  blockComponentAlign: align,
-                },
-              ),
-            );
-          },
-        ),
-      ),
+    child = _AlignmentButtons(
+      child: child,
+      onAlignChanged: (align) async {
+        await editorState.updateNode(
+          selection,
+          (node) => node.copyWith(
+            attributes: {
+              ...node.attributes,
+              blockComponentAlign: align,
+            },
+          ),
+        );
+      },
     );
 
     if (tooltipBuilder != null) {
       child = tooltipBuilder(
         context,
-        _kAlignToolbarItemId,
+        kAlignToolbarItemId,
         LocaleKeys.document_plugins_optionAction_align.tr(),
         child,
       );
@@ -92,13 +86,15 @@ class _AlignmentButtons extends StatefulWidget {
 }
 
 class _AlignmentButtonsState extends State<_AlignmentButtons> {
+  final controller = PopoverController();
+
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       windowPadding: const EdgeInsets.all(0),
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsets.symmetric(vertical: 2.0),
       direction: PopoverDirection.bottomWithCenterAligned,
-      offset: const Offset(0, 10),
+      offset: const Offset(0, 12),
       decorationColor: Theme.of(context).colorScheme.onTertiary,
       borderRadius: const BorderRadius.all(Radius.circular(4)),
       popupBuilder: (_) {
@@ -108,7 +104,11 @@ class _AlignmentButtonsState extends State<_AlignmentButtons> {
       onClose: () {
         keepEditorFocusNotifier.decrease();
       },
-      child: widget.child,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        text: widget.child,
+        onTap: () => controller.show(),
+      ),
     );
   }
 }
@@ -123,7 +123,7 @@ class _AlignButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 32,
+      height: 28,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -165,17 +165,15 @@ class _AlignButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onTap,
-        child: FlowyTooltip(
-          message: tooltips,
-          child: FlowySvg(
-            icon,
-            size: const Size.square(16),
-            color: Colors.white,
-          ),
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      onTap: onTap,
+      text: FlowyTooltip(
+        message: tooltips,
+        child: FlowySvg(
+          icon,
+          size: const Size.square(16),
+          color: Colors.white,
         ),
       ),
     );
@@ -188,7 +186,7 @@ class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(4),
       child: Container(
         width: 1,
         color: Colors.grey,
