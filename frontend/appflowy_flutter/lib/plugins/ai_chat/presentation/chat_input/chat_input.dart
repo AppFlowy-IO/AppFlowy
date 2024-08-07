@@ -1,6 +1,6 @@
+import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -12,8 +12,8 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 import 'chat_at_button.dart';
-import 'chat_send_button.dart';
 import 'chat_input_span.dart';
+import 'chat_send_button.dart';
 
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
@@ -100,15 +100,19 @@ class _ChatInputState extends State<ChatInput> {
     const buttonPadding = EdgeInsets.symmetric(horizontal: 2);
     const inputPadding = EdgeInsets.all(6);
 
+    final borderRadius = BorderRadius.circular(isMobile ? 0 : 30);
+    final color = isMobile
+        ? Theme.of(context).colorScheme.surfaceContainer
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
+    final elevation = isMobile ? 0.0 : 0.6;
+
     return Focus(
       child: Padding(
         padding: inputPadding,
         child: Material(
-          borderRadius: BorderRadius.circular(30),
-          color: isMobile
-              ? Theme.of(context).colorScheme.surfaceContainer
-              : Theme.of(context).colorScheme.surfaceContainerHighest,
-          elevation: 0.6,
+          borderRadius: borderRadius,
+          color: color,
+          elevation: elevation,
           child: Row(
             children: [
               if (widget.onAttachmentPressed != null)
@@ -117,7 +121,9 @@ class _ChatInputState extends State<ChatInput> {
                   onPressed: widget.onAttachmentPressed,
                   padding: buttonPadding,
                 ),
-              Expanded(child: _inputTextField(textPadding)),
+              Expanded(
+                child: _inputTextField(context, textPadding),
+              ),
 
               // TODO(lucas): support mobile
               if (PlatformExtension.isDesktop &&
@@ -160,39 +166,79 @@ class _ChatInputState extends State<ChatInput> {
     });
   }
 
-  Widget _inputTextField(EdgeInsets textPadding) {
+  Widget _inputTextField(BuildContext context, EdgeInsets textPadding) {
     return CompositedTransformTarget(
       link: _layerLink,
       child: Padding(
         padding: textPadding,
         child: ExtendedTextField(
           key: _textFieldKey,
-          specialTextSpanBuilder:
-              ChatInputTextSpanBuilder(inputActionControl: _inputActionControl),
           controller: _textController,
           focusNode: _inputFocusNode,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: widget.hintText,
-            focusedBorder: InputBorder.none,
-            hintStyle: TextStyle(
-              color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
-            ),
-          ),
-          style: TextStyle(
-            color: AFThemeExtension.of(context).textColor,
-            fontSize: 15,
-          ),
+          decoration: _buildInputDecoration(context),
           keyboardType: TextInputType.multiline,
           textCapitalization: TextCapitalization.sentences,
           minLines: 1,
           maxLines: 10,
+          style: _buildTextStyle(context),
+          specialTextSpanBuilder: ChatInputTextSpanBuilder(
+            inputActionControl: _inputActionControl,
+          ),
           onChanged: (text) {
             _handleOnTextChange(context, text);
           },
         ),
       ),
     );
+  }
+
+  InputDecoration _buildInputDecoration(BuildContext context) {
+    if (!isMobile) {
+      return InputDecoration(
+        border: InputBorder.none,
+        hintText: widget.hintText,
+        focusedBorder: InputBorder.none,
+        hintStyle: TextStyle(
+          color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
+        ),
+      );
+    }
+
+    final borderRadius = BorderRadius.circular(10);
+    return InputDecoration(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      hintText: widget.hintText,
+      hintStyle: TextStyle(
+        color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.outline,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 1.2,
+        ),
+      ),
+    );
+  }
+
+  TextStyle? _buildTextStyle(BuildContext context) {
+    if (!isMobile) {
+      return TextStyle(
+        color: AFThemeExtension.of(context).textColor,
+        fontSize: 15,
+      );
+    }
+
+    return Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: 15,
+          height: 1.2,
+        );
   }
 
   void _handleOnTextChange(BuildContext context, String text) {
