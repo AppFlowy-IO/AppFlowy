@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 use std::mem;
+use std::ops::Deref;
 
 use anyhow::bail;
+use collab::preclude::Any;
 use collab::util::AnyMapExt;
 use collab_database::database::gen_database_filter_id;
 use collab_database::rows::RowId;
@@ -323,7 +325,13 @@ impl<'a> From<&'a Filter> for FilterMap {
 
     builder = match &filter.inner {
       FilterInner::And { children } | FilterInner::Or { children } => {
-        builder.insert_maps(FILTER_CHILDREN, children.iter().collect::<Vec<&Filter>>())
+        let mut vec = Vec::with_capacity(children.len());
+        for child in children.iter() {
+          let any: Any = FilterMap::from(child).into();
+          vec.push(any);
+        }
+        builder.insert(FILTER_CHILDREN.into(), Any::from(vec));
+        builder
       },
       FilterInner::Data {
         field_id,
@@ -388,15 +396,15 @@ impl<'a> From<&'a Filter> for FilterMap {
           Default::default()
         });
 
+        builder.insert(FIELD_ID.into(), field_id.as_str().into());
+        builder.insert(FIELD_TYPE.into(), i64::from(field_type).into());
+        builder.insert(FILTER_CONDITION.into(), (condition as i64).into());
+        builder.insert(FILTER_CONTENT.into(), content.into());
         builder
-          .insert_str_value(FIELD_ID, field_id)
-          .insert_i64_value(FIELD_TYPE, field_type.into())
-          .insert_i64_value(FILTER_CONDITION, condition as i64)
-          .insert_str_value(FILTER_CONTENT, content)
       },
     };
 
-    builder.build()
+    builder
   }
 }
 
@@ -413,10 +421,10 @@ impl TryFrom<FilterMap> for Filter {
       id: filter_id,
       inner: match filter_type {
         FILTER_AND_INDEX => FilterInner::And {
-          children: filter_map.try_get_array(FILTER_CHILDREN),
+          children: get_children(filter_map),
         },
         FILTER_OR_INDEX => FilterInner::Or {
-          children: filter_map.try_get_array(FILTER_CHILDREN),
+          children: get_children(filter_map),
         },
         FILTER_DATA_INDEX => {
           let field_id: String = filter_map
@@ -437,6 +445,22 @@ impl TryFrom<FilterMap> for Filter {
 
     Ok(filter)
   }
+}
+
+fn get_children(filter_map: FilterMap) -> Vec<Filter> {
+  //TODO: this method wouldn't be necessary if we could make Filters serializable in backward
+  // compatible way
+  let mut result = Vec::new();
+  if let Some(Any::Array(children)) = filter_map.get(FILTER_CHILDREN) {
+    for child in children.iter() {
+      if let Any::Map(child_map) = child {
+        if let Ok(filter) = Filter::try_from(child_map.deref().clone()) {
+          result.push(filter);
+        }
+      }
+    }
+  }
+  result
 }
 
 #[derive(Debug)]
