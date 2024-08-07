@@ -6,7 +6,6 @@ use std::sync::{Arc, Weak};
 use std::time::Duration;
 
 use anyhow::Error;
-use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_entity::{CollabObject, CollabType};
@@ -688,15 +687,16 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
 
 fn default_workspace_doc_state(collab_object: &CollabObject) -> Vec<u8> {
   let workspace_id = collab_object.object_id.clone();
-  let collab = Arc::new(MutexCollab::new(Collab::new_with_origin(
-    CollabOrigin::Empty,
-    &collab_object.object_id,
-    vec![],
-    false,
-  )));
+  let collab =
+    Collab::new_with_origin(CollabOrigin::Empty, &collab_object.object_id, vec![], false);
   let workspace = Workspace::new(workspace_id, "My workspace".to_string(), collab_object.uid);
-  let folder = Folder::create(collab_object.uid, collab, None, FolderData::new(workspace));
-  folder.encode_collab_v1().unwrap().doc_state.to_vec()
+  let folder = Folder::open_with(
+    collab_object.uid,
+    collab,
+    None,
+    Some(FolderData::new(workspace)),
+  );
+  folder.encode_collab().unwrap().doc_state.to_vec()
 }
 
 fn oauth_params_from_box_any(any: BoxAny) -> Result<SupabaseOAuthParams, Error> {

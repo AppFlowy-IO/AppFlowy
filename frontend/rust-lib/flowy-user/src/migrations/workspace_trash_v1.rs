@@ -47,7 +47,7 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
         }
 
         let encode = folder
-          .encode_collab_v1()
+          .encode_collab()
           .map_err(|err| PersistenceError::Internal(err.into()))?;
         write_txn.flush_doc_with(
           session.user_id,

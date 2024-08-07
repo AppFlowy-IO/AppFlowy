@@ -42,7 +42,7 @@ pub(crate) async fn get_encode_collab_handler(
   let manager = upgrade_document(manager)?;
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let state = manager.get_encoded_collab_with_view_id(&doc_id).await?;
+  let state = manager.get_encoded_collab_with_view_id(&doc_id)?;
   data_result_ok(EncodedCollabPB {
     state_vector: Vec::from(state.state_vector),
     doc_state: Vec::from(state.doc_state),
@@ -127,7 +127,7 @@ pub(crate) async fn apply_action_handler(
   if cfg!(feature = "verbose_log") {
     tracing::trace!("{} applying actions: {:?}", doc_id, actions);
   }
-  document.lock().apply_action(actions);
+  document.lock().apply_action(actions)?;
   Ok(())
 }
 
@@ -140,8 +140,8 @@ pub(crate) async fn create_text_handler(
   let params: TextDeltaParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   let document = manager.get_opened_document(&doc_id).await?;
-  let document = document.lock();
-  document.create_text(&params.text_id, params.delta);
+  let mut document = document.lock();
+  document.apply_text_delta(&params.text_id, params.delta);
   Ok(())
 }
 
@@ -156,7 +156,7 @@ pub(crate) async fn apply_text_delta_handler(
   let document = manager.get_opened_document(&doc_id).await?;
   let text_id = params.text_id;
   let delta = params.delta;
-  let document = document.lock();
+  let mut document = document.lock();
   if cfg!(feature = "verbose_log") {
     tracing::trace!("{} applying delta: {:?}", doc_id, delta);
   }
@@ -195,7 +195,7 @@ pub(crate) async fn redo_handler(
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   let document = manager.get_opened_document(&doc_id).await?;
-  let document = document.lock();
+  let mut document = document.lock();
   let redo = document.redo();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
@@ -214,7 +214,7 @@ pub(crate) async fn undo_handler(
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   let document = manager.get_opened_document(&doc_id).await?;
-  let document = document.lock();
+  let mut document = document.lock();
   let undo = document.undo();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();

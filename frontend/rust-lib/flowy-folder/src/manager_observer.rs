@@ -164,7 +164,7 @@ pub(crate) fn subscribe_folder_trash_changed(
               TrashSectionChange::TrashItemRemoved { ids } => ids,
             };
             if let Some(folder) = folder.read().as_ref() {
-              let views = folder.views.get_views(&ids);
+              let views = folder.get_views(&ids);
               for view in views {
                 unique_ids.insert(view.parent_view_id.clone());
               }
@@ -210,8 +210,8 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
     } else {
       // Parent view can contain a list of child views. Currently, only get the first level
       // child views.
-      let parent_view = folder.views.get_view(parent_view_id)?;
-      let mut child_views = folder.views.get_views_belong_to(parent_view_id);
+      let parent_view = folder.get_view(parent_view_id)?;
+      let mut child_views = folder.get_views_belong_to(parent_view_id);
       child_views.retain(|view| !trash_ids.contains(&view.id));
       event!(Level::DEBUG, child_views_count = child_views.len());
 

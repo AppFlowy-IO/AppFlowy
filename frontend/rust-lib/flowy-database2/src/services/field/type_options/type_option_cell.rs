@@ -1,5 +1,7 @@
+use collab::preclude::Any;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
+use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
 use collab_database::fields::{Field, TypeOptionData};
@@ -96,12 +98,37 @@ impl CellDataCacheKey {
   pub fn new(field_rev: &Field, decoded_field_type: FieldType, cell: &Cell) -> Self {
     let mut hasher = DefaultHasher::new();
     if let Some(type_option_data) = field_rev.get_any_type_option(decoded_field_type) {
-      type_option_data.hash(&mut hasher);
+      map_hash(&type_option_data, &mut hasher);
     }
     hasher.write(field_rev.id.as_bytes());
     hasher.write_u8(decoded_field_type as u8);
-    cell.hash(&mut hasher);
+    map_hash(&cell, &mut hasher);
     Self(hasher.finish())
+  }
+}
+
+fn any_hash<H: Hasher>(any: &Any, hasher: &mut H) {
+  //FIXME: this is very bad idea for hash calculation
+  match any {
+    Any::Null | Any::Undefined => hasher.write_u8(0),
+    Any::Bool(v) => v.hash(hasher),
+    Any::Number(v) => v.to_be_bytes().hash(hasher),
+    Any::BigInt(v) => v.hash(hasher),
+    Any::String(v) => v.hash(hasher),
+    Any::Buffer(v) => v.hash(hasher),
+    Any::Array(v) => {
+      for v in v.iter() {
+        any_hash(v, hasher);
+      }
+    },
+    Any::Map(v) => map_hash(&v, hasher),
+  }
+}
+
+fn map_hash<H: Hasher>(map: &HashMap<String, Any>, hasher: &mut H) {
+  for (k, v) in map.iter() {
+    k.hash(hasher);
+    any_hash(v, hasher);
   }
 }
 
@@ -159,7 +186,7 @@ where
   fn get_cell_data_from_cache(&self, cell: &Cell, field: &Field) -> Option<T::CellData> {
     let key = self.get_cell_data_cache_key(cell, field);
 
-    let cell_data_cache = self.cell_data_cache.as_ref()?.read();
+    let cell_data_cache = self.cell_data_cache.as_ref()?;
 
     cell_data_cache.get(key.as_ref()).cloned()
   }
@@ -174,7 +201,7 @@ where
         cell,
         cell_data
       );
-      cell_data_cache.write().insert(key.as_ref(), cell_data);
+      cell_data_cache.insert(key.as_ref(), cell_data);
     }
   }
 

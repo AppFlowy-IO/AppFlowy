@@ -20,7 +20,8 @@ use crate::util::{
 use crate::view_operation::{
   create_view, EncodedCollabWrapper, FolderOperationHandler, FolderOperationHandlers,
 };
-use collab::core::collab::{DataSource, MutexCollab};
+use collab::core::collab::DataSource;
+use collab::preclude::Collab;
 use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::error::FolderError;
 use collab_folder::{
@@ -157,13 +158,12 @@ impl FolderManager {
       doc_state,
       config,
     )?;
-    let (should_clear, err) = match Folder::open(UserId::from(uid), collab.clone(), folder_notifier)
-    {
-      Ok(folder) => {
+    let (should_clear, err) = match Folder::open(UserId::from(uid), collab, folder_notifier) {
+      Ok(mut folder) => {
         if should_check_workspace_id {
           // check the workspace id in the folder is matched with the workspace id. Just in case the folder
           // is overwritten by another workspace.
-          let folder_workspace_id = folder.get_workspace_id();
+          let folder_workspace_id = folder.get_workspace_id().unwrap_or_default();
           if folder_workspace_id != workspace_id {
             error!(
               "expect workspace_id: {}, actual workspace_id: {}",
@@ -172,7 +172,7 @@ impl FolderManager {
             return Err(FlowyError::workspace_data_not_match());
           }
           // Initialize the folder manually
-          collab.lock().initialize();
+          folder.initialize();
         }
         return Ok(folder);
       },
@@ -196,7 +196,7 @@ impl FolderManager {
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
-  ) -> Result<Arc<MutexCollab>, FlowyError> {
+  ) -> Result<Collab, FlowyError> {
     let object_id = workspace_id;
     let collab = self.collab_builder.build_with_config(
       workspace_id,
@@ -346,7 +346,6 @@ impl FolderManager {
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can not find the workspace"))?;
 
     let views = folder
-      .views
       .get_views_belong_to(&workspace.id)
       .into_iter()
       .map(|view| view_pb_without_child_views(view.as_ref().clone()))
@@ -371,10 +370,10 @@ impl FolderManager {
   fn with_folder<F1, F2, Output>(&self, none_callback: F1, f2: F2) -> Output
   where
     F1: FnOnce() -> Output,
-    F2: FnOnce(&Folder) -> Output,
+    F2: FnOnce(&mut Folder) -> Output,
   {
-    let folder = self.mutex_folder.write();
-    match &*folder {
+    let mut folder = self.mutex_folder.write();
+    match &mut *folder {
       None => none_callback(),
       Some(folder) => f2(folder),
     }
@@ -459,7 +458,7 @@ impl FolderManager {
 
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    if let Some(view) = self.with_folder(|| None, |folder| folder.views.get_view(view_id)) {
+    if let Some(view) = self.with_folder(|| None, |folder| folder.get_view(view_id)) {
       let handler = self.get_handler(&view.layout)?;
       handler.close_view(view_id).await?;
     }
@@ -490,14 +489,13 @@ impl FolderManager {
       ));
     }
 
-    match folder.views.get_view(&view_id) {
+    match folder.get_view(&view_id) {
       None => {
         error!("Can't find the view with id: {}", view_id);
         Err(FlowyError::record_not_found())
       },
       Some(view) => {
         let child_views = folder
-          .views
           .get_views_belong_to(&view.id)
           .into_iter()
           .filter(|view| !view_ids_should_be_filtered.contains(&view.id))
@@ -532,7 +530,7 @@ impl FolderManager {
         if view_ids_should_be_filtered.contains(&view_id) {
           return None;
         }
-        folder.views.get_view(&view_id)
+        folder.get_view(&view_id)
       })
       .map(view_pb_without_child_views_from_arc)
       .collect::<Vec<_>>();
@@ -554,7 +552,7 @@ impl FolderManager {
     // trash views and other private views should not be accessed
     let view_ids_should_be_filtered = self.get_view_ids_should_be_filtered(folder);
 
-    let all_views = folder.views.get_all_views();
+    let all_views = folder.get_all_views();
     let views = all_views
       .into_iter()
       .filter(|view| !view_ids_should_be_filtered.contains(&view.id))
@@ -576,9 +574,7 @@ impl FolderManager {
   pub async fn get_view_ancestors_pb(&self, view_id: &str) -> FlowyResult<Vec<ViewPB>> {
     let mut ancestors = vec![];
     let mut parent_view_id = view_id.to_string();
-    while let Some(view) =
-      self.with_folder(|| None, |folder| folder.views.get_view(&parent_view_id))
-    {
+    while let Some(view) = self.with_folder(|| None, |folder| folder.get_view(&parent_view_id)) {
       // If the view is already in the ancestors list, then break the loop
       if ancestors.iter().any(|v: &ViewPB| v.id == view.id) {
         break;
@@ -598,7 +594,7 @@ impl FolderManager {
     self.with_folder(
       || (),
       |folder| {
-        if let Some(view) = folder.views.get_view(view_id) {
+        if let Some(view) = folder.get_view(view_id) {
           self.unfavorite_view_and_decendants(view.clone(), folder);
           folder.add_trash_view_ids(vec![view_id.to_string()]);
           // notify the parent view that the view is moved to trash
@@ -620,9 +616,9 @@ impl FolderManager {
     Ok(())
   }
 
-  fn unfavorite_view_and_decendants(&self, view: Arc<View>, folder: &Folder) {
+  fn unfavorite_view_and_decendants(&self, view: Arc<View>, folder: &mut Folder) {
     let mut all_descendant_views: Vec<Arc<View>> = vec![view.clone()];
-    all_descendant_views.extend(folder.views.get_views_belong_to(&view.id));
+    all_descendant_views.extend(folder.get_views_belong_to(&view.id));
 
     let favorite_descendant_views: Vec<ViewPB> = all_descendant_views
       .iter()
@@ -752,7 +748,7 @@ impl FolderManager {
   #[tracing::instrument(level = "debug", skip(self, parent_view_id), err)]
   pub async fn get_views_belong_to(&self, parent_view_id: &str) -> FlowyResult<Vec<Arc<View>>> {
     let views = self.with_folder(Vec::new, |folder| {
-      folder.views.get_views_belong_to(parent_view_id)
+      folder.get_views_belong_to(parent_view_id)
     });
     Ok(views)
   }
@@ -792,7 +788,7 @@ impl FolderManager {
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn duplicate_view(&self, params: DuplicateViewParams) -> Result<(), FlowyError> {
     let view = self
-      .with_folder(|| None, |folder| folder.views.get_view(&params.view_id))
+      .with_folder(|| None, |folder| folder.get_view(&params.view_id))
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can't duplicate the view"))?;
     let parent_view_id = params
       .parent_view_id
@@ -844,7 +840,7 @@ impl FolderManager {
 
     while let Some((current_view_id, current_parent_id)) = stack.pop() {
       let view = self
-        .with_folder(|| None, |folder| folder.views.get_view(&current_view_id))
+        .with_folder(|| None, |folder| folder.get_view(&current_view_id))
         .ok_or_else(|| {
           FlowyError::record_not_found()
             .with_context(format!("Can't duplicate the view({})", view_id))
@@ -956,12 +952,12 @@ impl FolderManager {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub(crate) async fn set_current_view(&self, view_id: &str) -> Result<(), FlowyError> {
+  pub(crate) async fn set_current_view(&self, view_id: String) -> Result<(), FlowyError> {
     self.with_folder(
       || Err(FlowyError::record_not_found()),
       |folder| {
-        folder.set_current_view(view_id);
-        folder.add_recent_view_ids(vec![view_id.to_string()]);
+        folder.set_current_view(view_id.clone());
+        folder.add_recent_view_ids(vec![view_id.clone()]);
         Ok(())
       },
     )?;
@@ -971,7 +967,7 @@ impl FolderManager {
       let view_layout: ViewLayout = view.layout.clone().into();
       if let Some(handle) = self.operation_handlers.get(&view_layout) {
         info!("Open view: {}", view.id);
-        if let Err(err) = handle.open_view(view_id).await {
+        if let Err(err) = handle.open_view(&view_id).await {
           error!("Open view error: {:?}", err);
         }
       }
@@ -998,7 +994,7 @@ impl FolderManager {
     self.with_folder(
       || (),
       |folder| {
-        if let Some(old_view) = folder.views.get_view(view_id) {
+        if let Some(old_view) = folder.get_view(view_id) {
           if old_view.is_favorite {
             folder.delete_favorite_view_ids(vec![view_id.to_string()]);
           } else {
@@ -1048,7 +1044,7 @@ impl FolderManager {
     selected_view_ids: Option<Vec<String>>,
   ) -> FlowyResult<()> {
     let view = self
-      .with_folder(|| None, |folder| folder.views.get_view(view_id))
+      .with_folder(|| None, |folder| folder.get_view(view_id))
       .ok_or_else(|| {
         FlowyError::record_not_found()
           .with_context(format!("Can't find the view with ID: {}", view_id))
@@ -1364,12 +1360,12 @@ impl FolderManager {
   /// is a database view. Then the database will be deleted as well.
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
   pub async fn delete_trash(&self, view_id: &str) -> FlowyResult<()> {
-    let view = self.with_folder(|| None, |folder| folder.views.get_view(view_id));
+    let view = self.with_folder(|| None, |folder| folder.get_view(view_id));
     self.with_folder(
       || (),
       |folder| {
         folder.delete_trash_view_ids(vec![view_id.to_string()]);
-        folder.views.delete_views(vec![view_id]);
+        folder.delete_views(vec![view_id]);
       },
     );
     if let Some(view) = view {
@@ -1511,8 +1507,8 @@ impl FolderManager {
     let value = self.with_folder(
       || None,
       |folder| {
-        let old_view = folder.views.get_view(view_id);
-        let new_view = folder.views.update_view(view_id, f);
+        let old_view = folder.get_view(view_id);
+        let new_view = folder.update_view(view_id, f);
 
         Some((old_view, new_view))
       },
@@ -1577,8 +1573,8 @@ impl FolderManager {
     self.with_folder(
       || None,
       |folder| {
-        let view = folder.views.get_view(view_id)?;
-        match folder.views.get_view(&view.parent_view_id) {
+        let view = folder.get_view(view_id)?;
+        match folder.get_view(&view.parent_view_id) {
           None => folder.get_workspace_info(&workspace_id).map(|workspace| {
             (
               true,
@@ -1724,7 +1720,7 @@ pub(crate) fn get_workspace_public_view_pbs(workspace_id: &str, folder: &Folder)
     .map(|view| view.id)
     .collect::<Vec<String>>();
 
-  let mut views = folder.views.get_views_belong_to(workspace_id);
+  let mut views = folder.get_views_belong_to(workspace_id);
   // filter the views that are in the trash and all the private views
   views.retain(|view| !trash_ids.contains(&view.id) && !private_view_ids.contains(&view.id));
 
@@ -1732,11 +1728,8 @@ pub(crate) fn get_workspace_public_view_pbs(workspace_id: &str, folder: &Folder)
     .into_iter()
     .map(|view| {
       // Get child views
-      let mut child_views: Vec<Arc<View>> = folder
-        .views
-        .get_views_belong_to(&view.id)
-        .into_iter()
-        .collect();
+      let mut child_views: Vec<Arc<View>> =
+        folder.get_views_belong_to(&view.id).into_iter().collect();
       child_views.retain(|view| !trash_ids.contains(&view.id));
       view_pb_with_child_views(view, child_views)
     })
@@ -1746,7 +1739,6 @@ pub(crate) fn get_workspace_public_view_pbs(workspace_id: &str, folder: &Folder)
 /// Get all the child views belong to the view id, including the child views of the child views.
 fn get_all_child_view_ids(folder: &Folder, view_id: &str) -> Vec<String> {
   let child_view_ids = folder
-    .views
     .get_views_belong_to(view_id)
     .into_iter()
     .map(|view| view.id.clone())
@@ -1774,7 +1766,7 @@ pub(crate) fn get_workspace_private_view_pbs(workspace_id: &str, folder: &Folder
     .map(|view| view.id)
     .collect::<Vec<String>>();
 
-  let mut views = folder.views.get_views_belong_to(workspace_id);
+  let mut views = folder.get_views_belong_to(workspace_id);
   // filter the views that are in the trash and not in the private view ids
   views.retain(|view| !trash_ids.contains(&view.id) && private_view_ids.contains(&view.id));
 
@@ -1782,11 +1774,8 @@ pub(crate) fn get_workspace_private_view_pbs(workspace_id: &str, folder: &Folder
     .into_iter()
     .map(|view| {
       // Get child views
-      let mut child_views: Vec<Arc<View>> = folder
-        .views
-        .get_views_belong_to(&view.id)
-        .into_iter()
-        .collect();
+      let mut child_views: Vec<Arc<View>> =
+        folder.get_views_belong_to(&view.id).into_iter().collect();
       child_views.retain(|view| !trash_ids.contains(&view.id));
       view_pb_with_child_views(view, child_views)
     })

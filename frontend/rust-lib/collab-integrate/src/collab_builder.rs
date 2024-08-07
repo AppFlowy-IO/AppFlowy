@@ -3,8 +3,9 @@ use std::sync::{Arc, Weak};
 
 use crate::CollabKVDB;
 use anyhow::Error;
-use collab::core::collab::{DataSource, MutexCollab};
-use collab::preclude::CollabBuilder;
+use arc_swap::{ArcSwap, ArcSwapOption};
+use collab::core::collab::DataSource;
+use collab::preclude::{Collab, CollabBuilder};
 use collab_entity::{CollabObject, CollabType};
 use collab_plugins::connect_state::{CollabConnectReachability, CollabConnectState};
 use collab_plugins::local_storage::kv::snapshot::SnapshotPersistence;
@@ -20,7 +21,6 @@ pub use crate::plugin_provider::CollabCloudPluginProvider;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 
 use lib_infra::{if_native, if_wasm};
-use parking_lot::{Mutex, RwLock};
 use tracing::{instrument, trace};
 
 #[derive(Clone, Debug)]
@@ -35,12 +35,10 @@ pub enum CollabPluginProviderContext {
   AppFlowyCloud {
     uid: i64,
     collab_object: CollabObject,
-    local_collab: Weak<MutexCollab>,
   },
   Supabase {
     uid: i64,
     collab_object: CollabObject,
-    local_collab: Weak<MutexCollab>,
     local_collab_db: Weak<CollabKVDB>,
   },
 }
@@ -52,12 +50,10 @@ impl Display for CollabPluginProviderContext {
       CollabPluginProviderContext::AppFlowyCloud {
         uid: _,
         collab_object,
-        local_collab: _,
       } => collab_object.to_string(),
       CollabPluginProviderContext::Supabase {
         uid: _,
         collab_object,
-        local_collab: _,
         local_collab_db: _,
       } => collab_object.to_string(),
     };
@@ -72,10 +68,10 @@ pub trait WorkspaceCollabIntegrate: Send + Sync {
 
 pub struct AppFlowyCollabBuilder {
   network_reachability: CollabConnectReachability,
-  plugin_provider: RwLock<Arc<dyn CollabCloudPluginProvider>>,
-  snapshot_persistence: Mutex<Option<Arc<dyn SnapshotPersistence>>>,
+  plugin_provider: ArcSwap<Arc<dyn CollabCloudPluginProvider>>,
+  snapshot_persistence: ArcSwapOption<Arc<dyn SnapshotPersistence + 'static>>,
   #[cfg(not(target_arch = "wasm32"))]
-  rocksdb_backup: Mutex<Option<Arc<dyn RocksdbBackup>>>,
+  rocksdb_backup: ArcSwapOption<Arc<dyn RocksdbBackup>>,
   workspace_integrate: Arc<dyn WorkspaceCollabIntegrate>,
 }
 
@@ -86,7 +82,7 @@ impl AppFlowyCollabBuilder {
   ) -> Self {
     Self {
       network_reachability: CollabConnectReachability::new(),
-      plugin_provider: RwLock::new(Arc::new(storage_provider)),
+      plugin_provider: ArcSwap::new(Arc::new(Arc::new(storage_provider))),
       snapshot_persistence: Default::default(),
       #[cfg(not(target_arch = "wasm32"))]
       rocksdb_backup: Default::default(),
@@ -95,12 +91,14 @@ impl AppFlowyCollabBuilder {
   }
 
   pub fn set_snapshot_persistence(&self, snapshot_persistence: Arc<dyn SnapshotPersistence>) {
-    *self.snapshot_persistence.lock() = Some(snapshot_persistence);
+    self
+      .snapshot_persistence
+      .store(Some(snapshot_persistence.into()));
   }
 
   #[cfg(not(target_arch = "wasm32"))]
   pub fn set_rocksdb_backup(&self, rocksdb_backup: Arc<dyn RocksdbBackup>) {
-    *self.rocksdb_backup.lock() = Some(rocksdb_backup);
+    self.rocksdb_backup.store(Some(rocksdb_backup.into()));
   }
 
   pub fn update_network(&self, reachable: bool) {
@@ -156,7 +154,7 @@ impl AppFlowyCollabBuilder {
     collab_doc_state: DataSource,
     collab_db: Weak<CollabKVDB>,
     build_config: CollabBuilderConfig,
-  ) -> Result<Arc<MutexCollab>, Error> {
+  ) -> Result<Collab, Error> {
     self.build_with_config(
       workspace_id,
       uid,
@@ -193,8 +191,8 @@ impl AppFlowyCollabBuilder {
     collab_db: Weak<CollabKVDB>,
     collab_doc_state: DataSource,
     build_config: CollabBuilderConfig,
-  ) -> Result<Arc<MutexCollab>, Error> {
-    let collab = CollabBuilder::new(uid, object_id)
+  ) -> Result<Collab, Error> {
+    let mut collab = CollabBuilder::new(uid, object_id)
       .with_doc_state(collab_doc_state)
       .with_device_id(self.workspace_integrate.device_id()?)
       .build()?;
@@ -213,7 +211,7 @@ impl AppFlowyCollabBuilder {
 
     #[cfg(target_arch = "wasm32")]
     {
-      collab.lock().add_plugin(Box::new(IndexeddbDiskPlugin::new(
+      collab.add_plugin(Box::new(IndexeddbDiskPlugin::new(
         uid,
         object_id.to_string(),
         object_type.clone(),
@@ -223,61 +221,44 @@ impl AppFlowyCollabBuilder {
 
     #[cfg(not(target_arch = "wasm32"))]
     {
-      collab
-        .lock()
-        .add_plugin(Box::new(RocksdbDiskPlugin::new_with_config(
-          uid,
-          object_id.to_string(),
-          object_type.clone(),
-          collab_db.clone(),
-          persistence_config.clone(),
-          None,
-        )));
+      collab.add_plugin(Box::new(RocksdbDiskPlugin::new_with_config(
+        uid,
+        object_id.to_string(),
+        object_type.clone(),
+        collab_db.clone(),
+        persistence_config.clone(),
+        None,
+      )));
     }
-
-    let arc_collab = Arc::new(collab);
 
     {
       let collab_object = self.collab_object(uid, object_id, object_type.clone())?;
       if build_config.sync_enable {
-        let provider_type = self.plugin_provider.read().provider_type();
+        let plugin_provider = self.plugin_provider.load_full();
+        let provider_type = plugin_provider.provider_type();
         let span = tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object_id);
         let _enter = span.enter();
         match provider_type {
           CollabPluginProviderType::AppFlowyCloud => {
-            let local_collab = Arc::downgrade(&arc_collab);
-            let plugins =
-              self
-                .plugin_provider
-                .read()
-                .get_plugins(CollabPluginProviderContext::AppFlowyCloud {
-                  uid,
-                  collab_object,
-                  local_collab,
-                });
+            let plugins = plugin_provider
+              .get_plugins(CollabPluginProviderContext::AppFlowyCloud { uid, collab_object });
 
             for plugin in plugins {
-              arc_collab.lock().add_plugin(plugin);
+              collab.add_plugin(plugin);
             }
           },
           CollabPluginProviderType::Supabase => {
             #[cfg(not(target_arch = "wasm32"))]
             {
               trace!("init supabase collab plugins");
-              let local_collab = Arc::downgrade(&arc_collab);
               let local_collab_db = collab_db.clone();
-              let plugins =
-                self
-                  .plugin_provider
-                  .read()
-                  .get_plugins(CollabPluginProviderContext::Supabase {
-                    uid,
-                    collab_object,
-                    local_collab,
-                    local_collab_db,
-                  });
+              let plugins = plugin_provider.get_plugins(CollabPluginProviderContext::Supabase {
+                uid,
+                collab_object,
+                local_collab_db,
+              });
               for plugin in plugins {
-                arc_collab.lock().add_plugin(plugin);
+                collab.add_plugin(plugin);
               }
             }
           },
@@ -287,15 +268,11 @@ impl AppFlowyCollabBuilder {
     }
 
     if build_config.auto_initialize {
-      #[cfg(target_arch = "wasm32")]
-      futures::executor::block_on(arc_collab.lock().initialize());
-
-      #[cfg(not(target_arch = "wasm32"))]
-      arc_collab.lock().initialize();
+      collab.initialize();
     }
 
     trace!("collab initialized: {}:{}", object_type, object_id);
-    Ok(arc_collab)
+    Ok(collab)
   }
 }
 

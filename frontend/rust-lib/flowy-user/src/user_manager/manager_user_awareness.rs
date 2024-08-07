@@ -2,11 +2,12 @@ use std::sync::atomic::Ordering;
 use std::sync::{Arc, Weak};
 
 use anyhow::Context;
-use collab::core::collab::{DataSource, MutexCollab};
+use collab::core::collab::DataSource;
+use collab::preclude::Collab;
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_user::core::{MutexUserAwareness, UserAwareness};
+use collab_user::core::UserAwareness;
 use tracing::{debug, error, info, instrument, trace};
 
 use collab_integrate::CollabKVDB;
@@ -129,8 +130,7 @@ impl UserManager {
 
     if let Some(old_user_awareness) = self.user_awareness.lock().await.take() {
       debug!("Closing old user awareness");
-      old_user_awareness.lock().close();
-      drop(old_user_awareness);
+      old_user_awareness.close();
     }
 
     let object_id =
@@ -175,7 +175,7 @@ impl UserManager {
               DataSource::DocStateV1(data),
             )
             .await?;
-            MutexUserAwareness::new(UserAwareness::create(collab, None))
+            UserAwareness::open(collab, None)
           },
           Err(err) => {
             if err.is_record_not_found() {
@@ -189,7 +189,7 @@ impl UserManager {
                 DataSource::Disk,
               )
               .await?;
-              MutexUserAwareness::new(UserAwareness::create(collab, None))
+              UserAwareness::open(collab, None)
             } else {
               error!("Failed to fetch user awareness: {:?}", err);
               return Err(err);
@@ -221,7 +221,7 @@ impl UserManager {
     object_id: &str,
     collab_db: Weak<CollabKVDB>,
     doc_state: DataSource,
-  ) -> Result<Arc<MutexCollab>, FlowyError> {
+  ) -> Result<Collab, FlowyError> {
     let collab_builder = collab_builder.upgrade().ok_or(FlowyError::new(
       ErrorCode::Internal,
       "Unexpected error: collab builder is not available",
@@ -254,24 +254,17 @@ impl UserManager {
   /// - `f`: The asynchronous closure to execute with the user awareness.
   async fn with_awareness<F, Output>(&self, default_value: Output, f: F) -> Output
   where
-    F: FnOnce(&UserAwareness) -> Output,
+    F: FnOnce(&mut UserAwareness) -> Output,
   {
-    // Check if initialization is needed and perform it if necessary
-    if self.user_awareness.lock().await.is_none() {
-      if let Ok(session) = self.get_session() {
-        self.initialize_user_awareness(&session).await;
-      }
-    }
-
-    let user_awareness = self.user_awareness.lock().await;
-    match &*user_awareness {
-      Some(inner_awareness) => {
-        let inner_awareness_clone = inner_awareness.clone();
-        drop(user_awareness);
-        let result = f(&inner_awareness_clone.lock());
-        result
+    let mut user_awareness = self.user_awareness.lock().await;
+    match &mut *user_awareness {
+      None => {
+        if let Ok(session) = self.get_session() {
+          self.initialize_user_awareness(&session).await;
+        }
+        default_value
       },
-      None => default_value,
+      Some(user_awareness) => f(user_awareness),
     }
   }
 }

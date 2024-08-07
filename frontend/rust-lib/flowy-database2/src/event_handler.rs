@@ -178,6 +178,7 @@ pub(crate) async fn get_fields_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let fields = database_editor
     .get_fields(&params.view_id, params.field_ids)
+    .await
     .into_iter()
     .map(FieldPB::new)
     .collect::<Vec<FieldPB>>()
@@ -195,6 +196,7 @@ pub(crate) async fn get_primary_field_handler(
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
   let mut fields = database_editor
     .get_fields(&view_id, None)
+    .await
     .into_iter()
     .filter(|field| field.is_primary)
     .map(FieldPB::new)
@@ -234,7 +236,7 @@ pub(crate) async fn update_field_type_option_handler(
   let manager = upgrade_manager(manager)?;
   let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  if let Some(old_field) = database_editor.get_field(&params.field_id) {
+  if let Some(old_field) = database_editor.get_field(&params.field_id).await {
     let field_type = FieldType::from(old_field.field_type);
     let type_option_data = type_option_data_from_pb(params.type_option_data, &field_type)?;
     database_editor
@@ -278,13 +280,14 @@ pub(crate) async fn switch_to_field_handler(
   let manager = upgrade_manager(manager)?;
   let params: EditFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let old_field = database_editor.get_field(&params.field_id);
+  let old_field = database_editor.get_field(&params.field_id).await;
   database_editor
     .switch_to_field_type(&params.field_id, params.field_type)
     .await?;
 
   if let Some(new_type_option) = database_editor
     .get_field(&params.field_id)
+    .await
     .map(|field| field.get_any_type_option(field.field_type))
   {
     match (old_field, new_type_option) {
@@ -353,6 +356,7 @@ pub(crate) async fn get_row_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let row = database_editor
     .get_row(&params.view_id, &params.row_id)
+    .await
     .map(RowPB::from);
   data_result_ok(OptionalRowPB { row })
 }
@@ -364,7 +368,10 @@ pub(crate) async fn get_row_meta_handler(
   let manager = upgrade_manager(manager)?;
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  match database_editor.get_row_meta(&params.view_id, &params.row_id) {
+  match database_editor
+    .get_row_meta(&params.view_id, &params.row_id)
+    .await
+  {
     None => Err(FlowyError::record_not_found()),
     Some(row) => data_result_ok(row),
   }

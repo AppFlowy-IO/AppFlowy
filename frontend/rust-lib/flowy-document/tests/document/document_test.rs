@@ -84,7 +84,10 @@ async fn document_apply_insert_action() {
       text_id: None,
     },
   };
-  document.lock().apply_action(vec![insert_text_action]);
+  document
+    .lock()
+    .apply_action(vec![insert_text_action])
+    .unwrap();
   let data_a = document.lock().get_document_data().unwrap();
   // close the original document
   _ = test.close_document(&doc_id).await;
@@ -136,7 +139,7 @@ async fn document_apply_update_page_action() {
   };
   let actions = vec![action];
   tracing::trace!("{:?}", &actions);
-  document.lock().apply_action(actions);
+  document.lock().apply_action(actions).unwrap();
   let page_block_old = document.lock().get_block(&data.page_id).unwrap();
   _ = test.close_document(&doc_id).await;
 
@@ -183,7 +186,10 @@ async fn document_apply_update_action() {
       text_id: None,
     },
   };
-  document.lock().apply_action(vec![insert_text_action]);
+  document
+    .lock()
+    .apply_action(vec![insert_text_action])
+    .unwrap();
 
   // update the text block
   let existing_text_block = document.lock().get_block(&text_block_id).unwrap();
@@ -208,7 +214,10 @@ async fn document_apply_update_action() {
       text_id: None,
     },
   };
-  document.lock().apply_action(vec![update_text_action]);
+  document
+    .lock()
+    .apply_action(vec![update_text_action])
+    .unwrap();
   // close the original document
   _ = test.close_document(&doc_id).await;
 

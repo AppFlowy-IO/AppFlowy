@@ -1,6 +1,6 @@
+use collab::util::AnyMapExt;
 use std::cmp::Ordering;
 
-use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use serde::{Deserialize, Serialize};
@@ -33,8 +33,8 @@ impl TypeOption for MultiSelectTypeOption {
 impl From<TypeOptionData> for MultiSelectTypeOption {
   fn from(data: TypeOptionData) -> Self {
     data
-      .get_str_value("content")
-      .map(|s| serde_json::from_str::<MultiSelectTypeOption>(&s).unwrap_or_default())
+      .get_as::<String>("content")
+      .map(|json| serde_json::from_str::<MultiSelectTypeOption>(&json).unwrap_or_default())
       .unwrap_or_default()
   }
 }
@@ -42,9 +42,7 @@ impl From<TypeOptionData> for MultiSelectTypeOption {
 impl From<MultiSelectTypeOption> for TypeOptionData {
   fn from(data: MultiSelectTypeOption) -> Self {
     let content = serde_json::to_string(&data).unwrap_or_default();
-    TypeOptionDataBuilder::new()
-      .insert_str_value("content", content)
-      .build()
+    TypeOptionDataBuilder::from([("content".into(), content.into())])
   }
 }
 

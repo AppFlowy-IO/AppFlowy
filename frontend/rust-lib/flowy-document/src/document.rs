@@ -2,7 +2,7 @@ use crate::entities::{
   DocEventPB, DocumentAwarenessStatesPB, DocumentSnapshotStatePB, DocumentSyncStatePB,
 };
 use crate::notification::{send_notification, DocumentNotification};
-use collab::core::collab::MutexCollab;
+use collab::preclude::Collab;
 use collab_document::document::DocumentIndexContent;
 use collab_document::{blocks::DocumentData, document::Document};
 use flowy_error::FlowyResult;
@@ -26,13 +26,13 @@ impl MutexDocument {
   ///
   /// # Returns
   /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
-  pub fn open(doc_id: &str, collab: Arc<MutexCollab>) -> FlowyResult<Self> {
+  pub fn open(doc_id: &str, collab: Collab) -> FlowyResult<Self> {
     #[allow(clippy::arc_with_non_send_sync)]
-    let document = Document::open(collab.clone()).map(|inner| Self(Arc::new(Mutex::new(inner))))?;
-    subscribe_document_changed(doc_id, &document);
-    subscribe_document_snapshot_state(&collab);
-    subscribe_document_sync_state(&collab);
-    Ok(document)
+    let mut document = Document::open(collab)?;
+    subscribe_document_changed(doc_id, &mut document);
+    subscribe_document_snapshot_state(&document);
+    subscribe_document_sync_state(&document);
+    Ok(Self(Arc::new(Mutex::new(document))))
   }
 
   /// Creates and returns a new Document object with initial data.
@@ -42,46 +42,40 @@ impl MutexDocument {
   ///
   /// # Returns
   /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
-  pub fn create_with_data(collab: Arc<MutexCollab>, data: DocumentData) -> FlowyResult<Self> {
+  pub fn create_with_data(collab: Collab, data: DocumentData) -> FlowyResult<Self> {
     #[allow(clippy::arc_with_non_send_sync)]
     let document =
-      Document::create_with_data(collab, data).map(|inner| Self(Arc::new(Mutex::new(inner))))?;
+      Document::open_with(collab, Some(data)).map(|inner| Self(Arc::new(Mutex::new(inner))))?;
     Ok(document)
   }
 
   #[instrument(level = "debug", skip_all)]
   pub fn start_init_sync(&self) {
     if let Some(document) = self.0.try_lock() {
-      if let Some(collab) = document.get_collab().try_lock() {
-        collab.start_init_sync();
-      } else {
-        warn!("Failed to start init sync, collab is locked");
-      }
+      document.start_init_sync();
     } else {
       warn!("Failed to start init sync, document is locked");
     }
   }
 }
 
-fn subscribe_document_changed(doc_id: &str, document: &MutexDocument) {
+fn subscribe_document_changed(doc_id: &str, document: &mut Document) {
   let doc_id_clone_for_block_changed = doc_id.to_owned();
-  document
-    .lock()
-    .subscribe_block_changed(move |events, is_remote| {
-      #[cfg(feature = "verbose_log")]
-      tracing::trace!("subscribe_document_changed: {:?}", events);
+  document.subscribe_block_changed("key", move |events, is_remote| {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!("subscribe_document_changed: {:?}", events);
 
-      // send notification to the client.
-      send_notification(
-        &doc_id_clone_for_block_changed,
-        DocumentNotification::DidReceiveUpdate,
-      )
-      .payload::<DocEventPB>((events, is_remote, None).into())
-      .send();
-    });
+    // send notification to the client.
+    send_notification(
+      &doc_id_clone_for_block_changed,
+      DocumentNotification::DidReceiveUpdate,
+    )
+    .payload::<DocEventPB>((events, is_remote, None).into())
+    .send();
+  });
 
   let doc_id_clone_for_awareness_state = doc_id.to_owned();
-  document.lock().subscribe_awareness_state(move |events| {
+  document.subscribe_awareness_state("key", move |events| {
     #[cfg(feature = "verbose_log")]
     tracing::trace!("subscribe_awareness_state: {:?}", events);
     send_notification(
@@ -93,9 +87,9 @@ fn subscribe_document_changed(doc_id: &str, document: &MutexDocument) {
   });
 }
 
-fn subscribe_document_snapshot_state(collab: &Arc<MutexCollab>) {
-  let document_id = collab.lock().object_id.clone();
-  let mut snapshot_state = collab.lock().subscribe_snapshot_state();
+fn subscribe_document_snapshot_state(collab: &Collab) {
+  let document_id = collab.object_id().to_string();
+  let mut snapshot_state = collab.subscribe_snapshot_state();
   af_spawn(async move {
     while let Some(snapshot_state) = snapshot_state.next().await {
       if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
@@ -111,9 +105,9 @@ fn subscribe_document_snapshot_state(collab: &Arc<MutexCollab>) {
   });
 }
 
-fn subscribe_document_sync_state(collab: &Arc<MutexCollab>) {
-  let document_id = collab.lock().object_id.clone();
-  let mut sync_state_stream = collab.lock().subscribe_sync_state();
+fn subscribe_document_sync_state(collab: &Collab) {
+  let document_id = collab.object_id().to_string();
+  let mut sync_state_stream = collab.subscribe_sync_state();
   af_spawn(async move {
     while let Some(sync_state) = sync_state_stream.next().await {
       send_notification(

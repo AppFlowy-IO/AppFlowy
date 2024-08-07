@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use std::sync::Weak;
 
-use collab::core::collab::{DataSource, MutexCollab};
+use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab::entity::EncodedCollab;
 use collab::preclude::Collab;
@@ -76,14 +76,10 @@ impl DocumentManager {
   }
 
   /// Get the encoded collab of the document.
-  pub async fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
+  pub fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
     let doc_state = DataSource::Disk;
     let uid = self.user_service.user_id()?;
-    let collab = self
-      .collab_for_document(uid, doc_id, doc_state, false)
-      .await?;
-
-    let collab = collab.lock();
+    let collab = self.collab_for_document(uid, doc_id, doc_state, false)?;
     collab
       .encode_collab_v1(|collab| CollabType::Document.validate_require_data(collab))
       .map_err(internal_error)
@@ -138,15 +134,13 @@ impl DocumentManager {
       )
       .await?;
       let doc_state = encoded_collab.doc_state.to_vec();
-      let collab = self
-        .collab_for_document(
-          uid,
-          doc_id,
-          DataSource::DocStateV1(doc_state.clone()),
-          false,
-        )
-        .await?;
-      collab.lock().flush();
+      let collab = self.collab_for_document(
+        uid,
+        doc_id,
+        DataSource::DocStateV1(doc_state.clone()),
+        false,
+      )?;
+      collab.flush();
 
       Ok(encoded_collab)
     }
@@ -199,9 +193,7 @@ impl DocumentManager {
       doc_id,
       self.user_service.workspace_id()
     );
-    let collab = self
-      .collab_for_document(uid, doc_id, doc_state, true)
-      .await?;
+    let collab = self.collab_for_document(uid, doc_id, doc_state, true)?;
 
     match MutexDocument::open(doc_id, collab) {
       Ok(document) => {
@@ -241,11 +233,10 @@ impl DocumentManager {
       );
     }
     let uid = self.user_service.user_id()?;
-    let collab = self
-      .collab_for_document(uid, doc_id, doc_state, false)
-      .await?;
-    let document = Document::open(collab)?;
-    Ok(document)
+    let collab = self.collab_for_document(uid, doc_id, doc_state, false)?;
+    Document::open(collab)?
+      .get_document_data()
+      .map_err(internal_error)
   }
 
   pub async fn open_document(&self, doc_id: &str) -> FlowyResult<()> {
@@ -259,7 +250,7 @@ impl DocumentManager {
 
   pub async fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
     if let Some((doc_id, document)) = self.documents.remove(doc_id) {
-      if let Some(doc) = document.try_lock() {
+      if let Some(mut doc) = document.try_lock() {
         // clear the awareness state when close the document
         doc.clean_awareness_local_state();
         let _ = doc.flush();
@@ -301,7 +292,7 @@ impl DocumentManager {
     let uid = self.user_service.user_id()?;
     let device_id = self.user_service.device_id()?;
     if let Ok(doc) = self.get_opened_document(doc_id).await {
-      if let Some(doc) = doc.try_lock() {
+      if let Some(mut doc) = doc.try_lock() {
         let user = DocumentAwarenessUser { uid, device_id };
         let selection = state.selection.map(|s| s.into());
         let state = DocumentAwarenessState {
@@ -376,13 +367,13 @@ impl DocumentManager {
     Ok(())
   }
 
-  async fn collab_for_document(
+  fn collab_for_document(
     &self,
     uid: i64,
     doc_id: &str,
     doc_state: DataSource,
     sync_enable: bool,
-  ) -> FlowyResult<Arc<MutexCollab>> {
+  ) -> FlowyResult<Collab> {
     let db = self.user_service.collab_db(uid)?;
     let workspace_id = self.user_service.workspace_id()?;
     let collab = self.collab_builder.build_with_config(
@@ -443,13 +434,8 @@ async fn doc_state_from_document_data(
   let doc_id = doc_id.to_string();
   // spawn_blocking is used to avoid blocking the tokio thread pool if the document is large.
   let encoded_collab = tokio::task::spawn_blocking(move || {
-    let collab = Arc::new(MutexCollab::new(Collab::new_with_origin(
-      CollabOrigin::Empty,
-      doc_id,
-      vec![],
-      false,
-    )));
-    let document = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
+    let collab = Collab::new_with_origin(CollabOrigin::Empty, doc_id, vec![], false);
+    let document = Document::open_with(collab, Some(data)).map_err(internal_error)?;
     let encode_collab = document.encode_collab()?;
     Ok::<_, FlowyError>(encode_collab)
   })

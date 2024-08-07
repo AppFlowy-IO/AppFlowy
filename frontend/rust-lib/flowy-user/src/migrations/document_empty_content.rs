@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use collab::core::collab::MutexCollab;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::Collab;
 use collab_document::document::Document;
@@ -53,8 +52,8 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
 
       let folder = Folder::open(session.user_id, folder_collab, None)
         .map_err(|err| PersistenceError::Internal(err.into()))?;
-      if let Ok(workspace_id) = folder.try_get_workspace_id() {
-        let migration_views = folder.views.get_views_belong_to(&workspace_id);
+      if let Some(workspace_id) = folder.get_workspace_id() {
+        let migration_views = folder.get_views_belong_to(&workspace_id);
         // For historical reasons, the first level documents are empty. So migrate them by inserting
         // the default document data.
         for view in migration_views {
@@ -87,17 +86,9 @@ where
 {
   // If the document is not exist, we don't need to migrate it.
   if load_collab(user_id, write_txn, &view.id).is_err() {
-    let collab = Arc::new(MutexCollab::new(Collab::new_with_origin(
-      origin.clone(),
-      &view.id,
-      vec![],
-      false,
-    )));
-    let document = Document::create_with_data(collab, default_document_data(&view.id))?;
-    let encode = document
-      .get_collab()
-      .lock()
-      .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?;
+    let collab = Collab::new_with_origin(origin.clone(), &view.id, vec![], false);
+    let document = Document::open_with(collab, Some(default_document_data(&view.id)))?;
+    let encode = document.encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?;
     write_txn.flush_doc_with(user_id, &view.id, &encode.doc_state, &encode.state_vector)?;
     event!(
       tracing::Level::INFO,

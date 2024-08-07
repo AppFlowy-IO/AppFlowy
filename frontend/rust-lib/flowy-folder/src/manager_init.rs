@@ -29,7 +29,10 @@ impl FolderManager {
 
     if let Some(old_folder) = self.mutex_folder.write().take() {
       old_folder.close();
-      info!("remove old folder: {}", old_folder.get_workspace_id());
+      info!(
+        "remove old folder: {}",
+        old_folder.get_workspace_id().unwrap_or_default()
+      );
     }
 
     let workspace_id = workspace_id.to_string();
@@ -175,11 +178,11 @@ impl FolderManager {
     let collab = self
       .create_empty_collab(uid, workspace_id, collab_db)
       .await?;
-    Ok(Folder::create(
+    Ok(Folder::open_with(
       UserId::from(uid),
       collab,
       Some(folder_notifier),
-      folder_data,
+      Some(folder_data),
     ))
   }
 
@@ -194,7 +197,7 @@ impl FolderManager {
       if let Ok(changes) = folder.calculate_view_changes(encoded_collab) {
         let folder_indexer = self.folder_indexer.clone();
 
-        let views = folder.views.get_all_views();
+        let views = folder.get_all_views();
         let wid = workspace_id.clone();
 
         if !changes.is_empty() && !views.is_empty() {
@@ -208,7 +211,7 @@ impl FolderManager {
     }
 
     if index_all {
-      let views = folder.views.get_all_views();
+      let views = folder.get_all_views();
       let folder_indexer = self.folder_indexer.clone();
       let wid = workspace_id.clone();
 
@@ -226,12 +229,12 @@ impl FolderManager {
   }
 
   fn save_collab_to_preferences(&self, folder: &Folder) {
-    let encoded_collab = folder.encode_collab_v1();
+    if let Some(workspace_id) = folder.get_workspace_id() {
+      let encoded_collab = folder.encode_collab();
 
-    if let Ok(encoded) = encoded_collab {
-      let _ = self
-        .store_preferences
-        .set_object(&folder.get_workspace_id(), encoded);
+      if let Ok(encoded) = encoded_collab {
+        let _ = self.store_preferences.set_object(&workspace_id, encoded);
+      }
     }
   }
 }

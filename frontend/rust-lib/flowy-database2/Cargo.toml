@@ -15,7 +15,6 @@ flowy-database-pub = { workspace = true }
 
 flowy-derive.workspace = true
 flowy-notification = { workspace = true }
-parking_lot.workspace = true
 protobuf.workspace = true
 flowy-error = { path = "../flowy-error", features = [
     "impl_from_dispatch_error",

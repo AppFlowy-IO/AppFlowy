@@ -93,7 +93,7 @@ where
         &cloned_user,
         format!("Get {} document", document_id),
       )?;
-      let document = Document::from_doc_state(
+      let document = Document::open_with_options(
         CollabOrigin::Empty,
         DataSource::DocStateV1(doc_state),
         &document_id,

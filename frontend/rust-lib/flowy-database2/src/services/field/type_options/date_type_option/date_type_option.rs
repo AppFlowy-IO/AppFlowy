@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
 use chrono_tz::Tz;
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use serde::{Deserialize, Serialize};
@@ -36,14 +36,14 @@ impl TypeOption for DateTypeOption {
 impl From<TypeOptionData> for DateTypeOption {
   fn from(data: TypeOptionData) -> Self {
     let date_format = data
-      .get_i64_value("date_format")
+      .get_as::<i64>("date_format")
       .map(DateFormat::from)
       .unwrap_or_default();
     let time_format = data
-      .get_i64_value("time_format")
+      .get_as::<i64>("time_format")
       .map(TimeFormat::from)
       .unwrap_or_default();
-    let timezone_id = data.get_str_value("timezone_id").unwrap_or_default();
+    let timezone_id: String = data.get_as("timezone_id").unwrap_or_default();
     Self {
       date_format,
       time_format,
@@ -54,11 +54,11 @@ impl From<TypeOptionData> for DateTypeOption {
 
 impl From<DateTypeOption> for TypeOptionData {
   fn from(data: DateTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_i64_value("date_format", data.date_format.value())
-      .insert_i64_value("time_format", data.time_format.value())
-      .insert_str_value("timezone_id", data.timezone_id)
-      .build()
+    TypeOptionDataBuilder::from([
+      ("date_format".into(), data.date_format.value().into()),
+      ("time_format".into(), data.time_format.value().into()),
+      ("timezone_id".into(), data.timezone_id.into()),
+    ])
   }
 }
 
