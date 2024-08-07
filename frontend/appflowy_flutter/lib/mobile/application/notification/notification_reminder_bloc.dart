@@ -23,7 +23,12 @@ class NotificationReminderBloc
       await event.when(
         initial: (reminder, dateFormat, timeFormat) async {
           this.reminder = reminder;
+          this.dateFormat = dateFormat;
+          this.timeFormat = timeFormat;
 
+          add(const NotificationReminderEvent.reset());
+        },
+        reset: () async {
           final createdAt = await _getCreatedAt(
             reminder,
             dateFormat,
@@ -54,12 +59,13 @@ class NotificationReminderBloc
             );
           }
         },
-        reset: () {},
       );
     });
   }
 
   late final ReminderPB reminder;
+  late final UserDateFormatPB dateFormat;
+  late final UserTimeFormatPB timeFormat;
 
   Future<String> _getCreatedAt(
     ReminderPB reminder,

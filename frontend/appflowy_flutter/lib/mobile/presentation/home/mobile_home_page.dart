@@ -99,6 +99,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
     super.initState();
 
     getIt<MenuSharedState>().addLatestViewListener(_onLatestViewChange);
+    getIt<ReminderBloc>().add(const ReminderEvent.started());
   }
 
   @override

@@ -76,13 +76,27 @@ class UnreadRedDot extends StatelessWidget {
   }
 }
 
-class NotificationContent extends StatelessWidget {
+class NotificationContent extends StatefulWidget {
   const NotificationContent({
     super.key,
     required this.reminder,
   });
 
   final ReminderPB reminder;
+
+  @override
+  State<NotificationContent> createState() => _NotificationContentState();
+}
+
+class _NotificationContentState extends State<NotificationContent> {
+  @override
+  void didUpdateWidget(covariant NotificationContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    context.read<NotificationReminderBloc>().add(
+          const NotificationReminderEvent.reset(),
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +123,7 @@ class NotificationContent extends StatelessWidget {
                 child: BlocProvider(
                   create: (context) => DocumentPageStyleBloc(view: state.view!),
                   child: NotificationDocumentContent(
-                    reminder: reminder,
+                    reminder: widget.reminder,
                     nodes: state.nodes,
                   ),
                 ),
