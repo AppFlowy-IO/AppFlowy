@@ -301,7 +301,8 @@
     "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
-    "upgradeToAILocal": "AI offline on your device"
+    "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
+    "upgradeToAILocal": "AI On-device on your device"
   },
   "notifications": {
     "export": {
@@ -778,7 +779,7 @@
         },
         "aiOnDevice": {
           "label": "AI On-device for Mac",
-          "description": "Unlock unlimited AI offline on your device",
+          "description": "Unlock unlimited AI On-device on your device",
           "activeDescription": "Next invoice due on {}",
           "canceledDescription": "AI On-device for Mac will be available until {}"
         },
