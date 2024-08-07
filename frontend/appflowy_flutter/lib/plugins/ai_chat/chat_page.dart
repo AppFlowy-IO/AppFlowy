@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/other_user_message_bubble.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -349,6 +350,11 @@ class _ChatContentPageState extends State<_ChatContentPage> {
               message: message,
               child: child,
             );
+          } else if (message.author.id != "0") {
+            return OtherUserMessageBubble(
+              message: message,
+              child: child,
+            );
           } else {
             return _buildAIBubble(message, blocContext, state, child);
           }
@@ -358,8 +364,8 @@ class _ChatContentPageState extends State<_ChatContentPage> {
   }
 
   Widget _buildAITextMessage(BuildContext context, TextMessage message) {
-    final isAuthor = message.author.id == _user.id;
-    if (isAuthor) {
+    final isHuman = message.author.id != "0";
+    if (isHuman) {
       return ChatTextMessageWidget(
         user: message.author,
         messageUserId: message.id,
