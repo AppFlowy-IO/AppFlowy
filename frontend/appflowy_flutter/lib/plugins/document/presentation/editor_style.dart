@@ -425,6 +425,9 @@ class EditorStyleCustomizer {
       child = Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: FlowyHover(
+          style: HoverStyle(
+            hoverColor: Colors.grey.withOpacity(0.3),
+          ),
           child: child,
         ),
       );
