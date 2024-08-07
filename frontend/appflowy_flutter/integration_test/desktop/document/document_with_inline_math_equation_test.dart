@@ -33,7 +33,7 @@ void main() {
       );
 
       // tap the inline math equation button
-      final inlineMathEquationButton = find.byTooltip(
+      final inlineMathEquationButton = find.findFlowyTooltip(
         LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       );
       await tester.tapButton(inlineMathEquationButton);
@@ -78,7 +78,7 @@ void main() {
       );
 
       // tap the inline math equation button
-      var inlineMathEquationButton = find.byTooltip(
+      var inlineMathEquationButton = find.findFlowyTooltip(
         LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       );
       await tester.tapButton(inlineMathEquationButton);
