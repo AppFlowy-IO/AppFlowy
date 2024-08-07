@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.d
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -316,7 +317,13 @@ class _ChatInputState extends State<ChatInput> {
 
   Future<void> _referPage(ChatActionHandler handler) async {
     handler.onEnter();
-    final selectedView = await showPageSelectorSheet(context);
+    final selectedView = await showPageSelectorSheet(
+      context,
+      filter: (view) =>
+          view.layout.isDocumentView &&
+          !view.isSpace &&
+          view.parentViewId.isNotEmpty,
+    );
     if (selectedView == null) {
       handler.onExit();
       return;

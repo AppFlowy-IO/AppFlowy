@@ -35,7 +35,12 @@ class ChatInputActionBloc
               final views = result
                       .toNullable()
                       ?.items
-                      .where((v) => v.layout.isDocumentView && !v.isSpace)
+                      .where(
+                        (v) =>
+                            v.layout.isDocumentView &&
+                            !v.isSpace &&
+                            v.parentViewId.isNotEmpty,
+                      )
                       .toList() ??
                   [];
               if (!isClosed) {

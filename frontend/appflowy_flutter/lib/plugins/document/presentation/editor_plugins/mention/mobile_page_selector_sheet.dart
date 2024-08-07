@@ -15,7 +15,10 @@ Future<ViewPB?> showPageSelectorSheet(
   BuildContext context, {
   String? currentViewId,
   String? selectedViewId,
+  bool Function(ViewPB view)? filter,
 }) async {
+  filter ??= (v) => !v.isSpace && v.parentViewId.isNotEmpty;
+
   return showMobileBottomSheet<ViewPB>(
     context,
     title: LocaleKeys.document_mobilePageSelector_title.tr(),
@@ -31,6 +34,7 @@ Future<ViewPB?> showPageSelectorSheet(
       child: _MobilePageSelectorBody(
         currentViewId: currentViewId,
         selectedViewId: selectedViewId,
+        filter: filter,
       ),
     ),
   );
@@ -40,10 +44,12 @@ class _MobilePageSelectorBody extends StatefulWidget {
   const _MobilePageSelectorBody({
     this.currentViewId,
     this.selectedViewId,
+    this.filter,
   });
 
   final String? currentViewId;
   final String? selectedViewId;
+  final bool Function(ViewPB view)? filter;
 
   @override
   State<_MobilePageSelectorBody> createState() =>
@@ -81,7 +87,10 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
               );
             }
 
-            final views = snapshot.data!;
+            final views = snapshot.data!
+                .where((v) => widget.filter?.call(v) ?? true)
+                .toList();
+
             if (widget.currentViewId != null) {
               views.removeWhere((v) => v.id == widget.currentViewId);
             }
