@@ -387,6 +387,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         editorState: editorState,
         editorScrollController: editorScrollController,
         textDirection: textDirection,
+        tooltipBuilder: (context, id, message, child) => widget.styleCustomizer
+            .buildToolbarItemTooltip(context, id, message, child,),
         child: editor,
       ),
     );
