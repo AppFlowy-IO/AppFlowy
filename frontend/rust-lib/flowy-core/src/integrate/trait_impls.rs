@@ -18,13 +18,13 @@ use tracing::{debug, info};
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use flowy_chat_pub::cloud::{
-  ChatCloudService, ChatMessage, LocalAIConfig, MessageCursor, RepeatedChatMessage, StreamAnswer,
-  StreamComplete,
+use flowy_ai_pub::cloud::{
+  ChatCloudService, ChatMessage, ChatMessageMetadata, LocalAIConfig, MessageCursor,
+  RepeatedChatMessage, StreamAnswer, StreamComplete,
 };
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
-  TranslateRowContent, TranslateRowResponse,
+  CollabDocStateByOid, DatabaseAIService, DatabaseCloudService, DatabaseSnapshot,
+  SummaryRowContent, TranslateRowContent, TranslateRowResponse,
 };
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
@@ -364,6 +364,7 @@ impl FolderCloudService for ServerProvider {
   }
 }
 
+#[async_trait]
 impl DatabaseCloudService for ServerProvider {
   fn get_database_object_doc_state(
     &self,
@@ -412,39 +413,36 @@ impl DatabaseCloudService for ServerProvider {
         .await
     })
   }
+}
 
-  fn summary_database_row(
+#[async_trait]
+impl DatabaseAIService for ServerProvider {
+  async fn summary_database_row(
     &self,
     workspace_id: &str,
     object_id: &str,
     summary_row: SummaryRowContent,
-  ) -> FutureResult<String, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    let object_id = object_id.to_string();
-    FutureResult::new(async move {
-      server?
-        .database_service()
-        .summary_database_row(&workspace_id, &object_id, summary_row)
-        .await
-    })
+  ) -> Result<String, FlowyError> {
+    self
+      .get_server()?
+      .database_ai_service()
+      .ok_or_else(FlowyError::not_support)?
+      .summary_database_row(workspace_id, object_id, summary_row)
+      .await
   }
 
-  fn translate_database_row(
+  async fn translate_database_row(
     &self,
     workspace_id: &str,
     translate_row: TranslateRowContent,
     language: &str,
-  ) -> FutureResult<TranslateRowResponse, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    let language = language.to_string();
-    FutureResult::new(async move {
-      server?
-        .database_service()
-        .translate_database_row(&workspace_id, translate_row, &language)
-        .await
-    })
+  ) -> Result<TranslateRowResponse, FlowyError> {
+    self
+      .get_server()?
+      .database_ai_service()
+      .ok_or_else(FlowyError::not_support)?
+      .translate_database_row(workspace_id, translate_row, language)
+      .await
   }
 }
 
@@ -613,12 +611,13 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  fn save_question(
+  fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
+    metadata: Vec<ChatMessageMetadata>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
@@ -628,17 +627,18 @@ impl ChatCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .chat_service()
-        .save_question(&workspace_id, &chat_id, &message, message_type)
+        .create_question(&workspace_id, &chat_id, &message, message_type, metadata)
         .await
     })
   }
 
-  fn save_answer(
+  fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
+    metadata: Option<serde_json::Value>,
   ) -> FutureResult<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
@@ -647,12 +647,12 @@ impl ChatCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .chat_service()
-        .save_answer(&workspace_id, &chat_id, &message, question_id)
+        .create_answer(&workspace_id, &chat_id, &message, question_id, metadata)
         .await
     })
   }
 
-  async fn ask_question(
+  async fn stream_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -663,7 +663,7 @@ impl ChatCloudService for ServerProvider {
     let server = self.get_server()?;
     server
       .chat_service()
-      .ask_question(&workspace_id, &chat_id, message_id)
+      .stream_answer(&workspace_id, &chat_id, message_id)
       .await
   }
 
@@ -698,7 +698,7 @@ impl ChatCloudService for ServerProvider {
       .await
   }
 
-  async fn generate_answer(
+  async fn get_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
@@ -707,7 +707,7 @@ impl ChatCloudService for ServerProvider {
     let server = self.get_server();
     server?
       .chat_service()
-      .generate_answer(workspace_id, chat_id, question_message_id)
+      .get_answer(workspace_id, chat_id, question_message_id)
       .await
   }
 

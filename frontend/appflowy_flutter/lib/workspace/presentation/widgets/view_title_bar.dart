@@ -8,7 +8,6 @@ import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -173,7 +172,7 @@ class _ViewTitleState extends State<_ViewTitle> {
     return Container(
       alignment: Alignment.center,
       margin: const EdgeInsets.symmetric(horizontal: 6.0),
-      child: _buildIconAndName(state, false),
+      child: _buildIconAndName(context, state, false),
     );
   }
 
@@ -185,7 +184,7 @@ class _ViewTitleState extends State<_ViewTitle> {
         child: FlowyButton(
           useIntrinsicWidth: true,
           margin: const EdgeInsets.symmetric(horizontal: 6.0),
-          text: _buildIconAndName(state, false),
+          text: _buildIconAndName(context, state, false),
         ),
       ),
     );
@@ -216,13 +215,18 @@ class _ViewTitleState extends State<_ViewTitle> {
         child: FlowyButton(
           useIntrinsicWidth: true,
           margin: const EdgeInsets.symmetric(horizontal: 6.0),
-          text: _buildIconAndName(state, true),
+          text: _buildIconAndName(context, state, true),
         ),
       ),
     );
   }
 
-  Widget _buildIconAndName(ViewTitleState state, bool isEditable) {
+  Widget _buildIconAndName(
+    BuildContext context,
+    ViewTitleState state,
+    bool isEditable,
+  ) {
+    final spaceIcon = state.view?.buildSpaceIconSvg(context);
     return SingleChildScrollView(
       child: Row(
         children: [
@@ -230,13 +234,14 @@ class _ViewTitleState extends State<_ViewTitle> {
             FlowyText.emoji(
               state.icon,
               fontSize: 14.0,
+              figmaLineHeight: 18.0,
             ),
             const HSpace(4.0),
           ],
-          if (state.view?.isSpace == true &&
-              state.view?.spaceIconSvg != null) ...[
+          if (state.view?.isSpace == true && spaceIcon != null) ...[
             SpaceIcon(
               dimension: 14,
+              svgSize: 8.5,
               space: state.view!,
               cornerRadius: 4,
             ),
@@ -248,6 +253,7 @@ class _ViewTitleState extends State<_ViewTitle> {
               state.name,
               fontSize: 14.0,
               overflow: TextOverflow.ellipsis,
+              figmaLineHeight: 18.0,
             ),
           ),
         ],

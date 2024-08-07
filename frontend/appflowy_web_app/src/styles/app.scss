@@ -24,6 +24,7 @@ body {
   }
 
   @apply bg-bg-body text-text-title;
+
   &[data-os="windows"]:not([data-browser="firefox"]) {
     .appflowy-custom-scroller {
       @include mixin.hidden-scrollbar
@@ -45,10 +46,21 @@ body {
 }
 
 
+.appflowy-scroller {
+  @include mixin.scrollbar-style;
+
+}
+
+
 .appflowy-scrollbar-thumb-horizontal, .appflowy-scrollbar-thumb-vertical {
   background-color: var(--scrollbar-thumb);
   border-radius: 4px;
   opacity: 60%;
+}
+
+.appflowy-scrollbar-track-horizontal, .appflowy-scrollbar-track-vertical {
+  background-color: var(--scrollbar-track);
+
 }
 
 .icon {
@@ -57,7 +69,6 @@ body {
 
 .view-icon {
   @apply flex w-fit leading-[1.5em] cursor-pointer rounded-lg py-2 text-[1.5em];
-  font-family: 'Apple Color Emoji', 'Noto Color Emoji', 'Segoe UI Emoji', 'Twemoji Mozilla', sans-serif;
   line-height: 1em;
   white-space: nowrap;
 }
@@ -111,3 +122,39 @@ body {
     @apply flex-wrap py-2;
   }
 }
+
+@keyframes blink {
+  0%, 100% {
+    background-color: var(--content-blue-100);
+  }
+  50% {
+    background-color: unset;
+  }
+}
+
+.blink {
+  animation: blink 2s linear infinite;
+}
+
+.reply-line {
+  width: 28px;
+  height: 16px;
+  border-left: 2px solid;
+  border-top: 2px solid;
+  border-color: var(--line-border);
+  border-top-left-radius: 6px;
+}
+
+.read-more {
+  box-shadow: 0px -15px 20px 12px var(--bg-body);
+  background-color: transparent;
+}
+
+.comment {
+  scroll-margin-top: 100px;
+}
+
+#addComment {
+  scroll-margin-top: 60px;
+}
+

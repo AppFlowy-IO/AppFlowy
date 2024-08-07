@@ -123,7 +123,7 @@ void main() {
       await gridResponseFuture();
 
       final optionId = bloc.state.options[0].id;
-      bloc.add(SelectOptionCellEditorEvent.unSelectOption(optionId));
+      bloc.add(SelectOptionCellEditorEvent.unselectOption(optionId));
       await gridResponseFuture();
       assert(bloc.state.selectedOptions.isEmpty);
 

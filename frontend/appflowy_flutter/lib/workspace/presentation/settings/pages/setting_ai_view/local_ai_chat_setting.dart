@@ -7,7 +7,7 @@ import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/i
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/plugin_state.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -190,7 +190,6 @@ class _SelectLocalModelDropdownMenu extends StatelessWidget {
                     context,
                     value: llm,
                     label: llm.chatModel,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
                 )
                 .toList(),

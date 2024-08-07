@@ -17,7 +17,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -279,9 +278,9 @@ class ConfirmPopupColor {
 
   static Color descriptionColor(BuildContext context) {
     if (Theme.of(context).isLightMode) {
-      return const Color(0xFF171717).withOpacity(0.8);
+      return const Color(0xFF171717).withOpacity(0.7);
     }
-    return const Color(0xFFffffff).withOpacity(0.72);
+    return const Color(0xFFffffff).withOpacity(0.7);
   }
 }
 
@@ -295,6 +294,8 @@ class ConfirmPopup extends StatefulWidget {
     this.onCancel,
     this.confirmLabel,
     this.confirmButtonColor,
+    this.child,
+    this.closeOnAction = true,
   });
 
   final String title;
@@ -310,6 +311,18 @@ class ConfirmPopup extends StatefulWidget {
   /// Defaults to 'Ok' for [ConfirmPopupStyle.onlyOk] style.
   ///
   final String? confirmLabel;
+
+  /// Allows to add a child to the popup.
+  ///
+  /// This is useful when you want to add more content to the popup.
+  /// The child will be placed below the description.
+  ///
+  final Widget? child;
+
+  /// Decides whether the popup should be closed when the confirm button is clicked.
+  /// Defaults to true.
+  ///
+  final bool closeOnAction;
 
   @override
   State<ConfirmPopup> createState() => _ConfirmPopupState();
@@ -339,9 +352,13 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildTitle(),
-            const VSpace(6.0),
+            const VSpace(6),
             _buildDescription(),
-            const VSpace(20.0),
+            if (widget.child != null) ...[
+              const VSpace(12),
+              widget.child!,
+            ],
+            const VSpace(20),
             _buildStyledButton(context),
           ],
         ),
@@ -355,15 +372,21 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         Expanded(
           child: FlowyText(
             widget.title,
-            fontSize: 14.0,
+            fontSize: 16.0,
+            figmaLineHeight: 22.0,
+            fontWeight: FontWeight.w500,
             overflow: TextOverflow.ellipsis,
             color: ConfirmPopupColor.titleColor(context),
           ),
         ),
         const HSpace(6.0),
         FlowyButton(
+          margin: const EdgeInsets.all(3),
           useIntrinsicWidth: true,
-          text: const FlowySvg(FlowySvgs.upgrade_close_s),
+          text: const FlowySvg(
+            FlowySvgs.upgrade_close_s,
+            size: Size.square(18.0),
+          ),
           onTap: () => Navigator.of(context).pop(),
         ),
       ],
@@ -373,10 +396,10 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
   Widget _buildDescription() {
     return FlowyText.regular(
       widget.description,
-      fontSize: 12.0,
+      fontSize: 16.0,
       color: ConfirmPopupColor.descriptionColor(context),
-      maxLines: 3,
-      lineHeight: 1.4,
+      maxLines: 5,
+      figmaLineHeight: 22.0,
     );
   }
 
@@ -386,7 +409,9 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         return SpaceOkButton(
           onConfirm: () {
             widget.onConfirm();
-            Navigator.of(context).pop();
+            if (widget.closeOnAction) {
+              Navigator.of(context).pop();
+            }
           },
           confirmButtonName: widget.confirmLabel ?? LocaleKeys.button_ok.tr(),
           confirmButtonColor: widget.confirmButtonColor ??
@@ -400,7 +425,9 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
           },
           onConfirm: () {
             widget.onConfirm();
-            Navigator.of(context).pop();
+            if (widget.closeOnAction) {
+              Navigator.of(context).pop();
+            }
           },
           confirmButtonName:
               widget.confirmLabel ?? LocaleKeys.space_delete.tr(),
@@ -469,16 +496,22 @@ class CurrentSpace extends StatelessWidget {
     final child = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SpaceIcon(
-          dimension: 20,
-          space: space,
-          cornerRadius: 6.0,
-        ),
-        const HSpace(10),
+        if (space.spaceIcon != null) ...[
+          SpaceIcon(
+            dimension: 22,
+            space: space,
+            svgSize: 12,
+            cornerRadius: 8.0,
+          ),
+          const HSpace(10),
+        ] else ...[
+          const HSpace(2),
+        ],
         Flexible(
           child: FlowyText.medium(
             space.name,
             fontSize: 14.0,
+            figmaLineHeight: 18.0,
             overflow: TextOverflow.ellipsis,
           ),
         ),

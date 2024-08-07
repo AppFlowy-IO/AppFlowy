@@ -106,19 +106,28 @@ class _LocalAIReadyToUse extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const HSpace(8),
-            const FlowySvg(
-              FlowySvgs.download_success_s,
-              color: Color(0xFF2E7D32),
+            Flexible(
+              child: Row(
+                children: [
+                  const HSpace(8),
+                  const FlowySvg(
+                    FlowySvgs.download_success_s,
+                    color: Color(0xFF2E7D32),
+                  ),
+                  const HSpace(6),
+                  Flexible(
+                    child: FlowyText(
+                      LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
+                      fontSize: 11,
+                      color: const Color(0xFF1E4620),
+                      maxLines: 3,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const HSpace(6),
-            FlowyText(
-              LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
-              fontSize: 11,
-              color: const Color(0xFF1E4620),
-            ),
-            const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
               child: FlowyButton(

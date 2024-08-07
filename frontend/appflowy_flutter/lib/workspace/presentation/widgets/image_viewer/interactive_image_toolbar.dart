@@ -15,7 +15,6 @@ import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 

@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
@@ -9,7 +7,9 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -18,6 +18,8 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -74,6 +76,9 @@ class MobileHomeScreen extends StatelessWidget {
   }
 }
 
+final PropertyValueNotifier<UserWorkspacePB?> mCurrentWorkspace =
+    PropertyValueNotifier<UserWorkspacePB?>(null);
+
 class MobileHomePage extends StatefulWidget {
   const MobileHomePage({
     super.key,
@@ -99,6 +104,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
   @override
   void dispose() {
     getIt<MenuSharedState>().removeLatestViewListener(_onLatestViewChange);
+
     super.dispose();
   }
 
@@ -122,11 +128,16 @@ class _MobileHomePageState extends State<MobileHomePage> {
         buildWhen: (previous, current) =>
             previous.currentWorkspace?.workspaceId !=
             current.currentWorkspace?.workspaceId,
-        listener: (context, state) => getIt<CachedRecentService>().reset(),
+        listener: (context, state) {
+          getIt<CachedRecentService>().reset();
+          mCurrentWorkspace.value = state.currentWorkspace;
+        },
         builder: (context, state) {
           if (state.currentWorkspace == null) {
             return const SizedBox.shrink();
           }
+
+          final workspaceId = state.currentWorkspace!.workspaceId;
 
           return Column(
             children: [
@@ -143,9 +154,36 @@ class _MobileHomePageState extends State<MobileHomePage> {
               ),
 
               Expanded(
-                child: BlocProvider(
-                  create: (context) =>
-                      SpaceOrderBloc()..add(const SpaceOrderEvent.initial()),
+                child: MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (_) => SpaceOrderBloc()
+                        ..add(const SpaceOrderEvent.initial()),
+                    ),
+                    BlocProvider(
+                      create: (_) => SidebarSectionsBloc()
+                        ..add(
+                          SidebarSectionsEvent.initial(
+                            widget.userProfile,
+                            workspaceId,
+                          ),
+                        ),
+                    ),
+                    BlocProvider(
+                      create: (_) =>
+                          FavoriteBloc()..add(const FavoriteEvent.initial()),
+                    ),
+                    BlocProvider(
+                      create: (_) => SpaceBloc()
+                        ..add(
+                          SpaceEvent.initial(
+                            widget.userProfile,
+                            workspaceId,
+                            openFirstPage: false,
+                          ),
+                        ),
+                    ),
+                  ],
                   child: MobileSpaceTab(
                     userProfile: widget.userProfile,
                   ),

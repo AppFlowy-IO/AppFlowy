@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -31,7 +31,7 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            final result = await ChatEventGetLocalAIChatState().send();
+            final result = await AIEventGetLocalAIChatState().send();
             result.fold(
               (chatState) {
                 if (!isClosed) {
@@ -53,7 +53,7 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
             );
             final payload = ChatFilePB(filePath: filePath, chatId: chatId);
             unawaited(
-              ChatEventChatWithFile(payload).send().then((result) {
+              AIEventChatWithFile(payload).send().then((result) {
                 if (!isClosed) {
                   result.fold((_) {
                     add(

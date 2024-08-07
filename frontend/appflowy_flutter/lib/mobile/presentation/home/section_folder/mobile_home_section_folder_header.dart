@@ -32,6 +32,7 @@ class _MobileSectionFolderHeaderState extends State<MobileSectionFolderHeader> {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        const HSpace(HomeSpaceViewSizes.mHorizontalPadding),
         Expanded(
           child: FlowyButton(
             text: FlowyText.medium(
@@ -57,15 +58,19 @@ class _MobileSectionFolderHeaderState extends State<MobileSectionFolderHeader> {
             },
           ),
         ),
-        FlowyIconButton(
-          key: mobileCreateNewPageButtonKey,
-          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
-          height: HomeSpaceViewSizes.mViewButtonDimension,
-          width: HomeSpaceViewSizes.mViewButtonDimension,
-          icon: const FlowySvg(
-            FlowySvgs.m_space_add_s,
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: widget.onAdded,
+          child: Container(
+            // expand the touch area
+            margin: const EdgeInsets.symmetric(
+              horizontal: HomeSpaceViewSizes.mHorizontalPadding,
+              vertical: 8.0,
+            ),
+            child: const FlowySvg(
+              FlowySvgs.m_space_add_s,
+            ),
           ),
-          onPressed: widget.onAdded,
         ),
       ],
     );

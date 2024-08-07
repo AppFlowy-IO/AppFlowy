@@ -126,7 +126,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
           columnCount={columns.length}
           columnWidth={(index) => columnWidth(index, width)}
           rowHeight={rowHeight}
-          className={'grid-table pb-[150px]'}
+          className={'grid-table'}
           overscanRowCount={5}
           overscanColumnCount={5}
           style={{

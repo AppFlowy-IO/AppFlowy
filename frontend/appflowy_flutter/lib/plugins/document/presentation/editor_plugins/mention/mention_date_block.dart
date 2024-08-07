@@ -163,11 +163,14 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   _updateReminder(reminderOption, reminder),
             );
 
-            final color = reminder?.isAck == true
-                ? Theme.of(context).isLightMode
+            Color? color;
+            if (reminder != null) {
+              if (reminder.type == ReminderType.today) {
+                color = Theme.of(context).isLightMode
                     ? const Color(0xFFFE0299)
-                    : Theme.of(context).colorScheme.error
-                : null;
+                    : Theme.of(context).colorScheme.error;
+              }
+            }
             final textStyle = widget.textStyle?.copyWith(
               color: color,
               leadingDistribution: TextLeadingDistribution.even,
@@ -364,6 +367,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
               ReminderUpdate(
                 id: widget.reminderId!,
                 scheduledAt: reminderOption.fromDate(parsedDate!),
+                date: parsedDate!,
               ),
             ),
           );

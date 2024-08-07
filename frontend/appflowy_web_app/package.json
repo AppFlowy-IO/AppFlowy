@@ -24,7 +24,6 @@
     "coverage": "pnpm run test:unit && pnpm run test:components"
   },
   "dependencies": {
-    "@appflowyinc/client-api-wasm": "0.1.2",
     "@atlaskit/primitives": "^5.5.3",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
@@ -49,6 +48,7 @@
     "emoji-regex": "^10.2.1",
     "events": "^3.3.0",
     "google-protobuf": "^3.15.12",
+    "highlight.js": "^11.10.0",
     "i18next": "^22.4.10",
     "i18next-browser-languagedetector": "^7.0.1",
     "i18next-resources-to-backend": "^1.1.4",

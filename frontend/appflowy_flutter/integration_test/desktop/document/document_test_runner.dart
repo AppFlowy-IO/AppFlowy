@@ -12,6 +12,7 @@ import 'document_more_actions_test.dart' as document_more_actions_test;
 import 'document_text_direction_test.dart' as document_text_direction_test;
 import 'document_with_cover_image_test.dart' as document_with_cover_image_test;
 import 'document_with_database_test.dart' as document_with_database_test;
+import 'document_with_file_test.dart' as document_with_file_test;
 import 'document_with_image_block_test.dart' as document_with_image_block_test;
 import 'document_with_inline_math_equation_test.dart'
     as document_with_inline_math_equation_test;
@@ -43,4 +44,5 @@ void startTesting() {
   document_with_multi_image_block_test.main();
   document_inline_page_reference_test.main();
   document_more_actions_test.main();
+  document_with_file_test.main();
 }

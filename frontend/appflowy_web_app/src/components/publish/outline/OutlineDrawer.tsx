@@ -7,7 +7,7 @@ import { createHotKeyLabel, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { Drawer, IconButton, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-function OutlineDrawer({ open, width, onClose }: { open: boolean; width: number; onClose: () => void }) {
+export function OutlineDrawer({ open, width, onClose }: { open: boolean; width: number; onClose: () => void }) {
   const { t } = useTranslation();
   const viewMeta = usePublishContext()?.viewMeta;
 

@@ -3,7 +3,7 @@ use bytes::Bytes;
 use collab_entity::{CollabType, EncodedCollab};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
-use flowy_chat::chat_manager::ChatManager;
+use flowy_ai::ai_manager::AIManager;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
@@ -68,7 +68,7 @@ impl FolderDepsResolver {
 pub fn folder_operation_handlers(
   document_manager: Arc<DocumentManager>,
   database_manager: Arc<DatabaseManager>,
-  chat_manager: Arc<ChatManager>,
+  chat_manager: Arc<AIManager>,
 ) -> FolderOperationHandlers {
   let mut map: HashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>> = HashMap::new();
 
@@ -598,7 +598,7 @@ impl CreateDatabaseExtParams {
   }
 }
 
-struct ChatFolderOperation(Arc<ChatManager>);
+struct ChatFolderOperation(Arc<AIManager>);
 impl FolderOperationHandler for ChatFolderOperation {
   fn open_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,9 +13,13 @@ part 'chat_ai_message_bloc.freezed.dart';
 class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
   ChatAIMessageBloc({
     dynamic message,
+    String? metadata,
     required this.chatId,
     required this.questionId,
-  }) : super(ChatAIMessageState.initial(message)) {
+  }) : super(ChatAIMessageState.initial(
+          message,
+          chatMessageMetadataFromString(metadata),
+        ),) {
     if (state.stream != null) {
       state.stream!.listen(
         onData: (text) {
@@ -31,6 +35,11 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
         onAIResponseLimit: () {
           if (!isClosed) {
             add(const ChatAIMessageEvent.onAIResponseLimit());
+          }
+        },
+        onMetadata: (metadata) {
+          if (!isClosed) {
+            add(ChatAIMessageEvent.receiveMetadata(metadata));
           }
         },
       );
@@ -74,7 +83,7 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               chatId: chatId,
               messageId: questionId,
             );
-            ChatEventGetAnswerForQuestion(payload).send().then((result) {
+            AIEventGetAnswerForQuestion(payload).send().then((result) {
               if (!isClosed) {
                 result.fold(
                   (answer) {
@@ -103,6 +112,13 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               ),
             );
           },
+          receiveMetadata: (List<ChatMessageMetadata> metadata) {
+            emit(
+              state.copyWith(
+                metadata: metadata,
+              ),
+            );
+          },
         );
       },
     );
@@ -120,6 +136,9 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.retry() = _Retry;
   const factory ChatAIMessageEvent.retryResult(String text) = _RetryResult;
   const factory ChatAIMessageEvent.onAIResponseLimit() = _OnAIResponseLimit;
+  const factory ChatAIMessageEvent.receiveMetadata(
+    List<ChatMessageMetadata> data,
+  ) = _ReceiveMetadata;
 }
 
 @freezed
@@ -128,13 +147,16 @@ class ChatAIMessageState with _$ChatAIMessageState {
     AnswerStream? stream,
     required String text,
     required MessageState messageState,
+    required List<ChatMessageMetadata> metadata,
   }) = _ChatAIMessageState;
 
-  factory ChatAIMessageState.initial(dynamic text) {
+  factory ChatAIMessageState.initial(
+      dynamic text, List<ChatMessageMetadata> metadata,) {
     return ChatAIMessageState(
       text: text is String ? text : "",
       stream: text is AnswerStream ? text : null,
       messageState: const MessageState.ready(),
+      metadata: metadata,
     );
   }
 }

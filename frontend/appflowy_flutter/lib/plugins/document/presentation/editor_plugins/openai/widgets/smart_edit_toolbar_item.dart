@@ -11,12 +11,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 
+const _kSmartEditToolbarItemId = 'appflowy.editor.smart_edit';
+
 final ToolbarItem smartEditItem = ToolbarItem(
-  id: 'appflowy.editor.smart_edit',
+  id: _kSmartEditToolbarItemId,
   group: 0,
   isActive: onlyShowInSingleSelectionAndTextType,
-  builder: (context, editorState, _, __) => SmartEditActionList(
+  builder: (context, editorState, _, __, tooltipBuilder) => SmartEditActionList(
     editorState: editorState,
+    tooltipBuilder: tooltipBuilder,
   ),
 );
 
@@ -24,9 +27,11 @@ class SmartEditActionList extends StatefulWidget {
   const SmartEditActionList({
     super.key,
     required this.editorState,
+    this.tooltipBuilder,
   });
 
   final EditorState editorState;
+  final ToolbarTooltipBuilder? tooltipBuilder;
 
   @override
   State<SmartEditActionList> createState() => _SmartEditActionListState();
@@ -60,11 +65,8 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
       onClosed: () => keepEditorFocusNotifier.decrease(),
       buildChild: (controller) {
         keepEditorFocusNotifier.increase();
-        return FlowyIconButton(
+        final child = FlowyIconButton(
           hoverColor: Colors.transparent,
-          tooltipText: isAIEnabled
-              ? LocaleKeys.document_plugins_smartEdit.tr()
-              : LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
           preferBelow: false,
           icon: const Icon(
             Icons.lightbulb_outline,
@@ -83,6 +85,19 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
             }
           },
         );
+
+        if (widget.tooltipBuilder != null) {
+          return widget.tooltipBuilder!(
+            context,
+            _kSmartEditToolbarItemId,
+            isAIEnabled
+                ? LocaleKeys.document_plugins_smartEdit.tr()
+                : LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
+            child,
+          );
+        }
+
+        return child;
       },
       onSelected: (action, controller) {
         controller.close();

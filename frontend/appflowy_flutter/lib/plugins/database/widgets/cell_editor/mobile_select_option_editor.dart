@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
@@ -12,7 +14,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:protobuf/protobuf.dart';
@@ -176,7 +177,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
               } else {
                 context
                     .read<SelectOptionCellEditorBloc>()
-                    .add(SelectOptionCellEditorEvent.unSelectOption(option.id));
+                    .add(SelectOptionCellEditorEvent.unselectOption(option.id));
               }
             },
             onMoreOptions: (option) {

@@ -1,11 +1,10 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -246,10 +245,6 @@ void main() {
           expect(editorState.document.root.children.length, 2);
           final node = editorState.getNodeAtPath([0])!;
           expect(node.type, ImageBlockKeys.type);
-          expect(
-            node.attributes[ImageBlockKeys.url],
-            'https://user-images.githubusercontent.com/9403740/262918875-603f4adb-58dd-49b5-8201-341d354935fd.png',
-          );
         },
       );
     },

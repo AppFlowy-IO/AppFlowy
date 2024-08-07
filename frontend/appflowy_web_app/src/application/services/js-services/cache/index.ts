@@ -114,7 +114,7 @@ export async function getPublishViewMeta<
 
 export async function getPublishView<
   T extends {
-    data: number[];
+    data: Uint8Array;
     rows?: Record<RowId, number[]>;
     visibleViewIds?: ViewId[];
     relations?: Record<DatabaseId, ViewId>;
@@ -219,7 +219,7 @@ export async function revalidatePublishViewMeta<
 
 export async function revalidatePublishView<
   T extends {
-    data: number[];
+    data: Uint8Array;
     rows?: Record<RowId, number[]>;
     visibleViewIds?: ViewId[];
     relations?: Record<DatabaseId, ViewId>;
@@ -260,10 +260,9 @@ export async function revalidatePublishView<
     }
   }
 
-  console.log('====', rows);
-  const state = new Uint8Array(data);
+  console.log('====', data);
 
-  applyYDoc(collab, state);
+  applyYDoc(collab, data);
 }
 
 export async function deleteViewMeta(name: string) {

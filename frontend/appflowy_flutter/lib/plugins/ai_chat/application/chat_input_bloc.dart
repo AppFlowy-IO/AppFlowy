@@ -3,24 +3,25 @@ import 'dart:async';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'chat_input_bloc.freezed.dart';
 
-class ChatInputBloc extends Bloc<ChatInputEvent, ChatInputState> {
-  ChatInputBloc()
+class ChatInputStateBloc
+    extends Bloc<ChatInputStateEvent, ChatInputStateState> {
+  ChatInputStateBloc()
       : listener = LocalLLMListener(),
-        super(const ChatInputState(aiType: _AppFlowyAI())) {
+        super(const ChatInputStateState(aiType: _AppFlowyAI())) {
     listener.start(
       stateCallback: (pluginState) {
         if (!isClosed) {
-          add(ChatInputEvent.updatePluginState(pluginState));
+          add(ChatInputStateEvent.updatePluginState(pluginState));
         }
       },
     );
 
-    on<ChatInputEvent>(_handleEvent);
+    on<ChatInputStateEvent>(_handleEvent);
   }
 
   final LocalLLMListener listener;
@@ -32,17 +33,17 @@ class ChatInputBloc extends Bloc<ChatInputEvent, ChatInputState> {
   }
 
   Future<void> _handleEvent(
-    ChatInputEvent event,
-    Emitter<ChatInputState> emit,
+    ChatInputStateEvent event,
+    Emitter<ChatInputStateState> emit,
   ) async {
     await event.when(
       started: () async {
-        final result = await ChatEventGetLocalAIPluginState().send();
+        final result = await AIEventGetLocalAIPluginState().send();
         result.fold(
           (pluginState) {
             if (!isClosed) {
               add(
-                ChatInputEvent.updatePluginState(pluginState),
+                ChatInputStateEvent.updatePluginState(pluginState),
               );
             }
           },
@@ -53,9 +54,9 @@ class ChatInputBloc extends Bloc<ChatInputEvent, ChatInputState> {
       },
       updatePluginState: (pluginState) {
         if (pluginState.state == RunningStatePB.Running) {
-          emit(const ChatInputState(aiType: _LocalAI()));
+          emit(const ChatInputStateState(aiType: _LocalAI()));
         } else {
-          emit(const ChatInputState(aiType: _AppFlowyAI()));
+          emit(const ChatInputStateState(aiType: _AppFlowyAI()));
         }
       },
     );
@@ -63,16 +64,16 @@ class ChatInputBloc extends Bloc<ChatInputEvent, ChatInputState> {
 }
 
 @freezed
-class ChatInputEvent with _$ChatInputEvent {
-  const factory ChatInputEvent.started() = _Started;
-  const factory ChatInputEvent.updatePluginState(
+class ChatInputStateEvent with _$ChatInputStateEvent {
+  const factory ChatInputStateEvent.started() = _Started;
+  const factory ChatInputStateEvent.updatePluginState(
     LocalAIPluginStatePB pluginState,
   ) = _UpdatePluginState;
 }
 
 @freezed
-class ChatInputState with _$ChatInputState {
-  const factory ChatInputState({required AIType aiType}) = _ChatInputState;
+class ChatInputStateState with _$ChatInputStateState {
+  const factory ChatInputStateState({required AIType aiType}) = _ChatInputState;
 }
 
 @freezed

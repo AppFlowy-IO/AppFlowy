@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -12,6 +10,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -83,10 +82,19 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 
             emit(
               state.copyWith(
-                currentWorkspace: currentWorkspace,
                 workspaces: workspaces,
               ),
             );
+
+            // try to open the workspace if the current workspace is not the same
+            if (currentWorkspace != null &&
+                currentWorkspace.workspaceId !=
+                    state.currentWorkspace?.workspaceId) {
+              Log.info(
+                'fetch workspaces: try to open workspace: ${currentWorkspace.workspaceId}',
+              );
+              add(OpenWorkspace(currentWorkspace.workspaceId));
+            }
           },
           createWorkspace: (name) async {
             emit(
@@ -159,13 +167,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             }
 
             final result = await _userService.deleteWorkspaceById(workspaceId);
-            final workspaces = result.fold(
-              // remove the deleted workspace from the list instead of fetching
-              // the workspaces again
-              (s) => state.workspaces
-                  .where((e) => e.workspaceId != workspaceId)
-                  .toList(),
-              (e) => state.workspaces,
+            // fetch the workspaces again to check if the current workspace is deleted
+            final workspacesResult = await _fetchWorkspaces();
+            final workspaces = workspacesResult.$2;
+            final containsDeletedWorkspace = workspaces.any(
+              (e) => e.workspaceId == workspaceId,
             );
             result
               ..onSuccess((_) {
@@ -177,6 +183,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               })
               ..onFailure((f) {
                 Log.error('delete workspace error: $f');
+                // if the workspace is deleted but return an error, we need to
+                // open the first workspace
+                if (!containsDeletedWorkspace) {
+                  add(OpenWorkspace(workspaces.first.workspaceId));
+                }
               });
             emit(
               state.copyWith(

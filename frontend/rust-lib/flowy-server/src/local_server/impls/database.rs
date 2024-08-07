@@ -4,15 +4,14 @@ use collab_entity::define::{DATABASE, DATABASE_ROW_DATA, WORKSPACE_DATABASES};
 use collab_entity::CollabType;
 use yrs::MapPrelim;
 
-use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
-  TranslateRowContent, TranslateRowResponse,
-};
-use flowy_error::FlowyError;
+use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDatabaseCloudServiceImpl();
 
+#[async_trait]
 impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
   fn get_database_object_doc_state(
     &self,
@@ -76,25 +75,5 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     _limit: usize,
   ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
     FutureResult::new(async move { Ok(vec![]) })
-  }
-
-  fn summary_database_row(
-    &self,
-    _workspace_id: &str,
-    _object_id: &str,
-    _summary_row: SummaryRowContent,
-  ) -> FutureResult<String, FlowyError> {
-    // TODO(lucas): local ai
-    FutureResult::new(async move { Ok("".to_string()) })
-  }
-
-  fn translate_database_row(
-    &self,
-    _workspace_id: &str,
-    _translate_row: TranslateRowContent,
-    _language: &str,
-  ) -> FutureResult<TranslateRowResponse, FlowyError> {
-    // TODO(lucas): local ai
-    FutureResult::new(async move { Ok(TranslateRowResponse::default()) })
   }
 }

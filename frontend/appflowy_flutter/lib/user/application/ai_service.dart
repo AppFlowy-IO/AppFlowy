@@ -8,7 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/ser
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/text_completion.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart' as fixnum;
@@ -59,7 +59,7 @@ class AppFlowyAIService implements AIRepository {
     );
 
     // ignore: unawaited_futures
-    ChatEventCompleteText(payload).send();
+    AIEventCompleteText(payload).send();
     return stream;
   }
 }

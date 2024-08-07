@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -11,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 
+import 'ai_metadata.dart';
+
 class ChatAITextMessageWidget extends StatelessWidget {
   const ChatAITextMessageWidget({
     super.key,
@@ -19,6 +22,8 @@ class ChatAITextMessageWidget extends StatelessWidget {
     required this.text,
     required this.questionId,
     required this.chatId,
+    required this.metadata,
+    required this.onSelectedMetadata,
   });
 
   final User user;
@@ -26,12 +31,15 @@ class ChatAITextMessageWidget extends StatelessWidget {
   final dynamic text;
   final Int64? questionId;
   final String chatId;
+  final String? metadata;
+  final void Function(ChatMessageMetadata metadata) onSelectedMetadata;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ChatAIMessageBloc(
         message: text,
+        metadata: metadata,
         chatId: chatId,
         questionId: questionId,
       )..add(const ChatAIMessageEvent.initial()),
@@ -58,7 +66,16 @@ class ChatAITextMessageWidget extends StatelessWidget {
               if (state.text.isEmpty) {
                 return const ChatAILoading();
               } else {
-                return AIMarkdownText(markdown: state.text);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AIMarkdownText(markdown: state.text),
+                    AIMessageMetadata(
+                      metadata: state.metadata,
+                      onSelectedMetadata: onSelectedMetadata,
+                    ),
+                  ],
+                );
               }
             },
             loading: () {

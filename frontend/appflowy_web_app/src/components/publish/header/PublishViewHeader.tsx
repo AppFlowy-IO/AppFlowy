@@ -3,12 +3,13 @@ import { openOrDownload } from '@/components/publish/header/utils';
 import { Divider, IconButton, Tooltip } from '@mui/material';
 import { debounce } from 'lodash-es';
 import React, { useCallback, useMemo } from 'react';
-import OutlinePopover from '@/components/publish/outline/OutlinePopover';
+import { OutlinePopover } from '@/components/publish/outline';
 import { useTranslation } from 'react-i18next';
 import Breadcrumb from './Breadcrumb';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import MoreActions from './MoreActions';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
+// import { Duplicate } from './duplicate';
 
 export const HEADER_HEIGHT = 48;
 
@@ -65,7 +66,7 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
       className={'appflowy-top-bar sticky top-0 z-10 flex px-5'}
     >
       <div className={'flex w-full items-center justify-between gap-2 overflow-hidden'}>
-        {!openDrawer && (
+        {!openDrawer && openPopover && (
           <OutlinePopover
             onMouseEnter={handleOpenPopover}
             onMouseLeave={debounceClosePopover}
@@ -92,6 +93,7 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
 
         <div className={'flex items-center gap-2'}>
           <MoreActions />
+          {/*<Duplicate />*/}
           <Divider orientation={'vertical'} className={'mx-2'} flexItem />
           <Tooltip title={t('publish.downloadApp')}>
             <button onClick={openOrDownload}>

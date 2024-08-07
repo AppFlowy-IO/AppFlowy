@@ -6,7 +6,7 @@ use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{RemoteCollabStorage, RemoteUpdateSender};
 use parking_lot::RwLock;
 
-use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
@@ -142,6 +142,10 @@ impl AppFlowyServer for SupabaseServer {
     Arc::new(SupabaseDatabaseServiceImpl::new(SupabaseServerServiceImpl(
       self.restful_postgres.clone(),
     )))
+  }
+
+  fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
+    None
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {

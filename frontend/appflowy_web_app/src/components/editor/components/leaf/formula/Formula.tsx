@@ -1,4 +1,4 @@
-import KatexMath from '@/components/_shared/katex-math/KatexMath';
+import { KatexMath } from '@/components/_shared/katex-math';
 import { EditorElementProps, FormulaNode } from '@/components/editor/editor.type';
 import React, { memo, forwardRef } from 'react';
 import { useSelected } from 'slate-react';

@@ -356,6 +356,7 @@ class _WorkspaceIconSetting extends StatelessWidget {
           workspace: workspace!,
           iconSize: workspace!.icon.isNotEmpty == true ? 46 : 20,
           fontSize: 16.0,
+          figmaLineHeight: 46,
           enableEdit: true,
           onSelected: (r) => context
               .read<WorkspaceSettingsBloc>()

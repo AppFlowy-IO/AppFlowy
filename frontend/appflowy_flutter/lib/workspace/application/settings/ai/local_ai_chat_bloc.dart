@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
@@ -60,7 +60,7 @@ class LocalAIChatSettingBloc
         );
       },
       selectLLMConfig: (LLMModelPB llmModel) async {
-        final result = await ChatEventUpdateLocalLLM(llmModel).send();
+        final result = await AIEventUpdateLocalLLM(llmModel).send();
         result.fold(
           (llmResource) {
             // If all resources are downloaded, show reload plugin
@@ -144,7 +144,7 @@ class LocalAIChatSettingBloc
         );
       },
       cancelDownload: () async {
-        final _ = await ChatEventCancelDownloadLLMResource().send();
+        final _ = await AIEventCancelDownloadLLMResource().send();
         _fetchCurremtLLMState();
       },
       finishDownload: () async {
@@ -156,7 +156,7 @@ class LocalAIChatSettingBloc
       },
       updatePluginState: (LocalAIPluginStatePB pluginState) {
         if (pluginState.offlineAiReady) {
-          ChatEventRefreshLocalAIModelInfo().send().then((result) {
+          AIEventRefreshLocalAIModelInfo().send().then((result) {
             if (!isClosed) {
               add(LocalAIChatSettingEvent.didLoadModelInfo(result));
             }
@@ -188,7 +188,7 @@ class LocalAIChatSettingBloc
   }
 
   void _fetchCurremtLLMState() async {
-    final result = await ChatEventGetLocalLLMState().send();
+    final result = await AIEventGetLocalLLMState().send();
     result.fold(
       (llmResource) {
         if (!isClosed) {
@@ -203,13 +203,13 @@ class LocalAIChatSettingBloc
 
   /// Handles the event to fetch local AI settings when the application starts.
   Future<void> _handleStarted() async {
-    final result = await ChatEventGetLocalAIPluginState().send();
+    final result = await AIEventGetLocalAIPluginState().send();
     result.fold(
       (pluginState) async {
         if (!isClosed) {
           add(LocalAIChatSettingEvent.updatePluginState(pluginState));
           if (pluginState.offlineAiReady) {
-            final result = await ChatEventRefreshLocalAIModelInfo().send();
+            final result = await AIEventRefreshLocalAIModelInfo().send();
             if (!isClosed) {
               add(LocalAIChatSettingEvent.didLoadModelInfo(result));
             }

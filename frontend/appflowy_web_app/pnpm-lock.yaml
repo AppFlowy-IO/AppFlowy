@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@appflowyinc/client-api-wasm':
-    specifier: 0.1.2
-    version: 0.1.2
   '@atlaskit/primitives':
     specifier: ^5.5.3
     version: 5.7.0(@types/react@18.2.66)(react@18.2.0)
@@ -80,6 +77,9 @@ dependencies:
   google-protobuf:
     specifier: ^3.15.12
     version: 3.21.2
+  highlight.js:
+    specifier: ^11.10.0
+    version: 11.10.0
   i18next:
     specifier: ^22.4.10
     version: 22.5.1
@@ -450,10 +450,6 @@ packages:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
-
-  /@appflowyinc/client-api-wasm@0.1.2:
-    resolution: {integrity: sha512-+v0hs7/7BVKtgev/Bcbr0u2HLDhUuw4ZvZTaMddI+06HK8vt5S52dMaZKUcMvh1eUjVX8hjC6Mfe0X/yHqvFgA==}
-    dev: false
 
   /@atlaskit/analytics-next-stable-react-context@1.0.1(react@18.2.0):
     resolution: {integrity: sha512-iO6+hIp09dF4iAZQarVz3vKY1kM5Ij5CExYcK9jgc2q+OH8nv8n+BPFeJTdzGOGopmbUZn5Opj9pYQvge1Gr4Q==}
@@ -7067,6 +7063,11 @@ packages:
   /help-me@5.0.0:
     resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
     dev: true
+
+  /highlight.js@11.10.0:
+    resolution: {integrity: sha512-SYVnVFswQER+zu1laSya563s+F8VDGt7o35d4utbamowvUNLLMovFqwCLSocpZTz3MgaSRA1IbqRWZv97dtErQ==}
+    engines: {node: '>=12.0.0'}
+    dev: false
 
   /hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
