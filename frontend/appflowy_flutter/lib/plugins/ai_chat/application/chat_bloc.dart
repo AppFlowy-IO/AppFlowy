@@ -17,7 +17,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:nanoid/nanoid.dart';
+import 'package:nanoid/non_secure.dart';
 
 import 'chat_message_listener.dart';
 import 'chat_message_service.dart';
@@ -136,13 +136,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             emit(
               state.copyWith(
                 messages: allMessages,
-                streamingStatus: const LoadingState.loading(),
+                streamingStatus: const StreamingState.streaming(),
               ),
             );
           },
           didFinishStreaming: () {
             emit(
-              state.copyWith(streamingStatus: const LoadingState.finish()),
+              state.copyWith(streamingStatus: const StreamingState.done()),
             );
           },
           receveMessage: (Message message) {
@@ -207,7 +207,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             final payload = StopStreamPB(chatId: chatId);
             await AIEventStopStream(payload).send();
             final allMessages = _perminentMessages();
-            if (state.streamingStatus != const LoadingState.finish()) {
+            if (state.streamingStatus != const StreamingState.done()) {
               // If the streaming is not started, remove the message from the list
               if (!state.answerStream!.hasStarted) {
                 allMessages.removeWhere(
@@ -222,7 +222,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                 state.copyWith(
                   messages: allMessages,
                   answerStream: null,
-                  streamingStatus: const LoadingState.finish(),
+                  streamingStatus: const StreamingState.done(),
                 ),
               );
             }
@@ -466,7 +466,7 @@ class ChatState with _$ChatState {
     required LoadingState loadingPreviousStatus,
     // When sending a user message, the status will be set as loading.
     // After the message is sent, the status will be set as finished.
-    required LoadingState streamingStatus,
+    required StreamingState streamingStatus,
     // Indicate whether there are more previous messages to load.
     required bool hasMorePrevMessage,
     // The related questions that are received after the user message is sent.
@@ -483,7 +483,7 @@ class ChatState with _$ChatState {
         userProfile: userProfile,
         initialLoadingStatus: const LoadingState.finish(),
         loadingPreviousStatus: const LoadingState.finish(),
-        streamingStatus: const LoadingState.finish(),
+        streamingStatus: const StreamingState.done(),
         hasMorePrevMessage: true,
         relatedQuestions: [],
       );
@@ -497,6 +497,7 @@ class LoadingState with _$LoadingState {
 
 enum OnetimeShotType {
   unknown,
+  sendingMessage,
   relatedQuestion,
   invalidSendMesssage,
 }
@@ -638,7 +639,9 @@ List<ChatMessageMetadata> chatMessageMetadataFromString(String? s) {
     }
 
     if (metadataJson is Map<String, dynamic>) {
-      metadata.add(ChatMessageMetadata.fromJson(metadataJson));
+      if (metadataJson.isNotEmpty) {
+        metadata.add(ChatMessageMetadata.fromJson(metadataJson));
+      }
     } else if (metadataJson is List) {
       metadata.addAll(
         metadataJson.map(
@@ -671,4 +674,10 @@ class ChatMessageMetadata {
   final String source;
 
   Map<String, dynamic> toJson() => _$ChatMessageMetadataToJson(this);
+}
+
+@freezed
+class StreamingState with _$StreamingState {
+  const factory StreamingState.streaming() = _Streaming;
+  const factory StreamingState.done({FlowyError? error}) = _Done;
 }

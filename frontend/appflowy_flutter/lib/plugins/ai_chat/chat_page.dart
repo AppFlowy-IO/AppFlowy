@@ -27,6 +27,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:styled_widget/styled_widget.dart';
 
+import 'application/chat_member_bloc.dart';
 import 'application/chat_side_pannel_bloc.dart';
 import 'presentation/chat_input/chat_input.dart';
 import 'presentation/chat_popmenu.dart';
@@ -101,6 +102,7 @@ class AIChatPage extends StatelessWidget {
                 ChatInputStateBloc()..add(const ChatInputStateEvent.started()),
           ),
           BlocProvider(create: (_) => ChatSidePannelBloc(chatId: view.id)),
+          BlocProvider(create: (_) => ChatMemberBloc()),
         ],
         child: BlocListener<ChatFileBloc, ChatFileState>(
           listenWhen: (previous, current) =>
@@ -298,6 +300,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
   Widget buildChatWidget() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (blocContext, state) => Chat(
+        key: ValueKey(widget.view.id),
         messages: state.messages,
         onSendPressed: (_) {
           // We use custom bottom widget for chat input, so
@@ -346,9 +349,9 @@ class _ChatContentPageState extends State<_ChatContentPage> {
               message: message,
               child: child,
             );
+          } else {
+            return _buildAIBubble(message, blocContext, state, child);
           }
-
-          return _buildAIBubble(message, blocContext, state, child);
         },
       ),
     );
@@ -497,7 +500,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
 
             return Column(
               children: [
-                BlocSelector<ChatBloc, ChatState, LoadingState>(
+                BlocSelector<ChatBloc, ChatState, StreamingState>(
                   selector: (state) => state.streamingStatus,
                   builder: (context, state) {
                     return ChatInput(
@@ -511,7 +514,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                               ),
                             );
                       },
-                      isStreaming: state != const LoadingState.finish(),
+                      isStreaming: state != const StreamingState.done(),
                       onStopStreaming: () {
                         context
                             .read<ChatBloc>()

@@ -15,7 +15,7 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::MissingPayload => ErrorCode::MissingPayload,
       AppErrorCode::OpenError => ErrorCode::Internal,
       AppErrorCode::InvalidUrl => ErrorCode::InvalidURL,
-      AppErrorCode::InvalidRequest => ErrorCode::InvalidParams,
+      AppErrorCode::InvalidRequest => ErrorCode::InvalidRequest,
       AppErrorCode::InvalidOAuthProvider => ErrorCode::InvalidAuthConfig,
       AppErrorCode::NotLoggedIn => ErrorCode::UserUnauthorized,
       AppErrorCode::NotEnoughPermissions => ErrorCode::NotEnoughPermissions,

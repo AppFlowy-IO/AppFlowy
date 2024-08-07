@@ -42,7 +42,7 @@ pub(crate) async fn stream_chat_message_handler(
       data: ChatMetadataData::new_text(metadata.text),
       id: metadata.id,
       name: metadata.name.clone(),
-      source: metadata.name,
+      source: metadata.source,
     })
     .collect::<Vec<_>>();
 
