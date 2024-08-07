@@ -17,7 +17,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:nanoid/non_secure.dart';
+import 'package:nanoid/nanoid.dart';
 
 import 'chat_message_listener.dart';
 import 'chat_message_service.dart';
@@ -26,6 +26,8 @@ part 'chat_bloc.g.dart';
 part 'chat_bloc.freezed.dart';
 
 const sendMessageErrorKey = "sendMessageError";
+const systemUserId = "system";
+const aiResponseUserId = "0";
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
@@ -219,11 +221,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           },
           // related question
           didReceiveRelatedQuestion: (List<RelatedQuestionPB> questions) {
+            if (questions.isEmpty) {
+              return;
+            }
+
             final allMessages = _perminentMessages();
             final message = CustomMessage(
               metadata: OnetimeShotType.relatedQuestion.toMap(),
-              author: const User(id: "system"),
-              id: 'system',
+              author: const User(id: systemUserId),
+              id: systemUserId,
             );
             allMessages.insert(0, message);
             emit(
@@ -387,8 +393,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
           final error = CustomMessage(
             metadata: metadata,
-            author: const User(id: "system"),
-            id: 'system',
+            author: const User(id: systemUserId),
+            id: systemUserId,
           );
 
           add(ChatEvent.receveMessage(error));
@@ -403,7 +409,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     lastStreamMessageId = streamMessageId;
 
     return TextMessage(
-      author: User(id: nanoid()),
+      author: User(id: "streamId:${nanoid()}"),
       metadata: {
         "$AnswerStream": stream,
         "question": questionMessageId,
@@ -511,6 +517,12 @@ class ChatState with _$ChatState {
         hasMorePrevMessage: true,
         relatedQuestions: [],
       );
+}
+
+bool isOtherUserMessage(Message message) {
+  return message.author.id != aiResponseUserId &&
+      message.author.id != systemUserId &&
+      !message.author.id.startsWith("streamId:");
 }
 
 @freezed

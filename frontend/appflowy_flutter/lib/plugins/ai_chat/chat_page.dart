@@ -339,7 +339,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
           required messageWidth,
           required showName,
         }) =>
-            _buildAITextMessage(blocContext, textMessage),
+            _buildTextMessage(blocContext, textMessage),
         bubbleBuilder: (
           child, {
           required message,
@@ -350,7 +350,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
               message: message,
               child: child,
             );
-          } else if (message.author.id != "0") {
+          } else if (isOtherUserMessage(message)) {
             return OtherUserMessageBubble(
               message: message,
               child: child,
@@ -363,9 +363,8 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     );
   }
 
-  Widget _buildAITextMessage(BuildContext context, TextMessage message) {
-    final isHuman = message.author.id != "0";
-    if (isHuman) {
+  Widget _buildTextMessage(BuildContext context, TextMessage message) {
+    if (message.author.id == _user.id) {
       return ChatTextMessageWidget(
         user: message.author,
         messageUserId: message.id,
