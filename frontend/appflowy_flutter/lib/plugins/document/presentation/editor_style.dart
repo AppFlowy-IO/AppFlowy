@@ -415,8 +415,13 @@ class EditorStyleCustomizer {
       child: child,
     );
 
-    // the align toolbar item doesn't need the hover effect
-    if (id != kAlignToolbarItemId) {
+    // the align/font toolbar item doesn't need the hover effect
+    final toolbarItemsWithoutHover = {
+      kFontToolbarItemId,
+      kAlignToolbarItemId,
+    };
+
+    if (!toolbarItemsWithoutHover.contains(id)) {
       child = Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: FlowyHover(

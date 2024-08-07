@@ -22,10 +22,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const _kFontToolbarItemId = 'editor.font';
+const kFontToolbarItemId = 'editor.font';
 
 final customizeFontToolbarItem = ToolbarItem(
-  id: _kFontToolbarItemId,
+  id: kFontToolbarItemId,
   group: 4,
   isActive: onlyShowInTextType,
   builder: (context, editorState, highlightColor, _, tooltipBuilder) {
@@ -34,37 +34,37 @@ final customizeFontToolbarItem = ToolbarItem(
     final String? currentFontFamily = editorState
         .getDeltaAttributeValueInSelection(AppFlowyRichTextKeys.fontFamily);
 
-    Widget child = MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: FontFamilyDropDown(
-        currentFontFamily: currentFontFamily ?? '',
-        offset: const Offset(0, 12),
-        popoverController: popoverController,
-        onOpen: () => keepEditorFocusNotifier.increase(),
-        onClose: () => keepEditorFocusNotifier.decrease(),
-        showResetButton: true,
-        onFontFamilyChanged: (fontFamily) async {
-          popoverController.close();
-          try {
-            await editorState.formatDelta(selection, {
-              AppFlowyRichTextKeys.fontFamily: fontFamily,
-            });
-          } catch (e) {
-            Log.error('Failed to set font family: $e');
-          }
+    Widget child = FontFamilyDropDown(
+      currentFontFamily: currentFontFamily ?? '',
+      offset: const Offset(0, 12),
+      popoverController: popoverController,
+      onOpen: () => keepEditorFocusNotifier.increase(),
+      onClose: () => keepEditorFocusNotifier.decrease(),
+      showResetButton: true,
+      onFontFamilyChanged: (fontFamily) async {
+        popoverController.close();
+        try {
+          await editorState.formatDelta(selection, {
+            AppFlowyRichTextKeys.fontFamily: fontFamily,
+          });
+        } catch (e) {
+          Log.error('Failed to set font family: $e');
+        }
+      },
+      onResetFont: () async {
+        popoverController.close();
+        await editorState
+            .formatDelta(selection, {AppFlowyRichTextKeys.fontFamily: null});
+      },
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        onTap: () {
+          popoverController.show();
         },
-        onResetFont: () async {
-          popoverController.close();
-          await editorState
-              .formatDelta(selection, {AppFlowyRichTextKeys.fontFamily: null});
-        },
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
-          child: FlowySvg(
-            FlowySvgs.font_family_s,
-            size: Size.square(16.0),
-            color: Colors.white,
-          ),
+        text: const FlowySvg(
+          FlowySvgs.font_family_s,
+          size: Size.square(16.0),
+          color: Colors.white,
         ),
       ),
     );
@@ -72,7 +72,7 @@ final customizeFontToolbarItem = ToolbarItem(
     if (tooltipBuilder != null) {
       child = tooltipBuilder(
         context,
-        _kFontToolbarItemId,
+        kFontToolbarItemId,
         LocaleKeys.document_plugins_fonts.tr(),
         child,
       );
