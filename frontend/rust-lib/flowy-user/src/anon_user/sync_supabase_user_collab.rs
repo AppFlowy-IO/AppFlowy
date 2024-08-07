@@ -1,5 +1,4 @@
 use std::future::Future;
-use std::ops::Deref;
 use std::pin::Pin;
 use std::sync::Arc;
 
@@ -11,7 +10,6 @@ use collab_database::workspace_database::{DatabaseMeta, DatabaseMetaList};
 use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, View, ViewLayout};
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use parking_lot::Mutex;
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::FlowyResult;
@@ -27,16 +25,14 @@ pub async fn sync_supabase_user_data_to_cloud(
 ) -> FlowyResult<()> {
   let workspace_id = new_user_session.user_workspace.id.clone();
   let uid = new_user_session.user_id;
-  let folder = Arc::new(
-    sync_folder(
-      uid,
-      &workspace_id,
-      device_id,
-      collab_db,
-      user_service.clone(),
-    )
-    .await?,
-  );
+  let folder = sync_folder(
+    uid,
+    &workspace_id,
+    device_id,
+    collab_db,
+    user_service.clone(),
+  )
+  .await?;
 
   let database_records = sync_database_views(
     uid,
@@ -48,12 +44,12 @@ pub async fn sync_supabase_user_data_to_cloud(
   )
   .await;
 
-  let views = folder.lock().get_views_belong_to(&workspace_id);
+  let views = folder.get_views_belong_to(&workspace_id);
   for view in views {
     let view_id = view.id.clone();
     if let Err(err) = sync_view(
       uid,
-      folder.clone(),
+      &folder,
       database_records.clone(),
       workspace_id.to_string(),
       device_id.to_string(),
@@ -73,7 +69,7 @@ pub async fn sync_supabase_user_data_to_cloud(
 #[allow(clippy::too_many_arguments)]
 fn sync_view(
   uid: i64,
-  folder: Arc<MutexFolder>,
+  folder: &Folder,
   database_metas: Vec<Arc<DatabaseMeta>>,
   workspace_id: String,
   device_id: String,
@@ -174,12 +170,12 @@ fn sync_view(
 
     tokio::task::yield_now().await;
 
-    let child_views = folder.lock().get_views_belong_to(&view.id);
+    let child_views = folder.get_views_belong_to(&view.id);
     for child_view in child_views {
       let cloned_child_view = child_view.clone();
       if let Err(err) = Box::pin(sync_view(
         uid,
-        folder.clone(),
+        folder,
         database_metas.clone(),
         workspace_id.clone(),
         device_id.to_string(),
@@ -252,7 +248,7 @@ async fn sync_folder(
   device_id: &str,
   collab_db: &Arc<CollabKVDB>,
   user_service: Arc<dyn UserCloudService>,
-) -> Result<MutexFolder, Error> {
+) -> Result<Folder, Error> {
   let (folder, update) = {
     let mut collab = Collab::new(uid, workspace_id, "phantom", vec![], false);
     // Use the temporary result to short the lifetime of the TransactionMut
@@ -262,10 +258,7 @@ async fn sync_folder(
     let doc_state = collab
       .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
       .doc_state;
-    (
-      MutexFolder::new(Folder::open(uid, collab, None)?),
-      doc_state,
-    )
+    (Folder::open(uid, collab, None)?, doc_state)
   };
 
   let collab_object = CollabObject::new(
@@ -328,21 +321,6 @@ async fn sync_database_views(
     },
   }
 }
-
-struct MutexFolder(Mutex<Folder>);
-impl MutexFolder {
-  pub fn new(folder: Folder) -> Self {
-    Self(Mutex::new(folder))
-  }
-}
-impl Deref for MutexFolder {
-  type Target = Mutex<Folder>;
-  fn deref(&self) -> &Self::Target {
-    &self.0
-  }
-}
-unsafe impl Sync for MutexFolder {}
-unsafe impl Send for MutexFolder {}
 
 fn collab_type_from_view_layout(view_layout: &ViewLayout) -> CollabType {
   match view_layout {
