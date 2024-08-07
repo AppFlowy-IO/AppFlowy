@@ -668,10 +668,6 @@ final _planLabels = [
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSix.tr(),
     tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSix.tr(),
   ),
-  // _PlanItem(
-  //   label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSeven.tr(),
-  //   tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSeven.tr(),
-  // ),
 ];
 
 class _CellItem {
@@ -700,15 +696,13 @@ final List<_CellItem> _freeLabels = [
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_intelligentSearch.tr(),
+    label:
+        LocaleKeys.settings_comparePlanDialog_freeLabels_intelligentSearch.tr(),
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
   ),
-  // _CellItem(
-  //   LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
-  // ),
 ];
 
 final List<_CellItem> _proLabels = [
@@ -730,14 +724,11 @@ final List<_CellItem> _proLabels = [
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_intelligentSearch.tr(),
+    label:
+        LocaleKeys.settings_comparePlanDialog_proLabels_intelligentSearch.tr(),
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
   ),
-  // _CellItem(
-  //   LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
-  //   icon: FlowySvgs.check_m,
-  // ),
 ];
