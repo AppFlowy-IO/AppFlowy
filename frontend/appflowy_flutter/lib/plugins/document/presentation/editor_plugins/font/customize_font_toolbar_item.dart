@@ -58,9 +58,8 @@ final customizeFontToolbarItem = ToolbarItem(
       },
       child: FlowyButton(
         useIntrinsicWidth: true,
-        onTap: () {
-          popoverController.show();
-        },
+        hoverColor: Colors.grey.withOpacity(0.3),
+        onTap: () => popoverController.show(),
         text: const FlowySvg(
           FlowySvgs.font_family_s,
           size: Size.square(16.0),

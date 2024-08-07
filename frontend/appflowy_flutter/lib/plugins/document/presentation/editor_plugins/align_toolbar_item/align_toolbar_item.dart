@@ -107,6 +107,7 @@ class _AlignmentButtonsState extends State<_AlignmentButtons> {
       child: FlowyButton(
         useIntrinsicWidth: true,
         text: widget.child,
+        hoverColor: Colors.grey.withOpacity(0.3),
         onTap: () => controller.show(),
       ),
     );
@@ -167,6 +168,7 @@ class _AlignButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyButton(
       useIntrinsicWidth: true,
+      hoverColor: Colors.grey.withOpacity(0.3),
       onTap: onTap,
       text: FlowyTooltip(
         message: tooltips,
