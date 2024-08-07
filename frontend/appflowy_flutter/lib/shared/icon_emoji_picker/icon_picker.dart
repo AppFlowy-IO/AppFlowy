@@ -13,6 +13,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter/services.dart';
 
+import 'colors.dart';
 import 'icon_color_picker.dart';
 
 // cache the icon groups to avoid loading them multiple times
@@ -200,7 +201,7 @@ class _IconPickerState extends State<IconPicker> {
               iconGroup.displayName,
               fontSize: 12,
               figmaLineHeight: 18.0,
-              color: const Color(0x80171717),
+              color: context.pickerTextColor,
             ),
             const VSpace(4.0),
             Wrap(
@@ -252,7 +253,7 @@ class _Icon extends StatelessWidget {
             child: FlowySvg.string(
               icon.content,
               size: const Size.square(20),
-              color: const Color(0xFF171717),
+              color: context.pickerIconColor,
               opacity: 0.7,
             ),
           ),
