@@ -295,18 +295,23 @@ async fn sync_database_views(
   );
 
   // Use the temporary result to short the lifetime of the TransactionMut
-  let mut collab = Collab::new(uid, database_views_aggregate_id, "phantom", vec![], false);
-  let meta_list = DatabaseMetaList::new(&mut collab);
-  let mut txn = collab.transact_mut();
-  match collab_db
-    .read_txn()
-    .load_doc_with_txn(uid, database_views_aggregate_id, &mut txn)
-  {
-    Ok(_) => {
-      let records = meta_list.get_all_database_meta(&txn);
-      let doc_state = txn.encode_state_as_update_v2(&StateVector::default());
+  let result = {
+    let mut collab = Collab::new(uid, database_views_aggregate_id, "phantom", vec![], false);
+    let meta_list = DatabaseMetaList::new(&mut collab);
+    let mut txn = collab.transact_mut();
+    collab_db
+      .read_txn()
+      .load_doc_with_txn(uid, database_views_aggregate_id, &mut txn)
+      .map(|_| {
+        let records = meta_list.get_all_database_meta(&txn);
+        let doc_state = txn.encode_state_as_update_v2(&StateVector::default());
+        (records, doc_state)
+      })
+  };
+  match result {
+    Ok((records, doc_state)) => {
       if let Err(e) = user_service
-        .create_collab_object(&collab_object, doc_state.to_vec())
+        .create_collab_object(&collab_object, doc_state)
         .await
       {
         tracing::error!(
