@@ -1,5 +1,3 @@
-use std::future::Future;
-use std::pin::Pin;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
@@ -67,7 +65,7 @@ pub async fn sync_supabase_user_data_to_cloud(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn sync_view(
+async fn sync_view(
   uid: i64,
   folder: &Folder,
   database_metas: Vec<Arc<DatabaseMeta>>,
@@ -76,126 +74,123 @@ fn sync_view(
   view: Arc<View>,
   collab_db: Arc<CollabKVDB>,
   user_service: Arc<dyn UserCloudService>,
-) -> Pin<Box<dyn Future<Output = Result<(), Error>> + Send + Sync>> {
-  Box::pin(async move {
-    let collab_type = collab_type_from_view_layout(&view.layout);
-    let object_id = object_id_from_view(&view, &database_metas)?;
-    tracing::debug!(
-      "sync view: {:?}:{} with object_id: {}",
-      view.layout,
-      view.id,
-      object_id
-    );
+) -> Result<(), Error> {
+  let collab_type = collab_type_from_view_layout(&view.layout);
+  let object_id = object_id_from_view(&view, &database_metas)?;
+  tracing::debug!(
+    "sync view: {:?}:{} with object_id: {}",
+    view.layout,
+    view.id,
+    object_id
+  );
 
-    let collab_object = CollabObject::new(
-      uid,
-      object_id,
-      collab_type,
-      workspace_id.to_string(),
-      device_id.clone(),
-    );
+  let collab_object = CollabObject::new(
+    uid,
+    object_id,
+    collab_type,
+    workspace_id.to_string(),
+    device_id.clone(),
+  );
 
-    match view.layout {
-      ViewLayout::Document => {
-        let doc_state = get_collab_doc_state(uid, &collab_object, &collab_db)?;
+  match view.layout {
+    ViewLayout::Document => {
+      let doc_state = get_collab_doc_state(uid, &collab_object, &collab_db)?;
+      tracing::info!(
+        "sync object: {} with update: {}",
+        collab_object,
+        doc_state.len()
+      );
+      user_service
+        .create_collab_object(&collab_object, doc_state)
+        .await?;
+    },
+    ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => {
+      let (database_doc_state, row_ids) = get_database_doc_state(uid, &collab_object, &collab_db)?;
+      tracing::info!(
+        "sync object: {} with update: {}",
+        collab_object,
+        database_doc_state.len()
+      );
+      user_service
+        .create_collab_object(&collab_object, database_doc_state)
+        .await?;
+
+      // sync database's row
+      for row_id in row_ids {
+        tracing::debug!("sync row: {}", row_id);
+        let document_id = database_row_document_id_from_row_id(&row_id);
+
+        let database_row_collab_object = CollabObject::new(
+          uid,
+          row_id,
+          CollabType::DatabaseRow,
+          workspace_id.to_string(),
+          device_id.clone(),
+        );
+        let database_row_doc_state =
+          get_collab_doc_state(uid, &database_row_collab_object, &collab_db)?;
         tracing::info!(
           "sync object: {} with update: {}",
-          collab_object,
-          doc_state.len()
+          database_row_collab_object,
+          database_row_doc_state.len()
         );
-        user_service
-          .create_collab_object(&collab_object, doc_state)
-          .await?;
-      },
-      ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => {
-        let (database_doc_state, row_ids) =
-          get_database_doc_state(uid, &collab_object, &collab_db)?;
-        tracing::info!(
-          "sync object: {} with update: {}",
-          collab_object,
-          database_doc_state.len()
+
+        let _ = user_service
+          .create_collab_object(&database_row_collab_object, database_row_doc_state)
+          .await;
+
+        let database_row_document = CollabObject::new(
+          uid,
+          document_id,
+          CollabType::Document,
+          workspace_id.to_string(),
+          device_id.to_string(),
         );
-        user_service
-          .create_collab_object(&collab_object, database_doc_state)
-          .await?;
-
-        // sync database's row
-        for row_id in row_ids {
-          tracing::debug!("sync row: {}", row_id);
-          let document_id = database_row_document_id_from_row_id(&row_id);
-
-          let database_row_collab_object = CollabObject::new(
-            uid,
-            row_id,
-            CollabType::DatabaseRow,
-            workspace_id.to_string(),
-            device_id.clone(),
-          );
-          let database_row_doc_state =
-            get_collab_doc_state(uid, &database_row_collab_object, &collab_db)?;
+        // sync document in the row if exist
+        if let Ok(document_doc_state) =
+          get_collab_doc_state(uid, &database_row_document, &collab_db)
+        {
           tracing::info!(
-            "sync object: {} with update: {}",
-            database_row_collab_object,
-            database_row_doc_state.len()
+            "sync database row document: {} with update: {}",
+            database_row_document,
+            document_doc_state.len()
           );
-
           let _ = user_service
-            .create_collab_object(&database_row_collab_object, database_row_doc_state)
+            .create_collab_object(&database_row_document, document_doc_state)
             .await;
-
-          let database_row_document = CollabObject::new(
-            uid,
-            document_id,
-            CollabType::Document,
-            workspace_id.to_string(),
-            device_id.to_string(),
-          );
-          // sync document in the row if exist
-          if let Ok(document_doc_state) =
-            get_collab_doc_state(uid, &database_row_document, &collab_db)
-          {
-            tracing::info!(
-              "sync database row document: {} with update: {}",
-              database_row_document,
-              document_doc_state.len()
-            );
-            let _ = user_service
-              .create_collab_object(&database_row_document, document_doc_state)
-              .await;
-          }
         }
-      },
-      ViewLayout::Chat => {},
-    }
-
-    tokio::task::yield_now().await;
-
-    let child_views = folder.get_views_belong_to(&view.id);
-    for child_view in child_views {
-      let cloned_child_view = child_view.clone();
-      if let Err(err) = Box::pin(sync_view(
-        uid,
-        folder,
-        database_metas.clone(),
-        workspace_id.clone(),
-        device_id.to_string(),
-        child_view,
-        collab_db.clone(),
-        user_service.clone(),
-      ))
-      .await
-      {
-        tracing::error!(
-          "🔴sync {:?}:{} failed: {:?}",
-          cloned_child_view.layout,
-          cloned_child_view.id,
-          err
-        )
       }
-      tokio::task::yield_now().await;
+    },
+    ViewLayout::Chat => {},
+  }
+
+  tokio::task::yield_now().await;
+
+  let child_views = folder.get_views_belong_to(&view.id);
+  for child_view in child_views {
+    let cloned_child_view = child_view.clone();
+    if let Err(err) = Box::pin(sync_view(
+      uid,
+      folder,
+      database_metas.clone(),
+      workspace_id.clone(),
+      device_id.to_string(),
+      child_view,
+      collab_db.clone(),
+      user_service.clone(),
+    ))
+    .await
+    {
+      tracing::error!(
+        "🔴sync {:?}:{} failed: {:?}",
+        cloned_child_view.layout,
+        cloned_child_view.id,
+        err
+      )
     }
-    Ok(())
-  })
+    tokio::task::yield_now().await;
+  }
+  Ok(())
 }
 
 fn get_collab_doc_state(
@@ -310,9 +305,15 @@ async fn sync_database_views(
     Ok(_) => {
       let records = meta_list.get_all_database_meta(&txn);
       let doc_state = txn.encode_state_as_update_v2(&StateVector::default());
-      let _ = user_service
+      if let Err(e) = user_service
         .create_collab_object(&collab_object, doc_state.to_vec())
-        .await;
+        .await
+      {
+        tracing::error!(
+          "sync database views failed to create collab object: {:?}",
+          e
+        );
+      }
       records.into_iter().map(Arc::new).collect()
     },
     Err(e) => {

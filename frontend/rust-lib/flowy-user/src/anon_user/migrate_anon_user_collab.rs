@@ -177,7 +177,6 @@ where
     })
   }
 
-  let txn = database_with_views_collab.transact();
   if let Err(err) = new_collab_w_txn.create_new_doc(new_uid, new_object_id, &txn) {
     tracing::error!("🔴migrate database storage failed: {:?}", err);
   }
@@ -483,16 +482,14 @@ where
       vec![],
       false,
     );
-    match old_collab_r_txn.load_doc_with_txn(
-      old_user.session.user_id,
-      &object_id,
-      &mut collab.transact_mut(),
-    ) {
+    let mut txn = collab.transact_mut();
+    match old_collab_r_txn.load_doc_with_txn(old_user.session.user_id, &object_id, &mut txn) {
       Ok(_) => {
+        drop(txn);
         collab_by_oid.insert(object_id.clone(), collab);
       },
       Err(err) => tracing::error!("🔴Initialize migration collab failed: {:?} ", err),
-    }
+    };
   }
 
   collab_by_oid

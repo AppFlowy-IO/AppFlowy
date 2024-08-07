@@ -34,7 +34,7 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
   ) -> FlowyResult<()> {
     collab_db.with_write_txn(|write_txn| {
       if let Ok(collab) = load_collab(session.user_id, write_txn, &session.user_workspace.id) {
-        let folder = Folder::open(session.user_id, collab, None)
+        let mut folder = Folder::open(session.user_id, collab, None)
           .map_err(|err| PersistenceError::Internal(err.into()))?;
         let trash_ids = folder
           .get_trash_v1()

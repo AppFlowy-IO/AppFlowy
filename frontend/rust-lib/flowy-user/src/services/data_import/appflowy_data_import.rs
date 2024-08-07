@@ -420,7 +420,6 @@ where
     })
   }
 
-  let txn = database_with_views_collab.transact();
   if let Err(err) = new_collab_w_txn.create_new_doc(new_uid, new_object_id, &txn) {
     error!("🔴migrate database storage failed: {:?}", err);
   }
