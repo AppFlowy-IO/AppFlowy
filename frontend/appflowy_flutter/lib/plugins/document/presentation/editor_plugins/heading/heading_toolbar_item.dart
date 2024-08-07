@@ -17,7 +17,7 @@ final headingsToolbarItem = ToolbarItem(
   id: 'editor.headings',
   group: 1,
   isActive: onlyShowInTextType,
-  builder: (context, editorState, highlightColor, _) {
+  builder: (context, editorState, highlightColor, _, __) {
     final selection = editorState.selection!;
     final node = editorState.getNodeAtPath(selection.start.path)!;
     final delta = (node.delta ?? Delta()).toJson();
