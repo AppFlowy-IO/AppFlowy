@@ -1,8 +1,9 @@
 use anyhow::Error;
+use collab::core::transaction::DocTransactionExtension;
 use collab::preclude::Collab;
 use collab_entity::define::{DATABASE, DATABASE_ROW_DATA, WORKSPACE_DATABASES};
 use collab_entity::CollabType;
-use yrs::MapPrelim;
+use yrs::{ArrayPrelim, Map, MapPrelim};
 
 use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 
@@ -22,41 +23,26 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     let object_id = object_id.to_string();
     // create the minimal required data for the given collab type
     FutureResult::new(async move {
-      let data = match collab_type {
+      let mut collab = Collab::new(1, object_id, collab_type.clone(), vec![], false);
+      let mut txn = collab.context.transact_mut();
+      match collab_type {
         CollabType::Database => {
-          let collab = Collab::new(1, object_id, collab_type, vec![], false);
-          collab.with_origin_transact_mut(|txn| {
-            collab.insert_map_with_txn(txn, DATABASE);
-          });
-          collab
-            .encode_collab_v1(|_| Ok::<(), Error>(()))?
-            .doc_state
-            .to_vec()
+          collab.data.insert(&mut txn, DATABASE, MapPrelim::default());
         },
         CollabType::WorkspaceDatabase => {
-          let collab = Collab::new(1, object_id, collab_type, vec![], false);
-          collab.with_origin_transact_mut(|txn| {
-            collab.create_array_with_txn::<MapPrelim>(txn, WORKSPACE_DATABASES, vec![]);
-          });
           collab
-            .encode_collab_v1(|_| Ok::<(), Error>(()))?
-            .doc_state
-            .to_vec()
+            .data
+            .insert(&mut txn, WORKSPACE_DATABASES, ArrayPrelim::default());
         },
         CollabType::DatabaseRow => {
-          let collab = Collab::new(1, object_id, collab_type, vec![], false);
-          collab.with_origin_transact_mut(|txn| {
-            collab.insert_map_with_txn(txn, DATABASE_ROW_DATA);
-          });
           collab
-            .encode_collab_v1(|_| Ok::<(), Error>(()))?
-            .doc_state
-            .to_vec()
+            .data
+            .insert(&mut txn, DATABASE_ROW_DATA, MapPrelim::default());
         },
-        _ => vec![],
+        _ => { /* do nothing */ },
       };
 
-      Ok(Some(data))
+      Ok(Some(txn.get_encoded_collab_v1().doc_state.to_vec()))
     })
   }
 

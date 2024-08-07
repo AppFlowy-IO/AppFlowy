@@ -27,15 +27,14 @@ pub type URLGroupController =
 
 pub type URLGroupControllerContext = GroupControllerContext<URLGroupConfiguration>;
 
+#[async_trait]
 impl GroupCustomize for URLGroupController {
   type GroupTypeOption = URLTypeOption;
 
   fn placeholder_cell(&self) -> Option<Cell> {
-    Some(
-      new_cell_builder(FieldType::URL)
-        .insert_str_value("data", "")
-        .build(),
-    )
+    let mut cell = new_cell_builder(FieldType::URL);
+    cell.insert("data".into(), "".into());
+    Some(cell)
   }
 
   fn can_group(
@@ -174,7 +173,7 @@ impl GroupCustomize for URLGroupController {
     deleted_group
   }
 
-  fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+  async fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
     self.context.delete_group(group_id)?;
     Ok(None)
   }

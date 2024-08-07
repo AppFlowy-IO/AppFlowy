@@ -94,7 +94,7 @@ where
           let action =
             FetchObjectUpdateAction::new(document_id.clone(), CollabType::Document, postgrest);
           let doc_state = action.run_with_fix_interval(5, 10).await?;
-          let document = Document::from_doc_state(
+          let document = Document::open_with_options(
             CollabOrigin::Empty,
             DataSource::DocStateV1(doc_state),
             &document_id,

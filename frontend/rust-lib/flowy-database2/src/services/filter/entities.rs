@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::mem;
 
 use anyhow::bail;
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
 use collab_database::database::gen_database_filter_id;
 use collab_database::rows::RowId;
 use collab_database::views::{FilterMap, FilterMapBuilder};
@@ -316,9 +316,10 @@ const FILTER_DATA_INDEX: i64 = 2;
 
 impl<'a> From<&'a Filter> for FilterMap {
   fn from(filter: &'a Filter) -> Self {
-    let mut builder = FilterMapBuilder::new()
-      .insert_str_value(FILTER_ID, &filter.id)
-      .insert_i64_value(FILTER_TYPE, filter.inner.get_int_repr());
+    let mut builder = FilterMapBuilder::from([
+      (FILTER_ID.into(), filter.id.as_str().into()),
+      (FILTER_TYPE.into(), filter.inner.get_int_repr().into()),
+    ]);
 
     builder = match &filter.inner {
       FilterInner::And { children } | FilterInner::Or { children } => {
@@ -403,12 +404,10 @@ impl TryFrom<FilterMap> for Filter {
   type Error = anyhow::Error;
 
   fn try_from(filter_map: FilterMap) -> Result<Self, Self::Error> {
-    let filter_id = filter_map
-      .get_str_value(FILTER_ID)
+    let filter_id: String = filter_map
+      .get_as(FILTER_ID)
       .ok_or_else(|| anyhow::anyhow!("invalid filter data"))?;
-    let filter_type = filter_map
-      .get_i64_value(FILTER_TYPE)
-      .unwrap_or(FILTER_DATA_INDEX);
+    let filter_type: i64 = filter_map.get_as(FILTER_TYPE).unwrap_or(FILTER_DATA_INDEX);
 
     let filter = Filter {
       id: filter_id,
@@ -420,15 +419,15 @@ impl TryFrom<FilterMap> for Filter {
           children: filter_map.try_get_array(FILTER_CHILDREN),
         },
         FILTER_DATA_INDEX => {
-          let field_id = filter_map
-            .get_str_value(FIELD_ID)
+          let field_id: String = filter_map
+            .get_as(FIELD_ID)
             .ok_or_else(|| anyhow::anyhow!("invalid filter data"))?;
           let field_type = filter_map
-            .get_i64_value(FIELD_TYPE)
+            .get_as::<i64>(FIELD_TYPE)
             .map(FieldType::from)
             .unwrap_or_default();
-          let condition = filter_map.get_i64_value(FILTER_CONDITION).unwrap_or(0);
-          let content = filter_map.get_str_value(FILTER_CONTENT).unwrap_or_default();
+          let condition: i64 = filter_map.get_as(FILTER_CONDITION).unwrap_or_default();
+          let content: String = filter_map.get_as(FILTER_CONTENT).unwrap_or_default();
 
           FilterInner::new_data(field_id, field_type, condition, content)
         },

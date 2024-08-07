@@ -1,6 +1,6 @@
+use collab::util::AnyMapExt;
 use std::str::FromStr;
 
-use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 
 use flowy_error::FlowyError;
@@ -26,9 +26,9 @@ impl SelectOptionIds {
     self.0
   }
   pub fn to_cell_data(&self, field_type: FieldType) -> Cell {
-    new_cell_builder(field_type)
-      .insert_str_value(CELL_DATA, self.to_string())
-      .build()
+    let mut cell = new_cell_builder(field_type);
+    cell.insert(CELL_DATA.into(), self.to_string().into());
+    cell
   }
 }
 
@@ -40,7 +40,7 @@ impl TypeOptionCellData for SelectOptionIds {
 
 impl From<&Cell> for SelectOptionIds {
   fn from(cell: &Cell) -> Self {
-    let value = cell.get_str_value(CELL_DATA).unwrap_or_default();
+    let value: String = cell.get_as(CELL_DATA).unwrap_or_default();
     Self::from_str(&value).unwrap_or_default()
   }
 }

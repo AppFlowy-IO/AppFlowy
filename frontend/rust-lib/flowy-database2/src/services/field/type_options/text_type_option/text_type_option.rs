@@ -1,6 +1,6 @@
+use collab::util::AnyMapExt;
 use std::cmp::Ordering;
 
-use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::{Deserialize, Serialize};
@@ -33,16 +33,15 @@ impl TypeOption for RichTextTypeOption {
 
 impl From<TypeOptionData> for RichTextTypeOption {
   fn from(data: TypeOptionData) -> Self {
-    let s = data.get_str_value(CELL_DATA).unwrap_or_default();
-    Self { inner: s }
+    Self {
+      inner: data.get_as(CELL_DATA).unwrap_or_default(),
+    }
   }
 }
 
 impl From<RichTextTypeOption> for TypeOptionData {
   fn from(data: RichTextTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_str_value(CELL_DATA, data.inner)
-      .build()
+    TypeOptionDataBuilder::from([(CELL_DATA.into(), data.inner.into())])
   }
 }
 
@@ -164,15 +163,15 @@ impl TypeOptionCellData for StringCellData {
 
 impl From<&Cell> for StringCellData {
   fn from(cell: &Cell) -> Self {
-    Self(cell.get_str_value(CELL_DATA).unwrap_or_default())
+    Self(cell.get_as(CELL_DATA).unwrap_or_default())
   }
 }
 
 impl From<StringCellData> for Cell {
   fn from(data: StringCellData) -> Self {
-    new_cell_builder(FieldType::RichText)
-      .insert_str_value(CELL_DATA, data.0)
-      .build()
+    let mut cell = new_cell_builder(FieldType::RichText);
+    cell.insert(CELL_DATA.into(), data.0.into());
+    cell
   }
 }
 

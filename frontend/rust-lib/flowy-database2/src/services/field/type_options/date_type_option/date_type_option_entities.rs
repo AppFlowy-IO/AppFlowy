@@ -1,7 +1,7 @@
 #![allow(clippy::upper_case_acronyms)]
 
 use bytes::Bytes;
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
@@ -58,14 +58,14 @@ impl TypeOptionCellData for DateCellData {
 impl From<&Cell> for DateCellData {
   fn from(cell: &Cell) -> Self {
     let timestamp = cell
-      .get_str_value(CELL_DATA)
+      .get_as::<String>(CELL_DATA)
       .and_then(|data| data.parse::<i64>().ok());
     let end_timestamp = cell
-      .get_str_value("end_timestamp")
+      .get_as::<String>("end_timestamp")
       .and_then(|data| data.parse::<i64>().ok());
-    let include_time = cell.get_bool_value("include_time").unwrap_or_default();
-    let is_range = cell.get_bool_value("is_range").unwrap_or_default();
-    let reminder_id = cell.get_str_value("reminder_id").unwrap_or_default();
+    let include_time: bool = cell.get_as("include_time").unwrap_or_default();
+    let is_range: bool = cell.get_as("is_range").unwrap_or_default();
+    let reminder_id: String = cell.get_as("reminder_id").unwrap_or_default();
 
     Self {
       timestamp,
@@ -101,13 +101,16 @@ impl From<&DateCellData> for Cell {
     };
     // Most of the case, don't use these keys in other places. Otherwise, we should define
     // constants for them.
-    new_cell_builder(FieldType::DateTime)
-      .insert_str_value(CELL_DATA, timestamp_string)
-      .insert_str_value("end_timestamp", end_timestamp_string)
-      .insert_bool_value("include_time", cell_data.include_time)
-      .insert_bool_value("is_range", cell_data.is_range)
-      .insert_str_value("reminder_id", cell_data.reminder_id.to_owned())
-      .build()
+    let mut cell = new_cell_builder(FieldType::DateTime);
+    cell.insert(CELL_DATA.into(), timestamp_string.into());
+    cell.insert("end_timestamp".into(), end_timestamp_string.into());
+    cell.insert("include_time".into(), cell_data.include_time.into());
+    cell.insert("is_range".into(), cell_data.is_range.into());
+    cell.insert(
+      "reminder_id".into(),
+      cell_data.reminder_id.to_owned().into(),
+    );
+    cell
   }
 }
 

@@ -31,7 +31,7 @@ impl From<TypeOptionData> for ChecklistTypeOption {
 
 impl From<ChecklistTypeOption> for TypeOptionData {
   fn from(_data: ChecklistTypeOption) -> Self {
-    TypeOptionDataBuilder::new().build()
+    TypeOptionDataBuilder::new()
   }
 }
 

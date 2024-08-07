@@ -16,7 +16,7 @@ pub(crate) fn workspace_data_not_sync_error(uid: i64, workspace_id: &str) -> Flo
 }
 
 #[instrument(level = "debug", skip(folder, view))]
-pub(crate) fn insert_parent_child_views(folder: &Folder, view: ParentChildViews) {
+pub(crate) fn insert_parent_child_views(folder: &mut Folder, view: ParentChildViews) {
   event!(
     tracing::Level::DEBUG,
     "Inserting view: {}, view children: {}",

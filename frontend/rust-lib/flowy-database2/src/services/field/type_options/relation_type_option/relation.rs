@@ -1,6 +1,6 @@
+use collab::util::AnyMapExt;
 use std::cmp::Ordering;
 
-use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -23,16 +23,14 @@ pub struct RelationTypeOption {
 
 impl From<TypeOptionData> for RelationTypeOption {
   fn from(value: TypeOptionData) -> Self {
-    let database_id = value.get_str_value("database_id").unwrap_or_default();
+    let database_id: String = value.get_as("database_id").unwrap_or_default();
     Self { database_id }
   }
 }
 
 impl From<RelationTypeOption> for TypeOptionData {
   fn from(value: RelationTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_str_value("database_id", value.database_id)
-      .build()
+    TypeOptionDataBuilder::from([("database_id".into(), value.database_id.into())])
   }
 }
 
@@ -57,7 +55,7 @@ impl CellDataChangeset for RelationTypeOption {
       return Ok(((&cell_data).into(), cell_data));
     }
 
-    let cell_data: RelationCellData = cell.unwrap().as_ref().into();
+    let cell_data: RelationCellData = cell.as_ref().unwrap().into();
     let mut row_ids = cell_data.row_ids.clone();
     for inserted in changeset.inserted_row_ids.iter() {
       if !row_ids.iter().any(|row_id| row_id == inserted) {

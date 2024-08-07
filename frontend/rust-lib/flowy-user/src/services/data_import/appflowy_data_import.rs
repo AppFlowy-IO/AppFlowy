@@ -6,11 +6,10 @@ use crate::services::entities::UserPaths;
 use crate::services::sqlite_sql::user_sql::select_user_profile;
 use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
-use collab::core::collab::{DataSource, MutexCollab};
+use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
-use collab::core::transaction::DocTransactionExtension;
 use collab::preclude::updates::decoder::Decode;
-use collab::preclude::{Collab, Doc, Transact, Update};
+use collab::preclude::{Collab, Doc, ReadTxn, StateVector, Transact, Update};
 use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
@@ -22,6 +21,7 @@ use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 
+use collab::preclude::updates::encoder::Encode;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::gen_view_id;
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
@@ -200,7 +200,7 @@ pub(crate) fn generate_import_data(
     all_imported_object_ids.retain(|id| !database_view_ids.contains(id));
 
     // 3. load imported collab objects data.
-    let imported_collab_by_oid = load_collab_by_object_ids(
+    let mut imported_collab_by_oid = load_collab_by_object_ids(
       imported_session.user_id,
       &imported_collab_read_txn,
       &all_imported_object_ids,
@@ -212,7 +212,7 @@ pub(crate) fn generate_import_data(
       current_session,
       collab_write_txn,
       &mut all_imported_object_ids,
-      &imported_collab_by_oid,
+      &mut imported_collab_by_oid,
       &row_object_ids,
     )?;
 
@@ -343,23 +343,21 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let imported_database_indexer = Collab::new(
+  let mut imported_database_indexer = Collab::new(
     imported_session.user_id,
     &imported_session.user_workspace.database_indexer_id,
     "import_device",
     vec![],
     false,
   );
-  imported_database_indexer.with_origin_transact_mut(|txn| {
-    imported_collab_read_txn.load_doc_with_txn(
-      imported_session.user_id,
-      &imported_session.user_workspace.database_indexer_id,
-      txn,
-    )
-  })?;
+  imported_collab_read_txn.load_doc_with_txn(
+    imported_session.user_id,
+    &imported_session.user_workspace.database_indexer_id,
+    &mut imported_database_indexer.transact_mut(),
+  )?;
 
-  let array = DatabaseMetaList::from_collab(&imported_database_indexer);
-  for database_meta_list in array.get_all_database_meta() {
+  let array = DatabaseMetaList::new(&mut imported_database_indexer);
+  for database_meta_list in array.get_all_database_meta(&imported_database_indexer.transact()) {
     database_view_ids_by_database_id.insert(
       old_to_new_id_map.exchange_new_id(&database_meta_list.database_id),
       database_meta_list
@@ -392,27 +390,26 @@ where
   PersistenceError: From<W::Error>,
   PersistenceError: From<R::Error>,
 {
-  let database_with_views_collab = Collab::new(
+  let mut database_with_views_collab = Collab::new(
     old_user_session.user_id,
     &old_user_session.user_workspace.database_indexer_id,
     "migrate_device",
     vec![],
     false,
   );
-  database_with_views_collab.with_origin_transact_mut(|txn| {
-    old_collab_r_txn.load_doc_with_txn(
-      old_user_session.user_id,
-      &old_user_session.user_workspace.database_indexer_id,
-      txn,
-    )
-  })?;
+  old_collab_r_txn.load_doc_with_txn(
+    old_user_session.user_id,
+    &old_user_session.user_workspace.database_indexer_id,
+    &mut database_with_views_collab.transact_mut(),
+  )?;
 
   let new_uid = new_user_session.user_id;
   let new_object_id = &new_user_session.user_workspace.database_indexer_id;
 
-  let array = DatabaseMetaList::from_collab(&database_with_views_collab);
-  for database_meta in array.get_all_database_meta() {
-    array.update_database(&database_meta.database_id, |update| {
+  let array = DatabaseMetaList::new(&mut database_with_views_collab);
+  let mut txn = database_with_views_collab.transact_mut();
+  for database_meta in array.get_all_database_meta(&txn) {
+    array.update_database(&mut txn, &database_meta.database_id, |update| {
       let new_linked_views = update
         .linked_views
         .iter()
@@ -436,7 +433,7 @@ fn migrate_databases<'a, W>(
   session: &Session,
   collab_write_txn: &'a W,
   imported_object_ids: &mut Vec<String>,
-  imported_collab_by_oid: &HashMap<String, Collab>,
+  imported_collab_by_oid: &mut HashMap<String, Collab>,
   row_object_ids: &Mutex<HashSet<String>>,
 ) -> Result<(), PersistenceError>
 where
@@ -450,7 +447,7 @@ where
     RwLock::new(HashMap::new());
 
   for object_id in &mut *imported_object_ids {
-    if let Some(database_collab) = imported_collab_by_oid.get(object_id) {
+    if let Some(database_collab) = imported_collab_by_oid.get_mut(object_id) {
       if !is_database_collab(database_collab) {
         continue;
       }
@@ -529,7 +526,7 @@ where
 
   for (database_id, imported_row_ids) in &*imported_database_row_object_ids {
     for imported_row_id in imported_row_ids {
-      if let Some(imported_collab) = imported_collab_by_oid.get(imported_row_id) {
+      if let Some(imported_collab) = imported_collab_by_oid.get_mut(imported_row_id) {
         let new_database_id = old_to_new_id_map.lock().exchange_new_id(database_id);
         let new_row_id = old_to_new_id_map.lock().exchange_new_id(imported_row_id);
         info!(
@@ -588,18 +585,17 @@ where
         drop(txn);
       }
 
-      let encoded_collab = doc.get_encoded_collab_v1();
+      let txn = doc.transact();
+      let state_vector = txn.state_vector();
+      let doc_state = txn.encode_state_as_update_v1(&StateVector::default());
       info!(
         "import collab:{} with len: {}",
         new_object_id,
-        encoded_collab.doc_state.len()
+        doc_state.len()
       );
-      if let Err(err) = w_txn.flush_doc(
-        new_uid,
-        &new_object_id,
-        encoded_collab.state_vector.to_vec(),
-        encoded_collab.doc_state.to_vec(),
-      ) {
+      if let Err(err) =
+        w_txn.flush_doc(new_uid, &new_object_id, state_vector.encode_v1(), doc_state)
+      {
         error!("import collab:{} failed: {:?}", new_object_id, err);
       }
     }
@@ -639,27 +635,21 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let imported_folder_collab = Collab::new(
+  let mut imported_folder_collab = Collab::new(
     imported_session.user_id,
     &imported_session.user_workspace.id,
     "migrate_device",
     vec![],
     false,
   );
-  imported_folder_collab.with_origin_transact_mut(|txn| {
-    imported_collab_read_txn.load_doc_with_txn(
-      imported_session.user_id,
-      &imported_session.user_workspace.id,
-      txn,
-    )
-  })?;
+  imported_collab_read_txn.load_doc_with_txn(
+    imported_session.user_id,
+    &imported_session.user_workspace.id,
+    &mut imported_folder_collab.transact_mut(),
+  )?;
   let other_user_id = UserId::from(imported_session.user_id);
-  let imported_folder = Folder::open(
-    other_user_id,
-    Arc::new(MutexCollab::new(imported_folder_collab)),
-    None,
-  )
-  .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
+  let imported_folder = Folder::open(other_user_id, imported_folder_collab, None)
+    .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
 
   let imported_folder_data = imported_folder
     .get_folder_data(&imported_session.user_workspace.id)

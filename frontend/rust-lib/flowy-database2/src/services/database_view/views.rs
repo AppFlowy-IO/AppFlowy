@@ -1,7 +1,7 @@
+use collab_database::database::Database;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::MutexDatabase;
 use nanoid::nanoid;
 use tokio::sync::{broadcast, RwLock};
 
@@ -17,7 +17,7 @@ pub type EditorByViewId = HashMap<String, Arc<DatabaseViewEditor>>;
 
 pub struct DatabaseViews {
   #[allow(dead_code)]
-  database: Arc<MutexDatabase>,
+  database: Arc<RwLock<Database>>,
   cell_cache: CellCache,
   view_operation: Arc<dyn DatabaseViewOperation>,
   view_editors: Arc<RwLock<EditorByViewId>>,
@@ -25,7 +25,7 @@ pub struct DatabaseViews {
 
 impl DatabaseViews {
   pub async fn new(
-    database: Arc<MutexDatabase>,
+    database: Arc<RwLock<Database>>,
     cell_cache: CellCache,
     view_operation: Arc<dyn DatabaseViewOperation>,
     view_editors: Arc<RwLock<EditorByViewId>>,
@@ -65,7 +65,7 @@ impl DatabaseViews {
         err
       ))
     })?;
-    let database_id = self.database.lock().get_database_id();
+    let database_id = self.database.read().await.get_database_id();
     let editor = Arc::new(
       DatabaseViewEditor::new(
         database_id,

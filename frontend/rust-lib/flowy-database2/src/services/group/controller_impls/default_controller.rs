@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
@@ -38,6 +39,7 @@ impl DefaultGroupController {
   }
 }
 
+#[async_trait]
 impl GroupController for DefaultGroupController {
   fn get_grouping_field_id(&self) -> &str {
     &self.field_id
@@ -58,7 +60,7 @@ impl GroupController for DefaultGroupController {
     Ok(())
   }
 
-  fn create_group(
+  async fn create_group(
     &mut self,
     _name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
@@ -125,11 +127,14 @@ impl GroupController for DefaultGroupController {
     Ok(None)
   }
 
-  fn delete_group(&mut self, _group_id: &str) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)> {
+  async fn delete_group(
+    &mut self,
+    _group_id: &str,
+  ) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)> {
     Ok((vec![], None))
   }
 
-  fn apply_group_changeset(
+  async fn apply_group_changeset(
     &mut self,
     _changeset: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)> {

@@ -2,8 +2,9 @@ use anyhow::anyhow;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
-use collab::core::collab::{DataSource, MutexCollab};
-use collab_database::database::{DatabaseData, MutexDatabase};
+use collab::core::collab::DataSource;
+use collab::preclude::Collab;
+use collab_database::database::{Database, DatabaseData};
 use collab_database::error::DatabaseError;
 use collab_database::rows::RowId;
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
@@ -12,7 +13,7 @@ use collab_database::workspace_database::{
 };
 use collab_entity::{CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::{Mutex, RwLock, RwLockMappedWriteGuard, RwLockReadGuard, RwLockWriteGuard};
 use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
@@ -42,7 +43,7 @@ pub trait DatabaseUser: Send + Sync {
 
 pub struct DatabaseManager {
   user: Arc<dyn DatabaseUser>,
-  workspace_database: Arc<RwLock<Option<Arc<WorkspaceDatabase>>>>,
+  workspace_database: Arc<RwLock<Option<WorkspaceDatabase>>>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   editors: Mutex<HashMap<String, Arc<DatabaseEditor>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -150,7 +151,7 @@ impl DatabaseManager {
     )?;
     let workspace_database =
       WorkspaceDatabase::open(uid, collab, collab_db, config, collab_builder);
-    *self.workspace_database.write().await = Some(Arc::new(workspace_database));
+    *self.workspace_database.write().await = Some(workspace_database);
     Ok(())
   }
 
@@ -166,19 +167,19 @@ impl DatabaseManager {
   }
 
   pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
-    let wdb = self.get_database_indexer().await?;
+    let wdb = self.database_indexer().await?;
     let database_collab = wdb.get_database(database_id).await.ok_or_else(|| {
       FlowyError::record_not_found().with_context(format!("The database:{} not found", database_id))
     })?;
 
-    let lock_guard = database_collab.lock();
+    let lock_guard = database_collab.read().await;
 
     Ok(lock_guard.get_inline_view_id())
   }
 
   pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {
     let mut items = vec![];
-    if let Ok(wdb) = self.get_database_indexer().await {
+    if let Ok(wdb) = self.database_indexer().await {
       items = wdb.get_all_database_meta()
     }
     items
@@ -188,7 +189,7 @@ impl DatabaseManager {
     &self,
     view_ids_by_database_id: HashMap<String, Vec<String>>,
   ) -> FlowyResult<()> {
-    let wdb = self.get_database_indexer().await?;
+    let mut wdb = self.database_indexer_mut().await?;
     view_ids_by_database_id
       .into_iter()
       .for_each(|(database_id, view_ids)| {
@@ -203,7 +204,7 @@ impl DatabaseManager {
   }
 
   pub async fn get_database_id_with_view_id(&self, view_id: &str) -> FlowyResult<String> {
-    let wdb = self.get_database_indexer().await?;
+    let wdb = self.database_indexer().await?;
     wdb.get_database_id_with_view_id(view_id).ok_or_else(|| {
       FlowyError::record_not_found()
         .with_context(format!("The database for view id: {} not found", view_id))
@@ -212,7 +213,7 @@ impl DatabaseManager {
 
   pub async fn get_database_row_ids_with_view_id(&self, view_id: &str) -> FlowyResult<Vec<RowId>> {
     let database = self.get_database_with_view_id(view_id).await?;
-    Ok(database.get_row_ids())
+    Ok(database.get_row_ids().await)
   }
 
   pub async fn get_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
@@ -226,7 +227,7 @@ impl DatabaseManager {
   pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     trace!("open database editor:{}", database_id);
     let database = self
-      .get_database_indexer()
+      .database_indexer()
       .await?
       .get_database(database_id)
       .await
@@ -243,15 +244,12 @@ impl DatabaseManager {
 
   pub async fn open_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
-    let wdb = self.get_database_indexer().await?;
+    let wdb = self.database_indexer().await?;
     if let Some(database_id) = wdb.get_database_id_with_view_id(view_id) {
       if let Some(database) = wdb.open_database(&database_id) {
-        if let Some(lock_database) = database.try_lock() {
-          if let Some(lock_collab) = lock_database.get_collab().try_lock() {
-            trace!("{} database start init sync", view_id);
-            lock_collab.start_init_sync();
-          }
-        }
+        let database = database.read().await;
+        trace!("{} database start init sync", view_id);
+        database.start_init_sync();
       }
     }
     Ok(())
@@ -259,7 +257,7 @@ impl DatabaseManager {
 
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
-    let wdb = self.get_database_indexer().await?;
+    let wdb = self.database_indexer().await?;
     let database_id = wdb.get_database_id_with_view_id(view_id);
     if let Some(database_id) = database_id {
       let mut editors = self.editors.lock().await;
@@ -286,7 +284,7 @@ impl DatabaseManager {
   }
 
   pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
-    let wdb = self.get_database_indexer().await?;
+    let wdb = self.database_indexer().await?;
     let data = wdb.get_database_data(view_id).await?;
     let json_bytes = data.to_json_bytes()?;
     Ok(json_bytes)
@@ -313,12 +311,11 @@ impl DatabaseManager {
       create_view_params.view_id = view_id.to_string();
     }
 
-    let wdb = self.get_database_indexer().await?;
+    let mut wdb = self.database_indexer_mut().await?;
     let database = wdb.create_database(create_database_params)?;
     let encoded_collab = database
-      .lock()
-      .get_collab()
-      .lock()
+      .read()
+      .await
       .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))?;
     Ok(encoded_collab)
   }
@@ -326,8 +323,8 @@ impl DatabaseManager {
   pub async fn create_database_with_params(
     &self,
     params: CreateDatabaseParams,
-  ) -> FlowyResult<Arc<MutexDatabase>> {
-    let wdb = self.get_database_indexer().await?;
+  ) -> FlowyResult<Arc<RwLock<Database>>> {
+    let mut wdb = self.database_indexer_mut().await?;
     let database = wdb.create_database(params)?;
     Ok(database)
   }
@@ -342,12 +339,13 @@ impl DatabaseManager {
     database_view_id: String,
     database_parent_view_id: String,
   ) -> FlowyResult<()> {
-    let wdb = self.get_database_indexer().await?;
+    let mut wdb = self.database_indexer_mut().await?;
     let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
     if let Some(database) = wdb.get_database(&database_id).await {
       let (field, layout_setting, field_settings_map) =
         DatabaseLayoutDepsResolver::new(database, layout)
-          .resolve_deps_when_create_database_linked_view(&database_parent_view_id);
+          .resolve_deps_when_create_database_linked_view(&database_parent_view_id)
+          .await;
       if let Some(field) = field {
         params = params.with_deps_fields(vec![field], vec![default_field_settings_by_layout_map()]);
       }
@@ -383,9 +381,8 @@ impl DatabaseManager {
     let database_id = params.database_id.clone();
     let database = self.create_database_with_params(params).await?;
     let encoded_collab = database
-      .lock()
-      .get_collab()
-      .lock()
+      .read()
+      .await
       .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))?;
     let result = ImportResult {
       database_id,
@@ -442,12 +439,20 @@ impl DatabaseManager {
 
   /// Return the database indexer.
   /// Each workspace has itw own Database indexer that manages all the databases and database views
-  async fn get_database_indexer(&self) -> FlowyResult<Arc<WorkspaceDatabase>> {
+  async fn database_indexer(&self) -> FlowyResult<RwLockReadGuard<'_, WorkspaceDatabase>> {
     let database = self.workspace_database.read().await;
-    match &*database {
-      None => Err(FlowyError::internal().with_context("Workspace database not initialized")),
-      Some(user_database) => Ok(user_database.clone()),
-    }
+    RwLockReadGuard::try_map(database, |db| db.as_ref())
+      .map_err(|_| FlowyError::internal().with_context("Workspace database not initialized"))
+  }
+
+  /// Return the database indexer.
+  /// Each workspace has itw own Database indexer that manages all the databases and database views
+  async fn database_indexer_mut(
+    &self,
+  ) -> FlowyResult<RwLockMappedWriteGuard<'_, WorkspaceDatabase>> {
+    let database = self.workspace_database.write().await;
+    RwLockWriteGuard::try_map(database, |db| db.as_mut())
+      .map_err(|_| FlowyError::internal().with_context("Workspace database not initialized"))
   }
 
   #[instrument(level = "debug", skip_all)]
@@ -459,8 +464,8 @@ impl DatabaseManager {
   ) -> FlowyResult<()> {
     let database = self.get_database_with_view_id(&view_id).await?;
     let mut summary_row_content = SummaryRowContent::new();
-    if let Some(row) = database.get_row(&view_id, &row_id) {
-      let fields = database.get_fields(&view_id, None);
+    if let Some(row) = database.get_row(&view_id, &row_id).await {
+      let fields = database.get_fields(&view_id, None).await;
       for field in fields {
         // When summarizing a row, skip the content in the "AI summary" cell; it does not need to
         // be summarized.
@@ -505,8 +510,8 @@ impl DatabaseManager {
     let mut translate_row_content = TranslateRowContent::new();
     let mut language = "english".to_string();
 
-    if let Some(row) = database.get_row(&view_id, &row_id) {
-      let fields = database.get_fields(&view_id, None);
+    if let Some(row) = database.get_row(&view_id, &row_id).await {
+      let fields = database.get_fields(&view_id, None).await;
       for field in fields {
         // When translate a row, skip the content in the "AI Translate" cell; it does not need to
         // be translated.
@@ -641,7 +646,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     collab_db: Weak<CollabKVDB>,
     collab_raw_data: DataSource,
     _persistence_config: CollabPersistenceConfig,
-  ) -> Result<Arc<MutexCollab>, DatabaseError> {
+  ) -> Result<Collab, DatabaseError> {
     let workspace_id = self
       .user
       .workspace_id()

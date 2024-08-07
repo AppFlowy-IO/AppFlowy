@@ -29,7 +29,7 @@ impl From<TypeOptionData> for TimeTypeOption {
 
 impl From<TimeTypeOption> for TypeOptionData {
   fn from(_data: TimeTypeOption) -> Self {
-    TypeOptionDataBuilder::new().build()
+    TypeOptionDataBuilder::new()
   }
 }
 

@@ -1,4 +1,4 @@
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::Serialize;
 
@@ -23,7 +23,7 @@ impl TimestampCellData {
 impl From<&Cell> for TimestampCellData {
   fn from(cell: &Cell) -> Self {
     let timestamp = cell
-      .get_str_value(CELL_DATA)
+      .get_as::<String>(CELL_DATA)
       .and_then(|data| data.parse::<i64>().ok());
     Self { timestamp }
   }
@@ -47,9 +47,9 @@ impl From<TimestampCellDataWrapper> for Cell {
     let (field_type, data) = (wrapper.field_type, wrapper.data);
     let timestamp_string = data.timestamp.unwrap_or_default();
 
-    new_cell_builder(field_type)
-      .insert_str_value(CELL_DATA, timestamp_string)
-      .build()
+    let mut cell = new_cell_builder(field_type);
+    cell.insert(CELL_DATA.into(), timestamp_string.into());
+    cell
   }
 }
 

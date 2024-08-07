@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -10,7 +11,6 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyResult;
-use lib_infra::future::Fut;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
 use crate::entities::SortChangesetNotificationPB;
@@ -24,13 +24,14 @@ use crate::services::sort::{
   InsertRowResult, ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
 };
 
+#[async_trait]
 pub trait SortDelegate: Send + Sync {
-  fn get_sort(&self, view_id: &str, sort_id: &str) -> Fut<Option<Arc<Sort>>>;
+  async fn get_sort(&self, view_id: &str, sort_id: &str) -> Option<Arc<Sort>>;
   /// Returns all the rows after applying grid's filter
-  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
-  fn filter_row(&self, row_detail: &RowDetail) -> Fut<bool>;
-  fn get_field(&self, field_id: &str) -> Option<Field>;
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>>;
+  async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>>;
+  async fn filter_row(&self, row_detail: &RowDetail) -> bool;
+  async fn get_field(&self, field_id: &str) -> Option<Field>;
+  async fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Vec<Field>;
 }
 
 pub struct SortController {

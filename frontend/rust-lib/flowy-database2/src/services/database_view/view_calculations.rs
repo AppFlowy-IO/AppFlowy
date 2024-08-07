@@ -1,8 +1,8 @@
+use async_trait::async_trait;
 use collab_database::fields::Field;
 use std::sync::Arc;
 
 use collab_database::rows::RowCell;
-use lib_infra::future::{to_fut, Fut};
 
 use crate::services::calculations::{
   Calculation, CalculationsController, CalculationsDelegate, CalculationsTaskHandler,
@@ -17,7 +17,7 @@ pub async fn make_calculations_controller(
   delegate: Arc<dyn DatabaseViewOperation>,
   notifier: DatabaseViewChangedNotifier,
 ) -> Arc<CalculationsController> {
-  let calculations = delegate.get_all_calculations(view_id);
+  let calculations = delegate.get_all_calculations(view_id).await;
   let task_scheduler = delegate.get_task_scheduler();
   let calculations_delegate = DatabaseViewCalculationsDelegateImpl(delegate.clone());
   let handler_id = gen_handler_id();
@@ -29,8 +29,7 @@ pub async fn make_calculations_controller(
     calculations,
     task_scheduler.clone(),
     notifier,
-  )
-  .await;
+  );
 
   let calculations_controller = Arc::new(calculations_controller);
   task_scheduler
@@ -45,30 +44,33 @@ pub async fn make_calculations_controller(
 
 struct DatabaseViewCalculationsDelegateImpl(Arc<dyn DatabaseViewOperation>);
 
+#[async_trait]
 impl CalculationsDelegate for DatabaseViewCalculationsDelegateImpl {
-  fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>> {
-    self.0.get_cells_for_field(view_id, field_id)
+  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<Arc<RowCell>> {
+    self.0.get_cells_for_field(view_id, field_id).await
   }
 
-  fn get_field(&self, field_id: &str) -> Option<Field> {
-    self.0.get_field(field_id)
+  async fn get_field(&self, field_id: &str) -> Option<Field> {
+    self.0.get_field(field_id).await
   }
 
-  fn get_calculation(&self, view_id: &str, field_id: &str) -> Fut<Option<Arc<Calculation>>> {
-    let calculation = self.0.get_calculation(view_id, field_id).map(Arc::new);
-    to_fut(async move { calculation })
+  async fn get_calculation(&self, view_id: &str, field_id: &str) -> Option<Arc<Calculation>> {
+    self
+      .0
+      .get_calculation(view_id, field_id)
+      .await
+      .map(Arc::new)
   }
 
-  fn update_calculation(&self, view_id: &str, calculation: Calculation) {
-    self.0.update_calculation(view_id, calculation)
+  async fn update_calculation(&self, view_id: &str, calculation: Calculation) {
+    self.0.update_calculation(view_id, calculation).await
   }
 
-  fn remove_calculation(&self, view_id: &str, calculation_id: &str) {
-    self.0.remove_calculation(view_id, calculation_id)
+  async fn remove_calculation(&self, view_id: &str, calculation_id: &str) {
+    self.0.remove_calculation(view_id, calculation_id).await
   }
 
-  fn get_all_calculations(&self, view_id: &str) -> Fut<Arc<Vec<Arc<Calculation>>>> {
-    let calculations = Arc::new(self.0.get_all_calculations(view_id));
-    to_fut(async move { calculations })
+  async fn get_all_calculations(&self, view_id: &str) -> Arc<Vec<Arc<Calculation>>> {
+    self.0.get_all_calculations(view_id).await.into()
   }
 }

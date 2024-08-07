@@ -33,6 +33,7 @@ pub type SingleSelectGroupController = BaseGroupController<
   SelectOptionCellDataParser,
 >;
 
+#[async_trait]
 impl GroupCustomize for SingleSelectGroupController {
   type GroupTypeOption = SingleSelectTypeOption;
 
@@ -45,11 +46,9 @@ impl GroupCustomize for SingleSelectGroupController {
   }
 
   fn placeholder_cell(&self) -> Option<Cell> {
-    Some(
-      new_cell_builder(FieldType::SingleSelect)
-        .insert_str_value("data", "")
-        .build(),
-    )
+    let mut cell = new_cell_builder(FieldType::SingleSelect);
+    cell.insert("data".into(), "".into());
+    Some(cell)
   }
 
   fn add_or_remove_row_when_cell_changed(
@@ -90,11 +89,11 @@ impl GroupCustomize for SingleSelectGroupController {
     group_changeset
   }
 
-  fn create_group(
+  async fn create_group(
     &mut self,
     name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
-    let mut new_type_option = self.get_grouping_field_type_option().ok_or_else(|| {
+    let mut new_type_option = self.get_grouping_field_type_option().await.ok_or_else(|| {
       FlowyError::internal().with_context("Failed to get grouping field type option")
     })?;
     let new_select_option = new_type_option.create_option(&name);
@@ -106,8 +105,8 @@ impl GroupCustomize for SingleSelectGroupController {
     Ok((Some(new_type_option.into()), Some(inserted_group_pb)))
   }
 
-  fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
-    let mut new_type_option = self.get_grouping_field_type_option().ok_or_else(|| {
+  async fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+    let mut new_type_option = self.get_grouping_field_type_option().await.ok_or_else(|| {
       FlowyError::internal().with_context("Failed to get grouping field type option")
     })?;
     if let Some(option_index) = new_type_option

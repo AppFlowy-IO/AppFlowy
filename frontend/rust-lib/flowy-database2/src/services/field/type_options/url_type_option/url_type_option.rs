@@ -1,6 +1,7 @@
+use collab::preclude::encoding::serde::from_any;
+use collab::preclude::Any;
 use std::cmp::Ordering;
 
-use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -16,7 +17,9 @@ use crate::services::sort::SortCondition;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct URLTypeOption {
+  #[serde(default)]
   pub url: String,
+  #[serde(default)]
   pub content: String,
 }
 
@@ -29,18 +32,16 @@ impl TypeOption for URLTypeOption {
 
 impl From<TypeOptionData> for URLTypeOption {
   fn from(data: TypeOptionData) -> Self {
-    let url = data.get_str_value("url").unwrap_or_default();
-    let content = data.get_str_value("content").unwrap_or_default();
-    Self { url, content }
+    from_any(&Any::from(data)).unwrap()
   }
 }
 
 impl From<URLTypeOption> for TypeOptionData {
   fn from(data: URLTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_str_value("url", data.url)
-      .insert_str_value("content", data.content)
-      .build()
+    TypeOptionDataBuilder::from([
+      ("url".into(), data.url.into()),
+      ("content".into(), data.content.into()),
+    ])
   }
 }
 

@@ -25,14 +25,14 @@ pub type CheckboxGroupController =
   BaseGroupController<CheckboxGroupConfiguration, CheckboxGroupBuilder, CheckboxCellDataParser>;
 
 pub type CheckboxGroupControllerContext = GroupControllerContext<CheckboxGroupConfiguration>;
+
+#[async_trait]
 impl GroupCustomize for CheckboxGroupController {
   type GroupTypeOption = CheckboxTypeOption;
   fn placeholder_cell(&self) -> Option<Cell> {
-    Some(
-      new_cell_builder(FieldType::Checkbox)
-        .insert_str_value("data", UNCHECK)
-        .build(),
-    )
+    let mut cell = new_cell_builder(FieldType::Checkbox);
+    cell.insert("data".into(), UNCHECK.into());
+    Some(cell)
   }
 
   fn can_group(
@@ -129,7 +129,7 @@ impl GroupCustomize for CheckboxGroupController {
     group_changeset
   }
 
-  fn delete_group(&mut self, _group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+  async fn delete_group(&mut self, _group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
     Ok(None)
   }
 

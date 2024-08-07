@@ -4,11 +4,10 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use collab::core::collab::MutexCollab;
-use collab::preclude::Collab;
+use collab::preclude::{Collab, ReadTxn, StateVector};
 use collab_database::database::get_database_row_ids;
 use collab_database::rows::database_row_document_id_from_row_id;
-use collab_database::workspace_database::{get_all_database_meta, DatabaseMeta};
+use collab_database::workspace_database::{DatabaseMeta, DatabaseMetaList};
 use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, View, ViewLayout};
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -175,7 +174,7 @@ fn sync_view(
 
     tokio::task::yield_now().await;
 
-    let child_views = folder.lock().views.get_views_belong_to(&view.id);
+    let child_views = folder.lock().get_views_belong_to(&view.id);
     for child_view in child_views {
       let cloned_child_view = child_view.clone();
       if let Err(err) = Box::pin(sync_view(
@@ -208,12 +207,12 @@ fn get_collab_doc_state(
   collab_object: &CollabObject,
   collab_db: &Arc<CollabKVDB>,
 ) -> Result<Vec<u8>, PersistenceError> {
-  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![], false);
-  let _ = collab.with_origin_transact_mut(|txn| {
-    collab_db
-      .read_txn()
-      .load_doc_with_txn(uid, &collab_object.object_id, txn)
-  })?;
+  let mut collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![], false);
+  collab_db.read_txn().load_doc_with_txn(
+    uid,
+    &collab_object.object_id,
+    &mut collab.transact_mut(),
+  )?;
   let doc_state = collab
     .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
     .doc_state;
@@ -229,12 +228,12 @@ fn get_database_doc_state(
   collab_object: &CollabObject,
   collab_db: &Arc<CollabKVDB>,
 ) -> Result<(Vec<u8>, Vec<String>), PersistenceError> {
-  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![], false);
-  let _ = collab.with_origin_transact_mut(|txn| {
-    collab_db
-      .read_txn()
-      .load_doc_with_txn(uid, &collab_object.object_id, txn)
-  })?;
+  let mut collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![], false);
+  collab_db.read_txn().load_doc_with_txn(
+    uid,
+    &collab_object.object_id,
+    &mut collab.transact_mut(),
+  )?;
 
   let row_ids = get_database_row_ids(&collab).unwrap_or_default();
   let doc_state = collab
@@ -255,18 +254,16 @@ async fn sync_folder(
   user_service: Arc<dyn UserCloudService>,
 ) -> Result<MutexFolder, Error> {
   let (folder, update) = {
-    let collab = Collab::new(uid, workspace_id, "phantom", vec![], false);
+    let mut collab = Collab::new(uid, workspace_id, "phantom", vec![], false);
     // Use the temporary result to short the lifetime of the TransactionMut
-    collab.with_origin_transact_mut(|txn| {
-      collab_db
-        .read_txn()
-        .load_doc_with_txn(uid, workspace_id, txn)
-    })?;
+    collab_db
+      .read_txn()
+      .load_doc_with_txn(uid, workspace_id, &mut collab.transact_mut())?;
     let doc_state = collab
       .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
       .doc_state;
     (
-      MutexFolder::new(Folder::open(uid, Arc::new(MutexCollab::new(collab)), None)?),
+      MutexFolder::new(Folder::open(uid, collab, None)?),
       doc_state,
     )
   };
@@ -310,32 +307,25 @@ async fn sync_database_views(
   );
 
   // Use the temporary result to short the lifetime of the TransactionMut
-  let result = {
-    let collab = Collab::new(uid, database_views_aggregate_id, "phantom", vec![], false);
-    collab
-      .with_origin_transact_mut(|txn| {
-        collab_db
-          .read_txn()
-          .load_doc_with_txn(uid, database_views_aggregate_id, txn)
-      })
-      .map(|_| {
-        (
-          get_all_database_meta(&collab),
-          collab
-            .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
-            .unwrap()
-            .doc_state,
-        )
-      })
-  };
-
-  if let Ok((records, doc_state)) = result {
-    let _ = user_service
-      .create_collab_object(&collab_object, doc_state.to_vec())
-      .await;
-    records.into_iter().map(Arc::new).collect()
-  } else {
-    vec![]
+  let mut collab = Collab::new(uid, database_views_aggregate_id, "phantom", vec![], false);
+  let meta_list = DatabaseMetaList::new(&mut collab);
+  let mut txn = collab.transact_mut();
+  match collab_db
+    .read_txn()
+    .load_doc_with_txn(uid, database_views_aggregate_id, &mut txn)
+  {
+    Ok(_) => {
+      let records = meta_list.get_all_database_meta(&txn);
+      let doc_state = txn.encode_state_as_update_v2(&StateVector::default());
+      let _ = user_service
+        .create_collab_object(&collab_object, doc_state.to_vec())
+        .await;
+      records.into_iter().map(Arc::new).collect()
+    },
+    Err(e) => {
+      tracing::error!("load doc {} failed: {:?}", database_views_aggregate_id, e);
+      vec![]
+    },
   }
 }
 

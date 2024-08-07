@@ -1,10 +1,10 @@
+use async_trait::async_trait;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use futures::executor::block_on;
-use lib_infra::future::Fut;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -23,10 +23,11 @@ use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::entities::GroupData;
 use crate::services::group::{GroupChangeset, GroupsBuilder, MoveGroupRowContext};
 
+#[async_trait]
 pub trait GroupControllerDelegate: Send + Sync + 'static {
-  fn get_field(&self, field_id: &str) -> Option<Field>;
+  async fn get_field(&self, field_id: &str) -> Option<Field>;
 
-  fn get_all_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
+  async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>>;
 }
 
 /// [BaseGroupController] is a generic group controller that provides customized implementations
@@ -75,10 +76,11 @@ where
     })
   }
 
-  pub fn get_grouping_field_type_option(&self) -> Option<T> {
+  pub async fn get_grouping_field_type_option(&self) -> Option<T> {
     self
       .delegate
       .get_field(&self.grouping_field_id)
+      .await
       .and_then(|field| field.get_type_option::<T>(FieldType::from(field.field_type)))
   }
 
@@ -154,6 +156,7 @@ where
   }
 }
 
+#[async_trait]
 impl<C, T, G, P> GroupController for BaseGroupController<C, G, P>
 where
   P: CellProtobufBlobParser<Object = <T as TypeOption>::CellProtobufType>,
@@ -215,11 +218,11 @@ where
     Ok(())
   }
 
-  fn create_group(
+  async fn create_group(
     &mut self,
     name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
-    <Self as GroupCustomize>::create_group(self, name)
+    <Self as GroupCustomize>::create_group(self, name).await
   }
 
   fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
@@ -373,7 +376,10 @@ where
     Ok(None)
   }
 
-  fn delete_group(&mut self, group_id: &str) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)> {
+  async fn delete_group(
+    &mut self,
+    group_id: &str,
+  ) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)> {
     let group = if group_id != self.get_grouping_field_id() {
       self.get_group(group_id)
     } else {
@@ -387,14 +393,14 @@ where
           .iter()
           .map(|row| row.row.id.clone())
           .collect();
-        let type_option_data = <Self as GroupCustomize>::delete_group(self, group_id)?;
+        let type_option_data = <Self as GroupCustomize>::delete_group(self, group_id).await?;
         Ok((row_ids, type_option_data))
       },
       None => Ok((vec![], None)),
     }
   }
 
-  fn apply_group_changeset(
+  async fn apply_group_changeset(
     &mut self,
     changeset: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)> {
@@ -404,7 +410,7 @@ where
     }
 
     // update group name
-    let type_option = self.get_grouping_field_type_option().ok_or_else(|| {
+    let type_option = self.get_grouping_field_type_option().await.ok_or_else(|| {
       FlowyError::internal().with_context("Failed to get grouping field type option")
     })?;
 
