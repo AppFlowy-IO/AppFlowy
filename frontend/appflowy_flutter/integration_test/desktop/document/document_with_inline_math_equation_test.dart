@@ -93,8 +93,11 @@ void main() {
       );
 
       // expect to the see the inline math equation button is highlighted
-      inlineMathEquationButton = find.findFlowyTooltip(
-        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+      inlineMathEquationButton = find.descendant(
+        of: find.findFlowyTooltip(
+          LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        ),
+        matching: find.byType(SVGIconItemWidget),
       );
       expect(
         tester.widget<SVGIconItemWidget>(inlineMathEquationButton).isHighlight,
