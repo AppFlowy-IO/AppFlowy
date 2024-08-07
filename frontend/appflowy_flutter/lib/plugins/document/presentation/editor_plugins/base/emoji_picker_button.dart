@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';

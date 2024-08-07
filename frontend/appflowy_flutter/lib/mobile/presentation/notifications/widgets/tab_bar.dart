@@ -68,17 +68,16 @@ class MobileNotificationTabBar extends StatelessWidget {
         controller: tabController,
         tabs: tabs.map((e) => Tab(text: e.tr)).toList(),
         indicatorSize: TabBarIndicatorSize.label,
-        indicatorColor: Theme.of(context).primaryColor,
         isScrollable: true,
         labelStyle: labelStyle,
         labelColor: baseStyle?.color,
         labelPadding: const EdgeInsets.symmetric(horizontal: 12.0),
         unselectedLabelStyle: unselectedLabelStyle,
         overlayColor: WidgetStateProperty.all(Colors.transparent),
-        indicator: RoundUnderlineTabIndicator(
+        indicator: const RoundUnderlineTabIndicator(
           width: 28.0,
           borderSide: BorderSide(
-            color: Theme.of(context).primaryColor,
+            color: Color(0xFF00C8FF),
             width: 3,
           ),
         ),

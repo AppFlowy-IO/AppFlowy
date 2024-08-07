@@ -29,6 +29,15 @@ class SidebarWorkspace extends StatefulWidget {
 class _SidebarWorkspaceState extends State<SidebarWorkspace> {
   Loading? loadingIndicator;
 
+  final ValueNotifier<bool> onHover = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    onHover.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
@@ -40,19 +49,38 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
         if (currentWorkspace == null) {
           return const SizedBox.shrink();
         }
-        return Row(
-          children: [
-            Expanded(
-              child: SidebarSwitchWorkspaceButton(
-                userProfile: widget.userProfile,
-                currentWorkspace: currentWorkspace,
-              ),
+        return MouseRegion(
+          onEnter: (_) => onHover.value = true,
+          onExit: (_) => onHover.value = false,
+          child: ValueListenableBuilder(
+            valueListenable: onHover,
+            builder: (_, onHover, child) {
+              return Container(
+                margin: const EdgeInsets.only(right: 8.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.0),
+                  color: onHover
+                      ? Theme.of(context).colorScheme.secondary
+                      : Colors.transparent,
+                ),
+                child: child,
+              );
+            },
+            child: Row(
+              children: [
+                Expanded(
+                  child: SidebarSwitchWorkspaceButton(
+                    userProfile: widget.userProfile,
+                    currentWorkspace: currentWorkspace,
+                  ),
+                ),
+                UserSettingButton(userProfile: widget.userProfile),
+                const HSpace(8.0),
+                const NotificationButton(),
+                const HSpace(4.0),
+              ],
             ),
-            UserSettingButton(userProfile: widget.userProfile),
-            const HSpace(8.0),
-            const NotificationButton(),
-            const HSpace(12.0),
-          ],
+          ),
         );
       },
     );
@@ -201,6 +229,7 @@ class _SidebarSwitchWorkspaceButtonState
       },
       child: FlowyIconTextButton(
         margin: EdgeInsets.zero,
+        hoverColor: Colors.transparent,
         textBuilder: (onHover) => SizedBox(
           height: 30,
           child: Row(
@@ -213,6 +242,7 @@ class _SidebarSwitchWorkspaceButtonState
                 emojiSize: 18,
                 enableEdit: false,
                 borderRadius: 8.0,
+                figmaLineHeight: 21.0,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
                         widget.currentWorkspace.workspaceId,

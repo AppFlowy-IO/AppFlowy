@@ -1,7 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -21,7 +17,9 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpacePermissionSwitch extends StatefulWidget {
@@ -280,9 +278,9 @@ class ConfirmPopupColor {
 
   static Color descriptionColor(BuildContext context) {
     if (Theme.of(context).isLightMode) {
-      return const Color(0xFF171717).withOpacity(0.8);
+      return const Color(0xFF171717).withOpacity(0.7);
     }
-    return const Color(0xFFffffff).withOpacity(0.72);
+    return const Color(0xFFffffff).withOpacity(0.7);
   }
 }
 
@@ -374,15 +372,21 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         Expanded(
           child: FlowyText(
             widget.title,
-            fontSize: 14.0,
+            fontSize: 16.0,
+            figmaLineHeight: 22.0,
+            fontWeight: FontWeight.w500,
             overflow: TextOverflow.ellipsis,
             color: ConfirmPopupColor.titleColor(context),
           ),
         ),
         const HSpace(6.0),
         FlowyButton(
+          margin: const EdgeInsets.all(3),
           useIntrinsicWidth: true,
-          text: const FlowySvg(FlowySvgs.upgrade_close_s),
+          text: const FlowySvg(
+            FlowySvgs.upgrade_close_s,
+            size: Size.square(18.0),
+          ),
           onTap: () => Navigator.of(context).pop(),
         ),
       ],
@@ -392,10 +396,10 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
   Widget _buildDescription() {
     return FlowyText.regular(
       widget.description,
-      fontSize: 12.0,
+      fontSize: 16.0,
       color: ConfirmPopupColor.descriptionColor(context),
-      maxLines: 3,
-      lineHeight: 1.4,
+      maxLines: 5,
+      figmaLineHeight: 22.0,
     );
   }
 
@@ -492,16 +496,22 @@ class CurrentSpace extends StatelessWidget {
     final child = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SpaceIcon(
-          dimension: 20,
-          space: space,
-          cornerRadius: 6.0,
-        ),
-        const HSpace(10),
+        if (space.spaceIcon != null) ...[
+          SpaceIcon(
+            dimension: 22,
+            space: space,
+            svgSize: 12,
+            cornerRadius: 8.0,
+          ),
+          const HSpace(10),
+        ] else ...[
+          const HSpace(2),
+        ],
         Flexible(
           child: FlowyText.medium(
             space.name,
             fontSize: 14.0,
+            figmaLineHeight: 18.0,
             overflow: TextOverflow.ellipsis,
           ),
         ),

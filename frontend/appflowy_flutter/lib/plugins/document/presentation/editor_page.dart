@@ -130,8 +130,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final List<ToolbarItem> toolbarItems = [
     smartEditItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    ...headingItems
-      ..forEach((e) => e.isActive = onlyShowInSingleSelectionAndTextType),
+    headingsToolbarItem
+      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     ...markdownFormatItems..forEach((e) => e.isActive = showInAnyTextType),
     quoteItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     bulletedListItem
@@ -387,6 +387,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         editorState: editorState,
         editorScrollController: editorScrollController,
         textDirection: textDirection,
+        tooltipBuilder: (context, id, message, child) => widget.styleCustomizer
+            .buildToolbarItemTooltip(context, id, message, child,),
         child: editor,
       ),
     );

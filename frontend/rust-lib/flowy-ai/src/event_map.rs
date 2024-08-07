@@ -55,6 +55,7 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
       get_model_storage_directory_handler,
     )
     .event(AIEvent::GetOfflineAIAppLink, get_offline_app_handler)
+    .event(AIEvent::CreateChatContext, create_chat_context_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -134,4 +135,7 @@ pub enum AIEvent {
 
   #[event(output = "OfflineAIPB")]
   GetOfflineAIAppLink = 22,
+
+  #[event(input = "CreateChatContextPB")]
+  CreateChatContext = 23,
 }

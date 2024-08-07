@@ -162,7 +162,7 @@
   "newBoardText": "Новая доска",
   "chat": {
     "newChat": "Чат с ИИ",
-    "inputMessageHint": "Написать ИИ @:appName",
+    "inputMessageHint": "Спросите ИИ @:appName",
     "unsupportedCloudPrompt": "Эта функция доступна только при использовании облака @:appName",
     "relatedQuestion": "Связано",
     "serverUnavailable": "Сервис временно недоступен. Пожалуйста, повторите попытку позже.",

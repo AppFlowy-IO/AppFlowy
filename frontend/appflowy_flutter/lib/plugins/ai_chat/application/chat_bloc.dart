@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -19,10 +20,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nanoid/nanoid.dart';
 
 import 'chat_message_listener.dart';
+import 'chat_message_service.dart';
 
+part 'chat_bloc.g.dart';
 part 'chat_bloc.freezed.dart';
 
 const sendMessageErrorKey = "sendMessageError";
+const systemUserId = "system";
+const aiResponseUserId = "0";
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
@@ -84,6 +89,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               },
             );
           },
+          // Loading messages
           startLoadingPrevMessage: () async {
             Int64? beforeMessageId;
             final oldestMessage = _getOlderstMessage();
@@ -127,20 +133,57 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
+          // streaming message
           streaming: (Message message) {
             final allMessages = _perminentMessages();
             allMessages.insert(0, message);
             emit(
               state.copyWith(
                 messages: allMessages,
-                streamingStatus: const LoadingState.loading(),
+                streamingState: const StreamingState.streaming(),
+                canSendMessage: false,
               ),
             );
           },
-          didFinishStreaming: () {
+          finishStreaming: () {
             emit(
-              state.copyWith(streamingStatus: const LoadingState.finish()),
+              state.copyWith(
+                streamingState: const StreamingState.done(),
+                canSendMessage:
+                    state.sendingState == const SendMessageState.done(),
+              ),
             );
+          },
+          didUpdateAnswerStream: (AnswerStream stream) {
+            emit(state.copyWith(answerStream: stream));
+          },
+          stopStream: () async {
+            if (state.answerStream == null) {
+              return;
+            }
+
+            final payload = StopStreamPB(chatId: chatId);
+            await AIEventStopStream(payload).send();
+            final allMessages = _perminentMessages();
+            if (state.streamingState != const StreamingState.done()) {
+              // If the streaming is not started, remove the message from the list
+              if (!state.answerStream!.hasStarted) {
+                allMessages.removeWhere(
+                  (element) => element.id == lastStreamMessageId,
+                );
+                lastStreamMessageId = "";
+              }
+
+              // when stop stream, we will set the answer stream to null. Which means the streaming
+              // is finished or canceled.
+              emit(
+                state.copyWith(
+                  messages: allMessages,
+                  answerStream: null,
+                  streamingState: const StreamingState.done(),
+                ),
+              );
+            }
           },
           receveMessage: (Message message) {
             final allMessages = _perminentMessages();
@@ -153,23 +196,40 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
-          sendMessage: (String message) {
-            _startStreamingMessage(message, emit);
+          sendMessage: (String message, Map<String, dynamic>? metadata) async {
+            unawaited(_startStreamingMessage(message, metadata, emit));
             final allMessages = _perminentMessages();
             emit(
               state.copyWith(
                 lastSentMessage: null,
                 messages: allMessages,
                 relatedQuestions: [],
+                sendingState: const SendMessageState.sending(),
+                canSendMessage: false,
               ),
             );
           },
+          finishSending: (ChatMessagePB message) {
+            emit(
+              state.copyWith(
+                lastSentMessage: message,
+                sendingState: const SendMessageState.done(),
+                canSendMessage:
+                    state.streamingState == const StreamingState.done(),
+              ),
+            );
+          },
+          // related question
           didReceiveRelatedQuestion: (List<RelatedQuestionPB> questions) {
+            if (questions.isEmpty) {
+              return;
+            }
+
             final allMessages = _perminentMessages();
             final message = CustomMessage(
               metadata: OnetimeShotType.relatedQuestion.toMap(),
-              author: const User(id: "system"),
-              id: 'system',
+              author: const User(id: systemUserId),
+              id: systemUserId,
             );
             allMessages.insert(0, message);
             emit(
@@ -185,44 +245,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                 relatedQuestions: [],
               ),
             );
-          },
-          didSentUserMessage: (ChatMessagePB message) {
-            emit(
-              state.copyWith(
-                lastSentMessage: message,
-              ),
-            );
-          },
-          didUpdateAnswerStream: (AnswerStream stream) {
-            emit(state.copyWith(answerStream: stream));
-          },
-          stopStream: () async {
-            if (state.answerStream == null) {
-              return;
-            }
-
-            final payload = StopStreamPB(chatId: chatId);
-            await AIEventStopStream(payload).send();
-            final allMessages = _perminentMessages();
-            if (state.streamingStatus != const LoadingState.finish()) {
-              // If the streaming is not started, remove the message from the list
-              if (!state.answerStream!.hasStarted) {
-                allMessages.removeWhere(
-                  (element) => element.id == lastStreamMessageId,
-                );
-                lastStreamMessageId = "";
-              }
-
-              // when stop stream, we will set the answer stream to null. Which means the streaming
-              // is finished or canceled.
-              emit(
-                state.copyWith(
-                  messages: allMessages,
-                  answerStream: null,
-                  streamingStatus: const LoadingState.finish(),
-                ),
-              );
-            }
           },
         );
       },
@@ -247,7 +269,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       chatErrorMessageCallback: (err) {
         if (!isClosed) {
           Log.error("chat error: ${err.errorMessage}");
-          add(const ChatEvent.didFinishStreaming());
+          add(const ChatEvent.finishStreaming());
         }
       },
       latestMessageCallback: (list) {
@@ -264,7 +286,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       },
       finishStreamingCallback: () {
         if (!isClosed) {
-          add(const ChatEvent.didFinishStreaming());
+          add(const ChatEvent.finishStreaming());
           // The answer strema will bet set to null after the streaming is finished or canceled.
           // so if the answer stream is null, we will not get related question.
           if (state.lastSentMessage != null && state.answerStream != null) {
@@ -327,6 +349,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> _startStreamingMessage(
     String message,
+    Map<String, dynamic>? metadata,
     Emitter<ChatState> emit,
   ) async {
     if (state.answerStream != null) {
@@ -341,6 +364,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       message: message,
       messageType: ChatMessageTypePB.User,
       textStreamPort: Int64(answerStream.nativePort),
+      metadata: await metadataPBFromMetadata(metadata),
     );
 
     // Stream message to the server
@@ -348,7 +372,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     result.fold(
       (ChatMessagePB question) {
         if (!isClosed) {
-          add(ChatEvent.didSentUserMessage(question));
+          add(ChatEvent.finishSending(question));
 
           final questionMessageId = question.messageId;
           final message = _createTextMessage(question);
@@ -369,8 +393,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
           final error = CustomMessage(
             metadata: metadata,
-            author: const User(id: "system"),
-            id: 'system',
+            author: const User(id: systemUserId),
+            id: systemUserId,
           );
 
           add(ChatEvent.receveMessage(error));
@@ -385,7 +409,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     lastStreamMessageId = streamMessageId;
 
     return TextMessage(
-      author: User(id: nanoid()),
+      author: User(id: "streamId:${nanoid()}"),
       metadata: {
         "$AnswerStream": stream,
         "question": questionMessageId,
@@ -410,6 +434,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       id: messageId,
       text: message.content,
       createdAt: message.createdAt.toInt() * 1000,
+      metadata: {
+        "metadata": message.metadata,
+      },
     );
   }
 }
@@ -417,7 +444,21 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 @freezed
 class ChatEvent with _$ChatEvent {
   const factory ChatEvent.initialLoad() = _InitialLoadMessage;
-  const factory ChatEvent.sendMessage(String message) = _SendMessage;
+
+  // send message
+  const factory ChatEvent.sendMessage({
+    required String message,
+    Map<String, dynamic>? metadata,
+  }) = _SendMessage;
+  const factory ChatEvent.finishSending(ChatMessagePB message) =
+      _FinishSendMessage;
+
+// receive message
+  const factory ChatEvent.streaming(Message message) = _StreamingMessage;
+  const factory ChatEvent.receveMessage(Message message) = _ReceiveMessage;
+  const factory ChatEvent.finishStreaming() = _FinishStreamingMessage;
+
+// loading messages
   const factory ChatEvent.startLoadingPrevMessage() = _StartLoadPrevMessage;
   const factory ChatEvent.didLoadPreviousMessages(
     List<Message> messages,
@@ -425,16 +466,13 @@ class ChatEvent with _$ChatEvent {
   ) = _DidLoadPreviousMessages;
   const factory ChatEvent.didLoadLatestMessages(List<Message> messages) =
       _DidLoadMessages;
-  const factory ChatEvent.streaming(Message message) = _StreamingMessage;
-  const factory ChatEvent.receveMessage(Message message) = _ReceiveMessage;
 
-  const factory ChatEvent.didFinishStreaming() = _FinishStreamingMessage;
+// related questions
   const factory ChatEvent.didReceiveRelatedQuestion(
     List<RelatedQuestionPB> questions,
   ) = _DidReceiveRelatedQueston;
   const factory ChatEvent.clearReleatedQuestion() = _ClearRelatedQuestion;
-  const factory ChatEvent.didSentUserMessage(ChatMessagePB message) =
-      _DidSendUserMessage;
+
   const factory ChatEvent.didUpdateAnswerStream(
     AnswerStream stream,
   ) = _DidUpdateAnswerStream;
@@ -455,7 +493,8 @@ class ChatState with _$ChatState {
     required LoadingState loadingPreviousStatus,
     // When sending a user message, the status will be set as loading.
     // After the message is sent, the status will be set as finished.
-    required LoadingState streamingStatus,
+    required StreamingState streamingState,
+    required SendMessageState sendingState,
     // Indicate whether there are more previous messages to load.
     required bool hasMorePrevMessage,
     // The related questions that are received after the user message is sent.
@@ -463,6 +502,7 @@ class ChatState with _$ChatState {
     // The last user message that is sent to the server.
     ChatMessagePB? lastSentMessage,
     AnswerStream? answerStream,
+    @Default(true) bool canSendMessage,
   }) = _ChatState;
 
   factory ChatState.initial(ViewPB view, UserProfilePB userProfile) =>
@@ -472,10 +512,17 @@ class ChatState with _$ChatState {
         userProfile: userProfile,
         initialLoadingStatus: const LoadingState.finish(),
         loadingPreviousStatus: const LoadingState.finish(),
-        streamingStatus: const LoadingState.finish(),
+        streamingState: const StreamingState.done(),
+        sendingState: const SendMessageState.done(),
         hasMorePrevMessage: true,
         relatedQuestions: [],
       );
+}
+
+bool isOtherUserMessage(Message message) {
+  return message.author.id != aiResponseUserId &&
+      message.author.id != systemUserId &&
+      !message.author.id.startsWith("streamId:");
 }
 
 @freezed
@@ -486,6 +533,7 @@ class LoadingState with _$LoadingState {
 
 enum OnetimeShotType {
   unknown,
+  sendingMessage,
   relatedQuestion,
   invalidSendMesssage,
 }
@@ -542,6 +590,11 @@ class AnswerStream {
           if (_onError != null) {
             _onError!(_error!);
           }
+        } else if (event.startsWith("metadata:")) {
+          if (_onMetadata != null) {
+            final s = event.substring(9);
+            _onMetadata!(chatMessageMetadataFromString(s));
+          }
         } else if (event == "AI_RESPONSE_LIMIT") {
           if (_onAIResponseLimit != null) {
             _onAIResponseLimit!();
@@ -574,6 +627,7 @@ class AnswerStream {
   void Function()? _onEnd;
   void Function(String error)? _onError;
   void Function()? _onAIResponseLimit;
+  void Function(List<ChatMessageMetadata> metadata)? _onMetadata;
 
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
@@ -592,15 +646,80 @@ class AnswerStream {
     void Function()? onEnd,
     void Function(String error)? onError,
     void Function()? onAIResponseLimit,
+    void Function(List<ChatMessageMetadata> metadata)? onMetadata,
   }) {
     _onData = onData;
     _onStart = onStart;
     _onEnd = onEnd;
     _onError = onError;
     _onAIResponseLimit = onAIResponseLimit;
+    _onMetadata = onMetadata;
 
     if (_onStart != null) {
       _onStart!();
     }
   }
+}
+
+List<ChatMessageMetadata> chatMessageMetadataFromString(String? s) {
+  if (s == null || s.isEmpty || s == "null") {
+    return [];
+  }
+
+  final List<ChatMessageMetadata> metadata = [];
+  try {
+    final metadataJson = jsonDecode(s);
+    if (metadataJson == null) {
+      Log.warn("metadata is null");
+      return [];
+    }
+
+    if (metadataJson is Map<String, dynamic>) {
+      if (metadataJson.isNotEmpty) {
+        metadata.add(ChatMessageMetadata.fromJson(metadataJson));
+      }
+    } else if (metadataJson is List) {
+      metadata.addAll(
+        metadataJson.map(
+          (e) => ChatMessageMetadata.fromJson(e as Map<String, dynamic>),
+        ),
+      );
+    } else {
+      Log.error("Invalid metadata: $metadataJson");
+    }
+  } catch (e) {
+    Log.error("Failed to parse metadata: $e");
+  }
+
+  return metadata;
+}
+
+@JsonSerializable()
+class ChatMessageMetadata {
+  ChatMessageMetadata({
+    required this.id,
+    required this.name,
+    required this.source,
+  });
+
+  factory ChatMessageMetadata.fromJson(Map<String, dynamic> json) =>
+      _$ChatMessageMetadataFromJson(json);
+
+  final String id;
+  final String name;
+  final String source;
+
+  Map<String, dynamic> toJson() => _$ChatMessageMetadataToJson(this);
+}
+
+@freezed
+class StreamingState with _$StreamingState {
+  const factory StreamingState.streaming() = _Streaming;
+  const factory StreamingState.done({FlowyError? error}) = _StreamDone;
+}
+
+@freezed
+class SendMessageState with _$SendMessageState {
+  const factory SendMessageState.sending() = _Sending;
+  const factory SendMessageState.done({FlowyError? error}) = _SendDone;
 }

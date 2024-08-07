@@ -6,7 +6,10 @@ use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::notification::{make_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use allo_isolate::Isolate;
-use flowy_ai_pub::cloud::{ChatCloudService, ChatMessage, ChatMessageType, MessageCursor};
+use flowy_ai_pub::cloud::{
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, MessageCursor,
+  QuestionStreamValue,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
@@ -31,7 +34,7 @@ pub struct Chat {
   prev_message_state: Arc<RwLock<PrevMessageState>>,
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
-  steam_buffer: Arc<Mutex<String>>,
+  stream_buffer: Arc<Mutex<StringBuffer>>,
 }
 
 impl Chat {
@@ -49,7 +52,7 @@ impl Chat {
       prev_message_state: Arc::new(RwLock::new(PrevMessageState::HasMore)),
       latest_message_id: Default::default(),
       stop_stream: Arc::new(AtomicBool::new(false)),
-      steam_buffer: Arc::new(Mutex::new("".to_string())),
+      stream_buffer: Arc::new(Mutex::new(StringBuffer::default())),
     }
   }
 
@@ -79,6 +82,7 @@ impl Chat {
     message: &str,
     message_type: ChatMessageType,
     text_stream_port: i64,
+    metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
     if message.len() > 2000 {
       return Err(FlowyError::text_too_long().with_context("Exceeds maximum message 2000 length"));
@@ -87,15 +91,21 @@ impl Chat {
     self
       .stop_stream
       .store(false, std::sync::atomic::Ordering::SeqCst);
-    self.steam_buffer.lock().await.clear();
+    self.stream_buffer.lock().await.clear();
 
-    let stream_buffer = self.steam_buffer.clone();
+    let stream_buffer = self.stream_buffer.clone();
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
 
     let question = self
       .chat_service
-      .save_question(&workspace_id, &self.chat_id, message, message_type)
+      .create_question(
+        &workspace_id,
+        &self.chat_id,
+        message,
+        message_type,
+        metadata,
+      )
       .await
       .map_err(|err| {
         error!("Failed to send question: {}", err);
@@ -116,7 +126,7 @@ impl Chat {
     tokio::spawn(async move {
       let mut text_sink = IsolateSink::new(Isolate::new(text_stream_port));
       match cloud_service
-        .ask_question(&workspace_id, &chat_id, question_id)
+        .stream_answer(&workspace_id, &chat_id, question_id)
         .await
       {
         Ok(mut stream) => {
@@ -127,9 +137,18 @@ impl Chat {
                   trace!("[Chat] stop streaming message");
                   break;
                 }
-                let s = String::from_utf8(message.to_vec()).unwrap_or_default();
-                stream_buffer.lock().await.push_str(&s);
-                let _ = text_sink.send(format!("data:{}", s)).await;
+                match message {
+                  QuestionStreamValue::Answer { value } => {
+                    stream_buffer.lock().await.push_str(&value);
+                    let _ = text_sink.send(format!("data:{}", value)).await;
+                  },
+                  QuestionStreamValue::Metadata { value } => {
+                    if let Ok(s) = serde_json::to_string(&value) {
+                      stream_buffer.lock().await.set_metadata(value);
+                      let _ = text_sink.send(format!("metadata:{}", s)).await;
+                    }
+                  },
+                }
               },
               Err(err) => {
                 error!("[Chat] failed to stream answer: {}", err);
@@ -169,14 +188,11 @@ impl Chat {
       if stream_buffer.lock().await.is_empty() {
         return Ok(());
       }
+      let content = stream_buffer.lock().await.take_content();
+      let metadata = stream_buffer.lock().await.take_metadata();
 
       let answer = cloud_service
-        .save_answer(
-          &workspace_id,
-          &chat_id,
-          &stream_buffer.lock().await,
-          question_id,
-        )
+        .create_answer(&workspace_id, &chat_id, &content, question_id, metadata)
         .await?;
       Self::save_answer(uid, &chat_id, &user_service, answer)?;
       Ok::<(), FlowyError>(())
@@ -192,6 +208,7 @@ impl Chat {
     user_service: &Arc<dyn AIUserService>,
     answer: ChatMessage,
   ) -> Result<(), FlowyError> {
+    trace!("[Chat] save answer: answer={:?}", answer);
     save_chat_message(
       user_service.sqlite_connection(uid)?,
       chat_id,
@@ -405,7 +422,7 @@ impl Chat {
     let workspace_id = self.user_service.workspace_id()?;
     let answer = self
       .chat_service
-      .generate_answer(&workspace_id, &self.chat_id, question_message_id)
+      .get_answer(&workspace_id, &self.chat_id, question_message_id)
       .await?;
 
     Self::save_answer(self.uid, &self.chat_id, &self.user_service, answer.clone())?;
@@ -436,6 +453,7 @@ impl Chat {
         author_type: record.author_type,
         author_id: record.author_id,
         reply_message_id: record.reply_message_id,
+        metadata: record.metadata,
       })
       .collect::<Vec<_>>();
 
@@ -485,8 +503,42 @@ fn save_chat_message(
       author_type: message.author.author_type as i64,
       author_id: message.author.author_id.to_string(),
       reply_message_id: message.reply_message_id,
+      metadata: Some(serde_json::to_string(&message.meta_data).unwrap_or_default()),
     })
     .collect::<Vec<_>>();
   insert_chat_messages(conn, &records)?;
   Ok(())
+}
+
+#[derive(Debug, Default)]
+struct StringBuffer {
+  content: String,
+  metadata: Option<serde_json::Value>,
+}
+
+impl StringBuffer {
+  fn clear(&mut self) {
+    self.content.clear();
+    self.metadata = None;
+  }
+
+  fn push_str(&mut self, value: &str) {
+    self.content.push_str(value);
+  }
+
+  fn set_metadata(&mut self, value: serde_json::Value) {
+    self.metadata = Some(value);
+  }
+
+  fn is_empty(&self) -> bool {
+    self.content.is_empty()
+  }
+
+  fn take_metadata(&mut self) -> Option<serde_json::Value> {
+    self.metadata.take()
+  }
+
+  fn take_content(&mut self) -> String {
+    std::mem::take(&mut self.content)
+  }
 }

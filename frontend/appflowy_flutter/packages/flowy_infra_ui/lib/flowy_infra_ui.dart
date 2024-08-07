@@ -1,4 +1,5 @@
 // Basis
+export '/widget/flowy_tooltip.dart';
 export '/widget/separated_flex.dart';
 export '/widget/spacing.dart';
 export 'basis.dart';

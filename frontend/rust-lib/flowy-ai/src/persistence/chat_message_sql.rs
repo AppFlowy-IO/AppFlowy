@@ -19,6 +19,7 @@ pub struct ChatMessageTable {
   pub author_type: i64,
   pub author_id: String,
   pub reply_message_id: Option<i64>,
+  pub metadata: Option<String>,
 }
 
 pub fn insert_chat_messages(

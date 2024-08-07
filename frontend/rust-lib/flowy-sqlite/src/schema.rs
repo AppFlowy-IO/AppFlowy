@@ -17,6 +17,7 @@ diesel::table! {
         author_type -> BigInt,
         author_id -> Text,
         reply_message_id -> Nullable<BigInt>,
+        metadata -> Nullable<Text>,
     }
 }
 
