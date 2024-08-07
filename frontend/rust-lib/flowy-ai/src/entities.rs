@@ -54,6 +54,9 @@ pub struct ChatMessageMetaPB {
 
   #[pb(index = 3)]
   pub text: String,
+
+  #[pb(index = 4)]
+  pub source: String,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
