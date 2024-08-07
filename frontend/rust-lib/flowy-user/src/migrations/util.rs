@@ -9,7 +9,6 @@ where
   PersistenceError: From<R::Error>,
 {
   let mut collab = Collab::new(uid, object_id, "phantom", vec![], false);
-  let mut txn = collab.transact_mut();
-  collab_r_txn.load_doc_with_txn(uid, &object_id, &mut txn)?;
+  collab_r_txn.load_doc_with_txn(uid, &object_id, &mut collab.transact_mut())?;
   Ok(collab)
 }
