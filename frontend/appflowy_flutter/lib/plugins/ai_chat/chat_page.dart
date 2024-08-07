@@ -500,9 +500,9 @@ class _ChatContentPageState extends State<_ChatContentPage> {
 
             return Column(
               children: [
-                BlocSelector<ChatBloc, ChatState, StreamingState>(
-                  selector: (state) => state.streamingStatus,
-                  builder: (context, state) {
+                BlocSelector<ChatBloc, ChatState, bool>(
+                  selector: (state) => state.canSendMessage,
+                  builder: (context, canSendMessage) {
                     return ChatInput(
                       aiType: aiType,
                       chatId: widget.view.id,
@@ -514,7 +514,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                               ),
                             );
                       },
-                      isStreaming: state != const StreamingState.done(),
+                      isStreaming: !canSendMessage,
                       onStopStreaming: () {
                         context
                             .read<ChatBloc>()
