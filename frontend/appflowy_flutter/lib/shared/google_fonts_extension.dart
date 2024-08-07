@@ -38,11 +38,7 @@ TextStyle getGoogleFontSafely(
         letterSpacing: letterSpacing,
         height: lineHeight,
       );
-    } catch (e) {
-      Log.error(
-        'Font family $fontFamily is not available, using default font family instead',
-      );
-    }
+    } catch (_) {}
   }
 
   return TextStyle(

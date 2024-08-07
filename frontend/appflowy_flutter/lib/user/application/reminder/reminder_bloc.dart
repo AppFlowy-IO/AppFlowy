@@ -24,6 +24,8 @@ part 'reminder_bloc.freezed.dart';
 
 class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
   ReminderBloc() : super(ReminderState()) {
+    Log.info('ReminderBloc created');
+
     _actionBloc = getIt<ActionNavigationBloc>();
     _reminderService = const ReminderService();
     timer = _periodicCheck();
@@ -40,6 +42,8 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
       (event, emit) async {
         await event.when(
           started: () async {
+            Log.info('Start fetching reminders');
+
             final result = await _reminderService.fetchReminders();
 
             result.fold(
@@ -75,7 +79,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             return result.fold(
               (_) {
                 Log.info('Added reminder: ${reminder.id}');
+                Log.info('Before adding reminder: ${state.reminders.length}');
                 final reminders = [...state.reminders, reminder];
+                Log.info('After adding reminder: ${reminders.length}');
                 emit(state.copyWith(reminders: reminders));
               },
               (error) => Log.error('Failed to add reminder: $error'),
