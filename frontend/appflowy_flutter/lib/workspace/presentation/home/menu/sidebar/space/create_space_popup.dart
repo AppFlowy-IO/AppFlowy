@@ -48,6 +48,7 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
           SizedBox.square(
             dimension: 56,
             child: SpaceIconPopup(
+              
               onIconChanged: (icon, iconColor) {
                 spaceIcon = icon;
                 spaceIconColor = iconColor;

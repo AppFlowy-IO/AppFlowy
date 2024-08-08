@@ -1,8 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class SpaceIcon extends StatelessWidget {
@@ -21,16 +23,37 @@ class SpaceIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spaceIconColor = space.spaceIconColor;
-    final color = spaceIconColor != null
-        ? Color(int.parse(spaceIconColor))
-        : Colors.transparent;
-    final svg = space.buildSpaceIconSvg(
-      context,
-      size: svgSize != null ? Size.square(svgSize!) : null,
-    );
-    if (svg == null) {
-      return const SizedBox.shrink();
+    // if space icon is null, use the first character of space name as icon
+
+    final Color color;
+    final Widget icon;
+
+    if (space.spaceIcon == null) {
+      final name = space.name.isNotEmpty ? space.name.capitalize()[0] : '';
+      icon = FlowyText(
+        name,
+        color: Theme.of(context).colorScheme.surface,
+        fontSize: svgSize,
+        figmaLineHeight: dimension,
+      );
+      color = Color(int.parse(builtInSpaceColors.first));
+    } else {
+      final spaceIconColor = space.spaceIconColor;
+      color = spaceIconColor != null
+          ? Color(int.parse(spaceIconColor))
+          : Colors.transparent;
+      final svg = space.buildSpaceIconSvg(
+        context,
+        size: svgSize != null ? Size.square(svgSize!) : null,
+      );
+      if (svg == null) {
+        icon = const SizedBox.shrink();
+      } else {
+        icon =
+            svgSize == null || space.spaceIcon?.contains('space_icon') == true
+                ? svg
+                : SizedBox.square(dimension: svgSize!, child: svg);
+      }
     }
 
     return ClipRRect(
@@ -40,10 +63,7 @@ class SpaceIcon extends StatelessWidget {
         height: dimension,
         color: color,
         child: Center(
-          child:
-              svgSize == null || space.spaceIcon?.contains('space_icon') == true
-                  ? svg
-                  : SizedBox.square(dimension: svgSize!, child: svg),
+          child: icon,
         ),
       ),
     );
