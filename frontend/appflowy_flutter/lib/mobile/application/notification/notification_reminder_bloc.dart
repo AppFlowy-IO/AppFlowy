@@ -5,6 +5,7 @@ import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/date_time/time_format_ext.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -23,16 +24,20 @@ class NotificationReminderBloc
       await event.when(
         initial: (reminder, dateFormat, timeFormat) async {
           this.reminder = reminder;
+          this.dateFormat = dateFormat;
+          this.timeFormat = timeFormat;
 
+          add(const NotificationReminderEvent.reset());
+        },
+        reset: () async {
           final createdAt = await _getCreatedAt(
             reminder,
             dateFormat,
             timeFormat,
           );
           final view = await _getView(reminder);
-          final node = await _getContent(reminder);
 
-          if (view == null || node == null) {
+          if (view == null) {
             emit(
               NotificationReminderState(
                 createdAt: createdAt,
@@ -41,25 +46,43 @@ class NotificationReminderBloc
                 status: NotificationReminderStatus.error,
               ),
             );
-          } else {
+          }
+
+          final layout = view!.layout;
+
+          if (layout.isDocumentView) {
+            final node = await _getContent(reminder);
+            if (node != null) {
+              emit(
+                NotificationReminderState(
+                  createdAt: createdAt,
+                  pageTitle: view.name,
+                  view: view,
+                  reminderContent: node.delta?.toPlainText() ?? '',
+                  nodes: [node],
+                  status: NotificationReminderStatus.loaded,
+                ),
+              );
+            }
+          } else if (layout.isDatabaseView) {
             emit(
               NotificationReminderState(
                 createdAt: createdAt,
                 pageTitle: view.name,
                 view: view,
-                reminderContent: node.delta?.toPlainText() ?? '',
-                nodes: [node],
+                reminderContent: reminder.message,
                 status: NotificationReminderStatus.loaded,
               ),
             );
           }
         },
-        reset: () {},
       );
     });
   }
 
   late final ReminderPB reminder;
+  late final UserDateFormatPB dateFormat;
+  late final UserTimeFormatPB timeFormat;
 
   Future<String> _getCreatedAt(
     ReminderPB reminder,

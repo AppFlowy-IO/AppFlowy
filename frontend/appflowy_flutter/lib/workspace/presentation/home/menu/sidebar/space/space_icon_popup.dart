@@ -6,6 +6,7 @@ import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -40,11 +41,13 @@ class SpaceIconPopup extends StatefulWidget {
     this.icon,
     this.iconColor,
     this.cornerRadius = 16,
+    this.space,
     required this.onIconChanged,
   });
 
   final String? icon;
   final String? iconColor;
+  final ViewPB? space;
   final void Function(String? icon, String? color) onIconChanged;
   final double cornerRadius;
 
@@ -114,11 +117,20 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
                 builder: (_, value, __) {
                   Widget child;
                   if (value == null) {
-                    child = const DefaultSpaceIcon(
-                      cornerRadius: 16.0,
-                      dimension: 32,
-                      iconDimension: 32,
-                    );
+                    if (widget.space == null) {
+                      child = DefaultSpaceIcon(
+                        cornerRadius: widget.cornerRadius,
+                        dimension: 32,
+                        iconDimension: 32,
+                      );
+                    } else {
+                      child = SpaceIcon(
+                        dimension: 32,
+                        space: widget.space!,
+                        svgSize: 24,
+                        cornerRadius: widget.cornerRadius,
+                      );
+                    }
                   } else if (value.contains('space_icon')) {
                     child = ClipRRect(
                       borderRadius: BorderRadius.circular(widget.cornerRadius),

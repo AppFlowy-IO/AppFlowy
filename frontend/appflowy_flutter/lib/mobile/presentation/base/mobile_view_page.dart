@@ -47,9 +47,17 @@ class _MobileViewPageState extends State<MobileViewPage> {
   final ValueNotifier<double> _appBarOpacity = ValueNotifier(1.0);
 
   @override
+  void initState() {
+    super.initState();
+
+    getIt<ReminderBloc>().add(const ReminderEvent.started());
+  }
+
+  @override
   void dispose() {
     _appBarOpacity.dispose();
     _scrollNotificationObserver = null;
+
     super.dispose();
   }
 
@@ -78,8 +86,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
                     ViewBloc(view: view)..add(const ViewEvent.initial()),
               ),
               BlocProvider.value(
-                value: getIt<ReminderBloc>()
-                  ..add(const ReminderEvent.started()),
+                value: getIt<ReminderBloc>(),
               ),
               if (view.layout.isDocumentView)
                 BlocProvider(

@@ -6,6 +6,8 @@ import 'package:appflowy/mobile/presentation/notifications/widgets/color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -76,7 +78,7 @@ class UnreadRedDot extends StatelessWidget {
   }
 }
 
-class NotificationContent extends StatelessWidget {
+class NotificationContent extends StatefulWidget {
   const NotificationContent({
     super.key,
     required this.reminder,
@@ -85,9 +87,28 @@ class NotificationContent extends StatelessWidget {
   final ReminderPB reminder;
 
   @override
+  State<NotificationContent> createState() => _NotificationContentState();
+}
+
+class _NotificationContentState extends State<NotificationContent> {
+  @override
+  void didUpdateWidget(covariant NotificationContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    context.read<NotificationReminderBloc>().add(
+          const NotificationReminderEvent.reset(),
+        );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<NotificationReminderBloc, NotificationReminderState>(
       builder: (context, state) {
+        final view = state.view;
+        if (view == null) {
+          return const SizedBox.shrink();
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -105,20 +126,39 @@ class NotificationContent extends StatelessWidget {
             // content
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
-              child: IntrinsicHeight(
-                child: BlocProvider(
-                  create: (context) => DocumentPageStyleBloc(view: state.view!),
-                  child: NotificationDocumentContent(
-                    reminder: reminder,
-                    nodes: state.nodes,
-                  ),
-                ),
-              ),
+              child: _buildContent(view, nodes: state.nodes),
             ),
           ],
         );
       },
     );
+  }
+
+  Widget _buildContent(ViewPB view, {List<Node>? nodes}) {
+    if (view.layout.isDocumentView && nodes != null) {
+      return IntrinsicHeight(
+        child: BlocProvider(
+          create: (context) => DocumentPageStyleBloc(view: view),
+          child: NotificationDocumentContent(
+            reminder: widget.reminder,
+            nodes: nodes,
+          ),
+        ),
+      );
+    } else if (view.layout.isDatabaseView) {
+      final opacity = widget.reminder.type == ReminderType.past ? 0.3 : 1.0;
+      return Opacity(
+        opacity: opacity,
+        child: FlowyText(
+          widget.reminder.message,
+          fontSize: 14,
+          figmaLineHeight: 22,
+          color: context.notificationItemTextColor,
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 
   Widget _buildHeader() {

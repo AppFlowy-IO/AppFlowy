@@ -108,7 +108,7 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
   ) {
     final child = _buildActionButton(context, null);
     return AppFlowyPopover(
-      constraints: BoxConstraints.loose(const Size(380, 432)),
+      constraints: BoxConstraints.loose(const Size(360, 432)),
       margin: const EdgeInsets.all(0),
       clickHandler: PopoverClickHandler.gestureDetector,
       offset: const Offset(0, -40),

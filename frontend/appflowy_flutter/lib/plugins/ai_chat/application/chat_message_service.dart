@@ -23,7 +23,7 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
                 ChatMessageMetaPB(
                   id: view.id,
                   name: view.name,
-                  text: pb.text,
+                  data: pb.text,
                   source: "appflowy document",
                 ),
               );

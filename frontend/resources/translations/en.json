@@ -177,6 +177,7 @@
     "referenceSource": "{} source found",
     "referenceSources": "{} sources found",
     "clickToMention": "Click to mention a page",
+    "uploadFile": "Upload PDFs, md or txt files to chat with",
     "indexingFile": "Indexing {}"
   },
   "trash": {
@@ -1909,7 +1910,8 @@
       "medium": "Medium",
       "mediumDark": "Medium-Dark",
       "dark": "Dark"
-    }
+    },
+    "openSourceIconsFrom": "Open source icons from"
   },
   "inlineActions": {
     "noResults": "No results",

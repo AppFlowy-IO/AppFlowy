@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -11,6 +9,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NotificationButton extends StatefulWidget {
@@ -22,6 +21,12 @@ class NotificationButton extends StatefulWidget {
 
 class _NotificationButtonState extends State<NotificationButton> {
   final mutex = PopoverMutex();
+
+  @override
+  void initState() {
+    super.initState();
+    getIt<ReminderBloc>().add(const ReminderEvent.started());
+  }
 
   @override
   void dispose() {
@@ -56,8 +61,10 @@ class _NotificationButtonState extends State<NotificationButton> {
                         child: FlowyButton(
                           useIntrinsicWidth: true,
                           margin: EdgeInsets.zero,
-                          text:
-                              _buildNotificationIcon(context, state.hasUnreads),
+                          text: _buildNotificationIcon(
+                            context,
+                            state.hasUnreads,
+                          ),
                         ),
                       ),
                     ),

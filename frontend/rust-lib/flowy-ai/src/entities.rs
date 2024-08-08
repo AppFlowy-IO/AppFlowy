@@ -9,6 +9,29 @@ use flowy_ai_pub::cloud::{
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
 use validator::Validate;
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct ChatId {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub value: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct ChatInfoPB {
+  #[pb(index = 1)]
+  pub chat_id: String,
+
+  #[pb(index = 2)]
+  pub files: Vec<FilePB>,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct FilePB {
+  #[pb(index = 1)]
+  pub id: String,
+  #[pb(index = 2)]
+  pub name: String,
+}
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct SendChatPayloadPB {
@@ -53,7 +76,7 @@ pub struct ChatMessageMetaPB {
   pub name: String,
 
   #[pb(index = 3)]
-  pub text: String,
+  pub data: String,
 
   #[pb(index = 4)]
   pub source: String,

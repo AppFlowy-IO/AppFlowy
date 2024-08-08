@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
@@ -21,6 +19,7 @@ import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 final addBlockToolbarItem = AppFlowyMobileToolbarItem(
@@ -230,16 +229,16 @@ class _AddBlockMenu extends StatelessWidget {
           AppGlobals.rootNavKey.currentContext?.pop(true);
 
           final currentViewId = getIt<MenuSharedState>().latestOpenView?.id;
-          final viewId = await showPageSelectorSheet(
+          final view = await showPageSelectorSheet(
             context,
             currentViewId: currentViewId,
           );
 
-          if (viewId != null) {
+          if (view != null) {
             Future.delayed(const Duration(milliseconds: 100), () {
               editorState.insertBlockAfterCurrentSelection(
                 selection,
-                pageMentionNode(viewId),
+                pageMentionNode(view.id),
               );
             });
           }

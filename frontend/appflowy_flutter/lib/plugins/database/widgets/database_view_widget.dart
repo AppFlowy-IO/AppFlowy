@@ -56,7 +56,8 @@ class _DatabaseViewWidgetState extends State<DatabaseViewWidget> {
         shrinkWrap: widget.shrinkWrap,
         context: PluginContext(),
         data: {
-          kDatabasePluginWidgetBuilderHorizontalPadding: 40.0,
+          kDatabasePluginWidgetBuilderHorizontalPadding:
+              view.layout == ViewLayoutPB.Grid ? 40.0 : 0.0,
         },
       ),
     );

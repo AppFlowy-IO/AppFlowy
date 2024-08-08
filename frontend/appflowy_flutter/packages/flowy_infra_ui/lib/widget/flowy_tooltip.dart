@@ -51,7 +51,7 @@ class FlowyTooltip extends StatelessWidget {
 
 extension FlowyToolTipExtension on BuildContext {
   double tooltipFontSize() => 14.0;
-  double tooltipHeight() => 18.0 / tooltipFontSize();
+  double tooltipHeight() => 20.0 / tooltipFontSize();
   Color tooltipFontColor() => Theme.of(this).brightness == Brightness.light
       ? Colors.white
       : Colors.black;
@@ -62,6 +62,7 @@ extension FlowyToolTipExtension on BuildContext {
           fontSize: tooltipFontSize(),
           fontWeight: FontWeight.w400,
           height: tooltipHeight(),
+          leadingDistribution: TextLeadingDistribution.even,
         );
   }
 
