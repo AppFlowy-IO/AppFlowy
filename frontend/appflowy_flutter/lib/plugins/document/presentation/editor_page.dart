@@ -422,7 +422,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       calloutItem,
       outlineItem,
       mathEquationItem,
-      codeBlockItem(LocaleKeys.document_selectionMenu_codeBlock.tr()),
+      codeBlockSelectionMenuItem,
       toggleListBlockItem,
       emojiMenuItem,
       dateMenuItem,
