@@ -40,6 +40,8 @@ function DuplicateModal({ open, onClose }: { open: boolean; onClose: () => void 
     selectedSpaceId,
     workspaceLoading,
     spaceLoading,
+    loadWorkspaces,
+    loadSpaces,
   } = useLoadWorkspaces();
 
   useEffect(() => {
@@ -48,6 +50,18 @@ function DuplicateModal({ open, onClose }: { open: boolean; onClose: () => void 
       setSelectedSpaceId('');
     }
   }, [open, setSelectedSpaceId, setSelectedWorkspaceId, workspaceList]);
+
+  useEffect(() => {
+    if (open) {
+      void loadWorkspaces();
+    }
+  }, [loadWorkspaces, open]);
+  
+  useEffect(() => {
+    if (selectedWorkspaceId) {
+      void loadSpaces(selectedWorkspaceId);
+    }
+  }, [loadSpaces, selectedWorkspaceId]);
 
   const handleDuplicate = useCallback(async () => {
     if (!viewId) return;

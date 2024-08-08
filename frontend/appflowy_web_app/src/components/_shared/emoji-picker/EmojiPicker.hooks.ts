@@ -1,3 +1,4 @@
+import { notify } from '@/components/_shared/notify';
 import { loadEmojiData } from '@/utils/emoji';
 import { EmojiMartData } from '@emoji-mart/data';
 import { PopoverProps } from '@mui/material/Popover';
@@ -18,6 +19,8 @@ interface Emoji {
 
 export function useLoadEmojiData({ onEmojiSelect }: { onEmojiSelect: (emoji: string) => void }) {
   const [searchValue, setSearchValue] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
   const [emojiCategories, setEmojiCategories] = useState<EmojiCategory[]>([]);
   const [skin, setSkin] = useState<number>(() => {
     return Number(localStorage.getItem('emoji-mart.skin')) || 0;
@@ -30,38 +33,50 @@ export function useLoadEmojiData({ onEmojiSelect }: { onEmojiSelect: (emoji: str
 
   const searchEmojiData = useCallback(
     async (searchVal?: string) => {
-      const emojiData = await loadEmojiData();
+      setLoading(true);
+      setIsEmpty(false);
+      try {
+        const emojiData = await loadEmojiData();
+        const { emojis, categories } = emojiData as EmojiMartData;
 
-      const { emojis, categories } = emojiData as EmojiMartData;
+        const filteredCategories = categories
+          .map((category) => {
+            const { id, emojis: categoryEmojis } = category;
 
-      const filteredCategories = categories
-        .map((category) => {
-          const { id, emojis: categoryEmojis } = category;
+            return {
+              id,
+              emojis: categoryEmojis
+                .filter((emojiId) => {
+                  const emoji = emojis[emojiId];
 
-          return {
-            id,
-            emojis: categoryEmojis
-              .filter((emojiId) => {
-                const emoji = emojis[emojiId];
+                  if (!searchVal) return true;
+                  return filterSearchValue(emoji, searchVal);
+                })
+                .map((emojiId) => {
+                  const emoji = emojis[emojiId];
+                  const { name, skins } = emoji;
 
-                if (!searchVal) return true;
-                return filterSearchValue(emoji, searchVal);
-              })
-              .map((emojiId) => {
-                const emoji = emojis[emojiId];
-                const { name, skins } = emoji;
+                  return {
+                    id: emojiId,
+                    name,
+                    native: skins[skin] ? skins[skin].native : skins[0].native,
+                  };
+                }),
+            };
+          })
+          .filter((category) => category.emojis.length > 0);
 
-                return {
-                  id: emojiId,
-                  name,
-                  native: skins[skin] ? skins[skin].native : skins[0].native,
-                };
-              }),
-          };
-        })
-        .filter((category) => category.emojis.length > 0);
+        if (filteredCategories.length === 0) {
+          setIsEmpty(true);
+        }
 
-      setEmojiCategories(filteredCategories);
+        setEmojiCategories(filteredCategories);
+      } catch (_e) {
+        notify.error('Failed to load emoji data');
+        setIsEmpty(true);
+      }
+
+      setLoading(false);
     },
     [skin]
   );
@@ -90,6 +105,8 @@ export function useLoadEmojiData({ onEmojiSelect }: { onEmojiSelect: (emoji: str
     onSelect,
     onSkinChange,
     skin,
+    loading,
+    isEmpty,
   };
 }
 

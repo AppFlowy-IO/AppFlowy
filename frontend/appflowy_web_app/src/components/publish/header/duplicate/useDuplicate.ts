@@ -58,36 +58,28 @@ export function useLoadWorkspaces() {
 
   const service = useContext(AFConfigContext)?.service;
 
-  useEffect(() => {
-    void (async () => {
-      setWorkspaceLoading(true);
-      try {
-        const workspaces = await service?.getWorkspaces();
+  const loadWorkspaces = useCallback(async () => {
+    setWorkspaceLoading(true);
+    try {
+      const workspaces = await service?.getWorkspaces();
 
-        if (workspaces) {
-          setWorkspaceList(workspaces);
-          setSelectedWorkspaceId(workspaces[0].id);
-        } else {
-          setWorkspaceList([]);
-          setSelectedWorkspaceId('');
-        }
-      } catch (e) {
-        notify.error('Failed to load workspaces');
-      } finally {
-        setWorkspaceLoading(false);
+      if (workspaces) {
+        setWorkspaceList(workspaces);
+        setSelectedWorkspaceId(workspaces[0].id);
+      } else {
+        setWorkspaceList([]);
+        setSelectedWorkspaceId('');
       }
-    })();
+    } catch (e) {
+      notify.error('Failed to load workspaces');
+    } finally {
+      setWorkspaceLoading(false);
+    }
   }, [service]);
 
-  useEffect(() => {
-    if (workspaceList.length === 0 || !selectedWorkspaceId || workspaceLoading) {
-      setSpaceList([]);
-      setSelectedSpaceId('');
-      return;
-    }
-
-    setSpaceLoading(true);
-    void (async () => {
+  const loadSpaces = useCallback(
+    async (selectedWorkspaceId: string) => {
+      setSpaceLoading(true);
       try {
         const folder = await service?.getWorkspaceFolder(selectedWorkspaceId);
 
@@ -115,8 +107,9 @@ export function useLoadWorkspaces() {
         setSelectedSpaceId('');
         setSpaceLoading(false);
       }
-    })();
-  }, [selectedWorkspaceId, service, workspaceList.length, workspaceLoading]);
+    },
+    [service]
+  );
 
   return {
     workspaceList,
@@ -127,5 +120,7 @@ export function useLoadWorkspaces() {
     setSelectedSpaceId,
     workspaceLoading,
     spaceLoading,
+    loadWorkspaces,
+    loadSpaces,
   };
 }
