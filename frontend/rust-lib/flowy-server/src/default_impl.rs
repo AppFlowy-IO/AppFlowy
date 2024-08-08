@@ -100,7 +100,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
   async fn index_file(
     &self,
     _workspace_id: &str,
-    _file_path: PathBuf,
+    _file_path: &PathBuf,
     _chat_id: &str,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support().with_context("indexing file is not supported in local server."))

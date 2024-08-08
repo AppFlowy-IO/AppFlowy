@@ -242,13 +242,13 @@ impl ChatCloudService for AICloudServiceMiddleware {
   async fn index_file(
     &self,
     workspace_id: &str,
-    file_path: PathBuf,
+    file_path: &PathBuf,
     chat_id: &str,
   ) -> Result<(), FlowyError> {
     if self.local_llm_controller.is_running() {
       self
         .local_llm_controller
-        .index_file(chat_id, file_path)
+        .index_file(chat_id, file_path.clone())
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
       Ok(())

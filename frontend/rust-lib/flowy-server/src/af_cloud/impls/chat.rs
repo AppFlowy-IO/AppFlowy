@@ -192,7 +192,7 @@ where
   async fn index_file(
     &self,
     _workspace_id: &str,
-    _file_path: PathBuf,
+    _file_path: &PathBuf,
     _chat_id: &str,
   ) -> Result<(), FlowyError> {
     return Err(

@@ -1,22 +1,19 @@
 use crate::chat::Chat;
 use crate::entities::{
-  ChatMessageListPB, ChatMessagePB, CreateChatContextPB, RepeatedRelatedQuestionPB,
+  ChatInfoPB, ChatMessageListPB, ChatMessagePB, FilePB, RepeatedRelatedQuestionPB,
 };
 use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
-use crate::persistence::{insert_chat, ChatTable};
+use crate::persistence::{insert_chat, read_chat_metadata, ChatTable};
 
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
-use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessageMetadata, ChatMessageType, CreateTextChatContext,
-};
+use flowy_ai_pub::cloud::{ChatCloudService, ChatMessageMetadata, ChatMessageType};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 
 use lib_infra::util::timestamp;
-use serde_json::json;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tracing::{info, trace};
@@ -106,25 +103,22 @@ impl AIManager {
     Ok(())
   }
 
-  pub async fn create_chat_context(&self, context: CreateChatContextPB) -> FlowyResult<()> {
-    let workspace_id = self.user_service.workspace_id()?;
-    let context = CreateTextChatContext {
-      chat_id: context.chat_id,
-      content_type: context.content_type,
-      text: context.text,
-      chunk_size: 2000,
-      chunk_overlap: 20,
-      metadata: context
-        .metadata
-        .into_iter()
-        .map(|(k, v)| (k, json!(v)))
-        .collect(),
-    };
-    self
-      .cloud_service_wm
-      .create_chat_context(&workspace_id, context)
-      .await?;
-    Ok(())
+  pub async fn get_chat_info(&self, chat_id: &str) -> FlowyResult<ChatInfoPB> {
+    let mut conn = self.user_service.sqlite_connection(0)?;
+    let metadata = read_chat_metadata(&mut *conn, chat_id)?;
+    let files = metadata
+      .files
+      .into_iter()
+      .map(|file| FilePB {
+        id: file.id,
+        name: file.name,
+      })
+      .collect();
+
+    Ok(ChatInfoPB {
+      chat_id: chat_id.to_string(),
+      files,
+    })
   }
 
   pub async fn create_chat(&self, uid: &i64, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
@@ -260,10 +254,10 @@ fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
     chat_id: chat_id.to_string(),
     created_at: timestamp(),
     name: "".to_string(),
-    local_model_path: "".to_string(),
-    local_model_name: "".to_string(),
+    local_files: "".to_string(),
+    metadata: "".to_string(),
     local_enabled: false,
-    sync_to_cloud: true,
+    sync_to_cloud: false,
   };
 
   insert_chat(conn, &row)?;

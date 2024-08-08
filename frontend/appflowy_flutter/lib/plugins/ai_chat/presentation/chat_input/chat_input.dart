@@ -1,17 +1,21 @@
+import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:extended_text_field/extended_text_field.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 import 'chat_at_button.dart';
+import 'chat_attachment.dart';
 import 'chat_send_button.dart';
 import 'chat_input_span.dart';
 
@@ -19,7 +23,6 @@ class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
   const ChatInput({
     super.key,
-    this.isAttachmentUploading,
     this.onAttachmentPressed,
     required this.onSendPressed,
     required this.chatId,
@@ -30,7 +33,6 @@ class ChatInput extends StatefulWidget {
     required this.aiType,
   });
 
-  final bool? isAttachmentUploading;
   final VoidCallback? onAttachmentPressed;
   final void Function(types.PartialText) onSendPressed;
   final void Function() onStopStreaming;
@@ -78,11 +80,16 @@ class _ChatInputState extends State<ChatInput> {
       },
     );
 
+    _inputFocusNode.addListener(() {
+      setState(() {});
+    });
+
     _inputActionControl = ChatInputActionControl(
       chatId: widget.chatId,
       textController: _textController,
       textFieldFocusNode: _inputFocusNode,
     );
+    _inputFocusNode.requestFocus();
     _handleSendButtonVisibilityModeChange();
   }
 
@@ -99,33 +106,42 @@ class _ChatInputState extends State<ChatInput> {
     const textPadding = EdgeInsets.symmetric(horizontal: 16);
     const buttonPadding = EdgeInsets.symmetric(horizontal: 2);
     const inputPadding = EdgeInsets.all(6);
+    const double radius = 30;
 
-    return Focus(
-      child: Padding(
-        padding: inputPadding,
+    return Padding(
+      padding: inputPadding,
+      // ignore: use_decorated_box
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: _inputFocusNode.hasFocus
+                ? Theme.of(context).colorScheme.primary.withOpacity(0.6)
+                : Colors.transparent,
+          ), // Set your desired border color and width here
+          borderRadius: BorderRadius.circular(radius),
+        ),
         child: Material(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(radius),
           color: isMobile
               ? Theme.of(context).colorScheme.surfaceContainer
               : Theme.of(context).colorScheme.surfaceContainerHighest,
-          elevation: 0.6,
-          child: Row(
-            children: [
-              if (widget.onAttachmentPressed != null)
-                AttachmentButton(
-                  isLoading: widget.isAttachmentUploading ?? false,
-                  onPressed: widget.onAttachmentPressed,
-                  padding: buttonPadding,
-                ),
-              Expanded(child: _inputTextField(textPadding)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              children: [
+                // TODO(lucas): support mobile
+                if (PlatformExtension.isDesktop &&
+                    widget.aiType == const AIType.localAI())
+                  _attachmentButton(buttonPadding),
+                Expanded(child: _inputTextField(textPadding)),
 
-              // TODO(lucas): support mobile
-              if (PlatformExtension.isDesktop &&
-                  widget.aiType == const AIType.appflowyAI())
-                _atButton(buttonPadding),
-              _sendButton(buttonPadding),
-              const HSpace(14),
-            ],
+                // TODO(lucas): support mobile
+                if (PlatformExtension.isDesktop &&
+                    widget.aiType == const AIType.appflowyAI())
+                  _atButton(buttonPadding),
+                _sendButton(buttonPadding),
+              ],
+            ),
           ),
         ),
       ),
@@ -222,20 +238,54 @@ class _ChatInputState extends State<ChatInput> {
   Widget _sendButton(EdgeInsets buttonPadding) {
     return Padding(
       padding: buttonPadding,
-      child: ChatInputSendButton(
-        onSendPressed: () {
-          if (!_sendButtonEnabled) {
-            return;
-          }
+      child: SizedBox.square(
+        dimension: 26,
+        child: ChatInputSendButton(
+          onSendPressed: () {
+            if (!_sendButtonEnabled) {
+              return;
+            }
 
-          if (!widget.isStreaming) {
-            widget.onStopStreaming();
-            _handleSendPressed();
-          }
-        },
-        onStopStreaming: () => widget.onStopStreaming(),
-        isStreaming: widget.isStreaming,
-        enabled: _sendButtonEnabled,
+            if (!widget.isStreaming) {
+              widget.onStopStreaming();
+              _handleSendPressed();
+            }
+          },
+          onStopStreaming: () => widget.onStopStreaming(),
+          isStreaming: widget.isStreaming,
+          enabled: _sendButtonEnabled,
+        ),
+      ),
+    );
+  }
+
+  Widget _attachmentButton(EdgeInsets buttonPadding) {
+    return Padding(
+      padding: buttonPadding,
+      child: SizedBox.square(
+        dimension: 26,
+        child: ChatInputAttachment(
+          onTap: () async {
+            final path = await getIt<FilePickerService>().pickFiles(
+              dialogTitle: '',
+              type: FileType.custom,
+              allowedExtensions: ["pdf"],
+            );
+            if (path == null) {
+              return;
+            }
+
+            for (final file in path.files) {
+              if (file.path != null) {
+                if (mounted) {
+                  context
+                      .read<ChatFileBloc>()
+                      .add(ChatFileEvent.newFile(file.path!, file.name));
+                }
+              }
+            }
+          },
+        ),
       ),
     );
   }
@@ -243,12 +293,15 @@ class _ChatInputState extends State<ChatInput> {
   Widget _atButton(EdgeInsets buttonPadding) {
     return Padding(
       padding: buttonPadding,
-      child: ChatInputAtButton(
-        onTap: () {
-          _textController.text += '@';
-          _inputFocusNode.requestFocus();
-          _handleOnTextChange(context, _textController.text);
-        },
+      child: SizedBox.square(
+        dimension: 26,
+        child: ChatInputAtButton(
+          onTap: () {
+            _textController.text += '@';
+            _inputFocusNode.requestFocus();
+            _handleOnTextChange(context, _textController.text);
+          },
+        ),
       ),
     );
   }

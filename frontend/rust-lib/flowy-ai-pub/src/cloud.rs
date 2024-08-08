@@ -83,7 +83,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
   async fn index_file(
     &self,
     workspace_id: &str,
-    file_path: PathBuf,
+    file_path: &PathBuf,
     chat_id: &str,
   ) -> Result<(), FlowyError>;
 

@@ -51,9 +51,7 @@ class AIMessageMetadata extends StatelessWidget {
                         fontSize: 14,
                       ),
                     ),
-                    onTap: () {
-                      onSelectedMetadata(m);
-                    },
+                    onTap: () => onSelectedMetadata(m),
                   ),
                 ),
               )

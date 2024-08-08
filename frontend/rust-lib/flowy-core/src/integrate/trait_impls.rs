@@ -729,7 +729,7 @@ impl ChatCloudService for ServerProvider {
   async fn index_file(
     &self,
     workspace_id: &str,
-    file_path: PathBuf,
+    file_path: &PathBuf,
     chat_id: &str,
   ) -> Result<(), FlowyError> {
     self
