@@ -6,7 +6,7 @@ use flowy_ai_pub::cloud::{
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
-use std::path::PathBuf;
+use std::path::Path;
 
 pub(crate) struct DefaultChatCloudServiceImpl;
 
@@ -100,7 +100,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
   async fn index_file(
     &self,
     _workspace_id: &str,
-    _file_path: &PathBuf,
+    _file_path: &Path,
     _chat_id: &str,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support().with_context("indexing file is not supported in local server."))

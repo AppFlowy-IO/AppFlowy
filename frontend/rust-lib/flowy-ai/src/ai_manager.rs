@@ -105,7 +105,7 @@ impl AIManager {
 
   pub async fn get_chat_info(&self, chat_id: &str) -> FlowyResult<ChatInfoPB> {
     let mut conn = self.user_service.sqlite_connection(0)?;
-    let metadata = read_chat_metadata(&mut *conn, chat_id)?;
+    let metadata = read_chat_metadata(&mut conn, chat_id)?;
     let files = metadata
       .files
       .into_iter()
