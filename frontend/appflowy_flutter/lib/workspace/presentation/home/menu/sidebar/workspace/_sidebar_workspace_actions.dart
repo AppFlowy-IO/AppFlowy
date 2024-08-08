@@ -85,14 +85,16 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
     BuildContext context,
     PopoverController controller,
   ) {
-    return FlowyButton(
-      leftIcon: buildLeftIcon(context),
+    return FlowyIconTextButton(
+      leftIconBuilder: (onHover) => buildLeftIcon(context, onHover),
       iconPadding: 10.0,
-      text: FlowyText.regular(
+      textBuilder: (onHover) => FlowyText.regular(
         name,
         fontSize: 14.0,
+        figmaLineHeight: 18.0,
         color: [WorkspaceMoreAction.delete, WorkspaceMoreAction.leave]
-                .contains(inner)
+                    .contains(inner) &&
+                onHover
             ? Theme.of(context).colorScheme.error
             : null,
       ),
@@ -161,12 +163,12 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
     }
   }
 
-  Widget buildLeftIcon(BuildContext context) {
+  Widget buildLeftIcon(BuildContext context, bool onHover) {
     switch (inner) {
       case WorkspaceMoreAction.delete:
         return FlowySvg(
           FlowySvgs.delete_s,
-          color: Theme.of(context).colorScheme.error,
+          color: onHover ? Theme.of(context).colorScheme.error : null,
         );
       case WorkspaceMoreAction.rename:
         return const FlowySvg(FlowySvgs.view_item_rename_s);
