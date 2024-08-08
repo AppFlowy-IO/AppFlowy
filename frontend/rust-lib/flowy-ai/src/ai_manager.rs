@@ -91,6 +91,10 @@ impl AIManager {
     Ok(())
   }
 
+  pub fn is_using_local_ai(&self) -> bool {
+    self.local_ai_controller.is_running()
+  }
+
   pub async fn delete_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
     if let Some((_, chat)) = self.chats.remove(chat_id) {
       chat.close();
@@ -244,9 +248,7 @@ impl AIManager {
     Ok(())
   }
 
-  pub fn local_ai_purchased(&self) {
-    // TODO(nathan): enable local ai
-  }
+  pub fn local_ai_purchased(&self) {}
 }
 
 fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {

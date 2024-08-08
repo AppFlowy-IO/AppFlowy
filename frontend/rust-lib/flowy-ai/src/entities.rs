@@ -79,7 +79,19 @@ pub struct ChatMessageMetaPB {
   pub data: String,
 
   #[pb(index = 4)]
+  pub data_type: ChatMessageMetaTypePB,
+
+  #[pb(index = 5)]
   pub source: String,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
+pub enum ChatMessageMetaTypePB {
+  #[default]
+  UnknownMetaType = 0,
+  Txt = 1,
+  Markdown = 2,
+  PDF = 3,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]

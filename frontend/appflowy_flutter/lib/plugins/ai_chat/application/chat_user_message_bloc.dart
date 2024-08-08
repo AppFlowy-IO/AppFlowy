@@ -1,23 +1,27 @@
-import 'package:appflowy/plugins/ai_chat/application/chat_member_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'chat_file_bloc.dart';
+import 'chat_message_service.dart';
 
 part 'chat_user_message_bloc.freezed.dart';
 
 class ChatUserMessageBloc
     extends Bloc<ChatUserMessageEvent, ChatUserMessageState> {
   ChatUserMessageBloc({
-    required Message message,
-    required ChatMember? member,
-  }) : super(ChatUserMessageState.initial(message, member)) {
+    required TextMessage message,
+    required String? metadata,
+  }) : super(
+          ChatUserMessageState.initial(
+            message,
+            chatFilesFromMetadataString(metadata),
+          ),
+        ) {
     on<ChatUserMessageEvent>(
       (event, emit) async {
         event.when(
           initial: () {},
-          refreshMember: (ChatMember member) {
-            emit(state.copyWith(member: member));
-          },
         );
       },
     );
@@ -27,20 +31,18 @@ class ChatUserMessageBloc
 @freezed
 class ChatUserMessageEvent with _$ChatUserMessageEvent {
   const factory ChatUserMessageEvent.initial() = Initial;
-  const factory ChatUserMessageEvent.refreshMember(ChatMember member) =
-      _MemberInfo;
 }
 
 @freezed
 class ChatUserMessageState with _$ChatUserMessageState {
   const factory ChatUserMessageState({
-    required Message message,
-    ChatMember? member,
+    required TextMessage message,
+    required List<ChatFile> files,
   }) = _ChatUserMessageState;
 
   factory ChatUserMessageState.initial(
-    Message message,
-    ChatMember? member,
+    TextMessage message,
+    List<ChatFile> files,
   ) =>
-      ChatUserMessageState(message: message, member: member);
+      ChatUserMessageState(message: message, files: files);
 }

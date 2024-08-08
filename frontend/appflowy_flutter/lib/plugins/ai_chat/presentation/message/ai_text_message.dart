@@ -32,7 +32,7 @@ class ChatAITextMessageWidget extends StatelessWidget {
   final Int64? questionId;
   final String chatId;
   final String? metadata;
-  final void Function(ChatMessageMetadata metadata) onSelectedMetadata;
+  final void Function(ChatMessageRefSource metadata) onSelectedMetadata;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,7 @@ class ChatAITextMessageWidget extends StatelessWidget {
                   children: [
                     AIMarkdownText(markdown: state.text),
                     AIMessageMetadata(
-                      metadata: state.metadata,
+                      sources: state.sources,
                       onSelectedMetadata: onSelectedMetadata,
                     ),
                   ],

@@ -21,7 +21,7 @@ class ChatInputAttachment extends StatelessWidget {
         icon: FlowySvg(
           FlowySvgs.ai_attachment_s,
           size: const Size.square(20),
-          color: Theme.of(context).colorScheme.primary,
+          color: Colors.grey.shade600,
         ),
         onPressed: onTap,
       ),
