@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_search_bar.dart';
 import 'package:appflowy/util/debounce.dart';
@@ -198,7 +199,7 @@ class _IconPickerState extends State<IconPicker> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FlowyText(
-              iconGroup.displayName,
+              iconGroup.displayName.capitalize(),
               fontSize: 12,
               figmaLineHeight: 18.0,
               color: context.pickerTextColor,
