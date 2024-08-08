@@ -19,16 +19,10 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 import 'chat_at_button.dart';
-<<<<<<< Updated upstream
-import 'chat_attachment.dart';
-import 'chat_input_span.dart';
-import 'chat_send_button.dart';
-=======
 import 'chat_input_attachment.dart';
 import 'chat_send_button.dart';
 import 'chat_input_span.dart';
 import 'layout_define.dart';
->>>>>>> Stashed changes
 
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
@@ -154,11 +148,6 @@ class _ChatInputState extends State<ChatInput> {
                     ),
                   ),
 
-<<<<<<< Updated upstream
-                if (widget.aiType == const AIType.appflowyAI())
-                  _atButton(buttonPadding),
-                _sendButton(buttonPadding),
-=======
                 //
                 Row(
                   children: [
@@ -179,7 +168,6 @@ class _ChatInputState extends State<ChatInput> {
                     _sendButton(buttonPadding),
                   ],
                 ),
->>>>>>> Stashed changes
               ],
             ),
           ),

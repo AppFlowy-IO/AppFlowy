@@ -187,7 +187,7 @@ class ChatFile extends Equatable {
         fileType = ChatMessageMetaTypePB.Markdown;
         break;
       default:
-        fileType = ChatMessageMetaTypePB.UnknownFile;
+        fileType = ChatMessageMetaTypePB.UnknownMetaType;
     }
 
     return ChatFile(
