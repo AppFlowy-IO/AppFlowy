@@ -35,6 +35,7 @@ class MobileSpaceHeader extends StatelessWidget {
             SpaceIcon(
               dimension: 24,
               space: space,
+              svgSize: 18,
               cornerRadius: 6.0,
             ),
             const HSpace(8),
