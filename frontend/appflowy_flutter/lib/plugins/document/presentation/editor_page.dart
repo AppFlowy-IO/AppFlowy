@@ -387,8 +387,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         editorState: editorState,
         editorScrollController: editorScrollController,
         textDirection: textDirection,
-        tooltipBuilder: (context, id, message, child) => widget.styleCustomizer
-            .buildToolbarItemTooltip(context, id, message, child,),
+        tooltipBuilder: (context, id, message, child) =>
+            widget.styleCustomizer.buildToolbarItemTooltip(
+          context,
+          id,
+          message,
+          child,
+        ),
         child: editor,
       ),
     );
@@ -405,6 +410,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       }
     }
     return [
+      autoGeneratorMenuItem,
       ...items,
       inlineGridMenuItem(documentBloc),
       referencedGridMenuItem,
@@ -419,7 +425,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       codeBlockItem(LocaleKeys.document_selectionMenu_codeBlock.tr()),
       toggleListBlockItem,
       emojiMenuItem,
-      autoGeneratorMenuItem,
       dateMenuItem,
       multiImageMenuItem,
       fileMenuItem,

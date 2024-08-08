@@ -1,5 +1,7 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/text_robot.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
@@ -41,7 +43,11 @@ Node autoCompletionNode({
 
 SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
   getName: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr,
-  iconData: Icons.generating_tokens,
+  iconBuilder: (editorState, onSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.toolbar_item_ai_s,
+    isSelected: onSelected,
+    style: style,
+  ),
   keywords: ['ai', 'openai', 'writer', 'ai writer', 'autogenerator'],
   nodeBuilder: (editorState, _) {
     final node = autoCompletionNode(start: editorState.selection!);
