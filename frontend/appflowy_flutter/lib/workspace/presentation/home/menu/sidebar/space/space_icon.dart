@@ -11,12 +11,14 @@ class SpaceIcon extends StatelessWidget {
   const SpaceIcon({
     super.key,
     required this.dimension,
+    this.textDimension,
     this.cornerRadius = 0,
     required this.space,
     this.svgSize,
   });
 
   final double dimension;
+  final double? textDimension;
   final double cornerRadius;
   final ViewPB space;
   final double? svgSize;
@@ -30,11 +32,11 @@ class SpaceIcon extends StatelessWidget {
 
     if (space.spaceIcon == null) {
       final name = space.name.isNotEmpty ? space.name.capitalize()[0] : '';
-      icon = FlowyText(
+      icon = FlowyText.medium(
         name,
         color: Theme.of(context).colorScheme.surface,
         fontSize: svgSize,
-        figmaLineHeight: dimension,
+        figmaLineHeight: textDimension ?? dimension,
       );
       color = Color(int.parse(builtInSpaceColors.first));
     } else {
