@@ -44,7 +44,7 @@ Node autoCompletionNode({
 SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
   getName: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr,
   iconBuilder: (editorState, onSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.toolbar_item_ai_s,
+    data: FlowySvgs.menu_item_ai_writer_s,
     isSelected: onSelected,
     style: style,
   ),
