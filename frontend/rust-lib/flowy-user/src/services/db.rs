@@ -15,7 +15,6 @@ use flowy_sqlite::{
 use flowy_user_pub::entities::{UserProfile, UserWorkspace};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
-use parking_lot::RwLock;
 use tracing::{error, event, info, instrument};
 
 use crate::services::sqlite_sql::user_sql::UserTable;

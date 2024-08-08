@@ -2,7 +2,6 @@ use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use anyhow::Error;
-use parking_lot::RwLock;
 use postgrest::Postgrest;
 
 use flowy_error::{ErrorCode, FlowyError};

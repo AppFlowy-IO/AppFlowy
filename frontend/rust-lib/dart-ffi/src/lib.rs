@@ -2,7 +2,6 @@
 
 use allo_isolate::Isolate;
 use lazy_static::lazy_static;
-use parking_lot::Mutex;
 use semver::Version;
 use std::rc::Rc;
 use std::sync::Arc;

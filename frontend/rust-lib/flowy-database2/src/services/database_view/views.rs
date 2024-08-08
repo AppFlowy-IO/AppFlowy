@@ -5,7 +5,7 @@ use std::sync::Arc;
 use nanoid::nanoid;
 use tokio::sync::{broadcast, RwLock};
 
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 
 use crate::services::cell::CellCache;
 use crate::services::database::DatabaseRowEvent;
@@ -59,12 +59,7 @@ impl DatabaseViews {
       return Ok(editor.clone());
     }
 
-    let mut editor_map = self.view_editors.try_write().map_err(|err| {
-      FlowyError::internal().with_context(format!(
-        "fail to acquire the lock of editor_by_view_id: {}",
-        err
-      ))
-    })?;
+    let mut editor_map = self.view_editors.write().await;
     let database_id = self.database.read().await.get_database_id();
     let editor = Arc::new(
       DatabaseViewEditor::new(

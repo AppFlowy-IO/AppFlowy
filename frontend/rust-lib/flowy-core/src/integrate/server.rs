@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::sync::{Arc, Weak};
 
-use parking_lot::RwLock;
 use serde_repr::*;
 
 use flowy_error::{FlowyError, FlowyResult};

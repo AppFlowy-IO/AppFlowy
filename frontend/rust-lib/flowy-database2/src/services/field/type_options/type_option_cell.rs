@@ -188,7 +188,8 @@ where
 
     let cell_data_cache = self.cell_data_cache.as_ref()?;
 
-    cell_data_cache.get(key.as_ref()).cloned()
+    let cell = cell_data_cache.get::<T::CellData>(key.as_ref())?;
+    Some(cell.value().clone())
   }
 
   fn set_cell_data_in_cache(&self, cell: &Cell, cell_data: T::CellData, field: &Field) {

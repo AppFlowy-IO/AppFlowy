@@ -21,7 +21,6 @@ use crate::view_operation::{
   create_view, EncodedCollabWrapper, FolderOperationHandler, FolderOperationHandlers,
 };
 use collab::core::collab::DataSource;
-use collab::preclude::Collab;
 use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::error::FolderError;
 use collab_folder::{
@@ -40,11 +39,10 @@ use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::future;
-use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
-use std::ops::Deref;
 use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
 use tracing::{error, info, instrument};
 
 pub trait FolderUser: Send + Sync {
@@ -55,7 +53,7 @@ pub trait FolderUser: Send + Sync {
 
 pub struct FolderManager {
   /// MutexFolder is the folder that is used to store the data.
-  pub(crate) mutex_folder: Arc<MutexFolder>,
+  pub(crate) mutex_folder: Arc<RwLock<Option<Folder>>>,
   pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,
   pub(crate) user: Arc<dyn FolderUser>,
   pub(crate) operation_handlers: FolderOperationHandlers,
@@ -73,10 +71,9 @@ impl FolderManager {
     folder_indexer: Arc<dyn FolderIndexManager>,
     store_preferences: Arc<KVStorePreferences>,
   ) -> FlowyResult<Self> {
-    let mutex_folder = Arc::new(MutexFolder::default());
     let manager = Self {
       user,
-      mutex_folder,
+      mutex_folder: Default::default(),
       collab_builder,
       operation_handlers,
       cloud_service,
@@ -139,14 +136,13 @@ impl FolderManager {
     collab_db: Weak<CollabKVDB>,
     doc_state: DataSource,
     folder_notifier: T,
-  ) -> Result<Folder, FlowyError> {
+  ) -> Result<Arc<RwLock<Folder>>, FlowyError> {
     let folder_notifier = folder_notifier.into();
     // only need the check the workspace id when the doc state is not from the disk.
     let should_check_workspace_id = !matches!(doc_state, DataSource::Disk);
-    let should_auto_initialize = !should_check_workspace_id;
     let config = CollabBuilderConfig::default()
       .sync_enable(true)
-      .auto_initialize(should_auto_initialize);
+      .auto_initialize(true);
 
     let object_id = workspace_id;
     let collab = self.collab_builder.build_with_config(
@@ -156,26 +152,23 @@ impl FolderManager {
       CollabType::Folder,
       collab_db,
       doc_state,
-      config,
     )?;
-    let (should_clear, err) = match Folder::open(UserId::from(uid), collab, folder_notifier) {
-      Ok(mut folder) => {
-        if should_check_workspace_id {
-          // check the workspace id in the folder is matched with the workspace id. Just in case the folder
-          // is overwritten by another workspace.
-          let folder_workspace_id = folder.get_workspace_id().unwrap_or_default();
-          if folder_workspace_id != workspace_id {
-            error!(
-              "expect workspace_id: {}, actual workspace_id: {}",
-              workspace_id, folder_workspace_id
-            );
-            return Err(FlowyError::workspace_data_not_match());
-          }
-          // Initialize the folder manually
-          folder.initialize();
-        }
-        return Ok(folder);
-      },
+    if should_check_workspace_id {
+      // check the workspace id in the folder is matched with the workspace id. Just in case the folder
+      // is overwritten by another workspace.
+      if collab.workspace_id != workspace_id {
+        error!(
+          "expect workspace_id: {}, actual workspace_id: {}",
+          workspace_id, collab.workspace_id
+        );
+        return Err(FlowyError::workspace_data_not_match());
+      }
+    }
+    let result = collab.finalize(config, |collab, o| {
+      Folder::open(UserId::from(o.uid), collab, folder_notifier)
+    });
+    let (should_clear, err) = match result {
+      Ok(folder) => return Ok(folder),
       Err(err) => (matches!(err, FolderError::NoRequiredData(_)), err),
     };
 
@@ -196,7 +189,7 @@ impl FolderManager {
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
-  ) -> Result<Collab, FlowyError> {
+  ) -> Result<Arc<RwLock<Folder>>, FlowyError> {
     let object_id = workspace_id;
     let collab = self.collab_builder.build_with_config(
       workspace_id,
@@ -205,9 +198,12 @@ impl FolderManager {
       CollabType::Folder,
       collab_db,
       DataSource::Disk,
-      CollabBuilderConfig::default().sync_enable(true),
     )?;
-    Ok(collab)
+    let folder = collab.finalize(
+      CollabBuilderConfig::default().sync_enable(true),
+      |collab, o| Folder::open(UserId::from(o.uid), collab, None),
+    )?;
+    Ok(folder)
   }
 
   /// Initialize the folder with the given workspace id.
@@ -337,7 +333,7 @@ impl FolderManager {
 
   pub async fn get_workspace_pb(&self) -> FlowyResult<WorkspacePB> {
     let workspace_id = self.user.workspace_id()?;
-    let guard = self.mutex_folder.write();
+    let guard = self.mutex_folder.read().await;
     let folder = guard
       .as_ref()
       .ok_or(FlowyError::internal().with_context("folder is not initialized"))?;
@@ -422,7 +418,7 @@ impl FolderManager {
     );
 
     if notify_workspace_update {
-      let folder = &self.mutex_folder.read();
+      let folder = &self.mutex_folder.read().await;
       if let Some(folder) = folder.as_ref() {
         notify_did_update_workspace(&workspace_id, folder);
       }
@@ -476,7 +472,7 @@ impl FolderManager {
   pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
 
-    let folder = self.mutex_folder.read();
+    let folder = self.mutex_folder.read().await;
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
 
     // trash views and other private views should not be accessed
@@ -518,7 +514,7 @@ impl FolderManager {
     &self,
     view_ids: Vec<String>,
   ) -> FlowyResult<Vec<ViewPB>> {
-    let folder = self.mutex_folder.read();
+    let folder = self.mutex_folder.read().await;
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
 
     // trash views and other private views should not be accessed
@@ -546,7 +542,7 @@ impl FolderManager {
   ///
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_all_views_pb(&self) -> FlowyResult<Vec<ViewPB>> {
-    let folder = self.mutex_folder.read();
+    let folder = self.mutex_folder.read().await;
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
 
     // trash views and other private views should not be accessed
@@ -946,7 +942,8 @@ impl FolderManager {
       workspace_id,
       self.mutex_folder.clone(),
       vec![parent_view_id.to_string()],
-    );
+    )
+    .await;
 
     Ok(())
   }
@@ -1525,7 +1522,7 @@ impl FolderManager {
         .payload(view_pb)
         .send();
 
-      let folder = &self.mutex_folder.read();
+      let folder = &self.mutex_folder.read().await;
       if let Some(folder) = folder.as_ref() {
         notify_did_update_workspace(&workspace_id, folder);
       }
@@ -1781,19 +1778,6 @@ pub(crate) fn get_workspace_private_view_pbs(workspace_id: &str, folder: &Folder
     })
     .collect()
 }
-
-/// The MutexFolder is a wrapper of the [Folder] that is used to share the folder between different
-/// threads.
-#[derive(Clone, Default)]
-pub struct MutexFolder(Arc<RwLock<Option<Folder>>>);
-impl Deref for MutexFolder {
-  type Target = Arc<RwLock<Option<Folder>>>;
-  fn deref(&self) -> &Self::Target {
-    &self.0
-  }
-}
-unsafe impl Sync for MutexFolder {}
-unsafe impl Send for MutexFolder {}
 
 #[allow(clippy::large_enum_variant)]
 pub enum FolderInitDataSource {

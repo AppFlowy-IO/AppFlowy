@@ -8,16 +8,16 @@ use collab_document::{blocks::DocumentData, document::Document};
 use flowy_error::FlowyResult;
 use futures::StreamExt;
 use lib_dispatch::prelude::af_spawn;
-use parking_lot::Mutex;
 use std::{
   ops::{Deref, DerefMut},
   sync::Arc,
 };
+use tokio::sync::RwLock;
 use tracing::{instrument, warn};
 
 /// This struct wrap the document::Document
 #[derive(Clone)]
-pub struct MutexDocument(Arc<Mutex<Document>>);
+pub struct MutexDocument(Arc<RwLock<Document>>);
 
 impl MutexDocument {
   /// Open a document with the given collab.
@@ -32,7 +32,7 @@ impl MutexDocument {
     subscribe_document_changed(doc_id, &mut document);
     subscribe_document_snapshot_state(&document);
     subscribe_document_sync_state(&document);
-    Ok(Self(Arc::new(Mutex::new(document))))
+    Ok(Self(Arc::new(RwLock::new(document))))
   }
 
   /// Creates and returns a new Document object with initial data.
@@ -43,19 +43,14 @@ impl MutexDocument {
   /// # Returns
   /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
   pub fn create_with_data(collab: Collab, data: DocumentData) -> FlowyResult<Self> {
-    #[allow(clippy::arc_with_non_send_sync)]
-    let document =
-      Document::open_with(collab, Some(data)).map(|inner| Self(Arc::new(Mutex::new(inner))))?;
-    Ok(document)
+    let document = Document::open_with(collab, Some(data))?;
+    Ok(MutexDocument(Arc::new(RwLock::new(document))))
   }
 
   #[instrument(level = "debug", skip_all)]
-  pub fn start_init_sync(&self) {
-    if let Some(document) = self.0.try_lock() {
-      document.start_init_sync();
-    } else {
-      warn!("Failed to start init sync, document is locked");
-    }
+  pub async fn start_init_sync(&self) {
+    let document = self.0.read().await;
+    document.start_init_sync();
   }
 }
 
@@ -124,7 +119,7 @@ unsafe impl Sync for MutexDocument {}
 unsafe impl Send for MutexDocument {}
 
 impl Deref for MutexDocument {
-  type Target = Arc<Mutex<Document>>;
+  type Target = Arc<RwLock<Document>>;
 
   fn deref(&self) -> &Self::Target {
     &self.0

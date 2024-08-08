@@ -18,7 +18,7 @@ use lib_infra::util::timestamp;
 use tracing::trace;
 use tracing::{event, instrument};
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig, UninitCollab};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage_pub::storage::{CreatedUpload, StorageService};
@@ -371,20 +371,21 @@ impl DocumentManager {
     &self,
     uid: i64,
     doc_id: &str,
-    doc_state: DataSource,
     sync_enable: bool,
-  ) -> FlowyResult<Collab> {
+    doc_state: DataSource,
+  ) -> FlowyResult<UninitCollab> {
     let db = self.user_service.collab_db(uid)?;
     let workspace_id = self.user_service.workspace_id()?;
-    let collab = self.collab_builder.build_with_config(
+    let uninit = self.collab_builder.build_with_config(
       &workspace_id,
       uid,
       doc_id,
       CollabType::Document,
       db,
       doc_state,
-      CollabBuilderConfig::default().sync_enable(sync_enable),
     )?;
+    let config = CollabBuilderConfig::default().sync_enable(sync_enable);
+    let collab = uninit.finalize(config, |collab, o| Document::open(collab))?;
     Ok(collab)
   }
 

@@ -10,7 +10,6 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use nanoid::nanoid;
-use parking_lot::{Mutex, RwLock};
 use semver::Version;
 use tokio::select;
 use tokio::time::sleep;

@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use collab_entity::CollabObject;
 use lazy_static::lazy_static;
-use parking_lot::Mutex;
 use uuid::Uuid;
 
 use flowy_error::FlowyError;

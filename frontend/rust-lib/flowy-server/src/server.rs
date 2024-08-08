@@ -7,7 +7,6 @@ use std::sync::Arc;
 use anyhow::Error;
 use client_api::collab_sync::ServerCollabMessage;
 use flowy_ai_pub::cloud::ChatCloudService;
-use parking_lot::RwLock;
 use tokio_stream::wrappers::WatchStream;
 #[cfg(feature = "enable_supabase")]
 use {collab_entity::CollabObject, collab_plugins::cloud_storage::RemoteCollabStorage};

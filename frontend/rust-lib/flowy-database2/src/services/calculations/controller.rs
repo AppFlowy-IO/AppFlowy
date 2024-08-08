@@ -131,7 +131,8 @@ impl CalculationsController {
     if let Some(calculation) = calculation {
       self
         .delegate
-        .remove_calculation(&self.view_id, &calculation.id);
+        .remove_calculation(&self.view_id, &calculation.id)
+        .await;
 
       let notification = CalculationChangesetNotificationPB::from_delete(
         &self.view_id,
@@ -166,7 +167,8 @@ impl CalculationsController {
       if !calc_type.is_allowed(new_field_type) {
         self
           .delegate
-          .remove_calculation(&self.view_id, &calculation.id);
+          .remove_calculation(&self.view_id, &calculation.id)
+          .await;
 
         let notification = CalculationChangesetNotificationPB::from_delete(
           &self.view_id,
@@ -202,7 +204,8 @@ impl CalculationsController {
       if let Some(update) = update {
         self
           .delegate
-          .update_calculation(&self.view_id, update.clone());
+          .update_calculation(&self.view_id, update.clone())
+          .await;
 
         let notification = CalculationChangesetNotificationPB::from_update(
           &self.view_id,
@@ -239,7 +242,10 @@ impl CalculationsController {
         let update = self.get_updated_calculation(calculation.clone()).await;
         if let Some(update) = update {
           updates.push(CalculationPB::from(&update));
-          self.delegate.update_calculation(&self.view_id, update);
+          self
+            .delegate
+            .update_calculation(&self.view_id, update)
+            .await;
         }
       }
     }
@@ -253,7 +259,10 @@ impl CalculationsController {
 
         if let Some(update) = update {
           updates.push(CalculationPB::from(&update));
-          self.delegate.update_calculation(&self.view_id, update);
+          self
+            .delegate
+            .update_calculation(&self.view_id, update)
+            .await;
         }
       }
     }

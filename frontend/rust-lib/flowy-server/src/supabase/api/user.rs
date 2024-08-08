@@ -9,7 +9,6 @@ use anyhow::Error;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_entity::{CollabObject, CollabType};
-use parking_lot::RwLock;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
 use tokio_retry::strategy::FixedInterval;

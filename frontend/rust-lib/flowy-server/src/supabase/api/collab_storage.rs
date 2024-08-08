@@ -10,7 +10,6 @@ use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{
   RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage, RemoteUpdateReceiver,
 };
-use parking_lot::Mutex;
 use tokio::task::spawn_blocking;
 
 use lib_infra::async_trait::async_trait;

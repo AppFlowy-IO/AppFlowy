@@ -20,14 +20,14 @@ pub struct AuthenticateUser {
   pub(crate) database: Arc<UserDB>,
   pub(crate) user_paths: UserPaths,
   store_preferences: Arc<KVStorePreferences>,
-  session: Arc<parking_lot::RwLock<Option<Session>>>,
+  session: Arc<RwLock<Option<Session>>>,
 }
 
 impl AuthenticateUser {
   pub fn new(user_config: UserConfig, store_preferences: Arc<KVStorePreferences>) -> Self {
     let user_paths = UserPaths::new(user_config.storage_path.clone());
     let database = Arc::new(UserDB::new(user_paths.clone()));
-    let session = Arc::new(parking_lot::RwLock::new(None));
+    let session = Arc::new(RwLock::new(None));
     *session.write() =
       migrate_session_with_user_uuid(&user_config.session_cache_key, &store_preferences);
     Self {
