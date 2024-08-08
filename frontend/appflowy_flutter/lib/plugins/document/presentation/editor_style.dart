@@ -106,7 +106,8 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = pageStyle.fontLayout.fontSize;
     final lineHeight = pageStyle.lineHeightLayout.lineHeight;
-    final fontFamily = pageStyle.fontFamily ?? defaultFontFamily;
+    final fontFamily = pageStyle.fontFamily ??
+        context.read<AppearanceSettingsCubit>().state.font;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
     final textScaleFactor =
