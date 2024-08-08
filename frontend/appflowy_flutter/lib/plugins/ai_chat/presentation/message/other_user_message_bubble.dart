@@ -64,7 +64,6 @@ class OtherUserMessageBubble extends StatelessWidget {
             return ChatUserAvatar(
               iconUrl: member?.info.avatarUrl ?? "",
               name: member?.info.name ?? "",
-              size: 36,
               defaultName: "",
             );
           },

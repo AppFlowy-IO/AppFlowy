@@ -16,7 +16,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use serde_json::json;
-use std::path::PathBuf;
+use std::path::Path;
 
 pub(crate) struct AFCloudChatCloudServiceImpl<T> {
   pub inner: T,
@@ -192,7 +192,7 @@ where
   async fn index_file(
     &self,
     _workspace_id: &str,
-    _file_path: PathBuf,
+    _file_path: &Path,
     _chat_id: &str,
   ) -> Result<(), FlowyError> {
     return Err(

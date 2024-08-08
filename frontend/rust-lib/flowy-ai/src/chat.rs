@@ -4,7 +4,10 @@ use crate::entities::{
 };
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::notification::{make_notification, ChatNotification};
-use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
+use crate::persistence::{
+  insert_chat_messages, read_chat_metadata, select_chat_messages, update_chat, ChatMessageTable,
+  ChatTableChangeset,
+};
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, MessageCursor,
@@ -481,8 +484,36 @@ impl Chat {
     );
     self
       .chat_service
-      .index_file(&self.user_service.workspace_id()?, file_path, &self.chat_id)
+      .index_file(
+        &self.user_service.workspace_id()?,
+        &file_path,
+        &self.chat_id,
+      )
       .await?;
+
+    let file_name = file_path
+      .file_name()
+      .unwrap_or_default()
+      .to_str()
+      .unwrap_or_default();
+
+    let mut conn = self.user_service.sqlite_connection(self.uid)?;
+    conn.immediate_transaction(|conn| {
+      let mut metadata = read_chat_metadata(conn, &self.chat_id)?;
+      metadata.add_file(
+        file_name.to_string(),
+        file_path.to_str().unwrap_or_default().to_string(),
+      );
+      let changeset = ChatTableChangeset::from_metadata(metadata);
+      update_chat(conn, changeset)?;
+      Ok::<(), FlowyError>(())
+    })?;
+
+    trace!(
+      "[Chat] created index file record: chat_id={}, file_path={:?}",
+      self.chat_id,
+      file_path
+    );
 
     Ok(())
   }

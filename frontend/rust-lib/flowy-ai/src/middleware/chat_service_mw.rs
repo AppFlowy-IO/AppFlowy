@@ -16,7 +16,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 use crate::local_ai::stream_util::LocalAIStreamAdaptor;
-use std::path::PathBuf;
+use std::path::Path;
 use std::sync::Arc;
 
 pub struct AICloudServiceMiddleware {
@@ -242,13 +242,13 @@ impl ChatCloudService for AICloudServiceMiddleware {
   async fn index_file(
     &self,
     workspace_id: &str,
-    file_path: PathBuf,
+    file_path: &Path,
     chat_id: &str,
   ) -> Result<(), FlowyError> {
     if self.local_llm_controller.is_running() {
       self
         .local_llm_controller
-        .index_file(chat_id, file_path)
+        .index_file(chat_id, file_path.to_path_buf())
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
       Ok(())

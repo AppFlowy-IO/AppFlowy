@@ -257,8 +257,8 @@ pub enum ErrorCode {
   #[error("AppFlowy data folder import error")]
   AppFlowyDataFolderImportError = 89,
 
-  #[error("Cloud request payload too large")]
-  CloudRequestPayloadTooLarge = 90,
+  #[error("payload too large")]
+  PayloadTooLarge = 90,
 
   #[error("Workspace limit exceeded")]
   WorkspaceLimitExceeded = 91,

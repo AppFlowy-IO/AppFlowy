@@ -4,10 +4,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/ai_message_bubble.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/other_user_message_bubble.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/user_message_bubble.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/ai_message_bubble.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/other_user_message_bubble.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/user_message_bubble.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -79,7 +79,6 @@ class AIChatPage extends StatelessWidget {
       return MultiBlocProvider(
         providers: [
           /// [ChatBloc] is used to handle chat messages including send/receive message
-          ///
           BlocProvider(
             create: (_) => ChatBloc(
               view: view,
@@ -88,14 +87,12 @@ class AIChatPage extends StatelessWidget {
           ),
 
           /// [ChatFileBloc] is used to handle file indexing as a chat context
-          ///
           BlocProvider(
-            create: (_) => ChatFileBloc(chatId: view.id.toString())
+            create: (_) => ChatFileBloc(chatId: view.id)
               ..add(const ChatFileEvent.initial()),
           ),
 
           /// [ChatInputStateBloc] is used to handle chat input text field state
-          ///
           BlocProvider(
             create: (_) =>
                 ChatInputStateBloc()..add(const ChatInputStateEvent.started()),
@@ -105,9 +102,9 @@ class AIChatPage extends StatelessWidget {
         ],
         child: BlocListener<ChatFileBloc, ChatFileState>(
           listenWhen: (previous, current) =>
-              previous.indexFileIndicator != current.indexFileIndicator,
+              previous.uploadFileIndicator != current.uploadFileIndicator,
           listener: (context, state) {
-            _handleIndexIndicator(state.indexFileIndicator, context);
+            _handleIndexIndicator(state.uploadFileIndicator, context);
           },
           child: BlocBuilder<ChatFileBloc, ChatFileState>(
             builder: (context, state) {
@@ -150,7 +147,7 @@ class AIChatPage extends StatelessWidget {
   }
 
   void _handleIndexIndicator(
-    IndexFileIndicator? indicator,
+    UploadFileIndicator? indicator,
     BuildContext context,
   ) {
     if (indicator != null) {
@@ -161,7 +158,7 @@ class AIChatPage extends StatelessWidget {
             LocaleKeys.chat_indexFileSuccess.tr(args: [fileName]),
           );
         },
-        indexing: (fileName) {
+        uploading: (fileName) {
           showSnackBarMessage(
             context,
             LocaleKeys.chat_indexingFile.tr(args: [fileName]),
@@ -305,7 +302,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
           // We use custom bottom widget for chat input, so
           // do not need to handle this event.
         },
-        customBottomWidget: buildChatInput(blocContext),
+        customBottomWidget: buildBottom(blocContext),
         user: _user,
         theme: buildTheme(context),
         onEndReached: () async {
@@ -488,7 +485,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     }
   }
 
-  Widget buildChatInput(BuildContext context) {
+  Widget buildBottom(BuildContext context) {
     return ClipRect(
       child: Padding(
         padding: AIChatUILayout.safeAreaInsets(context),

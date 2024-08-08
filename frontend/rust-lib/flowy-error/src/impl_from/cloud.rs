@@ -20,7 +20,7 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::NotLoggedIn => ErrorCode::UserUnauthorized,
       AppErrorCode::NotEnoughPermissions => ErrorCode::NotEnoughPermissions,
       AppErrorCode::NetworkError => ErrorCode::HttpError,
-      AppErrorCode::PayloadTooLarge => ErrorCode::CloudRequestPayloadTooLarge,
+      AppErrorCode::PayloadTooLarge => ErrorCode::PayloadTooLarge,
       AppErrorCode::UserUnAuthorized => ErrorCode::UserUnauthorized,
       AppErrorCode::WorkspaceLimitExceeded => ErrorCode::WorkspaceLimitExceeded,
       AppErrorCode::WorkspaceMemberLimitExceeded => ErrorCode::WorkspaceMemberLimitExceeded,

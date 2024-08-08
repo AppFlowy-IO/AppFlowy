@@ -1,6 +1,6 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
-use std::path::PathBuf;
+use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -729,7 +729,7 @@ impl ChatCloudService for ServerProvider {
   async fn index_file(
     &self,
     workspace_id: &str,
-    file_path: PathBuf,
+    file_path: &Path,
     chat_id: &str,
   ) -> Result<(), FlowyError> {
     self

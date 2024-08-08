@@ -49,8 +49,9 @@ class ChatAIMessageBubble extends StatelessWidget {
       children: [
         const ChatBorderedCircleAvatar(
           child: FlowySvg(
-            FlowySvgs.flowy_ai_chat_logo_s,
-            size: Size.square(24),
+            FlowySvgs.flowy_logo_s,
+            size: Size.square(20),
+            blendMode: null,
           ),
         ),
         Expanded(child: widget),
@@ -177,10 +178,9 @@ class CopyButton extends StatelessWidget {
         width: 24,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         fillColor: Theme.of(context).cardColor,
-        icon: FlowySvg(
-          FlowySvgs.ai_copy_s,
-          size: const Size.square(14),
-          color: Theme.of(context).colorScheme.primary,
+        icon: const FlowySvg(
+          FlowySvgs.copy_s,
+          size: Size.square(20),
         ),
         onPressed: () async {
           final document = customMarkdownToDocument(textMessage.text);

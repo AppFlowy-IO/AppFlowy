@@ -1,4 +1,5 @@
 use diesel::sqlite::SqliteConnection;
+use flowy_error::FlowyResult;
 use flowy_sqlite::upsert::excluded;
 use flowy_sqlite::{
   diesel,
@@ -6,6 +7,7 @@ use flowy_sqlite::{
   schema::{chat_table, chat_table::dsl},
   AsChangeset, DBConnection, ExpressionMethods, Identifiable, Insertable, QueryResult, Queryable,
 };
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Queryable, Insertable, Identifiable)]
 #[diesel(table_name = chat_table)]
@@ -14,10 +16,31 @@ pub struct ChatTable {
   pub chat_id: String,
   pub created_at: i64,
   pub name: String,
-  pub local_model_path: String,
-  pub local_model_name: String,
+  pub local_files: String,
+  pub metadata: String,
   pub local_enabled: bool,
   pub sync_to_cloud: bool,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ChatTableMetadata {
+  pub files: Vec<ChatTableFile>,
+}
+
+impl ChatTableMetadata {
+  pub fn add_file(&mut self, name: String, id: String) {
+    if let Some(file) = self.files.iter_mut().find(|f| f.name == name) {
+      file.id = id;
+    } else {
+      self.files.push(ChatTableFile { name, id });
+    }
+  }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChatTableFile {
+  pub name: String,
+  pub id: String,
 }
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]
@@ -26,10 +49,19 @@ pub struct ChatTable {
 pub struct ChatTableChangeset {
   pub chat_id: String,
   pub name: Option<String>,
-  pub local_model_path: Option<String>,
-  pub local_model_name: Option<String>,
+  pub local_files: Option<String>,
+  pub metadata: Option<String>,
   pub local_enabled: Option<bool>,
   pub sync_to_cloud: Option<bool>,
+}
+
+impl ChatTableChangeset {
+  pub fn from_metadata(metadata: ChatTableMetadata) -> Self {
+    ChatTableChangeset {
+      metadata: serde_json::to_string(&metadata).ok(),
+      ..Default::default()
+    }
+  }
 }
 
 pub fn insert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<usize> {
@@ -44,8 +76,7 @@ pub fn insert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<
     .execute(&mut *conn)
 }
 
-#[allow(dead_code)]
-pub fn update_chat_local_model(
+pub fn update_chat(
   conn: &mut SqliteConnection,
   changeset: ChatTableChangeset,
 ) -> QueryResult<usize> {
@@ -60,6 +91,18 @@ pub fn read_chat(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<ChatT
     .filter(chat_table::chat_id.eq(chat_id_val))
     .first::<ChatTable>(&mut *conn)?;
   Ok(row)
+}
+
+pub fn read_chat_metadata(
+  conn: &mut SqliteConnection,
+  chat_id_val: &str,
+) -> FlowyResult<ChatTableMetadata> {
+  let metadata_str = dsl::chat_table
+    .select(chat_table::metadata)
+    .filter(chat_table::chat_id.eq(chat_id_val))
+    .first::<String>(&mut *conn)?;
+  let value = serde_json::from_str(&metadata_str).unwrap_or_default();
+  Ok(value)
 }
 
 #[allow(dead_code)]

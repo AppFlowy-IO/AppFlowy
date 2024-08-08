@@ -8,6 +8,8 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:string_validator/string_validator.dart';
 
+const defaultAvatarSize = 30.0;
+
 class ChatChatUserAvatar extends StatelessWidget {
   const ChatChatUserAvatar({required this.userId, super.key});
 
@@ -33,15 +35,18 @@ class ChatBorderedCircleAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CircleAvatar(
-      backgroundColor: border.color,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints.expand(),
-        child: CircleAvatar(
-          backgroundImage: backgroundImage,
-          backgroundColor:
-              Theme.of(context).colorScheme.surfaceContainerHighest,
-          child: child,
+    return SizedBox(
+      width: defaultAvatarSize,
+      child: CircleAvatar(
+        backgroundColor: border.color,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints.expand(),
+          child: CircleAvatar(
+            backgroundImage: backgroundImage,
+            backgroundColor:
+                Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: child,
+          ),
         ),
       ),
     );
@@ -53,7 +58,7 @@ class ChatUserAvatar extends StatelessWidget {
     super.key,
     required this.iconUrl,
     required this.name,
-    required this.size,
+    this.size = defaultAvatarSize,
     this.isHovering = false,
     this.defaultName,
   });
