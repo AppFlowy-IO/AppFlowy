@@ -921,7 +921,7 @@
       "cloudSupabaseAnonKey": "Аноновий ключ Supabase",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "Аноновий ключ не може бути порожнім",
       "cloudAppFlowy": "@:appName Cloud Beta",
-      "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
+      "cloudAppFlowySelfHost": "@:appName Cloud на власному сервері",
       "appFlowyCloudUrlCanNotBeEmpty": "URL-адреса хмари не може бути пустою",
       "clickToCopy": "Натисніть, щоб скопіювати",
       "selfHostStart": "Якщо у вас немає сервера, зверніться до",
@@ -1304,7 +1304,7 @@
       "relationFieldName": "Відношення",
       "summaryFieldName": "AI Резюме",
       "timeFieldName": "час",
-      "translateFieldName": "AI Translate",
+      "translateFieldName": "ШІ Перекладач",
       "translateTo": "Перекласти на",
       "numberFormat": "Формат числа",
       "dateFormat": "Формат дати",
@@ -1936,7 +1936,7 @@
     "deleteContentCaption": "якщо ви видалите цей {pageType}, ви зможете відновити його з кошика."
   },
   "colors": {
-    "custom": "Custom",
+    "custom": "Користувальницькі",
     "default": "За замовчуванням",
     "red": "Червоний",
     "orange": "Помаранчевий",
@@ -2015,7 +2015,7 @@
       "oneDayBefore": "за 1 день до",
       "twoDaysBefore": "за 2 дні до",
       "oneWeekBefore": "1 тиждень тому",
-      "custom": "Custom"
+      "custom": "Налаштовуване"
     }
   },
   "relativeDates": {
