@@ -778,8 +778,8 @@
         "defaultColor": "Predefinito"
       },
       "image": {
-        "copiedToPasteBoard": "Il link dell'immagine è stato copiato negli appunti",
         "addAnImage": "Aggiungi un'immagine",
+        "copiedToPasteBoard": "Il link dell'immagine è stato copiato negli appunti",
         "imageUploadFailed": "Caricamento dell'immagine non riuscito"
       },
       "urlPreview": {

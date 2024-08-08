@@ -837,8 +837,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "100 lifetime",
-        "intelligentSearch": "Intelligent search",
-        "itemSeven": ""
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "charged per workspace",
@@ -847,8 +846,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "unlimited",
-        "intelligentSearch": "Intelligent search",
-        "itemSeven": ""
+        "intelligentSearch": "Intelligent search"
       },
       "paymentSuccess": {
         "title": "You are now on the {} plan!",

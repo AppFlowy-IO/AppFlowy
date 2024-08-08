@@ -661,10 +661,10 @@
         "localAIStopped": "Yerel Yapay Zeka durduruldu",
         "failToLoadLocalAI": "Yerel Yapay Zeka başlatılamadı",
         "restartLocalAI": "Yerel Yapay Zeka'yı Yeniden Başlat",
-        "disableLocalAIDialog": "Yerel Yapay Zeka'yı devre dışı bırakmak istiyor musunuz?",
         "localAIToggleTitle": "Yerel Yapay Zeka'yı etkinleştirmek veya devre dışı bırakmak için değiştirin",
-        "fetchLocalModel": "Yerel model yapılandırmasını getir",
-        "openModelDirectory": "Klasörü aç"
+        "openModelDirectory": "Klasörü aç",
+        "disableLocalAIDialog": "Yerel Yapay Zeka'yı devre dışı bırakmak istiyor musunuz?",
+        "fetchLocalModel": "Yerel model yapılandırmasını getir"
       }
     },
     "planPage": {
@@ -817,8 +817,7 @@
         "itemThree": "5 GB",
         "itemFour": "evet",
         "itemFive": "evet",
-        "itemSix": "100 ömür boyu",
-        "itemSeven": ""
+        "itemSix": "100 ömür boyu"
       },
       "proLabels": {
         "itemOne": "çalışma alanı başına ücretlendirilir",
@@ -826,8 +825,7 @@
         "itemThree": "sınırsız",
         "itemFour": "evet",
         "itemFive": "evet",
-        "itemSix": "sınırsız",
-        "itemSeven": ""
+        "itemSix": "sınırsız"
       },
       "paymentSuccess": {
         "title": "Artık {} planındasınız!",

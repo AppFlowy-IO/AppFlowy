@@ -731,8 +731,8 @@
         "defaultColor": "تقصير"
       },
       "image": {
-        "copiedToPasteBoard": "تم نسخ رابط الصورة إلى الحافظة",
-        "addAnImage": "أضف صورة"
+        "addAnImage": "أضف صورة",
+        "copiedToPasteBoard": "تم نسخ رابط الصورة إلى الحافظة"
       },
       "outline": {
         "addHeadingToCreateOutline": "أضف عناوين لإنشاء جدول محتويات."

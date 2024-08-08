@@ -671,8 +671,8 @@
         "defaultColor": "Per defecte"
       },
       "image": {
-        "copiedToPasteBoard": "L'enllaç de la imatge s'ha copiat al porta-retalls",
-        "addAnImage": "Afegeix una imatge"
+        "addAnImage": "Afegeix una imatge",
+        "copiedToPasteBoard": "L'enllaç de la imatge s'ha copiat al porta-retalls"
       },
       "outline": {
         "addHeadingToCreateOutline": "Afegiu títols per crear una taula de continguts."

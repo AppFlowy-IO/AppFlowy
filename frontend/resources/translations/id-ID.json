@@ -653,8 +653,8 @@
         "defaultColor": "Bawaan"
       },
       "image": {
-        "copiedToPasteBoard": "Tautan gambar telah disalin ke papan klip",
-        "addAnImage": "Tambah gambar"
+        "addAnImage": "Tambah gambar",
+        "copiedToPasteBoard": "Tautan gambar telah disalin ke papan klip"
       },
       "outline": {
         "addHeadingToCreateOutline": "Tambahkan judul untuk membuat daftar isi."

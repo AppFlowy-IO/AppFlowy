@@ -885,8 +885,8 @@
         "defaultColor": "預設"
       },
       "image": {
-        "copiedToPasteBoard": "圖片連結已複製到剪貼簿",
         "addAnImage": "新增圖片",
+        "copiedToPasteBoard": "圖片連結已複製到剪貼簿",
         "imageUploadFailed": "圖片上傳失敗",
         "errorCode": "錯誤代碼"
       },
