@@ -18,7 +18,6 @@ serde.workspace = true
 serde_json.workspace = true
 thiserror = "1.0"
 tokio = { workspace = true, features = ["sync"] }
-parking_lot.workspace = true
 lazy_static = "1.4.0"
 bytes = { workspace = true, features = ["serde"] }
 tokio-retry = "0.3"

@@ -1412,7 +1412,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .values()
       .cloned()
       .collect();
-    let database = self.database.write().await;
+    let mut database = self.database.write().await;
     let _ =
       update_field_type_option_fn(&mut *database, &view_editors, type_option_data, old_field).await;
     Ok(())

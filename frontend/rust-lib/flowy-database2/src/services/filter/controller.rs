@@ -232,7 +232,7 @@ impl FilterController {
       },
     }
 
-    self.delegate.save_filters(&self.view_id, &filters);
+    self.delegate.save_filters(&self.view_id, &filters).await;
 
     self
       .gen_task(FilterEvent::FilterDidChanged, QualityOfService::Background)

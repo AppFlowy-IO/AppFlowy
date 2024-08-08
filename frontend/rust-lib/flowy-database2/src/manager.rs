@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::DataSource;
-use collab::preclude::Collab;
 use collab_database::database::{Database, DatabaseData};
 use collab_database::error::DatabaseError;
 use collab_database::rows::RowId;
@@ -16,7 +15,7 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use tokio::sync::{Mutex, RwLock, RwLockMappedWriteGuard, RwLockReadGuard, RwLockWriteGuard};
 use tracing::{event, instrument, trace};
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig, UninitCollab};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
@@ -200,7 +199,7 @@ impl DatabaseManager {
 
   pub async fn get_database_with_view_id(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
-    self.get_database(&database_id).await
+    self.get_database(database_id).await
   }
 
   pub async fn get_database_id_with_view_id(&self, view_id: &str) -> FlowyResult<String> {
@@ -216,20 +215,20 @@ impl DatabaseManager {
     Ok(database.get_row_ids().await)
   }
 
-  pub async fn get_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
-    if let Some(editor) = self.editors.lock().await.get(database_id).cloned() {
+  pub async fn get_database(&self, database_id: String) -> FlowyResult<Arc<DatabaseEditor>> {
+    if let Some(editor) = self.editors.lock().await.get(&database_id).cloned() {
       return Ok(editor);
     }
     // TODO(nathan): refactor the get_database that split the database creation and database opening.
     self.open_database(database_id).await
   }
 
-  pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
+  pub async fn open_database(&self, database_id: String) -> FlowyResult<Arc<DatabaseEditor>> {
     trace!("open database editor:{}", database_id);
     let database = self
       .database_indexer()
       .await?
-      .get_database(database_id)
+      .get_database(&database_id)
       .await
       .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
 
@@ -238,7 +237,7 @@ impl DatabaseManager {
       .editors
       .lock()
       .await
-      .insert(database_id.to_string(), editor.clone());
+      .insert(database_id, editor.clone());
     Ok(editor)
   }
 
@@ -646,7 +645,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     collab_db: Weak<CollabKVDB>,
     collab_raw_data: DataSource,
     _persistence_config: CollabPersistenceConfig,
-  ) -> Result<Collab, DatabaseError> {
+  ) -> Result<UninitCollab, DatabaseError> {
     let workspace_id = self
       .user
       .workspace_id()

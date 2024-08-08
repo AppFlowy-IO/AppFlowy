@@ -16,7 +16,6 @@ use client_api::entity::{
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
 use collab_entity::{CollabObject, CollabType};
-use parking_lot::RwLock;
 use tracing::instrument;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};

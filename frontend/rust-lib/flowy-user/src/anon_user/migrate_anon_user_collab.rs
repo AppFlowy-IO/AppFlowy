@@ -13,7 +13,6 @@ use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_c
 use collab_database::workspace_database::DatabaseMetaList;
 use collab_folder::{Folder, UserId};
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use parking_lot::{Mutex, RwLock};
 use tracing::info;
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};

@@ -2,9 +2,7 @@ use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSnapshotStatePB,
   FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB, ViewSectionPB,
 };
-use crate::manager::{
-  get_workspace_private_view_pbs, get_workspace_public_view_pbs, FolderUser, MutexFolder,
-};
+use crate::manager::{get_workspace_private_view_pbs, get_workspace_public_view_pbs, FolderUser};
 use crate::notification::{send_notification, FolderNotification};
 use collab::core::collab_state::SyncState;
 use collab_folder::{
@@ -14,6 +12,7 @@ use collab_folder::{
 use lib_dispatch::prelude::af_spawn;
 use std::collections::HashSet;
 use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
 use tracing::{event, trace, Level};
@@ -22,7 +21,7 @@ use tracing::{event, trace, Level};
 pub(crate) fn subscribe_folder_view_changed(
   workspace_id: String,
   mut rx: ViewChangeReceiver,
-  weak_mutex_folder: &Weak<MutexFolder>,
+  weak_mutex_folder: &Weak<RwLock<Folder>>,
   user: Weak<dyn FolderUser>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
@@ -76,7 +75,7 @@ pub(crate) fn subscribe_folder_view_changed(
 
 pub(crate) fn subscribe_folder_snapshot_state_changed(
   workspace_id: String,
-  weak_mutex_folder: &Weak<MutexFolder>,
+  weak_mutex_folder: &Weak<RwLock<Folder>>,
   user: Weak<dyn FolderUser>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
@@ -138,7 +137,7 @@ pub(crate) fn subscribe_folder_sync_state_changed(
 pub(crate) fn subscribe_folder_trash_changed(
   workspace_id: String,
   mut rx: SectionChangeReceiver,
-  weak_mutex_folder: &Weak<MutexFolder>,
+  weak_mutex_folder: &Weak<RwLock<Folder>>,
   user: Weak<dyn FolderUser>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
@@ -186,12 +185,12 @@ pub(crate) fn subscribe_folder_trash_changed(
 
 /// Notify the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
-pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
+pub(crate) async fn notify_parent_view_did_change<T: AsRef<str>>(
   workspace_id: &str,
-  folder: Arc<MutexFolder>,
+  folder: Arc<RwLock<Option<Folder>>>,
   parent_view_ids: Vec<T>,
 ) -> Option<()> {
-  let folder = folder.read();
+  let folder = folder.read().await;
   let folder = folder.as_ref()?;
   let trash_ids = folder
     .get_all_trash_sections()

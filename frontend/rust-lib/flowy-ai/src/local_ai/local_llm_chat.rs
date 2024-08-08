@@ -12,7 +12,7 @@ use flowy_sqlite::kv::KVStorePreferences;
 use futures::Sink;
 use lib_infra::async_trait::async_trait;
 
-use parking_lot::Mutex;
+use arc_swap::ArcSwapOption;
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::sync::Arc;
@@ -39,7 +39,7 @@ const LOCAL_AI_SETTING_KEY: &str = "appflowy_local_ai_setting:v0";
 pub struct LocalAIController {
   local_ai: Arc<AppFlowyLocalAI>,
   local_ai_resource: Arc<LocalAIResourceController>,
-  current_chat_id: Mutex<Option<String>>,
+  current_chat_id: ArcSwapOption<String>,
   store_preferences: Arc<KVStorePreferences>,
 }
 
@@ -67,7 +67,7 @@ impl LocalAIController {
 
     let (tx, mut rx) = tokio::sync::mpsc::channel(1);
     let llm_res = Arc::new(LocalAIResourceController::new(user_service, res_impl, tx));
-    let current_chat_id = Mutex::new(None);
+    let current_chat_id = ArcSwapOption::default();
 
     let mut running_state_rx = local_ai.subscribe_running_state();
     let cloned_llm_res = llm_res.clone();
@@ -179,12 +179,14 @@ impl LocalAIController {
 
     // Only keep one chat open at a time. Since loading multiple models at the same time will cause
     // memory issues.
-    if let Some(current_chat_id) = self.current_chat_id.lock().as_ref() {
+    if let Some(current_chat_id) = self.current_chat_id.load().as_ref() {
       debug!("[AI Plugin] close previous chat: {}", current_chat_id);
       self.close_chat(current_chat_id);
     }
 
-    *self.current_chat_id.lock() = Some(chat_id.to_string());
+    self
+      .current_chat_id
+      .store(Some(Arc::new(chat_id.to_string())));
     let chat_id = chat_id.to_string();
     let weak_ctrl = Arc::downgrade(&self.local_ai);
     tokio::spawn(async move {

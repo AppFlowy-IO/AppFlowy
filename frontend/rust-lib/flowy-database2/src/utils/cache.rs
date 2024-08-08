@@ -1,3 +1,4 @@
+use dashmap::mapref::one::{MappedRef, MappedRefMut};
 use dashmap::DashMap;
 use std::any::{type_name, Any};
 use std::fmt::Debug;
@@ -32,24 +33,20 @@ where
     self.0.remove(key);
   }
 
-  pub fn get<T>(&self, key: &K) -> Option<&T>
+  pub fn get<T>(&self, key: &K) -> Option<MappedRef<'_, K, TypeValue, T>>
   where
     T: 'static + Send + Sync,
   {
-    self
-      .0
-      .get(key)
-      .and_then(|type_value| type_value.boxed.downcast_ref())
+    let cell = self.0.get(key)?;
+    cell.try_map(|v| v.boxed.downcast_ref()).ok()
   }
 
-  pub fn get_mut<T>(&self, key: &K) -> Option<&mut T>
+  pub fn get_mut<T>(&self, key: &K) -> Option<MappedRefMut<'_, K, TypeValue, T>>
   where
     T: 'static + Send + Sync,
   {
-    self
-      .0
-      .get_mut(key)
-      .and_then(|type_value| type_value.boxed.downcast_mut())
+    let cell = self.0.get_mut(key)?;
+    cell.try_map(|v| v.boxed.downcast_mut()).ok()
   }
 
   pub fn contains(&self, key: &K) -> bool {
@@ -66,7 +63,7 @@ fn downcast_owned<T: 'static + Send + Sync>(type_value: TypeValue) -> Option<T> 
 }
 
 #[derive(Debug)]
-struct TypeValue {
+pub struct TypeValue {
   boxed: Box<dyn Any + Send + Sync + 'static>,
   #[allow(dead_code)]
   ty: &'static str,

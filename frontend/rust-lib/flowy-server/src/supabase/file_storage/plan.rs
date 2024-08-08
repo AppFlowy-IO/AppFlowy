@@ -1,7 +1,5 @@
 use std::sync::Weak;
 
-use parking_lot::RwLock;
-
 use flowy_error::FlowyError;
 use flowy_storage_pub::cloud::{FileStoragePlan, StorageObject};
 use lib_infra::future::FutureResult;

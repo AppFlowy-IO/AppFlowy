@@ -1,4 +1,6 @@
+use std::borrow::BorrowMut;
 use std::fmt::{Debug, Display};
+use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use crate::CollabKVDB;
@@ -19,6 +21,7 @@ use collab_plugins::local_storage::indexeddb::IndexeddbDiskPlugin;
 
 pub use crate::plugin_provider::CollabCloudPluginProvider;
 use collab_plugins::local_storage::CollabPersistenceConfig;
+use tokio::sync::RwLock;
 
 use lib_infra::{if_native, if_wasm};
 use tracing::{instrument, trace};
@@ -35,6 +38,7 @@ pub enum CollabPluginProviderContext {
   AppFlowyCloud {
     uid: i64,
     collab_object: CollabObject,
+    local_collab: Weak<RwLock<dyn BorrowMut<Collab> + Send + Sync>>,
   },
   Supabase {
     uid: i64,
@@ -50,6 +54,7 @@ impl Display for CollabPluginProviderContext {
       CollabPluginProviderContext::AppFlowyCloud {
         uid: _,
         collab_object,
+        ..
       } => collab_object.to_string(),
       CollabPluginProviderContext::Supabase {
         uid: _,
@@ -113,7 +118,7 @@ impl AppFlowyCollabBuilder {
     }
   }
 
-  fn collab_object(
+  pub fn collab_object(
     &self,
     uid: i64,
     object_id: &str,
@@ -153,8 +158,7 @@ impl AppFlowyCollabBuilder {
     object_type: CollabType,
     collab_doc_state: DataSource,
     collab_db: Weak<CollabKVDB>,
-    build_config: CollabBuilderConfig,
-  ) -> Result<Collab, Error> {
+  ) -> Result<UninitCollab, Error> {
     self.build_with_config(
       workspace_id,
       uid,
@@ -162,7 +166,6 @@ impl AppFlowyCollabBuilder {
       object_type,
       collab_db,
       collab_doc_state,
-      build_config,
     )
   }
 
@@ -181,7 +184,7 @@ impl AppFlowyCollabBuilder {
   /// - `collab_db`: A weak reference to the [CollabKVDB].
   ///
   #[allow(clippy::too_many_arguments)]
-  #[instrument(level = "trace", skip(self, collab_db, collab_doc_state, build_config))]
+  #[instrument(level = "trace", skip(self, collab_db, collab_doc_state))]
   pub fn build_with_config(
     &self,
     workspace_id: &str,
@@ -190,9 +193,8 @@ impl AppFlowyCollabBuilder {
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
     collab_doc_state: DataSource,
-    build_config: CollabBuilderConfig,
-  ) -> Result<Collab, Error> {
-    let mut collab = CollabBuilder::new(uid, object_id)
+  ) -> Result<UninitCollab, Error> {
+    let collab = CollabBuilder::new(uid, object_id)
       .with_doc_state(collab_doc_state)
       .with_device_id(self.workspace_integrate.device_id()?)
       .build()?;
@@ -230,19 +232,74 @@ impl AppFlowyCollabBuilder {
         None,
       )));
     }
+    let collab_object = self.collab_object(uid, object_id, object_type)?;
+    let plugin_provider = self.plugin_provider.load_full();
+    Ok(UninitCollab::new(
+      collab,
+      collab_object,
+      collab_db,
+      plugin_provider,
+    ))
+  }
+}
+
+pub struct UninitCollab {
+  collab: Collab,
+  collab_object: CollabObject,
+  collab_db: Weak<CollabKVDB>,
+  plugin_provider: Arc<Arc<dyn CollabCloudPluginProvider>>,
+}
+
+impl UninitCollab {
+  fn new(
+    collab: Collab,
+    collab_object: CollabObject,
+    collab_db: Weak<CollabKVDB>,
+    plugin_provider: Arc<Arc<dyn CollabCloudPluginProvider>>,
+  ) -> Self {
+    Self {
+      collab,
+      collab_object,
+      collab_db,
+      plugin_provider,
+    }
+  }
+
+  pub fn finalize<T, F, E>(
+    self,
+    build_config: CollabBuilderConfig,
+    f: F,
+  ) -> Result<Arc<RwLock<T>>, E>
+  where
+    T: BorrowMut<Collab> + Send + Sync + 'static,
+    F: FnOnce(Collab, &CollabObject) -> Result<T, E>,
+    E: std::error::Error,
+  {
+    //FIXME: we should be able to create all necessary collab types here, but due to dependency hell
+    // we cannot really instantiate any collab-specific type from this crate
+    let collab = f(self.collab, &self.collab_object)?;
+    let collab = Arc::new(RwLock::new(collab));
 
     {
-      let collab_object = self.collab_object(uid, object_id, object_type.clone())?;
       if build_config.sync_enable {
-        let plugin_provider = self.plugin_provider.load_full();
-        let provider_type = plugin_provider.provider_type();
-        let span = tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object_id);
+        let provider_type = self.plugin_provider.provider_type();
+        let span = tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %self.collab_object.object_id);
         let _enter = span.enter();
         match provider_type {
           CollabPluginProviderType::AppFlowyCloud => {
-            let plugins = plugin_provider
-              .get_plugins(CollabPluginProviderContext::AppFlowyCloud { uid, collab_object });
+            let local_collab = Arc::downgrade(&collab);
+            let plugins =
+              self
+                .plugin_provider
+                .get_plugins(CollabPluginProviderContext::AppFlowyCloud {
+                  uid: self.collab_object.uid,
+                  collab_object: self.collab_object,
+                  local_collab,
+                });
 
+            // at the moment when we get the lock, the collab object is not yet exposed outside
+            let collab = collab.try_read().unwrap();
+            let collab = collab.borrow();
             for plugin in plugins {
               collab.add_plugin(plugin);
             }
@@ -251,12 +308,18 @@ impl AppFlowyCollabBuilder {
             #[cfg(not(target_arch = "wasm32"))]
             {
               trace!("init supabase collab plugins");
-              let local_collab_db = collab_db.clone();
-              let plugins = plugin_provider.get_plugins(CollabPluginProviderContext::Supabase {
-                uid,
-                collab_object,
-                local_collab_db,
-              });
+              let local_collab_db = self.collab_db.clone();
+              let plugins =
+                self
+                  .plugin_provider
+                  .get_plugins(CollabPluginProviderContext::Supabase {
+                    uid: self.collab_object.uid,
+                    collab_object: self.collab_object,
+                    local_collab_db,
+                  });
+              // at the moment when we get the lock, the collab object is not yet exposed outside
+              let collab = collab.try_read().unwrap();
+              let collab = collab.borrow();
               for plugin in plugins {
                 collab.add_plugin(plugin);
               }
@@ -268,11 +331,21 @@ impl AppFlowyCollabBuilder {
     }
 
     if build_config.auto_initialize {
+      // at the moment when we get the lock, the collab object is not yet exposed outside
+      let mut collab = collab.try_write().unwrap();
+      let collab = (*collab).borrow_mut();
       collab.initialize();
     }
-
-    trace!("collab initialized: {}:{}", object_type, object_id);
+    trace!("collab initialized");
     Ok(collab)
+  }
+}
+
+impl Deref for UninitCollab {
+  type Target = CollabObject;
+
+  fn deref(&self) -> &Self::Target {
+    &self.collab_object
   }
 }
 

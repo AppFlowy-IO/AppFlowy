@@ -541,7 +541,7 @@ impl DatabaseViewEditor {
       condition: params.condition.into(),
     };
 
-    self.delegate.insert_sort(&self.view_id, sort.clone());
+    self.delegate.insert_sort(&self.view_id, sort.clone()).await;
 
     let mut sort_controller = self.sort_controller.write().await;
 
@@ -562,7 +562,8 @@ impl DatabaseViewEditor {
   pub async fn v_reorder_sort(&self, params: ReorderSortPayloadPB) -> FlowyResult<()> {
     self
       .delegate
-      .move_sort(&self.view_id, &params.from_sort_id, &params.to_sort_id);
+      .move_sort(&self.view_id, &params.from_sort_id, &params.to_sort_id)
+      .await;
 
     let notification = self
       .sort_controller
@@ -586,7 +587,10 @@ impl DatabaseViewEditor {
       .apply_changeset(SortChangeset::from_delete(params.sort_id.clone()))
       .await;
 
-    self.delegate.remove_sort(&self.view_id, &params.sort_id);
+    self
+      .delegate
+      .remove_sort(&self.view_id, &params.sort_id)
+      .await;
     notify_did_update_sort(notification).await;
 
     Ok(())
@@ -596,7 +600,7 @@ impl DatabaseViewEditor {
     let all_sorts = self.v_get_all_sorts().await;
     self.sort_controller.write().await.delete_all_sorts().await;
 
-    self.delegate.remove_all_sorts(&self.view_id);
+    self.delegate.remove_all_sorts(&self.view_id).await;
     let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
     notification.delete_sorts = all_sorts.into_iter().map(SortPB::from).collect();
     notify_did_update_sort(notification).await;
@@ -633,7 +637,8 @@ impl DatabaseViewEditor {
           let calculation: Calculation = Calculation::from(&insert);
           self
             .delegate
-            .update_calculation(&params.view_id, calculation);
+            .update_calculation(&params.view_id, calculation)
+            .await;
         }
       }
 
@@ -649,7 +654,8 @@ impl DatabaseViewEditor {
   ) -> FlowyResult<()> {
     self
       .delegate
-      .remove_calculation(&params.view_id, &params.calculation_id);
+      .remove_calculation(&params.view_id, &params.calculation_id)
+      .await;
 
     let calculation = Calculation::none(params.calculation_id, params.field_id, None);
 
@@ -744,11 +750,14 @@ impl DatabaseViewEditor {
       DatabaseLayout::Board => {
         let layout_setting = params.board.unwrap();
 
-        self.delegate.insert_layout_setting(
-          &self.view_id,
-          &params.layout_type,
-          layout_setting.clone().into(),
-        );
+        self
+          .delegate
+          .insert_layout_setting(
+            &self.view_id,
+            &params.layout_type,
+            layout_setting.clone().into(),
+          )
+          .await;
 
         Some(DatabaseLayoutSettingPB::from_board(layout_setting))
       },
@@ -760,11 +769,14 @@ impl DatabaseViewEditor {
             return Err(FlowyError::unexpect_calendar_field_type());
           }
 
-          self.delegate.insert_layout_setting(
-            &self.view_id,
-            &params.layout_type,
-            layout_setting.clone().into(),
-          );
+          self
+            .delegate
+            .insert_layout_setting(
+              &self.view_id,
+              &params.layout_type,
+              layout_setting.clone().into(),
+            )
+            .await;
 
           Some(DatabaseLayoutSettingPB::from_calendar(layout_setting))
         } else {
@@ -1009,13 +1021,16 @@ impl DatabaseViewEditor {
   pub async fn v_update_layout_type(&self, new_layout_type: DatabaseLayout) -> FlowyResult<()> {
     self
       .delegate
-      .update_layout_type(&self.view_id, &new_layout_type);
+      .update_layout_type(&self.view_id, &new_layout_type)
+      .await;
 
     // using the {} brackets to denote the lifetime of the resolver. Because the DatabaseLayoutDepsResolver
     // is not sync and send, so we can't pass it to the async block.
     {
       let resolver = DatabaseLayoutDepsResolver::new(self.delegate.get_database(), new_layout_type);
-      resolver.resolve_deps_when_update_layout_type(&self.view_id);
+      resolver
+        .resolve_deps_when_update_layout_type(&self.view_id)
+        .await;
     }
 
     // initialize the group controller if the current layout support grouping

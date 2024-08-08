@@ -6,7 +6,6 @@ use collab::preclude::CollabPlugin;
 use collab_document::blocks::DocumentData;
 use collab_document::document_data::default_document_data;
 use nanoid::nanoid;
-use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 

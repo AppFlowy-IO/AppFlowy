@@ -4,7 +4,6 @@ use std::sync::{Arc, Weak};
 
 use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{RemoteCollabStorage, RemoteUpdateSender};
-use parking_lot::RwLock;
 
 use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;

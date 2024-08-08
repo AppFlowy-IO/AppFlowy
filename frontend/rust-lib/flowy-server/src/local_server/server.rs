@@ -1,7 +1,6 @@
 use flowy_search_pub::cloud::SearchCloudService;
 use std::sync::Arc;
 
-use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
 use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
