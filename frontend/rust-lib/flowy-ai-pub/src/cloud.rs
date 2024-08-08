@@ -4,8 +4,8 @@ pub use client_api::entity::ai_dto::{
   RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage,
 };
 pub use client_api::entity::{
-  ChatAuthorType, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatMetadataData,
-  MessageCursor, QAChatMessage, QuestionStreamValue, RepeatedChatMessage,
+  ChatAuthorType, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatMetadataContentType,
+  ChatMetadataData, MessageCursor, QAChatMessage, QuestionStreamValue, RepeatedChatMessage,
 };
 use client_api::error::AppResponseError;
 use flowy_error::FlowyError;

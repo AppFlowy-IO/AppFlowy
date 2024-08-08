@@ -39,7 +39,9 @@ class ChatInputSendButton extends StatelessWidget {
         icon: FlowySvg(
           FlowySvgs.send_s,
           size: const Size.square(14),
-          color: enabled ? Theme.of(context).colorScheme.primary : null,
+          color: enabled
+              ? Theme.of(context).colorScheme.primary
+              : Colors.grey.shade600,
         ),
         onPressed: onSendPressed,
       );

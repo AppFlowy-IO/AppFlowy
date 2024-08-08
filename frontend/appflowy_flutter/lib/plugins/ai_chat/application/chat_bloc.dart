@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -28,6 +27,8 @@ part 'chat_bloc.freezed.dart';
 const sendMessageErrorKey = "sendMessageError";
 const systemUserId = "system";
 const aiResponseUserId = "0";
+const messageMetadataKey = "metadata";
+const messageQuestionIdKey = "question";
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
@@ -412,7 +413,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       author: User(id: "streamId:${nanoid()}"),
       metadata: {
         "$AnswerStream": stream,
-        "question": questionMessageId,
+        messageQuestionIdKey: questionMessageId,
         "chatId": chatId,
       },
       id: streamMessageId,
@@ -435,7 +436,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       text: message.content,
       createdAt: message.createdAt.toInt() * 1000,
       metadata: {
-        "metadata": message.metadata,
+        messageMetadataKey: message.metadata,
       },
     );
   }
@@ -593,7 +594,7 @@ class AnswerStream {
         } else if (event.startsWith("metadata:")) {
           if (_onMetadata != null) {
             final s = event.substring(9);
-            _onMetadata!(chatMessageMetadataFromString(s));
+            _onMetadata!(messageRefSourceFromString(s));
           }
         } else if (event == "AI_RESPONSE_LIMIT") {
           if (_onAIResponseLimit != null) {
@@ -627,7 +628,7 @@ class AnswerStream {
   void Function()? _onEnd;
   void Function(String error)? _onError;
   void Function()? _onAIResponseLimit;
-  void Function(List<ChatMessageMetadata> metadata)? _onMetadata;
+  void Function(List<ChatMessageRefSource> metadata)? _onMetadata;
 
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
@@ -646,7 +647,7 @@ class AnswerStream {
     void Function()? onEnd,
     void Function(String error)? onError,
     void Function()? onAIResponseLimit,
-    void Function(List<ChatMessageMetadata> metadata)? onMetadata,
+    void Function(List<ChatMessageRefSource> metadata)? onMetadata,
   }) {
     _onData = onData;
     _onStart = onStart;
@@ -661,55 +662,22 @@ class AnswerStream {
   }
 }
 
-List<ChatMessageMetadata> chatMessageMetadataFromString(String? s) {
-  if (s == null || s.isEmpty || s == "null") {
-    return [];
-  }
-
-  final List<ChatMessageMetadata> metadata = [];
-  try {
-    final metadataJson = jsonDecode(s);
-    if (metadataJson == null) {
-      Log.warn("metadata is null");
-      return [];
-    }
-
-    if (metadataJson is Map<String, dynamic>) {
-      if (metadataJson.isNotEmpty) {
-        metadata.add(ChatMessageMetadata.fromJson(metadataJson));
-      }
-    } else if (metadataJson is List) {
-      metadata.addAll(
-        metadataJson.map(
-          (e) => ChatMessageMetadata.fromJson(e as Map<String, dynamic>),
-        ),
-      );
-    } else {
-      Log.error("Invalid metadata: $metadataJson");
-    }
-  } catch (e) {
-    Log.error("Failed to parse metadata: $e");
-  }
-
-  return metadata;
-}
-
 @JsonSerializable()
-class ChatMessageMetadata {
-  ChatMessageMetadata({
+class ChatMessageRefSource {
+  ChatMessageRefSource({
     required this.id,
     required this.name,
     required this.source,
   });
 
-  factory ChatMessageMetadata.fromJson(Map<String, dynamic> json) =>
-      _$ChatMessageMetadataFromJson(json);
+  factory ChatMessageRefSource.fromJson(Map<String, dynamic> json) =>
+      _$ChatMessageRefSourceFromJson(json);
 
   final String id;
   final String name;
   final String source;
 
-  Map<String, dynamic> toJson() => _$ChatMessageMetadataToJson(this);
+  Map<String, dynamic> toJson() => _$ChatMessageRefSourceToJson(this);
 }
 
 @freezed

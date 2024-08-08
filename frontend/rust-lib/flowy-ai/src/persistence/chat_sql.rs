@@ -76,6 +76,7 @@ pub fn insert_chat(mut conn: DBConnection, new_chat: &ChatTable) -> QueryResult<
     .execute(&mut *conn)
 }
 
+#[allow(dead_code)]
 pub fn update_chat(
   conn: &mut SqliteConnection,
   changeset: ChatTableChangeset,
@@ -93,6 +94,7 @@ pub fn read_chat(mut conn: DBConnection, chat_id_val: &str) -> QueryResult<ChatT
   Ok(row)
 }
 
+#[allow(dead_code)]
 pub fn read_chat_metadata(
   conn: &mut SqliteConnection,
   chat_id_val: &str,

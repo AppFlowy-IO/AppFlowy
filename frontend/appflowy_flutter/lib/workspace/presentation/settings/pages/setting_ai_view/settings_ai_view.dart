@@ -1,8 +1,6 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_on_boarding_bloc.dart';
-import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/model_selection.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
@@ -151,9 +149,9 @@ class _LocalAIOnBoarding extends StatelessWidget {
                     // Show the upgrade to AI Local plan button if the user has not purchased the AI Local plan
                     return _UpgradeToAILocalPlan(
                       onTap: () {
-                        context.read<SettingsDialogBloc>().add(
-                              const SettingsDialogEvent.setSelectedPage(
-                                SettingsPage.plan,
+                        context.read<LocalAIOnBoardingBloc>().add(
+                              const LocalAIOnBoardingEvent.addSubscription(
+                                SubscriptionPlanPB.AiLocal,
                               ),
                             );
                       },
@@ -195,62 +193,45 @@ class _UpgradeToAILocalPlan extends StatefulWidget {
 }
 
 class _UpgradeToAILocalPlanState extends State<_UpgradeToAILocalPlan> {
-  bool _isHovered = false;
-
   @override
   Widget build(BuildContext context) {
-    const textGradient = LinearGradient(
-      begin: Alignment.bottomLeft,
-      end: Alignment.bottomRight,
-      colors: [Color(0xFF8032FF), Color(0xFFEF35FF)],
-      stops: [0.1545, 0.8225],
-    );
-
-    final backgroundGradient = LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [
-        _isHovered
-            ? const Color(0xFF8032FF).withOpacity(0.3)
-            : Colors.transparent,
-        _isHovered
-            ? const Color(0xFFEF35FF).withOpacity(0.3)
-            : Colors.transparent,
-      ],
-    );
-
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            gradient: backgroundGradient,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const FlowySvg(
-                FlowySvgs.upgrade_storage_s,
-                blendMode: null,
+              FlowyText.medium(
+                LocaleKeys.sideBar_upgradeToAILocal.tr(),
+                maxLines: 10,
+                lineHeight: 1.5,
               ),
-              const HSpace(6),
-              ShaderMask(
-                shaderCallback: (bounds) => textGradient.createShader(bounds),
-                blendMode: BlendMode.srcIn,
+              const VSpace(4),
+              Opacity(
+                opacity: 0.6,
                 child: FlowyText(
-                  LocaleKeys.sideBar_upgradeToAILocal.tr(),
-                  color: AFThemeExtension.of(context).strongText,
+                  LocaleKeys.sideBar_upgradeToAILocalDesc.tr(),
+                  fontSize: 12,
+                  maxLines: 10,
+                  lineHeight: 1.5,
                 ),
               ),
             ],
           ),
         ),
-      ),
+        BlocBuilder<LocalAIOnBoardingBloc, LocalAIOnBoardingState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const CircularProgressIndicator.adaptive();
+            } else {
+              return Toggle(
+                value: false,
+                onChanged: (_) => widget.onTap(),
+              );
+            }
+          },
+        ),
+      ],
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_input_file.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -18,9 +19,10 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 import 'chat_at_button.dart';
-import 'chat_attachment.dart';
-import 'chat_input_span.dart';
+import 'chat_input_attachment.dart';
 import 'chat_send_button.dart';
+import 'chat_input_span.dart';
+import 'layout_define.dart';
 
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
@@ -105,16 +107,6 @@ class _ChatInputState extends State<ChatInput> {
 
   @override
   Widget build(BuildContext context) {
-    const buttonPadding = EdgeInsets.symmetric(horizontal: 2);
-    const inputPadding = EdgeInsets.all(6);
-    final textPadding = isMobile
-        ? const EdgeInsets.only(left: 8.0, right: 4.0)
-        : const EdgeInsets.symmetric(horizontal: 16);
-    final borderRadius = BorderRadius.circular(isMobile ? 10 : 30);
-    final color = isMobile
-        ? Colors.transparent
-        : Theme.of(context).colorScheme.surfaceContainerHighest;
-
     return Padding(
       padding: inputPadding,
       // ignore: use_decorated_box
@@ -123,7 +115,7 @@ class _ChatInputState extends State<ChatInput> {
           border: Border.all(
             color: _inputFocusNode.hasFocus && !isMobile
                 ? Theme.of(context).colorScheme.primary.withOpacity(0.6)
-                : Colors.transparent,
+                : Colors.grey.shade700,
           ),
           borderRadius: borderRadius,
         ),
@@ -132,17 +124,50 @@ class _ChatInputState extends State<ChatInput> {
           color: color,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // TODO(lucas): support mobile
-                if (PlatformExtension.isDesktop &&
-                    widget.aiType == const AIType.localAI())
-                  _attachmentButton(buttonPadding),
-                Expanded(child: _inputTextField(context, textPadding)),
+                if (context.read<ChatFileBloc>().state.uploadFiles.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: 12,
+                      bottom: 12,
+                      left: textPadding.left + sendButtonSize,
+                      right: textPadding.right,
+                    ),
+                    child: BlocBuilder<ChatFileBloc, ChatFileState>(
+                      builder: (context, state) {
+                        return ChatInputFile(
+                          chatId: widget.chatId,
+                          files: state.uploadFiles,
+                          onDeleted: (file) => context.read<ChatFileBloc>().add(
+                                ChatFileEvent.deleteFile(file),
+                              ),
+                        );
+                      },
+                    ),
+                  ),
 
-                if (widget.aiType == const AIType.appflowyAI())
-                  _atButton(buttonPadding),
-                _sendButton(buttonPadding),
+                //
+                Row(
+                  children: [
+                    // TODO(lucas): support mobile
+                    if (PlatformExtension.isDesktop &&
+                        widget.aiType == const AIType.localAI())
+                      _attachmentButton(buttonPadding),
+
+                    // text field
+                    Expanded(child: _inputTextField(context, textPadding)),
+
+                    // at button
+                    if (PlatformExtension.isDesktop &&
+                        widget.aiType == const AIType.appflowyAI())
+                      _atButton(buttonPadding),
+
+                    // send button
+                    _sendButton(buttonPadding),
+                  ],
+                ),
               ],
             ),
           ),
@@ -161,9 +186,20 @@ class _ChatInputState extends State<ChatInput> {
   void _handleSendPressed() {
     final trimmedText = _textController.text.trim();
     if (trimmedText != '') {
+      // consume metadata
+      final ChatInputMentionMetadata mentionPageMetadata =
+          _inputActionControl.consumeMetaData();
+      final ChatInputFileMetadata fileMetadata =
+          context.read<ChatFileBloc>().consumeMetaData();
+
+      // combine metadata
+      final Map<String, dynamic> metadata = {}
+        ..addAll(mentionPageMetadata)
+        ..addAll(fileMetadata);
+
       final partialText = types.PartialText(
         text: trimmedText,
-        metadata: _inputActionControl.consumeMetaData(),
+        metadata: metadata,
       );
       widget.onSendPressed(partialText);
       _textController.clear();
@@ -206,36 +242,12 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   InputDecoration _buildInputDecoration(BuildContext context) {
-    if (!isMobile) {
-      return InputDecoration(
-        border: InputBorder.none,
-        hintText: widget.hintText,
-        focusedBorder: InputBorder.none,
-        hintStyle: TextStyle(
-          color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
-        ),
-      );
-    }
-
-    final borderRadius = BorderRadius.circular(10);
     return InputDecoration(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      border: InputBorder.none,
       hintText: widget.hintText,
+      focusedBorder: InputBorder.none,
       hintStyle: TextStyle(
         color: AFThemeExtension.of(context).textColor.withOpacity(0.5),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide(
-          color: Theme.of(context).colorScheme.outline,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide(
-          color: Theme.of(context).colorScheme.primary,
-          width: 1.2,
-        ),
       ),
     );
   }
@@ -293,7 +305,7 @@ class _ChatInputState extends State<ChatInput> {
     return Padding(
       padding: buttonPadding,
       child: SizedBox.square(
-        dimension: 26,
+        dimension: sendButtonSize,
         child: ChatInputSendButton(
           onSendPressed: () {
             if (!_sendButtonEnabled) {
@@ -317,7 +329,7 @@ class _ChatInputState extends State<ChatInput> {
     return Padding(
       padding: buttonPadding,
       child: SizedBox.square(
-        dimension: 26,
+        dimension: attachButtonSize,
         child: ChatInputAttachment(
           onTap: () async {
             final path = await getIt<FilePickerService>().pickFiles(
@@ -348,7 +360,7 @@ class _ChatInputState extends State<ChatInput> {
     return Padding(
       padding: buttonPadding,
       child: SizedBox.square(
-        dimension: 26,
+        dimension: attachButtonSize,
         child: ChatInputAtButton(
           onTap: () {
             _textController.text += '@';

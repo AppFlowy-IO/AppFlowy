@@ -1,20 +1,26 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:path/path.dart' as path;
 
 import 'chat_input_bloc.dart';
 
 part 'chat_file_bloc.freezed.dart';
 
+typedef ChatInputFileMetadata = Map<String, ChatFile>;
+
 class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
-  ChatFileBloc({
-    required String chatId,
-  })  : listener = LocalLLMListener(),
+  ChatFileBloc()
+      : listener = LocalLLMListener(),
         super(const ChatFileState()) {
     listener.start(
       stateCallback: (pluginState) {
@@ -49,38 +55,15 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
           },
           newFile: (String filePath, String fileName) async {
             final files = List<ChatFile>.from(state.uploadFiles);
-            files.add(ChatFile(filePath: filePath, fileName: fileName));
-            emit(
-              state.copyWith(
-                uploadFiles: files,
-              ),
-            );
-
-            emit(
-              state.copyWith(
-                uploadFileIndicator: UploadFileIndicator.uploading(fileName),
-              ),
-            );
-            final payload = ChatFilePB(filePath: filePath, chatId: chatId);
-            unawaited(
-              AIEventChatWithFile(payload).send().then((result) {
-                if (!isClosed) {
-                  result.fold((_) {
-                    add(
-                      ChatFileEvent.updateUploadState(
-                        UploadFileIndicator.finish(fileName),
-                      ),
-                    );
-                  }, (err) {
-                    add(
-                      ChatFileEvent.updateUploadState(
-                        UploadFileIndicator.error(err.msg),
-                      ),
-                    );
-                  });
-                }
-              }),
-            );
+            final newFile = ChatFile.fromFilePath(filePath);
+            if (newFile != null) {
+              files.add(newFile);
+              emit(
+                state.copyWith(
+                  uploadFiles: files,
+                ),
+              );
+            }
           },
           updateChatState: (LocalAIChatPB chatState) {
             // Only user enable chat with file and the plugin is already running
@@ -109,6 +92,15 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
               ),
             );
           },
+          deleteFile: (file) {
+            final files = List<ChatFile>.from(state.uploadFiles);
+            files.remove(file);
+            emit(
+              state.copyWith(
+                uploadFiles: files,
+              ),
+            );
+          },
           clear: () {
             emit(
               state.copyWith(
@@ -116,12 +108,22 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
               ),
             );
           },
-          updateUploadState: (UploadFileIndicator indicator) {
-            emit(state.copyWith(uploadFileIndicator: indicator));
-          },
         );
       },
     );
+  }
+
+  ChatInputFileMetadata consumeMetaData() {
+    final metadata = state.uploadFiles.fold(
+      <String, ChatFile>{},
+      (map, file) => map..putIfAbsent(file.filePath, () => file),
+    );
+
+    if (metadata.isNotEmpty) {
+      add(const ChatFileEvent.clear());
+    }
+
+    return metadata;
   }
 
   final LocalLLMListener listener;
@@ -138,9 +140,8 @@ class ChatFileEvent with _$ChatFileEvent {
   const factory ChatFileEvent.initial() = Initial;
   const factory ChatFileEvent.newFile(String filePath, String fileName) =
       _NewFile;
+  const factory ChatFileEvent.deleteFile(ChatFile file) = _DeleteFile;
   const factory ChatFileEvent.clear() = _ClearFile;
-  const factory ChatFileEvent.updateUploadState(UploadFileIndicator indicator) =
-      _UpdateUploadState;
   const factory ChatFileEvent.updateChatState(LocalAIChatPB chatState) =
       _UpdateChatState;
   const factory ChatFileEvent.updatePluginState(
@@ -152,26 +153,69 @@ class ChatFileEvent with _$ChatFileEvent {
 class ChatFileState with _$ChatFileState {
   const factory ChatFileState({
     @Default(false) bool supportChatWithFile,
-    UploadFileIndicator? uploadFileIndicator,
     LocalAIChatPB? chatState,
     @Default([]) List<ChatFile> uploadFiles,
     @Default(AIType.appflowyAI()) AIType aiType,
   }) = _ChatFileState;
 }
 
-@freezed
-class UploadFileIndicator with _$UploadFileIndicator {
-  const factory UploadFileIndicator.finish(String fileName) = _Finish;
-  const factory UploadFileIndicator.uploading(String fileName) = _Uploading;
-  const factory UploadFileIndicator.error(String error) = _Error;
-}
-
-class ChatFile {
-  ChatFile({
+class ChatFile extends Equatable {
+  const ChatFile({
     required this.filePath,
     required this.fileName,
+    required this.fileType,
   });
+
+  static ChatFile? fromFilePath(String filePath) {
+    final file = File(filePath);
+    if (!file.existsSync()) {
+      return null;
+    }
+
+    final fileName = path.basename(filePath);
+    final extension = path.extension(filePath).toLowerCase();
+
+    ChatMessageMetaTypePB fileType;
+    switch (extension) {
+      case '.pdf':
+        fileType = ChatMessageMetaTypePB.PDF;
+        break;
+      case '.txt':
+        fileType = ChatMessageMetaTypePB.Txt;
+        break;
+      case '.md':
+        fileType = ChatMessageMetaTypePB.Markdown;
+        break;
+      default:
+        fileType = ChatMessageMetaTypePB.UnknownMetaType;
+    }
+
+    return ChatFile(
+      filePath: filePath,
+      fileName: fileName,
+      fileType: fileType,
+    );
+  }
 
   final String filePath;
   final String fileName;
+  final ChatMessageMetaTypePB fileType;
+
+  @override
+  List<Object?> get props => [filePath];
+}
+
+extension ChatFileTypeExtension on ChatMessageMetaTypePB {
+  Widget get icon {
+    switch (this) {
+      case ChatMessageMetaTypePB.PDF:
+        return const FlowySvg(FlowySvgs.file_pdf_s);
+      case ChatMessageMetaTypePB.Txt:
+        return const FlowySvg(FlowySvgs.file_txt_s);
+      case ChatMessageMetaTypePB.Markdown:
+        return const FlowySvg(FlowySvgs.file_md_s);
+      default:
+        return const FlowySvg(FlowySvgs.file_unknown_s);
+    }
+  }
 }
