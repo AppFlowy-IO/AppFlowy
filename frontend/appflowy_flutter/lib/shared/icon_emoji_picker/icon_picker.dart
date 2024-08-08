@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_search_bar.dart';
 import 'package:appflowy/util/debounce.dart';
@@ -9,7 +12,9 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_ic
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter/services.dart';
 
@@ -198,7 +203,7 @@ class _IconPickerState extends State<IconPicker> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FlowyText(
-              iconGroup.displayName,
+              iconGroup.displayName.capitalize(),
               fontSize: 12,
               figmaLineHeight: 18.0,
               color: context.pickerTextColor,
@@ -219,6 +224,10 @@ class _IconPickerState extends State<IconPicker> {
               ).toList(),
             ),
             const VSpace(12.0),
+            if (index == widget.iconGroups.length - 1) ...[
+              const _StreamlinePermit(),
+              const VSpace(12.0),
+            ],
           ],
         );
       },
@@ -267,6 +276,42 @@ class _Icon extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _StreamlinePermit extends StatelessWidget {
+  const _StreamlinePermit();
+
+  @override
+  Widget build(BuildContext context) {
+    // Open source icons from Streamline
+    final textStyle = TextStyle(
+      fontSize: 12.0,
+      height: 18.0 / 12.0,
+      fontWeight: FontWeight.w500,
+      color: context.pickerTextColor,
+    );
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '${LocaleKeys.emoji_openSourceIconsFrom.tr()} ',
+            style: textStyle,
+          ),
+          TextSpan(
+            text: 'Streamline',
+            style: textStyle.copyWith(
+              decoration: TextDecoration.underline,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                afLaunchUrlString('https://www.streamlinehq.com/');
+              },
+          ),
+        ],
+      ),
     );
   }
 }

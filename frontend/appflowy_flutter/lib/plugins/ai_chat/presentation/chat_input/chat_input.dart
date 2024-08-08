@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -19,8 +19,8 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 import 'chat_at_button.dart';
 import 'chat_attachment.dart';
-import 'chat_send_button.dart';
 import 'chat_input_span.dart';
+import 'chat_send_button.dart';
 
 class ChatInput extends StatefulWidget {
   /// Creates [ChatInput] widget.
@@ -64,7 +64,6 @@ class _ChatInputState extends State<ChatInput> {
     _textController = InputTextFieldController();
     _inputFocusNode = FocusNode(
       onKeyEvent: (node, event) {
-        // TODO(lucas): support mobile
         if (PlatformExtension.isDesktop) {
           if (_inputActionControl.canHandleKeyEvent(event)) {
             _inputActionControl.handleKeyEvent(event);
@@ -122,7 +121,7 @@ class _ChatInputState extends State<ChatInput> {
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-            color: _inputFocusNode.hasFocus
+            color: _inputFocusNode.hasFocus && !isMobile
                 ? Theme.of(context).colorScheme.primary.withOpacity(0.6)
                 : Colors.transparent,
           ),
@@ -141,8 +140,7 @@ class _ChatInputState extends State<ChatInput> {
                   _attachmentButton(buttonPadding),
                 Expanded(child: _inputTextField(context, textPadding)),
 
-                if (PlatformExtension.isDesktop &&
-                    widget.aiType == const AIType.appflowyAI())
+                if (widget.aiType == const AIType.appflowyAI())
                   _atButton(buttonPadding),
                 _sendButton(buttonPadding),
               ],
@@ -379,6 +377,7 @@ class _ChatInputState extends State<ChatInput> {
     }
     handler.onSelected(ViewActionPage(view: selectedView));
     handler.onExit();
+    _inputFocusNode.requestFocus();
   }
 
   @override
