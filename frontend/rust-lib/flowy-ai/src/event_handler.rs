@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::PathBuf;
 
 use crate::ai_manager::AIManager;
@@ -39,10 +40,11 @@ pub(crate) async fn stream_chat_message_handler(
     .metadata
     .into_iter()
     .map(|metadata| ChatMessageMetadata {
-      data: ChatMetadataData::new_text(metadata.text),
+      data: ChatMetadataData::new_text(metadata.data),
       id: metadata.id,
       name: metadata.name.clone(),
-      source: metadata.name,
+      source: metadata.source,
+      extract: None,
     })
     .collect::<Vec<_>>();
 
@@ -231,6 +233,24 @@ pub(crate) async fn chat_file_handler(
       "Only support pdf,md and txt",
     ));
   }
+  let file_size = fs::metadata(&file_path)
+    .map_err(|_| {
+      FlowyError::new(
+        ErrorCode::UnsupportedFileFormat,
+        "Failed to get file metadata",
+      )
+    })?
+    .len();
+
+  const MAX_FILE_SIZE: u64 = 10 * 1024 * 1024;
+  if file_size > MAX_FILE_SIZE {
+    return Err(FlowyError::new(
+      ErrorCode::PayloadTooLarge,
+      "File size is too large. Max file size is 10MB",
+    ));
+  }
+
+  tracing::debug!("File size: {} bytes", file_size);
 
   let (tx, rx) = oneshot::channel::<Result<(), FlowyError>>();
   tokio::spawn(async move {
@@ -405,4 +425,15 @@ pub(crate) async fn create_chat_context_handler(
   let _data = data.try_into_inner()?;
 
   Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_chat_info_handler(
+  data: AFPluginData<ChatId>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<ChatInfoPB, FlowyError> {
+  let chat_id = data.try_into_inner()?.value;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let pb = ai_manager.get_chat_info(&chat_id).await?;
+  data_result_ok(pb)
 }

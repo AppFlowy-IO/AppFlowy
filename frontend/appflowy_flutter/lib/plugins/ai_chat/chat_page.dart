@@ -1,32 +1,32 @@
 import 'dart:math';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:desktop_drop/desktop_drop.dart';
-import 'package:flowy_infra/platform_extension.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/ai_message_bubble.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/user_message_bubble.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/ai_message_bubble.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/other_user_message_bubble.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/user_message_bubble.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:styled_widget/styled_widget.dart';
 
+import 'application/chat_member_bloc.dart';
 import 'application/chat_side_pannel_bloc.dart';
 import 'presentation/chat_input/chat_input.dart';
 import 'presentation/chat_popmenu.dart';
@@ -79,7 +79,6 @@ class AIChatPage extends StatelessWidget {
       return MultiBlocProvider(
         providers: [
           /// [ChatBloc] is used to handle chat messages including send/receive message
-          ///
           BlocProvider(
             create: (_) => ChatBloc(
               view: view,
@@ -88,25 +87,24 @@ class AIChatPage extends StatelessWidget {
           ),
 
           /// [ChatFileBloc] is used to handle file indexing as a chat context
-          ///
           BlocProvider(
-            create: (_) => ChatFileBloc(chatId: view.id.toString())
+            create: (_) => ChatFileBloc(chatId: view.id)
               ..add(const ChatFileEvent.initial()),
           ),
 
           /// [ChatInputStateBloc] is used to handle chat input text field state
-          ///
           BlocProvider(
             create: (_) =>
                 ChatInputStateBloc()..add(const ChatInputStateEvent.started()),
           ),
           BlocProvider(create: (_) => ChatSidePannelBloc(chatId: view.id)),
+          BlocProvider(create: (_) => ChatMemberBloc()),
         ],
         child: BlocListener<ChatFileBloc, ChatFileState>(
           listenWhen: (previous, current) =>
-              previous.indexFileIndicator != current.indexFileIndicator,
+              previous.uploadFileIndicator != current.uploadFileIndicator,
           listener: (context, state) {
-            _handleIndexIndicator(state.indexFileIndicator, context);
+            _handleIndexIndicator(state.uploadFileIndicator, context);
           },
           child: BlocBuilder<ChatFileBloc, ChatFileState>(
             builder: (context, state) {
@@ -149,7 +147,7 @@ class AIChatPage extends StatelessWidget {
   }
 
   void _handleIndexIndicator(
-    IndexFileIndicator? indicator,
+    UploadFileIndicator? indicator,
     BuildContext context,
   ) {
     if (indicator != null) {
@@ -160,7 +158,7 @@ class AIChatPage extends StatelessWidget {
             LocaleKeys.chat_indexFileSuccess.tr(args: [fileName]),
           );
         },
-        indexing: (fileName) {
+        uploading: (fileName) {
           showSnackBarMessage(
             context,
             LocaleKeys.chat_indexingFile.tr(args: [fileName]),
@@ -298,12 +296,13 @@ class _ChatContentPageState extends State<_ChatContentPage> {
   Widget buildChatWidget() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (blocContext, state) => Chat(
+        key: ValueKey(widget.view.id),
         messages: state.messages,
         onSendPressed: (_) {
           // We use custom bottom widget for chat input, so
           // do not need to handle this event.
         },
-        customBottomWidget: buildChatInput(blocContext),
+        customBottomWidget: buildBottom(blocContext),
         user: _user,
         theme: buildTheme(context),
         onEndReached: () async {
@@ -335,7 +334,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
           required messageWidth,
           required showName,
         }) =>
-            _buildAITextMessage(blocContext, textMessage),
+            _buildTextMessage(blocContext, textMessage),
         bubbleBuilder: (
           child, {
           required message,
@@ -346,17 +345,21 @@ class _ChatContentPageState extends State<_ChatContentPage> {
               message: message,
               child: child,
             );
+          } else if (isOtherUserMessage(message)) {
+            return OtherUserMessageBubble(
+              message: message,
+              child: child,
+            );
+          } else {
+            return _buildAIBubble(message, blocContext, state, child);
           }
-
-          return _buildAIBubble(message, blocContext, state, child);
         },
       ),
     );
   }
 
-  Widget _buildAITextMessage(BuildContext context, TextMessage message) {
-    final isAuthor = message.author.id == _user.id;
-    if (isAuthor) {
+  Widget _buildTextMessage(BuildContext context, TextMessage message) {
+    if (message.author.id == _user.id) {
       return ChatTextMessageWidget(
         user: message.author,
         messageUserId: message.id,
@@ -482,7 +485,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     }
   }
 
-  Widget buildChatInput(BuildContext context) {
+  Widget buildBottom(BuildContext context) {
     return ClipRect(
       child: Padding(
         padding: AIChatUILayout.safeAreaInsets(context),
@@ -497,9 +500,9 @@ class _ChatContentPageState extends State<_ChatContentPage> {
 
             return Column(
               children: [
-                BlocSelector<ChatBloc, ChatState, LoadingState>(
-                  selector: (state) => state.streamingStatus,
-                  builder: (context, state) {
+                BlocSelector<ChatBloc, ChatState, bool>(
+                  selector: (state) => state.canSendMessage,
+                  builder: (context, canSendMessage) {
                     return ChatInput(
                       aiType: aiType,
                       chatId: widget.view.id,
@@ -511,7 +514,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                               ),
                             );
                       },
-                      isStreaming: state != const LoadingState.finish(),
+                      isStreaming: !canSendMessage,
                       onStopStreaming: () {
                         context
                             .read<ChatBloc>()

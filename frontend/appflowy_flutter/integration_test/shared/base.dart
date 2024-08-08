@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/cloud_env_test.dart';
 import 'package:appflowy/startup/entry_point.dart';
@@ -16,6 +13,8 @@ import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widget
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -229,6 +228,16 @@ extension AppFlowyFinderTestBase on CommonFinders {
   Finder findTextInFlowyText(String text) {
     return find.byWidgetPredicate(
       (widget) => widget is FlowyText && widget.text == text,
+    );
+  }
+
+  Finder findFlowyTooltip(String richMessage, {bool skipOffstage = true}) {
+    return byWidgetPredicate(
+      (widget) =>
+          widget is FlowyTooltip &&
+          widget.richMessage != null &&
+          widget.richMessage!.toPlainText().contains(richMessage),
+      skipOffstage: skipOffstage,
     );
   }
 }

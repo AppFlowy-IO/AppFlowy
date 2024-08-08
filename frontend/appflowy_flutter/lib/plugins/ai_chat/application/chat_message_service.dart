@@ -7,7 +7,8 @@ import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
-    Map<String, dynamic>? map,) async {
+  Map<String, dynamic>? map,
+) async {
   final List<ChatMessageMetaPB> metadata = [];
   if (map != null) {
     for (final entry in map.entries) {
@@ -18,11 +19,14 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
             final payload = OpenDocumentPayloadPB(documentId: view.id);
             final result = await DocumentEventGetDocumentText(payload).send();
             result.fold((pb) {
-              metadata.add(ChatMessageMetaPB(
-                id: view.id,
-                name: view.name,
-                text: pb.text,
-              ),);
+              metadata.add(
+                ChatMessageMetaPB(
+                  id: view.id,
+                  name: view.name,
+                  data: pb.text,
+                  source: "appflowy document",
+                ),
+              );
             }, (err) {
               Log.error('Failed to get document text: $err');
             });

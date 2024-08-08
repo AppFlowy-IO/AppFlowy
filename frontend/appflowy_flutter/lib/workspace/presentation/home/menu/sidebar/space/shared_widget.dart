@@ -496,17 +496,13 @@ class CurrentSpace extends StatelessWidget {
     final child = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (space.spaceIcon != null) ...[
-          SpaceIcon(
-            dimension: 22,
-            space: space,
-            svgSize: 12,
-            cornerRadius: 8.0,
-          ),
-          const HSpace(10),
-        ] else ...[
-          const HSpace(2),
-        ],
+        SpaceIcon(
+          dimension: 22,
+          space: space,
+          svgSize: 12,
+          cornerRadius: 8.0,
+        ),
+        const HSpace(10),
         Flexible(
           child: FlowyText.medium(
             space.name,

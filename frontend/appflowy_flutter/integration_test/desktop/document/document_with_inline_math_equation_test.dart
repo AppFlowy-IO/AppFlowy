@@ -33,7 +33,7 @@ void main() {
       );
 
       // tap the inline math equation button
-      final inlineMathEquationButton = find.byTooltip(
+      final inlineMathEquationButton = find.findFlowyTooltip(
         LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       );
       await tester.tapButton(inlineMathEquationButton);
@@ -78,7 +78,7 @@ void main() {
       );
 
       // tap the inline math equation button
-      var inlineMathEquationButton = find.byTooltip(
+      var inlineMathEquationButton = find.findFlowyTooltip(
         LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       );
       await tester.tapButton(inlineMathEquationButton);
@@ -93,11 +93,11 @@ void main() {
       );
 
       // expect to the see the inline math equation button is highlighted
-      inlineMathEquationButton = find.byWidgetPredicate(
-        (widget) =>
-            widget is SVGIconItemWidget &&
-            widget.tooltip ==
-                LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+      inlineMathEquationButton = find.descendant(
+        of: find.findFlowyTooltip(
+          LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        ),
+        matching: find.byType(SVGIconItemWidget),
       );
       expect(
         tester.widget<SVGIconItemWidget>(inlineMathEquationButton).isHighlight,

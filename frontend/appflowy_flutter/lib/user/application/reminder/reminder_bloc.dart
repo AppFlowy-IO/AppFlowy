@@ -24,6 +24,8 @@ part 'reminder_bloc.freezed.dart';
 
 class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
   ReminderBloc() : super(ReminderState()) {
+    Log.info('ReminderBloc created');
+
     _actionBloc = getIt<ActionNavigationBloc>();
     _reminderService = const ReminderService();
     timer = _periodicCheck();
@@ -40,36 +42,58 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
       (event, emit) async {
         await event.when(
           started: () async {
-            final remindersOrFailure = await _reminderService.fetchReminders();
+            Log.info('Start fetching reminders');
 
-            remindersOrFailure.fold(
-              (reminders) => emit(state.copyWith(reminders: reminders)),
-              (error) => Log.error(error),
+            final result = await _reminderService.fetchReminders();
+
+            result.fold(
+              (reminders) {
+                Log.info('Fetched reminders on startup: ${reminders.length}');
+                emit(state.copyWith(reminders: reminders));
+              },
+              (error) => Log.error('Failed to fetch reminders: $error'),
             );
           },
           remove: (reminderId) async {
-            final unitOrFailure =
-                await _reminderService.removeReminder(reminderId: reminderId);
+            final result = await _reminderService.removeReminder(
+              reminderId: reminderId,
+            );
 
-            unitOrFailure.fold(
+            result.fold(
               (_) {
+                Log.info('Removed reminder: $reminderId');
                 final reminders = [...state.reminders];
                 reminders.removeWhere((e) => e.id == reminderId);
                 emit(state.copyWith(reminders: reminders));
               },
-              (error) => Log.error(error),
+              (error) => Log.error(
+                'Failed to remove reminder($reminderId): $error',
+              ),
             );
           },
           add: (reminder) async {
-            final unitOrFailure =
-                await _reminderService.addReminder(reminder: reminder);
+            // check the timestamp in the reminder
+            if (reminder.createdAt == null) {
+              reminder.freeze();
+              reminder = reminder.rebuild((update) {
+                update.meta[ReminderMetaKeys.createdAt] =
+                    DateTime.now().millisecondsSinceEpoch.toString();
+              });
+            }
 
-            return unitOrFailure.fold(
+            final result = await _reminderService.addReminder(
+              reminder: reminder,
+            );
+
+            return result.fold(
               (_) {
+                Log.info('Added reminder: ${reminder.id}');
+                Log.info('Before adding reminder: ${state.reminders.length}');
                 final reminders = [...state.reminders, reminder];
+                Log.info('After adding reminder: ${reminders.length}');
                 emit(state.copyWith(reminders: reminders));
               },
-              (error) => Log.error(error),
+              (error) => Log.error('Failed to add reminder: $error'),
             );
           },
           addById: (reminderId, objectId, scheduledAt, meta) async => add(
@@ -86,8 +110,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             ),
           ),
           update: (updateObject) async {
-            final reminder = state.reminders
-                .firstWhereOrNull((r) => r.id == updateObject.id);
+            final reminder = state.reminders.firstWhereOrNull(
+              (r) => r.id == updateObject.id,
+            );
 
             if (reminder == null) {
               return;
@@ -98,15 +123,20 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               reminder: newReminder,
             );
 
+            Log.info('Updating reminder: ${reminder.id}');
+
             failureOrUnit.fold(
               (_) {
+                Log.info('Updated reminder: ${reminder.id}');
                 final index =
                     state.reminders.indexWhere((r) => r.id == reminder.id);
                 final reminders = [...state.reminders];
                 reminders.replaceRange(index, index + 1, [newReminder]);
                 emit(state.copyWith(reminders: reminders));
               },
-              (error) => Log.error(error),
+              (error) => Log.error(
+                'Failed to update reminder(${reminder.id}): $error',
+              ),
             );
           },
           pressReminder: (reminderId, path, view) {
@@ -157,6 +187,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           },
           markAsRead: (reminderIds) async {
             final reminders = await _onMarkAsRead(reminderIds: reminderIds);
+
+            Log.info('Marked reminders as read: $reminderIds');
+
             emit(
               state.copyWith(
                 reminders: reminders,
@@ -168,6 +201,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               isArchived: true,
               reminderIds: reminderIds,
             );
+
+            Log.info('Archived reminders: $reminderIds');
+
             emit(
               state.copyWith(
                 reminders: reminders,
@@ -176,6 +212,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           },
           markAllRead: () async {
             final reminders = await _onMarkAsRead();
+
+            Log.info('Marked all reminders as read');
+
             emit(
               state.copyWith(
                 reminders: reminders,
@@ -184,6 +223,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           },
           archiveAll: () async {
             final reminders = await _onArchived(isArchived: true);
+
+            Log.info('Archived all reminders');
+
             emit(
               state.copyWith(
                 reminders: reminders,
@@ -199,11 +241,14 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             );
           },
           refresh: () async {
-            final remindersOrFailure = await _reminderService.fetchReminders();
+            final result = await _reminderService.fetchReminders();
 
-            remindersOrFailure.fold(
-              (reminders) => emit(state.copyWith(reminders: reminders)),
-              (error) => emit(state),
+            result.fold(
+              (reminders) {
+                Log.info('Fetched reminders on refresh: ${reminders.length}');
+                emit(state.copyWith(reminders: reminders));
+              },
+              (error) => Log.error('Failed to fetch reminders: $error'),
             );
           },
         );

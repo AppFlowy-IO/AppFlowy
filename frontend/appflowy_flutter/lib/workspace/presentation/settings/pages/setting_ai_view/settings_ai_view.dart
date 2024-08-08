@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_on_boarding_bloc.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
@@ -37,15 +38,20 @@ class AIFeatureOnlySupportedWhenUsingAppFlowyCloud extends StatelessWidget {
 }
 
 class SettingsAIView extends StatelessWidget {
-  const SettingsAIView({super.key, required this.userProfile});
+  const SettingsAIView({
+    super.key,
+    required this.userProfile,
+    required this.member,
+  });
 
   final UserProfilePB userProfile;
+  final WorkspaceMemberPB? member;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsAIBloc>(
-      create: (_) =>
-          SettingsAIBloc(userProfile)..add(const SettingsAIEvent.started()),
+      create: (_) => SettingsAIBloc(userProfile, member)
+        ..add(const SettingsAIEvent.started()),
       child: BlocBuilder<SettingsAIBloc, SettingsAIState>(
         builder: (context, state) {
           final children = <Widget>[
@@ -53,11 +59,15 @@ class SettingsAIView extends StatelessWidget {
           ];
 
           children.add(const _AISearchToggle(value: false));
-          children.add(
-            _LocalAIOnBoarding(
-              workspaceId: userProfile.workspaceId,
-            ),
-          );
+
+          if (state.member != null) {
+            children.add(
+              _LocalAIOnBoarding(
+                userProfile: userProfile,
+                member: state.member!,
+              ),
+            );
+          }
 
           return SettingsBody(
             title: LocaleKeys.settings_aiPage_title.tr(),
@@ -116,8 +126,12 @@ class _AISearchToggle extends StatelessWidget {
 
 // ignore: unused_element
 class _LocalAIOnBoarding extends StatelessWidget {
-  const _LocalAIOnBoarding({required this.workspaceId});
-  final String workspaceId;
+  const _LocalAIOnBoarding({
+    required this.userProfile,
+    required this.member,
+  });
+  final UserProfilePB userProfile;
+  final WorkspaceMemberPB member;
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +139,7 @@ class _LocalAIOnBoarding extends StatelessWidget {
       return BillingGateGuard(
         builder: (context) {
           return BlocProvider(
-            create: (context) => LocalAIOnBoardingBloc(workspaceId)
+            create: (context) => LocalAIOnBoardingBloc(userProfile)
               ..add(const LocalAIOnBoardingEvent.started()),
             child: BlocBuilder<LocalAIOnBoardingBloc, LocalAIOnBoardingState>(
               builder: (context, state) {
@@ -133,16 +147,20 @@ class _LocalAIOnBoarding extends StatelessWidget {
                 if (kDebugMode || state.isPurchaseAILocal) {
                   return const LocalAISetting();
                 } else {
-                  // Show the upgrade to AI Local plan button if the user has not purchased the AI Local plan
-                  return _UpgradeToAILocalPlan(
-                    onTap: () {
-                      context.read<SettingsDialogBloc>().add(
-                            const SettingsDialogEvent.setSelectedPage(
-                              SettingsPage.plan,
-                            ),
-                          );
-                    },
-                  );
+                  if (member.role.isOwner) {
+                    // Show the upgrade to AI Local plan button if the user has not purchased the AI Local plan
+                    return _UpgradeToAILocalPlan(
+                      onTap: () {
+                        context.read<SettingsDialogBloc>().add(
+                              const SettingsDialogEvent.setSelectedPage(
+                                SettingsPage.plan,
+                              ),
+                            );
+                      },
+                    );
+                  } else {
+                    return const _AskOwnerUpgradeToLocalAI();
+                  }
                 }
               },
             ),
@@ -152,6 +170,18 @@ class _LocalAIOnBoarding extends StatelessWidget {
     } else {
       return const SizedBox.shrink();
     }
+  }
+}
+
+class _AskOwnerUpgradeToLocalAI extends StatelessWidget {
+  const _AskOwnerUpgradeToLocalAI();
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyText(
+      LocaleKeys.sideBar_askOwnerToUpgradeToLocalAI.tr(),
+      color: AFThemeExtension.of(context).strongText,
+    );
   }
 }
 

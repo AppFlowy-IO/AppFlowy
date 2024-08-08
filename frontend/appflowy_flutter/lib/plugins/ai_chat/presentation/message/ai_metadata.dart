@@ -44,13 +44,14 @@ class AIMessageMetadata extends StatelessWidget {
                     ),
                     useIntrinsicWidth: true,
                     radius: BorderRadius.circular(6),
-                    text: FlowyText(
-                      m.source,
-                      fontSize: 14,
+                    text: Opacity(
+                      opacity: 0.5,
+                      child: FlowyText(
+                        m.name,
+                        fontSize: 14,
+                      ),
                     ),
-                    onTap: () {
-                      onSelectedMetadata(m);
-                    },
+                    onTap: () => onSelectedMetadata(m),
                   ),
                 ),
               )

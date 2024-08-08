@@ -38,7 +38,7 @@ class ChatInputSendButton extends StatelessWidget {
         radius: BorderRadius.circular(18),
         icon: FlowySvg(
           FlowySvgs.send_s,
-          size: const Size.square(20),
+          size: const Size.square(14),
           color: enabled ? Theme.of(context).colorScheme.primary : null,
         ),
         onPressed: onSendPressed,

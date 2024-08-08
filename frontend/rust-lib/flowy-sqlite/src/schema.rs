@@ -26,8 +26,8 @@ diesel::table! {
         chat_id -> Text,
         created_at -> BigInt,
         name -> Text,
-        local_model_path -> Text,
-        local_model_name -> Text,
+        local_files -> Text,
+        metadata -> Text,
         local_enabled -> Bool,
         sync_to_cloud -> Bool,
     }

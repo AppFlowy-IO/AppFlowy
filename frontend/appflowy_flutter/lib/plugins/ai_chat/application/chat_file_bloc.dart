@@ -7,6 +7,8 @@ import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'chat_input_bloc.dart';
+
 part 'chat_file_bloc.freezed.dart';
 
 class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
@@ -46,9 +48,17 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
             );
           },
           newFile: (String filePath, String fileName) async {
+            final files = List<ChatFile>.from(state.uploadFiles);
+            files.add(ChatFile(filePath: filePath, fileName: fileName));
             emit(
               state.copyWith(
-                indexFileIndicator: IndexFileIndicator.indexing(fileName),
+                uploadFiles: files,
+              ),
+            );
+
+            emit(
+              state.copyWith(
+                uploadFileIndicator: UploadFileIndicator.uploading(fileName),
               ),
             );
             final payload = ChatFilePB(filePath: filePath, chatId: chatId);
@@ -57,14 +67,14 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
                 if (!isClosed) {
                   result.fold((_) {
                     add(
-                      ChatFileEvent.updateIndexFile(
-                        IndexFileIndicator.finish(fileName),
+                      ChatFileEvent.updateUploadState(
+                        UploadFileIndicator.finish(fileName),
                       ),
                     );
                   }, (err) {
                     add(
-                      ChatFileEvent.updateIndexFile(
-                        IndexFileIndicator.error(err.msg),
+                      ChatFileEvent.updateUploadState(
+                        UploadFileIndicator.error(err.msg),
                       ),
                     );
                   });
@@ -83,16 +93,31 @@ class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
               ),
             );
           },
-          updateIndexFile: (IndexFileIndicator indicator) {
-            emit(
-              state.copyWith(indexFileIndicator: indicator),
-            );
-          },
           updatePluginState: (LocalAIPluginStatePB chatState) {
             final fileEnabled = state.chatState?.fileEnabled ?? false;
             final supportChatWithFile =
                 fileEnabled && chatState.state == RunningStatePB.Running;
-            emit(state.copyWith(supportChatWithFile: supportChatWithFile));
+
+            final aiType = chatState.state == RunningStatePB.Running
+                ? const AIType.localAI()
+                : const AIType.appflowyAI();
+
+            emit(
+              state.copyWith(
+                supportChatWithFile: supportChatWithFile,
+                aiType: aiType,
+              ),
+            );
+          },
+          clear: () {
+            emit(
+              state.copyWith(
+                uploadFiles: [],
+              ),
+            );
+          },
+          updateUploadState: (UploadFileIndicator indicator) {
+            emit(state.copyWith(uploadFileIndicator: indicator));
           },
         );
       },
@@ -113,27 +138,40 @@ class ChatFileEvent with _$ChatFileEvent {
   const factory ChatFileEvent.initial() = Initial;
   const factory ChatFileEvent.newFile(String filePath, String fileName) =
       _NewFile;
+  const factory ChatFileEvent.clear() = _ClearFile;
+  const factory ChatFileEvent.updateUploadState(UploadFileIndicator indicator) =
+      _UpdateUploadState;
   const factory ChatFileEvent.updateChatState(LocalAIChatPB chatState) =
       _UpdateChatState;
   const factory ChatFileEvent.updatePluginState(
     LocalAIPluginStatePB chatState,
   ) = _UpdatePluginState;
-  const factory ChatFileEvent.updateIndexFile(IndexFileIndicator indicator) =
-      _UpdateIndexFile;
 }
 
 @freezed
 class ChatFileState with _$ChatFileState {
   const factory ChatFileState({
     @Default(false) bool supportChatWithFile,
-    IndexFileIndicator? indexFileIndicator,
+    UploadFileIndicator? uploadFileIndicator,
     LocalAIChatPB? chatState,
+    @Default([]) List<ChatFile> uploadFiles,
+    @Default(AIType.appflowyAI()) AIType aiType,
   }) = _ChatFileState;
 }
 
 @freezed
-class IndexFileIndicator with _$IndexFileIndicator {
-  const factory IndexFileIndicator.finish(String fileName) = _Finish;
-  const factory IndexFileIndicator.indexing(String fileName) = _Indexing;
-  const factory IndexFileIndicator.error(String error) = _Error;
+class UploadFileIndicator with _$UploadFileIndicator {
+  const factory UploadFileIndicator.finish(String fileName) = _Finish;
+  const factory UploadFileIndicator.uploading(String fileName) = _Uploading;
+  const factory UploadFileIndicator.error(String error) = _Error;
+}
+
+class ChatFile {
+  ChatFile({
+    required this.filePath,
+    required this.fileName,
+  });
+
+  final String filePath;
+  final String fileName;
 }

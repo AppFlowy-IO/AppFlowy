@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'chat_input_action_control.dart';
+
 part 'chat_input_action_bloc.freezed.dart';
 
 class ChatInputActionBloc
@@ -34,7 +35,12 @@ class ChatInputActionBloc
               final views = result
                       .toNullable()
                       ?.items
-                      .where((v) => v.layout.isDocumentView)
+                      .where(
+                        (v) =>
+                            v.layout.isDocumentView &&
+                            !v.isSpace &&
+                            v.parentViewId.isNotEmpty,
+                      )
                       .toList() ??
                   [];
               if (!isClosed) {
@@ -108,6 +114,14 @@ class ChatInputActionBloc
           ),
         );
       },
+      clear: () {
+        emit(
+          state.copyWith(
+            selectedPages: [],
+            filter: "",
+          ),
+        );
+      },
     );
   }
 }
@@ -171,6 +185,7 @@ class ChatInputActionEvent with _$ChatInputActionEvent {
   const factory ChatInputActionEvent.addPage(ChatInputActionPage page) =
       _AddPage;
   const factory ChatInputActionEvent.removePage(String text) = _RemovePage;
+  const factory ChatInputActionEvent.clear() = _Clear;
 }
 
 @freezed

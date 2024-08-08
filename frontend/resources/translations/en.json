@@ -177,6 +177,7 @@
     "referenceSource": "{} source found",
     "referenceSources": "{} sources found",
     "clickToMention": "Click to mention a page",
+    "uploadFile": "Upload PDFs, md or txt files to chat with",
     "indexingFile": "Indexing {}"
   },
   "trash": {
@@ -301,7 +302,8 @@
     "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
-    "upgradeToAILocal": "AI offline on your device"
+    "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
+    "upgradeToAILocal": "AI On-device on your device"
   },
   "notifications": {
     "export": {
@@ -654,7 +656,7 @@
       "menuLabel": "AI Settings",
       "keys": {
         "enableAISearchTitle": "AI Search",
-        "aiSettingsDescription": "Select or configure AI models used on @:appName. For best performance we recommend using the default model options",
+        "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI. Now includes GPT 4-o, Claude 3,5, Llama 3.1, and Mistral 7B",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
         "llmModelType": "Language Model Type",
@@ -778,7 +780,7 @@
         },
         "aiOnDevice": {
           "label": "AI On-device for Mac",
-          "description": "Unlock unlimited AI offline on your device",
+          "description": "Unlock unlimited AI On-device on your device",
           "activeDescription": "Next invoice due on {}",
           "canceledDescription": "AI On-device for Mac will be available until {}"
         },
@@ -1477,7 +1479,7 @@
       "autoGeneratorRewrite": "Rewrite",
       "smartEdit": "AI Assistants",
       "aI": "AI",
-      "smartEditFixSpelling": "Fix spelling",
+      "smartEditFixSpelling": "Fix spelling & grammar",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
       "smartEditImproveWriting": "Improve writing",
@@ -1906,7 +1908,8 @@
       "medium": "Medium",
       "mediumDark": "Medium-Dark",
       "dark": "Dark"
-    }
+    },
+    "openSourceIconsFrom": "Open source icons from"
   },
   "inlineActions": {
     "noResults": "No results",
