@@ -1,10 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
-import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/mobile/presentation/notifications/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -18,7 +18,7 @@ import 'package:provider/provider.dart';
 class NotificationItem extends StatefulWidget {
   const NotificationItem({
     super.key,
-    required this.reminderId,
+    required this.reminder,
     required this.title,
     required this.scheduled,
     required this.body,
@@ -32,7 +32,7 @@ class NotificationItem extends StatefulWidget {
     this.view,
   });
 
-  final String reminderId;
+  final ReminderPB reminder;
   final String title;
   final Int64 scheduled;
   final String body;
@@ -169,6 +169,7 @@ class _NotificationItemState extends State<NotificationItem> {
                                   ),
                                   child: _NotificationContent(
                                     block: widget.block,
+                                    reminder: widget.reminder,
                                     body: widget.body,
                                   ),
                                 ),
@@ -214,10 +215,12 @@ class _NotificationItemState extends State<NotificationItem> {
 class _NotificationContent extends StatelessWidget {
   const _NotificationContent({
     required this.body,
+    required this.reminder,
     required this.block,
   });
 
   final String body;
+  final ReminderPB reminder;
   final Future<Node?>? block;
 
   @override
@@ -229,29 +232,10 @@ class _NotificationContent extends StatelessWidget {
           return FlowyText.regular(body, maxLines: 4);
         }
 
-        final editorState = EditorState(
-          document: Document(root: snapshot.data!),
-        );
-
-        final styleCustomizer = EditorStyleCustomizer(
-          context: context,
-          padding: EdgeInsets.zero,
-        );
-
-        return Transform.scale(
-          scale: .9,
-          alignment: Alignment.centerLeft,
-          child: AppFlowyEditor(
-            editorState: editorState,
-            editorStyle: styleCustomizer.style(),
-            editable: false,
-            shrinkWrap: true,
-            blockComponentBuilders: getEditorBuilderMap(
-              context: context,
-              editorState: editorState,
-              styleCustomizer: styleCustomizer,
-              editable: false,
-            ),
+        return IntrinsicHeight(
+          child: NotificationDocumentContent(
+            nodes: [snapshot.data!],
+            reminder: reminder,
           ),
         );
       },
