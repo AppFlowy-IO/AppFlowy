@@ -98,7 +98,7 @@ class _RowLeadingState extends State<_RowLeading> {
     return AppFlowyPopover(
       controller: popoverController,
       triggerActions: PopoverTriggerFlags.none,
-      constraints: BoxConstraints.loose(const Size(176, 200)),
+      constraints: BoxConstraints.loose(const Size(200, 200)),
       direction: PopoverDirection.rightWithCenterAligned,
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       popupBuilder: (_) {

@@ -66,6 +66,7 @@ class _NotificationDialogState extends State<NotificationDialog>
             final reminders = state.reminders.sortByScheduledAt();
             final upcomingReminders =
                 state.upcomingReminders.sortByScheduledAt();
+            final hasUnreads = reminders.any((r) => !r.isRead);
 
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -85,7 +86,7 @@ class _NotificationDialogState extends State<NotificationDialog>
                         onAction: _onAction,
                         onReadChanged: _onReadChanged,
                         actionBar: InboxActionBar(
-                          hasUnreads: state.hasUnreads,
+                          hasUnreads: hasUnreads,
                           showUnreadsOnly: filterState.showUnreadsOnly,
                         ),
                       ),

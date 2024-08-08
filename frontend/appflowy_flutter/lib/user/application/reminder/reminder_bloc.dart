@@ -72,6 +72,15 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             );
           },
           add: (reminder) async {
+            // check the timestamp in the reminder
+            if (reminder.createdAt == null) {
+              reminder.freeze();
+              reminder = reminder.rebuild((update) {
+                update.meta[ReminderMetaKeys.createdAt] =
+                    DateTime.now().millisecondsSinceEpoch.toString();
+              });
+            }
+
             final result = await _reminderService.addReminder(
               reminder: reminder,
             );
