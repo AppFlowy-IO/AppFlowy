@@ -13,11 +13,13 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
 // text menu item
 final textSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_text.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_text_s,
     isSelected: isSelected,
@@ -32,6 +34,7 @@ final textSlashMenuItem = SelectionMenuItem(
 // heading 1 - 3 menu items
 final heading1SlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_heading1.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_h1_s,
     isSelected: isSelected,
@@ -45,6 +48,7 @@ final heading1SlashMenuItem = SelectionMenuItem(
 
 final heading2SlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_heading2.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_h2_s,
     isSelected: isSelected,
@@ -58,6 +62,7 @@ final heading2SlashMenuItem = SelectionMenuItem(
 
 final heading3SlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_heading3.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_h3_s,
     isSelected: isSelected,
@@ -72,6 +77,7 @@ final heading3SlashMenuItem = SelectionMenuItem(
 // image menu item
 final imageSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_image.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_image_s,
     isSelected: isSelected,
@@ -92,6 +98,7 @@ final imageSlashMenuItem = SelectionMenuItem(
 // bulleted list menu item
 final bulletedListSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_bulletedList.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_bulleted_list_s,
     isSelected: isSelected,
@@ -106,6 +113,7 @@ final bulletedListSlashMenuItem = SelectionMenuItem(
 // numbered list menu item
 final numberedListSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_numberedList.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_numbered_list_s,
     isSelected: isSelected,
@@ -120,6 +128,7 @@ final numberedListSlashMenuItem = SelectionMenuItem(
 // quote menu item
 final quoteSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_quote.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_quote_s,
     isSelected: isSelected,
@@ -131,26 +140,11 @@ final quoteSlashMenuItem = SelectionMenuItem(
   },
 );
 
-// doc menu item
-final docSlashMenuItem = SelectionMenuItem(
-  getName: () => LocaleKeys.document_slashMenu_name_doc.tr(),
-  icon: (editorState, isSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.slash_menu_icon_doc_s,
-    isSelected: isSelected,
-    style: style,
-  ),
-  keywords: ['page', 'notes', 'referenced page', 'referenced document'],
-  handler: (editorState, menuService, context) => showLinkToPageMenu(
-    editorState,
-    menuService,
-    ViewLayoutPB.Document,
-  ),
-);
-
 // grid & board & calendar menu item
 SelectionMenuItem gridSlashMenuItem(DocumentBloc documentBloc) {
   return SelectionMenuItem(
     getName: () => LocaleKeys.document_slashMenu_name_grid.tr(),
+    nameBuilder: _slashMenuItemNameBuilder,
     icon: (editorState, onSelected, style) => SelectableSvgWidget(
       data: FlowySvgs.slash_menu_icon_grid_s,
       isSelected: onSelected,
@@ -173,6 +167,7 @@ SelectionMenuItem gridSlashMenuItem(DocumentBloc documentBloc) {
 SelectionMenuItem kanbanSlashMenuItem(DocumentBloc documentBloc) {
   return SelectionMenuItem(
     getName: () => LocaleKeys.document_slashMenu_name_kanban.tr(),
+    nameBuilder: _slashMenuItemNameBuilder,
     icon: (editorState, onSelected, style) => SelectableSvgWidget(
       data: FlowySvgs.slash_menu_icon_kanban_s,
       isSelected: onSelected,
@@ -195,6 +190,7 @@ SelectionMenuItem kanbanSlashMenuItem(DocumentBloc documentBloc) {
 SelectionMenuItem calendarSlashMenuItem(DocumentBloc documentBloc) {
   return SelectionMenuItem(
     getName: () => LocaleKeys.document_slashMenu_name_calendar.tr(),
+    nameBuilder: _slashMenuItemNameBuilder,
     icon: (editorState, onSelected, style) => SelectableSvgWidget(
       data: FlowySvgs.slash_menu_icon_calendar_s,
       isSelected: onSelected,
@@ -214,9 +210,27 @@ SelectionMenuItem calendarSlashMenuItem(DocumentBloc documentBloc) {
   );
 }
 
+// linked doc menu item
+final referencedDocSlashMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_slashMenu_name_linkedDoc.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_doc_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['page', 'notes', 'referenced page', 'referenced document'],
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    ViewLayoutPB.Document,
+  ),
+);
+
 // linked grid & board & calendar menu item
 SelectionMenuItem referencedGridSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_linkedGrid.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_grid_s,
     isSelected: onSelected,
@@ -229,6 +243,7 @@ SelectionMenuItem referencedGridSlashMenuItem = SelectionMenuItem(
 
 SelectionMenuItem referencedKanbanSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_linkedKanban.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_kanban_s,
     isSelected: onSelected,
@@ -241,6 +256,7 @@ SelectionMenuItem referencedKanbanSlashMenuItem = SelectionMenuItem(
 
 SelectionMenuItem referencedCalendarSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_linkedCalendar.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_calendar_s,
     isSelected: onSelected,
@@ -254,6 +270,7 @@ SelectionMenuItem referencedCalendarSlashMenuItem = SelectionMenuItem(
 // callout menu item
 SelectionMenuItem calloutSlashMenuItem = SelectionMenuItem.node(
   getName: LocaleKeys.document_plugins_callout.tr,
+  nameBuilder: _slashMenuItemNameBuilder,
   iconBuilder: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_callout_s,
     isSelected: isSelected,
@@ -271,6 +288,7 @@ SelectionMenuItem calloutSlashMenuItem = SelectionMenuItem.node(
 // outline menu item
 SelectionMenuItem outlineSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_outline.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   iconBuilder: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_outline_s,
     isSelected: isSelected,
@@ -284,6 +302,7 @@ SelectionMenuItem outlineSlashMenuItem = SelectionMenuItem.node(
 // math equation
 SelectionMenuItem mathEquationSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_mathEquation.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   iconBuilder: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_math_equation_s,
     isSelected: isSelected,
@@ -308,6 +327,7 @@ SelectionMenuItem mathEquationSlashMenuItem = SelectionMenuItem.node(
 // code block menu item
 SelectionMenuItem codeBlockSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_code.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   iconBuilder: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_code_block_s,
     isSelected: isSelected,
@@ -321,6 +341,7 @@ SelectionMenuItem codeBlockSlashMenuItem = SelectionMenuItem.node(
 // toggle menu item
 SelectionMenuItem toggleListSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_toggleList.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   iconBuilder: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_toggle_s,
     isSelected: isSelected,
@@ -334,6 +355,7 @@ SelectionMenuItem toggleListSlashMenuItem = SelectionMenuItem.node(
 // emoji menu item
 SelectionMenuItem emojiSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_emoji.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_emoji_picker_s,
     isSelected: isSelected,
@@ -355,6 +377,7 @@ SelectionMenuItem emojiSlashMenuItem = SelectionMenuItem(
 // auto generate menu item
 SelectionMenuItem aiWriterSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_aiWriter.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   iconBuilder: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_ai_writer_s,
     isSelected: isSelected,
@@ -371,6 +394,7 @@ SelectionMenuItem aiWriterSlashMenuItem = SelectionMenuItem.node(
 // date or reminder menu item
 SelectionMenuItem dateOrReminderSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_dateOrReminder.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_date_or_reminder_s,
     isSelected: isSelected,
@@ -384,6 +408,7 @@ SelectionMenuItem dateOrReminderSlashMenuItem = SelectionMenuItem(
 // photo gallery menu item
 SelectionMenuItem photoGallerySlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_photoGallery.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_photo_gallery_s,
     isSelected: isSelected,
@@ -408,6 +433,7 @@ SelectionMenuItem photoGallerySlashMenuItem = SelectionMenuItem(
 // file menu item
 SelectionMenuItem fileSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_file.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_file_s,
     isSelected: isSelected,
@@ -416,3 +442,18 @@ SelectionMenuItem fileSlashMenuItem = SelectionMenuItem(
   keywords: ['file upload', 'pdf', 'zip', 'archive', 'upload'],
   handler: (editorState, _, __) async => editorState.insertEmptyFileBlock(),
 );
+
+Widget _slashMenuItemNameBuilder(
+  String name,
+  SelectionMenuStyle style,
+  bool isSelected,
+) {
+  return FlowyText(
+    name,
+    fontSize: 12.0,
+    figmaLineHeight: 15.0,
+    color: isSelected
+        ? style.selectionMenuItemSelectedTextColor
+        : style.selectionMenuItemTextColor,
+  );
+}
