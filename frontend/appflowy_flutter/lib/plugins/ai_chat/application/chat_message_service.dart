@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -9,8 +9,6 @@ import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:nanoid/nanoid.dart';
-
-import 'chat_file_bloc.dart';
 
 List<ChatFile> fileListFromMessageMetadata(
   Map<String, dynamic>? map,

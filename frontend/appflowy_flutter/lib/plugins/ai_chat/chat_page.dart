@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_message_bubble.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/other_user_message_bubble.dart';
@@ -256,27 +258,26 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         theme: buildTheme(context),
         onEndReached: () async {
           if (state.hasMorePrevMessage &&
-              state.loadingPreviousStatus != const LoadingState.loading()) {
+              state.loadingPreviousStatus.isFinish) {
             blocContext
                 .read<ChatBloc>()
                 .add(const ChatEvent.startLoadingPrevMessage());
           }
         },
         emptyState: BlocBuilder<ChatBloc, ChatState>(
-          builder: (_, state) =>
-              state.initialLoadingStatus == const LoadingState.finish()
-                  ? Padding(
-                      padding: AIChatUILayout.welcomePagePadding,
-                      child: ChatWelcomePage(
-                        userProfile: widget.userProfile,
-                        onSelectedQuestion: (question) => blocContext
-                            .read<ChatBloc>()
-                            .add(ChatEvent.sendMessage(message: question)),
-                      ),
-                    )
-                  : const Center(
-                      child: CircularProgressIndicator.adaptive(),
-                    ),
+          builder: (_, state) => state.initialLoadingStatus.isFinish
+              ? Padding(
+                  padding: AIChatUILayout.welcomePagePadding,
+                  child: ChatWelcomePage(
+                    userProfile: widget.userProfile,
+                    onSelectedQuestion: (question) => blocContext
+                        .read<ChatBloc>()
+                        .add(ChatEvent.sendMessage(message: question)),
+                  ),
+                )
+              : const Center(
+                  child: CircularProgressIndicator.adaptive(),
+                ),
         ),
         messageWidthRatio: AIChatUILayout.messageWidthRatio,
         textMessageBuilder: (

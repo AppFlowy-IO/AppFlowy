@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ffi';
-import 'dart:isolate';
 
+import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -18,17 +16,11 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nanoid/nanoid.dart';
 
+import 'chat_entity.dart';
 import 'chat_message_listener.dart';
 import 'chat_message_service.dart';
 
-part 'chat_bloc.g.dart';
 part 'chat_bloc.freezed.dart';
-
-const sendMessageErrorKey = "sendMessageError";
-const systemUserId = "system";
-const aiResponseUserId = "0";
-const messageMetadataKey = "metadata";
-const messageQuestionIdKey = "question";
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
@@ -100,7 +92,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             _loadPrevMessage(beforeMessageId);
             emit(
               state.copyWith(
-                loadingPreviousStatus: const LoadingState.loading(),
+                loadingPreviousStatus: const ChatLoadingState.loading(),
               ),
             );
           },
@@ -116,7 +108,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             emit(
               state.copyWith(
                 messages: uniqueMessages,
-                loadingPreviousStatus: const LoadingState.finish(),
+                loadingPreviousStatus: const ChatLoadingState.finish(),
                 hasMorePrevMessage: hasMore,
               ),
             );
@@ -130,7 +122,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             emit(
               state.copyWith(
                 messages: uniqueMessages,
-                initialLoadingStatus: const LoadingState.finish(),
+                initialLoadingStatus: const ChatLoadingState.finish(),
               ),
             );
           },
@@ -406,7 +398,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Message _createStreamMessage(AnswerStream stream, Int64 questionMessageId) {
     final streamMessageId = (questionMessageId + 1).toString();
-
     lastStreamMessageId = streamMessageId;
 
     return TextMessage(
@@ -488,10 +479,10 @@ class ChatState with _$ChatState {
     required UserProfilePB userProfile,
     // When opening the chat, the initial loading status will be set as loading.
     //After the initial loading is done, the status will be set as finished.
-    required LoadingState initialLoadingStatus,
+    required ChatLoadingState initialLoadingStatus,
     // When loading previous messages, the status will be set as loading.
     // After the loading is done, the status will be set as finished.
-    required LoadingState loadingPreviousStatus,
+    required ChatLoadingState loadingPreviousStatus,
     // When sending a user message, the status will be set as loading.
     // After the message is sent, the status will be set as finished.
     required StreamingState streamingState,
@@ -511,8 +502,8 @@ class ChatState with _$ChatState {
         view: view,
         messages: [],
         userProfile: userProfile,
-        initialLoadingStatus: const LoadingState.finish(),
-        loadingPreviousStatus: const LoadingState.finish(),
+        initialLoadingStatus: const ChatLoadingState.finish(),
+        loadingPreviousStatus: const ChatLoadingState.finish(),
         streamingState: const StreamingState.done(),
         sendingState: const SendMessageState.done(),
         hasMorePrevMessage: true,
@@ -524,170 +515,4 @@ bool isOtherUserMessage(Message message) {
   return message.author.id != aiResponseUserId &&
       message.author.id != systemUserId &&
       !message.author.id.startsWith("streamId:");
-}
-
-@freezed
-class LoadingState with _$LoadingState {
-  const factory LoadingState.loading() = _Loading;
-  const factory LoadingState.finish({FlowyError? error}) = _Finish;
-}
-
-enum OnetimeShotType {
-  unknown,
-  sendingMessage,
-  relatedQuestion,
-  invalidSendMesssage,
-}
-
-const onetimeShotType = "OnetimeShotType";
-
-extension OnetimeMessageTypeExtension on OnetimeShotType {
-  static OnetimeShotType fromString(String value) {
-    switch (value) {
-      case 'OnetimeShotType.relatedQuestion':
-        return OnetimeShotType.relatedQuestion;
-      case 'OnetimeShotType.invalidSendMesssage':
-        return OnetimeShotType.invalidSendMesssage;
-      default:
-        Log.error('Unknown OnetimeShotType: $value');
-        return OnetimeShotType.unknown;
-    }
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      onetimeShotType: toString(),
-    };
-  }
-}
-
-OnetimeShotType? onetimeMessageTypeFromMeta(Map<String, dynamic>? metadata) {
-  if (metadata == null) {
-    return null;
-  }
-
-  for (final entry in metadata.entries) {
-    if (entry.key == onetimeShotType) {
-      return OnetimeMessageTypeExtension.fromString(entry.value as String);
-    }
-  }
-  return null;
-}
-
-class AnswerStream {
-  AnswerStream() {
-    _port.handler = _controller.add;
-    _subscription = _controller.stream.listen(
-      (event) {
-        if (event.startsWith("data:")) {
-          _hasStarted = true;
-          final newText = event.substring(5);
-          _text += newText;
-          if (_onData != null) {
-            _onData!(_text);
-          }
-        } else if (event.startsWith("error:")) {
-          _error = event.substring(5);
-          if (_onError != null) {
-            _onError!(_error!);
-          }
-        } else if (event.startsWith("metadata:")) {
-          if (_onMetadata != null) {
-            final s = event.substring(9);
-            _onMetadata!(messageRefSourceFromString(s));
-          }
-        } else if (event == "AI_RESPONSE_LIMIT") {
-          if (_onAIResponseLimit != null) {
-            _onAIResponseLimit!();
-          }
-        }
-      },
-      onDone: () {
-        if (_onEnd != null) {
-          _onEnd!();
-        }
-      },
-      onError: (error) {
-        if (_onError != null) {
-          _onError!(error.toString());
-        }
-      },
-    );
-  }
-
-  final RawReceivePort _port = RawReceivePort();
-  final StreamController<String> _controller = StreamController.broadcast();
-  late StreamSubscription<String> _subscription;
-  bool _hasStarted = false;
-  String? _error;
-  String _text = "";
-
-  // Callbacks
-  void Function(String text)? _onData;
-  void Function()? _onStart;
-  void Function()? _onEnd;
-  void Function(String error)? _onError;
-  void Function()? _onAIResponseLimit;
-  void Function(List<ChatMessageRefSource> metadata)? _onMetadata;
-
-  int get nativePort => _port.sendPort.nativePort;
-  bool get hasStarted => _hasStarted;
-  String? get error => _error;
-  String get text => _text;
-
-  Future<void> dispose() async {
-    await _controller.close();
-    await _subscription.cancel();
-    _port.close();
-  }
-
-  void listen({
-    void Function(String text)? onData,
-    void Function()? onStart,
-    void Function()? onEnd,
-    void Function(String error)? onError,
-    void Function()? onAIResponseLimit,
-    void Function(List<ChatMessageRefSource> metadata)? onMetadata,
-  }) {
-    _onData = onData;
-    _onStart = onStart;
-    _onEnd = onEnd;
-    _onError = onError;
-    _onAIResponseLimit = onAIResponseLimit;
-    _onMetadata = onMetadata;
-
-    if (_onStart != null) {
-      _onStart!();
-    }
-  }
-}
-
-@JsonSerializable()
-class ChatMessageRefSource {
-  ChatMessageRefSource({
-    required this.id,
-    required this.name,
-    required this.source,
-  });
-
-  factory ChatMessageRefSource.fromJson(Map<String, dynamic> json) =>
-      _$ChatMessageRefSourceFromJson(json);
-
-  final String id;
-  final String name;
-  final String source;
-
-  Map<String, dynamic> toJson() => _$ChatMessageRefSourceToJson(this);
-}
-
-@freezed
-class StreamingState with _$StreamingState {
-  const factory StreamingState.streaming() = _Streaming;
-  const factory StreamingState.done({FlowyError? error}) = _StreamDone;
-}
-
-@freezed
-class SendMessageState with _$SendMessageState {
-  const factory SendMessageState.sending() = _Sending;
-  const factory SendMessageState.done({FlowyError? error}) = _SendDone;
 }

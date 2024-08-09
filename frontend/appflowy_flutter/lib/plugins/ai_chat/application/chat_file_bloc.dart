@@ -1,22 +1,16 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:path/path.dart' as path;
 
 import 'chat_input_bloc.dart';
 
 part 'chat_file_bloc.freezed.dart';
-
-typedef ChatInputFileMetadata = Map<String, ChatFile>;
 
 class ChatFileBloc extends Bloc<ChatFileEvent, ChatFileState> {
   ChatFileBloc()
@@ -157,74 +151,4 @@ class ChatFileState with _$ChatFileState {
     @Default([]) List<ChatFile> uploadFiles,
     @Default(AIType.appflowyAI()) AIType aiType,
   }) = _ChatFileState;
-}
-
-class ChatFile extends Equatable {
-  const ChatFile({
-    required this.filePath,
-    required this.fileName,
-    required this.fileType,
-  });
-
-  static ChatFile? fromFilePath(String filePath) {
-    final file = File(filePath);
-    if (!file.existsSync()) {
-      return null;
-    }
-
-    final fileName = path.basename(filePath);
-    final extension = path.extension(filePath).toLowerCase();
-
-    ChatMessageMetaTypePB fileType;
-    switch (extension) {
-      case '.pdf':
-        fileType = ChatMessageMetaTypePB.PDF;
-        break;
-      case '.txt':
-        fileType = ChatMessageMetaTypePB.Txt;
-        break;
-      case '.md':
-        fileType = ChatMessageMetaTypePB.Markdown;
-        break;
-      default:
-        fileType = ChatMessageMetaTypePB.UnknownMetaType;
-    }
-
-    return ChatFile(
-      filePath: filePath,
-      fileName: fileName,
-      fileType: fileType,
-    );
-  }
-
-  final String filePath;
-  final String fileName;
-  final ChatMessageMetaTypePB fileType;
-
-  @override
-  List<Object?> get props => [filePath];
-}
-
-extension ChatFileTypeExtension on ChatMessageMetaTypePB {
-  Widget get icon {
-    switch (this) {
-      case ChatMessageMetaTypePB.PDF:
-        return const FlowySvg(
-          FlowySvgs.file_pdf_s,
-          color: Color(0xff00BCF0),
-        );
-      case ChatMessageMetaTypePB.Txt:
-        return const FlowySvg(
-          FlowySvgs.file_txt_s,
-          color: Color(0xff00BCF0),
-        );
-      case ChatMessageMetaTypePB.Markdown:
-        return const FlowySvg(
-          FlowySvgs.file_md_s,
-          color: Color(0xff00BCF0),
-        );
-      default:
-        return const FlowySvg(FlowySvgs.file_unknown_s);
-    }
-  }
 }

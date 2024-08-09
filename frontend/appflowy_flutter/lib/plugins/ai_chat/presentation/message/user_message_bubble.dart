@@ -1,5 +1,4 @@
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_member_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
