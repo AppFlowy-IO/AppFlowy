@@ -67,17 +67,18 @@ class ChatFilePreview extends StatelessWidget {
                   decoration: BoxDecoration(
                     color:
                         Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 10,
+                          horizontal: 10.0,
+                          vertical: 14,
                         ),
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             file.fileType.icon,
                             const HSpace(6),

@@ -104,13 +104,23 @@ impl Chat {
         &self.chat_id,
         message,
         message_type,
-        metadata,
+        &metadata,
       )
       .await
       .map_err(|err| {
         error!("Failed to send question: {}", err);
         FlowyError::server_error()
       })?;
+
+    if self.chat_service.is_local_ai_enabled() {
+      if let Err(err) = self
+        .chat_service
+        .index_message_metadata(&self.chat_id, &metadata)
+        .await
+      {
+        error!("Failed to index file: {}", err);
+      }
+    }
 
     save_chat_message(
       self.user_service.sqlite_connection(uid)?,

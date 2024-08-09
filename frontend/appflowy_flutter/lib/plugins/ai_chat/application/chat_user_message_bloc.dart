@@ -10,7 +10,7 @@ part 'chat_user_message_bloc.freezed.dart';
 class ChatUserMessageBloc
     extends Bloc<ChatUserMessageEvent, ChatUserMessageState> {
   ChatUserMessageBloc({
-    required TextMessage message,
+    required Message message,
     required String? metadata,
   }) : super(
           ChatUserMessageState.initial(
@@ -36,12 +36,12 @@ class ChatUserMessageEvent with _$ChatUserMessageEvent {
 @freezed
 class ChatUserMessageState with _$ChatUserMessageState {
   const factory ChatUserMessageState({
-    required TextMessage message,
+    required Message message,
     required List<ChatFile> files,
   }) = _ChatUserMessageState;
 
   factory ChatUserMessageState.initial(
-    TextMessage message,
+    Message message,
     List<ChatFile> files,
   ) =>
       ChatUserMessageState(message: message, files: files);

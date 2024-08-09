@@ -26,14 +26,14 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &str,
   ) -> FutureResult<(), FlowyError>;
 
-  fn create_question(
+  async fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    metadata: Vec<ChatMessageMetadata>,
-  ) -> FutureResult<ChatMessage, FlowyError>;
+    metadata: &[ChatMessageMetadata],
+  ) -> Result<ChatMessage, FlowyError>;
 
   fn create_answer(
     &self,

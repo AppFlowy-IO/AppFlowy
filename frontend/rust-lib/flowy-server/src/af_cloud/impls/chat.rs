@@ -52,14 +52,14 @@ where
     })
   }
 
-  fn create_question(
+  async fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    metadata: Vec<ChatMessageMetadata>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+    metadata: &[ChatMessageMetadata],
+  ) -> Result<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
@@ -69,13 +69,11 @@ where
       metadata: Some(json!(metadata)),
     };
 
-    FutureResult::new(async move {
-      let message = try_get_client?
-        .create_question(&workspace_id, &chat_id, params)
-        .await
-        .map_err(FlowyError::from)?;
-      Ok(message)
-    })
+    let message = try_get_client?
+      .create_question(&workspace_id, &chat_id, params)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(message)
   }
 
   fn create_answer(

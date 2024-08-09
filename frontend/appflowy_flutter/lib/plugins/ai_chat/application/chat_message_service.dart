@@ -117,7 +117,7 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
                   name: view.name,
                   data: pb.text,
                   dataType: ChatMessageMetaTypePB.Txt,
-                  source: "appflowy document",
+                  source: "appflowy",
                 ),
               );
             }, (err) {

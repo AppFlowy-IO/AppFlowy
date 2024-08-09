@@ -209,11 +209,20 @@ extension ChatFileTypeExtension on ChatMessageMetaTypePB {
   Widget get icon {
     switch (this) {
       case ChatMessageMetaTypePB.PDF:
-        return const FlowySvg(FlowySvgs.file_pdf_s);
+        return const FlowySvg(
+          FlowySvgs.file_pdf_s,
+          color: Color(0xff00BCF0),
+        );
       case ChatMessageMetaTypePB.Txt:
-        return const FlowySvg(FlowySvgs.file_txt_s);
+        return const FlowySvg(
+          FlowySvgs.file_txt_s,
+          color: Color(0xff00BCF0),
+        );
       case ChatMessageMetaTypePB.Markdown:
-        return const FlowySvg(FlowySvgs.file_md_s);
+        return const FlowySvg(
+          FlowySvgs.file_md_s,
+          color: Color(0xff00BCF0),
+        );
       default:
         return const FlowySvg(FlowySvgs.file_unknown_s);
     }

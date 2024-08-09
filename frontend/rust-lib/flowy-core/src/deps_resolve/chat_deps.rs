@@ -52,7 +52,7 @@ impl AIUserService for ChatUserServiceImpl {
     self.upgrade_user()?.get_sqlite_connection(uid)
   }
 
-  fn data_root_dir(&self) -> Result<PathBuf, FlowyError> {
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError> {
     Ok(PathBuf::from(
       self.upgrade_user()?.get_application_root_dir(),
     ))
