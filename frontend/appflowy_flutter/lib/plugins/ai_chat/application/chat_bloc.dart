@@ -192,6 +192,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           sendMessage: (String message, Map<String, dynamic>? metadata) async {
             unawaited(_startStreamingMessage(message, metadata, emit));
             final allMessages = _perminentMessages();
+            // allMessages.insert(
+            //   0,
+            //   CustomMessage(
+            //     metadata: OnetimeShotType.sendingMessage.toMap(),
+            //     author: User(id: state.userProfile.id.toString()),
+            //     id: state.userProfile.id.toString(),
+            //   ),
+            // );
             emit(
               state.copyWith(
                 lastSentMessage: null,

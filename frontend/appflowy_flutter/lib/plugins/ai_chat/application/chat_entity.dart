@@ -143,6 +143,8 @@ const onetimeShotType = "OnetimeShotType";
 extension OnetimeMessageTypeExtension on OnetimeShotType {
   static OnetimeShotType fromString(String value) {
     switch (value) {
+      case 'OnetimeShotType.sendingMessage':
+        return OnetimeShotType.sendingMessage;
       case 'OnetimeShotType.relatedQuestion':
         return OnetimeShotType.relatedQuestion;
       case 'OnetimeShotType.invalidSendMesssage':
