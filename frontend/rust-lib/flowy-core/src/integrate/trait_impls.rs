@@ -611,25 +611,22 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  fn create_question(
+  async fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    metadata: Vec<ChatMessageMetadata>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+    metadata: &[ChatMessageMetadata],
+  ) -> Result<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let message = message.to_string();
-    let server = self.get_server();
-
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .create_question(&workspace_id, &chat_id, &message, message_type, metadata)
-        .await
-    })
+    self
+      .get_server()?
+      .chat_service()
+      .create_question(&workspace_id, &chat_id, &message, message_type, metadata)
+      .await
   }
 
   fn create_answer(

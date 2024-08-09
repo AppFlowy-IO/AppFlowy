@@ -23,7 +23,7 @@ pub trait AIUserService: Send + Sync + 'static {
   fn device_id(&self) -> Result<String, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
-  fn data_root_dir(&self) -> Result<PathBuf, FlowyError>;
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
 pub struct AIManager {
@@ -89,10 +89,6 @@ impl AIManager {
       self.local_ai_controller.close_chat(chat_id);
     }
     Ok(())
-  }
-
-  pub fn is_using_local_ai(&self) -> bool {
-    self.local_ai_controller.is_running()
   }
 
   pub async fn delete_chat(&self, chat_id: &str) -> Result<(), FlowyError> {

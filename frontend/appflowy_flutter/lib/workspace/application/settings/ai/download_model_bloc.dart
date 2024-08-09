@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
@@ -52,12 +52,16 @@ class DownloadModelBloc extends Bloc<DownloadModelEvent, DownloadModelState> {
           emit(
             state.copyWith(
               downloadStream: downloadStream,
-              loadingState: const LoadingState.finish(),
+              loadingState: const ChatLoadingState.finish(),
               downloadError: null,
             ),
           );
         }, (err) {
-          emit(state.copyWith(loadingState: LoadingState.finish(error: err)));
+          emit(
+            state.copyWith(
+              loadingState: ChatLoadingState.finish(error: err),
+            ),
+          );
         });
       },
       updatePercent: (String object, double percent) {
@@ -95,7 +99,7 @@ class DownloadModelState with _$DownloadModelState {
     @Default("") String object,
     @Default(0) double percent,
     @Default(false) bool isFinish,
-    @Default(LoadingState.loading()) LoadingState loadingState,
+    @Default(ChatLoadingState.loading()) ChatLoadingState loadingState,
   }) = _DownloadModelState;
 }
 

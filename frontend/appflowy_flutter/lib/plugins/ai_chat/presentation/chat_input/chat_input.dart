@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
@@ -115,7 +116,7 @@ class _ChatInputState extends State<ChatInput> {
           border: Border.all(
             color: _inputFocusNode.hasFocus && !isMobile
                 ? Theme.of(context).colorScheme.primary.withOpacity(0.6)
-                : Colors.grey.shade700,
+                : Theme.of(context).colorScheme.secondary,
           ),
           borderRadius: borderRadius,
         ),
@@ -160,9 +161,8 @@ class _ChatInputState extends State<ChatInput> {
                     Expanded(child: _inputTextField(context, textPadding)),
 
                     // at button
-                    if (PlatformExtension.isDesktop &&
-                        widget.aiType == const AIType.appflowyAI())
-                      _atButton(buttonPadding),
+                    // TODO(lucas): support mobile
+                    if (PlatformExtension.isDesktop) _atButton(buttonPadding),
 
                     // send button
                     _sendButton(buttonPadding),
@@ -267,10 +267,6 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   Future<void> _handleOnTextChange(BuildContext context, String text) async {
-    if (widget.aiType != const AIType.appflowyAI()) {
-      return;
-    }
-
     if (!_inputActionControl.onTextChanged(text)) {
       return;
     }

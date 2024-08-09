@@ -23,17 +23,15 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     })
   }
 
-  fn create_question(
+  async fn create_question(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
     _message: &str,
     _message_type: ChatMessageType,
-    _metadata: Vec<ChatMessageMetadata>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
-    })
+    _metadata: &[ChatMessageMetadata],
+  ) -> Result<ChatMessage, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
   fn create_answer(

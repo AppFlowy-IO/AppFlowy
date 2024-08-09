@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_input.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_popmenu.dart';

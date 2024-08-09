@@ -6,15 +6,21 @@ use anyhow::Error;
 use appflowy_local_ai::chat_plugin::{AIPluginConfig, AppFlowyLocalAI};
 use appflowy_plugin::manager::PluginManager;
 use appflowy_plugin::util::is_apple_silicon;
-use flowy_ai_pub::cloud::{AppFlowyOfflineAI, ChatCloudService, LLMModel, LocalAIConfig};
+use flowy_ai_pub::cloud::{
+  AppFlowyOfflineAI, ChatCloudService, ChatMessageMetadata, ChatMetadataContentType, LLMModel,
+  LocalAIConfig,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::Sink;
 use lib_infra::async_trait::async_trait;
+use std::collections::HashMap;
 
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::ops::Deref;
+use std::path::Path;
 use std::sync::Arc;
 use tokio::select;
 use tokio_stream::StreamExt;
@@ -173,7 +179,7 @@ impl LocalAIController {
   }
 
   pub fn open_chat(&self, chat_id: &str) {
-    if !self.is_running() {
+    if !self.is_enabled() {
       return;
     }
 
@@ -332,6 +338,63 @@ impl LocalAIController {
       .store_preferences
       .set_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED, enabled)?;
     Ok(enabled)
+  }
+
+  pub async fn index_message_metadata(
+    &self,
+    chat_id: &str,
+    metadata_list: &[ChatMessageMetadata],
+  ) -> FlowyResult<()> {
+    for metadata in metadata_list {
+      let mut index_metadata = HashMap::new();
+      index_metadata.insert("name".to_string(), json!(&metadata.name));
+      index_metadata.insert("at_name".to_string(), json!(format!("@{}", &metadata.name)));
+      index_metadata.insert("source".to_string(), json!(&metadata.source));
+
+      match &metadata.data.url {
+        None => match &metadata.data.content_type {
+          ChatMetadataContentType::Text | ChatMetadataContentType::Markdown => {
+            if metadata.data.validate() {
+              if let Err(err) = self
+                .index_file(
+                  chat_id,
+                  None,
+                  Some(metadata.data.content.clone()),
+                  Some(index_metadata),
+                )
+                .await
+              {
+                error!("[AI Plugin] failed to index file: {:?}", err);
+              }
+            }
+          },
+          _ => {
+            error!(
+              "[AI Plugin] unsupported content type: {:?}",
+              metadata.data.content_type
+            );
+          },
+        },
+        Some(url) => {
+          let file_path = Path::new(url);
+          if file_path.exists() {
+            if let Err(err) = self
+              .index_file(
+                chat_id,
+                Some(file_path.to_path_buf()),
+                None,
+                Some(index_metadata),
+              )
+              .await
+            {
+              error!("[AI Plugin] failed to index file: {:?}", err);
+            }
+          }
+        },
+      }
+    }
+
+    Ok(())
   }
 
   async fn enable_chat_plugin(&self, enabled: bool) -> FlowyResult<()> {
