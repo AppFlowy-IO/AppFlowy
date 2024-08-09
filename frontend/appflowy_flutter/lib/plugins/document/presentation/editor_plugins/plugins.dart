@@ -5,6 +5,7 @@ export 'base/toolbar_extension.dart';
 export 'bulleted_list/bulleted_list_icon.dart';
 export 'callout/callout_block_component.dart';
 export 'code_block/code_block_language_selector.dart';
+export 'code_block/code_block_menu_item.dart';
 export 'context_menu/custom_context_menu.dart';
 export 'copy_and_paste/custom_copy_command.dart';
 export 'copy_and_paste/custom_cut_command.dart';

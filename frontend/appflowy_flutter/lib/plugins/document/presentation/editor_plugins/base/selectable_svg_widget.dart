@@ -8,21 +8,31 @@ class SelectableSvgWidget extends StatelessWidget {
     required this.data,
     required this.isSelected,
     required this.style,
+    this.size,
+    this.padding,
   });
 
   final FlowySvgData data;
   final bool isSelected;
   final SelectionMenuStyle style;
+  final Size? size;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
-    return FlowySvg(
+    final child = FlowySvg(
       data,
-      size: const Size.square(16.0),
+      size: size ?? const Size.square(16.0),
       color: isSelected
           ? style.selectionMenuItemSelectedIconColor
           : style.selectionMenuItemIconColor,
     );
+
+    if (padding != null) {
+      return Padding(padding: padding!, child: child);
+    } else {
+      return child;
+    }
   }
 }
 

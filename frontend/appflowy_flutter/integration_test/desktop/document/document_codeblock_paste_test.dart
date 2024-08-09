@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -25,6 +25,7 @@ void main() {
       const lines = 3;
       final text = List.generate(lines, (index) => 'line $index').join('\n');
       AppFlowyClipboard.mockSetData(AppFlowyClipboardData(text: text));
+      ClipboardService.mockSetData(ClipboardServiceData(plainText: text));
 
       await insertCodeBlockInDocument(tester);
 
@@ -52,6 +53,8 @@ Future<void> insertCodeBlockInDocument(WidgetTester tester) async {
   await tester.editor.showSlashMenu();
   await tester.editor.tapSlashMenuItemWithName(
     LocaleKeys.document_selectionMenu_codeBlock.tr(),
+    offset: 150,
   );
+  // wait for the codeBlock to be inserted
   await tester.pumpAndSettle();
 }

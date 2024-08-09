@@ -1514,7 +1514,7 @@
       "autoGeneratorHintText": "Ask AI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get AI key",
       "autoGeneratorRewrite": "Rewrite",
-      "smartEdit": "AI Assistants",
+      "smartEdit": "Ask AI",
       "aI": "AI",
       "smartEditFixSpelling": "Fix spelling & grammar",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",

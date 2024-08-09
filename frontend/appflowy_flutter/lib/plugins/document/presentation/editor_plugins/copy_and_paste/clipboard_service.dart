@@ -40,6 +40,13 @@ class ClipboardServiceData {
 }
 
 class ClipboardService {
+  static ClipboardServiceData? _mockData;
+
+  @visibleForTesting
+  static void mockSetData(ClipboardServiceData? data) {
+    _mockData = data;
+  }
+
   Future<void> setData(ClipboardServiceData data) async {
     final plainText = data.plainText;
     final html = data.html;
@@ -81,6 +88,10 @@ class ClipboardService {
   }
 
   Future<ClipboardServiceData> getData() async {
+    if (_mockData != null) {
+      return _mockData!;
+    }
+
     final reader = await SystemClipboard.instance?.read();
 
     if (reader == null) {
