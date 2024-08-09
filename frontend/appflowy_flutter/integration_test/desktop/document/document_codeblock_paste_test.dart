@@ -52,7 +52,7 @@ Future<void> insertCodeBlockInDocument(WidgetTester tester) async {
   // open the actions menu and insert the codeBlock
   await tester.editor.showSlashMenu();
   await tester.editor.tapSlashMenuItemWithName(
-    LocaleKeys.document_selectionMenu_codeBlock.tr(),
+    LocaleKeys.document_slashMenu_name_code.tr(),
     offset: 150,
   );
   // wait for the codeBlock to be inserted

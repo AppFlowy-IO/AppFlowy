@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -17,6 +14,8 @@ import 'package:appflowy_editor/appflowy_editor.dart'
     hide UploadImageMenu, ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
@@ -43,7 +42,9 @@ void main() {
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
       await tester.editor.showSlashMenu();
-      await tester.editor.tapSlashMenuItemWithName('Image');
+      await tester.editor.tapSlashMenuItemWithName(
+        LocaleKeys.document_slashMenu_name_image.tr(),
+      );
       expect(find.byType(CustomImageBlockComponent), findsOneWidget);
       expect(find.byType(ImagePlaceholder), findsOneWidget);
       expect(
@@ -91,7 +92,9 @@ void main() {
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
       await tester.editor.showSlashMenu();
-      await tester.editor.tapSlashMenuItemWithName('Image');
+      await tester.editor.tapSlashMenuItemWithName(
+        LocaleKeys.document_slashMenu_name_image.tr(),
+      );
       expect(find.byType(CustomImageBlockComponent), findsOneWidget);
       expect(find.byType(ImagePlaceholder), findsOneWidget);
       expect(
@@ -144,7 +147,9 @@ void main() {
         // tap the first line of the document
         await tester.editor.tapLineOfEditorAt(0);
         await tester.editor.showSlashMenu();
-        await tester.editor.tapSlashMenuItemWithName('Image');
+        await tester.editor.tapSlashMenuItemWithName(
+          LocaleKeys.document_slashMenu_name_image.tr(),
+        );
         expect(find.byType(CustomImageBlockComponent), findsOneWidget);
         expect(find.byType(ImagePlaceholder), findsOneWidget);
         expect(
@@ -175,7 +180,9 @@ void main() {
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
       await tester.editor.showSlashMenu();
-      await tester.editor.tapSlashMenuItemWithName('Image');
+      await tester.editor.tapSlashMenuItemWithName(
+        LocaleKeys.document_slashMenu_name_image.tr(),
+      );
       expect(find.byType(CustomImageBlockComponent), findsOneWidget);
       expect(find.byType(ImagePlaceholder), findsOneWidget);
       expect(

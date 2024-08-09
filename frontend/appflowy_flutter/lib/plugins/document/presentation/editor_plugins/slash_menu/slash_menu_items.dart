@@ -222,7 +222,7 @@ SelectionMenuItem referencedGridSlashMenuItem = SelectionMenuItem(
     isSelected: onSelected,
     style: style,
   ),
-  keywords: ['referenced', 'grid', 'database'],
+  keywords: ['referenced', 'grid', 'database', 'linked'],
   handler: (editorState, menuService, context) =>
       showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Grid),
 );
@@ -234,7 +234,7 @@ SelectionMenuItem referencedKanbanSlashMenuItem = SelectionMenuItem(
     isSelected: onSelected,
     style: style,
   ),
-  keywords: ['referenced', 'board', 'kanban'],
+  keywords: ['referenced', 'board', 'kanban', 'linked'],
   handler: (editorState, menuService, context) =>
       showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Board),
 );
@@ -246,7 +246,7 @@ SelectionMenuItem referencedCalendarSlashMenuItem = SelectionMenuItem(
     isSelected: onSelected,
     style: style,
   ),
-  keywords: ['referenced', 'calendar', 'database'],
+  keywords: ['referenced', 'calendar', 'database', 'linked'],
   handler: (editorState, menuService, context) =>
       showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Calendar),
 );
