@@ -170,7 +170,10 @@ class EditorOperations {
   /// Tap the slash menu item with [name]
   ///
   /// Must call [showSlashMenu] first.
-  Future<void> tapSlashMenuItemWithName(String name) async {
+  Future<void> tapSlashMenuItemWithName(
+    String name, {
+    double offset = 200,
+  }) async {
     final slashMenu = find
         .ancestor(
           of: find.byType(SelectionMenuItemWidget),
@@ -182,7 +185,7 @@ class EditorOperations {
     final slashMenuItem = find.text(name, findRichText: true);
     await tester.scrollUntilVisible(
       slashMenuItem,
-      50,
+      offset,
       scrollable: slashMenu,
       duration: const Duration(milliseconds: 250),
     );
