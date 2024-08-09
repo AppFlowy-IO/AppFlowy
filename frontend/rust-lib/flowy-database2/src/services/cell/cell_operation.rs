@@ -196,6 +196,14 @@ pub fn insert_checklist_cell(insert_options: Vec<(String, bool)>, field: &Field)
   apply_cell_changeset(BoxAny::new(changeset), None, field, None).unwrap()
 }
 
+pub fn insert_time_cell(time: i64, field: &Field) -> Cell {
+  let cell_data = TimeCellChangeset {
+    time: Some(time),
+    ..Default::default()
+  };
+  apply_cell_changeset(BoxAny::new(cell_data), None, field, None).unwrap()
+}
+
 pub fn delete_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
   let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
   apply_cell_changeset(BoxAny::new(changeset), None, field, None).unwrap()
@@ -222,7 +230,7 @@ impl<'a> CellBuilder<'a> {
           FieldType::RichText => {
             cells.insert(field_id, insert_text_cell(cell_str, field));
           },
-          FieldType::Number | FieldType::Time => {
+          FieldType::Number => {
             if let Ok(num) = cell_str.parse::<i64>() {
               cells.insert(field_id, insert_number_cell(num, field));
             }
@@ -264,6 +272,11 @@ impl<'a> CellBuilder<'a> {
           },
           FieldType::Translate => {
             cells.insert(field_id, insert_text_cell(cell_str, field));
+          },
+          FieldType::Time => {
+            if let Ok(time) = cell_str.parse::<i64>() {
+              cells.insert(field_id, insert_time_cell(time, field));
+            }
           },
         }
       }
@@ -356,6 +369,17 @@ impl<'a> CellBuilder<'a> {
         self
           .cells
           .insert(field_id.to_owned(), insert_checklist_cell(options, field));
+      },
+    }
+  }
+
+  pub fn insert_time_cell(&mut self, field_id: &str, time: i64) {
+    match self.field_maps.get(&field_id.to_owned()) {
+      None => tracing::warn!("Can't find the time field with id: {}", field_id),
+      Some(field) => {
+        self
+          .cells
+          .insert(field_id.to_owned(), insert_time_cell(time, field));
       },
     }
   }

@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/time_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import '../editable_cell_skeleton/time.dart';
 
@@ -14,7 +16,10 @@ class MobileRowDetailTimeCellSkin extends IEditableTimeCellSkin {
     TimeCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
+    PopoverController popoverController,
   ) {
+    final timeCellState = bloc.state;
+
     return TextField(
       controller: textEditingController,
       focusNode: focusNode,
@@ -33,6 +38,7 @@ class MobileRowDetailTimeCellSkin extends IEditableTimeCellSkin {
       ),
       // close keyboard when tapping outside of the text field
       onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
+      readOnly: timeCellState.timeType != TimeTypePB.PlainTime,
     );
   }
 

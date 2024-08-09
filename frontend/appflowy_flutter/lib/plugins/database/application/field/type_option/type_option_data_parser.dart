@@ -57,3 +57,10 @@ class TranslateTypeOptionDataParser
     return TranslateTypeOptionPB.fromBuffer(buffer);
   }
 }
+
+class TimeTypeOptionDataParser extends TypeOptionParser<TimeTypeOptionPB> {
+  @override
+  TimeTypeOptionPB fromBuffer(List<int> buffer) {
+    return TimeTypeOptionPB.fromBuffer(buffer);
+  }
+}

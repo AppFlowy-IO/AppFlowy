@@ -92,6 +92,8 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         // AI
         .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
         .event(DatabaseEvent::TranslateRow, translate_row_handler)
+        // Time field
+        .event(DatabaseEvent::UpdateTimeCell, update_time_cell_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -377,4 +379,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "TranslateRowPB")]
   TranslateRow = 175,
+
+  #[event(input = "TimeCellChangesetPB")]
+  UpdateTimeCell = 176,
 }

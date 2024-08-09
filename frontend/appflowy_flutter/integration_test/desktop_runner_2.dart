@@ -13,6 +13,8 @@ import 'desktop/database/database_share_test.dart' as database_share_test;
 import 'desktop/database/database_sort_test.dart' as database_sort_test;
 import 'desktop/database/database_view_test.dart' as database_view_test;
 import 'desktop/uncategorized/empty_test.dart' as first_test;
+import 'desktop/database/database_time_field_test.dart'
+    as database_time_field_test;
 
 Future<void> main() async {
   await runIntegration2OnDesktop();
@@ -35,6 +37,7 @@ Future<void> runIntegration2OnDesktop() async {
   database_sort_test.main();
   database_view_test.main();
   database_calendar_test.main();
+  database_time_field_test.main();
 
   // DON'T add more tests here. This is the second test runner for desktop.
 }

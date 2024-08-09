@@ -101,7 +101,7 @@ pub fn create_timestamp_field(grid_id: &str, field_type: FieldType) -> (CreateFi
 
 pub fn create_time_field(grid_id: &str) -> (CreateFieldParams, Field) {
   let field_type = FieldType::Time;
-  let type_option = TimeTypeOption;
+  let type_option = TimeTypeOption::new();
   let text_field = FieldBuilder::new(field_type, type_option.clone())
     .name("Time field")
     .build();

@@ -37,6 +37,7 @@ class FlowyTextField extends StatefulWidget {
   final bool obscureText;
   final bool isDense;
   final bool readOnly;
+  final void Function()? onTap;
   final Color? enableBorderColor;
 
   const FlowyTextField({
@@ -73,6 +74,7 @@ class FlowyTextField extends StatefulWidget {
     this.obscureText = false,
     this.isDense = true,
     this.readOnly = false,
+    this.onTap,
     this.enableBorderColor,
   });
 
@@ -159,6 +161,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       },
       onSubmitted: _onSubmitted,
       onEditingComplete: widget.onEditingComplete,
+      onTap: widget.onTap,
       minLines: 1,
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,

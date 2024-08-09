@@ -4,10 +4,13 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:protobuf/protobuf.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../grid/presentation/layout/sizes.dart';
 import 'builder.dart';
 import 'date/date_time_format.dart';
+import 'util.dart';
 
 class DateTypeOptionEditorFactory implements TypeOptionEditorFactory {
   const DateTypeOptionEditorFactory();
@@ -52,8 +55,9 @@ class DateTypeOptionEditorFactory implements TypeOptionEditorFactory {
       offset: const Offset(8, 0),
       constraints: BoxConstraints.loose(const Size(460, 440)),
       popupBuilder: (popoverContext) {
-        return DateFormatList(
-          selectedFormat: typeOption.dateFormat,
+        return TypeOptionList(
+          options: {for (final v in DateFormatPB.values) v.title(): v},
+          selectedOption: typeOption.dateFormat,
           onSelected: (format) {
             final newTypeOption =
                 _updateTypeOption(typeOption: typeOption, dateFormat: format);
@@ -62,9 +66,9 @@ class DateTypeOptionEditorFactory implements TypeOptionEditorFactory {
           },
         );
       },
-      child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12.0),
-        child: DateFormatButton(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: TypeOptionButton(text: LocaleKeys.grid_field_dateFormat.tr()),
       ),
     );
   }
@@ -81,8 +85,9 @@ class DateTypeOptionEditorFactory implements TypeOptionEditorFactory {
       offset: const Offset(8, 0),
       constraints: BoxConstraints.loose(const Size(460, 440)),
       popupBuilder: (BuildContext popoverContext) {
-        return TimeFormatList(
-          selectedFormat: typeOption.timeFormat,
+        return TypeOptionList(
+          options: {for (final v in TimeFormatPB.values) v.title(): v},
+          selectedOption: typeOption.timeFormat,
           onSelected: (format) {
             final newTypeOption =
                 _updateTypeOption(typeOption: typeOption, timeFormat: format);
@@ -91,9 +96,9 @@ class DateTypeOptionEditorFactory implements TypeOptionEditorFactory {
           },
         );
       },
-      child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12.0),
-        child: TimeFormatButton(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: TypeOptionButton(text: LocaleKeys.grid_field_timeFormat.tr()),
       ),
     );
   }

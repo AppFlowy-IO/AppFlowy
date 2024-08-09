@@ -289,6 +289,6 @@ pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionDa
     FieldType::Relation => RelationTypeOption::default().into(),
     FieldType::Summary => SummarizationTypeOption::default().into(),
     FieldType::Translate => TranslateTypeOption::default().into(),
-    FieldType::Time => TimeTypeOption.into(),
+    FieldType::Time => TimeTypeOption::default().into(),
   }
 }
