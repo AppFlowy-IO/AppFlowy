@@ -6,6 +6,7 @@ import 'document_copy_and_paste_test.dart' as document_copy_and_paste_test;
 import 'document_create_and_delete_test.dart'
     as document_create_and_delete_test;
 import 'document_option_action_test.dart' as document_option_action_test;
+import 'document_emoji_shortcut_test.dart' as document_with_emoji_shortcut;
 import 'document_inline_page_reference_test.dart'
     as document_inline_page_reference_test;
 import 'document_more_actions_test.dart' as document_more_actions_test;
@@ -43,6 +44,7 @@ void startTesting() {
   document_with_image_block_test.main();
   document_with_multi_image_block_test.main();
   document_inline_page_reference_test.main();
+  document_with_emoji_shortcut.main();
   document_more_actions_test.main();
   document_with_file_test.main();
 }

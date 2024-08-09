@@ -57,3 +57,4 @@ export 'table/table_option_action.dart';
 export 'todo_list/todo_list_icon.dart';
 export 'toggle/toggle_block_component.dart';
 export 'toggle/toggle_block_shortcut_event.dart';
+export 'emoji_shortcut/emoji_shortcut_service.dart';
