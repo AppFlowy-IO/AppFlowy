@@ -21,10 +21,9 @@ use tracing::{event, trace, Level};
 pub(crate) fn subscribe_folder_view_changed(
   workspace_id: String,
   mut rx: ViewChangeReceiver,
-  weak_mutex_folder: &Weak<RwLock<Folder>>,
+  weak_mutex_folder: Weak<RwLock<Option<Folder>>>,
   user: Weak<dyn FolderUser>,
 ) {
-  let weak_mutex_folder = weak_mutex_folder.clone();
   af_spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(user) = user.upgrade() {
@@ -73,10 +72,9 @@ pub(crate) fn subscribe_folder_view_changed(
 
 pub(crate) fn subscribe_folder_snapshot_state_changed(
   workspace_id: String,
-  weak_mutex_folder: &Weak<RwLock<Folder>>,
+  weak_mutex_folder: Weak<RwLock<Option<Folder>>>,
   user: Weak<dyn FolderUser>,
 ) {
-  let weak_mutex_folder = weak_mutex_folder.clone();
   af_spawn(async move {
     if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
       let stream = mutex_folder
@@ -135,10 +133,9 @@ pub(crate) fn subscribe_folder_sync_state_changed(
 pub(crate) fn subscribe_folder_trash_changed(
   workspace_id: String,
   mut rx: SectionChangeReceiver,
-  weak_mutex_folder: &Weak<RwLock<Folder>>,
+  weak_mutex_folder: Weak<RwLock<Option<Folder>>>,
   user: Weak<dyn FolderUser>,
 ) {
-  let weak_mutex_folder = weak_mutex_folder.clone();
   af_spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(user) = user.upgrade() {
