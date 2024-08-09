@@ -808,8 +808,8 @@
         "itemFive": "Mobil uygulama",
         "itemSix": "Yapay Zeka Yanıtları",
         "tooltipSix": "Ömür boyu, yanıt sayısının asla sıfırlanmayacağı anlamına gelir",
-        "itemSeven": "Özel ad alanı",
-        "tooltipSeven": "Çalışma alanınız için URL'nin bir bölümünü özelleştirmenize olanak tanır"
+        "tooltipSeven": "Çalışma alanınız için URL'nin bir bölümünü özelleştirmenize olanak tanır",
+        "itemSeven": "Özel ad alanı"
       },
       "freeLabels": {
         "itemOne": "çalışma alanı başına ücretlendirilir",

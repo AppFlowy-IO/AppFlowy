@@ -173,6 +173,13 @@
     "aiMistakePrompt": "KI kann Fehler machen. Überprüfe wichtige Informationen.",
     "chatWithFilePrompt": "Möchtest du mit der Datei chatten?",
     "indexFileSuccess": "Datei erfolgreich indiziert",
+    "inputActionNoPages": "Keine Seitenergebnisse",
+    "referenceSource": "{} Quelle gefunden",
+    "referenceSources": "{} Quellen gefunden",
+    "clickToMention": "Klicke hier, um eine Seite zu erwähnen",
+    "uploadFile": "Lade PDF-, md- oder txt-Dateien in den Chat hoch",
+    "questionTitle": "Ideen",
+    "questionDetail": "Hallo {}! Wie kann ich dir heute helfen?",
     "indexingFile": "Indizierung {}"
   },
   "trash": {
@@ -300,7 +307,9 @@
     "askOwnerToUpgradeToAIMax": "In deinem Arbeitsbereich sind die kostenlosen KI-Antworten aufgebraucht. Bitte den Eigentümer deines Arbeitsbereichs, den Plan zu wechseln oder KI-Add-ons zu erwerben.",
     "purchaseStorageSpace": "Speicherplatz kaufen",
     "purchaseAIResponse": "Kaufen ",
+    "askOwnerToUpgradeToLocalAI": "Bitte den Arbeitsbereichsbesitzer, KI auf dem Gerät zu aktivieren.",
     "upgradeToAILocal": "KI offline auf Ihrem Gerät",
+    "upgradeToAILocalDesc": "Chatte mit PDFs, verbessere deine Schreibfähigkeiten und fülle Tabellen automatisch mithilfe lokaler KI aus.",
     "public": "Öffentlich",
     "clickToHidePublic": "Hier klicken, um den öffentlichen Bereich auszublenden.\nHier erstellte Seiten sind für jedes Mitglied sichtbar.",
     "addAPageToPublic": "Eine Seite zur öffentlichen Domäne hinzufügen."
@@ -849,8 +858,9 @@
         "itemFive": "Speicher",
         "itemSix": "Zusammenarbeit in Echtzeit",
         "tooltipSix": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird",
-        "itemSeven": "Mobile App",
+        "intelligentSearch": "Intelligente Suche",
         "tooltipSeven": "Ermöglicht dir, einen Teil der URL für deinen Arbeitsbereich anzupassen",
+        "itemSeven": "Mobile App",
         "tooltipThree": "Gäste haben nur Leserechte für die speziell freigegebenen Inhalte",
         "tooltipFour": "Gäste werden als ein Sitzplatz abgerechnet",
         "itemEight": "AI-Antworten",
@@ -863,6 +873,7 @@
         "itemFour": "0",
         "itemFive": "5 GB",
         "itemSix": "ja",
+        "intelligentSearch": "Intelligente Suche",
         "itemSeven": "ja",
         "itemEight": "1.000 lebenslang"
       },
@@ -873,6 +884,7 @@
         "itemFour": "10 Gäste werden als ein Sitzplatz berechnet",
         "itemFive": "unbegrenzt",
         "itemSix": "ja",
+        "intelligentSearch": "Intelligente Suche",
         "itemSeven": "ja",
         "itemEight": "10.000 monatlich"
       },
@@ -1125,6 +1137,8 @@
           "one": "{} Mitglied",
           "other": "{} Mitglieder"
         },
+        "inviteFailedDialogTitle": "Einladung konnte nicht gesendet werden",
+        "inviteFailedMemberLimit": "Das Mitgliederlimit wurde erreicht. Bitte führe ein Upgrade durch, um weitere Mitglieder einzuladen.",
         "memberLimitExceeded": "Du hast die maximal zulässige Mitgliederzahl für dein Benutzerkonto erreicht. Benötigst du weitere Mitglieder, um deine Arbeit fortsetzen zu können, erstelle auf Github bitte eine entsprechende Anfrage.",
         "memberLimitExceededUpgrade": "upgrade",
         "memberLimitExceededPro": "Mitgliederlimit erreicht. Wenn du mehr Mitglieder benötigst, kontaktiere",
@@ -1661,6 +1675,26 @@
         "invalidVideoUrl": "Die Quell-URL wird noch nicht unterstützt.",
         "invalidVideoUrlYouTube": "YouTube wird noch nicht unterstützt.",
         "supportedFormats": "Unterstützte Formate: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "Datei",
+        "uploadTab": "Hochladen",
+        "networkTab": "Link integrieren",
+        "placeholderText": "Klicke oder ziehe eine Datei hoch, um sie hochzuladen",
+        "placeholderDragging": "Lege die hochzuladende Datei hier ab",
+        "dropFileToUpload": "Lege die hochzuladende Datei hier ab",
+        "fileUploadHint": "Lege die hochzuladende Datei hier ab\noder klicke, um eine Datei auszuwählen.",
+        "networkHint": "Gebe einen Link zu einer Datei ein",
+        "networkUrlInvalid": "Ungültige URL. Bitte korrigiere die URL und versuche es erneut.",
+        "networkAction": "Dateilink einbetten",
+        "fileTooBigError": "Die Dateigröße ist zu groß. Bitte lade eine Datei mit einer Größe von weniger als 10 MB hoch.",
+        "renameFile": {
+          "title": "Datei umbenennen",
+          "description": "Gebe den neuen Namen für diese Datei ein",
+          "nameEmptyError": "Der Dateiname darf nicht leer bleiben."
+        },
+        "uploadedAt": "Hochgeladen am {}",
+        "linkedAt": "Link hinzugefügt am {}"
       }
     },
     "outlineBlock": {
@@ -1938,7 +1972,8 @@
       "medium": "Mittel",
       "mediumDark": "Mitteldunkel",
       "dark": "Dunkel"
-    }
+    },
+    "openSourceIconsFrom": "Open-Source-Icons von"
   },
   "inlineActions": {
     "noResults": "Keine Ergebnisse",
@@ -2326,7 +2361,22 @@
     },
     "mustSelectPrimaryDatabase": "Die primäre Ansicht muss ausgewählt sein",
     "noDatabaseSelected": "Keine Datenbank ausgewählt, bitte wähle mindestens eine Datenbank aus.",
-    "unableToDeselectPrimaryDatabase": "Die Auswahl der primären Datenbank kann nicht aufgehoben werden."
+    "unableToDeselectPrimaryDatabase": "Die Auswahl der primären Datenbank kann nicht aufgehoben werden.",
+    "saveThisPage": "Diese Seite speichern",
+    "duplicateTitle": "Wo möchten Sie hinzufügen",
+    "selectWorkspace": "Einen Arbeitsbereich auswählen",
+    "addTo": "Hinzufügen zu",
+    "duplicateSuccessfully": "Duplizierung erfolgreich. Möchtest du die Dokumente anzeigen?",
+    "duplicateSuccessfullyDescription": "Du hast die App nicht? Dein Download beginnt automatisch, nachdem du auf „Herunterladen“ geklickt hast.",
+    "downloadIt": "Herunterladen",
+    "openApp": "In App öffnen",
+    "duplicateFailed": "Duplizierung fehlgeschlagen",
+    "membersCount": {
+      "zero": "Keine Mitglieder",
+      "one": "1 Mitglied",
+      "many": "{count} Mitglieder",
+      "other": "{count} Mitglieder"
+    }
   },
   "web": {
     "continue": "Weiter",
@@ -2340,5 +2390,55 @@
     "privacyPolicy": "Datenschutzrichtlinie",
     "signInError": "Anmeldefehler",
     "login": "Registrieren oder anmelden"
+  },
+  "globalComment": {
+    "comments": "Kommentare",
+    "addComment": "Einen Kommentar hinzufügen",
+    "reactedBy": "Reaktion von",
+    "addReaction": "Reaktion hinzufügen",
+    "reactedByMore": "und {count} andere",
+    "showSeconds": {
+      "one": "vor 1 Sekunde",
+      "other": "vor {count} Sekunden",
+      "zero": "Soeben",
+      "many": "vor {count} Sekunden"
+    },
+    "showMinutes": {
+      "one": "vor 1 Minute",
+      "other": "vor {count} Minuten",
+      "many": "vor {count} Minuten"
+    },
+    "showHours": {
+      "one": "vor 1 Stunde",
+      "other": "vor {count} Stunden",
+      "many": "vor {count} Stunden"
+    },
+    "showDays": {
+      "one": "vor 1 Tag",
+      "other": "vor {count} Tagen",
+      "many": "vor {count} Tagen"
+    },
+    "showMonths": {
+      "one": "vor 1 Monat",
+      "other": "vor {count} Monaten",
+      "many": "vor {count} Monaten"
+    },
+    "showYears": {
+      "one": "vor 1 Jahr",
+      "other": "vor {count} Jahren",
+      "many": "vor {count} Jahren"
+    },
+    "reply": "Antworten",
+    "deleteComment": "Kommentar löschen",
+    "youAreNotOwner": "Du bist nicht der Verfasser dieses Kommentars",
+    "confirmDeleteDescription": "Möchtest du diesen Kommentar wirklich löschen?",
+    "hasBeenDeleted": "Gelöscht",
+    "replyingTo": "Antwort auf",
+    "noAccessDeleteComment": "Du bist nicht berechtigt, diesen Kommentar zu löschen",
+    "collapse": "Zusammenklappen",
+    "readMore": "Mehr lesen",
+    "failedToAddComment": "Kommentar konnte nicht hinzugefügt werden",
+    "commentAddedSuccessfully": "Kommentar erfolgreich hinzugefügt.",
+    "commentAddedSuccessTip": "Du hast gerade einen Kommentar hinzugefügt oder darauf geantwortet. Möchtest du nach oben springen, um die neuesten Kommentare zu sehen?"
   }
 }
