@@ -182,9 +182,9 @@ class EditorOperations {
     final slashMenuItem = find.text(name, findRichText: true);
     await tester.scrollUntilVisible(
       slashMenuItem,
-      10,
+      50,
       scrollable: slashMenu,
-      duration: const Duration(milliseconds: 100),
+      duration: const Duration(milliseconds: 250),
     );
     assert(slashMenuItem.hasFound);
     await tester.tapButton(slashMenuItem);
