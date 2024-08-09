@@ -25,7 +25,8 @@ class SettingsShortcutService {
   late final File _file;
   final _initCompleter = Completer<void>();
 
-  /// Takes in commandShortcuts as an input and saves them to the shortcuts.JSON file.
+  /// Takes in commandShortcuts as an input and saves them to the
+  /// `shortcuts.JSON` file.
   Future<void> saveAllShortcuts(
     List<CommandShortcutEvent> commandShortcuts,
   ) async {
@@ -39,9 +40,11 @@ class SettingsShortcutService {
     );
   }
 
-  /// Checks the file for saved shortcuts. If shortcuts do NOT exist then returns
-  /// an empty list. If shortcuts exist
-  /// then calls an utility method i.e getShortcutsFromJson which returns the saved shortcuts.
+  /// Checks the file for saved shortcuts.
+  /// If shortcuts do NOT exist then returns an empty list.
+  /// If shortcuts exists, then calls an utility method:
+  ///
+  ///  `getShortcutsFromJson` - which returns the saved shortcuts.
   Future<List<CommandShortcutModel>> getCustomizeShortcuts() async {
     await _initCompleter.future;
     final shortcutsInJson = await _file.readAsString();
@@ -53,8 +56,10 @@ class SettingsShortcutService {
     }
   }
 
-  /// Extracts shortcuts from the saved json file. The shortcuts in the saved file consist of [List<CommandShortcutModel>].
-  /// This list needs to be converted to List<CommandShortcutEvent\>. This function is intended to facilitate the same.
+  /// Extracts shortcuts from the saved json file.
+  /// The shortcuts in the saved file consist of [List<CommandShortcutModel>].
+  /// This list needs to be converted to List<CommandShortcutEvent\>.
+  /// This function is intended to facilitate the same.
   List<CommandShortcutModel> getShortcutsFromJson(String savedJson) {
     final shortcuts = EditorShortcuts.fromJson(jsonDecode(savedJson));
     return shortcuts.commandShortcuts;
@@ -77,13 +82,14 @@ class SettingsShortcutService {
     await saveAllShortcuts(defaultCommandShortcutEvents);
   }
 
-  // Accesses the shortcuts.json file within the default AppFlowy Document Directory or creates a new file if it already doesn't exist.
+  /// Accesses the `shortcuts.JSON` file within the default AppFlowy Document Directory
+  /// or creates a new file if it already doesn't exist.
   Future<void> _initializeService(File? file) async {
     _file = file ?? await _defaultShortcutFile();
     _initCompleter.complete();
   }
 
-  //returns the default file for storing shortcuts
+  /// returns the default file for storing shortcuts.
   Future<File> _defaultShortcutFile() async {
     final path = await getIt<ApplicationDataStorage>().getPath();
     return File(
