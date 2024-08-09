@@ -17,10 +17,11 @@ class ChatInputAtButton extends StatelessWidget {
       message: LocaleKeys.chat_clickToMention.tr(),
       child: FlowyIconButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        radius: BorderRadius.circular(18),
-        icon: const FlowySvg(
-          FlowySvgs.mention_s,
-          size: Size.square(20),
+        radius: BorderRadius.circular(6),
+        icon: FlowySvg(
+          FlowySvgs.chat_at_s,
+          size: const Size.square(20),
+          color: Colors.grey.shade600,
         ),
         onPressed: onTap,
       ),

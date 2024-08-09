@@ -22,6 +22,7 @@ final headingsToolbarItem = ToolbarItem(
     final node = editorState.getNodeAtPath(selection.start.path)!;
     final delta = (node.delta ?? Delta()).toJson();
     int level = node.attributes[HeadingBlockKeys.level] ?? 1;
+    final originLevel = level;
     final isHighlight =
         node.type == HeadingBlockKeys.type && (level >= 1 && level <= 3);
     // only supports the level 1 - 3 in the toolbar, ignore the other levels
@@ -53,13 +54,19 @@ final headingsToolbarItem = ToolbarItem(
       currentLevel: isHighlight ? level : -1,
       highlightColor: highlightColor,
       child: child,
-      onLevelChanged: (level) async {
+      onLevelChanged: (newLevel) async {
+        // same level means cancel the heading
+        final type =
+            newLevel == originLevel && node.type == HeadingBlockKeys.type
+                ? ParagraphBlockKeys.type
+                : HeadingBlockKeys.type;
+
         await editorState.formatNode(
           selection,
           (node) => node.copyWith(
-            type: isHighlight ? ParagraphBlockKeys.type : HeadingBlockKeys.type,
+            type: type,
             attributes: {
-              HeadingBlockKeys.level: level,
+              HeadingBlockKeys.level: newLevel,
               blockComponentBackgroundColor:
                   node.attributes[blockComponentBackgroundColor],
               blockComponentTextDirection:

@@ -481,8 +481,18 @@ impl Chat {
     );
     self
       .chat_service
-      .index_file(&self.user_service.workspace_id()?, file_path, &self.chat_id)
+      .index_file(
+        &self.user_service.workspace_id()?,
+        &file_path,
+        &self.chat_id,
+      )
       .await?;
+
+    trace!(
+      "[Chat] created index file record: chat_id={}, file_path={:?}",
+      self.chat_id,
+      file_path
+    );
 
     Ok(())
   }

@@ -76,7 +76,7 @@ class NotificationsView extends StatelessWidget {
 
                     final view = views.findView(reminder.objectId);
                     return NotificationItem(
-                      reminderId: reminder.id,
+                      reminder: reminder,
                       key: ValueKey(reminder.id),
                       title: reminder.title,
                       scheduled: reminder.scheduledAt,

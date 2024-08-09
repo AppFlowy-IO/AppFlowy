@@ -177,6 +177,9 @@
     "referenceSource": "{} source found",
     "referenceSources": "{} sources found",
     "clickToMention": "Click to mention a page",
+    "uploadFile": "Upload PDFs, md or txt files to chat with",
+    "questionTitle": "Ideas",
+    "questionDetail": "Hi {}! How can I help you today?",
     "indexingFile": "Indexing {}"
   },
   "trash": {
@@ -302,7 +305,8 @@
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
     "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
-    "upgradeToAILocal": "AI On-device on your device"
+    "upgradeToAILocal": "Run local models on your device for ultimate privacy",
+    "upgradeToAILocalDesc": "Chat with PDFs, improve your writing, and auto-fill tables using local AI"
   },
   "notifications": {
     "export": {
@@ -1906,7 +1910,8 @@
       "medium": "Medium",
       "mediumDark": "Medium-Dark",
       "dark": "Dark"
-    }
+    },
+    "openSourceIconsFrom": "Open source icons from"
   },
   "inlineActions": {
     "noResults": "No results",

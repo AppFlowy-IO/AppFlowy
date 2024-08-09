@@ -8,6 +8,8 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'chat_message_service.dart';
+
 part 'chat_ai_message_bloc.freezed.dart';
 
 class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
@@ -16,10 +18,12 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     String? metadata,
     required this.chatId,
     required this.questionId,
-  }) : super(ChatAIMessageState.initial(
-          message,
-          chatMessageMetadataFromString(metadata),
-        ),) {
+  }) : super(
+          ChatAIMessageState.initial(
+            message,
+            messageRefSourceFromString(metadata),
+          ),
+        ) {
     if (state.stream != null) {
       state.stream!.listen(
         onData: (text) {
@@ -37,9 +41,9 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
             add(const ChatAIMessageEvent.onAIResponseLimit());
           }
         },
-        onMetadata: (metadata) {
+        onMetadata: (sources) {
           if (!isClosed) {
-            add(ChatAIMessageEvent.receiveMetadata(metadata));
+            add(ChatAIMessageEvent.receiveSources(sources));
           }
         },
       );
@@ -112,10 +116,10 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               ),
             );
           },
-          receiveMetadata: (List<ChatMessageMetadata> metadata) {
+          receiveSources: (List<ChatMessageRefSource> sources) {
             emit(
               state.copyWith(
-                metadata: metadata,
+                sources: sources,
               ),
             );
           },
@@ -136,8 +140,8 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.retry() = _Retry;
   const factory ChatAIMessageEvent.retryResult(String text) = _RetryResult;
   const factory ChatAIMessageEvent.onAIResponseLimit() = _OnAIResponseLimit;
-  const factory ChatAIMessageEvent.receiveMetadata(
-    List<ChatMessageMetadata> data,
+  const factory ChatAIMessageEvent.receiveSources(
+    List<ChatMessageRefSource> sources,
   ) = _ReceiveMetadata;
 }
 
@@ -147,16 +151,18 @@ class ChatAIMessageState with _$ChatAIMessageState {
     AnswerStream? stream,
     required String text,
     required MessageState messageState,
-    required List<ChatMessageMetadata> metadata,
+    required List<ChatMessageRefSource> sources,
   }) = _ChatAIMessageState;
 
   factory ChatAIMessageState.initial(
-      dynamic text, List<ChatMessageMetadata> metadata,) {
+    dynamic text,
+    List<ChatMessageRefSource> sources,
+  ) {
     return ChatAIMessageState(
       text: text is String ? text : "",
       stream: text is AnswerStream ? text : null,
       messageState: const MessageState.ready(),
-      metadata: metadata,
+      sources: sources,
     );
   }
 }

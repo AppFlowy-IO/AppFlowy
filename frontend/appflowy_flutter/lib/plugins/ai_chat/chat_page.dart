@@ -1,37 +1,30 @@
 import 'dart:math';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/other_user_message_bubble.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:desktop_drop/desktop_drop.dart';
-import 'package:flowy_infra/platform_extension.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/ai_message_bubble.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/user_message_bubble.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/ai_message_bubble.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/other_user_message_bubble.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/user_message_bubble.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:styled_widget/styled_widget.dart';
 
 import 'application/chat_member_bloc.dart';
 import 'application/chat_side_pannel_bloc.dart';
 import 'presentation/chat_input/chat_input.dart';
-import 'presentation/chat_popmenu.dart';
 import 'presentation/chat_side_pannel.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
@@ -81,7 +74,6 @@ class AIChatPage extends StatelessWidget {
       return MultiBlocProvider(
         providers: [
           /// [ChatBloc] is used to handle chat messages including send/receive message
-          ///
           BlocProvider(
             create: (_) => ChatBloc(
               view: view,
@@ -90,14 +82,11 @@ class AIChatPage extends StatelessWidget {
           ),
 
           /// [ChatFileBloc] is used to handle file indexing as a chat context
-          ///
           BlocProvider(
-            create: (_) => ChatFileBloc(chatId: view.id.toString())
-              ..add(const ChatFileEvent.initial()),
+            create: (_) => ChatFileBloc()..add(const ChatFileEvent.initial()),
           ),
 
           /// [ChatInputStateBloc] is used to handle chat input text field state
-          ///
           BlocProvider(
             create: (_) =>
                 ChatInputStateBloc()..add(const ChatInputStateEvent.started()),
@@ -105,40 +94,24 @@ class AIChatPage extends StatelessWidget {
           BlocProvider(create: (_) => ChatSidePannelBloc(chatId: view.id)),
           BlocProvider(create: (_) => ChatMemberBloc()),
         ],
-        child: BlocListener<ChatFileBloc, ChatFileState>(
-          listenWhen: (previous, current) =>
-              previous.indexFileIndicator != current.indexFileIndicator,
-          listener: (context, state) {
-            _handleIndexIndicator(state.indexFileIndicator, context);
-          },
-          child: BlocBuilder<ChatFileBloc, ChatFileState>(
-            builder: (context, state) {
-              return DropTarget(
-                onDragDone: (DropDoneDetails detail) async {
-                  if (state.supportChatWithFile) {
-                    await showConfirmDialog(
-                      context: context,
-                      style: ConfirmPopupStyle.cancelAndOk,
-                      title: LocaleKeys.chat_chatWithFilePrompt.tr(),
-                      confirmLabel: LocaleKeys.button_confirm.tr(),
-                      onConfirm: () {
-                        for (final file in detail.files) {
-                          context
-                              .read<ChatFileBloc>()
-                              .add(ChatFileEvent.newFile(file.path, file.name));
-                        }
-                      },
-                      description: '',
-                    );
+        child: BlocBuilder<ChatFileBloc, ChatFileState>(
+          builder: (context, state) {
+            return DropTarget(
+              onDragDone: (DropDoneDetails detail) async {
+                if (state.supportChatWithFile) {
+                  for (final file in detail.files) {
+                    context
+                        .read<ChatFileBloc>()
+                        .add(ChatFileEvent.newFile(file.path, file.name));
                   }
-                },
-                child: _ChatContentPage(
-                  view: view,
-                  userProfile: userProfile,
-                ),
-              );
-            },
-          ),
+                }
+              },
+              child: _ChatContentPage(
+                view: view,
+                userProfile: userProfile,
+              ),
+            );
+          },
         ),
       );
     }
@@ -149,35 +122,6 @@ class AIChatPage extends StatelessWidget {
         fontSize: 20,
       ),
     );
-  }
-
-  void _handleIndexIndicator(
-    IndexFileIndicator? indicator,
-    BuildContext context,
-  ) {
-    if (indicator != null) {
-      indicator.when(
-        finish: (fileName) {
-          showSnackBarMessage(
-            context,
-            LocaleKeys.chat_indexFileSuccess.tr(args: [fileName]),
-          );
-        },
-        indexing: (fileName) {
-          showSnackBarMessage(
-            context,
-            LocaleKeys.chat_indexingFile.tr(args: [fileName]),
-            duration: const Duration(seconds: 2),
-          );
-        },
-        error: (err) {
-          showSnackBarMessage(
-            context,
-            err,
-          );
-        },
-      );
-    }
   }
 }
 
@@ -307,7 +251,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
           // We use custom bottom widget for chat input, so
           // do not need to handle this event.
         },
-        customBottomWidget: buildChatInput(blocContext),
+        customBottomWidget: _buildBottom(blocContext),
         user: _user,
         theme: buildTheme(context),
         onEndReached: () async {
@@ -324,6 +268,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                   ? Padding(
                       padding: AIChatUILayout.welcomePagePadding,
                       child: ChatWelcomePage(
+                        userProfile: widget.userProfile,
                         onSelectedQuestion: (question) => blocContext
                             .read<ChatBloc>()
                             .add(ChatEvent.sendMessage(message: question)),
@@ -344,36 +289,46 @@ class _ChatContentPageState extends State<_ChatContentPage> {
           child, {
           required message,
           required nextMessageInGroup,
-        }) {
-          if (message.author.id == _user.id) {
-            return ChatUserMessageBubble(
-              message: message,
-              child: child,
-            );
-          } else if (isOtherUserMessage(message)) {
-            return OtherUserMessageBubble(
-              message: message,
-              child: child,
-            );
-          } else {
-            return _buildAIBubble(message, blocContext, state, child);
-          }
-        },
+        }) =>
+            _buildBubble(blocContext, message, child, state),
       ),
     );
   }
 
+  Widget _buildBubble(
+    BuildContext blocContext,
+    Message message,
+    Widget child,
+    ChatState state,
+  ) {
+    if (message.author.id == _user.id) {
+      return ChatUserMessageBubble(
+        message: message,
+        child: child,
+      );
+    } else if (isOtherUserMessage(message)) {
+      return OtherUserMessageBubble(
+        message: message,
+        child: child,
+      );
+    } else {
+      return _buildAIBubble(message, blocContext, state, child);
+    }
+  }
+
   Widget _buildTextMessage(BuildContext context, TextMessage message) {
     if (message.author.id == _user.id) {
-      return ChatTextMessageWidget(
+      final metadata = message.metadata?[messageMetadataKey] as String?;
+      return ChatUserTextMessageWidget(
         user: message.author,
         messageUserId: message.id,
-        text: message.text,
+        message: message,
+        metadata: metadata,
       );
     } else {
       final stream = message.metadata?["$AnswerStream"];
-      final questionId = message.metadata?["question"];
-      final metadata = message.metadata?["metadata"] as String?;
+      final questionId = message.metadata?[messageQuestionIdKey];
+      final metadata = message.metadata?[messageMetadataKey] as String?;
       return ChatAITextMessageWidget(
         user: message.author,
         messageUserId: message.id,
@@ -382,7 +337,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         questionId: questionId,
         chatId: widget.view.id,
         metadata: metadata,
-        onSelectedMetadata: (ChatMessageMetadata metadata) {
+        onSelectedMetadata: (ChatMessageRefSource metadata) {
           context.read<ChatSidePannelBloc>().add(
                 ChatSidePannelEvent.selectedMetadata(metadata),
               );
@@ -429,68 +384,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     );
   }
 
-  Widget buildBubble(Message message, Widget child) {
-    final isAuthor = message.author.id == _user.id;
-    const borderRadius = BorderRadius.all(Radius.circular(6));
-    final childWithPadding = isAuthor
-        ? Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: child,
-          )
-        : Padding(
-            padding: const EdgeInsets.all(8),
-            child: child,
-          );
-
-    // If the message is from the author, we will decorate it with a different color
-    final decoratedChild = isAuthor
-        ? DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: borderRadius,
-              color: !isAuthor || message.type == types.MessageType.image
-                  ? AFThemeExtension.of(context).tint1
-                  : Theme.of(context).colorScheme.secondary,
-            ),
-            child: childWithPadding,
-          )
-        : childWithPadding;
-
-    // If the message is from the author, no further actions are needed
-    if (isAuthor) {
-      return ClipRRect(
-        borderRadius: borderRadius,
-        child: decoratedChild,
-      );
-    } else {
-      if (isMobile) {
-        return ChatPopupMenu(
-          onAction: (action) {
-            switch (action) {
-              case ChatMessageAction.copy:
-                if (message is TextMessage) {
-                  Clipboard.setData(ClipboardData(text: message.text));
-                  showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
-                }
-                break;
-            }
-          },
-          builder: (context) =>
-              ClipRRect(borderRadius: borderRadius, child: decoratedChild),
-        );
-      } else {
-        // Show hover effect only on desktop
-        return ClipRRect(
-          borderRadius: borderRadius,
-          child: ChatAIMessageHover(
-            message: message,
-            child: decoratedChild,
-          ),
-        );
-      }
-    }
-  }
-
-  Widget buildChatInput(BuildContext context) {
+  Widget _buildBottom(BuildContext context) {
     return ClipRect(
       child: Padding(
         padding: AIChatUILayout.safeAreaInsets(context),

@@ -19,7 +19,7 @@ function EmojiPickerCategories({
   onEscape?: () => void;
   defaultEmoji?: string;
 }) {
-  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
   const [selectCell, setSelectCell] = React.useState({
     row: 1,

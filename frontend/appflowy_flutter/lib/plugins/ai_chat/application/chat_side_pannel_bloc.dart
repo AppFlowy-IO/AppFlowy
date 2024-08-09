@@ -19,7 +19,7 @@ class ChatSidePannelBloc
     on<ChatSidePannelEvent>(
       (event, emit) async {
         await event.when(
-          selectedMetadata: (ChatMessageMetadata metadata) async {
+          selectedMetadata: (ChatMessageRefSource metadata) async {
             emit(
               state.copyWith(
                 metadata: metadata,
@@ -62,7 +62,7 @@ class ChatSidePannelBloc
 @freezed
 class ChatSidePannelEvent with _$ChatSidePannelEvent {
   const factory ChatSidePannelEvent.selectedMetadata(
-    ChatMessageMetadata metadata,
+    ChatMessageRefSource metadata,
   ) = _SelectedMetadata;
   const factory ChatSidePannelEvent.close() = _Close;
   const factory ChatSidePannelEvent.open(ViewPB view) = _Open;
@@ -71,7 +71,7 @@ class ChatSidePannelEvent with _$ChatSidePannelEvent {
 @freezed
 class ChatSidePannelState with _$ChatSidePannelState {
   const factory ChatSidePannelState({
-    ChatMessageMetadata? metadata,
+    ChatMessageRefSource? metadata,
     @Default(ChatSidePannelIndicator.loading())
     ChatSidePannelIndicator indicator,
     @Default(false) bool isShowPannel,

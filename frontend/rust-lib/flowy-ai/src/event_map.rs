@@ -56,6 +56,7 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
     )
     .event(AIEvent::GetOfflineAIAppLink, get_offline_app_handler)
     .event(AIEvent::CreateChatContext, create_chat_context_handler)
+    .event(AIEvent::GetChatInfo, create_chat_context_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -138,4 +139,7 @@ pub enum AIEvent {
 
   #[event(input = "CreateChatContextPB")]
   CreateChatContext = 23,
+
+  #[event(input = "ChatId", output = "ChatInfoPB")]
+  GetChatInfo = 24,
 }

@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::PathBuf;
 
 use crate::ai_manager::AIManager;
@@ -6,7 +7,9 @@ use crate::entities::*;
 use crate::local_ai::local_llm_chat::LLMModelInfo;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use allo_isolate::Isolate;
-use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType, ChatMetadataData};
+use flowy_ai_pub::cloud::{
+  ChatMessageMetadata, ChatMessageType, ChatMetadataContentType, ChatMetadataData,
+};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::isolate_stream::IsolateSink;
@@ -34,15 +37,36 @@ pub(crate) async fn stream_chat_message_handler(
     ChatMessageTypePB::System => ChatMessageType::System,
     ChatMessageTypePB::User => ChatMessageType::User,
   };
+  let is_using_local_ai = ai_manager.is_using_local_ai();
 
   let metadata = data
     .metadata
     .into_iter()
-    .map(|metadata| ChatMessageMetadata {
-      data: ChatMetadataData::new_text(metadata.text),
-      id: metadata.id,
-      name: metadata.name.clone(),
-      source: metadata.source,
+    .map(|metadata| {
+      let (content_type, content_len) = if is_using_local_ai {
+        (ChatMetadataContentType::Unknown, 0)
+      } else {
+        match metadata.data_type {
+          ChatMessageMetaTypePB::Txt => (ChatMetadataContentType::Text, metadata.data.len()),
+          ChatMessageMetaTypePB::Markdown => {
+            (ChatMetadataContentType::Markdown, metadata.data.len())
+          },
+          ChatMessageMetaTypePB::PDF => (ChatMetadataContentType::PDF, 0),
+          ChatMessageMetaTypePB::UnknownMetaType => (ChatMetadataContentType::Unknown, 0),
+        }
+      };
+
+      ChatMessageMetadata {
+        data: ChatMetadataData {
+          content: metadata.data,
+          content_type,
+          size: content_len as i64,
+        },
+        id: metadata.id,
+        name: metadata.name.clone(),
+        source: metadata.source,
+        extract: None,
+      }
     })
     .collect::<Vec<_>>();
 
@@ -231,6 +255,24 @@ pub(crate) async fn chat_file_handler(
       "Only support pdf,md and txt",
     ));
   }
+  let file_size = fs::metadata(&file_path)
+    .map_err(|_| {
+      FlowyError::new(
+        ErrorCode::UnsupportedFileFormat,
+        "Failed to get file metadata",
+      )
+    })?
+    .len();
+
+  const MAX_FILE_SIZE: u64 = 10 * 1024 * 1024;
+  if file_size > MAX_FILE_SIZE {
+    return Err(FlowyError::new(
+      ErrorCode::PayloadTooLarge,
+      "File size is too large. Max file size is 10MB",
+    ));
+  }
+
+  tracing::debug!("File size: {} bytes", file_size);
 
   let (tx, rx) = oneshot::channel::<Result<(), FlowyError>>();
   tokio::spawn(async move {
@@ -405,4 +447,15 @@ pub(crate) async fn create_chat_context_handler(
   let _data = data.try_into_inner()?;
 
   Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_chat_info_handler(
+  data: AFPluginData<ChatId>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<ChatInfoPB, FlowyError> {
+  let chat_id = data.try_into_inner()?.value;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let pb = ai_manager.get_chat_info(&chat_id).await?;
+  data_result_ok(pb)
 }
