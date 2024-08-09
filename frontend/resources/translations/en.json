@@ -1464,12 +1464,44 @@
       },
       "document": {
         "selectADocumentToLinkTo": "Select a Document to link to"
+      },
+      "name": {
+        "text": "Text",
+        "heading1": "Heading 1",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3",
+        "image": "Image",
+        "bulletedList": "Bulleted List",
+        "numberedList": "Numbered List",
+        "checkbox": "Checkbox",
+        "doc": "Doc",
+        "linkedDoc": "Linked Doc",
+        "grid": "Grid",
+        "linkedGrid": "Linked Grid",
+        "kanban": "Kanban",
+        "linkedKanban": "Linked Kanban",
+        "calendar": "Calendar",
+        "linkedCalendar": "Linked Calendar",
+        "quote": "Quote",
+        "divider": "Divider",
+        "table": "Table",
+        "callout": "Callout",
+        "outline": "Outline",
+        "mathEquation": "Math Equation",
+        "code": "Code",
+        "toggleList": "Toggle list",
+        "emoji": "Emoji",
+        "aiWriter": "AI Writer",
+        "dateOrReminder": "Date or Reminder",
+        "photoGallery": "Photo Gallery",
+        "file": "File"
       }
     },
     "selectionMenu": {
       "outline": "Outline",
       "codeBlock": "Code Block"
     },
+
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
@@ -1482,7 +1514,7 @@
       "autoGeneratorHintText": "Ask AI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get AI key",
       "autoGeneratorRewrite": "Rewrite",
-      "smartEdit": "AI Assistants",
+      "smartEdit": "Ask AI",
       "aI": "AI",
       "smartEditFixSpelling": "Fix spelling & grammar",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
