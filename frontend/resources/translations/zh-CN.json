@@ -1089,8 +1089,8 @@
         "defaultColor": "默认"
       },
       "image": {
-        "copiedToPasteBoard": "图片链接已复制到剪贴板",
-        "addAnImage": "添加图像"
+        "addAnImage": "添加图像",
+        "copiedToPasteBoard": "图片链接已复制到剪贴板"
       },
       "urlPreview": {
         "copiedToPasteBoard": "链接已复制到剪贴板"

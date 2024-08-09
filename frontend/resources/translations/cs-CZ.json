@@ -678,8 +678,8 @@
         "defaultColor": "Výchozí"
       },
       "image": {
-        "copiedToPasteBoard": "Odkaz na obrázek byl zkopírován do schránky",
-        "addAnImage": "Přidat obrázek"
+        "addAnImage": "Přidat obrázek",
+        "copiedToPasteBoard": "Odkaz na obrázek byl zkopírován do schránky"
       },
       "outline": {
         "addHeadingToCreateOutline": "Přidáním nadpisů vytvoříte obsah dokumentu"

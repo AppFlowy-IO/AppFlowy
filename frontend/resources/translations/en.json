@@ -830,7 +830,6 @@
         "itemSix": "AI Responses",
         "tooltipSix": "Lifetime means the number of responses never reset",
         "intelligentSearch": "Intelligent search",
-        "itemSeven": "Custom namespace",
         "tooltipSeven": "Allows you to customize part of the URL for your workspace"
       },
       "freeLabels": {
@@ -840,8 +839,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "100 lifetime",
-        "intelligentSearch": "Intelligent search",
-        "itemSeven": ""
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "charged per workspace",
@@ -850,8 +848,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "unlimited",
-        "intelligentSearch": "Intelligent search",
-        "itemSeven": ""
+        "intelligentSearch": "Intelligent search"
       },
       "paymentSuccess": {
         "title": "You are now on the {} plan!",
@@ -869,7 +866,7 @@
       "commonOther": "Other",
       "otherHint": "Write your answer here",
       "questionOne": {
-        "question": "What prompted you to cancel your AppFlowy Pro subscription?",
+        "question": "What prompted you to cancel your @:appName Pro subscription?",
         "answerOne": "Cost too high",
         "answerTwo": "Features did not meet expectations",
         "answerThree": "Found a better alternative",
@@ -877,7 +874,7 @@
         "answerFive": "Service issue or technical difficulties"
       },
       "questionTwo": {
-        "question": "How likely are you to consider re-subscribing to AppFlowy Pro in the future?",
+        "question": "How likely are you to consider re-subscribing to @:appName Pro in the future?",
         "answerOne": "Very likely",
         "answerTwo": "Somewhat likely",
         "answerThree": "Not sure",
@@ -892,7 +889,7 @@
         "answerFour": "Access to local AI models"
       },
       "questionFour": {
-        "question": "How would you describe your overall experience with AppFlowy?",
+        "question": "How would you describe your overall experience with @:appName?",
         "answerOne": "Great",
         "answerTwo": "Good",
         "answerThree": "Average",
