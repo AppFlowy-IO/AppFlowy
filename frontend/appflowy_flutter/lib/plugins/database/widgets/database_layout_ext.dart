@@ -26,7 +26,7 @@ extension DatabaseLayoutExtension on DatabaseLayoutPB {
   FlowySvgData get icon {
     return switch (this) {
       DatabaseLayoutPB.Board => FlowySvgs.board_s,
-      DatabaseLayoutPB.Calendar => FlowySvgs.date_s,
+      DatabaseLayoutPB.Calendar => FlowySvgs.calendar_s,
       DatabaseLayoutPB.Grid => FlowySvgs.grid_s,
       _ => throw UnimplementedError(),
     };
