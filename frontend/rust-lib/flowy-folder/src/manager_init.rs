@@ -123,7 +123,10 @@ impl FolderManager {
       .set_index_content_receiver(index_content_rx, workspace_id.clone());
     self.handle_index_folder(workspace_id.clone(), &folder);
 
-    *self.mutex_folder.write() = Some(folder);
+    {
+      let mut lock = self.mutex_folder.write().await;
+      *lock = Some(folder);
+    }
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
     subscribe_folder_sync_state_changed(
@@ -133,19 +136,19 @@ impl FolderManager {
     );
     subscribe_folder_snapshot_state_changed(
       workspace_id.clone(),
-      &weak_mutex_folder,
+      weak_mutex_folder.clone(),
       Arc::downgrade(&self.user),
     );
     subscribe_folder_trash_changed(
       workspace_id.clone(),
       section_change_rx,
-      &weak_mutex_folder,
+      weak_mutex_folder.clone(),
       Arc::downgrade(&self.user),
     );
     subscribe_folder_view_changed(
       workspace_id.clone(),
       view_rx,
-      &weak_mutex_folder,
+      weak_mutex_folder.clone(),
       Arc::downgrade(&self.user),
     );
 
@@ -233,7 +236,7 @@ impl FolderManager {
       let encoded_collab = folder.encode_collab();
 
       if let Ok(encoded) = encoded_collab {
-        let _ = self.store_preferences.set_object(&workspace_id, encoded);
+        let _ = self.store_preferences.set_object(&workspace_id, &encoded);
       }
     }
   }
