@@ -11,7 +11,7 @@ use collab_folder::{
 };
 use lib_dispatch::prelude::af_spawn;
 use std::collections::HashSet;
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
 use tokio::sync::RwLock;
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
@@ -45,7 +45,8 @@ pub(crate) fn subscribe_folder_view_changed(
               view_pb_without_child_views(view.clone()),
               ChildViewChangeReason::Create,
             );
-            notify_parent_view_did_change(&workspace_id, folder.clone(), vec![view.parent_view_id]);
+            let lock = folder.read().await;
+            notify_parent_view_did_change(&workspace_id, &lock, vec![view.parent_view_id]);
           },
           ViewChange::DidDeleteView { views } => {
             for view in views {
@@ -61,11 +62,8 @@ pub(crate) fn subscribe_folder_view_changed(
               view_pb_without_child_views(view.clone()),
               ChildViewChangeReason::Update,
             );
-            notify_parent_view_did_change(
-              &workspace_id,
-              folder.clone(),
-              vec![view.parent_view_id.clone()],
-            );
+            let lock = folder.read().await;
+            notify_parent_view_did_change(&workspace_id, &lock, vec![view.parent_view_id.clone()]);
           },
         };
       }
@@ -83,7 +81,7 @@ pub(crate) fn subscribe_folder_snapshot_state_changed(
     if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
       let stream = mutex_folder
         .read()
-        .as_ref()
+        .await
         .map(|folder| folder.subscribe_snapshot_state());
       if let Some(mut state_stream) = stream {
         while let Some(snapshot_state) = state_stream.next().await {
@@ -185,13 +183,11 @@ pub(crate) fn subscribe_folder_trash_changed(
 
 /// Notify the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
-pub(crate) async fn notify_parent_view_did_change<T: AsRef<str>>(
+pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
   workspace_id: &str,
-  folder: Arc<RwLock<Option<Folder>>>,
+  folder: &Folder,
   parent_view_ids: Vec<T>,
 ) -> Option<()> {
-  let folder = folder.read().await;
-  let folder = folder.as_ref()?;
   let trash_ids = folder
     .get_all_trash_sections()
     .into_iter()

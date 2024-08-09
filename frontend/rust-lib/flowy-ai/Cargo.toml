@@ -23,7 +23,7 @@ arc-swap.workspace = true
 validator = { workspace = true, features = ["derive"] }
 lib-infra = { workspace = true, features = ["isolate_flutter"] }
 flowy-ai-pub.workspace = true
-dashmap = "5.5"
+dashmap.workspace = true
 flowy-sqlite = { workspace = true }
 tokio.workspace = true
 futures.workspace = true

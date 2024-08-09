@@ -161,7 +161,7 @@ pub async fn set_appearance_setting(
   if setting.theme.is_empty() {
     setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
   }
-  store_preferences.set_object(APPEARANCE_SETTING_CACHE_KEY, setting)?;
+  store_preferences.set_object(APPEARANCE_SETTING_CACHE_KEY, &setting)?;
   Ok(())
 }
 
@@ -198,7 +198,7 @@ pub async fn set_date_time_settings(
     setting.timezone_id = "".to_string();
   }
 
-  store_preferences.set_object(DATE_TIME_SETTINGS_CACHE_KEY, setting)?;
+  store_preferences.set_object(DATE_TIME_SETTINGS_CACHE_KEY, &setting)?;
   Ok(())
 }
 
@@ -234,7 +234,7 @@ pub async fn set_notification_settings(
 ) -> Result<(), FlowyError> {
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   let setting = data.into_inner();
-  store_preferences.set_object(NOTIFICATION_SETTINGS_CACHE_KEY, setting)?;
+  store_preferences.set_object(NOTIFICATION_SETTINGS_CACHE_KEY, &setting)?;
   Ok(())
 }
 
@@ -374,7 +374,7 @@ pub async fn set_encrypt_secret_handler(
           EncryptionType::SelfEncryption(data.encryption_sign),
         )
         .await?;
-      save_cloud_config(data.user_id, &store_preferences, config)?;
+      save_cloud_config(data.user_id, &store_preferences, &config)?;
     },
   }
 
@@ -448,7 +448,7 @@ pub async fn set_cloud_config_handler(
     }
   }
 
-  save_cloud_config(session.user_id, &store_preferences, config.clone())?;
+  save_cloud_config(session.user_id, &store_preferences, &config)?;
 
   let payload = CloudSettingPB {
     enable_sync: config.enable_sync,

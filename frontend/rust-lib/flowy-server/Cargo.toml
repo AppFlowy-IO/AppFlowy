@@ -22,6 +22,8 @@ lazy_static = "1.4.0"
 bytes = { workspace = true, features = ["serde"] }
 tokio-retry = "0.3"
 anyhow.workspace = true
+arc-swap.workspace = true
+dashmap.workspace = true
 uuid.workspace = true
 chrono = { workspace = true, default-features = false, features = ["clock", "serde"] }
 collab = { workspace = true }

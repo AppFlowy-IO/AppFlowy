@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use collab_entity::CollabObject;
 use lazy_static::lazy_static;
+use tokio::sync::Mutex;
 use uuid::Uuid;
 
 use flowy_error::FlowyError;
@@ -16,6 +17,7 @@ use crate::local_server::uid::UserIDGenerator;
 use crate::local_server::LocalServerDB;
 
 lazy_static! {
+  //FIXME: seriously, userID generation should work using lock-free algorithm
   static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
 }
 
@@ -28,7 +30,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, FlowyError> {
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
-      let uid = ID_GEN.lock().next_id();
+      let uid = ID_GEN.lock().await.next_id();
       let workspace_id = uuid::Uuid::new_v4().to_string();
       let user_workspace = UserWorkspace::new(&workspace_id, uid);
       let user_name = if params.name.is_empty() {
@@ -56,7 +58,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     let db = self.db.clone();
     FutureResult::new(async move {
       let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
-      let uid = ID_GEN.lock().next_id();
+      let uid = ID_GEN.lock().await.next_id();
 
       let user_workspace = db
         .get_user_workspace(uid)?

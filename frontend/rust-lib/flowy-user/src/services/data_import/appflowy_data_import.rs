@@ -128,9 +128,9 @@ pub(crate) fn generate_import_data(
   let imported_container_view_name = imported_folder.container_name.clone();
 
   let mut database_view_ids_by_database_id: HashMap<String, Vec<String>> = HashMap::new();
-  let row_object_ids = Mutex::new(HashSet::new());
-  let document_object_ids = Mutex::new(HashSet::new());
-  let database_object_ids = Mutex::new(HashSet::new());
+  let mut row_object_ids = HashSet::new();
+  let mut document_object_ids = HashSet::new();
+  let mut database_object_ids = HashSet::new();
 
   // All the imported views will be attached to the container view. If the container view name is not provided,
   // the container view will be the workspace, which mean the root of the workspace.
@@ -145,7 +145,7 @@ pub(crate) fn generate_import_data(
   let views = collab_db.with_write_txn(|collab_write_txn| {
     let imported_collab_read_txn = imported_collab_db.read_txn();
     // use the old_to_new_id_map to keep track of the other collab object id and the new collab object id
-    let old_to_new_id_map = Arc::new(Mutex::new(OldToNewIdMap::new()));
+    let mut old_to_new_id_map = OldToNewIdMap::new();
 
     // 1. Get all the imported collab object ids
     let mut all_imported_object_ids = imported_collab_read_txn
@@ -170,17 +170,17 @@ pub(crate) fn generate_import_data(
       ImportedSource::ExternalFolder => {
         // 2. mapping the database indexer ids
         mapping_database_indexer_ids(
-          &mut old_to_new_id_map.lock(),
+          &mut old_to_new_id_map,
           &imported_session,
           &imported_collab_read_txn,
           &mut database_view_ids_by_database_id,
-          &database_object_ids,
+          &mut database_object_ids,
         )?;
       },
       ImportedSource::AnonUser => {
         // 2. migrate the database with views object
         migrate_database_with_views_object(
-          &mut old_to_new_id_map.lock(),
+          &mut old_to_new_id_map,
           &imported_session,
           &imported_collab_read_txn,
           current_session,
@@ -207,19 +207,19 @@ pub(crate) fn generate_import_data(
 
     // import the database
     migrate_databases(
-      &old_to_new_id_map,
+      &mut old_to_new_id_map,
       current_session,
       collab_write_txn,
       &mut all_imported_object_ids,
       &mut imported_collab_by_oid,
-      &row_object_ids,
+      &mut row_object_ids,
     )?;
 
     // the object ids now only contains the document collab object ids
     for object_id in &all_imported_object_ids {
       if let Some(imported_collab) = imported_collab_by_oid.get(object_id) {
-        let new_object_id = old_to_new_id_map.lock().exchange_new_id(object_id);
-        document_object_ids.lock().insert(new_object_id.clone());
+        let new_object_id = old_to_new_id_map.exchange_new_id(object_id);
+        document_object_ids.insert(new_object_id.clone());
         debug!("import from: {}, to: {}", object_id, new_object_id,);
         write_collab_object(
           imported_collab,
@@ -235,7 +235,7 @@ pub(crate) fn generate_import_data(
     // structure is correctly maintained.
     let (mut child_views, orphan_views) = mapping_folder_views(
       &import_container_view_id,
-      &mut old_to_new_id_map.lock(),
+      &mut old_to_new_id_map,
       &imported_session,
       &imported_collab_read_txn,
     )?;
@@ -250,7 +250,7 @@ pub(crate) fn generate_import_data(
           // create a new view with given name and then attach views to it
           attach_to_new_view(
             current_session,
-            &document_object_ids,
+            &mut document_object_ids,
             &import_container_view_id,
             collab_write_txn,
             child_views,
@@ -273,16 +273,16 @@ pub(crate) fn generate_import_data(
         database_view_ids_by_database_id,
       },
       AppFlowyData::CollabObject {
-        row_object_ids: row_object_ids.into_inner().into_iter().collect(),
-        database_object_ids: database_object_ids.into_inner().into_iter().collect(),
-        document_object_ids: document_object_ids.into_inner().into_iter().collect(),
+        row_object_ids: row_object_ids.into_iter().collect(),
+        database_object_ids: database_object_ids.into_iter().collect(),
+        document_object_ids: document_object_ids.into_iter().collect(),
       },
     ],
   })
 }
 fn attach_to_new_view<'a, W>(
   current_session: &Session,
-  document_object_ids: &Mutex<HashSet<String>>,
+  document_object_ids: &mut HashSet<String>,
   import_container_view_id: &str,
   collab_write_txn: &'a W,
   child_views: Vec<ParentChildViews>,
@@ -314,9 +314,7 @@ where
     collab_write_txn,
   )?;
 
-  document_object_ids
-    .lock()
-    .insert(import_container_view_id.to_string());
+  document_object_ids.insert(import_container_view_id.to_string());
   let mut import_container_views = vec![ViewBuilder::new(
     current_session.user_id,
     current_session.user_workspace.id.clone(),
@@ -336,7 +334,7 @@ fn mapping_database_indexer_ids<'a, W>(
   imported_session: &Session,
   imported_collab_read_txn: &W,
   database_view_ids_by_database_id: &mut HashMap<String, Vec<String>>,
-  database_object_ids: &Mutex<HashSet<String>>,
+  database_object_ids: &mut HashSet<String>,
 ) -> Result<(), PersistenceError>
 where
   W: CollabKVAction<'a>,
@@ -366,7 +364,7 @@ where
         .collect(),
     );
   }
-  database_object_ids.lock().extend(
+  database_object_ids.extend(
     database_view_ids_by_database_id
       .keys()
       .cloned()
@@ -427,22 +425,21 @@ where
 }
 
 fn migrate_databases<'a, W>(
-  old_to_new_id_map: &Arc<Mutex<OldToNewIdMap>>,
+  old_to_new_id_map: &mut OldToNewIdMap,
   session: &Session,
   collab_write_txn: &'a W,
   imported_object_ids: &mut Vec<String>,
   imported_collab_by_oid: &mut HashMap<String, Collab>,
-  row_object_ids: &Mutex<HashSet<String>>,
+  row_object_ids: &mut HashSet<String>,
 ) -> Result<(), PersistenceError>
 where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   // Migrate databases
-  let row_document_object_ids = Mutex::new(HashSet::new());
+  let mut row_document_object_ids = HashSet::new();
   let mut database_object_ids = vec![];
-  let imported_database_row_object_ids: RwLock<HashMap<String, HashSet<String>>> =
-    RwLock::new(HashMap::new());
+  let mut imported_database_row_object_ids: HashMap<String, HashSet<String>> = HashMap::new();
 
   for object_id in &mut *imported_object_ids {
     if let Some(database_collab) = imported_collab_by_oid.get_mut(object_id) {
@@ -452,36 +449,29 @@ where
 
       database_object_ids.push(object_id.clone());
       reset_inline_view_id(database_collab, |old_inline_view_id| {
-        old_to_new_id_map
-          .lock()
-          .exchange_new_id(&old_inline_view_id)
+        old_to_new_id_map.exchange_new_id(&old_inline_view_id)
       });
 
       mut_database_views_with_collab(database_collab, |database_view| {
-        let new_view_id = old_to_new_id_map.lock().exchange_new_id(&database_view.id);
+        let new_view_id = old_to_new_id_map.exchange_new_id(&database_view.id);
         let old_database_id = database_view.database_id.clone();
-        let new_database_id = old_to_new_id_map
-          .lock()
-          .exchange_new_id(&database_view.database_id);
+        let new_database_id = old_to_new_id_map.exchange_new_id(&database_view.database_id);
 
         database_view.id = new_view_id;
         database_view.database_id = new_database_id;
         database_view.row_orders.iter_mut().for_each(|row_order| {
           let old_row_id = String::from(row_order.id.clone());
           let old_row_document_id = database_row_document_id_from_row_id(&old_row_id);
-          let new_row_id = old_to_new_id_map.lock().exchange_new_id(&old_row_id);
+          let new_row_id = old_to_new_id_map.exchange_new_id(&old_row_id);
           // The row document might not exist in the database row. But by querying the old_row_document_id,
           // we can know the document of the row is exist or not.
           let new_row_document_id = database_row_document_id_from_row_id(&new_row_id);
 
-          old_to_new_id_map
-            .lock()
-            .insert(old_row_document_id.clone(), new_row_document_id);
+          old_to_new_id_map.insert(old_row_document_id.clone(), new_row_document_id);
 
           row_order.id = RowId::from(new_row_id);
 
           imported_database_row_object_ids
-            .write()
             .entry(old_database_id.clone())
             .or_default()
             .insert(old_row_id);
@@ -493,10 +483,10 @@ where
           .iter()
           .map(|order| order.id.clone().into_inner())
           .collect::<Vec<String>>();
-        row_object_ids.lock().extend(new_row_ids);
+        row_object_ids.extend(new_row_ids);
       });
 
-      let new_object_id = old_to_new_id_map.lock().exchange_new_id(object_id);
+      let new_object_id = old_to_new_id_map.exchange_new_id(object_id);
       debug!(
         "migrate database from: {}, to: {}",
         object_id, new_object_id,
@@ -509,7 +499,6 @@ where
       );
     }
   }
-  let imported_database_row_object_ids = imported_database_row_object_ids.read();
 
   // remove the database object ids from the object ids
   imported_object_ids.retain(|id| !database_object_ids.contains(id));
@@ -522,11 +511,11 @@ where
       .any(|row_id| row_id == id)
   });
 
-  for (database_id, imported_row_ids) in &*imported_database_row_object_ids {
+  for (database_id, imported_row_ids) in imported_database_row_object_ids {
     for imported_row_id in imported_row_ids {
-      if let Some(imported_collab) = imported_collab_by_oid.get_mut(imported_row_id) {
-        let new_database_id = old_to_new_id_map.lock().exchange_new_id(database_id);
-        let new_row_id = old_to_new_id_map.lock().exchange_new_id(imported_row_id);
+      if let Some(imported_collab) = imported_collab_by_oid.get_mut(&imported_row_id) {
+        let new_database_id = old_to_new_id_map.exchange_new_id(&database_id);
+        let new_row_id = old_to_new_id_map.exchange_new_id(&imported_row_id);
         info!(
           "import database row from: {}, to: {}",
           imported_row_id, new_row_id,
@@ -545,25 +534,20 @@ where
 
       // imported_collab_by_oid contains all the collab object ids, including the row document collab object ids.
       // So, if the id exist in the imported_collab_by_oid, it means the row document collab object is exist.
-      let imported_row_document_id = database_row_document_id_from_row_id(imported_row_id);
+      let imported_row_document_id = database_row_document_id_from_row_id(&imported_row_id);
       if imported_collab_by_oid
         .get(&imported_row_document_id)
         .is_some()
       {
-        let new_row_document_id = old_to_new_id_map
-          .lock()
-          .exchange_new_id(&imported_row_document_id);
-        row_document_object_ids.lock().insert(new_row_document_id);
+        let new_row_document_id = old_to_new_id_map.exchange_new_id(&imported_row_document_id);
+        row_document_object_ids.insert(new_row_document_id);
       }
     }
   }
 
   debug!(
     "import row document ids: {:?}",
-    row_document_object_ids
-      .lock()
-      .iter()
-      .collect::<Vec<&String>>()
+    row_document_object_ids.iter().collect::<Vec<&String>>()
   );
 
   Ok(())

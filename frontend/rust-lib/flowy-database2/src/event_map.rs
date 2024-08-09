@@ -12,7 +12,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
   let plugin = AFPlugin::new()
     .name(env!("CARGO_PKG_NAME"))
     .state(database_manager);
-  plugin /*
+  plugin
          .event(DatabaseEvent::GetDatabase, get_database_data_handler)
          .event(DatabaseEvent::GetDatabaseData, get_database_data_handler)
          .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
@@ -91,7 +91,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
          // AI
          .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
-         .event(DatabaseEvent::TranslateRow, translate_row_handler)*/
+         .event(DatabaseEvent::TranslateRow, translate_row_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)

@@ -283,7 +283,7 @@ impl UserManager {
     Ok(())
   }
 
-  pub fn get_session(&self) -> FlowyResult<Session> {
+  pub fn get_session(&self) -> FlowyResult<Arc<Session>> {
     self.authenticate_user.get_session()
   }
 
@@ -714,7 +714,7 @@ impl UserManager {
     let uid = user_profile.uid;
     if authenticator.is_local() {
       event!(tracing::Level::DEBUG, "Save new anon user: {:?}", uid);
-      self.set_anon_user(session.clone());
+      self.set_anon_user(session);
     }
 
     save_all_user_workspaces(uid, self.db_connection(uid)?, response.user_workspaces())?;
@@ -723,7 +723,9 @@ impl UserManager {
       authenticator
     );
 
-    self.authenticate_user.set_session(Some(session.clone()))?;
+    self
+      .authenticate_user
+      .set_session(Some(session.clone().into()))?;
     self
       .save_user(uid, (user_profile, authenticator.clone()).into())
       .await?;
