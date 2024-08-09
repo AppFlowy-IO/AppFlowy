@@ -50,6 +50,7 @@ export 'openai/widgets/smart_edit_node_widget.dart';
 export 'openai/widgets/smart_edit_toolbar_item.dart';
 export 'outline/outline_block_component.dart';
 export 'parsers/markdown_parsers.dart';
+export 'slash_menu/slash_menu_items.dart';
 export 'table/table_menu.dart';
 export 'table/table_option_action.dart';
 export 'todo_list/todo_list_icon.dart';

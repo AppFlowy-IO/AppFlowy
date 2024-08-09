@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-
 import 'package:flutter/material.dart';
 
 class SelectableSvgWidget extends StatelessWidget {
@@ -19,7 +18,7 @@ class SelectableSvgWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowySvg(
       data,
-      size: const Size.square(18.0),
+      size: const Size.square(16.0),
       color: isSelected
           ? style.selectionMenuItemSelectedIconColor
           : style.selectionMenuItemIconColor,
