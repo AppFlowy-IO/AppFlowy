@@ -27,7 +27,7 @@ impl FolderManager {
       initial_data
     );
 
-    if let Some(old_folder) = self.mutex_folder.write().take() {
+    if let Some(old_folder) = self.mutex_folder.write().await.take() {
       old_folder.close();
       info!(
         "remove old folder: {}",

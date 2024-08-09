@@ -2242,6 +2242,7 @@ name = "flowy-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "assert-json-diff",
  "bytes",
  "chrono",
@@ -2251,6 +2252,7 @@ dependencies = [
  "collab-entity",
  "collab-folder",
  "collab-plugins",
+ "dashmap",
  "dotenv",
  "flowy-ai-pub",
  "flowy-database-pub",
@@ -2369,6 +2371,7 @@ name = "flowy-user"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "base64 0.21.5",
  "bytes",
  "chrono",
@@ -2381,6 +2384,7 @@ dependencies = [
  "collab-integrate",
  "collab-plugins",
  "collab-user",
+ "dashmap",
  "diesel",
  "diesel_derives",
  "fake",

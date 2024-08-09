@@ -26,9 +26,11 @@ collab-plugins = { workspace = true }
 flowy-user-pub = { workspace = true }
 client-api = { workspace = true }
 anyhow.workspace = true
+arc-swap.workspace = true
+dashmap.workspace = true
 tracing.workspace = true
 bytes.workspace = true
-serde.workspace = true
+serde = { workspace = true, features = ["rc"] }
 serde_json.workspace = true
 serde_repr.workspace = true
 protobuf.workspace = true

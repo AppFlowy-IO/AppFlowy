@@ -4,6 +4,7 @@ use crate::services::entities::{UserConfig, UserPaths};
 use crate::services::sqlite_sql::user_sql::vacuum_database;
 use collab_integrate::CollabKVDB;
 
+use arc_swap::ArcSwapOption;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
@@ -20,22 +21,22 @@ pub struct AuthenticateUser {
   pub(crate) database: Arc<UserDB>,
   pub(crate) user_paths: UserPaths,
   store_preferences: Arc<KVStorePreferences>,
-  session: Arc<RwLock<Option<Session>>>,
+  session: ArcSwapOption<Session>,
 }
 
 impl AuthenticateUser {
   pub fn new(user_config: UserConfig, store_preferences: Arc<KVStorePreferences>) -> Self {
     let user_paths = UserPaths::new(user_config.storage_path.clone());
     let database = Arc::new(UserDB::new(user_paths.clone()));
-    let session = Arc::new(RwLock::new(None));
-    *session.write() =
-      migrate_session_with_user_uuid(&user_config.session_cache_key, &store_preferences);
+    let session =
+      migrate_session_with_user_uuid(&user_config.session_cache_key, &store_preferences)
+        .map(Arc::new);
     Self {
       user_config,
       database,
       user_paths,
       store_preferences,
-      session,
+      session: ArcSwapOption::from(session),
     }
   }
 
@@ -67,7 +68,7 @@ impl AuthenticateUser {
 
   pub fn workspace_id(&self) -> FlowyResult<String> {
     let session = self.get_session()?;
-    Ok(session.user_workspace.id)
+    Ok(session.user_workspace.id.clone())
   }
 
   pub fn workspace_database_object_id(&self) -> FlowyResult<String> {
@@ -107,26 +108,25 @@ impl AuthenticateUser {
     Ok(())
   }
 
-  pub fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
-    match &session {
+  pub fn set_session(&self, session: Option<Arc<Session>>) -> Result<(), FlowyError> {
+    match session {
       None => {
-        let removed_session = self.session.write().take();
-        info!("remove session: {:?}", removed_session);
+        let previous = self.session.swap(session);
+        info!("remove session: {:?}", previous);
         self
           .store_preferences
           .remove(self.user_config.session_cache_key.as_ref());
-        Ok(())
       },
       Some(session) => {
+        self.session.swap(Some(session.clone()));
         info!("Set current session: {:?}", session);
-        self.session.write().replace(session.clone());
         self
           .store_preferences
-          .set_object(&self.user_config.session_cache_key, session.clone())
+          .set_object(&self.user_config.session_cache_key, &session)
           .map_err(internal_error)?;
-        Ok(())
       },
     }
+    Ok(())
   }
 
   pub fn set_user_workspace(&self, user_workspace: UserWorkspace) -> FlowyResult<()> {
@@ -135,21 +135,21 @@ impl AuthenticateUser {
     self.set_session(Some(session))
   }
 
-  pub fn get_session(&self) -> FlowyResult<Session> {
-    if let Some(session) = (self.session.read()).clone() {
+  pub fn get_session(&self) -> FlowyResult<Arc<Session>> {
+    if let Some(session) = self.session.load_full() {
       return Ok(session);
     }
 
     match self
       .store_preferences
-      .get_object::<Session>(&self.user_config.session_cache_key)
+      .get_object::<Arc<Session>>(&self.user_config.session_cache_key)
     {
       None => Err(FlowyError::new(
         ErrorCode::RecordNotFound,
         "User is not logged in",
       )),
       Some(session) => {
-        self.session.write().replace(session.clone());
+        self.session.store(Some(session.clone()));
         Ok(session)
       },
     }

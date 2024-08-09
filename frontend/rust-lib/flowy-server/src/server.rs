@@ -5,6 +5,7 @@ use flowy_search_pub::cloud::SearchCloudService;
 use std::sync::Arc;
 
 use anyhow::Error;
+use arc_swap::ArcSwapOption;
 use client_api::collab_sync::ServerCollabMessage;
 use flowy_ai_pub::cloud::ChatCloudService;
 use tokio_stream::wrappers::WatchStream;
@@ -153,23 +154,23 @@ pub trait AppFlowyServer: Send + Sync + 'static {
 }
 
 pub struct EncryptionImpl {
-  secret: RwLock<Option<String>>,
+  secret: ArcSwapOption<String>,
 }
 
 impl EncryptionImpl {
   pub fn new(secret: Option<String>) -> Self {
     Self {
-      secret: RwLock::new(secret),
+      secret: ArcSwapOption::from(secret.map(Arc::new)),
     }
   }
 }
 
 impl AppFlowyEncryption for EncryptionImpl {
   fn get_secret(&self) -> Option<String> {
-    self.secret.read().clone()
+    self.secret.load().as_ref().map(|s| s.to_string())
   }
 
   fn set_secret(&self, secret: String) {
-    *self.secret.write() = Some(secret);
+    self.secret.store(Some(secret.into()));
   }
 }

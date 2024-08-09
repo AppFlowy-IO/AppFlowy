@@ -10,14 +10,14 @@ const CLOUD_CONFIG_KEY: &str = "af_user_cloud_config";
 fn generate_cloud_config(uid: i64, store_preference: &Arc<KVStorePreferences>) -> UserCloudConfig {
   let config = UserCloudConfig::new(generate_encryption_secret());
   let key = cache_key_for_cloud_config(uid);
-  store_preference.set_object(&key, config.clone()).unwrap();
+  store_preference.set_object(&key, &config).unwrap();
   config
 }
 
 pub fn save_cloud_config(
   uid: i64,
   store_preference: &Arc<KVStorePreferences>,
-  config: UserCloudConfig,
+  config: &UserCloudConfig,
 ) -> FlowyResult<()> {
   tracing::info!("save user:{} cloud config: {}", uid, config);
   let key = cache_key_for_cloud_config(uid);

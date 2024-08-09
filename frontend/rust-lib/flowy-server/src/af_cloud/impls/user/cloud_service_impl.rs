@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::anyhow;
+use arc_swap::ArcSwapOption;
 use client_api::entity::billing_dto::{
   RecurringInterval, SetSubscriptionRecurringInterval, SubscriptionCancelRequest, SubscriptionPlan,
   SubscriptionPlanDetail, WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
@@ -40,7 +41,7 @@ use super::dto::{from_af_workspace_invitation_status, to_workspace_invitation_st
 
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
-  user_change_recv: RwLock<Option<tokio::sync::mpsc::Receiver<UserUpdate>>>,
+  user_change_recv: ArcSwapOption<tokio::sync::mpsc::Receiver<UserUpdate>>,
   user: Arc<dyn ServerUser>,
 }
 
@@ -52,7 +53,7 @@ impl<T> AFCloudUserAuthServiceImpl<T> {
   ) -> Self {
     Self {
       server,
-      user_change_recv: RwLock::new(Some(user_change_recv)),
+      user_change_recv: ArcSwapOption::new(Some(Arc::new(user_change_recv))),
       user,
     }
   }
@@ -359,7 +360,8 @@ where
   }
 
   fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
-    self.user_change_recv.write().take()
+    let rx = self.user_change_recv.swap(None)?;
+    Arc::into_inner(rx)
   }
 
   fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), FlowyError> {

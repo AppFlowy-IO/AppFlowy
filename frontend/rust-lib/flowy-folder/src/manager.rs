@@ -664,25 +664,18 @@ impl FolderManager {
     let to_section = params.to_section;
     let view = self.get_view_pb(&view_id).await?;
     let old_parent_id = view.parent_view_id;
-    self.with_folder(
-      || (),
-      |folder| {
-        folder.move_nested_view(&view_id, &new_parent_id, prev_view_id);
-
-        if from_section != to_section {
-          if to_section == Some(ViewSectionPB::Private) {
-            folder.add_private_view_ids(vec![view_id.clone()]);
-          } else {
-            folder.delete_private_view_ids(vec![view_id.clone()]);
-          }
+    let mut lock = self.mutex_folder.write().await;
+    if let Some(folder) = &mut *lock {
+      folder.move_nested_view(&view_id, &new_parent_id, prev_view_id);
+      if from_section != to_section {
+        if to_section == Some(ViewSectionPB::Private) {
+          folder.add_private_view_ids(vec![view_id.clone()]);
+        } else {
+          folder.delete_private_view_ids(vec![view_id.clone()]);
         }
-      },
-    );
-    notify_parent_view_did_change(
-      &workspace_id,
-      self.mutex_folder.clone(),
-      vec![new_parent_id, old_parent_id],
-    );
+      }
+      notify_parent_view_did_change(&workspace_id, folder, vec![new_parent_id, old_parent_id]);
+    }
     Ok(())
   }
 
@@ -723,17 +716,11 @@ impl FolderManager {
         if let (Some(actual_from_index), Some(actual_to_index)) =
           (actual_from_index, actual_to_index)
         {
-          self.with_folder(
-            || (),
-            |folder| {
-              folder.move_view(view_id, actual_from_index as u32, actual_to_index as u32);
-            },
-          );
-          notify_parent_view_did_change(
-            &workspace_id,
-            self.mutex_folder.clone(),
-            vec![parent_view_id],
-          );
+          let mut lock = self.mutex_folder.write().await;
+          if let Some(folder) = &mut *lock {
+            folder.move_view(view_id, actual_from_index as u32, actual_to_index as u32);
+            notify_parent_view_did_change(&workspace_id, folder, vec![parent_view_id]);
+          }
         }
       }
     }
@@ -938,13 +925,10 @@ impl FolderManager {
     }
 
     // notify the update here
-    notify_parent_view_did_change(
-      workspace_id,
-      self.mutex_folder.clone(),
-      vec![parent_view_id.to_string()],
-    )
-    .await;
-
+    let lock = self.mutex_folder.read().await;
+    if let Some(folder) = &*lock {
+      notify_parent_view_did_change(workspace_id, folder, vec![parent_view_id.to_string()]);
+    }
     Ok(())
   }
 
@@ -1486,11 +1470,10 @@ impl FolderManager {
     }
 
     // Notify that the parent view has changed
-    notify_parent_view_did_change(
-      &workspace_id,
-      self.mutex_folder.clone(),
-      vec![import_data.parent_view_id],
-    );
+    let lock = self.mutex_folder.read().await;
+    if let Some(folder) = &*lock {
+      notify_parent_view_did_change(&workspace_id, folder, vec![import_data.parent_view_id]);
+    }
 
     Ok(RepeatedViewPB { items: views })
   }

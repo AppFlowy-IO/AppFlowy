@@ -527,7 +527,7 @@ impl LLMResourceService for LLMResourceServiceImpl {
   fn store_setting(&self, setting: LLMSetting) -> Result<(), Error> {
     self
       .store_preferences
-      .set_object(LOCAL_AI_SETTING_KEY, setting)?;
+      .set_object(LOCAL_AI_SETTING_KEY, &setting)?;
     Ok(())
   }
 

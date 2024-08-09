@@ -6,6 +6,7 @@ use std::sync::{Arc, Weak};
 use std::time::Duration;
 
 use anyhow::Error;
+use arc_swap::ArcSwapOption;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_entity::{CollabObject, CollabType};
@@ -42,7 +43,7 @@ use crate::AppFlowyEncryption;
 pub struct SupabaseUserServiceImpl<T> {
   server: T,
   realtime_event_handlers: Vec<Box<dyn RealtimeEventHandler>>,
-  user_update_rx: RwLock<Option<UserUpdateReceiver>>,
+  user_update_rx: ArcSwapOption<UserUpdateReceiver>,
 }
 
 impl<T> SupabaseUserServiceImpl<T> {
@@ -54,7 +55,7 @@ impl<T> SupabaseUserServiceImpl<T> {
     Self {
       server,
       realtime_event_handlers,
-      user_update_rx: RwLock::new(user_update_rx),
+      user_update_rx: ArcSwapOption::from(user_update_rx.map(Arc::new)),
     }
   }
 }
@@ -304,7 +305,8 @@ where
   }
 
   fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
-    self.user_update_rx.write().take()
+    let rx = self.user_update_rx.swap(None)?;
+    Arc::into_inner(rx)
   }
 
   fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), FlowyError> {
@@ -645,7 +647,7 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
       serde_json::from_value::<RealtimeCollabUpdateEvent>(event.new.clone())
     {
       if let Some(sender_by_oid) = self.sender_by_oid.upgrade() {
-        if let Some(sender) = sender_by_oid.read().get(collab_update.oid.as_str()) {
+        if let Some(sender) = sender_by_oid.get(collab_update.oid.as_str()) {
           tracing::trace!(
             "current device: {}, event device: {}",
             self.device_id,
