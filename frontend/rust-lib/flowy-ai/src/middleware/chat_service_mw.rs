@@ -16,6 +16,8 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 use crate::local_ai::stream_util::LocalAIStreamAdaptor;
+use crate::stream_message::StreamMessage;
+use futures_util::SinkExt;
 use serde_json::json;
 use std::path::Path;
 use std::sync::Arc;
@@ -50,10 +52,22 @@ impl AICloudServiceMiddleware {
     metadata_list: &[ChatMessageMetadata],
     index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> Result<(), FlowyError> {
-    self
-      .local_llm_controller
-      .index_message_metadata(chat_id, metadata_list, index_process_sink)
-      .await?;
+    if metadata_list.is_empty() {
+      return Ok(());
+    }
+    if self.is_local_ai_enabled() {
+      let _ = index_process_sink
+        .send(StreamMessage::IndexStart.to_string())
+        .await;
+      self
+        .local_llm_controller
+        .index_message_metadata(chat_id, metadata_list, index_process_sink)
+        .await?;
+      let _ = index_process_sink
+        .send(StreamMessage::IndexEnd.to_string())
+        .await;
+    } else {
+    }
     Ok(())
   }
 

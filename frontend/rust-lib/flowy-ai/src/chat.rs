@@ -89,6 +89,15 @@ impl Chat {
     if message.len() > 2000 {
       return Err(FlowyError::text_too_long().with_context("Exceeds maximum message 2000 length"));
     }
+
+    trace!(
+      "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}",
+      self.chat_id,
+      message,
+      message_type,
+      metadata
+    );
+
     // clear
     self
       .stop_stream
@@ -101,12 +110,7 @@ impl Chat {
     let workspace_id = self.user_service.workspace_id()?;
 
     let _ = question_sink
-      .send(
-        StreamMessage::Text {
-          text: message.to_string(),
-        }
-        .to_string(),
-      )
+      .send(StreamMessage::Text(message.to_string()).to_string())
       .await;
     let question = self
       .chat_service
@@ -124,31 +128,18 @@ impl Chat {
       })?;
 
     let _ = question_sink
-      .send(
-        StreamMessage::MessageId {
-          message_id: question.message_id,
-        }
-        .to_string(),
-      )
+      .send(StreamMessage::MessageId(question.message_id).to_string())
       .await;
-
-    if self.chat_service.is_local_ai_enabled() && !metadata.is_empty() {
-      let _ = question_sink
-        .send(StreamMessage::IndexStart.to_string())
-        .await;
-      if let Err(err) = self
-        .chat_service
-        .index_message_metadata(&self.chat_id, &metadata, &mut question_sink)
-        .await
-      {
-        error!("Failed to index file: {}", err);
-      }
-      let _ = question_sink
-        .send(StreamMessage::IndexEnd.to_string())
-        .await;
+    if let Err(err) = self
+      .chat_service
+      .index_message_metadata(&self.chat_id, &metadata, &mut question_sink)
+      .await
+    {
+      error!("Failed to index file: {}", err);
     }
     let _ = question_sink.send(StreamMessage::Done.to_string()).await;
 
+    // Save message to disk
     save_chat_message(
       self.user_service.sqlite_connection(uid)?,
       &self.chat_id,
