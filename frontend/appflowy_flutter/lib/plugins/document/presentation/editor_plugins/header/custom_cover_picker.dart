@@ -247,6 +247,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
               size: Size(20, 20),
             ),
             text: FlowyText(
+              lineHeight: 1.0,
               LocaleKeys.document_plugins_cover_pickFromFiles.tr(),
             ),
           ),

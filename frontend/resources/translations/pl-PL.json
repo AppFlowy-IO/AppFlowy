@@ -738,8 +738,8 @@
         "defaultColor": "Domyślny"
       },
       "image": {
-        "copiedToPasteBoard": "Link do obrazu został skopiowany do schowka",
-        "addAnImage": "Dodaj obraz"
+        "addAnImage": "Dodaj obraz",
+        "copiedToPasteBoard": "Link do obrazu został skopiowany do schowka"
       },
       "outline": {
         "addHeadingToCreateOutline": "Dodaj nagłówki, aby utworzyć spis treści."

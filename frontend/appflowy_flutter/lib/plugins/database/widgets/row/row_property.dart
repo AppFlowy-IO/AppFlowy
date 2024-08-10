@@ -294,7 +294,11 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
     return SizedBox(
       height: 30,
       child: FlowyButton(
-        text: FlowyText.medium(text, color: Theme.of(context).hintColor),
+        text: FlowyText.medium(
+          text,
+          lineHeight: 1.0,
+          color: Theme.of(context).hintColor,
+        ),
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         leftIcon: RotatedBox(
           quarterTurns: quarterTurns,
@@ -381,6 +385,7 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
         child: FlowyButton(
           margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
           text: FlowyText.medium(
+            lineHeight: 1.0,
             LocaleKeys.grid_field_newProperty.tr(),
             color: Theme.of(context).hintColor,
           ),

@@ -1,9 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -20,6 +16,9 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_toolbar.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
@@ -49,7 +48,10 @@ void main() {
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
       await tester.editor.showSlashMenu();
-      await tester.editor.tapSlashMenuItemWithName('Photo gallery');
+      await tester.editor.tapSlashMenuItemWithName(
+        LocaleKeys.document_slashMenu_name_photoGallery.tr(),
+        offset: 100,
+      );
       expect(find.byType(MultiImageBlockComponent), findsOneWidget);
       expect(find.byType(MultiImagePlaceholder), findsOneWidget);
 
@@ -144,7 +146,10 @@ void main() {
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
       await tester.editor.showSlashMenu();
-      await tester.editor.tapSlashMenuItemWithName('Photo gallery');
+      await tester.editor.tapSlashMenuItemWithName(
+        LocaleKeys.document_slashMenu_name_photoGallery.tr(),
+        offset: 100,
+      );
       expect(find.byType(MultiImageBlockComponent), findsOneWidget);
       expect(find.byType(MultiImagePlaceholder), findsOneWidget);
 

@@ -1,16 +1,12 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_member_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bubble_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
-import 'package:styled_widget/styled_widget.dart';
 
 class ChatUserMessageBubble extends StatelessWidget {
   const ChatUserMessageBubble({
@@ -33,141 +29,130 @@ class ChatUserMessageBubble extends StatelessWidget {
           .read<ChatMemberBloc>()
           .add(ChatMemberEvent.getMemberInfo(message.author.id));
     }
+    final metadata = message.metadata?[messageMetadataKey] as String?;
 
-    return BlocConsumer<ChatMemberBloc, ChatMemberState>(
-      listenWhen: (previous, current) {
-        return previous.members[message.author.id] !=
-            current.members[message.author.id];
-      },
-      listener: (context, state) {},
-      builder: (context, state) {
-        final member = state.members[message.author.id];
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // _wrapHover(
-            Flexible(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: borderRadius,
-                  color: backgroundColor,
+    return BlocProvider(
+      create: (context) => ChatUserMessageBubbleBloc(
+        message: message,
+        metadata: metadata,
+      ),
+      child: BlocBuilder<ChatUserMessageBubbleBloc, ChatUserMessageBubbleState>(
+        builder: (context, state) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (state.files.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.only(right: defaultAvatarSize + 32),
+                  child: _MessageFileList(files: state.files),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+                const VSpace(6),
+              ],
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: borderRadius,
+                        color: backgroundColor,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: child,
+                      ),
+                    ),
                   ),
-                  child: child,
-                ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: BlocConsumer<ChatMemberBloc, ChatMemberState>(
+                      listenWhen: (previous, current) =>
+                          previous.members[message.author.id] !=
+                          current.members[message.author.id],
+                      listener: (context, state) {},
+                      builder: (context, state) {
+                        final member = state.members[message.author.id];
+                        return ChatUserAvatar(
+                          iconUrl: member?.info.avatarUrl ?? "",
+                          name: member?.info.name ?? "",
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ),
-            // ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ChatUserAvatar(
-                iconUrl: member?.info.avatarUrl ?? "",
-                name: member?.info.name ?? "",
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _MessageFileList extends StatelessWidget {
+  const _MessageFileList({required this.files});
+
+  final List<ChatFile> files;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> children = files
+        .map(
+          (file) => _MessageFile(
+            file: file,
+          ),
+        )
+        .toList();
+
+    return Wrap(
+      direction: Axis.vertical,
+      crossAxisAlignment: WrapCrossAlignment.end,
+      spacing: 6,
+      runSpacing: 6,
+      children: children,
+    );
+  }
+}
+
+class _MessageFile extends StatelessWidget {
+  const _MessageFile({required this.file});
+
+  final ChatFile file;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox.square(dimension: 16, child: file.fileType.icon),
+            const HSpace(6),
+            Flexible(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: FlowyText(
+                  file.fileName,
+                  fontSize: 12,
+                  maxLines: 6,
+                ),
               ),
             ),
           ],
-        );
-      },
-    );
-  }
-}
-
-class ChatUserMessageHover extends StatefulWidget {
-  const ChatUserMessageHover({
-    super.key,
-    required this.child,
-    required this.message,
-  });
-
-  final Widget child;
-  final Message message;
-  final bool autoShowHover = true;
-
-  @override
-  State<ChatUserMessageHover> createState() => _ChatUserMessageHoverState();
-}
-
-class _ChatUserMessageHoverState extends State<ChatUserMessageHover> {
-  bool _isHover = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _isHover = widget.autoShowHover ? false : true;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final List<Widget> children = [
-      DecoratedBox(
-        decoration: const BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: Corners.s6Border,
         ),
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 30),
-          child: widget.child,
-        ),
-      ),
-    ];
-
-    if (_isHover) {
-      if (widget.message is TextMessage) {
-        children.add(
-          EditButton(
-            textMessage: widget.message as TextMessage,
-          ).positioned(right: 0, bottom: 0),
-        );
-      }
-    }
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      opaque: false,
-      onEnter: (p) => setState(() {
-        if (widget.autoShowHover) {
-          _isHover = true;
-        }
-      }),
-      onExit: (p) => setState(() {
-        if (widget.autoShowHover) {
-          _isHover = false;
-        }
-      }),
-      child: Stack(
-        alignment: AlignmentDirectional.centerStart,
-        children: children,
-      ),
-    );
-  }
-}
-
-class EditButton extends StatelessWidget {
-  const EditButton({
-    super.key,
-    required this.textMessage,
-  });
-  final TextMessage textMessage;
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyTooltip(
-      message: LocaleKeys.settings_menu_clickToCopy.tr(),
-      child: FlowyIconButton(
-        width: 24,
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        fillColor: Theme.of(context).cardColor,
-        icon: FlowySvg(
-          FlowySvgs.ai_copy_s,
-          size: const Size.square(14),
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        onPressed: () {},
       ),
     );
   }

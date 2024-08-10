@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/forma
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/page_reference_commands.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_shortcuts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
@@ -146,7 +145,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     customizeFontToolbarItem,
   ];
 
-  late final List<SelectionMenuItem> slashMenuItems;
+  late List<SelectionMenuItem> slashMenuItems;
 
   List<CharacterShortcutEvent> get characterShortcutEvents => [
         // code block
@@ -282,7 +281,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       focusManager = currFocusManager;
       focusManager?.loseFocusNotifier.addListener(_loseFocus);
     }
+
     super.didChangeDependencies();
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+
+    slashMenuItems = _customSlashMenuItems();
   }
 
   @override
@@ -387,42 +394,45 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         editorState: editorState,
         editorScrollController: editorScrollController,
         textDirection: textDirection,
-        tooltipBuilder: (context, id, message, child) => widget.styleCustomizer
-            .buildToolbarItemTooltip(context, id, message, child,),
+        tooltipBuilder: (context, id, message, child) =>
+            widget.styleCustomizer.buildToolbarItemTooltip(
+          context,
+          id,
+          message,
+          child,
+        ),
         child: editor,
       ),
     );
   }
 
   List<SelectionMenuItem> _customSlashMenuItems() {
-    final items = [...standardSelectionMenuItems];
-    final imageItem = items
-        .firstWhereOrNull((e) => e.name == AppFlowyEditorL10n.current.image);
-    if (imageItem != null) {
-      final imageItemIndex = items.indexOf(imageItem);
-      if (imageItemIndex != -1) {
-        items[imageItemIndex] = customImageMenuItem;
-      }
-    }
     return [
-      ...items,
-      inlineGridMenuItem(documentBloc),
-      referencedGridMenuItem,
-      inlineBoardMenuItem(documentBloc),
-      referencedBoardMenuItem,
-      inlineCalendarMenuItem(documentBloc),
-      referencedCalendarMenuItem,
-      referencedDocumentMenuItem,
-      calloutItem,
-      outlineItem,
-      mathEquationItem,
-      codeBlockItem(LocaleKeys.document_selectionMenu_codeBlock.tr()),
-      toggleListBlockItem,
-      emojiMenuItem,
-      autoGeneratorMenuItem,
-      dateMenuItem,
-      multiImageMenuItem,
-      fileMenuItem,
+      aiWriterSlashMenuItem,
+      textSlashMenuItem,
+      heading1SlashMenuItem,
+      heading2SlashMenuItem,
+      heading3SlashMenuItem,
+      imageSlashMenuItem,
+      bulletedListSlashMenuItem,
+      numberedListSlashMenuItem,
+      quoteSlashMenuItem,
+      referencedDocSlashMenuItem,
+      gridSlashMenuItem(documentBloc),
+      referencedGridSlashMenuItem,
+      kanbanSlashMenuItem(documentBloc),
+      referencedKanbanSlashMenuItem,
+      calendarSlashMenuItem(documentBloc),
+      referencedCalendarSlashMenuItem,
+      calloutSlashMenuItem,
+      outlineSlashMenuItem,
+      mathEquationSlashMenuItem,
+      codeBlockSlashMenuItem,
+      toggleListSlashMenuItem,
+      emojiSlashMenuItem,
+      dateOrReminderSlashMenuItem,
+      photoGallerySlashMenuItem,
+      fileSlashMenuItem,
     ];
   }
 

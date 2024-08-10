@@ -107,6 +107,7 @@ class _DeleteTag extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(
+          lineHeight: 1.0,
           LocaleKeys.grid_selectOption_deleteTag.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.delete_s),
@@ -230,6 +231,7 @@ class _SelectOptionColorCell extends StatelessWidget {
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         text: FlowyText.medium(
+          lineHeight: 1.0,
           color.colorName(),
           color: AFThemeExtension.of(context).textColor,
         ),

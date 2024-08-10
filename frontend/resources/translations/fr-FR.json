@@ -1017,8 +1017,8 @@
         "depth": "Profond"
       },
       "image": {
-        "copiedToPasteBoard": "Le lien de l'image a été copié dans le presse-papiers",
         "addAnImage": "Ajouter une image",
+        "copiedToPasteBoard": "Le lien de l'image a été copié dans le presse-papiers",
         "imageUploadFailed": "Téléchargement de l'image échoué"
       },
       "urlPreview": {

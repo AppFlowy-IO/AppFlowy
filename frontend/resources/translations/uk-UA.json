@@ -611,8 +611,8 @@
         "defaultColor": "За замовчуванням"
       },
       "image": {
-        "copiedToPasteBoard": "Посилання на зображення скопійовано в буфер обміну",
-        "addAnImage": "Додати зображення"
+        "addAnImage": "Додати зображення",
+        "copiedToPasteBoard": "Посилання на зображення скопійовано в буфер обміну"
       },
       "outline": {
         "addHeadingToCreateOutline": "Додайте заголовки, щоб створити зміст."

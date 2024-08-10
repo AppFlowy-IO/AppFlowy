@@ -363,7 +363,6 @@ class _CurrentPathState extends State<_CurrentPath> {
                   resetHoverOnRebuild: false,
                   builder: (_, isHovering) => FlowyText.regular(
                     widget.path,
-                    lineHeight: 1.5,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     decoration: isHovering ? TextDecoration.underline : null,

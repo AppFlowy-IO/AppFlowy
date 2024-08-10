@@ -176,6 +176,7 @@ class DatabaseViewSettingTile extends StatelessWidget {
         return Row(
           children: [
             FlowyText(
+              lineHeight: 1.0,
               databaseLayoutFromViewLayout(view.layout).layoutName,
               color: Theme.of(context).hintColor,
             ),

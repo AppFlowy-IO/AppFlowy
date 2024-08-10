@@ -742,7 +742,6 @@
       "autoGeneratorCantGetOpenAIKey": "نەتوانرا کلیلی AI بەدەست بهێنرێت",
       "autoGeneratorRewrite": "دووبارە نووسینەوە",
       "smartEdit": "یاریدەدەری زیرەک",
-      "openAI": "AI ژیری دەستکرد",
       "smartEditFixSpelling": "ڕاستکردنەوەی نووسین",
       "warning": "⚠️ وەڵامەکانی AI دەتوانن هەڵە یان چەواشەکارانە بن",
       "smartEditSummarize": "کورتەنووسی",
@@ -805,7 +804,8 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "بۆ دروستکردنی خشتەی ناوەڕۆک سەردێڕەکان داخڵ بکە"
-      }
+      },
+      "openAI": "AI ژیری دەستکرد"
     },
     "textBlock": {
       "placeholder": "بۆ فەرمانەکان '/' بنووسە"

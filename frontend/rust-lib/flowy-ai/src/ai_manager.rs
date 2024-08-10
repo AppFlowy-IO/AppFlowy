@@ -23,7 +23,7 @@ pub trait AIUserService: Send + Sync + 'static {
   fn device_id(&self) -> Result<String, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
-  fn data_root_dir(&self) -> Result<PathBuf, FlowyError>;
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
 pub struct AIManager {
@@ -91,10 +91,6 @@ impl AIManager {
     Ok(())
   }
 
-  pub fn is_using_local_ai(&self) -> bool {
-    self.local_ai_controller.is_running()
-  }
-
   pub async fn delete_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
     if let Some((_, chat)) = self.chats.remove(chat_id) {
       chat.close();
@@ -148,12 +144,19 @@ impl AIManager {
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    text_stream_port: i64,
+    answer_stream_port: i64,
+    question_stream_port: i64,
     metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     let question = chat
-      .stream_chat_message(message, message_type, text_stream_port, metadata)
+      .stream_chat_message(
+        message,
+        message_type,
+        answer_stream_port,
+        question_stream_port,
+        metadata,
+      )
       .await?;
     Ok(question)
   }

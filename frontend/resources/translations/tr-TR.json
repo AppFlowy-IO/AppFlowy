@@ -661,10 +661,10 @@
         "localAIStopped": "Yerel Yapay Zeka durduruldu",
         "failToLoadLocalAI": "Yerel Yapay Zeka başlatılamadı",
         "restartLocalAI": "Yerel Yapay Zeka'yı Yeniden Başlat",
-        "disableLocalAIDialog": "Yerel Yapay Zeka'yı devre dışı bırakmak istiyor musunuz?",
         "localAIToggleTitle": "Yerel Yapay Zeka'yı etkinleştirmek veya devre dışı bırakmak için değiştirin",
-        "fetchLocalModel": "Yerel model yapılandırmasını getir",
-        "openModelDirectory": "Klasörü aç"
+        "openModelDirectory": "Klasörü aç",
+        "disableLocalAIDialog": "Yerel Yapay Zeka'yı devre dışı bırakmak istiyor musunuz?",
+        "fetchLocalModel": "Yerel model yapılandırmasını getir"
       }
     },
     "planPage": {
@@ -808,8 +808,8 @@
         "itemFive": "Mobil uygulama",
         "itemSix": "Yapay Zeka Yanıtları",
         "tooltipSix": "Ömür boyu, yanıt sayısının asla sıfırlanmayacağı anlamına gelir",
-        "itemSeven": "Özel ad alanı",
-        "tooltipSeven": "Çalışma alanınız için URL'nin bir bölümünü özelleştirmenize olanak tanır"
+        "tooltipSeven": "Çalışma alanınız için URL'nin bir bölümünü özelleştirmenize olanak tanır",
+        "itemSeven": "Özel ad alanı"
       },
       "freeLabels": {
         "itemOne": "çalışma alanı başına ücretlendirilir",
@@ -818,7 +818,7 @@
         "itemFour": "evet",
         "itemFive": "evet",
         "itemSix": "100 ömür boyu",
-        "itemSeven": ""
+        "itemSeven": " "
       },
       "proLabels": {
         "itemOne": "çalışma alanı başına ücretlendirilir",
@@ -827,7 +827,7 @@
         "itemFour": "evet",
         "itemFive": "evet",
         "itemSix": "sınırsız",
-        "itemSeven": ""
+        "itemSeven": " "
       },
       "paymentSuccess": {
         "title": "Artık {} planındasınız!",

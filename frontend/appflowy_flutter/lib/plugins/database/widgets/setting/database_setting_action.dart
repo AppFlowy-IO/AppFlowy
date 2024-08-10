@@ -82,6 +82,7 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           text: FlowyText.medium(
             title(),
+            lineHeight: 1.0,
             color: AFThemeExtension.of(context).textColor,
           ),
           leftIcon: FlowySvg(
