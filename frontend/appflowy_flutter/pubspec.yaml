@@ -124,7 +124,7 @@ dependencies:
   image_gallery_saver: ^2.0.3
   cached_network_image: ^3.3.0
   leak_tracker: ^10.0.0
-  keyboard_height_plugin: ^0.0.5
+  keyboard_height_plugin: ^0.1.5
   scrollable_positioned_list: ^0.3.8
   flutter_cache_manager: ^3.3.1
   share_plus: ^7.2.1
@@ -199,7 +199,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "0317779"
+      ref: "3d6aff0"
 
   appflowy_editor_plugins:
     git:

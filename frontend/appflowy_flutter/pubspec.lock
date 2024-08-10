@@ -53,8 +53,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "0317779"
-      resolved-ref: "031777941ce53fe1aaa9a23177f6045b142e6e73"
+      ref: "3d6aff0"
+      resolved-ref: "3d6aff0d21de96411675417ab952f315cc949c7a"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "3.1.0"
@@ -1198,10 +1198,10 @@ packages:
     dependency: "direct main"
     description:
       name: keyboard_height_plugin
-      sha256: bbb32804bf93601249c17c33125cd2e654f5ef650fc6acf1b031d69b478b35ce
+      sha256: "3a51c8ebb43465ebe0b3bad17f3b6d945421e58011f3f5a08134afe69a3d775f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "0.1.5"
   leak_tracker:
     dependency: "direct main"
     description:
@@ -1694,10 +1694,10 @@ packages:
     dependency: transitive
     description:
       name: qr
-      sha256: "64957a3930367bf97cc211a5af99551d630f2f4625e38af10edd6b19131b64b3"
+      sha256: "5a1d2586170e172b8a8c8470bbbffd5eb0cd38a66c0d77155ea138d3af3a4445"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "3.0.2"
   realtime_client:
     dependency: transitive
     description:
