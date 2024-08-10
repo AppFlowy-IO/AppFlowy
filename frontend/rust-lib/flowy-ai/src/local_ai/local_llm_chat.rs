@@ -361,7 +361,7 @@ impl LocalAIController {
               chat_id,
               Some(file_path.to_path_buf()),
               None,
-              &metadata,
+              metadata,
               &index_metadata,
               index_process_sink,
             )
@@ -377,7 +377,7 @@ impl LocalAIController {
             chat_id,
             None,
             Some(metadata.data.content.clone()),
-            &metadata,
+            metadata,
             &index_metadata,
             index_process_sink,
           )
