@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
@@ -7,7 +5,7 @@ import 'package:appflowy/plugins/shared/share/share_menu.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ShareMenuButton extends StatelessWidget {
@@ -55,18 +53,17 @@ class _ShareButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RoundedTextButton(
-      title: LocaleKeys.shareAction_buttonText.tr(),
-      padding: const EdgeInsets.symmetric(horizontal: 14.0),
-      fontSize: 14.0,
-      fontWeight: FontWeight.w500,
-      borderRadius: const BorderRadius.all(
-        Radius.circular(10.0),
+    return FlowyButton(
+      text: FlowyText(
+        LocaleKeys.shareAction_buttonText.tr(),
+        fontSize: 14.0,
+        fontWeight: FontWeight.w500,
+        color: Theme.of(context).colorScheme.onPrimary,
       ),
-      textColor: Theme.of(context).colorScheme.onPrimary,
-      onPressed: () {
-        // Do nothing, but it needs to provide an empty action in order to show cursorß
-      },
+      margin: const EdgeInsets.symmetric(horizontal: 14.0),
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+      radius: BorderRadius.circular(10.0),
     );
   }
 }

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/editor_state_paste_node_extension.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log, EditorCopyPaste;
 
 extension PasteFromInAppJson on EditorState {
   Future<bool> pasteInAppJson(String inAppJson) async {

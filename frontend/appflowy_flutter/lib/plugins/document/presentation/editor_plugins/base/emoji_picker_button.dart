@@ -20,6 +20,7 @@ class EmojiPickerButton extends StatelessWidget {
     this.title,
     this.showBorder = true,
     this.enable = true,
+    this.margin,
   });
 
   final String emoji;
@@ -33,6 +34,7 @@ class EmojiPickerButton extends StatelessWidget {
   final String? title;
   final bool showBorder;
   final bool enable;
+  final EdgeInsets? margin;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +46,7 @@ class EmojiPickerButton extends StatelessWidget {
           height: emojiPickerSize.height,
         ),
         offset: offset,
+        margin: EdgeInsets.zero,
         direction: direction ?? PopoverDirection.rightWithTopAligned,
         popupBuilder: (_) => Container(
           width: emojiPickerSize.width,
@@ -79,15 +82,16 @@ class EmojiPickerButton extends StatelessWidget {
       );
     }
 
-    return FlowyTextButton(
-      emoji,
-      overflow: TextOverflow.visible,
-      fontSize: emojiSize,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints.tightFor(width: 36.0),
-      fillColor: Colors.transparent,
-      mainAxisAlignment: MainAxisAlignment.center,
-      onPressed: enable
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      margin:
+          margin ?? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+      text: FlowyText.emoji(
+        emoji,
+        fontSize: emojiSize,
+        optimizeEmojiAlign: true,
+      ),
+      onTap: enable
           ? () async {
               final result = await context.push<EmojiPickerResult>(
                 Uri(
