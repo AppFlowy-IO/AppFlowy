@@ -105,16 +105,29 @@ class QuestionStream {
           if (_onData != null) {
             _onData!(_text);
           }
+        } else if (event.startsWith("message_id:")) {
+          final messageId = event.substring(11);
+          _onMessageId?.call(messageId);
+        } else if (event.startsWith("start_index_file:")) {
+          final indexName = event.substring(12);
+          _onFileIndexStart?.call(indexName);
+        } else if (event.startsWith("end_index_file:")) {
+          final indexName = event.substring(9);
+          _onFileIndexEnd?.call(indexName);
+        } else if (event.startsWith("index_file_error:")) {
+          final indexName = event.substring(11);
+          _onFileIndexError?.call(indexName);
+        } else if (event.startsWith("index_start:")) {
+          _onIndexStart?.call();
+        } else if (event.startsWith("index_end:")) {
+          _onIndexEnd?.call();
+        } else if (event.startsWith("done:")) {
+          _onDone?.call();
         } else if (event.startsWith("error:")) {
           _error = event.substring(5);
           if (_onError != null) {
             _onError!(_error!);
           }
-        }
-      },
-      onDone: () {
-        if (_onEnd != null) {
-          _onEnd!();
         }
       },
       onError: (error) {
@@ -134,9 +147,14 @@ class QuestionStream {
 
   // Callbacks
   void Function(String text)? _onData;
-  void Function()? _onStart;
-  void Function()? _onEnd;
   void Function(String error)? _onError;
+  void Function(String messageId)? _onMessageId;
+  void Function(String indexName)? _onFileIndexStart;
+  void Function(String indexName)? _onFileIndexEnd;
+  void Function(String indexName)? _onFileIndexError;
+  void Function()? _onIndexStart;
+  void Function()? _onIndexEnd;
+  void Function()? _onDone;
 
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
@@ -151,17 +169,25 @@ class QuestionStream {
 
   void listen({
     void Function(String text)? onData,
-    void Function()? onStart,
-    void Function()? onEnd,
     void Function(String error)? onError,
+    void Function(String messageId)? onMessageId,
+    void Function(String indexName)? onFileIndexStart,
+    void Function(String indexName)? onFileIndexEnd,
+    void Function(String indexName)? onFileIndexFail,
+    void Function()? onIndexStart,
+    void Function()? onIndexEnd,
+    void Function()? onDone,
   }) {
     _onData = onData;
-    _onStart = onStart;
-    _onEnd = onEnd;
     _onError = onError;
+    _onMessageId = onMessageId;
 
-    if (_onStart != null) {
-      _onStart!();
-    }
+    _onFileIndexStart = onFileIndexStart;
+    _onFileIndexEnd = onFileIndexEnd;
+    _onFileIndexError = onFileIndexFail;
+
+    _onIndexStart = onIndexStart;
+    _onIndexEnd = onIndexEnd;
+    _onDone = onDone;
   }
 }

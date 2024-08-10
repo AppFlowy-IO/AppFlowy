@@ -5,6 +5,7 @@ use crate::entities::{
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::notification::{make_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
+use crate::stream_message::StreamMessage;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, MessageCursor,
@@ -99,6 +100,14 @@ impl Chat {
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
 
+    let _ = question_sink
+      .send(
+        StreamMessage::Text {
+          text: message.to_string(),
+        }
+        .to_string(),
+      )
+      .await;
     let question = self
       .chat_service
       .create_question(
@@ -113,10 +122,20 @@ impl Chat {
         error!("Failed to send question: {}", err);
         FlowyError::server_error()
       })?;
+
     let _ = question_sink
-      .send(format!("data:{}", question.content))
+      .send(
+        StreamMessage::MessageId {
+          message_id: question.message_id,
+        }
+        .to_string(),
+      )
       .await;
+
     if self.chat_service.is_local_ai_enabled() && !metadata.is_empty() {
+      let _ = question_sink
+        .send(StreamMessage::IndexStart.to_string())
+        .await;
       if let Err(err) = self
         .chat_service
         .index_message_metadata(&self.chat_id, &metadata, &mut question_sink)
@@ -124,8 +143,11 @@ impl Chat {
       {
         error!("Failed to index file: {}", err);
       }
+      let _ = question_sink
+        .send(StreamMessage::IndexEnd.to_string())
+        .await;
     }
-    let _ = question_sink.send("done:").await;
+    let _ = question_sink.send(StreamMessage::Done.to_string()).await;
 
     save_chat_message(
       self.user_service.sqlite_connection(uid)?,

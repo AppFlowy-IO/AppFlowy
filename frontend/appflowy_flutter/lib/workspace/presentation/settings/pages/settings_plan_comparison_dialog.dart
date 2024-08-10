@@ -626,7 +626,6 @@ class _Heading extends StatelessWidget {
                   description!,
                   fontSize: 12,
                   maxLines: 5,
-                  lineHeight: 1.5,
                 ),
               ),
             ],

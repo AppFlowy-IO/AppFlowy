@@ -16,6 +16,7 @@ use futures::Sink;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 
+use crate::stream_message::StreamMessage;
 use futures_util::SinkExt;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
@@ -358,7 +359,12 @@ impl LocalAIController {
           ChatMetadataContentType::Text | ChatMetadataContentType::Markdown => {
             if metadata.data.validate() {
               let _ = index_process_sink
-                .send(format!("index_start:{}", metadata.name))
+                .send(
+                  StreamMessage::StartIndexFile {
+                    file_name: metadata.name.clone(),
+                  }
+                  .to_string(),
+                )
                 .await;
 
               match self
@@ -372,12 +378,25 @@ impl LocalAIController {
               {
                 Ok(_) => {
                   let _ = index_process_sink
-                    .send(format!("index_end:{}", metadata.name))
+                    .send(
+                      StreamMessage::EndIndexFile {
+                        file_name: metadata.name.clone(),
+                      }
+                      .to_string(),
+                    )
                     .await;
                 },
                 Err(err) => {
                   let _ = index_process_sink
-                    .send(format!("index_fail:{}", metadata.name))
+                    .send(format!("index_file_error:{}", metadata.name))
+                    .await;
+                  let _ = index_process_sink
+                    .send(
+                      StreamMessage::IndexFileError {
+                        file_name: metadata.name.clone(),
+                      }
+                      .to_string(),
+                    )
                     .await;
                   error!("[AI Plugin] failed to index file: {:?}", err);
                 },
@@ -395,7 +414,12 @@ impl LocalAIController {
           let file_path = Path::new(url);
           if file_path.exists() {
             let _ = index_process_sink
-              .send(format!("index_start:{}", metadata.name))
+              .send(
+                StreamMessage::StartIndexFile {
+                  file_name: metadata.name.clone(),
+                }
+                .to_string(),
+              )
               .await;
 
             match self
@@ -408,13 +432,21 @@ impl LocalAIController {
               .await
             {
               Ok(_) => {
-                let _ = index_process_sink
-                  .send(format!("index_end:{}", metadata.name))
-                  .await;
+                let _ = index_process_sink.send(
+                  StreamMessage::EndIndexFile {
+                    file_name: metadata.name.clone(),
+                  }
+                  .to_string(),
+                );
               },
               Err(err) => {
                 let _ = index_process_sink
-                  .send(format!("index_fail:{}", metadata.name))
+                  .send(
+                    StreamMessage::IndexFileError {
+                      file_name: metadata.name.clone(),
+                    }
+                    .to_string(),
+                  )
                   .await;
                 error!("[AI Plugin] failed to index file: {:?}", err);
               },

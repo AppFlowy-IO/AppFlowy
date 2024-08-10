@@ -319,21 +319,22 @@ class _ChatContentPageState extends State<_ChatContentPage> {
 
   Widget _buildTextMessage(BuildContext context, TextMessage message) {
     if (message.author.id == _user.id) {
+      final stream = message.metadata?["$QuestionStream"];
       final metadata = message.metadata?[messageMetadataKey] as String?;
-      return ChatUserTextMessageWidget(
+      return ChatUserMessageWidget(
+        key: ValueKey(message.id),
         user: message.author,
-        messageUserId: message.id,
-        message: message,
+        message: stream is QuestionStream ? stream : message.text,
         metadata: metadata,
       );
     } else {
       final stream = message.metadata?["$AnswerStream"];
       final questionId = message.metadata?[messageQuestionIdKey];
       final metadata = message.metadata?[messageMetadataKey] as String?;
-      return ChatAITextMessageWidget(
+      return ChatAIMessageWidget(
         user: message.author,
         messageUserId: message.id,
-        text: stream is AnswerStream ? stream : message.text,
+        message: stream is AnswerStream ? stream : message.text,
         key: ValueKey(message.id),
         questionId: questionId,
         chatId: widget.view.id,
