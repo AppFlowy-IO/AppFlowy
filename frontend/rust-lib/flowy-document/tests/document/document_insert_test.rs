@@ -32,11 +32,12 @@ async fn document_apply_insert_block_with_empty_parent_id() {
     },
   };
   document
-    .lock()
+    .write()
+    .await
     .apply_action(vec![insert_text_action])
     .unwrap();
 
   // read the text block and it's parent id should be the page id
-  let block = document.lock().get_block(&text_block_id).unwrap();
+  let block = document.read().await.get_block(&text_block_id).unwrap();
   assert_eq!(block.parent, page_id);
 }

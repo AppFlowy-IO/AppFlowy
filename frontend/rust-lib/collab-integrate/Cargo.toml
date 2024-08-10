@@ -11,6 +11,10 @@ crate-type = ["cdylib", "rlib"]
 collab = { workspace = true }
 collab-plugins = { workspace = true }
 collab-entity = { workspace = true }
+collab-document = { workspace = true }
+collab-folder = { workspace = true }
+collab-user = { workspace = true }
+collab-database = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true

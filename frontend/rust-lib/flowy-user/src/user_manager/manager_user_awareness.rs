@@ -3,11 +3,11 @@ use std::sync::{Arc, Weak};
 
 use anyhow::Context;
 use collab::core::collab::DataSource;
-use collab::preclude::Collab;
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_user::core::UserAwareness;
+use collab_user::core::{UserAwareness, UserAwarenessNotifier};
+use tokio::sync::RwLock;
 use tracing::{debug, error, info, instrument, trace};
 
 use collab_integrate::CollabKVDB;
@@ -166,30 +166,28 @@ impl UserManager {
         let awareness = match result {
           Ok(data) => {
             trace!("Get user awareness collab from remote: {}", data.len());
-            let collab = Self::collab_for_user_awareness(
-              &workspace_id,
+            Self::collab_for_user_awareness(
               &weak_builder,
+              &workspace_id,
               session.user_id,
               &object_id,
               collab_db,
               DataSource::DocStateV1(data),
-            )
-            .await?;
-            UserAwareness::open(collab, None)
+              None,
+            )?
           },
           Err(err) => {
             if err.is_record_not_found() {
               info!("User awareness not found, creating new");
-              let collab = Self::collab_for_user_awareness(
-                &workspace_id,
+              Self::collab_for_user_awareness(
                 &weak_builder,
+                &workspace_id,
                 session.user_id,
                 &object_id,
                 collab_db,
                 DataSource::Disk,
-              )
-              .await?;
-              UserAwareness::open(collab, None)
+                None,
+              )?
             } else {
               error!("Failed to fetch user awareness: {:?}", err);
               return Err(err);
@@ -214,29 +212,29 @@ impl UserManager {
   /// This function constructs a collaboration instance based on the given session and raw data,
   /// using a collaboration builder. This instance is specifically geared towards handling
   /// user awareness.
-  async fn collab_for_user_awareness(
-    workspace_id: &str,
+  fn collab_for_user_awareness(
     collab_builder: &Weak<AppFlowyCollabBuilder>,
+    workspace_id: &str,
     uid: i64,
     object_id: &str,
     collab_db: Weak<CollabKVDB>,
     doc_state: DataSource,
-  ) -> Result<Collab, FlowyError> {
+    notifier: Option<UserAwarenessNotifier>,
+  ) -> Result<Arc<RwLock<UserAwareness>>, FlowyError> {
     let collab_builder = collab_builder.upgrade().ok_or(FlowyError::new(
       ErrorCode::Internal,
       "Unexpected error: collab builder is not available",
     ))?;
+    let collab_object =
+      collab_builder.collab_object(workspace_id, uid, object_id, CollabType::UserAwareness)?;
     let collab = collab_builder
-      .build(
-        workspace_id,
-        uid,
-        object_id,
-        CollabType::UserAwareness,
+      .create_user_awareness(
+        collab_object,
         doc_state,
         collab_db,
         CollabBuilderConfig::default().sync_enable(true),
+        notifier,
       )
-      .await
       .context("Build collab for user awareness failed")?;
     Ok(collab)
   }

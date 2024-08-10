@@ -943,8 +943,12 @@ dependencies = [
  "arc-swap",
  "async-trait",
  "collab",
+ "collab-database",
+ "collab-document",
  "collab-entity",
+ "collab-folder",
  "collab-plugins",
+ "collab-user",
  "futures",
  "lib-infra",
  "serde",
@@ -2126,6 +2130,7 @@ dependencies = [
 name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
+ "arc-swap",
  "async-trait",
  "bytes",
  "chrono",

@@ -15,7 +15,7 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use tokio::sync::{Mutex, RwLock, RwLockMappedWriteGuard, RwLockReadGuard, RwLockWriteGuard};
 use tracing::{event, instrument, trace};
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig, UninitCollab};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,

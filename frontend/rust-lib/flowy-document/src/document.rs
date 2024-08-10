@@ -3,58 +3,11 @@ use crate::entities::{
 };
 use crate::notification::{send_notification, DocumentNotification};
 use collab::preclude::Collab;
-use collab_document::document::DocumentIndexContent;
-use collab_document::{blocks::DocumentData, document::Document};
-use flowy_error::FlowyResult;
+use collab_document::document::Document;
 use futures::StreamExt;
 use lib_dispatch::prelude::af_spawn;
-use std::{
-  ops::{Deref, DerefMut},
-  sync::Arc,
-};
-use tokio::sync::RwLock;
-use tracing::{instrument, warn};
 
-/// This struct wrap the document::Document
-#[derive(Clone)]
-pub struct MutexDocument(Arc<RwLock<Document>>);
-
-impl MutexDocument {
-  /// Open a document with the given collab.
-  /// # Arguments
-  /// * `collab` - the identifier of the collaboration instance
-  ///
-  /// # Returns
-  /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
-  pub fn open(doc_id: &str, collab: Collab) -> FlowyResult<Self> {
-    #[allow(clippy::arc_with_non_send_sync)]
-    let mut document = Document::open(collab)?;
-    subscribe_document_changed(doc_id, &mut document);
-    subscribe_document_snapshot_state(&document);
-    subscribe_document_sync_state(&document);
-    Ok(Self(Arc::new(RwLock::new(document))))
-  }
-
-  /// Creates and returns a new Document object with initial data.
-  /// # Arguments
-  /// * `collab` - the identifier of the collaboration instance
-  /// * `data` - the initial data to include in the document
-  ///
-  /// # Returns
-  /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
-  pub fn create_with_data(collab: Collab, data: DocumentData) -> FlowyResult<Self> {
-    let document = Document::open_with(collab, Some(data))?;
-    Ok(MutexDocument(Arc::new(RwLock::new(document))))
-  }
-
-  #[instrument(level = "debug", skip_all)]
-  pub async fn start_init_sync(&self) {
-    let document = self.0.read().await;
-    document.start_init_sync();
-  }
-}
-
-fn subscribe_document_changed(doc_id: &str, document: &mut Document) {
+pub fn subscribe_document_changed(doc_id: &str, document: &mut Document) {
   let doc_id_clone_for_block_changed = doc_id.to_owned();
   document.subscribe_block_changed("key", move |events, is_remote| {
     #[cfg(feature = "verbose_log")]
@@ -82,7 +35,7 @@ fn subscribe_document_changed(doc_id: &str, document: &mut Document) {
   });
 }
 
-fn subscribe_document_snapshot_state(collab: &Collab) {
+pub fn subscribe_document_snapshot_state(collab: &Collab) {
   let document_id = collab.object_id().to_string();
   let mut snapshot_state = collab.subscribe_snapshot_state();
   af_spawn(async move {
@@ -100,7 +53,7 @@ fn subscribe_document_snapshot_state(collab: &Collab) {
   });
 }
 
-fn subscribe_document_sync_state(collab: &Collab) {
+pub fn subscribe_document_sync_state(collab: &Collab) {
   let document_id = collab.object_id().to_string();
   let mut sync_state_stream = collab.subscribe_sync_state();
   af_spawn(async move {
@@ -113,28 +66,4 @@ fn subscribe_document_sync_state(collab: &Collab) {
       .send();
     }
   });
-}
-
-unsafe impl Sync for MutexDocument {}
-unsafe impl Send for MutexDocument {}
-
-impl Deref for MutexDocument {
-  type Target = Arc<RwLock<Document>>;
-
-  fn deref(&self) -> &Self::Target {
-    &self.0
-  }
-}
-
-impl DerefMut for MutexDocument {
-  fn deref_mut(&mut self) -> &mut Self::Target {
-    &mut self.0
-  }
-}
-
-impl From<&MutexDocument> for DocumentIndexContent {
-  fn from(doc: &MutexDocument) -> Self {
-    let doc = doc.lock();
-    DocumentIndexContent::from(&*doc)
-  }
 }

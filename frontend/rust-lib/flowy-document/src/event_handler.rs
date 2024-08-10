@@ -74,8 +74,8 @@ pub(crate) async fn open_document_handler(
   let doc_id = params.document_id;
   manager.open_document(&doc_id).await?;
 
-  let document = manager.get_opened_document(&doc_id).await?;
-  let document_data = document.lock().get_document_data()?;
+  let document = manager.get_document(&doc_id)?;
+  let document_data = document.read().await.get_document_data()?;
   data_result_ok(DocumentDataPB::from(document_data))
 }
 
@@ -122,12 +122,12 @@ pub(crate) async fn apply_action_handler(
   let manager = upgrade_document(manager)?;
   let params: ApplyActionParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_opened_document(&doc_id).await?;
+  let document = manager.get_document(&doc_id)?;
   let actions = params.actions;
   if cfg!(feature = "verbose_log") {
     tracing::trace!("{} applying actions: {:?}", doc_id, actions);
   }
-  document.lock().apply_action(actions)?;
+  document.write().await.apply_action(actions)?;
   Ok(())
 }
 
@@ -139,8 +139,8 @@ pub(crate) async fn create_text_handler(
   let manager = upgrade_document(manager)?;
   let params: TextDeltaParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_opened_document(&doc_id).await?;
-  let mut document = document.lock();
+  let document = manager.get_document(&doc_id)?;
+  let mut document = document.write().await;
   document.apply_text_delta(&params.text_id, params.delta);
   Ok(())
 }
@@ -153,10 +153,10 @@ pub(crate) async fn apply_text_delta_handler(
   let manager = upgrade_document(manager)?;
   let params: TextDeltaParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_opened_document(&doc_id).await?;
+  let document = manager.get_document(&doc_id)?;
   let text_id = params.text_id;
   let delta = params.delta;
-  let mut document = document.lock();
+  let mut document = document.write().await;
   if cfg!(feature = "verbose_log") {
     tracing::trace!("{} applying delta: {:?}", doc_id, delta);
   }
@@ -194,8 +194,8 @@ pub(crate) async fn redo_handler(
   let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_opened_document(&doc_id).await?;
-  let mut document = document.lock();
+  let document = manager.get_document(&doc_id)?;
+  let mut document = document.write().await;
   let redo = document.redo();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
@@ -213,8 +213,8 @@ pub(crate) async fn undo_handler(
   let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_opened_document(&doc_id).await?;
-  let mut document = document.lock();
+  let document = manager.get_document(&doc_id)?;
+  let mut document = document.write().await;
   let undo = document.undo();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
@@ -232,8 +232,8 @@ pub(crate) async fn can_undo_redo_handler(
   let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_opened_document(&doc_id).await?;
-  let document = document.lock();
+  let document = manager.get_document(&doc_id)?;
+  let document = document.write().await;
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
   drop(document);
@@ -388,8 +388,8 @@ pub async fn convert_document_handler(
   let manager = upgrade_document(manager)?;
   let params: ConvertDocumentParams = data.into_inner().try_into()?;
 
-  let document = manager.get_opened_document(&params.document_id).await?;
-  let document_data = document.lock().get_document_data()?;
+  let document = manager.get_document(&params.document_id)?;
+  let document_data = document.read().await.get_document_data()?;
   let parser = DocumentDataParser::new(Arc::new(document_data), params.range);
 
   if !params.parse_types.any_enabled() {

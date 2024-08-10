@@ -8,8 +8,8 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 impl FolderManager {
-  pub fn get_mutex_folder(&self) -> Arc<RwLock<Option<Folder>>> {
-    self.mutex_folder.clone()
+  pub fn get_mutex_folder(&self) -> Option<Arc<RwLock<Folder>>> {
+    self.mutex_folder.load_full()
   }
 
   pub fn get_cloud_service(&self) -> Arc<dyn FolderCloudService> {

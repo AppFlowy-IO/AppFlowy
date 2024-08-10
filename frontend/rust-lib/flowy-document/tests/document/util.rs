@@ -1,12 +1,14 @@
 use std::ops::Deref;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use anyhow::Error;
 use collab::preclude::CollabPlugin;
 use collab_document::blocks::DocumentData;
+use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use nanoid::nanoid;
 use tempfile::TempDir;
+use tokio::sync::RwLock;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
 use collab_integrate::collab_builder::{
@@ -14,7 +16,6 @@ use collab_integrate::collab_builder::{
   CollabPluginProviderType, WorkspaceCollabIntegrate,
 };
 use collab_integrate::CollabKVDB;
-use flowy_document::document::MutexDocument;
 use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
@@ -102,8 +103,8 @@ impl DocumentUserService for FakeUser {
 }
 
 pub fn setup_log() {
-  static START: Once = Once::new();
-  START.call_once(|| {
+  static START: OnceLock<()> = OnceLock::new();
+  START.get_or_init(|| {
     std::env::set_var("RUST_LOG", "collab_persistence=trace");
     let subscriber = Subscriber::builder()
       .with_env_filter(EnvFilter::from_default_env())
@@ -113,7 +114,7 @@ pub fn setup_log() {
   });
 }
 
-pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocument>, String) {
+pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<RwLock<Document>>, String) {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data(&doc_id);
@@ -125,7 +126,7 @@ pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocumen
     .unwrap();
 
   test.open_document(&doc_id).await.unwrap();
-  let document = test.get_opened_document(&doc_id).await.unwrap();
+  let document = test.get_document(&doc_id).unwrap();
 
   (test, document, data.page_id)
 }

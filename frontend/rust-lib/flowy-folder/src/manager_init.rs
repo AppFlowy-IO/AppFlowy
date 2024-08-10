@@ -3,10 +3,11 @@ use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
 use collab::core::collab::DataSource;
 use collab_entity::{CollabType, EncodedCollab};
-use collab_folder::{Folder, FolderNotify, UserId};
+use collab_folder::{Folder, FolderNotify};
 use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
 use tokio::task::spawn_blocking;
 use tracing::{event, info, Level};
 
@@ -27,7 +28,8 @@ impl FolderManager {
       initial_data
     );
 
-    if let Some(old_folder) = self.mutex_folder.write().await.take() {
+    if let Some(old_folder) = self.mutex_folder.swap(None) {
+      let old_folder = old_folder.read().await;
       old_folder.close();
       info!(
         "remove old folder: {}",
@@ -116,19 +118,20 @@ impl FolderManager {
       },
     };
 
-    let folder_state_rx = folder.subscribe_sync_state();
-    let index_content_rx = folder.subscribe_index_content();
-    self
-      .folder_indexer
-      .set_index_content_receiver(index_content_rx, workspace_id.clone());
-    self.handle_index_folder(workspace_id.clone(), &folder);
+    let folder_state_rx = {
+      let folder = folder.read().await;
+      let folder_state_rx = folder.subscribe_sync_state();
+      let index_content_rx = folder.subscribe_index_content();
+      self
+        .folder_indexer
+        .set_index_content_receiver(index_content_rx, workspace_id.clone());
+      self.handle_index_folder(workspace_id.clone(), &folder);
+      folder_state_rx
+    };
 
-    {
-      let mut lock = self.mutex_folder.write().await;
-      *lock = Some(folder);
-    }
+    self.mutex_folder.store(Some(folder.clone()));
 
-    let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
+    let weak_mutex_folder = Arc::downgrade(&folder);
     subscribe_folder_sync_state_changed(
       workspace_id.clone(),
       folder_state_rx,
@@ -170,7 +173,7 @@ impl FolderManager {
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
     folder_notifier: FolderNotify,
-  ) -> Result<Folder, FlowyError> {
+  ) -> Result<Arc<RwLock<Folder>>, FlowyError> {
     event!(
       Level::INFO,
       "Create folder:{} with default folder builder",
@@ -178,15 +181,16 @@ impl FolderManager {
     );
     let folder_data =
       DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers).await;
-    let collab = self
-      .create_empty_collab(uid, workspace_id, collab_db)
+    let folder = self
+      .create_empty_collab(
+        uid,
+        workspace_id,
+        collab_db,
+        Some(folder_notifier),
+        Some(folder_data),
+      )
       .await?;
-    Ok(Folder::open_with(
-      UserId::from(uid),
-      collab,
-      Some(folder_notifier),
-      Some(folder_data),
-    ))
+    Ok(folder)
   }
 
   fn handle_index_folder(&self, workspace_id: String, folder: &Folder) {
