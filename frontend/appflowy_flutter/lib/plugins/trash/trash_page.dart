@@ -101,7 +101,10 @@ class _TrashPageState extends State<TrashPage> {
           const Spacer(),
           IntrinsicWidth(
             child: FlowyButton(
-              text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr()),
+              text: FlowyText.medium(
+                LocaleKeys.trash_restoreAll.tr(),
+                lineHeight: 1.0,
+              ),
               leftIcon: const FlowySvg(FlowySvgs.restore_s),
               onTap: () {
                 NavigatorAlertDialog(
@@ -118,7 +121,10 @@ class _TrashPageState extends State<TrashPage> {
           const HSpace(6),
           IntrinsicWidth(
             child: FlowyButton(
-              text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr()),
+              text: FlowyText.medium(
+                LocaleKeys.trash_deleteAll.tr(),
+                lineHeight: 1.0,
+              ),
               leftIcon: const FlowySvg(FlowySvgs.delete_s),
               onTap: () {
                 NavigatorAlertDialog(

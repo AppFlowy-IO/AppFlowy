@@ -144,12 +144,19 @@ impl AIManager {
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    text_stream_port: i64,
+    answer_stream_port: i64,
+    question_stream_port: i64,
     metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     let question = chat
-      .stream_chat_message(message, message_type, text_stream_port, metadata)
+      .stream_chat_message(
+        message,
+        message_type,
+        answer_stream_port,
+        question_stream_port,
+        metadata,
+      )
       .await?;
     Ok(question)
   }

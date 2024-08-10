@@ -81,7 +81,8 @@ impl Chat {
     &self,
     message: &str,
     message_type: ChatMessageType,
-    text_stream_port: i64,
+    answer_stream_port: i64,
+    question_stream_port: i64,
     metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
     if message.len() > 2000 {
@@ -93,7 +94,8 @@ impl Chat {
       .store(false, std::sync::atomic::Ordering::SeqCst);
     self.stream_buffer.lock().await.clear();
 
-    let stream_buffer = self.stream_buffer.clone();
+    let mut question_sink = IsolateSink::new(Isolate::new(question_stream_port));
+    let answer_stream_buffer = self.stream_buffer.clone();
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
 
@@ -111,16 +113,19 @@ impl Chat {
         error!("Failed to send question: {}", err);
         FlowyError::server_error()
       })?;
-
-    if self.chat_service.is_local_ai_enabled() {
+    let _ = question_sink
+      .send(format!("data:{}", question.content))
+      .await;
+    if self.chat_service.is_local_ai_enabled() && !metadata.is_empty() {
       if let Err(err) = self
         .chat_service
-        .index_message_metadata(&self.chat_id, &metadata)
+        .index_message_metadata(&self.chat_id, &metadata, &mut question_sink)
         .await
       {
         error!("Failed to index file: {}", err);
       }
     }
+    let _ = question_sink.send("done:").await;
 
     save_chat_message(
       self.user_service.sqlite_connection(uid)?,
@@ -134,7 +139,7 @@ impl Chat {
     let cloud_service = self.chat_service.clone();
     let user_service = self.user_service.clone();
     tokio::spawn(async move {
-      let mut text_sink = IsolateSink::new(Isolate::new(text_stream_port));
+      let mut answer_sink = IsolateSink::new(Isolate::new(answer_stream_port));
       match cloud_service
         .stream_answer(&workspace_id, &chat_id, question_id)
         .await
@@ -149,20 +154,20 @@ impl Chat {
                 }
                 match message {
                   QuestionStreamValue::Answer { value } => {
-                    stream_buffer.lock().await.push_str(&value);
-                    let _ = text_sink.send(format!("data:{}", value)).await;
+                    answer_stream_buffer.lock().await.push_str(&value);
+                    let _ = answer_sink.send(format!("data:{}", value)).await;
                   },
                   QuestionStreamValue::Metadata { value } => {
                     if let Ok(s) = serde_json::to_string(&value) {
-                      stream_buffer.lock().await.set_metadata(value);
-                      let _ = text_sink.send(format!("metadata:{}", s)).await;
+                      answer_stream_buffer.lock().await.set_metadata(value);
+                      let _ = answer_sink.send(format!("metadata:{}", s)).await;
                     }
                   },
                 }
               },
               Err(err) => {
                 error!("[Chat] failed to stream answer: {}", err);
-                let _ = text_sink.send(format!("error:{}", err)).await;
+                let _ = answer_sink.send(format!("error:{}", err)).await;
                 let pb = ChatMessageErrorPB {
                   chat_id: chat_id.clone(),
                   error_message: err.to_string(),
@@ -178,9 +183,9 @@ impl Chat {
         Err(err) => {
           error!("[Chat] failed to stream answer: {}", err);
           if err.is_ai_response_limit_exceeded() {
-            let _ = text_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
+            let _ = answer_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
           } else {
-            let _ = text_sink.send(format!("error:{}", err)).await;
+            let _ = answer_sink.send(format!("error:{}", err)).await;
           }
 
           let pb = ChatMessageErrorPB {
@@ -195,11 +200,11 @@ impl Chat {
       }
 
       make_notification(&chat_id, ChatNotification::FinishStreaming).send();
-      if stream_buffer.lock().await.is_empty() {
+      if answer_stream_buffer.lock().await.is_empty() {
         return Ok(());
       }
-      let content = stream_buffer.lock().await.take_content();
-      let metadata = stream_buffer.lock().await.take_metadata();
+      let content = answer_stream_buffer.lock().await.take_content();
+      let metadata = answer_stream_buffer.lock().await.take_metadata();
 
       let answer = cloud_service
         .create_answer(&workspace_id, &chat_id, &content, question_id, metadata)

@@ -23,6 +23,7 @@ class GridAddRowButton extends StatelessWidget {
         ),
       ),
       text: FlowyText(
+        lineHeight: 1.0,
         LocaleKeys.grid_row_newRow.tr(),
         color: Theme.of(context).hintColor,
       ),

@@ -11,7 +11,7 @@ use flowy_ai_pub::cloud::{
   RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use futures::{stream, StreamExt, TryStreamExt};
+use futures::{stream, Sink, StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
@@ -48,10 +48,11 @@ impl AICloudServiceMiddleware {
     &self,
     chat_id: &str,
     metadata_list: &[ChatMessageMetadata],
+    index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> Result<(), FlowyError> {
     self
       .local_llm_controller
-      .index_message_metadata(chat_id, metadata_list)
+      .index_message_metadata(chat_id, metadata_list, index_process_sink)
       .await?;
     Ok(())
   }

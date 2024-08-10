@@ -61,6 +61,7 @@ class RelationTypeOptionEditorFactory implements TypeOptionEditorFactory {
                           (meta) => meta.databaseId == typeOption.databaseId,
                         );
                         return FlowyText(
+                          lineHeight: 1.0,
                           databaseMeta == null
                               ? LocaleKeys
                                   .grid_relation_relatedDatabasePlaceholder
@@ -134,6 +135,7 @@ class _DatabaseList extends StatelessWidget {
             child: FlowyButton(
               onTap: () => onSelectDatabase(meta.databaseId),
               text: FlowyText.medium(
+                lineHeight: 1.0,
                 meta.databaseName,
                 overflow: TextOverflow.ellipsis,
               ),

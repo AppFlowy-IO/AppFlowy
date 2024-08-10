@@ -16,6 +16,7 @@ use futures::Sink;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 
+use futures_util::SinkExt;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -344,6 +345,7 @@ impl LocalAIController {
     &self,
     chat_id: &str,
     metadata_list: &[ChatMessageMetadata],
+    index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> FlowyResult<()> {
     for metadata in metadata_list {
       let mut index_metadata = HashMap::new();
@@ -355,7 +357,11 @@ impl LocalAIController {
         None => match &metadata.data.content_type {
           ChatMetadataContentType::Text | ChatMetadataContentType::Markdown => {
             if metadata.data.validate() {
-              if let Err(err) = self
+              let _ = index_process_sink
+                .send(format!("index_start:{}", metadata.name))
+                .await;
+
+              match self
                 .index_file(
                   chat_id,
                   None,
@@ -364,7 +370,17 @@ impl LocalAIController {
                 )
                 .await
               {
-                error!("[AI Plugin] failed to index file: {:?}", err);
+                Ok(_) => {
+                  let _ = index_process_sink
+                    .send(format!("index_end:{}", metadata.name))
+                    .await;
+                },
+                Err(err) => {
+                  let _ = index_process_sink
+                    .send(format!("index_fail:{}", metadata.name))
+                    .await;
+                  error!("[AI Plugin] failed to index file: {:?}", err);
+                },
               }
             }
           },
@@ -378,7 +394,11 @@ impl LocalAIController {
         Some(url) => {
           let file_path = Path::new(url);
           if file_path.exists() {
-            if let Err(err) = self
+            let _ = index_process_sink
+              .send(format!("index_start:{}", metadata.name))
+              .await;
+
+            match self
               .index_file(
                 chat_id,
                 Some(file_path.to_path_buf()),
@@ -387,7 +407,17 @@ impl LocalAIController {
               )
               .await
             {
-              error!("[AI Plugin] failed to index file: {:?}", err);
+              Ok(_) => {
+                let _ = index_process_sink
+                  .send(format!("index_end:{}", metadata.name))
+                  .await;
+              },
+              Err(err) => {
+                let _ = index_process_sink
+                  .send(format!("index_fail:{}", metadata.name))
+                  .await;
+                error!("[AI Plugin] failed to index file: {:?}", err);
+              },
             }
           }
         },

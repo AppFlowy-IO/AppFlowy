@@ -173,6 +173,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
         ),
         radius: BorderRadius.circular(10),
         text: FlowyText.regular(
+          lineHeight: 1.0,
           LocaleKeys.shareAction_unPublish.tr(),
           textAlign: TextAlign.center,
         ),

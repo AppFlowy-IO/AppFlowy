@@ -87,6 +87,7 @@ class _AddFilterButtonState extends State<AddFilterButton> {
         height: 28,
         child: FlowyButton(
           text: FlowyText(
+            lineHeight: 1.0,
             LocaleKeys.grid_settings_addFilter.tr(),
             color: AFThemeExtension.of(context).textColor,
           ),

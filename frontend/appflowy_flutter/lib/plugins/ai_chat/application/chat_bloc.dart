@@ -358,13 +358,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
 
     final answerStream = AnswerStream();
+    final questionStream = QuestionStream();
     add(ChatEvent.didUpdateAnswerStream(answerStream));
 
     final payload = StreamChatPayloadPB(
       chatId: state.view.id,
       message: message,
       messageType: ChatMessageTypePB.User,
-      textStreamPort: Int64(answerStream.nativePort),
+      questionStreamPort: Int64(questionStream.nativePort),
+      answerStreamPort: Int64(answerStream.nativePort),
       metadata: await metadataPBFromMetadata(metadata),
     );
 

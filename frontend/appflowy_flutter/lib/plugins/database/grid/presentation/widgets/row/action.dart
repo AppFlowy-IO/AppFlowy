@@ -51,7 +51,11 @@ class RowActionMenu extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(action.text, overflow: TextOverflow.ellipsis),
+        text: FlowyText.medium(
+          action.text,
+          overflow: TextOverflow.ellipsis,
+          lineHeight: 1.0,
+        ),
         onTap: () {
           if (action == RowAction.delete) {
             NavigatorOkCancelDialog(

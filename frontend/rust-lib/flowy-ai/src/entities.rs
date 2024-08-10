@@ -61,9 +61,12 @@ pub struct StreamChatPayloadPB {
   pub message_type: ChatMessageTypePB,
 
   #[pb(index = 4)]
-  pub text_stream_port: i64,
+  pub answer_stream_port: i64,
 
   #[pb(index = 5)]
+  pub question_stream_port: i64,
+
+  #[pb(index = 6)]
   pub metadata: Vec<ChatMessageMetaPB>,
 }
 

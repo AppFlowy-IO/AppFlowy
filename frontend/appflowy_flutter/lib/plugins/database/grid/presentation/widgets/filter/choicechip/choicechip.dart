@@ -39,6 +39,7 @@ class ChoiceChipButton extends StatelessWidget {
         decoration: decoration,
         useIntrinsicWidth: true,
         text: FlowyText(
+          lineHeight: 1.0,
           filterInfo.fieldInfo.field.name,
           color: AFThemeExtension.of(context).textColor,
         ),
