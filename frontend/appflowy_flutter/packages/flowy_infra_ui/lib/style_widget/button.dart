@@ -158,6 +158,7 @@ class FlowyButton extends StatelessWidget {
   final double iconPadding;
   final bool expand;
   final Color? borderColor;
+  final Color? backgroundColor;
 
   const FlowyButton({
     super.key,
@@ -182,6 +183,7 @@ class FlowyButton extends StatelessWidget {
     this.iconPadding = 6,
     this.expand = false,
     this.borderColor,
+    this.backgroundColor,
   });
 
   @override
@@ -210,6 +212,7 @@ class FlowyButton extends StatelessWidget {
           borderRadius: radius ?? Corners.s6Border,
           hoverColor: color,
           borderColor: borderColor ?? Colors.transparent,
+          backgroundColor: backgroundColor ?? Colors.transparent,
         ),
         onHover: disable ? null : onHover,
         isSelected: () => isSelected,
