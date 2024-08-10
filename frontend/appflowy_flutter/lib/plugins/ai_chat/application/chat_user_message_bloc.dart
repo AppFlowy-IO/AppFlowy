@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -36,6 +37,15 @@ class ChatUserMessageBloc
                 if (!isClosed) {
                   add(ChatUserMessageEvent.receiveError(error.toString()));
                 }
+              },
+              onFileIndexStart: (indexName) {
+                Log.debug("index start: $indexName");
+              },
+              onFileIndexEnd: (indexName) {
+                Log.info("index end: $indexName");
+              },
+              onFileIndexFail: (indexName) {
+                Log.debug("index fail: $indexName");
               },
               onIndexStart: () {
                 if (!isClosed) {

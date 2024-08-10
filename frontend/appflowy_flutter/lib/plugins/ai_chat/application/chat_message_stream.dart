@@ -109,13 +109,13 @@ class QuestionStream {
           final messageId = event.substring(11);
           _onMessageId?.call(messageId);
         } else if (event.startsWith("start_index_file:")) {
-          final indexName = event.substring(12);
+          final indexName = event.substring(17);
           _onFileIndexStart?.call(indexName);
         } else if (event.startsWith("end_index_file:")) {
-          final indexName = event.substring(9);
+          final indexName = event.substring(10);
           _onFileIndexEnd?.call(indexName);
         } else if (event.startsWith("index_file_error:")) {
-          final indexName = event.substring(11);
+          final indexName = event.substring(16);
           _onFileIndexError?.call(indexName);
         } else if (event.startsWith("index_start:")) {
           _onIndexStart?.call();
