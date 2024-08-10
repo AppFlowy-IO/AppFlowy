@@ -49,6 +49,8 @@ class AIMessageMetadata extends StatelessWidget {
                       child: FlowyText(
                         m.name,
                         fontSize: 14,
+                        lineHeight: 1.0,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     onTap: () => onSelectedMetadata(m),

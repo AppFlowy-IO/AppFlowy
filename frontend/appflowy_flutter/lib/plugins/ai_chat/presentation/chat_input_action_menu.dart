@@ -156,6 +156,7 @@ class _ActionItem extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 6),
         iconPadding: 10.0,
         text: FlowyText.regular(
+          lineHeight: 1.0,
           item.title,
         ),
         onTap: onTap,

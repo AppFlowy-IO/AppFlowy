@@ -204,7 +204,6 @@ class _UpgradeToAILocalPlanState extends State<_UpgradeToAILocalPlan> {
               FlowyText.medium(
                 LocaleKeys.sideBar_upgradeToAILocal.tr(),
                 maxLines: 10,
-                lineHeight: 1.5,
               ),
               const VSpace(4),
               Opacity(
@@ -213,7 +212,6 @@ class _UpgradeToAILocalPlanState extends State<_UpgradeToAILocalPlan> {
                   LocaleKeys.sideBar_upgradeToAILocalDesc.tr(),
                   fontSize: 12,
                   maxLines: 10,
-                  lineHeight: 1.5,
                 ),
               ),
             ],

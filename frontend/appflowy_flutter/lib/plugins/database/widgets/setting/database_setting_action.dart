@@ -23,7 +23,7 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
   FlowySvgData iconData() {
     switch (this) {
       case DatabaseSettingAction.showProperties:
-        return FlowySvgs.properties_s;
+        return FlowySvgs.multiselect_s;
       case DatabaseSettingAction.showLayout:
         return FlowySvgs.database_layout_m;
       case DatabaseSettingAction.showGroup:
@@ -82,6 +82,7 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           text: FlowyText.medium(
             title(),
+            lineHeight: 1.0,
             color: AFThemeExtension.of(context).textColor,
           ),
           leftIcon: FlowySvg(

@@ -64,6 +64,10 @@ class _ShareButton extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.primary,
       hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
       radius: BorderRadius.circular(10.0),
+      textColor: Theme.of(context).colorScheme.onPrimary,
+      onPressed: () {
+        // Do nothing, but it needs to provide an empty action in order to show cursorß
+      },
     );
   }
 }

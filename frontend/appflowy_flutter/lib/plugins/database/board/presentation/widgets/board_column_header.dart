@@ -237,6 +237,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                   leftIcon: FlowySvg(action.icon),
                   text: FlowyText.medium(
                     action.text,
+                    lineHeight: 1.0,
                     overflow: TextOverflow.ellipsis,
                   ),
                   onTap: () {

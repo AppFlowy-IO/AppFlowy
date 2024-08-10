@@ -72,7 +72,8 @@ pub(crate) async fn stream_chat_message_handler(
         &data.chat_id,
         &data.message,
         message_type,
-        data.text_stream_port,
+        data.answer_stream_port,
+        data.question_stream_port,
         metadata,
       )
       .await;
