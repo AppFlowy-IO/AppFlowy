@@ -181,7 +181,7 @@ class LayoutDateField extends StatelessWidget {
                         onUpdated(fieldInfo.id);
                         popoverMutex.close();
                       },
-                      leftIcon: const FlowySvg(FlowySvgs.grid_s),
+                      leftIcon: const FlowySvg(FlowySvgs.date_s),
                       rightIcon: fieldInfo.id == fieldId
                           ? const FlowySvg(FlowySvgs.check_s)
                           : null,

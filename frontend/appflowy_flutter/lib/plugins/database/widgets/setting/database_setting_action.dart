@@ -23,7 +23,7 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
   FlowySvgData iconData() {
     switch (this) {
       case DatabaseSettingAction.showProperties:
-        return FlowySvgs.properties_s;
+        return FlowySvgs.multiselect_s;
       case DatabaseSettingAction.showLayout:
         return FlowySvgs.database_layout_m;
       case DatabaseSettingAction.showGroup:
