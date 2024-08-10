@@ -629,24 +629,19 @@ impl ChatCloudService for ServerProvider {
       .await
   }
 
-  fn create_answer(
+  async fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
     metadata: Option<serde_json::Value>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
-    let message = message.to_string();
+  ) -> Result<ChatMessage, FlowyError> {
     let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .create_answer(&workspace_id, &chat_id, &message, question_id, metadata)
-        .await
-    })
+    server?
+      .chat_service()
+      .create_answer(&workspace_id, chat_id, message, question_id, metadata)
+      .await
   }
 
   async fn stream_answer(
@@ -664,22 +659,18 @@ impl ChatCloudService for ServerProvider {
       .await
   }
 
-  fn get_chat_messages(
+  async fn get_chat_messages(
     &self,
     workspace_id: &str,
     chat_id: &str,
     offset: MessageCursor,
     limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .get_chat_messages(&workspace_id, &chat_id, offset, limit)
-        .await
-    })
+  ) -> Result<RepeatedChatMessage, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_chat_messages(&workspace_id, &chat_id, offset, limit)
+      .await
   }
 
   async fn get_related_message(

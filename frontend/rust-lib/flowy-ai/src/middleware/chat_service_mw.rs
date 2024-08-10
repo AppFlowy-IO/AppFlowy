@@ -124,17 +124,18 @@ impl ChatCloudService for AICloudServiceMiddleware {
       .await
   }
 
-  fn create_answer(
+  async fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
     metadata: Option<serde_json::Value>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+  ) -> Result<ChatMessage, FlowyError> {
     self
       .cloud_service
       .create_answer(workspace_id, chat_id, message, question_id, metadata)
+      .await
   }
 
   async fn stream_answer(
@@ -198,16 +199,17 @@ impl ChatCloudService for AICloudServiceMiddleware {
     }
   }
 
-  fn get_chat_messages(
+  async fn get_chat_messages(
     &self,
     workspace_id: &str,
     chat_id: &str,
     offset: MessageCursor,
     limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
+  ) -> Result<RepeatedChatMessage, FlowyError> {
     self
       .cloud_service
       .get_chat_messages(workspace_id, chat_id, offset, limit)
+      .await
   }
 
   async fn get_related_message(
