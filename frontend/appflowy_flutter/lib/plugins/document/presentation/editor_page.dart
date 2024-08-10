@@ -154,6 +154,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         // callout block
         insertNewLineInCalloutBlock,
 
+        // quote block
+        insertNewLineInQuoteBlock,
+
         // toggle list
         formatGreaterToToggleList,
         insertChildNodeInsideToggleList,
