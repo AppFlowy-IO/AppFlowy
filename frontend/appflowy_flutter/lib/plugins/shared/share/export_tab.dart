@@ -161,7 +161,10 @@ class _ExportButton extends StatelessWidget {
         borderRadius: radius,
       ),
       radius: radius,
-      text: FlowyText(title),
+      text: FlowyText(
+        title,
+        lineHeight: 1.0,
+      ),
       leftIcon: FlowySvg(svg),
       onTap: onTap,
     );

@@ -16,11 +16,13 @@ use futures::Sink;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 
+use crate::stream_message::StreamMessage;
+use futures_util::SinkExt;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::ops::Deref;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::select;
 use tokio_stream::StreamExt;
@@ -339,11 +341,11 @@ impl LocalAIController {
       .set_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED, enabled)?;
     Ok(enabled)
   }
-
   pub async fn index_message_metadata(
     &self,
     chat_id: &str,
     metadata_list: &[ChatMessageMetadata],
+    index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> FlowyResult<()> {
     for metadata in metadata_list {
       let mut index_metadata = HashMap::new();
@@ -351,47 +353,89 @@ impl LocalAIController {
       index_metadata.insert("at_name".to_string(), json!(format!("@{}", &metadata.name)));
       index_metadata.insert("source".to_string(), json!(&metadata.source));
 
-      match &metadata.data.url {
-        None => match &metadata.data.content_type {
-          ChatMetadataContentType::Text | ChatMetadataContentType::Markdown => {
-            if metadata.data.validate() {
-              if let Err(err) = self
-                .index_file(
-                  chat_id,
-                  None,
-                  Some(metadata.data.content.clone()),
-                  Some(index_metadata),
-                )
-                .await
-              {
-                error!("[AI Plugin] failed to index file: {:?}", err);
-              }
-            }
-          },
-          _ => {
-            error!(
-              "[AI Plugin] unsupported content type: {:?}",
-              metadata.data.content_type
-            );
-          },
-        },
-        Some(url) => {
-          let file_path = Path::new(url);
-          if file_path.exists() {
-            if let Err(err) = self
-              .index_file(
-                chat_id,
-                Some(file_path.to_path_buf()),
-                None,
-                Some(index_metadata),
-              )
-              .await
-            {
-              error!("[AI Plugin] failed to index file: {:?}", err);
-            }
-          }
-        },
+      if let Some(url) = &metadata.data.url {
+        let file_path = Path::new(url);
+        if file_path.exists() {
+          self
+            .process_index_file(
+              chat_id,
+              Some(file_path.to_path_buf()),
+              None,
+              metadata,
+              &index_metadata,
+              index_process_sink,
+            )
+            .await?;
+        }
+      } else if matches!(
+        metadata.data.content_type,
+        ChatMetadataContentType::Text | ChatMetadataContentType::Markdown
+      ) && metadata.data.validate()
+      {
+        self
+          .process_index_file(
+            chat_id,
+            None,
+            Some(metadata.data.content.clone()),
+            metadata,
+            &index_metadata,
+            index_process_sink,
+          )
+          .await?;
+      } else {
+        error!(
+          "[AI Plugin] unsupported content type: {:?}",
+          metadata.data.content_type
+        );
       }
+    }
+
+    Ok(())
+  }
+
+  async fn process_index_file(
+    &self,
+    chat_id: &str,
+    file_path: Option<PathBuf>,
+    content: Option<String>,
+    metadata: &ChatMessageMetadata,
+    index_metadata: &HashMap<String, serde_json::Value>,
+    index_process_sink: &mut (impl Sink<String> + Unpin),
+  ) -> Result<(), FlowyError> {
+    let _ = index_process_sink
+      .send(
+        StreamMessage::StartIndexFile {
+          file_name: metadata.name.clone(),
+        }
+        .to_string(),
+      )
+      .await;
+
+    let result = self
+      .index_file(chat_id, file_path, content, Some(index_metadata.clone()))
+      .await;
+    match result {
+      Ok(_) => {
+        let _ = index_process_sink
+          .send(
+            StreamMessage::EndIndexFile {
+              file_name: metadata.name.clone(),
+            }
+            .to_string(),
+          )
+          .await;
+      },
+      Err(err) => {
+        let _ = index_process_sink
+          .send(
+            StreamMessage::IndexFileError {
+              file_name: metadata.name.clone(),
+            }
+            .to_string(),
+          )
+          .await;
+        error!("[AI Plugin] failed to index file: {:?}", err);
+      },
     }
 
     Ok(())

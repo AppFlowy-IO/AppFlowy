@@ -32,6 +32,7 @@ class NumberTypeOptionEditorFactory implements TypeOptionEditorFactory {
       child: FlowyButton(
         rightIcon: const FlowySvg(FlowySvgs.more_s),
         text: FlowyText.medium(
+          lineHeight: 1.0,
           typeOption.format.title(),
         ),
       ),
@@ -167,7 +168,10 @@ class NumberFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(format.title()),
+        text: FlowyText.medium(
+          format.title(),
+          lineHeight: 1.0,
+        ),
         onTap: () => onSelected(format),
         rightIcon: checkmark,
       ),

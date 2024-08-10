@@ -29,6 +29,7 @@ class FontSetting extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           FlowyText(
+            lineHeight: 1.0,
             name,
             color: theme.colorScheme.onSurface,
           ),
