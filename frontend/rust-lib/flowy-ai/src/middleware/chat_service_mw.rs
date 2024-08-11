@@ -63,6 +63,7 @@ impl AICloudServiceMiddleware {
       let _ = index_process_sink
         .send(StreamMessage::IndexStart.to_string())
         .await;
+
       self
         .local_llm_controller
         .index_message_metadata(chat_id, metadata_list, index_process_sink)

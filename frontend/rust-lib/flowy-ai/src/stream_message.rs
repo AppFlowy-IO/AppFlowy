@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 pub enum StreamMessage {
   MessageId(i64),
-  IndexStart,
+  IndexStart(serde_json::Value),
   IndexEnd,
   Text(String),
   Done,
@@ -15,7 +15,7 @@ impl Display for StreamMessage {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
       StreamMessage::MessageId(message_id) => write!(f, "message_id:{}", message_id),
-      StreamMessage::IndexStart => write!(f, "index_start:"),
+      StreamMessage::IndexStart(value) => write!(f, "index_start:{}", value.to_string()),
       StreamMessage::IndexEnd => write!(f, "index_end"),
       StreamMessage::Text(text) => {
         write!(f, "data:{}", text)

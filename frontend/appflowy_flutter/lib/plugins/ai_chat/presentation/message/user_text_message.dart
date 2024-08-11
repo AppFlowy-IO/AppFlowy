@@ -10,12 +10,10 @@ class ChatUserMessageWidget extends StatelessWidget {
     super.key,
     required this.user,
     required this.message,
-    required this.metadata,
   });
 
   final User user;
   final dynamic message;
-  final String? metadata;
 
   @override
   Widget build(BuildContext context) {

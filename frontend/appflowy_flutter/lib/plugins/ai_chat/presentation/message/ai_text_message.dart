@@ -22,7 +22,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     required this.message,
     required this.questionId,
     required this.chatId,
-    required this.metadata,
+    required this.refSourceJsonString,
     required this.onSelectedMetadata,
   });
 
@@ -33,7 +33,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final dynamic message;
   final Int64? questionId;
   final String chatId;
-  final String? metadata;
+  final String? refSourceJsonString;
   final void Function(ChatMessageRefSource metadata) onSelectedMetadata;
 
   @override
@@ -41,7 +41,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     return BlocProvider(
       create: (context) => ChatAIMessageBloc(
         message: message,
-        metadata: metadata,
+        refSourceJsonString: refSourceJsonString,
         chatId: chatId,
         questionId: questionId,
       )..add(const ChatAIMessageEvent.initial()),
