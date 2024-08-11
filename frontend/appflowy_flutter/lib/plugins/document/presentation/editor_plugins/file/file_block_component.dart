@@ -208,10 +208,9 @@ class FileBlockComponentState extends State<FileBlockComponent>
             child: Row(
               children: [
                 const HSpace(10),
-                FlowySvg(
-                  FlowySvgs.file_upload_s,
-                  color: Theme.of(context).hintColor,
-                ),
+                FlowySvg(FlowySvgs.slash_menu_icon_file_s,
+                    color: Theme.of(context).hintColor,
+                    size: const Size.square(24)),
                 const HSpace(10),
                 ..._buildTrailing(context),
               ],

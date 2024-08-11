@@ -173,11 +173,12 @@ class MathEquationBlockComponentWidgetState
       child: Row(
         children: [
           const HSpace(10),
-          const Icon(Icons.text_fields_outlined),
+          FlowySvg(FlowySvgs.slash_menu_icon_math_equation_s,
+              color: Theme.of(context).hintColor, size: const Size.square(24)),
           const HSpace(10),
           FlowyText(
-            LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
-          ),
+              LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
+              color: Theme.of(context).hintColor),
         ],
       ),
     );
