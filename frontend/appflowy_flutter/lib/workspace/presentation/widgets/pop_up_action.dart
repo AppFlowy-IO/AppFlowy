@@ -103,6 +103,9 @@ abstract class ActionCell extends PopoverAction {
   Widget? leftIcon(Color iconColor) => null;
   Widget? rightIcon(Color iconColor) => null;
   String get name;
+  Color? textColor(BuildContext context) {
+    return null;
+  }
 }
 
 typedef PopoverActionCellBuilder = Widget Function(
@@ -158,6 +161,7 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
       leftIcon: leftIcon,
       rightIcon: rightIcon,
       name: actionCell.name,
+      textColor: actionCell.textColor(context),
       onTap: () => onSelected(action),
     );
   }
@@ -221,6 +225,7 @@ class HoverButton extends StatelessWidget {
     this.leftIcon,
     required this.name,
     this.rightIcon,
+    this.textColor,
   });
 
   final VoidCallback onTap;
@@ -228,6 +233,7 @@ class HoverButton extends StatelessWidget {
   final Widget? leftIcon;
   final Widget? rightIcon;
   final String name;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -248,6 +254,7 @@ class HoverButton extends StatelessWidget {
                   name,
                   overflow: TextOverflow.visible,
                   lineHeight: 1.15,
+                  color: textColor,
                 ),
               ),
               if (rightIcon != null) ...[
