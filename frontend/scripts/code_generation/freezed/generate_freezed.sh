@@ -43,6 +43,38 @@ cd "$(dirname "$0")"
 # Navigate to the project root
 cd ../../../appflowy_flutter
 
+if [ "$include_packages" = true ]; then
+  # Navigate to the packages directory
+  cd packages
+  for d in */; do
+    # Navigate into the subdirectory
+    cd "$d"
+
+    # Check if the pubspec.yaml file exists and contains the freezed dependency
+    if [ -f "pubspec.yaml" ] && grep -q "build_runner" pubspec.yaml; then
+      echo "🧊 Start generating freezed files ($d)."
+      if [ "$skip_pub_packages_get" = false ]; then
+        if [ "$verbose" = true ]; then
+          flutter packages pub get
+        else
+          flutter packages pub get >/dev/null 2>&1
+        fi
+      fi
+      if [ "$verbose" = true ]; then
+        dart run build_runner build
+      else
+        dart run build_runner build >/dev/null 2>&1
+      fi
+      echo "🧊 Done generating freezed files ($d)."
+    fi
+
+    # Navigate back to the packages directory
+    cd ..
+  done
+fi
+
+cd ..
+
 # Navigate to the appflowy_flutter directory and generate files
 echo "🧊 Start generating freezed files (AppFlowy)."
 
@@ -54,40 +86,10 @@ if [ "$skip_pub_packages_get" = false ]; then
   fi
 fi
 
-if [ "verbose" = true ]; then
+if [ "$verbose" = true ]; then
   dart run build_runner build -d
 else
   dart run build_runner build >/dev/null 2>&1
-fi
-
-if [ "$include_packages" = true ]; then
-  # Navigate to the packages directory
-  cd packages
-  for d in */; do
-    # Navigate into the subdirectory
-    cd "$d"
-
-    # Check if the pubspec.yaml file exists and contains the freezed dependency
-    if [ -f "pubspec.yaml" ] && grep -q "freezed" pubspec.yaml; then
-      echo "🧊 Start generating freezed files ($d)."
-      if [ "$skip_pub_packages_get" = false ]; then
-        if [ "$verbose" = true ]; then
-          flutter packages pub get
-        else
-          flutter packages pub get >/dev/null 2>&1
-        fi
-      fi
-      if [ "verbose" = true ]; then
-        dart run build_runner build -d
-      else
-        dart run build_runner build >/dev/null 2>&1
-      fi
-      echo "🧊 Done generating freezed files ($d)."
-    fi
-
-    # Navigate back to the packages directory
-    cd ..
-  done
 fi
 
 # Return to the original directory

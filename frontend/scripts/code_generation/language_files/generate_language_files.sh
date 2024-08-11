@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 # check the cost time
 start_time=$(date +%s)
 
@@ -21,6 +23,9 @@ while [[ $# -gt 0 ]]; do
         ;;
     --verbose)
         verbose=true
+        shift
+        ;;
+    --include-packages)
         shift
         ;;
     *)

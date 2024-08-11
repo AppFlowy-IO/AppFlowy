@@ -25,6 +25,9 @@ while [[ $# -gt 0 ]]; do
         verbose=true
         shift
         ;;
+    --include-packages)
+        shift
+        ;;
     *)
         echo "Unknown option: $1"
         exit 1
@@ -45,23 +48,23 @@ chmod +x ./generate_language_files.sh
 # Pass the arguments to the script
 ./generate_language_files.sh "${args[@]}"
 
-# # Return to the main script directory
-# cd ..
+# Return to the main script directory
+cd ..
 
-# # Call the script in the 'freezed' folder
-# cd freezed
-# # Allow execution permissions on CI
-# chmod +x ./generate_freezed.sh
-# ./generate_freezed.sh "$@"
+# Call the script in the 'freezed' folder
+cd freezed
+# Allow execution permissions on CI
+chmod +x ./generate_freezed.sh
+./generate_freezed.sh "${args[@]}"
 
-# # Return to the main script directory
-# cd ..
+# Return to the main script directory
+cd ..
 
-# # Call the script in the 'flowy_icons' folder
-# cd flowy_icons
-# # Allow execution permissions on CI
-# chmod +x ./generate_flowy_icons.sh
-# ./generate_flowy_icons.sh "$@"
+# Call the script in the 'flowy_icons' folder
+cd flowy_icons
+# Allow execution permissions on CI
+chmod +x ./generate_flowy_icons.sh
+./generate_flowy_icons.sh "${args[@]}"
 
 # Return to the original directory
 cd "$original_dir"
