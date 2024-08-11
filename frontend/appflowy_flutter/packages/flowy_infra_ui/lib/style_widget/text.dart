@@ -166,15 +166,19 @@ class FlowyText extends StatelessWidget {
       }
     }
 
-    if (isEmoji && (_useNotoColorEmoji || Platform.isWindows)) {
-      fontSize = fontSize * 0.8;
-    }
-
     double? lineHeight;
     if (this.lineHeight != null) {
       lineHeight = this.lineHeight!;
     } else if (figmaLineHeight != null) {
       lineHeight = figmaLineHeight! / fontSize;
+    }
+
+    if (isEmoji && (_useNotoColorEmoji || Platform.isWindows)) {
+      const scaleFactor = 0.9;
+      fontSize *= scaleFactor;
+      if (lineHeight != null) {
+        lineHeight /= scaleFactor;
+      }
     }
 
     final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -206,8 +210,7 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
-        strutStyle: ((Platform.isMacOS || Platform.isLinux) & !isEmoji) ||
-                (isEmoji && optimizeEmojiAlign)
+        strutStyle: (isEmoji && optimizeEmojiAlign)
             ? StrutStyle.fromTextStyle(
                 textStyle,
                 forceStrutHeight: true,

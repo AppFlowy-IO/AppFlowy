@@ -84,7 +84,7 @@ class _DatabaseBlockComponentWidgetState
       child: FocusScope(
         skipTraversal: true,
         onFocusChange: (value) {
-          if (value) {
+          if (value && keepEditorFocusNotifier.value == 0) {
             context.read<EditorState>().selection = null;
           }
         },
