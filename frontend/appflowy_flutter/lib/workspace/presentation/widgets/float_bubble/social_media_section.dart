@@ -86,9 +86,9 @@ extension QuestionBubbleExtension on SocialMedia {
       case SocialMedia.forum:
         return "Community Forum";
       case SocialMedia.twitter:
-        return "Twitter - @appflowy";
+        return "Twitter – @appflowy";
       case SocialMedia.reddit:
-        return "Reddit - r/appflowy";
+        return "Reddit – r/appflowy";
     }
   }
 

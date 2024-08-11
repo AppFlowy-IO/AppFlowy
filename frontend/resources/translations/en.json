@@ -1579,9 +1579,9 @@
         "depth": "Depth"
       },
       "image": {
-        "addAnImage": "Add an image",
+        "addAnImage": "Add images",
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImageDesktop": "Drop image(s) or click to add image(s)",
+        "addAnImageDesktop": "Add an image",
         "addAnImageMobile": "Click to add one or more images",
         "dropImageToInsert": "Drop images to insert",
         "imageUploadFailed": "Image upload failed",
@@ -1650,7 +1650,7 @@
         "name": "File",
         "uploadTab": "Upload",
         "networkTab": "Embed link",
-        "placeholderText": "Click or drag and drop to upload a file",
+        "placeholderText": "Upload or embed a file",
         "placeholderDragging": "Drop the file to upload",
         "dropFileToUpload": "Drop the file to upload",
         "fileUploadHint": "Drag and drop a file here\nor click to select a file.",
