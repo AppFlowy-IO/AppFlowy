@@ -358,8 +358,9 @@ impl DocumentManager {
   ) -> FlowyResult<CreatedUpload> {
     let storage_service = self.storage_service_upgrade()?;
     let upload = storage_service
-      .create_upload(&workspace_id, document_id, local_file_path)
-      .await?;
+      .create_upload(&workspace_id, document_id, local_file_path, false)
+      .await?
+      .0;
     Ok(upload)
   }
 

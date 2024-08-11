@@ -21,7 +21,9 @@ use flowy_document::manager::{DocumentManager, DocumentSnapshotService, Document
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_storage_pub::chunked_byte::ChunkedBytes;
-use flowy_storage_pub::storage::{CreatedUpload, StorageService};
+use flowy_storage_pub::storage::{
+  CreatedUpload, FileProgressReceiver, ProgressNotifier, StorageService,
+};
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -178,14 +180,6 @@ pub struct DocumentTestFileStorageService;
 
 #[async_trait]
 impl StorageService for DocumentTestFileStorageService {
-  fn upload_object(
-    &self,
-    _workspace_id: &str,
-    _local_file_path: &str,
-  ) -> FutureResult<String, FlowyError> {
-    todo!()
-  }
-
   fn delete_object(&self, _url: String, _local_file_path: String) -> FlowyResult<()> {
     todo!()
   }
@@ -199,7 +193,8 @@ impl StorageService for DocumentTestFileStorageService {
     _workspace_id: &str,
     _parent_dir: &str,
     _local_file_path: &str,
-  ) -> FutureResult<CreatedUpload, flowy_error::FlowyError> {
+    _upload_immediately: bool,
+  ) -> FutureResult<(CreatedUpload, Option<FileProgressReceiver>), flowy_error::FlowyError> {
     todo!()
   }
 
@@ -213,6 +208,10 @@ impl StorageService for DocumentTestFileStorageService {
     _parent_dir: &str,
     _file_id: &str,
   ) -> Result<(), FlowyError> {
+    todo!()
+  }
+
+  async fn subscribe_file_progress(&self, url: &str) -> Result<FileProgressReceiver, FlowyError> {
     todo!()
   }
 }

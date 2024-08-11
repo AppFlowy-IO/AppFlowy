@@ -17,16 +17,18 @@ use lib_infra::future::FutureResult;
 
 use crate::local_ai::stream_util::LocalAIStreamAdaptor;
 use crate::stream_message::StreamMessage;
+use flowy_storage_pub::storage::StorageService;
 use futures_util::SinkExt;
 use serde_json::json;
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use tracing::trace;
 
 pub struct AICloudServiceMiddleware {
   cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn AIUserService>,
   local_llm_controller: Arc<LocalAIController>,
+  storage_service: Weak<dyn StorageService>,
 }
 
 impl AICloudServiceMiddleware {
@@ -34,11 +36,13 @@ impl AICloudServiceMiddleware {
     user_service: Arc<dyn AIUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
     local_llm_controller: Arc<LocalAIController>,
+    storage_service: Weak<dyn StorageService>,
   ) -> Self {
     Self {
       user_service,
       cloud_service,
       local_llm_controller,
+      storage_service,
     }
   }
 
@@ -67,6 +71,9 @@ impl AICloudServiceMiddleware {
         .send(StreamMessage::IndexEnd.to_string())
         .await;
     } else {
+      if let Some(storage_service) = self.storage_service.upgrade() {
+        //
+      }
     }
     Ok(())
   }
