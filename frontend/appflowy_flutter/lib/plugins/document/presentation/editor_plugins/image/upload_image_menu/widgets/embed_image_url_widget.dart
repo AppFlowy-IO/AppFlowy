@@ -25,31 +25,39 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const VSpace(12),
         FlowyTextField(
           hintText: LocaleKeys.document_imageBlock_embedLink_placeholder.tr(),
           onChanged: (value) => inputText = value,
           onEditingComplete: submit,
         ),
         if (!isUrlValid) ...[
-          const VSpace(8),
+          const VSpace(12),
           FlowyText(
             LocaleKeys.document_plugins_cover_invalidImageUrl.tr(),
             color: Theme.of(context).colorScheme.error,
           ),
         ],
-        const VSpace(8),
+        const VSpace(20),
         SizedBox(
-          width: 160,
+          height: 32,
+          width: 300,
           child: FlowyButton(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            //TODO(Lucas): change the hover color to the color used for the Share button
+            hoverColor: Theme.of(context).colorScheme.primary,
             showDefaultBoxDecorationOnMobile: true,
-            margin: const EdgeInsets.all(8.0),
+            margin: const EdgeInsets.all(5),
             text: FlowyText(
               LocaleKeys.document_imageBlock_embedLink_label.tr(),
+              lineHeight: 1,
               textAlign: TextAlign.center,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
             onTap: submit,
           ),
         ),
+        const VSpace(8),
       ],
     );
   }
