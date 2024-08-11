@@ -193,7 +193,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
                       ? LocaleKeys.document_plugins_image_dropImageToInsert.tr()
                       : LocaleKeys.document_plugins_image_addAnImageDesktop.tr()
                   : LocaleKeys.document_plugins_image_addAnImageMobile.tr(),
-              color: Theme.of(context).hintColor),
+              color: Theme.of(context).hintColor,),
         ),
       ];
     }

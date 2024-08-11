@@ -210,7 +210,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
                 const HSpace(10),
                 FlowySvg(FlowySvgs.slash_menu_icon_file_s,
                     color: Theme.of(context).hintColor,
-                    size: const Size.square(24)),
+                    size: const Size.square(24),),
                 const HSpace(10),
                 ..._buildTrailing(context),
               ],

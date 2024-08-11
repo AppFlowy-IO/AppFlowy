@@ -69,7 +69,7 @@ class MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
             children: [
               FlowySvg(FlowySvgs.slash_menu_icon_photo_gallery_s,
                   color: Theme.of(context).hintColor,
-                  size: const Size.square(24)),
+                  size: const Size.square(24),),
               const HSpace(10),
               FlowyText(
                   PlatformExtension.isDesktop
@@ -79,7 +79,7 @@ class MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
                           : LocaleKeys.document_plugins_image_addAnImageDesktop
                               .tr()
                       : LocaleKeys.document_plugins_image_addAnImageMobile.tr(),
-                  color: Theme.of(context).hintColor),
+                  color: Theme.of(context).hintColor,),
             ],
           ),
         ),

@@ -174,11 +174,11 @@ class MathEquationBlockComponentWidgetState
         children: [
           const HSpace(10),
           FlowySvg(FlowySvgs.slash_menu_icon_math_equation_s,
-              color: Theme.of(context).hintColor, size: const Size.square(24)),
+              color: Theme.of(context).hintColor, size: const Size.square(24),),
           const HSpace(10),
           FlowyText(
               LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
-              color: Theme.of(context).hintColor),
+              color: Theme.of(context).hintColor,),
         ],
       ),
     );
