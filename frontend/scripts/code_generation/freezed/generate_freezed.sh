@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# check the cost time
+start_time=$(date +%s)
+
+# read the arguments to skip the pub get and package get
+skip_pub_get=false
+skip_pub_packages_get=false
+verbose=false
+
 # Store the current working directory
 original_dir=$(pwd)
 

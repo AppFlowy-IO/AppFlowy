@@ -30,9 +30,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# show loading indicator
-
-echo "🚀 Start generating language files."
+echo "🌍 Start generating language files."
 
 # Store the current working directory
 original_dir=$(pwd)
@@ -74,7 +72,7 @@ else
     dart run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations/ -s en.json >/dev/null 2>&1
 fi
 
-echo "🚀 Done generating language files."
+echo "🌍 Done generating language files."
 
 # Return to the original directory
 cd "$original_dir"
@@ -82,4 +80,4 @@ cd "$original_dir"
 # echo the cost time
 end_time=$(date +%s)
 cost_time=$((end_time - start_time))
-echo "🚀 Language files generation cost $cost_time seconds."
+echo "🌍 Language files generation cost $cost_time seconds."
