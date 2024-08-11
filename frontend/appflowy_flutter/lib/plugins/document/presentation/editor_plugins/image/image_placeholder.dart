@@ -102,7 +102,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
               UploadImageType.local,
               UploadImageType.url,
               UploadImageType.unsplash,
-              UploadImageType.stabilityAI,
+              //UploadImageType.stabilityAI,
             ],
             onSelectedLocalImages: (paths) {
               controller.close();

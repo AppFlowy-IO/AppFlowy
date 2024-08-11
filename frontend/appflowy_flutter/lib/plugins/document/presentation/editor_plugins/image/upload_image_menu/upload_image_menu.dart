@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/stability_ai_image_widget.dart';
+//import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/stability_ai_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/upload_image_file_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/user/application/user_service.dart';
@@ -19,7 +19,7 @@ enum UploadImageType {
   local,
   url,
   unsplash,
-  stabilityAI,
+  //stabilityAI,
   // openAI,
   color;
 
@@ -33,8 +33,8 @@ enum UploadImageType {
         return LocaleKeys.document_imageBlock_unsplash_label.tr();
       // case UploadImageType.openAI:
       //   return LocaleKeys.document_imageBlock_ai_label.tr();
-      case UploadImageType.stabilityAI:
-        return LocaleKeys.document_imageBlock_stability_ai_label.tr();
+      //case UploadImageType.stabilityAI:
+      //return LocaleKeys.document_imageBlock_stability_ai_label.tr();
       case UploadImageType.color:
         return LocaleKeys.document_plugins_cover_colors.tr();
     }
@@ -188,23 +188,23 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
             ),
           ),
         );
-      case UploadImageType.stabilityAI:
-        return supportStabilityAI
-            ? Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  child: StabilityAIImageWidget(
-                    onSelectImage: (url) => widget.onSelectedLocalImages([url]),
-                  ),
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: FlowyText(
-                  LocaleKeys.document_imageBlock_pleaseInputYourStabilityAIKey
-                      .tr(),
-                ),
-              );
+      // case UploadImageType.stabilityAI:
+      //   return supportStabilityAI
+      //       ? Expanded(
+      //           child: Container(
+      //             padding: const EdgeInsets.all(8.0),
+      //             child: StabilityAIImageWidget(
+      //               onSelectImage: (url) => widget.onSelectedLocalImages([url]),
+      //             ),
+      //           ),
+      //         )
+      //       : Padding(
+      //           padding: const EdgeInsets.all(8.0),
+      //           child: FlowyText(
+      //             LocaleKeys.document_imageBlock_pleaseInputYourStabilityAIKey
+      //                 .tr(),
+      //           ),
+      //         );
       case UploadImageType.color:
         final theme = Theme.of(context);
         final padding = PlatformExtension.isMobile

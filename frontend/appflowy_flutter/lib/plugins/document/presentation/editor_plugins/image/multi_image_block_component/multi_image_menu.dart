@@ -129,7 +129,7 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
                   UploadImageType.local,
                   UploadImageType.url,
                   UploadImageType.unsplash,
-                  UploadImageType.stabilityAI,
+                  //UploadImageType.stabilityAI,
                 ],
                 onSelectedLocalImages: insertLocalImages,
                 onSelectedAIImage: insertAIImage,
