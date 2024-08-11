@@ -17,7 +17,7 @@ class ChatInputAttachment extends StatelessWidget {
       message: LocaleKeys.chat_uploadFile.tr(),
       child: FlowyIconButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        radius: BorderRadius.circular(18),
+        radius: BorderRadius.circular(6),
         icon: FlowySvg(
           FlowySvgs.ai_attachment_s,
           size: const Size.square(20),

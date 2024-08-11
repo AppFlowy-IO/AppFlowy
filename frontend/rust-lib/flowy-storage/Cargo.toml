@@ -22,6 +22,7 @@ chrono = "0.4.33"
 flowy-notification = { workspace = true }
 flowy-derive.workspace = true
 protobuf = { workspace = true }
+dashmap.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }

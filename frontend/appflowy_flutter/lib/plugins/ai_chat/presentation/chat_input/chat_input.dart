@@ -154,15 +154,16 @@ class _ChatInputState extends State<ChatInput> {
                   children: [
                     // TODO(lucas): support mobile
                     if (PlatformExtension.isDesktop &&
-                        widget.aiType == const AIType.localAI())
+                        widget.aiType.isLocalAI())
                       _attachmentButton(buttonPadding),
 
                     // text field
                     Expanded(child: _inputTextField(context, textPadding)),
 
-                    // at button
+                    // mention button
                     // TODO(lucas): support mobile
-                    if (PlatformExtension.isDesktop) _atButton(buttonPadding),
+                    if (PlatformExtension.isDesktop)
+                      _mentionButton(buttonPadding),
 
                     // send button
                     _sendButton(buttonPadding),
@@ -352,7 +353,7 @@ class _ChatInputState extends State<ChatInput> {
     );
   }
 
-  Widget _atButton(EdgeInsets buttonPadding) {
+  Widget _mentionButton(EdgeInsets buttonPadding) {
     return Padding(
       padding: buttonPadding,
       child: SizedBox.square(

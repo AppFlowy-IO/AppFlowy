@@ -16,15 +16,19 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 use crate::local_ai::stream_util::LocalAIStreamAdaptor;
+use crate::stream_message::StreamMessage;
+use flowy_storage_pub::storage::StorageService;
+use futures_util::SinkExt;
 use serde_json::json;
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use tracing::trace;
 
 pub struct AICloudServiceMiddleware {
   cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn AIUserService>,
   local_llm_controller: Arc<LocalAIController>,
+  storage_service: Weak<dyn StorageService>,
 }
 
 impl AICloudServiceMiddleware {
@@ -32,11 +36,13 @@ impl AICloudServiceMiddleware {
     user_service: Arc<dyn AIUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
     local_llm_controller: Arc<LocalAIController>,
+    storage_service: Weak<dyn StorageService>,
   ) -> Self {
     Self {
       user_service,
       cloud_service,
       local_llm_controller,
+      storage_service,
     }
   }
 
@@ -50,10 +56,23 @@ impl AICloudServiceMiddleware {
     metadata_list: &[ChatMessageMetadata],
     index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> Result<(), FlowyError> {
-    self
-      .local_llm_controller
-      .index_message_metadata(chat_id, metadata_list, index_process_sink)
-      .await?;
+    if metadata_list.is_empty() {
+      return Ok(());
+    }
+    if self.is_local_ai_enabled() {
+      let _ = index_process_sink
+        .send(StreamMessage::IndexStart.to_string())
+        .await;
+      self
+        .local_llm_controller
+        .index_message_metadata(chat_id, metadata_list, index_process_sink)
+        .await?;
+      let _ = index_process_sink
+        .send(StreamMessage::IndexEnd.to_string())
+        .await;
+    } else if let Some(_storage_service) = self.storage_service.upgrade() {
+      //
+    }
     Ok(())
   }
 
@@ -110,17 +129,18 @@ impl ChatCloudService for AICloudServiceMiddleware {
       .await
   }
 
-  fn create_answer(
+  async fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
     metadata: Option<serde_json::Value>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+  ) -> Result<ChatMessage, FlowyError> {
     self
       .cloud_service
       .create_answer(workspace_id, chat_id, message, question_id, metadata)
+      .await
   }
 
   async fn stream_answer(
@@ -184,16 +204,17 @@ impl ChatCloudService for AICloudServiceMiddleware {
     }
   }
 
-  fn get_chat_messages(
+  async fn get_chat_messages(
     &self,
     workspace_id: &str,
     chat_id: &str,
     offset: MessageCursor,
     limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
+  ) -> Result<RepeatedChatMessage, FlowyError> {
     self
       .cloud_service
       .get_chat_messages(workspace_id, chat_id, offset, limit)
+      .await
   }
 
   async fn get_related_message(

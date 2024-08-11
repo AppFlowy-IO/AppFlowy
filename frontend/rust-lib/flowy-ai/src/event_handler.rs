@@ -51,7 +51,6 @@ pub(crate) async fn stream_chat_message_handler(
       ChatMessageMetadata {
         data: ChatMetadataData {
           content: metadata.data,
-          url: None,
           content_type,
           size: content_len as i64,
         },

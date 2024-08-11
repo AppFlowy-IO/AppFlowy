@@ -26,7 +26,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::select;
 use tokio_stream::StreamExt;
-use tracing::{debug, error, info, instrument};
+use tracing::{debug, error, info, instrument, trace};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LLMSetting {
@@ -348,45 +348,54 @@ impl LocalAIController {
     index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> FlowyResult<()> {
     for metadata in metadata_list {
+      if let Err(err) = metadata.data.validate() {
+        error!(
+          "[AI Plugin] invalid metadata: {:?}, error: {:?}",
+          metadata, err
+        );
+        continue;
+      }
+
       let mut index_metadata = HashMap::new();
       index_metadata.insert("name".to_string(), json!(&metadata.name));
       index_metadata.insert("at_name".to_string(), json!(format!("@{}", &metadata.name)));
       index_metadata.insert("source".to_string(), json!(&metadata.source));
-
-      if let Some(url) = &metadata.data.url {
-        let file_path = Path::new(url);
-        if file_path.exists() {
+      match &metadata.data.content_type {
+        ChatMetadataContentType::Unknown => {
+          error!(
+            "[AI Plugin] unsupported content type: {:?}",
+            metadata.data.content_type
+          );
+        },
+        ChatMetadataContentType::Text | ChatMetadataContentType::Markdown => {
+          trace!("[AI Plugin]: index text: {}", metadata.data.content);
           self
             .process_index_file(
               chat_id,
-              Some(file_path.to_path_buf()),
               None,
+              Some(metadata.data.content.clone()),
               metadata,
               &index_metadata,
               index_process_sink,
             )
             .await?;
-        }
-      } else if matches!(
-        metadata.data.content_type,
-        ChatMetadataContentType::Text | ChatMetadataContentType::Markdown
-      ) && metadata.data.validate()
-      {
-        self
-          .process_index_file(
-            chat_id,
-            None,
-            Some(metadata.data.content.clone()),
-            metadata,
-            &index_metadata,
-            index_process_sink,
-          )
-          .await?;
-      } else {
-        error!(
-          "[AI Plugin] unsupported content type: {:?}",
-          metadata.data.content_type
-        );
+        },
+        ChatMetadataContentType::PDF => {
+          trace!("[AI Plugin]: index pdf file: {}", metadata.data.content);
+          let file_path = Path::new(&metadata.data.content);
+          if file_path.exists() {
+            self
+              .process_index_file(
+                chat_id,
+                Some(file_path.to_path_buf()),
+                None,
+                metadata,
+                &index_metadata,
+                index_process_sink,
+              )
+              .await?;
+          }
+        },
       }
     }
 

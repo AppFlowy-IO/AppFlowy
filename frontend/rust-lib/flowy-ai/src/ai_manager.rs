@@ -13,9 +13,10 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 
+use flowy_storage_pub::storage::StorageService;
 use lib_infra::util::timestamp;
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use tracing::{info, trace};
 
 pub trait AIUserService: Send + Sync + 'static {
@@ -38,6 +39,7 @@ impl AIManager {
     chat_cloud_service: Arc<dyn ChatCloudService>,
     user_service: impl AIUserService,
     store_preferences: Arc<KVStorePreferences>,
+    storage_service: Weak<dyn StorageService>,
   ) -> AIManager {
     let user_service = Arc::new(user_service);
     let plugin_manager = Arc::new(PluginManager::new());
@@ -53,6 +55,7 @@ impl AIManager {
       user_service.clone(),
       chat_cloud_service,
       local_ai_controller.clone(),
+      storage_service,
     ));
 
     Self {
