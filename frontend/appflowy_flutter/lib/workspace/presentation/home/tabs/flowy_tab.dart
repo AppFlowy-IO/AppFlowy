@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
@@ -23,13 +22,12 @@ class FlowyTab extends StatefulWidget {
 }
 
 class _FlowyTabState extends State<FlowyTab> {
-
   @override
   Widget build(BuildContext context) {
     return FlowyHover(
-      style: HoverStyle(
+      isSelected: () => widget.isCurrent,
+      style: const HoverStyle(
         borderRadius: BorderRadius.zero,
-        backgroundColor: _getBackgroundColor(),
       ),
       builder: (context, onHover) {
         return ChangeNotifierProvider.value(
@@ -68,18 +66,6 @@ class _FlowyTabState extends State<FlowyTab> {
         );
       },
     );
-  }
-
-  Color _getBackgroundColor() {
-    if (widget.isCurrent) {
-      return Theme.of(context).colorScheme.onSecondaryContainer;
-    }
-
-    if (_isHovering) {
-      return AFThemeExtension.of(context).lightGreyHover;
-    }
-
-    return Theme.of(context).colorScheme.surfaceContainerHighest;
   }
 
   void _closeTab([TapUpDetails? details]) => context
