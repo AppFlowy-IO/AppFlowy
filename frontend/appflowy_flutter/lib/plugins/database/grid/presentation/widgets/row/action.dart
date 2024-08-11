@@ -86,7 +86,7 @@ enum RowAction {
     return switch (this) {
       insertAbove => FlowySvgs.arrow_s,
       insertBelow => FlowySvgs.add_s,
-      duplicate => FlowySvgs.copy_s,
+      duplicate => FlowySvgs.duplicate_s,
       delete => FlowySvgs.delete_s,
     };
   }

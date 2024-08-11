@@ -291,4 +291,9 @@ enum TabBarViewAction implements ActionCell {
 
   @override
   Widget? rightIcon(Color iconColor) => null;
+
+  @override
+  Color? textColor(BuildContext context) {
+    return null;
+  }
 }

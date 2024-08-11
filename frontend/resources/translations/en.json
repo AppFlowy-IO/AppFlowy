@@ -1498,7 +1498,6 @@
       "outline": "Outline",
       "codeBlock": "Code Block"
     },
-
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
@@ -1650,12 +1649,12 @@
       "file": {
         "name": "File",
         "uploadTab": "Upload",
-        "networkTab": "Integrate link",
+        "networkTab": "Embed link",
         "placeholderText": "Click or drag and drop to upload a file",
         "placeholderDragging": "Drop the file to upload",
         "dropFileToUpload": "Drop the file to upload",
         "fileUploadHint": "Drag and drop a file here\nor click to select a file.",
-        "networkHint": "Enter a link to a file",
+        "networkHint": "Paste a file link",
         "networkUrlInvalid": "Invalid URL, please correct the URL and try again",
         "networkAction": "Embed file link",
         "fileTooBigError": "File size is too big, please upload a file with size less than 10MB",
@@ -1743,7 +1742,7 @@
         "placeholder": "Select language",
         "auto": "Auto"
       },
-      "copyTooltip": "Copy contents of the code block",
+      "copyTooltip": "Copy",
       "searchLanguageHint": "Search for a language",
       "codeCopiedSnackbar": "Code copied to clipboard!"
     },
