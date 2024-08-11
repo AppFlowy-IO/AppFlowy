@@ -6,7 +6,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 class FlowyTab extends StatefulWidget {
@@ -24,7 +23,6 @@ class FlowyTab extends StatefulWidget {
 }
 
 class _FlowyTabState extends State<FlowyTab> {
-  bool _isHovering = false;
 
   @override
   Widget build(BuildContext context) {
@@ -70,12 +68,6 @@ class _FlowyTabState extends State<FlowyTab> {
         );
       },
     );
-  }
-
-  void _setHovering([bool isHovering = false]) {
-    if (mounted) {
-      setState(() => _isHovering = isHovering);
-    }
   }
 
   Color _getBackgroundColor() {
