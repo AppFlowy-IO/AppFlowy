@@ -640,7 +640,7 @@ impl ChatCloudService for ServerProvider {
     let server = self.get_server();
     server?
       .chat_service()
-      .create_answer(&workspace_id, chat_id, message, question_id, metadata)
+      .create_answer(workspace_id, chat_id, message, question_id, metadata)
       .await
   }
 
@@ -669,7 +669,7 @@ impl ChatCloudService for ServerProvider {
     self
       .get_server()?
       .chat_service()
-      .get_chat_messages(&workspace_id, &chat_id, offset, limit)
+      .get_chat_messages(workspace_id, chat_id, offset, limit)
       .await
   }
 

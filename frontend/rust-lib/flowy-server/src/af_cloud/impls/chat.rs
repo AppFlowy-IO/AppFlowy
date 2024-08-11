@@ -135,7 +135,7 @@ where
   ) -> Result<RepeatedChatMessage, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let resp = try_get_client?
-      .get_chat_messages(&workspace_id, &chat_id, offset, limit)
+      .get_chat_messages(workspace_id, chat_id, offset, limit)
       .await
       .map_err(FlowyError::from)?;
 

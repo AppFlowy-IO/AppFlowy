@@ -21,9 +21,7 @@ use flowy_document::manager::{DocumentManager, DocumentSnapshotService, Document
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_storage_pub::chunked_byte::ChunkedBytes;
-use flowy_storage_pub::storage::{
-  CreatedUpload, FileProgressReceiver, ProgressNotifier, StorageService,
-};
+use flowy_storage_pub::storage::{CreatedUpload, FileProgressReceiver, StorageService};
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -211,7 +209,7 @@ impl StorageService for DocumentTestFileStorageService {
     todo!()
   }
 
-  async fn subscribe_file_progress(&self, url: &str) -> Result<FileProgressReceiver, FlowyError> {
+  async fn subscribe_file_progress(&self, _url: &str) -> Result<FileProgressReceiver, FlowyError> {
     todo!()
   }
 }

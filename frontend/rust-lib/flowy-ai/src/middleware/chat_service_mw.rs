@@ -70,10 +70,8 @@ impl AICloudServiceMiddleware {
       let _ = index_process_sink
         .send(StreamMessage::IndexEnd.to_string())
         .await;
-    } else {
-      if let Some(storage_service) = self.storage_service.upgrade() {
-        //
-      }
+    } else if let Some(_storage_service) = self.storage_service.upgrade() {
+      //
     }
     Ok(())
   }

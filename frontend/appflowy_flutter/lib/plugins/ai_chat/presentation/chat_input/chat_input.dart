@@ -153,7 +153,8 @@ class _ChatInputState extends State<ChatInput> {
                 Row(
                   children: [
                     // TODO(lucas): support mobile
-                    if (PlatformExtension.isDesktop)
+                    if (PlatformExtension.isDesktop &&
+                        widget.aiType.isLocalAI())
                       _attachmentButton(buttonPadding),
 
                     // text field
