@@ -17,12 +17,11 @@ use flowy_storage_pub::storage::{
   StorageService, UploadPartResponse,
 };
 use lib_infra::box_any::BoxAny;
-use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::watch;
@@ -489,10 +488,24 @@ async fn start_upload(
   );
   let total_parts = chunked_bytes.iter().count();
   let iter = chunked_bytes.iter().enumerate();
-  let mut completed_parts = Vec::new();
+
+  let mut conn = user_service.sqlite_connection(user_service.user_id()?)?;
+
+  // 4. gather existing completed parts
+  let mut completed_parts = select_upload_parts(&mut conn, &upload_file.upload_id)
+    .unwrap_or_default()
+    .into_iter()
+    .map(|part| CompletedPartRequest {
+      e_tag: part.e_tag,
+      part_number: part.part_num,
+    })
+    .collect::<Vec<_>>();
+
+  // when there are any existing parts, skip those parts by setting the current offset.
+  let offset = completed_parts.len();
 
   for (index, chunk_bytes) in iter {
-    let part_number = index as i32 + 1;
+    let part_number = offset + index + 1;
     trace!(
       "[File] {} uploading part: {}, len:{}KB",
       upload_file.file_id,
@@ -507,7 +520,7 @@ async fn start_upload(
       &upload_file.parent_dir,
       &upload_file.upload_id,
       &upload_file.file_id,
-      part_number,
+      part_number as i32,
       chunk_bytes.to_vec(),
     )
     .await
@@ -662,6 +675,11 @@ async fn complete_upload(
   parts: Vec<CompletedPartRequest>,
   progress_notifiers: &Arc<DashMap<String, ProgressNotifier>>,
 ) -> Result<(), FlowyError> {
+  trace!(
+    "[File]: completing file upload: {}, part: {}",
+    upload_file.file_id,
+    parts.len()
+  );
   match cloud_service
     .complete_upload(
       &upload_file.workspace_id,

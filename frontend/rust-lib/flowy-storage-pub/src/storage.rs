@@ -3,9 +3,7 @@ use async_trait::async_trait;
 pub use client_api_entity::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
-use lib_infra::future::FutureResult;
 use std::ops::{Deref, DerefMut};
-use std::time::Instant;
 use tokio::sync::mpsc;
 use tracing::error;
 

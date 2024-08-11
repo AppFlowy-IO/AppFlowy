@@ -188,13 +188,13 @@ impl StorageService for DocumentTestFileStorageService {
     todo!()
   }
 
-  fn create_upload(
+  async fn create_upload(
     &self,
     _workspace_id: &str,
     _parent_dir: &str,
     _local_file_path: &str,
     _upload_immediately: bool,
-  ) -> FutureResult<(CreatedUpload, Option<FileProgressReceiver>), flowy_error::FlowyError> {
+  ) -> Result<(CreatedUpload, Option<FileProgressReceiver>), flowy_error::FlowyError> {
     todo!()
   }
 

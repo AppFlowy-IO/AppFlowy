@@ -1,8 +1,7 @@
 use crate::sqlite_sql::UploadFileTable;
 use crate::uploader::UploadTask::BackgroundTask;
-use dashmap::DashMap;
 use flowy_storage_pub::chunked_byte::ChunkedBytes;
-use flowy_storage_pub::storage::{ProgressNotifier, StorageService};
+use flowy_storage_pub::storage::StorageService;
 use lib_infra::box_any::BoxAny;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
