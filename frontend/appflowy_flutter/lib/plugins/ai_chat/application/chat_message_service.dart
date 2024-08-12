@@ -32,7 +32,12 @@ List<ChatFile> chatFilesFromMetadataString(String? s) {
 
   final metadataJson = jsonDecode(s);
   if (metadataJson is Map<String, dynamic>) {
-    return _parseChatFile(metadataJson);
+    final file = chatFileFromMap(metadataJson);
+    if (file != null) {
+      return [file];
+    } else {
+      return [];
+    }
   } else if (metadataJson is List) {
     return metadataJson
         .map((e) => e as Map<String, dynamic>)
@@ -44,11 +49,6 @@ List<ChatFile> chatFilesFromMetadataString(String? s) {
     Log.error("Invalid metadata: $metadataJson");
     return [];
   }
-}
-
-List<ChatFile> _parseChatFile(Map<String, dynamic> map) {
-  final file = chatFileFromMap(map);
-  return file != null ? [file] : [];
 }
 
 ChatFile? chatFileFromMap(Map<String, dynamic>? map) {
@@ -63,7 +63,7 @@ ChatFile? chatFileFromMap(Map<String, dynamic>? map) {
   return ChatFile.fromFilePath(filePath);
 }
 
-List<ChatMessageRefSource> messageRefSourceFromString(String? s) {
+List<ChatMessageRefSource> messageReferenceSource(String? s) {
   if (s == null || s.isEmpty || s == "null") {
     return [];
   }
@@ -133,6 +133,21 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
             source: entry.value.filePath,
           ),
         );
+      }
+    }
+  }
+
+  return metadata;
+}
+
+List<ChatFile> chatFilesFromMessageMetadata(
+  Map<String, dynamic>? map,
+) {
+  final List<ChatFile> metadata = [];
+  if (map != null) {
+    for (final entry in map.entries) {
+      if (entry.value is ChatFile) {
+        metadata.add(entry.value);
       }
     }
   }

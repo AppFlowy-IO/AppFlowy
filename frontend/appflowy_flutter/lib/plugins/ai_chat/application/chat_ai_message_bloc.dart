@@ -16,13 +16,13 @@ part 'chat_ai_message_bloc.freezed.dart';
 class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
   ChatAIMessageBloc({
     dynamic message,
-    String? metadata,
+    String? refSourceJsonString,
     required this.chatId,
     required this.questionId,
   }) : super(
           ChatAIMessageState.initial(
             message,
-            messageRefSourceFromString(metadata),
+            messageReferenceSource(refSourceJsonString),
           ),
         ) {
     if (state.stream != null) {
