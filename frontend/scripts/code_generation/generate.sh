@@ -25,7 +25,7 @@ while [[ $# -gt 0 ]]; do
         verbose=true
         shift
         ;;
-    --include-packages)
+    --exclude-packages)
         shift
         ;;
     *)

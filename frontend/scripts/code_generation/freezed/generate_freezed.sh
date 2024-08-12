@@ -7,7 +7,7 @@ start_time=$(date +%s)
 skip_pub_get=false
 skip_pub_packages_get=false
 verbose=false
-include_packages=false
+exclude_packages=false
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -24,8 +24,8 @@ while [[ $# -gt 0 ]]; do
     verbose=true
     shift
     ;;
-  --include-packages)
-    include_packages=true
+  --exclude-packages)
+    exclude_packages=true
     shift
     ;;
   *)
@@ -43,7 +43,7 @@ cd "$(dirname "$0")"
 # Navigate to the project root
 cd ../../../appflowy_flutter
 
-if [ "$include_packages" = true ]; then
+if [ "$exclude_packages" = false ]; then
   # Navigate to the packages directory
   cd packages
   for d in */; do
@@ -74,6 +74,7 @@ if [ "$include_packages" = true ]; then
 fi
 
 # Navigate to the appflowy_flutter directory and generate files
+cd ..
 echo "🧊 Start generating freezed files (AppFlowy)."
 
 if [ "$skip_pub_packages_get" = false ]; then
