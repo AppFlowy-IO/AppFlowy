@@ -213,7 +213,7 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
             radius: BorderRadius.circular(8),
             text: FlowyText.regular(
               confirmButtonName,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
             onTap: onConfirm,
           ),
