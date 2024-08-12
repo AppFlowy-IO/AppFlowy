@@ -337,7 +337,7 @@ impl FolderManager {
 
   pub async fn get_workspace_pb(&self) -> FlowyResult<WorkspacePB> {
     let workspace_id = self.user.workspace_id()?;
-    let guard = self.mutex_folder.read();
+    let guard = self.mutex_folder.write();
     let folder = guard
       .as_ref()
       .ok_or(FlowyError::internal().with_context("folder is not initialized"))?;
