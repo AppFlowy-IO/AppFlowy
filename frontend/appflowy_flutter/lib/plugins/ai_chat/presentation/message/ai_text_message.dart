@@ -60,6 +60,7 @@ class ChatAIMessageWidget extends StatelessWidget {
             onAIResponseLimit: () {
               return FlowyText(
                 LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
+                lineHeight: 1.5,
                 maxLines: 10,
               );
             },
