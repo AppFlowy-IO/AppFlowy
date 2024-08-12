@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -19,7 +19,7 @@ class ChatSidePannelBloc
     on<ChatSidePannelEvent>(
       (event, emit) async {
         await event.when(
-          selectedMetadata: (ChatMessageMetadata metadata) async {
+          selectedMetadata: (ChatMessageRefSource metadata) async {
             emit(
               state.copyWith(
                 metadata: metadata,
@@ -62,7 +62,7 @@ class ChatSidePannelBloc
 @freezed
 class ChatSidePannelEvent with _$ChatSidePannelEvent {
   const factory ChatSidePannelEvent.selectedMetadata(
-    ChatMessageMetadata metadata,
+    ChatMessageRefSource metadata,
   ) = _SelectedMetadata;
   const factory ChatSidePannelEvent.close() = _Close;
   const factory ChatSidePannelEvent.open(ViewPB view) = _Open;
@@ -71,7 +71,7 @@ class ChatSidePannelEvent with _$ChatSidePannelEvent {
 @freezed
 class ChatSidePannelState with _$ChatSidePannelState {
   const factory ChatSidePannelState({
-    ChatMessageMetadata? metadata,
+    ChatMessageRefSource? metadata,
     @Default(ChatSidePannelIndicator.loading())
     ChatSidePannelIndicator indicator,
     @Default(false) bool isShowPannel,

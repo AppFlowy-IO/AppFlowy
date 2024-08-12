@@ -1,37 +1,48 @@
+import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bloc.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 
-class ChatTextMessageWidget extends StatelessWidget {
-  const ChatTextMessageWidget({
+class ChatUserMessageWidget extends StatelessWidget {
+  const ChatUserMessageWidget({
     super.key,
     required this.user,
-    required this.messageUserId,
-    required this.text,
+    required this.message,
   });
 
   final User user;
-  final String messageUserId;
-  final String text;
+  final dynamic message;
 
   @override
   Widget build(BuildContext context) {
-    return _textWidgetBuilder(user, context, text);
-  }
+    return BlocProvider(
+      create: (context) => ChatUserMessageBloc(message: message)
+        ..add(const ChatUserMessageEvent.initial()),
+      child: BlocBuilder<ChatUserMessageBloc, ChatUserMessageState>(
+        builder: (context, state) {
+          final List<Widget> children = [];
+          children.add(
+            Flexible(
+              child: TextMessageText(
+                text: state.text,
+              ),
+            ),
+          );
 
-  Widget _textWidgetBuilder(
-    User user,
-    BuildContext context,
-    String text,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextMessageText(
-          text: text,
-        ),
-      ],
+          if (!state.messageState.isFinish) {
+            children.add(const HSpace(6));
+            children.add(const CircularProgressIndicator.adaptive());
+          }
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: children,
+          );
+        },
+      ),
     );
   }
 }

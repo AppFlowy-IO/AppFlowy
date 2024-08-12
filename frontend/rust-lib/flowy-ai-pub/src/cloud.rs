@@ -4,8 +4,8 @@ pub use client_api::entity::ai_dto::{
   RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage,
 };
 pub use client_api::entity::{
-  ChatAuthorType, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatMetadataData,
-  MessageCursor, QAChatMessage, QuestionStreamValue, RepeatedChatMessage,
+  ChatAuthorType, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatMetadataContentType,
+  ChatMetadataData, MessageCursor, QAChatMessage, QuestionStreamValue, RepeatedChatMessage,
 };
 use client_api::error::AppResponseError;
 use flowy_error::FlowyError;
@@ -26,23 +26,23 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &str,
   ) -> FutureResult<(), FlowyError>;
 
-  fn create_question(
+  async fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    metadata: Vec<ChatMessageMetadata>,
-  ) -> FutureResult<ChatMessage, FlowyError>;
+    metadata: &[ChatMessageMetadata],
+  ) -> Result<ChatMessage, FlowyError>;
 
-  fn create_answer(
+  async fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
     metadata: Option<serde_json::Value>,
-  ) -> FutureResult<ChatMessage, FlowyError>;
+  ) -> Result<ChatMessage, FlowyError>;
 
   async fn stream_answer(
     &self,
@@ -58,13 +58,13 @@ pub trait ChatCloudService: Send + Sync + 'static {
     question_message_id: i64,
   ) -> Result<ChatMessage, FlowyError>;
 
-  fn get_chat_messages(
+  async fn get_chat_messages(
     &self,
     workspace_id: &str,
     chat_id: &str,
     offset: MessageCursor,
     limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError>;
+  ) -> Result<RepeatedChatMessage, FlowyError>;
 
   async fn get_related_message(
     &self,

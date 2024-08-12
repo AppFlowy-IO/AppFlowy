@@ -150,25 +150,33 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
     final type = values[currentTabIndex];
     switch (type) {
       case UploadImageType.local:
-        return Container(
+        return Padding(
           padding: const EdgeInsets.all(8.0),
-          alignment: Alignment.center,
-          constraints: constraints,
-          child: Column(
-            children: [
-              UploadImageFileWidget(
-                allowMultipleImages: widget.allowMultipleImages,
-                onPickFiles: widget.onSelectedLocalImages,
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline,
               ),
-              if (widget.limitMaximumImageSize) ...[
-                const VSpace(6.0),
-                FlowyText(
-                  LocaleKeys.document_imageBlock_maximumImageSize.tr(),
-                  fontSize: 12.0,
-                  color: Theme.of(context).hintColor,
+            ),
+            constraints: constraints,
+            child: Column(
+              children: [
+                UploadImageFileWidget(
+                  allowMultipleImages: widget.allowMultipleImages,
+                  onPickFiles: widget.onSelectedLocalImages,
                 ),
+                if (widget.limitMaximumImageSize) ...[
+                  const VSpace(6.0),
+                  FlowyText(
+                    LocaleKeys.document_imageBlock_maximumImageSize.tr(),
+                    fontSize: 12.0,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         );
       case UploadImageType.url:

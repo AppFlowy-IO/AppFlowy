@@ -178,6 +178,8 @@
     "referenceSources": "{} sources found",
     "clickToMention": "Click to mention a page",
     "uploadFile": "Upload PDFs, md or txt files to chat with",
+    "questionTitle": "Ideas",
+    "questionDetail": "Hi {}! How can I help you today?",
     "indexingFile": "Indexing {}"
   },
   "trash": {
@@ -303,7 +305,8 @@
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
     "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
-    "upgradeToAILocal": "AI On-device on your device"
+    "upgradeToAILocal": "Run local models on your device for ultimate privacy",
+    "upgradeToAILocalDesc": "Chat with PDFs, improve your writing, and auto-fill tables using local AI"
   },
   "notifications": {
     "export": {
@@ -827,7 +830,6 @@
         "itemSix": "AI Responses",
         "tooltipSix": "Lifetime means the number of responses never reset",
         "intelligentSearch": "Intelligent search",
-        "itemSeven": "Custom namespace",
         "tooltipSeven": "Allows you to customize part of the URL for your workspace"
       },
       "freeLabels": {
@@ -837,8 +839,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "100 lifetime",
-        "intelligentSearch": "Intelligent search",
-        "itemSeven": ""
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "charged per workspace",
@@ -847,8 +848,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "unlimited",
-        "intelligentSearch": "Intelligent search",
-        "itemSeven": ""
+        "intelligentSearch": "Intelligent search"
       },
       "paymentSuccess": {
         "title": "You are now on the {} plan!",
@@ -866,7 +866,7 @@
       "commonOther": "Other",
       "otherHint": "Write your answer here",
       "questionOne": {
-        "question": "What prompted you to cancel your AppFlowy Pro subscription?",
+        "question": "What prompted you to cancel your @:appName Pro subscription?",
         "answerOne": "Cost too high",
         "answerTwo": "Features did not meet expectations",
         "answerThree": "Found a better alternative",
@@ -874,7 +874,7 @@
         "answerFive": "Service issue or technical difficulties"
       },
       "questionTwo": {
-        "question": "How likely are you to consider re-subscribing to AppFlowy Pro in the future?",
+        "question": "How likely are you to consider re-subscribing to @:appName Pro in the future?",
         "answerOne": "Very likely",
         "answerTwo": "Somewhat likely",
         "answerThree": "Not sure",
@@ -889,7 +889,7 @@
         "answerFour": "Access to local AI models"
       },
       "questionFour": {
-        "question": "How would you describe your overall experience with AppFlowy?",
+        "question": "How would you describe your overall experience with @:appName?",
         "answerOne": "Great",
         "answerTwo": "Good",
         "answerThree": "Average",
@@ -1461,6 +1461,37 @@
       },
       "document": {
         "selectADocumentToLinkTo": "Select a Document to link to"
+      },
+      "name": {
+        "text": "Text",
+        "heading1": "Heading 1",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3",
+        "image": "Image",
+        "bulletedList": "Bulleted List",
+        "numberedList": "Numbered List",
+        "checkbox": "Checkbox",
+        "doc": "Doc",
+        "linkedDoc": "Link to page",
+        "grid": "Grid",
+        "linkedGrid": "Linked Grid",
+        "kanban": "Kanban",
+        "linkedKanban": "Linked Kanban",
+        "calendar": "Calendar",
+        "linkedCalendar": "Linked Calendar",
+        "quote": "Quote",
+        "divider": "Divider",
+        "table": "Table",
+        "callout": "Callout",
+        "outline": "Outline",
+        "mathEquation": "Math Equation",
+        "code": "Code",
+        "toggleList": "Toggle list",
+        "emoji": "Emoji",
+        "aiWriter": "AI Writer",
+        "dateOrReminder": "Date or Reminder",
+        "photoGallery": "Photo Gallery",
+        "file": "File"
       }
     },
     "selectionMenu": {
@@ -1479,7 +1510,7 @@
       "autoGeneratorHintText": "Ask AI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get AI key",
       "autoGeneratorRewrite": "Rewrite",
-      "smartEdit": "AI Assistants",
+      "smartEdit": "Ask AI",
       "aI": "AI",
       "smartEditFixSpelling": "Fix spelling & grammar",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
@@ -1548,9 +1579,9 @@
         "depth": "Depth"
       },
       "image": {
-        "addAnImage": "Add an image",
+        "addAnImage": "Add images",
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImageDesktop": "Drop image(s) or click to add image(s)",
+        "addAnImageDesktop": "Add an image",
         "addAnImageMobile": "Click to add one or more images",
         "dropImageToInsert": "Drop images to insert",
         "imageUploadFailed": "Image upload failed",
@@ -1618,12 +1649,12 @@
       "file": {
         "name": "File",
         "uploadTab": "Upload",
-        "networkTab": "Integrate link",
-        "placeholderText": "Click or drag and drop to upload a file",
+        "networkTab": "Embed link",
+        "placeholderText": "Upload or embed a file",
         "placeholderDragging": "Drop the file to upload",
         "dropFileToUpload": "Drop the file to upload",
         "fileUploadHint": "Drag and drop a file here\nor click to select a file.",
-        "networkHint": "Enter a link to a file",
+        "networkHint": "Paste a file link",
         "networkUrlInvalid": "Invalid URL, please correct the URL and try again",
         "networkAction": "Embed file link",
         "fileTooBigError": "File size is too big, please upload a file with size less than 10MB",
@@ -1711,7 +1742,7 @@
         "placeholder": "Select language",
         "auto": "Auto"
       },
-      "copyTooltip": "Copy contents of the code block",
+      "copyTooltip": "Copy",
       "searchLanguageHint": "Search for a language",
       "codeCopiedSnackbar": "Code copied to clipboard!"
     },

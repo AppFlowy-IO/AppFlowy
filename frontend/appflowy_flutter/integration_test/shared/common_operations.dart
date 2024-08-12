@@ -662,4 +662,34 @@ extension ViewLayoutPBTest on ViewLayoutPB {
         throw UnsupportedError('Unsupported layout: $this');
     }
   }
+
+  String get slashMenuName {
+    switch (this) {
+      case ViewLayoutPB.Grid:
+        return LocaleKeys.document_slashMenu_name_grid.tr();
+      case ViewLayoutPB.Board:
+        return LocaleKeys.document_slashMenu_name_kanban.tr();
+      case ViewLayoutPB.Document:
+        return LocaleKeys.document_slashMenu_name_doc.tr();
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.document_slashMenu_name_calendar.tr();
+      default:
+        throw UnsupportedError('Unsupported layout: $this');
+    }
+  }
+
+  String get slashMenuLinkedName {
+    switch (this) {
+      case ViewLayoutPB.Grid:
+        return LocaleKeys.document_slashMenu_name_linkedGrid.tr();
+      case ViewLayoutPB.Board:
+        return LocaleKeys.document_slashMenu_name_linkedKanban.tr();
+      case ViewLayoutPB.Document:
+        return LocaleKeys.document_slashMenu_name_linkedDoc.tr();
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.document_slashMenu_name_linkedCalendar.tr();
+      default:
+        throw UnsupportedError('Unsupported layout: $this');
+    }
+  }
 }

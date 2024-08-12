@@ -3,6 +3,7 @@ use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_error::FlowyError;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
+use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
@@ -14,12 +15,14 @@ impl ChatDepsResolver {
     authenticate_user: Weak<AuthenticateUser>,
     cloud_service: Arc<dyn ChatCloudService>,
     store_preferences: Arc<KVStorePreferences>,
+    storage_service: Weak<dyn StorageService>,
   ) -> Arc<AIManager> {
     let user_service = ChatUserServiceImpl(authenticate_user);
     Arc::new(AIManager::new(
       cloud_service,
       user_service,
       store_preferences,
+      storage_service,
     ))
   }
 }
@@ -52,7 +55,7 @@ impl AIUserService for ChatUserServiceImpl {
     self.upgrade_user()?.get_sqlite_connection(uid)
   }
 
-  fn data_root_dir(&self) -> Result<PathBuf, FlowyError> {
+  fn application_root_dir(&self) -> Result<PathBuf, FlowyError> {
     Ok(PathBuf::from(
       self.upgrade_user()?.get_application_root_dir(),
     ))

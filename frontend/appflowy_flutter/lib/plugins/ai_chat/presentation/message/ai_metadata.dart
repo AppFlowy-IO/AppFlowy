@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -8,23 +8,23 @@ import 'package:flutter/material.dart';
 
 class AIMessageMetadata extends StatelessWidget {
   const AIMessageMetadata({
-    required this.metadata,
+    required this.sources,
     required this.onSelectedMetadata,
     super.key,
   });
 
-  final List<ChatMessageMetadata> metadata;
-  final Function(ChatMessageMetadata metadata) onSelectedMetadata;
+  final List<ChatMessageRefSource> sources;
+  final Function(ChatMessageRefSource metadata) onSelectedMetadata;
   @override
   Widget build(BuildContext context) {
-    final title = metadata.length == 1
-        ? LocaleKeys.chat_referenceSource.tr(args: [metadata.length.toString()])
+    final title = sources.length == 1
+        ? LocaleKeys.chat_referenceSource.tr(args: [sources.length.toString()])
         : LocaleKeys.chat_referenceSources
-            .tr(args: [metadata.length.toString()]);
+            .tr(args: [sources.length.toString()]);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (metadata.isNotEmpty)
+        if (sources.isNotEmpty)
           Opacity(
             opacity: 0.5,
             child: FlowyText(title, fontSize: 12),
@@ -33,7 +33,7 @@ class AIMessageMetadata extends StatelessWidget {
         Wrap(
           spacing: 8.0,
           runSpacing: 4.0,
-          children: metadata
+          children: sources
               .map(
                 (m) => SizedBox(
                   height: 24,
@@ -49,6 +49,8 @@ class AIMessageMetadata extends StatelessWidget {
                       child: FlowyText(
                         m.name,
                         fontSize: 14,
+                        lineHeight: 1.0,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     onTap: () => onSelectedMetadata(m),

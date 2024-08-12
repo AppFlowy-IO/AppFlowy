@@ -41,7 +41,8 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
-    this.lineHeight,
+    // https://api.flutter.dev/flutter/painting/TextStyle/height.html
+    this.lineHeight = 1.5,
     this.figmaLineHeight,
     this.withTooltip = false,
     this.isEmoji = false,
@@ -60,7 +61,7 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
-    this.lineHeight,
+    this.lineHeight = 1.5,
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
@@ -81,7 +82,7 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
-    this.lineHeight,
+    this.lineHeight = 1.5,
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
@@ -101,7 +102,7 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
-    this.lineHeight,
+    this.lineHeight = 1.5,
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
@@ -121,7 +122,7 @@ class FlowyText extends StatelessWidget {
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
-    this.lineHeight,
+    this.lineHeight = 1.5,
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
@@ -165,15 +166,20 @@ class FlowyText extends StatelessWidget {
       }
     }
 
-    if (isEmoji && (_useNotoColorEmoji || Platform.isWindows)) {
-      fontSize = fontSize * 0.8;
+    double? lineHeight;
+    // use figma line height as first priority
+    if (figmaLineHeight != null) {
+      lineHeight = figmaLineHeight! / fontSize;
+    } else if (this.lineHeight != null) {
+      lineHeight = this.lineHeight!;
     }
 
-    double? lineHeight;
-    if (this.lineHeight != null) {
-      lineHeight = this.lineHeight!;
-    } else if (figmaLineHeight != null) {
-      lineHeight = figmaLineHeight! / fontSize;
+    if (isEmoji && (_useNotoColorEmoji || Platform.isWindows)) {
+      const scaleFactor = 0.9;
+      fontSize *= scaleFactor;
+      if (lineHeight != null) {
+        lineHeight /= scaleFactor;
+      }
     }
 
     final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -205,8 +211,7 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
-        strutStyle: ((Platform.isMacOS || Platform.isLinux) & !isEmoji) ||
-                (isEmoji && optimizeEmojiAlign)
+        strutStyle: !isEmoji || (isEmoji && optimizeEmojiAlign)
             ? StrutStyle.fromTextStyle(
                 textStyle,
                 forceStrutHeight: true,

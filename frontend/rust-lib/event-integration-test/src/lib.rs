@@ -91,7 +91,7 @@ impl EventIntegrationTest {
     Self::new_with_config(config).await
   }
 
-  pub fn set_no_cleanup(&mut self) {
+  pub fn skip_clean(&mut self) {
     self.cleaner.lock().should_clean = false;
   }
 

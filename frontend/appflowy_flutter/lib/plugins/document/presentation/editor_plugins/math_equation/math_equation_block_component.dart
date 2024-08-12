@@ -1,5 +1,7 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -37,7 +39,11 @@ Node mathEquationNode({
 // defining the callout block menu item for selection
 SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
   getName: LocaleKeys.document_plugins_mathEquation_name.tr,
-  iconData: Icons.text_fields_rounded,
+  iconBuilder: (editorState, onSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.icon_math_eq_s,
+    isSelected: onSelected,
+    style: style,
+  ),
   keywords: ['tex, latex, katex', 'math equation', 'formula'],
   nodeBuilder: (editorState, _) => mathEquationNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
@@ -167,11 +173,12 @@ class MathEquationBlockComponentWidgetState
       child: Row(
         children: [
           const HSpace(10),
-          const Icon(Icons.text_fields_outlined),
+          FlowySvg(FlowySvgs.slash_menu_icon_math_equation_s,
+              color: Theme.of(context).hintColor, size: const Size.square(24),),
           const HSpace(10),
           FlowyText(
-            LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
-          ),
+              LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
+              color: Theme.of(context).hintColor,),
         ],
       ),
     );

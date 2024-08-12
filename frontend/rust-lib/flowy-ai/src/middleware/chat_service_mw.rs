@@ -2,7 +2,7 @@ use crate::ai_manager::AIUserService;
 use crate::entities::{ChatStatePB, ModelTypePB};
 use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
-use crate::persistence::select_single_message;
+use crate::persistence::{select_single_message, ChatMessageTable};
 use appflowy_plugin::error::PluginError;
 
 use flowy_ai_pub::cloud::{
@@ -11,18 +11,24 @@ use flowy_ai_pub::cloud::{
   RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use futures::{stream, StreamExt, TryStreamExt};
+use futures::{stream, Sink, StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 use crate::local_ai::stream_util::LocalAIStreamAdaptor;
+use crate::stream_message::StreamMessage;
+use flowy_storage_pub::storage::StorageService;
+use futures_util::SinkExt;
+use serde_json::json;
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
+use tracing::trace;
 
 pub struct AICloudServiceMiddleware {
   cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn AIUserService>,
   local_llm_controller: Arc<LocalAIController>,
+  storage_service: Weak<dyn StorageService>,
 }
 
 impl AICloudServiceMiddleware {
@@ -30,24 +36,55 @@ impl AICloudServiceMiddleware {
     user_service: Arc<dyn AIUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
     local_llm_controller: Arc<LocalAIController>,
+    storage_service: Weak<dyn StorageService>,
   ) -> Self {
     Self {
       user_service,
       cloud_service,
       local_llm_controller,
+      storage_service,
     }
   }
 
-  fn get_message_content(&self, message_id: i64) -> FlowyResult<String> {
+  pub fn is_local_ai_enabled(&self) -> bool {
+    self.local_llm_controller.is_enabled()
+  }
+
+  pub async fn index_message_metadata(
+    &self,
+    chat_id: &str,
+    metadata_list: &[ChatMessageMetadata],
+    index_process_sink: &mut (impl Sink<String> + Unpin),
+  ) -> Result<(), FlowyError> {
+    if metadata_list.is_empty() {
+      return Ok(());
+    }
+    if self.is_local_ai_enabled() {
+      let _ = index_process_sink
+        .send(StreamMessage::IndexStart.to_string())
+        .await;
+
+      self
+        .local_llm_controller
+        .index_message_metadata(chat_id, metadata_list, index_process_sink)
+        .await?;
+      let _ = index_process_sink
+        .send(StreamMessage::IndexEnd.to_string())
+        .await;
+    } else if let Some(_storage_service) = self.storage_service.upgrade() {
+      //
+    }
+    Ok(())
+  }
+
+  fn get_message_record(&self, message_id: i64) -> FlowyResult<ChatMessageTable> {
     let uid = self.user_service.user_id()?;
     let conn = self.user_service.sqlite_connection(uid)?;
-    let content = select_single_message(conn, message_id)?
-      .map(|data| data.content)
-      .ok_or_else(|| {
-        FlowyError::record_not_found().with_context(format!("Message not found: {}", message_id))
-      })?;
+    let row = select_single_message(conn, message_id)?.ok_or_else(|| {
+      FlowyError::record_not_found().with_context(format!("Message not found: {}", message_id))
+    })?;
 
-    Ok(content)
+    Ok(row)
   }
 
   fn handle_plugin_error(&self, err: PluginError) {
@@ -79,43 +116,45 @@ impl ChatCloudService for AICloudServiceMiddleware {
     self.cloud_service.create_chat(uid, workspace_id, chat_id)
   }
 
-  fn create_question(
+  async fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    metadata: Vec<ChatMessageMetadata>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+    metadata: &[ChatMessageMetadata],
+  ) -> Result<ChatMessage, FlowyError> {
     self
       .cloud_service
       .create_question(workspace_id, chat_id, message, message_type, metadata)
+      .await
   }
 
-  fn create_answer(
+  async fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
     metadata: Option<serde_json::Value>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+  ) -> Result<ChatMessage, FlowyError> {
     self
       .cloud_service
       .create_answer(workspace_id, chat_id, message, question_id, metadata)
+      .await
   }
 
   async fn stream_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
-    message_id: i64,
+    question_id: i64,
   ) -> Result<StreamAnswer, FlowyError> {
     if self.local_llm_controller.is_running() {
-      let content = self.get_message_content(message_id)?;
+      let row = self.get_message_record(question_id)?;
       match self
         .local_llm_controller
-        .stream_question(chat_id, &content)
+        .stream_question(chat_id, &row.content, json!([]))
         .await
       {
         Ok(stream) => Ok(LocalAIStreamAdaptor::new(stream).boxed()),
@@ -127,7 +166,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     } else {
       self
         .cloud_service
-        .stream_answer(workspace_id, chat_id, message_id)
+        .stream_answer(workspace_id, chat_id, question_id)
         .await
     }
   }
@@ -139,7 +178,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     question_message_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
     if self.local_llm_controller.is_running() {
-      let content = self.get_message_content(question_message_id)?;
+      let content = self.get_message_record(question_message_id)?.content;
       match self
         .local_llm_controller
         .ask_question(chat_id, &content)
@@ -166,16 +205,17 @@ impl ChatCloudService for AICloudServiceMiddleware {
     }
   }
 
-  fn get_chat_messages(
+  async fn get_chat_messages(
     &self,
     workspace_id: &str,
     chat_id: &str,
     offset: MessageCursor,
     limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
+  ) -> Result<RepeatedChatMessage, FlowyError> {
     self
       .cloud_service
       .get_chat_messages(workspace_id, chat_id, offset, limit)
+      .await
   }
 
   async fn get_related_message(
@@ -189,7 +229,10 @@ impl ChatCloudService for AICloudServiceMiddleware {
         .local_llm_controller
         .get_related_question(chat_id)
         .await
-        .map_err(|err| FlowyError::local_ai().with_context(err))?
+        .map_err(|err| FlowyError::local_ai().with_context(err))?;
+      trace!("LocalAI related questions: {:?}", questions);
+
+      let items = questions
         .into_iter()
         .map(|content| RelatedQuestion {
           content,
@@ -197,10 +240,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
         })
         .collect::<Vec<_>>();
 
-      Ok(RepeatedRelatedQuestion {
-        message_id,
-        items: questions,
-      })
+      Ok(RepeatedRelatedQuestion { message_id, items })
     } else {
       self
         .cloud_service
@@ -248,7 +288,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     if self.local_llm_controller.is_running() {
       self
         .local_llm_controller
-        .index_file(chat_id, file_path.to_path_buf())
+        .index_file(chat_id, Some(file_path.to_path_buf()), None, None)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
       Ok(())

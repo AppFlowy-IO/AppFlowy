@@ -165,6 +165,7 @@ impl AppFlowyCore {
         Arc::downgrade(&authenticate_user),
         server_provider.clone(),
         store_preference.clone(),
+        Arc::downgrade(&storage_manager.storage_service),
       );
 
       let database_manager = DatabaseDepsResolver::resolve(

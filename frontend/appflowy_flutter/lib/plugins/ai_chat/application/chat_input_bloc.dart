@@ -81,3 +81,7 @@ class AIType with _$AIType {
   const factory AIType.appflowyAI() = _AppFlowyAI;
   const factory AIType.localAI() = _LocalAI;
 }
+
+extension AITypeX on AIType {
+  bool isLocalAI() => this is _LocalAI;
+}

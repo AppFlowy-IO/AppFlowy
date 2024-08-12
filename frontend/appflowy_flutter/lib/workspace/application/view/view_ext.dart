@@ -118,6 +118,10 @@ extension ViewExtension on ViewPB {
 
   bool get isSpace {
     try {
+      if (extra.isEmpty) {
+        return false;
+      }
+
       final ext = jsonDecode(extra);
       final isSpace = ext[ViewExtKeys.isSpaceKey] ?? false;
       return isSpace;
@@ -138,6 +142,10 @@ extension ViewExtension on ViewPB {
 
   FlowySvg? buildSpaceIconSvg(BuildContext context, {Size? size}) {
     try {
+      if (extra.isEmpty) {
+        return null;
+      }
+
       final ext = jsonDecode(extra);
       final icon = ext[ViewExtKeys.spaceIconKey];
       final color = ext[ViewExtKeys.spaceIconColorKey];
@@ -214,6 +222,11 @@ extension ViewExtension on ViewPB {
     if (layout != ViewLayoutPB.Document) {
       return null;
     }
+
+    if (extra.isEmpty) {
+      return null;
+    }
+
     try {
       final ext = jsonDecode(extra);
       final cover = ext[ViewExtKeys.coverKey] ?? {};

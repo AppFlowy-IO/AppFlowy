@@ -53,8 +53,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "4536488faf458ab45e304c1715850d4d1ae517ee"
-      resolved-ref: "4536488faf458ab45e304c1715850d4d1ae517ee"
+      ref: dc10742
+      resolved-ref: dc10742ba559e445e2ba1bd1b295cbf4758ccf3d
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "3.1.0"
@@ -1198,10 +1198,10 @@ packages:
     dependency: "direct main"
     description:
       name: keyboard_height_plugin
-      sha256: bbb32804bf93601249c17c33125cd2e654f5ef650fc6acf1b031d69b478b35ce
+      sha256: "3a51c8ebb43465ebe0b3bad17f3b6d945421e58011f3f5a08134afe69a3d775f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "0.1.5"
   leak_tracker:
     dependency: "direct main"
     description:
@@ -1510,10 +1510,10 @@ packages:
     dependency: transitive
     description:
       name: pdf
-      sha256: "81d5522bddc1ef5c28e8f0ee40b71708761753c163e0c93a40df56fd515ea0f0"
+      sha256: "05df53f8791587402493ac97b9869d3824eccbc77d97855f4545cf72df3cae07"
       url: "https://pub.dev"
     source: hosted
-    version: "3.11.0"
+    version: "3.11.1"
   pdf_widget_wrapper:
     dependency: transitive
     description:

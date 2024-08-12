@@ -6,19 +6,27 @@ use anyhow::Error;
 use appflowy_local_ai::chat_plugin::{AIPluginConfig, AppFlowyLocalAI};
 use appflowy_plugin::manager::PluginManager;
 use appflowy_plugin::util::is_apple_silicon;
-use flowy_ai_pub::cloud::{AppFlowyOfflineAI, ChatCloudService, LLMModel, LocalAIConfig};
+use flowy_ai_pub::cloud::{
+  AppFlowyOfflineAI, ChatCloudService, ChatMessageMetadata, ChatMetadataContentType, LLMModel,
+  LocalAIConfig,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::Sink;
 use lib_infra::async_trait::async_trait;
+use std::collections::HashMap;
 
+use crate::stream_message::StreamMessage;
+use futures_util::SinkExt;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::ops::Deref;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::select;
 use tokio_stream::StreamExt;
-use tracing::{debug, error, info, instrument};
+use tracing::{debug, error, info, instrument, trace};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LLMSetting {
@@ -173,7 +181,7 @@ impl LocalAIController {
   }
 
   pub fn open_chat(&self, chat_id: &str) {
-    if !self.is_running() {
+    if !self.is_enabled() {
       return;
     }
 
@@ -332,6 +340,114 @@ impl LocalAIController {
       .store_preferences
       .set_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED, enabled)?;
     Ok(enabled)
+  }
+  pub async fn index_message_metadata(
+    &self,
+    chat_id: &str,
+    metadata_list: &[ChatMessageMetadata],
+    index_process_sink: &mut (impl Sink<String> + Unpin),
+  ) -> FlowyResult<()> {
+    for metadata in metadata_list {
+      if let Err(err) = metadata.data.validate() {
+        error!(
+          "[AI Plugin] invalid metadata: {:?}, error: {:?}",
+          metadata, err
+        );
+        continue;
+      }
+
+      let mut index_metadata = HashMap::new();
+      index_metadata.insert("name".to_string(), json!(&metadata.name));
+      index_metadata.insert("at_name".to_string(), json!(format!("@{}", &metadata.name)));
+      index_metadata.insert("source".to_string(), json!(&metadata.source));
+      match &metadata.data.content_type {
+        ChatMetadataContentType::Unknown => {
+          error!(
+            "[AI Plugin] unsupported content type: {:?}",
+            metadata.data.content_type
+          );
+        },
+        ChatMetadataContentType::Text | ChatMetadataContentType::Markdown => {
+          trace!("[AI Plugin]: index text: {}", metadata.data.content);
+          self
+            .process_index_file(
+              chat_id,
+              None,
+              Some(metadata.data.content.clone()),
+              metadata,
+              &index_metadata,
+              index_process_sink,
+            )
+            .await?;
+        },
+        ChatMetadataContentType::PDF => {
+          trace!("[AI Plugin]: index pdf file: {}", metadata.data.content);
+          let file_path = Path::new(&metadata.data.content);
+          if file_path.exists() {
+            self
+              .process_index_file(
+                chat_id,
+                Some(file_path.to_path_buf()),
+                None,
+                metadata,
+                &index_metadata,
+                index_process_sink,
+              )
+              .await?;
+          }
+        },
+      }
+    }
+
+    Ok(())
+  }
+
+  async fn process_index_file(
+    &self,
+    chat_id: &str,
+    file_path: Option<PathBuf>,
+    content: Option<String>,
+    metadata: &ChatMessageMetadata,
+    index_metadata: &HashMap<String, serde_json::Value>,
+    index_process_sink: &mut (impl Sink<String> + Unpin),
+  ) -> Result<(), FlowyError> {
+    let _ = index_process_sink
+      .send(
+        StreamMessage::StartIndexFile {
+          file_name: metadata.name.clone(),
+        }
+        .to_string(),
+      )
+      .await;
+
+    let result = self
+      .index_file(chat_id, file_path, content, Some(index_metadata.clone()))
+      .await;
+    match result {
+      Ok(_) => {
+        let _ = index_process_sink
+          .send(
+            StreamMessage::EndIndexFile {
+              file_name: metadata.name.clone(),
+            }
+            .to_string(),
+          )
+          .await;
+      },
+      Err(err) => {
+        let _ = index_process_sink
+          .send(
+            StreamMessage::IndexFileError {
+              file_name: metadata.name.clone(),
+            }
+            .to_string(),
+          )
+          .await;
+        error!("[AI Plugin] failed to index file: {:?}", err);
+      },
+    }
+
+    Ok(())
   }
 
   async fn enable_chat_plugin(&self, enabled: bool) -> FlowyResult<()> {

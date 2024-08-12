@@ -195,6 +195,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
       margin: GridSize.cellContentInsets,
       radius: BorderRadius.zero,
       text: FlowyText(
+        lineHeight: 1.0,
         LocaleKeys.grid_field_newProperty.tr(),
         overflow: TextOverflow.ellipsis,
       ),

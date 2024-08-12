@@ -514,7 +514,7 @@ impl LocalAIResourceController {
   }
 
   pub(crate) fn resource_dir(&self) -> FlowyResult<PathBuf> {
-    let user_data_dir = self.user_service.data_root_dir()?;
+    let user_data_dir = self.user_service.application_root_dir()?;
     Ok(user_data_dir.join("ai"))
   }
 }
