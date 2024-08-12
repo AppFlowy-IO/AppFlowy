@@ -34,7 +34,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo "🖼️ Start generating image/svg files"
+echo "📷 Start generating image/svg files"
 
 # Store the current working directory
 original_dir=$(pwd)
@@ -73,9 +73,9 @@ fi
 # Return to the original directory
 cd "$original_dir"
 
-echo "🖼️ Done generating image/svg files."
+echo "📷 Done generating image/svg files."
 
 # echo the cost time
 end_time=$(date +%s)
 cost_time=$((end_time - start_time))
-echo "🖼️ Image/svg files generation cost $cost_time seconds."
+echo "📷 Image/svg files generation cost $cost_time seconds."

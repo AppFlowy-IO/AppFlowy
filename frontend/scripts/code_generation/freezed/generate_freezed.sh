@@ -73,8 +73,6 @@ if [ "$include_packages" = true ]; then
   done
 fi
 
-cd ..
-
 # Navigate to the appflowy_flutter directory and generate files
 echo "🧊 Start generating freezed files (AppFlowy)."
 

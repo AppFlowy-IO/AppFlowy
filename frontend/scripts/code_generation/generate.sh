@@ -51,20 +51,20 @@ chmod +x ./generate_language_files.sh
 # Return to the main script directory
 cd ..
 
-# Call the script in the 'freezed' folder
-cd freezed
-# Allow execution permissions on CI
-chmod +x ./generate_freezed.sh
-./generate_freezed.sh "${args[@]}"
-
-# Return to the main script directory
-cd ..
-
 # Call the script in the 'flowy_icons' folder
 cd flowy_icons
 # Allow execution permissions on CI
 chmod +x ./generate_flowy_icons.sh
 ./generate_flowy_icons.sh "${args[@]}"
+
+# Return to the main script directory
+cd ..
+
+# Call the script in the 'freezed' folder
+cd freezed
+# Allow execution permissions on CI
+chmod +x ./generate_freezed.sh
+./generate_freezed.sh "${args[@]}"
 
 # Return to the original directory
 cd "$original_dir"
