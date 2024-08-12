@@ -1,5 +1,6 @@
 use anyhow::anyhow;
 use arc_swap::ArcSwapOption;
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
@@ -102,7 +103,6 @@ impl DatabaseManager {
       collab_builder: self.collab_builder.clone(),
       cloud_service: self.cloud_service.clone(),
     };
-    let config = CollabPersistenceConfig::new().snapshot_per_update(100);
 
     let workspace_id = self.user.workspace_id()?;
     let workspace_database_object_id = self.user.workspace_database_object_id()?;
@@ -142,7 +142,40 @@ impl DatabaseManager {
       "open aggregate database views object: {}",
       &workspace_database_object_id
     );
-    //FIXME: unfortunatelly UserDatabaseCollabService::build_collab_with_config is broken by
+
+    let workspace_id = self
+      .user
+      .workspace_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
+    let collab_object = self.collab_builder.collab_object(
+      &workspace_id,
+      uid,
+      &workspace_database_object_id,
+      CollabType::WorkspaceDatabase,
+    )?;
+    let workspace_database = self.collab_builder.create_workspace(
+      collab_object,
+      workspace_database_doc_state,
+      collab_db,
+      CollabBuilderConfig::default().sync_enable(true),
+      collab_builder,
+    )?;
+    self.workspace_database.store(Some(workspace_database));
+    Ok(())
+  }
+
+  fn initialize_plugins<T>(
+    &self,
+    uid: i64,
+    object_id: &str,
+    collab_db: Weak<CollabKVDB>,
+    collab_type: CollabType,
+    collab: Arc<RwLock<T>>,
+  ) -> FlowyResult<Arc<RwLock<T>>>
+  where
+    T: BorrowMut<Collab> + Send + Sync + 'static,
+  {
+    //FIXME: unfortunately UserDatabaseCollabService::build_collab_with_config is broken by
     //  design as it assumes that we can split collab building process, which we cannot because:
     //  1. We should not be able to run plugins ie. SyncPlugin over not-fully initialized collab,
     //     and that's what originally build_collab_with_config did.
@@ -151,34 +184,20 @@ impl DatabaseManager {
     // Ideally we should never need to initialize plugins that require collab instance as part of
     // that collab construction process itself - it means that we should redesign SyncPlugin to only
     // be fired once a collab is fully initialized.
-    let collab = collab_builder.build_collab_with_config(
-      uid,
-      &workspace_database_object_id,
-      CollabType::WorkspaceDatabase,
-      collab_db.clone(),
-      workspace_database_doc_state,
-      config.clone(),
-    )?;
-    let wdb = WorkspaceDatabase::open(uid, collab, collab_db.clone(), config, collab_builder);
     let workspace_id = self
       .user
       .workspace_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
-    let object = self.collab_builder.collab_object(
-      &workspace_id,
-      uid,
-      &workspace_database_object_id,
-      CollabType::WorkspaceDatabase,
-    )?;
-    let workspace_database = self.collab_builder.finalize(
+    let object = self
+      .collab_builder
+      .collab_object(&workspace_id, uid, &object_id, collab_type)?;
+    let collab = self.collab_builder.finalize(
       object,
       CollabBuilderConfig::default().sync_enable(true),
       collab_db,
-      wdb,
+      collab,
     )?;
-
-    self.workspace_database.store(Some(workspace_database));
-    Ok(())
+    Ok(collab)
   }
 
   #[instrument(
@@ -362,6 +381,7 @@ impl DatabaseManager {
     let lock = self.workspace_database()?;
     let mut wdb = lock.write().await;
     let database = wdb.create_database(params)?;
+
     Ok(database)
   }
 
@@ -666,6 +686,8 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     })
   }
 
+  ///NOTE: this method doesn't initialize plugins, however it is passed into WorkspaceDatabase,
+  /// therefore all Database/DatabaseRow creation methods must initialize plugins thmselves.
   fn build_collab_with_config(
     &self,
     uid: i64,

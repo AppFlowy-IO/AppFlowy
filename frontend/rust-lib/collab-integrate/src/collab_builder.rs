@@ -166,6 +166,7 @@ impl AppFlowyCollabBuilder {
     assert_eq!(object.collab_type, CollabType::Document);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let document = Document::open_with(collab, data)?;
+    let document = Arc::new(RwLock::new(document));
     self.finalize(object, builder_config, collab_db, document)
   }
 
@@ -186,6 +187,7 @@ impl AppFlowyCollabBuilder {
     assert_eq!(object.collab_type, CollabType::Folder);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let folder = Folder::open_with(object.uid, collab, folder_notifier, folder_data);
+    let folder = Arc::new(RwLock::new(folder));
     self.finalize(object, builder_config, collab_db, folder)
   }
 
@@ -204,8 +206,9 @@ impl AppFlowyCollabBuilder {
   ) -> Result<Arc<RwLock<UserAwareness>>, Error> {
     assert_eq!(object.collab_type, CollabType::UserAwareness);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
-    let document = UserAwareness::open(collab, notifier);
-    self.finalize(object, builder_config, collab_db, document)
+    let user_awareness = UserAwareness::open(collab, notifier);
+    let user_awareness = Arc::new(RwLock::new(user_awareness));
+    self.finalize(object, builder_config, collab_db, user_awareness)
   }
 
   #[allow(clippy::too_many_arguments)]
@@ -231,6 +234,7 @@ impl AppFlowyCollabBuilder {
       persistence_config,
       collab_service,
     );
+    let workspace = Arc::new(RwLock::new(workspace));
     self.finalize(object, builder_config, collab_db, workspace)
   }
 
@@ -275,12 +279,11 @@ impl AppFlowyCollabBuilder {
     object: CollabObject,
     build_config: CollabBuilderConfig,
     collab_db: Weak<CollabKVDB>,
-    collab: T,
+    collab: Arc<RwLock<T>>,
   ) -> Result<Arc<RwLock<T>>, Error>
   where
     T: BorrowMut<Collab> + Send + Sync + 'static,
   {
-    let collab = Arc::new(RwLock::new(collab));
     if build_config.sync_enable {
       let plugin_provider = self.plugin_provider.load_full();
       let provider_type = plugin_provider.provider_type();
