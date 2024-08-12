@@ -448,7 +448,7 @@ Widget _slashMenuItemNameBuilder(
   SelectionMenuStyle style,
   bool isSelected,
 ) {
-  return FlowyText(
+  return FlowyText.regular(
     name,
     fontSize: 12.0,
     figmaLineHeight: 15.0,

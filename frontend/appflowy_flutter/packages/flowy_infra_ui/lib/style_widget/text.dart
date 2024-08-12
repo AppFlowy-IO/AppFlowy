@@ -167,10 +167,11 @@ class FlowyText extends StatelessWidget {
     }
 
     double? lineHeight;
-    if (this.lineHeight != null) {
-      lineHeight = this.lineHeight!;
-    } else if (figmaLineHeight != null) {
+    // use figma line height as first priority
+    if (figmaLineHeight != null) {
       lineHeight = figmaLineHeight! / fontSize;
+    } else if (this.lineHeight != null) {
+      lineHeight = this.lineHeight!;
     }
 
     if (isEmoji && (_useNotoColorEmoji || Platform.isWindows)) {
@@ -210,7 +211,7 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
-        strutStyle: (isEmoji && optimizeEmojiAlign)
+        strutStyle: !isEmoji || (isEmoji && optimizeEmojiAlign)
             ? StrutStyle.fromTextStyle(
                 textStyle,
                 forceStrutHeight: true,
