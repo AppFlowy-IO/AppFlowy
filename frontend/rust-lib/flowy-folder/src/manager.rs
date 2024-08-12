@@ -39,12 +39,13 @@ use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::future;
-use parking_lot::RwLock;
+use parking_lot::{RawRwLock, RwLock};
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
-use tracing::{error, info, instrument};
+use std::time::Duration;
+use tracing::{error, info, instrument, trace};
 
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -89,7 +90,7 @@ impl FolderManager {
   #[instrument(level = "debug", skip(self), err)]
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
     let workspace_id = self.user.workspace_id()?;
-    self.with_folder(
+    self.with_write_folder(
       || {
         let uid = self.user.user_id()?;
         Err(workspace_data_not_sync_error(uid, &workspace_id))
@@ -118,14 +119,14 @@ impl FolderManager {
 
   pub async fn get_workspace_public_views(&self) -> FlowyResult<Vec<ViewPB>> {
     let workspace_id = self.user.workspace_id()?;
-    Ok(self.with_folder(Vec::new, |folder| {
+    Ok(self.with_write_folder(Vec::new, |folder| {
       get_workspace_public_view_pbs(&workspace_id, folder)
     }))
   }
 
   pub async fn get_workspace_private_views(&self) -> FlowyResult<Vec<ViewPB>> {
     let workspace_id = self.user.workspace_id()?;
-    Ok(self.with_folder(Vec::new, |folder| {
+    Ok(self.with_write_folder(Vec::new, |folder| {
       get_workspace_private_view_pbs(&workspace_id, folder)
     }))
   }
@@ -322,7 +323,7 @@ impl FolderManager {
     &self,
     views: Vec<ParentChildViews>,
   ) -> Result<(), FlowyError> {
-    self.with_folder(
+    self.with_write_folder(
       || Err(FlowyError::internal().with_context("The folder is not initialized")),
       |folder| {
         for view in views {
@@ -368,15 +369,37 @@ impl FolderManager {
   ///
   /// * `none_callback`: A callback function that is invoked when `mutex_folder` contains `None`.
   /// * `f2`: A callback function that is invoked when `mutex_folder` contains a `Some` value. The contained folder is passed as an argument to this callback.
-  fn with_folder<F1, F2, Output>(&self, none_callback: F1, f2: F2) -> Output
+  fn with_write_folder<F1, F2, Output>(&self, none_callback: F1, f2: F2) -> Output
   where
     F1: FnOnce() -> Output,
     F2: FnOnce(&Folder) -> Output,
   {
-    let folder = self.mutex_folder.write();
-    match &*folder {
-      None => none_callback(),
-      Some(folder) => f2(folder),
+    match self.mutex_folder.try_write() {
+      None => {
+        trace!("Try write folder failed");
+        none_callback()
+      },
+      Some(folder) => match &*folder {
+        None => none_callback(),
+        Some(folder) => f2(folder),
+      },
+    }
+  }
+
+  fn with_read_folder<F1, F2, Output>(&self, none_callback: F1, f2: F2) -> Output
+  where
+    F1: FnOnce() -> Output,
+    F2: FnOnce(&Folder) -> Output,
+  {
+    match self.mutex_folder.try_read_for(Duration::from_millis(300)) {
+      None => {
+        trace!("Try read folder failed");
+        none_callback()
+      },
+      Some(folder) => match &*folder {
+        None => none_callback(),
+        Some(folder) => f2(folder),
+      },
     }
   }
 
@@ -412,7 +435,7 @@ impl FolderManager {
     let section = params.section.clone().unwrap_or(ViewSectionPB::Public);
     let is_private = section == ViewSectionPB::Private;
     let view = create_view(self.user.user_id()?, params, view_layout);
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         folder.insert_view(view.clone(), index);
@@ -448,7 +471,7 @@ impl FolderManager {
       .await?;
 
     let view = create_view(self.user.user_id()?, params, view_layout);
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         folder.insert_view(view.clone(), None);
@@ -459,7 +482,7 @@ impl FolderManager {
 
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    if let Some(view) = self.with_folder(|| None, |folder| folder.views.get_view(view_id)) {
+    if let Some(view) = self.with_write_folder(|| None, |folder| folder.views.get_view(view_id)) {
       let handler = self.get_handler(&view.layout)?;
       handler.close_view(view_id).await?;
     }
@@ -577,7 +600,7 @@ impl FolderManager {
     let mut ancestors = vec![];
     let mut parent_view_id = view_id.to_string();
     while let Some(view) =
-      self.with_folder(|| None, |folder| folder.views.get_view(&parent_view_id))
+      self.with_read_folder(|| None, |folder| folder.views.get_view(&parent_view_id))
     {
       // If the view is already in the ancestors list, then break the loop
       if ancestors.iter().any(|v: &ViewPB| v.id == view.id) {
@@ -595,7 +618,7 @@ impl FolderManager {
   /// All the favorite views being trashed will be unfavorited first to remove it from favorites list as well. The process of unfavoriting concerned view is handled by `unfavorite_view_and_decendants()`
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         if let Some(view) = folder.views.get_view(view_id) {
@@ -672,7 +695,7 @@ impl FolderManager {
     let to_section = params.to_section;
     let view = self.get_view_pb(&view_id).await?;
     let old_parent_id = view.parent_view_id;
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         folder.move_nested_view(&view_id, &new_parent_id, prev_view_id);
@@ -731,7 +754,7 @@ impl FolderManager {
         if let (Some(actual_from_index), Some(actual_to_index)) =
           (actual_from_index, actual_to_index)
         {
-          self.with_folder(
+          self.with_write_folder(
             || (),
             |folder| {
               folder.move_view(view_id, actual_from_index as u32, actual_to_index as u32);
@@ -751,7 +774,7 @@ impl FolderManager {
   /// Return a list of views that belong to the given parent view id.
   #[tracing::instrument(level = "debug", skip(self, parent_view_id), err)]
   pub async fn get_views_belong_to(&self, parent_view_id: &str) -> FlowyResult<Vec<Arc<View>>> {
-    let views = self.with_folder(Vec::new, |folder| {
+    let views = self.with_write_folder(Vec::new, |folder| {
       folder.views.get_views_belong_to(parent_view_id)
     });
     Ok(views)
@@ -760,6 +783,7 @@ impl FolderManager {
   /// Update the view with the given params.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
+    trace!("update view: {:?}", params);
     self
       .update_view(&params.view_id, |update| {
         update
@@ -792,7 +816,7 @@ impl FolderManager {
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn duplicate_view(&self, params: DuplicateViewParams) -> Result<(), FlowyError> {
     let view = self
-      .with_folder(|| None, |folder| folder.views.get_view(&params.view_id))
+      .with_write_folder(|| None, |folder| folder.views.get_view(&params.view_id))
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can't duplicate the view"))?;
     let parent_view_id = params
       .parent_view_id
@@ -831,7 +855,7 @@ impl FolderManager {
     }
 
     // filter the view ids that in the trash or private section
-    let filtered_view_ids = self.with_folder(Vec::new, |folder| {
+    let filtered_view_ids = self.with_write_folder(Vec::new, |folder| {
       self.get_view_ids_should_be_filtered(folder)
     });
 
@@ -844,7 +868,7 @@ impl FolderManager {
 
     while let Some((current_view_id, current_parent_id)) = stack.pop() {
       let view = self
-        .with_folder(|| None, |folder| folder.views.get_view(&current_view_id))
+        .with_write_folder(|| None, |folder| folder.views.get_view(&current_view_id))
         .ok_or_else(|| {
           FlowyError::record_not_found()
             .with_context(format!("Can't duplicate the view({})", view_id))
@@ -864,7 +888,7 @@ impl FolderManager {
             .map(|i| i as u32)
         });
 
-      let section = self.with_folder(
+      let section = self.with_write_folder(
         || ViewSectionPB::Private,
         |folder| {
           if folder.is_view_in_section(Section::Private, &view.id) {
@@ -957,7 +981,7 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub(crate) async fn set_current_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    self.with_folder(
+    self.with_write_folder(
       || Err(FlowyError::record_not_found()),
       |folder| {
         folder.set_current_view(view_id);
@@ -988,14 +1012,14 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_current_view(&self) -> Option<ViewPB> {
-    let view_id = self.with_folder(|| None, |folder| folder.get_current_view())?;
+    let view_id = self.with_write_folder(|| None, |folder| folder.get_current_view())?;
     self.get_view_pb(&view_id).await.ok()
   }
 
   /// Toggles the favorite status of a view identified by `view_id`If the view is not a favorite, it will be added to the favorites list; otherwise, it will be removed from the list.
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn toggle_favorites(&self, view_id: &str) -> FlowyResult<()> {
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         if let Some(old_view) = folder.views.get_view(view_id) {
@@ -1014,7 +1038,7 @@ impl FolderManager {
   /// Add the view to the recent view list / history.
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn add_recent_views(&self, view_ids: Vec<String>) -> FlowyResult<()> {
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         folder.add_recent_view_ids(view_ids);
@@ -1027,7 +1051,7 @@ impl FolderManager {
   /// Add the view to the recent view list / history.
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn remove_recent_views(&self, view_ids: Vec<String>) -> FlowyResult<()> {
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         folder.delete_recent_view_ids(view_ids);
@@ -1048,7 +1072,7 @@ impl FolderManager {
     selected_view_ids: Option<Vec<String>>,
   ) -> FlowyResult<()> {
     let view = self
-      .with_folder(|| None, |folder| folder.views.get_view(view_id))
+      .with_write_folder(|| None, |folder| folder.views.get_view(view_id))
       .ok_or_else(|| {
         FlowyError::record_not_found()
           .with_context(format!("Can't find the view with ID: {}", view_id))
@@ -1321,12 +1345,12 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_my_trash_info(&self) -> Vec<TrashInfo> {
-    self.with_folder(Vec::new, |folder| folder.get_my_trash_info())
+    self.with_write_folder(Vec::new, |folder| folder.get_my_trash_info())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_all_trash(&self) {
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         folder.remove_all_my_trash_sections();
@@ -1339,7 +1363,7 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_trash(&self, trash_id: &str) {
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         folder.delete_trash_view_ids(vec![trash_id.to_string()]);
@@ -1350,7 +1374,7 @@ impl FolderManager {
   /// Delete all the trash permanently.
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn delete_my_trash(&self) {
-    let deleted_trash = self.with_folder(Vec::new, |folder| folder.get_my_trash_info());
+    let deleted_trash = self.with_write_folder(Vec::new, |folder| folder.get_my_trash_info());
     for trash in deleted_trash {
       let _ = self.delete_trash(&trash.id).await;
     }
@@ -1364,8 +1388,8 @@ impl FolderManager {
   /// is a database view. Then the database will be deleted as well.
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
   pub async fn delete_trash(&self, view_id: &str) -> FlowyResult<()> {
-    let view = self.with_folder(|| None, |folder| folder.views.get_view(view_id));
-    self.with_folder(
+    let view = self.with_write_folder(|| None, |folder| folder.views.get_view(view_id));
+    self.with_write_folder(
       || (),
       |folder| {
         folder.delete_trash_view_ids(vec![view_id.to_string()]);
@@ -1440,7 +1464,7 @@ impl FolderManager {
     let view = create_view(self.user.user_id()?, params, import_data.view_layout);
 
     // Insert the new view into the folder
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         folder.insert_view(view.clone(), None);
@@ -1508,7 +1532,7 @@ impl FolderManager {
     F: FnOnce(ViewUpdate) -> Option<View>,
   {
     let workspace_id = self.user.workspace_id()?;
-    let value = self.with_folder(
+    let value = self.with_write_folder(
       || None,
       |folder| {
         let old_view = folder.views.get_view(view_id);
@@ -1574,7 +1598,7 @@ impl FolderManager {
   /// child view ids of the view.
   async fn get_view_relation(&self, view_id: &str) -> Option<(bool, String, Vec<String>)> {
     let workspace_id = self.user.workspace_id().ok()?;
-    self.with_folder(
+    self.with_write_folder(
       || None,
       |folder| {
         let view = folder.views.get_view(view_id)?;
@@ -1629,7 +1653,7 @@ impl FolderManager {
   }
 
   pub fn set_views_visibility(&self, view_ids: Vec<String>, is_public: bool) {
-    self.with_folder(
+    self.with_write_folder(
       || (),
       |folder| {
         if is_public {
@@ -1643,7 +1667,7 @@ impl FolderManager {
 
   /// Only support getting the Favorite and Recent sections.
   fn get_sections(&self, section_type: Section) -> Vec<SectionItem> {
-    self.with_folder(Vec::new, |folder| {
+    self.with_read_folder(Vec::new, |folder| {
       let views = match section_type {
         Section::Favorite => folder.get_my_favorite_sections(),
         Section::Recent => folder.get_my_recent_sections(),
