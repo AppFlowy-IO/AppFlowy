@@ -4,6 +4,7 @@ use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use crate::persistence::{select_single_message, ChatMessageTable};
 use appflowy_plugin::error::PluginError;
+use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionType,
@@ -15,11 +16,11 @@ use futures::{stream, Sink, StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
-use crate::local_ai::stream_util::LocalAIStreamAdaptor;
+use crate::local_ai::stream_util::QuestionStream;
 use crate::stream_message::StreamMessage;
 use flowy_storage_pub::storage::StorageService;
 use futures_util::SinkExt;
-use serde_json::json;
+use serde_json::{json, Value};
 use std::path::Path;
 use std::sync::{Arc, Weak};
 use tracing::trace;
@@ -157,7 +158,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
         .stream_question(chat_id, &row.content, json!([]))
         .await
       {
-        Ok(stream) => Ok(LocalAIStreamAdaptor::new(stream).boxed()),
+        Ok(stream) => Ok(QuestionStream::new(stream).boxed()),
         Err(err) => {
           self.handle_plugin_error(err);
           Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
@@ -284,18 +285,19 @@ impl ChatCloudService for AICloudServiceMiddleware {
     workspace_id: &str,
     file_path: &Path,
     chat_id: &str,
+    metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
     if self.local_llm_controller.is_running() {
       self
         .local_llm_controller
-        .index_file(chat_id, Some(file_path.to_path_buf()), None, None)
+        .index_file(chat_id, Some(file_path.to_path_buf()), None, metadata)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
       Ok(())
     } else {
       self
         .cloud_service
-        .index_file(workspace_id, file_path, chat_id)
+        .index_file(workspace_id, file_path, chat_id, metadata)
         .await
     }
   }

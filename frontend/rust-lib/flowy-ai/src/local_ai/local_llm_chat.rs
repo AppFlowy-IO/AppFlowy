@@ -357,6 +357,7 @@ impl LocalAIController {
       }
 
       let mut index_metadata = HashMap::new();
+      index_metadata.insert("id".to_string(), json!(&metadata.id));
       index_metadata.insert("name".to_string(), json!(&metadata.name));
       index_metadata.insert("at_name".to_string(), json!(format!("@{}", &metadata.name)));
       index_metadata.insert("source".to_string(), json!(&metadata.source));

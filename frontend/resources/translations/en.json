@@ -666,6 +666,7 @@
         "downloadLLMPrompt": "Download {}",
         "downloadAppFlowyOfflineAI": "Downloading AI offline package will enable AI to run on your device. Do you want to continue?",
         "downloadLLMPromptDetail": "Downloading {} local model will take up to {} of storage. Do you want to continue?",
+        "downloadBigFilePrompt": "It may take around 10 minutes to complete the download",
         "downloadAIModelButton": "Download",
         "downloadingModel": "Downloading",
         "localAILoaded": "Local AI Model successfully added and ready to use",
@@ -735,15 +736,15 @@
             "title": "AI Max",
             "description": "Unlimited AI responses powered by GPT-4o, Claude 3.5 Sonnet, and more",
             "price": "{}",
-            "priceInfo": "per user per month",
-            "billingInfo": "billed annually or {} billed monthly"
+            "priceInfo": "per user per month billed annually",
+            "recommend": ""
           },
           "aiOnDevice": {
             "title": "AI On-device for Mac",
             "description": "Run Mistral 7B, LLAMA 3, and more local models on your machine",
             "price": "{}",
-            "priceInfo": "per user per month",
-            "billingInfo": "billed annually or {} billed monthly"
+            "priceInfo": "per user per month billed annually",
+            "recommend": "Recommend M1 or newer"
           }
         },
         "deal": {

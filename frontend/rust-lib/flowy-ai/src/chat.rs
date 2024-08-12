@@ -513,6 +513,7 @@ impl Chat {
         &self.user_service.workspace_id()?,
         &file_path,
         &self.chat_id,
+        None,
       )
       .await?;
 

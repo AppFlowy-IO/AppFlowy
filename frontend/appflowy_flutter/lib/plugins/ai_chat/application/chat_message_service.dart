@@ -10,6 +10,9 @@ import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:nanoid/nanoid.dart';
 
+/// Indicate file source from appflowy document
+const appflowySoruce = "appflowy";
+
 List<ChatFile> fileListFromMessageMetadata(
   Map<String, dynamic>? map,
 ) {
@@ -75,6 +78,7 @@ List<ChatMessageRefSource> messageReferenceSource(String? s) {
       Log.warn("metadata is null");
       return [];
     }
+    // [{"id":null,"name":"The Five Dysfunctions of a Team.pdf","source":"/Users/weidongfu/Desktop/The Five Dysfunctions of a Team.pdf"}]
 
     if (metadataJson is Map<String, dynamic>) {
       if (metadataJson.isNotEmpty) {
@@ -115,7 +119,7 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
                   name: view.name,
                   data: pb.text,
                   dataType: ChatMessageMetaTypePB.Txt,
-                  source: "appflowy",
+                  source: appflowySoruce,
                 ),
               );
             }, (err) {

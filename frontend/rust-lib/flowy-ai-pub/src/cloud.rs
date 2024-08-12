@@ -12,6 +12,8 @@ use flowy_error::FlowyError;
 use futures::stream::BoxStream;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
+use serde_json::Value;
+use std::collections::HashMap;
 use std::path::Path;
 
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
@@ -85,6 +87,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     workspace_id: &str,
     file_path: &Path,
     chat_id: &str,
+    metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError>;
 
   async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError>;
