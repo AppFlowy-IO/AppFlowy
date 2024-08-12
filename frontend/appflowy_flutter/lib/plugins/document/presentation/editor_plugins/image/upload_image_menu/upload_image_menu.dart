@@ -1,17 +1,15 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/stability_ai_image_widget.dart';
+//import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/stability_ai_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/upload_image_file_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ColorOption;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 
 import 'widgets/embed_image_url_widget.dart';
 
@@ -19,8 +17,6 @@ enum UploadImageType {
   local,
   url,
   unsplash,
-  stabilityAI,
-  // openAI,
   color;
 
   String get description {
@@ -31,10 +27,6 @@ enum UploadImageType {
         return LocaleKeys.document_imageBlock_embedLink_label.tr();
       case UploadImageType.unsplash:
         return LocaleKeys.document_imageBlock_unsplash_label.tr();
-      // case UploadImageType.openAI:
-      //   return LocaleKeys.document_imageBlock_ai_label.tr();
-      case UploadImageType.stabilityAI:
-        return LocaleKeys.document_imageBlock_stability_ai_label.tr();
       case UploadImageType.color:
         return LocaleKeys.document_plugins_cover_colors.tr();
     }
@@ -68,33 +60,12 @@ class UploadImageMenu extends StatefulWidget {
 class _UploadImageMenuState extends State<UploadImageMenu> {
   late final List<UploadImageType> values;
   int currentTabIndex = 0;
-  bool supportOpenAI = false;
-  bool supportStabilityAI = false;
 
   @override
   void initState() {
     super.initState();
 
     values = widget.supportTypes;
-    UserBackendService.getCurrentUserProfile().then(
-      (value) {
-        final supportOpenAI = value.fold(
-          (s) => s.openaiKey.isNotEmpty,
-          (e) => false,
-        );
-        final supportStabilityAI = value.fold(
-          (s) => s.stabilityAiKey.isNotEmpty,
-          (e) => false,
-        );
-        if (supportOpenAI != this.supportOpenAI ||
-            supportStabilityAI != this.supportStabilityAI) {
-          setState(() {
-            this.supportOpenAI = supportOpenAI;
-            this.supportStabilityAI = supportStabilityAI;
-          });
-        }
-      },
-    );
   }
 
   @override
@@ -196,23 +167,6 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
             ),
           ),
         );
-      case UploadImageType.stabilityAI:
-        return supportStabilityAI
-            ? Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  child: StabilityAIImageWidget(
-                    onSelectImage: (url) => widget.onSelectedLocalImages([url]),
-                  ),
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: FlowyText(
-                  LocaleKeys.document_imageBlock_pleaseInputYourStabilityAIKey
-                      .tr(),
-                ),
-              );
       case UploadImageType.color:
         final theme = Theme.of(context);
         final padding = PlatformExtension.isMobile
