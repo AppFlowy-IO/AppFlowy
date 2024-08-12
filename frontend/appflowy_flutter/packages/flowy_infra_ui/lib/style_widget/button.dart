@@ -306,6 +306,7 @@ class FlowyTextButton extends StatelessWidget {
     this.fontFamily,
     this.isDangerous = false,
     this.borderColor,
+    this.lineHeight,
   });
 
   factory FlowyTextButton.primary({
@@ -362,6 +363,7 @@ class FlowyTextButton extends StatelessWidget {
   final String? fontFamily;
   final bool isDangerous;
   final Color? borderColor;
+  final double? lineHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -375,6 +377,7 @@ class FlowyTextButton extends StatelessWidget {
       overflow: overflow,
       color: textColor,
       textAlign: TextAlign.center,
+      lineHeight: lineHeight,
     ));
 
     Widget child = Row(
@@ -411,7 +414,7 @@ class FlowyTextButton extends StatelessWidget {
               fontSize: fontSize,
               decoration: decoration,
               fontFamily: fontFamily,
-              height: 1.1,
+              height: lineHeight ?? 1.1,
             ),
           ),
           backgroundColor: WidgetStateProperty.resolveWith(

@@ -362,6 +362,7 @@ class _CurrentPathState extends State<_CurrentPath> {
                     widget.path,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                    lineHeight: 1.5,
                     decoration: isHovering ? TextDecoration.underline : null,
                     color: isLM
                         ? const Color(0xFF005483)

@@ -88,7 +88,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             Int64? beforeMessageId;
             final oldestMessage = _getOlderstMessage();
             if (oldestMessage != null) {
-              beforeMessageId = Int64.parseInt(oldestMessage.id);
+              try {
+                beforeMessageId = Int64.parseInt(oldestMessage.id);
+              } catch (e) {
+                Log.error(
+                  "Failed to parse message id: $e, messaeg_id: ${oldestMessage.id}",
+                );
+              }
             }
             _loadPrevMessage(beforeMessageId);
             emit(
@@ -439,7 +445,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     QuestionStream stream,
     Map<String, dynamic>? sentMetadata,
   ) {
-    questionStreamMessageId = nanoid();
+    final now = DateTime.now();
+    final timestamp = now.millisecondsSinceEpoch;
+    questionStreamMessageId = timestamp.toString();
     final Map<String, dynamic> metadata = {};
 
     // if (sentMetadata != null) {

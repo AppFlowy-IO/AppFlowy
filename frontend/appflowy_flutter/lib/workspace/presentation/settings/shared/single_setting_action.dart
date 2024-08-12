@@ -113,6 +113,7 @@ class SingleSettingAction extends StatelessWidget {
             fontSize: 12,
             isDangerous: buttonType.isDangerous,
             onPressed: onPressed,
+            lineHeight: 1.0,
           ),
         ),
       ],

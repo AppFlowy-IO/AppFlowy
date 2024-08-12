@@ -40,7 +40,7 @@ class PrimaryRoundedButton extends StatelessWidget {
         text,
         fontSize: fontSize ?? 14.0,
         fontWeight: fontWeight ?? FontWeight.w500,
-        lineHeight: lineHeight,
+        lineHeight: lineHeight ?? 1.0,
         figmaLineHeight: figmaLineHeight,
         color: Theme.of(context).colorScheme.onPrimary,
         textAlign: TextAlign.center,

@@ -248,6 +248,7 @@ class _WorkspaceInfo extends StatelessWidget {
               FlowyText.medium(
                 workspace.name,
                 fontSize: 14.0,
+                figmaLineHeight: 17.0,
                 overflow: TextOverflow.ellipsis,
                 withTooltip: true,
               ),
@@ -260,6 +261,7 @@ class _WorkspaceInfo extends StatelessWidget {
                         members.length,
                       ),
                 fontSize: 10.0,
+                figmaLineHeight: 12.0,
                 color: Theme.of(context).hintColor,
               ),
             ],

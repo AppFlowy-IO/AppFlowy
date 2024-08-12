@@ -1653,7 +1653,7 @@
         "placeholderText": "Upload or embed a file",
         "placeholderDragging": "Drop the file to upload",
         "dropFileToUpload": "Drop the file to upload",
-        "fileUploadHint": "Drag and drop a file here\nor click to select a file.",
+        "fileUploadHint": "Drop a file here to upload\nor click to browse",
         "networkHint": "Paste a file link",
         "networkUrlInvalid": "Invalid URL, please correct the URL and try again",
         "networkAction": "Embed file link",
@@ -1884,6 +1884,7 @@
   },
   "search": {
     "label": "Search",
+    "sidebarSearchIcon": "Search and quickly jump to a page",
     "placeholder": {
       "actions": "Search actions..."
     }
