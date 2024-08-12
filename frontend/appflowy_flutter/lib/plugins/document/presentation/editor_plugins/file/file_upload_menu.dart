@@ -162,6 +162,7 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
                                 .tr(),
                             fontSize: 16,
                             maxLines: 2,
+                            lineHeight: 1.5,
                             textAlign: TextAlign.center,
                           ),
                         ],
