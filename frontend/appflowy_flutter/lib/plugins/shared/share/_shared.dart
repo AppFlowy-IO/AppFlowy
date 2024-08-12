@@ -43,6 +43,7 @@ class ShareMenuButton extends StatelessWidget {
           ),
           child: PrimaryRoundedButton(
             text: LocaleKeys.shareAction_buttonText.tr(),
+            figmaLineHeight: 16,
           ),
         ),
       ),
