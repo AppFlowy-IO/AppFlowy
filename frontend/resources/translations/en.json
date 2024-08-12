@@ -1158,7 +1158,6 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your AI key",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
       "clickToLogout": "Click to logout the current user"
     },
     "mobile": {
@@ -1712,7 +1711,6 @@
       },
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your AI key in Settings page",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
       "saveImageToGallery": "Save image",
       "failedToAddImageToGallery": "Failed to add image to gallery",
       "successToAddImageToGallery": "Image added to gallery successfully",

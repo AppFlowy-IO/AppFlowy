@@ -102,7 +102,6 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
               UploadImageType.local,
               UploadImageType.url,
               UploadImageType.unsplash,
-              //UploadImageType.stabilityAI,
             ],
             onSelectedLocalImages: (paths) {
               controller.close();
@@ -188,12 +187,13 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       return [
         Flexible(
           child: FlowyText(
-              PlatformExtension.isDesktop
-                  ? isDraggingFiles
-                      ? LocaleKeys.document_plugins_image_dropImageToInsert.tr()
-                      : LocaleKeys.document_plugins_image_addAnImageDesktop.tr()
-                  : LocaleKeys.document_plugins_image_addAnImageMobile.tr(),
-              color: Theme.of(context).hintColor,),
+            PlatformExtension.isDesktop
+                ? isDraggingFiles
+                    ? LocaleKeys.document_plugins_image_dropImageToInsert.tr()
+                    : LocaleKeys.document_plugins_image_addAnImageDesktop.tr()
+                : LocaleKeys.document_plugins_image_addAnImageMobile.tr(),
+            color: Theme.of(context).hintColor,
+          ),
         ),
       ];
     }
