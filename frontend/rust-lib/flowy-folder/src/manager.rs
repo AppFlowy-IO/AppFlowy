@@ -373,7 +373,7 @@ impl FolderManager {
     F1: FnOnce() -> Output,
     F2: FnOnce(&Folder) -> Output,
   {
-    let folder = self.mutex_folder.read();
+    let folder = self.mutex_folder.write();
     match &*folder {
       None => none_callback(),
       Some(folder) => f2(folder),
