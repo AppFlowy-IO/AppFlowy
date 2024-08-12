@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 
 class EmbedImageUrlWidget extends StatefulWidget {
   const EmbedImageUrlWidget({
@@ -44,8 +43,7 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
           width: 300,
           child: FlowyButton(
             backgroundColor: Theme.of(context).colorScheme.primary,
-            //TODO(Lucas): change the hover color to the color used for the Share button
-            hoverColor: Theme.of(context).colorScheme.primary,
+            hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
             showDefaultBoxDecorationOnMobile: true,
             margin: const EdgeInsets.all(5),
             text: FlowyText(
