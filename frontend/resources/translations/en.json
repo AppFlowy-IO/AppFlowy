@@ -1766,7 +1766,8 @@
         "tooltip": "Click to open page"
       },
       "deleted": "Deleted",
-      "deletedContent": "This content does not exist or has been deleted"
+      "deletedContent": "This content does not exist or has been deleted",
+      "noAccess": "No Access"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
