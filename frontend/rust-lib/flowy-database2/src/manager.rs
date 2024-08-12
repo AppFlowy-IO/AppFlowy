@@ -1,8 +1,10 @@
 use anyhow::anyhow;
+use arc_swap::ArcSwapOption;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::DataSource;
+use collab::preclude::Collab;
 use collab_database::database::{Database, DatabaseData};
 use collab_database::error::DatabaseError;
 use collab_database::rows::RowId;
@@ -12,7 +14,7 @@ use collab_database::workspace_database::{
 };
 use collab_entity::{CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use tokio::sync::{Mutex, RwLock, RwLockMappedWriteGuard, RwLockReadGuard, RwLockWriteGuard};
+use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
@@ -42,7 +44,7 @@ pub trait DatabaseUser: Send + Sync {
 
 pub struct DatabaseManager {
   user: Arc<dyn DatabaseUser>,
-  workspace_database: Arc<RwLock<Option<WorkspaceDatabase>>>,
+  workspace_database: ArcSwapOption<RwLock<WorkspaceDatabase>>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   editors: Mutex<HashMap<String, Arc<DatabaseEditor>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -89,10 +91,10 @@ impl DatabaseManager {
     }
     self.editors.lock().await.clear();
     // 3. Clear the workspace database
-    if let Some(old_workspace_database) = self.workspace_database.write().await.take() {
-      old_workspace_database.close();
+    if let Some(old_workspace_database) = self.workspace_database.swap(None) {
+      let wdb = old_workspace_database.read().await;
+      wdb.close();
     }
-    *self.workspace_database.write().await = None;
 
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
@@ -140,6 +142,15 @@ impl DatabaseManager {
       "open aggregate database views object: {}",
       &workspace_database_object_id
     );
+    //FIXME: unfortunatelly UserDatabaseCollabService::build_collab_with_config is broken by
+    //  design as it assumes that we can split collab building process, which we cannot because:
+    //  1. We should not be able to run plugins ie. SyncPlugin over not-fully initialized collab,
+    //     and that's what originally build_collab_with_config did.
+    //  2. We cannot fully initialize collab from UserDatabaseCollabService, because
+    //     WorkspaceDatabase itself requires UserDatabaseCollabService as constructor parameter.
+    // Ideally we should never need to initialize plugins that require collab instance as part of
+    // that collab construction process itself - it means that we should redesign SyncPlugin to only
+    // be fired once a collab is fully initialized.
     let collab = collab_builder.build_collab_with_config(
       uid,
       &workspace_database_object_id,
@@ -148,9 +159,25 @@ impl DatabaseManager {
       workspace_database_doc_state,
       config.clone(),
     )?;
-    let workspace_database =
-      WorkspaceDatabase::open(uid, collab, collab_db, config, collab_builder);
-    *self.workspace_database.write().await = Some(workspace_database);
+    let wdb = WorkspaceDatabase::open(uid, collab, collab_db.clone(), config, collab_builder);
+    let workspace_id = self
+      .user
+      .workspace_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
+    let object = self.collab_builder.collab_object(
+      &workspace_id,
+      uid,
+      &workspace_database_object_id,
+      CollabType::WorkspaceDatabase,
+    )?;
+    let workspace_database = self.collab_builder.finalize(
+      object,
+      CollabBuilderConfig::default().sync_enable(true),
+      collab_db,
+      wdb,
+    )?;
+
+    self.workspace_database.store(Some(workspace_database));
     Ok(())
   }
 
@@ -166,7 +193,8 @@ impl DatabaseManager {
   }
 
   pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
-    let wdb = self.database_indexer().await?;
+    let lock = self.workspace_database()?;
+    let wdb = lock.read().await;
     let database_collab = wdb.get_database(database_id).await.ok_or_else(|| {
       FlowyError::record_not_found().with_context(format!("The database:{} not found", database_id))
     })?;
@@ -178,7 +206,8 @@ impl DatabaseManager {
 
   pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {
     let mut items = vec![];
-    if let Ok(wdb) = self.database_indexer().await {
+    if let Some(lock) = self.workspace_database.load_full() {
+      let wdb = lock.read().await;
       items = wdb.get_all_database_meta()
     }
     items
@@ -188,7 +217,8 @@ impl DatabaseManager {
     &self,
     view_ids_by_database_id: HashMap<String, Vec<String>>,
   ) -> FlowyResult<()> {
-    let mut wdb = self.database_indexer_mut().await?;
+    let lock = self.workspace_database()?;
+    let mut wdb = lock.write().await;
     view_ids_by_database_id
       .into_iter()
       .for_each(|(database_id, view_ids)| {
@@ -203,7 +233,8 @@ impl DatabaseManager {
   }
 
   pub async fn get_database_id_with_view_id(&self, view_id: &str) -> FlowyResult<String> {
-    let wdb = self.database_indexer().await?;
+    let lock = self.workspace_database()?;
+    let wdb = lock.read().await;
     wdb.get_database_id_with_view_id(view_id).ok_or_else(|| {
       FlowyError::record_not_found()
         .with_context(format!("The database for view id: {} not found", view_id))
@@ -225,9 +256,10 @@ impl DatabaseManager {
 
   pub async fn open_database(&self, database_id: String) -> FlowyResult<Arc<DatabaseEditor>> {
     trace!("open database editor:{}", database_id);
-    let database = self
-      .database_indexer()
-      .await?
+    let lock = self.workspace_database()?;
+    let database = lock
+      .read()
+      .await
       .get_database(&database_id)
       .await
       .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
@@ -243,7 +275,8 @@ impl DatabaseManager {
 
   pub async fn open_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
-    let wdb = self.database_indexer().await?;
+    let lock = self.workspace_database()?;
+    let wdb = lock.read().await;
     if let Some(database_id) = wdb.get_database_id_with_view_id(view_id) {
       if let Some(database) = wdb.open_database(&database_id) {
         let database = database.read().await;
@@ -256,7 +289,8 @@ impl DatabaseManager {
 
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
-    let wdb = self.database_indexer().await?;
+    let lock = self.workspace_database()?;
+    let wdb = lock.read().await;
     let database_id = wdb.get_database_id_with_view_id(view_id);
     if let Some(database_id) = database_id {
       let mut editors = self.editors.lock().await;
@@ -283,7 +317,8 @@ impl DatabaseManager {
   }
 
   pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
-    let wdb = self.database_indexer().await?;
+    let lock = self.workspace_database()?;
+    let wdb = lock.read().await;
     let data = wdb.get_database_data(view_id).await?;
     let json_bytes = data.to_json_bytes()?;
     Ok(json_bytes)
@@ -310,7 +345,8 @@ impl DatabaseManager {
       create_view_params.view_id = view_id.to_string();
     }
 
-    let mut wdb = self.database_indexer_mut().await?;
+    let lock = self.workspace_database()?;
+    let mut wdb = lock.write().await;
     let database = wdb.create_database(create_database_params)?;
     let encoded_collab = database
       .read()
@@ -323,7 +359,8 @@ impl DatabaseManager {
     &self,
     params: CreateDatabaseParams,
   ) -> FlowyResult<Arc<RwLock<Database>>> {
-    let mut wdb = self.database_indexer_mut().await?;
+    let lock = self.workspace_database()?;
+    let mut wdb = lock.write().await;
     let database = wdb.create_database(params)?;
     Ok(database)
   }
@@ -338,7 +375,8 @@ impl DatabaseManager {
     database_view_id: String,
     database_parent_view_id: String,
   ) -> FlowyResult<()> {
-    let mut wdb = self.database_indexer_mut().await?;
+    let lock = self.workspace_database()?;
+    let mut wdb = lock.write().await;
     let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
     if let Some(database) = wdb.get_database(&database_id).await {
       let (field, layout_setting, field_settings_map) =
@@ -436,22 +474,13 @@ impl DatabaseManager {
     Ok(snapshots)
   }
 
-  /// Return the database indexer.
-  /// Each workspace has itw own Database indexer that manages all the databases and database views
-  async fn database_indexer(&self) -> FlowyResult<RwLockReadGuard<'_, WorkspaceDatabase>> {
-    let database = self.workspace_database.read().await;
-    RwLockReadGuard::try_map(database, |db| db.as_ref())
-      .map_err(|_| FlowyError::internal().with_context("Workspace database not initialized"))
-  }
-
-  /// Return the database indexer.
-  /// Each workspace has itw own Database indexer that manages all the databases and database views
-  async fn database_indexer_mut(
-    &self,
-  ) -> FlowyResult<RwLockMappedWriteGuard<'_, WorkspaceDatabase>> {
-    let database = self.workspace_database.write().await;
-    RwLockWriteGuard::try_map(database, |db| db.as_mut())
-      .map_err(|_| FlowyError::internal().with_context("Workspace database not initialized"))
+  fn workspace_database(&self) -> FlowyResult<Arc<RwLock<WorkspaceDatabase>>> {
+    Ok(
+      self
+        .workspace_database
+        .load_full()
+        .ok_or_else(|| FlowyError::internal().with_context("Workspace database not initialized"))?,
+    )
   }
 
   #[instrument(level = "debug", skip_all)]
@@ -643,22 +672,19 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_id: &str,
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
-    collab_raw_data: DataSource,
-    _persistence_config: CollabPersistenceConfig,
-  ) -> Result<UninitCollab, DatabaseError> {
+    collab_doc_state: DataSource,
+    config: CollabPersistenceConfig,
+  ) -> Result<Collab, DatabaseError> {
     let workspace_id = self
       .user
       .workspace_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
-    let collab = self.collab_builder.build_with_config(
-      &workspace_id,
-      uid,
-      object_id,
-      object_type.clone(),
-      collab_db.clone(),
-      collab_raw_data,
-      CollabBuilderConfig::default().sync_enable(true),
-    )?;
+    let object = self
+      .collab_builder
+      .collab_object(&workspace_id, uid, object_id, object_type)?;
+    let collab = self
+      .collab_builder
+      .build_collab(&object, &collab_db, collab_doc_state)?;
     Ok(collab)
   }
 }

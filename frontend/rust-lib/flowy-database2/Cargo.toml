@@ -28,6 +28,7 @@ tracing.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_repr.workspace = true
+arc-swap.workspace = true
 lib-infra = { workspace = true }
 chrono = { workspace = true, default-features = false, features = ["clock"] }
 rust_decimal = "1.28.1"

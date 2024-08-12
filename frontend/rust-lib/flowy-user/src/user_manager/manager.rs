@@ -2,6 +2,7 @@ use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
+use arc_swap::ArcSwapOption;
 use collab_user::core::UserAwareness;
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
@@ -49,7 +50,7 @@ use super::manager_user_workspace::save_user_workspace;
 pub struct UserManager {
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
   pub(crate) store_preferences: Arc<KVStorePreferences>,
-  pub(crate) user_awareness: Arc<Mutex<Option<UserAwareness>>>,
+  pub(crate) user_awareness: ArcSwapOption<RwLock<UserAwareness>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn CollabInteract>>,
@@ -75,7 +76,7 @@ impl UserManager {
     let user_manager = Arc::new(Self {
       cloud_services,
       store_preferences,
-      user_awareness: Arc::new(Default::default()),
+      user_awareness: Default::default(),
       user_status_callback,
       collab_builder,
       collab_interact: RwLock::new(Arc::new(DefaultCollabInteract)),
@@ -617,7 +618,8 @@ impl UserManager {
   }
 
   pub fn workspace_id(&self) -> Result<String, FlowyError> {
-    Ok(self.get_session()?.user_workspace.id)
+    let session = self.get_session()?;
+    Ok(session.user_workspace.id.clone())
   }
 
   pub fn token(&self) -> Result<Option<String>, FlowyError> {

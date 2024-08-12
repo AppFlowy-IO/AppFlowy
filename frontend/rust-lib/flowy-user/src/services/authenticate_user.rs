@@ -130,9 +130,12 @@ impl AuthenticateUser {
   }
 
   pub fn set_user_workspace(&self, user_workspace: UserWorkspace) -> FlowyResult<()> {
-    let mut session = self.get_session()?;
-    session.user_workspace = user_workspace;
-    self.set_session(Some(session))
+    let session = self.get_session()?;
+    self.set_session(Some(Arc::new(Session {
+      user_id: session.user_id,
+      user_uuid: session.user_uuid,
+      user_workspace,
+    })))
   }
 
   pub fn get_session(&self) -> FlowyResult<Arc<Session>> {

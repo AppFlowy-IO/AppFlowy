@@ -341,7 +341,7 @@ where
   let mut database_object_ids = vec![];
   let mut imported_database_row_object_ids: HashMap<String, HashSet<String>> = HashMap::new();
 
-  for object_id in &mut *object_ids {
+  for object_id in object_ids.iter() {
     if let Some(collab) = collab_by_oid.get_mut(object_id) {
       if !is_database_collab(collab) {
         continue;

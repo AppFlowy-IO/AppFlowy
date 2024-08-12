@@ -7,7 +7,7 @@ use anyhow::Error;
 use arc_swap::{ArcSwap, ArcSwapOption};
 use collab::core::collab::DataSource;
 use collab::preclude::{Collab, CollabBuilder};
-use collab_database::workspace_database::WorkspaceDatabase;
+use collab_database::workspace_database::{DatabaseCollabService, WorkspaceDatabase};
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_entity::{CollabObject, CollabType};
@@ -209,18 +209,32 @@ impl AppFlowyCollabBuilder {
   }
 
   #[allow(clippy::too_many_arguments)]
-  #[instrument(level = "trace", skip(self, doc_state, collab_db))]
+  #[instrument(
+    level = "trace",
+    skip(self, object, doc_state, collab_db, builder_config, collab_service)
+  )]
   pub fn create_workspace(
     &self,
-    object: &CollabObject,
+    object: CollabObject,
     doc_state: DataSource,
     collab_db: Weak<CollabKVDB>,
+    builder_config: CollabBuilderConfig,
+    collab_service: impl DatabaseCollabService,
   ) -> Result<Arc<RwLock<WorkspaceDatabase>>, Error> {
     assert_eq!(object.collab_type, CollabType::WorkspaceDatabase);
-    todo!()
+    let persistence_config = CollabPersistenceConfig::default();
+    let collab = self.build_collab(&object, &collab_db, doc_state)?;
+    let workspace = WorkspaceDatabase::open(
+      object.uid,
+      collab,
+      collab_db.clone(),
+      persistence_config,
+      collab_service,
+    );
+    self.finalize(object, builder_config, collab_db, workspace)
   }
 
-  fn build_collab(
+  pub fn build_collab(
     &self,
     object: &CollabObject,
     collab_db: &Weak<CollabKVDB>,
@@ -255,7 +269,8 @@ impl AppFlowyCollabBuilder {
     }
     Ok(collab)
   }
-  fn finalize<T>(
+
+  pub fn finalize<T>(
     &self,
     object: CollabObject,
     build_config: CollabBuilderConfig,
