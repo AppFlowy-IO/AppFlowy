@@ -11,11 +11,10 @@ class ChatUserMessageBubbleBloc
     extends Bloc<ChatUserMessageBubbleEvent, ChatUserMessageBubbleState> {
   ChatUserMessageBubbleBloc({
     required Message message,
-    required String? metadata,
   }) : super(
           ChatUserMessageBubbleState.initial(
             message,
-            chatFilesFromMetadataString(metadata),
+            _getFiles(message.metadata),
           ),
         ) {
     on<ChatUserMessageBubbleEvent>(
@@ -26,6 +25,19 @@ class ChatUserMessageBubbleBloc
       },
     );
   }
+}
+
+List<ChatFile> _getFiles(Map<String, dynamic>? metadata) {
+  if (metadata == null) {
+    return [];
+  }
+  final refSourceMetadata = metadata[messageRefSourceJsonStringKey] as String?;
+  final files = metadata[messageChatFileListKey] as List<ChatFile>?;
+
+  if (refSourceMetadata != null) {
+    return chatFilesFromMetadataString(refSourceMetadata);
+  }
+  return files ?? [];
 }
 
 @freezed

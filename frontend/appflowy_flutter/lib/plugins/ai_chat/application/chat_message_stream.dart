@@ -25,7 +25,7 @@ class AnswerStream {
         } else if (event.startsWith("metadata:")) {
           if (_onMetadata != null) {
             final s = event.substring(9);
-            _onMetadata!(messageRefSourceFromString(s));
+            _onMetadata!(messageReferenceSource(s));
           }
         } else if (event == "AI_RESPONSE_LIMIT") {
           if (_onAIResponseLimit != null) {

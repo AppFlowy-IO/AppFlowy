@@ -29,12 +29,10 @@ class ChatUserMessageBubble extends StatelessWidget {
           .read<ChatMemberBloc>()
           .add(ChatMemberEvent.getMemberInfo(message.author.id));
     }
-    final metadata = message.metadata?[messageMetadataKey] as String?;
 
     return BlocProvider(
       create: (context) => ChatUserMessageBubbleBloc(
         message: message,
-        metadata: metadata,
       ),
       child: BlocBuilder<ChatUserMessageBubbleBloc, ChatUserMessageBubbleState>(
         builder: (context, state) {

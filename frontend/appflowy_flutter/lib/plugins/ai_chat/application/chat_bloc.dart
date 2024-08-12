@@ -374,7 +374,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       metadata: await metadataPBFromMetadata(metadata),
     );
 
-    final questionStreamMessage = _createQuestionStreamMessage(questionStream);
+    final questionStreamMessage = _createQuestionStreamMessage(
+      questionStream,
+      metadata,
+    );
     add(ChatEvent.receveMessage(questionStreamMessage));
 
     // Stream message to the server
@@ -432,14 +435,24 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  Message _createQuestionStreamMessage(QuestionStream stream) {
+  Message _createQuestionStreamMessage(
+    QuestionStream stream,
+    Map<String, dynamic>? sentMetadata,
+  ) {
     questionStreamMessageId = nanoid();
+    final Map<String, dynamic> metadata = {};
+
+    // if (sentMetadata != null) {
+    //   metadata[messageMetadataJsonStringKey] = sentMetadata;
+    // }
+
+    metadata["$QuestionStream"] = stream;
+    metadata["chatId"] = chatId;
+    metadata[messageChatFileListKey] =
+        chatFilesFromMessageMetadata(sentMetadata);
     return TextMessage(
       author: User(id: state.userProfile.id.toString()),
-      metadata: {
-        "$QuestionStream": stream,
-        "chatId": chatId,
-      },
+      metadata: metadata,
       id: questionStreamMessageId,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       text: '',
@@ -460,7 +473,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       text: message.content,
       createdAt: message.createdAt.toInt() * 1000,
       metadata: {
-        messageMetadataKey: message.metadata,
+        messageRefSourceJsonStringKey: message.metadata,
       },
     );
   }
