@@ -15,7 +15,7 @@ class ChatUserMessageBloc
           ),
         ) {
     on<ChatUserMessageEvent>(
-      (event, emit) async {
+      (event, emit) {
         event.when(
           initial: () {
             if (state.stream != null) {
