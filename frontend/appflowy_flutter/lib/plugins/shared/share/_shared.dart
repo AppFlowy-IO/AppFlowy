@@ -41,29 +41,11 @@ class ShareMenuButton extends StatelessWidget {
               tabs: tabs,
             ),
           ),
-          child: const _ShareButton(),
+          child: PrimaryRoundedButton(
+            text: LocaleKeys.shareAction_buttonText.tr(),
+          ),
         ),
       ),
-    );
-  }
-}
-
-class _ShareButton extends StatelessWidget {
-  const _ShareButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyButton(
-      text: FlowyText(
-        LocaleKeys.shareAction_buttonText.tr(),
-        fontSize: 14.0,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.onPrimary,
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 14.0),
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
-      radius: BorderRadius.circular(10.0),
     );
   }
 }

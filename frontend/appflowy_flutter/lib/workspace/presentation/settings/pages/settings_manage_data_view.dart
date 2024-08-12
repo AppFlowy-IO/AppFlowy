@@ -1,8 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -25,10 +22,10 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -432,15 +429,13 @@ class _DataPathActions extends StatelessWidget {
       children: [
         SizedBox(
           height: 42,
-          child: FlowyTextButton(
-            LocaleKeys.settings_manageDataPage_dataStorage_actions_change.tr(),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: PrimaryRoundedButton(
+            text: LocaleKeys.settings_manageDataPage_dataStorage_actions_change
+                .tr(),
+            margin: const EdgeInsets.symmetric(horizontal: 24),
             fontWeight: FontWeight.w600,
-            radius: BorderRadius.circular(12),
-            fillColor: Theme.of(context).colorScheme.primary,
-            hoverColor: const Color(0xFF005483),
-            fontHoverColor: Colors.white,
-            onPressed: () async {
+            radius: 12.0,
+            onTap: () async {
               final path = await getIt<FilePickerService>().getDirectoryPath();
               if (!context.mounted || path == null || currentPath == path) {
                 return;
