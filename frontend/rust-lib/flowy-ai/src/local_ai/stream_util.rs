@@ -1,5 +1,5 @@
 use appflowy_plugin::error::PluginError;
-use bytes::Bytes;
+
 use flowy_ai_pub::cloud::QuestionStreamValue;
 use flowy_error::FlowyError;
 use futures::{ready, Stream};
