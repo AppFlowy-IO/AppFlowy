@@ -10,6 +10,7 @@ import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:nanoid/nanoid.dart';
 
+/// Indicate file source from appflowy document
 const appflowySoruce = "appflowy";
 
 List<ChatFile> fileListFromMessageMetadata(
