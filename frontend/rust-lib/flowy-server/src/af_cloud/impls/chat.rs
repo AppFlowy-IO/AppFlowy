@@ -15,7 +15,8 @@ use futures_util::{StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_infra::util::{get_operating_system, OperatingSystem};
-use serde_json::json;
+use serde_json::{json, Value};
+use std::collections::HashMap;
 use std::path::Path;
 
 pub(crate) struct AFCloudChatCloudServiceImpl<T> {
@@ -182,6 +183,7 @@ where
     _workspace_id: &str,
     _file_path: &Path,
     _chat_id: &str,
+    _metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
     return Err(
       FlowyError::not_support()

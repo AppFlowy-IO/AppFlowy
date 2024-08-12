@@ -6,6 +6,8 @@ use flowy_ai_pub::cloud::{
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
+use serde_json::Value;
+use std::collections::HashMap;
 use std::path::Path;
 
 pub(crate) struct DefaultChatCloudServiceImpl;
@@ -96,6 +98,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     _workspace_id: &str,
     _file_path: &Path,
     _chat_id: &str,
+    _metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support().with_context("indexing file is not supported in local server."))
   }

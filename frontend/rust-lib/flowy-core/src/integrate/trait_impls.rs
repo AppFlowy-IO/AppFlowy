@@ -1,5 +1,6 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
+use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -12,6 +13,7 @@ use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
+use serde_json::Value;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{debug, info};
 
@@ -719,11 +721,12 @@ impl ChatCloudService for ServerProvider {
     workspace_id: &str,
     file_path: &Path,
     chat_id: &str,
+    metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
     self
       .get_server()?
       .chat_service()
-      .index_file(workspace_id, file_path, chat_id)
+      .index_file(workspace_id, file_path, chat_id, metadata)
       .await
   }
 
