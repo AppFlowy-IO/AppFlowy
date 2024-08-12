@@ -256,15 +256,22 @@ impl UserManager {
   where
     F: FnOnce(&UserAwareness) -> Output,
   {
+    // Check if initialization is needed and perform it if necessary
+    if self.user_awareness.lock().await.is_none() {
+      if let Ok(session) = self.get_session() {
+        self.initialize_user_awareness(&session).await;
+      }
+    }
+
     let user_awareness = self.user_awareness.lock().await;
     match &*user_awareness {
-      None => {
-        if let Ok(session) = self.get_session() {
-          self.initialize_user_awareness(&session).await;
-        }
-        default_value
+      Some(inner_awareness) => {
+        let inner_awareness_clone = inner_awareness.clone();
+        drop(user_awareness);
+        let result = f(&inner_awareness_clone.lock());
+        result
       },
-      Some(user_awareness) => f(&user_awareness.lock()),
+      None => default_value,
     }
   }
 }
