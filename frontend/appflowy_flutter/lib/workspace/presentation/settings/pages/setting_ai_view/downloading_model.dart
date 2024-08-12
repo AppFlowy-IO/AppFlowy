@@ -37,10 +37,23 @@ class DownloadingIndicator extends StatelessWidget {
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Column(
-            children: [
-              DownloadingProgressBar(onCancel: onCancel),
-            ],
+          child: BlocBuilder<DownloadModelBloc, DownloadModelState>(
+            builder: (context, state) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DownloadingProgressBar(onCancel: onCancel),
+                  if (state.bigFileDownloadPrompt != null) ...[
+                    const VSpace(2),
+                    Opacity(
+                      opacity: 0.6,
+                      child:
+                          FlowyText(state.bigFileDownloadPrompt!, fontSize: 11),
+                    ),
+                  ],
+                ],
+              );
+            },
           ),
         ),
       ),
