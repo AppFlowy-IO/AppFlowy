@@ -150,6 +150,7 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           text: FlowyText.medium(
+            lineHeight: 1.0,
             widget.fieldInfo.name,
             color: AFThemeExtension.of(context).textColor,
           ),

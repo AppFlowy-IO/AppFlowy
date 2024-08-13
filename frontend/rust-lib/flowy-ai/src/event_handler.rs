@@ -7,12 +7,15 @@ use crate::entities::*;
 use crate::local_ai::local_llm_chat::LLMModelInfo;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use allo_isolate::Isolate;
-use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType, ChatMetadataData};
+use flowy_ai_pub::cloud::{
+  ChatMessageMetadata, ChatMessageType, ChatMetadataContentType, ChatMetadataData,
+};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::isolate_stream::IsolateSink;
 use std::sync::{Arc, Weak};
 use tokio::sync::oneshot;
+use tracing::trace;
 use validator::Validate;
 
 fn upgrade_ai_manager(ai_manager: AFPluginState<Weak<AIManager>>) -> FlowyResult<Arc<AIManager>> {
@@ -27,7 +30,6 @@ pub(crate) async fn stream_chat_message_handler(
   data: AFPluginData<StreamChatPayloadPB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<ChatMessagePB, FlowyError> {
-  let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = data.into_inner();
   data.validate()?;
 
@@ -35,28 +37,49 @@ pub(crate) async fn stream_chat_message_handler(
     ChatMessageTypePB::System => ChatMessageType::System,
     ChatMessageTypePB::User => ChatMessageType::User,
   };
-
   let metadata = data
     .metadata
     .into_iter()
-    .map(|metadata| ChatMessageMetadata {
-      data: ChatMetadataData::new_text(metadata.data),
-      id: metadata.id,
-      name: metadata.name.clone(),
-      source: metadata.source,
-      extract: None,
+    .map(|metadata| {
+      let (content_type, content_len) = match metadata.data_type {
+        ChatMessageMetaTypePB::Txt => (ChatMetadataContentType::Text, metadata.data.len()),
+        ChatMessageMetaTypePB::Markdown => (ChatMetadataContentType::Markdown, metadata.data.len()),
+        ChatMessageMetaTypePB::PDF => (ChatMetadataContentType::PDF, 0),
+        ChatMessageMetaTypePB::UnknownMetaType => (ChatMetadataContentType::Unknown, 0),
+      };
+
+      ChatMessageMetadata {
+        data: ChatMetadataData {
+          content: metadata.data,
+          content_type,
+          size: content_len as i64,
+        },
+        id: metadata.id,
+        name: metadata.name.clone(),
+        source: metadata.source,
+        extract: None,
+      }
     })
     .collect::<Vec<_>>();
 
-  let question = ai_manager
-    .stream_chat_message(
-      &data.chat_id,
-      &data.message,
-      message_type,
-      data.text_stream_port,
-      metadata,
-    )
-    .await?;
+  trace!("Stream chat message with metadata: {:?}", metadata);
+  let (tx, rx) = oneshot::channel::<Result<ChatMessagePB, FlowyError>>();
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  tokio::spawn(async move {
+    let result = ai_manager
+      .stream_chat_message(
+        &data.chat_id,
+        &data.message,
+        message_type,
+        data.answer_stream_port,
+        data.question_stream_port,
+        metadata,
+      )
+      .await;
+    let _ = tx.send(result);
+  });
+
+  let question = rx.await??;
   data_result_ok(question)
 }
 

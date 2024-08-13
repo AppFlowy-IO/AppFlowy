@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -14,32 +14,34 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 
 import 'ai_metadata.dart';
 
-class ChatAITextMessageWidget extends StatelessWidget {
-  const ChatAITextMessageWidget({
+class ChatAIMessageWidget extends StatelessWidget {
+  const ChatAIMessageWidget({
     super.key,
     required this.user,
     required this.messageUserId,
-    required this.text,
+    required this.message,
     required this.questionId,
     required this.chatId,
-    required this.metadata,
+    required this.refSourceJsonString,
     required this.onSelectedMetadata,
   });
 
   final User user;
   final String messageUserId;
-  final dynamic text;
+
+  /// message can be a striing or Stream<String>
+  final dynamic message;
   final Int64? questionId;
   final String chatId;
-  final String? metadata;
-  final void Function(ChatMessageMetadata metadata) onSelectedMetadata;
+  final String? refSourceJsonString;
+  final void Function(ChatMessageRefSource metadata) onSelectedMetadata;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ChatAIMessageBloc(
-        message: text,
-        metadata: metadata,
+        message: message,
+        refSourceJsonString: refSourceJsonString,
         chatId: chatId,
         questionId: questionId,
       )..add(const ChatAIMessageEvent.initial()),
@@ -58,8 +60,8 @@ class ChatAITextMessageWidget extends StatelessWidget {
             onAIResponseLimit: () {
               return FlowyText(
                 LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
-                maxLines: 10,
                 lineHeight: 1.5,
+                maxLines: 10,
               );
             },
             ready: () {
@@ -71,7 +73,7 @@ class ChatAITextMessageWidget extends StatelessWidget {
                   children: [
                     AIMarkdownText(markdown: state.text),
                     AIMessageMetadata(
-                      metadata: state.metadata,
+                      sources: state.sources,
                       onSelectedMetadata: onSelectedMetadata,
                     ),
                   ],

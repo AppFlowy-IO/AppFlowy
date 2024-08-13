@@ -171,7 +171,8 @@ Future<void> insertOutlineInDocument(WidgetTester tester) async {
   // open the actions menu and insert the outline block
   await tester.editor.showSlashMenu();
   await tester.editor.tapSlashMenuItemWithName(
-    LocaleKeys.document_selectionMenu_outline.tr(),
+    LocaleKeys.document_slashMenu_name_outline.tr(),
+    offset: 100,
   );
   await tester.pumpAndSettle();
 }

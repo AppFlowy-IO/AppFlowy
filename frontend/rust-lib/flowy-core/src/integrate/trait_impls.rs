@@ -1,5 +1,6 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
+use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -12,6 +13,7 @@ use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
+use serde_json::Value;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{debug, info};
 
@@ -611,45 +613,37 @@ impl ChatCloudService for ServerProvider {
     })
   }
 
-  fn create_question(
+  async fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    metadata: Vec<ChatMessageMetadata>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+    metadata: &[ChatMessageMetadata],
+  ) -> Result<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let message = message.to_string();
-    let server = self.get_server();
-
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .create_question(&workspace_id, &chat_id, &message, message_type, metadata)
-        .await
-    })
+    self
+      .get_server()?
+      .chat_service()
+      .create_question(&workspace_id, &chat_id, &message, message_type, metadata)
+      .await
   }
 
-  fn create_answer(
+  async fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
     metadata: Option<serde_json::Value>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
-    let message = message.to_string();
+  ) -> Result<ChatMessage, FlowyError> {
     let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .create_answer(&workspace_id, &chat_id, &message, question_id, metadata)
-        .await
-    })
+    server?
+      .chat_service()
+      .create_answer(workspace_id, chat_id, message, question_id, metadata)
+      .await
   }
 
   async fn stream_answer(
@@ -667,22 +661,18 @@ impl ChatCloudService for ServerProvider {
       .await
   }
 
-  fn get_chat_messages(
+  async fn get_chat_messages(
     &self,
     workspace_id: &str,
     chat_id: &str,
     offset: MessageCursor,
     limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .get_chat_messages(&workspace_id, &chat_id, offset, limit)
-        .await
-    })
+  ) -> Result<RepeatedChatMessage, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_chat_messages(workspace_id, chat_id, offset, limit)
+      .await
   }
 
   async fn get_related_message(
@@ -731,11 +721,12 @@ impl ChatCloudService for ServerProvider {
     workspace_id: &str,
     file_path: &Path,
     chat_id: &str,
+    metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
     self
       .get_server()?
       .chat_service()
-      .index_file(workspace_id, file_path, chat_id)
+      .index_file(workspace_id, file_path, chat_id, metadata)
       .await
   }
 

@@ -167,6 +167,7 @@ class _CalculateCellState extends State<CalculateCell> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     FlowyText(
+                      lineHeight: 1.0,
                       widget.calculation!.calculationType.shortLabel
                           .toUpperCase(),
                       color: Theme.of(context).hintColor,
@@ -175,6 +176,7 @@ class _CalculateCellState extends State<CalculateCell> {
                     if (widget.calculation!.value.isNotEmpty) ...[
                       const HSpace(8),
                       FlowyText(
+                        lineHeight: 1.0,
                         calculateValue,
                         color: AFThemeExtension.of(context).textColor,
                         overflow: TextOverflow.ellipsis,

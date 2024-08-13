@@ -808,8 +808,8 @@
         "itemFive": "Mobil uygulama",
         "itemSix": "Yapay Zeka Yanıtları",
         "tooltipSix": "Ömür boyu, yanıt sayısının asla sıfırlanmayacağı anlamına gelir",
-        "itemSeven": "Özel ad alanı",
-        "tooltipSeven": "Çalışma alanınız için URL'nin bir bölümünü özelleştirmenize olanak tanır"
+        "tooltipSeven": "Çalışma alanınız için URL'nin bir bölümünü özelleştirmenize olanak tanır",
+        "itemSeven": "Özel ad alanı"
       },
       "freeLabels": {
         "itemOne": "çalışma alanı başına ücretlendirilir",
@@ -817,7 +817,8 @@
         "itemThree": "5 GB",
         "itemFour": "evet",
         "itemFive": "evet",
-        "itemSix": "100 ömür boyu"
+        "itemSix": "100 ömür boyu",
+        "itemSeven": " "
       },
       "proLabels": {
         "itemOne": "çalışma alanı başına ücretlendirilir",
@@ -825,7 +826,9 @@
         "itemThree": "sınırsız",
         "itemFour": "evet",
         "itemFive": "evet",
-        "itemSix": "sınırsız"
+        "itemSix": "sınırsız",
+        "itemSeven": " "
+
       },
       "paymentSuccess": {
         "title": "Artık {} planındasınız!",

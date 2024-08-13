@@ -165,6 +165,44 @@ void main() {
     });
   });
 
+  testWidgets('paste text on part of bullet list', (tester) async {
+    const plainText = 'test';
+
+    await tester.pasteContent(
+      plainText: plainText,
+      beforeTest: (editorState) async {
+        final transaction = editorState.transaction;
+        transaction.insertNodes(
+          [0],
+          [
+            Node(
+              type: BulletedListBlockKeys.type,
+              attributes: {
+                'delta': [
+                  {"insert": "bullet list"},
+                ],
+              },
+            ),
+          ],
+        );
+
+        // Set the selection to the second numbered list node (which has empty delta)
+        transaction.afterSelection = Selection(
+          start: Position(path: [0], offset: 7),
+          end: Position(path: [0], offset: 11),
+        );
+
+        await editorState.apply(transaction);
+        await tester.pumpAndSettle();
+      },
+      (editorState) {
+        final node = editorState.getNodeAtPath([0]);
+        expect(node?.delta?.toPlainText(), 'bullet test');
+        expect(node?.type, BulletedListBlockKeys.type);
+      },
+    );
+  });
+
   testWidgets('paste image(png) from memory', (tester) async {
     final image = await rootBundle.load('assets/test/images/sample.png');
     final bytes = image.buffer.asUint8List();

@@ -359,6 +359,10 @@ impl LocalAIResourceController {
         let cloned_model_name = model_name.clone();
         let progress = Arc::new(move |downloaded, total_size| {
           let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
+          if plugin_progress_tx.receiver_count() == 0 {
+            return;
+          }
+
           if let Err(err) =
             plugin_progress_tx.send(format!("{}:progress:{}", cloned_model_name, progress))
           {
@@ -514,7 +518,7 @@ impl LocalAIResourceController {
   }
 
   pub(crate) fn resource_dir(&self) -> FlowyResult<PathBuf> {
-    let user_data_dir = self.user_service.data_root_dir()?;
+    let user_data_dir = self.user_service.application_root_dir()?;
     Ok(user_data_dir.join("ai"))
   }
 }

@@ -2,18 +2,20 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:bloc/bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:fixnum/fixnum.dart';
 part 'download_model_bloc.freezed.dart';
 
 class DownloadModelBloc extends Bloc<DownloadModelEvent, DownloadModelState> {
   DownloadModelBloc(LLMModelPB model)
-      : super(DownloadModelState(model: model)) {
+      : super(DownloadModelState.initial(model)) {
     on<DownloadModelEvent>(_handleEvent);
   }
 
@@ -52,12 +54,16 @@ class DownloadModelBloc extends Bloc<DownloadModelEvent, DownloadModelState> {
           emit(
             state.copyWith(
               downloadStream: downloadStream,
-              loadingState: const LoadingState.finish(),
+              loadingState: const ChatLoadingState.finish(),
               downloadError: null,
             ),
           );
         }, (err) {
-          emit(state.copyWith(loadingState: LoadingState.finish(error: err)));
+          emit(
+            state.copyWith(
+              loadingState: ChatLoadingState.finish(error: err),
+            ),
+          );
         });
       },
       updatePercent: (String object, double percent) {
@@ -95,8 +101,21 @@ class DownloadModelState with _$DownloadModelState {
     @Default("") String object,
     @Default(0) double percent,
     @Default(false) bool isFinish,
-    @Default(LoadingState.loading()) LoadingState loadingState,
+    String? bigFileDownloadPrompt,
+    @Default(ChatLoadingState.loading()) ChatLoadingState loadingState,
   }) = _DownloadModelState;
+
+  factory DownloadModelState.initial(LLMModelPB model) {
+    // bigger than 1 GB then show download big file prompt
+    String? bigFileDownloadPrompt;
+    if (model.fileSize > 1 * 1024 * 1024 * 1024) {
+      bigFileDownloadPrompt = LocaleKeys.settings_aiPage_keys_downloadBigFilePrompt.tr();
+    }
+    return DownloadModelState(
+      model: model,
+      bigFileDownloadPrompt: bigFileDownloadPrompt,
+    );
+  }
 }
 
 class DownloadingStream {

@@ -81,7 +81,7 @@ class ChatInputActionBloc
           ),
         );
       },
-      addPage: (ChatInputActionPage page) {
+      addPage: (ChatInputMention page) {
         if (!state.selectedPages.any((p) => p.pageId == page.pageId)) {
           final List<ViewActionPage> pages = _filterPages(
             state.views,
@@ -97,7 +97,7 @@ class ChatInputActionBloc
         }
       },
       removePage: (String text) {
-        final List<ChatInputActionPage> selectedPages =
+        final List<ChatInputMention> selectedPages =
             List.from(state.selectedPages);
         selectedPages.retainWhere((t) => !text.contains(t.title));
 
@@ -128,7 +128,7 @@ class ChatInputActionBloc
 
 List<ViewActionPage> _filterPages(
   List<ViewPB> views,
-  List<ChatInputActionPage> selectedPages,
+  List<ChatInputMention> selectedPages,
   String filter,
 ) {
   final pages = views
@@ -152,7 +152,7 @@ List<ViewActionPage> _filterPages(
       .toList();
 }
 
-class ViewActionPage extends ChatInputActionPage {
+class ViewActionPage extends ChatInputMention {
   ViewActionPage({required this.view});
 
   final ViewPB view;
@@ -182,8 +182,7 @@ class ChatInputActionEvent with _$ChatInputActionEvent {
   const factory ChatInputActionEvent.handleKeyEvent(
     PhysicalKeyboardKey keyboardKey,
   ) = _HandleKeyEvent;
-  const factory ChatInputActionEvent.addPage(ChatInputActionPage page) =
-      _AddPage;
+  const factory ChatInputActionEvent.addPage(ChatInputMention page) = _AddPage;
   const factory ChatInputActionEvent.removePage(String text) = _RemovePage;
   const factory ChatInputActionEvent.clear() = _Clear;
 }
@@ -192,8 +191,8 @@ class ChatInputActionEvent with _$ChatInputActionEvent {
 class ChatInputActionState with _$ChatInputActionState {
   const factory ChatInputActionState({
     @Default([]) List<ViewPB> views,
-    @Default([]) List<ChatInputActionPage> pages,
-    @Default([]) List<ChatInputActionPage> selectedPages,
+    @Default([]) List<ChatInputMention> pages,
+    @Default([]) List<ChatInputMention> selectedPages,
     @Default("") String filter,
     ChatInputKeyboardEvent? keyboardKey,
     @Default(ChatActionMenuIndicator.loading())

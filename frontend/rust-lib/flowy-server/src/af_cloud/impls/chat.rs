@@ -15,7 +15,8 @@ use futures_util::{StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_infra::util::{get_operating_system, OperatingSystem};
-use serde_json::json;
+use serde_json::{json, Value};
+use std::collections::HashMap;
 use std::path::Path;
 
 pub(crate) struct AFCloudChatCloudServiceImpl<T> {
@@ -52,14 +53,14 @@ where
     })
   }
 
-  fn create_question(
+  async fn create_question(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     message_type: ChatMessageType,
-    metadata: Vec<ChatMessageMetadata>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
+    metadata: &[ChatMessageMetadata],
+  ) -> Result<ChatMessage, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
@@ -69,39 +70,32 @@ where
       metadata: Some(json!(metadata)),
     };
 
-    FutureResult::new(async move {
-      let message = try_get_client?
-        .create_question(&workspace_id, &chat_id, params)
-        .await
-        .map_err(FlowyError::from)?;
-      Ok(message)
-    })
+    let message = try_get_client?
+      .create_question(&workspace_id, &chat_id, params)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(message)
   }
 
-  fn create_answer(
+  async fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
     metadata: Option<serde_json::Value>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
+  ) -> Result<ChatMessage, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let params = CreateAnswerMessageParams {
       content: message.to_string(),
       metadata,
       question_message_id: question_id,
     };
-
-    FutureResult::new(async move {
-      let message = try_get_client?
-        .save_answer(&workspace_id, &chat_id, params)
-        .await
-        .map_err(FlowyError::from)?;
-      Ok(message)
-    })
+    let message = try_get_client?
+      .save_answer(workspace_id, chat_id, params)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(message)
   }
 
   async fn stream_answer(
@@ -133,25 +127,20 @@ where
     Ok(resp)
   }
 
-  fn get_chat_messages(
+  async fn get_chat_messages(
     &self,
     workspace_id: &str,
     chat_id: &str,
     offset: MessageCursor,
     limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let chat_id = chat_id.to_string();
+  ) -> Result<RepeatedChatMessage, FlowyError> {
     let try_get_client = self.inner.try_get_client();
+    let resp = try_get_client?
+      .get_chat_messages(workspace_id, chat_id, offset, limit)
+      .await
+      .map_err(FlowyError::from)?;
 
-    FutureResult::new(async move {
-      let resp = try_get_client?
-        .get_chat_messages(&workspace_id, &chat_id, offset, limit)
-        .await
-        .map_err(FlowyError::from)?;
-
-      Ok(resp)
-    })
+    Ok(resp)
   }
 
   async fn get_related_message(
@@ -194,6 +183,7 @@ where
     _workspace_id: &str,
     _file_path: &Path,
     _chat_id: &str,
+    _metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
     return Err(
       FlowyError::not_support()

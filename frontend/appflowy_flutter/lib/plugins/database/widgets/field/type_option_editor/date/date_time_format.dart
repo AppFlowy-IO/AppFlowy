@@ -23,7 +23,10 @@ class DateFormatButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr()),
+        text: FlowyText.medium(
+          LocaleKeys.grid_field_dateFormat.tr(),
+          lineHeight: 1.0,
+        ),
         onTap: onTap,
         onHover: onHover,
         rightIcon: const FlowySvg(FlowySvgs.more_s),
@@ -47,7 +50,10 @@ class TimeFormatButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr()),
+        text: FlowyText.medium(
+          LocaleKeys.grid_field_timeFormat.tr(),
+          lineHeight: 1.0,
+        ),
         onTap: onTap,
         onHover: onHover,
         rightIcon: const FlowySvg(FlowySvgs.more_s),
@@ -114,7 +120,10 @@ class DateFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(dateFormat.title()),
+        text: FlowyText.medium(
+          dateFormat.title(),
+          lineHeight: 1.0,
+        ),
         rightIcon: checkmark,
         onTap: () => onSelected(dateFormat),
       ),
@@ -199,7 +208,10 @@ class TimeFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(timeFormat.title()),
+        text: FlowyText.medium(
+          timeFormat.title(),
+          lineHeight: 1.0,
+        ),
         rightIcon: checkmark,
         onTap: () => onSelected(timeFormat),
       ),

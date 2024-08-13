@@ -208,7 +208,11 @@ class FileBlockComponentState extends State<FileBlockComponent>
             child: Row(
               children: [
                 const HSpace(10),
-                const Icon(Icons.upload_file_outlined),
+                FlowySvg(
+                  FlowySvgs.slash_menu_icon_file_s,
+                  color: Theme.of(context).hintColor,
+                  size: const Size.square(24),
+                ),
                 const HSpace(10),
                 ..._buildTrailing(context),
               ],
@@ -348,6 +352,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
                 ? LocaleKeys.document_plugins_file_placeholderDragging.tr()
                 : LocaleKeys.document_plugins_file_placeholderText.tr(),
             overflow: TextOverflow.ellipsis,
+            color: Theme.of(context).hintColor,
           ),
         ),
       ];

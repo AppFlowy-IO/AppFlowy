@@ -5,14 +5,15 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-abstract class ChatInputActionPage extends Equatable {
+abstract class ChatInputMention extends Equatable {
   String get title;
   String get pageId;
   dynamic get page;
   Widget get icon;
 }
 
-typedef ChatInputMetadata = Map<String, ChatInputActionPage>;
+/// Key: the key is the pageId
+typedef ChatInputMentionMetadata = Map<String, ChatInputMention>;
 
 class ChatInputActionControl extends ChatActionHandler {
   ChatInputActionControl({
@@ -35,9 +36,9 @@ class ChatInputActionControl extends ChatActionHandler {
   List<String> get tags =>
       _commandBloc.state.selectedPages.map((e) => e.title).toList();
 
-  ChatInputMetadata consumeMetaData() {
+  ChatInputMentionMetadata consumeMetaData() {
     final metadata = _commandBloc.state.selectedPages.fold(
-      <String, ChatInputActionPage>{},
+      <String, ChatInputMention>{},
       (map, page) => map..putIfAbsent(page.pageId, () => page),
     );
 
@@ -70,7 +71,7 @@ class ChatInputActionControl extends ChatActionHandler {
   }
 
   @override
-  void onSelected(ChatInputActionPage page) {
+  void onSelected(ChatInputMention page) {
     _commandBloc.add(ChatInputActionEvent.addPage(page));
     textController.text = "$_showMenuText${page.title}";
 

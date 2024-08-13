@@ -13,7 +13,7 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 
 abstract class ChatActionHandler {
   void onEnter();
-  void onSelected(ChatInputActionPage page);
+  void onSelected(ChatInputMention page);
   void onExit();
   ChatInputActionBloc get commandBloc;
   void onFilter(String filter);
@@ -136,7 +136,7 @@ class _ActionItem extends StatelessWidget {
     required this.isSelected,
   });
 
-  final ChatInputActionPage item;
+  final ChatInputMention item;
   final VoidCallback? onTap;
   final bool isSelected;
 
@@ -156,6 +156,7 @@ class _ActionItem extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 6),
         iconPadding: 10.0,
         text: FlowyText.regular(
+          lineHeight: 1.0,
           item.title,
         ),
         onTap: onTap,
@@ -175,7 +176,7 @@ class ActionList extends StatefulWidget {
 
   final ChatActionHandler handler;
   final VoidCallback? onDismiss;
-  final List<ChatInputActionPage> pages;
+  final List<ChatInputMention> pages;
   final bool isLoading;
 
   @override
@@ -257,7 +258,7 @@ class _ActionListState extends State<ActionList> {
 
     return widget.pages.asMap().entries.map((entry) {
       final index = entry.key;
-      final ChatInputActionPage item = entry.value;
+      final ChatInputMention item = entry.value;
       return AutoScrollTag(
         key: ValueKey(item.pageId),
         index: index,

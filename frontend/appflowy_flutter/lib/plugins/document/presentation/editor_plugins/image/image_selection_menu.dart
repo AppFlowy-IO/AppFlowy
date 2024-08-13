@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 
 final customImageMenuItem = SelectionMenuItem(
   getName: () => AppFlowyEditorL10n.current.image,
@@ -28,8 +29,9 @@ final customImageMenuItem = SelectionMenuItem(
 
 final multiImageMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_plugins_photoGallery_name.tr(),
-  icon: (_, isSelected, style) => SelectionMenuIconWidget(
-    icon: Icons.photo_library_outlined,
+  icon: (_, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.image_s,
+    size: const Size.square(16.0),
     isSelected: isSelected,
     style: style,
   ),

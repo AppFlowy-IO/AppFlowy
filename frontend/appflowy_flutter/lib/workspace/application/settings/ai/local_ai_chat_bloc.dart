@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -72,14 +72,14 @@ class LocalAIChatSettingBloc
                     llmResource,
                     llmModel,
                   ),
-                  selectLLMState: const LoadingState.finish(),
+                  selectLLMState: const ChatLoadingState.finish(),
                 ),
               );
             } else {
               emit(
                 state.copyWith(
                   selectedLLMModel: llmModel,
-                  selectLLMState: const LoadingState.finish(),
+                  selectLLMState: const ChatLoadingState.finish(),
                   progressIndicator: const LocalAIProgress.checkPluginState(),
                 ),
               );
@@ -88,7 +88,7 @@ class LocalAIChatSettingBloc
           (err) {
             emit(
               state.copyWith(
-                selectLLMState: LoadingState.finish(error: err),
+                selectLLMState: ChatLoadingState.finish(error: err),
               ),
             );
           },
@@ -117,7 +117,7 @@ class LocalAIChatSettingBloc
                 state.copyWith(
                   progressIndicator:
                       LocalAIProgress.startDownloading(state.selectedLLMModel!),
-                  selectLLMState: const LoadingState.finish(),
+                  selectLLMState: const ChatLoadingState.finish(),
                 ),
               );
               return;
@@ -128,7 +128,7 @@ class LocalAIChatSettingBloc
                     llmResource,
                     state.selectedLLMModel!,
                   ),
-                  selectLLMState: const LoadingState.finish(),
+                  selectLLMState: const ChatLoadingState.finish(),
                 ),
               );
             }
@@ -139,7 +139,7 @@ class LocalAIChatSettingBloc
         emit(
           state.copyWith(
             progressIndicator: LocalAIProgress.startDownloading(llmModel),
-            selectLLMState: const LoadingState.finish(),
+            selectLLMState: const ChatLoadingState.finish(),
           ),
         );
       },
@@ -257,7 +257,7 @@ class LocalAIChatSettingState with _$LocalAIChatSettingState {
     LLMModelPB? selectedLLMModel,
     LocalAIProgress? progressIndicator,
     @Default(AIModelProgress.init()) AIModelProgress aiModelProgress,
-    @Default(LoadingState.loading()) LoadingState selectLLMState,
+    @Default(ChatLoadingState.loading()) ChatLoadingState selectLLMState,
     @Default([]) List<LLMModelPB> models,
     @Default(RunningStatePB.Connecting) RunningStatePB runningState,
   }) = _LocalAIChatSettingState;

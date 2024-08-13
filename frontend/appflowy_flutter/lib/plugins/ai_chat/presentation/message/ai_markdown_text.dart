@@ -124,6 +124,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
         editorScrollController: scrollController,
         blockComponentBuilders: blockBuilders,
         commandShortcutEvents: [customCopyCommand],
+        disableAutoScroll: true,
         editorState: editorState,
       ),
     );

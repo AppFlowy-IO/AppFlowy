@@ -31,6 +31,7 @@ class ConditionButton extends StatelessWidget {
       child: FlowyButton(
         useIntrinsicWidth: true,
         text: FlowyText(
+          lineHeight: 1.0,
           conditionName,
           fontSize: 10,
           color: AFThemeExtension.of(context).textColor,
