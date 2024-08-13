@@ -1,10 +1,10 @@
-use std::any::Any;
-use std::pin::Pin;
-use std::task::{Context, Poll};
-use std::{future::Future, sync::Arc};
-
 use derivative::*;
 use pin_project::pin_project;
+use std::any::Any;
+use std::future::Future;
+use std::pin::Pin;
+use std::rc::Rc;
+use std::task::{Context, Poll};
 use tracing::event;
 
 use crate::module::AFPluginStateMap;
@@ -70,11 +70,11 @@ where
 
 pub struct AFPluginDispatcher {
   plugins: AFPluginMap,
-  runtime: Arc<AFPluginRuntime>,
+  runtime: Rc<AFPluginRuntime>,
 }
 
 impl AFPluginDispatcher {
-  pub fn new(runtime: Arc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
+  pub fn new(runtime: Rc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
     tracing::trace!("{}", plugin_info(&plugins));
     AFPluginDispatcher {
       plugins: plugin_map_or_crash(plugins),
@@ -235,7 +235,7 @@ impl AFPluginDispatcher {
 
   #[cfg(not(target_arch = "wasm32"))]
   pub fn sync_send(
-    dispatch: Arc<AFPluginDispatcher>,
+    dispatch: Rc<AFPluginDispatcher>,
     request: AFPluginRequest,
   ) -> AFPluginEventResponse {
     futures::executor::block_on(AFPluginDispatcher::async_send_with_callback(
