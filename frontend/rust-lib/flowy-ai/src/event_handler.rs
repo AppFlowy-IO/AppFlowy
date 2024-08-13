@@ -63,24 +63,18 @@ pub(crate) async fn stream_chat_message_handler(
     .collect::<Vec<_>>();
 
   trace!("Stream chat message with metadata: {:?}", metadata);
-  let (tx, rx) = oneshot::channel::<Result<ChatMessagePB, FlowyError>>();
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  tokio::spawn(async move {
-    let result = ai_manager
-      .stream_chat_message(
-        &data.chat_id,
-        &data.message,
-        message_type,
-        data.answer_stream_port,
-        data.question_stream_port,
-        metadata,
-      )
-      .await;
-    let _ = tx.send(result);
-  });
-
-  let question = rx.await??;
-  data_result_ok(question)
+  let result = ai_manager
+    .stream_chat_message(
+      &data.chat_id,
+      &data.message,
+      message_type,
+      data.answer_stream_port,
+      data.question_stream_port,
+      metadata,
+    )
+    .await?;
+  data_result_ok(result)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
