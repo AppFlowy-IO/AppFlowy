@@ -4,6 +4,7 @@ use allo_isolate::Isolate;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use semver::Version;
+use std::rc::Rc;
 use std::sync::Arc;
 use std::{ffi::CStr, os::raw::c_char};
 use tracing::{debug, error, info, trace, warn};
@@ -37,14 +38,14 @@ lazy_static! {
   static ref LOG_STREAM_ISOLATE: Mutex<Option<Isolate>> = Mutex::new(None);
 }
 
-struct MutexAppFlowyCore(Arc<Mutex<Option<AppFlowyCore>>>);
+struct MutexAppFlowyCore(Rc<Mutex<Option<AppFlowyCore>>>);
 
 impl MutexAppFlowyCore {
   fn new() -> Self {
-    Self(Arc::new(Mutex::new(None)))
+    Self(Rc::new(Mutex::new(None)))
   }
 
-  fn dispatcher(&self) -> Option<Arc<AFPluginDispatcher>> {
+  fn dispatcher(&self) -> Option<Rc<AFPluginDispatcher>> {
     let binding = self.0.lock();
     let core = binding.as_ref();
     core.map(|core| core.event_dispatcher.clone())
@@ -90,7 +91,7 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     core.close_db();
   }
 
-  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+  let runtime = Rc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
 
   let log_stream = LOG_STREAM_ISOLATE
