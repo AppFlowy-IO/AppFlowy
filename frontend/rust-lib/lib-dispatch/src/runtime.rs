@@ -2,14 +2,14 @@ use std::fmt::{Display, Formatter};
 use std::future::Future;
 use std::io;
 
-use crate::prelude::DispatchError;
 use tokio::runtime;
 use tokio::runtime::Runtime;
+use tokio::task::JoinHandle;
 
 pub struct AFPluginRuntime {
   inner: Runtime,
   #[cfg(feature = "local_set")]
-  local: tokio::task::LocalSet,
+  pub(crate) local: tokio::task::LocalSet,
 }
 
 impl Display for AFPluginRuntime {
@@ -32,20 +32,6 @@ impl AFPluginRuntime {
     })
   }
 
-  #[cfg(feature = "local_set")]
-  pub async fn spawn<F>(&self, future: F) -> Result<F::Output, DispatchError>
-  where
-    F: Future + 'static,
-  {
-    let handle = self.local.spawn_local(future);
-    self
-      .local
-      .run_until(handle)
-      .await
-      .map_err(|e| e.to_string().into())
-  }
-
-  #[cfg(not(feature = "local_set"))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> JoinHandle<F::Output>
   where

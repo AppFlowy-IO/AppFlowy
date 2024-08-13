@@ -71,8 +71,6 @@ pub(crate) fn subscribe_folder_view_changed(
         };
       }
     }
-
-    panic!("ViewChangeReceiver stream is closed");
   });
 }
 

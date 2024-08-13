@@ -5,6 +5,7 @@ use collab_folder::Folder;
 use event_integration_test::user_event::user_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use std::time::Duration;
+use tokio::task::LocalSet;
 use tokio::time::sleep;
 
 use crate::user::af_cloud_test::util::get_synced_workspaces;
@@ -195,31 +196,35 @@ async fn af_cloud_different_open_same_workspace_test() {
 
   // Simulate each client open different workspace 30 times
   let mut handles = vec![];
+  let local_set = LocalSet::new();
   for client in clients.clone() {
     let cloned_shared_workspace_id = shared_workspace_id.clone();
-    let handle = test_runner
-      .appflowy_core
-      .event_dispatcher
-      .spawn(async move {
-        let (client, profile) = client;
-        let all_workspaces = get_synced_workspaces(&client, profile.id).await;
-        for i in 0..30 {
-          let index = i % 2;
-          let iter_workspace_id = &all_workspaces[index].workspace_id;
-          client.open_workspace(iter_workspace_id).await;
-          if iter_workspace_id == &cloned_shared_workspace_id {
-            let views = client.get_all_workspace_views().await;
-            assert_eq!(views.len(), 1);
-            sleep(Duration::from_millis(300)).await;
-          } else {
-            let views = client.get_all_workspace_views().await;
-            assert!(views.is_empty());
-          }
+    let handle = local_set.spawn_local(async move {
+      let (client, profile) = client;
+      let all_workspaces = get_synced_workspaces(&client, profile.id).await;
+      for i in 0..30 {
+        let index = i % 2;
+        let iter_workspace_id = &all_workspaces[index].workspace_id;
+        client.open_workspace(iter_workspace_id).await;
+        if iter_workspace_id == &cloned_shared_workspace_id {
+          let views = client.get_all_workspace_views().await;
+          assert_eq!(views.len(), 1);
+          sleep(Duration::from_millis(300)).await;
+        } else {
+          let views = client.get_all_workspace_views().await;
+          assert!(views.is_empty());
         }
-      });
+      }
+    });
     handles.push(handle);
   }
-  futures::future::join_all(handles).await;
+  let results = local_set
+    .run_until(futures::future::join_all(handles))
+    .await;
+
+  for result in results {
+    assert!(result.is_ok());
+  }
 
   // Retrieve and verify the collaborative document state for Client 1's workspace.
   let doc_state = test_runner

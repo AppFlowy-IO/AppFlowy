@@ -97,13 +97,9 @@ async fn af_cloud_upload_6_files_test() {
 
   for mut receiver in receivers {
     let cloned_uploads = uploads.clone();
-    let state = test
-      .storage_manager
-      .get_file_state(&receiver.file_id)
-      .await
-      .unwrap();
+    let state = test.storage_manager.get_file_state(&receiver.file_id).await;
     let handle = tokio::spawn(async move {
-      if let FileUploadState::Finished { file_id } = state {
+      if let Some(FileUploadState::Finished { file_id }) = state {
         cloned_uploads
           .lock()
           .await
