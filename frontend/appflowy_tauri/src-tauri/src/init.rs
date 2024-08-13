@@ -1,8 +1,7 @@
 use flowy_core::config::AppFlowyCoreConfig;
-use flowy_core::{AppFlowyCore, DEFAULT_NAME};
+use flowy_core::{AppFlowyCore, MutexAppFlowyCore, DEFAULT_NAME};
 use lib_dispatch::runtime::AFPluginRuntime;
 use std::rc::Rc;
-use std::sync::Arc;
 
 use dotenv::dotenv;
 
@@ -26,7 +25,7 @@ pub fn read_env() {
   }
 }
 
-pub fn init_flowy_core() -> AppFlowyCore {
+pub fn init_flowy_core() -> MutexAppFlowyCore {
   let config_json = include_str!("../tauri.conf.json");
   let config: tauri_utils::config::Config = serde_json::from_str(config_json).unwrap();
 
@@ -64,5 +63,7 @@ pub fn init_flowy_core() -> AppFlowyCore {
 
   let runtime = Rc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
-  runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime, None).await })
+  runtime.block_on(async move {
+    MutexAppFlowyCore::new(AppFlowyCore::new(config, cloned_runtime, None).await)
+  })
 }
