@@ -9,7 +9,7 @@ use tokio::task::JoinHandle;
 pub struct AFPluginRuntime {
   inner: Runtime,
   #[cfg(feature = "local_set")]
-  local: tokio::task::LocalSet,
+  pub(crate) local: tokio::task::LocalSet,
 }
 
 impl Display for AFPluginRuntime {
@@ -32,16 +32,6 @@ impl AFPluginRuntime {
     })
   }
 
-  #[cfg(feature = "local_set")]
-  #[track_caller]
-  pub fn spawn<F>(&self, future: F) -> JoinHandle<F::Output>
-  where
-    F: Future + 'static,
-  {
-    self.local.spawn_local(future)
-  }
-
-  #[cfg(not(feature = "local_set"))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> JoinHandle<F::Output>
   where
@@ -49,22 +39,6 @@ impl AFPluginRuntime {
     <F as Future>::Output: Send + 'static,
   {
     self.inner.spawn(future)
-  }
-
-  #[cfg(feature = "local_set")]
-  pub async fn run_until<F>(&self, future: F) -> F::Output
-  where
-    F: Future,
-  {
-    self.local.run_until(future).await
-  }
-
-  #[cfg(not(feature = "local_set"))]
-  pub async fn run_until<F>(&self, future: F) -> F::Output
-  where
-    F: Future,
-  {
-    future.await
   }
 
   #[cfg(feature = "local_set")]

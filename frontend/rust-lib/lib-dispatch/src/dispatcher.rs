@@ -116,14 +116,37 @@ impl AFPluginDispatcher {
     // The provided future will start running in the background immediately
     // when `spawn` is called, even if you don't await the returned
     // `JoinHandle`.
-    let handle = dispatch.runtime.spawn(async move {
-      service.call(service_ctx).await.unwrap_or_else(|e| {
-        tracing::error!("Dispatch runtime error: {:?}", e);
-        InternalError::Other(format!("{:?}", e)).as_response()
-      })
-    });
+    let result: Result<AFPluginEventResponse, DispatchError>;
+    #[cfg(feature = "local_set")]
+    {
+      let handle = dispatch.runtime.local.spawn_local(async move {
+        service.call(service_ctx).await.unwrap_or_else(|e| {
+          tracing::error!("Dispatch runtime error: {:?}", e);
+          InternalError::Other(format!("{:?}", e)).as_response()
+        })
+      });
 
-    let result = dispatch.runtime.run_until(handle).await;
+      result = dispatch
+        .runtime
+        .local
+        .run_until(handle)
+        .await
+        .map_err(|e| e.to_string().into())
+    }
+
+    #[cfg(not(feature = "local_set"))]
+    {
+      result = dispatch
+        .runtime
+        .spawn(async move {
+          service.call(service_ctx).await.unwrap_or_else(|e| {
+            tracing::error!("Dispatch runtime error: {:?}", e);
+            InternalError::Other(format!("{:?}", e)).as_response()
+          })
+        })
+        .await;
+    }
+
     result.unwrap_or_else(|e| {
       let msg = format!("EVENT_DISPATCH join error: {:?}", e);
       tracing::error!("{}", msg);
@@ -160,16 +183,17 @@ impl AFPluginDispatcher {
       callback: Some(Box::new(callback)),
     };
 
-    let handle = dispatch.runtime.spawn(async move {
-      service.call(service_ctx).await.unwrap_or_else(|e| {
-        tracing::error!("[dispatch]: runtime error: {:?}", e);
-        InternalError::Other(format!("{:?}", e)).as_response()
-      })
-    });
-
     #[cfg(feature = "local_set")]
     {
-      let result = dispatch.runtime.block_on(handle);
+      let handle = dispatch.runtime.local.spawn_local(async move {
+        service.call(service_ctx).await.unwrap_or_else(|e| {
+          tracing::error!("Dispatch runtime error: {:?}", e);
+          InternalError::Other(format!("{:?}", e)).as_response()
+        })
+      });
+
+      let fut = dispatch.runtime.local.run_until(handle);
+      let result = dispatch.runtime.block_on(fut);
       DispatchFuture {
         fut: Box::pin(async move {
           result.unwrap_or_else(|e| {
@@ -184,6 +208,16 @@ impl AFPluginDispatcher {
 
     #[cfg(not(feature = "local_set"))]
     {
+      let handle = dispatch.runtime.spawn(async move {
+        service
+          .call(crate::service::service::Service)
+          .await
+          .unwrap_or_else(|e| {
+            tracing::error!("[dispatch]: runtime error: {:?}", e);
+            InternalError::Other(format!("{:?}", e)).as_response()
+          })
+      });
+
       let runtime = dispatch.runtime.clone();
       DispatchFuture {
         fut: Box::pin(async move {
@@ -211,16 +245,6 @@ impl AFPluginDispatcher {
     ))
   }
 
-  #[cfg(feature = "local_set")]
-  #[track_caller]
-  pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
-  where
-    F: Future + 'static,
-  {
-    self.runtime.spawn(future)
-  }
-
-  #[cfg(not(feature = "local_set"))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
   where
@@ -228,24 +252,6 @@ impl AFPluginDispatcher {
     <F as Future>::Output: Send + 'static,
   {
     self.runtime.spawn(future)
-  }
-
-  #[cfg(feature = "local_set")]
-  pub async fn run_until<F>(&self, future: F) -> F::Output
-  where
-    F: Future + 'static,
-  {
-    let handle = self.runtime.spawn(future);
-    self.runtime.run_until(handle).await.unwrap()
-  }
-
-  #[cfg(not(feature = "local_set"))]
-  pub async fn run_until<'a, F>(&self, future: F) -> F::Output
-  where
-    F: Future + Send + 'a,
-    <F as Future>::Output: Send + 'a,
-  {
-    self.runtime.run_until(future).await
   }
 }
 

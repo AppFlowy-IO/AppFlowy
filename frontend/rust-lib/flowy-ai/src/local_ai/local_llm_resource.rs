@@ -288,7 +288,7 @@ impl LocalAIResourceController {
         while let Ok(value) = rx.recv().await {
           let is_finish = value == DOWNLOAD_FINISH;
           if let Err(err) = progress_sink.send(value).await {
-            error!("Failed to send progress: {:?}", err);
+            warn!("Failed to send progress: {:?}", err);
             break;
           }
 
