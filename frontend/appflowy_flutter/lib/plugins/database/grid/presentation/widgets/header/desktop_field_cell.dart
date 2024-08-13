@@ -229,6 +229,7 @@ class FieldCellButton extends StatelessWidget {
       radius: radius,
       text: FlowyText.medium(
         field.name,
+        lineHeight: 1.0,
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
         color: AFThemeExtension.of(context).textColor,

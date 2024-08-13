@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_member_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bubble_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -29,14 +29,12 @@ class ChatUserMessageBubble extends StatelessWidget {
           .read<ChatMemberBloc>()
           .add(ChatMemberEvent.getMemberInfo(message.author.id));
     }
-    final metadata = message.metadata?[messageMetadataKey] as String?;
 
     return BlocProvider(
-      create: (context) => ChatUserMessageBloc(
+      create: (context) => ChatUserMessageBubbleBloc(
         message: message,
-        metadata: metadata,
       ),
-      child: BlocBuilder<ChatUserMessageBloc, ChatUserMessageState>(
+      child: BlocBuilder<ChatUserMessageBubbleBloc, ChatUserMessageBubbleState>(
         builder: (context, state) {
           return Column(
             mainAxisSize: MainAxisSize.min,

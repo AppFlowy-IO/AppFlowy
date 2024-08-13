@@ -189,7 +189,10 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
     ),
     CalloutBlockKeys.type: CalloutBlockComponentBuilder(
-      configuration: configuration.copyWith(),
+      configuration: configuration.copyWith(
+        padding: (node) => const EdgeInsets.symmetric(vertical: 10),
+      ),
+      inlinePadding: const EdgeInsets.symmetric(vertical: 8.0),
       defaultColor: calloutBGColor,
     ),
     DividerBlockKeys.type: DividerBlockComponentBuilder(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -455,12 +456,28 @@ class _SidebarSearchButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      onTap: () => CommandPalette.of(context).toggle(),
-      leftIcon: const FlowySvg(FlowySvgs.search_s),
-      iconPadding: 12.0,
-      margin: const EdgeInsets.only(left: 8.0),
-      text: FlowyText.regular(LocaleKeys.search_label.tr()),
+    return FlowyTooltip(
+      richMessage: TextSpan(
+        children: [
+          TextSpan(
+            text: '${LocaleKeys.search_sidebarSearchIcon.tr()}\n',
+            style: context.tooltipTextStyle(),
+          ),
+          TextSpan(
+            text: Platform.isMacOS ? '⌘+P' : 'Ctrl+P',
+            style: context
+                .tooltipTextStyle()
+                ?.copyWith(color: Theme.of(context).hintColor),
+          ),
+        ],
+      ),
+      child: FlowyButton(
+        onTap: () => CommandPalette.of(context).toggle(),
+        leftIcon: const FlowySvg(FlowySvgs.search_s),
+        iconPadding: 12.0,
+        margin: const EdgeInsets.only(left: 8.0),
+        text: FlowyText.regular(LocaleKeys.search_label.tr()),
+      ),
     );
   }
 }

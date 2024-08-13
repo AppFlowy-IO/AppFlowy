@@ -102,6 +102,7 @@ class _TypeOptionMenuItem<T> extends StatelessWidget {
               value.text,
               fontSize: 14.0,
               maxLines: 2,
+              lineHeight: 1.0,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
             ),

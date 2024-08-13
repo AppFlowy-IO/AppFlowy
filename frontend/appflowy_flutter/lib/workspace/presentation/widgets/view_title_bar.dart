@@ -143,6 +143,13 @@ class _ViewTitleState extends State<_ViewTitle> {
       create: (_) =>
           ViewTitleBloc(view: widget.view)..add(const ViewTitleEvent.initial()),
       child: BlocConsumer<ViewTitleBloc, ViewTitleState>(
+        listenWhen: (previous, current) {
+          if (previous.view == null || current.view == null) {
+            return false;
+          }
+
+          return previous.view != current.view;
+        },
         listener: (_, state) {
           _resetTextEditingController(state);
           widget.onUpdated();

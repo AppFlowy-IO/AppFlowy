@@ -666,6 +666,7 @@
         "downloadLLMPrompt": "Download {}",
         "downloadAppFlowyOfflineAI": "Downloading AI offline package will enable AI to run on your device. Do you want to continue?",
         "downloadLLMPromptDetail": "Downloading {} local model will take up to {} of storage. Do you want to continue?",
+        "downloadBigFilePrompt": "It may take around 10 minutes to complete the download",
         "downloadAIModelButton": "Download",
         "downloadingModel": "Downloading",
         "localAILoaded": "Local AI Model successfully added and ready to use",
@@ -735,15 +736,15 @@
             "title": "AI Max",
             "description": "Unlimited AI responses powered by GPT-4o, Claude 3.5 Sonnet, and more",
             "price": "{}",
-            "priceInfo": "per user per month",
-            "billingInfo": "billed annually or {} billed monthly"
+            "priceInfo": "per user per month billed annually",
+            "recommend": ""
           },
           "aiOnDevice": {
             "title": "AI On-device for Mac",
             "description": "Run Mistral 7B, LLAMA 3, and more local models on your machine",
             "price": "{}",
-            "priceInfo": "per user per month",
-            "billingInfo": "billed annually or {} billed monthly"
+            "priceInfo": "per user per month billed annually",
+            "recommend": "Recommend M1 or newer"
           }
         },
         "deal": {
@@ -1158,7 +1159,6 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your AI key",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
       "clickToLogout": "Click to logout the current user"
     },
     "mobile": {
@@ -1472,7 +1472,7 @@
         "numberedList": "Numbered List",
         "checkbox": "Checkbox",
         "doc": "Doc",
-        "linkedDoc": "Linked Doc",
+        "linkedDoc": "Link to page",
         "grid": "Grid",
         "linkedGrid": "Linked Grid",
         "kanban": "Kanban",
@@ -1498,7 +1498,6 @@
       "outline": "Outline",
       "codeBlock": "Code Block"
     },
-
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
@@ -1580,9 +1579,9 @@
         "depth": "Depth"
       },
       "image": {
-        "addAnImage": "Add an image",
+        "addAnImage": "Add images",
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImageDesktop": "Drop image(s) or click to add image(s)",
+        "addAnImageDesktop": "Add an image",
         "addAnImageMobile": "Click to add one or more images",
         "dropImageToInsert": "Drop images to insert",
         "imageUploadFailed": "Image upload failed",
@@ -1650,12 +1649,12 @@
       "file": {
         "name": "File",
         "uploadTab": "Upload",
-        "networkTab": "Integrate link",
-        "placeholderText": "Click or drag and drop to upload a file",
+        "networkTab": "Embed link",
+        "placeholderText": "Upload or embed a file",
         "placeholderDragging": "Drop the file to upload",
         "dropFileToUpload": "Drop the file to upload",
-        "fileUploadHint": "Drag and drop a file here\nor click to select a file.",
-        "networkHint": "Enter a link to a file",
+        "fileUploadHint": "Drop a file here to upload\nor click to browse",
+        "networkHint": "Paste a file link",
         "networkUrlInvalid": "Invalid URL, please correct the URL and try again",
         "networkAction": "Embed file link",
         "fileTooBigError": "File size is too big, please upload a file with size less than 10MB",
@@ -1713,7 +1712,6 @@
       },
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your AI key in Settings page",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
       "saveImageToGallery": "Save image",
       "failedToAddImageToGallery": "Failed to add image to gallery",
       "successToAddImageToGallery": "Image added to gallery successfully",
@@ -1743,7 +1741,7 @@
         "placeholder": "Select language",
         "auto": "Auto"
       },
-      "copyTooltip": "Copy contents of the code block",
+      "copyTooltip": "Copy",
       "searchLanguageHint": "Search for a language",
       "codeCopiedSnackbar": "Code copied to clipboard!"
     },
@@ -1768,7 +1766,8 @@
         "tooltip": "Click to open page"
       },
       "deleted": "Deleted",
-      "deletedContent": "This content does not exist or has been deleted"
+      "deletedContent": "This content does not exist or has been deleted",
+      "noAccess": "No Access"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
@@ -1885,6 +1884,7 @@
   },
   "search": {
     "label": "Search",
+    "sidebarSearchIcon": "Search and quickly jump to a page",
     "placeholder": {
       "actions": "Search actions..."
     }

@@ -319,25 +319,25 @@ class _ChatContentPageState extends State<_ChatContentPage> {
 
   Widget _buildTextMessage(BuildContext context, TextMessage message) {
     if (message.author.id == _user.id) {
-      final metadata = message.metadata?[messageMetadataKey] as String?;
-      return ChatUserTextMessageWidget(
+      final stream = message.metadata?["$QuestionStream"];
+      return ChatUserMessageWidget(
+        key: ValueKey(message.id),
         user: message.author,
-        messageUserId: message.id,
-        message: message,
-        metadata: metadata,
+        message: stream is QuestionStream ? stream : message.text,
       );
     } else {
       final stream = message.metadata?["$AnswerStream"];
       final questionId = message.metadata?[messageQuestionIdKey];
-      final metadata = message.metadata?[messageMetadataKey] as String?;
-      return ChatAITextMessageWidget(
+      final refSourceJsonString =
+          message.metadata?[messageRefSourceJsonStringKey] as String?;
+      return ChatAIMessageWidget(
         user: message.author,
         messageUserId: message.id,
-        text: stream is AnswerStream ? stream : message.text,
+        message: stream is AnswerStream ? stream : message.text,
         key: ValueKey(message.id),
         questionId: questionId,
         chatId: widget.view.id,
-        metadata: metadata,
+        refSourceJsonString: refSourceJsonString,
         onSelectedMetadata: (ChatMessageRefSource metadata) {
           context.read<ChatSidePannelBloc>().add(
                 ChatSidePannelEvent.selectedMetadata(metadata),

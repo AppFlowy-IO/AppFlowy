@@ -5,6 +5,7 @@ use crate::entities::{
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::notification::{make_notification, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
+use crate::stream_message::StreamMessage;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, MessageCursor,
@@ -81,22 +82,36 @@ impl Chat {
     &self,
     message: &str,
     message_type: ChatMessageType,
-    text_stream_port: i64,
+    answer_stream_port: i64,
+    question_stream_port: i64,
     metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
     if message.len() > 2000 {
       return Err(FlowyError::text_too_long().with_context("Exceeds maximum message 2000 length"));
     }
+
+    trace!(
+      "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}",
+      self.chat_id,
+      message,
+      message_type,
+      metadata
+    );
+
     // clear
     self
       .stop_stream
       .store(false, std::sync::atomic::Ordering::SeqCst);
     self.stream_buffer.lock().await.clear();
 
-    let stream_buffer = self.stream_buffer.clone();
+    let mut question_sink = IsolateSink::new(Isolate::new(question_stream_port));
+    let answer_stream_buffer = self.stream_buffer.clone();
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
 
+    let _ = question_sink
+      .send(StreamMessage::Text(message.to_string()).to_string())
+      .await;
     let question = self
       .chat_service
       .create_question(
@@ -112,16 +127,19 @@ impl Chat {
         FlowyError::server_error()
       })?;
 
-    if self.chat_service.is_local_ai_enabled() {
-      if let Err(err) = self
-        .chat_service
-        .index_message_metadata(&self.chat_id, &metadata)
-        .await
-      {
-        error!("Failed to index file: {}", err);
-      }
+    let _ = question_sink
+      .send(StreamMessage::MessageId(question.message_id).to_string())
+      .await;
+    if let Err(err) = self
+      .chat_service
+      .index_message_metadata(&self.chat_id, &metadata, &mut question_sink)
+      .await
+    {
+      error!("Failed to index file: {}", err);
     }
+    let _ = question_sink.send(StreamMessage::Done.to_string()).await;
 
+    // Save message to disk
     save_chat_message(
       self.user_service.sqlite_connection(uid)?,
       &self.chat_id,
@@ -134,7 +152,7 @@ impl Chat {
     let cloud_service = self.chat_service.clone();
     let user_service = self.user_service.clone();
     tokio::spawn(async move {
-      let mut text_sink = IsolateSink::new(Isolate::new(text_stream_port));
+      let mut answer_sink = IsolateSink::new(Isolate::new(answer_stream_port));
       match cloud_service
         .stream_answer(&workspace_id, &chat_id, question_id)
         .await
@@ -149,20 +167,20 @@ impl Chat {
                 }
                 match message {
                   QuestionStreamValue::Answer { value } => {
-                    stream_buffer.lock().await.push_str(&value);
-                    let _ = text_sink.send(format!("data:{}", value)).await;
+                    answer_stream_buffer.lock().await.push_str(&value);
+                    let _ = answer_sink.send(format!("data:{}", value)).await;
                   },
                   QuestionStreamValue::Metadata { value } => {
                     if let Ok(s) = serde_json::to_string(&value) {
-                      stream_buffer.lock().await.set_metadata(value);
-                      let _ = text_sink.send(format!("metadata:{}", s)).await;
+                      answer_stream_buffer.lock().await.set_metadata(value);
+                      let _ = answer_sink.send(format!("metadata:{}", s)).await;
                     }
                   },
                 }
               },
               Err(err) => {
                 error!("[Chat] failed to stream answer: {}", err);
-                let _ = text_sink.send(format!("error:{}", err)).await;
+                let _ = answer_sink.send(format!("error:{}", err)).await;
                 let pb = ChatMessageErrorPB {
                   chat_id: chat_id.clone(),
                   error_message: err.to_string(),
@@ -178,9 +196,9 @@ impl Chat {
         Err(err) => {
           error!("[Chat] failed to stream answer: {}", err);
           if err.is_ai_response_limit_exceeded() {
-            let _ = text_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
+            let _ = answer_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
           } else {
-            let _ = text_sink.send(format!("error:{}", err)).await;
+            let _ = answer_sink.send(format!("error:{}", err)).await;
           }
 
           let pb = ChatMessageErrorPB {
@@ -195,11 +213,11 @@ impl Chat {
       }
 
       make_notification(&chat_id, ChatNotification::FinishStreaming).send();
-      if stream_buffer.lock().await.is_empty() {
+      if answer_stream_buffer.lock().await.is_empty() {
         return Ok(());
       }
-      let content = stream_buffer.lock().await.take_content();
-      let metadata = stream_buffer.lock().await.take_metadata();
+      let content = answer_stream_buffer.lock().await.take_content();
+      let metadata = answer_stream_buffer.lock().await.take_metadata();
 
       let answer = cloud_service
         .create_answer(&workspace_id, &chat_id, &content, question_id, metadata)
@@ -495,6 +513,7 @@ impl Chat {
         &self.user_service.workspace_id()?,
         &file_path,
         &self.chat_id,
+        None,
       )
       .await?;
 

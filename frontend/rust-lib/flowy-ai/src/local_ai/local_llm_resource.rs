@@ -288,7 +288,7 @@ impl LocalAIResourceController {
         while let Ok(value) = rx.recv().await {
           let is_finish = value == DOWNLOAD_FINISH;
           if let Err(err) = progress_sink.send(value).await {
-            error!("Failed to send progress: {:?}", err);
+            warn!("Failed to send progress: {:?}", err);
             break;
           }
 
@@ -359,6 +359,10 @@ impl LocalAIResourceController {
         let cloned_model_name = model_name.clone();
         let progress = Arc::new(move |downloaded, total_size| {
           let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
+          if plugin_progress_tx.receiver_count() == 0 {
+            return;
+          }
+
           if let Err(err) =
             plugin_progress_tx.send(format!("{}:progress:{}", cloned_model_name, progress))
           {

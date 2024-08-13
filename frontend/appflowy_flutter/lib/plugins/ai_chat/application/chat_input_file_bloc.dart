@@ -1,8 +1,5 @@
-import 'dart:async';
 
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -10,40 +7,14 @@ part 'chat_input_file_bloc.freezed.dart';
 
 class ChatInputFileBloc extends Bloc<ChatInputFileEvent, ChatInputFileState> {
   ChatInputFileBloc({
+    // ignore: avoid_unused_constructor_parameters
     required String chatId,
     required this.file,
   }) : super(const ChatInputFileState()) {
     on<ChatInputFileEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {
-            final payload = ChatFilePB(
-              filePath: file.filePath,
-              chatId: chatId,
-            );
-            unawaited(
-              AIEventChatWithFile(payload).send().then((result) {
-                if (!isClosed) {
-                  result.fold(
-                    (_) {
-                      add(
-                        const ChatInputFileEvent.updateUploadState(
-                          UploadFileIndicator.finish(),
-                        ),
-                      );
-                    },
-                    (err) {
-                      add(
-                        ChatInputFileEvent.updateUploadState(
-                          UploadFileIndicator.error(err.toString()),
-                        ),
-                      );
-                    },
-                  );
-                }
-              }),
-            );
-          },
+          initial: () async {},
           updateUploadState: (UploadFileIndicator indicator) {
             emit(state.copyWith(uploadFileIndicator: indicator));
           },

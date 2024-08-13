@@ -50,7 +50,10 @@ class RowDetailPageDeleteButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.regular(LocaleKeys.grid_row_delete.tr()),
+        text: FlowyText.regular(
+          LocaleKeys.grid_row_delete.tr(),
+          lineHeight: 1.0,
+        ),
         leftIcon: const FlowySvg(FlowySvgs.trash_m),
         onTap: () {
           RowBackendService.deleteRows(viewId, [rowId]);
@@ -76,7 +79,10 @@ class RowDetailPageDuplicateButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.regular(LocaleKeys.grid_row_duplicate.tr()),
+        text: FlowyText.regular(
+          LocaleKeys.grid_row_duplicate.tr(),
+          lineHeight: 1.0,
+        ),
         leftIcon: const FlowySvg(FlowySvgs.copy_s),
         onTap: () {
           RowBackendService.duplicateRow(viewId, rowId);

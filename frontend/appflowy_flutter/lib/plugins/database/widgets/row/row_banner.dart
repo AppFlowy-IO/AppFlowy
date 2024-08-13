@@ -220,6 +220,7 @@ class AddEmojiButton extends StatelessWidget {
       child: FlowyButton(
         useIntrinsicWidth: true,
         text: FlowyText.medium(
+          lineHeight: 1.0,
           LocaleKeys.document_plugins_cover_addIcon.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.emoji_s),
@@ -242,6 +243,7 @@ class RemoveEmojiButton extends StatelessWidget {
       child: FlowyButton(
         useIntrinsicWidth: true,
         text: FlowyText.medium(
+          lineHeight: 1.0,
           LocaleKeys.document_plugins_cover_removeIcon.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.emoji_s),

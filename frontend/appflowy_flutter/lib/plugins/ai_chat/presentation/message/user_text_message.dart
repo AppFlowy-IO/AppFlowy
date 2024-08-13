@@ -1,26 +1,48 @@
+import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bloc.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 
-class ChatUserTextMessageWidget extends StatelessWidget {
-  const ChatUserTextMessageWidget({
+class ChatUserMessageWidget extends StatelessWidget {
+  const ChatUserMessageWidget({
     super.key,
     required this.user,
-    required this.messageUserId,
     required this.message,
-    required this.metadata,
   });
 
   final User user;
-  final String messageUserId;
-  final TextMessage message;
-  final String? metadata;
+  final dynamic message;
 
   @override
   Widget build(BuildContext context) {
-    return TextMessageText(
-      text: message.text,
+    return BlocProvider(
+      create: (context) => ChatUserMessageBloc(message: message)
+        ..add(const ChatUserMessageEvent.initial()),
+      child: BlocBuilder<ChatUserMessageBloc, ChatUserMessageState>(
+        builder: (context, state) {
+          final List<Widget> children = [];
+          children.add(
+            Flexible(
+              child: TextMessageText(
+                text: state.text,
+              ),
+            ),
+          );
+
+          if (!state.messageState.isFinish) {
+            children.add(const HSpace(6));
+            children.add(const CircularProgressIndicator.adaptive());
+          }
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: children,
+          );
+        },
+      ),
     );
   }
 }

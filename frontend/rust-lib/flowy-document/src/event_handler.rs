@@ -454,10 +454,17 @@ pub(crate) async fn upload_file_handler(
   } = params.try_into_inner()?;
 
   let manager = upgrade_document(manager)?;
-  let upload = manager
-    .upload_file(workspace_id, &document_id, &local_file_path)
-    .await?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  let cloned_local_file_path = local_file_path.clone();
+  tokio::spawn(async move {
+    let result = manager
+      .upload_file(workspace_id, &document_id, &cloned_local_file_path)
+      .await;
 
+    let _ = tx.send(result);
+    Ok::<(), FlowyError>(())
+  });
+  let upload = rx.await??;
   data_result_ok(UploadedFilePB {
     url: upload.url,
     local_file_path,

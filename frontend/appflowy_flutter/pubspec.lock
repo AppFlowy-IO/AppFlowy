@@ -10,7 +10,7 @@ packages:
     source: hosted
     version: "67.0.0"
   analyzer:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       name: analyzer
       sha256: "37577842a27e4338429a1cbc32679d508836510b056f1eedf0c8d20e39c1383d"
@@ -53,8 +53,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "0317779"
-      resolved-ref: "031777941ce53fe1aaa9a23177f6045b142e6e73"
+      ref: "9d3e854"
+      resolved-ref: "9d3e854f11fd9d732535ce5f5b1c8f41517479a1"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "3.1.0"
@@ -307,7 +307,7 @@ packages:
     source: hosted
     version: "1.3.0"
   charcode:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: charcode
       sha256: fb98c0f6d12c920a02ee2d998da788bca066ca5f148492b7085ee23372b12306
@@ -322,14 +322,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
-  clipboard:
-    dependency: "direct main"
-    description:
-      name: clipboard
-      sha256: "2ec38f0e59878008ceca0ab122e4bfde98847f88ef0f83331362ba4521f565a9"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.3"
   clock:
     dependency: transitive
     description:
@@ -410,14 +402,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
-  custom_sliding_segmented_control:
-    dependency: "direct main"
-    description:
-      name: custom_sliding_segmented_control
-      sha256: "53c3e931c3ae1f696085d1ec70ac8e934da836595a9b7d9b88fdd0fcbf2a5574"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.8.3"
   dart_style:
     dependency: transitive
     description:
@@ -663,13 +647,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  flowy_infra_ui_web:
-    dependency: transitive
-    description:
-      path: "packages/flowy_infra_ui/flowy_infra_ui_web"
-      relative: true
-    source: path
-    version: "0.0.1"
   flowy_svg:
     dependency: "direct main"
     description:
@@ -723,14 +700,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.6.13"
-  flutter_colorpicker:
-    dependency: "direct main"
-    description:
-      name: flutter_colorpicker
-      sha256: "458a6ed8ea480eb16ff892aedb4b7092b2804affd7e046591fb03127e8d8ef8b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3"
   flutter_driver:
     dependency: transitive
     description: flutter
@@ -746,7 +715,7 @@ packages:
     source: git
     version: "1.0.2"
   flutter_highlight:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_highlight
       sha256: "7b96333867aa07e122e245c033b8ad622e4e3a42a1a2372cbb098a2541d8782c"
@@ -778,7 +747,7 @@ packages:
     source: hosted
     version: "3.0.1"
   flutter_localizations:
-    dependency: "direct main"
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -921,10 +890,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "170c46e237d6eb0e6e9f0e8b3f56101e14fb64f787016e42edd74c39cf8b176a"
+      sha256: ddc16d34b0d74cb313986918c0f0885a7ba2fc24d8fb8419de75f0015144ccfe
       url: "https://pub.dev"
     source: hosted
-    version: "13.2.0"
+    version: "14.2.3"
   google_fonts:
     dependency: "direct main"
     description:
@@ -966,7 +935,7 @@ packages:
     source: hosted
     version: "0.7.0"
   hive:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: hive
       sha256: "8dcf6db979d7933da8217edcec84e9df1bdb4e4edc7fc77dbd5aa74356d6d941"
@@ -1037,14 +1006,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.0"
-  image_gallery_saver:
-    dependency: "direct main"
-    description:
-      name: image_gallery_saver
-      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   image_picker:
     dependency: "direct main"
     description:
@@ -1198,10 +1159,10 @@ packages:
     dependency: "direct main"
     description:
       name: keyboard_height_plugin
-      sha256: bbb32804bf93601249c17c33125cd2e654f5ef650fc6acf1b031d69b478b35ce
+      sha256: "3a51c8ebb43465ebe0b3bad17f3b6d945421e58011f3f5a08134afe69a3d775f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "0.1.5"
   leak_tracker:
     dependency: "direct main"
     description:
@@ -1347,7 +1308,7 @@ packages:
     source: hosted
     version: "5.4.4"
   mocktail:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: mocktail
       sha256: c4b5007d91ca4f67256e720cb1b6d704e79a510183a12fa551021f652577dce6
@@ -1510,10 +1471,10 @@ packages:
     dependency: transitive
     description:
       name: pdf
-      sha256: "81d5522bddc1ef5c28e8f0ee40b71708761753c163e0c93a40df56fd515ea0f0"
+      sha256: "05df53f8791587402493ac97b9869d3824eccbc77d97855f4545cf72df3cae07"
       url: "https://pub.dev"
     source: hosted
-    version: "3.11.0"
+    version: "3.11.1"
   pdf_widget_wrapper:
     dependency: transitive
     description:
@@ -1694,10 +1655,10 @@ packages:
     dependency: transitive
     description:
       name: qr
-      sha256: "64957a3930367bf97cc211a5af99551d630f2f4625e38af10edd6b19131b64b3"
+      sha256: "5a1d2586170e172b8a8c8470bbbffd5eb0cd38a66c0d77155ea138d3af3a4445"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "3.0.2"
   realtime_client:
     dependency: transitive
     description:
@@ -2153,14 +2114,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
-  textstyle_extensions:
-    dependency: transitive
-    description:
-      name: textstyle_extensions
-      sha256: b0538352844fb4d1d0eea82f7bc6b96e4dae03a3a071247e4dcc85ec627b2c6c
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0-nullsafety"
   time:
     dependency: "direct main"
     description:

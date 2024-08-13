@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -250,10 +248,10 @@ class _WorkspaceInfo extends StatelessWidget {
               FlowyText.medium(
                 workspace.name,
                 fontSize: 14.0,
+                figmaLineHeight: 17.0,
                 overflow: TextOverflow.ellipsis,
                 withTooltip: true,
               ),
-              if (Platform.isMacOS) const VSpace(2.0),
               // workspace members count
               FlowyText.regular(
                 state.isLoading
@@ -263,6 +261,7 @@ class _WorkspaceInfo extends StatelessWidget {
                         members.length,
                       ),
                 fontSize: 10.0,
+                figmaLineHeight: 12.0,
                 color: Theme.of(context).hintColor,
               ),
             ],

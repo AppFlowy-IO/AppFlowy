@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_message_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -49,9 +50,17 @@ class AIMessageMetadata extends StatelessWidget {
                       child: FlowyText(
                         m.name,
                         fontSize: 14,
+                        lineHeight: 1.0,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    onTap: () => onSelectedMetadata(m),
+                    disable: m.source != appflowySoruce,
+                    onTap: () {
+                      if (m.source != appflowySoruce) {
+                        return;
+                      }
+                      onSelectedMetadata(m);
+                    },
                   ),
                 ),
               )

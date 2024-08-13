@@ -15,8 +15,14 @@ part 'chat_entity.freezed.dart';
 const sendMessageErrorKey = "sendMessageError";
 const systemUserId = "system";
 const aiResponseUserId = "0";
-const messageMetadataKey = "metadata";
-const messageQuestionIdKey = "question";
+
+/// `messageRefSourceJsonStringKey` is the key used for metadata that contains the reference source of a message.
+/// Each message may include this information.
+/// - When used in a sent message, it indicates that the message includes an attachment.
+/// - When used in a received message, it indicates the AI reference sources used to answer a question.
+const messageRefSourceJsonStringKey = "ref_source_json_string";
+const messageChatFileListKey = "chat_files";
+const messageQuestionIdKey = "question_id";
 
 @JsonSerializable()
 class ChatMessageRefSource {

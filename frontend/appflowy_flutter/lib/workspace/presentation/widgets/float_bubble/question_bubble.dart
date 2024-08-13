@@ -1,24 +1,18 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
-import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/float_bubble/social_media_section.dart';
+import 'package:appflowy/workspace/presentation/widgets/float_bubble/version_section.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:styled_widget/styled_widget.dart';
 
 class QuestionBubble extends StatelessWidget {
   const QuestionBubble({super.key});
@@ -26,7 +20,7 @@ class QuestionBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SizedBox.square(
-      dimension: 36.0,
+      dimension: 32.0,
       child: BubbleActionList(),
     );
   }
@@ -62,7 +56,9 @@ class _BubbleActionListState extends State<BubbleActionList> {
     actions.addAll(
       BubbleAction.values.map((action) => BubbleActionWrapper(action)),
     );
-    actions.add(FlowyVersionDescription());
+
+    actions.add(SocialMediaSection());
+    actions.add(FlowyVersionSection());
 
     final (color, borderColor, shadowColor, iconColor) =
         Theme.of(context).isLightMode
@@ -83,6 +79,11 @@ class _BubbleActionListState extends State<BubbleActionList> {
       direction: PopoverDirection.topWithRightAligned,
       actions: actions,
       offset: const Offset(0, -8),
+      constraints: const BoxConstraints(
+        minWidth: 200,
+        maxWidth: 460,
+        maxHeight: 400,
+      ),
       buildChild: (controller) {
         return FlowyTooltip(
           message: LocaleKeys.questionBubble_help.tr(),
@@ -90,7 +91,7 @@ class _BubbleActionListState extends State<BubbleActionList> {
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               child: Container(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(8.0),
                 decoration: ShapeDecoration(
                   color: color,
                   shape: RoundedRectangleBorder(
@@ -178,75 +179,21 @@ class _DebugToast {
   }
 }
 
-class FlowyVersionDescription extends CustomActionCell {
-  @override
-  Widget buildWithContext(BuildContext context, PopoverController controller) {
-    return FutureBuilder(
-      future: PackageInfo.fromPlatform(),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError) {
-            return FlowyText(
-              "Error: ${snapshot.error}",
-              color: Theme.of(context).disabledColor,
-            );
-          }
-
-          final PackageInfo packageInfo = snapshot.data;
-          final String appName = packageInfo.appName;
-          final String version = packageInfo.version;
-
-          return SizedBox(
-            height: 30,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Divider(
-                  height: 1,
-                  color: Theme.of(context).dividerColor,
-                  thickness: 1.0,
-                ),
-                const VSpace(6),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onDoubleTap: () {
-                    if (Env.internalBuild != '1' && !kDebugMode) {
-                      return;
-                    }
-                    enableDocumentInternalLog = !enableDocumentInternalLog;
-                    showToastNotification(
-                      context,
-                      message: enableDocumentInternalLog
-                          ? 'Enabled Internal Log'
-                          : 'Disabled Internal Log',
-                    );
-                  },
-                  child: FlowyText(
-                    '$appName $version',
-                    color: Theme.of(context).hintColor,
-                  ),
-                ),
-              ],
-            ).padding(
-              horizontal: ActionListSizes.itemHPadding,
-            ),
-          );
-        } else {
-          return const SizedBox(height: 30);
-        }
-      },
-    );
-  }
+enum BubbleAction {
+  whatsNews,
+  help,
+  debug,
+  shortcuts,
+  markdown,
+  github,
 }
-
-enum BubbleAction { whatsNews, help, debug, shortcuts, markdown, github }
 
 class BubbleActionWrapper extends ActionCell {
   BubbleActionWrapper(this.inner);
 
   final BubbleAction inner;
   @override
-  Widget? leftIcon(Color iconColor) => inner.emoji;
+  Widget? leftIcon(Color iconColor) => inner.icons;
 
   @override
   String get name => inner.name;
@@ -270,26 +217,20 @@ extension QuestionBubbleExtension on BubbleAction {
     }
   }
 
-  Widget get emoji {
+  Widget? get icons {
     switch (this) {
       case BubbleAction.whatsNews:
-        return const FlowyText.regular('🆕');
+        return const FlowySvg(FlowySvgs.star_s);
       case BubbleAction.help:
-        return const FlowyText.regular('👥');
+        return const FlowySvg(FlowySvgs.message_support_s);
       case BubbleAction.debug:
-        return const FlowyText.regular('🐛');
+        return const FlowySvg(FlowySvgs.debug_s);
       case BubbleAction.shortcuts:
-        return const FlowyText.regular('📋');
+        return const FlowySvg(FlowySvgs.keyboard_s);
       case BubbleAction.markdown:
-        return const FlowyText.regular('✨');
+        return const FlowySvg(FlowySvgs.number_s);
       case BubbleAction.github:
-        return const Padding(
-          padding: EdgeInsets.all(3.0),
-          child: FlowySvg(
-            FlowySvgs.archive_m,
-            size: Size.square(12),
-          ),
-        );
+        return const FlowySvg(FlowySvgs.share_feedback_s);
     }
   }
 }

@@ -173,6 +173,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
         ),
         radius: BorderRadius.circular(10),
         text: FlowyText.regular(
+          lineHeight: 1.0,
           LocaleKeys.shareAction_unPublish.tr(),
           textAlign: TextAlign.center,
         ),
@@ -189,6 +190,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
       title: LocaleKeys.shareAction_visitSite.tr(),
       borderRadius: const BorderRadius.all(Radius.circular(10)),
       fillColor: Theme.of(context).colorScheme.primary,
+      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
       textColor: Theme.of(context).colorScheme.onPrimary,
     );
   }
@@ -257,13 +259,13 @@ class _PublishButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RoundedTextButton(
-      height: 36,
-      title: LocaleKeys.shareAction_publish.tr(),
-      padding: const EdgeInsets.symmetric(vertical: 9.0),
+    return PrimaryRoundedButton(
+      text: LocaleKeys.shareAction_publish.tr(),
+      useIntrinsicWidth: false,
+      margin: const EdgeInsets.symmetric(vertical: 9.0),
       fontSize: 14.0,
-      textColor: Theme.of(context).colorScheme.onPrimary,
-      onPressed: onPublish,
+      figmaLineHeight: 18.0,
+      onTap: onPublish,
     );
   }
 }

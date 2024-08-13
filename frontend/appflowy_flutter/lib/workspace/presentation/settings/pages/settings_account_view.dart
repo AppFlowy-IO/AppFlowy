@@ -193,17 +193,14 @@ class SignInOutButton extends StatelessWidget {
       children: [
         SizedBox(
           height: 48,
-          child: FlowyTextButton(
-            signIn
+          child: PrimaryRoundedButton(
+            text: signIn
                 ? LocaleKeys.settings_accountPage_login_loginLabel.tr()
                 : LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             fontWeight: FontWeight.w600,
-            radius: BorderRadius.circular(12),
-            fillColor: Theme.of(context).colorScheme.primary,
-            hoverColor: const Color(0xFF005483),
-            fontHoverColor: Colors.white,
-            onPressed: () {
+            radius: 12.0,
+            onTap: () {
               if (signIn) {
                 _showSignInDialog(context);
               } else {

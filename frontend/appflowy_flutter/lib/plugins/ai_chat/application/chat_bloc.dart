@@ -39,7 +39,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final String chatId;
 
   /// The last streaming message id
-  String lastStreamMessageId = '';
+  String answerStreamMessageId = '';
+  String questionStreamMessageId = '';
 
   /// Using a temporary map to associate the real message ID with the last streaming message ID.
   ///
@@ -87,7 +88,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             Int64? beforeMessageId;
             final oldestMessage = _getOlderstMessage();
             if (oldestMessage != null) {
-              beforeMessageId = Int64.parseInt(oldestMessage.id);
+              try {
+                beforeMessageId = Int64.parseInt(oldestMessage.id);
+              } catch (e) {
+                Log.error(
+                  "Failed to parse message id: $e, messaeg_id: ${oldestMessage.id}",
+                );
+              }
             }
             _loadPrevMessage(beforeMessageId);
             emit(
@@ -127,21 +134,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             );
           },
           // streaming message
-          streaming: (Message message) {
-            final allMessages = _perminentMessages();
-            allMessages.insert(0, message);
-            emit(
-              state.copyWith(
-                messages: allMessages,
-                streamingState: const StreamingState.streaming(),
-                canSendMessage: false,
-              ),
-            );
-          },
-          finishStreaming: () {
+          finishAnswerStreaming: () {
             emit(
               state.copyWith(
                 streamingState: const StreamingState.done(),
+                acceptRelatedQuestion: true,
                 canSendMessage:
                     state.sendingState == const SendMessageState.done(),
               ),
@@ -162,9 +159,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               // If the streaming is not started, remove the message from the list
               if (!state.answerStream!.hasStarted) {
                 allMessages.removeWhere(
-                  (element) => element.id == lastStreamMessageId,
+                  (element) => element.id == answerStreamMessageId,
                 );
-                lastStreamMessageId = "";
+                answerStreamMessageId = "";
               }
 
               // when stop stream, we will set the answer stream to null. Which means the streaming
@@ -189,22 +186,26 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
+          startAnswerStreaming: (Message message) {
+            final allMessages = _perminentMessages();
+            allMessages.insert(0, message);
+            emit(
+              state.copyWith(
+                messages: allMessages,
+                streamingState: const StreamingState.streaming(),
+                canSendMessage: false,
+              ),
+            );
+          },
           sendMessage: (String message, Map<String, dynamic>? metadata) async {
             unawaited(_startStreamingMessage(message, metadata, emit));
             final allMessages = _perminentMessages();
-            // allMessages.insert(
-            //   0,
-            //   CustomMessage(
-            //     metadata: OnetimeShotType.sendingMessage.toMap(),
-            //     author: User(id: state.userProfile.id.toString()),
-            //     id: state.userProfile.id.toString(),
-            //   ),
-            // );
             emit(
               state.copyWith(
                 lastSentMessage: null,
                 messages: allMessages,
                 relatedQuestions: [],
+                acceptRelatedQuestion: false,
                 sendingState: const SendMessageState.sending(),
                 canSendMessage: false,
               ),
@@ -257,10 +258,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       chatMessageCallback: (pb) {
         if (!isClosed) {
           // 3 mean message response from AI
-          if (pb.authorType == 3 && lastStreamMessageId.isNotEmpty) {
+          if (pb.authorType == 3 && answerStreamMessageId.isNotEmpty) {
             temporaryMessageIDMap[pb.messageId.toString()] =
-                lastStreamMessageId;
-            lastStreamMessageId = "";
+                answerStreamMessageId;
+            answerStreamMessageId = "";
+          }
+
+          // 1 mean message response from User
+          if (pb.authorType == 1 && questionStreamMessageId.isNotEmpty) {
+            temporaryMessageIDMap[pb.messageId.toString()] =
+                questionStreamMessageId;
+            questionStreamMessageId = "";
           }
 
           final message = _createTextMessage(pb);
@@ -270,7 +278,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       chatErrorMessageCallback: (err) {
         if (!isClosed) {
           Log.error("chat error: ${err.errorMessage}");
-          add(const ChatEvent.finishStreaming());
+          add(const ChatEvent.finishAnswerStreaming());
         }
       },
       latestMessageCallback: (list) {
@@ -287,7 +295,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       },
       finishStreamingCallback: () {
         if (!isClosed) {
-          add(const ChatEvent.finishStreaming());
+          add(const ChatEvent.finishAnswerStreaming());
           // The answer strema will bet set to null after the streaming is finished or canceled.
           // so if the answer stream is null, we will not get related question.
           if (state.lastSentMessage != null && state.answerStream != null) {
@@ -300,7 +308,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               if (!isClosed) {
                 result.fold(
                   (list) {
-                    add(ChatEvent.didReceiveRelatedQuestion(list.items));
+                    if (state.acceptRelatedQuestion) {
+                      add(ChatEvent.didReceiveRelatedQuestion(list.items));
+                    }
                   },
                   (err) {
                     Log.error("Failed to get related question: $err");
@@ -358,15 +368,23 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
 
     final answerStream = AnswerStream();
+    final questionStream = QuestionStream();
     add(ChatEvent.didUpdateAnswerStream(answerStream));
 
     final payload = StreamChatPayloadPB(
       chatId: state.view.id,
       message: message,
       messageType: ChatMessageTypePB.User,
-      textStreamPort: Int64(answerStream.nativePort),
+      questionStreamPort: Int64(questionStream.nativePort),
+      answerStreamPort: Int64(answerStream.nativePort),
       metadata: await metadataPBFromMetadata(metadata),
     );
+
+    final questionStreamMessage = _createQuestionStreamMessage(
+      questionStream,
+      metadata,
+    );
+    add(ChatEvent.receveMessage(questionStreamMessage));
 
     // Stream message to the server
     final result = await AIEventStreamMessage(payload).send();
@@ -375,13 +393,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         if (!isClosed) {
           add(ChatEvent.finishSending(question));
 
-          final questionMessageId = question.messageId;
-          final message = _createTextMessage(question);
-          add(ChatEvent.receveMessage(message));
+          // final message = _createTextMessage(question);
+          // add(ChatEvent.receveMessage(message));
 
           final streamAnswer =
-              _createStreamMessage(answerStream, questionMessageId);
-          add(ChatEvent.streaming(streamAnswer));
+              _createAnswerStreamMessage(answerStream, question.messageId);
+          add(ChatEvent.startAnswerStreaming(streamAnswer));
         }
       },
       (err) {
@@ -404,9 +421,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  Message _createStreamMessage(AnswerStream stream, Int64 questionMessageId) {
+  Message _createAnswerStreamMessage(
+    AnswerStream stream,
+    Int64 questionMessageId,
+  ) {
     final streamMessageId = (questionMessageId + 1).toString();
-    lastStreamMessageId = streamMessageId;
+    answerStreamMessageId = streamMessageId;
 
     return TextMessage(
       author: User(id: "streamId:${nanoid()}"),
@@ -416,6 +436,32 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         "chatId": chatId,
       },
       id: streamMessageId,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      text: '',
+    );
+  }
+
+  Message _createQuestionStreamMessage(
+    QuestionStream stream,
+    Map<String, dynamic>? sentMetadata,
+  ) {
+    final now = DateTime.now();
+    final timestamp = now.millisecondsSinceEpoch;
+    questionStreamMessageId = timestamp.toString();
+    final Map<String, dynamic> metadata = {};
+
+    // if (sentMetadata != null) {
+    //   metadata[messageMetadataJsonStringKey] = sentMetadata;
+    // }
+
+    metadata["$QuestionStream"] = stream;
+    metadata["chatId"] = chatId;
+    metadata[messageChatFileListKey] =
+        chatFilesFromMessageMetadata(sentMetadata);
+    return TextMessage(
+      author: User(id: state.userProfile.id.toString()),
+      metadata: metadata,
+      id: questionStreamMessageId,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       text: '',
     );
@@ -435,7 +481,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       text: message.content,
       createdAt: message.createdAt.toInt() * 1000,
       metadata: {
-        messageMetadataKey: message.metadata,
+        messageRefSourceJsonStringKey: message.metadata,
       },
     );
   }
@@ -454,9 +500,10 @@ class ChatEvent with _$ChatEvent {
       _FinishSendMessage;
 
 // receive message
-  const factory ChatEvent.streaming(Message message) = _StreamingMessage;
+  const factory ChatEvent.startAnswerStreaming(Message message) =
+      _StartAnswerStreaming;
   const factory ChatEvent.receveMessage(Message message) = _ReceiveMessage;
-  const factory ChatEvent.finishStreaming() = _FinishStreamingMessage;
+  const factory ChatEvent.finishAnswerStreaming() = _FinishAnswerStreaming;
 
 // loading messages
   const factory ChatEvent.startLoadingPrevMessage() = _StartLoadPrevMessage;
@@ -499,6 +546,7 @@ class ChatState with _$ChatState {
     required bool hasMorePrevMessage,
     // The related questions that are received after the user message is sent.
     required List<RelatedQuestionPB> relatedQuestions,
+    @Default(false) bool acceptRelatedQuestion,
     // The last user message that is sent to the server.
     ChatMessagePB? lastSentMessage,
     AnswerStream? answerStream,

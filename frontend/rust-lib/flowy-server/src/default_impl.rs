@@ -6,6 +6,8 @@ use flowy_ai_pub::cloud::{
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
+use serde_json::Value;
+use std::collections::HashMap;
 use std::path::Path;
 
 pub(crate) struct DefaultChatCloudServiceImpl;
@@ -34,17 +36,15 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
-  fn create_answer(
+  async fn create_answer(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
     _message: &str,
     _question_id: i64,
     _metadata: Option<serde_json::Value>,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
-    })
+  ) -> Result<ChatMessage, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
   async fn stream_answer(
@@ -56,16 +56,14 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
-  fn get_chat_messages(
+  async fn get_chat_messages(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
     _offset: MessageCursor,
     _limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
-    })
+  ) -> Result<RepeatedChatMessage, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
   async fn get_related_message(
@@ -100,6 +98,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     _workspace_id: &str,
     _file_path: &Path,
     _chat_id: &str,
+    _metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support().with_context("indexing file is not supported in local server."))
   }

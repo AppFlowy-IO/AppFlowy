@@ -10,6 +10,9 @@ import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:nanoid/nanoid.dart';
 
+/// Indicate file source from appflowy document
+const appflowySoruce = "appflowy";
+
 List<ChatFile> fileListFromMessageMetadata(
   Map<String, dynamic>? map,
 ) {
@@ -32,7 +35,12 @@ List<ChatFile> chatFilesFromMetadataString(String? s) {
 
   final metadataJson = jsonDecode(s);
   if (metadataJson is Map<String, dynamic>) {
-    return _parseChatFile(metadataJson);
+    final file = chatFileFromMap(metadataJson);
+    if (file != null) {
+      return [file];
+    } else {
+      return [];
+    }
   } else if (metadataJson is List) {
     return metadataJson
         .map((e) => e as Map<String, dynamic>)
@@ -44,11 +52,6 @@ List<ChatFile> chatFilesFromMetadataString(String? s) {
     Log.error("Invalid metadata: $metadataJson");
     return [];
   }
-}
-
-List<ChatFile> _parseChatFile(Map<String, dynamic> map) {
-  final file = chatFileFromMap(map);
-  return file != null ? [file] : [];
 }
 
 ChatFile? chatFileFromMap(Map<String, dynamic>? map) {
@@ -63,7 +66,7 @@ ChatFile? chatFileFromMap(Map<String, dynamic>? map) {
   return ChatFile.fromFilePath(filePath);
 }
 
-List<ChatMessageRefSource> messageRefSourceFromString(String? s) {
+List<ChatMessageRefSource> messageReferenceSource(String? s) {
   if (s == null || s.isEmpty || s == "null") {
     return [];
   }
@@ -75,6 +78,7 @@ List<ChatMessageRefSource> messageRefSourceFromString(String? s) {
       Log.warn("metadata is null");
       return [];
     }
+    // [{"id":null,"name":"The Five Dysfunctions of a Team.pdf","source":"/Users/weidongfu/Desktop/The Five Dysfunctions of a Team.pdf"}]
 
     if (metadataJson is Map<String, dynamic>) {
       if (metadataJson.isNotEmpty) {
@@ -115,7 +119,7 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
                   name: view.name,
                   data: pb.text,
                   dataType: ChatMessageMetaTypePB.Txt,
-                  source: "appflowy",
+                  source: appflowySoruce,
                 ),
               );
             }, (err) {
@@ -133,6 +137,21 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
             source: entry.value.filePath,
           ),
         );
+      }
+    }
+  }
+
+  return metadata;
+}
+
+List<ChatFile> chatFilesFromMessageMetadata(
+  Map<String, dynamic>? map,
+) {
+  final List<ChatFile> metadata = [];
+  if (map != null) {
+    for (final entry in map.entries) {
+      if (entry.value is ChatFile) {
+        metadata.add(entry.value);
       }
     }
   }

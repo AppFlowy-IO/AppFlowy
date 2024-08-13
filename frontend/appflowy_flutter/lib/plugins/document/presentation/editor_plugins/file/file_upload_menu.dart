@@ -142,7 +142,7 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
                   borderType: BorderType.RRect,
                   color: isDragging
                       ? Theme.of(context).colorScheme.primary
-                      : Colors.black,
+                      : Theme.of(context).hintColor,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -153,7 +153,7 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
                             LocaleKeys.document_plugins_file_dropFileToUpload
                                 .tr(),
                             fontSize: 16,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).hintColor,
                           ),
                           const VSpace(13.5),
                         ] else ...[
@@ -162,8 +162,9 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
                                 .tr(),
                             fontSize: 16,
                             maxLines: 2,
-                            textAlign: TextAlign.center,
                             lineHeight: 1.5,
+                            textAlign: TextAlign.center,
+                            color: Theme.of(context).hintColor,
                           ),
                         ],
                       ],
@@ -208,6 +209,7 @@ class _FileUploadNetworkState extends State<_FileUploadNetwork> {
       alignment: Alignment.center,
       child: Column(
         children: [
+          const VSpace(12),
           FlowyTextField(
             hintText: LocaleKeys.document_plugins_file_networkHint.tr(),
             onChanged: (value) => inputText = value,
@@ -220,19 +222,25 @@ class _FileUploadNetworkState extends State<_FileUploadNetwork> {
               color: Theme.of(context).colorScheme.error,
             ),
           ],
-          const VSpace(8),
+          const VSpace(20),
           SizedBox(
-            width: 160,
+            height: 32,
+            width: 300,
             child: FlowyButton(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              hoverColor:
+                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
               showDefaultBoxDecorationOnMobile: true,
-              margin: const EdgeInsets.all(8.0),
+              margin: const EdgeInsets.all(5),
               text: FlowyText(
                 LocaleKeys.document_plugins_file_networkAction.tr(),
                 textAlign: TextAlign.center,
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
               onTap: submit,
             ),
           ),
+          const VSpace(8),
         ],
       ),
     );

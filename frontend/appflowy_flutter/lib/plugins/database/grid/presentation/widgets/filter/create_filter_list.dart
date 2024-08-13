@@ -163,6 +163,7 @@ class GridFilterPropertyCell extends StatelessWidget {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       text: FlowyText.medium(
+        lineHeight: 1.0,
         fieldInfo.field.name,
         color: AFThemeExtension.of(context).textColor,
       ),

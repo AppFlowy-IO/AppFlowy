@@ -12,6 +12,7 @@ import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,8 +22,8 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 import 'chat_at_button.dart';
 import 'chat_input_attachment.dart';
-import 'chat_send_button.dart';
 import 'chat_input_span.dart';
+import 'chat_send_button.dart';
 import 'layout_define.dart';
 
 class ChatInput extends StatefulWidget {
@@ -114,7 +115,7 @@ class _ChatInputState extends State<ChatInput> {
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-            color: _inputFocusNode.hasFocus && !isMobile
+            color: _inputFocusNode.hasFocus
                 ? Theme.of(context).colorScheme.primary.withOpacity(0.6)
                 : Theme.of(context).colorScheme.secondary,
           ),
@@ -154,15 +155,16 @@ class _ChatInputState extends State<ChatInput> {
                   children: [
                     // TODO(lucas): support mobile
                     if (PlatformExtension.isDesktop &&
-                        widget.aiType == const AIType.localAI())
+                        widget.aiType.isLocalAI())
                       _attachmentButton(buttonPadding),
 
                     // text field
                     Expanded(child: _inputTextField(context, textPadding)),
 
-                    // at button
-                    // TODO(lucas): support mobile
-                    if (PlatformExtension.isDesktop) _atButton(buttonPadding),
+                    // mention button
+                    _mentionButton(buttonPadding),
+
+                    if (PlatformExtension.isMobile) const HSpace(6.0),
 
                     // send button
                     _sendButton(buttonPadding),
@@ -244,6 +246,7 @@ class _ChatInputState extends State<ChatInput> {
   InputDecoration _buildInputDecoration(BuildContext context) {
     return InputDecoration(
       border: InputBorder.none,
+      enabledBorder: InputBorder.none,
       hintText: widget.hintText,
       focusedBorder: InputBorder.none,
       hintStyle: TextStyle(
@@ -352,7 +355,7 @@ class _ChatInputState extends State<ChatInput> {
     );
   }
 
-  Widget _atButton(EdgeInsets buttonPadding) {
+  Widget _mentionButton(EdgeInsets buttonPadding) {
     return Padding(
       padding: buttonPadding,
       child: SizedBox.square(

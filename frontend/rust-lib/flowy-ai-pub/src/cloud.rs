@@ -12,6 +12,8 @@ use flowy_error::FlowyError;
 use futures::stream::BoxStream;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
+use serde_json::Value;
+use std::collections::HashMap;
 use std::path::Path;
 
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
@@ -35,14 +37,14 @@ pub trait ChatCloudService: Send + Sync + 'static {
     metadata: &[ChatMessageMetadata],
   ) -> Result<ChatMessage, FlowyError>;
 
-  fn create_answer(
+  async fn create_answer(
     &self,
     workspace_id: &str,
     chat_id: &str,
     message: &str,
     question_id: i64,
     metadata: Option<serde_json::Value>,
-  ) -> FutureResult<ChatMessage, FlowyError>;
+  ) -> Result<ChatMessage, FlowyError>;
 
   async fn stream_answer(
     &self,
@@ -58,13 +60,13 @@ pub trait ChatCloudService: Send + Sync + 'static {
     question_message_id: i64,
   ) -> Result<ChatMessage, FlowyError>;
 
-  fn get_chat_messages(
+  async fn get_chat_messages(
     &self,
     workspace_id: &str,
     chat_id: &str,
     offset: MessageCursor,
     limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError>;
+  ) -> Result<RepeatedChatMessage, FlowyError>;
 
   async fn get_related_message(
     &self,
@@ -85,6 +87,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     workspace_id: &str,
     file_path: &Path,
     chat_id: &str,
+    metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError>;
 
   async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError>;

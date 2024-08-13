@@ -195,7 +195,10 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
           child: FlowyButton(
             useIntrinsicWidth: true,
             margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
-            text: FlowyText.regular(LocaleKeys.button_cancel.tr()),
+            text: FlowyText.regular(
+              LocaleKeys.button_cancel.tr(),
+              lineHeight: 1.0,
+            ),
             onTap: onCancel,
           ),
         ),
@@ -213,7 +216,8 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
             radius: BorderRadius.circular(8),
             text: FlowyText.regular(
               confirmButtonName,
-              color: Colors.white,
+              lineHeight: 1.0,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
             onTap: onConfirm,
           ),
@@ -253,6 +257,7 @@ class SpaceOkButton extends StatelessWidget {
             radius: BorderRadius.circular(8),
             text: FlowyText.regular(
               confirmButtonName,
+              lineHeight: 1.0,
               color: Colors.white,
             ),
             onTap: onConfirm,

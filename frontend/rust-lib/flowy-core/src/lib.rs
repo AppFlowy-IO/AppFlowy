@@ -2,6 +2,8 @@
 
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
+use parking_lot::Mutex;
+use std::rc::Rc;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
@@ -54,7 +56,7 @@ pub struct AppFlowyCore {
   pub document_manager: Arc<DocumentManager>,
   pub folder_manager: Arc<FolderManager>,
   pub database_manager: Arc<DatabaseManager>,
-  pub event_dispatcher: Arc<AFPluginDispatcher>,
+  pub event_dispatcher: Rc<AFPluginDispatcher>,
   pub server_provider: Arc<ServerProvider>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<KVStorePreferences>,
@@ -66,7 +68,7 @@ pub struct AppFlowyCore {
 impl AppFlowyCore {
   pub async fn new(
     config: AppFlowyCoreConfig,
-    runtime: Arc<AFPluginRuntime>,
+    runtime: Rc<AFPluginRuntime>,
     stream_log_sender: Option<Arc<dyn StreamLogSender>>,
   ) -> Self {
     let platform = OperatingSystem::from(&config.platform);
@@ -102,7 +104,7 @@ impl AppFlowyCore {
   }
 
   #[instrument(skip(config, runtime))]
-  async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
+  async fn init(config: AppFlowyCoreConfig, runtime: Rc<AFPluginRuntime>) -> Self {
     // Init the key value database
     let store_preference = Arc::new(KVStorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
@@ -165,6 +167,7 @@ impl AppFlowyCore {
         Arc::downgrade(&authenticate_user),
         server_provider.clone(),
         store_preference.clone(),
+        Arc::downgrade(&storage_manager.storage_service),
       );
 
       let database_manager = DatabaseDepsResolver::resolve(
@@ -260,7 +263,7 @@ impl AppFlowyCore {
         error!("Init user failed: {}", err)
       }
     }
-    let event_dispatcher = Arc::new(AFPluginDispatcher::new(
+    let event_dispatcher = Rc::new(AFPluginDispatcher::new(
       runtime,
       make_plugins(
         Arc::downgrade(&folder_manager),
@@ -289,7 +292,7 @@ impl AppFlowyCore {
   }
 
   /// Only expose the dispatcher in test
-  pub fn dispatcher(&self) -> Arc<AFPluginDispatcher> {
+  pub fn dispatcher(&self) -> Rc<AFPluginDispatcher> {
     self.event_dispatcher.clone()
   }
 }
@@ -320,3 +323,13 @@ impl ServerUser for ServerUserImpl {
     self.upgrade_user()?.workspace_id()
   }
 }
+
+pub struct MutexAppFlowyCore(pub Rc<Mutex<AppFlowyCore>>);
+
+impl MutexAppFlowyCore {
+  pub fn new(appflowy_core: AppFlowyCore) -> Self {
+    Self(Rc::new(Mutex::new(appflowy_core)))
+  }
+}
+unsafe impl Sync for MutexAppFlowyCore {}
+unsafe impl Send for MutexAppFlowyCore {}
