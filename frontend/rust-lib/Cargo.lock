@@ -1899,6 +1899,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "appflowy-local-ai",
+ "arc-swap",
  "base64 0.21.5",
  "bytes",
  "client-api",
@@ -1907,6 +1908,7 @@ dependencies = [
  "collab-integrate",
  "collab-plugins",
  "console-subscriber",
+ "dashmap",
  "diesel",
  "flowy-ai",
  "flowy-ai-pub",

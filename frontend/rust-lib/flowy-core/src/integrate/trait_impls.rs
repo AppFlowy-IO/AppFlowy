@@ -1,7 +1,7 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
-use std::collections::HashMap;
-use std::path::Path;
+use std::path::PathBuf;
+use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -168,8 +168,8 @@ impl UserCloudServiceProvider for ServerProvider {
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
     if let Ok(server) = self.get_server() {
       server.set_enable_sync(uid, enable_sync);
-      *self.user_enable_sync.write() = enable_sync;
-      *self.uid.write() = Some(uid);
+      self.user_enable_sync.store(enable_sync, Ordering::Release);
+      self.uid.store(Some(uid.into()));
     }
   }
 
@@ -195,7 +195,7 @@ impl UserCloudServiceProvider for ServerProvider {
 
   fn set_encrypt_secret(&self, secret: String) {
     tracing::info!("🔑Set encrypt secret");
-    self.encryption.write().set_secret(secret);
+    self.encryption.set_secret(secret);
   }
 
   /// Returns the [UserCloudService] base on the current [Server].
@@ -566,7 +566,6 @@ impl CollabCloudPluginProvider for ServerProvider {
       CollabPluginProviderContext::Supabase {
         uid,
         collab_object,
-        local_collab,
         local_collab_db,
       } => {
         let mut plugins: Vec<Box<dyn CollabPlugin>> = vec![];
@@ -590,7 +589,7 @@ impl CollabCloudPluginProvider for ServerProvider {
   }
 
   fn is_sync_enabled(&self) -> bool {
-    *self.user_enable_sync.read()
+    self.user_enable_sync.load(Ordering::Acquire)
   }
 }
 

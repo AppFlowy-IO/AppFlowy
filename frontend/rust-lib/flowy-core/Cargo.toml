@@ -45,6 +45,8 @@ tokio = { workspace = true, features = ["full"] }
 tokio-stream = { workspace = true, features = ["sync"] }
 console-subscriber = { version = "0.2", optional = true }
 anyhow.workspace = true
+dashmap.workspace = true
+arc-swap.workspace = true
 base64 = "0.21.5"
 
 lib-infra = { workspace = true }

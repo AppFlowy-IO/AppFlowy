@@ -59,8 +59,10 @@ impl DatabaseViews {
       return Ok(editor.clone());
     }
 
+    //FIXME: not thread-safe
     let mut editor_map = self.view_editors.write().await;
     let database_id = self.database.read().await.get_database_id();
+    //FIXME: that method below is not Send+Sync
     let editor = Arc::new(
       DatabaseViewEditor::new(
         database_id,

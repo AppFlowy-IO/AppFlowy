@@ -42,7 +42,7 @@ pub enum CollabPluginProviderContext {
   AppFlowyCloud {
     uid: i64,
     collab_object: CollabObject,
-    local_collab: Weak<RwLock<dyn BorrowMut<Collab> + Send + Sync>>,
+    local_collab: Weak<RwLock<dyn BorrowMut<Collab> + Send + Sync + 'static>>,
   },
   Supabase {
     uid: i64,
