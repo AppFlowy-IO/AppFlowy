@@ -13,9 +13,8 @@ dependencies:
     sdk: flutter
 
   # Thirdparty packages
-  provider: ^6.0.5
+
   styled_widget: ^0.4.1
-  equatable: ^2.0.5
   animations: ^2.0.7
   loading_indicator: ^3.1.0
   async:
@@ -25,8 +24,6 @@ dependencies:
   # Federated Platform Interface
   flowy_infra_ui_platform_interface:
     path: flowy_infra_ui_platform_interface
-  flowy_infra_ui_web:
-    path: flowy_infra_ui_web
   appflowy_popover:
     path: ../appflowy_popover
   flowy_infra:
@@ -35,6 +32,7 @@ dependencies:
     path: ../flowy_svg
 
 dev_dependencies:
+  provider: ^6.0.5
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.1
