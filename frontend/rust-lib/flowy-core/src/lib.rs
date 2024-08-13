@@ -109,7 +109,7 @@ impl AppFlowyCore {
 
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
-    runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
+    tokio::spawn(TaskRunner::run(task_dispatcher.clone()));
 
     let user_config = UserConfig::new(
       &config.name,

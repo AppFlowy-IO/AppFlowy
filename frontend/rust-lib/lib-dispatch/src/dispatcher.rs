@@ -116,14 +116,17 @@ impl AFPluginDispatcher {
     // The provided future will start running in the background immediately
     // when `spawn` is called, even if you don't await the returned
     // `JoinHandle`.
-    let handle = dispatch.runtime.spawn(async move {
-      service.call(service_ctx).await.unwrap_or_else(|e| {
-        tracing::error!("Dispatch runtime error: {:?}", e);
-        InternalError::Other(format!("{:?}", e)).as_response()
+    let result = dispatch
+      .runtime
+      .spawn(async move {
+        service.call(service_ctx).await.unwrap_or_else(|e| {
+          tracing::error!("Dispatch runtime error: {:?}", e);
+          InternalError::Other(format!("{:?}", e)).as_response()
+        })
       })
-    });
+      .await;
 
-    let result = dispatch.runtime.run_until(handle).await;
+    // let result = dispatch.runtime.run_until(handle).await;
     result.unwrap_or_else(|e| {
       let msg = format!("EVENT_DISPATCH join error: {:?}", e);
       tracing::error!("{}", msg);
@@ -212,12 +215,11 @@ impl AFPluginDispatcher {
   }
 
   #[cfg(feature = "local_set")]
-  #[track_caller]
-  pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
+  pub async fn spawn<F>(&self, future: F) -> Result<F::Output, DispatchError>
   where
     F: Future + 'static,
   {
-    self.runtime.spawn(future)
+    self.runtime.spawn(future).await
   }
 
   #[cfg(not(feature = "local_set"))]
@@ -231,12 +233,12 @@ impl AFPluginDispatcher {
   }
 
   #[cfg(feature = "local_set")]
-  pub async fn run_until<F>(&self, future: F) -> F::Output
+  pub async fn run_until<F>(&self, future: F) -> Result<F::Output, DispatchError>
   where
     F: Future + 'static,
   {
     let handle = self.runtime.spawn(future);
-    self.runtime.run_until(handle).await.unwrap()
+    handle.await.map_err(|err| err.to_string().into())
   }
 
   #[cfg(not(feature = "local_set"))]
@@ -245,7 +247,7 @@ impl AFPluginDispatcher {
     F: Future + Send + 'a,
     <F as Future>::Output: Send + 'a,
   {
-    self.runtime.run_until(future).await
+    future.await
   }
 }
 

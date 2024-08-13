@@ -163,13 +163,9 @@ pub fn document_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -> Doc
 }
 
 async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
-  std::thread::spawn(|| {
-    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
-    let cloned_runtime = runtime.clone();
-    runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime, None).await })
-  })
-  .join()
-  .unwrap()
+  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+  let cloned_runtime = runtime.clone();
+  AppFlowyCore::new(config, cloned_runtime, None).await
 }
 
 impl std::ops::Deref for EventIntegrationTest {

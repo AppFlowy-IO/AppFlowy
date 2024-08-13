@@ -24,11 +24,16 @@ async fn create_child_view_in_workspace_subscription_test() {
 
   let cloned_test = test.clone();
   let cloned_workspace_id = workspace.id.clone();
-  test.appflowy_core.dispatcher().spawn(async move {
-    cloned_test
-      .create_view(&cloned_workspace_id, "workspace child view".to_string())
-      .await;
-  });
+  test
+    .appflowy_core
+    .dispatcher()
+    .spawn(async move {
+      cloned_test
+        .create_view(&cloned_workspace_id, "workspace child view".to_string())
+        .await;
+    })
+    .await
+    .unwrap();
 
   let views = receive_with_timeout(rx, Duration::from_secs(30))
     .await
@@ -50,14 +55,19 @@ async fn create_child_view_in_view_subscription_test() {
 
   let cloned_test = test.clone();
   let child_view_id = workspace_child_view.id.clone();
-  test.appflowy_core.dispatcher().spawn(async move {
-    cloned_test
-      .create_view(
-        &child_view_id,
-        "workspace child view's child view".to_string(),
-      )
-      .await;
-  });
+  test
+    .appflowy_core
+    .dispatcher()
+    .spawn(async move {
+      cloned_test
+        .create_view(
+          &child_view_id,
+          "workspace child view's child view".to_string(),
+        )
+        .await;
+    })
+    .await
+    .unwrap();
 
   let update = receive_with_timeout(rx, Duration::from_secs(30))
     .await
@@ -95,6 +105,7 @@ async fn delete_view_subscription_test() {
     .dispatcher()
     .run_until(receive_with_timeout(rx, Duration::from_secs(60)))
     .await
+    .unwrap()
     .unwrap();
 
   assert_eq!(update.delete_child_views.len(), 1);
@@ -114,16 +125,21 @@ async fn update_view_subscription_test() {
   assert!(!view.is_favorite);
 
   let update_view_id = view.id.clone();
-  test.appflowy_core.dispatcher().spawn(async move {
-    cloned_test
-      .update_view(UpdateViewPayloadPB {
-        view_id: update_view_id,
-        name: Some("hello world".to_string()),
-        is_favorite: Some(true),
-        ..Default::default()
-      })
-      .await;
-  });
+  test
+    .appflowy_core
+    .dispatcher()
+    .spawn(async move {
+      cloned_test
+        .update_view(UpdateViewPayloadPB {
+          view_id: update_view_id,
+          name: Some("hello world".to_string()),
+          is_favorite: Some(true),
+          ..Default::default()
+        })
+        .await;
+    })
+    .await
+    .unwrap();
 
   let update = receive_with_timeout(rx, Duration::from_secs(30))
     .await

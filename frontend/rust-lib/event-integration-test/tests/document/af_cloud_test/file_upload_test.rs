@@ -94,30 +94,28 @@ async fn af_cloud_upload_6_files_test() {
   // Wait for all uploads to finish
   let uploads = Arc::new(Mutex::new(created_uploads));
   let mut handles = vec![];
+
   for mut receiver in receivers {
     let cloned_uploads = uploads.clone();
-    let cloned_test = test.clone();
+    let state = test
+      .storage_manager
+      .get_file_state(&receiver.file_id)
+      .await
+      .unwrap();
     let handle = tokio::spawn(async move {
-      if let Some(state) = cloned_test
-        .storage_manager
-        .get_file_state(&receiver.file_id)
-        .await
-      {
-        if let FileUploadState::Finished { file_id } = state {
+      if let FileUploadState::Finished { file_id } = state {
+        cloned_uploads
+          .lock()
+          .await
+          .retain(|upload| upload.file_id != file_id);
+      }
+      while let Some(value) = receiver.recv().await {
+        if let FileUploadState::Finished { file_id } = value {
           cloned_uploads
             .lock()
             .await
             .retain(|upload| upload.file_id != file_id);
-        }
-      } else {
-        while let Some(value) = receiver.recv().await {
-          if let FileUploadState::Finished { file_id } = value {
-            cloned_uploads
-              .lock()
-              .await
-              .retain(|upload| upload.file_id != file_id);
-            break;
-          }
+          break;
         }
       }
     });
