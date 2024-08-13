@@ -4,6 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/widgets/navigation_bar_button.dart';
+import 'package:appflowy/shared/red_dot.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -162,30 +163,11 @@ class _NotificationNavigationBarItemIcon extends StatelessWidget {
                 const Positioned(
                   top: 2,
                   right: 4,
-                  child: _RedDot(),
+                  child: NotificationRedDot(),
                 ),
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-class _RedDot extends StatelessWidget {
-  const _RedDot();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 6,
-      height: 6,
-      clipBehavior: Clip.antiAlias,
-      decoration: ShapeDecoration(
-        color: const Color(0xFFFF2214),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
       ),
     );
   }
@@ -230,11 +212,13 @@ class _HomePageNavigationBar extends StatelessWidget {
   /// Navigate to the current location of the branch at the provided index when
   /// tapping an item in the BottomNavigationBar.
   void _onTap(BuildContext context, int bottomBarIndex) {
-    if (_items[bottomBarIndex].label == _addLabel) {
+    final label = _items[bottomBarIndex].label;
+    if (label == _addLabel) {
       // show an add dialog
       mobileCreateNewPageNotifier.value = ViewLayoutPB.Document;
-
       return;
+    } else if (label == _notificationLabel) {
+      getIt<ReminderBloc>().add(const ReminderEvent.refresh());
     }
     // When navigating to a new branch, it's recommended to use the goBranch
     // method, as doing so makes sure the last navigation state of the

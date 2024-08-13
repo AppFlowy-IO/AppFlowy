@@ -1,4 +1,15 @@
 # Release Notes
+## Version 0.6.7 - 13/08/2024
+### New Features
+- Redesigned the icon picker design on Desktop.
+- Redesigned the notification page on Mobile.
+
+### Bug Fixes
+- Enhance the toolbar tooltip functionality on Desktop.
+- Enhance the slash menu user experience on Desktop.
+- Fixed the issue where list style overrides occurred during text pasting.
+- Fixed the issue where linking multiple databases in the same document could cause random loss of focus.
+
 ## Version 0.6.6 - 30/07/2024
 ### New Features
 - Upgrade your workspace to a premium plan to unlock more features and storage.
