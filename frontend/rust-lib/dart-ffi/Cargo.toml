@@ -28,7 +28,7 @@ lib-log.workspace = true
 semver = "1.0.22"
 
 # workspace
-lib-dispatch = { workspace = true, features = ["local_set"] }
+lib-dispatch = { workspace = true }
 
 # Core
 #flowy-core = { workspace = true, features = ["profiling"] }
