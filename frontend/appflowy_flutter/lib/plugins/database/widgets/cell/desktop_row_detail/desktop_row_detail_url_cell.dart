@@ -48,12 +48,13 @@ class LinkTextField extends StatefulWidget {
 
   final TextEditingController controller;
   final FocusNode focusNode;
+
   @override
   State<LinkTextField> createState() => _LinkTextFieldState();
 }
 
 class _LinkTextFieldState extends State<LinkTextField> {
-  bool _isLinkClickable = false;
+  bool isLinkClickable = false;
 
   @override
   void initState() {
@@ -68,17 +69,12 @@ class _LinkTextFieldState extends State<LinkTextField> {
   }
 
   bool _handleGlobalKeyEvent(KeyEvent event) {
-    setState(() {
-      _isLinkClickable = event is KeyDownEvent &&
-          [
-            LogicalKeyboardKey.control,
-            LogicalKeyboardKey.controlLeft,
-            LogicalKeyboardKey.controlRight,
-            LogicalKeyboardKey.meta,
-            LogicalKeyboardKey.metaLeft,
-            LogicalKeyboardKey.metaRight,
-          ].contains(event.logicalKey);
-    });
+    final keyboard = HardwareKeyboard.instance;
+    final canOpenLink = event is KeyDownEvent &&
+        (keyboard.isControlPressed || keyboard.isMetaPressed);
+    if (canOpenLink != isLinkClickable) {
+      setState(() => isLinkClickable = canOpenLink);
+    }
 
     return false;
   }
@@ -87,7 +83,7 @@ class _LinkTextFieldState extends State<LinkTextField> {
   Widget build(BuildContext context) {
     return TextField(
       mouseCursor:
-          _isLinkClickable ? SystemMouseCursors.click : SystemMouseCursors.text,
+          isLinkClickable ? SystemMouseCursors.click : SystemMouseCursors.text,
       controller: widget.controller,
       focusNode: widget.focusNode,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -95,7 +91,7 @@ class _LinkTextFieldState extends State<LinkTextField> {
             decoration: TextDecoration.underline,
           ),
       onTap: () {
-        if (_isLinkClickable) {
+        if (isLinkClickable) {
           openUrlCellLink(widget.controller.text);
         }
       },
