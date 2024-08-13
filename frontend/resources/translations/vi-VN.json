@@ -466,8 +466,8 @@
       "tooltipSelectIcon": "Chọn biểu tượng",
       "selectAnIcon": "Chọn một biểu tượng",
       "pleaseInputYourOpenAIKey": "vui lòng nhập khóa AI của bạn",
-      "pleaseInputYourStabilityAIKey": "vui lòng nhập khóa Stability AI của bạn",
-      "clickToLogout": "Nhấn để đăng xuất"
+      "clickToLogout": "Nhấn để đăng xuất",
+      "pleaseInputYourStabilityAIKey": "vui lòng nhập khóa Stability AI của bạn"
     },
     "mobile": {
       "personalInfo": "Thông tin cá nhân",

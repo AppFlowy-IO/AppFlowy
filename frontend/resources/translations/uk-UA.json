@@ -131,7 +131,7 @@
     "charCount": "Кількість символів: {}",
     "createdAt": "Створено: {}",
     "deleteView": "Видалити",
-    "duplicateView": "дублікат"
+    "duplicateView": "Дублікат"
   },
   "importPanel": {
     "textAndMarkdown": "Текст і Markdown",
@@ -180,6 +180,9 @@
     "referenceSource": "{} джерело знайдено",
     "referenceSources": "{} джерел знайдено",
     "clickToMention": "Натисніть, щоб згадати сторінку",
+    "uploadFile": "Завантажуйте PDF-файли, файли md або txt для спілкування в чаті",
+    "questionTitle": "Ідеї",
+    "questionDetail": "Привіт {}! Чим я можу тобі допомогти сьогодні?",
     "indexingFile": "Індексація {}"
   },
   "trash": {
@@ -303,7 +306,10 @@
     "askOwnerToUpgradeToPro": "У вашому робочому просторі закінчується безкоштовна пам’ять. Попросіть свого власника робочого місця перейти на план Pro",
     "askOwnerToUpgradeToAIMax": "У вашій робочій області закінчуються безкоштовні відповіді ШІ. Будь ласка, попросіть свого власника робочого простору оновити план або придбати додатки AI",
     "purchaseStorageSpace": "Придбайте місце для зберігання",
-    "purchaseAIResponse": "Придбати"
+    "purchaseAIResponse": "Придбати",
+    "askOwnerToUpgradeToLocalAI": "Попросіть власника робочої області ввімкнути ШІ на пристрої",
+    "upgradeToAILocal": "Запустіть локальні моделі на своєму пристрої для повної конфіденційності",
+    "upgradeToAILocalDesc": "Спілкуйтеся в чаті з PDF-файлами, вдосконалюйте свій текст і автоматично заповнюйте таблиці за допомогою локального штучного інтелекту"
   },
   "notifications": {
     "export": {
@@ -318,7 +324,7 @@
     "editContact": "Редагувати контакт"
   },
   "button": {
-    "ok": "OK",
+    "ok": "Oк",
     "confirm": "Підтвердити",
     "done": "Готово",
     "cancel": "Скасувати",
@@ -339,7 +345,7 @@
     "delete": "Видалити",
     "duplicate": "Дублювати",
     "putback": "Повернути",
-    "update": "оновлення",
+    "update": "Оновлення",
     "share": "Поділіться",
     "removeFromFavorites": "Видалити з вибраного",
     "removeFromRecent": "Вилучити з останніх",
@@ -348,7 +354,7 @@
     "unfavoriteSuccessfully": "Неулюблений успіх",
     "rename": "Перейменувати",
     "helpCenter": "Центр допомоги",
-    "add": "додати",
+    "add": "Додати",
     "yes": "Так",
     "no": "Немає",
     "clear": "Очистити",
@@ -363,7 +369,7 @@
     "signInGoogle": "Продовжуйте з Google",
     "signInGithub": "Продовжуйте з Github",
     "signInDiscord": "Продовжуйте з Discord",
-    "more": "більше",
+    "more": "Більше",
     "create": "Створити",
     "close": "Закрити",
     "next": "Далі",
@@ -427,7 +433,7 @@
         "description": "Налаштуйте зовнішній вигляд робочої області, тему, шрифт, макет тексту, дату, час і мову.",
         "options": {
           "system": "Авто",
-          "light": "світло",
+          "light": "Світлий",
           "dark": "Темний"
         }
       },
@@ -467,7 +473,7 @@
         "dateFormat": {
           "label": "Формат дати",
           "local": "Місцевий",
-          "us": "НАС",
+          "us": "US",
           "iso": "ISO",
           "friendly": "дружній",
           "dmy": "Д/М/Р"
@@ -520,6 +526,7 @@
         "title": "Шифрування",
         "tooltip": "Керуйте тим, як ваші дані зберігаються та шифруються",
         "descriptionNoEncryption": "Якщо ввімкнути шифрування, усі дані будуть зашифровані. Це не може бути скасоване.",
+        "descriptionEncrypted": "Ваші дані зашифровані.",
         "action": "Шифрувати дані",
         "dialog": {
           "title": "Зашифрувати всі ваші дані?",
@@ -662,6 +669,7 @@
         "downloadLLMPrompt": "Завантажити {}",
         "downloadAppFlowyOfflineAI": "Завантаження офлайн-пакету AI дозволить працювати AI на вашому пристрої. Ви хочете продовжити?",
         "downloadLLMPromptDetail": "Завантаження {} локальної моделі займе до {} пам’яті. Ви хочете продовжити?",
+        "downloadBigFilePrompt": "Завантаження може зайняти близько 10 хвилин",
         "downloadAIModelButton": "Завантажити",
         "downloadingModel": "Завантаження",
         "localAILoaded": "Локальну модель AI успішно додано та готово до використання",
@@ -739,12 +747,14 @@
             "description": "Запустіть Mistral 7B, LLAMA 3 та інші локальні моделі на вашому комп’ютері",
             "price": "{}",
             "priceInfo": "на користувача на місяць",
+            "recommend": "Рекомендовано M1 або новіше",
             "billingInfo": "рахунок виставляється щорічно або {} щомісяця"
           }
         },
         "deal": {
           "bannerLabel": "Новорічна угода!",
           "title": "Розвивайте свою команду!",
+          "info": "Оновіть та заощаджуйте 10% на планах Pro та Team! Підвищте продуктивність робочого простору за допомогою нових потужних функцій, зокрема @:appName .",
           "viewPlans": "Переглянути плани"
         }
       }
@@ -754,7 +764,7 @@
       "title": "Виставлення рахунків",
       "plan": {
         "title": "План",
-        "freeLabel": "безкоштовно",
+        "freeLabel": "Безкоштовно",
         "proLabel": "Pro",
         "planButtonLabel": "Змінити план",
         "billingPeriod": "Розрахунковий період",
@@ -767,8 +777,8 @@
       },
       "addons": {
         "title": "Додатки",
-        "addLabel": "додати",
-        "removeLabel": "видалити",
+        "addLabel": "Додати",
+        "removeLabel": "Видалити",
         "renewLabel": "Відновити",
         "aiMax": {
           "label": "AI Макс",
@@ -802,10 +812,10 @@
       "actions": {
         "upgrade": "Оновлення",
         "downgrade": "Понизити",
-        "current": "поточний"
+        "current": "Поточний"
       },
       "freePlan": {
-        "title": "безкоштовно",
+        "title": "Безкоштовно",
         "description": "Для окремих осіб до 2 учасників, щоб організувати все",
         "price": "{}",
         "priceInfo": "безкоштовно назавжди"
@@ -825,8 +835,8 @@
         "itemSix": "Відповіді ШІ",
         "tooltipSix": "Термін служби означає кількість відповідей, які ніколи не скидаються",
         "intelligentSearch": "Інтелектуальний пошук",
-        "itemSeven": "Спеціальний простір імен",
-        "tooltipSeven": "Дозволяє налаштувати частину URL-адреси для вашої робочої області"
+        "tooltipSeven": "Дозволяє налаштувати частину URL-адреси для вашої робочої області",
+        "itemSeven": "Спеціальний простір імен"
       },
       "freeLabels": {
         "itemOne": "сплачується за робоче місце",
@@ -886,8 +896,8 @@
       },
       "questionFour": {
         "question": "Як би ви описали свій загальний досвід роботи з AppFlowy?",
-        "answerOne": "чудово",
-        "answerTwo": "добре",
+        "answerOne": "Чудово",
+        "answerTwo": "Добре",
         "answerThree": "Середній",
         "answerFour": "Нижче середнього",
         "answerFive": "Незадоволений"
@@ -1005,7 +1015,7 @@
       "fontFamily": {
         "label": "Шрифт",
         "search": "Пошук",
-        "defaultFont": "система"
+        "defaultFont": "Система"
       },
       "themeMode": {
         "label": "Режим теми",
@@ -1060,7 +1070,7 @@
       "dateFormat": {
         "label": "Формат дати",
         "local": "Локальний",
-        "us": "США",
+        "us": "US",
         "iso": "ISO",
         "friendly": "Дружній",
         "dmy": "Д/М/Р"
@@ -1095,6 +1105,7 @@
           "one": "{} член",
           "other": "{} учасників"
         },
+        "inviteFailedDialogTitle": "Не вдалося надіслати запрошення",
         "inviteFailedMemberLimit": "Досягнуто ліміту учасників. Оновіть його, щоб запросити більше учасників.",
         "memberLimitExceeded": "Досягнуто обмеження кількості учасників, будь ласка, запросіть більше учасників ",
         "memberLimitExceededUpgrade": "оновлення",
@@ -1154,8 +1165,8 @@
       "tooltipSelectIcon": "Обрати значок",
       "selectAnIcon": "Обрати значок",
       "pleaseInputYourOpenAIKey": "Будь ласка, введіть ваш ключ AI",
-      "pleaseInputYourStabilityAIKey": "будь ласка, введіть ключ стабільності ШІ",
-      "clickToLogout": "Натисніть, щоб вийти з поточного облікового запису"
+      "clickToLogout": "Натисніть, щоб вийти з поточного облікового запису",
+      "pleaseInputYourStabilityAIKey": "будь ласка, введіть ключ стабільності ШІ"
     },
     "mobile": {
       "personalInfo": "Персональна інформація",
@@ -1223,8 +1234,8 @@
       "doesNotContain": "Не містить",
       "endsWith": "Закінчується на",
       "startWith": "Починається з",
-      "is": "Дорівнює",
-      "isNot": "Не дорівнює",
+      "is": "Є",
+      "isNot": "Не є",
       "isEmpty": "Порожнє",
       "isNotEmpty": "Не порожнє",
       "choicechipPrefix": {
@@ -1251,8 +1262,8 @@
       "isNot": "не є",
       "contains": "Містить",
       "doesNotContain": "Не містить",
-      "isEmpty": "порожнє",
-      "isNotEmpty": "не порожнє"
+      "isEmpty": "Порожнє",
+      "isNotEmpty": "Не порожнє"
     },
     "dateFilter": {
       "is": "Є",
@@ -1265,7 +1276,7 @@
       "notEmpty": "Не порожній",
       "choicechipPrefix": {
         "before": "Раніше",
-        "after": "після",
+        "after": "Після",
         "onOrBefore": "На або раніше",
         "onOrAfter": "На або після",
         "isEmpty": "Пусто",
@@ -1303,7 +1314,7 @@
       "checklistFieldName": "Чек-лист",
       "relationFieldName": "Відношення",
       "summaryFieldName": "AI Резюме",
-      "timeFieldName": "час",
+      "timeFieldName": "Час",
       "translateFieldName": "ШІ Перекладач",
       "translateTo": "Перекласти на",
       "numberFormat": "Формат числа",
@@ -1360,7 +1371,7 @@
     "sort": {
       "ascending": "У висхідному порядку",
       "descending": "У спадному порядку",
-      "by": "за",
+      "by": "За",
       "empty": "Немає активних сортувань",
       "cannotFindCreatableField": "Не вдається знайти відповідне поле для сортування",
       "deleteAllSorts": "Видалити всі сортування",
@@ -1423,7 +1434,7 @@
     "relation": {
       "relatedDatabasePlaceLabel": "Пов'язана база даних",
       "relatedDatabasePlaceholder": "Жодного",
-      "inRelatedDatabase": "в",
+      "inRelatedDatabase": "В",
       "rowSearchTextFieldPlaceholder": "Пошук",
       "noDatabaseSelected": "Базу даних не вибрано, будь ласка, спочатку виберіть одну зі списку нижче:",
       "emptySearchResult": "Записів не знайдено",
@@ -1438,8 +1449,8 @@
       "average": "Середній",
       "max": "Макс",
       "median": "Медіана",
-      "min": "Хв",
-      "sum": "сума",
+      "min": "Мін",
+      "sum": "Сума",
       "count": "Рахувати",
       "countEmpty": "Рахунок порожній",
       "countEmptyShort": "ПУСТИЙ",
@@ -1465,6 +1476,40 @@
       "calendar": {
         "selectACalendarToLinkTo": "Виберіть календар для посилання",
         "createANewCalendar": "Створити новий календар"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Виберіть документ для посилання"
+      },
+      "name": {
+        "text": "Текст",
+        "heading1": "Заголовок 1",
+        "heading2": "Заголовок 2",
+        "heading3": "Заголовок 3",
+        "image": "Зображення",
+        "bulletedList": "Маркірований список",
+        "numberedList": "Нумерований список",
+        "checkbox": "Прапорець",
+        "doc": "Док",
+        "linkedDoc": "Посилання на сторінку",
+        "grid": "Сітка",
+        "linkedGrid": "Зв'язана сітка",
+        "kanban": "Канбан",
+        "linkedKanban": "Пов’язаний канбан",
+        "calendar": "Календар",
+        "linkedCalendar": "Пов’язаний календар",
+        "quote": "Цитата",
+        "divider": "Роздільник",
+        "table": "Таблиця",
+        "callout": "Виноска",
+        "outline": "Контур",
+        "mathEquation": "Математичне рівняння",
+        "code": "Код",
+        "toggleList": "Переключити список",
+        "emoji": "Emoji",
+        "aiWriter": "ШІ Письменник",
+        "dateOrReminder": "Дата або нагадування",
+        "photoGallery": "Фотогалерея",
+        "file": "Файл"
       }
     },
     "selectionMenu": {
@@ -1476,23 +1521,23 @@
       "referencedGrid": "Пов'язані сітки",
       "referencedCalendar": "Календар посилань",
       "referencedDocument": "Посилальний документ",
-      "autoGeneratorMenuItemName": "AI Writer",
+      "autoGeneratorMenuItemName": "ШІ Письменник",
       "autoGeneratorTitleName": "AI: Запитайте штучний інтелект написати будь-що...",
       "autoGeneratorLearnMore": "Дізнатися більше",
       "autoGeneratorGenerate": "Генерувати",
       "autoGeneratorHintText": "Запитайте AI...",
       "autoGeneratorCantGetOpenAIKey": "Не вдається отримати ключ AI",
       "autoGeneratorRewrite": "Переписати",
-      "smartEdit": "AI Асистенти",
-      "aI": "AI",
+      "smartEdit": "Запитай ШІ",
+      "aI": "ШІ",
       "smartEditFixSpelling": "Виправити правопис",
-      "warning": "⚠️ Відповіді AI можуть бути неточними або вводити в оману.",
+      "warning": "⚠️ Відповіді ШІ можуть бути неточними або вводити в оману.",
       "smartEditSummarize": "Підсумувати",
       "smartEditImproveWriting": "Покращити написання",
       "smartEditMakeLonger": "Зробити довше",
-      "smartEditCouldNotFetchResult": "Не вдалося отримати результат від AI",
-      "smartEditCouldNotFetchKey": "Не вдалося отримати ключ AI",
-      "smartEditDisabled": "Підключіть AI в Налаштуваннях",
+      "smartEditCouldNotFetchResult": "Не вдалося отримати результат від ШІ",
+      "smartEditCouldNotFetchKey": "Не вдалося отримати ключ ШІ",
+      "smartEditDisabled": "Підключіть ШІ в Налаштуваннях",
       "appflowyAIEditDisabled": "Увійдіть, щоб увімкнути функції ШІ",
       "discardResponse": "Ви хочете відкинути відповіді AI?",
       "createInlineMathEquation": "Створити рівняння",
@@ -1685,7 +1730,6 @@
       },
       "searchForAnImage": "Пошук зображення",
       "pleaseInputYourOpenAIKey": "будь ласка, введіть ключ ШІ на сторінці налаштувань",
-      "pleaseInputYourStabilityAIKey": "будь ласка, введіть ключ стабільності AI на сторінці налаштувань",
       "saveImageToGallery": "Зберегти зображення",
       "failedToAddImageToGallery": "Не вдалося додати зображення до галереї",
       "successToAddImageToGallery": "Зображення додано до галереї",
@@ -1707,7 +1751,8 @@
           "scalePercentage": "{}%",
           "deleteImageTooltip": "Видалити зображення"
         }
-      }
+      },
+      "pleaseInputYourStabilityAIKey": "будь ласка, введіть ключ стабільності AI на сторінці налаштувань"
     },
     "codeBlock": {
       "language": {
@@ -1740,7 +1785,8 @@
         "tooltip": "Клацніть, щоб відкрити сторінку"
       },
       "deleted": "Видалено",
-      "deletedContent": "Цей вміст не існує або його видалено"
+      "deletedContent": "Цей вміст не існує або його видалено",
+      "noAccess": "Немає доступу"
     },
     "toolbar": {
       "resetToDefaultFont": "Скинути до стандартного"
@@ -1822,7 +1868,7 @@
   },
   "board": {
     "column": {
-      "createNewCard": "новий",
+      "createNewCard": "Новий",
       "renameGroupTooltip": "Натисніть, щоб перейменувати групу",
       "createNewColumn": "Додайте нову групу",
       "addToColumnTopTooltip": "Додайте нову картку вгорі",
@@ -1864,7 +1910,7 @@
       "weekOf": "Тиждень з {} по {}",
       "today": "Сьогодні",
       "yesterday": "вчора",
-      "tomorrow": "завтра",
+      "tomorrow": "Завтра",
       "lastSevenDays": "Останні 7 днів",
       "nextSevenDays": "Наступні 7 днів",
       "lastThirtyDays": "Останні 30 днів",
@@ -1884,9 +1930,9 @@
       "nextMonth": "Наступного місяця",
       "views": {
         "day": "День",
-        "week": "тиждень",
-        "month": "місяць",
-        "year": "рік"
+        "week": "Тиждень",
+        "month": "Місяць",
+        "year": "Рік"
       }
     },
     "mobileEventScreen": {
@@ -1916,10 +1962,12 @@
   },
   "errorDialog": {
     "title": "@:appName Помилка",
-    "howToFixFallback": "Просимо вибачення за незручності! Надішліть проблему на нашій сторінці GitHub з описом вашої помилки."
+    "howToFixFallback": "Просимо вибачення за незручності! Надішліть проблему на нашій сторінці GitHub з описом вашої помилки.",
+    "github": "Переглянути на GitHub"
   },
   "search": {
     "label": "Пошук",
+    "sidebarSearchIcon": "Шукайте та швидко переходьте на сторінку",
     "placeholder": {
       "actions": "Пошукові дії..."
     }
@@ -1959,25 +2007,26 @@
     "remove": "Видалити емодзі",
     "categories": {
       "smileys": "Смайли та емоції",
-      "people": "Люди та тіло",
-      "animals": "Тварини та природа",
-      "food": "Їжа та напої",
-      "activities": "Активності",
-      "places": "Подорожі та місця",
-      "objects": "Об'єкти",
-      "symbols": "Символи",
-      "flags": "Прапори",
-      "nature": "Природа",
-      "frequentlyUsed": "Часто використовувані"
+      "people": "люди",
+      "animals": "природа",
+      "food": "їжа",
+      "activities": "активності",
+      "places": "місця",
+      "objects": "об'єкти",
+      "symbols": "символи",
+      "flags": "прапори",
+      "nature": "природа",
+      "frequentlyUsed": "часто використовувані"
     },
     "skinTone": {
       "default": "За замовчуванням",
-      "light": "світло",
+      "light": "Світла",
       "mediumLight": "Середньосвітлий",
       "medium": "Середній",
       "mediumDark": "Середньо-темний",
       "dark": "Темний"
-    }
+    },
+    "openSourceIconsFrom": "Піктограми з відкритим кодом"
   },
   "inlineActions": {
     "noResults": "Немає результатів",
@@ -2146,7 +2195,7 @@
     "copyLink": "Копіювати посилання",
     "removeLink": "Видалити посилання",
     "editLink": "Редагувати посилання",
-    "linkText": "текст",
+    "linkText": "Текст",
     "linkTextHint": "Будь ласка, введіть текст",
     "linkAddressHint": "Будь ласка, введіть URL",
     "highlightColor": "Колір виділення",
@@ -2161,7 +2210,7 @@
     "cut": "Вирізати",
     "copy": "Копіювати",
     "paste": "Вставити",
-    "find": "знайти",
+    "find": "Знайти",
     "select": "Виберіть",
     "selectAll": "Вибрати все",
     "previousMatch": "Попередній матч",
@@ -2321,7 +2370,7 @@
     "privatePermission": "Приватний",
     "privatePermissionDescription": "Тільки ви маєте доступ до цього простору",
     "spaceIconBackground": "Колір фону",
-    "spaceIcon": "значок",
+    "spaceIcon": "Значок",
     "dangerZone": "НЕБЕЗПЕЧНА ЗОНА",
     "unableToDeleteLastSpace": "Неможливо видалити останній пробіл",
     "unableToDeleteSpaceNotCreatedByYou": "Неможливо видалити простори, створені іншими",

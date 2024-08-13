@@ -407,8 +407,8 @@
       "tooltipSelectIcon": "حدد أيقونة",
       "selectAnIcon": "حدد أيقونة",
       "pleaseInputYourOpenAIKey": "الرجاء إدخال مفتاح AI الخاص بك",
-      "pleaseInputYourStabilityAIKey": "يرجى إدخال رمز Stability AI الخاص بك",
-      "clickToLogout": "انقر لتسجيل خروج المستخدم الحالي"
+      "clickToLogout": "انقر لتسجيل خروج المستخدم الحالي",
+      "pleaseInputYourStabilityAIKey": "يرجى إدخال رمز Stability AI الخاص بك"
     },
     "mobile": {
       "personalInfo": "معلومات شخصية",
@@ -793,11 +793,11 @@
       },
       "searchForAnImage": "ابحث عن صورة",
       "pleaseInputYourOpenAIKey": "يرجى إدخال مفتاح AI الخاص بك في صفحة الإعدادات",
-      "pleaseInputYourStabilityAIKey": "يرجى إدخال مفتاح Stability AI الخاص بك في صفحة الإعدادات",
       "saveImageToGallery": "احفظ الصورة",
       "failedToAddImageToGallery": "فشلت إضافة الصورة إلى المعرض",
       "successToAddImageToGallery": "تمت إضافة الصورة إلى المعرض بنجاح",
-      "unableToLoadImage": "غير قادر على تحميل الصورة"
+      "unableToLoadImage": "غير قادر على تحميل الصورة",
+      "pleaseInputYourStabilityAIKey": "يرجى إدخال مفتاح Stability AI الخاص بك في صفحة الإعدادات"
     },
     "codeBlock": {
       "language": {

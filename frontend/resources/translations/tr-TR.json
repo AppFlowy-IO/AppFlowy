@@ -828,7 +828,6 @@
         "itemFive": "evet",
         "itemSix": "sınırsız",
         "itemSeven": " "
-
       },
       "paymentSuccess": {
         "title": "Artık {} planındasınız!",
@@ -1096,8 +1095,8 @@
       "tooltipSelectIcon": "Simge seç",
       "selectAnIcon": "Bir simge seçin",
       "pleaseInputYourOpenAIKey": "Lütfen Yapay Zeka anahtarınızı girin",
-      "pleaseInputYourStabilityAIKey": "Lütfen Stability Yapay Zeka anahtarınızı girin",
-      "clickToLogout": "Geçerli kullanıcıdan çıkış yapmak için tıklayın"
+      "clickToLogout": "Geçerli kullanıcıdan çıkış yapmak için tıklayın",
+      "pleaseInputYourStabilityAIKey": "Lütfen Stability Yapay Zeka anahtarınızı girin"
     },
     "mobile": {
       "personalInfo": "Kişisel Bilgiler",
@@ -1595,7 +1594,6 @@
       },
       "searchForAnImage": "Bir resim arayın",
       "pleaseInputYourOpenAIKey": "Lütfen Ayarlar sayfasında Yapay Zeka anahtarınızı girin",
-      "pleaseInputYourStabilityAIKey": "Lütfen Ayarlar sayfasında Stability Yapay Zeka anahtarınızı girin",
       "saveImageToGallery": "Resmi kaydet",
       "failedToAddImageToGallery": "Resim galeriye eklenemedi",
       "successToAddImageToGallery": "Resim başarıyla galeriye eklendi",
@@ -1617,7 +1615,8 @@
           "scalePercentage": "%{}",
           "deleteImageTooltip": "Resmi sil"
         }
-      }
+      },
+      "pleaseInputYourStabilityAIKey": "Lütfen Ayarlar sayfasında Stability Yapay Zeka anahtarınızı girin"
     },
     "codeBlock": {
       "language": {
