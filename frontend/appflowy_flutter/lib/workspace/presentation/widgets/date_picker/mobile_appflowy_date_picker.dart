@@ -1,6 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
@@ -13,8 +10,9 @@ import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobi
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileAppFlowyDatePicker extends StatefulWidget {
@@ -389,56 +387,106 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
       children.addAll([
         Expanded(child: FlowyText(dateStr, textAlign: TextAlign.center)),
         Container(width: 1, height: 16, color: Colors.grey),
-        Expanded(child: FlowyText(timeStr ?? '', textAlign: TextAlign.center)),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _showTimePicker(
+              context,
+              use24hFormat: use24hFormat,
+              isStartDay: isStartDay,
+            ),
+            child: FlowyText(timeStr ?? '', textAlign: TextAlign.center),
+          ),
+        ),
       ]);
     }
 
-    return GestureDetector(
-      onTap: !isIncludeTime
-          ? null
-          : () async {
-              await showMobileBottomSheet(
-                context,
-                builder: (context) => ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 300),
-                  child: CupertinoDatePicker(
-                    mode: CupertinoDatePickerMode.time,
-                    use24hFormat: use24hFormat,
-                    onDateTimeChanged: (dateTime) {
-                      final selectedTime = use24hFormat
-                          ? DateFormat('HH:mm').format(dateTime)
-                          : DateFormat('hh:mm a').format(dateTime);
-
-                      if (isStartDay) {
-                        widget.onStartTimeChanged(selectedTime);
-
-                        if (widget.rebuildOnTimeChanged && mounted) {
-                          setState(() => _timeStr = selectedTime);
-                        }
-                      } else {
-                        widget.onEndTimeChanged?.call(selectedTime);
-
-                        if (widget.rebuildOnTimeChanged && mounted) {
-                          setState(() => _endTimeStr = selectedTime);
-                        }
-                      }
-                    },
-                  ),
-                ),
-              );
-            },
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 36),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outline,
-          ),
+    return Container(
+      constraints: const BoxConstraints(minHeight: 36),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(6),
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline,
         ),
-        child: Row(children: children),
+      ),
+      child: Row(children: children),
+    );
+  }
+
+  Future<void> _showTimePicker(
+    BuildContext context, {
+    required bool use24hFormat,
+    required bool isStartDay,
+  }) async {
+    String? selectedTime = isStartDay ? _timeStr : _endTimeStr;
+    final initialDateTime = selectedTime != null
+        ? _convertTimeStringToDateTime(selectedTime)
+        : null;
+
+    return showMobileBottomSheet(
+      context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 300),
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.time,
+              initialDateTime: initialDateTime,
+              use24hFormat: use24hFormat,
+              onDateTimeChanged: (dateTime) {
+                selectedTime = use24hFormat
+                    ? DateFormat('HH:mm').format(dateTime)
+                    : DateFormat('hh:mm a').format(dateTime);
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 36),
+            child: FlowyTextButton(
+              LocaleKeys.button_confirm.tr(),
+              constraints: const BoxConstraints.tightFor(height: 42),
+              mainAxisAlignment: MainAxisAlignment.center,
+              textColor: Theme.of(context).colorScheme.onPrimary,
+              fillColor: Theme.of(context).primaryColor,
+              onPressed: () {
+                if (isStartDay) {
+                  widget.onStartTimeChanged(selectedTime);
+
+                  if (widget.rebuildOnTimeChanged && mounted) {
+                    setState(() => _timeStr = selectedTime);
+                  }
+                } else {
+                  widget.onEndTimeChanged?.call(selectedTime);
+
+                  if (widget.rebuildOnTimeChanged && mounted) {
+                    setState(() => _endTimeStr = selectedTime);
+                  }
+                }
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
+          const VSpace(18.0),
+        ],
       ),
     );
+  }
+
+  DateTime _convertTimeStringToDateTime(String timeString) {
+    final DateTime now = DateTime.now();
+
+    final List<String> timeParts = timeString.split(':');
+
+    if (timeParts.length != 2) {
+      return now;
+    }
+
+    final int hour = int.parse(timeParts[0]);
+    final int minute = int.parse(timeParts[1]);
+
+    return DateTime(now.year, now.month, now.day, hour, minute);
   }
 }
 
