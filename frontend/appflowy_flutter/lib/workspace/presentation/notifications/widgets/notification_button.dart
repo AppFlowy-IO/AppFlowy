@@ -89,9 +89,11 @@ class _NotificationButtonState extends State<NotificationButton> {
         ),
         if (hasUnreads)
           const Positioned(
-            top: 3,
-            right: 5,
-            child: NotificationRedDot(),
+            top: 4,
+            right: 6,
+            child: NotificationRedDot(
+              size: 5,
+            ),
           ),
       ],
     );
