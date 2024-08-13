@@ -30,8 +30,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
   appflowy_backend:
     path: packages/appflowy_backend
   flowy_infra_ui:
@@ -65,12 +63,10 @@ dependencies:
   sized_context: ^1.0.0+4
   styled_widget: ^0.4.1
   expandable: ^5.0.1
-  flutter_colorpicker: ^1.0.3
   flex_color_picker: ^3.5.1
   highlight: ^0.7.0
   package_info_plus: ^6.0.0
   url_launcher: ^6.1.11
-  clipboard: ^0.1.3
   connectivity_plus: ^5.0.2
   easy_localization: ^3.0.2
   device_info_plus: ^10.1.0
@@ -83,7 +79,6 @@ dependencies:
   fixnum: ^1.1.0
   flutter_svg: ^2.0.7
   protobuf: ^3.1.0
-  charcode: ^1.3.1
   collection: ^1.17.1
   bloc: ^8.1.2
   shared_preferences: ^2.2.2
@@ -95,14 +90,13 @@ dependencies:
       ref: "6fe0c98"
   http: ^1.0.0
   path: ^1.8.3
-  mocktail: ^1.0.1
+
   archive: ^3.4.10
   nanoid: ^1.0.0
   supabase_flutter: ^1.10.4
   envied: ^0.5.2
   dotted_border: ^2.0.0+3
   url_protocol:
-  hive: ^2.2.3
   hive_flutter: ^1.1.0
   super_clipboard: ^0.8.4
   go_router: ^14.2.0
@@ -121,7 +115,6 @@ dependencies:
   app_links: ^3.5.0
   flutter_slidable: ^3.0.0
   image_picker: ^1.0.4
-  image_gallery_saver: ^2.0.3
   cached_network_image: ^3.3.0
   leak_tracker: ^10.0.0
   keyboard_height_plugin: ^0.1.5
@@ -157,8 +150,6 @@ dependencies:
   # BitsDojo Window for Windows
   bitsdojo_window: ^0.1.6
 
-  flutter_highlight: ^0.7.0
-  custom_sliding_segmented_control: ^1.8.3
   toastification: ^2.0.0
   scroll_to_index: ^3.0.1
   extended_text_field: ^15.0.0
@@ -166,7 +157,6 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^3.0.1
-  analyzer: ^6.3.0
 
   flutter_test:
     sdk: flutter
@@ -181,6 +171,8 @@ dev_dependencies:
   plugin_platform_interface: any
   url_launcher_platform_interface: any
   run_with_network_images: ^0.0.1
+
+  mocktail: ^1.0.1
 
 dependency_overrides:
   http: ^1.0.0
