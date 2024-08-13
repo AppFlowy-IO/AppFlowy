@@ -212,11 +212,13 @@ class _HomePageNavigationBar extends StatelessWidget {
   /// Navigate to the current location of the branch at the provided index when
   /// tapping an item in the BottomNavigationBar.
   void _onTap(BuildContext context, int bottomBarIndex) {
-    if (_items[bottomBarIndex].label == _addLabel) {
+    final label = _items[bottomBarIndex].label;
+    if (label == _addLabel) {
       // show an add dialog
       mobileCreateNewPageNotifier.value = ViewLayoutPB.Document;
-
       return;
+    } else if (label == _notificationLabel) {
+      getIt<ReminderBloc>().add(const ReminderEvent.refresh());
     }
     // When navigating to a new branch, it's recommended to use the goBranch
     // method, as doing so makes sure the last navigation state of the
