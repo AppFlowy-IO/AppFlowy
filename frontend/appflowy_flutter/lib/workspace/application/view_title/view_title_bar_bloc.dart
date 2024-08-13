@@ -10,19 +10,19 @@ class ViewTitleBarBloc extends Bloc<ViewTitleBarEvent, ViewTitleBarState> {
   ViewTitleBarBloc({
     required this.view,
   }) : super(ViewTitleBarState.initial()) {
+    viewListener = ViewListener(
+      viewId: view.id,
+    )..start(
+        onViewChildViewsUpdated: (p0) {
+          add(const ViewTitleBarEvent.reload());
+        },
+      );
+
     on<ViewTitleBarEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
             add(const ViewTitleBarEvent.reload());
-
-            viewListener = ViewListener(
-              viewId: view.id,
-            )..start(
-                onViewUpdated: (p0) {
-                  add(const ViewTitleBarEvent.reload());
-                },
-              );
           },
           reload: () async {
             final List<ViewPB> ancestors =
