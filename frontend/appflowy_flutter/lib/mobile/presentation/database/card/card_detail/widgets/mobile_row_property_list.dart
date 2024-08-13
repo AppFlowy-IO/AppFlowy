@@ -87,6 +87,7 @@ class _PropertyCellState extends State<_PropertyCell> {
                 fieldInfo.name,
                 overflow: TextOverflow.ellipsis,
                 fontSize: 14,
+                figmaLineHeight: 16.0,
                 color: Theme.of(context).hintColor,
               ),
             ),

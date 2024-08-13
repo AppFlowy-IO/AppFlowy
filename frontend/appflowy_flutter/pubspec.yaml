@@ -105,7 +105,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   super_clipboard: ^0.8.4
-  go_router: ^13.1.0
+  go_router: ^14.2.0
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
   flutter_emoji_mart:

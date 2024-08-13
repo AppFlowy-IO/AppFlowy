@@ -31,6 +31,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/m
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/time/duration.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sheet/route.dart';
@@ -558,10 +559,25 @@ GoRoute _mobileCardDetailScreenRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileRowDetailPage.routeName,
     pageBuilder: (context, state) {
-      final args = state.extra as Map<String, dynamic>;
+      var extra = state.extra as Map<String, dynamic>?;
+
+      if (kDebugMode && extra == null) {
+        extra = _dynamicValues;
+      }
+
+      if (extra == null) {
+        return const MaterialExtendedPage(
+          child: SizedBox.shrink(),
+        );
+      }
+
       final databaseController =
-          args[MobileRowDetailPage.argDatabaseController];
-      final rowId = args[MobileRowDetailPage.argRowId]!;
+          extra[MobileRowDetailPage.argDatabaseController];
+      final rowId = extra[MobileRowDetailPage.argRowId]!;
+
+      if (kDebugMode) {
+        _dynamicValues = extra;
+      }
 
       return MaterialExtendedPage(
         child: MobileRowDetailPage(
@@ -629,3 +645,8 @@ Widget _buildFadeTransition(
 Duration _slowDuration = Duration(
   milliseconds: RouteDurations.slow.inMilliseconds.round(),
 );
+
+// ONLY USE IN DEBUG MODE
+// this is a workaround for the issue of GoRouter not supporting extra with complex types
+// https://github.com/flutter/flutter/issues/137248
+Map<String, dynamic> _dynamicValues = {};
