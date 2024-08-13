@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -21,6 +22,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         TextTransaction,
         paragraphNode;
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -105,57 +107,69 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         // memorize the result
         pageMemorizer[widget.pageId] = view;
         if (view == null) {
-          return const SizedBox.shrink();
-        }
-
-        final iconSize = widget.textStyle?.fontSize ?? 16.0;
-        final child = GestureDetector(
-          onTap: handleTap,
-          onDoubleTap: handleDoubleTap,
-          behavior: HitTestBehavior.translucent,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const HSpace(4),
-              view.icon.value.isNotEmpty
-                  ? EmojiText(
-                      emoji: view.icon.value,
-                      fontSize: 12,
-                      textAlign: TextAlign.center,
-                      lineHeight: 1.3,
-                    )
-                  : FlowySvg(
-                      view.layout.icon,
-                      size: Size.square(iconSize + 2.0),
-                    ),
-              const HSpace(2),
-              FlowyText(
-                view.name,
+          return FlowyHover(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: FlowyText(
+                LocaleKeys.document_mention_noAccess.tr(),
+                color: Theme.of(context).disabledColor,
                 decoration: TextDecoration.underline,
                 fontSize: widget.textStyle?.fontSize,
                 fontWeight: widget.textStyle?.fontWeight,
               ),
-              const HSpace(2),
-            ],
-          ),
-        );
-
-        if (PlatformExtension.isMobile) {
-          return child;
+            ),
+          );
         }
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: FlowyHover(
-            cursor: SystemMouseCursors.click,
-            child: child,
-          ),
+        final iconSize = widget.textStyle?.fontSize ?? 16.0;
+        Widget child = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const HSpace(4),
+            view.icon.value.isNotEmpty
+                ? EmojiText(
+                    emoji: view.icon.value,
+                    fontSize: 12,
+                    textAlign: TextAlign.center,
+                    lineHeight: 1.3,
+                  )
+                : FlowySvg(
+                    view.layout.icon,
+                    size: Size.square(iconSize + 2.0),
+                  ),
+            const HSpace(2),
+            FlowyText(
+              view.name,
+              decoration: TextDecoration.underline,
+              fontSize: widget.textStyle?.fontSize,
+              fontWeight: widget.textStyle?.fontWeight,
+            ),
+            const HSpace(4),
+          ],
+        );
+
+        if (PlatformExtension.isDesktop) {
+          child = Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: FlowyHover(
+              cursor: SystemMouseCursors.click,
+              child: child,
+            ),
+          );
+        }
+
+        return GestureDetector(
+          onTap: handleTap,
+          onDoubleTap: PlatformExtension.isMobile ? handleDoubleTap : null,
+          behavior: HitTestBehavior.opaque,
+          child: child,
         );
       },
     );
   }
 
   Future<void> handleTap() async {
+    debugPrint('handleTap');
     final view = await fetchView(widget.pageId);
     if (view == null) {
       Log.error('Page(${widget.pageId}) not found');

@@ -263,6 +263,8 @@ class _PublishButton extends StatelessWidget {
       text: LocaleKeys.shareAction_publish.tr(),
       useIntrinsicWidth: false,
       margin: const EdgeInsets.symmetric(vertical: 9.0),
+      fontSize: 14.0,
+      figmaLineHeight: 18.0,
       onTap: onPublish,
     );
   }
