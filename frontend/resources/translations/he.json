@@ -996,8 +996,8 @@
       "tooltipSelectIcon": "בחירת סמל",
       "selectAnIcon": "נא לבחור סמל",
       "pleaseInputYourOpenAIKey": "נא למלא את המפתח שלך ב־OpenAI",
-      "pleaseInputYourStabilityAIKey": "נא למלא את המפתח שלך ב־Stability AI",
-      "clickToLogout": "לחיצה תוציא את המשתמש הנוכחי"
+      "clickToLogout": "לחיצה תוציא את המשתמש הנוכחי",
+      "pleaseInputYourStabilityAIKey": "נא למלא את המפתח שלך ב־Stability AI"
     },
     "mobile": {
       "personalInfo": "פרטים אישיים",
@@ -1480,14 +1480,14 @@
       },
       "searchForAnImage": "חיפוש אחר תמונה",
       "pleaseInputYourOpenAIKey": "נא למלא את מפתח ה־OpenAI שלך בעמוד ההגדרות",
-      "pleaseInputYourStabilityAIKey": "נא למלא את המפתח ל־Stability AI בעמוד ההגדרות",
       "saveImageToGallery": "שמירת תמונה",
       "failedToAddImageToGallery": "הוספת התמונה לגלריה נכשלה",
       "successToAddImageToGallery": "התמונה נוספה לגלריה בהצלחה",
       "unableToLoadImage": "לא ניתן לטעון את התמונה",
       "maximumImageSize": "גודל ההעלאה המרבי הנתמך הוא 10 מ״ב",
       "uploadImageErrorImageSizeTooBig": "גודל התמונה חייב להיות גדול מ־10 מ״ב",
-      "imageIsUploading": "התמונה נשלחת"
+      "imageIsUploading": "התמונה נשלחת",
+      "pleaseInputYourStabilityAIKey": "נא למלא את המפתח ל־Stability AI בעמוד ההגדרות"
     },
     "codeBlock": {
       "language": {

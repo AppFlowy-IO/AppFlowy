@@ -363,8 +363,8 @@
       "tooltipSelectIcon": "Selecione o ícone",
       "selectAnIcon": "Selecione um ícone",
       "pleaseInputYourOpenAIKey": "por favor insira sua chave AI",
-      "pleaseInputYourStabilityAIKey": "por favor, insira a sua chave Stability AI",
-      "clickToLogout": "Clique para fazer logout"
+      "clickToLogout": "Clique para fazer logout",
+      "pleaseInputYourStabilityAIKey": "por favor, insira a sua chave Stability AI"
     },
     "shortcuts": {
       "shortcutsLabel": "Atalhos",

@@ -688,8 +688,8 @@
       "tooltipSelectIcon": "选择图标",
       "selectAnIcon": "选择一个图标",
       "pleaseInputYourOpenAIKey": "请输入您的 AI 密钥",
-      "pleaseInputYourStabilityAIKey": "请输入您的 Stability AI 密钥",
-      "clickToLogout": "点击退出当前用户"
+      "clickToLogout": "点击退出当前用户",
+      "pleaseInputYourStabilityAIKey": "请输入您的 Stability AI 密钥"
     },
     "mobile": {
       "personalInfo": "个人信息",
@@ -1173,14 +1173,14 @@
       },
       "searchForAnImage": "搜索图像",
       "pleaseInputYourOpenAIKey": "请在设置页面输入您的 AI 密钥",
-      "pleaseInputYourStabilityAIKey": "请在设置页面输入您的 Stability AI 密钥",
       "saveImageToGallery": "保存图片",
       "failedToAddImageToGallery": "无法将图像添加到图库",
       "successToAddImageToGallery": "图片已成功添加到图库",
       "unableToLoadImage": "无法加载图像",
       "maximumImageSize": "支持的最大上传图片大小为 10MB",
       "uploadImageErrorImageSizeTooBig": "图片大小必须小于 10MB",
-      "imageIsUploading": "图片正在上传"
+      "imageIsUploading": "图片正在上传",
+      "pleaseInputYourStabilityAIKey": "请在设置页面输入您的 Stability AI 密钥"
     },
     "codeBlock": {
       "language": {

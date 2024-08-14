@@ -428,8 +428,8 @@
       "tooltipSelectIcon": "Seleziona l'icona",
       "selectAnIcon": "Seleziona un'icona",
       "pleaseInputYourOpenAIKey": "inserisci la tua chiave AI",
-      "pleaseInputYourStabilityAIKey": "per favore inserisci la tua chiave Stability AI",
-      "clickToLogout": "Fare clic per disconnettere l'utente corrente"
+      "clickToLogout": "Fare clic per disconnettere l'utente corrente",
+      "pleaseInputYourStabilityAIKey": "per favore inserisci la tua chiave Stability AI"
     },
     "mobile": {
       "personalInfo": "Informazione personale",
@@ -854,14 +854,14 @@
       },
       "searchForAnImage": "Cerca un'immagine",
       "pleaseInputYourOpenAIKey": "inserisci la tua chiave AI nella pagina Impostazioni",
-      "pleaseInputYourStabilityAIKey": "inserisci la chiave Stability AI nella pagina Impostazioni",
       "saveImageToGallery": "Salva immagine",
       "failedToAddImageToGallery": "Impossibile aggiungere l'immagine alla galleria",
       "successToAddImageToGallery": "Immagine aggiunta alla galleria con successo",
       "unableToLoadImage": "Impossibile caricare l'immagine",
       "maximumImageSize": "La dimensione massima supportata per il caricamento delle immagini è di 10 MB",
       "uploadImageErrorImageSizeTooBig": "Le dimensioni dell'immagine devono essere inferiori a 10 MB",
-      "imageIsUploading": "L'immagine si sta caricando"
+      "imageIsUploading": "L'immagine si sta caricando",
+      "pleaseInputYourStabilityAIKey": "inserisci la chiave Stability AI nella pagina Impostazioni"
     },
     "codeBlock": {
       "language": {
