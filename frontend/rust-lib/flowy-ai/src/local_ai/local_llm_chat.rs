@@ -49,6 +49,7 @@ pub struct LocalAIController {
   local_ai_resource: Arc<LocalAIResourceController>,
   current_chat_id: Mutex<Option<String>>,
   store_preferences: Arc<KVStorePreferences>,
+  user_service: Arc<dyn AIUserService>,
 }
 
 impl Deref for LocalAIController {
@@ -74,7 +75,11 @@ impl LocalAIController {
     };
 
     let (tx, mut rx) = tokio::sync::mpsc::channel(1);
-    let llm_res = Arc::new(LocalAIResourceController::new(user_service, res_impl, tx));
+    let llm_res = Arc::new(LocalAIResourceController::new(
+      user_service.clone(),
+      res_impl,
+      tx,
+    ));
     let current_chat_id = Mutex::new(None);
 
     let mut running_state_rx = local_ai.subscribe_running_state();
@@ -101,6 +106,7 @@ impl LocalAIController {
       local_ai_resource: llm_res,
       current_chat_id,
       store_preferences,
+      user_service,
     };
 
     let rag_enabled = this.is_rag_enabled();
@@ -142,7 +148,13 @@ impl LocalAIController {
 
     this
   }
-  pub async fn refresh(&self) -> FlowyResult<LLMModelInfo> {
+  pub async fn refresh(&self) -> FlowyResult<()> {
+    let is_enabled = self.is_enabled();
+    self.enable_chat_plugin(is_enabled).await?;
+    Ok(())
+  }
+
+  pub async fn refresh_model_info(&self) -> FlowyResult<LLMModelInfo> {
     self.local_ai_resource.refresh_llm_resource().await
   }
 
@@ -158,10 +170,16 @@ impl LocalAIController {
 
   /// Indicate whether the local AI is enabled.
   pub fn is_enabled(&self) -> bool {
-    self
-      .store_preferences
-      .get_bool(APPFLOWY_LOCAL_AI_ENABLED)
-      .unwrap_or(true)
+    if let Ok(key) = self.local_ai_enabled_key() {
+      self.store_preferences.get_bool(&key).unwrap_or(true)
+    } else {
+      false
+    }
+  }
+
+  fn local_ai_enabled_key(&self) -> FlowyResult<String> {
+    let workspace_id = self.user_service.workspace_id()?;
+    Ok(format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id))
   }
 
   /// Indicate whether the local AI chat is enabled. In the future, we can support multiple
@@ -297,13 +315,9 @@ impl LocalAIController {
   }
 
   pub async fn toggle_local_ai(&self) -> FlowyResult<bool> {
-    let enabled = !self
-      .store_preferences
-      .get_bool(APPFLOWY_LOCAL_AI_ENABLED)
-      .unwrap_or(true);
-    self
-      .store_preferences
-      .set_bool(APPFLOWY_LOCAL_AI_ENABLED, enabled)?;
+    let key = self.local_ai_enabled_key()?;
+    let enabled = !self.store_preferences.get_bool(&key).unwrap_or(true);
+    self.store_preferences.set_bool(&key, enabled)?;
 
     // when enable local ai. we need to check if chat is enabled, if enabled, we need to init chat plugin
     // otherwise, we need to destroy the plugin

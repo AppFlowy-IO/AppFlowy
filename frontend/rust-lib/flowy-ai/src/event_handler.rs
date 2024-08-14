@@ -150,7 +150,7 @@ pub(crate) async fn refresh_local_ai_info_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LLMModelInfoPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let model_info = ai_manager.local_ai_controller.refresh().await;
+  let model_info = ai_manager.local_ai_controller.refresh_model_info().await;
   if model_info.is_err() {
     if let Some(llm_model) = ai_manager.local_ai_controller.get_current_model() {
       let model_info = LLMModelInfo {
