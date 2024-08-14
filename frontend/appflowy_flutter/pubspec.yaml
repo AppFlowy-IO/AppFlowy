@@ -155,6 +155,7 @@ dependencies:
   extended_text_field: ^15.0.0
   extended_text_library: ^12.0.0
   sentry_flutter: ^8.6.0
+  sentry: ^8.7.0
 
 dev_dependencies:
   flutter_lints: ^4.0.0
