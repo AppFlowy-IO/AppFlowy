@@ -181,6 +181,7 @@ pub struct OauthProviderDataPB {
   pub oauth_url: String,
 }
 
+#[repr(u8)]
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
 pub enum AuthenticatorPB {
   Local = 0,

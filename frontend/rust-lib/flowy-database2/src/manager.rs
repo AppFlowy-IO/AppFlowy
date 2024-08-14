@@ -1,5 +1,6 @@
 use anyhow::anyhow;
 use arc_swap::ArcSwapOption;
+use async_trait::async_trait;
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
@@ -11,7 +12,7 @@ use collab_database::error::DatabaseError;
 use collab_database::rows::RowId;
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_database::workspace_database::{
-  CollabDocStateByOid, CollabFuture, DatabaseCollabService, DatabaseMeta, WorkspaceDatabase,
+  CollabDocStateByOid, DatabaseCollabService, DatabaseMeta, WorkspaceDatabase,
 };
 use collab_entity::{CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -635,55 +636,54 @@ struct UserDatabaseCollabServiceImpl {
   cloud_service: Arc<dyn DatabaseCloudService>,
 }
 
+#[async_trait]
 impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
-  fn get_collab_doc_state(
+  async fn get_collab_doc_state(
     &self,
     object_id: &str,
     object_ty: CollabType,
-  ) -> CollabFuture<Result<DataSource, DatabaseError>> {
+  ) -> Result<DataSource, DatabaseError> {
     let workspace_id = self.user.workspace_id().unwrap();
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
-    Box::pin(async move {
-      match weak_cloud_service.upgrade() {
-        None => Err(DatabaseError::Internal(anyhow!("Cloud service is dropped"))),
-        Some(cloud_service) => {
-          let doc_state = cloud_service
-            .get_database_object_doc_state(&object_id, object_ty, &workspace_id)
-            .await?;
-          match doc_state {
-            None => Ok(DataSource::Disk),
-            Some(doc_state) => Ok(DataSource::DocStateV1(doc_state)),
-          }
-        },
-      }
-    })
+
+    match weak_cloud_service.upgrade() {
+      None => Err(DatabaseError::Internal(anyhow!("Cloud service is dropped"))),
+      Some(cloud_service) => {
+        let doc_state = cloud_service
+          .get_database_object_doc_state(&object_id, object_ty, &workspace_id)
+          .await?;
+        match doc_state {
+          None => Ok(DataSource::Disk),
+          Some(doc_state) => Ok(DataSource::DocStateV1(doc_state)),
+        }
+      },
+    }
   }
 
-  fn batch_get_collab_update(
+  async fn batch_get_collab_update(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
-  ) -> CollabFuture<Result<CollabDocStateByOid, DatabaseError>> {
+  ) -> Result<CollabDocStateByOid, DatabaseError> {
     let cloned_user = self.user.clone();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
-    Box::pin(async move {
-      let workspace_id = cloned_user
-        .workspace_id()
-        .map_err(|err| DatabaseError::Internal(err.into()))?;
-      match weak_cloud_service.upgrade() {
-        None => {
-          tracing::warn!("Cloud service is dropped");
-          Ok(CollabDocStateByOid::default())
-        },
-        Some(cloud_service) => {
-          let updates = cloud_service
-            .batch_get_database_object_doc_state(object_ids, object_ty, &workspace_id)
-            .await?;
-          Ok(updates)
-        },
-      }
-    })
+
+    let workspace_id = cloned_user
+      .workspace_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
+    match weak_cloud_service.upgrade() {
+      None => {
+        tracing::warn!("Cloud service is dropped");
+        Ok(CollabDocStateByOid::default())
+      },
+      Some(cloud_service) => {
+        let updates = cloud_service
+          .batch_get_database_object_doc_state(object_ids, object_ty, &workspace_id)
+          .await?;
+        Ok(updates)
+      },
+    }
   }
 
   ///NOTE: this method doesn't initialize plugins, however it is passed into WorkspaceDatabase,

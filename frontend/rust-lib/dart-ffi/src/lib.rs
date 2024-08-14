@@ -4,7 +4,7 @@ use allo_isolate::Isolate;
 use lazy_static::lazy_static;
 use semver::Version;
 use std::rc::Rc;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::{ffi::CStr, os::raw::c_char};
 use tracing::{debug, error, info, trace, warn};
 

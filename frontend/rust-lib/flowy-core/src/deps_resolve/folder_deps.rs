@@ -26,7 +26,6 @@ use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::data_import::{load_collab_by_object_id, load_collab_by_object_ids};
 use lib_dispatch::prelude::ToBytes;
-
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::sync::{Arc, Weak};

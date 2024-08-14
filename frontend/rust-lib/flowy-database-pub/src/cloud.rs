@@ -4,7 +4,6 @@ use collab::core::collab::DataSource;
 use collab_entity::CollabType;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 
 pub type CollabDocStateByOid = HashMap<String, DataSource>;
@@ -41,25 +40,25 @@ pub trait DatabaseAIService: Send + Sync {
 ///
 #[async_trait]
 pub trait DatabaseCloudService: Send + Sync {
-  fn get_database_object_doc_state(
+  async fn get_database_object_doc_state(
     &self,
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<Option<Vec<u8>>, Error>;
+  ) -> Result<Option<Vec<u8>>, Error>;
 
-  fn batch_get_database_object_doc_state(
+  async fn batch_get_database_object_doc_state(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<CollabDocStateByOid, Error>;
+  ) -> Result<CollabDocStateByOid, Error>;
 
-  fn get_database_collab_object_snapshots(
+  async fn get_database_collab_object_snapshots(
     &self,
     object_id: &str,
     limit: usize,
-  ) -> FutureResult<Vec<DatabaseSnapshot>, Error>;
+  ) -> Result<Vec<DatabaseSnapshot>, Error>;
 }
 
 pub struct DatabaseSnapshot {

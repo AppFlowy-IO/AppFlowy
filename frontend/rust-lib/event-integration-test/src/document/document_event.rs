@@ -42,10 +42,9 @@ impl DocumentEventTest {
       .event_test
       .appflowy_core
       .document_manager
-      .get_opened_document(doc_id)
-      .await
+      .get_document(doc_id)
       .unwrap();
-    let guard = doc.lock();
+    let guard = doc.read().await;
     guard.encode_collab().unwrap()
   }
 

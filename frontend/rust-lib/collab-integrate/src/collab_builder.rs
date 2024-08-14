@@ -267,7 +267,7 @@ impl AppFlowyCollabBuilder {
     &self,
     object: CollabObject,
     build_config: CollabBuilderConfig,
-    collab_db: Weak<CollabKVDB>,
+    _collab_db: Weak<CollabKVDB>,
     collab: Arc<RwLock<T>>,
   ) -> Result<Arc<RwLock<T>>, Error>
   where

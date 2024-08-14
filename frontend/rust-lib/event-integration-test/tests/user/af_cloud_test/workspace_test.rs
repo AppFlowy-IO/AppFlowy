@@ -240,7 +240,7 @@ async fn af_cloud_different_open_same_workspace_test() {
   // Retrieve and verify the views associated with the workspace.
   let views = folder.get_views_belong_to(&shared_workspace_id);
   let folder_workspace_id = folder.get_workspace_id();
-  assert_eq!(folder_workspace_id, shared_workspace_id);
+  assert_eq!(folder_workspace_id, Some(shared_workspace_id));
 
   assert_eq!(views.len(), 1, "only get: {:?}", views); // Expecting two views.
   assert_eq!(views[0].name, "Getting started");

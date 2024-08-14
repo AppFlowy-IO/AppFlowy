@@ -159,7 +159,7 @@ impl DatabaseGroupTest {
         let from_group = self.group_at_index(from_group_index).await;
         let to_group = self.group_at_index(to_group_index).await;
         let field_id = from_group.field_id;
-        let field = self.editor.get_field(&field_id).unwrap();
+        let field = self.editor.get_field(&field_id).await.unwrap();
         let field_type = FieldType::from(field.field_type);
 
         let cell = if to_group.is_default {
@@ -203,7 +203,7 @@ impl DatabaseGroupTest {
       } => {
         let from_group = self.group_at_index(from_group_index).await;
         let field_id = from_group.field_id;
-        let field = self.editor.get_field(&field_id).unwrap();
+        let field = self.editor.get_field(&field_id).await.unwrap();
         let field_type = FieldType::from(field.field_type);
         let cell = match field_type {
           FieldType::URL => insert_url_cell(cell_data, &field),
@@ -309,6 +309,7 @@ impl DatabaseGroupTest {
     self
       .inner
       .get_fields()
+      .await
       .into_iter()
       .find(|field| {
         let ft = FieldType::from(field.field_type);
