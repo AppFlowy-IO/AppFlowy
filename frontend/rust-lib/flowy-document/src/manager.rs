@@ -249,35 +249,37 @@ impl DocumentManager {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
-    let document = self.get_document(doc_id).await?;
+    let document = self.get_document(doc_id)?;
+    let document = document.read().await;
     document.get_document_data().map_err(internal_error)
   }
   pub async fn get_document_text(&self, doc_id: &str) -> FlowyResult<String> {
-    let document = self.get_document(doc_id).await?;
-    let text = convert_document_to_plain_text(document)?;
+    let document = self.get_document(doc_id)?;
+    let document = document.read().await;
+    let text = convert_document_to_plain_text(&document)?;
     Ok(text)
   }
 
-  async fn get_document(&self, doc_id: &str) -> FlowyResult<Document> {
-    let mut doc_state = DataSource::Disk;
-    if !self.is_doc_exist(doc_id).await? {
-      doc_state = DataSource::DocStateV1(
-        self
-          .cloud_service
-          .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
-          .await?,
-      );
-    }
-    let uid = self.user_service.user_id()?;
-    match self.collab_for_document(uid, doc_id, doc_state, false) {
-      Ok(document) => document
-        .read()
-        .await
-        .get_document_data()
-        .map_err(internal_error),
-      Err(err) => Err(internal_error(err)),
-    }
-  }
+  //async fn get_document(&self, doc_id: &str) -> FlowyResult<Document> {
+  //  let mut doc_state = DataSource::Disk;
+  //  if !self.is_doc_exist(doc_id).await? {
+  //    doc_state = DataSource::DocStateV1(
+  //      self
+  //        .cloud_service
+  //        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
+  //        .await?,
+  //    );
+  //  }
+  //  let uid = self.user_service.user_id()?;
+  //  match self.collab_for_document(uid, doc_id, doc_state, false) {
+  //    Ok(document) => document
+  //      .read()
+  //      .await
+  //      .get_document_data()
+  //      .map_err(internal_error),
+  //    Err(err) => Err(internal_error(err)),
+  //  }
+  //}
 
   pub async fn open_document(&self, doc_id: &str) -> FlowyResult<()> {
     if let Some(mutex_document) = self.restore_document_from_removing(doc_id) {

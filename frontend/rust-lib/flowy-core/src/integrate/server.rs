@@ -10,10 +10,8 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_server::af_cloud::define::ServerUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::local_server::{LocalServer, LocalServerDB};
-use flowy_server::supabase::SupabaseServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::*;
@@ -27,12 +25,8 @@ pub enum Server {
   /// Offline mode, no user authentication and the data is stored locally.
   Local = 0,
   /// AppFlowy Cloud server provider.
-  /// The [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Cloud) is still a work in
-  /// progress.
+  /// See: https://github.com/AppFlowy-IO/AppFlowy-Cloud
   AppFlowyCloud = 1,
-  /// Supabase server provider.
-  /// It uses supabase postgresql database to store data and user authentication.
-  Supabase = 2,
 }
 
 impl Server {
@@ -46,7 +40,6 @@ impl Display for Server {
     match self {
       Server::Local => write!(f, "Local"),
       Server::AppFlowyCloud => write!(f, "AppFlowyCloud"),
-      Server::Supabase => write!(f, "Supabase"),
     }
   }
 }
@@ -94,7 +87,6 @@ impl ServerProvider {
     match Authenticator::from(self.authenticator.load(Ordering::Acquire) as i32) {
       Authenticator::Local => Server::Local,
       Authenticator::AppFlowyCloud => Server::AppFlowyCloud,
-      Authenticator::Supabase => Server::Supabase,
     }
   }
 
@@ -142,19 +134,6 @@ impl ServerProvider {
 
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
-      Server::Supabase => {
-        let config = SupabaseConfiguration::from_env()?;
-        let uid = self.uid.clone();
-        tracing::trace!("🔑Supabase config: {:?}", config);
-        let encryption = Arc::downgrade(&self.encryption);
-        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(
-          uid,
-          config,
-          self.user_enable_sync.load(Ordering::Acquire),
-          self.config.device_id.clone(),
-          encryption,
-        )))
-      },
     }?;
 
     self.providers.insert(server_type.clone(), server.clone());
@@ -167,7 +146,6 @@ impl From<Authenticator> for Server {
     match auth_provider {
       Authenticator::Local => Server::Local,
       Authenticator::AppFlowyCloud => Server::AppFlowyCloud,
-      Authenticator::Supabase => Server::Supabase,
     }
   }
 }
@@ -177,7 +155,6 @@ impl From<Server> for Authenticator {
     match ty {
       Server::Local => Authenticator::Local,
       Server::AppFlowyCloud => Authenticator::AppFlowyCloud,
-      Server::Supabase => Authenticator::Supabase,
     }
   }
 }
@@ -190,7 +167,6 @@ impl From<&Authenticator> for Server {
 pub fn current_server_type() -> Server {
   match AuthenticatorType::from_env() {
     AuthenticatorType::Local => Server::Local,
-    AuthenticatorType::Supabase => Server::Supabase,
     AuthenticatorType::AppFlowyCloud => Server::AppFlowyCloud,
   }
 }

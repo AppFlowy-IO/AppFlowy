@@ -1,6 +1,7 @@
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_search_pub::cloud::SearchCloudService;
-use std::path::PathBuf;
+use std::collections::HashMap;
+use std::path::Path;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
@@ -10,7 +11,7 @@ use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
 
-use collab::preclude::CollabPlugin;
+use collab::preclude::{Collab, CollabPlugin};
 use collab_entity::CollabType;
 use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
 use serde_json::Value;
@@ -36,7 +37,6 @@ use flowy_folder_pub::cloud::{
 };
 use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
@@ -210,9 +210,6 @@ impl UserCloudServiceProvider for ServerProvider {
       Server::Local => "".to_string(),
       Server::AppFlowyCloud => AFCloudConfiguration::from_env()
         .map(|config| config.base_url)
-        .unwrap_or_default(),
-      Server::Supabase => SupabaseConfiguration::from_env()
-        .map(|config| config.url)
         .unwrap_or_default(),
     }
   }
@@ -562,28 +559,6 @@ impl CollabCloudPluginProvider for ServerProvider {
         } else {
           vec![]
         }
-      },
-      CollabPluginProviderContext::Supabase {
-        uid,
-        collab_object,
-        local_collab_db,
-      } => {
-        let mut plugins: Vec<Box<dyn CollabPlugin>> = vec![];
-        if let Some(remote_collab_storage) = self
-          .get_server()
-          .ok()
-          .and_then(|provider| provider.collab_storage(&collab_object))
-        {
-          plugins.push(Box::new(SupabaseDBPlugin::new(
-            uid,
-            collab_object,
-            local_collab,
-            1,
-            remote_collab_storage,
-            local_collab_db,
-          )));
-        }
-        plugins
       },
     }
   }

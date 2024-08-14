@@ -24,7 +24,6 @@ use tracing::{debug, error, event, info, instrument, trace, warn};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 
-use crate::anon_user::{migration_anon_user_on_sign_up, sync_supabase_user_data_to_cloud};
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
@@ -757,32 +756,15 @@ impl UserManager {
   async fn migrate_anon_user_data_to_cloud(
     &self,
     old_user: &AnonUser,
-    new_user_session: &Session,
+    _new_user_session: &Session,
     authenticator: &Authenticator,
   ) -> Result<(), FlowyError> {
     let old_collab_db = self
       .authenticate_user
       .database
       .get_collab_db(old_user.session.user_id)?;
-    let new_collab_db = self
-      .authenticate_user
-      .database
-      .get_collab_db(new_user_session.user_id)?;
 
     match authenticator {
-      Authenticator::Supabase => {
-        migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user_session, &new_collab_db)?;
-        if let Err(err) = sync_supabase_user_data_to_cloud(
-          self.cloud_services.get_user_service()?,
-          &self.authenticate_user.user_config.device_id,
-          new_user_session,
-          &new_collab_db,
-        )
-        .await
-        {
-          error!("Sync user data to cloud failed: {:?}", err);
-        }
-      },
       Authenticator::AppFlowyCloud => {
         self
           .migration_anon_user_on_appflowy_cloud_sign_up(old_user, &old_collab_db)
@@ -807,7 +789,6 @@ impl UserManager {
 fn current_authenticator() -> Authenticator {
   match AuthenticatorType::from_env() {
     AuthenticatorType::Local => Authenticator::Local,
-    AuthenticatorType::Supabase => Authenticator::Supabase,
     AuthenticatorType::AppFlowyCloud => Authenticator::AppFlowyCloud,
   }
 }

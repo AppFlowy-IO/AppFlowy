@@ -695,7 +695,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
     collab_doc_state: DataSource,
-    config: CollabPersistenceConfig,
+    _config: CollabPersistenceConfig,
   ) -> Result<Collab, DatabaseError> {
     let workspace_id = self
       .user

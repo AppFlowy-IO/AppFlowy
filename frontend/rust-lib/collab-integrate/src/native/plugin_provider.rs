@@ -1,5 +1,6 @@
-use crate::collab_builder::{CollabPluginProviderContext, CollabPluginProviderType};
 use collab::preclude::CollabPlugin;
+
+use crate::collab_builder::{CollabPluginProviderContext, CollabPluginProviderType};
 
 #[cfg(target_arch = "wasm32")]
 pub trait CollabCloudPluginProvider: 'static {
@@ -11,9 +12,9 @@ pub trait CollabCloudPluginProvider: 'static {
 }
 
 #[cfg(target_arch = "wasm32")]
-impl<T> CollabCloudPluginProvider for std::rc::Rc<T>
+impl<U> CollabCloudPluginProvider for std::rc::Rc<U>
 where
-  T: CollabCloudPluginProvider,
+  U: CollabCloudPluginProvider,
 {
   fn provider_type(&self) -> CollabPluginProviderType {
     (**self).provider_type()
@@ -38,9 +39,9 @@ pub trait CollabCloudPluginProvider: Send + Sync + 'static {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-impl<T> CollabCloudPluginProvider for std::sync::Arc<T>
+impl<U> CollabCloudPluginProvider for std::sync::Arc<U>
 where
-  T: CollabCloudPluginProvider,
+  U: CollabCloudPluginProvider,
 {
   fn provider_type(&self) -> CollabPluginProviderType {
     (**self).provider_type()

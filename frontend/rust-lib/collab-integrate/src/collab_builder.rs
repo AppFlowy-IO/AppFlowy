@@ -34,7 +34,6 @@ use tracing::{instrument, trace};
 pub enum CollabPluginProviderType {
   Local,
   AppFlowyCloud,
-  Supabase,
 }
 
 pub enum CollabPluginProviderContext {
@@ -43,11 +42,6 @@ pub enum CollabPluginProviderContext {
     uid: i64,
     collab_object: CollabObject,
     local_collab: Weak<RwLock<dyn BorrowMut<Collab> + Send + Sync + 'static>>,
-  },
-  Supabase {
-    uid: i64,
-    collab_object: CollabObject,
-    local_collab_db: Weak<CollabKVDB>,
   },
 }
 
@@ -59,11 +53,6 @@ impl Display for CollabPluginProviderContext {
         uid: _,
         collab_object,
         ..
-      } => collab_object.to_string(),
-      CollabPluginProviderContext::Supabase {
-        uid: _,
-        collab_object,
-        local_collab_db: _,
       } => collab_object.to_string(),
     };
     write!(f, "{}", str)
@@ -304,24 +293,6 @@ impl AppFlowyCollabBuilder {
           let collab = collab.borrow();
           for plugin in plugins {
             collab.add_plugin(plugin);
-          }
-        },
-        CollabPluginProviderType::Supabase => {
-          #[cfg(not(target_arch = "wasm32"))]
-          {
-            trace!("init supabase collab plugins");
-            let local_collab_db = collab_db.clone();
-            let plugins = plugin_provider.get_plugins(CollabPluginProviderContext::Supabase {
-              uid: object.uid,
-              collab_object: object,
-              local_collab_db,
-            });
-            // at the moment when we get the lock, the collab object is not yet exposed outside
-            let collab = collab.try_read().unwrap();
-            let collab = collab.borrow();
-            for plugin in plugins {
-              collab.add_plugin(plugin);
-            }
           }
         },
         CollabPluginProviderType::Local => {},
