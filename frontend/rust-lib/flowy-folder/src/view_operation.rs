@@ -1,16 +1,15 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-
+use async_trait::async_trait;
 use bytes::Bytes;
 use collab::entity::EncodedCollab;
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
+use std::collections::HashMap;
+use std::sync::Arc;
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
 
 use flowy_folder_pub::folder_builder::NestedViewBuilder;
-use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
 use crate::entities::{CreateViewParams, ViewLayoutPB};
@@ -42,36 +41,37 @@ pub struct DatabaseEncodedCollab {
 /// view layout. Each [ViewLayout] will have a handler. So when creating a new
 /// view, the [ViewLayout] will be used to get the handler.
 ///
+#[async_trait]
 pub trait FolderOperationHandler {
   /// Create the view for the workspace of new user.
   /// Only called once when the user is created.
-  fn create_workspace_view(
+  async fn create_workspace_view(
     &self,
     _uid: i64,
     _workspace_view_builder: Arc<RwLock<NestedViewBuilder>>,
-  ) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
+  ) -> Result<(), FlowyError> {
+    Ok(())
   }
 
-  fn open_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
+  async fn open_view(&self, view_id: &str) -> Result<(), FlowyError>;
   /// Closes the view and releases the resources that this view has in
   /// the backend
-  fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
+  async fn close_view(&self, view_id: &str) -> Result<(), FlowyError>;
 
   /// Called when the view is deleted.
   /// This will called after the view is deleted from the trash.
-  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
+  async fn delete_view(&self, view_id: &str) -> Result<(), FlowyError>;
 
   /// Returns the [ViewData] that can be used to create the same view.
-  fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
+  async fn duplicate_view(&self, view_id: &str) -> Result<ViewData, FlowyError>;
 
   /// get the encoded collab data from the disk.
-  fn get_encoded_collab_v1_from_disk(
+  async fn get_encoded_collab_v1_from_disk(
     &self,
     _user: Arc<dyn FolderUser>,
     _view_id: &str,
-  ) -> FutureResult<EncodedCollabWrapper, FlowyError> {
-    FutureResult::new(async move { Err(FlowyError::not_support()) })
+  ) -> Result<EncodedCollabWrapper, FlowyError> {
+    Err(FlowyError::not_support())
   }
 
   /// Create a view with the data.
@@ -92,46 +92,46 @@ pub trait FolderOperationHandler {
   ///
   /// The return value is the [Option<EncodedCollab>] that can be used to create the view.
   /// It can be used in syncing the view data to cloud.
-  fn create_view_with_view_data(
+  async fn create_view_with_view_data(
     &self,
     user_id: i64,
     params: CreateViewParams,
-  ) -> FutureResult<Option<EncodedCollab>, FlowyError>;
+  ) -> Result<Option<EncodedCollab>, FlowyError>;
 
   /// Create a view with the pre-defined data.
   /// For example, the initial data of the grid/calendar/kanban board when
   /// you create a new view.
-  fn create_built_in_view(
+  async fn create_built_in_view(
     &self,
     user_id: i64,
     view_id: &str,
     name: &str,
     layout: ViewLayout,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> Result<(), FlowyError>;
 
   /// Create a view by importing data
   ///
   /// The return value
-  fn import_from_bytes(
+  async fn import_from_bytes(
     &self,
     uid: i64,
     view_id: &str,
     name: &str,
     import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> FutureResult<EncodedCollab, FlowyError>;
+  ) -> Result<EncodedCollab, FlowyError>;
 
   /// Create a view by importing data from a file
-  fn import_from_file_path(
+  async fn import_from_file_path(
     &self,
     view_id: &str,
     name: &str,
     path: String,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> Result<(), FlowyError>;
 
   /// Called when the view is updated. The handler is the `old` registered handler.
-  fn did_update_view(&self, _old: &View, _new: &View) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async move { Ok(()) })
+  async fn did_update_view(&self, _old: &View, _new: &View) -> Result<(), FlowyError> {
+    Ok(())
   }
 }
 

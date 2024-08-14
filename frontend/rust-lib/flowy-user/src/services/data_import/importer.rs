@@ -33,7 +33,7 @@ where
 pub fn load_collab_by_object_id<'a, R>(
   uid: i64,
   collab_read_txn: &R,
-  object_id: &String,
+  object_id: &str,
 ) -> Result<Collab, PersistenceError>
 where
   R: CollabKVAction<'a>,

@@ -11,7 +11,6 @@ use client_api::error::AppResponseError;
 use flowy_error::FlowyError;
 use futures::stream::BoxStream;
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
@@ -21,12 +20,12 @@ pub type StreamAnswer = BoxStream<'static, Result<QuestionStreamValue, FlowyErro
 pub type StreamComplete = BoxStream<'static, Result<Bytes, FlowyError>>;
 #[async_trait]
 pub trait ChatCloudService: Send + Sync + 'static {
-  fn create_chat(
+  async fn create_chat(
     &self,
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> Result<(), FlowyError>;
 
   async fn create_question(
     &self,

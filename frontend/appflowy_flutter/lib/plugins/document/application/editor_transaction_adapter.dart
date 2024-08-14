@@ -18,7 +18,8 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         Node,
         Path,
         Delta,
-        composeAttributes;
+        composeAttributes,
+        blockComponentDelta;
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -81,6 +82,15 @@ class TransactionAdapter {
     }
     final blockActions =
         actions.map((e) => e.blockActionPB).toList(growable: false);
+
+    for (final action in blockActions) {
+      if (enableDocumentInternalLog) {
+        Log.debug(
+          '[editor_transaction_adapter] action => ${action.toProto3Json()}',
+        );
+      }
+    }
+
     await documentService.applyAction(
       documentId: documentId,
       actions: blockActions,
@@ -164,6 +174,7 @@ extension on InsertOperation {
           childrenId: nanoid(6),
           externalId: textId,
           externalType: textId != null ? _kExternalTextType : null,
+          attributes: {...node.attributes}..remove(blockComponentDelta),
         )
         ..parentId = parentId
         ..prevId = prevId;
@@ -234,10 +245,13 @@ extension on UpdateOperation {
           )
         : null;
 
+    final composedAttributes = composeAttributes(oldAttributes, attributes);
+    composedAttributes?.remove(blockComponentDelta);
+
     final payload = BlockActionPayloadPB()
       ..block = node.toBlock(
         parentId: parentId,
-        attributes: composeAttributes(oldAttributes, attributes),
+        attributes: composedAttributes,
       )
       ..parentId = parentId;
     final blockActionPB = BlockActionPB()

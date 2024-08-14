@@ -5,6 +5,7 @@ use collab_folder::Folder;
 use event_integration_test::user_event::user_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use std::time::Duration;
+use tokio::task::LocalSet;
 use tokio::time::sleep;
 
 use crate::user::af_cloud_test::util::get_synced_workspaces;
@@ -158,9 +159,9 @@ async fn af_cloud_different_open_same_workspace_test() {
   user_localhost_af_cloud().await;
 
   // Set up the primary client and sign them up to the cloud.
-  let client_1 = EventIntegrationTest::new().await;
-  let owner_profile = client_1.af_cloud_sign_up().await;
-  let shared_workspace_id = client_1.get_current_workspace().await.id.clone();
+  let test_runner = EventIntegrationTest::new().await;
+  let owner_profile = test_runner.af_cloud_sign_up().await;
+  let shared_workspace_id = test_runner.get_current_workspace().await.id.clone();
 
   // Verify that the workspace ID from the profile matches the current session's workspace ID.
   assert_eq!(shared_workspace_id, owner_profile.workspace_id);
@@ -181,7 +182,7 @@ async fn af_cloud_different_open_same_workspace_test() {
       client.delete_view(&view.id).await;
     }
 
-    client_1
+    test_runner
       .add_workspace_member(&owner_profile.workspace_id, &client)
       .await;
     clients.push((client, client_profile));
@@ -195,9 +196,10 @@ async fn af_cloud_different_open_same_workspace_test() {
 
   // Simulate each client open different workspace 30 times
   let mut handles = vec![];
+  let local_set = LocalSet::new();
   for client in clients.clone() {
     let cloned_shared_workspace_id = shared_workspace_id.clone();
-    let handle = tokio::spawn(async move {
+    let handle = local_set.spawn_local(async move {
       let (client, profile) = client;
       let all_workspaces = get_synced_workspaces(&client, profile.id).await;
       for i in 0..30 {
@@ -216,10 +218,16 @@ async fn af_cloud_different_open_same_workspace_test() {
     });
     handles.push(handle);
   }
-  futures::future::join_all(handles).await;
+  let results = local_set
+    .run_until(futures::future::join_all(handles))
+    .await;
+
+  for result in results {
+    assert!(result.is_ok());
+  }
 
   // Retrieve and verify the collaborative document state for Client 1's workspace.
-  let doc_state = client_1
+  let doc_state = test_runner
     .get_collab_doc_state(&shared_workspace_id, CollabType::Folder)
     .await
     .unwrap();

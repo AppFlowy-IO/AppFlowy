@@ -5,7 +5,6 @@ use flowy_ai_pub::cloud::{
 };
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
@@ -14,15 +13,13 @@ pub(crate) struct DefaultChatCloudServiceImpl;
 
 #[async_trait]
 impl ChatCloudService for DefaultChatCloudServiceImpl {
-  fn create_chat(
+  async fn create_chat(
     &self,
     _uid: &i64,
     _workspace_id: &str,
     _chat_id: &str,
-  ) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
-    })
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
   async fn create_question(

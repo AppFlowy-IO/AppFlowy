@@ -1,13 +1,12 @@
+use flowy_user::errors::{internal_error, FlowyError};
+use lib_dispatch::prelude::{
+  AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
+};
+use std::rc::Rc;
 use std::{
   convert::TryFrom,
   fmt::{Debug, Display},
   hash::Hash,
-  sync::Arc,
-};
-
-use flowy_user::errors::{internal_error, FlowyError};
-use lib_dispatch::prelude::{
-  AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
 };
 
 use crate::EventIntegrationTest;
@@ -86,7 +85,7 @@ impl EventBuilder {
       .map(|data| data.into_inner())
   }
 
-  fn dispatch(&self) -> Arc<AFPluginDispatcher> {
+  fn dispatch(&self) -> Rc<AFPluginDispatcher> {
     self.context.sdk.dispatcher()
   }
 

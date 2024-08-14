@@ -71,10 +71,11 @@ if [ "$exclude_packages" = false ]; then
     # Navigate back to the packages directory
     cd ..
   done
+
+  cd ..
 fi
 
 # Navigate to the appflowy_flutter directory and generate files
-cd ..
 echo "🧊 Start generating freezed files (AppFlowy)."
 
 if [ "$skip_pub_packages_get" = false ]; then

@@ -14,7 +14,6 @@ use flowy_ai_pub::cloud::{
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, Sink, StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
 
 use crate::local_ai::stream_util::QuestionStream;
 use crate::stream_message::StreamMessage;
@@ -108,13 +107,16 @@ impl AICloudServiceMiddleware {
 
 #[async_trait]
 impl ChatCloudService for AICloudServiceMiddleware {
-  fn create_chat(
+  async fn create_chat(
     &self,
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
-  ) -> FutureResult<(), FlowyError> {
-    self.cloud_service.create_chat(uid, workspace_id, chat_id)
+  ) -> Result<(), FlowyError> {
+    self
+      .cloud_service
+      .create_chat(uid, workspace_id, chat_id)
+      .await
   }
 
   async fn create_question(

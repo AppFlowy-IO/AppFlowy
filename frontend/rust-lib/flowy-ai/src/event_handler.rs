@@ -14,7 +14,6 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::isolate_stream::IsolateSink;
 use std::sync::{Arc, Weak};
-use tokio::sync::oneshot;
 use tracing::trace;
 use validator::Validate;
 
@@ -63,24 +62,18 @@ pub(crate) async fn stream_chat_message_handler(
     .collect::<Vec<_>>();
 
   trace!("Stream chat message with metadata: {:?}", metadata);
-  let (tx, rx) = oneshot::channel::<Result<ChatMessagePB, FlowyError>>();
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  tokio::spawn(async move {
-    let result = ai_manager
-      .stream_chat_message(
-        &data.chat_id,
-        &data.message,
-        message_type,
-        data.answer_stream_port,
-        data.question_stream_port,
-        metadata,
-      )
-      .await;
-    let _ = tx.send(result);
-  });
-
-  let question = rx.await??;
-  data_result_ok(question)
+  let result = ai_manager
+    .stream_chat_message(
+      &data.chat_id,
+      &data.message,
+      message_type,
+      data.answer_stream_port,
+      data.question_stream_port,
+      metadata,
+    )
+    .await?;
+  data_result_ok(result)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -120,15 +113,9 @@ pub(crate) async fn get_related_question_handler(
 ) -> DataResult<RepeatedRelatedQuestionPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = data.into_inner();
-  let (tx, rx) = tokio::sync::oneshot::channel();
-  tokio::spawn(async move {
-    let messages = ai_manager
-      .get_related_questions(&data.chat_id, data.message_id)
-      .await?;
-    let _ = tx.send(messages);
-    Ok::<_, FlowyError>(())
-  });
-  let messages = rx.await?;
+  let messages = ai_manager
+    .get_related_questions(&data.chat_id, data.message_id)
+    .await?;
   data_result_ok(messages)
 }
 
@@ -139,15 +126,9 @@ pub(crate) async fn get_answer_handler(
 ) -> DataResult<ChatMessagePB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   let data = data.into_inner();
-  let (tx, rx) = tokio::sync::oneshot::channel();
-  tokio::spawn(async move {
-    let message = ai_manager
-      .generate_answer(&data.chat_id, data.message_id)
-      .await?;
-    let _ = tx.send(message);
-    Ok::<_, FlowyError>(())
-  });
-  let message = rx.await?;
+  let message = ai_manager
+    .generate_answer(&data.chat_id, data.message_id)
+    .await?;
   data_result_ok(message)
 }
 
@@ -169,25 +150,17 @@ pub(crate) async fn refresh_local_ai_info_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LLMModelInfoPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let (tx, rx) = oneshot::channel::<Result<LLMModelInfo, FlowyError>>();
-  tokio::spawn(async move {
-    let model_info = ai_manager.local_ai_controller.refresh().await;
-    if model_info.is_err() {
-      if let Some(llm_model) = ai_manager.local_ai_controller.get_current_model() {
-        let model_info = LLMModelInfo {
-          selected_model: llm_model.clone(),
-          models: vec![llm_model],
-        };
-        let _ = tx.send(Ok(model_info));
-        return;
-      }
+  let model_info = ai_manager.local_ai_controller.refresh().await;
+  if model_info.is_err() {
+    if let Some(llm_model) = ai_manager.local_ai_controller.get_current_model() {
+      let model_info = LLMModelInfo {
+        selected_model: llm_model.clone(),
+        models: vec![llm_model],
+      };
+      return data_result_ok(model_info.into());
     }
-
-    let _ = tx.send(model_info);
-  });
-
-  let model_info = rx.await??;
-  data_result_ok(model_info.into())
+  }
+  data_result_ok(model_info?.into())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -274,16 +247,9 @@ pub(crate) async fn chat_file_handler(
   }
 
   tracing::debug!("File size: {} bytes", file_size);
-
-  let (tx, rx) = oneshot::channel::<Result<(), FlowyError>>();
-  tokio::spawn(async move {
-    let ai_manager = upgrade_ai_manager(ai_manager)?;
-    ai_manager.chat_with_file(&data.chat_id, file_path).await?;
-    let _ = tx.send(Ok(()));
-    Ok::<_, FlowyError>(())
-  });
-
-  rx.await?
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager.chat_with_file(&data.chat_id, file_path).await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -426,17 +392,10 @@ pub(crate) async fn get_offline_app_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<OfflineAIPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let (tx, rx) = oneshot::channel::<Result<String, FlowyError>>();
-  tokio::spawn(async move {
-    let link = ai_manager
-      .local_ai_controller
-      .get_offline_ai_app_download_link()
-      .await?;
-    let _ = tx.send(Ok(link));
-    Ok::<_, FlowyError>(())
-  });
-
-  let link = rx.await??;
+  let link = ai_manager
+    .local_ai_controller
+    .get_offline_ai_app_download_link()
+    .await?;
   data_result_ok(OfflineAIPB { link })
 }
 
