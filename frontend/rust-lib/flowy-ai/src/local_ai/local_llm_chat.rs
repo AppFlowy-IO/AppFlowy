@@ -326,9 +326,12 @@ impl LocalAIController {
         .store_preferences
         .get_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED)
         .unwrap_or(true);
-      self.enable_chat_plugin(chat_enabled).await?;
+
+      if self.local_ai_resource.is_resource_ready() {
+        self.enable_chat_plugin(chat_enabled).await?;
+      }
     } else {
-      self.enable_chat_plugin(false).await?;
+      let _ = self.enable_chat_plugin(false).await;
     }
     Ok(enabled)
   }
@@ -361,6 +364,10 @@ impl LocalAIController {
     metadata_list: &[ChatMessageMetadata],
     index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> FlowyResult<()> {
+    if !self.is_enabled() {
+      return Ok(());
+    }
+
     for metadata in metadata_list {
       if let Err(err) = metadata.data.validate() {
         error!(
