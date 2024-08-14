@@ -1,0 +1,12 @@
+# dart_dependency_validator.yaml
+
+allow_pins: true
+
+include:
+  - "lib/**"
+
+exclude:
+  - "packages/**"
+
+ignore:
+  - analyzer
