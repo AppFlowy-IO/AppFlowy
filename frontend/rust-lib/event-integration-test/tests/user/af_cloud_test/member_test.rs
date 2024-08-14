@@ -80,6 +80,7 @@ async fn af_cloud_delete_workspace_member_test() {
 async fn af_cloud_leave_workspace_test() {
   user_localhost_af_cloud().await;
   let test_1 = EventIntegrationTest::new().await;
+  test_1.af_cloud_sign_up().await;
   let workspace_id_1 = test_1.get_current_workspace().await.id;
 
   let test_2 = EventIntegrationTest::new().await;
