@@ -15,8 +15,11 @@ part 'local_ai_on_boarding_bloc.freezed.dart';
 
 class LocalAIOnBoardingBloc
     extends Bloc<LocalAIOnBoardingEvent, LocalAIOnBoardingState> {
-  LocalAIOnBoardingBloc(this.userProfile)
-      : super(const LocalAIOnBoardingState()) {
+  LocalAIOnBoardingBloc(
+    this.userProfile,
+    this.member,
+    this.workspaceId,
+  ) : super(const LocalAIOnBoardingState()) {
     _userService = UserBackendService(userId: userProfile.id);
     _successListenable = getIt<SubscriptionSuccessListenable>();
     _successListenable.addListener(_onPaymentSuccessful);
@@ -36,6 +39,8 @@ class LocalAIOnBoardingBloc
   }
 
   final UserProfilePB userProfile;
+  final WorkspaceMemberPB member;
+  final String workspaceId;
   late final IUserBackendService _userService;
   late final SubscriptionSuccessListenable _successListenable;
 
@@ -48,7 +53,7 @@ class LocalAIOnBoardingBloc
         addSubscription: (plan) async {
           emit(state.copyWith(isLoading: true));
           final result = await _userService.createSubscription(
-            userProfile.workspaceId,
+            workspaceId,
             plan,
           );
 
@@ -72,7 +77,7 @@ class LocalAIOnBoardingBloc
               );
             },
             (err) {
-              Log.error("Failed to get subscription plans: $err");
+              Log.warn("Failed to get subscription plans: $err");
             },
           );
         },
@@ -86,7 +91,7 @@ class LocalAIOnBoardingBloc
   }
 
   void _loadSubscriptionPlans() {
-    final payload = UserWorkspaceIdPB()..workspaceId = userProfile.workspaceId;
+    final payload = UserWorkspaceIdPB()..workspaceId = workspaceId;
     UserEventGetWorkspaceSubscriptionInfo(payload).send().then((result) {
       if (!isClosed) {
         add(LocalAIOnBoardingEvent.didGetSubscriptionPlans(result));

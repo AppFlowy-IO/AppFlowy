@@ -80,7 +80,7 @@ extension AppFlowySettings on WidgetTester {
       of: find.byType(UserProfileSetting),
       matching: find.byFlowySvg(FlowySvgs.edit_s),
     );
-    await tap(editUsernameFinder);
+    await tap(editUsernameFinder, warnIfMissed: false);
     await pumpAndSettle();
 
     final userNameFinder = find.descendant(

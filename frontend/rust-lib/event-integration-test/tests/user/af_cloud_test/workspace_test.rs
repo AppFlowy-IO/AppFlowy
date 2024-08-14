@@ -163,9 +163,6 @@ async fn af_cloud_different_open_same_workspace_test() {
   let owner_profile = test_runner.af_cloud_sign_up().await;
   let shared_workspace_id = test_runner.get_current_workspace().await.id.clone();
 
-  // Verify that the workspace ID from the profile matches the current session's workspace ID.
-  assert_eq!(shared_workspace_id, owner_profile.workspace_id);
-
   // Define the number of additional clients
   let num_clients = 5;
   let mut clients = Vec::new();
@@ -183,7 +180,7 @@ async fn af_cloud_different_open_same_workspace_test() {
     }
 
     test_runner
-      .add_workspace_member(&owner_profile.workspace_id, &client)
+      .add_workspace_member(&shared_workspace_id, &client)
       .await;
     clients.push((client, client_profile));
   }

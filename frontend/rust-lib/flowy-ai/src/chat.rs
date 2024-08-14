@@ -351,7 +351,7 @@ impl Chat {
       {
         Ok(resp) => {
           // Save chat messages to local disk
-          if let Err(err) = save_chat_message(
+          if let Err(err) = save_chat_message_disk(
             user_service.sqlite_connection(uid)?,
             &chat_id,
             resp.messages.clone(),
@@ -503,7 +503,7 @@ impl Chat {
   }
 }
 
-fn save_chat_message(
+fn save_chat_message_disk(
   conn: DBConnection,
   chat_id: &str,
   messages: Vec<ChatMessage>,
@@ -565,7 +565,7 @@ pub(crate) fn save_and_notify_message(
   message: ChatMessage,
 ) -> Result<(), FlowyError> {
   trace!("[Chat] save answer: answer={:?}", message);
-  save_chat_message(
+  save_chat_message_disk(
     user_service.sqlite_connection(uid)?,
     chat_id,
     vec![message.clone()],
