@@ -11,7 +11,7 @@ export interface CollabViewProps {
   doc?: YDoc;
 }
 
-function CollabView({ doc }: CollabViewProps) {
+function CollabView ({ doc }: CollabViewProps) {
   const visibleViewIds = usePublishContext()?.viewMeta?.visible_view_ids;
   const { viewId, layout, icon, cover, layoutClassName, style, name } = useViewMeta();
   const View = useMemo(() => {
@@ -32,12 +32,14 @@ function CollabView({ doc }: CollabViewProps) {
     getViewRowsMap?: GetViewRowsMap;
     loadView?: LoadView;
     viewMeta: ViewMetaProps;
+    isTemplateThumb?: boolean;
   }>;
 
   const navigateToView = usePublishContext()?.toView;
   const loadViewMeta = usePublishContext()?.loadViewMeta;
   const getViewRowsMap = usePublishContext()?.getViewRowsMap;
   const loadView = usePublishContext()?.loadView;
+  const isTemplateThumb = usePublishContext()?.isTemplateThumb;
 
   if (!doc || !View) {
     return <ComponentLoading />;
@@ -51,6 +53,7 @@ function CollabView({ doc }: CollabViewProps) {
         getViewRowsMap={getViewRowsMap}
         navigateToView={navigateToView}
         loadView={loadView}
+        isTemplateThumb={isTemplateThumb}
         viewMeta={{
           icon,
           cover,

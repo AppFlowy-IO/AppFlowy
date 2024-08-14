@@ -2,7 +2,7 @@ import ImageRender from '@/components/_shared/image-render/ImageRender';
 import { renderColor } from '@/utils/color';
 import React, { useCallback } from 'react';
 
-function ViewCover({ coverValue, coverType }: { coverValue?: string; coverType?: string }) {
+function ViewCover ({ coverValue, coverType }: { coverValue?: string; coverType?: string }) {
   const renderCoverColor = useCallback((color: string) => {
     return (
       <div
@@ -31,7 +31,7 @@ function ViewCover({ coverValue, coverType }: { coverValue?: string; coverType?:
       style={{
         height: '40vh',
       }}
-      className={'relative flex max-h-[288px] min-h-[88px] w-full max-sm:h-[180px]'}
+      className={'relative flex max-h-[288px] min-h-[100px] w-full max-sm:h-[180px]'}
     >
       {coverType === 'color' && renderCoverColor(coverValue)}
       {(coverType === 'custom' || coverType === 'built_in') && renderCoverImage(coverValue)}

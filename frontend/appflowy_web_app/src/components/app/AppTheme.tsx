@@ -7,7 +7,7 @@ import '@/i18n/config';
 import 'src/styles/tailwind.css';
 import 'src/styles/template.css';
 
-function AppTheme({ children }: { children: React.ReactNode }) {
+function AppTheme ({ children }: { children: React.ReactNode }) {
   const { isDark, setIsDark } = useAppThemeMode();
 
   const theme = useMemo(
@@ -47,6 +47,7 @@ function AppTheme({ children }: { children: React.ReactNode }) {
               },
             },
           },
+
           MuiButton: {
             styleOverrides: {
               text: {
@@ -58,9 +59,12 @@ function AppTheme({ children }: { children: React.ReactNode }) {
               contained: {
                 color: 'var(--content-on-fill)',
                 boxShadow: 'none',
-                '&:hover': {
-                  backgroundColor: 'var(--content-blue-600)',
+                '&.MuiButton-containedPrimary': {
+                  '&:hover': {
+                    backgroundColor: 'var(--content-blue-600)',
+                  },
                 },
+
                 borderRadius: '8px',
                 '&.Mui-disabled': {
                   backgroundColor: 'var(--content-blue-400)',
@@ -74,6 +78,7 @@ function AppTheme({ children }: { children: React.ReactNode }) {
                 },
                 borderRadius: '8px',
               },
+
             },
           },
 
@@ -88,12 +93,16 @@ function AppTheme({ children }: { children: React.ReactNode }) {
                     backgroundColor: 'var(--fill-list-hover)',
                   },
                 },
+                '&.MuiMenuItem-root': {
+                  borderRadius: '8px',
+                },
 
                 borderRadius: '4px',
                 padding: '2px',
                 boxShadow: 'none !important',
               },
             },
+
           },
           MuiPaper: {
             styleOverrides: {
@@ -191,7 +200,7 @@ function AppTheme({ children }: { children: React.ReactNode }) {
           },
         },
       }),
-    [isDark]
+    [isDark],
   );
 
   return (

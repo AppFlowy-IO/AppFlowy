@@ -68,8 +68,8 @@ body {
 }
 
 .view-icon {
-  @apply flex w-fit leading-[1.5em] cursor-pointer rounded-lg py-2 text-[1.5em];
-  line-height: 1em;
+  @apply flex w-fit cursor-pointer rounded-lg text-[1.5em];
+  line-height: 1.5em;
   white-space: nowrap;
 }
 

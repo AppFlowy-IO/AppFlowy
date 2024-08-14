@@ -10,8 +10,9 @@ import * as Y from 'yjs';
 
 const defaultInitialValue: Descendant[] = [];
 
-function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
+function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
   const context = useEditorContext();
+  const readSummary = context.readSummary;
   // if readOnly, collabOrigin is Local, otherwise RemoteSync
   const localOrigin = context.readOnly ? CollabOrigin.Local : CollabOrigin.LocalSync;
   const editor = useMemo(
@@ -21,10 +22,11 @@ function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
         withReact(
           withYjs(createEditor(), doc, {
             localOrigin,
-          })
-        )
+            readSummary,
+          }),
+        ),
       ) as YjsEditor),
-    [doc, localOrigin]
+    [readSummary, doc, localOrigin],
   );
   const [, setIsConnected] = useState(false);
 
