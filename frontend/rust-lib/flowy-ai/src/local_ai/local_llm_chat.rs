@@ -326,9 +326,12 @@ impl LocalAIController {
         .store_preferences
         .get_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED)
         .unwrap_or(true);
-      self.enable_chat_plugin(chat_enabled).await?;
+
+      if self.local_ai_resource.is_resource_ready() {
+        self.enable_chat_plugin(chat_enabled).await?;
+      }
     } else {
-      self.enable_chat_plugin(false).await?;
+      let _ = self.enable_chat_plugin(false).await;
     }
     Ok(enabled)
   }
