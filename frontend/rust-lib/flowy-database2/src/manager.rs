@@ -165,6 +165,7 @@ impl DatabaseManager {
     Ok(())
   }
 
+  //FIXME: we need to initialize sync plugin for newly created collabs
   fn initialize_plugins<T>(
     &self,
     uid: i64,

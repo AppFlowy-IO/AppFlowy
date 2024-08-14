@@ -55,7 +55,7 @@ pub struct AppFlowyCore {
   pub document_manager: Arc<DocumentManager>,
   pub folder_manager: Arc<FolderManager>,
   pub database_manager: Arc<DatabaseManager>,
-  pub event_dispatcher: Rc<AFPluginDispatcher>,
+  pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub server_provider: Arc<ServerProvider>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<KVStorePreferences>,
@@ -262,7 +262,7 @@ impl AppFlowyCore {
         error!("Init user failed: {}", err)
       }
     }
-    let event_dispatcher = Rc::new(AFPluginDispatcher::new(
+    let event_dispatcher = Arc::new(AFPluginDispatcher::new(
       runtime,
       make_plugins(
         Arc::downgrade(&folder_manager),
@@ -291,7 +291,7 @@ impl AppFlowyCore {
   }
 
   /// Only expose the dispatcher in test
-  pub fn dispatcher(&self) -> Rc<AFPluginDispatcher> {
+  pub fn dispatcher(&self) -> Arc<AFPluginDispatcher> {
     self.event_dispatcher.clone()
   }
 }

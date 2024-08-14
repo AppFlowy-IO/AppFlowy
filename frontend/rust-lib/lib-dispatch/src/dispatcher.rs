@@ -4,6 +4,7 @@ use std::any::Any;
 use std::future::Future;
 use std::pin::Pin;
 use std::rc::Rc;
+use std::sync::Arc;
 use std::task::{Context, Poll};
 use tracing::event;
 
@@ -235,7 +236,7 @@ impl AFPluginDispatcher {
 
   #[cfg(not(target_arch = "wasm32"))]
   pub fn sync_send(
-    dispatch: Rc<AFPluginDispatcher>,
+    dispatch: Arc<AFPluginDispatcher>,
     request: AFPluginRequest,
   ) -> AFPluginEventResponse {
     futures::executor::block_on(AFPluginDispatcher::async_send_with_callback(
