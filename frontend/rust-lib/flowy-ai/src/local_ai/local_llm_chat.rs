@@ -364,6 +364,10 @@ impl LocalAIController {
     metadata_list: &[ChatMessageMetadata],
     index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> FlowyResult<()> {
+    if !self.is_enabled() {
+      return Ok(());
+    }
+
     for metadata in metadata_list {
       if let Err(err) = metadata.data.validate() {
         error!(
