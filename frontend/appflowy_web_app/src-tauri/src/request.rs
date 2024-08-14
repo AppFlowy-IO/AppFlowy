@@ -1,4 +1,4 @@
-use flowy_core::{AppFlowyCore, MutexAppFlowyCore};
+use flowy_core::MutexAppFlowyCore;
 use lib_dispatch::prelude::{
   AFPluginDispatcher, AFPluginEventResponse, AFPluginRequest, StatusCode,
 };

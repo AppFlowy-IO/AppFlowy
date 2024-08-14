@@ -9,7 +9,6 @@ use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::async_trait::async_trait;
 
-
 use crate::event_handler::*;
 use crate::user_manager::UserManager;
 
@@ -317,7 +316,11 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   async fn did_expired(&self, _token: &str, _user_id: i64) -> FlowyResult<()> {
     Ok(())
   }
-  async fn open_workspace(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> FlowyResult<()> {
+  async fn open_workspace(
+    &self,
+    _user_id: i64,
+    _user_workspace: &UserWorkspace,
+  ) -> FlowyResult<()> {
     Ok(())
   }
   fn did_update_network(&self, _reachable: bool) {}
