@@ -595,22 +595,17 @@ impl CollabCloudPluginProvider for ServerProvider {
 
 #[async_trait]
 impl ChatCloudService for ServerProvider {
-  fn create_chat(
+  async fn create_chat(
     &self,
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
-  ) -> FutureResult<(), FlowyError> {
-    let workspace_id = workspace_id.to_string();
+  ) -> Result<(), FlowyError> {
     let server = self.get_server();
-    let chat_id = chat_id.to_string();
-    let uid = *uid;
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .create_chat(&uid, &workspace_id, &chat_id)
-        .await
-    })
+    server?
+      .chat_service()
+      .create_chat(uid, workspace_id, chat_id)
+      .await
   }
 
   async fn create_question(
