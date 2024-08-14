@@ -696,7 +696,6 @@
       }
     },
     "planPage": {
-      "menuLabel": "Plan",
       "planUsage": {
         "title": "Résumé de l'utilisation du plan",
         "storageLabel": "Stockage",
@@ -716,7 +715,6 @@
         "currentPlan": {
           "bannerLabel": "Plan actuel",
           "freeTitle": "Gratuit",
-          "proTitle": "Pro",
           "teamTitle": "Équipe",
           "freeInfo": "Idéal pour les particuliers jusqu'à 2 membres pour tout organiser",
           "proInfo": "Idéal pour les petites et moyennes équipes jusqu'à 10 membres.",
@@ -748,9 +746,7 @@
       "menuLabel": "Facturation",
       "title": "Facturation",
       "plan": {
-        "title": "Plan",
         "freeLabel": "Gratuit",
-        "proLabel": "Pro",
         "planButtonLabel": "Changer de plan",
         "billingPeriod": "Période de facturation",
         "periodButtonLabel": "Changer la période "
@@ -949,8 +945,7 @@
       },
       "action": {
         "markAsRead": "Marquer comme lu",
-        "multipleChoice": "Sélectionnez plus",
-        "archive": "Archive"
+        "multipleChoice": "Sélectionnez plus"
       },
       "settings": {
         "settings": "Paramètres",
@@ -976,7 +971,6 @@
       },
       "refreshSuccess": "Les notifications ont été actualisées avec succès",
       "titles": {
-        "notifications": "Notifications",
         "reminder": "Rappel"
       }
     },
@@ -1457,15 +1451,12 @@
         "heading1": "Titre 1",
         "heading2": "Titre 2",
         "heading3": "Titre 3",
-        "image": "Image",
         "bulletedList": "Liste à puces",
         "numberedList": "Liste numérotée",
         "checkbox": "Case à cocher",
-        "doc": "Doc",
         "linkedDoc": "Lien vers la page",
         "grid": "Grille",
         "linkedGrid": "Grille liée",
-        "kanban": "Kanban",
         "linkedKanban": "Kanban lié",
         "calendar": "Calendrier",
         "linkedCalendar": "Calendrier lié",
@@ -1473,7 +1464,6 @@
         "divider": "Diviseur",
         "table": "Tableau",
         "mathEquation": "Équation mathématique",
-        "code": "Code",
         "emoji": "Émoji",
         "aiWriter": "Rédacteur IA",
         "dateOrReminder": "Date ou rappel",
@@ -1578,9 +1568,7 @@
       },
       "photoGallery": {
         "name": "Galerie de photos",
-        "imageKeyword": "image",
         "imageGalleryKeyword": "Galerie d'images",
-        "photoKeyword": "photo",
         "photoBrowserKeyword": "navigateur de photos",
         "galleryKeyword": "galerie",
         "addImageTooltip": "Ajouter une image",
@@ -2023,7 +2011,6 @@
     "color": "Couleur",
     "image": "Image",
     "date": "Date",
-    "page": "Page",
     "italic": "Italique",
     "link": "Lien",
     "numberedList": "Liste numérotée",
@@ -2219,15 +2206,12 @@
     "gradient": "Dégradé",
     "backgroundImage": "Image d'arrière-plan",
     "presets": "Préréglages",
-    "photo": "Photo",
-    "unsplash": "Unsplash",
     "pageCover": "Couverture de page",
     "none": "Aucun",
     "photoPermissionDescription": "Autoriser l'accès à la photothèque pour le téléchargement d'images.",
     "openSettings": "Ouvrir les paramètres",
     "photoPermissionTitle": "@:appName souhaite accéder à votre photothèque",
-    "doNotAllow": "Ne pas autoriser",
-    "image": "Image"
+    "doNotAllow": "Ne pas autoriser"
   },
   "commandPalette": {
     "placeholder": "Tapez pour rechercher des vues...",
