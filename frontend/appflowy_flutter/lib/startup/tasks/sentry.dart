@@ -14,6 +14,9 @@ class InitSentryTask extends LaunchTask {
       Log.info('Sentry DSN is not set, skipping initialization');
       return;
     }
+
+    Log.info('Initializing Sentry');
+
     await SentryFlutter.init(
       (options) {
         options.dsn = dsn;
