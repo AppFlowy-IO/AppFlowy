@@ -3,7 +3,6 @@ pub use anyhow::Error;
 use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
 use uuid::Uuid;
 
 /// [FolderCloudService] represents the cloud service for folder.

@@ -3,7 +3,6 @@ use pin_project::pin_project;
 use std::any::Any;
 use std::future::Future;
 use std::pin::Pin;
-use std::rc::Rc;
 use std::sync::Arc;
 use std::task::{Context, Poll};
 use tracing::event;
@@ -71,11 +70,11 @@ where
 
 pub struct AFPluginDispatcher {
   plugins: AFPluginMap,
-  runtime: Rc<AFPluginRuntime>,
+  runtime: Arc<AFPluginRuntime>,
 }
 
 impl AFPluginDispatcher {
-  pub fn new(runtime: Rc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
+  pub fn new(runtime: Arc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
     tracing::trace!("{}", plugin_info(&plugins));
     AFPluginDispatcher {
       plugins: plugin_map_or_crash(plugins),

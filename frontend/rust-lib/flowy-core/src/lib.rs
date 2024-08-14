@@ -2,7 +2,6 @@
 
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
-use std::rc::Rc;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
@@ -67,7 +66,7 @@ pub struct AppFlowyCore {
 impl AppFlowyCore {
   pub async fn new(
     config: AppFlowyCoreConfig,
-    runtime: Rc<AFPluginRuntime>,
+    runtime: Arc<AFPluginRuntime>,
     stream_log_sender: Option<Arc<dyn StreamLogSender>>,
   ) -> Self {
     let platform = OperatingSystem::from(&config.platform);
@@ -103,7 +102,7 @@ impl AppFlowyCore {
   }
 
   #[instrument(skip(config, runtime))]
-  async fn init(config: AppFlowyCoreConfig, runtime: Rc<AFPluginRuntime>) -> Self {
+  async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     // Init the key value database
     let store_preference = Arc::new(KVStorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
