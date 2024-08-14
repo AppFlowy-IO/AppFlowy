@@ -22,6 +22,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry/sentry.dart';
 
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});
@@ -58,6 +59,16 @@ class MobileHomeScreen extends StatelessWidget {
         if (workspaceSetting == null || userProfile == null) {
           return const WorkspaceFailedScreen();
         }
+
+        Sentry.configureScope(
+          (scope) => scope.setUser(
+            SentryUser(
+              id: userProfile.id.toString(),
+              email: userProfile.email,
+              username: userProfile.name,
+            ),
+          ),
+        );
 
         return Scaffold(
           body: SafeArea(
