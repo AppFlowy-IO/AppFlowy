@@ -461,22 +461,22 @@ void main() {
       tester.assertChecklistEditorVisible(visible: true);
 
       // create a new task with enter
-      await tester.createNewChecklistTask(name: "task 0", enter: true);
+      await tester.createNewChecklistTask(name: "task 1", enter: true);
 
       // assert that the task is displayed
       tester.assertChecklistTaskInEditor(
         index: 0,
-        name: "task 0",
+        name: "task 1",
         isChecked: false,
       );
 
       // update the task's name
-      await tester.renameChecklistTask(index: 0, name: "task 1");
+      await tester.renameChecklistTask(index: 0, name: "task 11");
 
       // assert that the task's name is updated
       tester.assertChecklistTaskInEditor(
         index: 0,
-        name: "task 1",
+        name: "task 11",
         isChecked: false,
       );
 
