@@ -72,8 +72,6 @@ class DesktopHomeScreen extends StatelessWidget {
           (scope) => scope.setUser(
             SentryUser(
               id: userProfile.id.toString(),
-              email: userProfile.email,
-              username: userProfile.name,
             ),
           ),
         );

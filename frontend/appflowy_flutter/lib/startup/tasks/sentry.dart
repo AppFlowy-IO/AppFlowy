@@ -1,4 +1,5 @@
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../startup.dart';
@@ -8,8 +9,9 @@ class InitSentryTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    final dsn = Env.sentryDsn;
+    const dsn = Env.sentryDsn;
     if (dsn.isEmpty) {
+      Log.info('Sentry DSN is not set, skipping initialization');
       return;
     }
     await SentryFlutter.init(
