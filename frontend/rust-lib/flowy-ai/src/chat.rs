@@ -140,11 +140,7 @@ impl Chat {
     let _ = question_sink.send(StreamMessage::Done.to_string()).await;
 
     // Save message to disk
-    save_chat_message(
-      self.user_service.sqlite_connection(uid)?,
-      &self.chat_id,
-      vec![question.clone()],
-    )?;
+    save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
 
     let stop_stream = self.stop_stream.clone();
     let chat_id = self.chat_id.clone();
@@ -222,32 +218,12 @@ impl Chat {
       let answer = cloud_service
         .create_answer(&workspace_id, &chat_id, &content, question_id, metadata)
         .await?;
-      Self::save_answer(uid, &chat_id, &user_service, answer)?;
+      save_and_notify_message(uid, &chat_id, &user_service, answer)?;
       Ok::<(), FlowyError>(())
     });
 
     let question_pb = ChatMessagePB::from(question);
     Ok(question_pb)
-  }
-
-  fn save_answer(
-    uid: i64,
-    chat_id: &str,
-    user_service: &Arc<dyn AIUserService>,
-    answer: ChatMessage,
-  ) -> Result<(), FlowyError> {
-    trace!("[Chat] save answer: answer={:?}", answer);
-    save_chat_message(
-      user_service.sqlite_connection(uid)?,
-      chat_id,
-      vec![answer.clone()],
-    )?;
-    let pb = ChatMessagePB::from(answer);
-    make_notification(chat_id, ChatNotification::DidReceiveChatMessage)
-      .payload(pb)
-      .send();
-
-    Ok(())
   }
 
   /// Load chat messages for a given `chat_id`.
@@ -453,7 +429,7 @@ impl Chat {
       .get_answer(&workspace_id, &self.chat_id, question_message_id)
       .await?;
 
-    Self::save_answer(self.uid, &self.chat_id, &self.user_service, answer.clone())?;
+    save_and_notify_message(self.uid, &self.chat_id, &self.user_service, answer.clone())?;
     let pb = ChatMessagePB::from(answer);
     Ok(pb)
   }
@@ -580,4 +556,24 @@ impl StringBuffer {
   fn take_content(&mut self) -> String {
     std::mem::take(&mut self.content)
   }
+}
+
+pub(crate) fn save_and_notify_message(
+  uid: i64,
+  chat_id: &str,
+  user_service: &Arc<dyn AIUserService>,
+  message: ChatMessage,
+) -> Result<(), FlowyError> {
+  trace!("[Chat] save answer: answer={:?}", message);
+  save_chat_message(
+    user_service.sqlite_connection(uid)?,
+    chat_id,
+    vec![message.clone()],
+  )?;
+  let pb = ChatMessagePB::from(message);
+  make_notification(chat_id, ChatNotification::DidReceiveChatMessage)
+    .payload(pb)
+    .send();
+
+  Ok(())
 }
