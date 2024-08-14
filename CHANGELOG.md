@@ -1,4 +1,8 @@
 # Release Notes
+## Version 0.6.7.1 - 14/08/2024
+### Bug Fixes
+- Fixed the issue where workspace id was not compatible with settings page.
+
 ## Version 0.6.7 - 13/08/2024
 ### New Features
 - Redesigned the icon picker design on Desktop.
