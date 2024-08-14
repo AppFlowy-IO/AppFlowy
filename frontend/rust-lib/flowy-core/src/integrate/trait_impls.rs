@@ -48,40 +48,39 @@ use crate::integrate::server::{Server, ServerProvider};
 
 #[async_trait]
 impl StorageCloudService for ServerProvider {
-  fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
-    let server = self.get_server();
-    FutureResult::new(async move {
-      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.get_object_url(object_id).await
-    })
+  async fn get_object_url(&self, object_id: ObjectIdentity) -> Result<String, FlowyError> {
+    let storage = self
+      .get_server()?
+      .file_storage()
+      .ok_or(FlowyError::internal())?;
+    storage.get_object_url(object_id).await
   }
 
-  fn put_object(&self, url: String, val: ObjectValue) -> FutureResult<(), FlowyError> {
-    let server = self.get_server();
-    FutureResult::new(async move {
-      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.put_object(url, val).await
-    })
+  async fn put_object(&self, url: String, val: ObjectValue) -> Result<(), FlowyError> {
+    let storage = self
+      .get_server()?
+      .file_storage()
+      .ok_or(FlowyError::internal())?;
+    storage.put_object(url, val).await
   }
 
-  fn delete_object(&self, url: &str) -> FutureResult<(), FlowyError> {
-    let server = self.get_server();
-    let url = url.to_string();
-    FutureResult::new(async move {
-      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.delete_object(&url).await
-    })
+  async fn delete_object(&self, url: &str) -> Result<(), FlowyError> {
+    let storage = self
+      .get_server()?
+      .file_storage()
+      .ok_or(FlowyError::internal())?;
+    storage.delete_object(url).await
   }
 
-  fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError> {
-    let server = self.get_server();
-    FutureResult::new(async move {
-      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.get_object(url).await
-    })
+  async fn get_object(&self, url: String) -> Result<ObjectValue, FlowyError> {
+    let storage = self
+      .get_server()?
+      .file_storage()
+      .ok_or(FlowyError::internal())?;
+    storage.get_object(url).await
   }
 
-  fn get_object_url_v1(
+  async fn get_object_url_v1(
     &self,
     workspace_id: &str,
     parent_dir: &str,
@@ -89,7 +88,9 @@ impl StorageCloudService for ServerProvider {
   ) -> FlowyResult<String> {
     let server = self.get_server()?;
     let storage = server.file_storage().ok_or(FlowyError::internal())?;
-    storage.get_object_url_v1(workspace_id, parent_dir, file_id)
+    storage
+      .get_object_url_v1(workspace_id, parent_dir, file_id)
+      .await
   }
 
   async fn create_upload(

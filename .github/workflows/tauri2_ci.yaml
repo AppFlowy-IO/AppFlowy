@@ -20,34 +20,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tauri-build-self-hosted:
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: self-hosted
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: install frontend dependencies
-        working-directory: frontend/appflowy_web_app
-        run: |
-          mkdir dist
-          pnpm install
-          cd src-tauri && cargo build
-
-      - name: test and lint
-        working-directory: frontend/appflowy_web_app
-        run: |
-          pnpm run lint:tauri
-
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tauriScript: pnpm tauri
-          projectPath: frontend/appflowy_web_app
-          args: "--debug"
+  #  tauri-build-self-hosted:
+  #    if: github.event.pull_request.head.repo.full_name == github.repository
+  #    runs-on: self-hosted
+  #
+  #    steps:
+  #      - uses: actions/checkout@v4
+  #      - name: install frontend dependencies
+  #        working-directory: frontend/appflowy_web_app
+  #        run: |
+  #          mkdir dist
+  #          pnpm install
+  #          cd src-tauri && cargo build
+  #
+  #      - name: test and lint
+  #        working-directory: frontend/appflowy_web_app
+  #        run: |
+  #          pnpm run lint:tauri
+  #
+  #      - uses: tauri-apps/tauri-action@v0
+  #        env:
+  #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #        with:
+  #          tauriScript: pnpm tauri
+  #          projectPath: frontend/appflowy_web_app
+  #          args: "--debug"
 
   tauri-build-ubuntu:
-    if: github.event.pull_request.head.repo.full_name != github.repository
+    #if: github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-20.04
 
     steps:

@@ -1,12 +1,13 @@
+use crate::entities::{PublishInfoResponse, PublishPayload};
 pub use anyhow::Error;
 use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
+use lib_infra::async_trait::async_trait;
+use lib_infra::future::FutureResult;
 use uuid::Uuid;
 
-use crate::entities::{PublishInfoResponse, PublishPayload};
-use lib_infra::future::FutureResult;
-
 /// [FolderCloudService] represents the cloud service for folder.
+#[async_trait]
 pub trait FolderCloudService: Send + Sync + 'static {
   /// Creates a new workspace for the user.
   /// Returns error if the cloud service doesn't support multiple workspaces

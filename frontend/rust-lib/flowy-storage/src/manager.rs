@@ -263,11 +263,10 @@ impl StorageService for StorageServiceImpl {
     let conn = self
       .user_service
       .sqlite_connection(self.user_service.user_id()?)?;
-    let url = self.cloud_service.get_object_url_v1(
-      &record.workspace_id,
-      &record.parent_dir,
-      &record.file_id,
-    )?;
+    let url = self
+      .cloud_service
+      .get_object_url_v1(&record.workspace_id, &record.parent_dir, &record.file_id)
+      .await?;
     let file_id = record.file_id.clone();
     match insert_upload_file(conn, &record) {
       Ok(_) => {
