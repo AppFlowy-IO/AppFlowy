@@ -66,7 +66,7 @@ impl AIManager {
     }
   }
 
-  pub async fn initialize(&self, workspace_id: &str) -> Result<(), FlowyError> {
+  pub async fn initialize(&self, _workspace_id: &str) -> Result<(), FlowyError> {
     self.local_ai_controller.refresh().await?;
     Ok(())
   }
