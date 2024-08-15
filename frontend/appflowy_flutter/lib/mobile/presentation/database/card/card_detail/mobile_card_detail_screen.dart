@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/row_page_button.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
@@ -366,6 +367,9 @@ class MobileRowDetailPageContentState
                           if (rowDetailState.numHiddenFields != 0) ...[
                             const ToggleHiddenFieldsVisibilityButton(),
                           ],
+                          OpenRowPageButton(
+                            documentId: rowController.rowMeta.documentId,
+                          ),
                           MobileRowDetailCreateFieldButton(
                             viewId: viewId,
                             fieldController: fieldController,
