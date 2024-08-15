@@ -154,9 +154,11 @@ dependencies:
   scroll_to_index: ^3.0.1
   extended_text_field: ^15.0.0
   extended_text_library: ^12.0.0
+  sentry_flutter: ^8.7.0
+  sentry: ^8.7.0
 
 dev_dependencies:
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
 
   flutter_test:
     sdk: flutter
