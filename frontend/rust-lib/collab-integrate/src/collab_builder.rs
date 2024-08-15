@@ -233,33 +233,23 @@ impl AppFlowyCollabBuilder {
     collab_db: &Weak<CollabKVDB>,
     collab_doc_state: DataSource,
   ) -> Result<Collab, Error> {
-    let collab = CollabBuilder::new(object.uid, &object.object_id)
+    let mut collab = CollabBuilder::new(object.uid, &object.object_id)
       .with_doc_state(collab_doc_state)
       .with_device_id(self.workspace_integrate.device_id()?)
       .build()?;
 
     let persistence_config = CollabPersistenceConfig::default();
-    #[cfg(target_arch = "wasm32")]
-    {
-      collab.add_plugin(Box::new(IndexeddbDiskPlugin::new(
-        uid,
-        object_id.to_string(),
-        object_type.clone(),
-        collab_db.clone(),
-      )));
-    }
+    let db_plugin = RocksdbDiskPlugin::new_with_config(
+      object.uid,
+      object.object_id.to_string(),
+      object.collab_type.clone(),
+      collab_db.clone(),
+      persistence_config.clone(),
+      None,
+    );
+    db_plugin.load_collab(&mut collab);
+    collab.add_plugin(Box::new(db_plugin));
 
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-      collab.add_plugin(Box::new(RocksdbDiskPlugin::new_with_config(
-        object.uid,
-        object.object_id.to_string(),
-        object.collab_type.clone(),
-        collab_db.clone(),
-        persistence_config.clone(),
-        None,
-      )));
-    }
     Ok(collab)
   }
 

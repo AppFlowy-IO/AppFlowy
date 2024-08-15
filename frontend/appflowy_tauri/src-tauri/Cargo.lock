@@ -963,15 +963,16 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6adf750#6adf750dcb7a3f74806b8ffe8c7865bc9d5f85db"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29e70a9cd8466fe119cbd51b75b28140aab671cb#29e70a9cd8466fe119cbd51b75b28140aab671cb"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "async-trait",
  "bincode",
  "bytes",
  "chrono",
  "js-sys",
- "parking_lot 0.12.1",
+ "lazy_static",
  "serde",
  "serde_json",
  "serde_repr",
@@ -987,7 +988,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6adf750#6adf750dcb7a3f74806b8ffe8c7865bc9d5f85db"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29e70a9cd8466fe119cbd51b75b28140aab671cb#29e70a9cd8466fe119cbd51b75b28140aab671cb"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1000,7 +1001,6 @@ dependencies = [
  "js-sys",
  "lazy_static",
  "nanoid",
- "parking_lot 0.12.1",
  "rayon",
  "serde",
  "serde_json",
@@ -1017,14 +1017,14 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6adf750#6adf750dcb7a3f74806b8ffe8c7865bc9d5f85db"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29e70a9cd8466fe119cbd51b75b28140aab671cb#29e70a9cd8466fe119cbd51b75b28140aab671cb"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "collab",
  "collab-entity",
  "getrandom 0.2.10",
  "nanoid",
- "parking_lot 0.12.1",
  "serde",
  "serde_json",
  "thiserror",
@@ -1037,7 +1037,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6adf750#6adf750dcb7a3f74806b8ffe8c7865bc9d5f85db"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29e70a9cd8466fe119cbd51b75b28140aab671cb#29e70a9cd8466fe119cbd51b75b28140aab671cb"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1056,14 +1056,15 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6adf750#6adf750dcb7a3f74806b8ffe8c7865bc9d5f85db"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29e70a9cd8466fe119cbd51b75b28140aab671cb#29e70a9cd8466fe119cbd51b75b28140aab671cb"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "chrono",
  "collab",
  "collab-entity",
+ "dashmap 5.5.3",
  "getrandom 0.2.10",
- "parking_lot 0.12.1",
  "serde",
  "serde_json",
  "serde_repr",
@@ -1098,7 +1099,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6adf750#6adf750dcb7a3f74806b8ffe8c7865bc9d5f85db"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29e70a9cd8466fe119cbd51b75b28140aab671cb#29e70a9cd8466fe119cbd51b75b28140aab671cb"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1114,7 +1115,6 @@ dependencies = [
  "indexed_db_futures",
  "js-sys",
  "lazy_static",
- "parking_lot 0.12.1",
  "rand 0.8.5",
  "rocksdb",
  "serde",
@@ -1179,13 +1179,12 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6adf750#6adf750dcb7a3f74806b8ffe8c7865bc9d5f85db"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29e70a9cd8466fe119cbd51b75b28140aab671cb#29e70a9cd8466fe119cbd51b75b28140aab671cb"
 dependencies = [
  "anyhow",
  "collab",
  "collab-entity",
  "getrandom 0.2.10",
- "parking_lot 0.12.1",
  "serde",
  "serde_json",
  "tokio",

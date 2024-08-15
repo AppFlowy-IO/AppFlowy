@@ -12,6 +12,8 @@ use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
+use collab_plugins::local_storage::kv::doc::CollabKVAction;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;
@@ -134,21 +136,26 @@ impl DocumentManager {
         format!("document {} already exists", doc_id),
       ))
     } else {
+      let db = self
+        .user_service
+        .collab_db(uid)?
+        .upgrade()
+        .ok_or_else(|| FlowyError::internal().with_context("Failed to get collab db"))?;
       let encoded_collab = doc_state_from_document_data(
         doc_id,
         data.unwrap_or_else(|| default_document_data(doc_id)),
       )
       .await?;
-      let doc_state = encoded_collab.doc_state.to_vec();
-      //FIXME: so apparently we need to create a full document twice in order to save a doc state?
-      // Please tell me it's not true.
-      let collab = self.collab_for_document(
-        uid,
-        doc_id,
-        DataSource::DocStateV1(doc_state.clone()),
-        false,
-      )?;
-      collab.read().await.flush();
+
+      db.with_write_txn(|write_txn| {
+        write_txn.flush_doc(
+          uid,
+          doc_id,
+          encoded_collab.state_vector.to_vec(),
+          encoded_collab.doc_state.to_vec(),
+        )?;
+        Ok(())
+      })?;
 
       Ok(encoded_collab)
     }
