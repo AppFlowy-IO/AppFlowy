@@ -125,6 +125,21 @@ final numberedListSlashMenuItem = SelectionMenuItem(
   },
 );
 
+// todo list menu item
+final todoListSlashMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_slashMenu_name_checkbox.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_checkbox_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['checkbox', 'todo', 'list'],
+  handler: (editorState, _, __) {
+    insertCheckboxAfterSelection(editorState);
+  },
+);
+
 // quote menu item
 final quoteSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_quote.tr(),
