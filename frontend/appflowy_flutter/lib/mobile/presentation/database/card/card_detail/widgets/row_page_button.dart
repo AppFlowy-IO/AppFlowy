@@ -85,7 +85,11 @@ class _OpenRowPageButtonState extends State<OpenRowPageButton> {
     }
 
     if (context.mounted) {
-      await context.pushView(view!);
+      // the document in row is an orphan document, so we don't add it to recent
+      await context.pushView(
+        view!,
+        addInRecent: false,
+      );
     }
   }
 
