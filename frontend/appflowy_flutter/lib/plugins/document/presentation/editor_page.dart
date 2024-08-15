@@ -420,6 +420,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       bulletedListSlashMenuItem,
       numberedListSlashMenuItem,
       todoListSlashMenuItem,
+      dividerSlashMenuItem,
       quoteSlashMenuItem,
       referencedDocSlashMenuItem,
       gridSlashMenuItem(documentBloc),

@@ -155,6 +155,36 @@ final quoteSlashMenuItem = SelectionMenuItem(
   },
 );
 
+// divider menu item
+final dividerSlashMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_slashMenu_name_divider.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_divider_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['divider', 'line', 'h'],
+  handler: (editorState, _, __) {
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+    final path = selection.end.path;
+    final node = editorState.getNodeAtPath(path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return;
+    }
+    final insertedPath = delta.isEmpty ? path : path.next;
+    final transaction = editorState.transaction
+      ..insertNode(insertedPath, dividerNode())
+      ..insertNode(insertedPath, paragraphNode())
+      ..afterSelection = Selection.collapsed(Position(path: insertedPath.next));
+    editorState.apply(transaction);
+  },
+);
+
 // grid & board & calendar menu item
 SelectionMenuItem gridSlashMenuItem(DocumentBloc documentBloc) {
   return SelectionMenuItem(
