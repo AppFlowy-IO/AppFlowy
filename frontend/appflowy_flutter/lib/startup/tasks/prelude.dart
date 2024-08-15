@@ -10,6 +10,5 @@ export 'memory_leak_detector.dart';
 export 'platform_error_catcher.dart';
 export 'platform_service.dart';
 export 'rust_sdk.dart';
-export 'supabase_task.dart';
 export 'windows.dart';
 export 'recent_service_task.dart';

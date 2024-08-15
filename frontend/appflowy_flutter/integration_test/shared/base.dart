@@ -7,7 +7,6 @@ import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
@@ -55,8 +54,6 @@ extension AppFlowyTestBase on WidgetTester {
           switch (cloudType) {
             case AuthenticatorType.local:
               break;
-            case AuthenticatorType.supabase:
-              break;
             case AuthenticatorType.appflowyCloudSelfHost:
               rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
               rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
@@ -74,13 +71,6 @@ extension AppFlowyTestBase on WidgetTester {
               switch (cloudType) {
                 case AuthenticatorType.local:
                   await useLocalServer();
-                  break;
-                case AuthenticatorType.supabase:
-                  await useTestSupabaseCloud();
-                  getIt.unregister<AuthService>();
-                  getIt.registerFactory<AuthService>(
-                    () => SupabaseMockAuthService(),
-                  );
                   break;
                 case AuthenticatorType.appflowyCloudSelfHost:
                   await useTestSelfHostedAppFlowyCloud();
@@ -240,13 +230,6 @@ extension AppFlowyFinderTestBase on CommonFinders {
       skipOffstage: skipOffstage,
     );
   }
-}
-
-Future<void> useTestSupabaseCloud() async {
-  await useSupabaseCloud(
-    url: TestEnv.supabaseUrl,
-    anonKey: TestEnv.supabaseAnonKey,
-  );
 }
 
 Future<void> useTestSelfHostedAppFlowyCloud() async {

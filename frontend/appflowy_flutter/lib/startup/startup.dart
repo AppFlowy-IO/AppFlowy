@@ -132,7 +132,6 @@ class FlowyRunner {
           // It is unable to get the device information from the test environment.
           const ApplicationInfoTask(),
           const HotKeyTask(),
-          if (isSupabaseEnabled) InitSupabaseTask(),
           if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask(),

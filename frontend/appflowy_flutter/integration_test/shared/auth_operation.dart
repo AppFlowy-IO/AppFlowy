@@ -2,7 +2,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/setting_supabase_cloud.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -52,26 +51,6 @@ extension AppFlowyAuthTest on WidgetTester {
     assert(isSwitched == value);
   }
 
-  void assertEnableEncryptSwitchValue(bool value) {
-    assertSwitchValue(
-      find.descendant(
-        of: find.byType(EnableEncrypt),
-        matching: find.byWidgetPredicate((widget) => widget is Switch),
-      ),
-      value,
-    );
-  }
-
-  void assertSupabaseEnableSyncSwitchValue(bool value) {
-    assertSwitchValue(
-      find.descendant(
-        of: find.byType(SupabaseEnableSync),
-        matching: find.byWidgetPredicate((widget) => widget is Switch),
-      ),
-      value,
-    );
-  }
-
   void assertAppFlowyCloudEnableSyncSwitchValue(bool value) {
     assertToggleValue(
       find.descendant(
@@ -80,15 +59,6 @@ extension AppFlowyAuthTest on WidgetTester {
       ),
       value,
     );
-  }
-
-  Future<void> toggleEnableEncrypt() async {
-    final finder = find.descendant(
-      of: find.byType(EnableEncrypt),
-      matching: find.byWidgetPredicate((widget) => widget is Switch),
-    );
-
-    await tapButton(finder);
   }
 
   Future<void> toggleEnableSync(Type syncButton) async {

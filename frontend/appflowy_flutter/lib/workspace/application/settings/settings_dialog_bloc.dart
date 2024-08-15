@@ -90,7 +90,6 @@ class SettingsDialogBloc
   ]) async {
     if ([
       AuthenticatorPB.Local,
-      AuthenticatorPB.Supabase,
     ].contains(userProfile.authenticator)) {
       return false;
     }
