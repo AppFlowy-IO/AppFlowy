@@ -140,12 +140,8 @@ impl UserManager {
     trace!("Initializing user awareness {}", object_id);
     let collab_db = self.get_collab_db(session.user_id)?;
     let weak_builder = self.collab_builder.clone();
-    let cloned_is_loading = self.is_loading_awareness.clone();
     let session = session.clone();
     let workspace_id = session.user_workspace.id.clone();
-    if cloned_is_loading.load(Ordering::SeqCst) {
-      return Ok(());
-    }
 
     let result = self
       .cloud_services
