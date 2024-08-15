@@ -1,8 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -37,8 +39,8 @@ class OpenRowPageButton extends StatelessWidget {
                 EdgeInsets.symmetric(vertical: 14, horizontal: 6),
               ),
             ),
-        label: const FlowyText.medium(
-          'Open row page',
+        label: FlowyText.medium(
+          LocaleKeys.grid_field_openRowDocument.tr(),
           fontSize: 15,
         ),
         icon: const Padding(
