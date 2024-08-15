@@ -1,20 +1,38 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
-import 'package:appflowy_result/appflowy_result.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-class OpenRowPageButton extends StatelessWidget {
+class OpenRowPageButton extends StatefulWidget {
   const OpenRowPageButton({
     super.key,
     required this.documentId,
   });
 
   final String documentId;
+
+  @override
+  State<OpenRowPageButton> createState() => _OpenRowPageButtonState();
+}
+
+class _OpenRowPageButtonState extends State<OpenRowPageButton> {
+  ViewPB? view;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _preloadView(context, createDocumentIfMissed: true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,10 +74,39 @@ class OpenRowPageButton extends StatelessWidget {
   }
 
   Future<void> _openRowPage(BuildContext context) async {
-    final view = await ViewBackendService.getView(documentId)
-        .fold((s) => s, (f) => null);
-    if (view != null && context.mounted) {
-      await context.pushView(view);
+    Log.info('Open row page(${widget.documentId})');
+
+    if (view == null) {
+      showToastNotification(context, message: 'Failed to open row page');
+      // reload the view again
+      unawaited(_preloadView(context));
+      Log.error('Failed to open row page(${widget.documentId})');
+      return;
+    }
+
+    if (context.mounted) {
+      await context.pushView(view!);
+    }
+  }
+
+  // preload view to reduce the time to open the view
+  Future<void> _preloadView(
+    BuildContext context, {
+    bool createDocumentIfMissed = false,
+  }) async {
+    Log.info('Preload row page(${widget.documentId})');
+    final result = await ViewBackendService.getView(widget.documentId);
+    view = result.fold((s) => s, (f) => null);
+
+    if (view == null && createDocumentIfMissed) {
+      // create view if not exists
+      Log.info('Create row page(${widget.documentId})');
+      final result = await ViewBackendService.createOrphanView(
+        name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        viewId: widget.documentId,
+        layoutType: ViewLayoutPB.Document,
+      );
+      view = result.fold((s) => s, (f) => null);
     }
   }
 }
