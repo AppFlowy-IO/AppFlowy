@@ -11,15 +11,13 @@ export function UploadImage({ onDone }: { onDone?: (url: string) => void }) {
 
   const checkTauriFile = useCallback(
     async (url: string) => {
-      const { readBinaryFile } = await import('@tauri-apps/api/fs');
-
-      const buffer = await readBinaryFile(url);
-      const blob = new Blob([buffer]);
-
-      if (blob.size > MAX_IMAGE_SIZE) {
-        notify.error(t('document.imageBlock.error.invalidImageSize'));
-        return false;
-      }
+      // const { readBinaryFile } = await import('@tauri-apps/api/fs');
+      // const buffer = await readBinaryFile(url);
+      // const blob = new Blob([buffer]);
+      // if (blob.size > MAX_IMAGE_SIZE) {
+      //   notify.error(t('document.imageBlock.error.invalidImageSize'));
+      //   return false;
+      // }
 
       return true;
     },

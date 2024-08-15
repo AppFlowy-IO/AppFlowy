@@ -39,14 +39,6 @@ Future<(String? path, String? errorMessage)> saveFileToCloudStorage(
   String localFilePath,
   String documentId,
 ) async {
-  final size = localFilePath.fileSize;
-  if (size == null || size > 10 * 1024 * 1024) {
-    // 10MB
-    return (
-      null,
-      LocaleKeys.document_plugins_file_fileTooBigError.tr(),
-    );
-  }
   final documentService = DocumentService();
   Log.debug("Uploading file from local path: $localFilePath");
   final result = await documentService.uploadFile(

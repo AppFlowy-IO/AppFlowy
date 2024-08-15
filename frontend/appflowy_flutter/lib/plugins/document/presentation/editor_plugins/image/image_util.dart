@@ -47,14 +47,6 @@ Future<(String? path, String? errorMessage)> saveImageToCloudStorage(
   String localImagePath,
   String documentId,
 ) async {
-  final size = localImagePath.fileSize;
-  if (size == null || size > 10 * 1024 * 1024) {
-    // 10MB
-    return (
-      null,
-      LocaleKeys.document_imageBlock_uploadImageErrorImageSizeTooBig.tr(),
-    );
-  }
   final documentService = DocumentService();
   Log.debug("Uploading image local path: $localImagePath");
   final result = await documentService.uploadFile(
