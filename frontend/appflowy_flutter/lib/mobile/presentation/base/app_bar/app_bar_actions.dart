@@ -26,6 +26,31 @@ class AppBarBackButton extends StatelessWidget {
   }
 }
 
+class AppBarImmersiveBackButton extends StatelessWidget {
+  const AppBarImmersiveBackButton({
+    super.key,
+    this.onTap,
+  });
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBarButton(
+      onTap: (_) => (onTap ?? () => Navigator.pop(context)).call(),
+      padding: const EdgeInsets.only(
+        left: 12.0,
+        top: 8.0,
+        bottom: 8.0,
+        right: 4.0,
+      ),
+      child: const FlowySvg(
+        FlowySvgs.m_app_bar_back_s,
+      ),
+    );
+  }
+}
+
 class AppBarCloseButton extends StatelessWidget {
   const AppBarCloseButton({
     super.key,

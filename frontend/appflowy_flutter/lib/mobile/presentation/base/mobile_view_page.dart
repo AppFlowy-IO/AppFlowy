@@ -4,7 +4,6 @@ import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -232,19 +231,20 @@ class _MobileViewPageState extends State<MobileViewPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (icon != null && icon.isNotEmpty)
-          ConstrainedBox(
-            constraints: const BoxConstraints.tightFor(width: 34.0),
-            child: EmojiText(
-              emoji: '$icon ',
-              fontSize: 22.0,
-            ),
+        if (icon != null && icon.isNotEmpty) ...[
+          FlowyText.emoji(
+            icon,
+            fontSize: 15.0,
+            figmaLineHeight: 18.0,
           ),
+          const HSpace(4),
+        ],
         Expanded(
           child: FlowyText.medium(
             view?.name ?? widget.title ?? '',
             fontSize: 15.0,
             overflow: TextOverflow.ellipsis,
+            figmaLineHeight: 18.0,
           ),
         ),
       ],
